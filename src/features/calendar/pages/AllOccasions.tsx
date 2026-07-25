@@ -25,8 +25,7 @@ const ACCENT: Record<string, string> = {
 };
 
 export default function AllOccasions() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const { hijri: today, todayISO, offset } = useLiveHijriDate();
 
   const [selectedMonth, setSelectedMonth] = useState<number>(today.month);
@@ -220,7 +219,6 @@ export default function AllOccasions() {
                 <EventListCard
                   key={ev.id}
                   event={ev}
-                  isAr={isAr}
                   onOpen={() => setSelectedEvent(ev)}
                 />
               ))
@@ -232,7 +230,6 @@ export default function AllOccasions() {
       {/* ── Event details modal ─────────────────────────────── */}
       <EventDetailDialog
         event={selectedEvent}
-        isAr={isAr}
         onClose={() => setSelectedEvent(null)}
       />
     </div>
@@ -245,11 +242,9 @@ export default function AllOccasions() {
 
 function EventListCard({
   event,
-  isAr,
   onOpen,
 }: {
   event: ResolvedIslamicEvent;
-  isAr: boolean;
   onOpen: () => void;
 }) {
   const accent = ACCENT[event.color] ?? '#10b981';
@@ -301,11 +296,9 @@ function EventListCard({
 
 function EventDetailDialog({
   event,
-  isAr,
   onClose,
 }: {
   event: ResolvedIslamicEvent | null;
-  isAr: boolean;
   onClose: () => void;
 }) {
   return (
@@ -328,7 +321,7 @@ function EventDetailDialog({
  className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 p-6 max-h-[85vh] overflow-y-auto"
  dir={'rtl'}
           >
-            <DetailContent event={event} isAr={isAr} />
+            <DetailContent event={event} />
             <button
               onClick={onClose}
               className="mt-5 w-full rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-[13px] py-2.5 transition-colors"
@@ -344,10 +337,8 @@ function EventDetailDialog({
 
 function DetailContent({
   event,
-  isAr,
 }: {
   event: ResolvedIslamicEvent;
-  isAr: boolean;
 }) {
   const accent = ACCENT[event.color] ?? '#10b981';
   const monthLabel = HIJRI_MONTHS[event.month - 1];

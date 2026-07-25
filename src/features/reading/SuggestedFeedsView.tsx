@@ -16,7 +16,7 @@ import { SourcePill } from './SourcePill';
 type LangId = (typeof LANGUAGES)[number]['id'];
 
 /** Build a stable per-feed search index (name + host + category label). */
-function buildIndex(feeds: ReadonlyArray<FeedSource>, isAr: boolean): string[] {
+function buildIndex(feeds: ReadonlyArray<FeedSource>): string[] {
   return feeds.map((f) => {
     let host = '';
     try { host = new URL(f.url).hostname.replace(/^www\./, ''); } catch { /* */ }
@@ -42,13 +42,11 @@ function buildIndex(feeds: ReadonlyArray<FeedSource>, isAr: boolean): string[] {
  */
 export function SuggestedFeedsView({
   feedSources,
-  isAr,
   onBack,
   onAddSuggested,
   onAddBulk,
 }: {
   feedSources: FeedSource[];
-  isAr: boolean;
   onBack: () => void;
   onAddSuggested: (feed: FeedSource) => void;
   onAddBulk?: (
@@ -73,8 +71,8 @@ export function SuggestedFeedsView({
   // Precompute a searchable index per available feed so keystrokes
   // stay smooth even at 300+ suggestions.
   const searchIndex = useMemo(
-    () => buildIndex(available, isAr),
-    [available, isAr],
+    () => buildIndex(available),
+    [available],
   );
   const feedLangs = useMemo(
     () => available.map((f) => detectFeedLanguage(f)),

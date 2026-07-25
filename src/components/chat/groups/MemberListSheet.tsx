@@ -16,7 +16,6 @@ import RoleBadge from './RoleBadge';
 import MemberPicker from './MemberPicker';
 
 interface MemberListSheetProps {
-  isAr: boolean;
   isOpen: boolean;
   chat: ChatSummary;
   onClose: () => void;
@@ -36,8 +35,7 @@ type View = 'list' | 'add';
  * Admins cannot remove other admins (ownership transfer is a separate
  * flow we'll add in a later wave). The owner is never demotable / removable.
  */
-const MemberListSheet: React.FC<MemberListSheetProps> = ({
-  isAr, isOpen, chat, onClose, myUserId,
+const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose, myUserId,
 }) => {
   const BackIcon = ChevronRight;
   const [view, setView] = useState<View>('list');
@@ -148,7 +146,6 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
                   <MemberRow
                     key={m.userId}
                     member={m}
-                    isAr={isAr}
                     isMe={m.userId === myUserId}
                     canManage={canManage}
                     callerRole={myRole}
@@ -163,7 +160,6 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
         ) : (
           <div className="flex-1 min-h-0 px-4 py-3 flex flex-col">
             <MemberPicker
-              isAr={isAr}
               selectedIds={[]}
               excludeIds={members.map(m => m.userId)}
               onChange={(ids) => { if (ids.length > 0) void onAdd(ids); }}
@@ -244,7 +240,6 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
 
 interface MemberRowProps {
   member: ChatMember;
-  isAr: boolean;
   isMe: boolean;
   canManage: boolean;
   callerRole: ChatRole;
@@ -253,7 +248,7 @@ interface MemberRowProps {
   onRemove: () => void;
 }
 
-function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDemote, onRemove }: MemberRowProps) {
+function MemberRow({ member, isMe, canManage, callerRole, onPromote, onDemote, onRemove }: MemberRowProps) {
   const [open, setOpen] = useState(false);
   const isOwner = member.role === 'owner';
   const isAdmin = member.role === 'admin';
@@ -288,7 +283,7 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
             {member.displayName || member.username || member.userId.slice(0, 6)}
             {isMe && <span className="ms-1 text-[11px] font-medium text-muted-foreground">{'(أنت)'}</span>}
           </span>
-          <RoleBadge role={member.role} isAr={isAr} customTitle={member.customTitle} />
+          <RoleBadge role={member.role} customTitle={member.customTitle} />
         </div>
         {member.username && member.displayName && member.displayName !== member.username && (
           <p className="text-[11px] text-muted-foreground truncate">@{member.username}</p>

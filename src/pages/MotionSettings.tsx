@@ -157,7 +157,7 @@ function usePerfStats(budgetHz: number): PerfStats {
   return stats;
 }
 
-function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
+function PerfHUD({ budgetHz }: { budgetHz: number }) {
   const s = usePerfStats(budgetHz);
   const fpsColor =
     s.fps >= budgetHz - 5 ? 'text-emerald-500'
@@ -202,13 +202,12 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
 
 export default function MotionSettings() {
   const {
-    language,
+    
     motionSpeed, setMotionSpeed,
     fpsCap, setFpsCap,
     motionAmplitude, setMotionAmplitude,
     springBounce, setSpringBounce,
   } = useApp();
-  const isAr = language === 'ar';
   const [nativeHz, setNativeHz] = useState<number | null>(null);
 
   // Detect the display's true refresh rate once on mount so we can warn
@@ -268,7 +267,7 @@ export default function MotionSettings() {
 
         {/* Live performance HUD */}
         <motion.div variants={item}>
-          <PerfHUD isAr={isAr} budgetHz={budgetHz} />
+          <PerfHUD budgetHz={budgetHz} />
         </motion.div>
 
         {/* SPEED */}

@@ -143,7 +143,7 @@ export function bucketOf(dateStr: string, now = new Date()): DateBucket {
   return 'older';
 }
 
-export function bucketLabel(bucket: DateBucket, isAr: boolean): string {
+export function bucketLabel(bucket: DateBucket): string {
   switch (bucket) {
     case 'today':     return 'اليوم';
     case 'yesterday': return 'أمس';

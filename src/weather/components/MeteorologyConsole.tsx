@@ -6,10 +6,9 @@ import {
 } from '../compute/ThermalCalculator';
 
 interface MeteorologyConsoleProps {
-  ar: boolean;
 }
 
-export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
+export default function MeteorologyConsole({ }: MeteorologyConsoleProps) {
   const [simTemp, setSimTemp] = useState<number>(25);
   const [simRH, setSimRH] = useState<number>(50);
   const [simWind, setSimWind] = useState<number>(15);
@@ -29,31 +28,23 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
 
   const equations = [
     {
-      title: ar ? 'درجة الحرارة المحسوسة (Apparent Temp)' : 'Gefühlte Temperatur',
-      desc: ar
-        ? 'تحاكي كيف يشعر جسم الإنسان فعلياً بالحرارة استناداً لسرعة الرياح والرطوبة. تستخدم نموذج Rothfusz عند ارتفاع الحرارة، ومؤشر Wind Chill عند البرودة.'
-        : 'Berechnet, wie der menschliche Körper die Temperatur tatsächlich empfindt, basierend auf Wind und Feuchte.',
+      title: 'درجة الحرارة المحسوسة (Apparent Temp)',
+      desc: 'تحاكي كيف يشعر جسم الإنسان فعلياً بالحرارة استناداً لسرعة الرياح والرطوبة. تستخدم نموذج Rothfusz عند ارتفاع الحرارة، ومؤشر Wind Chill عند البرودة.',
       eq: 'AT = T + 0.33 × e - 0.70 × v - 4.00'
     },
     {
-      title: ar ? 'درجة الكرة الرطبة (Wet Bulb Temp)' : 'Feuchtkugeltemperatur',
-      desc: ar
-        ? 'أدنى درجة حرارة يمكن الوصول إليها عبر التبخر المباشر للمياه. مؤشر حاسم لبقاء الكائنات الحية؛ إذا تجاوزت 35 درجة مئوية تصبح قاتلة للبشر.'
-        : 'Die tiefste Temperatur, die durch Verdunstungskühlung erreicht werden kann. Ein kritischer Wert für die Bewohnbarkeit.',
+      title: 'درجة الكرة الرطبة (Wet Bulb Temp)',
+      desc: 'أدنى درجة حرارة يمكن الوصول إليها عبر التبخر المباشر للمياه. مؤشر حاسم لبقاء الكائنات الحية؛ إذا تجاوزت 35 درجة مئوية تصبح قاتلة للبشر.',
       eq: 'Stull (2011) Formula'
     },
     {
-      title: ar ? 'عجز ضغط البخار (Vapor Pressure Deficit)' : 'Dampfdruckdefizit (VPD)',
-      desc: ar
-        ? 'الفرق بين الضغط الفعلي لبخار الماء وضغط الإشباع الكامل عند درجة حرارة معينة. مؤشر حيوي جداً في الزراعة لتنفس النباتات ونضح الرطوبة.'
-        : 'Die Differenz zwischen dem tatsächlichen Dampfdruck und dem Sättigungsdampfdruck bei gleicher Temperatur.',
+      title: 'عجز ضغط البخار (Vapor Pressure Deficit)',
+      desc: 'الفرق بين الضغط الفعلي لبخار الماء وضغط الإشباع الكامل عند درجة حرارة معينة. مؤشر حيوي جداً في الزراعة لتنفس النباتات ونضح الرطوبة.',
       eq: 'VPD = e_s(T) - e_a(T, RH)'
     },
     {
-      title: ar ? 'مؤشر ثوم للضيق (Thom Discomfort Index)' : 'Thom Unbehagen-Index (DI)',
-      desc: ar
-        ? 'مقياس إحصائي لتحديد درجة الضيق والانزعاج التي تصيب المجتمعات البشرية بسبب الرطوبة العالية والحرارة العالية معاً.'
-        : 'Ein meteorologischer Index, der das Unbehagen der Bevölkerung durch die kombinierte Wirkung von Hitze und Feuchtigkeit schätzt.',
+      title: 'مؤشر ثوم للضيق (Thom Discomfort Index)',
+      desc: 'مقياس إحصائي لتحديد درجة الضيق والانزعاج التي تصيب المجتمعات البشرية بسبب الرطوبة العالية والحرارة العالية معاً.',
       eq: 'DI = T - 0.55 × (1 - 0.01 × RH) × (T - 14.5)'
     }
   ];
@@ -65,10 +56,10 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
       <header className="mb-4">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Sliders className="w-5 h-5 text-primary" />
-          {ar ? 'مختبر المحاكاة والرياضيات المترولوجية' : 'Met-Simulationslabor & Mathematik'}
+          {'مختبر المحاكاة والرياضيات المترولوجية'}
         </h2>
         <p className="text-xs text-muted-foreground mt-1.5">
-          {ar ? 'عدل القيم الجوية الافتراضية وشاهد كيف تتصرف فيزياء الغلاف الجوي والراحة البشرية لحظياً' : 'Verändere die atmosphärischen Werte und beobachte die Physik in Echtzeit'}
+          {'عدل القيم الجوية الافتراضية وشاهد كيف تتصرف فيزياء الغلاف الجوي والراحة البشرية لحظياً'}
         </p>
       </header>
 
@@ -76,7 +67,7 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
           <div className="flex justify-between text-xs font-semibold">
-            <span className="text-foreground flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-primary" /> {ar ? 'الحرارة المحاكية' : 'Simulierte Temp.'}</span>
+            <span className="text-foreground flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-primary" /> {'الحرارة المحاكية'}</span>
             <span className="font-montserrat text-foreground font-bold tabular-nums">{simTemp}°C</span>
           </div>
           <input
@@ -92,7 +83,7 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
 
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
           <div className="flex justify-between text-xs font-semibold">
-            <span className="text-foreground flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-primary" /> {ar ? 'الرطوبة النسبية' : 'Simulierte Feuchtigkeit'}</span>
+            <span className="text-foreground flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-primary" /> {'الرطوبة النسبية'}</span>
             <span className="font-montserrat text-foreground font-bold tabular-nums">{simRH}%</span>
           </div>
           <input
@@ -108,7 +99,7 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
 
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
           <div className="flex justify-between text-xs font-semibold">
-            <span className="text-foreground flex items-center gap-1">💨 {ar ? 'سرعة الرياح' : 'Simulierter Wind'}</span>
+            <span className="text-foreground flex items-center gap-1">💨 {'سرعة الرياح'}</span>
             <span className="font-montserrat text-foreground font-bold tabular-nums">{simWind} km/h</span>
           </div>
           <input
@@ -126,12 +117,12 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
       {/* Physics outputs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         {[
-          { label: ar ? 'الحرارة المحسوسة' : 'AT (Gefühlt)', value: `${app.toFixed(1)}°`, hint: ar ? comfortLabel(comfort, true) : comfort },
-          { label: ar ? 'نقطة الندى' : 'Taupunkt', value: `${dp.toFixed(1)}°`, hint: ar ? 'تكاثف البخار' : 'Kondensation' },
-          { label: ar ? 'الكرة الرطبة' : 'Feuchtkugel', value: `${wb.toFixed(1)}°`, hint: ar ? 'أدنى تبريد مائي' : 'Limit' },
-          { label: ar ? 'عجز البخار VPD' : 'Sättigungsdefizit', value: `${vpd.toFixed(2)}`, unit: 'kPa', hint: ar ? 'تنفس المزروعات' : 'Transpiration' },
-          { label: ar ? 'الرطوبة المطلقة' : 'Abs. Feuchte', value: `${absHum.toFixed(1)}`, unit: 'g/m³', hint: ar ? 'كتلة البخار في الفضاء' : 'Masse/Volumen' },
-          { label: ar ? 'مؤشر الضيق' : 'DI Index', value: `${di.toFixed(1)}`, hint: ar ? (di > 24 ? 'ضيق ملحوظ' : 'مريح') : (di > 24 ? 'Unbehaglich' : 'Angenehm') },
+          { label: 'الحرارة المحسوسة', value: `${app.toFixed(1)}°`, hint: comfortLabel(comfort) },
+          { label: 'نقطة الندى', value: `${dp.toFixed(1)}°`, hint: 'تكاثف البخار' },
+          { label: 'الكرة الرطبة', value: `${wb.toFixed(1)}°`, hint: 'أدنى تبريد مائي' },
+          { label: 'عجز البخار VPD', value: `${vpd.toFixed(2)}`, unit: 'kPa', hint: 'تنفس المزروعات' },
+          { label: 'الرطوبة المطلقة', value: `${absHum.toFixed(1)}`, unit: 'g/m³', hint: 'كتلة البخار في الفضاء' },
+          { label: 'مؤشر الضيق', value: `${di.toFixed(1)}`, hint: (di > 24 ? 'ضيق ملحوظ' : 'مريح') },
         ].map((item, idx) => (
           <div key={idx} className="rounded-xl border border-border/40 bg-secondary/20 p-3 text-center flex flex-col justify-between">
             <span className="text-[11px] tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
@@ -148,7 +139,7 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
       <div className="rounded-xl border border-border/40 bg-background/50 p-3">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-3">
           <BookOpen className="w-4 h-4 text-primary" />
-          <span>{ar ? 'المرجع العلمي والمعادلات المستخدمة' : 'Wissenschaftliche Referenz & Formeln'}</span>
+          <span>{'المرجع العلمي والمعادلات المستخدمة'}</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -172,15 +163,15 @@ export default function MeteorologyConsole({ ar }: MeteorologyConsoleProps) {
   );
 }
 
-function comfortLabel(value: string, ar: boolean) {
+function comfortLabel(value: string) {
   const map: Record<string, string> = {
-    dangerously_cold: ar ? 'برد قارس خطر' : 'Gefährlich kalt',
-    cold: ar ? 'بارد جداً' : 'Kalt',
-    cool: ar ? 'لطيف مائل للبرودة' : 'Kühl',
-    comfortable: ar ? 'مريح ومثالي' : 'Angenehm',
-    warm: ar ? 'دافئ نسبيّاً' : 'Warm',
-    hot: ar ? 'حار ومرهق' : 'Heiß',
-    dangerously_hot: ar ? 'حرارة شديدة خطرة' : 'Gefährlich heiß',
+    dangerously_cold: 'برد قارس خطر',
+    cold: 'بارد جداً',
+    cool: 'لطيف مائل للبرودة',
+    comfortable: 'مريح ومثالي',
+    warm: 'دافئ نسبيّاً',
+    hot: 'حار ومرهق',
+    dangerously_hot: 'حرارة شديدة خطرة',
   };
   return map[value] ?? value;
 }

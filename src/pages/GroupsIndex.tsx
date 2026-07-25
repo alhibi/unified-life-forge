@@ -29,8 +29,7 @@ import { formatTime } from '@/components/chat/chatUtils';
  *     ~10 chats.
  */
 export default function GroupsIndexPage() {
-  const { language, t } = useApp();
-  const isAr = language === 'ar';
+  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat');
@@ -181,7 +180,6 @@ export default function GroupsIndexPage() {
             </div>
           ) : filtered.length === 0 ? (
             <EmptyState
-              isAr={isAr}
               filter={filter}
               hasAny={groupChats.length > 0}
               onNewGroup={() => { setCreatorKind('group'); setCreatorOpen(true); }}
@@ -193,7 +191,6 @@ export default function GroupsIndexPage() {
                 <GroupRow
                   key={c.id}
                   chat={c}
-                  isAr={isAr}
                   onClick={() => navigate(`/chat/g/${c.id}`)}
                 />
               ))}
@@ -255,7 +252,6 @@ export default function GroupsIndexPage() {
 
         {/* Creator sheet */}
         <GroupCreatorSheet
-          isAr={isAr}
           isOpen={creatorOpen}
           onClose={() => setCreatorOpen(false)}
           onCreated={(chat) => {
@@ -269,8 +265,8 @@ export default function GroupsIndexPage() {
   );
 }
 
-interface GroupRowProps { chat: ChatSummary; isAr: boolean; onClick: () => void }
-function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
+interface GroupRowProps { chat: ChatSummary; onClick: () => void }
+function GroupRow({ chat, onClick }: GroupRowProps) {
   const lastTime = chat.lastMessage?.at ?? chat.updatedAt;
   return (
     <button
@@ -294,7 +290,7 @@ function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
             'text-[11px] shrink-0 tabular-nums',
             chat.unreadCount > 0 ? 'text-primary font-semibold' : 'text-muted-foreground/50',
           )}>
-            {formatTime(lastTime, isAr)}
+            {formatTime(lastTime)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-2 mt-0.5">
@@ -326,14 +322,13 @@ function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
 }
 
 interface EmptyStateProps {
-  isAr: boolean;
   filter: 'all' | 'groups' | 'channels';
   hasAny: boolean;
   onNewGroup: () => void;
   onNewChannel: () => void;
 }
 
-function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProps) {
+function EmptyState({ filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProps) {
   if (hasAny) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3 px-8 py-16">

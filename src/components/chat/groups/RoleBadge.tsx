@@ -5,7 +5,6 @@ import type { ChatRole } from '@/lib/chat';
 
 interface RoleBadgeProps {
   role: ChatRole;
-  isAr: boolean;
   /** Small (next to a name) vs. medium (in a member-list row). */
   size?: 'sm' | 'md';
   /** Custom title overrides the role label entirely. */
@@ -19,7 +18,7 @@ interface RoleBadgeProps {
  * Designed to sit next to the username in member rows, the active-chat
  * header, and the long-press action menu's bubble author label.
  */
-const RoleBadge: React.FC<RoleBadgeProps> = ({ role, isAr, size = 'sm', customTitle }) => {
+const RoleBadge: React.FC<RoleBadgeProps> = ({ role, size = 'sm', customTitle }) => {
   if (role === 'member' && !customTitle) return null;
   const wrapperCls = cn(
     'inline-flex items-center gap-0.5 rounded-full font-medium leading-none',

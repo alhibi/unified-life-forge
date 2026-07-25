@@ -61,7 +61,6 @@ export default function AddPlaceSheet({
   defaultCountryIso,
 }: AddPlaceSheetProps) {
   const { language } = useApp();
-  const isAr = language === 'ar';
   const createPlace = useCreatePlace();
 
   const [countryIso, setCountryIso] = useState<string>(defaultCountryIso ?? '');
@@ -95,7 +94,7 @@ export default function AddPlaceSheet({
       [...COUNTRY_CATALOG].sort((a, b) =>
         (a.nameAr).localeCompare(b.nameAr, 'ar'),
       ),
-    [isAr],
+    [],
   );
 
   const reset = () => {

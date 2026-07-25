@@ -143,12 +143,10 @@ const THEME_CATEGORIES: ThemeCategory[] = [
 ];
 
 function ThemePresetsCategorized({
-  isAr,
   colorTheme,
   getPreviewColors,
   setColorTheme,
 }: {
-  isAr: boolean;
   colorTheme: string;
   getPreviewColors: (preset: (typeof themePresets)[0]) => string[];
   setColorTheme: (theme: string) => void;
@@ -291,7 +289,7 @@ function ThemePresetsCategorized({
 
 export default function ThemeSettingsPage() {
   const {
-    language,
+    
     theme,
     setTheme,
     blackMode,
@@ -303,7 +301,6 @@ export default function ThemeSettingsPage() {
 
 
   } = useApp();
-  const isAr = language === 'ar';
 
   // Auto-theme by prayer time
   const [autoEnabled, setAutoEnabled] = useState<boolean>(getAutoPrayerThemeEnabled());
@@ -634,7 +631,6 @@ export default function ThemeSettingsPage() {
 
         {/* Color Palettes Categorized with Animated Segmented Controls */}
         <ThemePresetsCategorized
-          isAr={isAr}
           colorTheme={colorTheme}
           getPreviewColors={getPreviewColors}
           setColorTheme={setColorTheme as (t: string) => void}

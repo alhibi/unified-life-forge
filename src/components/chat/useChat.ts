@@ -32,8 +32,7 @@ interface UseChatOptions {
  */
 export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const { user } = useAuth();
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
 
   // Local chat preferences (pinned/muted/archived/drafts/wallpapers/sounds)
   const chatPrefs = useChatPrefs(user?.id);
@@ -118,7 +117,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const activeConvIdRef = useRef<string | null>(null);
   const conversationsRef = useRef<Conversation[]>(conversations);
   const chatPrefsRef = useRef(chatPrefs);
-  const isArRef = useRef(isAr);
   const messagesRef = useRef<Message[]>(messages);
   const restoreScrollRef = useRef<number | null>(null);
 
@@ -127,7 +125,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   useEffect(() => { activeConvIdRef.current = activeConv?.id ?? null; }, [activeConv?.id]);
   useEffect(() => { conversationsRef.current = conversations; }, [conversations]);
   useEffect(() => { chatPrefsRef.current = chatPrefs; }, [chatPrefs]);
-  useEffect(() => { isArRef.current = isAr; }, [isAr]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   const imageUpload = useImageUpload();
@@ -147,7 +144,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
     return formatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [realtimeLastSeen, activeConv?.otherLastSeen, otherIsLiveOnline, isAr, presenceTick]);
+  }, [realtimeLastSeen, activeConv?.otherLastSeen, otherIsLiveOnline, presenceTick]);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   const scrollToBottom = useCallback((smooth = true) => {
@@ -292,14 +289,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!user) return;
     setConversationsLoading(true);
     try {
-      const enriched = await fetchConversations(user, isAr);
+      const enriched = await fetchConversations(user);
       setConversations(enriched);
     } catch {
       // Silent — network toast already handled via chatError elsewhere
     } finally {
       setConversationsLoading(false);
     }
-  }, [user, isAr]);
+  }, [user]);
 
   const scheduleLoadConversations = useCallback(() => {
     if (loadConversationsTimerRef.current) clearTimeout(loadConversationsTimerRef.current);
@@ -324,7 +321,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       const fromMe = msg.sender_id === uid;
       const next: Conversation = {
         ...old,
-        lastMessage: msg.deleted ? undefined : getMessagePreview(msg, isArRef.current, uid),
+        lastMessage: msg.deleted ? undefined : getMessagePreview(msg, uid),
         lastMessageType: msg.message_type,
         lastMessageFromMe: fromMe,
         lastMessageDeleted: msg.deleted,
@@ -353,7 +350,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       try {
         result = await fetchMessagesWithReactions(activeConv.id, user.id);
       } catch (err) {
-        chatError('conversationGone', isAr, describeError(err, isAr));
+        chatError('conversationGone', describeError(err));
         return;
       }
 
@@ -391,7 +388,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     } finally {
       setMessagesLoading(false);
     }
-  }, [activeConv, user, scrollToBottom, isAr]);
+  }, [activeConv, user, scrollToBottom]);
 
   useEffect(() => { if (open && user) loadConversations(); }, [open, user, loadConversations]);
   useEffect(() => { if (activeConv) loadMessages(); }, [activeConv, loadMessages]);
@@ -736,7 +733,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         .single();
 
       if (error) {
-        chatError('sendFailed', isAr, describeError(error, isAr));
+        chatError('sendFailed', describeError(error));
         // Mark the optimistic row as failed instead of dropping it, so the
         // user can tap a "retry" button without retyping.
         setMessages(prev => prev.map(m =>
@@ -752,15 +749,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         ));
       }
     } catch (err) {
-      chatError('sendFailed', isAr, describeError(err, isAr));
+      chatError('sendFailed', describeError(err));
       setMessages(prev => prev.map(m =>
         m.id === optimisticId ? { ...m, status: 'failed' } : m,
       ));
     }
 
     if (type === 'text' && isCurrentConv) focusComposer();
-  }, [newMessage, activeConv, user, replyTo, selfDestructSeconds, resizeComposer,
-      scrollToBottom, focusComposer, chatPrefs, isAr, bumpConversationLocally]);
+  }, [newMessage, activeConv, user, replyTo, selfDestructSeconds, resizeComposer, scrollToBottom, focusComposer, chatPrefs, bumpConversationLocally]);
 
   /**
    * Re-attempt a send for a message that previously transitioned to 'failed'.
@@ -806,7 +802,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
             return;
           }
         }
-        chatError('sendFailed', isAr, describeError(error, isAr));
+        chatError('sendFailed', describeError(error));
         setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'failed' } : m));
         return;
       }
@@ -816,22 +812,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         ));
       }
     } catch (err) {
-      chatError('sendFailed', isAr, describeError(err, isAr));
+      chatError('sendFailed', describeError(err));
       setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'failed' } : m));
     }
-  }, [user, isAr]);
+  }, [user]);
 
   const deleteMessage = useCallback(async (msgId: string) => {
     const { error } = await supabase.from('messages').update({ deleted: true, content: '' }).eq('id', msgId);
-    if (error) chatError('deleteFailed', isAr, describeError(error, isAr));
-  }, [isAr]);
+    if (error) chatError('deleteFailed', describeError(error));
+  }, []);
 
   const deleteManyMessages = useCallback(async (ids: string[]) => {
     if (ids.length === 0) return;
     const { error } = await supabase.from('messages').update({ deleted: true, content: '' }).in('id', ids);
-    if (error) chatError('deleteFailed', isAr, describeError(error, isAr));
+    if (error) chatError('deleteFailed', describeError(error));
     setSelectedIds(new Set());
-  }, [isAr]);
+  }, []);
 
   /**
    * Hide a single message for the current viewer only (delete-for-me),
@@ -854,9 +850,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           ? { ...m, hidden_for: (m.hidden_for ?? []).filter(u => u !== user.id) }
           : m,
       ));
-      chatError('deleteFailed', isAr, describeError(error, isAr));
+      chatError('deleteFailed', describeError(error));
     }
-  }, [user, isAr]);
+  }, [user]);
 
   const hideManyForSelf = useCallback(async (ids: string[]) => {
     if (!user || ids.length === 0) return;
@@ -877,9 +873,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!activeConv) return;
     const newPinId = pinnedMessage?.id === msg.id ? null : msg.id;
     const { error } = await supabase.from('conversations').update({ pinned_message_id: newPinId }).eq('id', activeConv.id);
-    if (error) { chatError('editFailed', isAr, describeError(error, isAr)); return; }
+    if (error) { chatError('editFailed', describeError(error)); return; }
     setPinnedMessage(newPinId ? msg : null);
-  }, [activeConv, pinnedMessage, isAr]);
+  }, [activeConv, pinnedMessage]);
 
   const startEditMessage = useCallback((msg: Message) => {
     setEditingMessage(msg);
@@ -900,14 +896,14 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       edited_at: new Date().toISOString(),
     }).eq('id', msgToEdit.id);
     if (error) {
-      chatError('editFailed', isAr, describeError(error, isAr));
+      chatError('editFailed', describeError(error));
       setEditingMessage(msgToEdit);
       setNewMessage(content);
       setTimeout(() => resizeComposer(), 0);
       return;
     }
     playChatSound('send');
-  }, [editingMessage, newMessage, resizeComposer, isAr]);
+  }, [editingMessage, newMessage, resizeComposer]);
 
   const cancelEdit = useCallback(() => {
     setEditingMessage(null);
@@ -919,11 +915,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const toggleSelfDestruct = useCallback(async (seconds: number | null) => {
     if (!activeConv) return;
     const { error } = await supabase.from('conversations').update({ self_destruct_seconds: seconds }).eq('id', activeConv.id);
-    if (error) { chatError('editFailed', isAr, describeError(error, isAr)); return; }
+    if (error) { chatError('editFailed', describeError(error)); return; }
     setSelfDestructSeconds(seconds);
     setShowSelfDestructMenu(false);
     setShowChatMenu(false);
-  }, [activeConv, isAr]);
+  }, [activeConv]);
 
   useEffect(() => {
     if (!activeConv) { setPinnedMessage(null); setSelfDestructSeconds(null); return; }
@@ -989,9 +985,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         haptic('light');
       }
     } catch (err) {
-      chatError('reactionFailed', isAr, describeError(err, isAr));
+      chatError('reactionFailed', describeError(err));
     }
-  }, [user, reactions, isAr]);
+  }, [user, reactions]);
 
   // Pre-flight HEIC handling. Returns the list of files we should
   // actually stage — converting to JPEG up front when the browser can
@@ -1015,18 +1011,18 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         continue;
       }
       if (!heicCapable) {
-        chatError('heicUnsupported', isAr);
+        chatError('heicUnsupported');
         continue;
       }
       try {
         const jpeg = await convertHeicToJpeg(f);
         out.push(jpeg);
       } catch {
-        chatError('heicUnsupported', isAr);
+        chatError('heicUnsupported');
       }
     }
     return out;
-  }, [isAr]);
+  }, []);
 
   // ── Files + staged images ─────────────────────────────────────────────────
   const handleFileUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
@@ -1038,10 +1034,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
     if (images.length > 0) {
       const stageable = await stageableFromImages(images);
-      const validImages = stageable.filter(f => validateFile(f, 'image', isAr));
+      const validImages = stageable.filter(f => validateFile(f, 'image'));
       const currentCount = stagedImages.length;
       const room = Math.max(0, MAX_STAGED_IMAGES - currentCount);
-      if (validImages.length > room) chatError('tooManyImages', isAr);
+      if (validImages.length > room) chatError('tooManyImages');
       const toStage = validImages.slice(0, room);
       if (toStage.length > 0) {
         const previews = toStage.map(f => URL.createObjectURL(f));
@@ -1055,7 +1051,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setUploading(true);
 
       const uploadPromises = others.map(async (file, index) => {
-        if (!validateFile(file, 'file', isAr)) return null;
+        if (!validateFile(file, 'file')) return null;
         const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
         const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
@@ -1070,28 +1066,28 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       for (const result of results) {
         if (!result) continue;
         if (result.error) {
-          chatError('uploadFailed', isAr, describeError(result.error, isAr));
+          chatError('uploadFailed', describeError(result.error));
           continue;
         }
         await sendMessage('file', result.path, result.file.name);
       }
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [user, activeConv, sendMessage, isAr, stagedImages.length, stageableFromImages]);
+  }, [user, activeConv, sendMessage, stagedImages.length, stageableFromImages]);
 
   const addImagesFromFiles = useCallback(async (files: File[]) => {
     const images = files.filter(f => f.type.startsWith('image/') || looksLikeHeic(f));
     if (images.length === 0) return;
     const stageable = await stageableFromImages(images);
-    const valid = stageable.filter(f => validateFile(f, 'image', isAr));
+    const valid = stageable.filter(f => validateFile(f, 'image'));
     const room = Math.max(0, MAX_STAGED_IMAGES - stagedImages.length);
-    if (valid.length > room) chatError('tooManyImages', isAr);
+    if (valid.length > room) chatError('tooManyImages');
     const toStage = valid.slice(0, room);
     if (toStage.length === 0) return;
     const previews = toStage.map(f => URL.createObjectURL(f));
     setStagedImages(prev => [...prev, ...toStage]);
     setStagedPreviews(prev => [...prev, ...previews]);
-  }, [isAr, stagedImages.length, stageableFromImages]);
+  }, [stagedImages.length, stageableFromImages]);
 
   const addFilesFromDrop = useCallback(async (files: File[]) => {
     if (!files.length || !user || !activeConv) return;
@@ -1102,7 +1098,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setUploading(true);
 
       const uploadPromises = others.map(async (file, index) => {
-        if (!validateFile(file, 'file', isAr)) return null;
+        if (!validateFile(file, 'file')) return null;
         const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
         const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
@@ -1117,13 +1113,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       for (const result of results) {
         if (!result) continue;
         if (result.error) {
-          chatError('uploadFailed', isAr, describeError(result.error, isAr));
+          chatError('uploadFailed', describeError(result.error));
           continue;
         }
         await sendMessage('file', result.path, result.file.name);
       }
     }
-  }, [user, activeConv, addImagesFromFiles, isAr, sendMessage]);
+  }, [user, activeConv, addImagesFromFiles, sendMessage]);
 
   const pendingCaptionsRef = useRef<Map<string, string>>(new Map());
 
@@ -1200,20 +1196,20 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       return '📎 ' + (readableFileName(msg.file_name) || ('ملف'));
     }
     return msg.content.length > 50 ? msg.content.slice(0, 50) + '…' : msg.content;
-  }, [messages, isAr]);
+  }, [messages]);
 
   const deleteConversation = useCallback(async () => {
     if (!activeConv || !user) return;
     const { error: delMsgsErr } = await supabase.from('messages').delete().eq('conversation_id', activeConv.id);
-    if (delMsgsErr) { chatError('deleteFailed', isAr, describeError(delMsgsErr, isAr)); return; }
+    if (delMsgsErr) { chatError('deleteFailed', describeError(delMsgsErr)); return; }
     const { error: delConvErr } = await supabase.from('conversations').delete().eq('id', activeConv.id);
-    if (delConvErr) { chatError('deleteFailed', isAr, describeError(delConvErr, isAr)); return; }
+    if (delConvErr) { chatError('deleteFailed', describeError(delConvErr)); return; }
     chatPrefs.clearDraft(activeConv.id);
     chatPrefs.clearScroll(activeConv.id);
     setActiveConv(null);
     setShowChatMenu(false);
     loadConversations();
-  }, [activeConv, user, loadConversations, chatPrefs, setActiveConv, isAr]);
+  }, [activeConv, user, loadConversations, chatPrefs, setActiveConv]);
 
   // ── New chat search ───────────────────────────────────────────────────────
   const searchForUser = useCallback(async () => {
@@ -1226,7 +1222,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       const { data, error } = await supabase
         .rpc('search_profiles', { q: searchUser.trim(), lim: 1 });
 
-      if (error) { chatError('searchFailed', isAr, describeError(error, isAr)); return; }
+      if (error) { chatError('searchFailed', describeError(error)); return; }
 
       const profile = data?.[0];
       if (profile) {
@@ -1241,7 +1237,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     } finally {
       setSearching(false);
     }
-  }, [searchUser, user, isAr]);
+  }, [searchUser, user]);
 
   const startConversation = useCallback(async () => {
     if (!searchResult || !user) return;
@@ -1276,7 +1272,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         .single();
 
       if (error || !newConv) {
-        chatError('convStartFailed', isAr, describeError(error, isAr));
+        chatError('convStartFailed', describeError(error));
         return;
       }
       finish(newConv);
@@ -1284,7 +1280,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     } finally {
       setLoading(false);
     }
-  }, [searchResult, user, loadConversations, setActiveConv, isAr]);
+  }, [searchResult, user, loadConversations, setActiveConv]);
 
   // ── Visible messages = filter out hidden_for-includes-me ─────────────────
   const visibleMessages = useMemo(() => {
@@ -1342,13 +1338,13 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (user && senderId === user.id) return 'أنت';
     if (activeConv?.otherUserId === senderId) return activeConv.otherDisplayName || activeConv.otherUsername || '';
     return forwardedNames[senderId] || '';
-  }, [user, activeConv, forwardedNames, isAr]);
+  }, [user, activeConv, forwardedNames]);
 
   const copyMessage = useCallback((content: string) => {
     navigator.clipboard.writeText(content)
-      .then(() => chatSuccess('copied', isAr))
-      .catch(() => chatError('linkCopyFailed', isAr));
-  }, [isAr]);
+      .then(() => chatSuccess('copied'))
+      .catch(() => chatError('linkCopyFailed'));
+  }, []);
 
 
 
@@ -1371,15 +1367,15 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       .filter(m => selectedIds.has(m.id) && !m.deleted)
       .map(m => {
         if (m.message_type === 'text') return m.content;
-        return getMessagePreview(m, isAr, user.id);
+        return getMessagePreview(m, user.id);
       })
       .join('\n');
     if (selected) {
       navigator.clipboard.writeText(selected)
-        .then(() => chatSuccess('copied', isAr))
-        .catch(() => chatError('linkCopyFailed', isAr));
+        .then(() => chatSuccess('copied'))
+        .catch(() => chatError('linkCopyFailed'));
     }
-  }, [messages, selectedIds, isAr, user]);
+  }, [messages, selectedIds, user]);
 
   const deleteSelectedMessages = useCallback(async () => {
     if (!user) return;
@@ -1445,7 +1441,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [sortedConversations, conversationFilter, chatPrefs.prefs.archived]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    user, isAr,
+    user,
     // Data
     conversations, sortedConversations, filteredByTab,
     activeConv, setActiveConv,

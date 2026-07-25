@@ -32,7 +32,7 @@ const STATUS_LABEL_DE: Record<StatusFilter, string> = {
   all: 'Alle', draft: 'Entwürfe', active: 'Aktiv', archived: 'Archiviert',
 };
 
-function titleOf(n: LocalNote, isAr: boolean): string {
+function titleOf(n: LocalNote): string {
   if (n.title.trim()) return n.title;
   const firstLine = n.contentMd.split('\n').find((l) => l.trim())?.replace(/^#+\s*/, '').trim();
   return firstLine || ('بدون عنوان');
@@ -50,8 +50,7 @@ function excerptOf(n: LocalNote): string {
 }
 
 export default function PKM() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const { notes, loading, createNote, updateNote, deleteNote } = useNotes();
   useSyncEngine();
 
@@ -287,7 +286,7 @@ export default function PKM() {
               </div>
             ) : (
               filtered.map((n) => {
-                const title = titleOf(n, isAr);
+                const title = titleOf(n);
                 const excerpt = excerptOf(n);
                 return (
                   <button
@@ -332,14 +331,12 @@ export default function PKM() {
                 onChange={(patch) => updateNote(active.id, patch)}
                 onDelete={() => handleDelete(active.id)}
                 onOptimize={() => setOptimizerOpen(true)}
-                isAr={isAr}
               />
               <div className="mt-3">
                 <BacklinksPanel
                   note={active}
                   notes={notes}
                   onOpen={(id) => { setActiveId(id); setPreview(false); }}
-                  isAr={isAr}
                 />
               </div>
               <OptimizerPanel
@@ -348,7 +345,6 @@ export default function PKM() {
                 title={active.title}
                 body={active.contentMd}
                 onAccept={(next) => updateNote(active.id, { contentMd: next })}
-                isAr={isAr}
               />
             </>
           ) : (
@@ -456,7 +452,6 @@ function Editor({
   onChange,
   onDelete,
   onOptimize,
-  isAr,
 }: {
   note: LocalNote;
   preview: boolean;
@@ -464,7 +459,6 @@ function Editor({
   onChange: (p: Partial<Pick<LocalNote, 'title' | 'contentMd' | 'status'>>) => void;
   onDelete: () => void;
   onOptimize: () => void;
-  isAr: boolean;
 }) {
   // Local buffer for smooth typing; debounced flush to Dexie.
   const [title, setTitle] = useState(note.title);
@@ -740,12 +734,12 @@ function Editor({
       </div>
 
       {/* tags footer */}
-      <TagsFooter body={body} isAr={isAr} />
+      <TagsFooter body={body} />
     </AppCard>
   );
 }
 
-function TagsFooter({ body, isAr }: { body: string; isAr: boolean }) {
+function TagsFooter({ body, }: { body: string; }) {
   const tags = useMemo(() => extractTags(body), [body]);
   if (tags.length === 0) return null;
   return (

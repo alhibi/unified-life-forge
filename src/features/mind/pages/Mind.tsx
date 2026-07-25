@@ -20,8 +20,7 @@ function hasWebGL(): boolean {
 
 export default function MindPage() {
   const navigate = useNavigate();
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const reduced = !!useReducedMotion();
   const mind = useMindState();
   const [webgl] = useState(() => (typeof window !== 'undefined' ? hasWebGL() : true));
@@ -106,7 +105,6 @@ export default function MindPage() {
             onHover={setActiveIds}
             onLeave={() => setActiveIds([])}
             onSelect={(id) => setActiveIds([id])}
-            isAr={isAr}
           />
         </div>
       </div>

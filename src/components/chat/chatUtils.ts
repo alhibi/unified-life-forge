@@ -10,7 +10,7 @@ import DOMPurify from 'dompurify';
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Preview time shown in the conversation list (e.g. "Jetzt", "5 Min", "Mo", "15 Apr"). */
-export function formatTime(dateStr: string, isAr: boolean): string {
+export function formatTime(dateStr: string): string {
   const d = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
@@ -83,7 +83,6 @@ export const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
 /** Human-friendly preview of a message (with emoji prefixes for media). */
 export function getMessagePreview(
   msg: Pick<Message, 'content' | 'message_type' | 'deleted' | 'file_name' | 'hidden_for'>,
-  isAr: boolean,
   viewerUserId?: string,
 ): string {
   // A message hidden by the viewer (delete-for-me) becomes "[hidden]" in
@@ -93,15 +92,15 @@ export function getMessagePreview(
   }
   if (msg.deleted) return '🚫 تم حذف الرسالة';
   switch (msg.message_type) {
-    case 'image': return '📷 ' + ('صورة');
-    case 'voice': return '🎤 ' + ('رسالة صوتية');
-    case 'file':  return '📎 ' + (readableFileName(msg.file_name) || ('ملف'));
+    case 'image': return '📷 صورة';
+    case 'voice': return '🎤 رسالة صوتية';
+    case 'file':  return '📎 ' + (readableFileName(msg.file_name) || 'ملف');
     default:      return msg.content || '';
   }
 }
 
 /** Shorter version used in reply-to previews inside bubbles. */
-export function getReplyPreviewText(msg: Message | undefined, isAr: boolean): string {
+export function getReplyPreviewText(msg: Message | undefined): string {
   if (!msg) return 'رسالة محذوفة';
   if (msg.deleted) return 'رسالة محذوفة';
   if (msg.message_type === 'image') return '📷 ' + ('صورة');

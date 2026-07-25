@@ -116,7 +116,7 @@ function saveSave(s: DecathlonSave) {
   }
 }
 
-function indexBand(idx: number, isAr: boolean) {
+function indexBand(idx: number) {
   if (idx >= 130) return 'متفوق';
   if (idx >= 115) return 'فوق المتوسط';
   if (idx >= 90)  return 'متوسط';
@@ -128,8 +128,7 @@ function indexBand(idx: number, isAr: boolean) {
 // Component
 // =============================================================================
 export default function FocusDecathlonPage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
 
   type Phase = 'briefing' | 'event' | 'result';
   const [phase, setPhase] = useState<Phase>('briefing');
@@ -211,7 +210,7 @@ export default function FocusDecathlonPage() {
         stats={[
           { label: 'أفضل تقييم', value: save.best?.index ?? '—' },
           { label: 'الجلسات', value: save.history.length },
-          { label: 'المستوى', value: save.best ? indexBand(save.best.index, isAr) : '—' },
+          { label: 'المستوى', value: save.best ? indexBand(save.best.index) : '—' },
         ]}
         options={[]}
       >
@@ -285,11 +284,11 @@ export default function FocusDecathlonPage() {
 
         {/* Render the right minigame */}
         <div className="mt-4">
-          {current.id === 'reaction' && <ReactionEvent isAr={isAr} onDone={r => onEventComplete('reaction', r)} />}
-          {current.id === 'stroop'   && <StroopEvent  isAr={isAr} onDone={r => onEventComplete('stroop', r)} />}
-          {current.id === 'memory'   && <MemoryEvent  isAr={isAr} onDone={r => onEventComplete('memory', r)} />}
-          {current.id === 'nback'    && <NBackEvent   isAr={isAr} onDone={r => onEventComplete('nback', r)} />}
-          {current.id === 'aim'      && <AimEvent     isAr={isAr} onDone={r => onEventComplete('aim', r)} />}
+          {current.id === 'reaction' && <ReactionEvent onDone={r => onEventComplete('reaction', r)} />}
+          {current.id === 'stroop'   && <StroopEvent onDone={r => onEventComplete('stroop', r)} />}
+          {current.id === 'memory'   && <MemoryEvent onDone={r => onEventComplete('memory', r)} />}
+          {current.id === 'nback'    && <NBackEvent onDone={r => onEventComplete('nback', r)} />}
+          {current.id === 'aim'      && <AimEvent onDone={r => onEventComplete('aim', r)} />}
         </div>
       </GameShell>
     );
@@ -317,7 +316,7 @@ export default function FocusDecathlonPage() {
         </p>
         <p className="text-6xl font-black text-cyan-200 my-1 tabular-nums">{finalIndex}</p>
         <p className="text-sm font-bold text-cyan-300">
-          {finalIndex !== null && indexBand(finalIndex, isAr)}
+          {finalIndex !== null && indexBand(finalIndex)}
         </p>
         {save.best && finalIndex !== null && finalIndex > (save.best.index - 1) && (
           <p className="text-[11px] text-amber-300 mt-1 font-bold">
@@ -388,7 +387,7 @@ export default function FocusDecathlonPage() {
 // =============================================================================
 
 // ---------- Reaction (5 trials, average ms) ----------
-function ReactionEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => void }) {
+function ReactionEvent({ onDone }: { onDone: (raw: number) => void }) {
   type S = 'idle' | 'wait' | 'go' | 'early' | 'result' | 'done';
   const [s, setS] = useState<S>('idle');
   const [trial, setTrial] = useState(0);
@@ -458,7 +457,7 @@ function ReactionEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) 
 }
 
 // ---------- Stroop (8 trials, percentage + speed combo) ----------
-function StroopEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => void }) {
+function StroopEvent({ onDone }: { onDone: (raw: number) => void }) {
   const TRIALS = 8;
   const COLORS = [
     { id: 'red', hex: '#ef4444', ar: 'أحمر', },
@@ -529,7 +528,7 @@ function StroopEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
 }
 
 // ---------- Memory (longest sequence) ----------
-function MemoryEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => void }) {
+function MemoryEvent({ onDone }: { onDone: (raw: number) => void }) {
   type S = 'showing' | 'input' | 'fail';
   const [seq, setSeq] = useState<number[]>([]);
   const [input, setInput] = useState<number[]>([]);
@@ -599,7 +598,7 @@ function MemoryEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) =>
 }
 
 // ---------- N-back (15 trials, accuracy %) ----------
-function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => void }) {
+function NBackEvent({ onDone }: { onDone: (raw: number) => void }) {
   const N = 2;
   const TRIALS = 15;
   const [trial, setTrial] = useState(0);
@@ -672,7 +671,7 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
 }
 
 // ---------- Aim (20s, score) ----------
-function AimEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => void }) {
+function AimEvent({ onDone }: { onDone: (raw: number) => void }) {
   const DURATION = 20;
   const [score, setScore] = useState(0);
   const [hits, setHits] = useState(0);

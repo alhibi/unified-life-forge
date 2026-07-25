@@ -9,7 +9,6 @@ interface RadarMapProps {
   windDirectionDeg: number;
   precipIntensity: number;
   weatherCode: number;
-  ar: boolean;
 }
 
 export default function RadarMap({
@@ -20,7 +19,6 @@ export default function RadarMap({
   windDirectionDeg,
   precipIntensity,
   weatherCode,
-  ar
 }: RadarMapProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -195,7 +193,7 @@ export default function RadarMap({
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Layers className="w-5 h-5 text-primary" />
-          {activeLayer === 'particles' ? (ar ? 'محاكي جزيئات الغلاف الحي' : 'Live Atmosphären-Partikel') : (ar ? 'الرادار الزمني' : 'Radar-Timeline')}
+          {activeLayer === 'particles' ? ('محاكي جزيئات الغلاف الحي') : ('الرادار الزمني')}
         </h2>
 
         <div className="flex bg-background/50 border border-border/40 p-0.5 rounded-lg">
@@ -205,7 +203,7 @@ export default function RadarMap({
               activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {ar ? 'الجزيئات والرياح' : 'Partikel'}
+            {'الجزيئات والرياح'}
           </button>
           <button
             onClick={() => setActiveLayer('radar')}
@@ -213,7 +211,7 @@ export default function RadarMap({
               activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {ar ? 'المسح الراداري' : 'Radar'}
+            {'المسح الراداري'}
           </button>
         </div>
       </header>
@@ -226,10 +224,10 @@ export default function RadarMap({
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {tileTemplate ? (
               <div className="text-center bg-card/90 border border-border/60 rounded-xl p-4 shadow-lg backdrop-blur max-w-xs animate-fade-in">
-                <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{ar ? 'تغطية رادار حي' : 'Echtzeit-Radar'}</div>
+                <div className="text-[10px] uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
                 <div className="text-sm font-bold font-montserrat text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
-                    ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString(ar ? 'en-US' : 'de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })
+                    ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
                     : '—'}
                 </div>
                 <div className="flex items-center justify-center gap-4">
@@ -248,7 +246,7 @@ export default function RadarMap({
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-muted-foreground">{ar ? 'مسح الرادار غير متوفر حالياً لهذا الموقع' : 'Keine Radar-Rückstrahlung für diesen Ort'}</div>
+              <div className="text-xs text-muted-foreground">{'مسح الرادار غير متوفر حالياً لهذا الموقع'}</div>
             )}
           </div>
         )}

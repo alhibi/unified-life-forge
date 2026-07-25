@@ -14,7 +14,6 @@ import GroupAvatar from './GroupAvatar';
 import RoleBadge from './RoleBadge';
 
 interface GroupInfoSheetProps {
-  isAr: boolean;
   isOpen: boolean;
   chat: ChatSummary;
   onClose: () => void;
@@ -41,8 +40,7 @@ const MAX_DESC_LEN  = 240;
  *   5. Permissions block (admins only): who-can-send / who-can-add-members
  *   6. Danger zone: leave chat (everyone) + delete chat (owner only)
  */
-const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
-  isAr, isOpen, chat, onClose, onOpenMembers, onLeft, onDeleted,
+const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, onOpenMembers, onLeft, onDeleted,
   myUserId: _myUserId,
 }) => {
   const BackIcon = ChevronRight;
@@ -169,7 +167,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 {`${chat.memberCount} ${chat.memberCount === 1 ? 'عضو' : 'أعضاء'}`}
               </span>
               <span className="text-border/60">·</span>
-              <RoleBadge role={chat.myRole} isAr={isAr} />
+              <RoleBadge role={chat.myRole} />
             </div>
           </div>
 

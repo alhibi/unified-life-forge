@@ -64,9 +64,8 @@ const SubviewFallback = () => (
 export default function ReadingPage() {
   const { language } = useApp();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
 
-  const data = useReadingData({ isAr });
+  const data = useReadingData({ });
   const {
     feedSources,
     enabledFeeds,
@@ -446,7 +445,6 @@ export default function ReadingPage() {
   const listPane = (
     <div className="flex flex-col flex-1 min-h-screen">
       <ListHeader
-        isAr={isAr}
         onBack={goBack}
         showSearch={showSearch}
         setShowSearch={toggleSearch}
@@ -489,7 +487,6 @@ export default function ReadingPage() {
           articles={filtered}
           loading={loading}
           refreshing={refreshing}
-          isAr={isAr}
           language={language}
           filterTab={filterTab}
           sourceFilter={sourceFilter}
@@ -598,7 +595,6 @@ export default function ReadingPage() {
                 article={selectedArticle}
                 isBookmarked={bookmarks.includes(selectedArticle.link)}
                 prefs={readerPrefs}
-                isAr={isAr}
                 language={language}
                 onBack={onArticleBack}
                 onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
@@ -620,7 +616,6 @@ export default function ReadingPage() {
                 article={selectedArticle}
                 isBookmarked={bookmarks.includes(selectedArticle.link)}
                 prefs={readerPrefs}
-                isAr={isAr}
                 language={language}
                 onBack={onArticleBack}
                 onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
@@ -634,7 +629,6 @@ export default function ReadingPage() {
             <Suspense key="reader-s" fallback={<SubviewFallback />}>
               <ReaderView
                 key="reader"
-                isAr={isAr}
                 language={language}
                 prefs={readerPrefs}
                 onChangePrefs={setReaderPrefs}
@@ -653,7 +647,6 @@ export default function ReadingPage() {
               <SuggestedFeedsView
                 key="suggested"
                 feedSources={feedSources}
-                isAr={isAr}
                 onBack={goBack}
                 onAddSuggested={addSuggestedFeed}
                 onAddBulk={addFeedsBulk}
@@ -668,7 +661,6 @@ export default function ReadingPage() {
                 feedSources={feedSources}
                 statuses={statuses}
                 totalInDB={totalInDB}
-                isAr={isAr}
                 sourceCounts={sourceCounts}
                 onBack={goBack}
                 onSuggested={() => setView('suggested')}
@@ -684,7 +676,6 @@ export default function ReadingPage() {
             <Suspense key="search-s" fallback={<SubviewFallback />}>
               <SearchPanel
                 key="search"
-                isAr={isAr}
                 language={language}
                 restrictTo={searchRestrict}
                 onBack={goBack}
@@ -697,7 +688,6 @@ export default function ReadingPage() {
             <Suspense key="alerts-s" fallback={<SubviewFallback />}>
               <KeywordAlertsView
                 key="alerts"
-                isAr={isAr}
                 language={language}
                 enabledFeeds={enabledFeeds}
                 onBack={goBack}
@@ -711,7 +701,6 @@ export default function ReadingPage() {
             <Suspense key="storage-s" fallback={<SubviewFallback />}>
               <StorageView
                 key="storage"
-                isAr={isAr}
                 bookmarksCount={bookmarks.length}
                 onBack={goBack}
                 onRecacheNow={recacheNow}
@@ -723,7 +712,6 @@ export default function ReadingPage() {
             <Suspense key="cron-s" fallback={<SubviewFallback />}>
               <CronView
                 key="cron"
-                isAr={isAr}
                 language={language}
                 feedSources={feedSources}
                 onBack={goBack}

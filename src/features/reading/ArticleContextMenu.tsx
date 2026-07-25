@@ -35,7 +35,6 @@ export function ArticleContextMenu({
   article,
   isRead,
   isBookmarked,
-  isAr,
   hasAbove,
   hasBelow,
   children,
@@ -48,7 +47,6 @@ export function ArticleContextMenu({
   article: FeedItem;
   isRead: boolean;
   isBookmarked: boolean;
-  isAr: boolean;
   /** Whether there are any rows above this one in the *visible* list. */
   hasAbove: boolean;
   /** Whether there are any rows below this one in the *visible* list. */

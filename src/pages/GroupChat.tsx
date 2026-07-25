@@ -52,8 +52,7 @@ import { toast } from 'sonner';
 export default function GroupChatPage() {
   const params = useParams<{ chatId: string }>();
   const chatId = params.chatId ?? null;
-  const { language, t } = useApp();
-  const isAr = language === 'ar';
+  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat/groups');
@@ -346,7 +345,6 @@ export default function GroupChatPage() {
             return (
               <GroupMessageBubble
                 key={item.key}
-                isAr={isAr}
                 message={m}
                 isMine={m.senderId === user.id}
                 showSenderHeader={item.showSender && settings.appearance.showAvatars}
@@ -392,7 +390,6 @@ export default function GroupChatPage() {
 
         {/* ── Composer ───────────────────────────────────────────────── */}
         <GroupComposer
-          isAr={isAr}
           text={composer.text}
           onTextChange={composer.setText}
           onSend={onSend}
@@ -415,7 +412,6 @@ export default function GroupChatPage() {
 
         {/* ── Action menu (long-press) ───────────────────────────────── */}
         <ActionMenuOverlay
-          isAr={isAr}
           state={actionMenu}
           onClose={() => setActionMenu(null)}
           isMine={(m) => m.senderId === user.id}
@@ -432,7 +428,6 @@ export default function GroupChatPage() {
 
         {/* ── Sheets ─────────────────────────────────────────────────── */}
         <GroupInfoSheet
-          isAr={isAr}
           isOpen={showInfo}
           chat={chat}
           onClose={() => setShowInfo(false)}
@@ -446,7 +441,6 @@ export default function GroupChatPage() {
           myUserId={user.id}
         />
         <MemberListSheet
-          isAr={isAr}
           isOpen={showMembers}
           chat={chat}
           onClose={() => setShowMembers(false)}
@@ -460,7 +454,6 @@ export default function GroupChatPage() {
 // ── Action menu (long-press popover) ────────────────────────────────────────
 
 interface ActionMenuOverlayProps {
-  isAr: boolean;
   state: { msg: ChatMessage; rect: DOMRect } | null;
   onClose: () => void;
   isMine: (m: ChatMessage) => boolean;
@@ -472,8 +465,7 @@ interface ActionMenuOverlayProps {
   onReact: (m: ChatMessage, emoji: string) => void;
 }
 
-function ActionMenuOverlay({
-  isAr, state, onClose, isMine, onReply, onEdit, onCopy, onDelete, onHide, onReact,
+function ActionMenuOverlay({ state, onClose, isMine, onReply, onEdit, onCopy, onDelete, onHide, onReact,
 }: ActionMenuOverlayProps) {
   if (!state) return null;
   const { msg } = state;

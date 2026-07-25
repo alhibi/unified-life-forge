@@ -22,11 +22,9 @@ import type { Density, GroupMode, ListPrefs, SortMode } from './listPrefs';
  * without scrolling. Mobile-friendly: touch targets are >= 36 px.
  */
 export function ReadingPrefsToolbar({
-  isAr,
   prefs,
   onChange,
 }: {
-  isAr: boolean;
   prefs: ListPrefs;
   onChange: (next: Partial<ListPrefs>) => void;
 }) {

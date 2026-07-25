@@ -25,7 +25,6 @@ import { cn } from '@/lib/utils';
  */
 export function ConfirmDialog({
   open,
-  isAr,
   title,
   description,
   confirmLabel,
@@ -35,7 +34,6 @@ export function ConfirmDialog({
   onOpenChange,
 }: {
   open: boolean;
-  isAr: boolean;
   /** Bilingual pair for the dialog title */
   title: { ar: string; en: string };
   description?: { ar: string; en: string };

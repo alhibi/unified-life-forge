@@ -180,10 +180,9 @@ const CATS: { key: Cat; ar: string; }[] = [
 
 export default function Portal() {
   const navigate = useNavigate();
-  const { language, theme, setTheme, dir } = useApp();
+  const { theme, setTheme, dir } = useApp();
   const { user, username, profile } = useAuth();
   const { unreadCount } = useUnreadMessages();
-  const isAr = language === 'ar';
   const rtl = dir === 'rtl';
 
   const [cat, setCat] = useState<Cat>('all');
@@ -250,7 +249,7 @@ export default function Portal() {
 
   useLayoutEffect(() => {
     measurePill();
-  }, [cat, isAr, measurePill]);
+  }, [cat, measurePill]);
 
   useEffect(() => {
     const onResize = () => measurePill();

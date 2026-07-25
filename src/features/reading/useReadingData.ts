@@ -61,8 +61,8 @@ const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
  * so callers can keep them in `useEffect` deps without retriggering
  * on every state change.
  */
-export function useReadingData(opts: { isAr: boolean }) {
-  const { isAr } = opts;
+export function useReadingData(opts: { }) {
+  const { } = opts;
 
   const [feedSources, setFeedSources] = useState<FeedSource[]>(getStoredFeeds);
   const [articles, setArticles] = useState<FeedItem[]>([]);
@@ -113,12 +113,10 @@ export function useReadingData(opts: { isAr: boolean }) {
   const bookmarksRef = useRef(bookmarks);
   const readArticlesRef = useRef(readArticles);
   const articlesRef = useRef(articles);
-  const isArRef = useRef(isAr);
   useEffect(() => { feedSourcesRef.current = feedSources; }, [feedSources]);
   useEffect(() => { bookmarksRef.current = bookmarks; }, [bookmarks]);
   useEffect(() => { readArticlesRef.current = readArticles; }, [readArticles]);
   useEffect(() => { articlesRef.current = articles; }, [articles]);
-  useEffect(() => { isArRef.current = isAr; }, [isAr]);
 
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoCacheTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -304,7 +302,6 @@ export function useReadingData(opts: { isAr: boolean }) {
   // on the first refresh.
   const refreshFeeds = useCallback(
     async (silent = false, overrideFeeds?: ReadonlyArray<FeedSource>): Promise<void> => {
-      const ar = isArRef.current;
       const feeds = (overrideFeeds ?? feedSourcesRef.current).filter((f) => f.enabled);
       if (feeds.length === 0) return;
       if (!silent) setRefreshing(true);
@@ -314,7 +311,7 @@ export function useReadingData(opts: { isAr: boolean }) {
         current: 0,
         successCount: 0,
         errorCount: 0,
-        currentFeed: ar ? 'جاري بدء التحديث...' : 'Starting refresh...',
+        currentFeed: 'جاري بدء التحديث...',
       });
       try {
         let succeeded = false;
@@ -323,7 +320,7 @@ export function useReadingData(opts: { isAr: boolean }) {
         if (isSupabaseAvailable()) {
           setSyncProgress((prev) => ({
             ...prev,
-            currentFeed: ar ? 'جاري الاتصال بالخادم السحابي...' : 'Connecting to cloud server...',
+            currentFeed: 'جاري الاتصال بالخادم السحابي...',
           }));
           try {
             const nameMap: Record<string, string> = {};
@@ -376,9 +373,7 @@ export function useReadingData(opts: { isAr: boolean }) {
                 const failedFeeds = statusesArr.filter((s) => s.status === 'error');
                 if (failedFeeds.length > 0 && !silent) {
                   toast.warning(
-                    ar
-                      ? `تم التحديث، لكن فشل ${failedFeeds.length} مصدر`
-                      : `Refreshed, but ${failedFeeds.length} feed(s) failed`,
+                    `تم التحديث، لكن فشل ${failedFeeds.length} مصدر`,
                   );
                 }
                 setSyncProgress({
@@ -387,7 +382,7 @@ export function useReadingData(opts: { isAr: boolean }) {
                   current: feeds.length,
                   successCount: feeds.length - failedFeeds.length,
                   errorCount: failedFeeds.length,
-                  currentFeed: ar ? 'جاري تحميل المقالات...' : 'Loading articles...',
+                  currentFeed: 'جاري تحميل المقالات...',
                 });
                 await loadFromDB();
                 // After loadFromDB updates state, auto-save the freshly
@@ -420,7 +415,7 @@ export function useReadingData(opts: { isAr: boolean }) {
             current: 0,
             successCount: 0,
             errorCount: 0,
-            currentFeed: ar ? 'جاري جلب المصادر مباشرة...' : 'Fetching sources directly...',
+            currentFeed: 'جاري جلب المصادر مباشرة...',
           });
 
           await new Promise<void>((resolvePromise) => {
@@ -495,9 +490,7 @@ export function useReadingData(opts: { isAr: boolean }) {
 
           if (failedSources.length > 0 && !silent) {
             toast.warning(
-              ar
-                ? `فشل جلب: ${failedSources.slice(0, 3).join('، ')}${failedSources.length > 3 ? '...' : ''}`
-                : `Failed: ${failedSources.slice(0, 3).join(', ')}${failedSources.length > 3 ? '...' : ''}`,
+              `فشل جلب: ${failedSources.slice(0, 3).join('، ')}${failedSources.length > 3 ? '...' : ''}`,
             );
           }
         }
@@ -506,16 +499,16 @@ export function useReadingData(opts: { isAr: boolean }) {
           const now = new Date().toISOString();
           setLastRefresh(now);
           try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota or private mode */ }
-          if (!silent) toast.success(ar ? 'تم التحديث بنجاح' : 'Refreshed successfully');
+          if (!silent) toast.success('تم التحديث بنجاح');
           // Reset consecutive failures on success
           consecutiveFailuresRef.current = 0;
           setConsecutiveFailures(0);
           setLastError(null);
         } else if (!silent) {
-          toast.error(ar ? 'فشل التحديث — تحقق من اتصال الإنترنت' : 'Refresh failed — check your connection');
+          toast.error('فشل التحديث — تحقق من اتصال الإنترنت');
           consecutiveFailuresRef.current += 1;
           setConsecutiveFailures(consecutiveFailuresRef.current);
-          setLastError(ar ? 'فشل التحديث' : 'Refresh failed');
+          setLastError('فشل التحديث');
         } else {
           // Silent failure: still track for backoff
           consecutiveFailuresRef.current += 1;
@@ -526,7 +519,7 @@ export function useReadingData(opts: { isAr: boolean }) {
         consecutiveFailuresRef.current += 1;
         setConsecutiveFailures(consecutiveFailuresRef.current);
         setLastError(e instanceof Error ? e.message : 'Refresh failed');
-        if (!silent) toast.error(ar ? 'فشل التحديث' : 'Refresh failed');
+        if (!silent) toast.error('فشل التحديث');
       } finally {
         setRefreshing(false);
         setTimeout(() => {
@@ -669,11 +662,8 @@ export function useReadingData(opts: { isAr: boolean }) {
         const ok = await offlineDb.hasQuota(50 * 1024);
         if (!ok) {
           lowQuotaWarnedRef.current = true;
-          const ar = isArRef.current;
           toast.warning(
-            ar
-              ? 'مساحة التخزين منخفضة — قد لا تُحفظ مقالات جديدة دون اتصال'
-              : 'Storage low — new articles may not save offline',
+            'مساحة التخزين منخفضة — قد لا تُحفظ مقالات جديدة دون اتصال',
             { duration: 7000 },
           );
         }
@@ -844,7 +834,7 @@ export function useReadingData(opts: { isAr: boolean }) {
       storeReadArticles(next);
       return next;
     });
-    toast.success(isArRef.current ? 'تم التحديد كمقروء' : 'Marked as read');
+    toast.success('تم التحديد كمقروء');
   }, []);
 
   /** Restore an article to "unread". Used by the article context menu. */
@@ -879,18 +869,14 @@ export function useReadingData(opts: { isAr: boolean }) {
       storeReadArticles(next);
       return next;
     });
-    const ar = isArRef.current;
     toast.success(
-      ar
-        ? `تم تحديد ${links.length} مقالة كمقروءة`
-        : `Marked ${links.length} as read`,
+      `تم تحديد ${links.length} مقالة كمقروءة`,
     );
   }, []);
 
   // ─── Feed CRUD ─────────────────────────────────────────────────────────
   const fetchSingleFeed = useCallback(
     async (feed: FeedSource) => {
-      const ar = isArRef.current;
       try {
         const nameMap: Record<string, string> = { [feed.url]: feed.name };
         const { data, error } = await supabase.functions.invoke('fetch-rss', {
@@ -933,23 +919,17 @@ export function useReadingData(opts: { isAr: boolean }) {
             return merged;
           });
           toast.success(
-            ar
-              ? `تمت إضافة ${fresh.length} مقال من ${feed.name}`
-              : `Imported ${fresh.length} from ${feed.name}`,
+            `تمت إضافة ${fresh.length} مقال من ${feed.name}`,
           );
         } else {
           toast.info(
-            ar
-              ? `لا توجد مقالات من ${feed.name}`
-              : `No articles from ${feed.name}`,
+            `لا توجد مقالات من ${feed.name}`,
           );
         }
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : '';
         toast.error(
-          ar
-            ? `فشل جلب ${feed.name}: ${msg}`
-            : `Failed to fetch ${feed.name}: ${msg}`,
+          `فشل جلب ${feed.name}: ${msg}`,
         );
       }
     },
@@ -958,7 +938,6 @@ export function useReadingData(opts: { isAr: boolean }) {
 
   const addFeed = useCallback(
     (url: string, name: string, category: string) => {
-      const ar = isArRef.current;
       const trimmed = url.trim();
       if (!trimmed) return false;
       // Hard-validate the URL before persisting. A malformed feed URL
@@ -970,20 +949,18 @@ export function useReadingData(opts: { isAr: boolean }) {
       try {
         parsed = new URL(trimmed);
       } catch {
-        toast.error(ar ? 'الرابط غير صالح' : 'Invalid URL');
+        toast.error('الرابط غير صالح');
         return false;
       }
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
         toast.error(
-          ar
-            ? 'يجب أن يبدأ الرابط بـ http:// أو https://'
-            : 'URL must use http:// or https://',
+          'يجب أن يبدأ الرابط بـ http:// أو https://',
         );
         return false;
       }
       const current = feedSourcesRef.current;
       if (current.some((f) => f.url === trimmed)) {
-        toast.error(ar ? 'هذا المصدر موجود' : 'Feed already exists');
+        toast.error('هذا المصدر موجود');
         return false;
       }
       const feed: FeedSource = {
@@ -1004,10 +981,9 @@ export function useReadingData(opts: { isAr: boolean }) {
 
   const addSuggestedFeed = useCallback(
     (feed: FeedSource) => {
-      const ar = isArRef.current;
       const current = feedSourcesRef.current;
       if (current.some((f) => f.url === feed.url)) {
-        toast.error(ar ? 'هذا المصدر موجود' : 'Feed already exists');
+        toast.error('هذا المصدر موجود');
         return;
       }
       const next = [...current, { ...feed }];
@@ -1091,12 +1067,11 @@ export function useReadingData(opts: { isAr: boolean }) {
 
   const removeFeed = useCallback(
     (url: string) => {
-      const ar = isArRef.current;
       const next = feedSourcesRef.current.filter((f) => f.url !== url);
       feedSourcesRef.current = next;
       setFeedSources(next);
       storeFeeds(next);
-      toast.success(ar ? 'تم الحذف' : 'Removed');
+      toast.success('تم الحذف');
     },
     [],
   );
