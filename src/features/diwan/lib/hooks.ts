@@ -60,21 +60,31 @@ import type {
 
 const STALE = 5 * 60 * 1000;
 
-function withFallback<T>(remote: () => Promise<T>, local: () => T): () => Promise<T> {
+/**
+ * `local` may be async: the seed corpus behind the local fallback is fetched
+ * from `public/data/diwan-poetry.json` on first use rather than bundled, so
+ * every `local*()` helper returns a promise. This matters for cost, not just
+ * tidiness — the corpus is now only downloaded when this fallback actually
+ * runs, so a populated Supabase never pays for it.
+ */
+function withFallback<T>(
+  remote: () => Promise<T>,
+  local: () => T | Promise<T>,
+): () => Promise<T> {
   return async () => {
     // Supabase غير مكوّن → سقوط متعمَّد على البيانات المحلية (وضع
     // تجريبي). لا نحاول استدعاء remote لأنّ client يعيد لنا أخطاء HTTP
     // 401 على placeholder URL.
     if (!isSupabaseReady()) {
       notifyFallback('demo');
-      return local();
+      return await local();
     }
     try {
       const data = await remote();
       // لو رجعت Supabase بمصفوفة فارغة بينما local عنده بيانات — استخدم local.
       // هذا لا يُعتبر "offline" بل "demo": Supabase تعمل لكنها لم تُملأ بعد.
       if (Array.isArray(data) && data.length === 0) {
-        const fb = local();
+        const fb = await local();
         if (Array.isArray(fb) && fb.length > 0) {
           notifyFallback('demo');
           return fb;
@@ -83,14 +93,14 @@ function withFallback<T>(remote: () => Promise<T>, local: () => T): () => Promis
       // لو رجع null/undefined نسقط
       if (data == null) {
         notifyFallback('demo');
-        return local();
+        return await local();
       }
       // إحصاءات: لو كل القيم 0، استبدل
       if (typeof data === 'object' && 'poets_count' in (data as object)) {
         const stats = data as unknown as DiwanLibraryStats;
         if (stats.poets_count === 0 && stats.poems_count === 0) {
           notifyFallback('demo');
-          return local();
+          return await local();
         }
       }
       notifyRemoteOk();
@@ -98,7 +108,7 @@ function withFallback<T>(remote: () => Promise<T>, local: () => T): () => Promis
     } catch (e) {
       console.warn('[diwan] remote failed, fallback to local:', (e as Error).message);
       notifyFallback('offline');
-      return local();
+      return await local();
     }
   };
 }

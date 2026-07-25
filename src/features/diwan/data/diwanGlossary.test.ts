@@ -12,7 +12,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { diwanLocalGlossary } from './diwanGlossary';
-import { poetryEras } from './poetryData';
+import { loadPoetryEras } from './poetryData';
 
 const TASHKEEL = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;
 function norm(s: string): string {
@@ -29,9 +29,9 @@ function poemSlug(poetId: string, title: string): string {
 }
 
 // نبني فهرس كل slugs قصائد poetryData لمقارنته بمفاتيح المعجم
-function buildKnownSlugs(): Set<string> {
+async function buildKnownSlugs(): Promise<Set<string>> {
   const slugs = new Set<string>();
-  for (const era of poetryEras) {
+  for (const era of await loadPoetryEras()) {
     for (const poet of era.poets) {
       for (const poem of poet.poems) {
         slugs.add(poemSlug(poet.id, poem.title));
@@ -42,9 +42,11 @@ function buildKnownSlugs(): Set<string> {
 }
 
 describe('diwanGlossary slug integrity', () => {
-  const knownSlugs = buildKnownSlugs();
-
-  it('every glossary key matches an existing poem slug in poetryData', () => {
+  it('every glossary key matches an existing poem slug in poetryData', async () => {
+    const knownSlugs = await buildKnownSlugs();
+    // Guard against the corpus asset failing to load and turning this test
+    // into a no-op that passes for the wrong reason.
+    expect(knownSlugs.size).toBeGreaterThan(0);
     const glossaryKeys = Object.keys(diwanLocalGlossary);
     const orphans = glossaryKeys.filter((k) => !knownSlugs.has(k));
     if (orphans.length > 0) {

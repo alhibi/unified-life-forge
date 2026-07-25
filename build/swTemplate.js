@@ -160,7 +160,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.startsWith('/icons/') || url.pathname === '/manifest.json') {
+  // `/data/` holds large static datasets that are fetched at runtime instead
+  // of bundled — currently the Diwan seed corpus. They are not fingerprinted,
+  // so cache-first would pin a stale copy forever; stale-while-revalidate
+  // serves instantly and refreshes in the background. Without this rule the
+  // Diwan demo/offline fallback would fail offline, which is precisely the
+  // situation it exists to cover.
+  if (
+    url.pathname.startsWith('/icons/') ||
+    url.pathname.startsWith('/data/') ||
+    url.pathname === '/manifest.json'
+  ) {
     event.respondWith(staleWhileRevalidate(request, SHELL_CACHE));
   }
 });

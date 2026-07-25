@@ -11,6 +11,12 @@ export interface DiwanEra {
   color: string | null;
   sort_order: number;
   description: string | null;
+  /**
+   * Number of poets in the era. Supplied only by the local fallback
+   * (`localEras()`); the remote `diwan_eras` table has no such column, so
+   * consumers must treat it as optional and hide the affordance when absent.
+   */
+  poets_count?: number;
 }
 
 export interface DiwanPoetSummary {
