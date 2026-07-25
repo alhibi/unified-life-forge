@@ -726,27 +726,59 @@
 /* floating stage toolbar */
 .mk-toolbar {
   position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 14px;
+  inset-inline-end: 8px;
   display: flex;
   gap: 2px;
   background: var(--mk-panel);
   border: 1px solid var(--mk-line);
-  border-radius: 13px;
-  padding: 4px;
+  border-radius: 11px;
+  padding: 3px;
   z-index: 4;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 .mk-toolbar button {
-  width: 52px;
-  height: 42px;
-  border-radius: 9px;
+  width: 38px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--mk-ink);
   transition: background 0.18s, color 0.18s;
+}
+/* Hide the inline toolbar on very narrow phones where it would crowd the
+   centered pills. The list/grid toggle still works via keyboard nav. */
+@media (max-width: 420px) {
+  .mk-toolbar { display: none; }
+}
+
+.mk-toolbar button:hover { background: var(--mk-card); }
+.mk-toolbar button.on { background: var(--mk-chip); color: var(--mk-chip-tx); }
+
+/* compact greeting strip — between topbar and the stage */
+.mk-greet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px 4px;
+  font-family: var(--mk-ar);
+  color: var(--mk-ink2);
+  font-size: 12.5px;
+}
+.mk-greet-kicker {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.mk-greet-sep { opacity: 0.4; }
+.mk-greet-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--mk-ink);
 }
 .mk-toolbar button:hover {
   background: var(--mk-card);

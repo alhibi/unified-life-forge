@@ -491,6 +491,20 @@ export default function Portal() {
             </header>
 
             <div className="mk-content">
+              {/* Compact greeting strip — sits under the top bar, above
+                  the filter pills so it never shifts with the grid. */}
+              <div className="mk-greet">
+                <span className="mk-greet-kicker">
+                  {isAr ? 'بوابة شخصية' : 'PERSÖNLICHES PORTAL'}
+                </span>
+                <span className="mk-greet-sep" aria-hidden>·</span>
+                <span className="mk-greet-name">
+                  {username
+                    ? isAr ? `أهلاً ${username}` : `Willkommen, ${username}`
+                    : isAr ? 'أهلاً بك' : 'Willkommen'}
+                </span>
+              </div>
+
               {/* ---- stage: pills + launcher grid + toolbar ---- */}
               <div className="mk-stage-col">
                 <div className="mk-stage">
@@ -510,6 +524,18 @@ export default function Portal() {
                         {isAr ? c.ar : c.de}
                       </button>
                     ))}
+                  </div>
+
+                  {/* view mode toggle — inline top-end, next to pills */}
+                  <div className="mk-toolbar">
+                    <button
+                      onClick={() => setList(v => !v)}
+                      className={list ? 'on' : undefined}
+                      title={isAr ? 'طريقة العرض' : 'Ansicht'}
+                      aria-label={isAr ? 'طريقة العرض' : 'Ansicht'}
+                    >
+                      {list ? <MkListView size={18} /> : <MkGridView size={18} />}
+                    </button>
                   </div>
 
                   <div className="mk-stage-scroll">
