@@ -31,7 +31,7 @@ test.describe('pwa', () => {
     // theme_color has to match the theme the app actually boots into. The
     // default resolves to 'light' in both AppContext and the index.html FOUC
     // guard, so a dark value here would flash on launch.
-    expect(manifest.theme_color).toBe('#f5f3ef');
+    expect(manifest.theme_color).toBe('#f1f0f4');
 
     // Installability needs a maskable icon; Chrome warns without one.
     expect(manifest.icons.some((i) => i.purpose === 'maskable')).toBe(true);
@@ -54,8 +54,8 @@ test.describe('pwa', () => {
     await page.goto('/');
     const light = page.locator('meta[name="theme-color"][media*="light"]');
     const dark = page.locator('meta[name="theme-color"][media*="dark"]');
-    await expect(light).toHaveAttribute('content', '#f5f3ef');
-    await expect(dark).toHaveAttribute('content', '#191817');
+    await expect(light).toHaveAttribute('content', '#f1f0f4');
+    await expect(dark).toHaveAttribute('content', '#1c1827');
   });
 
   test('the generated service worker is served and carries a precache manifest', async ({

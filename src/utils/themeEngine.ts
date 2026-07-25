@@ -1,307 +1,174 @@
 // ─── Theme Engine ───────────────────────────────────────────
-// Generates a full semantic color system from 4 base HSL colors.
+// A theme is a 7-step tonal scale: 50 · 100 · 200 · 300 · 400 · 500 · 600.
+//
+// Every theme shares ONE lightness ladder, so the visual rhythm — how far a
+// card sits from its background, how a border separates two surfaces, how much
+// contrast body text carries — is identical no matter which theme is active.
+// A theme only chooses *where on the colour wheel* that ladder lives and how
+// much chroma it carries. That is what makes 31 themes feel like one product
+// instead of 31 unrelated skins.
+//
+// The reference ladder is the application's default palette:
+//
+//   50  #f1f0f4   100 #bebacd   200 #a49db8   300 #756b92
+//   400 #4b4262   500 #373049   600 #1c1827
+//
+// Read as HSL those seven colours are a single hue (~256°) walked down a
+// deliberately uneven lightness curve (95 → 77 → 67 → 50 → 32 → 24 → 12) while
+// saturation *rises* toward the dark end (15% → 24%) — dark tones need more
+// chroma to avoid reading as dead grey. Both curves are reproduced exactly
+// below and reused by every other theme.
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ThemeStyle = 'tonal' | 'vibrant' | 'neutral' | 'expressive';
+
+/** `[hue, saturation%, lightness%]` — fractional values are kept on purpose. */
+export type Hsl = [number, number, number];
+
+/** The seven tones of a theme, ordered 50 (lightest) → 600 (darkest). */
+export type ThemeScale = [Hsl, Hsl, Hsl, Hsl, Hsl, Hsl, Hsl];
+
+export const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600] as const;
+export type ScaleStep = (typeof SCALE_STEPS)[number];
 
 export interface ThemePreset {
   id: string;
   name: string;
   nameEn: string;
-  primary: [number, number, number]; // [h, s, l]
-  secondary: [number, number, number];
-  accent: [number, number, number];
-  neutral: [number, number, number];
+  /** The theme's seven published tones. Everything else is derived from it. */
+  scale: ThemeScale;
+  // ── Legacy 4-colour API ──────────────────────────────────
+  // Derived from `scale` so older generators (MD3 / iOS / Aura experiments)
+  // keep compiling. New code must read `scale` instead.
+  primary: Hsl;
+  secondary: Hsl;
+  accent: Hsl;
+  neutral: Hsl;
+}
+
+// ─── The shared ladder ──────────────────────────────────────
+/** Lightness of each step. Taken verbatim from the reference palette. */
+const LADDER_L = [94.9, 76.7, 66.9, 49.6, 32.2, 23.7, 12.4] as const;
+
+/**
+ * Saturation multiplier per step, relative to a theme's base chroma.
+ * Mirrors the reference palette, where saturation climbs from 15.4% at step 50
+ * to 23.8% at step 600 (≈1.55×) so the darkest tones stay coloured, not muddy.
+ */
+const SAT_SHAPE = [1, 1.04, 1.04, 1.0, 1.27, 1.34, 1.55] as const;
+
+/**
+ * Per-step chroma ceiling. Pale tints turn candy-coloured very quickly, and a
+ * near-black background with 80% saturation stops being a background — so each
+ * end of the ladder is capped tighter than the middle.
+ */
+const SAT_CEIL = [22, 36, 44, 58, 64, 62, 56] as const;
+
+function norm360(h: number) {
+  return ((h % 360) + 360) % 360;
+}
+
+/** Shortest-path hue interpolation, so a 350° → 10° ramp goes through 0°. */
+function lerpHue(a: number, b: number, t: number) {
+  let d = norm360(b) - norm360(a);
+  if (d > 180) d -= 360;
+  if (d < -180) d += 360;
+  return norm360(a + d * t);
+}
+
+/**
+ * Build a theme's 7 tones.
+ *
+ * @param hue      hue of the lightest tone (step 50)
+ * @param satBase  saturation of step 50; the ladder scales it per step
+ * @param hueDrift total hue rotation applied linearly from step 50 → 600.
+ *                 A few degrees of drift is what separates a flat tint ramp
+ *                 from one that feels lit — light tones lean warm, deep tones
+ *                 lean cool (or the reverse, for the warm themes).
+ */
+export function buildScale(hue: number, satBase: number, hueDrift = 0): ThemeScale {
+  return LADDER_L.map((l, i) => {
+    const t = i / (LADDER_L.length - 1);
+    const s = satBase <= 0 ? 0 : Math.min(satBase * SAT_SHAPE[i], SAT_CEIL[i]);
+    return [lerpHue(hue, hue + hueDrift, t), s, l] as Hsl;
+  }) as ThemeScale;
+}
+
+/**
+ * The default palette, transcribed from its hex form at full precision so the
+ * generated CSS reproduces #f1f0f4 … #1c1827 byte-for-byte.
+ */
+const DEFAULT_SCALE: ThemeScale = [
+  [255.0, 15.4, 94.9], // 50  #f1f0f4
+  [252.6, 16.0, 76.7], // 100 #bebacd
+  [255.6, 16.0, 66.9], // 200 #a49db8
+  [255.4, 15.4, 49.6], // 300 #756b92
+  [256.9, 19.5, 32.2], // 400 #4b4262
+  [256.8, 20.7, 23.7], // 500 #373049
+  [256.0, 23.8, 12.4], // 600 #1c1827
+];
+
+function definePreset(
+  id: string,
+  name: string,
+  nameEn: string,
+  hue: number,
+  satBase: number,
+  hueDrift = 0,
+  explicitScale?: ThemeScale,
+): ThemePreset {
+  const scale = explicitScale ?? buildScale(hue, satBase, hueDrift);
+  return {
+    id,
+    name,
+    nameEn,
+    scale,
+    // Legacy mirrors — never authored by hand again.
+    primary: scale[4],
+    secondary: scale[3],
+    accent: scale[2],
+    neutral: scale[1],
+  };
 }
 
 // ─── Presets ────────────────────────────────────────────────
+// id · Arabic name · English name · hue · base chroma · hue drift
 export const themePresets: ThemePreset[] = [
-  {
-    id: 'paper',
-    name: 'ورق وحبر',
-    nameEn: 'Paper & Ink',
-    // Neutral warm — actual paper/ink tokens are hard-coded in
-    // generateThemeTokens() override below (curium aesthetic).
-    primary: [34, 33, 11],
-    secondary: [34, 20, 33],
-    accent: [34, 33, 11],
-    neutral: [34, 12, 50],
-  },
-  {
-    id: 'default',
-    name: 'كلاسيك',
-    nameEn: 'Classic',
-    primary: [240, 5, 26],
-    secondary: [240, 5, 50],
-    accent: [240, 8, 60],
-    neutral: [240, 4, 46],
-  },
-  {
-    id: 'midnight',
-    name: 'منتصف الليل',
-    nameEn: 'Midnight',
-    primary: [222, 60, 50],
-    secondary: [210, 45, 55],
-    accent: [235, 50, 62],
-    neutral: [222, 12, 46],
-  },
-  {
-    id: 'rose',
-    name: 'روز جولد',
-    nameEn: 'Rose Gold',
-    primary: [350, 55, 55],
-    secondary: [340, 40, 60],
-    accent: [10, 50, 58],
-    neutral: [350, 8, 46],
-  },
-  {
-    id: 'emerald',
-    name: 'زمرد',
-    nameEn: 'Emerald',
-    primary: [152, 55, 40],
-    secondary: [165, 45, 45],
-    accent: [140, 50, 50],
-    neutral: [152, 8, 44],
-  },
-  {
-    id: 'lavender',
-    name: 'لافندر',
-    nameEn: 'Lavender',
-    primary: [270, 50, 55],
-    secondary: [280, 40, 58],
-    accent: [255, 48, 62],
-    neutral: [270, 8, 46],
-  },
-  {
-    id: 'sunset',
-    name: 'غروب',
-    nameEn: 'Sunset',
-    primary: [25, 80, 52],
-    secondary: [35, 70, 55],
-    accent: [15, 75, 50],
-    neutral: [25, 10, 46],
-  },
-  {
-    id: 'ocean',
-    name: 'محيط',
-    nameEn: 'Ocean',
-    primary: [195, 70, 42],
-    secondary: [205, 55, 48],
-    accent: [185, 60, 45],
-    neutral: [195, 10, 44],
-  },
-  {
-    id: 'neon',
-    name: 'نيون',
-    nameEn: 'Neon',
-    primary: [160, 80, 38],
-    secondary: [150, 65, 42],
-    accent: [170, 70, 44],
-    neutral: [160, 8, 44],
-  },
-  {
-    id: 'coffee',
-    name: 'قهوة',
-    nameEn: 'Coffee',
-    primary: [30, 40, 38],
-    secondary: [25, 35, 44],
-    accent: [35, 45, 42],
-    neutral: [30, 8, 44],
-  },
-  {
-    id: 'cherry',
-    name: 'كرزي',
-    nameEn: 'Cherry',
-    primary: [0, 65, 50],
-    secondary: [350, 50, 55],
-    accent: [15, 60, 52],
-    neutral: [0, 8, 44],
-  },
-  {
-    id: 'gold',
-    name: 'ذهبي',
-    nameEn: 'Gold',
-    primary: [42, 70, 48],
-    secondary: [38, 55, 52],
-    accent: [48, 65, 50],
-    neutral: [42, 10, 44],
-  },
-  {
-    id: 'mono',
-    name: 'مونوكروم',
-    nameEn: 'Mono',
-    primary: [0, 0, 15],
-    secondary: [0, 0, 35],
-    accent: [0, 0, 50],
-    neutral: [0, 0, 46],
-  },
-  {
-    id: 'aurora',
-    name: 'شفق',
-    nameEn: 'Aurora',
-    primary: [280, 65, 52],
-    secondary: [170, 60, 45],
-    accent: [320, 55, 58],
-    neutral: [260, 8, 44],
-  },
-  {
-    id: 'sakura',
-    name: 'ساكورا',
-    nameEn: 'Sakura',
-    primary: [330, 60, 68],
-    secondary: [345, 45, 72],
-    accent: [15, 55, 65],
-    neutral: [330, 10, 50],
-  },
-  {
-    id: 'arctic',
-    name: 'قطبي',
-    nameEn: 'Arctic',
-    primary: [200, 75, 48],
-    secondary: [215, 60, 55],
-    accent: [180, 55, 42],
-    neutral: [205, 12, 46],
-  },
-  {
-    id: 'volcano',
-    name: 'بركان',
-    nameEn: 'Volcano',
-    primary: [8, 75, 48],
-    secondary: [25, 85, 52],
-    accent: [350, 65, 45],
-    neutral: [10, 10, 40],
-  },
-  {
-    id: 'matcha',
-    name: 'ماتشا',
-    nameEn: 'Matcha',
-    primary: [120, 35, 42],
-    secondary: [100, 28, 50],
-    accent: [80, 40, 48],
-    neutral: [110, 8, 46],
-  },
-  {
-    id: 'nebula',
-    name: 'سديم',
-    nameEn: 'Nebula',
-    primary: [260, 55, 48],
-    secondary: [290, 50, 55],
-    accent: [230, 60, 58],
-    neutral: [270, 10, 42],
-  },
-  {
-    id: 'copper',
-    name: 'نحاسي',
-    nameEn: 'Copper',
-    primary: [18, 60, 45],
-    secondary: [28, 50, 50],
-    accent: [8, 55, 48],
-    neutral: [20, 10, 42],
-  },
-  {
-    id: 'mint',
-    name: 'نعناع',
-    nameEn: 'Mint',
-    primary: [165, 55, 45],
-    secondary: [145, 45, 50],
-    accent: [180, 50, 48],
-    neutral: [160, 8, 46],
-  },
-  // ─── New Artisan Themes ──────────────────────────────────
-  {
-    id: 'sandstone',
-    name: 'حجر رملي',
-    nameEn: 'Sandstone',
-    primary: [32, 38, 52],
-    secondary: [22, 30, 58],
-    accent: [45, 42, 48],
-    neutral: [28, 12, 48],
-  },
-  {
-    id: 'dusk',
-    name: 'شفق بنفسجي',
-    nameEn: 'Dusk',
-    primary: [265, 32, 45],
-    secondary: [290, 25, 52],
-    accent: [20, 55, 58],
-    neutral: [275, 6, 42],
-  },
-  {
-    id: 'moss',
-    name: 'طحلب',
-    nameEn: 'Moss',
-    primary: [95, 28, 38],
-    secondary: [75, 22, 45],
-    accent: [55, 35, 50],
-    neutral: [85, 6, 44],
-  },
-  {
-    id: 'clay',
-    name: 'صلصال',
-    nameEn: 'Clay',
-    primary: [12, 42, 52],
-    secondary: [5, 35, 58],
-    accent: [28, 48, 55],
-    neutral: [15, 10, 44],
-  },
-  {
-    id: 'storm',
-    name: 'عاصفة',
-    nameEn: 'Storm',
-    primary: [215, 35, 42],
-    secondary: [225, 28, 50],
-    accent: [195, 40, 48],
-    neutral: [220, 8, 40],
-  },
-  {
-    id: 'silk',
-    name: 'حرير',
-    nameEn: 'Silk',
-    primary: [335, 30, 58],
-    secondary: [310, 22, 62],
-    accent: [355, 35, 55],
-    neutral: [330, 6, 50],
-  },
-  {
-    id: 'amber',
-    name: 'كهرمان',
-    nameEn: 'Amber',
-    primary: [38, 65, 45],
-    secondary: [28, 50, 50],
-    accent: [50, 55, 42],
-    neutral: [35, 10, 42],
-  },
-  {
-    id: 'fog',
-    name: 'ضباب',
-    nameEn: 'Fog',
-    primary: [200, 12, 48],
-    secondary: [210, 8, 55],
-    accent: [185, 15, 52],
-    neutral: [200, 4, 46],
-  },
-  {
-    id: 'obsidian',
-    name: 'سبج',
-    nameEn: 'Obsidian',
-    primary: [250, 18, 35],
-    secondary: [240, 12, 42],
-    accent: [270, 22, 45],
-    neutral: [245, 5, 38],
-  },
-  {
-    id: 'terracotta',
-    name: 'فخّار',
-    nameEn: 'Terracotta',
-    primary: [15, 48, 48],
-    secondary: [8, 38, 55],
-    accent: [30, 52, 52],
-    neutral: [18, 8, 44],
-  },
+  definePreset('default', 'كلاسيك', 'Classic', 256, 15.4, 0, DEFAULT_SCALE),
+  definePreset('paper', 'ورق وحبر', 'Paper & Ink', 36, 22, -6),
+  definePreset('mono', 'مونوكروم', 'Mono', 0, 0),
+  definePreset('coffee', 'قهوة', 'Coffee', 30, 22, -4),
+  definePreset('fog', 'ضباب', 'Fog', 205, 10, -6),
+  definePreset('obsidian', 'سبج', 'Obsidian', 248, 12, 4),
+  definePreset('midnight', 'منتصف الليل', 'Midnight', 218, 26, 8),
+  definePreset('rose', 'روز جولد', 'Rose Gold', 352, 24, -14),
+  definePreset('emerald', 'زمرد', 'Emerald', 156, 26, -8),
+  definePreset('lavender', 'لافندر', 'Lavender', 268, 24, 6),
+  definePreset('sunset', 'غروب', 'Sunset', 28, 32, -14),
+  definePreset('ocean', 'محيط', 'Ocean', 196, 28, 6),
+  definePreset('neon', 'نيون', 'Neon', 162, 34, -10),
+  definePreset('cherry', 'كرزي', 'Cherry', 4, 30, -10),
+  definePreset('gold', 'ذهبي', 'Gold', 44, 30, -12),
+  definePreset('aurora', 'شفق', 'Aurora', 292, 28, -28),
+  definePreset('sakura', 'ساكورا', 'Sakura', 338, 26, -22),
+  definePreset('arctic', 'قطبي', 'Arctic', 200, 24, 10),
+  definePreset('volcano', 'بركان', 'Volcano', 14, 32, -14),
+  definePreset('matcha', 'ماتشا', 'Matcha', 112, 22, -14),
+  definePreset('nebula', 'سديم', 'Nebula', 262, 28, 14),
+  definePreset('copper', 'نحاسي', 'Copper', 22, 28, -10),
+  definePreset('mint', 'نعناع', 'Mint', 168, 24, 6),
+  definePreset('sandstone', 'حجر رملي', 'Sandstone', 34, 20, -8),
+  definePreset('dusk', 'شفق بنفسجي', 'Dusk', 274, 20, -12),
+  definePreset('moss', 'طحلب', 'Moss', 92, 18, -10),
+  definePreset('clay', 'صلصال', 'Clay', 16, 24, -8),
+  definePreset('storm', 'عاصفة', 'Storm', 214, 18, 8),
+  definePreset('silk', 'حرير', 'Silk', 332, 16, -16),
+  definePreset('amber', 'كهرمان', 'Amber', 40, 28, -12),
+  definePreset('terracotta', 'فخّار', 'Terracotta', 18, 26, -8),
 ];
 
 // ─── Style modifiers ────────────────────────────────────────
-// Each style adjusts saturation & lightness offsets for the generated tokens
+// Legacy shape, still consumed by the MD3 / iOS / Aura experiments below.
 interface StyleModifier {
   satMul: number; // multiply saturation
   surfaceSatMul: number; // surface area saturation
@@ -315,23 +182,170 @@ const styleModifiers: Record<ThemeStyle, StyleModifier> = {
   expressive: { satMul: 1.0, surfaceSatMul: 0.8, accentBoost: 12 },
 };
 
-// ─── Helper ─────────────────────────────────────────────────
+/**
+ * Palette style scales a theme's chroma and nothing else — never lightness.
+ * Contrast is therefore a property of the ladder, not of the user's taste, and
+ * no style can produce unreadable text.
+ *
+ * `neutral` is 1.0 because it is the app default: the shipped palette must
+ * render exactly as published, not as a desaturated approximation of itself.
+ */
+const CHROMA_BY_STYLE: Record<ThemeStyle, number> = {
+  neutral: 1,
+  tonal: 1.15,
+  vibrant: 1.4,
+  expressive: 1.7,
+};
+
+// ─── Helpers ────────────────────────────────────────────────
+/** One decimal is kept: rounding HSL to integers shifts hex output by ±1. */
+function fmt(n: number): string {
+  const r = Math.round(n * 10) / 10;
+  return Number.isInteger(r) ? String(r) : r.toFixed(1);
+}
+
 function hsl(h: number, s: number, l: number): string {
-  return `${Math.round(h)} ${Math.round(Math.max(0, Math.min(100, s)))}% ${Math.round(Math.max(0, Math.min(100, l)))}%`;
+  return `${fmt(norm360(h))} ${fmt(clamp(s, 0, 100))}% ${fmt(clamp(l, 0, 100))}%`;
 }
 
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
+/**
+ * Tolerate presets persisted by an earlier version of the app (the
+ * image-derived `dynamic` theme is stored in localStorage as raw JSON).
+ */
+function resolveScale(preset: ThemePreset): ThemeScale {
+  if (preset?.scale?.length === 7) return preset.scale;
+  const [h, s] = preset?.primary ?? [256, 15.4, 32];
+  return buildScale(h, clamp(s, 0, 46));
+}
+
+/**
+ * Sample the theme's curve at an arbitrary lightness.
+ *
+ * The seven published tones are anchors, not a closed set: the UI needs more
+ * surfaces than seven (a card sits between "white" and step 50; a hairline
+ * border sits between steps 50 and 100). Interpolating hue and saturation
+ * between the two neighbouring anchors keeps every one of those in-between
+ * surfaces *on the theme's own curve*, so no colour in the app is foreign to
+ * the palette — it is the same ramp, read at a finer resolution.
+ */
+function toneAt(scale: ThemeScale, lightness: number, chroma = 1): Hsl {
+  const l = clamp(lightness, 0, 100);
+  const first = scale[0];
+  const last = scale[scale.length - 1];
+  if (l >= first[2]) return [first[0], first[1] * chroma, l];
+  if (l <= last[2]) return [last[0], last[1] * chroma, l];
+
+  for (let i = 0; i < scale.length - 1; i++) {
+    const a = scale[i];
+    const b = scale[i + 1];
+    if (l <= a[2] && l >= b[2]) {
+      const span = a[2] - b[2];
+      const t = span === 0 ? 0 : (a[2] - l) / span;
+      return [lerpHue(a[0], b[0], t), (a[1] + (b[1] - a[1]) * t) * chroma, l];
+    }
+  }
+  return [last[0], last[1] * chroma, l];
+}
+
+// ─── Perceptual guard rails ─────────────────────────────────
+// HSL lightness is not perceived brightness: `hsl(150 26% 41%)` (a green) is
+// visibly brighter than `hsl(256 20% 41%)` (a violet) even though both claim
+// 41% lightness. Picking text tones by lightness alone therefore produced
+// readable violet themes and unreadable green ones. Text tones are instead
+// walked down (or up) the theme's own curve until they *measure* readable.
+
+function srgbLuminance([h, s, l]: Hsl): number {
+  const S = clamp(s, 0, 100) / 100;
+  const L = clamp(l, 0, 100) / 100;
+  const c = (1 - Math.abs(2 * L - 1)) * S;
+  const hp = norm360(h) / 60;
+  const x = c * (1 - Math.abs((hp % 2) - 1));
+  const m = L - c / 2;
+  const rgb =
+    hp < 1
+      ? [c, x, 0]
+      : hp < 2
+        ? [x, c, 0]
+        : hp < 3
+          ? [0, c, x]
+          : hp < 4
+            ? [0, x, c]
+            : hp < 5
+              ? [x, 0, c]
+              : [c, 0, x];
+  const [r, g, b] = rgb.map((v) => {
+    const ch = v + m;
+    return ch <= 0.03928 ? ch / 12.92 : ((ch + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** WCAG 2.1 relative contrast ratio between two tones. */
+function contrastRatio(a: Hsl, b: Hsl): number {
+  const [hi, lo] = [srgbLuminance(a), srgbLuminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Find the tone on `scale` closest to `startL` that clears `minRatio` against
+ * `bg`. It only ever moves *away* from the background, so the result keeps the
+ * theme's hue and the intended light/dark relationship — it just stops being a
+ * suggestion and becomes a measured guarantee.
+ */
+function readableTone(
+  scale: ThemeScale,
+  startL: number,
+  bg: Hsl,
+  minRatio: number,
+  chroma: number,
+): Hsl {
+  const away = startL < bg[2] ? -1 : 1;
+  let l = clamp(startL, 0, 100);
+  for (let i = 0; i <= 100; i++) {
+    const candidate = toneAt(scale, l, chroma);
+    if (contrastRatio(candidate, bg) >= minRatio) return candidate;
+    const next = l + away;
+    if (next < 0 || next > 100) break;
+    l = next;
+  }
+  return toneAt(scale, l, chroma);
+}
+
+/** The theme's seven tones, after the palette-style chroma multiplier. */
+export function getThemeScale(preset: ThemePreset, style: ThemeStyle = 'neutral'): Hsl[] {
+  const chroma = CHROMA_BY_STYLE[style] ?? 1;
+  return resolveScale(preset).map(([h, s, l]) => [h, clamp(s * chroma, 0, 100), l] as Hsl);
+}
+
+/** Same seven tones as ready-to-use CSS colours, for swatches and previews. */
+export function getThemeScaleColors(preset: ThemePreset, style: ThemeStyle = 'neutral'): string[] {
+  return getThemeScale(preset, style).map(([h, s, l]) => `hsl(${hsl(h, s, l)})`);
+}
+
 // ─── Token Generation ───────────────────────────────────────
 /**
- * Canonical application palette.
+ * Derive the whole semantic token set from the theme's 7-step scale.
  *
- * The neutral canvas, surfaces, borders, status colours and contrast stay
- * identical across every preset. A preset may change only the single accent
- * hue, within a deliberately narrow saturation range. This keeps user choice
- * without allowing a screen or theme to invent a second visual language.
+ * Distribution of the ladder (light mode → dark mode):
+ *
+ *   50   page background      → primary / accent text
+ *   100  input borders        → secondary text
+ *   200  soft accent surface  → accent text
+ *   300  accent / live states → accent / live states
+ *   400  primary actions      → muted surfaces
+ *   500  strong accent text   → cards, muted, borders
+ *   600  body text            → page background
+ *
+ * Dark mode is the same ladder read from the other end, which is why a theme
+ * keeps its identity across modes instead of becoming a different colour.
+ *
+ * Status colours (destructive / success / warning) stay functional and are
+ * deliberately NOT themed: a destructive action must look destructive in every
+ * palette. Their lightness still follows the mode so they sit on the surface.
  */
 export function generateThemeTokens(
   preset: ThemePreset,
@@ -339,31 +353,62 @@ export function generateThemeTokens(
   isDark: boolean,
   isBlack: boolean,
 ): Record<string, string> {
-  const accentStrength: Record<ThemeStyle, number> = {
-    neutral: 18,
-    tonal: 28,
-    vibrant: 38,
-    expressive: 46,
-  };
-  const accentHue = preset.id === 'paper' || preset.id === 'default' ? 28 : preset.primary[0];
-  const accentSat = preset.id === 'mono' ? 0 : (accentStrength[style] ?? accentStrength.tonal);
+  const scale = resolveScale(preset);
+  const chroma = CHROMA_BY_STYLE[style] ?? 1;
+
+  /** A colour from this theme's curve at the given lightness. */
+  const tone = (l: number, chromaMul = 1): Hsl => toneAt(scale, l, chroma * chromaMul);
+  /** One of the seven published tones, unmodified except for chroma. */
+  const step = (index: number): Hsl => [scale[index][0], scale[index][1] * chroma, scale[index][2]];
+  /** A text tone that is measured readable on `bg`, still on the theme curve. */
+  const text = (startL: number, bg: Hsl, minRatio: number, chromaMul = 1): Hsl =>
+    readableTone(scale, startL, bg, minRatio, chroma * chromaMul);
+  const css = (t: Hsl) => hsl(t[0], t[1], t[2]);
+
+  // The published scale is exposed verbatim so features can reach for a
+  // specific tone (`bg-theme-100`, `text-theme-600`) without inventing colours.
+  const scaleVars: Record<string, string> = {};
+  SCALE_STEPS.forEach((name, i) => {
+    scaleVars[`--theme-${name}`] = css(step(i));
+  });
 
   if (!isDark) {
+    // Surfaces: step 50 is the canvas, cards lift *above* it toward white,
+    // recessed surfaces sit just below it — the ladder read at fine resolution.
+    const canvas = step(0);
+    const surface = tone(98.6, 0.85);
+    const recessed = tone(90.6);
+    // Step 400 is the action tone. For the few very luminous hues (a vivid
+    // green at 32% lightness) it is deepened until its own label is readable,
+    // rather than lightening the label past white and giving up.
+    const onPrimary = tone(97.5, 0.6);
+    const primary = text(scale[4][2], onPrimary, 4.6);
+
+    const bodyText = text(scale[6][2], canvas, 7);
+    const bodyOnSurface = text(scale[6][2], surface, 7);
+    const strongText = text(27, recessed, 7);
+    const mutedText = text(41, recessed, 4.6);
+    const accentText = text(scale[5][2], recessed, 4.6);
+    const live = text(scale[3][2], canvas, 4.5);
+
     return {
-      '--background': '36 18% 96%',
-      '--foreground': '30 16% 14%',
-      '--card': '38 24% 99%',
-      '--card-foreground': '30 16% 14%',
-      '--popover': '38 24% 99%',
-      '--popover-foreground': '30 16% 14%',
-      '--primary': hsl(accentHue, accentSat, 34),
-      '--primary-foreground': '38 30% 98%',
-      '--secondary': '36 14% 91%',
-      '--secondary-foreground': '30 14% 24%',
-      '--muted': '36 14% 91%',
-      '--muted-foreground': '30 10% 38%',
-      '--accent': '36 14% 91%',
-      '--accent-foreground': hsl(accentHue, accentSat, 30),
+      ...scaleVars,
+      '--background': css(canvas),
+      '--foreground': css(bodyText),
+      '--card': css(surface),
+      '--card-foreground': css(bodyOnSurface),
+      '--popover': css(surface),
+      '--popover-foreground': css(bodyOnSurface),
+      '--secondary': css(recessed),
+      '--secondary-foreground': css(strongText),
+      '--muted': css(recessed),
+      '--muted-foreground': css(mutedText),
+      '--accent': css(recessed),
+      '--accent-foreground': css(accentText),
+      // Actions
+      '--primary': css(primary),
+      '--primary-foreground': css(onPrimary),
+      // Status — functional, not themed.
       '--destructive': '0 58% 42%',
       '--destructive-foreground': '0 0% 100%',
       '--success': '145 42% 34%',
@@ -372,45 +417,67 @@ export function generateThemeTokens(
       '--warning-foreground': '35 80% 10%',
       '--error': '0 58% 42%',
       '--error-foreground': '0 0% 100%',
-      '--border': '34 13% 82%',
-      '--input': '34 13% 68%',
-      '--ring': hsl(accentHue, accentSat, 34),
-      '--scrim': '24 14% 8%',
-      '--sidebar-background': '36 18% 96%',
-      '--sidebar-foreground': '30 14% 24%',
-      '--sidebar-primary': hsl(accentHue, accentSat, 34),
-      '--sidebar-primary-foreground': '38 30% 98%',
-      '--sidebar-accent': '36 14% 91%',
-      '--sidebar-accent-foreground': hsl(accentHue, accentSat, 30),
-      '--sidebar-border': '34 13% 82%',
-      '--sidebar-ring': hsl(accentHue, accentSat, 34),
-      '--live': hsl(accentHue, accentSat, 40),
-      '--live-soft': hsl(accentHue, accentSat * 0.78, 56),
-      '--live-glow': hsl(accentHue, accentSat * 0.9, 52),
+      // Lines
+      '--border': css(tone(83.5)),
+      '--input': css(step(1)),
+      '--ring': css(primary),
+      '--scrim': css(tone(8)),
+      // Sidebar mirrors the same tones.
+      '--sidebar-background': css(canvas),
+      '--sidebar-foreground': css(strongText),
+      '--sidebar-primary': css(primary),
+      '--sidebar-primary-foreground': css(onPrimary),
+      '--sidebar-accent': css(recessed),
+      '--sidebar-accent-foreground': css(accentText),
+      '--sidebar-border': css(tone(83.5)),
+      '--sidebar-ring': css(primary),
+      // Live / active states — step 300 is the theme's most legible mid-tone,
+      // pulled darker only where a hue needs it to stay readable as text.
+      '--live': css(live),
+      '--live-soft': css(step(2)),
+      '--live-glow': css(tone(44)),
       '--radius': '1rem',
     };
   }
 
-  const backgroundLightness = isBlack ? 0 : 10;
-  const cardLightness = isBlack ? 4 : 15;
-  const secondaryLightness = isBlack ? 8 : 21;
-  const borderLightness = isBlack ? 16 : 29;
+  // ─── Dark mode ────────────────────────────────────────────
+  // Black mode collapses the surface ladder toward true black for OLED, and
+  // drops surface chroma so the canvas reads as black rather than tinted.
+  const surfaceChroma = isBlack ? 0.5 : 1;
+  const bgL = isBlack ? 0 : scale[6][2]; // step 600
+  const cardL = isBlack ? 4.5 : 16.8;
+  const raisedL = isBlack ? 9 : 22.5;
+  const borderL = isBlack ? 16 : 28.5;
+  const inputL = isBlack ? 23 : 35;
+
+  const canvas = tone(bgL, surfaceChroma);
+  const surface = tone(cardL, surfaceChroma);
+  const recessed = tone(raisedL, surfaceChroma);
+  const onPrimary = tone(isBlack ? 6 : 12.4, surfaceChroma);
+  const primary = text(76, onPrimary, 4.6);
+
+  const bodyText = text(93, canvas, 7);
+  const bodyOnSurface = text(93, surface, 7);
+  const strongText = text(88, recessed, 7);
+  const mutedText = text(71.5, recessed, 4.6);
+  const accentText = text(81, recessed, 4.6);
 
   return {
-    '--background': hsl(30, isBlack ? 0 : 9, backgroundLightness),
-    '--foreground': '34 20% 92%',
-    '--card': hsl(30, isBlack ? 0 : 8, cardLightness),
-    '--card-foreground': '34 20% 92%',
-    '--popover': hsl(30, isBlack ? 0 : 8, cardLightness),
-    '--popover-foreground': '34 20% 92%',
-    '--primary': hsl(accentHue, accentSat * 0.9, 72),
-    '--primary-foreground': hsl(30, isBlack ? 0 : 14, 14),
-    '--secondary': hsl(30, isBlack ? 0 : 8, secondaryLightness),
-    '--secondary-foreground': '34 18% 88%',
-    '--muted': hsl(30, isBlack ? 0 : 8, secondaryLightness),
-    '--muted-foreground': '34 12% 72%',
-    '--accent': hsl(30, isBlack ? 0 : 8, secondaryLightness),
-    '--accent-foreground': hsl(accentHue, accentSat * 0.9, 78),
+    ...scaleVars,
+    '--background': css(canvas),
+    '--foreground': css(bodyText),
+    '--card': css(surface),
+    '--card-foreground': css(bodyOnSurface),
+    '--popover': css(surface),
+    '--popover-foreground': css(bodyOnSurface),
+    '--secondary': css(recessed),
+    '--secondary-foreground': css(strongText),
+    '--muted': css(recessed),
+    '--muted-foreground': css(mutedText),
+    '--accent': css(recessed),
+    '--accent-foreground': css(accentText),
+    '--primary': css(primary),
+    '--primary-foreground': css(onPrimary),
     '--destructive': '0 58% 68%',
     '--destructive-foreground': '0 20% 10%',
     '--success': '145 38% 64%',
@@ -419,21 +486,21 @@ export function generateThemeTokens(
     '--warning-foreground': '35 40% 12%',
     '--error': '0 58% 68%',
     '--error-foreground': '0 20% 10%',
-    '--border': hsl(30, isBlack ? 0 : 8, borderLightness),
-    '--input': hsl(30, isBlack ? 0 : 8, isBlack ? 24 : 36),
-    '--ring': hsl(accentHue, accentSat * 0.9, 72),
-    '--scrim': '24 14% 4%',
-    '--sidebar-background': hsl(30, isBlack ? 0 : 9, backgroundLightness),
-    '--sidebar-foreground': '34 18% 88%',
-    '--sidebar-primary': hsl(accentHue, accentSat * 0.9, 72),
-    '--sidebar-primary-foreground': hsl(30, isBlack ? 0 : 14, 14),
-    '--sidebar-accent': hsl(30, isBlack ? 0 : 8, secondaryLightness),
-    '--sidebar-accent-foreground': hsl(accentHue, accentSat * 0.9, 78),
-    '--sidebar-border': hsl(30, isBlack ? 0 : 8, borderLightness),
-    '--sidebar-ring': hsl(accentHue, accentSat * 0.9, 72),
-    '--live': hsl(accentHue, accentSat * 0.9, 68),
-    '--live-soft': hsl(accentHue, accentSat * 0.72, 58),
-    '--live-glow': hsl(accentHue, accentSat * 0.9, 72),
+    '--border': css(tone(borderL, surfaceChroma)),
+    '--input': css(tone(inputL, surfaceChroma)),
+    '--ring': css(primary),
+    '--scrim': css(tone(2)),
+    '--sidebar-background': css(canvas),
+    '--sidebar-foreground': css(strongText),
+    '--sidebar-primary': css(primary),
+    '--sidebar-primary-foreground': css(onPrimary),
+    '--sidebar-accent': css(recessed),
+    '--sidebar-accent-foreground': css(accentText),
+    '--sidebar-border': css(tone(borderL, surfaceChroma)),
+    '--sidebar-ring': css(primary),
+    '--live': css(text(70, canvas, 4.5)),
+    '--live-soft': css(tone(58)),
+    '--live-glow': css(tone(76)),
     '--radius': '1rem',
   };
 }
@@ -859,17 +926,16 @@ function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
   return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
 }
 
+/**
+ * Build a full 7-step theme from a colour sampled out of an image.
+ *
+ * Only the hue and a clamped amount of chroma survive the extraction — the
+ * lightness ladder is the shared one, so an image can never produce a theme
+ * with unreadable text or a washed-out canvas.
+ */
 export function createDynamicPreset(baseHsl: [number, number, number]): ThemePreset {
-  const [h, s, l] = baseHsl;
-  return {
-    id: 'dynamic',
-    name: 'ديناميكي',
-    nameEn: 'Dynamic',
-    primary: [h, clamp(s, 30, 80), clamp(l, 35, 55)],
-    secondary: [(h + 30) % 360, clamp(s * 0.8, 20, 60), clamp(l + 5, 40, 58)],
-    accent: [(h + 330) % 360, clamp(s * 0.9, 25, 70), clamp(l, 38, 55)],
-    neutral: [h, clamp(s * 0.15, 0, 15), 46],
-  };
+  const [h, s] = baseHsl;
+  return definePreset('dynamic', 'ديناميكي', 'Dynamic', h, clamp(s * 0.55, 8, 34));
 }
 
 // ─── Dynamic Tonal MD3 Tokens (Strict M3 HCT equivalents) ───────────────────────────────

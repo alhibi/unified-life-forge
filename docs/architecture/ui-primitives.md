@@ -6,9 +6,10 @@ SmartHub has two layers of UI building blocks:
 2. **App primitives** in `src/components/ui/app-shell.tsx` — the SmartHub
    look-and-feel layer that every page and feature must reuse.
 
-The visual language is deliberately restrained: warm semantic neutrals,
-one controlled accent, opaque surfaces, hairline borders, no decorative
-shadows, blur, gradients, glows, noise, or glass effects.
+The visual language is deliberately restrained: one 7-step tonal scale per
+theme, opaque surfaces, hairline borders, no decorative shadows, blur,
+gradients, glows, noise, or glass effects. See
+[Colour: one scale per theme](#colour-one-scale-per-theme).
 
 ## The rule
 
@@ -114,3 +115,71 @@ composing inside `app-shell.tsx` or another primitive — not in pages.
 4. Group sections with `<Section label="…">`.
 5. Delete any leftover `bg-*` / `rounded-*` / `border-*` that the primitive
    already provides.
+
+## Colour: one scale per theme
+
+A theme is not a background colour plus an accent. Every theme publishes a
+**7-step tonal scale** — `50 · 100 · 200 · 300 · 400 · 500 · 600` — and every
+semantic token in the app is sampled from that one curve.
+
+The default palette is the reference:
+
+| step | hex       | light mode          | dark mode             |
+| ---- | --------- | ------------------- | --------------------- |
+| 50   | `#f1f0f4` | page background     | primary / accent text |
+| 100  | `#bebacd` | input borders       | secondary text        |
+| 200  | `#a49db8` | soft accent surface | accent text           |
+| 300  | `#756b92` | accent, live states | accent, live states   |
+| 400  | `#4b4262` | primary actions     | muted surfaces        |
+| 500  | `#373049` | strong accent text  | cards, muted, borders |
+| 600  | `#1c1827` | body text           | page background       |
+
+Dark mode is the same ladder read from the other end, which is why a theme keeps
+its identity across modes instead of turning into a different colour.
+
+### How it is built — `src/utils/themeEngine.ts`
+
+- **One lightness ladder for all 31 themes** (`95 → 77 → 67 → 50 → 32 → 24 → 12`),
+  so the distance between a card and its background, or between text and its
+  surface, is identical in every theme. A theme chooses only _where on the
+  colour wheel_ that ladder sits (`hue`), how much chroma it carries
+  (`satBase`), and how far the hue drifts from its lightest to its darkest tone
+  (`hueDrift`). That is the whole definition of a theme — one line each.
+- **Saturation rises toward the dark end** (≈1.55×). Dark tones need more chroma
+  or they read as dead grey.
+- **In-between surfaces stay on the curve.** The UI needs more than seven
+  surfaces (a card sits above step 50; a hairline border sits between 50 and
+  100), so `toneAt()` interpolates hue and saturation between the two
+  neighbouring steps. No colour in the app is foreign to its palette.
+- **Text tones are measured, not guessed.** HSL lightness is not perceived
+  brightness — a green at 41% lightness is far brighter than a violet at 41%.
+  `readableTone()` walks a text tone along the theme's own curve until it
+  actually clears its WCAG target (4.5:1 body/secondary, 7:1 primary text).
+  Every theme × palette-style × mode combination is guaranteed AA.
+- **Palette style changes chroma only, never lightness.** Contrast is therefore
+  a property of the ladder, not of the user's taste. `neutral` is 1.0 — the
+  shipped palette renders exactly as published.
+- **Status colours are not themed.** Destructive must look destructive in all 31
+  palettes.
+
+### Using it from a component
+
+Reach for a **semantic token** first — it carries meaning and follows light/dark
+automatically:
+
+```tsx
+<div className="bg-card text-foreground border-border">
+  <p className="text-muted-foreground">…</p>
+</div>
+```
+
+Use a **numbered tone** only when a feature genuinely needs a specific position
+on the ramp — a tiered legend, a heat scale, a palette swatch:
+
+```tsx
+<span className="bg-theme-100" /> // or primary-100, same tone
+```
+
+Never hardcode a hex. A hardcoded colour cannot follow 31 themes, two modes and
+black mode, and it is the one thing that makes a screen look like it belongs to
+a different app.

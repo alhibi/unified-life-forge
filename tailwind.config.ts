@@ -48,9 +48,37 @@ export default {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        // ── The active theme's 7-step tonal scale ────────────────────
+        // Every theme publishes exactly these seven tones (see
+        // src/utils/themeEngine.ts). The semantic tokens above are all
+        // sampled from this same curve, so `bg-theme-100` and `bg-secondary`
+        // belong to one palette rather than two.
+        //
+        // Reach for a semantic token first — `bg-card`, `text-muted-foreground`
+        // — because those carry meaning and follow light/dark automatically.
+        // Use a numbered tone only when a feature genuinely needs a specific
+        // position on the ramp (a 7-tier chart legend, a heat scale, a swatch).
+        theme: {
+          50: 'hsl(var(--theme-50))',
+          100: 'hsl(var(--theme-100))',
+          200: 'hsl(var(--theme-200))',
+          300: 'hsl(var(--theme-300))',
+          400: 'hsl(var(--theme-400))',
+          500: 'hsl(var(--theme-500))',
+          600: 'hsl(var(--theme-600))',
+        },
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          // Aliases of the scale above, for call sites that read more
+          // naturally as a primary ramp (`text-primary-600`).
+          50: 'hsl(var(--theme-50))',
+          100: 'hsl(var(--theme-100))',
+          200: 'hsl(var(--theme-200))',
+          300: 'hsl(var(--theme-300))',
+          400: 'hsl(var(--theme-400))',
+          500: 'hsl(var(--theme-500))',
+          600: 'hsl(var(--theme-600))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
