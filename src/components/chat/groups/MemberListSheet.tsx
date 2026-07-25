@@ -16,7 +16,6 @@ import RoleBadge from './RoleBadge';
 import MemberPicker from './MemberPicker';
 
 interface MemberListSheetProps {
-  isAr: boolean;
   isOpen: boolean;
   chat: ChatSummary;
   onClose: () => void;
@@ -36,8 +35,7 @@ type View = 'list' | 'add';
  * Admins cannot remove other admins (ownership transfer is a separate
  * flow we'll add in a later wave). The owner is never demotable / removable.
  */
-const MemberListSheet: React.FC<MemberListSheetProps> = ({
-  isAr, isOpen, chat, onClose, myUserId,
+const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose, myUserId,
 }) => {
   const BackIcon = ChevronRight;
   const [view, setView] = useState<View>('list');
@@ -67,13 +65,13 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[80] bg-black/45 backdrop-blur-sm"
+        className="absolute inset-0 z-nested bg-black/45 backdrop-blur-sm"
         onClick={close}
       />
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
- className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%]"
+ className="absolute inset-x-0 bottom-0 z-nested-above bg-background rounded-t-3xl flex flex-col max-h-[92%]"
  onClick={e => e.stopPropagation()}
  role="dialog"
  aria-modal="true"
@@ -148,7 +146,6 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
                   <MemberRow
                     key={m.userId}
                     member={m}
-                    isAr={isAr}
                     isMe={m.userId === myUserId}
                     canManage={canManage}
                     callerRole={myRole}
@@ -163,7 +160,6 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
         ) : (
           <div className="flex-1 min-h-0 px-4 py-3 flex flex-col">
             <MemberPicker
-              isAr={isAr}
               selectedIds={[]}
               excludeIds={members.map(m => m.userId)}
               onChange={(ids) => { if (ids.length > 0) void onAdd(ids); }}
@@ -177,13 +173,13 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
             <>
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 z-[90] bg-black/55"
+                className="absolute inset-0 z-deep bg-black/55"
                 onClick={() => setConfirm(null)}
               />
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 320 }}
- className="absolute inset-x-6 top-1/3 z-[91] bg-background rounded-3xl p-5"
+ className="absolute inset-x-6 top-1/3 z-deep-above bg-background rounded-3xl p-5"
  >
  <div className="flex items-start gap-3 mb-3">
  <div className={cn(
@@ -244,7 +240,6 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({
 
 interface MemberRowProps {
   member: ChatMember;
-  isAr: boolean;
   isMe: boolean;
   canManage: boolean;
   callerRole: ChatRole;
@@ -253,7 +248,7 @@ interface MemberRowProps {
   onRemove: () => void;
 }
 
-function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDemote, onRemove }: MemberRowProps) {
+function MemberRow({ member, isMe, canManage, callerRole, onPromote, onDemote, onRemove }: MemberRowProps) {
   const [open, setOpen] = useState(false);
   const isOwner = member.role === 'owner';
   const isAdmin = member.role === 'admin';
@@ -288,7 +283,7 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
             {member.displayName || member.username || member.userId.slice(0, 6)}
             {isMe && <span className="ms-1 text-[11px] font-medium text-muted-foreground">{'(أنت)'}</span>}
           </span>
-          <RoleBadge role={member.role} isAr={isAr} customTitle={member.customTitle} />
+          <RoleBadge role={member.role} customTitle={member.customTitle} />
         </div>
         {member.username && member.displayName && member.displayName !== member.username && (
           <p className="text-[11px] text-muted-foreground truncate">@{member.username}</p>
@@ -309,7 +304,7 @@ function MemberRow({ member, isAr, isMe, canManage, callerRole, onPromote, onDem
  {/* Inline action menu (no portal — keeps the sheet self-contained). */}
  {open && (
  <div
- className="absolute end-3 top-12 z-10 min-w-[180px] bg-popover border border-border/30 rounded-xl py-1 overflow-hidden"
+ className="absolute end-3 top-12 z-raised min-w-[180px] bg-popover border border-border/30 rounded-xl py-1 overflow-hidden"
  onClick={() => setOpen(false)}
  >
  {member.role === 'member' ? (

@@ -13,20 +13,19 @@ import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
-  'border-l-emerald-500': '#10b981',
-  'border-l-emerald-600': '#059669',
-  'border-l-sky-500': '#0ea5e9',
-  'border-l-violet-500': '#8b5cf6',
-  'border-l-amber-500': '#f59e0b',
-  'border-l-yellow-500': '#eab308',
-  'border-l-yellow-600': '#ca8a04',
-  'border-l-rose-500': '#f43f5e',
-  'border-l-slate-500': '#64748b',
+  'border-s-emerald-500': '#10b981',
+  'border-s-emerald-600': '#059669',
+  'border-s-sky-500': '#0ea5e9',
+  'border-s-violet-500': '#8b5cf6',
+  'border-s-amber-500': '#f59e0b',
+  'border-s-yellow-500': '#eab308',
+  'border-s-yellow-600': '#ca8a04',
+  'border-s-rose-500': '#f43f5e',
+  'border-s-slate-500': '#64748b',
 };
 
 export default function AllOccasions() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const { hijri: today, todayISO, offset } = useLiveHijriDate();
 
   const [selectedMonth, setSelectedMonth] = useState<number>(today.month);
@@ -186,7 +185,7 @@ export default function AllOccasions() {
                   {d}
                 </span>
                 {hasEvent && !isSelected && (
-                  <span className="absolute bottom-0.5 start-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" />
                 )}
                 {isToday && !isSelected && (
                   <span className="absolute top-0.5 end-0.5 w-1 h-1 rounded-full bg-primary" />
@@ -220,7 +219,6 @@ export default function AllOccasions() {
                 <EventListCard
                   key={ev.id}
                   event={ev}
-                  isAr={isAr}
                   onOpen={() => setSelectedEvent(ev)}
                 />
               ))
@@ -232,7 +230,6 @@ export default function AllOccasions() {
       {/* ── Event details modal ─────────────────────────────── */}
       <EventDetailDialog
         event={selectedEvent}
-        isAr={isAr}
         onClose={() => setSelectedEvent(null)}
       />
     </div>
@@ -245,11 +242,9 @@ export default function AllOccasions() {
 
 function EventListCard({
   event,
-  isAr,
   onOpen,
 }: {
   event: ResolvedIslamicEvent;
-  isAr: boolean;
   onOpen: () => void;
 }) {
   const accent = ACCENT[event.color] ?? '#10b981';
@@ -301,11 +296,9 @@ function EventListCard({
 
 function EventDetailDialog({
   event,
-  isAr,
   onClose,
 }: {
   event: ResolvedIslamicEvent | null;
-  isAr: boolean;
   onClose: () => void;
 }) {
   return (
@@ -316,7 +309,7 @@ function EventDetailDialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+          className="fixed inset-0 z-drawer bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
           onClick={onClose}
         >
           <motion.div
@@ -328,7 +321,7 @@ function EventDetailDialog({
  className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 p-6 max-h-[85vh] overflow-y-auto"
  dir={'rtl'}
           >
-            <DetailContent event={event} isAr={isAr} />
+            <DetailContent event={event} />
             <button
               onClick={onClose}
               className="mt-5 w-full rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-[13px] py-2.5 transition-colors"
@@ -344,10 +337,8 @@ function EventDetailDialog({
 
 function DetailContent({
   event,
-  isAr,
 }: {
   event: ResolvedIslamicEvent;
-  isAr: boolean;
 }) {
   const accent = ACCENT[event.color] ?? '#10b981';
   const monthLabel = HIJRI_MONTHS[event.month - 1];

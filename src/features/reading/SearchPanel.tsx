@@ -106,13 +106,11 @@ async function readFunctionsError(
 }
 
 export function SearchPanel({
-  isAr,
   language,
   restrictTo,
   onBack,
   onOpenArticle,
 }: {
-  isAr: boolean;
   language: string;
   restrictTo?: string[];
   onBack: () => void;
@@ -226,7 +224,7 @@ export function SearchPanel({
     return () => {
       cancelled = true;
     };
-  }, [debounced, isAr, restrictTo, range, retryNonce]);
+  }, [debounced, restrictTo, range, retryNonce]);
 
   const headline = useMemo(() => {
     if (q.length === 0 || debounced.length < 2) return '';
@@ -241,7 +239,7 @@ export function SearchPanel({
       return `لا نتائج لـ "${debounced}"`;
     }
     return `${hits.length} نتيجة لـ "${debounced}"`;
-  }, [q.length, debounced, loading, hits.length, error, isAr]);
+  }, [q.length, debounced, loading, hits.length, error]);
 
   return (
     <motion.div
@@ -251,7 +249,7 @@ export function SearchPanel({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -324,7 +322,6 @@ export function SearchPanel({
         {q.length === 0 && (
           <RecentSearches
             history={history}
-            isAr={isAr}
             onPick={(s) => setQ(s)}
             onRemove={(s) => {
               removeSearchHistoryEntry(s);
@@ -447,13 +444,11 @@ export function SearchPanel({
 
 function RecentSearches({
   history,
-  isAr,
   onPick,
   onRemove,
   onClear,
 }: {
   history: SearchHistoryEntry[];
-  isAr: boolean;
   onPick: (q: string) => void;
   onRemove: (q: string) => void;
   onClear: () => void;

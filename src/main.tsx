@@ -10,7 +10,7 @@ import "@fontsource/cormorant-garamond/600.css";
 import "@fontsource/montserrat/300.css";
 import "@fontsource/montserrat/400.css";
 import "@fontsource/montserrat/500.css";
-import { registerFontsServiceWorker } from "./lib/registerFontsSw";
+import { registerServiceWorker } from "./lib/registerServiceWorker";
 import { bootMotion } from "./lib/bootMotion";
 import { scrubVerboseDetails } from "@/components/ErrorBoundary";
 import { instrumentWebVitals } from "./utils/vitals";
@@ -57,7 +57,19 @@ window.addEventListener('unhandledrejection', (event) => {
 // the first user interaction. See bootMotion.ts for rationale.
 bootMotion();
 
-registerFontsServiceWorker();
+// App-shell service worker. Replaces the fonts-only worker: the shell and
+// every fingerprinted asset are now cached, so the app survives a reload with
+// no connection — which the PWA manifest and the offline toast already
+// promised. A pending update is announced instead of applied silently.
+registerServiceWorker((applyUpdate) => {
+  void import("sonner").then(({ toast }) => {
+    toast("نسخة جديدة من التطبيق جاهزة", {
+      description: "أعِد التحميل لتطبيق التحديث.",
+      duration: Infinity,
+      action: { label: "تحديث", onClick: applyUpdate },
+    });
+  });
+});
 
 // Instrument Web Vitals performance telemetry
 instrumentWebVitals();

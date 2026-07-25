@@ -547,7 +547,6 @@ export function setFeedFrequency(url: string, f: FeedFrequency): void {
  */
 export function describeFrequency(
   f: FeedFrequency | undefined,
-  isAr: boolean,
 ): string {
   if (!f || f.samples < 3) return '';
   const m = f.medianMinutes;

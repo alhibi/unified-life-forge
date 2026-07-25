@@ -1,5 +1,8 @@
-import type { Database } from './client';
-import { supabase } from './client';
+// Imported straight from the generated client. `src/services/supabase/client.ts`
+// used to sit in between as a file that only re-exported these two symbols,
+// which made it look like the app had two Supabase clients.
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 

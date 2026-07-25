@@ -16,7 +16,7 @@ import { SourcePill } from './SourcePill';
 type LangId = (typeof LANGUAGES)[number]['id'];
 
 /** Build a stable per-feed search index (name + host + category label). */
-function buildIndex(feeds: ReadonlyArray<FeedSource>, isAr: boolean): string[] {
+function buildIndex(feeds: ReadonlyArray<FeedSource>): string[] {
   return feeds.map((f) => {
     let host = '';
     try { host = new URL(f.url).hostname.replace(/^www\./, ''); } catch { /* */ }
@@ -42,13 +42,11 @@ function buildIndex(feeds: ReadonlyArray<FeedSource>, isAr: boolean): string[] {
  */
 export function SuggestedFeedsView({
   feedSources,
-  isAr,
   onBack,
   onAddSuggested,
   onAddBulk,
 }: {
   feedSources: FeedSource[];
-  isAr: boolean;
   onBack: () => void;
   onAddSuggested: (feed: FeedSource) => void;
   onAddBulk?: (
@@ -73,8 +71,8 @@ export function SuggestedFeedsView({
   // Precompute a searchable index per available feed so keystrokes
   // stay smooth even at 300+ suggestions.
   const searchIndex = useMemo(
-    () => buildIndex(available, isAr),
-    [available, isAr],
+    () => buildIndex(available),
+    [available],
   );
   const feedLangs = useMemo(
     () => available.map((f) => detectFeedLanguage(f)),
@@ -214,7 +212,7 @@ export function SuggestedFeedsView({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -397,7 +395,7 @@ export function SuggestedFeedsView({
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
-          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-10"
+          className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border/40 bg-card/95 backdrop-blur-md flex items-center gap-3 z-raised"
         >
           <span className="text-sm font-semibold flex-1">
             {`تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`}

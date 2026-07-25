@@ -9,7 +9,6 @@ import GroupAvatar from './GroupAvatar';
 import MemberPicker from './MemberPicker';
 
 interface GroupCreatorSheetProps {
-  isAr: boolean;
   isOpen: boolean;
   onClose: () => void;
   onCreated: (chat: ChatSummary) => void;
@@ -33,8 +32,7 @@ const MAX_DESC_LEN  = 240;
  * pattern used by ForwardPicker / WallpaperPicker) so it can layer above
  * the chat drawer without competing with the Radix Sheet stack.
  */
-const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
-  isAr, isOpen, onClose, onCreated, initialKind = 'group',
+const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, onCreated, initialKind = 'group',
 }) => {
   const BackIcon = ChevronRight;
   const ForwardIcon = ArrowLeft;
@@ -100,13 +98,13 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[80] bg-black/45 backdrop-blur-sm"
+        className="absolute inset-0 z-nested bg-black/45 backdrop-blur-sm"
         onClick={close}
       />
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
- className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%]"
+ className="absolute inset-x-0 bottom-0 z-nested-above bg-background rounded-t-3xl flex flex-col max-h-[92%]"
  onClick={e => e.stopPropagation()}
  role="dialog"
  aria-modal="true"
@@ -168,7 +166,6 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
 
             <div className="flex-1 min-h-0">
               <MemberPicker
-                isAr={isAr}
                 selectedIds={memberIds}
                 onChange={setMemberIds}
                 resolveSelected={resolved}

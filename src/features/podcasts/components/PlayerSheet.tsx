@@ -285,7 +285,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-[120] flex items-end justify-center"
+            className="fixed inset-0 z-player flex items-end justify-center"
             // Solid scrim — the sheet itself paints the ambient backdrop,
             // so out here we just want a clean black wash.
             style={{ background: 'rgba(0, 0, 0, 0.65)' }}
@@ -312,7 +312,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 with a card-toned veil so the foreground controls keep
                 their contrast. */}
               <div
-                className="absolute inset-0 -z-0 overflow-hidden pointer-events-none"
+                className="absolute inset-0 -z-base overflow-hidden pointer-events-none"
                 aria-hidden="true"
               >
                 <img
@@ -692,7 +692,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
+                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-raised shadow-lg"
                         style={{
                           background: 'hsl(var(--card))',
                         }}
@@ -739,7 +739,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 left-4 right-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-10 shadow-lg"
+                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-raised shadow-lg"
                         style={{
                           background: 'hsl(var(--card))',
                         }}

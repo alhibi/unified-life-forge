@@ -86,9 +86,9 @@ export default function MemoryAdventurePage() {
       </motion.div>
 
       {/* Island chain — each stage is a row with a connector line drawn behind */}
-      <div className="relative pl-3">
+      <div className="relative ps-3">
         {/* Vertical guide line */}
-        <div className="absolute left-[18px] top-3 bottom-3 w-px " />
+        <div className="absolute start-[18px] top-3 bottom-3 w-px " />
 
         {STAGES.map((stage, idx) => {
           const unlocked = isStageUnlocked(stage.id, save);
@@ -104,7 +104,7 @@ export default function MemoryAdventurePage() {
               transition={{ delay: idx * 0.03 }}
               onClick={() => unlocked && setSelected(stage)}
               disabled={!unlocked}
-              className={`relative w-full flex items-center gap-3 py-2 pl-1 pr-2 rounded-2xl mb-1.5 transition-all ${
+              className={`relative w-full flex items-center gap-3 py-2 ps-1 pe-2 rounded-2xl mb-1.5 transition-all ${
                 isCurrent
                   ? 'bg-pink-500/15 ring-1 ring-pink-400/40'
                   : stars > 0
@@ -115,7 +115,7 @@ export default function MemoryAdventurePage() {
               } ${unlocked ? 'active:scale-[0.99]' : ''}`}
             >
               {/* Pin */}
-              <div className={`relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 z-10 ${
+              <div className={`relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 z-raised ${
  stage.isBoss
  ? ' ring-2 ring-amber-300/40'
  : isCurrent
@@ -133,7 +133,7 @@ export default function MemoryAdventurePage() {
               </div>
 
               {/* Body */}
-              <div className="flex-1 text-left min-w-0">
+              <div className="flex-1 text-start min-w-0">
                 <div className="flex items-center gap-1.5">
                   <h3 className={`text-sm font-bold truncate ${unlocked ? 'text-foreground' : 'text-foreground/40'}`}>
                     {stage.ar}
@@ -171,7 +171,7 @@ export default function MemoryAdventurePage() {
         {selected && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
             onClick={() => setSelected(null)}
           >
             <motion.div

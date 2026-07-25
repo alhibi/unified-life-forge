@@ -18,8 +18,7 @@ export default function AuthGuard({
   fallbackDescAr = 'يرجى تسجيل الدخول للوصول إلى هذا القسم ومزامنة بياناتك بأمان.',
 }: AuthGuardProps) {
   const { user, loading } = useAuth();
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const navigate = useNavigate();
 
   // Handle session expiration toast notification centrally
@@ -41,7 +40,7 @@ export default function AuthGuard({
     return () => {
       window.removeEventListener('auth-session-expired', handleExpired);
     };
-  }, [isAr, navigate]);
+  }, [navigate]);
 
   if (loading) {
     return (

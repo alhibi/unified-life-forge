@@ -79,7 +79,6 @@ interface ExtractedArticle {
 }
 
 export function ReaderView({
-  isAr,
   language,
   prefs,
   onChangePrefs,
@@ -88,7 +87,6 @@ export function ReaderView({
   isBookmarked,
   onToggleBookmark,
 }: {
-  isAr: boolean;
   language: string;
   prefs: ReaderPrefs;
   onChangePrefs: (p: ReaderPrefs) => void;
@@ -361,7 +359,7 @@ export function ReaderView({
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-20">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-sticky">
         <button
           type="button"
           onClick={onBack}
@@ -376,7 +374,7 @@ export function ReaderView({
         </h3>
         {article && (
           <>
-            <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} isAr={isAr} />
+            <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} />
             <button
               type="button"
               onClick={handleSave}
@@ -486,7 +484,6 @@ export function ReaderView({
         {!loading && !error && !article && history.length > 0 && (
           <ReaderHistoryList
             history={history}
-            isAr={isAr}
             language={language}
             onPick={(url) => {
               setInput(url);
@@ -564,14 +561,12 @@ export function ReaderView({
 
 function ReaderHistoryList({
   history,
-  isAr,
   language,
   onPick,
   onRemove,
   onClear,
 }: {
   history: ReaderHistoryEntry[];
-  isAr: boolean;
   language: string;
   onPick: (url: string) => void;
   onRemove: (url: string) => void;

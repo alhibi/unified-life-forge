@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherData } from '@/weather/hooks/useWeatherData';
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 
 const PRAYER_AR: Record<string, string> = {
@@ -34,18 +34,17 @@ function todayAt(hhmm: string): number | null {
 }
 
 // Compact humaniser: 5 → "5د" / "5 Min", 95 → "1:35س" / "1h 35".
-function fmtDuration(mins: number, ar: boolean): string {
-  if (mins < 60) return ar ? `${mins}د` : `${mins} Min`;
+function fmtDuration(mins: number): string {
+  if (mins < 60) return `${mins}د`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (!m) return ar ? `${h}س` : `${h}h`;
-  return ar ? `${h}س ${m}د` : `${h}h ${m}m`;
+  if (!m) return `${h}س`;
+  return `${h}س ${m}د`;
 }
 
 export default function SmartGreeting() {
-  const { t, language } = useApp();
+  const { t, } = useApp();
   const { username } = useAuth();
-  const ar = language === 'ar';
   const { location } = useDeviceLocation();
   const { data: weather } = useWeatherData('ar');
 
@@ -92,31 +91,29 @@ export default function SmartGreeting() {
 
   const prayerLine = useMemo(() => {
     if (!nextPrayer) return null;
-    const label = ar ? PRAYER_AR[nextPrayer.name] : PRAYER_DE[nextPrayer.name];
-    return ar
-      ? `${label} بعد ${fmtDuration(nextPrayer.mins, true)}`
-      : `${label} in ${fmtDuration(nextPrayer.mins, false)}`;
-  }, [nextPrayer, ar]);
+    const label = PRAYER_AR[nextPrayer.name];
+    return `${label} بعد ${fmtDuration(nextPrayer.mins)}`;
+  }, [nextPrayer]);
 
   const weatherLine = weather?.current
     ? `${Math.round(weather.current.temperature)}°`
     : null;
 
   // Date fallback line if nothing else is ready yet (cold start).
-  const dateLine = new Date(now).toLocaleDateString(ar ? 'ar' : 'de', {
+  const dateLine = new Date(now).toLocaleDateString('ar', {
     weekday: 'long', month: 'long', day: 'numeric',
   });
 
   // Headline composition.
   // Signed-in: "صباح الخير، عامر"  /  Signed-out: "صباح الخير"
   const headline = username
-    ? (ar ? `${greeting}، ${username}` : `${greeting}, ${username}`)
+    ? (`${greeting}، ${username}`)
     : greeting;
 
   const primary = [weatherLine, prayerLine].filter(Boolean).join(' · ') || dateLine;
 
   return (
-    <div className="min-w-0" dir={ar ? 'rtl' : 'ltr'}>
+    <div className="min-w-0" dir={'rtl'}>
       <p className="text-[22px] font-bold tracking-tight text-foreground leading-tight truncate">
         {headline}
       </p>

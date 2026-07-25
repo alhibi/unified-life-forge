@@ -64,14 +64,12 @@ interface AlertHit {
 }
 
 export function KeywordAlertsView({
-  isAr,
   language,
   enabledFeeds,
   onBack,
   onOpenLink,
   onSignIn,
 }: {
-  isAr: boolean;
   language: string;
   enabledFeeds: FeedSource[];
   onBack: () => void;
@@ -176,7 +174,7 @@ export function KeywordAlertsView({
       if (burstRef.current.timer) clearTimeout(burstRef.current.timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAr]);
+  }, []);
 
   /** Coalesced delivery: prefer a browser notification when granted +
    *  not muted + outside quiet hours. Otherwise fall back to an
@@ -363,7 +361,7 @@ export function KeywordAlertsView({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -886,7 +884,6 @@ export function KeywordAlertsView({
 
       <ConfirmDialog
         open={pendingDelete !== null}
-        isAr={isAr}
         title={{ ar: 'حذف هذا التنبيه؟', en: 'Delete this alert?' }}
         description={pendingDelete
           ? {

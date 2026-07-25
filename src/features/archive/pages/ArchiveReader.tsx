@@ -364,7 +364,7 @@ export default function ArchiveReader() {
       {prefs.cinematic && <div className="archive-ambient" aria-hidden="true" />}
 
       {/* Reading progress bar */}
-      <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
+      <div className="fixed top-0 inset-x-0 h-[2px] z-float bg-transparent">
         <div
           ref={progressBarRef}
           className="h-full transition-[width] duration-150"
@@ -372,7 +372,7 @@ export default function ArchiveReader() {
         />
       </div>
 
-      <div className="mx-auto relative z-[1]" style={{ maxWidth: Math.max(prefs.width, 520) }}>
+      <div className="mx-auto relative z-raised" style={{ maxWidth: Math.max(prefs.width, 520) }}>
         <SEO
           title={`${doc.title} — الأرشيف`}
           description={doc.abstract || doc.topic}
@@ -429,7 +429,7 @@ export default function ArchiveReader() {
                   className="mx-auto mt-2 mb-1 h-1.5 w-12 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors"
                 />
                 <SheetHeader className="px-5 pt-2 pb-3 flex-row items-center justify-between space-y-0 border-b border-border/40">
-                  <SheetTitle className="text-right text-base font-bold">
+                  <SheetTitle className="text-end text-base font-bold">
                     تثبيت الحفظ والاستذكار النشط
                   </SheetTitle>
                   <button
@@ -472,7 +472,7 @@ export default function ArchiveReader() {
                   className="mx-auto mt-2 mb-1 h-1.5 w-12 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors"
                 />
                 <SheetHeader className="px-5 pt-2 pb-3 flex-row items-center justify-between space-y-0 border-b border-border/40">
-                  <SheetTitle className="text-right text-base font-bold">
+                  <SheetTitle className="text-end text-base font-bold">
                     مساعد القراءة والمرافقة الفورية
                   </SheetTitle>
                   <button
@@ -524,7 +524,7 @@ export default function ArchiveReader() {
                       <button
                         key={`${t.id}-${t.text}`}
                         onClick={() => jumpTo(t.id)}
-                        className={`w-full text-right text-sm rounded-lg px-3 py-2 hover:bg-muted transition-colors ${t.level === 3 ? 'pr-6 text-muted-foreground text-[13px]' : 'font-medium text-foreground'}`}
+                        className={`w-full text-end text-sm rounded-lg px-3 py-2 hover:bg-muted transition-colors ${t.level === 3 ? 'pe-6 text-muted-foreground text-[13px]' : 'font-medium text-foreground'}`}
                       >
                         {t.text}
                       </button>
@@ -554,7 +554,7 @@ export default function ArchiveReader() {
                   className="mx-auto mt-2 mb-1 h-1.5 w-12 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors"
                 />
                 <SheetHeader className="px-5 pt-2 pb-3 flex-row items-center justify-between space-y-0 border-b border-border/40">
-                  <SheetTitle className="text-right text-base">خيارات القراءة</SheetTitle>
+                  <SheetTitle className="text-end text-base">خيارات القراءة</SheetTitle>
                   <button
                     type="button"
                     onClick={() => setSettingsOpen(false)}
@@ -705,7 +705,7 @@ export default function ArchiveReader() {
                         className="w-4 h-4"
                         style={{ color: accentColor ?? 'hsl(var(--live, var(--primary)))' }}
                       />
-                      <div className="text-right">
+                      <div className="text-end">
                         <div className="text-[13px] font-medium">القراءة السينمائية</div>
                         <div className="text-[11px] text-muted-foreground">
                           فقرات تتنفّس مع تمرير قراءتك
@@ -716,7 +716,7 @@ export default function ArchiveReader() {
                       className={`relative w-9 h-5 rounded-full transition-colors ${prefs.cinematic ? 'bg-primary' : 'bg-muted'}`}
                     >
                       <span
-                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-background transition-transform ${prefs.cinematic ? 'right-0.5' : 'right-[18px]'}`}
+                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-background transition-transform ${prefs.cinematic ? 'end-0.5' : 'end-[18px]'}`}
                       />
                     </span>
                   </button>
@@ -843,14 +843,14 @@ export default function ArchiveReader() {
                 },
                 p: ({ node, ...props }) => <p className="reveal mb-4" {...props} />,
                 ul: ({ node, ...props }) => (
-                  <ul className="reveal list-disc pr-6 mb-4 space-y-1" {...props} />
+                  <ul className="reveal list-disc pe-6 mb-4 space-y-1" {...props} />
                 ),
                 ol: ({ node, ...props }) => (
-                  <ol className="reveal list-decimal pr-6 mb-4 space-y-1" {...props} />
+                  <ol className="reveal list-decimal pe-6 mb-4 space-y-1" {...props} />
                 ),
                 blockquote: ({ node, ...props }) => (
                   <blockquote
-                    className="reveal pr-3 my-4 italic"
+                    className="reveal pe-3 my-4 italic"
                     style={{
                       borderRight: `3px solid ${accentColor ?? 'hsl(var(--primary) / 0.5)'}`,
                       color: mutedColor ?? 'hsl(var(--muted-foreground))',

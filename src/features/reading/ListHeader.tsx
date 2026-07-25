@@ -36,7 +36,6 @@ import { toast } from 'sonner';
  * the article list to those sources.
  */
 export function ListHeader({
-  isAr,
   onBack,
   showSearch,
   setShowSearch,
@@ -67,7 +66,6 @@ export function ListHeader({
   listPrefs,
   onListPrefsChange,
 }: {
-  isAr: boolean;
   onBack: () => void;
   showSearch: boolean;
   setShowSearch: (v: boolean) => void;
@@ -165,7 +163,7 @@ export function ListHeader({
 
   return (
     <div
-      className="px-4 pt-4 pb-2 border-b border-border/40 sticky top-0 z-10 bg-card/92 backdrop-blur-md"
+      className="px-4 pt-4 pb-2 border-b border-border/40 z-raised app-sticky-header-card"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -218,7 +216,6 @@ export function ListHeader({
             <Compass className="h-4 w-4" />
           </IconBtn>
           <ReadingPrefsToolbar
-            isAr={isAr}
             prefs={listPrefs}
             onChange={onListPrefsChange}
           />

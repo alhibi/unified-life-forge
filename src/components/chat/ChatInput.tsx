@@ -14,7 +14,6 @@ import EmojiPicker from './EmojiPicker';
 import LiveWaveform from './LiveWaveform';
 
 interface ChatInputProps {
-  isAr: boolean;
   // Text composer
   newMessage: string;
   setNewMessage: (v: string) => void;
@@ -78,7 +77,7 @@ interface ChatInputProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // AttachmentMenu — Telegram-style bottom sheet with attachment type options.
 // ─────────────────────────────────────────────────────────────────────────────
-const ATTACHMENT_OPTIONS = (isAr: boolean) => [
+const ATTACHMENT_OPTIONS = () => [
   { id: 'photo', icon: ImageIcon, label: 'صورة', color: 'bg-blue-500' },
   { id: 'camera', icon: Camera, label: 'كاميرا', color: 'bg-pink-500' },
   { id: 'file', icon: FileText, label: 'ملف', color: 'bg-purple-500' },
@@ -86,16 +85,15 @@ const ATTACHMENT_OPTIONS = (isAr: boolean) => [
 ] as const;
 
 interface AttachmentMenuProps {
-  isAr: boolean;
   onSelect: (type: string) => void;
   onClose: () => void;
 }
 
-const AttachmentMenu = React.memo(function AttachmentMenu({ isAr, onSelect, onClose }: AttachmentMenuProps) {
-  const options = useMemo(() => ATTACHMENT_OPTIONS(isAr), [isAr]);
+const AttachmentMenu = React.memo(function AttachmentMenu({ onSelect, onClose }: AttachmentMenuProps) {
+  const options = useMemo(() => ATTACHMENT_OPTIONS(), []);
   return (
     <motion.div
-      className="absolute bottom-full mb-2 start-2 z-50"
+      className="absolute bottom-full mb-2 start-2 z-drawer"
       initial={{ opacity: 0, scale: 0.8, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -123,7 +121,7 @@ const AttachmentMenu = React.memo(function AttachmentMenu({ isAr, onSelect, onCl
  </div>
  </div>
  {/* Click-away backdrop */}
- <div className="fixed inset-0 -z-10" onClick={onClose} />
+ <div className="fixed inset-0 -z-raised" onClick={onClose} />
  </motion.div>
  );
 });
@@ -135,10 +133,9 @@ interface MentionSuggestionListProps {
  suggestions: Array<{ userId: string; username: string; displayName?: string; avatarUrl?: string | null }>;
  query: string;
  onSelect: (username: string) => void;
- isAr: boolean;
 }
 
-const MentionSuggestionList = React.memo(function MentionSuggestionList({ suggestions, query, onSelect, isAr }: MentionSuggestionListProps) {
+const MentionSuggestionList = React.memo(function MentionSuggestionList({ suggestions, query, onSelect, }: MentionSuggestionListProps) {
  const filtered = useMemo(() => {
  if (!query) return suggestions.slice(0, 5);
  const q = query.toLowerCase();
@@ -151,7 +148,7 @@ const MentionSuggestionList = React.memo(function MentionSuggestionList({ sugges
 
  return (
  <motion.div
- className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-50"
+ className="absolute bottom-full mb-1 start-0 end-0 mx-3 z-drawer"
  initial={{ opacity: 0, y: 8 }}
  animate={{ opacity: 1, y: 0 }}
  exit={{ opacity: 0, y: 8 }}
@@ -217,8 +214,7 @@ const CharacterCounter = React.memo(function CharacterCounter({ count }: { count
  * - press-and-hold voice with slide- + drag-up to lock + preview
  * - paste image support
  */
-const ChatInput: React.FC<ChatInputProps> = ({
- isAr, newMessage, setNewMessage,
+const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage,
  replyTo, setReplyTo, editingMessage, cancelEdit,
  stagedPreviews, stagedImagesCount, uploading,
  inputRef, fileInputRef,
@@ -425,7 +421,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
         break;
     }
-  }, [fileInputRef, setNewMessage, isAr]);
+  }, [fileInputRef, setNewMessage]);
 
   const showPreviewBar = !!previewBlob;
   const disableTextUI = isRecording || showPreviewBar;
@@ -439,7 +435,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             suggestions={mentionSuggestions}
             query={mentionQuery}
             onSelect={insertMention}
-            isAr={isAr}
           />
         )}
       </AnimatePresence>
@@ -448,7 +443,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <AnimatePresence>
         {showAttachMenu && (
           <AttachmentMenu
-            isAr={isAr}
             onSelect={handleAttachmentSelect}
             onClose={() => setShowAttachMenu(false)}
           />
@@ -792,7 +786,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <EmojiPicker isAr={isAr} onPick={insertEmoji} />
+            <EmojiPicker onPick={insertEmoji} />
           </motion.div>
         )}
       </AnimatePresence>

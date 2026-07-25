@@ -14,7 +14,6 @@ import GroupAvatar from './GroupAvatar';
 import RoleBadge from './RoleBadge';
 
 interface GroupInfoSheetProps {
-  isAr: boolean;
   isOpen: boolean;
   chat: ChatSummary;
   onClose: () => void;
@@ -41,8 +40,7 @@ const MAX_DESC_LEN  = 240;
  *   5. Permissions block (admins only): who-can-send / who-can-add-members
  *   6. Danger zone: leave chat (everyone) + delete chat (owner only)
  */
-const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
-  isAr, isOpen, chat, onClose, onOpenMembers, onLeft, onDeleted,
+const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, onOpenMembers, onLeft, onDeleted,
   myUserId: _myUserId,
 }) => {
   const BackIcon = ChevronRight;
@@ -91,13 +89,13 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[80] bg-black/45 backdrop-blur-sm"
+        className="absolute inset-0 z-nested bg-black/45 backdrop-blur-sm"
         onClick={close}
       />
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-        className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[92%] "
+        className="absolute inset-x-0 bottom-0 z-nested-above bg-background rounded-t-3xl flex flex-col max-h-[92%] "
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -169,7 +167,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 {`${chat.memberCount} ${chat.memberCount === 1 ? 'عضو' : 'أعضاء'}`}
               </span>
               <span className="text-border/60">·</span>
-              <RoleBadge role={chat.myRole} isAr={isAr} />
+              <RoleBadge role={chat.myRole} />
             </div>
           </div>
 

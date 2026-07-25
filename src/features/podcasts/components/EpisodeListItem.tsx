@@ -289,7 +289,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
 
         <button
           onClick={handleMarkPlayed}
-          aria-label={playState.played ? 'Mark unplayed' : 'Mark played'}
+          aria-label={playState.played ? 'تحديد كغير مُستمَع' : 'تحديد كمُستمَع'}
           className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
         >
           {playState.played ? (

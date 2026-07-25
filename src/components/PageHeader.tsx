@@ -36,7 +36,7 @@ interface PageHeaderProps {
  *
  * Visual contract:
  *   • One height (py-3 → ~48 px header).
- *   • One sticky token (z-30, bg/85 + blur-md, hairline border-b/30).
+ *   • One sticky token (z-header, bg/85 + blur-md, hairline border-b/30).
  *   • One title weight (semibold, 17 px) — easily overridden by passing
  *     a custom node.
  *   • Back-button comes from the unified `<BackButton/>` (smart back,
@@ -63,7 +63,7 @@ export default function PageHeader({
       className={cn(
         'flex items-center gap-2 px-4 py-3',
         sticky &&
-          'sticky top-0 z-30 bg-background/92 backdrop-blur-md border-b border-border/50',
+          'z-header app-sticky-header border-b border-border/50',
         className,
       )}
     >

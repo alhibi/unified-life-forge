@@ -25,9 +25,8 @@ const oauth = (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 export default function OAuthConsent() {
   const [params] = useSearchParams();
   const { user, loading } = useAuth();
-  const { language } = useApp();
+  const { } = useApp();
   const navigate = useNavigate();
-  const isAr = language === "ar";
   const authorizationId = params.get("authorization_id") ?? "";
   const [details, setDetails] = useState<AuthorizationDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +53,7 @@ export default function OAuthConsent() {
       setDetails(data);
     })();
     return () => { alive = false; };
-  }, [authorizationId, user, loading, navigate, isAr]);
+  }, [authorizationId, user, loading, navigate]);
 
   async function decide(approve: boolean) {
     setBusy(true);

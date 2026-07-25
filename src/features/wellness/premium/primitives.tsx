@@ -72,7 +72,7 @@ export function ProgressRing({
   const c = 2 * Math.PI * r;
   const offset = c - v * c;
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const gradId = `pr-grad-${uid}`;
+  const gradId = `pe-grad-${uid}`;
 
   // Default alt = same hue at lower saturation; produces a soft sheen.
   const stopA = color;

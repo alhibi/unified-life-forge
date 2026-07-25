@@ -14,7 +14,7 @@ import type { Conversation } from '../types';
  * Returns [] on any failure so the caller can treat the fetch as
  * best-effort. The caller owns loading state and error toasts.
  */
-export async function fetchConversations(user: User, isAr: boolean): Promise<Conversation[]> {
+export async function fetchConversations(user: User): Promise<Conversation[]> {
   const { data: convs, error: convsErr } = await supabase
     .from('conversations')
     .select('*')
@@ -87,7 +87,7 @@ export async function fetchConversations(user: User, isAr: boolean): Promise<Con
       otherBio: (profile as unknown as { bio?: string | null })?.bio ?? null,
       otherLastSeen: lastSeenMap.get(otherId) ?? null,
       otherCreatedAt: (profile as unknown as { created_at?: string | null })?.created_at ?? null,
-      lastMessage: lastMsg ? getMessagePreview(lastMsg, isAr, user.id) : undefined,
+      lastMessage: lastMsg ? getMessagePreview(lastMsg, user.id) : undefined,
       lastMessageType: lastMsg?.message_type,
       lastMessageFromMe: lastMsg?.sender_id === user.id,
       lastMessageDeleted: lastMsg?.deleted,

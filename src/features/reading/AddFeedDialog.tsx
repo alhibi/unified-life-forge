@@ -71,13 +71,11 @@ type Stage = 'idle' | 'resolving' | 'probing' | 'results' | 'error';
 
 export function AddFeedDialog({
   open,
-  isAr,
   existingUrls,
   onClose,
   onAdd,
 }: {
   open: boolean;
-  isAr: boolean;
   existingUrls: Set<string>;
   onClose: () => void;
   onAdd: (url: string, name: string, category: string) => boolean;
@@ -179,7 +177,7 @@ export function AddFeedDialog({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        className="fixed inset-0 z-drawer flex items-end sm:items-center justify-center"
       >
         <div
           className="absolute inset-0 bg-black/45 backdrop-blur-sm"
@@ -264,15 +262,14 @@ export function AddFeedDialog({
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-4">
-            {stage === 'idle' && <EmptyHint isAr={isAr} />}
+            {stage === 'idle' && <EmptyHint />}
             {(stage === 'resolving' || stage === 'probing') && (
-              <ProgressStrip stage={stage} isAr={isAr} />
+              <ProgressStrip stage={stage} />
             )}
-            {stage === 'error' && <ErrorState isAr={isAr} message={errorMsg} />}
+            {stage === 'error' && <ErrorState message={errorMsg} />}
             {stage === 'results' && response && (
               <ResultsList
                 response={response}
-                isAr={isAr}
                 language={'ar'}
                 existingUrls={existingUrls}
                 addingUrl={adding}
@@ -289,7 +286,7 @@ export function AddFeedDialog({
 
 // ─── Stage components ─────────────────────────────────────────────────
 
-function EmptyHint({ isAr }: { isAr: boolean }) {
+function EmptyHint({ }: { }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <Globe className="h-10 w-10 text-muted-foreground/30" />
@@ -300,7 +297,7 @@ function EmptyHint({ isAr }: { isAr: boolean }) {
   );
 }
 
-function ProgressStrip({ stage, isAr }: { stage: Stage; isAr: boolean }) {
+function ProgressStrip({ stage, }: { stage: Stage; }) {
   const stages = [
     { id: 'resolving', ar: 'حل العنوان', en: 'Resolving address' },
     { id: 'probing', ar: 'فحص الخلاصات', en: 'Probing feed paths' },
@@ -348,7 +345,7 @@ function ProgressStrip({ stage, isAr }: { stage: Stage; isAr: boolean }) {
   );
 }
 
-function ErrorState({ isAr, message }: { isAr: boolean; message: string }) {
+function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <X className="h-8 w-8 text-destructive/60" />
@@ -362,7 +359,6 @@ function ErrorState({ isAr, message }: { isAr: boolean; message: string }) {
 
 function ResultsList({
   response,
-  isAr,
   language,
   existingUrls,
   addingUrl,
@@ -370,7 +366,6 @@ function ResultsList({
   errorMsg,
 }: {
   response: DiscoverResponse;
-  isAr: boolean;
   language: string;
   existingUrls: Set<string>;
   addingUrl: string | null;
@@ -381,7 +376,6 @@ function ResultsList({
   if (cands.length === 0) {
     return (
       <ErrorState
-        isAr={isAr}
         message={errorMsg ||
           ('لا توجد خلاصات على هذا الموقع')}
       />
@@ -390,7 +384,7 @@ function ResultsList({
 
   return (
     <div className="space-y-3">
-      {response.site && <SiteHeader site={response.site} response={response} isAr={isAr} />}
+      {response.site && <SiteHeader site={response.site} response={response} />}
       <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
         {`${cands.length} خلاصة متاحة`}
       </p>
@@ -398,7 +392,6 @@ function ResultsList({
         <CandidateCard
           key={c.url}
           c={c}
-          isAr={isAr}
           language={language}
           already={existingUrls.has(c.url)}
           adding={addingUrl === c.url}
@@ -412,11 +405,9 @@ function ResultsList({
 function SiteHeader({
   site,
   response,
-  isAr,
 }: {
   site: NonNullable<DiscoverResponse['site']>;
   response: DiscoverResponse;
-  isAr: boolean;
 }) {
   return (
     <div className="flex items-center gap-3 p-3 rounded-2xl bg-accent/15">
@@ -457,14 +448,12 @@ function SiteHeader({
 
 function CandidateCard({
   c,
-  isAr,
   language,
   already,
   adding,
   onAdd,
 }: {
   c: FeedCandidate;
-  isAr: boolean;
   language: string;
   already: boolean;
   adding: boolean;
@@ -479,9 +468,8 @@ function CandidateCard({
         samples: Math.min(10, c.items.length),
         computedAt: Date.now(),
       },
-      isAr,
     );
-  }, [c.medianGapSeconds, c.items.length, isAr]);
+  }, [c.medianGapSeconds, c.items.length]);
 
   return (
     <motion.div

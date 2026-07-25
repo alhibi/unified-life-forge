@@ -187,27 +187,27 @@ export interface ResolvedIslamicEvent {
 // on legacy occasion cards). Matches the existing project conventions.
 // ───────────────────────────────────────────────────────────────────────────
 const COLOR_BY_MONTH: Record<number, string> = {
-  1: 'border-l-emerald-500',  // Muharram (sacred)
-  2: 'border-l-slate-500',    // Safar
-  3: 'border-l-emerald-500',  // Rabi' al-Awwal
-  4: 'border-l-slate-500',    // Rabi' al-Thani
-  5: 'border-l-rose-500',     // Jumada al-Awwal
-  6: 'border-l-rose-500',     // Jumada al-Thani
-  7: 'border-l-sky-500',      // Rajab (sacred)
-  8: 'border-l-violet-500',   // Sha'ban
-  9: 'border-l-amber-500',    // Ramadan
-  10: 'border-l-yellow-500',  // Shawwal
-  11: 'border-l-emerald-600', // Dhu al-Qidah (sacred)
-  12: 'border-l-yellow-600',  // Dhu al-Hijjah (sacred)
+  1: 'border-s-emerald-500',  // Muharram (sacred)
+  2: 'border-s-slate-500',    // Safar
+  3: 'border-s-emerald-500',  // Rabi' al-Awwal
+  4: 'border-s-slate-500',    // Rabi' al-Thani
+  5: 'border-s-rose-500',     // Jumada al-Awwal
+  6: 'border-s-rose-500',     // Jumada al-Thani
+  7: 'border-s-sky-500',      // Rajab (sacred)
+  8: 'border-s-violet-500',   // Sha'ban
+  9: 'border-s-amber-500',    // Ramadan
+  10: 'border-s-yellow-500',  // Shawwal
+  11: 'border-s-emerald-600', // Dhu al-Qidah (sacred)
+  12: 'border-s-yellow-600',  // Dhu al-Hijjah (sacred)
 };
 
 function colorFor(month: RawIslamicMonth, ev: RawIslamicEvent): string {
   if (ev.isMajorHoliday) {
-    if (month.monthId === 9) return 'border-l-amber-500';
-    if (month.monthId === 10) return 'border-l-yellow-500';
-    if (month.monthId === 12) return 'border-l-yellow-600';
+    if (month.monthId === 9) return 'border-s-amber-500';
+    if (month.monthId === 10) return 'border-s-yellow-500';
+    if (month.monthId === 12) return 'border-s-yellow-600';
   }
-  return COLOR_BY_MONTH[month.monthId] ?? 'border-l-emerald-500';
+  return COLOR_BY_MONTH[month.monthId] ?? 'border-s-emerald-500';
 }
 
 function slugify(s: string): string {

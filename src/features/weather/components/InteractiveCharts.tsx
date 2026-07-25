@@ -13,12 +13,11 @@ interface ChartEntry {
 
 interface InteractiveChartsProps {
   entries: ChartEntry[];
-  ar: boolean;
 }
 
 type TabType = 'temp' | 'precip' | 'wind_humidity';
 
-export default function InteractiveCharts({ entries, ar }: InteractiveChartsProps) {
+export default function InteractiveCharts({ entries, }: InteractiveChartsProps) {
   const [activeTab, setActiveTab] = useState<TabType>('temp');
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
@@ -39,8 +38,8 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
         const max = Math.max(...temps, ...apparents);
         return {
           series: [
-            { label: ar ? 'الفعلي' : 'Tatsächlich', values: temps, color: 'hsl(var(--primary))', isLine: true, fill: true },
-            { label: ar ? 'المحسوس' : 'Gefühlt', values: apparents, color: 'hsl(var(--live))', isLine: true, isDashed: true }
+            { label: 'الفعلي', values: temps, color: 'hsl(var(--primary))', isLine: true, fill: true },
+            { label: 'المحسوس', values: apparents, color: 'hsl(var(--live))', isLine: true, isDashed: true }
           ],
           min,
           max,
@@ -51,7 +50,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
         const precips = slice.map(e => e.precip_probability_percent ?? 0);
         return {
           series: [
-            { label: ar ? 'احتمالية الهطول' : 'Regenwahrscheinlichkeit', values: precips, color: 'hsl(200 80% 55%)', isBar: true }
+            { label: 'احتمالية الهطول', values: precips, color: 'hsl(200 80% 55%)', isBar: true }
           ],
           min: 0,
           max: 100,
@@ -65,8 +64,8 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
         const max = Math.max(...winds, ...hums, 40);
         return {
           series: [
-            { label: ar ? 'الرياح' : 'Wind', values: winds, color: 'hsl(var(--primary))', isLine: true },
-            { label: ar ? 'الرطوبة' : 'Feuchtigkeit', values: hums, color: 'hsl(var(--live))', isLine: true }
+            { label: 'الرياح', values: winds, color: 'hsl(var(--primary))', isLine: true },
+            { label: 'الرطوبة', values: hums, color: 'hsl(var(--live))', isLine: true }
           ],
           min,
           max,
@@ -98,9 +97,9 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
   };
 
   const tabs = [
-    { id: 'temp', label: ar ? 'درجة الحرارة' : 'Temperatur', icon: Thermometer },
-    { id: 'precip', label: ar ? 'احتمالية الهطول' : 'Niederschlag', icon: CloudSun },
-    { id: 'wind_humidity', label: ar ? 'الرياح والرطوبة' : 'Wind & Feuchte', icon: Wind },
+    { id: 'temp', label: 'درجة الحرارة', icon: Thermometer },
+    { id: 'precip', label: 'احتمالية الهطول', icon: CloudSun },
+    { id: 'wind_humidity', label: 'الرياح والرطوبة', icon: Wind },
   ] as const;
 
   return (
@@ -110,7 +109,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
       <header className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Activity className="w-5 h-5 text-primary" />
-          {ar ? 'المنحنيات التفاعلية' : 'Interaktive Kurven'}
+          {'المنحنيات التفاعلية'}
         </h2>
 
         <div className="relative flex bg-background/50 border border-border/40 p-1 rounded-xl gap-1">
@@ -127,11 +126,11 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
                 {active && (
                   <motion.div
                     layoutId="activeWeatherTab"
-                    className="absolute inset-0 bg-primary rounded-lg z-0"
+                    className="absolute inset-0 bg-primary rounded-lg z-base"
                     transition={{ type: 'spring', stiffness: 350, damping: 28 }}
                   />
                 )}
-                <span className="relative z-10 flex items-center gap-1.5">
+                <span className="relative z-raised flex items-center gap-1.5">
                   <Icon className="w-3.5 h-3.5" />
                   <span>{t.label}</span>
                 </span>
@@ -328,10 +327,10 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
           >
             <div className="flex flex-col">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                {ar ? 'الوقت المستهدف' : 'Zielzeit'}
+                {'الوقت المستهدف'}
               </span>
               <span className="text-sm font-semibold font-montserrat text-foreground tabular-nums">
-                {new Date(slice[hoveredIdx].timestamp_unix).toLocaleTimeString(ar ? 'en-US' : 'de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                {new Date(slice[hoveredIdx].timestamp_unix).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </span>
             </div>
 
@@ -353,7 +352,7 @@ export default function InteractiveCharts({ entries, ar }: InteractiveChartsProp
         ) : (
           <div className="w-full text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5 py-1">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span>{ar ? 'مرر الفأرة أو المس المنحنى لعرض التفاصيل الدقيقة للساعات' : 'Fahre über die Kurve, um stündliche Details anzuzeigen'}</span>
+            <span>{'مرر الفأرة أو المس المنحنى لعرض التفاصيل الدقيقة للساعات'}</span>
           </div>
         )}
       </div>

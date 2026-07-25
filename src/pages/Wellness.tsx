@@ -352,7 +352,7 @@ export default function WellnessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-drawer flex items-end justify-center bg-black/50 backdrop-blur-sm"
             onClick={() => setShowPrivacy(false)}
           >
             <motion.div
@@ -404,7 +404,7 @@ export default function WellnessPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            className="fixed inset-0 z-drawer flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
             onClick={() => dismissOnboarding(false)}
             role="dialog"
             aria-modal="true"
@@ -471,7 +471,7 @@ export default function WellnessPage() {
                   className="flex-[2] py-2 rounded-xl bg-primary text-primary-foreground text-[11px] font-medium active:scale-[0.98] transition-transform"
                 >
                   {T.setupCta[language]}
-                  <ChevronRight className="w-3 h-3 inline-block ml-0.5" />
+                  <ChevronRight className="w-3 h-3 inline-block ms-0.5" />
                 </button>
               </div>
             </motion.div>

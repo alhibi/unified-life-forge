@@ -336,7 +336,7 @@ function SkillCard({
 
               {/* Pro tip */}
               <div
-                className="rounded-lg p-2.5 border-l-2 bg-amber-500/5"
+                className="rounded-lg p-2.5 border-s-2 bg-amber-500/5"
                 style={{ borderLeftColor: '#f59e0b' }}
               >
                 <div className="flex items-center gap-1.5 mb-1">
@@ -557,7 +557,7 @@ function FoodCard({
               </div>
 
               {/* Pairing */}
-              <div className="rounded-lg p-2.5 bg-emerald-500/5 border-l-2 border-emerald-500">
+              <div className="rounded-lg p-2.5 bg-emerald-500/5 border-s-2 border-emerald-500">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <Sparkles className="w-3 h-3 text-emerald-500" />
                   <h5 className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">{T.pairing[lang]}</h5>
@@ -566,7 +566,7 @@ function FoodCard({
               </div>
 
               {/* Pitfall */}
-              <div className="rounded-lg p-2.5 bg-rose-500/5 border-l-2 border-rose-500">
+              <div className="rounded-lg p-2.5 bg-rose-500/5 border-s-2 border-rose-500">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <AlertCircle className="w-3 h-3 text-rose-500" />
                   <h5 className="text-[10px] font-semibold text-rose-700 dark:text-rose-400">{T.pitfall[lang]}</h5>
@@ -575,7 +575,7 @@ function FoodCard({
               </div>
 
               {/* Athlete tip */}
-              <div className="rounded-lg p-2.5 bg-amber-500/5 border-l-2 border-amber-500">
+              <div className="rounded-lg p-2.5 bg-amber-500/5 border-s-2 border-amber-500">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <Trophy className="w-3 h-3 text-amber-500" />
                   <h5 className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">{T.athleteTip[lang]}</h5>

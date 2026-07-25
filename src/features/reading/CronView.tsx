@@ -50,12 +50,10 @@ interface FeedMeta {
 }
 
 export function CronView({
-  isAr,
   language,
   feedSources,
   onBack,
 }: {
-  isAr: boolean;
   language: string;
   feedSources: FeedSource[];
   onBack: () => void;
@@ -149,7 +147,7 @@ export function CronView({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -180,7 +178,6 @@ export function CronView({
             schedule={'كل ٣٠ دقيقة'}
             run={lastRefresh}
             language={language}
-            isAr={isAr}
             onTrigger={() => { void trigger('fetch-rss-cron'); }}
             busy={busyJob === 'fetch-rss-cron'}
           />
@@ -189,7 +186,6 @@ export function CronView({
             schedule={'الدقيقة ٠٥ و ٣٥'}
             run={lastAlerts}
             language={language}
-            isAr={isAr}
             onTrigger={() => { void trigger('check-keyword-alerts'); }}
             busy={busyJob === 'check-keyword-alerts'}
           />
@@ -212,7 +208,6 @@ export function CronView({
                 key={feed.url}
                 feed={feed}
                 meta={meta}
-                isAr={isAr}
                 language={language}
               />
             ))}
@@ -238,7 +233,7 @@ export function CronView({
           {runs.length > 0 && (
             <div className="rounded-2xl bg-card border border-border/50 divide-y divide-border/30">
               {runs.slice(0, 20).map((r, i) => (
-                <RunRow key={i} run={r} language={language} isAr={isAr} />
+                <RunRow key={i} run={r} language={language} />
               ))}
             </div>
           )}
@@ -255,7 +250,6 @@ function JobRow({
   schedule,
   run,
   language,
-  isAr,
   onTrigger,
   busy,
 }: {
@@ -263,7 +257,6 @@ function JobRow({
   schedule: string;
   run: CronRun | undefined;
   language: string;
-  isAr: boolean;
   onTrigger: () => void;
   busy: boolean;
 }) {
@@ -322,12 +315,10 @@ function JobRow({
 function FeedHealthRow({
   feed,
   meta,
-  isAr,
   language,
 }: {
   feed: FeedSource;
   meta: FeedMeta | undefined;
-  isAr: boolean;
   language: string;
 }) {
   const failing = (meta?.consecutive_failures || 0) > 0;
@@ -397,11 +388,9 @@ function FeedHealthRow({
 function RunRow({
   run,
   language,
-  isAr,
 }: {
   run: CronRun;
   language: string;
-  isAr: boolean;
 }) {
   const ok = run.status.toLowerCase() === 'succeeded'
     || run.status.toLowerCase() === 'success';

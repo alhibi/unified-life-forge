@@ -38,12 +38,12 @@ export default function AtlasTab() {
       </div>
 
       <div className="relative">
-        <Search className={`absolute top-1/2 -translate-y-1/2 ${'right-3'} w-4 h-4 text-muted-foreground`} />
+        <Search className={`absolute top-1/2 -translate-y-1/2 ${'end-3'} w-4 h-4 text-muted-foreground`} />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={'ابحث عن عنصر...'}
-          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${'pr-10 pl-3'}`}
+          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${'pe-10 ps-3'}`}
         />
       </div>
 

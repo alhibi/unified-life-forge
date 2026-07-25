@@ -178,7 +178,7 @@ export default function LibraryPoetPage() {
                 قصائد مأثورة
               </p>
             </div>
-            <div className="text-center border-r border-border/60">
+            <div className="text-center border-e border-border/60">
               <p className="font-amiri text-[22px] font-bold text-primary leading-none mb-1 select-all">
                 {p.verses_count}
               </p>
@@ -186,7 +186,7 @@ export default function LibraryPoetPage() {
                 بيت شعر
               </p>
             </div>
-            <div className="text-center border-r border-border/60 flex flex-col justify-center items-center">
+            <div className="text-center border-e border-border/60 flex flex-col justify-center items-center">
               <p className="font-amiri text-[15px] font-bold text-primary leading-snug mb-1 truncate max-w-full px-1">
                 {eraName || 'قديم'}
               </p>

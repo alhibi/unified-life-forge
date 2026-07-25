@@ -15,7 +15,6 @@ export default function MemoryTimelineRail({
   onHover,
   onLeave,
   onSelect,
-  isAr,
 }: {
   notes: MindNote[];
   events: MindEvent[];
@@ -23,7 +22,6 @@ export default function MemoryTimelineRail({
   onHover: (ids: string[]) => void;
   onLeave: () => void;
   onSelect: (id: string) => void;
-  isAr: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const parentRef = useRef<HTMLDivElement | null>(null);

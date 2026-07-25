@@ -177,7 +177,6 @@ interface VoiceBubbleProps {
   isMine: boolean;
   isDarkBg: boolean;
   isFading: boolean;
-  isAr: boolean;
   fileUrl: string;
   rawFileUrl: string | null;
   senderName: string;
@@ -191,7 +190,6 @@ function VoiceBubble({
   isMine,
   isDarkBg,
   isFading,
-  isAr,
   fileUrl,
   rawFileUrl,
   senderName,
@@ -380,7 +378,7 @@ function VoiceBubble({
                 {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
                 {formatClockTime(msg.created_at)}
                 {isMine && (
-                  <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} isAr={isAr} />
+                  <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} />
                 )}
               </span>
             </div>
@@ -405,7 +403,6 @@ export default function ChatDrawer({
   const voice = useVoiceRecording({
     activeConvId: chat.activeConv?.id || null,
     userId: chat.user?.id,
-    isAr: chat.isAr,
     sendMessage: chat.sendMessage,
   });
   const voicePlayer = useVoicePlayer();
@@ -455,7 +452,7 @@ export default function ChatDrawer({
     // We deliberately omit `voicePlayer` from deps because setOnEnded is
     // stable. Including it would tear down the resolver every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat.activeConv?.id, chat.messages, chat.user?.id, chat.isAr]);
+  }, [chat.activeConv?.id, chat.messages, chat.user?.id, true]);
 
   const [actionMenu, setActionMenu] = useState<ActionMenuState | null>(null);
   const [convSearchQuery, setConvSearchQuery] = useState('');
@@ -923,7 +920,7 @@ export default function ChatDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 bg-background flex flex-col"
+            className="absolute inset-0 z-drawer bg-background flex flex-col"
           >
             <div className="flex items-center gap-3 px-4 h-14 border-b border-border/20">
               <button
@@ -1144,7 +1141,7 @@ export default function ChatDrawer({
                       <ChevronRight
                         className={cn(
                           'w-4 h-4 text-muted-foreground/50',
-                          chat.isAr && 'rotate-180',
+                          'rotate-180',
                         )}
                       />
                     </button>
@@ -1199,7 +1196,6 @@ export default function ChatDrawer({
                             <ChatImage
                               src={chat.getFileUrl(m)}
                               alt={readableFileName(m.file_name) || ''}
-                              isAr={chat.isAr}
                               refreshUrl={() => chat.refreshSignedUrl(m)}
                               className="w-full h-full"
                             />
@@ -1296,7 +1292,6 @@ export default function ChatDrawer({
           </div>
           <ConversationList
             conversations={filteredConversations}
-            isAr={chat.isAr}
             currentUserId={chat.user.id}
             filter={chat.conversationFilter}
             onFilterChange={chat.setConversationFilter}
@@ -1408,7 +1403,7 @@ export default function ChatDrawer({
         /* ───────────────── CHAT VIEW ───────────────── */
         <>
           {/* ── Chat Header ── */}
-          <div className="sticky top-0 z-30 h-14 px-3 flex items-center gap-2 bg-background border-b border-border/20 shrink-0">
+          <div className="z-header h-14 px-3 flex items-center gap-2 app-sticky-header border-b border-border/20 shrink-0">
             {chat.selectionMode ? (
               <>
                 <button
@@ -1562,7 +1557,7 @@ export default function ChatDrawer({
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="fixed inset-0 z-10"
+                          className="fixed inset-0 z-raised"
                           onClick={() => chat.setShowChatMenu(false)}
                         />
                         <motion.div
@@ -1571,7 +1566,7 @@ export default function ChatDrawer({
                           exit={{ opacity: 0, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
                           className={cn(
-                            'absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-20 min-w-[200px] overflow-hidden ',
+                            'absolute top-full mt-1 bg-card border border-border/30 rounded-xl z-sticky min-w-[200px] overflow-hidden ',
                             'left-0',
                           )}
                         >
@@ -1899,7 +1894,7 @@ export default function ChatDrawer({
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
-                  className="absolute inset-2 z-30 rounded-2xl border-2 border-dashed border-primary bg-primary/10 backdrop-blur-sm flex flex-col items-center justify-center gap-3 pointer-events-none"
+                  className="absolute inset-2 z-header rounded-2xl border-2 border-dashed border-primary bg-primary/10 backdrop-blur-sm flex flex-col items-center justify-center gap-3 pointer-events-none"
                   aria-hidden="true"
                 >
                   <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center">
@@ -1963,7 +1958,7 @@ export default function ChatDrawer({
                   const isFirstUnread = msg.id === chat.firstUnreadId;
 
                   return (
-                    <MessageRowErrorBoundary isMine={isMine} isAr={chat.isAr}>
+                    <MessageRowErrorBoundary isMine={isMine}>
                       <>
                         {/* Date separator */}
                         {showDate && (
@@ -2040,7 +2035,7 @@ export default function ChatDrawer({
                               {chat.selectionMode && !msg.deleted && (
                                 <div
                                   className={cn(
-                                    'absolute top-1 z-10 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
+                                    'absolute top-1 z-raised w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
                                     isMine ? 'start-1' : 'end-1',
                                     isSelected
                                       ? 'bg-primary border-primary'
@@ -2073,7 +2068,6 @@ export default function ChatDrawer({
                                   <div className="px-3 pt-2 -mb-1">
                                     <ForwardedBadge
                                       name={chat.getForwardedName(msg.forwarded_from_sender_id)}
-                                      isAr={chat.isAr}
                                     />
                                   </div>
                                 )}
@@ -2167,7 +2161,6 @@ export default function ChatDrawer({
                                             readableFileName(msg.file_name) ||
                                             ('صورة في المحادثة')
                                           }
-                                          isAr={chat.isAr}
                                           refreshUrl={() => chat.refreshSignedUrl(msg)}
                                           width={meta?.w}
                                           height={meta?.h}
@@ -2206,7 +2199,7 @@ export default function ChatDrawer({
                                               /(https?:\/\/[^\s<>()]+|www\.[^\s<>()]+)/i,
                                             );
                                             return urlM ? (
-                                              <LinkPreview url={urlM[0]} isAr={chat.isAr} />
+                                              <LinkPreview url={urlM[0]} />
                                             ) : null;
                                           })()}
                                           <div
@@ -2232,7 +2225,6 @@ export default function ChatDrawer({
                                                 status={msg.status}
                                                 read={msg.read}
                                                 dimmed={isDarkBg}
-                                                isAr={chat.isAr}
                                                 onRetry={() => chat.retryFailedMessage(msg)}
                                               />
                                             )}
@@ -2247,7 +2239,6 @@ export default function ChatDrawer({
                                     isMine={isMine}
                                     isDarkBg={!!isDarkBg}
                                     isFading={!!isFading}
-                                    isAr={chat.isAr}
                                     fileUrl={chat.getFileUrl(msg)}
                                     rawFileUrl={msg.file_url ?? null}
                                     senderName={
@@ -2294,7 +2285,6 @@ export default function ChatDrawer({
                                           status={msg.status}
                                           read={msg.read}
                                           dimmed={isDarkBg}
-                                          isAr={chat.isAr}
                                           onRetry={() => chat.retryFailedMessage(msg)}
                                         />
                                       )}
@@ -2336,7 +2326,6 @@ export default function ChatDrawer({
                                                 status={msg.status}
                                                 read={msg.read}
                                                 dimmed={isDarkBg}
-                                                isAr={chat.isAr}
                                                 onRetry={() => chat.retryFailedMessage(msg)}
                                               />
                                             )}
@@ -2349,7 +2338,7 @@ export default function ChatDrawer({
                                         /(https?:\/\/[^\s<>()]+|www\.[^\s<>()]+)/i,
                                       );
                                       return urlM ? (
-                                        <LinkPreview url={urlM[0]} isAr={chat.isAr} />
+                                        <LinkPreview url={urlM[0]} />
                                       ) : null;
                                     })()}
                                   </div>
@@ -2360,7 +2349,7 @@ export default function ChatDrawer({
                               {msgReactions.length > 0 && (
                                 <div
                                   className={cn(
-                                    'flex gap-1 -mt-1.5 flex-wrap relative z-[1]',
+                                    'flex gap-1 -mt-1.5 flex-wrap relative z-raised',
                                     isMine ? 'justify-end pe-1' : 'justify-start ps-1',
                                   )}
                                   dir="ltr"
@@ -2588,7 +2577,7 @@ export default function ChatDrawer({
                 onClick={() => chat.scrollToBottom()}
                 aria-label={'الانتقال للأسفل'}
                 className={cn(
-                  'absolute bottom-24 end-4 z-10 w-11 h-11 rounded-full flex items-center justify-center transition-colors',
+                  'absolute bottom-24 end-4 z-raised w-11 h-11 rounded-full flex items-center justify-center transition-colors',
                   'bg-card/95 backdrop-blur-md border border-border/30',
                   'shadow-md',
                   (chat.activeConv?.unreadCount ?? 0) > 0 && 'ring-2 ring-primary/40',
@@ -2640,14 +2629,14 @@ export default function ChatDrawer({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.12 }}
-                      className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+                      className="fixed inset-0 z-sheet bg-black/40 backdrop-blur-sm"
                       onClick={() => {
                         setActionMenu(null);
                         chat.setShowExtraEmojis(false);
                       }}
                     />
                     <div
-                      className="fixed inset-0 z-[61] pointer-events-none"
+                      className="fixed inset-0 z-sheet-above pointer-events-none"
                       onClick={() => {
                         setActionMenu(null);
                         chat.setShowExtraEmojis(false);
@@ -2709,7 +2698,6 @@ export default function ChatDrawer({
                                   <MessageTicks
                                     status={actionMenu.msg.status}
                                     read={actionMenu.msg.read}
-                                    isAr={chat.isAr}
                                   />
                                 )}
                               </span>
@@ -2722,7 +2710,6 @@ export default function ChatDrawer({
                                 <ChatImage
                                   src={chat.getFileUrl(actionMenu.msg)}
                                   alt={readableFileName(actionMenu.msg.file_name) || ''}
-                                  isAr={chat.isAr}
                                   refreshUrl={() => chat.refreshSignedUrl(actionMenu.msg)}
                                   width={m?.w}
                                   height={m?.h}
@@ -2791,7 +2778,6 @@ export default function ChatDrawer({
                                 <div className="h-px bg-border/15 mx-3" />
                                 <div className="px-1 pt-1 pb-2">
                                   <EmojiPicker
-                                    isAr={chat.isAr}
                                     compact
                                     onPick={(emoji) => {
                                       chat.toggleReaction(actionMenu.msg.id, emoji);
@@ -2968,7 +2954,6 @@ export default function ChatDrawer({
             </div>
           ) : (
             <ChatInput
-              isAr={chat.isAr}
               newMessage={chat.newMessage}
               setNewMessage={chat.setNewMessage}
               replyTo={chat.replyTo}
@@ -3019,7 +3004,6 @@ export default function ChatDrawer({
       {/* ── Forward picker ── */}
       {chat.forwardingMessages && (
         <ForwardPicker
-          isAr={chat.isAr}
           messages={chat.forwardingMessages}
           conversations={chat.conversations.filter((c) => c.id !== chat.activeConv?.id)}
           onClose={chat.cancelForward}
@@ -3032,7 +3016,6 @@ export default function ChatDrawer({
             the modal updates in real time (sent → delivered → read) without
             forcing the caller to re-open the dialog. */}
       <MessageInfo
-        isAr={chat.isAr}
         isOpen={!!messageInfoTarget}
         message={
           messageInfoTarget
@@ -3045,7 +3028,6 @@ export default function ChatDrawer({
       {/* ── Wallpaper picker ── */}
       {chat.showWallpaperPicker && (
         <WallpaperPicker
-          isAr={chat.isAr}
           currentId={currentWallpaperId}
           onClose={() => chat.setShowWallpaperPicker(false)}
           onPick={(id) => {
@@ -3064,7 +3046,7 @@ export default function ChatDrawer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm px-6"
+          className="fixed inset-0 z-fullscreen-above flex items-center justify-center bg-black/60 backdrop-blur-sm px-6"
           onClick={() => setShowDeleteConfirm(false)}
         >
           <motion.div

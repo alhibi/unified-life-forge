@@ -657,7 +657,7 @@ export default function SudokuPage() {
           {(!gameStarted || isPaused) && !solved && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center"
+              className="absolute inset-0 z-sticky rounded-2xl bg-card/95 backdrop-blur-sm flex items-center justify-center"
               onClick={!gameStarted ? startGame : togglePause}
             >
               <div className="flex flex-col items-center gap-3">
@@ -673,7 +673,7 @@ export default function SudokuPage() {
         <div className="rounded-2xl overflow-hidden border border-border/40 relative">
           {/* X-Sudoku diagonal overlay */}
           {variant === 'x' && (
-            <svg className="absolute inset-0 pointer-events-none w-full h-full z-10" preserveAspectRatio="none" viewBox="0 0 9 9">
+            <svg className="absolute inset-0 pointer-events-none w-full h-full z-raised" preserveAspectRatio="none" viewBox="0 0 9 9">
               <line x1="0" y1="0" x2="9" y2="9" stroke="#a855f7" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
               <line x1="9" y1="0" x2="0" y2="9" stroke="#a855f7" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
             </svg>
@@ -754,7 +754,7 @@ export default function SudokuPage() {
             className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">
                 {maxHints - hintsUsed}
               </span>
             )}
@@ -793,7 +793,7 @@ export default function SudokuPage() {
         {smartHint && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
             onClick={() => setSmartHint(null)}
           >
             <motion.div

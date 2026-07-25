@@ -17,11 +17,9 @@ import type { ReaderPrefs } from './types';
 export function ReaderPrefsPopover({
   prefs,
   onChange,
-  isAr,
 }: {
   prefs: ReaderPrefs;
   onChange: (next: ReaderPrefs) => void;
-  isAr: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -97,7 +95,7 @@ export function ReaderPrefsPopover({
             transition={{ duration: 0.15 }}
             role="dialog"
             aria-label={'إعدادات القراءة'}
- className="absolute end-0 top-full mt-2 w-64 z-30 rounded-2xl border border-border/60 bg-card p-3 space-y-3"
+ className="absolute end-0 top-full mt-2 w-64 z-header rounded-2xl border border-border/60 bg-card p-3 space-y-3"
  >
  <PrefRow label={'حجم الخط'}>
               {(['sm', 'md', 'lg', 'xl', '2xl'] as const).map((s) => (

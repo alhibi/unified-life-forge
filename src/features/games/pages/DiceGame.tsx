@@ -260,8 +260,7 @@ type Mode = 'yatzy' | 'highroll' | 'pig';
 type Turn = 'player' | 'ai';
 
 export default function DiceGame() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('dice-mode') as Mode) || 'yatzy');
   const [aiLevel, setAiLevel] = useState<'easy' | 'hard'>(() => (localStorage.getItem('dice-ai') as 'easy' | 'hard') || 'hard');
 
@@ -338,7 +337,7 @@ export default function DiceGame() {
       'من يجمع جولات أكثر يفوز باللعبة',
       'السلسلة تتراكم مع كل فوز',
     ];
-  }, [mode, isAr]);
+  }, [mode]);
 
   const statsArr = [
     { label: 'مباريات', value: stats.gamesPlayed },
@@ -373,17 +372,16 @@ export default function DiceGame() {
 
   return (
     <GameShell title={'النرد'} icon={Dices} accentColor="hsl(346, 87%, 60%)" rules={rules} stats={statsArr} options={options}>
-      {mode === 'yatzy' && <YatzyView key="yatzy" isAr={isAr} aiLevel={aiLevel} />}
+      {mode === 'yatzy' && <YatzyView key="yatzy" aiLevel={aiLevel} />}
       {mode === 'pig' && (
         <PigView
           key={tournamentBot ? `pig-tournament-${tournamentBot.id}-${tournamentMatchId}` : 'pig'}
-          isAr={isAr}
           aiLevel={aiLevel}
           tournamentBot={tournamentBot}
           onTournamentResult={tournamentBot ? handleTournamentResult : undefined}
         />
       )}
-      {mode === 'highroll' && <HighRollView key="hr" isAr={isAr} />}
+      {mode === 'highroll' && <HighRollView key="hr" />}
     </GameShell>
   );
 }
@@ -391,7 +389,7 @@ export default function DiceGame() {
 // =============================================================================
 // Yatzy View
 // =============================================================================
-function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' }) {
+function YatzyView({ aiLevel }: { aiLevel: 'easy' | 'hard' }) {
   const [playerCard, setPlayerCard] = useState<Scorecard>({ scores: {} });
   const [aiCard, setAiCard] = useState<Scorecard>({ scores: {} });
   const [dice, setDice] = useState<number[]>([1, 1, 1, 1, 1]);
@@ -433,7 +431,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
     } else {
       setHint(null);
     }
-  }, [dice, rollsLeft, turn, playerCard, gameOver, isAr]);
+  }, [dice, rollsLeft, turn, playerCard, gameOver]);
 
   const rollDice = useCallback(() => {
     if (rolling || rollsLeft <= 0 || turn !== 'player' || gameOver) return;
@@ -526,7 +524,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.4 }}
             transition={{ type: 'spring', stiffness: 250, damping: 18 }}
- className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+ className="absolute inset-0 z-header flex items-center justify-center pointer-events-none"
  >
  <div className="px-8 py-4 rounded-3xl text-amber-950 font-black text-3xl tracking-wider">
  ★ YATZY ★
@@ -565,7 +563,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
  className="px-6 py-2 rounded-2xl font-black text-amber-950 disabled:opacity-30 disabled:cursor-not-allowed"
  style={{ }}
           >
-            <Dices className="w-4 h-4 inline mr-1.5" />
+            <Dices className="w-4 h-4 inline me-1.5" />
             {'رمية'} {3 - rollsLeft + 1}/3
           </motion.button>
         </div>
@@ -601,7 +599,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
             <motion.button onClick={reset}
               className="mt-3 px-6 py-2 rounded-xl font-bold text-amber-950"
               style={{ }}>
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" /> {'مباراة جديدة'}
+              <RotateCcw className="w-3.5 h-3.5 inline me-1.5" /> {'مباراة جديدة'}
             </motion.button>
           </motion.div>
         )}
@@ -613,8 +611,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
 // =============================================================================
 // Pig (push-your-luck) View
 // =============================================================================
-function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
-  isAr: boolean;
+function PigView({ aiLevel, tournamentBot, onTournamentResult }: {
   aiLevel: 'easy' | 'hard';
   tournamentBot?: DicePersonality | null;
   onTournamentResult?: (playerScore: number, botScore: number) => void;
@@ -689,7 +686,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
         }
       }
     }, 55);
-  }, [rolling, gameOver, turn, roundPoints, isAr, bestRoundThisGame]);
+  }, [rolling, gameOver, turn, roundPoints, bestRoundThisGame]);
 
   const playerHold = () => {
     if (rolling || gameOver || turn !== 'player' || roundPoints === 0) return;
@@ -768,7 +765,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
       {tournamentBot && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/8 p-3 mb-3 flex items-center gap-3">
           <Trophy className="w-5 h-5 text-amber-300 shrink-0" />
-          <div className="text-left flex-1">
+          <div className="text-start flex-1">
             <p className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
               {'مباراة بطولة'}
             </p>
@@ -828,13 +825,13 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
           <motion.button onClick={playerRoll} disabled={turn !== 'player' || rolling}
  className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-amber-950 disabled:opacity-30"
  style={{ }}>
-            <Dices className="w-5 h-5 inline mr-1.5" />
+            <Dices className="w-5 h-5 inline me-1.5" />
             {'ارمِ'}
           </motion.button>
           <motion.button onClick={playerHold} disabled={turn !== 'player' || rolling || roundPoints === 0}
  className="flex-1 max-w-[160px] py-3 rounded-2xl font-black text-emerald-950 disabled:opacity-30"
  style={{ }}>
-            <PiggyBank className="w-5 h-5 inline mr-1.5" />
+            <PiggyBank className="w-5 h-5 inline me-1.5" />
             {'احتفظ'}
           </motion.button>
         </div>
@@ -842,7 +839,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
 
       {gameOver && (
         <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
-          <RotateCcw className="w-4 h-4 inline mr-1.5" />{'مباراة جديدة'}
+          <RotateCcw className="w-4 h-4 inline me-1.5" />{'مباراة جديدة'}
         </button>
       )}
 
@@ -859,7 +856,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
 // =============================================================================
 // HighRoll View
 // =============================================================================
-function HighRollView({ isAr }: { isAr: boolean }) {
+function HighRollView({ }: { }) {
   const [hrPlayer, setHrPlayer] = useState(1);
   const [hrAi, setHrAi] = useState(1);
   const [hrScore, setHrScore] = useState({ p: 0, a: 0 });
@@ -919,7 +916,7 @@ function HighRollView({ isAr }: { isAr: boolean }) {
         }
       }
     }, 55);
-  }, [rolling, hrRound, hrRounds, hrScore, isAr, streak]);
+  }, [rolling, hrRound, hrRounds, hrScore, streak]);
 
   const finished = hrRound >= hrRounds;
 
@@ -936,12 +933,12 @@ function HighRollView({ isAr }: { isAr: boolean }) {
       </div>
 
       <div className="flex items-center justify-between mb-4 px-3">
-        <div className="text-left">
+        <div className="text-start">
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'أنت'}</p>
           <p className="text-3xl font-black text-amber-400">{hrScore.p}</p>
         </div>
         <div className="text-[10px] text-zinc-500">{hrRound}/{hrRounds}</div>
-        <div className="text-right">
+        <div className="text-end">
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'الخصم'}</p>
           <p className="text-3xl font-black text-rose-400">{hrScore.a}</p>
         </div>
@@ -960,12 +957,12 @@ function HighRollView({ isAr }: { isAr: boolean }) {
  <motion.button onClick={rollOne} disabled={rolling}
  className="px-9 py-3 rounded-2xl font-black text-amber-950 disabled:opacity-40"
  style={{ }}>
-          <Dices className="w-5 h-5 inline mr-1.5" />
+          <Dices className="w-5 h-5 inline me-1.5" />
           {'ارمِ النرد'}
         </motion.button>
       ) : (
         <button onClick={reset} className="px-6 py-3 rounded-2xl bg-amber-500 text-amber-950 font-black">
-          <RotateCcw className="w-4 h-4 inline mr-1.5" />{'مباراة جديدة'}
+          <RotateCcw className="w-4 h-4 inline me-1.5" />{'مباراة جديدة'}
         </button>
       )}
     </div>
@@ -1020,7 +1017,7 @@ function ScorecardSection(props: {
             key={cat}
             disabled={!canPick || filled}
             onClick={() => onPick(cat)}
-            className={`w-full text-left text-[11px] rounded-lg px-2 py-1.5 flex items-center justify-between transition-all ${
+            className={`w-full text-start text-[11px] rounded-lg px-2 py-1.5 flex items-center justify-between transition-all ${
               filled
                 ? 'bg-white/4 cursor-default'
                 : canPick

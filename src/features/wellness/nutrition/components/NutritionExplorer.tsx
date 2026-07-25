@@ -159,7 +159,7 @@ export default function NutritionExplorer() {
 
   // Render header with search
   const renderHeader = () => (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md pb-2 pt-1">
+    <div className="z-raised app-sticky-header pb-2 pt-1">
       {view !== 'home' && (
         <button
           onClick={handleBack}
@@ -172,7 +172,7 @@ export default function NutritionExplorer() {
 
       {/* Search bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           value={query}
@@ -181,7 +181,7 @@ export default function NutritionExplorer() {
             if (e.target.value.trim()) setView('search');
           }}
           placeholder={T.searchPlaceholder[lang]}
-          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+          className="w-full ps-10 pe-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
           dir={'rtl'}
         />
         {query && (
@@ -190,7 +190,7 @@ export default function NutritionExplorer() {
               setQuery('');
               if (view === 'search') setView('home');
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full bg-muted"
+            className="absolute end-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full bg-muted"
           >
             <X className="w-3 h-3" />
           </button>
@@ -273,7 +273,7 @@ export default function NutritionExplorer() {
                     >
                       <Icon className="w-3.5 h-3.5" style={{ color }} />
                     </div>
-                    <span className="text-[11px] font-medium text-foreground leading-tight text-left">
+                    <span className="text-[11px] font-medium text-foreground leading-tight text-start">
                       {label[lang]}
                     </span>
                   </button>
@@ -293,7 +293,7 @@ export default function NutritionExplorer() {
                   <h3 className="text-base font-bold text-foreground">
                     {CATEGORY_INFO[selectedCategory]?.label[lang]}
                   </h3>
-                  <span className="text-xs text-muted-foreground ml-auto">
+                  <span className="text-xs text-muted-foreground ms-auto">
                     {categoryFoods.length}
                   </span>
                 </div>
@@ -401,7 +401,7 @@ export default function NutritionExplorer() {
                     <section.icon className="w-4 h-4" style={{ color: section.color }} />
                   </div>
                   <h3 className="text-base font-bold text-foreground">{section.label[lang]}</h3>
-                  <span className="text-xs text-muted-foreground ml-auto">{smartFoods.length}</span>
+                  <span className="text-xs text-muted-foreground ms-auto">{smartFoods.length}</span>
                 </div>
                 <div className="space-y-2">
                   {smartFoods.map((food) => (

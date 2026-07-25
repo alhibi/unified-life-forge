@@ -116,8 +116,7 @@ function erf(x: number): number {
 // Component
 // =============================================================================
 export default function FocusGame() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('focus-mode') as Mode) || 'reaction');
   const [difficulty, setDifficulty] = useState<Difficulty>(() => (localStorage.getItem('focus-diff') as Difficulty) || 'normal');
   const [rounds, setRounds] = useState(() => parseInt(localStorage.getItem('focus-rounds') || '5'));
@@ -145,7 +144,7 @@ export default function FocusGame() {
   const refreshStats = () => setStats(loadStats());
 
   const rules = useMemo(() => {
-    if (isAr) {
+    if (true) {
       switch (mode) {
         case 'reaction': return ['انتظر اللون الأخضر', 'اضغط فور ظهور الإشارة', 'لا تضغط قبل ظهورها', 'الأسرع متوسطاً يفوز'];
         case 'choice':   return ['اضغط الدائرة الموافقة للون المطلوب', 'الدوائر تظهر في أماكن عشوائية', 'الدقة + السرعة كلاهما يُحسبان', 'كل خطأ يكلّفك في الدقة'];
@@ -165,7 +164,7 @@ export default function FocusGame() {
       }
     }
     return [];
-  }, [mode, isAr, difficulty]);
+  }, [mode, difficulty]);
 
   const percentileText = (() => {
     const r = stats.bestAvg.reaction;
@@ -209,12 +208,12 @@ export default function FocusGame() {
 
   return (
     <GameShell title={'التركيز'} icon={Crosshair} accentColor="hsl(142, 71%, 45%)" rules={rules} stats={statsArr} options={options}>
-      {mode === 'reaction' && <ReactionMode key="reaction" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
-      {mode === 'choice'   && <ChoiceMode key="choice" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
-      {mode === 'stroop'   && <StroopMode key="stroop" diff={DIFFS[difficulty]} rounds={rounds} isAr={isAr} onFinish={refreshStats} />}
-      {mode === 'sequence' && <SequenceMode key="sequence" diff={DIFFS[difficulty]} isAr={isAr} onFinish={refreshStats} />}
-      {mode === 'nback'    && <NBackMode key={`nback-${difficulty}`} diff={DIFFS[difficulty]} isAr={isAr} onFinish={refreshStats} />}
-      {mode === 'aim'      && <AimMode key={`aim-${difficulty}`} diff={DIFFS[difficulty]} isAr={isAr} onFinish={refreshStats} />}
+      {mode === 'reaction' && <ReactionMode key="reaction" diff={DIFFS[difficulty]} rounds={rounds} onFinish={refreshStats} />}
+      {mode === 'choice'   && <ChoiceMode key="choice" diff={DIFFS[difficulty]} rounds={rounds} onFinish={refreshStats} />}
+      {mode === 'stroop'   && <StroopMode key="stroop" diff={DIFFS[difficulty]} rounds={rounds} onFinish={refreshStats} />}
+      {mode === 'sequence' && <SequenceMode key="sequence" diff={DIFFS[difficulty]} onFinish={refreshStats} />}
+      {mode === 'nback'    && <NBackMode key={`nback-${difficulty}`} diff={DIFFS[difficulty]} onFinish={refreshStats} />}
+      {mode === 'aim'      && <AimMode key={`aim-${difficulty}`} diff={DIFFS[difficulty]} onFinish={refreshStats} />}
     </GameShell>
   );
 }
@@ -222,7 +221,7 @@ export default function FocusGame() {
 // =============================================================================
 // REACTION MODE
 // =============================================================================
-function ReactionMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; rounds: number; isAr: boolean; onFinish: () => void }) {
+function ReactionMode({ diff, rounds, onFinish }: { diff: DifficultyMeta; rounds: number; onFinish: () => void }) {
   type State = 'idle' | 'waiting' | 'ready' | 'result' | 'tooEarly' | 'done';
   const [state, setState] = useState<State>('idle');
   const [reactionTime, setReactionTime] = useState(0);
@@ -360,7 +359,7 @@ function ReactionMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; 
 // =============================================================================
 // CHOICE MODE
 // =============================================================================
-function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; rounds: number; isAr: boolean; onFinish: () => void }) {
+function ChoiceMode({ diff, rounds, onFinish }: { diff: DifficultyMeta; rounds: number; onFinish: () => void }) {
   type State = 'idle' | 'showing' | 'result' | 'done';
   const [state, setState] = useState<State>('idle');
   const [round, setRound] = useState(0);
@@ -465,7 +464,7 @@ function ChoiceMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
 // =============================================================================
 // STROOP MODE
 // =============================================================================
-function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; rounds: number; isAr: boolean; onFinish: () => void }) {
+function StroopMode({ diff, rounds, onFinish }: { diff: DifficultyMeta; rounds: number; onFinish: () => void }) {
   type State = 'idle' | 'showing' | 'done';
   const [state, setState] = useState<State>('idle');
   const [round, setRound] = useState(0);
@@ -569,7 +568,7 @@ function StroopMode({ diff, rounds, isAr, onFinish }: { diff: DifficultyMeta; ro
 // =============================================================================
 // SEQUENCE MODE (Simon Says)
 // =============================================================================
-function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean; onFinish: () => void }) {
+function SequenceMode({ diff, onFinish }: { diff: DifficultyMeta; onFinish: () => void }) {
   type State = 'idle' | 'showing' | 'input' | 'fail' | 'done';
   const [state, setState] = useState<State>('idle');
   const [seq, setSeq] = useState<number[]>([]);
@@ -675,7 +674,7 @@ function SequenceMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: bo
 // =============================================================================
 // N-BACK MODE (Working Memory)
 // =============================================================================
-function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean; onFinish: () => void }) {
+function NBackMode({ diff, onFinish }: { diff: DifficultyMeta; onFinish: () => void }) {
   type State = 'idle' | 'playing' | 'done';
   const [state, setState] = useState<State>('idle');
   const N = diff.nbackN;
@@ -842,7 +841,7 @@ function NBackMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boole
 // =============================================================================
 // AIM TRAINER MODE
 // =============================================================================
-function AimMode({ diff, isAr, onFinish }: { diff: DifficultyMeta; isAr: boolean; onFinish: () => void }) {
+function AimMode({ diff, onFinish }: { diff: DifficultyMeta; onFinish: () => void }) {
   type State = 'idle' | 'playing' | 'done';
   const [state, setState] = useState<State>('idle');
   const [score, setScore] = useState(0);

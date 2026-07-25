@@ -193,7 +193,7 @@ export default function ChessCareerPage() {
               transition={{ delay: idx * 0.04 }}
               onClick={() => unlocked && setSelected(bot)}
               disabled={!unlocked}
-              className={`w-full text-left rounded-2xl border p-3 transition-all ${
+              className={`w-full text-start rounded-2xl border p-3 transition-all ${
  isCurrent
  ? 'border-purple-400 bg-purple-500/15 ring-1 ring-purple-400/30'
  : beaten
@@ -230,7 +230,7 @@ export default function ChessCareerPage() {
                   </p>
                 </div>
 
-                <div className="text-right shrink-0">
+                <div className="text-end shrink-0">
                   <p className="text-xs font-bold text-purple-300 tabular-nums">{bot.elo}</p>
                   {rec && (
                     <p className="text-[10px] text-muted-foreground tabular-nums">
@@ -253,7 +253,7 @@ export default function ChessCareerPage() {
         {selected && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
             onClick={() => setSelected(null)}
           >
             <motion.div

@@ -2,17 +2,23 @@ import { useCallback, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Conversation, Message } from '../types';
 
-interface UseChatSearchArgs {
+interface UseInChatSearchArgs {
   activeConv: Conversation | null;
   messages: Message[];
 }
 
 /**
- * In-chat message search. Backed by the `search_chat_messages` RPC
- * (Postgres FTS with Arabic normalization) with a client-side substring
- * fallback while the RPC is in flight and when it errors.
+ * Find-in-conversation search for the 1:1 chat: a cursor over hits inside the
+ * *currently open* thread, driven by the `search_chat_messages` RPC (Postgres
+ * FTS with Arabic normalisation) with a client-side substring fallback while
+ * the RPC is in flight or when it errors.
+ *
+ * Renamed from `useChatSearch` because `src/lib/chat/hooks/useChatSearch.ts`
+ * already owned that name for a different contract — searching ACROSS
+ * conversations and returning highlighted snippets. Two hooks with one name
+ * and incompatible return shapes is how you end up importing the wrong one.
  */
-export function useChatSearch({ activeConv, messages }: UseChatSearchArgs) {
+export function useInChatSearch({ activeConv, messages }: UseInChatSearchArgs) {
   const [showSearch, setShowSearch] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Message[]>([]);

@@ -52,8 +52,7 @@ import { toast } from 'sonner';
 export default function GroupChatPage() {
   const params = useParams<{ chatId: string }>();
   const chatId = params.chatId ?? null;
-  const { language, t } = useApp();
-  const isAr = language === 'ar';
+  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat/groups');
@@ -346,7 +345,6 @@ export default function GroupChatPage() {
             return (
               <GroupMessageBubble
                 key={item.key}
-                isAr={isAr}
                 message={m}
                 isMine={m.senderId === user.id}
                 showSenderHeader={item.showSender && settings.appearance.showAvatars}
@@ -377,7 +375,7 @@ export default function GroupChatPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: 'spring', damping: 18, stiffness: 320 }}
-              className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 flex items-center justify-center z-10"
+              className="absolute bottom-24 end-4 w-11 h-11 rounded-full bg-card border border-border/30 flex items-center justify-center z-raised"
               aria-label={'انتقل إلى الأسفل'}
             >
               <ArrowLeft className="w-4 h-4 text-foreground rotate-90" />
@@ -392,7 +390,6 @@ export default function GroupChatPage() {
 
         {/* ── Composer ───────────────────────────────────────────────── */}
         <GroupComposer
-          isAr={isAr}
           text={composer.text}
           onTextChange={composer.setText}
           onSend={onSend}
@@ -415,7 +412,6 @@ export default function GroupChatPage() {
 
         {/* ── Action menu (long-press) ───────────────────────────────── */}
         <ActionMenuOverlay
-          isAr={isAr}
           state={actionMenu}
           onClose={() => setActionMenu(null)}
           isMine={(m) => m.senderId === user.id}
@@ -432,7 +428,6 @@ export default function GroupChatPage() {
 
         {/* ── Sheets ─────────────────────────────────────────────────── */}
         <GroupInfoSheet
-          isAr={isAr}
           isOpen={showInfo}
           chat={chat}
           onClose={() => setShowInfo(false)}
@@ -446,7 +441,6 @@ export default function GroupChatPage() {
           myUserId={user.id}
         />
         <MemberListSheet
-          isAr={isAr}
           isOpen={showMembers}
           chat={chat}
           onClose={() => setShowMembers(false)}
@@ -460,7 +454,6 @@ export default function GroupChatPage() {
 // ── Action menu (long-press popover) ────────────────────────────────────────
 
 interface ActionMenuOverlayProps {
-  isAr: boolean;
   state: { msg: ChatMessage; rect: DOMRect } | null;
   onClose: () => void;
   isMine: (m: ChatMessage) => boolean;
@@ -472,8 +465,7 @@ interface ActionMenuOverlayProps {
   onReact: (m: ChatMessage, emoji: string) => void;
 }
 
-function ActionMenuOverlay({
-  isAr, state, onClose, isMine, onReply, onEdit, onCopy, onDelete, onHide, onReact,
+function ActionMenuOverlay({ state, onClose, isMine, onReply, onEdit, onCopy, onDelete, onHide, onReact,
 }: ActionMenuOverlayProps) {
   if (!state) return null;
   const { msg } = state;
@@ -483,13 +475,13 @@ function ActionMenuOverlay({
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[60] bg-black/35 backdrop-blur-[2px]"
+        className="absolute inset-0 z-sheet bg-black/35 backdrop-blur-[2px]"
         onClick={onClose}
       />
       <motion.div
         initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
         transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-        className="absolute inset-x-4 bottom-24 z-[61] flex flex-col items-stretch gap-2"
+        className="absolute inset-x-4 bottom-24 z-sheet-above flex flex-col items-stretch gap-2"
         onClick={e => e.stopPropagation()}
       >
         {/* Quick reactions row */}

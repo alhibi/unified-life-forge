@@ -5,12 +5,10 @@ export default function BacklinksPanel({
   note,
   notes,
   onOpen,
-  isAr,
 }: {
   note: LocalNote;
   notes: LocalNote[];
   onOpen: (id: string) => void;
-  isAr: boolean;
 }) {
   const title = note.title || note.contentMd.split('\n').find((l) => l.trim())?.replace(/^#+\s*/, '').trim() || '';
   if (!title) return null;

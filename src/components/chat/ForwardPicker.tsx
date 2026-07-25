@@ -9,7 +9,6 @@ import type { Conversation, Message } from './types';
 import { getMessagePreview, stripMarkers } from './chatUtils';
 
 interface ForwardPickerProps {
-  isAr: boolean;
   messages: Message[];
   conversations: Conversation[];
   onClose: () => void;
@@ -38,7 +37,7 @@ function renderAvatar(username?: string, avatarUrl?: string | null) {
  * Modal sheet for selecting a target conversation to forward messages to.
  * Overlays on top of the chat drawer with a blur + slide-up animation.
  */
-const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversations, onClose, onForward }) => {
+const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, onClose, onForward }) => {
   const [query, setQuery] = useState('');
   const BackIcon = ChevronRight;
 
@@ -56,13 +55,13 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-[70] bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 z-picker bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="absolute inset-x-0 bottom-0 z-[71] bg-background rounded-t-3xl flex flex-col max-h-[85%] "
+        className="absolute inset-x-0 bottom-0 z-picker-above bg-background rounded-t-3xl flex flex-col max-h-[85%] "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
@@ -82,7 +81,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
               {'رسالة محوّلة:'}
             </p>
             <p className="text-[13px] text-foreground/80 line-clamp-2" dir="auto">
-              {stripMarkers(getMessagePreview(firstMsg, isAr))}
+              {stripMarkers(getMessagePreview(firstMsg))}
               {messages.length > 1 && (
                 <span className="text-muted-foreground ms-1">
                   {`و ${messages.length - 1} رسالة أخرى`}

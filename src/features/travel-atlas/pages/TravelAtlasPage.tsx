@@ -12,8 +12,7 @@ import { useTravelCountries } from '../hooks';
 import type { TravelCountry } from '../types';
 
 export default function TravelAtlasPage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const navigate = useNavigate();
   const { data: countries = [], isLoading, error } = useTravelCountries();
   const [addOpen, setAddOpen] = useState(false);
@@ -97,7 +96,6 @@ export default function TravelAtlasPage() {
                 country={country}
                 maxCount={maxCount}
                 rank={index}
-                isAr={isAr}
                 onOpen={() => openCountry(country)}
               />
             ))}
@@ -114,13 +112,11 @@ function CountryTile({
   country,
   maxCount,
   rank,
-  isAr,
   onOpen,
 }: {
   country: TravelCountry;
   maxCount: number;
   rank: number;
-  isAr: boolean;
   onOpen: () => void;
 }) {
   const density = Math.max(country.placesCount / maxCount, 0.08);

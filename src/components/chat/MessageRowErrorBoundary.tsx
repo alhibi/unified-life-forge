@@ -7,8 +7,6 @@ interface Props {
   children: ReactNode;
   /** Right-aligned (mine) bubbles render their fallback differently. */
   isMine?: boolean;
-  /** Locale for the user-facing fallback string. */
-  isAr?: boolean;
   /**
    * Optional callback fired the first time a child throws. Use it to
    * report telemetry or escalate the error to a global handler — the

@@ -255,14 +255,14 @@ export default function QiblaCompass() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setExpanded(false)}
-                className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+                className="fixed inset-0 z-drawer bg-black/70 backdrop-blur-sm"
               />
               <motion.div
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
                 transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                className="fixed inset-x-0 bottom-0 z-50 max-h-[92vh] rounded-t-3xl bg-background border-t border-border/40 flex flex-col"
+                className="fixed inset-x-0 bottom-0 z-drawer max-h-[92vh] rounded-t-3xl bg-background border-t border-border/40 flex flex-col"
               >
                 <div className="flex justify-center pt-3 pb-1">
                   <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />

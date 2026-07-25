@@ -49,7 +49,7 @@ function LivePreview({ speedKey, fpsKey }: { speedKey: number; fpsKey: FpsCap })
     <div className="relative h-24 rounded-2xl bg-card border border-border/40 overflow-hidden">
       <motion.div
         key={`${speedKey}-${fpsKey}`}
-        className="absolute top-1/2 -translate-y-1/2 left-3 w-10 h-10 rounded-full bg-primary shadow-lg"
+        className="absolute top-1/2 -translate-y-1/2 start-3 w-10 h-10 rounded-full bg-primary shadow-lg"
         animate={{ x: [0, 230, 0] }}
         transition={{
           ...MOTION.spring,
@@ -57,7 +57,7 @@ function LivePreview({ speedKey, fpsKey }: { speedKey: number; fpsKey: FpsCap })
           repeatType: 'loop',
         }}
       />
-      <div className="absolute bottom-2 right-3 text-[10px] font-mono tabular-nums text-muted-foreground/70">
+      <div className="absolute bottom-2 end-3 text-[10px] font-mono tabular-nums text-muted-foreground/70">
         spring · k={(MOTION.spring as any).stiffness?.toFixed?.(0)} · c={(MOTION.spring as any).damping?.toFixed?.(1)}
       </div>
     </div>
@@ -157,7 +157,7 @@ function usePerfStats(budgetHz: number): PerfStats {
   return stats;
 }
 
-function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
+function PerfHUD({ budgetHz }: { budgetHz: number }) {
   const s = usePerfStats(budgetHz);
   const fpsColor =
     s.fps >= budgetHz - 5 ? 'text-emerald-500'
@@ -202,13 +202,12 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
 
 export default function MotionSettings() {
   const {
-    language,
+    
     motionSpeed, setMotionSpeed,
     fpsCap, setFpsCap,
     motionAmplitude, setMotionAmplitude,
     springBounce, setSpringBounce,
   } = useApp();
-  const isAr = language === 'ar';
   const [nativeHz, setNativeHz] = useState<number | null>(null);
 
   // Detect the display's true refresh rate once on mount so we can warn
@@ -268,7 +267,7 @@ export default function MotionSettings() {
 
         {/* Live performance HUD */}
         <motion.div variants={item}>
-          <PerfHUD isAr={isAr} budgetHz={budgetHz} />
+          <PerfHUD budgetHz={budgetHz} />
         </motion.div>
 
         {/* SPEED */}

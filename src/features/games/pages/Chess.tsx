@@ -1360,7 +1360,7 @@ export default function ChessPage() {
 
           {cell && (
             <motion.span
-              className={`relative z-10 select-none leading-none
+              className={`relative z-raised select-none leading-none
                 ${cell.color === 'w' ? 'text-white ' : 'text-gray-900 '}`}
               style={{ fontSize: 'min(7.5vw, 32px)' }}
               initial={false}
@@ -1502,7 +1502,7 @@ export default function ChessPage() {
       <AnimatePresence>
         {promotionPending && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+            className="fixed inset-0 z-drawer bg-black/50 flex items-center justify-center">
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
               className="bg-card rounded-2xl p-4">
               <p className="text-sm font-semibold text-foreground text-center mb-3">
@@ -1588,7 +1588,7 @@ export default function ChessPage() {
         <AnimatePresence>
           {!gameStarted && !gameOver && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center mx-4"
+              className="absolute inset-0 z-sticky rounded-lg bg-card/90 backdrop-blur-sm flex items-center justify-center mx-4"
               onClick={() => { setGameStarted(true); setIsRunning(true); }}>
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />

@@ -29,8 +29,7 @@ import { formatTime } from '@/components/chat/chatUtils';
  *     ~10 chats.
  */
 export default function GroupsIndexPage() {
-  const { language, t } = useApp();
-  const isAr = language === 'ar';
+  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat');
@@ -181,7 +180,6 @@ export default function GroupsIndexPage() {
             </div>
           ) : filtered.length === 0 ? (
             <EmptyState
-              isAr={isAr}
               filter={filter}
               hasAny={groupChats.length > 0}
               onNewGroup={() => { setCreatorKind('group'); setCreatorOpen(true); }}
@@ -193,7 +191,6 @@ export default function GroupsIndexPage() {
                 <GroupRow
                   key={c.id}
                   chat={c}
-                  isAr={isAr}
                   onClick={() => navigate(`/chat/g/${c.id}`)}
                 />
               ))}
@@ -202,13 +199,13 @@ export default function GroupsIndexPage() {
         </div>
 
         {/* FAB + creator menu */}
-        <div className="absolute bottom-24 end-5 z-10 flex flex-col items-end gap-2">
+        <div className="absolute bottom-24 end-5 z-raised flex flex-col items-end gap-2">
           <AnimatePresence>
             {showCreatorMenu && (
               <>
                 <motion.div
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[5] bg-black/15"
+                  className="fixed inset-0 z-scrim bg-black/15"
                   onClick={() => setShowCreatorMenu(false)}
                 />
                 <motion.button
@@ -218,7 +215,7 @@ export default function GroupsIndexPage() {
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
                   transition={{ type: 'spring', damping: 22, stiffness: 320, delay: 0.05 }}
                   onClick={() => { setShowCreatorMenu(false); setCreatorKind('channel'); setCreatorOpen(true); }}
-                  className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
+                  className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Hash className="w-4 h-4 text-primary" />
                   <span className="text-[13px] font-semibold">{'قناة جديدة'}</span>
@@ -230,7 +227,7 @@ export default function GroupsIndexPage() {
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
                   transition={{ type: 'spring', damping: 22, stiffness: 320 }}
                   onClick={() => { setShowCreatorMenu(false); setCreatorKind('group'); setCreatorOpen(true); }}
-                  className="z-[10] inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
+                  className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Users className="w-4 h-4 text-primary" />
                   <span className="text-[13px] font-semibold">{'مجموعة جديدة'}</span>
@@ -241,7 +238,7 @@ export default function GroupsIndexPage() {
           <button
             type="button"
             onClick={() => setShowCreatorMenu(s => !s)}
-            className="z-[10] w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
+            className="z-raised w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
             aria-label={'إنشاء جديد'}
           >
             <motion.span
@@ -255,7 +252,6 @@ export default function GroupsIndexPage() {
 
         {/* Creator sheet */}
         <GroupCreatorSheet
-          isAr={isAr}
           isOpen={creatorOpen}
           onClose={() => setCreatorOpen(false)}
           onCreated={(chat) => {
@@ -269,8 +265,8 @@ export default function GroupsIndexPage() {
   );
 }
 
-interface GroupRowProps { chat: ChatSummary; isAr: boolean; onClick: () => void }
-function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
+interface GroupRowProps { chat: ChatSummary; onClick: () => void }
+function GroupRow({ chat, onClick }: GroupRowProps) {
   const lastTime = chat.lastMessage?.at ?? chat.updatedAt;
   return (
     <button
@@ -294,7 +290,7 @@ function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
             'text-[11px] shrink-0 tabular-nums',
             chat.unreadCount > 0 ? 'text-primary font-semibold' : 'text-muted-foreground/50',
           )}>
-            {formatTime(lastTime, isAr)}
+            {formatTime(lastTime)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-2 mt-0.5">
@@ -326,14 +322,13 @@ function GroupRow({ chat, isAr, onClick }: GroupRowProps) {
 }
 
 interface EmptyStateProps {
-  isAr: boolean;
   filter: 'all' | 'groups' | 'channels';
   hasAny: boolean;
   onNewGroup: () => void;
   onNewChannel: () => void;
 }
 
-function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProps) {
+function EmptyState({ filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProps) {
   if (hasAny) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3 px-8 py-16">

@@ -61,7 +61,6 @@ export default function AddPlaceSheet({
   defaultCountryIso,
 }: AddPlaceSheetProps) {
   const { language } = useApp();
-  const isAr = language === 'ar';
   const createPlace = useCreatePlace();
 
   const [countryIso, setCountryIso] = useState<string>(defaultCountryIso ?? '');
@@ -95,7 +94,7 @@ export default function AddPlaceSheet({
       [...COUNTRY_CATALOG].sort((a, b) =>
         (a.nameAr).localeCompare(b.nameAr, 'ar'),
       ),
-    [isAr],
+    [],
   );
 
   const reset = () => {
@@ -311,7 +310,7 @@ export default function AddPlaceSheet({
                     type="button"
                     onClick={() => removePhoto(i)}
                     aria-label={'حذف الصورة'}
-                    className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow"
+                    className="absolute end-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow"
                   >
                     <X className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>

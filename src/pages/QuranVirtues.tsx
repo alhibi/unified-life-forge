@@ -112,7 +112,7 @@ export default function QuranVirtues() {
                   <span className="text-sm font-bold text-primary">{index + 1}</span>
                 </div>
                 {/* Text */}
-                <p className="flex-1 text-sm font-medium text-foreground text-right leading-relaxed">{virtue}</p>
+                <p className="flex-1 text-sm font-medium text-foreground text-end leading-relaxed">{virtue}</p>
               </motion.div>
             ))}
           </motion.div>

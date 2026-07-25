@@ -83,12 +83,12 @@ export default function HydrationLog({ lang }: Props) {
         {/* Wavy liquid shape */}
         <div className="w-32 h-32 rounded-full border-4 border-blue-500/20 bg-blue-500/5 relative overflow-hidden shrink-0 flex items-center justify-center">
           <motion.div
-            className="absolute bottom-0 left-0 right-0 bg-blue-500/30"
+            className="absolute bottom-0 start-0 end-0 bg-blue-500/30"
             initial={{ height: 0 }}
             animate={{ height: `${pct * 100}%` }}
             transition={{ type: 'spring', damping: 20, stiffness: 80 }}
           />
-          <div className="relative text-center z-10">
+          <div className="relative text-center z-raised">
             <span className="text-xl font-bold text-foreground tabular-nums block">{totalMl}</span>
             <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
               {T.ml[lang]}

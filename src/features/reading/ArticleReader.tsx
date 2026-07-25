@@ -54,7 +54,6 @@ export function ArticleReader({
   article,
   isBookmarked,
   prefs,
-  isAr,
   language,
   onBack,
   onToggleBookmark,
@@ -64,7 +63,6 @@ export function ArticleReader({
   article: FeedItem;
   isBookmarked: boolean;
   prefs: ReaderPrefs;
-  isAr: boolean;
   language: string;
   onBack: () => void;
   onToggleBookmark: () => void;
@@ -406,7 +404,7 @@ export function ArticleReader({
 
   const dirAttr = useMemo(() => {
     return 'rtl';
-  }, [isAr]);
+  }, []);
 
   return (
     <motion.div
@@ -420,9 +418,11 @@ export function ArticleReader({
       {/* Header */}
       <div
         ref={headerRef}
-        className={`flex items-center gap-2 px-4 py-3 border-b backdrop-blur-md sticky top-0 z-20 ${
-          themePalette ? '' : 'border-border/40 bg-card/90'
-        }`}
+        // `.app-sticky-header-card` owns position, blur, border and the
+        // default card backdrop. When the reader has a per-article palette,
+        // `chromeStyle` overrides background and border inline, which beats
+        // the class — so the conditional Tailwind pair is not needed.
+        className="flex items-center gap-2 px-4 py-3 app-sticky-header-card z-sticky"
         style={chromeStyle}
       >
         <button
@@ -441,7 +441,7 @@ export function ArticleReader({
           {article.source}
         </span>
         <div className="flex items-center gap-0.5">
-          <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} isAr={isAr} />
+          <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} />
           <button
             type="button"
             onClick={onToggleBookmark}
@@ -489,7 +489,7 @@ export function ArticleReader({
           announce position. Positioned dynamically so it always sits
           flush against whatever header height we have. */}
       <div
-        className={`h-[3px] w-full sticky z-20 ${
+        className={`h-[3px] w-full sticky z-sticky ${
           themePalette ? '' : 'bg-foreground/5'
         }`}
         style={{
@@ -542,7 +542,6 @@ export function ArticleReader({
           <div className="mb-4">
             <ArticleSpeechPlayer
               textToSpeak={bodyHtml || article.description || displayTitle}
-              isAr={isAr}
               language={language}
               ttsSpeed={prefs.ttsSpeed}
               onTtsSpeedChange={(speed) => onChangePrefs({ ...prefs, ttsSpeed: speed })}
@@ -554,7 +553,6 @@ export function ArticleReader({
             <ArticleTranslator
               originalHtml={originalBodyHtml || article.description || ''}
               originalTitle={originalTitle}
-              isAr={isAr}
               onTranslationComplete={(transHtml, transTitle) => {
                 setBodyHtml(transHtml);
                 setDisplayTitle(transTitle);

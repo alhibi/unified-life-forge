@@ -8,7 +8,6 @@ import { renderRichText, formatClockTime } from '@/components/chat/chatUtils';
 import type { ChatMember, ChatMessage, ChatReaction } from '@/lib/chat';
 
 interface GroupMessageBubbleProps {
-  isAr: boolean;
   message: ChatMessage;
   isMine: boolean;
   /** Show the sender header (avatar + name)? Hidden when previous bubble was from same sender. */
@@ -42,8 +41,7 @@ interface GroupMessageBubbleProps {
  *     opens the action menu (handled by the parent via `onLongPress`).
  *   • Failed-send state shows a tap- button.
  */
-const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
-  isAr, message, isMine, showSenderHeader, sender, reactions, myUserId,
+const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine, showSenderHeader, sender, reactions, myUserId,
   onLongPress, onToggleReaction, onJumpToReply, replyTarget, onRetry,
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -128,8 +126,8 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
           className={cn(
             'rounded-2xl px-3 py-2 select-none cursor-default',
             isMine
-              ? 'bg-primary text-primary-foreground rounded-br-md'
-              : 'bg-card border border-border/15 rounded-bl-md',
+              ? 'bg-primary text-primary-foreground rounded-ee-md'
+              : 'bg-card border border-border/15 rounded-es-md',
             failed && 'opacity-70 ring-1 ring-destructive/30',
           )}
         >
@@ -187,7 +185,6 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
                 read={message.read}
                 dimmed
                 onRetry={onRetry}
-                isAr={isAr}
               />
             )}
           </div>

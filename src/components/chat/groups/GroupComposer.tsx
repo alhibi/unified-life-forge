@@ -6,7 +6,6 @@ import EmojiPicker from '../EmojiPicker';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface GroupComposerProps {
-  isAr: boolean;
   text: string;
   onTextChange: (next: string) => void;
   onSend: () => void;
@@ -30,8 +29,7 @@ const MAX_HEIGHT = 140;
  * variant strips voice / image attach (Wave-2 territory) so we can ship
  * Wave 1 with a tight code path that never reaches into the old hook.
  */
-const GroupComposer: React.FC<GroupComposerProps> = ({
-  isAr, text, onTextChange, onSend, isSending, enterToSend,
+const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSend, isSending, enterToSend,
   replyTo, onClearReply, editing, onCancelEdit, onTyping, readOnly, readOnlyReason,
 }) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -179,7 +177,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({
             transition={{ duration: 0.2 }}
             className="overflow-hidden border-t border-border/10"
           >
-            <EmojiPicker isAr={isAr} onPick={insertEmoji} compact />
+            <EmojiPicker onPick={insertEmoji} compact />
           </motion.div>
         )}
       </AnimatePresence>

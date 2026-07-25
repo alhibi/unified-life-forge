@@ -6,14 +6,13 @@ import type { Message } from './types';
 import { readableFileName } from '@/lib/chat/imageMeta';
 
 interface MessageInfoProps {
-  isAr: boolean;
   isOpen: boolean;
   onClose: () => void;
   message: Message | null;
 }
 
 /** Format an ISO timestamp like Telegram's "8 May at 14:32:11". */
-function fmtFull(iso: string | null | undefined, isAr: boolean): string {
+function fmtFull(iso: string | null | undefined): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '—';
@@ -28,7 +27,7 @@ function fmtFull(iso: string | null | undefined, isAr: boolean): string {
  * read / edited timestamps for a single message. Only meaningful for
  * messages I sent — used by the long-press action menu.
  */
-const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, message }) => {
+const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) => {
   const BackIcon = ChevronRight;
   return (
     <AnimatePresence>
@@ -36,13 +35,13 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, messag
         <>
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="absolute inset-0 z-[80] bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 z-nested bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 320 }}
- className="absolute inset-x-0 bottom-0 z-[81] bg-background rounded-t-3xl flex flex-col max-h-[70%]"
+ className="absolute inset-x-0 bottom-0 z-nested-above bg-background rounded-t-3xl flex flex-col max-h-[70%]"
  onClick={(e) => e.stopPropagation()}
  role="dialog"
  aria-modal="true"
@@ -81,13 +80,13 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, messag
                 <Row
                   icon={<Check className="w-4 h-4" />}
                   label={'أُرسلت'}
-                  value={fmtFull(message.created_at, isAr)}
+                  value={fmtFull(message.created_at)}
                   iconClass="text-muted-foreground"
                 />
                 <Row
                   icon={<CheckCheck className={cn('w-4 h-4', message.delivered_at ? 'text-foreground' : 'text-muted-foreground/50')} />}
                   label={'وصلت'}
-                  value={message.delivered_at ? fmtFull(message.delivered_at, isAr) : ('لم تصل بعد')}
+                  value={message.delivered_at ? fmtFull(message.delivered_at) : ('لم تصل بعد')}
                   iconClass={message.delivered_at ? 'text-foreground' : 'text-muted-foreground/50'}
                 />
                 <Row
@@ -100,7 +99,7 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, messag
                   <Row
                     icon={<Pencil className="w-4 h-4" />}
                     label={'عُدّلت'}
-                    value={fmtFull(message.edited_at, isAr)}
+                    value={fmtFull(message.edited_at)}
                     iconClass="text-muted-foreground"
                   />
                 )}
@@ -108,7 +107,7 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isAr, isOpen, onClose, messag
                   <Row
                     icon={<Clock className="w-4 h-4" />}
                     label={'تنتهي صلاحيتها'}
-                    value={fmtFull(message.expires_at, isAr)}
+                    value={fmtFull(message.expires_at)}
                     iconClass="text-amber-500"
                   />
                 )}

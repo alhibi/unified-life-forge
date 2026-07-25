@@ -83,7 +83,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           style={{ boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}
         >
           {/* علامة معينة صغيرة (◆) في الزاوية */}
-          <div className="absolute top-[12px] left-[16px] text-[10px] text-[var(--wax)] opacity-60">
+          <div className="absolute top-[12px] start-[16px] text-[10px] text-[var(--wax)] opacity-60">
             ◆
           </div>
 

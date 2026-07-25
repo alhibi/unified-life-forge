@@ -6,10 +6,9 @@ interface MicroMapProps {
   lat: number;
   lng: number;
   elevationM?: number;
-  ar: boolean;
 }
 
-export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps) {
+export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
   const [mapUrl, setMapUrl] = useState('');
 
   useEffect(() => {
@@ -27,7 +26,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
       <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-montserrat font-semibold text-[18px] leading-none text-foreground flex items-center gap-2">
           <Map className="w-5 h-5 text-primary" />
-          {ar ? 'الخريطة الجوية الحية الداكنة' : 'Dunkle Live-Wetterkarte'}
+          {'الخريطة الجوية الحية الداكنة'}
         </h2>
         <span className="text-[11px] tracking-[0.12em] uppercase text-primary/90 font-bold tabular-nums">
           OSM ENGINE
@@ -71,7 +70,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
         </div>
 
         {/* Float Control badge */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 pointer-events-none">
+        <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between gap-3 pointer-events-none">
           <div className="flex items-center gap-1.5 bg-background/90 backdrop-blur border border-border/30 px-2.5 py-1.5 rounded-xl shadow-md pointer-events-auto">
             <MapPin className="w-3.5 h-3.5 text-primary" />
             <span className="font-montserrat font-bold text-[11px] text-foreground tabular-nums">
@@ -91,9 +90,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, ar }: MicroMapProps
       <div className="mt-3 text-[11px] text-muted-foreground/90 font-medium leading-relaxed flex items-start gap-1.5">
         <Navigation className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
         <span>
-          {ar
-            ? 'تتحرك الخريطة الحية تلقائياً لتطابق إحداثيات مدينتك النشطة، مع استخدام مرشح بصري داكن فاخر لحماية العينين والاستقرار.'
-            : 'Die Live-Karte bewegt sich automatisch passend zu Ihrer Stadt, mit edlen dunklen Filtern zum Schutz der Augen.'}
+          {'تتحرك الخريطة الحية تلقائياً لتطابق إحداثيات مدينتك النشطة، مع استخدام مرشح بصري داكن فاخر لحماية العينين والاستقرار.'}
         </span>
       </div>
     </section>

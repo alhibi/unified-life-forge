@@ -167,7 +167,7 @@ export default function SettingsPage() {
                       <img src={getDefaultAvatarForUser(username || 'U')} alt="" className="w-full h-full object-cover" />
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
+                  <div className="absolute -bottom-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary border-2 border-card" />
                 </button>
 
                 {/* Info */}

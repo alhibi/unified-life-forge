@@ -40,10 +40,9 @@ const COVER_THEMES: CoverTheme[] = [
 const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
 
 export default function ProfileEditPage() {
-  const { language } = useApp();
+  const { } = useApp();
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMountedRef = useRef(true);
 
@@ -277,7 +276,7 @@ export default function ProfileEditPage() {
       const d = new Date(createdAt);
       return d.toLocaleDateString('ar', { year: 'numeric', month: 'short' });
     } catch { return null; }
-  }, [profile, user, isAr]);
+  }, [profile, user]);
 
   const lastSeenLabel = useMemo(() => {
     const ls = (profile as any)?.last_seen;
@@ -293,7 +292,7 @@ export default function ProfileEditPage() {
       const days = Math.floor(hrs / 24);
       return `آخر ظهور قبل ${days} يوم`;
     } catch { return ''; }
-  }, [profile, isAr]);
+  }, [profile]);
 
   const copyProfileLink = async () => {
     try {
@@ -364,13 +363,13 @@ export default function ProfileEditPage() {
         <div className="absolute inset-x-0 bottom-0 h-24 bg-background/80 pointer-events-none" />
 
         {/* Back button anchored to the safe top */}
-        <div className="absolute top-3 start-4 z-10">
+        <div className="absolute top-3 start-4 z-raised">
           <BackButton fallback="/" />
         </div>
         {/* Copy link chip */}
         <button
           onClick={copyProfileLink}
-          className="absolute top-4 end-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 ring-1 ring-white/10 text-[11px] text-white/90 active:scale-95 transition-transform"
+          className="absolute top-4 end-4 z-raised flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 ring-1 ring-white/10 text-[11px] text-white/90 active:scale-95 transition-transform"
           aria-label={'نسخ رابط الملف'}
         >
           <Copy className="w-3.5 h-3.5" />
@@ -650,7 +649,7 @@ export default function ProfileEditPage() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-            className="fixed inset-x-0 bottom-4 z-40 px-4 pointer-events-none"
+            className="fixed inset-x-0 bottom-4 z-float px-4 pointer-events-none"
           >
             <div className="max-w-lg mx-auto pointer-events-auto">
               <div className="surface-depth rounded-2xl px-3 py-2.5 flex items-center gap-3 shadow-2xl ring-1 ring-primary/20">
@@ -685,7 +684,7 @@ export default function ProfileEditPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+            className="fixed inset-0 z-drawer flex items-center justify-center bg-black/50 px-6"
             onClick={() => setShowLogoutConfirm(false)}
           >
             <motion.div

@@ -154,7 +154,7 @@ export default function FoodComparer({ lang }: Props) {
                 <div className="relative rounded-xl p-2.5 bg-card border border-border/40 text-center flex-1 flex flex-col justify-between">
                   <button
                     onClick={() => handleRemove(idx)}
-                    className="absolute -top-1.5 -end-1.5 w-5 h-5 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive flex items-center justify-center active:scale-90 transition-transform z-10"
+                    className="absolute -top-1.5 -end-1.5 w-5 h-5 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive flex items-center justify-center active:scale-90 transition-transform z-raised"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -298,7 +298,7 @@ export default function FoodComparer({ lang }: Props) {
       <AnimatePresence>
         {searchOpen && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+            className="fixed inset-0 z-drawer bg-black/50 backdrop-blur-sm flex items-end justify-center"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div
@@ -320,13 +320,13 @@ export default function FoodComparer({ lang }: Props) {
               </div>
               <div className="p-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={T.searchPlaceholder[lang]}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:border-primary"
+                    className="w-full ps-9 pe-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:border-primary"
                     dir={'rtl'}
                     autoFocus
                   />

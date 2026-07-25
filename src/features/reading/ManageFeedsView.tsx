@@ -24,7 +24,6 @@ export function ManageFeedsView({
   feedSources,
   statuses,
   totalInDB,
-  isAr,
   sourceCounts,
   onBack,
   onSuggested,
@@ -36,7 +35,6 @@ export function ManageFeedsView({
   feedSources: FeedSource[];
   statuses: FeedStatus[];
   totalInDB: number;
-  isAr: boolean;
   sourceCounts: Record<string, number>;
   onBack: () => void;
   onSuggested: () => void;
@@ -88,7 +86,7 @@ export function ManageFeedsView({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -305,7 +303,6 @@ export function ManageFeedsView({
 
       <AddFeedDialog
         open={showAddDialog}
-        isAr={isAr}
         existingUrls={existingUrls}
         onClose={() => setShowAddDialog(false)}
         onAdd={onAdd}
@@ -313,7 +310,6 @@ export function ManageFeedsView({
 
       <OpmlImportDialog
         open={showOpmlDialog}
-        isAr={isAr}
         existingUrls={existingUrls}
         onClose={() => setShowOpmlDialog(false)}
         onImport={async (feeds) => {
@@ -339,7 +335,6 @@ export function ManageFeedsView({
 
       <ConfirmDialog
         open={pendingRemove !== null}
-        isAr={isAr}
         title={{ ar: 'حذف هذا المصدر؟', en: 'Remove this feed?' }}
         description={pendingRemove
           ? {

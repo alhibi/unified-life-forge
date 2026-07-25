@@ -158,7 +158,7 @@ function DuaModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60"
+            className="fixed inset-0 z-fullscreen flex items-center justify-center p-4 bg-black/60"
             onClick={onClose}
           >
             <motion.div
@@ -188,7 +188,7 @@ function DuaModal({
                     className="bg-muted/40 rounded-xl p-4 space-y-2"
                   >
                     <p
-                      className="text-foreground text-base leading-loose font-medium text-right"
+                      className="text-foreground text-base leading-loose font-medium text-end"
                       dir="rtl"
                       style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}
                     >
@@ -249,7 +249,7 @@ function NawawiModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60"
+            className="fixed inset-0 z-fullscreen flex items-center justify-center p-4 bg-black/60"
             onClick={onClose}
           >
             <motion.div
@@ -277,7 +277,7 @@ function NawawiModal({
               <div className="overflow-y-auto flex-1 p-4">
                 <div className="bg-muted/40 rounded-xl p-4 space-y-3">
                   <p
-                    className="text-foreground text-base leading-[2] font-medium text-right"
+                    className="text-foreground text-base leading-[2] font-medium text-end"
                     dir="rtl"
                     style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}
                   >
@@ -401,7 +401,7 @@ export default function DhikrTab() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60"
+              className="fixed inset-0 z-fullscreen flex items-center justify-center p-4 bg-black/60"
               onClick={() => setShowNawawiList(false)}
             >
               <motion.div

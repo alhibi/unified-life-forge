@@ -14,7 +14,7 @@ import { toast } from 'sonner';
  * misleading "wrong username/password": missing env vars, unconfirmed
  * emails, rate limits, and network issues.
  */
-function describeAuthError(error: Error, isAr: boolean, mode: 'signIn' | 'signUp'): string {
+function describeAuthError(error: Error, mode: 'signIn' | 'signUp'): string {
   const msg = (error.message || '').toLowerCase();
 
   // 1. Supabase not configured → noopFetch returns this exact code.
@@ -77,7 +77,7 @@ function scorePassword(pw: string): number {
 }
 
 export default function AuthPage() {
-  const { language } = useApp();
+  const { } = useApp();
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   // Preserve the OAuth consent `next` URL so users who arrive from an
@@ -102,8 +102,6 @@ export default function AuthPage() {
   const [success, setSuccess] = useState(false);
   const submittingRef = useRef(false);
   const usernameRef = useRef<HTMLInputElement | null>(null);
-
-  const isAr = language === 'ar';
   const strength = useMemo(() => scorePassword(password), [password]);
 
   useEffect(() => {
@@ -145,7 +143,7 @@ export default function AuthPage() {
       if (isLogin) {
         const { error } = await signIn(username, password);
         if (error) {
-          toast.error(describeAuthError(error, isAr, 'signIn'), { duration: 5000 });
+          toast.error(describeAuthError(error, 'signIn'), { duration: 5000 });
         } else {
           setSuccess(true);
           toast.success('تم تسجيل الدخول بنجاح', { duration: 1500 });
@@ -156,7 +154,7 @@ export default function AuthPage() {
       } else {
         const { error } = await signUp(username, password);
         if (error) {
-          toast.error(describeAuthError(error, isAr, 'signUp'), { duration: 5000 });
+          toast.error(describeAuthError(error, 'signUp'), { duration: 5000 });
         } else {
           setSuccess(true);
           toast.success('تم إنشاء الحساب بنجاح', { duration: 1500 });
@@ -207,7 +205,7 @@ export default function AuthPage() {
         type="button"
         aria-label={'إغلاق'}
         onClick={() => navigate('/')}
-        className="absolute top-6 left-6 w-11 h-11 rounded-full flex items-center justify-center border border-white/5 hover:border-[#c78a4e]/40 transition-colors z-20"
+        className="absolute top-6 start-6 w-11 h-11 rounded-full flex items-center justify-center border border-white/5 hover:border-[#c78a4e]/40 transition-colors z-sticky"
         style={{ backgroundColor: '#1a1a1e' }}
       >
         <X className="w-4 h-4" style={{ color: '#9ca3af' }} />
@@ -259,7 +257,7 @@ export default function AuthPage() {
           <AnimatePresence>
             {success && (
               <motion.div
-                className="absolute inset-0 flex items-center justify-center z-10"
+                className="absolute inset-0 flex items-center justify-center z-raised"
                 style={{ backgroundColor: 'rgba(15,15,17,0.85)', backdropFilter: 'blur(4px)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -460,7 +458,7 @@ export default function AuthPage() {
                   boxShadow: '0 10px 30px -12px rgba(199,138,78,0.5)',
                 }}
               >
-                <span className="relative z-10 inline-flex items-center justify-center gap-2">
+                <span className="relative z-raised inline-flex items-center justify-center gap-2">
                   {loading ? (
                     <span
                       className="animate-spin w-4 h-4 border-2 rounded-full"

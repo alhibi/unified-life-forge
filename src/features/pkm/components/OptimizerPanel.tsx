@@ -17,14 +17,12 @@ export default function OptimizerPanel({
   title,
   body,
   onAccept,
-  isAr,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   body: string;
   onAccept: (next: string) => void;
-  isAr: boolean;
 }) {
   const [mode, setMode] = useState<OptimizerMode>('A');
   const { output, status, run, cancel, reset } = useOptimizer();
@@ -52,7 +50,7 @@ export default function OptimizerPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm flex items-end lg:items-center lg:justify-center">
+    <div className="fixed inset-0 z-float bg-background/70 backdrop-blur-sm flex items-end lg:items-center lg:justify-center">
       <div className="w-full lg:max-w-2xl bg-card rounded-t-3xl lg:rounded-3xl border border-border/60 shadow-2xl max-h-[90vh] flex flex-col">
         <header className="flex items-center gap-2 p-4 border-b border-border/40">
           <Sparkles className="w-4 h-4 text-primary" />

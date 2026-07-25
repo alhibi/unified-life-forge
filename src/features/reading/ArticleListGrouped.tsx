@@ -54,7 +54,6 @@ export function ArticleListGrouped({
   articles,
   loading,
   refreshing,
-  isAr,
   language,
   filterTab,
   sourceFilter,
@@ -75,7 +74,6 @@ export function ArticleListGrouped({
   articles: FeedItem[];
   loading: boolean;
   refreshing: boolean;
-  isAr: boolean;
   language: string;
   filterTab: FilterTab;
   sourceFilter: string;
@@ -196,7 +194,7 @@ export function ArticleListGrouped({
         out.push({
           kind: 'header',
           bucket: b,
-          label: bucketLabel(b, isAr),
+          label: bucketLabel(b),
           count: counts.get(b) || 0,
         });
         lastBucket = b;
@@ -209,7 +207,7 @@ export function ArticleListGrouped({
     // simpler approach here: trust the input. The user picked the
     // sort.
     return out;
-  }, [heroAndRest.rest, prefs.group, isAr]);
+  }, [heroAndRest.rest, prefs.group]);
 
   // Reset pagination whenever the effective list identity changes.
   useEffect(() => {
@@ -497,7 +495,6 @@ export function ArticleListGrouped({
         <EmptyState
           filterTab={filterTab}
           searchQuery={searchQuery}
-          isAr={isAr}
           refreshing={refreshing}
           hasFeeds={hasFeeds ?? true}
           onRefresh={onRefresh}
@@ -540,7 +537,6 @@ export function ArticleListGrouped({
                 key={`hdr-${row.bucket}-${i}`}
                 label={row.label}
                 count={row.count}
-                isAr={isAr}
               />
             );
           }
@@ -556,7 +552,6 @@ export function ArticleListGrouped({
               isBookmarked={bookmarks.includes(a.link)}
               cached={cachedLinks?.has(a.link)}
               language={language}
-              isAr={isAr}
               density={prefs.density}
               hasAbove={idx > 0}
               hasBelow={idx < visibleArticles.length - 1}
@@ -594,10 +589,9 @@ export function ArticleListGrouped({
 function BucketHeader({
   label,
   count,
-  isAr,
-}: { label: string; count: number; isAr: boolean }) {
+}: { label: string; count: number; }) {
   return (
-    <div className="px-4 pt-4 pb-1 bg-background/95 backdrop-blur-sm sticky top-0 z-[1] flex items-baseline justify-between border-b border-border/20">
+    <div className="px-4 pt-4 pb-1 app-sticky-header z-sticky flex items-baseline justify-between border-b border-border/20">
       <h5 className="text-[11px] font-bold tracking-wide uppercase text-muted-foreground">
         {label}
       </h5>
@@ -611,7 +605,6 @@ function BucketHeader({
 function EmptyState({
   filterTab,
   searchQuery,
-  isAr,
   refreshing,
   hasFeeds,
   onRefresh,
@@ -619,7 +612,6 @@ function EmptyState({
 }: {
   filterTab: FilterTab;
   searchQuery: string;
-  isAr: boolean;
   refreshing: boolean;
   hasFeeds: boolean;
   onRefresh: () => void;

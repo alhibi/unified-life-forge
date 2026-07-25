@@ -159,8 +159,7 @@ function buildDeck(pairCount: number, theme: Theme, seed?: number): string[] {
 // Component
 // =============================================================================
 export default function MemoryGame() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
 
   // Persistent settings
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('memory-mode') as Mode) || 'classic');
@@ -473,7 +472,7 @@ export default function MemoryGame() {
         }, 700);
       }, 600);
     }, 700);
-  }, [mode, versusTurn, solved, cards, matched, aiMemory, isAr]);
+  }, [mode, versusTurn, solved, cards, matched, aiMemory]);
 
   useEffect(() => {
     if (mode === 'versus' && versusTurn === 'ai' && !solved && gameStarted) {
@@ -548,7 +547,7 @@ export default function MemoryGame() {
         }, 850);
       }
     }
-  }, [flipped, matched, checking, isPaused, solved, cards, gameStarted, peeking, bombArmed, chain, bestChainThisGame, mode, versusTurn, isAr]);
+  }, [flipped, matched, checking, isPaused, solved, cards, gameStarted, peeking, bombArmed, chain, bestChainThisGame, mode, versusTurn]);
 
   // -------------------- New / Reset / Power-ups --------------------
   const newGame = useCallback((diff?: Difficulty, t?: Theme, m?: Mode) => {
@@ -649,7 +648,7 @@ export default function MemoryGame() {
 
   // GameShell rules (mode-specific)
   const rules = useMemo(() => {
-    if (isAr) {
+    if (true) {
       switch (mode) {
         case 'classic':    return ['اقلب البطاقات لإيجاد كل الأزواج', 'كومبو ×3 وأكثر يمنحك نقاطاً إضافية', 'وقت أقل = نقاط أكثر', 'اربح بدون استخدام أدوات لتحقيق "إتقان"'];
         case 'endless':    return ['كل مستوى يضيف بطاقات أكثر', 'لا توجد نهاية، فقط حدود ذاكرتك', 'كل مستوى يمنح XP', 'حافظ على الكومبو لتسريع التقدم'];
@@ -667,7 +666,7 @@ export default function MemoryGame() {
       }
     }
     return [];
-  }, [mode, isAr]);
+  }, [mode]);
 
   // GameShell stats
   const xp = xpProgress(stats);
@@ -757,7 +756,6 @@ export default function MemoryGame() {
       {/* Mode indicator + mode-specific HUD */}
       <ModeHud
         mode={mode}
-        isAr={isAr}
         endlessLevel={endlessLevel}
         timeAttackLeft={timeAttackLeft}
         timeAttackPairs={timeAttackPairs + matched.length / 2}
@@ -825,7 +823,7 @@ export default function MemoryGame() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
               <button onClick={() => setIsPaused(false)} className="px-6 py-3 rounded-2xl bg-pink-500 text-white font-black">
-                <Play className="w-4 h-4 inline mr-1.5" />{'استئناف'}
+                <Play className="w-4 h-4 inline me-1.5" />{'استئناف'}
               </button>
             </motion.div>
           )}
@@ -925,7 +923,7 @@ export default function MemoryGame() {
               )}
             </div>
             <button onClick={() => newGame()} className="px-7 py-2.5 rounded-xl bg-pink-500 text-white font-black">
-              <RefreshCw className="w-4 h-4 inline mr-1.5" />{'لعبة جديدة'}
+              <RefreshCw className="w-4 h-4 inline me-1.5" />{'لعبة جديدة'}
             </button>
           </motion.div>
         )}
@@ -959,7 +957,7 @@ export default function MemoryGame() {
  <AnimatePresence>
  {achievementToast && (
  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
- className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
+ className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
  <span className="text-2xl">{achievementToast.icon}</span>
  <div>
  <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>
@@ -976,10 +974,10 @@ export default function MemoryGame() {
 // Sub-components
 // =============================================================================
 function ModeHud({
-  mode, isAr, endlessLevel, timeAttackLeft, timeAttackPairs, versusScores, versusTurn,
+  mode, endlessLevel, timeAttackLeft, timeAttackPairs, versusScores, versusTurn,
   timer, moves, score, chain, fmt, dailyDoneToday,
 }: {
-  mode: Mode; isAr: boolean; endlessLevel: number; timeAttackLeft: number; timeAttackPairs: number;
+  mode: Mode; endlessLevel: number; timeAttackLeft: number; timeAttackPairs: number;
   versusScores: { player: number; ai: number }; versusTurn: 'player' | 'ai';
   timer: number; moves: number; score: number; chain: number;
   fmt: (s: number) => string; dailyDoneToday: boolean;
@@ -1064,7 +1062,7 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (
-        <span className="absolute -bottom-1 -right-1 text-[10px] font-black px-1 rounded-full"
+        <span className="absolute -bottom-1 -end-1 text-[10px] font-black px-1 rounded-full"
           style={{ background: color, color: '#fff' }}>{count}</span>
       )}
     </button>

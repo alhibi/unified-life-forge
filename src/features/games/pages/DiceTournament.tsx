@@ -21,7 +21,7 @@ function botById(id: string): DicePersonality | null {
   return DICE_BOTS.find(b => b.id === id) ?? null;
 }
 
-function nameOf(slot: string, isAr: boolean): string {
+function nameOf(slot: string): string {
   if (slot === 'player') return 'أنت';
   const b = botById(slot);
   return b ? (b.ar) : '?';
@@ -32,8 +32,7 @@ function emojiOf(slot: string): string {
 }
 
 export default function DiceTournamentPage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const navigate = useNavigate();
   const [state, setState] = useState<TournamentState | null>(loadTournament);
 
@@ -107,7 +106,7 @@ export default function DiceTournamentPage() {
                   "{bot.taglineAr}"
                 </p>
               </div>
-              <div className="text-right shrink-0">
+              <div className="text-end shrink-0">
                 <p className="text-[10px] text-amber-300 uppercase tracking-wider">{'حد التوقف'}</p>
  <p className="text-base font-black text-amber-300">{bot.baseHold}</p>
  </div>
@@ -120,7 +119,7 @@ export default function DiceTournamentPage() {
  className="w-full py-4 rounded-2xl font-black text-amber-950"
  style={{ }}
         >
-          <Sparkles className="w-5 h-5 inline mr-1.5" />
+          <Sparkles className="w-5 h-5 inline me-1.5" />
           {'ابدأ البطولة'}
         </button>
       </GameShell>
@@ -151,14 +150,14 @@ export default function DiceTournamentPage() {
     >
       {/* Bracket visualization */}
       <div className="space-y-3 mb-5">
-        <BracketRound title={'نصف النهائي'} matches={[semiA, semiB]} isAr={isAr} active={state.nextPlayerMatch === 'semi-A'} />
+        <BracketRound title={'نصف النهائي'} matches={[semiA, semiB]} active={state.nextPlayerMatch === 'semi-A'} />
 
         {/* Connector */}
         <div className="flex justify-center">
           <ChevronRight className="w-5 h-5 text-zinc-400 rotate-90" />
         </div>
 
-        <BracketRound title={'النهائي'} matches={[final]} isAr={isAr} active={state.nextPlayerMatch === 'final'} />
+        <BracketRound title={'النهائي'} matches={[final]} active={state.nextPlayerMatch === 'final'} />
       </div>
 
       {/* CTA */}
@@ -188,7 +187,7 @@ export default function DiceTournamentPage() {
               {'سحقت جميع المنافسين'}
             </p>
             <button onClick={reset} className="mt-4 px-6 py-2 rounded-xl bg-amber-500 text-amber-950 font-bold text-sm">
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
+              <RotateCcw className="w-3.5 h-3.5 inline me-1.5" />
               {'بطولة جديدة'}
             </button>
           </motion.div>
@@ -202,11 +201,11 @@ export default function DiceTournamentPage() {
             </p>
             <p className="text-xs text-rose-200/70 mb-3">
               {final.winner && final.winner !== 'player'
-                ? `${'البطل:'} ${nameOf(final.winner, isAr)}`
+                ? `${'البطل:'} ${nameOf(final.winner)}`
                 : ''}
             </p>
             <button onClick={reset} className="px-6 py-2 rounded-xl bg-rose-500 text-white font-bold text-sm">
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
+              <RotateCcw className="w-3.5 h-3.5 inline me-1.5" />
               {'حاول مرة أخرى'}
             </button>
           </motion.div>
@@ -216,8 +215,8 @@ export default function DiceTournamentPage() {
   );
 }
 
-function BracketRound({ title, matches, isAr, active }: {
-  title: string; matches: TournamentMatch[]; isAr: boolean; active: boolean;
+function BracketRound({ title, matches, active }: {
+  title: string; matches: TournamentMatch[]; active: boolean;
 }) {
   return (
     <div>
@@ -228,14 +227,14 @@ function BracketRound({ title, matches, isAr, active }: {
       </p>
       <div className="space-y-1.5">
         {matches.map(m => (
-          <MatchCard key={m.id} match={m} isAr={isAr} active={active && m.winner === null} />
+          <MatchCard key={m.id} match={m} active={active && m.winner === null} />
         ))}
       </div>
     </div>
   );
 }
 
-function MatchCard({ match, isAr, active }: { match: TournamentMatch; isAr: boolean; active: boolean }) {
+function MatchCard({ match, active }: { match: TournamentMatch; active: boolean }) {
   const left = match.left;
   const right = match.right;
   const winner = match.winner;
@@ -258,7 +257,7 @@ function MatchCard({ match, isAr, active }: { match: TournamentMatch; isAr: bool
       }`}>
         <span className="text-base">{emojiOf(slot)}</span>
         <span className={`text-xs flex-1 ${isWinner ? 'font-black text-emerald-300' : 'font-bold text-foreground'}`}>
-          {nameOf(slot, isAr)}
+          {nameOf(slot)}
         </span>
         {sc !== undefined && (
           <span className={`text-xs font-mono tabular-nums ${isWinner ? 'text-emerald-300' : 'text-muted-foreground'}`}>

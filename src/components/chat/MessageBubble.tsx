@@ -42,7 +42,7 @@ export function SwipeableMessage({
   return (
     <div className="relative overflow-visible w-full">
       <motion.div
-        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-0"
+        className="absolute top-1/2 -translate-y-1/2 start-0 pointer-events-none z-base"
         style={{ opacity: replyIconOpacity, scale: replyIconScale }}
       >
         <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center backdrop-blur-sm">
@@ -50,7 +50,7 @@ export function SwipeableMessage({
         </div>
       </motion.div>
       <motion.div
-        className={cn('relative z-10 flex', isMine ? 'justify-end' : 'justify-start')}
+        className={cn('relative z-raised flex', isMine ? 'justify-end' : 'justify-start')}
         style={{ x, touchAction: 'pan-y' }}
         drag={disabled || deleted ? false : 'x'}
         dragDirectionLock
@@ -105,7 +105,7 @@ export const DoubleTapHeart = React.memo(function DoubleTapHeart({
       <AnimatePresence>
         {showHeart && (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-drawer"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1.3, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0, y: -20 }}
@@ -122,7 +122,7 @@ export const DoubleTapHeart = React.memo(function DoubleTapHeart({
 // ─────────────────────────────────────────────────────────────────────────────
 // MessageStarBadge — small star icon shown on starred/bookmarked messages.
 // ─────────────────────────────────────────────────────────────────────────────
-export const MessageStarBadge = React.memo(function MessageStarBadge({ isAr }: { isAr?: boolean }) {
+export const MessageStarBadge = React.memo(function MessageStarBadge({ }: { }) {
   return (
     <motion.span
       initial={{ scale: 0 }}
@@ -139,10 +139,8 @@ export const MessageStarBadge = React.memo(function MessageStarBadge({ isAr }: {
 // EditedBadge — subtle "(edited)" indicator for modified messages.
 // ─────────────────────────────────────────────────────────────────────────────
 export const EditedBadge = React.memo(function EditedBadge({
-  isAr,
   dimmed,
 }: {
-  isAr?: boolean;
   dimmed?: boolean;
 }) {
   return (
@@ -162,12 +160,10 @@ export const EditedBadge = React.memo(function EditedBadge({
 // ─────────────────────────────────────────────────────────────────────────────
 interface SelfDestructTimerProps {
   expiresAt: string;
-  isAr?: boolean;
 }
 
 export const SelfDestructTimer = React.memo(function SelfDestructTimer({
   expiresAt,
-  isAr,
 }: SelfDestructTimerProps) {
   const [remaining, setRemaining] = React.useState('');
 
@@ -186,7 +182,7 @@ export const SelfDestructTimer = React.memo(function SelfDestructTimer({
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [expiresAt, isAr]);
+  }, [expiresAt, true]);
 
   return (
     <motion.span
@@ -242,11 +238,10 @@ interface MessageTicksProps {
   read: boolean;
   dimmed?: boolean;
   onRetry?: () => void;
-  isAr?: boolean;
 }
 
 export const MessageTicks = React.memo(
-  function MessageTicks({ status, read, dimmed, onRetry, isAr }: MessageTicksProps) {
+  function MessageTicks({ status, read, dimmed, onRetry, }: MessageTicksProps) {
     // Resolve effective status. Legacy rows have no `status`; default to read
     // when read=true, otherwise 'sent'.
     const eff: MessageStatus = status ?? (read ? 'read' : 'sent');
@@ -344,8 +339,7 @@ export const MessageTicks = React.memo(
     return (
       prev.status === next.status &&
       prev.read === next.read &&
-      prev.dimmed === next.dimmed &&
-      prev.isAr === next.isAr
+      prev.dimmed === next.dimmed
     );
   },
 );
@@ -427,10 +421,8 @@ export const ReactionPill = React.memo(
 // ─────────────────────────────────────────────────────────────────────────────
 export const ForwardedBadge = React.memo(function ForwardedBadge({
   name,
-  isAr,
 }: {
   name?: string | null;
-  isAr: boolean;
 }) {
   return (
     <motion.div
@@ -462,7 +454,6 @@ interface QuickReactionBarProps {
   onSelect: (emoji: string) => void;
   onExpand?: () => void;
   isMine: boolean;
-  isAr?: boolean;
 }
 
 export const QuickReactionBar = React.memo(function QuickReactionBar({
@@ -470,7 +461,6 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
   onSelect,
   onExpand,
   isMine,
-  isAr,
 }: QuickReactionBarProps) {
   return (
     <motion.div
@@ -531,7 +521,6 @@ interface MessageMetaRowProps {
   status?: MessageStatus;
   read: boolean;
   dimmed?: boolean;
-  isAr?: boolean;
   starred?: boolean;
   edited?: boolean;
   expiresAt?: string | null;
@@ -544,7 +533,6 @@ export const MessageMetaRow = React.memo(function MessageMetaRow({
   status,
   read,
   dimmed,
-  isAr,
   starred,
   edited,
   expiresAt,
@@ -557,12 +545,12 @@ export const MessageMetaRow = React.memo(function MessageMetaRow({
         dimmed ? 'text-primary-foreground/60' : 'text-muted-foreground/55',
       )}
     >
-      {edited && <EditedBadge isAr={isAr} dimmed={dimmed} />}
-      {expiresAt && <SelfDestructTimer expiresAt={expiresAt} isAr={isAr} />}
+      {edited && <EditedBadge dimmed={dimmed} />}
+      {expiresAt && <SelfDestructTimer expiresAt={expiresAt} />}
       <span className="tabular-nums">{time}</span>
-      {starred && <MessageStarBadge isAr={isAr} />}
+      {starred && <MessageStarBadge />}
       {isMine && (
-        <MessageTicks status={status} read={read} dimmed={dimmed} onRetry={onRetry} isAr={isAr} />
+        <MessageTicks status={status} read={read} dimmed={dimmed} onRetry={onRetry} />
       )}
     </span>
   );
@@ -575,13 +563,11 @@ export const MessageMetaRow = React.memo(function MessageMetaRow({
 interface SeenByAvatarsProps {
   seenBy: Array<{ userId: string; avatarUrl?: string | null; username?: string }>;
   maxShow?: number;
-  isAr?: boolean;
 }
 
 export const SeenByAvatars = React.memo(function SeenByAvatars({
   seenBy,
   maxShow = 3,
-  isAr: _isAr,
 }: SeenByAvatarsProps) {
   if (!seenBy.length) return null;
   const shown = seenBy.slice(0, maxShow);

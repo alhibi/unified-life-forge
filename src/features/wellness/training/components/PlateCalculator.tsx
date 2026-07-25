@@ -218,7 +218,7 @@ function BarrellSvg({
             }}
           />
           <div
-            className="absolute inset-y-0 left-0 right-0 mx-auto"
+            className="absolute inset-y-0 start-0 end-0 mx-auto"
             style={{ width: '20%', background: '#9ca3af', height: '100%', borderRadius: 2 }}
           />
         </div>

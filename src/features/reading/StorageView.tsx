@@ -50,12 +50,10 @@ interface Stats {
 type ConfirmAction = 'clear-images' | 'clear-archive' | null;
 
 export function StorageView({
-  isAr,
   bookmarksCount,
   onBack,
   onRecacheNow,
 }: {
-  isAr: boolean;
   bookmarksCount: number;
   onBack: () => void;
   onRecacheNow: () => Promise<void> | void;
@@ -189,7 +187,7 @@ export function StorageView({
       transition={{ duration: 0.25 }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-raised">
         <button
           type="button"
           onClick={onBack}
@@ -364,7 +362,6 @@ export function StorageView({
 
       <ConfirmDialog
         open={confirmAction !== null}
-        isAr={isAr}
         title={confirmAction === 'clear-archive'
           ? { ar: 'مسح كل المقالات المخزّنة؟', en: 'Clear all cached articles?' }
           : { ar: 'مسح الصور المخبأة؟', en: 'Clear image cache?' }}

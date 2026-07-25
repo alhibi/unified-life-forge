@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 
 interface ArticleSpeechPlayerProps {
   textToSpeak: string;
-  isAr: boolean;
   language: string;
   ttsSpeed: number;
   onTtsSpeedChange: (speed: number) => void;
@@ -12,7 +11,6 @@ interface ArticleSpeechPlayerProps {
 
 export function ArticleSpeechPlayer({
   textToSpeak,
-  isAr,
   language,
   ttsSpeed,
   onTtsSpeedChange,
@@ -68,7 +66,7 @@ export function ArticleSpeechPlayer({
         synthRef.current.cancel();
       }
     };
-  }, [isAr, language]);
+  }, [language]);
 
   const handlePlayPause = () => {
     if (!synthRef.current) {
