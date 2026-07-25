@@ -92,6 +92,27 @@
   <script>
     (function() {
       try {
+        const cachedTokens = localStorage.getItem('app-root-tokens-v1');
+        if (cachedTokens) {
+          const parsed = JSON.parse(cachedTokens);
+          const prototype = parsed && typeof parsed === 'object' ? Object.getPrototypeOf(parsed) : null;
+          const isPlainObject = parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) &&
+            (prototype === Object.prototype || prototype === null);
+
+          if (isPlainObject) {
+            Object.entries(parsed).slice(0, 256).forEach(([key, value]) => {
+              if (key.startsWith('--') && key.length >= 3 && key.length <= 128 &&
+                  typeof value === 'string' && value.length <= 1024) {
+                document.documentElement.style.setProperty(key, value);
+              }
+            });
+          }
+        }
+      } catch {
+        // Ignore an unavailable or malformed token cache and continue booting.
+      }
+
+      try {
         const theme = localStorage.getItem('app-theme') || 'light';
         const isDark = theme === 'dark';
         document.documentElement.classList.toggle('dark', isDark);
@@ -103,8 +124,8 @@
         // Prevent layout shift by setting correct design mode
         document.documentElement.removeAttribute('data-md3');
         document.documentElement.setAttribute('data-design-mode', 'classic');
-      } catch (e) {
-        console.error('FOUC mitigation script failed:', e);
+      } catch {
+        // Storage failures fall back to stylesheet and document defaults.
       }
     })();
   </script>

@@ -171,16 +171,16 @@ export function matchPairing(display: string, body: string): string | null {
 
 // ─── Base size ──────────────────────────────────────────────
 /**
- * The base size drives `html { font-size }`, so it scales every rem-based size
- * in the app — type, spacing, control heights and radii alike. Five steps, in
- * whole pixels, because a base of 15.5px produces half-pixel text.
+ * The base size scales only the canonical type tokens. The document root stays
+ * at 16px so rem-based interface geometry does not move with text preferences.
+ * `rootSize` remains on each option as a compatibility field.
  */
 export const FONT_SIZE_STEPS = [
-  { id: 'small', label: 'صغير', rootSize: '15px', base: 15 },
-  { id: 'medium', label: 'متوسط', rootSize: '16px', base: 16 },
-  { id: 'plus', label: 'مكبّر', rootSize: '17px', base: 17 },
-  { id: 'large', label: 'كبير', rootSize: '18px', base: 18 },
-  { id: 'xl', label: 'موسّع', rootSize: '19px', base: 19 },
+  { id: 'small', label: 'صغير', rootSize: '16px', base: 15, multiplier: 15 / 16 },
+  { id: 'medium', label: 'متوسط', rootSize: '16px', base: 16, multiplier: 1 },
+  { id: 'plus', label: 'مكبّر', rootSize: '16px', base: 17, multiplier: 17 / 16 },
+  { id: 'large', label: 'كبير', rootSize: '16px', base: 18, multiplier: 18 / 16 },
+  { id: 'xl', label: 'موسّع', rootSize: '16px', base: 19, multiplier: 19 / 16 },
 ] as const;
 
 export type FontSizeId = (typeof FONT_SIZE_STEPS)[number]['id'];
@@ -263,19 +263,17 @@ const TYPE_STEPS = [
 
 export type TypeStepName = (typeof TYPE_STEPS)[number]['name'];
 
-/**
- * Compute the scale in `rem`, relative to the base size.
- *
- * rem (not px) so the base-size preference — which sets `html { font-size }` —
- * scales the whole system with one number instead of seven.
- */
-export function computeTypeScale(ratioId: TypeRatioId): Record<TypeStepName, string> {
+/** Compute the scale in rem against a fixed 16px document root. */
+export function computeTypeScale(
+  ratioId: TypeRatioId,
+  baseSize: FontSizeId | number = 16,
+): Record<TypeStepName, string> {
   const ratio = TYPE_RATIOS.find((r) => r.id === resolveTypeRatio(ratioId))?.ratio ?? 1.2;
+  const requestedBase = typeof baseSize === 'number' ? baseSize : fontSizeStepFor(baseSize).base;
+  const multiplier = Number.isFinite(requestedBase) ? requestedBase / 16 : 1;
   const out = {} as Record<TypeStepName, string>;
   for (const step of TYPE_STEPS) {
-    // Round to 4 decimals: at a 16px base that is a 0.0006px error, and it
-    // keeps the emitted CSS readable.
-    const rem = Math.round(ratio ** step.exponent * 10000) / 10000;
+    const rem = Math.round(ratio ** step.exponent * multiplier * 10000) / 10000;
     out[step.name] = `${rem}rem`;
   }
   return out;
@@ -294,7 +292,7 @@ export interface TypographyPrefs {
 export interface TypographyApplication {
   /** CSS custom properties to write on the document root. */
   vars: Record<string, string>;
-  /** `html { font-size }` — the anchor of every rem in the app. */
+  /** Compatibility field. Always 16px so typography cannot resize geometry. */
   rootSize: string;
   /** `html { font-weight }` — inherited by everything that does not override it. */
   rootWeight: string;
@@ -305,7 +303,7 @@ export interface TypographyApplication {
  * Pure — the DOM write lives in AppContext, so this stays testable.
  */
 export function typographyTokens(prefs: TypographyPrefs): TypographyApplication {
-  const scale = computeTypeScale(resolveTypeRatio(prefs.ratio));
+  const scale = computeTypeScale(resolveTypeRatio(prefs.ratio), resolveFontSize(prefs.size));
   const leading =
     TYPE_LEADINGS.find((l) => l.id === resolveTypeLeading(prefs.leading))?.leading ?? 1.6;
 
@@ -323,7 +321,7 @@ export function typographyTokens(prefs: TypographyPrefs): TypographyApplication 
 
   return {
     vars,
-    rootSize: fontSizeStepFor(prefs.size).rootSize,
+    rootSize: '16px',
     rootWeight: String(clampFontWeight(prefs.weight)),
   };
 }
