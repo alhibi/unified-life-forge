@@ -56,7 +56,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-[130] flex items-end justify-center"
+        className="fixed inset-0 z-queue flex items-end justify-center"
         style={{ background: 'rgba(0,0,0,0.5)' }}
         onClick={onClose}
       >

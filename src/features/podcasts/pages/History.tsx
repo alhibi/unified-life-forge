@@ -172,7 +172,7 @@ export default function HistoryPage() {
         }
         path="/podcasts/history"
       />
-      <div className="sticky top-0 z-30 bg-background/92 backdrop-blur-md border-b border-border/50">
+      <div className="z-header app-sticky-header border-b border-border/50">
         <div className="max-w-lg mx-auto px-4 pt-3 pb-3 flex items-center gap-2">
           <BackButton />
           <h1 className="flex-1 text-base font-bold text-foreground">

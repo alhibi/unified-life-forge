@@ -163,7 +163,7 @@ export function ListHeader({
 
   return (
     <div
-      className="px-4 pt-4 pb-2 border-b border-border/40 sticky top-0 z-10 bg-card/92 backdrop-blur-md"
+      className="px-4 pt-4 pb-2 border-b border-border/40 z-raised app-sticky-header-card"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5 min-w-0">

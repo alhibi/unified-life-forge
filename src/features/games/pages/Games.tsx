@@ -239,14 +239,14 @@ export default function GamesPage() {
             >
               <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-2xl pointer-events-none rounded-full transform translate-x-10 -translate-y-10" style={{ backgroundColor: 'hsl(var(--primary) / 0.06)' }} />
 
-              <div className="relative z-10 flex items-center justify-between">
+              <div className="relative z-raised flex items-center justify-between">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: 'hsl(var(--primary) / 0.08)' }}>
                   <Icon className="w-6 h-6 stroke-[2]" style={{ color: 'hsl(var(--primary))' }} />
                 </div>
                 <Sparkles className="w-5 h-5 opacity-40 animate-pulse" style={{ color: 'hsl(var(--primary))' }} />
               </div>
 
-              <div className="relative z-10 mt-1">
+              <div className="relative z-raised mt-1">
                 <h3 className="font-black text-[17px] text-foreground leading-tight mb-1">{world.title}</h3>
                 <p className="text-[12px] text-muted-foreground/90 font-medium">{world.subtitle}</p>
               </div>
@@ -269,7 +269,7 @@ export default function GamesPage() {
                     className="absolute inset-0 bg-primary/[0.06] pointer-events-none transition-opacity group-hover:bg-primary/[0.1]"
                   />
 
-                  <div className="relative z-10 flex items-start justify-between">
+                  <div className="relative z-raised flex items-start justify-between">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/10">
                       <Icon className="w-5 h-5 stroke-[2] text-primary" />
                     </div>
@@ -281,7 +281,7 @@ export default function GamesPage() {
                     )}
                   </div>
 
-                  <div className="relative z-10 flex-1">
+                  <div className="relative z-raised flex-1">
                     <h2 className="font-bold text-[16px] text-foreground leading-tight mb-2">{game.title}</h2>
                     <div className="flex flex-wrap gap-1.5">
                       {game.modes.slice(0, 4).map(mode => (
@@ -297,7 +297,7 @@ export default function GamesPage() {
                     </div>
                   </div>
 
-                  <div className="relative z-10 flex items-center justify-between border-t border-border/40 pt-2.5 mt-1 -mx-1 px-1">
+                  <div className="relative z-raised flex items-center justify-between border-t border-border/40 pt-2.5 mt-1 -mx-1 px-1">
                     <div className="flex items-center gap-1.5 text-[11px]">
                       <span className="font-black tabular-nums" style={{ color: game.primaryStat.accent }}>
                         {game.primaryStat.value}

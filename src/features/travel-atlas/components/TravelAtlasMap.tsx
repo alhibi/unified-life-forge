@@ -268,7 +268,7 @@ export default function TravelAtlasMap({
         })}
       </div>
 
-      <div className="absolute bottom-4 start-4 z-10 flex flex-col gap-2">
+      <div className="absolute bottom-4 start-4 z-raised flex flex-col gap-2">
         <Button
           type="button"
           size="icon"
@@ -292,7 +292,7 @@ export default function TravelAtlasMap({
       </div>
 
       {inBoundsPlaces.length === 0 && (
-        <div className="pointer-events-none absolute inset-x-4 top-4 z-10 rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground shadow-depth backdrop-blur">
+        <div className="pointer-events-none absolute inset-x-4 top-4 z-raised rounded-2xl border border-border/70 bg-background/90 px-4 py-3 text-center text-body text-muted-foreground shadow-depth backdrop-blur">
           {'أضف مكانًا ليظهر على الخريطة.'}
         </div>
       )}

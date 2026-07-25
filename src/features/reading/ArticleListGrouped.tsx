@@ -591,7 +591,7 @@ function BucketHeader({
   count,
 }: { label: string; count: number; }) {
   return (
-    <div className="px-4 pt-4 pb-1 bg-background/95 backdrop-blur-sm sticky top-0 z-[1] flex items-baseline justify-between border-b border-border/20">
+    <div className="px-4 pt-4 pb-1 app-sticky-header z-sticky flex items-baseline justify-between border-b border-border/20">
       <h5 className="text-[11px] font-bold tracking-wide uppercase text-muted-foreground">
         {label}
       </h5>

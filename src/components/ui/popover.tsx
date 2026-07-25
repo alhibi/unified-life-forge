@@ -17,7 +17,7 @@ const PopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "glass-overlay z-50 w-72 rounded-md p-4 text-popover-foreground outline-none",
+        "glass-overlay z-drawer w-72 rounded-md p-4 text-popover-foreground outline-none",
         className,
       )}
       {...props}

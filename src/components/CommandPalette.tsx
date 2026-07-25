@@ -114,7 +114,7 @@ export function CommandPalette() {
       />
 
       <div
-        className="relative z-10 flex w-full max-w-lg flex-col overflow-hidden rounded-lg border border-border/60 bg-card text-card-foreground shadow-lg animate-fade-in"
+        className="relative z-raised flex w-full max-w-lg flex-col overflow-hidden rounded-lg border border-border/60 bg-card text-card-foreground shadow-lg animate-fade-in"
         dir="rtl"
       >
         <Command label="لوحة الأوامر" className="flex h-full max-h-[60vh] flex-col">

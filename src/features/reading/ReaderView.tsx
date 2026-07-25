@@ -359,7 +359,7 @@ export function ReaderView({
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="flex flex-col min-h-screen"
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-card/90 backdrop-blur-md sticky top-0 z-20">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 app-sticky-header-card z-sticky">
         <button
           type="button"
           onClick={onBack}

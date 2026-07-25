@@ -91,7 +91,7 @@ export default function SearchBar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-30 start-0 end-0 top-full mt-2 rounded-[14px] bg-[#1D1811] border border-[var(--hairline-strong)] overflow-hidden shadow-2xl"
+            className="absolute z-header start-0 end-0 top-full mt-2 rounded-[14px] bg-[#1D1811] border border-[var(--hairline-strong)] overflow-hidden shadow-2xl"
           >
             <ul className="max-h-80 overflow-auto">
               {items.map((it) => (

@@ -199,7 +199,7 @@ export function OpmlImportDialog({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+        className="fixed inset-0 z-drawer flex items-end sm:items-center justify-center"
       >
         <div
           className="absolute inset-0 bg-black/45 backdrop-blur-sm"
@@ -517,10 +517,10 @@ function PreviewRowItem({
             {catOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-30"
+                  className="fixed inset-0 z-header"
                   onClick={() => setCatOpen(false)}
                 />
-                <div className="absolute end-0 top-full mt-1 z-40 bg-card border border-border/60 rounded-xl  overflow-hidden min-w-[8rem]">
+                <div className="absolute end-0 top-full mt-1 z-float bg-card border border-border/60 rounded-xl  overflow-hidden min-w-[8rem]">
                   {CATEGORIES.map((c) => (
                     <button
                       key={c.id}

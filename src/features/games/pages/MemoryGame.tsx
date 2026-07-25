@@ -957,7 +957,7 @@ export default function MemoryGame() {
  <AnimatePresence>
  {achievementToast && (
  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
- className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
+ className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer rounded-2xl px-4 py-3 border border-pink-500/40 bg-pink-500/15 backdrop-blur-md flex items-center gap-3">
  <span className="text-2xl">{achievementToast.icon}</span>
  <div>
  <p className="text-[10px] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>

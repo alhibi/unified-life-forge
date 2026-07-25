@@ -126,11 +126,11 @@ export default function InteractiveCharts({ entries, }: InteractiveChartsProps) 
                 {active && (
                   <motion.div
                     layoutId="activeWeatherTab"
-                    className="absolute inset-0 bg-primary rounded-lg z-0"
+                    className="absolute inset-0 bg-primary rounded-lg z-base"
                     transition={{ type: 'spring', stiffness: 350, damping: 28 }}
                   />
                 )}
-                <span className="relative z-10 flex items-center gap-1.5">
+                <span className="relative z-raised flex items-center gap-1.5">
                   <Icon className="w-3.5 h-3.5" />
                   <span>{t.label}</span>
                 </span>

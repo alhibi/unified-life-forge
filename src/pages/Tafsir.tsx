@@ -253,7 +253,7 @@ export default function TafsirPage() {
       <SEO title="التفسير — SmartHub" description="تفسير القرآن الكريم باللغة العربية: استكشف معاني الآيات والسور مع تفسير ميسر وشامل لكل أجزاء المصحف الشريف." path="/tafsir" />
 
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background border-b border-border">
+      <div className="z-sticky app-sticky-header border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -297,7 +297,7 @@ export default function TafsirPage() {
 
         {/* Tafsir source picker */}
         {selectedSurah !== null && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative z-10">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative z-raised">
             <button onClick={() => setShowTafsirPicker(!showTafsirPicker)} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-card border border-border/50 hover:bg-accent/30 transition-colors">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-primary" />
@@ -307,7 +307,7 @@ export default function TafsirPage() {
             </button>
             <AnimatePresence>
               {showTafsirPicker && (
-                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="mt-1 rounded-xl bg-card border border-border/50 absolute start-0 end-0 z-20 overflow-hidden">
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="mt-1 rounded-xl bg-card border border-border/50 absolute start-0 end-0 z-sticky overflow-hidden">
                   {TAFSIRS.map(tf => (
                     <button key={tf.id} onClick={() => { setSelectedTafsir(tf); setShowTafsirPicker(false); }} className={`w-full text-end px-4 py-3 text-sm font-medium transition-colors hover:bg-accent/30 ${tf.id === selectedTafsir.id ? 'text-primary bg-primary/5' : 'text-foreground'}`}>
                       {tf.name}

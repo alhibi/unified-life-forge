@@ -419,7 +419,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         ref={containerRef}
         className="relative w-full rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden h-[340px] md:h-[400px] cursor-grab active:cursor-grabbing"
       >
-        <div className="absolute top-3 end-3 z-10 flex flex-col gap-1 pointer-events-none">
+        <div className="absolute top-3 end-3 z-raised flex flex-col gap-1 pointer-events-none">
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <span className="w-2 h-2 rounded-full bg-primary" />
             <span>وسوم وتصنيفات</span>

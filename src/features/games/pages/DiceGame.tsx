@@ -524,7 +524,7 @@ function YatzyView({ aiLevel }: { aiLevel: 'easy' | 'hard' }) {
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.4 }}
             transition={{ type: 'spring', stiffness: 250, damping: 18 }}
- className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+ className="absolute inset-0 z-header flex items-center justify-center pointer-events-none"
  >
  <div className="px-8 py-4 rounded-3xl text-amber-950 font-black text-3xl tracking-wider">
  ★ YATZY ★

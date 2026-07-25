@@ -597,7 +597,7 @@ export default function Weather() {
       </Helmet>
 
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 border-b border-border/50 bg-background/92 backdrop-blur-md">
+      <div className="z-float border-b border-border/50 app-sticky-header">
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
@@ -621,7 +621,7 @@ export default function Weather() {
         <CitySearch onSelectCity={handleCitySelect} />
 
         {/* Dynamic Segmented Control main tabs */}
-        <div className="flex bg-background/50 border border-border/40 p-1.5 rounded-2xl gap-1.5 sticky top-16 z-35 backdrop-blur shadow-md">
+        <div className="flex bg-background/50 border border-border/40 p-1.5 rounded-2xl gap-1.5 sticky top-16 z-header backdrop-blur shadow-md">
           {mainTabs.map(t => {
             const TabIcon = t.icon;
             const active = activeMainTab === t.id;

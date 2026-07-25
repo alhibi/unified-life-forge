@@ -79,7 +79,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/55 backdrop-blur-[2px]"
+            className="fixed inset-0 z-drawer bg-black/55 backdrop-blur-[2px]"
             aria-hidden="true"
           />
 
@@ -93,7 +93,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[78vh] overflow-hidden rounded-t-3xl bg-card border-t border-border/40 "
+            className="fixed inset-x-0 bottom-0 z-drawer max-h-[78vh] overflow-hidden rounded-t-3xl bg-card border-t border-border/40 "
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
             {/* Drag handle */}

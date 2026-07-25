@@ -157,7 +157,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+      className="fixed inset-0 z-drawer bg-black/50 backdrop-blur-sm flex items-end justify-center"
       onClick={onClose}
     >
       <motion.div
@@ -170,7 +170,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
         className="w-full max-w-lg bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto overscroll-contain"
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md px-5 pt-4 pb-3 border-b border-border/30">
+        <div className="z-raised app-sticky-header px-5 pt-4 pb-3 border-b border-border/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div

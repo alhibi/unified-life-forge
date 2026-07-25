@@ -347,30 +347,7 @@
     outline-offset: 0;
   }
 
-  /* ──────────────────────────────────────────────────────────────
-     Obsidian Depth — canonical card surface
-     One class so every tappable card across Mihrab / Wellness /
-     etc. reads the same. Uses the active theme's `--card` token
-     plus a top inset highlight + bottom inset shadow to give the
-     skeuomorphic "lit from above" feel. In dark themes this lands
-     on the documented #1a1a1e → #2a2a2e range; in light themes it
-     stays subtle and clean.
-     ────────────────────────────────────────────────────────────── */
-  .surface-depth {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.6);
-    box-shadow: none;
-  }
-  .surface-depth-pressable {
-    transition:
-      transform 150ms var(--ease-spring),
-      background-color 150ms ease-out,
-      border-color 150ms ease-out;
-  }
-  .surface-depth-pressable:active {
-    transform: scale(0.98);
-    background-color: hsl(var(--accent) / 0.4);
-  }
+  /* The card system is defined once, further down — search "Card system". */
 
   /* NOTE: the "ambient breath" halo (`body::before` + the
      `ambient-breath` / `aurora-spin` / `halo-breath` keyframes) was
@@ -436,53 +413,56 @@
     }
   }
 
-  /* ── Card system — single source of truth ──
-     .premium-card* are aliases of .surface-depth so the app has ONE
-     visual card vocabulary. The -elevated and -intense variants only
-     bump radius / containment hints; all chrome (background, border,
-     inset shadows) is inherited from .surface-depth above. */
+  /* ══════════════════════════════════════════════════════════════
+     Card system — ONE definition
+     ══════════════════════════════════════════════════════════════
+     This used to be four separate blocks in three places:
+     `.surface-depth` (no radius), `.premium-card*` (radius, alpha 0.6),
+     `.app-card` (radius, alpha 0.62, padding, shadow) and a fourth
+     `.card, .premium-card*` block that added hover/press physics to some
+     of them but not to `.app-card`. So visually identical cards behaved
+     differently depending on which alias a screen happened to use.
+
+     Now: one chrome rule, explicit modifiers, and press feedback that is
+     opt-in. Prefer <AppCard> from @/components/ui/app-shell; the other
+     names are kept as aliases for the screens not migrated yet.
+     ────────────────────────────────────────────────────────────── */
+  .app-card,
+  .app-card-bare,
   .premium-card,
   .premium-card-elevated,
-  .premium-card-intense {
+  .premium-card-intense,
+  .surface-depth {
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border) / 0.6);
-    border-radius: var(--radius);
+    border-radius: 1rem; /* lg — the canonical card radius */
     box-shadow: none;
     contain: layout style;
-    /* No `content-visibility: auto` here — see the note further down. Every
-       card silently guessing a 200px intrinsic height made the page height
-       (and the scrollbar) jump while scrolling. */
   }
 
-  /* ──────────────────────────────────────────────────────────────
-     UNIFIED DESIGN PRIMITIVES — Phase 1 foundation.
-     Every page/card/button across the app should compose from these
-     classes so the visual vocabulary stays identical regardless of
-     who built the screen. No bespoke radii, paddings, or bg-* tokens
-     on cards going forward.
-     ────────────────────────────────────────────────────────────── */
-
-  /* The canonical app card. Always rounded-lg (16px), always surface-depth.
-     `.app-card-compact` = tighter padding for list rows.
-     `.app-card-flat`    = no inset shadow chrome, for nested cards. */
+  /* The canonical card: chrome above + the standard gutter and elevation. */
   .app-card {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.62);
-    border-radius: 1rem; /* lg = 16px */
-    padding: 1rem; /* p-4 */
+    padding: 1rem;
     box-shadow: var(--shadow-card);
   }
+  /* Tighter gutter for list rows. This used to also be `padding: 1rem`, i.e.
+     a class that promised "compact" and changed nothing. */
   .app-card-compact {
-    padding: 1rem;
+    padding: 0.75rem;
   }
+  /* Quiet variant for a card nested inside another card. */
   .app-card-flat {
     background-color: transparent;
     border-color: hsl(var(--border) / 0.44);
     box-shadow: none;
   }
 
-  /* Pressable variant — adds the canonical 120ms spring press feedback. */
-  .app-card-pressable {
+  /* Press feedback is OPT-IN. It used to apply to every `.premium-card`,
+     so static content cards shrank whenever a finger landed on them
+     mid-scroll. Interactive cards rendered as <button> also get the global
+     press rule, so this is only needed for non-button cards. */
+  .app-card-pressable,
+  .surface-depth-pressable {
     transition:
       transform 120ms var(--ease-spring),
       background-color 150ms var(--ease-out-expo),
@@ -491,10 +471,41 @@
     cursor: pointer;
     will-change: transform;
   }
-  .app-card-pressable:active {
+  .app-card-pressable:active,
+  .surface-depth-pressable:active {
     transform: scale(0.98);
     background-color: hsl(var(--accent) / 0.4);
     box-shadow: var(--shadow-sm);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .app-card-pressable:active,
+    .surface-depth-pressable:active {
+      transform: none;
+    }
+  }
+
+  /* ── Sticky page / panel header chrome ────────────────────────────
+     The 22 hand-rolled sticky headers in the app used FIVE different
+     backdrop alphas (bg-background/85, /92, /95, bg-card/90, /92) and two
+     blur radii, so the same element read differently on every screen.
+     Position and backdrop live here; the stacking level stays at the call
+     site because a page header and a panel header sit at different levels.
+
+     `-card` is for a header inside a card-coloured panel (the reading
+     views); the default is for a page header over the app background. */
+  .app-sticky-header,
+  .app-sticky-header-card {
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+  }
+  .app-sticky-header {
+    background-color: hsl(var(--background) / 0.92);
+  }
+  .app-sticky-header-card {
+    background-color: hsl(var(--card) / 0.92);
   }
 
   /* The canonical icon button used in headers/toolbars. 44x44, rounded-md (10px). */
@@ -630,39 +641,16 @@
     margin-bottom: 0.5rem;
     padding-inline-start: 0.25rem;
   }
-  .premium-card-elevated {
-    contain-intrinsic-size: auto 220px;
-  }
-  .premium-card-intense {
-    border-radius: var(--radius);
-    contain-intrinsic-size: auto 260px;
-  }
-  /* Dark-mode gradient overlays removed — flat surfaces only. */
-
-  /* ── Card interaction physics ──
-     transform → spring • shadow → Linear curve • bg → instant linear.
-     Hover lifts 1px (no exaggeration), press settles to scale(0.98). */
-  .card,
-  .premium-card,
-  .premium-card-elevated,
-  .premium-card-intense {
-    transition:
-      transform var(--duration-fast) var(--ease-spring),
-      background-color var(--duration-instant) linear,
-      border-color var(--duration-fast) var(--ease-linear-app);
-    will-change: transform;
-  }
-  .card:hover,
+  /* NOTE: `contain-intrinsic-size` on `.premium-card-elevated` /
+     `-intense` was removed. That property does nothing without
+     `content-visibility`, which these classes no longer set — see the
+     content-visibility note below for why it was taken off cards.
+     The `.card` rules went too: they targeted the shadcn <Card>
+     component, which is no longer in the codebase. */
   .premium-card:hover,
   .premium-card-elevated:hover,
-  .premium-card-intense:hover {
+  .app-card:hover {
     border-color: hsl(var(--border));
-  }
-  .card:active,
-  .premium-card:active,
-  .premium-card-elevated:active,
-  .premium-card-intense:active {
-    transform: scale(0.98) translateY(0);
   }
   .btn-primary {
     @apply bg-primary text-primary-foreground font-medium;

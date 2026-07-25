@@ -110,7 +110,7 @@ function CountryDialog({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-fullscreen flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -204,7 +204,7 @@ function RegionDialog({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-fullscreen flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -535,7 +535,7 @@ export default function PodcastsPage() {
       />
 
       {/* Sticky top bar — back, scope/country/region pill, search */}
-      <div className="sticky top-0 z-30 bg-background/85 backdrop-blur-md border-b border-border/40">
+      <div className="z-header app-sticky-header border-b border-border/40">
         <div className="max-w-lg mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
           <BackButton />
           {/* Scope pill: tapping the icon area cycles country↔region;
@@ -734,7 +734,7 @@ export default function PodcastsPage() {
       </div>
 
       {/* Floating "Powered by" pill */}
-      <div className="fixed bottom-4 start-0 end-0 z-40 flex justify-center pointer-events-none">
+      <div className="fixed bottom-4 start-0 end-0 z-float flex justify-center pointer-events-none">
         <div className="pointer-events-auto">
           <PoweredByApplePodcasts />
         </div>

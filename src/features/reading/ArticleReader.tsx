@@ -418,9 +418,11 @@ export function ArticleReader({
       {/* Header */}
       <div
         ref={headerRef}
-        className={`flex items-center gap-2 px-4 py-3 border-b backdrop-blur-md sticky top-0 z-20 ${
-          themePalette ? '' : 'border-border/40 bg-card/90'
-        }`}
+        // `.app-sticky-header-card` owns position, blur, border and the
+        // default card backdrop. When the reader has a per-article palette,
+        // `chromeStyle` overrides background and border inline, which beats
+        // the class — so the conditional Tailwind pair is not needed.
+        className="flex items-center gap-2 px-4 py-3 app-sticky-header-card z-sticky"
         style={chromeStyle}
       >
         <button
@@ -487,7 +489,7 @@ export function ArticleReader({
           announce position. Positioned dynamically so it always sits
           flush against whatever header height we have. */}
       <div
-        className={`h-[3px] w-full sticky z-20 ${
+        className={`h-[3px] w-full sticky z-sticky ${
           themePalette ? '' : 'bg-foreground/5'
         }`}
         style={{

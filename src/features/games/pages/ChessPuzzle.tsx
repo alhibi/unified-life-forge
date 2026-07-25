@@ -464,7 +464,7 @@ export default function ChessPuzzlePage() {
                       animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.2, repeat: Infinity }} />
                   )}
                   {cell && (
-                    <span className={`relative z-10 select-none leading-none ${cell.color === 'w' ? 'text-white ' : 'text-gray-900'}`}
+                    <span className={`relative z-raised select-none leading-none ${cell.color === 'w' ? 'text-white ' : 'text-gray-900'}`}
                       style={{ fontSize: 'min(7vw, 30px)' }}>
                       {PIECE_GLYPH[cell.color][cell.type]}
                     </span>
@@ -479,7 +479,7 @@ export default function ChessPuzzlePage() {
         <AnimatePresence>
           {showWrongFeedback && (
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+              className="absolute inset-0 z-header flex items-center justify-center pointer-events-none">
               <div className="px-4 py-2 rounded-xl bg-rose-500/20 border border-rose-500/40 backdrop-blur-md">
                 <X className="w-8 h-8 text-rose-300 mx-auto" />
               </div>

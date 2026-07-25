@@ -978,7 +978,7 @@ function UmmahPulse() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md flex flex-col"
+              className="fixed inset-0 z-fullscreen bg-background/95 backdrop-blur-md flex flex-col"
               dir={'rtl'}
             >
               {/* Top bar */}

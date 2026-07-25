@@ -192,17 +192,17 @@ function ThemePresetsCategorized({
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.id)}
-              className="relative flex-1 py-2 text-[10px] font-bold transition-colors duration-300 z-10 focus:outline-none"
+              className="relative flex-1 py-2 text-[10px] font-bold transition-colors duration-300 z-raised focus:outline-none"
             >
               {isSelected && (
                 <motion.div
                   layoutId="activeCategoryGlow"
-                  className="absolute inset-0 bg-background rounded-lg shadow-sm border border-border/10 z-0"
+                  className="absolute inset-0 bg-background rounded-lg shadow-sm border border-border/10 z-base"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
               <span
-                className={`relative z-10 block text-center truncate ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}
+                className={`relative z-raised block text-center truncate ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}
               >
                 {cat.nameAr.split(' ')[0]}{' '}
                 {/* shortened for mobile spacing */}
@@ -420,12 +420,12 @@ export default function ThemeSettingsPage() {
                     {isActive && (
                       <motion.div
                         layoutId="activeThemeMode"
-                        className="absolute inset-0 bg-primary rounded-full z-0"
+                        className="absolute inset-0 bg-primary rounded-full z-base"
                         transition={{ type: 'spring', stiffness: 350, damping: 28 }}
                       />
                     )}
                     <Icon
-                      className={`w-5 h-5 relative z-10 transition-colors duration-250 ${
+                      className={`w-5 h-5 relative z-raised transition-colors duration-250 ${
                         isActive ? 'text-primary-foreground' : 'text-muted-foreground'
                       }`}
                     />

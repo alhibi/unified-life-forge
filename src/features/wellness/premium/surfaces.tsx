@@ -428,7 +428,7 @@ export function PageBackdrop({ accent }: { accent?: string }) {
   return (
     <div
       aria-hidden
-      className="fixed inset-0 -z-10 pointer-events-none"
+      className="fixed inset-0 -z-raised pointer-events-none"
       style={{
         backgroundImage: [
           softRadial(a, 0.07, 'ellipse 60% 50% at 50% 0%'),

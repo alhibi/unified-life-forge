@@ -341,7 +341,7 @@ export default function PodcastDetail() {
           )}
 
           {/* Top bar */}
-          <div className="sticky top-0 z-30 px-4 pt-3 pb-2 flex items-center justify-between">
+          <div className="sticky top-0 z-header px-4 pt-3 pb-2 flex items-center justify-between">
             <BackButton />
             <div className="flex items-center gap-2">
               <button

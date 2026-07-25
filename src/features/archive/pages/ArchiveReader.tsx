@@ -364,7 +364,7 @@ export default function ArchiveReader() {
       {prefs.cinematic && <div className="archive-ambient" aria-hidden="true" />}
 
       {/* Reading progress bar */}
-      <div className="fixed top-0 inset-x-0 h-[2px] z-40 bg-transparent">
+      <div className="fixed top-0 inset-x-0 h-[2px] z-float bg-transparent">
         <div
           ref={progressBarRef}
           className="h-full transition-[width] duration-150"
@@ -372,7 +372,7 @@ export default function ArchiveReader() {
         />
       </div>
 
-      <div className="mx-auto relative z-[1]" style={{ maxWidth: Math.max(prefs.width, 520) }}>
+      <div className="mx-auto relative z-raised" style={{ maxWidth: Math.max(prefs.width, 520) }}>
         <SEO
           title={`${doc.title} — الأرشيف`}
           description={doc.abstract || doc.topic}
