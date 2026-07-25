@@ -14,9 +14,9 @@ import {
   MAX_STAGED_IMAGES,
 } from './chatNotify';
 import type { Conversation, Message, Reaction, ConversationFilter, MessageStatus } from './types';
-import { newClientId } from './internal/clientId';
+import { newClientId } from '@/lib/chat/clientId';
 import { useTypingChannel } from './internal/useTypingChannel';
-import { useChatSearch } from './internal/useChatSearch';
+import { useInChatSearch } from './internal/useInChatSearch';
 import { fetchConversations } from './internal/conversationsQuery';
 import { fetchMessagesWithReactions } from './internal/messagesQuery';
 
@@ -222,7 +222,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     searchInChat,
     navigateSearch,
     resetSearch,
-  } = useChatSearch({ activeConv, messages });
+  } = useInChatSearch({ activeConv, messages });
 
   // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
   const setActiveConv = useCallback((conv: Conversation | null) => {
