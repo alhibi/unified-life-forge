@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
 import { useApp } from '@/contexts/AppContext';
@@ -56,15 +55,14 @@ const STORAGE_KEY = 'mihrab:lastTab';
 interface TabDef {
   key: TabKey;
   labelAr: string;
-  labelDe: string;
   icon: typeof BookOpen;
 }
 
 const TABS: TabDef[] = [
-  { key: 'quran', labelAr: 'القرآن', labelDe: 'Quran', icon: BookOpen },
-  { key: 'dhikr', labelAr: 'الذكر', labelDe: 'Dhikr', icon: HandHeart },
-  { key: 'sunnah', labelAr: 'السنّة', labelDe: 'Sunna', icon: Moon },
-  { key: 'literature', labelAr: 'الأدب', labelDe: 'Literatur', icon: Feather },
+  { key: 'quran', labelAr: 'القرآن', icon: BookOpen },
+  { key: 'dhikr', labelAr: 'الذكر', icon: HandHeart },
+  { key: 'sunnah', labelAr: 'السنّة', icon: Moon },
+  { key: 'literature', labelAr: 'الأدب', icon: Feather },
 ];
 
 const TabSkeleton = () => (
@@ -76,8 +74,7 @@ const TabSkeleton = () => (
 );
 
 export default function MihrabPage() {
-  const { language, dir } = useApp();
-  const isAr = language === 'ar';
+  const { dir } = useApp();
   const rtl = dir === 'rtl';
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -120,37 +117,39 @@ export default function MihrabPage() {
   };
 
   return (
-    <PageShell flush className="pt-10">
+    <PageShell flush centered={false} className="px-4 pt-4 sm:pt-6">
       <SEO
-        title={
-          isAr
-            ? 'محراب — قرآن وذكر وسنّة وأدب — SmartHub'
-            : 'Mihrab — Quran, Dhikr, Sunna & Literatur — SmartHub'
-        }
-        description={
-          isAr
-            ? 'مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي.'
-            : 'Vereinter Hub für Quran, Tafsir, Bittgebete, prophetische Sunna und arabische Literatur.'
-        }
+        title="محراب — قرآن وذكر وسنّة وأدب — SmartHub"
+        description="مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي."
         path="/mihrab"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebPage",
-          "name": isAr ? "محراب — قرآن وذكر وسنّة وأدب" : "Mihrab — Quran, Dhikr, Sunna & Literatur",
-          "description": isAr
-            ? "مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي."
-            : "Vereinter Hub für Quran, Tafsir, Bittgebete, prophetische Sunna und arabische Literatur.",
+          "name": "محراب — قرآن وذكر وسنّة وأدب",
+          "description": "مركز موحّد للقرآن والتفسير والأدعية والسنن النبوية والديوان الأدبي.",
           "url": "https://amv.life/mihrab"
         }}
       />
 
-      <div className="page-shell-inner app-stack">
-        {/* Title — unified PageHeader (top-level hub, no back) */}
-        <PageHeader hideBack title={isAr ? 'محراب' : 'Mihrab'} className="px-0 py-0" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5">
+        <header className="relative overflow-hidden rounded-[1.75rem] surface-depth px-5 py-5">
+          <div className="absolute inset-x-0 top-0 h-24 bg-primary/10" aria-hidden="true" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+              <BookOpen className="h-7 w-7" />
+            </div>
+            <div className="min-w-0 flex-1 text-start">
+              <p className="text-[11px] font-semibold text-primary">بوابة السكينة</p>
+              <h1 className="mt-1 text-[28px] font-bold leading-tight text-foreground">محراب</h1>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                القرآن، الذكر، السنّة، والأدب في مساحة واحدة مرتبة وواضحة.
+              </p>
+            </div>
+          </div>
+        </header>
 
-        {/* Horizontal tab dock */}
-        <nav aria-label={isAr ? 'تبويبات المحراب' : 'Mihrab tabs'}>
-          <div className="app-card p-1 grid grid-cols-4 gap-0.5" dir="ltr">
+        <nav aria-label="تبويبات المحراب">
+          <div className="surface-depth grid grid-cols-4 gap-2 rounded-[1.5rem] p-2" dir="ltr">
             {TABS.map((t) => {
               const active = tab === t.key;
               const Icon = t.icon;
@@ -159,8 +158,8 @@ export default function MihrabPage() {
                   key={t.key}
                   onClick={() => handleTabChange(t.key)}
                   aria-pressed={active}
-                  aria-label={isAr ? t.labelAr : t.labelDe}
-                  className={`relative w-full min-w-0 inline-flex items-center justify-center gap-1.5 h-10 px-2 rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+                  aria-label={t.labelAr}
+                  className={`relative h-16 w-full min-w-0 overflow-hidden rounded-2xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
                     active
                       ? 'text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground'
@@ -169,14 +168,14 @@ export default function MihrabPage() {
                   {active && (
                     <motion.span
                       layoutId="mihrab-dock-pill"
-                      className="absolute inset-0 rounded-xl bg-primary"
+                      className="absolute inset-0 rounded-2xl bg-primary"
                       transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                     />
                   )}
-                  <span className="relative inline-flex items-center gap-1.5">
-                    <Icon className="w-4 h-4 shrink-0" strokeWidth={active ? 2.4 : 2} />
-                    <span className="text-[12px] font-semibold whitespace-nowrap leading-none">
-                      {isAr ? t.labelAr : t.labelDe}
+                  <span className="relative flex h-full w-full flex-col items-center justify-center gap-1.5 px-1">
+                    <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2.5 : 2} />
+                    <span className="max-w-full truncate text-[12px] font-bold leading-none">
+                      {t.labelAr}
                     </span>
                   </span>
                 </button>
@@ -192,7 +191,7 @@ export default function MihrabPage() {
             initial={{ opacity: 0, x: slideSign * 16 }}
             animate={{ opacity: 1, x: 0, transition: { duration: 0.26, ease: EASE_OUT_EXPO } }}
             exit={{ opacity: 0, x: slideSign * -8, transition: { duration: 0.14, ease: EASE_IN } }}
-            className="app-stack-sm"
+            className="min-h-[58vh]"
           >
             <Suspense fallback={<TabSkeleton />}>
               {tab === 'quran' && <QuranTab />}

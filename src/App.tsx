@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -53,14 +53,9 @@ function PresenceRunner() {
 }
 
 function NetworkConnectivityListener() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
-
   useEffect(() => {
     const handleOnline = () => {
-      const message = isAr
-        ? 'تم استعادة الاتصال بالشبكة بنجاح.'
-        : 'Netzwerkverbindung erfolgreich wiederhergestellt.';
+      const message = 'تم استعادة الاتصال بالشبكة بنجاح.';
       import('sonner').then(({ toast }) => {
         toast.success(message, {
           id: 'network-status',
@@ -70,9 +65,7 @@ function NetworkConnectivityListener() {
     };
 
     const handleOffline = () => {
-      const message = isAr
-        ? 'فقد الاتصال بالشبكة. التطبيق يعمل الآن في وضع عدم الاتصال.'
-        : 'Netzwerkverbindung verloren. Die App läuft jetzt offline.';
+      const message = 'فقد الاتصال بالشبكة. التطبيق يعمل الآن في وضع عدم الاتصال.';
       import('sonner').then(({ toast }) => {
         toast.error(message, {
           id: 'network-status',
@@ -88,7 +81,7 @@ function NetworkConnectivityListener() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [isAr]);
+  }, []);
 
   return null;
 }
@@ -508,8 +501,6 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
 
 function AnimatedRoutes() {
   const location = useLocation();
-  const { language } = useApp();
-  const isAr = language === 'ar';
 
   useIdlePrefetch();
   usePredictivePrefetch(); // Global Pointer-Intent & Trajectory Predictive Prefetching Engine
@@ -582,6 +573,7 @@ function AnimatedRoutes() {
                 <Routes location={location}>
                   {/* Persistent tab paths are handled by <PersistentTabs/>. */}
                   <Route path="/" element={null} />
+                  <Route path="/index" element={<Navigate to="/" replace />} />
                   <Route path="/games" element={null} />
                   <Route path="/chat" element={null} />
                   {/* New chat surfaces (groups/channels + dedicated settings).
@@ -689,7 +681,7 @@ function AnimatedRoutes() {
                 <div className="flex items-center gap-2">
                   <Layout className="w-3.5 h-3.5 text-[#C9A84C]" />
                   <span className="font-semibold text-neutral-300">
-                    {isAr ? 'مساحة العمل الثانوية' : 'Sekundärer Workspace'}
+                    مساحة العمل الثانوية
                   </span>
                 </div>
                 <div className="flex items-center gap-2">

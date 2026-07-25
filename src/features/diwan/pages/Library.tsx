@@ -40,7 +40,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
     typeof n === 'number' ? n.toLocaleString('ar-EG') : '—';
 
   return (
-    <div className={tab ? 'font-tajawal text-[#F2E9D8]' : 'min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]'}>
+    <div className={tab ? 'rounded-[1.75rem] bg-[#16130F] px-4 py-5 font-tajawal text-[#F2E9D8] shadow-elevated selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]' : 'min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]'}>
       {!tab && (
         <SEO
           title="المكتبة الكبرى — الديوان العربي الكلاسيكي"

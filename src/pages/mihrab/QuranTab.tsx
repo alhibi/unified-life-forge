@@ -49,9 +49,8 @@ function readLastPosition(): LastTafsirPosition | null {
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 export default function QuranTab() {
-  const { language, dir } = useApp();
+  const { dir } = useApp();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   // Read once on mount — the surah picker on /tafsir updates this
@@ -74,11 +73,11 @@ export default function QuranTab() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                {isAr ? 'متابعة القراءة' : 'Weiterlesen'}
+                متابعة القراءة
               </p>
               <p className="text-sm font-bold text-foreground mt-0.5">
                 {SURAH_NAMES_AR[lastPos.surah]}
-                {lastPos.ayah ? (isAr ? ` — الآية ${lastPos.ayah}` : ` — Ayah ${lastPos.ayah}`) : ''}
+                {lastPos.ayah ? ` — الآية ${lastPos.ayah}` : ''}
               </p>
             </div>
             <Arrow className="w-4 h-4 text-primary shrink-0" />
@@ -97,12 +96,10 @@ export default function QuranTab() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-foreground">
-            {isAr ? 'التفسير' : 'Tafsir'}
+            التفسير
           </p>
           <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">
-            {isAr
-              ? 'تفسير القرآن الكريم من أمّهات كتب التفسير: الميسّر، الجلالين، ابن كثير، القرطبي، الطبري...'
-              : 'Quran-Tafsir aus klassischen Werken: Muyassar, Dschalālayn, Ibn Kathīr, Qurṭubī, Ṭabarī...'}
+            تفسير القرآن الكريم من أمّهات كتب التفسير: الميسّر، الجلالين، ابن كثير، القرطبي، الطبري...
           </p>
         </div>
         <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -119,12 +116,10 @@ export default function QuranTab() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-foreground">
-            {isAr ? 'فضائل القرآن' : 'Quran-Vorzüge'}
+            فضائل القرآن
           </p>
           <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">
-            {isAr
-              ? 'فضل تلاوة القرآن وحفظه، وفضائل سور مختارة.'
-              : 'Vorzüge der Quran-Rezitation und ausgewählter Suren.'}
+            فضل تلاوة القرآن وحفظه، وفضائل سور مختارة.
           </p>
         </div>
         <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />

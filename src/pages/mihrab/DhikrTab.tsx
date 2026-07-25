@@ -99,7 +99,7 @@ function useBodyScrollLock(locked: boolean) {
   }, [locked]);
 }
 
-function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
+function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
   const [open, setOpen] = useState(false);
   const Icon = iconMap[dua.icon] || Star;
 
@@ -113,18 +113,17 @@ function FrequentDuaCard({ dua, lang }: { dua: FrequentDua; lang: string }) {
           <Icon className="w-5 h-5 text-primary" />
         </div>
         <span className="text-[10px] text-foreground font-medium text-center leading-tight line-clamp-2 w-16">
-          {lang === 'ar' ? dua.titleAr : dua.titleDe}
+          {dua.titleAr}
         </span>
       </button>
       <DuaModal
         open={open}
         onClose={() => setOpen(false)}
-        title={lang === 'ar' ? dua.titleAr : dua.titleDe}
+        title={dua.titleAr}
         duas={[
           { id: 1, text: dua.text, source: dua.source },
           ...(dua.extras || []).map((e, i) => ({ id: i + 2, text: e.text, source: e.source })),
         ]}
-        lang={lang}
       />
     </>
   );
@@ -135,20 +134,18 @@ function DuaModal({
   onClose,
   title,
   duas,
-  lang,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   duas: { id: number; text: string; source?: string }[];
-  lang: string;
 }) {
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const copyDua = (text: string, id: number) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    notify.copied(lang === 'ar' ? 'ar' : 'de');
+    notify.copied();
     setTimeout(() => setCopiedId(null), 1500);
   };
 
@@ -229,19 +226,17 @@ function NawawiModal({
   open,
   onClose,
   hadith,
-  lang,
 }: {
   open: boolean;
   onClose: () => void;
   hadith: NawawiHadith;
-  lang: string;
 }) {
   const [copied, setCopied] = useState(false);
 
   const copyText = () => {
     navigator.clipboard.writeText(hadith.text);
     setCopied(true);
-    notify.copied(lang === 'ar' ? 'ar' : 'de');
+    notify.copied();
     setTimeout(() => setCopied(false), 1500);
   };
 
@@ -312,13 +307,12 @@ function NawawiModal({
 }
 
 export default function DhikrTab() {
-  const { language } = useApp();
+  const { dir } = useApp();
   const [openCat, setOpenCat] = useState<DuaCategory | null>(null);
   const [openNawawi, setOpenNawawi] = useState<NawawiHadith | null>(null);
   const [showNawawiList, setShowNawawiList] = useState(false);
   useBodyScrollLock(!!openCat || !!openNawawi || showNawawiList);
-  const isRtl = language === 'ar';
-  const Arrow = isRtl ? ChevronLeft : ChevronRight;
+  const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   return (
     <>
@@ -333,11 +327,9 @@ export default function DhikrTab() {
               <BookOpen className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1 text-start">
-              <p className="text-sm font-bold text-foreground">
-                {language === 'ar' ? 'الأربعون النووية' : 'An-Nawawis vierzig Hadithe'}
-              </p>
+              <p className="text-sm font-bold text-foreground">الأربعون النووية</p>
               <p className="text-[11px] text-muted-foreground">
-                42 {language === 'ar' ? 'حديثاً نبوياً' : 'prophetische Hadithe'}
+                42 حديثاً نبوياً
               </p>
             </div>
             <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -348,13 +340,11 @@ export default function DhikrTab() {
         <motion.div variants={item} className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary" />
-            <h2 className="text-sm font-bold text-foreground">
-              {language === 'ar' ? 'أدعية متكررة' : 'Häufige Bittgebete'}
-            </h2>
+            <h2 className="text-sm font-bold text-foreground">أدعية متكررة</h2>
           </div>
           <div className="grid grid-cols-4 gap-1">
             {frequentDuas.map((dua) => (
-              <FrequentDuaCard key={dua.id} dua={dua} lang={language} />
+              <FrequentDuaCard key={dua.id} dua={dua} />
             ))}
           </div>
         </motion.div>
@@ -363,9 +353,7 @@ export default function DhikrTab() {
         <motion.div variants={item} className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary" />
-            <h2 className="text-sm font-bold text-foreground">
-              {language === 'ar' ? 'أقسام الأدعية' : 'Kategorien'}
-            </h2>
+            <h2 className="text-sm font-bold text-foreground">أقسام الأدعية</h2>
           </div>
           <div className="space-y-2.5">
             {duaCategories.map((cat) => {
@@ -381,11 +369,9 @@ export default function DhikrTab() {
                     <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1 text-start">
-                    <p className="text-sm font-bold text-foreground">
-                      {language === 'ar' ? cat.titleAr : cat.titleDe}
-                    </p>
+                    <p className="text-sm font-bold text-foreground">{cat.titleAr}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {cat.duas.length} {language === 'ar' ? 'دعاء' : 'Bittgebete'}
+                      {cat.duas.length} دعاء
                     </p>
                   </div>
                   <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -401,9 +387,8 @@ export default function DhikrTab() {
         <DuaModal
           open={!!openCat}
           onClose={() => setOpenCat(null)}
-          title={language === 'ar' ? openCat.titleAr : openCat.titleDe}
+          title={openCat.titleAr}
           duas={openCat.duas}
-          lang={language}
         />
       )}
 
@@ -428,9 +413,7 @@ export default function DhikrTab() {
                 className="bg-card w-full max-w-md rounded-xl max-h-[85vh] flex flex-col"
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-                  <h2 className="text-lg font-bold text-foreground">
-                    {language === 'ar' ? 'الأربعون النووية' : 'An-Nawawis vierzig Hadithe'}
-                  </h2>
+                  <h2 className="text-lg font-bold text-foreground">الأربعون النووية</h2>
                   <button
                     onClick={() => setShowNawawiList(false)}
                     className="p-1.5 rounded-full hover:bg-muted/60 transition-colors"
@@ -476,7 +459,6 @@ export default function DhikrTab() {
           open={!!openNawawi}
           onClose={() => setOpenNawawi(null)}
           hadith={openNawawi}
-          lang={language}
         />
       )}
     </>

@@ -24,9 +24,7 @@ import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 interface SunnahCard {
   key: string;
   titleAr: string;
-  titleDe: string;
   descAr: string;
-  descDe: string;
   icon: typeof Clock;
   to?: string;
 }
@@ -35,45 +33,36 @@ const CARDS: SunnahCard[] = [
   {
     key: 'timed',
     titleAr: 'السنن المؤقتة',
-    titleDe: 'Zeitgebundene Sunna',
     descAr: 'السنن المرتبطة بأوقات الصلاة الخمس ويوم الجمعة.',
-    descDe: 'Sunna-Handlungen rund um die fünf Gebete und den Freitag.',
     icon: Clock,
     to: '/section/timed-sunnah',
   },
   {
     key: 'untimed',
     titleAr: 'السنن غير المؤقتة',
-    titleDe: 'Freiwillige Sunna',
     descAr: 'سنن نبوية عامة في الطعام واللباس والآداب والمعاملات.',
-    descDe: 'Allgemeine Sunna in Essen, Kleidung, Etikette und Umgang.',
     icon: Timer,
     to: '/section/untimed-sunnah',
   },
   {
     key: 'day',
     titleAr: 'اليوم النبوي',
-    titleDe: 'Prophetischer Tag',
     descAr: 'يوم النبي ﷺ من الفجر إلى الفجر، مع السنن المرتبطة بكل فترة.',
-    descDe: 'Tagesablauf des Propheten ﷺ — Sunna für jede Tageszeit.',
     icon: CalendarDays,
     to: '/section/prophetic-day',
   },
   {
     key: 'badges',
     titleAr: 'أوسمة نبوية',
-    titleDe: 'Prophetische Auszeichnungen',
     descAr: 'تتبَّع التزامك بالسنن واحصد أوسمة نبوية. (قريباً)',
-    descDe: 'Verfolge deine Sunna-Praxis — bald verfügbar.',
     icon: Trophy,
     // No `to` — handled as "coming soon" inline.
   },
 ];
 
 export default function SunnahTab() {
-  const { language, dir } = useApp();
+  const { dir } = useApp();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   // Per-card "coming soon" badge that briefly replaces the title when
@@ -95,10 +84,7 @@ export default function SunnahTab() {
       {CARDS.map(card => {
         const Icon = card.icon;
         const showSoon = soon === card.key;
-        const title = showSoon
-          ? (isAr ? 'قريباً' : 'Bald verfügbar')
-          : (isAr ? card.titleAr : card.titleDe);
-        const desc = isAr ? card.descAr : card.descDe;
+        const title = showSoon ? 'قريباً' : card.titleAr;
         const isPlaceholder = !card.to;
 
         return (
@@ -116,12 +102,12 @@ export default function SunnahTab() {
                 <p className="text-sm font-bold text-foreground transition-all duration-200">{title}</p>
                 {isPlaceholder && !showSoon && (
                   <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-semibold tracking-wide">
-                    {isAr ? 'قريباً' : 'BALD'}
+                    قريباً
                   </span>
                 )}
               </div>
               {!showSoon && (
-                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{desc}</p>
+                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{card.descAr}</p>
               )}
             </div>
             <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
