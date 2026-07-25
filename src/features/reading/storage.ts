@@ -25,6 +25,7 @@ export const BOOKMARKS_KEY = 'rss-reader-bookmarks';
 export const READ_KEY = 'rss-reader-read';
 export const LAST_REFRESH_KEY = 'rss-reader-last-refresh';
 export const SCROLL_POS_KEY = 'rss-reader-scroll-pos';
+export const ARTICLE_PROGRESS_KEY = 'rss-reader-article-progress-v1';
 export const READER_PREFS_KEY = 'rss-reader-prefs-v1';
 export const NOTIFICATION_PREFS_KEY = 'rss-reader-notification-prefs-v1';
 export const SEARCH_HISTORY_KEY = 'rss-reader-search-history-v1';
@@ -293,6 +294,36 @@ export function storeScrollPos(key: string, y: number): void {
     const parsed = raw ? JSON.parse(raw) : {};
     parsed[key] = y;
     localStorage.setItem(SCROLL_POS_KEY, JSON.stringify(parsed));
+  } catch { /* quota */ }
+}
+
+/** Save reader progress as a ratio so it remains valid after reflow or font changes. */
+export function getArticleReadingProgress(link: string): number {
+  try {
+    const raw = localStorage.getItem(ARTICLE_PROGRESS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const value = parsed[link];
+    return typeof value === 'number' && value >= 0 && value <= 1 ? value : 0;
+  } catch { return 0; }
+}
+
+/**
+ * Persist a compact, bounded reading-position map. A ratio avoids stale pixel
+ * offsets when the reader font, viewport, or extracted article body changes.
+ */
+export function storeArticleReadingProgress(link: string, progress: number): void {
+  if (!link || !Number.isFinite(progress)) return;
+  try {
+    const raw = localStorage.getItem(ARTICLE_PROGRESS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {} as Record<string, number>;
+    parsed[link] = Math.max(0, Math.min(1, progress));
+    const entries = Object.entries(parsed)
+      .slice(-200)
+      .reduce<Record<string, number>>((next, [key, value]) => {
+        if (typeof value === 'number') next[key] = value;
+        return next;
+      }, {});
+    localStorage.setItem(ARTICLE_PROGRESS_KEY, JSON.stringify(entries));
   } catch { /* quota */ }
 }
 

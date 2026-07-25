@@ -9,6 +9,7 @@ import { ListHeader } from '@/features/reading/ListHeader';
 import { useListPrefs } from '@/features/reading/listPrefs';
 import { offlineDb } from '@/features/reading/offlineDb';
 import { PullToRefresh } from '@/features/reading/PullToRefresh';
+import { ReadingBriefing } from '@/features/reading/ReadingBriefing';
 import { ReadingErrorBoundary } from '@/features/reading/ReadingErrorBoundary';
 import { registerReadingServiceWorker } from '@/features/reading/registerSw';
 import {
@@ -90,6 +91,7 @@ export default function ReadingPage() {
     addSuggestedFeed,
     addFeedsBulk,
     removeFeed,
+    refreshFeed,
     toggleFeedEnabled,
     cachedLinks,
     recacheNow,
@@ -479,6 +481,15 @@ export default function ReadingPage() {
         onListPrefsChange={updateListPrefs}
       />
 
+      <ReadingBriefing
+        articles={articles}
+        readArticles={readArticles}
+        bookmarksCount={bookmarks.length}
+        enabledFeedCount={enabledFeeds.length}
+        language={language}
+        onOpenArticle={openArticle}
+      />
+
       <PullToRefresh
         refreshing={refreshing}
         onRefresh={() => refreshFeeds(false)}
@@ -667,6 +678,7 @@ export default function ReadingPage() {
                 onAdd={addFeed}
                 onAddBulk={addFeedsBulk}
                 onRemove={removeFeed}
+                onRefreshFeed={refreshFeed}
                 onToggleEnabled={toggleFeedEnabled}
               />
             </Suspense>

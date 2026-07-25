@@ -91,8 +91,54 @@ function shouldRetry(kind: ErrorKind): boolean {
 
 // ─── Core fetch logic ──────────────────────────────────────────────────────
 
+type FetchedDocument = {
+  text: string;
+  baseUrl: string;
+};
+
+/**
+ * First try the source directly. Many modern feeds send permissive CORS
+ * headers, and this path avoids routing a user's subscriptions through a
+ * third-party proxy. We only consider a response useful when it looks like a
+ * feed; HTML error pages do not leak into the parser.
+ */
+async function fetchDirect(url: string, signal?: AbortSignal): Promise<FetchedDocument | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+  const onOuterAbort = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) {
+      clearTimeout(timer);
+      return null;
+    }
+    signal.addEventListener('abort', onOuterAbort, { once: true });
+  }
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/rss+xml, application/atom+xml, application/feed+json, application/xml, text/xml, */*;q=0.5',
+      },
+    });
+    if (!response.ok) return null;
+    const text = await response.text();
+    return /<(?:[a-z]+:)?(?:rss|feed|rdf)\b/i.test(text) ||
+      (/^\s*\{/.test(text) && /"version"\s*:\s*"https:\/\/jsonfeed\.org\/version\//i.test(text))
+      ? { text, baseUrl: response.url || url }
+      : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener('abort', onOuterAbort);
+  }
+}
+
 /** Attempt fetch through CORS proxies with health-aware ordering and retry. */
-async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string | null> {
+async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<FetchedDocument | null> {
+  const direct = await fetchDirect(url, signal);
+  if (direct) return direct;
+
   const proxies = getSortedProxies();
 
   for (const proxy of proxies) {
@@ -133,7 +179,7 @@ async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string 
         proxy.failures = 0;
         proxy.lastOk = Date.now();
         persistProxyHealth(PROXY_POOL);
-        return text;
+        return { text, baseUrl: url };
       }
 
       // Got a response but it's not RSS/Atom — proxy might be returning
@@ -159,8 +205,8 @@ async function fetchViaProxy(url: string, signal?: AbortSignal): Promise<string 
  * Fetch with retry: wraps `fetchViaProxy` with exponential backoff.
  * Only retries on transient/timeout errors; permanent failures bail immediately.
  */
-async function fetchWithRetry(url: string, signal?: AbortSignal): Promise<string | null> {
-  let lastResult: string | null = null;
+async function fetchWithRetry(url: string, signal?: AbortSignal): Promise<FetchedDocument | null> {
+  let lastResult: FetchedDocument | null = null;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     if (signal?.aborted) return null;
@@ -270,7 +316,77 @@ function safeDate(s: string): string {
   return new Date(t).toISOString();
 }
 
-function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
+function canonicalArticleUrl(value: string, baseUrl: string): string {
+  try {
+    const url = new URL(value, baseUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+    url.hash = '';
+    for (const key of Array.from(url.searchParams.keys())) {
+      if (/^utm_/i.test(key) || ['fbclid', 'gclid', 'mc_cid', 'mc_eid'].includes(key.toLowerCase())) {
+        url.searchParams.delete(key);
+      }
+    }
+    return url.toString();
+  } catch {
+    return '';
+  }
+}
+
+function parseJsonFeed(xml: string, sourceName: string, maxItems: number, baseUrl: string): FeedItem[] | null {
+  try {
+    const feed = JSON.parse(xml) as { version?: unknown; items?: unknown };
+    if (typeof feed.version !== 'string' || !feed.version.startsWith('https://jsonfeed.org/version/')) {
+      return null;
+    }
+    const parsed: FeedItem[] = [];
+    for (const raw of Array.isArray(feed.items) ? feed.items : []) {
+      if (!raw || typeof raw !== 'object' || parsed.length >= maxItems) continue;
+      const item = raw as Record<string, unknown>;
+      const link = canonicalArticleUrl(
+        typeof item.url === 'string'
+          ? item.url
+          : typeof item.external_url === 'string' ? item.external_url : '',
+        baseUrl,
+      );
+      if (!link) continue;
+      const fullContent = typeof item.content_html === 'string'
+        ? item.content_html
+        : typeof item.content_text === 'string' ? `<p>${item.content_text}</p>`
+          : typeof item.summary === 'string' ? `<p>${item.summary}</p>` : '';
+      const image = typeof item.image === 'string' && /^https?:\/\//i.test(item.image)
+        ? item.image
+        : null;
+      parsed.push({
+        title: typeof item.title === 'string' ? item.title : '',
+        link,
+        description: decodeEntities(stripTags(fullContent)).slice(0, 400),
+        fullContent: fullContent || undefined,
+        pubDate: safeDate(
+          typeof item.date_published === 'string' ? item.date_published
+            : typeof item.date_modified === 'string' ? item.date_modified : '',
+        ),
+        image,
+        images: image ? [image] : extractImages(fullContent),
+        source: sourceName,
+      });
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function parseXML(
+  xml: string,
+  sourceName: string,
+  maxItems = 50,
+  baseUrl = '',
+): FeedItem[] {
+  const jsonItems = xml.trim().startsWith('{')
+    ? parseJsonFeed(xml, sourceName, maxItems, baseUrl)
+    : null;
+  if (jsonItems) return jsonItems;
+
   const items: FeedItem[] = [];
 
   try {
@@ -282,7 +398,7 @@ function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
       while ((m = entryRe.exec(xml)) !== null && items.length < maxItems) {
         const e = m[0];
         const title = decodeEntities(stripTags(getTag(e, 'title')));
-        const link = getAtomEntryLink(e);
+        const link = canonicalArticleUrl(getAtomEntryLink(e), baseUrl);
         const content = getTag(e, 'content') || getTag(e, 'summary');
         const pubDate = safeDate(getTag(e, 'published') || getTag(e, 'updated'));
         const author = decodeEntities(stripTags(getTag(e, 'name'))) || undefined;
@@ -313,6 +429,7 @@ function parseXML(xml: string, sourceName: string, maxItems = 50): FeedItem[] {
         }
         const contentEncoded = getTag(it, 'content:encoded');
         const desc = getTag(it, 'description');
+        link = canonicalArticleUrl(link, baseUrl);
         const fullContent = contentEncoded || desc;
         const pubDate = safeDate(getTag(it, 'pubDate') || getTag(it, 'dc:date'));
         const enclosure = getAttr(it, 'enclosure', 'url');
@@ -389,10 +506,10 @@ export async function fetchFeedsClientSide(
       batch.map(async (feed): Promise<ClientFetchResult> => {
         const start = Date.now();
         try {
-          const xml = await fetchWithRetry(feed.url, signal);
+          const document = await fetchWithRetry(feed.url, signal);
           const durationMs = Date.now() - start;
 
-          if (!xml) {
+          if (!document) {
             const errorKind: ErrorKind = (typeof navigator !== 'undefined' && !navigator.onLine)
               ? 'offline'
               : 'transient';
@@ -408,7 +525,7 @@ export async function fetchFeedsClientSide(
             };
           }
 
-          const items = parseXML(xml, feed.name);
+          const items = parseXML(document.text, feed.name, 50, document.baseUrl);
           if (items.length === 0) {
             return {
               source: feed.name,

@@ -2,11 +2,12 @@ import { motion } from 'framer-motion';
 import { useMemo,useState } from 'react';
 import { toast } from 'sonner';
 
+import { AppCard } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   AlertCircle, Check, ChevronLeft, Database, Download, Plus,
-  Rss, Settings2, Star, Trash2, Upload, X,
+  RefreshCw, Rss, Settings2, Star, Trash2, Upload, X,
 } from '@/lib/icons';
 
 import { AddFeedDialog } from './AddFeedDialog';
@@ -32,6 +33,7 @@ export function ManageFeedsView({
   onAdd,
   onAddBulk,
   onRemove,
+  onRefreshFeed,
   onToggleEnabled,
 }: {
   feedSources: FeedSource[];
@@ -45,6 +47,7 @@ export function ManageFeedsView({
     feeds: ReadonlyArray<{ url: string; name: string; category: string; enabled?: boolean }>,
   ) => Promise<{ added: number; skipped: number }>;
   onRemove: (url: string) => void;
+  onRefreshFeed?: (url: string) => void;
   onToggleEnabled: (url: string) => void;
 }) {
   const [newUrl, setNewUrl] = useState('');
@@ -61,6 +64,13 @@ export function ManageFeedsView({
 
   const statusByUrl = new Map(statuses.map((s) => [s.url, s] as const));
   const existingUrls = new Set(feedSources.map((f) => f.url));
+  const activeFeedUrls = new Set(feedSources.filter((feed) => feed.enabled).map((feed) => feed.url));
+  const activeStatuses = statuses.filter((status) => activeFeedUrls.has(status.url));
+  const activeCount = activeFeedUrls.size;
+  const failedCount = activeStatuses.filter((status) => status.status === 'error').length;
+  const upToDateCount = activeStatuses.filter(
+    (status) => status.status === 'ok' || status.status === 'not_modified',
+  ).length;
 
   const handleAdd = () => {
     const ok = onAdd(newUrl, newName, newCategory);
@@ -141,6 +151,12 @@ export function ManageFeedsView({
             {'إضافة مصدر بالاكتشاف الذكي'}
           </span>
         </Button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 px-4 pb-3" aria-label="ملخص صحة المصادر">
+        <FeedMetric label="نشطة" value={activeCount} />
+        <FeedMetric label="محدّثة" value={upToDateCount} />
+        <FeedMetric label="تحتاج انتباهاً" value={failedCount} attention={failedCount > 0} />
       </div>
 
       {/* New-feed form */}
@@ -258,6 +274,16 @@ export function ManageFeedsView({
                     </span>
                     <button
                       type="button"
+                      onClick={() => onRefreshFeed?.(feed.url)}
+                      disabled={!feed.enabled || !onRefreshFeed}
+                      className="p-2 rounded-lg text-muted-foreground hover:bg-accent disabled:opacity-40 transition-colors"
+                      aria-label={`تحديث ${feed.name}`}
+                      title="تحديث هذا المصدر"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => onToggleEnabled(feed.url)}
                       className={`p-2 rounded-lg transition-colors ${
                         feed.enabled
@@ -354,5 +380,25 @@ export function ManageFeedsView({
         }}
       />
     </motion.div>
+  );
+}
+
+
+function FeedMetric({
+  label,
+  value,
+  attention = false,
+}: {
+  label: string;
+  value: number;
+  attention?: boolean;
+}) {
+  return (
+    <AppCard flat className="px-3 py-2.5">
+      <p className="text-mini text-muted-foreground">{label}</p>
+      <p className={`text-lead font-bold tabular-nums mt-1 ${attention ? 'text-destructive' : ''}`}>
+        {value}
+      </p>
+    </AppCard>
   );
 }

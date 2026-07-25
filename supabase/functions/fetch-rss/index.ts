@@ -165,6 +165,48 @@ function getAttr(block: string, tag: string, attr: string): string {
   return m ? m[1] : "";
 }
 
+/** Prefer Atom's alternate HTML link over its self/edit/enclosure links. */
+function getAtomEntryLink(block: string): string {
+  const tags = block.match(/<link\s[^>]*\/?\s*>/gi) || [];
+  let fallback = "";
+  for (const tag of tags) {
+    const href = tag.match(/\shref=["']([^"']+)["']/i)?.[1] || "";
+    if (!href) continue;
+    const rel = (tag.match(/\srel=["']([^"']+)["']/i)?.[1] || "alternate").toLowerCase();
+    const type = tag.match(/\stype=["']([^"']+)["']/i)?.[1] || "";
+    if (rel === "alternate" && (!type || /html/i.test(type))) return href;
+    if (!fallback && !["self", "edit", "enclosure"].includes(rel)) fallback = href;
+  }
+  return fallback;
+}
+
+function safeAbsoluteUrl(value: string, baseUrl: string): string {
+  try {
+    const resolved = new URL(value, baseUrl);
+    return isSafeUrl(resolved.toString()) ? resolved.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+/** Remove common tracking noise so the same article is not archived twice. */
+function canonicalArticleUrl(value: string, baseUrl: string): string {
+  const resolved = safeAbsoluteUrl(value, baseUrl);
+  if (!resolved) return "";
+  try {
+    const url = new URL(resolved);
+    url.hash = "";
+    for (const key of Array.from(url.searchParams.keys())) {
+      if (/^utm_/i.test(key) || ["fbclid", "gclid", "mc_cid", "mc_eid"].includes(key.toLowerCase())) {
+        url.searchParams.delete(key);
+      }
+    }
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
 function extractInlineImages(html: string): string[] {
   const imgs: string[] = [];
   // Capture src, data-src, or first srcset entry
@@ -191,10 +233,68 @@ function extractInlineImages(html: string): string[] {
   return imgs;
 }
 
-function parseRSS(xml: string, maxItems: number): {
+function parseJsonFeed(text: string, maxItems: number, baseUrl: string): {
+  title: string;
+  items: FeedItem[];
+} | null {
+  try {
+    const feed = JSON.parse(text) as {
+      version?: unknown;
+      title?: unknown;
+      items?: unknown;
+    };
+    if (typeof feed.version !== "string" || !feed.version.startsWith("https://jsonfeed.org/version/")) {
+      return null;
+    }
+    const items: FeedItem[] = [];
+    for (const raw of Array.isArray(feed.items) ? feed.items : []) {
+      if (!raw || typeof raw !== "object" || items.length >= maxItems) continue;
+      const item = raw as Record<string, unknown>;
+      const link = canonicalArticleUrl(
+        typeof item.url === "string" ? item.url : typeof item.external_url === "string" ? item.external_url : "",
+        baseUrl,
+      );
+      if (!link) continue;
+      const content = typeof item.content_html === "string"
+        ? item.content_html
+        : typeof item.content_text === "string"
+          ? `<p>${item.content_text}</p>`
+          : typeof item.summary === "string"
+            ? `<p>${item.summary}</p>`
+            : "";
+      const author = Array.isArray(item.authors) && item.authors[0] && typeof item.authors[0] === "object"
+        ? (item.authors[0] as Record<string, unknown>).name
+        : undefined;
+      const image = typeof item.image === "string" ? safeAbsoluteUrl(item.image, baseUrl) : "";
+      items.push({
+        title: typeof item.title === "string" ? item.title : "",
+        link,
+        description: decodeEntities(stripTags(content)).slice(0, 600),
+        fullContent: content,
+        pubDate: typeof item.date_published === "string"
+          ? item.date_published
+          : typeof item.date_modified === "string" ? item.date_modified : "",
+        image: image || null,
+        images: image ? [image] : extractInlineImages(content),
+        author: typeof author === "string" ? author : undefined,
+        source: typeof feed.title === "string" ? feed.title : "Feed",
+      });
+    }
+    return { title: typeof feed.title === "string" ? feed.title : "Feed", items };
+  } catch {
+    return null;
+  }
+}
+
+function parseRSS(xml: string, maxItems: number, baseUrl: string): {
   title: string;
   items: FeedItem[];
 } {
+  const trimmed = xml.trim();
+  if (trimmed.startsWith("{")) {
+    const jsonFeed = parseJsonFeed(trimmed, maxItems, baseUrl);
+    if (jsonFeed) return jsonFeed;
+  }
   const isAtom = xml.includes("<feed") && !xml.includes("<rss");
   const items: FeedItem[] = [];
 
@@ -212,8 +312,8 @@ function parseRSS(xml: string, maxItems: number): {
     while ((m = entryRe.exec(xml)) !== null && items.length < maxItems) {
       const e = m[0];
       const title = decodeEntities(stripTags(getTag(e, "title")));
-      const linkRaw = getAttr(e, "link", "href");
-      const link = isSafeUrl(linkRaw) ? linkRaw : "";
+      const linkRaw = getAtomEntryLink(e);
+      const link = canonicalArticleUrl(linkRaw, baseUrl);
       if (!link) continue;
       const content = getTag(e, "content") || getTag(e, "summary");
       const pubDate = getTag(e, "published") || getTag(e, "updated");
@@ -248,7 +348,8 @@ function parseRSS(xml: string, maxItems: number): {
         const lm = it.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
         if (lm) link = cdata(lm[1]).trim();
       }
-      if (!isSafeUrl(link)) continue;
+      link = canonicalArticleUrl(link, baseUrl);
+      if (!link) continue;
       const contentEncoded = getTag(it, "content:encoded");
       const desc = getTag(it, "description");
       const fullContent = contentEncoded || desc;
@@ -772,7 +873,21 @@ async function fetchSingleFeed(
       httpStatus: res.status,
     };
   }
-  const parsed = parseRSS(text, maxItems);
+  const trimmedDocument = text.trim();
+  const looksLikeXmlFeed = /<(?:[a-z]+:)?(?:rss|feed|rdf)\b/i.test(trimmedDocument);
+  const looksLikeJsonFeed = /^\{/.test(trimmedDocument) && /"version"\s*:\s*"https:\/\/jsonfeed\.org\/version\//i.test(trimmedDocument);
+  if (!looksLikeXmlFeed && !looksLikeJsonFeed) {
+    return {
+      url,
+      status: "error",
+      title: nameOverride || "",
+      sourceName: nameOverride || url,
+      items: [],
+      error: "Response is not a recognised RSS, Atom, or JSON Feed document",
+      httpStatus: res.status,
+    };
+  }
+  const parsed = parseRSS(text, maxItems, res.url);
   // Free the raw feed buffer before we return.
   text = "";
   const sourceName = nameOverride || parsed.title;
