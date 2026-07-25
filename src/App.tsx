@@ -151,7 +151,7 @@ const loadMihrab = () => import("./pages/Mihrab");
 // from the bottom nav. Lazy because the home page already shows a tiny
 // `WeatherWidget` and most users won't drill into the full hub on every
 // session; the prefetch on idle warms it up so the first tap is fast.
-const loadWeather = () => import("./weather/pages/Weather");
+const loadWeather = () => import("./features/weather/pages/Weather");
 // Knowledge hub — "المعرفة": a self-contained luxury catalog (cars,
 // perfumes, watches, fashion, sweets). Lazy because its rich static
 // data set should not weigh on the cold home paint; it's prefetched on

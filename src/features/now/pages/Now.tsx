@@ -5,7 +5,7 @@ import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
-import WeatherWidget from '@/weather/components/WeatherWidget';
+import WeatherWidget from '@/features/weather/components/WeatherWidget';
 import UmmahPulse from '@/components/UmmahPulse';
 
 import SmartGreeting from '@/components/SmartGreeting';

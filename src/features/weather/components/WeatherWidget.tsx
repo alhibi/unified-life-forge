@@ -14,7 +14,7 @@ import {
   ChevronLeft,
 } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
-import { useWeatherData } from '@/weather/hooks/useWeatherData';
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 
 function iconFor(code: number, isDay: boolean) {
   if (code <= 1) return isDay ? Sun : MoonStar;
