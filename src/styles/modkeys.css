@@ -289,11 +289,18 @@
   align-items: center;
   gap: 10px;
   padding: 0 16px;
-  border-bottom: 1px solid var(--mk-line);
-  background: var(--mk-bg);
-  position: relative;
+  border-bottom: 0;
+  background: color-mix(in oklab, var(--mk-bg) 82%, transparent);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  position: sticky;
+  top: 0;
+  margin-bottom: 10px;
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--mk-ink) 6%, transparent),
+    0 10px 24px -18px color-mix(in oklab, var(--mk-ink) 40%, transparent);
   z-index: 20;
-  transition: background 0.35s, border-color 0.35s;
+  transition: background 0.35s, box-shadow 0.35s;
 }
 @media (min-width: 1024px) {
   .mk-topbar {
@@ -583,9 +590,14 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--mk-stage-glow);
+  background: transparent;
   pointer-events: none;
   transition: background 0.35s;
+}
+@media (min-width: 1024px) {
+  .mk-stage::before {
+    background: var(--mk-stage-glow);
+  }
 }
 .mk-stage-scroll {
   position: relative;
