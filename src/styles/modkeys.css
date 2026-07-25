@@ -525,6 +525,7 @@
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   gap: 18px;
   padding: 0 16px 28px;
 }
@@ -676,8 +677,7 @@
 .mk-pills {
   position: absolute;
   top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
+  inset-inline-start: 8px;
   display: flex;
   gap: 2px;
   background: var(--mk-panel);
@@ -687,8 +687,16 @@
   z-index: 4;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   isolation: isolate;
-  max-width: calc(100% - 8px);
+  max-width: calc(100% - 68px);
   overflow: hidden;
+}
+@media (min-width: 640px) {
+  .mk-pills {
+    inset-inline-start: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 8px);
+  }
 }
 .mk-pills button {
   position: relative;
@@ -727,7 +735,7 @@
 .mk-toolbar {
   position: absolute;
   top: 14px;
-  inset-inline-end: 8px;
+  inset-inline-end: 12px;
   display: flex;
   gap: 2px;
   background: var(--mk-panel);
@@ -749,9 +757,7 @@
 }
 /* Hide the inline toolbar on very narrow phones where it would crowd the
    centered pills. The list/grid toggle still works via keyboard nav. */
-@media (max-width: 420px) {
-  .mk-toolbar { display: none; }
-}
+/* Toolbar stays visible on all widths; pills shrink to leave space. */
 
 .mk-toolbar button:hover { background: var(--mk-card); }
 .mk-toolbar button.on { background: var(--mk-chip); color: var(--mk-chip-tx); }
