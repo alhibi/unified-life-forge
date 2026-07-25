@@ -2,7 +2,6 @@ import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import {
 buildTournament, clearTournament,   DICE_BOTS, DicePersonality,
@@ -33,7 +32,6 @@ function emojiOf(slot: string): string {
 }
 
 export default function DiceTournamentPage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const [state, setState] = useState<TournamentState | null>(loadTournament);
 

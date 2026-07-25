@@ -1,7 +1,6 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import {
   ChessPuzzle,
@@ -151,7 +150,6 @@ function pickNextPuzzle(stats: PuzzleStats, theme: PuzzleTheme | 'all'): ChessPu
 // Component
 // =============================================================================
 export default function ChessPuzzlePage() {
-  const { } = useApp();
   const [stats, setStats] = useState<PuzzleStats>(loadStats);
 
   useEffect(() => {

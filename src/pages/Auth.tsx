@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { ArrowRight, Eye, EyeOff, Lock, Shield, UserCircle, X } from '@/lib/icons';
@@ -77,7 +76,6 @@ function scorePassword(pw: string): number {
 }
 
 export default function AuthPage() {
-  const {} = useApp();
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   // Preserve the OAuth consent `next` URL so users who arrive from an

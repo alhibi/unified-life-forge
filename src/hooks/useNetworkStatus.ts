@@ -62,7 +62,6 @@ export function useNetworkToast(options?: {
   onlineMessage?: string;
   offlineMessage?: string;
 }): void {
-  const { isOnline } = useNetworkStatus();
 
   useEffect(() => {
     const handleOnline = (event: Event) => {

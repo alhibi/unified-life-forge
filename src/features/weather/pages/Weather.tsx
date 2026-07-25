@@ -5,7 +5,6 @@ import { type ReactNode,useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import BackButton from '@/components/BackButton';
-import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import {
   ChevronDown,
@@ -210,7 +209,7 @@ function GaugeTile({
   );
 }
 
-function SourceHealthPanel({}: {}) {
+function SourceHealthPanel() {
   const [rows, setRows] = useState<SourceHealth[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -778,7 +777,6 @@ function DailyRangeStrip({
 }
 
 export default function Weather() {
-  const {} = useApp();
   const locale = 'en-GB';
   const [selectedCoords, setSelectedCoords] = useState<{
     lat: number;

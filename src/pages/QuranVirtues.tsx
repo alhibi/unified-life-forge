@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import { BookOpen, Sparkles } from '@/lib/icons';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
@@ -37,7 +36,6 @@ import { pageItem as itemAnim,pageStagger as container } from '@/lib/motion';
 export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { dir } = useApp();
 
   const handleSurahTap = (i: number) => {
     setTappedSurah(i);

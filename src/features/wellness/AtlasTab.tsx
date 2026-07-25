@@ -1,13 +1,11 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import { BookOpen,ChevronDown, Search } from '@/lib/icons';
 
 import { nutrientsAtlas } from './nutrientsAtlas';
 
 export default function AtlasTab() {
-  const { } = useApp();
   const [query, setQuery] = useState('');
   const [openCat, setOpenCat] = useState<string | null>(nutrientsAtlas[0].key);
   const [openItem, setOpenItem] = useState<string | null>(null);

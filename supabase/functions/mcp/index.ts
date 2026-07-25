@@ -3,11 +3,10 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // <define:import.meta.env>
-var define_import_meta_env_default = { MODE: "production", BASE_URL: "/", DEV: false, PROD: true, SSR: false };
+const define_import_meta_env_default = { MODE: "production", BASE_URL: "/", DEV: false, PROD: true, SSR: false };
 
 // src/lib/mcp/index.ts
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.22.0";
-
 // src/lib/mcp/tools/create-note.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { createClient } from "npm:@supabase/supabase-js@^2.100.1";
@@ -22,7 +21,7 @@ function supabaseForUser(ctx) {
     }
   );
 }
-var create_note_default = defineTool({
+const create_note_default = defineTool({
   name: "create_note",
   title: "Create note",
   description: "Create a new SmartHub note for the signed-in user.",
@@ -58,7 +57,7 @@ function supabaseForUser2(ctx) {
     }
   );
 }
-var get_note_default = defineTool2({
+const get_note_default = defineTool2({
   name: "get_note",
   title: "Get note",
   description: "Fetch a single SmartHub note by id, including its markdown content.",
@@ -92,7 +91,7 @@ function supabaseForUser3(ctx) {
     }
   );
 }
-var list_notes_default = defineTool3({
+const list_notes_default = defineTool3({
   name: "list_notes",
   title: "List notes",
   description: "List the signed-in user's SmartHub notes, newest first.",
@@ -119,7 +118,7 @@ var list_notes_default = defineTool3({
 
 // src/lib/mcp/tools/whoami.ts
 import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
-var whoami_default = defineTool4({
+const whoami_default = defineTool4({
   name: "whoami",
   title: "Who am I",
   description: "Return the signed-in SmartHub user's id and email.",
@@ -138,8 +137,8 @@ var whoami_default = defineTool4({
 });
 
 // src/lib/mcp/index.ts
-var projectRef = define_import_meta_env_default.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
-var mcp_default = defineMcp({
+const projectRef = define_import_meta_env_default.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
+const mcp_default = defineMcp({
   name: "smarthub-mcp",
   title: "SmartHub",
   version: "0.1.0",

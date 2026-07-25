@@ -78,7 +78,7 @@ export function useWeather(
     }).catch(e => {
       if (reqId.current !== myId) return;
       setError((e as Error).message);
-      setStatus(prev => snapshot ? 'success' : 'error');
+      setStatus(_prev => snapshot ? 'success' : 'error');
       setIsRefreshing(false);
     });
   }, [location?.lat, location?.lng, language, refreshNonce]);

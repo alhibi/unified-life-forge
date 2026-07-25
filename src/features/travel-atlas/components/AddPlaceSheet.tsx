@@ -382,7 +382,7 @@ export default function AddPlaceSheet({
 function RasterPointPicker({
   bounds,
   value,
-  language,
+  language: _language,
   onChange,
 }: {
   bounds: CountryBounds;

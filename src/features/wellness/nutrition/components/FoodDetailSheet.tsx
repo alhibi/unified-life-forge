@@ -106,7 +106,7 @@ const TAG_LABELS: Record<string, { ar: string; }> = {
   bone_health: { ar: 'صحة العظام', },
 };
 
-export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Props) {
+export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAddToLog }: Props) {
   const [fav, setFav] = useState(isFavorite(food.id));
   const [showAllVitamins, setShowAllVitamins] = useState(false);
   const [showAllMinerals, setShowAllMinerals] = useState(false);

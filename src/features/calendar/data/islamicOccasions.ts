@@ -444,7 +444,7 @@ export function getDaysUntil(dateStr: string | Date): number {
 
 export function formatGregorianDate(
   dateStr: string | Date,
-  language: 'ar' | 'en' = 'ar',
+  _language: 'ar' | 'en' = 'ar',
 ): string {
   const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
   const locale = 'ar';

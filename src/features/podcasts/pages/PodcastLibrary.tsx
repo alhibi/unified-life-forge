@@ -21,7 +21,6 @@ import { useNavigate } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import {
   type PlayingEpisodeMeta,
   usePodcastPlayer,
@@ -66,7 +65,6 @@ function loadSort(): SortMode {
 
 function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
   const player = usePodcastPlayer();
-  const { } = useApp();
 
   if (items.length === 0) return null;
 
@@ -170,7 +168,6 @@ function SubscriptionTile({
   onUnsubscribe: () => void;
   hasNewEpisode?: boolean;
 }) {
-  const { } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -291,7 +288,6 @@ function SubscriptionTile({
 
 export default function PodcastLibrary() {
   const navigate = useNavigate();
-  const { } = useApp();
   const lang = 'ar';
   const subs = useSubscriptions();
   const recents = useRecentEpisodes();

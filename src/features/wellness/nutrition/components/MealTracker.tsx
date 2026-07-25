@@ -5,7 +5,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import {
   Calendar,
   ChevronRight,
@@ -76,7 +75,6 @@ const T = {
 };
 
 export default function MealTracker() {
-  const { } = useApp();
   const lang: Lang = 'ar';
   // Re-render when the cloud-backed meal log cache changes.
   useNutritionCache();

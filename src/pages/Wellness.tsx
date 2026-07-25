@@ -7,7 +7,6 @@ import AuthGuard from '@/components/AuthGuard';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
-import { useAuth } from '@/hooks/useAuth';
 import {
 Apple,
   BookOpen, Brain, ChevronRight, Download, Dumbbell,
@@ -90,7 +89,6 @@ const TABS: TabDef[] = [
 
 export default function WellnessPage() {
   const { language } = useApp();
-  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const data = useWellnessData();

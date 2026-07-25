@@ -10,7 +10,7 @@ vaporPressureDeficit_kPa, wetBulb_C} from '../compute/ThermalCalculator';
 interface MeteorologyConsoleProps {
 }
 
-export default function MeteorologyConsole({ }: MeteorologyConsoleProps) {
+export default function MeteorologyConsole(_props: MeteorologyConsoleProps) {
   const [simTemp, setSimTemp] = useState<number>(25);
   const [simRH, setSimRH] = useState<number>(50);
   const [simWind, setSimWind] = useState<number>(15);

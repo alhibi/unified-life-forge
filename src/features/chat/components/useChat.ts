@@ -1,6 +1,5 @@
 import { type ChangeEvent,useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import { useImageUpload } from '@/contexts/ImageUploadContext';
 import { useAuth } from '@/hooks/useAuth';
 import { formatLastSeen, useOnlineUserIds, useOtherUserPresence, useTick,useUserOnline } from '@/hooks/usePresence';
@@ -34,7 +33,6 @@ interface UseChatOptions {
  */
 export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const { user } = useAuth();
-  const { } = useApp();
 
   // Local chat preferences (pinned/muted/archived/drafts/wallpapers/sounds)
   const chatPrefs = useChatPrefs(user?.id);

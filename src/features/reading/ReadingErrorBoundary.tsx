@@ -151,7 +151,7 @@ export class ReadingErrorBoundary extends Component<Props, State> {
 // ─── Fallback UI components ────────────────────────────────────────────────
 
 function ErrorFallback({
-  lang,
+  lang: _lang,
   error,
   errorKind,
   retryCount,
@@ -281,7 +281,7 @@ function ErrorFallback({
 }
 
 function FatalErrorFallback({
-  lang,
+  lang: _lang,
   error,
   onClearAndRetry,
   clearing,

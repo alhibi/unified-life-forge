@@ -2,7 +2,6 @@ import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { BotPersonality,BOTS } from '@/features/games/data/chessBots';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
@@ -78,7 +77,6 @@ export function recordCareerResult(botId: string, result: 'win' | 'loss' | 'draw
 // Component
 // =============================================================================
 export default function ChessCareerPage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const [career, setCareer] = useState<CareerStats>(loadCareer);
 

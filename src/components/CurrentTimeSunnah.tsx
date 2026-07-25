@@ -59,7 +59,7 @@ function getCurrentPrayerKey(timings: PrayerTimings | null): { key: string; labe
 
 export default function CurrentTimeSunnah() {
   const navigate = useNavigate();
-  const { dir, prayerMadhab, latitudeAdjMethod } = useApp();
+  const { prayerMadhab, latitudeAdjMethod } = useApp();
   const [open, setOpen] = useState(false);
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [current, setCurrent] = useState(() => getCurrentPrayerKey(null));

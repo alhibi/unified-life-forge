@@ -6,7 +6,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { AppCard,PageShell } from '@/components/ui/app-shell';
-import { useApp } from '@/contexts/AppContext';
 import { Brain,ChevronDown, ChevronRight, Eye, FileText, Hash, Pencil, Plus, Search, Sparkles, Trash } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -52,7 +51,6 @@ function excerptOf(n: LocalNote): string {
 }
 
 export default function PKM() {
-  const { } = useApp();
   const { notes, loading, createNote, updateNote, deleteNote } = useNotes();
   useSyncEngine();
 

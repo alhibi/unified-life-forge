@@ -288,7 +288,7 @@ export function AddFeedDialog({
 
 // ─── Stage components ─────────────────────────────────────────────────
 
-function EmptyHint({ }: { }) {
+function EmptyHint() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <Globe className="h-10 w-10 text-muted-foreground/30" />

@@ -184,7 +184,7 @@ function PortionStepper({
   value,
   onChange,
   accent,
-  lang,
+  lang: _lang,
 }: {
   value: number;
   onChange: (v: number) => void;

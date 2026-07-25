@@ -20,7 +20,7 @@ export function safeHref(url: string | null | undefined): string {
  * the future we render "in 2h" / "بعد ٢س" rather than the absurd
  * negative-month string the previous implementation produced.
  */
-export function timeAgo(dateStr: string, lang: string): string {
+export function timeAgo(dateStr: string, _lang: string): string {
   if (!dateStr) return '';
   try {
     const date = new Date(dateStr);
@@ -63,7 +63,7 @@ export function timeAgo(dateStr: string, lang: string): string {
 }
 
 /** Locale-aware long date format. */
-export function formatDate(dateStr: string, lang: string): string {
+export function formatDate(dateStr: string, _lang: string): string {
   if (!dateStr) return '';
   try {
     const date = new Date(dateStr);
@@ -93,7 +93,7 @@ export function stripHtml(html: string): string {
  * For mixed scripts we pick the slower of the two so we never undersell
  * the time. Returns whole minutes (minimum 1).
  */
-export function readingMinutes(text: string, lang: string): number {
+export function readingMinutes(text: string, _lang: string): number {
   const plain = stripHtml(text);
   if (!plain) return 1;
   // Count tokens by whitespace; for Arabic this is words, for English same.

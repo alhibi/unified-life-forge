@@ -174,7 +174,7 @@ async function fetchWithRetry(url: string, signal?: AbortSignal): Promise<string
     // Exponential backoff with jitter before retrying
     if (attempt < MAX_RETRIES) {
       const delay = RETRY_BASE_MS * (2 ** attempt) + Math.random() * 200;
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve, _reject) => {
         const t = setTimeout(resolve, delay);
         if (signal) {
           const onAbort = () => { clearTimeout(t); resolve(); };

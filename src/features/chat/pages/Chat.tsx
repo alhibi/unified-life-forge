@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
-import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -36,7 +35,6 @@ function ChatSkeleton() {
 }
 
 export default function ChatPage() {
-  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   // Singleton hook — same value (and same network cost) as BottomNav and Index.

@@ -797,7 +797,7 @@ const playCastleSound = () => { playSfx('castle'); vibrate([20, 30, 20]); };
 
 // ========== Component ==========
 export default function ChessPage() {
-  const { t, dir, language } = useApp();
+  const { t, language } = useApp();
   const navigate = useNavigate();
   
   const savedChess = React.useMemo(() => loadChessGame(), []);

@@ -407,7 +407,7 @@ function CompassDial({
   needleAngle,
   aligned,
   compact,
-  language,
+  language: _language,
 }: {
   size: number;
   needleAngle: number;

@@ -166,10 +166,10 @@ function TypingDotsMini() {
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
-  conversations, currentUserId, filter, onFilterChange, totalUnread,
+  conversations, currentUserId: _currentUserId, filter, onFilterChange, totalUnread,
   onSelect, onNewChat, isPinned, isMuted, isArchived,
-  togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
-  typingByConv, onlineUserIds, onSearchChange, onOpenSettings, onDelete, showSearchBar,
+  togglePinned, toggleMuted: _toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
+  typingByConv, onlineUserIds, onSearchChange, onOpenSettings, onDelete: _onDelete, showSearchBar: _showSearchBar,
 }) => {
   const tabs: Array<{ id: ConversationFilter; labelAr: string; icon?: React.ReactNode }> = [
     { id: 'all',      labelAr: 'الكل', },

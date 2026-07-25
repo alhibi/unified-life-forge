@@ -358,7 +358,7 @@ function PhotoMarker({
   x,
   y,
   place,
-  language,
+  language: _language,
   isTransitioning,
   onClick,
 }: {

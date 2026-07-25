@@ -362,7 +362,7 @@ export interface FastingRingProps {
   lang: 'ar';
 }
 
-export function FastingRing({ elapsedSec, targetHours, size = 200, active, protocol, lang }: FastingRingProps) {
+export function FastingRing({ elapsedSec, targetHours, size = 200, active, protocol, lang: _lang }: FastingRingProps) {
   const targetSec = targetHours * 3600;
   const ratio = Math.max(0, Math.min(1, elapsedSec / targetSec));
   const remainingSec = Math.max(0, targetSec - elapsedSec);

@@ -2,7 +2,6 @@ import { AnimatePresence,motion } from 'framer-motion';
 import React, { lazy, Suspense,useEffect, useState } from 'react';
 
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import {
   Mic, Newspaper,
 } from '@/lib/icons';
@@ -44,7 +43,6 @@ const TABS: TabDef[] = [
 ];
 
 export default function BrowsePage() {
-  const { } = useApp();
 
   const [tab, setTab] = useState<TabKey>(() => {
     try {

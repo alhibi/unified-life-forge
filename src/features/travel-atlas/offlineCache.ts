@@ -171,6 +171,6 @@ export async function clearAllCache(): Promise<void> {
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function stripCacheFields<T extends { cachedAt?: number }>(obj: T): Omit<T, 'cachedAt'> {
-  const { cachedAt, ...rest } = obj;
+  const { ...rest } = obj;
   return rest as Omit<T, 'cachedAt'>;
 }

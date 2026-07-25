@@ -382,7 +382,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
 /* ──────────────── Sub-components ──────────────── */
 
 function HeroStats({
-  totalSessions, currentStreak, longestStreak, weekVolume, lang,
+  totalSessions, currentStreak, longestStreak, weekVolume, lang: _lang,
 }: { totalSessions: number; currentStreak: number; longestStreak: number; weekVolume: number; lang: 'ar' }) {
   return (
     <motion.div

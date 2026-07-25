@@ -2,7 +2,6 @@ import { AnimatePresence,motion } from 'framer-motion';
 import React, { ReactNode,useEffect, useState } from 'react';
 
 import BackButton from '@/components/BackButton';
-import { useApp } from '@/contexts/AppContext';
 import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/features/games/utils/gameFeedback';
 import { BarChart3, Info, type LucideIcon,Settings2, Vibrate, Volume2, VolumeX } from '@/lib/icons';
 
@@ -31,7 +30,6 @@ interface GameShellProps {
 }
 
 export default function GameShell({ title, icon: Icon, accentColor, rules, stats, options, children, headerRight }: GameShellProps) {
-  const { } = useApp();
   const [activeTab, setActiveTab] = useState<'game' | 'rules' | 'stats' | 'options' | null>(null);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
   const [hapticsOff, setHapticsOffState] = useState<boolean>(() => isHapticsOff());

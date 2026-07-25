@@ -6,7 +6,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import { BarChart3, Clock, Droplet, Scale, Search, Sparkles, UtensilsCrossed } from '@/lib/icons';
 
 import AdvancedAnalytics from './AdvancedAnalytics';
@@ -47,7 +46,6 @@ const SUB_TABS: {
 ];
 
 export default function NutritionTab() {
-  const { } = useApp();
   const lang: Lang = 'ar';
   const [subTab, setSubTab] = useState<SubTab>('explore');
 

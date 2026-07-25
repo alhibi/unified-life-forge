@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 
-import { useApp } from '@/contexts/AppContext';
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import {
   ChevronLeft,
@@ -47,7 +46,6 @@ function conditionLabel(code: number): string {
 
 export default function WeatherWidget() {
   const navigate = useNavigate();
-  const { } = useApp();
   const { data } = useWeatherData('ar');
 
   if (!data) {

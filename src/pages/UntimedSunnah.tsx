@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import { untimedSunnahData } from '@/data/untimedSunnahData';
 import { BookOpen,ChevronDown, Copy, Droplet, Shirt, Star, User, Users, UtensilsCrossed, Volume2 } from '@/lib/icons';
 import { notify } from '@/lib/notify';
@@ -21,7 +20,6 @@ const iconMap: Record<string, React.ElementType> = {
 
 export default function UntimedSunnah() {
   const navigate = useNavigate();
-  const { dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
 

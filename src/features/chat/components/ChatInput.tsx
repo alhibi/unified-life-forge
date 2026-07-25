@@ -286,7 +286,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   startRecording,
   stopAndSend,
   stopAndCancel,
-  stopForPreview,
+  stopForPreview: _stopForPreview,
   lockRecording,
   sendPreview,
   discardPreview,
@@ -305,8 +305,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onPasteFiles,
   enterToSend = true,
   mentionSuggestions,
-  onSchedule,
-  canSchedule,
+  onSchedule: _onSchedule,
+  canSchedule: _canSchedule,
 }) => {
   // Drag state for slide- / drag- overlay.
   const drag = useMotionValue(0);

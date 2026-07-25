@@ -1,7 +1,6 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { Award, ChevronRight, RotateCcw, Trophy,Zap } from '@/lib/icons';
@@ -130,7 +129,6 @@ function indexBand(idx: number) {
 // Component
 // =============================================================================
 export default function FocusDecathlonPage() {
-  const { } = useApp();
 
   type Phase = 'briefing' | 'event' | 'result';
   const [phase, setPhase] = useState<Phase>('briefing');

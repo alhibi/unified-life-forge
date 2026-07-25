@@ -8,7 +8,6 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import {
   type ChatSettings as Settings,
@@ -43,7 +42,6 @@ import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
  * (`/chat/settings`) from anywhere in the app.
  */
 export default function ChatSettingsPage() {
-  const { } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -616,7 +614,6 @@ interface NumberRowProps {
   helperAr?: string;
 }
 function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: NumberRowProps) {
-  const { } = useApp();
   return (
     <div className="px-4 py-3">
       <div className="flex items-center gap-3 mb-2">

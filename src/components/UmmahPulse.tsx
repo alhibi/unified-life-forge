@@ -961,7 +961,7 @@ function UmmahPulse() {
     ? (cityDetails.find((c) => c.name === selectedCity) ?? null)
     : null;
 
-  const t = (ar: string, de: string) => ar;
+  const t = (ar: string, _de: string) => ar;
 
   // ── Map render ────────────────────────────────────────────────────────────
   const renderMapSvg = (opts: { large?: boolean } = {}) => {

@@ -2,7 +2,6 @@ import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { AdventureStage,isStageUnlocked, loadAdventure, STAGES } from '@/features/games/data/memoryAdventure';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
@@ -28,7 +27,6 @@ const TWIST_LABELS: Record<string, { ar: string; emoji: string }> = {
 };
 
 export default function MemoryAdventurePage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const [save] = useState(loadAdventure);
   const [selected, setSelected] = useState<AdventureStage | null>(null);

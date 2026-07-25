@@ -36,7 +36,7 @@ function OrganicHemisphere({ radius, glow }: { radius: number; glow: number }) {
     g.computeVertexNormals();
     return g;
   }, []);
-  useFrame((_, dt) => {
+  useFrame((_, _dt) => {
     if (!ref.current) return;
     const m = ref.current.material as THREE.MeshStandardMaterial;
     // Gentle breathing.

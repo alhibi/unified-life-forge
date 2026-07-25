@@ -2,7 +2,6 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate,useSearchParams } from "react-router-dom";
 
-import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,7 +25,6 @@ const oauth = (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 export default function OAuthConsent() {
   const [params] = useSearchParams();
   const { user, loading } = useAuth();
-  const { } = useApp();
   const navigate = useNavigate();
   const authorizationId = params.get("authorization_id") ?? "";
   const [details, setDetails] = useState<AuthorizationDetails | null>(null);

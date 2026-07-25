@@ -19,7 +19,7 @@ const mockRelease = vi.fn();
 
 vi.mock('../typingChannels', () => {
   return {
-    acquireTypingChannel: vi.fn().mockImplementation((convId: string, presenceKey: string) => {
+    acquireTypingChannel: vi.fn().mockImplementation((convId: string, _presenceKey: string) => {
       if (!mockOnChangeListeners.has(convId)) {
         mockOnChangeListeners.set(convId, new Set());
       }

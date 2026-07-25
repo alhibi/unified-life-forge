@@ -282,7 +282,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             })}
 
           {/* ─── Nodes with depth/parallax effect ─── */}
-          {nodes.map((node, idx) => {
+          {nodes.map((node, _idx) => {
             const active = focusIds.size === 0 || focusIds.has(node.id);
             const isSel = selected?.id === node.id;
             const conns = connectionCount[node.id] || 0;

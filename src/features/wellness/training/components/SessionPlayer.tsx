@@ -106,7 +106,7 @@ const T = {
 
 const TYPE_OPTS: SessionType[] = ['strength', 'cardio', 'hiit', 'mobility'];
 
-function fmtDuration(ms: number, lang: 'ar'): string {
+function fmtDuration(ms: number, _lang: 'ar'): string {
   const sec = Math.max(0, Math.floor(ms / 1000));
   const m = Math.floor(sec / 60);
   const s = sec % 60;

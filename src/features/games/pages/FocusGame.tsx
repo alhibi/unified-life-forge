@@ -1,7 +1,6 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { Brain, Crosshair, Hash, Layers,RotateCcw, Target, Zap } from '@/lib/icons';
@@ -117,7 +116,6 @@ function erf(x: number): number {
 // Component
 // =============================================================================
 export default function FocusGame() {
-  const { } = useApp();
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('focus-mode') as Mode) || 'reaction');
   const [difficulty, setDifficulty] = useState<Difficulty>(() => (localStorage.getItem('focus-diff') as Difficulty) || 'normal');
   const [rounds, setRounds] = useState(() => parseInt(localStorage.getItem('focus-rounds') || '5'));

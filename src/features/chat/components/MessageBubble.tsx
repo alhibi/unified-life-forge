@@ -122,7 +122,7 @@ export const DoubleTapHeart = React.memo(function DoubleTapHeart({
 // ─────────────────────────────────────────────────────────────────────────────
 // MessageStarBadge — small star icon shown on starred/bookmarked messages.
 // ─────────────────────────────────────────────────────────────────────────────
-export const MessageStarBadge = React.memo(function MessageStarBadge({ }: { }) {
+export const MessageStarBadge = React.memo(function MessageStarBadge() {
   return (
     <motion.span
       initial={{ scale: 0 }}

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import { BookOpen, ChevronLeft,Clock, Compass } from '@/lib/icons';
 
 /**
@@ -50,7 +49,6 @@ const FAQ: Record<Lang, FaqItem[]> = {
 };
 
 export default function PrayerGuide() {
-  const { } = useApp();
   const lang: Lang = 'ar';
 
   const title = 'الدليل الشامل لأوقات الصلاة وطرق الحساب — SmartHub';

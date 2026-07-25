@@ -609,7 +609,7 @@ function ArcStrip({
   isDark,
   sunriseStr,
   sunsetStr,
-  language,
+  language: _language,
   t,
 }: {
   prayers: PrayerTime[];
@@ -889,7 +889,7 @@ function ArcStrip({
 function Slab({
   prayers,
   doneStates,
-  doneCount,
+  doneCount: _doneCount,
   activeName,
   shakeCounter,
   guideCounter,
@@ -1009,11 +1009,11 @@ function SlabRow({
   prayer,
   isPrayed,
   isNext,
-  isActive,
+  isActive: _isActive,
   dotColor,
   shakeKey,
   guideKey,
-  onToggle,
+  onToggle: _onToggle,
   language,
   t,
   showDivider,
@@ -1117,7 +1117,7 @@ function SlabRow({
  * occasions as scrollable pills. Tapping the ALL button or the arrow navigates
  * to the full /occasions calendar page.
  */
-function HijriCalendarStrip({ language, t }: { language: string; t: (k: string) => string }) {
+function HijriCalendarStrip({ language: _language, t: _t }: { language: string; t: (k: string) => string }) {
   const navigate = useNavigate();
   const { hijri, todayISO, offset } = useLiveHijriDate();
   // Recompute when the day flips OR when the Saudi offset changes.

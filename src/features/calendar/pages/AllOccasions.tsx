@@ -3,7 +3,6 @@ import React, { useMemo, useState } from 'react';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
 import {
   formatGregorianDate,
   getEventsForMonth,
@@ -26,7 +25,6 @@ const ACCENT: Record<string, string> = {
 };
 
 export default function AllOccasions() {
-  const { } = useApp();
   const { hijri: today, todayISO, offset } = useLiveHijriDate();
 
   const [selectedMonth, setSelectedMonth] = useState<number>(today.month);

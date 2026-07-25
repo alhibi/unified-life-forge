@@ -5,14 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
-import { useApp } from '@/contexts/AppContext';
 
 import AddPlaceSheet from '../components/AddPlaceSheet';
 import { useTravelCountries } from '../hooks';
 import type { TravelCountry } from '../types';
 
 export default function TravelAtlasPage() {
-  const { } = useApp();
   const navigate = useNavigate();
   const { data: countries = [], isLoading, error } = useTravelCountries();
   const [addOpen, setAddOpen] = useState(false);

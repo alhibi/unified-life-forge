@@ -43,7 +43,7 @@ const T = {
 
 const TYPE_OPTS = ['all', 'strength', 'cardio', 'hiit', 'mobility', 'sport'] as const;
 
-function fmtDate(iso: string, lang: 'ar'): string {
+function fmtDate(iso: string, _lang: 'ar'): string {
   try {
     const d = new Date(iso);
     return d.toLocaleDateString('ar-EG', {

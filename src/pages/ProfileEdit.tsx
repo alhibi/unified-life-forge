@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import {
 AlertTriangle,   Check, Copy, ImagePlus, LogOut, Palette,
@@ -39,7 +38,6 @@ const COVER_THEMES: CoverTheme[] = [
 const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
 
 export default function ProfileEditPage() {
-  const { } = useApp();
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);

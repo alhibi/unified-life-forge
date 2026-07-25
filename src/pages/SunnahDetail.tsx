@@ -105,7 +105,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
   const navigate = useNavigate();
-  const { dir } = useApp();
   
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };

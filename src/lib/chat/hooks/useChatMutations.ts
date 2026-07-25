@@ -17,7 +17,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 
-import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 
 import * as api from '../api';
@@ -81,7 +80,6 @@ export interface UseChatMutationsResult {
 
 export function useChatMutations(activeChatId: string | null): UseChatMutationsResult {
   const { user } = useAuth();
-  const { } = useApp();
   const viewerId = user?.id;
   const qc = useQueryClient();
 

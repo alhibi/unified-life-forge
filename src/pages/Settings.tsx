@@ -20,7 +20,7 @@ import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import packageJson from '../../package.json';
 
 export default function SettingsPage() {
-  const { t, theme, language, setLanguage, prayerMadhab } = useApp();
+  const { t, theme, language, prayerMadhab } = useApp();
   const { user, username, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);

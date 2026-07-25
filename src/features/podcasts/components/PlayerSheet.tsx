@@ -26,7 +26,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { useApp } from '@/contexts/AppContext';
 import {
   usePodcastPlayer,
   usePodcastPlayerProgress,
@@ -75,7 +74,7 @@ function formatTime(s: number): string {
   return `${mins}:${String(secs).padStart(2, '0')}`;
 }
 
-function formatCountdown(s: number, lang: 'ar'): string {
+function formatCountdown(s: number, _lang: 'ar'): string {
   if (s <= 0) return '0:00';
   const mins = Math.ceil(s / 60);
   if (mins >= 60) {
@@ -156,7 +155,6 @@ function EqIndicator({ playing, className }: { playing: boolean; className?: str
 
 export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   const player = usePodcastPlayer();
-  const { } = useApp();
   const lang = 'ar';
 
   // Sleep-timer popover open/close. Kept here (not inside the popover
