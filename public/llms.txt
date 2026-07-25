@@ -2,7 +2,7 @@
 
 > تطبيق إسلامي شامل: أوقات الصلاة، الأذكار، القرآن الكريم، التقويم الهجري، الطقس، الألعاب والمراسلة في مكان واحد.
 
-SmartHub is a comprehensive Islamic companion web app. It bundles prayer times (Aladhan + astronomical calculation), Hijri/Gregorian dual calendar, Quran virtues, prophetic-day routines, timed and untimed sunnah libraries, duas, Arabic poetry diwan, weather (Open-Meteo), Islamic occasions, RSS reader, end-to-end messaging, and a small collection of games. The interface ships in Arabic (RTL) and German with a dark "Obsidian Depth" theme.
+SmartHub is a comprehensive Islamic companion web app. It bundles prayer times (Aladhan + astronomical calculation), Hijri/Gregorian dual calendar, Quran virtues and tafsir, prophetic-day routines, timed and untimed sunnah libraries, duas, Arabic poetry diwan, weather (Open-Meteo), Islamic occasions, RSS reader, a knowledge archive, a PKM note layer, a travel atlas, end-to-end messaging, and a collection of games. The interface is Arabic-only (RTL) and ships a light "paper" default theme alongside a dark "Obsidian Depth" theme.
 
 ## Pages
 
