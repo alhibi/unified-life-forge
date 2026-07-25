@@ -8,6 +8,7 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import DeviceKeyCard from '@/features/chat/components/DeviceKeyCard';
 import { useAuth } from '@/hooks/useAuth';
 import {
   type ChatSettings as Settings,
@@ -128,6 +129,12 @@ export default function ChatSettingsPage() {
           animate="show"
           className="px-4 max-w-3xl mx-auto pt-3 space-y-5"
         >
+          {/* Encryption — transparency first: nothing to toggle, everything to
+              disclose. See DeviceKeyCard. */}
+          <Section title={'التشفير'}>
+            <DeviceKeyCard userId={user?.id} />
+          </Section>
+
           {/* Privacy */}
           <Section title={'الخصوصية'}>
             <Card>

@@ -83,6 +83,8 @@ const EXPORT_EXCLUSIONS: Record<string, string> = {
   blocked_users: 'moderation state; exporting it would leak the blocked party',
   message_reactions:
     'reactions are keyed to messages that are themselves exported',
+  chat_public_keys:
+    'public half of a device encryption key — not authored content, and useless without the private key that never leaves the device; removed with the account by ON DELETE CASCADE',
 };
 
 // Note: pkm_note_links, pkm_ai_generations, place_photos and diwan_folder_items
