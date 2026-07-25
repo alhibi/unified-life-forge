@@ -181,8 +181,9 @@ Order: (1) node/npm, (2) `@/lib` & `@/components/ui`, (3) `@/features/<x>`,
    editing anything.
 3. **Plan** the smallest possible diff. If it spans features, split it.
 4. **Edit** using search-and-replace, not full-file rewrites.
-5. **Verify**: build passes, targeted tests pass, preview renders the
-   changed route, no new console errors, no new network 4xx/5xx.
+5. **Verify**: `bun run verify` passes, build passes, preview renders the
+   changed route, no new console errors, no new network 4xx/5xx. Add
+   `bun run e2e` when the change is user-visible.
 6. **Update docs**: if you added a route, a table, or a feature, update
    `feature-map.md` and (if relevant) `information-architecture.md`.
 7. **Migration**: if you added a table, the migration file must include
@@ -195,10 +196,14 @@ Order: (1) node/npm, (2) `@/lib` & `@/components/ui`, (3) `@/features/<x>`,
 A change is done when **all** of the following are true:
 
 - [ ] Build passes (`bun run build`) with zero new warnings.
-- [ ] `bun run verify` passes (`typecheck` + `lint` + `test`) with zero new
-      errors. This is exactly what `.github/workflows/ci.yml` runs.
+- [ ] `bun run verify` passes (`typecheck` + `lint` + `lint:budget` + `test`)
+      with zero new errors, and `lint:budget` reports no rule above budget.
+      This is exactly what the `verify` job in `.github/workflows/ci.yml` runs.
+- [ ] `bun run e2e` passes if you touched routing, prayer times, the chat
+      surface, the PWA manifest or the service worker. Specs live in `e2e/`.
 - [ ] Existing tests still pass; new logic has a colocated test.
-- [ ] The affected route renders without console errors in preview.
+- [ ] The affected route renders without console errors in preview. The E2E
+      fixture enforces this automatically for every route it visits.
 - [ ] Loading / empty / error states are all reachable.
 - [ ] Arabic (RTL) renders correctly at 320 px and at desktop width.
 - [ ] Light theme AND dark theme both pass contrast.

@@ -42,7 +42,7 @@ Open `http://localhost:8080`. The app degrades gracefully when Supabase isn't co
 | `bun run typecheck` | `tsc --noEmit` against `tsconfig.app.json` |
 | `bun run test` | Vitest in single-run mode |
 | `bun run test:watch` | Vitest in watch mode |
-| `bun run e2e` | Playwright end-to-end tests (`e2e/`) |
+| `bun run e2e` | Playwright end-to-end tests (`e2e/`). Builds the app and serves it itself. |
 | `bun run verify` | `typecheck` + `lint` + `test` — what CI runs |
 | `bun run format` | Prettier write |
 | `bun run format:check` | Prettier check |
@@ -128,6 +128,36 @@ Optional browser-side variables:
 Server-side scripts (`scripts/diwan/ingest.ts`) additionally need `SUPABASE_SERVICE_ROLE_KEY`. Never expose that key to the browser; it bypasses RLS entirely.
 
 When env vars are missing, [`src/integrations/supabase/client.ts`](./src/integrations/supabase/client.ts) returns a structured 503 (`{ code: 'supabase_not_configured' }`) for every request and skips realtime subscriptions, so feature code can branch cleanly via the exported `isSupabaseConfigured` flag.
+
+---
+
+## End-to-end tests
+
+```bash
+bunx playwright install chromium   # once
+bun run e2e
+```
+
+Specs live in [`e2e/`](./e2e). The config builds the app and serves it with
+`vite preview` through Playwright's own `webServer`, so you do not start
+anything yourself. Two projects run every spec: desktop Chrome and an emulated
+Pixel 7, because the app is phone-first (the bottom nav was replaced by the
+Portal launcher, `ResponsiveDrawer` switches between a sheet and a dialog on
+viewport width, and safe-area insets drive the layout).
+
+No Supabase credentials are used. The client falls back to placeholders and the
+app degrades to local-only mode, so the suite runs on a fork with no secrets and
+covers the signed-out paths a first-time visitor actually lands on.
+
+[`e2e/fixtures.ts`](./e2e/fixtures.ts) gives every spec two things:
+
+- **External network is stubbed.** Aladhan, Open-Meteo, alquran.cloud and Google
+  Fonts are fulfilled locally; anything else off-origin is aborted, so a new
+  outbound request fails visibly instead of turning into flake.
+- **Console and page errors fail the test.** A spec cannot pass while the app
+  throws. Opt out at describe level with
+  `test.use({ allowConsoleErrors: true })` when the error is what you are
+  asserting.
 
 ---
 
