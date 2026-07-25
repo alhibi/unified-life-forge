@@ -513,33 +513,6 @@ export default function Portal() {
                   </div>
 
                   <div className="mk-stage-scroll">
-                  <div className="mk-hero">
-                    <button
-                      className="mk-medallion"
-                      onClick={() => navigate('/now')}
-                      aria-label={isAr ? 'افتح الرئيسي' : 'Jetzt öffnen'}
-                    >
-                      <MkLogo size={26} />
-                    </button>
-                    <div className="kicker">
-                      {isAr ? 'بوابة شخصية' : 'PERSÖNLICHES PORTAL'}
-                    </div>
-                    <h2>
-                      {username
-                        ? isAr
-                          ? `أهلاً ${username}`
-                          : `Willkommen, ${username}`
-                        : isAr
-                          ? 'أهلاً بك'
-                          : 'Willkommen'}
-                    </h2>
-                    <p>
-                      {isAr
-                        ? 'سبعة تطبيقات، لوحة واحدة. اختر قسماً من الشرائح، ثم اضغط على أي بطاقة لفتحها.'
-                        : 'Sieben Apps, eine Oberfläche. Filtere oben, tippe auf eine Karte zum Öffnen.'}
-                    </p>
-                  </div>
-
                   <div className={`mk-grid${list ? ' list' : ''}`}>
                     {tiles.map((tile, i) => (
                       <AppTile
@@ -553,25 +526,6 @@ export default function Portal() {
                       />
                     ))}
                   </div>
-                  </div>
-
-                  {/* floating view toolbar — modkeys' pan / spin / zoom trio */}
-                  <div className="mk-toolbar">
-                    <button
-                      onClick={() => setList(v => !v)}
-                      className={list ? 'on' : undefined}
-                      title={isAr ? 'طريقة العرض' : 'Ansicht'}
-                      aria-label={isAr ? 'طريقة العرض' : 'Ansicht'}
-                    >
-                      {list ? <MkListView size={19} /> : <MkGridView size={19} />}
-                    </button>
-                    <button
-                      onClick={() => navigate(current.path)}
-                      title={isAr ? 'افتح المحدد' : 'Auswahl öffnen'}
-                      aria-label={isAr ? 'افتح التطبيق المحدد' : 'Ausgewählte App öffnen'}
-                    >
-                      <MkArrow size={19} />
-                    </button>
                   </div>
                 </div>
               </div>
