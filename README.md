@@ -2,7 +2,7 @@
 
 > تطبيق إسلامي شامل: أوقات الصلاة، الأذكار، القرآن الكريم، التقويم الهجري، الطقس، الألعاب والمراسلة في مكان واحد.
 
-A comprehensive Islamic companion web app. It bundles **prayer times** (Aladhan + astronomical calculation), a dual **Hijri/Gregorian calendar**, Quran virtues, prophetic-day routines, timed and untimed Sunnah libraries, duas, a classical **Arabic poetry diwan**, **weather** (Open-Meteo), Islamic occasions, an **RSS reader**, end-to-end **messaging**, and a small collection of **games**. The interface ships in Arabic (RTL) and German with an "Obsidian Depth" dark theme.
+A comprehensive Islamic companion web app. It bundles **prayer times** (Aladhan + astronomical calculation), a dual **Hijri/Gregorian calendar**, Quran virtues and tafsir, prophetic-day routines, timed and untimed Sunnah libraries, duas, a classical **Arabic poetry diwan**, **weather** (Open-Meteo), Islamic occasions, an **RSS reader**, a knowledge **archive**, a **PKM** note layer, a **travel atlas**, end-to-end **messaging**, and a collection of **games**. The interface is Arabic-only (RTL) with an "Obsidian Depth" dark theme.
 
 A machine-readable summary of every page lives at [`public/llms.txt`](./public/llms.txt).
 
@@ -36,25 +36,32 @@ Open `http://localhost:8080`. The app degrades gracefully when Supabase isn't co
 | `bun run build` | Production build (Rollup → `dist/`) |
 | `bun run build:dev` | Development-mode build (sourcemaps, no minification) |
 | `bun run preview` | Serve the built `dist/` locally |
-| `bun run lint` | ESLint over `src/` |
+| `bun run lint` | ESLint over the repo |
+| `bun run lint:fix` | ESLint with autofix |
+| `bun run typecheck` | `tsc --noEmit` against `tsconfig.app.json` |
 | `bun run test` | Vitest in single-run mode |
 | `bun run test:watch` | Vitest in watch mode |
-| `bun run e2e` | Playwright end-to-end tests |
-| `bun run diwan:scrape` | One-off scraper for adab.com (Diwan ingest) |
-| `bun run diwan:ingest` | Push scraped diwan data into Supabase |
-| `bun run diwan:seed` | Seed local Diwan tables from the scraped JSON |
+| `bun run e2e` | Playwright end-to-end tests (`e2e/`) |
+| `bun run verify` | `typecheck` + `lint` + `test` — what CI runs |
+| `bun run format` | Prettier write |
+| `bun run format:check` | Prettier check |
+
+The one-off Diwan ingest pipeline in `scripts/diwan/` has no package script; run
+the files directly with `bun scripts/diwan/<file>.ts` when you need them. They
+require `SUPABASE_SERVICE_ROLE_KEY` (see [Environment Variables](#environment-variables)).
 
 ---
 
 ## Tech Stack
 
 - **Build / dev** — Vite 5 + SWC, TypeScript 5 strict mode, Tailwind 3 with design tokens, shadcn-style primitives (Radix + tailwind-variants).
-- **Frontend** — React 18, React Router 6, framer-motion, lucide-react, TanStack Query for server state.
+- **Frontend** — React 18, React Router 6, framer-motion, Phosphor icons (via the `src/lib/icons.tsx` barrel), TanStack Query for server state.
 - **Backend** — Supabase (Postgres + Row-Level Security + Auth + Realtime + Storage + Edge Functions in `supabase/functions/`).
 - **Astronomy** — `adhan` for prayer-time calculation, with the [Aladhan API](https://aladhan.com/prayer-times-api) used as the primary source and `adhan` as offline fallback.
 - **Weather** — [Open-Meteo](https://open-meteo.com) (no API key required).
-- **PWA** — manifest + service worker for fonts (`public/fonts-sw.js`) and reading-mode caching (`public/reading-sw.js`).
-- **Tests** — Vitest for unit, Playwright for E2E.
+- **PWA** — `public/manifest.json` plus two service workers: an app-shell worker generated at build time by the `appShellServiceWorker()` Vite plugin (`build/swTemplate.js` → `dist/sw.js`, registered in `src/lib/registerServiceWorker.ts`), and a separate reading-mode cache worker (`public/reading-sw.js`).
+- **Observability** — `src/lib/telemetry.ts` scrubs and forwards uncaught errors to Sentry when `VITE_SENTRY_DSN` is set; otherwise it buffers them in memory for local debugging.
+- **Tests** — Vitest for unit, Playwright for E2E (`e2e/`).
 
 ---
 
@@ -63,32 +70,36 @@ Open `http://localhost:8080`. The app degrades gracefully when Supabase isn't co
 ```
 src/
 ├─ App.tsx                   # Routing + persistent-tabs layer
-├─ main.tsx                  # Entry point
+├─ main.tsx                  # Entry point (boots motion, SW, telemetry)
 ├─ components/
-│  ├─ ui/                    # shadcn primitives
-│  ├─ chat/                  # Drawer-based 1-to-1 messenger
-│  └─ diwan/                 # Poetry browsing surfaces
-├─ pages/                    # Route components (lazy where it makes sense)
-├─ features/
-│  ├─ reading/               # RSS reader (sync + offline)
-│  └─ wellness/              # Nutrition / vitals / supplements / fitness
-├─ hooks/                    # useAuth, useUnreadMessages, useDeviceLocation, ...
-├─ contexts/                 # AppContext (theme, language, settings)
+│  ├─ ui/                    # shadcn primitives + app-shell
+│  ├─ chat/                  # Messenger surfaces
+│  └─ portal/                # Portal launcher chrome
+├─ pages/                    # Route components not yet migrated to features/
+├─ features/                 # archive, calendar, clipboard, diwan, duas, games,
+│                            # journal, knowledge, mind, now, pkm, podcasts,
+│                            # reading, travel-atlas, weather, wellness
+├─ hooks/                    # useAuth, usePresence, usePrayerTimesCache, ...
+├─ contexts/                 # AppContext (theme, settings), VoicePlayerContext
 ├─ integrations/supabase/    # Client + generated DB types
-├─ lib/                      # Utility modules (diwan API, navPerf, reverseGeocode)
-├─ data/                     # Static datasets (poetry, occasions, sunnah)
+├─ lib/                      # chat/, auth/, icons, telemetry, prayerTimes, motion
+├─ i18n/                     # ar.json + lookup helper
+├─ data/                     # Static datasets (sunnah, nawawi hadiths)
 └─ utils/themeEngine.ts      # Dynamic palette generator (Material-3-style)
 
-docs/architecture/           # ADR-style notes on persistent tabs & Diwan library
+build/                       # Vite plugins: app-shell SW, Phosphor weight pruning
+docs/architecture/           # ADR-style notes (persistent tabs, Diwan, data layer)
+e2e/                         # Playwright specs
+public/data/                 # Runtime-fetched datasets (diwan poetry corpus)
 supabase/
-├─ functions/                # Edge functions (RSS, keyword alerts, search)
+├─ functions/                # Edge functions (RSS, keyword alerts, search, account)
 └─ migrations/               # SQL migrations
 scripts/diwan/               # One-shot scrapers + ingest pipeline
 ```
 
 ### Persistent tabs
 
-Three of the seven bottom-nav tab routes (`/`, `/games`, `/chat`, `/settings`, `/duas`) are eager-imported in [`src/App.tsx`](./src/App.tsx) and rendered together inside `<PersistentTabs>` — switching between them is a `display:none` toggle, not a remount. The data-heavy `/wellness` and `/diwan` tabs are lazy-loaded so a cold homepage visit doesn't pay for them. Details: [`docs/architecture/persistent-tabs.md`](./docs/architecture/persistent-tabs.md).
+The bottom nav has been retired in favour of the Portal launcher. Three hot routes (`/`, `/games`, `/chat` — see `TAB_PATHS` in [`src/App.tsx`](./src/App.tsx)) are rendered together inside `<PersistentTabs>` and toggled with `display:none` rather than remounted, so returning to them is instant. Every other destination is a lazy route so a cold homepage visit doesn't pay for it. Details: [`docs/architecture/persistent-tabs.md`](./docs/architecture/persistent-tabs.md).
 
 ### Diwan library
 
@@ -106,6 +117,13 @@ See [`.env.example`](./.env.example) for the full list. The required browser-sid
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Anon (publishable) key — safe to ship to the client |
 | `VITE_SUPABASE_PROJECT_ID` | Used by some edge-function URLs |
 
+Optional browser-side variables:
+
+| Variable | Purpose |
+|---|---|
+| `VITE_SENTRY_DSN` | Enables the Sentry error drain. Unset ⇒ errors buffer in memory only. |
+| `VITE_APP_VERSION` | Release tag attached to Sentry events. Defaults to `dev`. |
+
 Server-side scripts (`scripts/diwan/ingest.ts`) additionally need `SUPABASE_SERVICE_ROLE_KEY`. Never expose that key to the browser; it bypasses RLS entirely.
 
 When env vars are missing, [`src/integrations/supabase/client.ts`](./src/integrations/supabase/client.ts) returns a structured 503 (`{ code: 'supabase_not_configured' }`) for every request and skips realtime subscriptions, so feature code can branch cleanly via the exported `isSupabaseConfigured` flag.
@@ -120,14 +138,20 @@ This repository uses **Bun** with a single text-format lockfile (`bun.lock`). Th
 
 ## Internationalization
 
-Translation tables live in [`src/i18n/ar.json`](./src/i18n/ar.json) and [`src/i18n/de.json`](./src/i18n/de.json). The `useApp().t(key)` helper looks up the active language and falls back to the key itself for missing entries.
+**The app is currently Arabic-only.** The single translation table lives in
+[`src/i18n/ar.json`](./src/i18n/ar.json); `AppContext` coerces any persisted
+language preference to `'ar'`. The `useApp().t(key)` helper falls back to the key
+itself for missing entries.
 
-To add a new key:
+To add a new key: add `"my.new.key": "..."` to `ar.json`, then call
+`t('my.new.key')` from any component that imports `useApp`.
 
-1. Add `"my.new.key": "..."` to **both** JSON files.
-2. Use `t('my.new.key')` from any component that imports `useApp`.
-
-To add a third language (e.g. English): drop in `src/i18n/en.json`, then extend the `Language` union and the `i18nByLanguage` map in `src/contexts/AppContext.tsx`.
+> **Caveat before adding a second language:** `ar.json` holds ~326 keys while the
+> app spans 550+ source files, so most UI strings are hardcoded Arabic literals.
+> Adding a locale is an extraction project, not a new-file project. The wiring
+> itself is small — extend the `Language` union and the lookup map in
+> [`src/i18n/index.ts`](./src/i18n/index.ts) and stop the `'ar'` coercion in
+> [`src/contexts/AppContext.tsx`](./src/contexts/AppContext.tsx).
 
 ---
 
@@ -141,12 +165,17 @@ Supabase email-password auth, but usernames are mapped to a synthetic email `<us
 
 Before opening a PR, please:
 
-1. Run `bun run lint` and resolve warnings in files you touched.
-2. Run `bun run test` (and `bun run e2e` if you changed routing, prayer times, or the chat surface).
+1. Run `bun run verify` (`typecheck` + `lint` + `test`). This is exactly what the
+   [CI workflow](./.github/workflows/ci.yml) runs on every push and pull request,
+   so a green local run means a green PR.
+2. Run `bun run e2e` if you changed routing, prayer times, or the chat surface.
 3. If you change a tab route or a sub-route prefetch list, update [`docs/architecture/persistent-tabs.md`](./docs/architecture/persistent-tabs.md).
+4. If you add or migrate a feature, flip its row in [`docs/architecture/feature-map.md`](./docs/architecture/feature-map.md).
+
+See [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) for the full guide.
 
 ---
 
 ## License
 
-MIT. See [`LICENSE`](./LICENSE) (if present) or treat the repository default as MIT until one is committed.
+MIT — see [`LICENSE`](./LICENSE).

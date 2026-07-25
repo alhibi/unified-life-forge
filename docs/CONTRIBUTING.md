@@ -26,9 +26,10 @@ src/
     queryKeys.ts              Typed React Query key factory.
     index.ts                  Public barrel — the ONLY import surface.
 
-  components/                 App chrome only (BottomNav, BackButton,
-                              PageTransition, ScrollToTop, ErrorBoundary,
-                              SEO, NavLink, PageHeader).
+  components/                 App chrome only (BackButton, PageTransition,
+                              ScrollToTop, ErrorBoundary, SEO, PageHeader,
+                              CommandPalette). The bottom nav was retired in
+                              favour of the Portal launcher.
   components/ui/              shadcn primitives + app-shell.tsx.
   contexts/                   App-wide providers only (theme, i18n).
   hooks/                      Truly shared hooks (useAuth, useDeviceLocation…).
@@ -79,7 +80,9 @@ first in a separate commit.
   utilities for the Obsidian dark theme.
 - Press feedback: scale(0.96), 120ms spring.
 - Minimum input font size: **16px** (iOS zoom prevention).
-- No emoji as UI icons. Use `lucide-react` via `src/lib/icons.tsx`.
+- No emoji as UI icons. Use the Phosphor barrel `src/lib/icons.tsx`. Import
+  from `@/lib/icons` only — never from `@phosphor-icons/react` directly, or
+  the build-time weight pruning in `build/phosphorPruneWeights.ts` is bypassed.
 
 ### Product identity
 
@@ -87,7 +90,10 @@ first in a separate commit.
   "Supabase", "AI", "GPT", or model names in user-facing copy. Say
   "cloud", "backend", "database".
 - No social login, no sharing features, no anonymous sign-up.
-- Full RTL/LTR (Arabic + German). Use Western digits (123) in Arabic.
+- The UI is **Arabic-only (RTL)**. German was removed; do not reintroduce
+  `de.json` strings. Use Western digits (123) in Arabic. Keep layout code
+  written against logical properties (`ms-`/`me-`, `start`/`end`) so a future
+  LTR locale is a config change rather than a rewrite.
 
 ---
 
@@ -189,11 +195,12 @@ Order: (1) node/npm, (2) `@/lib` & `@/components/ui`, (3) `@/features/<x>`,
 A change is done when **all** of the following are true:
 
 - [ ] Build passes (`bun run build`) with zero new warnings.
-- [ ] Types pass (`tsgo`) with zero new errors.
+- [ ] `bun run verify` passes (`typecheck` + `lint` + `test`) with zero new
+      errors. This is exactly what `.github/workflows/ci.yml` runs.
 - [ ] Existing tests still pass; new logic has a colocated test.
 - [ ] The affected route renders without console errors in preview.
 - [ ] Loading / empty / error states are all reachable.
-- [ ] Arabic (RTL) and German (LTR) both render correctly.
+- [ ] Arabic (RTL) renders correctly at 320 px and at desktop width.
 - [ ] Light theme AND dark theme both pass contrast.
 - [ ] No hardcoded colors, no cross-feature imports, no Supabase call
       outside `api.ts`.
