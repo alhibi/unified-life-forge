@@ -1,3 +1,5 @@
+import { applyRootTokens } from '@/lib/rootTokens';
+
 // ─── Theme Engine ───────────────────────────────────────────
 // A theme is a 7-step tonal scale: 50 · 100 · 200 · 300 · 400 · 500 · 600.
 //
@@ -769,12 +771,9 @@ export function generateLegacyThemeTokens(
   };
 }
 
-// ─── Apply tokens to DOM ────────────────────────────────────
+// ─── Apply tokens to DOM and persist the exact compiled map for cold boot. ──
 export function applyThemeTokens(tokens: Record<string, string>) {
-  const root = document.documentElement;
-  for (const [key, value] of Object.entries(tokens)) {
-    root.style.setProperty(key, value);
-  }
+  applyRootTokens(tokens);
 }
 
 // ─── Material Design 3 — "Indigo Night" baseline scheme ──────

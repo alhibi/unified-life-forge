@@ -1,9 +1,29 @@
 import type { User } from '@supabase/supabase-js';
-import { createContext, type ReactNode,useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
-import { type Language,translate } from '@/i18n';
+import { type Language, translate } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  type AdvancedInterfacePreferences,
+  APPEARANCE_PREFERENCES_STORAGE_KEY,
+  DEFAULT_ADVANCED_INTERFACE_PREFERENCES,
+  type InteractionStyle,
+  parseAppearanceProfile,
+  readAppearancePreferences,
+  sanitizeAdvancedInterfacePreferences,
+  type SurfaceMaterial,
+  writeAppearancePreferences,
+} from '@/lib/appearancePreferences';
 import {
   clampFontWeight,
   DEFAULT_DISPLAY_FONT_ID,
@@ -26,8 +46,19 @@ import {
   resolveDensity,
   resolveWidth,
 } from '@/lib/interfaceScale';
-import { applyMotionAmplitude, applyMotionBounce,applyMotionSpeed, installFpsCap } from '@/lib/motionRuntime';
-import { applyThemeTokens, generateThemeTokens, type SurfaceLift,themePresets, type ThemeStyle,  } from '@/utils/themeEngine';
+import {
+  applyMotionAmplitude,
+  applyMotionBounce,
+  applyMotionSpeed,
+  installFpsCap,
+} from '@/lib/motionRuntime';
+import {
+  applyThemeTokens,
+  generateThemeTokens,
+  type SurfaceLift,
+  themePresets,
+  type ThemeStyle,
+} from '@/utils/themeEngine';
 
 /** Coerce any stored value to a valid surface-lift level. */
 const resolveSurfaceLift = (value: string | null | undefined): SurfaceLift =>
@@ -39,8 +70,39 @@ const DEFAULT_SURFACE_LIFT: SurfaceLift = 'subtle';
 // migrated to 'light' on read below.
 type Theme = 'light' | 'dark';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
-type ColorTheme = 'paper' | 'default' | 'midnight' | 'rose' | 'emerald' | 'lavender' | 'sunset' | 'ocean' | 'neon' | 'coffee' | 'mono' | 'cherry' | 'gold' | 'aurora' | 'sakura' | 'arctic' | 'volcano' | 'matcha' | 'nebula' | 'copper' | 'mint' | 'sandstone' | 'dusk' | 'moss' | 'clay' | 'storm' | 'silk' | 'amber' | 'fog' | 'obsidian' | 'terracotta' | 'dynamic';
-
+type ColorTheme =
+  | 'paper'
+  | 'default'
+  | 'midnight'
+  | 'rose'
+  | 'emerald'
+  | 'lavender'
+  | 'sunset'
+  | 'ocean'
+  | 'neon'
+  | 'coffee'
+  | 'mono'
+  | 'cherry'
+  | 'gold'
+  | 'aurora'
+  | 'sakura'
+  | 'arctic'
+  | 'volcano'
+  | 'matcha'
+  | 'nebula'
+  | 'copper'
+  | 'mint'
+  | 'sandstone'
+  | 'dusk'
+  | 'moss'
+  | 'clay'
+  | 'storm'
+  | 'silk'
+  | 'amber'
+  | 'fog'
+  | 'obsidian'
+  | 'terracotta'
+  | 'dynamic';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatitudeAdjMethod = 'middle' | 'seventh' | 'angle';
@@ -77,6 +139,25 @@ interface AppContextType {
   /** Hairline volume — with no shadows, the border is the edge of a surface. */
   borderStrength: string;
   setBorderStrength: (v: string) => void;
+  /** ── Appearance: advanced interface behavior ── */
+  uiScale: number;
+  setUiScale: (v: number) => void;
+  adaptiveLayout: boolean;
+  setAdaptiveLayout: (v: boolean) => void;
+  surfaceMaterial: SurfaceMaterial;
+  setSurfaceMaterial: (v: SurfaceMaterial) => void;
+  interactionStyle: InteractionStyle;
+  setInteractionStyle: (v: InteractionStyle) => void;
+  reducedTransparency: boolean;
+  setReducedTransparency: (v: boolean) => void;
+  strongerContrast: boolean;
+  setStrongerContrast: (v: boolean) => void;
+  largeTouchTargets: boolean;
+  setLargeTouchTargets: (v: boolean) => void;
+  clearerFocus: boolean;
+  setClearerFocus: (v: boolean) => void;
+  applyAdvancedInterfacePreferences: (preferences: unknown) => void;
+  resetInterfacePreferences: () => void;
   language: Language;
   setLanguage: (lang: Language) => void;
   theme: Theme;
@@ -121,12 +202,37 @@ interface AppContextType {
   setSpringBounce: (b: number) => void;
 }
 
-
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // How long to wait before flushing settings to the database after a setting
 // change. Multiple rapid changes coalesce into a single upsert.
 const SAVE_DEBOUNCE_MS = 400;
+
+const ADVANCED_LEGACY_KEYS: Record<keyof AdvancedInterfacePreferences, string> = {
+  uiScale: 'app-ui-scale',
+  adaptiveLayout: 'app-adaptive-layout',
+  surfaceMaterial: 'app-surface-material',
+  interactionStyle: 'app-interaction-style',
+  reducedTransparency: 'app-reduced-transparency',
+  strongerContrast: 'app-stronger-contrast',
+  largeTouchTargets: 'app-large-touch-targets',
+  clearerFocus: 'app-clearer-focus',
+};
+
+function persistAdvancedInterfacePreferences(preferences: AdvancedInterfacePreferences) {
+  const profile = writeAppearancePreferences(preferences);
+  for (const [key, storageKey] of Object.entries(ADVANCED_LEGACY_KEYS) as [
+    keyof AdvancedInterfacePreferences,
+    string,
+  ][]) {
+    try {
+      localStorage.setItem(storageKey, String(profile[key]));
+    } catch {
+      // The v2 writer and React state remain authoritative when storage is unavailable.
+    }
+  }
+  return sanitizeAdvancedInterfacePreferences(profile);
+}
 
 export function AppProvider({ children }: { children: ReactNode }) {
   // Arabic-only. Any legacy 'de' preference is coerced to 'ar' on load.
@@ -136,70 +242,86 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const raw = localStorage.getItem('app-theme');
     return raw === 'dark' ? 'dark' : 'light';
   });
-  const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(() =>
-    (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral'
+  const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(
+    () => (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral',
   );
-  const [blackMode, setBlackModeState] = useState<boolean>(() =>
-    localStorage.getItem('app-black-mode') === 'true'
+  const [blackMode, setBlackModeState] = useState<boolean>(
+    () => localStorage.getItem('app-black-mode') === 'true',
   );
-  const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
-    // 'default' is the shipped 7-tone palette (#f1f0f4 → #1c1827).
-    (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>(
+    () =>
+      // 'default' is the shipped 7-tone palette (#f1f0f4 → #1c1827).
+      (localStorage.getItem('app-color-theme') as ColorTheme) || 'default',
   );
 
   const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
-    resolveSurfaceLift(localStorage.getItem('app-surface-lift'))
+    resolveSurfaceLift(localStorage.getItem('app-surface-lift')),
   );
 
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
-    resolveFontId(localStorage.getItem('app-font-family'))
+    resolveFontId(localStorage.getItem('app-font-family')),
   );
   const [fontDisplayFamily, setFontDisplayFamilyState] = useState<string>(() =>
     // Falls back to the body face, so an upgrade from the single-font era
     // starts from exactly the typography the user already had.
     resolveFontId(
       localStorage.getItem('app-font-display') ?? localStorage.getItem('app-font-family'),
-    )
+    ),
   );
   const [fontSize, setFontSizeState] = useState<string>(() =>
-    resolveFontSize(localStorage.getItem('app-font-size'))
+    resolveFontSize(localStorage.getItem('app-font-size')),
   );
   const [typeRatio, setTypeRatioState] = useState<string>(() =>
-    resolveTypeRatio(localStorage.getItem('app-type-ratio'))
+    resolveTypeRatio(localStorage.getItem('app-type-ratio')),
   );
   const [typeLeading, setTypeLeadingState] = useState<string>(() =>
-    resolveTypeLeading(localStorage.getItem('app-type-leading'))
+    resolveTypeLeading(localStorage.getItem('app-type-leading')),
   );
 
   const [cornerSoftness, setCornerSoftnessState] = useState<number>(() =>
-    clampCornerSoftness(parseFloat(localStorage.getItem('app-corner-softness') ?? '1'))
+    clampCornerSoftness(parseFloat(localStorage.getItem('app-corner-softness') ?? '1')),
   );
   const [uiDensity, setUiDensityState] = useState<string>(() =>
-    resolveDensity(localStorage.getItem('app-ui-density'))
+    resolveDensity(localStorage.getItem('app-ui-density')),
   );
   const [contentWidth, setContentWidthState] = useState<string>(() =>
-    resolveWidth(localStorage.getItem('app-content-width'))
+    resolveWidth(localStorage.getItem('app-content-width')),
   );
   const [borderStrength, setBorderStrengthState] = useState<string>(() =>
-    resolveBorder(localStorage.getItem('app-border-strength'))
+    resolveBorder(localStorage.getItem('app-border-strength')),
   );
+  const [advancedInterfacePreferences, setAdvancedInterfacePreferencesState] =
+    useState<AdvancedInterfacePreferences>(() =>
+      sanitizeAdvancedInterfacePreferences(readAppearancePreferences()),
+    );
+  const advancedInterfacePreferencesRef = useRef(advancedInterfacePreferences);
+  const {
+    uiScale,
+    adaptiveLayout,
+    surfaceMaterial,
+    interactionStyle,
+    reducedTransparency,
+    strongerContrast,
+    largeTouchTargets,
+    clearerFocus,
+  } = advancedInterfacePreferences;
   const [fontWeight, setFontWeightState] = useState<number>(() =>
-    clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10))
+    clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10)),
   );
   const [fontOpacity, setFontOpacityState] = useState<number>(() =>
-    parseFloat(localStorage.getItem('app-font-opacity') || '1')
+    parseFloat(localStorage.getItem('app-font-opacity') || '1'),
   );
-  const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(() =>
-    (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii'
+  const [prayerMadhab, setPrayerMadhabState] = useState<PrayerMadhab>(
+    () => (localStorage.getItem('app-prayer-madhab') as PrayerMadhab) || 'shafii',
   );
   const [midnightMode, setMidnightModeState] = useState<number>(() =>
-    parseInt(localStorage.getItem('app-midnight-mode') || '0', 10)
+    parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
   );
-  const [latitudeAdjMethod, setLatitudeAdjMethodState] = useState<LatitudeAdjMethod>(() =>
-    (localStorage.getItem('app-lat-adj-method') as LatitudeAdjMethod) || 'angle'
+  const [latitudeAdjMethod, setLatitudeAdjMethodState] = useState<LatitudeAdjMethod>(
+    () => (localStorage.getItem('app-lat-adj-method') as LatitudeAdjMethod) || 'angle',
   );
-  const [dstEnabled, setDstEnabledState] = useState<boolean>(() =>
-    localStorage.getItem('app-dst-enabled') !== 'false'
+  const [dstEnabled, setDstEnabledState] = useState<boolean>(
+    () => localStorage.getItem('app-dst-enabled') !== 'false',
   );
   const [calcMethod, setCalcMethodState] = useState<CalcMethod>(() => {
     const raw = localStorage.getItem('app-calc-method');
@@ -233,15 +355,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Reset all state & localStorage to defaults.
   //
   // Called on the user → null auth transition (sign-out). The previous
- // implementation only zeroed out the keys it personally knew about,
+  // implementation only zeroed out the keys it personally knew about,
   // which let scratch state from other features (mihrab tab, wellness,
   // tafsir, dynamic preset, lastLocation, …) leak across accounts on
   // shared devices. We now sweep every `app-*` key plus an explicit
   // allowlist of feature-scoped scratch keys, then re-seed defaults.
   const FEATURE_SCRATCH_KEYS = [
-    'game-stats', 'saved-locations', 'lastLocation',
-    'mihrab:lastTab', 'wellness:lastTab', 'wellness:onboarded',
-    'tafsir-state', 'reading:state', 'rss:lastFeed',
+    'game-stats',
+    'saved-locations',
+    'lastLocation',
+    'mihrab:lastTab',
+    'wellness:lastTab',
+    'wellness:onboarded',
+    'tafsir-state',
+    'reading:state',
+    'rss:lastFeed',
     'clipboard:draft',
   ];
   const resetToDefaults = () => {
@@ -255,42 +383,83 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (k && k.startsWith('app-')) toRemove.push(k);
       }
       toRemove.forEach((k) => localStorage.removeItem(k));
-    } catch { /* storage may be blocked in private mode — ignore */ }
-    FEATURE_SCRATCH_KEYS.forEach((k) => { try { localStorage.removeItem(k); } catch { /* storage may be blocked */ } });
+    } catch {
+      /* storage may be blocked in private mode — ignore */
+    }
+    FEATURE_SCRATCH_KEYS.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch {
+        /* storage may be blocked */
+      }
+    });
 
     // Re-seed default values + state.
-    setLanguageState('ar'); localStorage.setItem('app-language', 'ar');
-    setThemeState('light'); localStorage.setItem('app-theme', 'light');
+    setLanguageState('ar');
+    localStorage.setItem('app-language', 'ar');
+    setThemeState('light');
+    localStorage.setItem('app-theme', 'light');
     // Must match the initial-state default above ('neutral'). Using a
     // different value here made sign-out change the app's look.
-    setPaletteStyleState('neutral'); localStorage.setItem('app-palette-style', 'neutral');
-    setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
+    setPaletteStyleState('neutral');
+    localStorage.setItem('app-palette-style', 'neutral');
+    setBlackModeState(false);
+    localStorage.setItem('app-black-mode', 'false');
+    setColorThemeState('default');
+    localStorage.setItem('app-color-theme', 'default');
 
-    setSurfaceLiftState(DEFAULT_SURFACE_LIFT); localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);
+    setSurfaceLiftState(DEFAULT_SURFACE_LIFT);
+    localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);
 
-    setFontFamilyState(DEFAULT_FONT_ID); localStorage.setItem('app-font-family', DEFAULT_FONT_ID);
-    setFontDisplayFamilyState(DEFAULT_DISPLAY_FONT_ID); localStorage.setItem('app-font-display', DEFAULT_DISPLAY_FONT_ID);
-    setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
-    setTypeRatioState('balanced'); localStorage.setItem('app-type-ratio', 'balanced');
-    setTypeLeadingState('normal'); localStorage.setItem('app-type-leading', 'normal');
-    setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
-    setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
+    setFontFamilyState(DEFAULT_FONT_ID);
+    localStorage.setItem('app-font-family', DEFAULT_FONT_ID);
+    setFontDisplayFamilyState(DEFAULT_DISPLAY_FONT_ID);
+    localStorage.setItem('app-font-display', DEFAULT_DISPLAY_FONT_ID);
+    setFontSizeState('medium');
+    localStorage.setItem('app-font-size', 'medium');
+    setTypeRatioState('balanced');
+    localStorage.setItem('app-type-ratio', 'balanced');
+    setTypeLeadingState('normal');
+    localStorage.setItem('app-type-leading', 'normal');
+    setFontWeightState(400);
+    localStorage.setItem('app-font-weight', '400');
+    setFontOpacityState(1);
+    localStorage.setItem('app-font-opacity', '1');
 
-    setCornerSoftnessState(DEFAULT_CORNER_SOFTNESS); localStorage.setItem('app-corner-softness', String(DEFAULT_CORNER_SOFTNESS));
-    setUiDensityState(DEFAULT_DENSITY); localStorage.setItem('app-ui-density', DEFAULT_DENSITY);
-    setContentWidthState(DEFAULT_WIDTH); localStorage.setItem('app-content-width', DEFAULT_WIDTH);
-    setBorderStrengthState(DEFAULT_BORDER); localStorage.setItem('app-border-strength', DEFAULT_BORDER);
-    setPrayerMadhabState('shafii'); localStorage.setItem('app-prayer-madhab', 'shafii');
-    setMidnightModeState(0); localStorage.setItem('app-midnight-mode', '0');
-    setLatitudeAdjMethodState('angle'); localStorage.setItem('app-lat-adj-method', 'angle');
-    setDstEnabledState(true); localStorage.setItem('app-dst-enabled', 'true');
-    setCalcMethodState('auto'); localStorage.setItem('app-calc-method', 'auto');
-    setMotionSpeedState(1); localStorage.setItem('app-motion-speed', '1');
-    setFpsCapState('auto'); localStorage.setItem('app-fps-cap', 'auto');
-    setMotionAmplitudeState(1); localStorage.setItem('app-motion-amplitude', '1');
-    setSpringBounceState(0); localStorage.setItem('app-spring-bounce', '0');
-    setTimeout(() => { syncRef.current = false; }, 100);
+    setCornerSoftnessState(DEFAULT_CORNER_SOFTNESS);
+    localStorage.setItem('app-corner-softness', String(DEFAULT_CORNER_SOFTNESS));
+    setUiDensityState(DEFAULT_DENSITY);
+    localStorage.setItem('app-ui-density', DEFAULT_DENSITY);
+    setContentWidthState(DEFAULT_WIDTH);
+    localStorage.setItem('app-content-width', DEFAULT_WIDTH);
+    setBorderStrengthState(DEFAULT_BORDER);
+    localStorage.setItem('app-border-strength', DEFAULT_BORDER);
+    const defaultAdvanced = persistAdvancedInterfacePreferences(
+      DEFAULT_ADVANCED_INTERFACE_PREFERENCES,
+    );
+    advancedInterfacePreferencesRef.current = defaultAdvanced;
+    setAdvancedInterfacePreferencesState(defaultAdvanced);
+    setPrayerMadhabState('shafii');
+    localStorage.setItem('app-prayer-madhab', 'shafii');
+    setMidnightModeState(0);
+    localStorage.setItem('app-midnight-mode', '0');
+    setLatitudeAdjMethodState('angle');
+    localStorage.setItem('app-lat-adj-method', 'angle');
+    setDstEnabledState(true);
+    localStorage.setItem('app-dst-enabled', 'true');
+    setCalcMethodState('auto');
+    localStorage.setItem('app-calc-method', 'auto');
+    setMotionSpeedState(1);
+    localStorage.setItem('app-motion-speed', '1');
+    setFpsCapState('auto');
+    localStorage.setItem('app-fps-cap', 'auto');
+    setMotionAmplitudeState(1);
+    localStorage.setItem('app-motion-amplitude', '1');
+    setSpringBounceState(0);
+    localStorage.setItem('app-spring-bounce', '0');
+    setTimeout(() => {
+      syncRef.current = false;
+    }, 100);
   };
 
   // Auth state — pulled from the singleton `useAuth` hook so this component
@@ -329,27 +498,114 @@ export function AppProvider({ children }: { children: ReactNode }) {
         syncRef.current = true; // prevent save-back during load
         // Language is locked to 'ar' — ignore any cloud-persisted preference.
         localStorage.setItem('app-language', 'ar');
-        if (s.theme) { setThemeState(s.theme); localStorage.setItem('app-theme', s.theme); }
-        if (s.paletteStyle) { setPaletteStyleState(s.paletteStyle); localStorage.setItem('app-palette-style', s.paletteStyle); }
-        if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
-        if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
+        if (s.theme) {
+          setThemeState(s.theme);
+          localStorage.setItem('app-theme', s.theme);
+        }
+        if (s.paletteStyle) {
+          setPaletteStyleState(s.paletteStyle);
+          localStorage.setItem('app-palette-style', s.paletteStyle);
+        }
+        if (s.blackMode !== undefined) {
+          setBlackModeState(s.blackMode);
+          localStorage.setItem('app-black-mode', String(s.blackMode));
+        }
+        if (s.colorTheme) {
+          setColorThemeState(s.colorTheme);
+          localStorage.setItem('app-color-theme', s.colorTheme);
+        }
 
-        if (s.surfaceLift) { const lift = resolveSurfaceLift(s.surfaceLift); setSurfaceLiftState(lift); localStorage.setItem('app-surface-lift', lift); }
-        if (s.fontFamily) { const id = resolveFontId(s.fontFamily); setFontFamilyState(id); localStorage.setItem('app-font-family', id); }
-        if (s.fontDisplayFamily) { const id = resolveFontId(s.fontDisplayFamily); setFontDisplayFamilyState(id); localStorage.setItem('app-font-display', id); }
-        if (s.typeRatio) { const r = resolveTypeRatio(s.typeRatio); setTypeRatioState(r); localStorage.setItem('app-type-ratio', r); }
-        if (s.typeLeading) { const l = resolveTypeLeading(s.typeLeading); setTypeLeadingState(l); localStorage.setItem('app-type-leading', l); }
-        if (s.cornerSoftness !== undefined) { const c = clampCornerSoftness(Number(s.cornerSoftness)); setCornerSoftnessState(c); localStorage.setItem('app-corner-softness', String(c)); }
-        if (s.uiDensity) { const d = resolveDensity(s.uiDensity); setUiDensityState(d); localStorage.setItem('app-ui-density', d); }
-        if (s.contentWidth) { const w = resolveWidth(s.contentWidth); setContentWidthState(w); localStorage.setItem('app-content-width', w); }
-        if (s.borderStrength) { const b = resolveBorder(s.borderStrength); setBorderStrengthState(b); localStorage.setItem('app-border-strength', b); }
-        if (s.fontSize) { const sz = resolveFontSize(s.fontSize); setFontSizeState(sz); localStorage.setItem('app-font-size', sz); }
-        if (s.fontWeight !== undefined) { const w = clampFontWeight(Number(s.fontWeight)); setFontWeightState(w); localStorage.setItem('app-font-weight', String(w)); }
-        if (s.fontOpacity !== undefined) { setFontOpacityState(s.fontOpacity); localStorage.setItem('app-font-opacity', String(s.fontOpacity)); }
-        if (s.prayerMadhab) { setPrayerMadhabState(s.prayerMadhab); localStorage.setItem('app-prayer-madhab', s.prayerMadhab); }
-        if (s.midnightMode !== undefined) { setMidnightModeState(s.midnightMode); localStorage.setItem('app-midnight-mode', String(s.midnightMode)); }
-        if (s.latitudeAdjMethod) { setLatitudeAdjMethodState(s.latitudeAdjMethod); localStorage.setItem('app-lat-adj-method', s.latitudeAdjMethod); }
-        if (s.dstEnabled !== undefined) { setDstEnabledState(s.dstEnabled); localStorage.setItem('app-dst-enabled', String(s.dstEnabled)); }
+        if (s.surfaceLift) {
+          const lift = resolveSurfaceLift(s.surfaceLift);
+          setSurfaceLiftState(lift);
+          localStorage.setItem('app-surface-lift', lift);
+        }
+        if (s.fontFamily) {
+          const id = resolveFontId(s.fontFamily);
+          setFontFamilyState(id);
+          localStorage.setItem('app-font-family', id);
+        }
+        if (s.fontDisplayFamily) {
+          const id = resolveFontId(s.fontDisplayFamily);
+          setFontDisplayFamilyState(id);
+          localStorage.setItem('app-font-display', id);
+        }
+        if (s.typeRatio) {
+          const r = resolveTypeRatio(s.typeRatio);
+          setTypeRatioState(r);
+          localStorage.setItem('app-type-ratio', r);
+        }
+        if (s.typeLeading) {
+          const l = resolveTypeLeading(s.typeLeading);
+          setTypeLeadingState(l);
+          localStorage.setItem('app-type-leading', l);
+        }
+        if (s.cornerSoftness !== undefined) {
+          const c = clampCornerSoftness(Number(s.cornerSoftness));
+          setCornerSoftnessState(c);
+          localStorage.setItem('app-corner-softness', String(c));
+        }
+        if (s.uiDensity) {
+          const d = resolveDensity(s.uiDensity);
+          setUiDensityState(d);
+          localStorage.setItem('app-ui-density', d);
+        }
+        if (s.contentWidth) {
+          const w = resolveWidth(s.contentWidth);
+          setContentWidthState(w);
+          localStorage.setItem('app-content-width', w);
+        }
+        if (s.borderStrength) {
+          const b = resolveBorder(s.borderStrength);
+          setBorderStrengthState(b);
+          localStorage.setItem('app-border-strength', b);
+        }
+        const nestedAppearance =
+          s.appearancePreferences && typeof s.appearancePreferences === 'object'
+            ? s.appearancePreferences
+            : null;
+        const advancedSource = nestedAppearance ?? s;
+        const hasAdvancedPreferences =
+          nestedAppearance !== null ||
+          Object.keys(ADVANCED_LEGACY_KEYS).some((key) => advancedSource[key] !== undefined);
+        if (hasAdvancedPreferences) {
+          const advanced = sanitizeAdvancedInterfacePreferences(
+            advancedSource,
+            advancedInterfacePreferencesRef.current,
+          );
+          advancedInterfacePreferencesRef.current = persistAdvancedInterfacePreferences(advanced);
+          setAdvancedInterfacePreferencesState(advancedInterfacePreferencesRef.current);
+        }
+        if (s.fontSize) {
+          const sz = resolveFontSize(s.fontSize);
+          setFontSizeState(sz);
+          localStorage.setItem('app-font-size', sz);
+        }
+        if (s.fontWeight !== undefined) {
+          const w = clampFontWeight(Number(s.fontWeight));
+          setFontWeightState(w);
+          localStorage.setItem('app-font-weight', String(w));
+        }
+        if (s.fontOpacity !== undefined) {
+          setFontOpacityState(s.fontOpacity);
+          localStorage.setItem('app-font-opacity', String(s.fontOpacity));
+        }
+        if (s.prayerMadhab) {
+          setPrayerMadhabState(s.prayerMadhab);
+          localStorage.setItem('app-prayer-madhab', s.prayerMadhab);
+        }
+        if (s.midnightMode !== undefined) {
+          setMidnightModeState(s.midnightMode);
+          localStorage.setItem('app-midnight-mode', String(s.midnightMode));
+        }
+        if (s.latitudeAdjMethod) {
+          setLatitudeAdjMethodState(s.latitudeAdjMethod);
+          localStorage.setItem('app-lat-adj-method', s.latitudeAdjMethod);
+        }
+        if (s.dstEnabled !== undefined) {
+          setDstEnabledState(s.dstEnabled);
+          localStorage.setItem('app-dst-enabled', String(s.dstEnabled));
+        }
         if (s.calcMethod !== undefined) {
           const cm: CalcMethod = s.calcMethod === 'auto' ? 'auto' : Number(s.calcMethod);
           setCalcMethodState(cm);
@@ -373,12 +629,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
-        if (s.savedLocations) localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
+        if (s.savedLocations)
+          localStorage.setItem('saved-locations', JSON.stringify(s.savedLocations));
         if (s.mihrab) localStorage.setItem('mihrab:lastTab', s.mihrab);
         if (s.tafsir) localStorage.setItem('tafsir-state', JSON.stringify(s.tafsir));
-        if (s.tafsir_bookmarks) localStorage.setItem('tafsir-bookmarks', JSON.stringify(s.tafsir_bookmarks));
+        if (s.tafsir_bookmarks)
+          localStorage.setItem('tafsir-bookmarks', JSON.stringify(s.tafsir_bookmarks));
         if (s.browse) localStorage.setItem('browse:lastTab', s.browse);
-        setTimeout(() => { syncRef.current = false; }, 100);
+        setTimeout(() => {
+          syncRef.current = false;
+        }, 100);
       }
       initialLoadDone.current = true;
     };
@@ -401,12 +661,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       colorTheme: localStorage.getItem('app-color-theme') || 'default',
 
       surfaceLift: resolveSurfaceLift(localStorage.getItem('app-surface-lift')),
+      appearancePreferences: readAppearancePreferences(),
+      ...sanitizeAdvancedInterfacePreferences(readAppearancePreferences()),
 
       fontFamily: resolveFontId(localStorage.getItem('app-font-family')),
       fontDisplayFamily: resolveFontId(localStorage.getItem('app-font-display')),
       typeRatio: resolveTypeRatio(localStorage.getItem('app-type-ratio')),
       typeLeading: resolveTypeLeading(localStorage.getItem('app-type-leading')),
-      cornerSoftness: clampCornerSoftness(parseFloat(localStorage.getItem('app-corner-softness') ?? '1')),
+      cornerSoftness: clampCornerSoftness(
+        parseFloat(localStorage.getItem('app-corner-softness') ?? '1'),
+      ),
       uiDensity: resolveDensity(localStorage.getItem('app-ui-density')),
       contentWidth: resolveWidth(localStorage.getItem('app-content-width')),
       borderStrength: resolveBorder(localStorage.getItem('app-border-strength')),
@@ -417,7 +681,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
       latitudeAdjMethod: localStorage.getItem('app-lat-adj-method') || 'angle',
       dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
-      calcMethod: (localStorage.getItem('app-calc-method') ?? 'auto'),
+      calcMethod: localStorage.getItem('app-calc-method') ?? 'auto',
     };
     settings.fontDisplayFamily = resolveFontId(localStorage.getItem('app-font-display'));
     settings.typeRatio = resolveTypeRatio(localStorage.getItem('app-type-ratio'));
@@ -434,12 +698,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     settings.motionAmplitude = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
     settings.springBounce = parseFloat(localStorage.getItem('app-spring-bounce') || '0');
     // Also save game stats and locations
-    try { settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}'); } catch { /* noop */ }
-    try { settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]'); } catch { /* noop */ }
-    try { settings.mihrab = localStorage.getItem('mihrab:lastTab') || undefined; } catch { /* noop */ }
-    try { settings.tafsir = JSON.parse(localStorage.getItem('tafsir-state') || '{}'); } catch { /* noop */ }
-    try { settings.tafsir_bookmarks = JSON.parse(localStorage.getItem('tafsir-bookmarks') || '[]'); } catch { /* noop */ }
-    try { settings.browse = localStorage.getItem('browse:lastTab') || undefined; } catch { /* noop */ }
+    try {
+      settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}');
+    } catch {
+      /* noop */
+    }
+    try {
+      settings.savedLocations = JSON.parse(localStorage.getItem('saved-locations') || '[]');
+    } catch {
+      /* noop */
+    }
+    try {
+      settings.mihrab = localStorage.getItem('mihrab:lastTab') || undefined;
+    } catch {
+      /* noop */
+    }
+    try {
+      settings.tafsir = JSON.parse(localStorage.getItem('tafsir-state') || '{}');
+    } catch {
+      /* noop */
+    }
+    try {
+      settings.tafsir_bookmarks = JSON.parse(localStorage.getItem('tafsir-bookmarks') || '[]');
+    } catch {
+      /* noop */
+    }
+    try {
+      settings.browse = localStorage.getItem('browse:lastTab') || undefined;
+    } catch {
+      /* noop */
+    }
 
     await supabase
       .from('user_settings')
@@ -487,169 +775,429 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-language', 'ar');
   }, []);
 
-  const setTheme = useCallback((t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem('app-theme', t);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setTheme = useCallback(
+    (t: Theme) => {
+      setThemeState(t);
+      localStorage.setItem('app-theme', t);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setPaletteStyle = useCallback((style: PaletteStyle) => {
-    setPaletteStyleState(style);
-    localStorage.setItem('app-palette-style', style);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setPaletteStyle = useCallback(
+    (style: PaletteStyle) => {
+      setPaletteStyleState(style);
+      localStorage.setItem('app-palette-style', style);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setBlackMode = useCallback((v: boolean) => {
-    setBlackModeState(v);
-    localStorage.setItem('app-black-mode', v.toString());
-    scheduleSave();
-  }, [scheduleSave]);
+  const setBlackMode = useCallback(
+    (v: boolean) => {
+      setBlackModeState(v);
+      localStorage.setItem('app-black-mode', v.toString());
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setColorTheme = useCallback((ct: ColorTheme) => {
-    setColorThemeState(ct);
-    localStorage.setItem('app-color-theme', ct);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setColorTheme = useCallback(
+    (ct: ColorTheme) => {
+      setColorThemeState(ct);
+      localStorage.setItem('app-color-theme', ct);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setSurfaceLift = useCallback((v: SurfaceLift) => {
-    const lift = resolveSurfaceLift(v);
-    setSurfaceLiftState(lift);
-    localStorage.setItem('app-surface-lift', lift);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setSurfaceLift = useCallback(
+    (v: SurfaceLift) => {
+      const lift = resolveSurfaceLift(v);
+      setSurfaceLiftState(lift);
+      localStorage.setItem('app-surface-lift', lift);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setFontFamily = useCallback((f: string) => {
-    const id = resolveFontId(f);
-    setFontFamilyState(id);
-    localStorage.setItem('app-font-family', id);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setFontFamily = useCallback(
+    (f: string) => {
+      const id = resolveFontId(f);
+      setFontFamilyState(id);
+      localStorage.setItem('app-font-family', id);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setFontDisplayFamily = useCallback((f: string) => {
-    const id = resolveFontId(f);
-    setFontDisplayFamilyState(id);
-    localStorage.setItem('app-font-display', id);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setFontDisplayFamily = useCallback(
+    (f: string) => {
+      const id = resolveFontId(f);
+      setFontDisplayFamilyState(id);
+      localStorage.setItem('app-font-display', id);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setTypeRatio = useCallback((r: string) => {
-    const ratio = resolveTypeRatio(r);
-    setTypeRatioState(ratio);
-    localStorage.setItem('app-type-ratio', ratio);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setTypeRatio = useCallback(
+    (r: string) => {
+      const ratio = resolveTypeRatio(r);
+      setTypeRatioState(ratio);
+      localStorage.setItem('app-type-ratio', ratio);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setTypeLeading = useCallback((l: string) => {
-    const leading = resolveTypeLeading(l);
-    setTypeLeadingState(leading);
-    localStorage.setItem('app-type-leading', leading);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setTypeLeading = useCallback(
+    (l: string) => {
+      const leading = resolveTypeLeading(l);
+      setTypeLeadingState(leading);
+      localStorage.setItem('app-type-leading', leading);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setCornerSoftness = useCallback((v: number) => {
-    const clamped = clampCornerSoftness(v);
-    setCornerSoftnessState(clamped);
-    localStorage.setItem('app-corner-softness', String(clamped));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setCornerSoftness = useCallback(
+    (v: number) => {
+      const clamped = clampCornerSoftness(v);
+      setCornerSoftnessState(clamped);
+      localStorage.setItem('app-corner-softness', String(clamped));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setUiDensity = useCallback((v: string) => {
-    const density = resolveDensity(v);
-    setUiDensityState(density);
-    localStorage.setItem('app-ui-density', density);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setUiDensity = useCallback(
+    (v: string) => {
+      const density = resolveDensity(v);
+      setUiDensityState(density);
+      localStorage.setItem('app-ui-density', density);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setContentWidth = useCallback((v: string) => {
-    const width = resolveWidth(v);
-    setContentWidthState(width);
-    localStorage.setItem('app-content-width', width);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setContentWidth = useCallback(
+    (v: string) => {
+      const width = resolveWidth(v);
+      setContentWidthState(width);
+      localStorage.setItem('app-content-width', width);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setBorderStrength = useCallback((v: string) => {
-    const border = resolveBorder(v);
-    setBorderStrengthState(border);
-    localStorage.setItem('app-border-strength', border);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setBorderStrength = useCallback(
+    (v: string) => {
+      const border = resolveBorder(v);
+      setBorderStrengthState(border);
+      localStorage.setItem('app-border-strength', border);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setFontSize = useCallback((s: string) => {
-    const size = resolveFontSize(s);
-    setFontSizeState(size);
-    localStorage.setItem('app-font-size', size);
-    scheduleSave();
-  }, [scheduleSave]);
+  const updateAdvancedInterfacePreferences = useCallback(
+    (patch: Partial<AdvancedInterfacePreferences>) => {
+      const next = sanitizeAdvancedInterfacePreferences(
+        { ...advancedInterfacePreferencesRef.current, ...patch },
+        advancedInterfacePreferencesRef.current,
+      );
+      advancedInterfacePreferencesRef.current = persistAdvancedInterfacePreferences(next);
+      setAdvancedInterfacePreferencesState(advancedInterfacePreferencesRef.current);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setFontWeight = useCallback((w: number) => {
-    const clamped = clampFontWeight(w);
-    setFontWeightState(clamped);
-    localStorage.setItem('app-font-weight', String(clamped));
-    scheduleSave();
-  }, [scheduleSave]);
+  const applyAdvancedInterfacePreferences = useCallback(
+    (preferences: unknown) => {
+      const next = sanitizeAdvancedInterfacePreferences(
+        preferences,
+        advancedInterfacePreferencesRef.current,
+      );
+      advancedInterfacePreferencesRef.current = persistAdvancedInterfacePreferences(next);
+      setAdvancedInterfacePreferencesState(advancedInterfacePreferencesRef.current);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setFontOpacity = useCallback((o: number) => {
-    setFontOpacityState(o);
-    localStorage.setItem('app-font-opacity', String(o));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setUiScale = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ uiScale: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setAdaptiveLayout = useCallback(
+    (value: boolean) => updateAdvancedInterfacePreferences({ adaptiveLayout: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setSurfaceMaterial = useCallback(
+    (value: SurfaceMaterial) => updateAdvancedInterfacePreferences({ surfaceMaterial: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setInteractionStyle = useCallback(
+    (value: InteractionStyle) => updateAdvancedInterfacePreferences({ interactionStyle: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setReducedTransparency = useCallback(
+    (value: boolean) => updateAdvancedInterfacePreferences({ reducedTransparency: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setStrongerContrast = useCallback(
+    (value: boolean) => updateAdvancedInterfacePreferences({ strongerContrast: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setLargeTouchTargets = useCallback(
+    (value: boolean) => updateAdvancedInterfacePreferences({ largeTouchTargets: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setClearerFocus = useCallback(
+    (value: boolean) => updateAdvancedInterfacePreferences({ clearerFocus: value }),
+    [updateAdvancedInterfacePreferences],
+  );
 
-  const setPrayerMadhab = useCallback((m: PrayerMadhab) => {
-    setPrayerMadhabState(m);
-    localStorage.setItem('app-prayer-madhab', m);
-    scheduleSave();
-  }, [scheduleSave]);
+  const resetInterfacePreferences = useCallback(() => {
+    setCornerSoftness(DEFAULT_CORNER_SOFTNESS);
+    setUiDensity(DEFAULT_DENSITY);
+    setContentWidth(DEFAULT_WIDTH);
+    setBorderStrength(DEFAULT_BORDER);
+    setSurfaceLift(DEFAULT_SURFACE_LIFT);
+    applyAdvancedInterfacePreferences(DEFAULT_ADVANCED_INTERFACE_PREFERENCES);
+  }, [
+    applyAdvancedInterfacePreferences,
+    setBorderStrength,
+    setContentWidth,
+    setCornerSoftness,
+    setSurfaceLift,
+    setUiDensity,
+  ]);
 
-  const setMidnightMode = useCallback((m: number) => {
-    setMidnightModeState(m);
-    localStorage.setItem('app-midnight-mode', String(m));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setFontSize = useCallback(
+    (s: string) => {
+      const size = resolveFontSize(s);
+      setFontSizeState(size);
+      localStorage.setItem('app-font-size', size);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setLatitudeAdjMethod = useCallback((m: LatitudeAdjMethod) => {
-    setLatitudeAdjMethodState(m);
-    localStorage.setItem('app-lat-adj-method', m);
-    scheduleSave();
-  }, [scheduleSave]);
+  const setFontWeight = useCallback(
+    (w: number) => {
+      const clamped = clampFontWeight(w);
+      setFontWeightState(clamped);
+      localStorage.setItem('app-font-weight', String(clamped));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setDstEnabled = useCallback((v: boolean) => {
-    setDstEnabledState(v);
-    localStorage.setItem('app-dst-enabled', String(v));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setFontOpacity = useCallback(
+    (o: number) => {
+      setFontOpacityState(o);
+      localStorage.setItem('app-font-opacity', String(o));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setCalcMethod = useCallback((m: CalcMethod) => {
-    setCalcMethodState(m);
-    localStorage.setItem('app-calc-method', String(m));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setPrayerMadhab = useCallback(
+    (m: PrayerMadhab) => {
+      setPrayerMadhabState(m);
+      localStorage.setItem('app-prayer-madhab', m);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setMotionSpeed = useCallback((s: number) => {
-    const clamped = Math.max(0.25, Math.min(3, s));
-    setMotionSpeedState(clamped);
-    localStorage.setItem('app-motion-speed', String(clamped));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setMidnightMode = useCallback(
+    (m: number) => {
+      setMidnightModeState(m);
+      localStorage.setItem('app-midnight-mode', String(m));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setFpsCap = useCallback((f: FpsCap) => {
-    setFpsCapState(f);
-    localStorage.setItem('app-fps-cap', String(f));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setLatitudeAdjMethod = useCallback(
+    (m: LatitudeAdjMethod) => {
+      setLatitudeAdjMethodState(m);
+      localStorage.setItem('app-lat-adj-method', m);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setMotionAmplitude = useCallback((a: number) => {
-    const clamped = Math.max(0, Math.min(1.5, a));
-    setMotionAmplitudeState(clamped);
-    localStorage.setItem('app-motion-amplitude', String(clamped));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setDstEnabled = useCallback(
+    (v: boolean) => {
+      setDstEnabledState(v);
+      localStorage.setItem('app-dst-enabled', String(v));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
 
-  const setSpringBounce = useCallback((b: number) => {
-    const clamped = Math.max(0, Math.min(1, b));
-    setSpringBounceState(clamped);
-    localStorage.setItem('app-spring-bounce', String(clamped));
-    scheduleSave();
-  }, [scheduleSave]);
+  const setCalcMethod = useCallback(
+    (m: CalcMethod) => {
+      setCalcMethodState(m);
+      localStorage.setItem('app-calc-method', String(m));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  const setMotionSpeed = useCallback(
+    (s: number) => {
+      const clamped = Math.max(0.25, Math.min(3, s));
+      setMotionSpeedState(clamped);
+      localStorage.setItem('app-motion-speed', String(clamped));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  const setFpsCap = useCallback(
+    (f: FpsCap) => {
+      setFpsCapState(f);
+      localStorage.setItem('app-fps-cap', String(f));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  const setMotionAmplitude = useCallback(
+    (a: number) => {
+      const clamped = Math.max(0, Math.min(1.5, a));
+      setMotionAmplitudeState(clamped);
+      localStorage.setItem('app-motion-amplitude', String(clamped));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  const setSpringBounce = useCallback(
+    (b: number) => {
+      const clamped = Math.max(0, Math.min(1, b));
+      setSpringBounceState(clamped);
+      localStorage.setItem('app-spring-bounce', String(clamped));
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  // Keep open tabs visually synchronized without routing storage events back
+  // through public setters (which would schedule a redundant cloud write).
+  useEffect(() => {
+    const syncAllAppearanceState = () => {
+      setThemeState(localStorage.getItem('app-theme') === 'dark' ? 'dark' : 'light');
+      setPaletteStyleState(
+        (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral',
+      );
+      setBlackModeState(localStorage.getItem('app-black-mode') === 'true');
+      setColorThemeState((localStorage.getItem('app-color-theme') as ColorTheme) || 'default');
+      setSurfaceLiftState(resolveSurfaceLift(localStorage.getItem('app-surface-lift')));
+      setFontFamilyState(resolveFontId(localStorage.getItem('app-font-family')));
+      setFontDisplayFamilyState(
+        resolveFontId(localStorage.getItem('app-font-display') ?? DEFAULT_DISPLAY_FONT_ID),
+      );
+      setFontSizeState(resolveFontSize(localStorage.getItem('app-font-size')));
+      setTypeRatioState(resolveTypeRatio(localStorage.getItem('app-type-ratio')));
+      setTypeLeadingState(resolveTypeLeading(localStorage.getItem('app-type-leading')));
+      setFontWeightState(clampFontWeight(Number(localStorage.getItem('app-font-weight') ?? 400)));
+      const storedOpacity = Number(localStorage.getItem('app-font-opacity') ?? 1);
+      setFontOpacityState(Number.isFinite(storedOpacity) ? storedOpacity : 1);
+      setCornerSoftnessState(
+        clampCornerSoftness(Number(localStorage.getItem('app-corner-softness') ?? 1)),
+      );
+      setUiDensityState(resolveDensity(localStorage.getItem('app-ui-density')));
+      setContentWidthState(resolveWidth(localStorage.getItem('app-content-width')));
+      setBorderStrengthState(resolveBorder(localStorage.getItem('app-border-strength')));
+      const storedAdvanced = parseAppearanceProfile(
+        localStorage.getItem(APPEARANCE_PREFERENCES_STORAGE_KEY),
+      );
+      const advanced = sanitizeAdvancedInterfacePreferences(
+        storedAdvanced ?? DEFAULT_ADVANCED_INTERFACE_PREFERENCES,
+      );
+      advancedInterfacePreferencesRef.current = advanced;
+      setAdvancedInterfacePreferencesState(advanced);
+    };
+
+    const onStorage = (event: StorageEvent) => {
+      if (!event.key) {
+        syncAllAppearanceState();
+        return;
+      }
+      const value = event.newValue;
+      switch (event.key) {
+        case APPEARANCE_PREFERENCES_STORAGE_KEY: {
+          const advanced = sanitizeAdvancedInterfacePreferences(
+            parseAppearanceProfile(value) ?? DEFAULT_ADVANCED_INTERFACE_PREFERENCES,
+          );
+          advancedInterfacePreferencesRef.current = advanced;
+          setAdvancedInterfacePreferencesState(advanced);
+          break;
+        }
+        case 'app-theme':
+          setThemeState(value === 'dark' ? 'dark' : 'light');
+          break;
+        case 'app-palette-style':
+          setPaletteStyleState((value as PaletteStyle) || 'neutral');
+          break;
+        case 'app-black-mode':
+          setBlackModeState(value === 'true');
+          break;
+        case 'app-color-theme':
+          setColorThemeState((value as ColorTheme) || 'default');
+          break;
+        case 'app-surface-lift':
+          setSurfaceLiftState(resolveSurfaceLift(value));
+          break;
+        case 'app-font-family':
+          setFontFamilyState(resolveFontId(value));
+          break;
+        case 'app-font-display':
+          setFontDisplayFamilyState(resolveFontId(value ?? DEFAULT_DISPLAY_FONT_ID));
+          break;
+        case 'app-font-size':
+          setFontSizeState(resolveFontSize(value));
+          break;
+        case 'app-type-ratio':
+          setTypeRatioState(resolveTypeRatio(value));
+          break;
+        case 'app-type-leading':
+          setTypeLeadingState(resolveTypeLeading(value));
+          break;
+        case 'app-font-weight':
+          setFontWeightState(clampFontWeight(Number(value ?? 400)));
+          break;
+        case 'app-font-opacity': {
+          const opacity = Number(value ?? 1);
+          setFontOpacityState(Number.isFinite(opacity) ? opacity : 1);
+          break;
+        }
+        case 'app-corner-softness':
+          setCornerSoftnessState(clampCornerSoftness(Number(value ?? 1)));
+          break;
+        case 'app-ui-density':
+          setUiDensityState(resolveDensity(value));
+          break;
+        case 'app-content-width':
+          setContentWidthState(resolveWidth(value));
+          break;
+        case 'app-border-strength':
+          setBorderStrengthState(resolveBorder(value));
+          break;
+        default:
+          break;
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const t = useCallback((key: string): string => translate(language, key), [language]);
   const dir = 'rtl';
@@ -670,12 +1218,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     root.lang = language;
 
     // Find preset and generate tokens
-    let preset = themePresets.find(p => p.id === colorTheme);
+    let preset = themePresets.find((p) => p.id === colorTheme);
     if (!preset && colorTheme === 'dynamic') {
       try {
         const saved = localStorage.getItem('app-dynamic-preset');
         if (saved) preset = JSON.parse(saved);
-      } catch { /* malformed preset - fall through to the first built-in */ }
+      } catch {
+        /* malformed preset - fall through to the first built-in */
+      }
     }
     if (!preset) preset = themePresets[0];
 
@@ -701,11 +1251,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // so the settings screen and this provider can never disagree about what a
   // font id — or a scale ratio — means.
   //
-  // The base size lands on `html { font-size }`, which is what makes every rem
-  // in the app (type, spacing, control heights) move together with one number.
+  // Keep the root at 16px so rem-based layout remains stable. Typography size
+  // preferences are expressed through the generated type tokens instead.
   useEffect(() => {
     const root = document.documentElement;
-    const { vars, rootSize, rootWeight } = typographyTokens({
+    const { vars, rootWeight } = typographyTokens({
       bodyFont: fontFamily,
       displayFont: fontDisplayFamily,
       size: fontSize,
@@ -715,17 +1265,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       opacity: fontOpacity,
     });
     applyCssVars(vars);
-    root.style.fontSize = rootSize;
+    root.style.fontSize = '16px';
     root.style.fontWeight = rootWeight;
-  }, [
-    fontFamily,
-    fontDisplayFamily,
-    fontSize,
-    typeRatio,
-    typeLeading,
-    fontWeight,
-    fontOpacity,
-  ]);
+  }, [fontFamily, fontDisplayFamily, fontSize, typeRatio, typeLeading, fontWeight, fontOpacity]);
 
   // Apply interface geometry — corners, density, column width, hairlines.
   // Every shared utility in index.css reads these variables, so this single
@@ -738,9 +1280,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         width: contentWidth,
         border: borderStrength,
         surfaceLift,
+        uiScale,
+        adaptiveLayout,
+        surfaceMaterial,
+        interactionStyle,
+        reducedTransparency,
+        strongerContrast,
+        largeTouchTargets,
+        clearerFocus,
       }),
     );
-  }, [cornerSoftness, uiDensity, contentWidth, borderStrength, surfaceLift]);
+  }, [
+    cornerSoftness,
+    uiDensity,
+    contentWidth,
+    borderStrength,
+    surfaceLift,
+    uiScale,
+    adaptiveLayout,
+    surfaceMaterial,
+    interactionStyle,
+    reducedTransparency,
+    strongerContrast,
+    largeTouchTargets,
+    clearerFocus,
+  ]);
 
   // Apply motion speed scale (mutates MOTION/motionWeight/DURATION
   // baselines and exposes --motion-scale CSS var).
@@ -761,39 +1325,159 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Install / refresh the global rAF cap.
   useEffect(() => {
     installFpsCap(fpsCap === 'auto' ? null : fpsCap);
-    return () => { /* keep cap across unmount — provider lives for the app lifetime */ };
+    return () => {
+      /* keep cap across unmount — provider lives for the app lifetime */
+    };
   }, [fpsCap]);
 
   const value = useMemo<AppContextType>(
     () => ({
-      language, setLanguage, theme, setTheme, t, dir,
-      paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,
-      surfaceLift, setSurfaceLift,
-      fontFamily, setFontFamily, fontDisplayFamily, setFontDisplayFamily,
-      fontSize, setFontSize, typeRatio, setTypeRatio, typeLeading, setTypeLeading,
-      fontWeight, setFontWeight,
-      fontOpacity, setFontOpacity,
-      cornerSoftness, setCornerSoftness, uiDensity, setUiDensity,
-      contentWidth, setContentWidth, borderStrength, setBorderStrength,
-      prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
-      latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod,
-      motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude,
-      springBounce, setSpringBounce,
+      language,
+      setLanguage,
+      theme,
+      setTheme,
+      t,
+      dir,
+      paletteStyle,
+      setPaletteStyle,
+      colorTheme,
+      setColorTheme,
+      blackMode,
+      setBlackMode,
+      surfaceLift,
+      setSurfaceLift,
+      fontFamily,
+      setFontFamily,
+      fontDisplayFamily,
+      setFontDisplayFamily,
+      fontSize,
+      setFontSize,
+      typeRatio,
+      setTypeRatio,
+      typeLeading,
+      setTypeLeading,
+      fontWeight,
+      setFontWeight,
+      fontOpacity,
+      setFontOpacity,
+      cornerSoftness,
+      setCornerSoftness,
+      uiDensity,
+      setUiDensity,
+      contentWidth,
+      setContentWidth,
+      borderStrength,
+      setBorderStrength,
+      uiScale,
+      setUiScale,
+      adaptiveLayout,
+      setAdaptiveLayout,
+      surfaceMaterial,
+      setSurfaceMaterial,
+      interactionStyle,
+      setInteractionStyle,
+      reducedTransparency,
+      setReducedTransparency,
+      strongerContrast,
+      setStrongerContrast,
+      largeTouchTargets,
+      setLargeTouchTargets,
+      clearerFocus,
+      setClearerFocus,
+      applyAdvancedInterfacePreferences,
+      resetInterfacePreferences,
+      prayerMadhab,
+      setPrayerMadhab,
+      midnightMode,
+      setMidnightMode,
+      latitudeAdjMethod,
+      setLatitudeAdjMethod,
+      dstEnabled,
+      setDstEnabled,
+      calcMethod,
+      setCalcMethod,
+      motionSpeed,
+      setMotionSpeed,
+      fpsCap,
+      setFpsCap,
+      motionAmplitude,
+      setMotionAmplitude,
+      springBounce,
+      setSpringBounce,
     }),
     [
-      language, setLanguage, theme, setTheme, t, dir,
-      paletteStyle, setPaletteStyle, colorTheme, setColorTheme, blackMode, setBlackMode,
-      surfaceLift, setSurfaceLift,
-      fontFamily, setFontFamily, fontDisplayFamily, setFontDisplayFamily,
-      fontSize, setFontSize, typeRatio, setTypeRatio, typeLeading, setTypeLeading,
-      fontWeight, setFontWeight,
-      fontOpacity, setFontOpacity,
-      cornerSoftness, setCornerSoftness, uiDensity, setUiDensity,
-      contentWidth, setContentWidth, borderStrength, setBorderStrength,
-      prayerMadhab, setPrayerMadhab, midnightMode, setMidnightMode,
-      latitudeAdjMethod, setLatitudeAdjMethod, dstEnabled, setDstEnabled, calcMethod, setCalcMethod,
-      motionSpeed, setMotionSpeed, fpsCap, setFpsCap, motionAmplitude, setMotionAmplitude,
-      springBounce, setSpringBounce,
+      language,
+      setLanguage,
+      theme,
+      setTheme,
+      t,
+      dir,
+      paletteStyle,
+      setPaletteStyle,
+      colorTheme,
+      setColorTheme,
+      blackMode,
+      setBlackMode,
+      surfaceLift,
+      setSurfaceLift,
+      fontFamily,
+      setFontFamily,
+      fontDisplayFamily,
+      setFontDisplayFamily,
+      fontSize,
+      setFontSize,
+      typeRatio,
+      setTypeRatio,
+      typeLeading,
+      setTypeLeading,
+      fontWeight,
+      setFontWeight,
+      fontOpacity,
+      setFontOpacity,
+      cornerSoftness,
+      setCornerSoftness,
+      uiDensity,
+      setUiDensity,
+      contentWidth,
+      setContentWidth,
+      borderStrength,
+      setBorderStrength,
+      uiScale,
+      setUiScale,
+      adaptiveLayout,
+      setAdaptiveLayout,
+      surfaceMaterial,
+      setSurfaceMaterial,
+      interactionStyle,
+      setInteractionStyle,
+      reducedTransparency,
+      setReducedTransparency,
+      strongerContrast,
+      setStrongerContrast,
+      largeTouchTargets,
+      setLargeTouchTargets,
+      clearerFocus,
+      setClearerFocus,
+      applyAdvancedInterfacePreferences,
+      resetInterfacePreferences,
+      prayerMadhab,
+      setPrayerMadhab,
+      midnightMode,
+      setMidnightMode,
+      latitudeAdjMethod,
+      setLatitudeAdjMethod,
+      dstEnabled,
+      setDstEnabled,
+      calcMethod,
+      setCalcMethod,
+      motionSpeed,
+      setMotionSpeed,
+      fpsCap,
+      setFpsCap,
+      motionAmplitude,
+      setMotionAmplitude,
+      springBounce,
+      setSpringBounce,
     ],
   );
 
@@ -805,4 +1489,3 @@ export function useApp() {
   if (!ctx) throw new Error('useApp must be used within AppProvider');
   return ctx;
 }
-

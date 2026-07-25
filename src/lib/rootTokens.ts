@@ -59,7 +59,7 @@ export function applyRootTokens(vars: Record<string, string>): Record<string, st
     }
   }
 
-  const merged = sanitizeRootTokens({ ...sanitized, ...readRootTokens(), ...sanitized });
+  const merged = sanitizeRootTokens({ ...readRootTokens(), ...sanitized });
   if (typeof window !== 'undefined') {
     try {
       window.localStorage.setItem(ROOT_TOKENS_STORAGE_KEY, JSON.stringify(merged));

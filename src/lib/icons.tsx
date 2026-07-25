@@ -216,6 +216,8 @@ import {
 } from '@phosphor-icons/react';
 import { forwardRef, type ReactNode } from 'react';
 
+import { useApp } from '@/contexts/AppContext';
+
 /** Re-export the Phosphor icon component type under the legacy name. */
 export type { Icon as LucideIcon } from '@phosphor-icons/react';
 
@@ -249,8 +251,12 @@ export const ICON_DEFAULT_SIZE = 24;
  * "fill" weight) still override these defaults.
  */
 export function IconProvider({ children }: { children: ReactNode }) {
+  const { interactionStyle } = useApp();
+  const weight: NonNullable<IconProps['weight']> =
+    interactionStyle === 'lively' ? 'bold' : ICON_WEIGHT;
+
   return (
-    <IconContext.Provider value={{ weight: ICON_WEIGHT, size: ICON_DEFAULT_SIZE, color: 'currentColor' }}>
+    <IconContext.Provider value={{ weight, size: ICON_DEFAULT_SIZE, color: 'currentColor' }}>
       {children}
     </IconContext.Provider>
   );
@@ -288,14 +294,20 @@ const Icon_ArrowArcLeft = /*#__PURE__*/ makeIcon(ArrowArcLeft, 'ArrowArcLeft');
 const Icon_ArrowBendUpLeft = /*#__PURE__*/ makeIcon(ArrowBendUpLeft, 'ArrowBendUpLeft');
 const Icon_ArrowBendUpRight = /*#__PURE__*/ makeIcon(ArrowBendUpRight, 'ArrowBendUpRight');
 const Icon_ArrowClockwise = /*#__PURE__*/ makeIcon(ArrowClockwise, 'ArrowClockwise');
-const Icon_ArrowCounterClockwise = /*#__PURE__*/ makeIcon(ArrowCounterClockwise, 'ArrowCounterClockwise');
+const Icon_ArrowCounterClockwise = /*#__PURE__*/ makeIcon(
+  ArrowCounterClockwise,
+  'ArrowCounterClockwise',
+);
 const Icon_ArrowDown = /*#__PURE__*/ makeIcon(ArrowDown, 'ArrowDown');
 const Icon_ArrowElbowDownLeft = /*#__PURE__*/ makeIcon(ArrowElbowDownLeft, 'ArrowElbowDownLeft');
 const Icon_ArrowLeft = /*#__PURE__*/ makeIcon(ArrowLeft, 'ArrowLeft');
 const Icon_ArrowRight = /*#__PURE__*/ makeIcon(ArrowRight, 'ArrowRight');
 const Icon_ArrowSquareOut = /*#__PURE__*/ makeIcon(ArrowSquareOut, 'ArrowSquareOut');
 const Icon_ArrowsClockwise = /*#__PURE__*/ makeIcon(ArrowsClockwise, 'ArrowsClockwise');
-const Icon_ArrowsCounterClockwise = /*#__PURE__*/ makeIcon(ArrowsCounterClockwise, 'ArrowsCounterClockwise');
+const Icon_ArrowsCounterClockwise = /*#__PURE__*/ makeIcon(
+  ArrowsCounterClockwise,
+  'ArrowsCounterClockwise',
+);
 const Icon_ArrowsOut = /*#__PURE__*/ makeIcon(ArrowsOut, 'ArrowsOut');
 const Icon_Barbell = /*#__PURE__*/ makeIcon(Barbell, 'Barbell');
 const Icon_Bell = /*#__PURE__*/ makeIcon(Bell, 'Bell');
@@ -332,7 +344,10 @@ const Icon_CircleHalf = /*#__PURE__*/ makeIcon(CircleHalf, 'CircleHalf');
 const Icon_CircleNotch = /*#__PURE__*/ makeIcon(CircleNotch, 'CircleNotch');
 const Icon_Clipboard = /*#__PURE__*/ makeIcon(Clipboard, 'Clipboard');
 const Icon_Clock = /*#__PURE__*/ makeIcon(Clock, 'Clock');
-const Icon_ClockCounterClockwise = /*#__PURE__*/ makeIcon(ClockCounterClockwise, 'ClockCounterClockwise');
+const Icon_ClockCounterClockwise = /*#__PURE__*/ makeIcon(
+  ClockCounterClockwise,
+  'ClockCounterClockwise',
+);
 const Icon_Cloud = /*#__PURE__*/ makeIcon(Cloud, 'Cloud');
 const Icon_CloudFog = /*#__PURE__*/ makeIcon(CloudFog, 'CloudFog');
 const Icon_CloudLightning = /*#__PURE__*/ makeIcon(CloudLightning, 'CloudLightning');
@@ -391,7 +406,10 @@ const Icon_List = /*#__PURE__*/ makeIcon(List, 'List');
 const Icon_Lock = /*#__PURE__*/ makeIcon(Lock, 'Lock');
 const Icon_LockOpen = /*#__PURE__*/ makeIcon(LockOpen, 'LockOpen');
 const Icon_MagnifyingGlass = /*#__PURE__*/ makeIcon(MagnifyingGlass, 'MagnifyingGlass');
-const Icon_MagnifyingGlassMinus = /*#__PURE__*/ makeIcon(MagnifyingGlassMinus, 'MagnifyingGlassMinus');
+const Icon_MagnifyingGlassMinus = /*#__PURE__*/ makeIcon(
+  MagnifyingGlassMinus,
+  'MagnifyingGlassMinus',
+);
 const Icon_MagnifyingGlassPlus = /*#__PURE__*/ makeIcon(MagnifyingGlassPlus, 'MagnifyingGlassPlus');
 const Icon_MapPin = /*#__PURE__*/ makeIcon(MapPin, 'MapPin');
 const Icon_MapTrifold = /*#__PURE__*/ makeIcon(MapTrifold, 'MapTrifold');

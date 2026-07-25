@@ -7,9 +7,10 @@ SmartHub has two layers of UI building blocks:
    look-and-feel layer that every page and feature must reuse.
 
 The visual language is deliberately restrained: one 7-step tonal scale per
-theme, opaque surfaces, hairline borders, no decorative shadows, blur,
-gradients, glows, noise, or glass effects. See
-[Colour: one scale per theme](#colour-one-scale-per-theme).
+theme, solid or bounded-alpha surfaces without backdrop effects, hairline borders,
+no decorative shadows, blur, gradients, glows, noise, or glass effects. The
+`reducedTransparency` preference forces every governed surface back to alpha 1.
+See [Colour: one scale per theme](#colour-one-scale-per-theme).
 
 ## The rule
 
@@ -26,9 +27,9 @@ not inline a one-off.
 
 The outer wrapper for every full-screen route. Owns:
 
-- safe-area aware `pt-14` / `pb-page` and 16px inline gutters
+- safe-area aware top/bottom clearance and preference-driven inline gutters
 - `min-height: 100dvh`
-- max-width container (`max-w-lg mx-auto`)
+- preference-driven max-width container (`max-w-lg mx-auto`)
 
 Props:
 
@@ -43,8 +44,9 @@ Props:
 
 ### `<AppCard>`
 
-The only allowed card surface. 16px radius, p-4, neutral border, flat: no
-shadows, blur, gradients, noise, or glow.
+The only allowed card surface. Its radius, padding, border volume and material
+alpha are token-driven. It remains flat: no shadows, blur, gradients, noise or
+glow.
 
 Props:
 
@@ -55,8 +57,8 @@ Props:
 
 ### `<IconButton>`
 
-Every header / toolbar / inline icon control. 44×44, 10px radius,
-`bg-accent/50` with a restrained hover state and the global 0.98 press response.
+Every header / toolbar / inline icon control. Its square size, tap target,
+radius, icon weight and press response come from the interface tokens.
 
 ### `<Section>`
 
@@ -215,47 +217,55 @@ a different app.
 ## Typography: derived, not fixed
 
 `src/lib/fonts.ts` owns the type system. It has four independent dimensions,
-and — unlike the version before it — all four reach the pixels:
+and all four reach the pixels without resizing interface geometry:
 
-| dimension | control                                                      | tokens written                           |
-| --------- | ------------------------------------------------------------ | ---------------------------------------- |
-| pairing   | display face + body face, or a curated `FONT_PAIRINGS` entry | `--font-display`, `--font-body`          |
-| base size | 5 steps, 15 → 19px                                           | `html { font-size }`                     |
-| ratio     | `compact` 1.125 · `balanced` 1.2 · `airy` 1.28               | `--fs-micro` … `--fs-display`            |
-| leading   | `tight` 1.45 · `normal` 1.6 · `relaxed` 1.78                 | `--type-leading`, `--type-leading-tight` |
+| dimension | control                                                      | tokens written                                     |
+| --------- | ------------------------------------------------------------ | -------------------------------------------------- |
+| pairing   | display face + body face, or a curated `FONT_PAIRINGS` entry | `--font-display`, `--font-body`                    |
+| base size | 5 steps, 15 → 19px                                           | `--type-base-scale`, `--fs-micro` … `--fs-display` |
+| ratio     | `compact` 1.125 · `balanced` 1.2 · `airy` 1.28               | `--fs-micro` … `--fs-display`                      |
+| leading   | `tight` 1.45 · `normal` 1.6 · `relaxed` 1.78                 | `--type-leading`, `--type-leading-tight`           |
+
+The document root stays fixed at **16px**. Canonical type tokens include the
+selected base-size multiplier, while the PostCSS `scale-rem-typography` pass
+makes Tailwind's static rem `font-size` utilities read `--type-base-scale` too.
+Only typography moves; cards, tap targets and gutters remain under
+`--ui-scale`.
 
 The seven steps are powers of the ratio, with exponents derived from the app's
-original pixel scale (11 · 12 · 13 · 14 · 16 · 18 · 24 at a 16px base). At the
-default ratio and base, the rendered sizes are therefore **identical** to what
-shipped before — the ratio then compresses or expands the spread around `lead`,
-which stays anchored at 1× the base.
-
-Sizes are in **rem**, never px. That is what makes the base size a single number
-that moves the whole system. It is also why
-`scripts/codemod-type-rem.mjs` converted the 1,719 arbitrary `text-[13px]`
-literals in the app to `text-[0.8125rem]`: a pixel font size silently opts out
-of the user's preference, which is how the app ended up half-scaling. A test
-now fails on any new px type size.
-
-Line heights are derived in Tailwind, not authored:
-`lineHeight: 'calc(var(--fs-body) * var(--type-leading))'`.
+original pixel scale (11 · 12 · 13 · 14 · 16 · 18 · 24 at the default base).
+The one-shot `scripts/codemod-type-rem.mjs` remains the provenance for legacy
+pixel-to-rem conversion; new code should prefer canonical `text-*` steps.
 
 ## Geometry: the shape of the interface
 
-`src/lib/interfaceScale.ts` owns everything about shape that is not colour and
-not type. Four instruments, because a flat design has no others:
+`src/lib/interfaceScale.ts` owns everything about interface shape, material and
+interaction that is not colour and not type. The system has independent,
+composable instruments:
 
-| instrument | control                                 | tokens                                                                                                                                        |
-| ---------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| corners    | one softness multiplier, 0 → 1.6        | `--r-sm/md/lg/xl`, `--radius`                                                                                                                 |
-| density    | `compact` / `cozy` / `comfortable`      | `--ui-pad-card`, `--ui-pad-card-compact`, `--ui-control-h`, `--ui-tap`, `--ui-stack-gap`, `--ui-stack-gap-sm`, `--ui-gutter`, `--ui-row-icon` |
-| width      | `narrow` / `standard` / `wide` / `full` | `--ui-content-max`                                                                                                                            |
-| borders    | `subtle` / `standard` / `defined`       | `--ui-border-alpha`, `--ui-border-soft-alpha`, `--ui-border-strong-alpha`, `--ui-divider-alpha`                                               |
+| instrument  | control                            | principal tokens                                                                |
+| ----------- | ---------------------------------- | ------------------------------------------------------------------------------- |
+| scale       | `0.85 → 1.20`                      | every `--ui-*` geometry token, emitted as px                                    |
+| corners     | one softness multiplier, `0 → 1.6` | `--r-sm/md/lg/xl`, `--radius`                                                   |
+| density     | compact / cozy / comfortable       | card, control, tap, stack, gutter and row-icon tokens                           |
+| width       | narrow / standard / wide / full    | `--ui-content-max`                                                              |
+| borders     | subtle / standard / defined        | `--ui-border-*`, `--ui-divider-alpha`                                           |
+| adaptation  | automatic / fixed                  | adaptive clamp for page gutters                                                 |
+| material    | solid / soft / airy                | `--ui-material-alpha`, `--ui-material-overlay-alpha`                            |
+| interaction | calm / balanced / lively           | press scale/offset, icon stroke and focus width                                 |
+| access      | four independent switches          | opacity override, stronger edges, 52px touch targets and clearer keyboard focus |
 
-The radius ladder is multiplied, never replaced, so a chip, a button, a card and
-a sheet keep their relationship at every setting. `--ui-content-max` also backs
-Tailwind's `max-w-lg`, which is this app's content-column convention, so the 40+
-screens that centre themselves with that class follow the width preference too.
+Geometry is authored as numeric pixels and multiplied by `uiScale` only when
+tokens are compiled. It never depends on `html { font-size }`. The radius
+ladder is multiplied rather than replaced, so a chip, button, card and sheet
+keep their relationship at every setting. `--ui-content-max` also backs
+Tailwind's `max-w-lg`, so existing centered routes participate automatically.
+
+Eight designed presets ship as complete configurations: signature, reading,
+precision, soft, pulse, studio, focus and OLED. Pulse and studio provide more
+expressive young-facing characters without breaking the flat-surface contract;
+focus and OLED are accessibility/dark-surface configurations rather than mere
+colour skins.
 
 ### The rule for new CSS
 
@@ -279,13 +289,34 @@ element on the screen that refuses to move with the rest.
 }
 ```
 
+## Persistence, profiles and cold boot
+
+Appearance platform state is versioned by
+`src/lib/appearancePreferences.ts` (`APPEARANCE_SCHEMA_VERSION = 2`). Reads are
+sanitized and migrate the former independent `app-*` keys; writes keep a
+complete v2 value and cloud persistence in sync. `AppContext` listens for
+`storage` events, so another tab updates without reloading and without saving
+the same value back to the cloud.
+
+Every compiled theme, typography and interface token is merged by
+`src/lib/rootTokens.ts` into `app-root-tokens-v1`. The bounded inline boot
+script in `index.html` validates and replays that exact token map before React,
+preventing theme flash and geometry jumps without duplicating token-generation
+logic in HTML.
+
+Users can keep up to eight named interface profiles. A profile contains only
+the 13 interface settings, is sanitized on import, and can be exported as a
+versioned JSON document. It never contains identity, account or feature data.
+
 ## Where the settings live
 
 Two screens, split by what they change rather than by which file they came from:
 
 - `/settings/appearance` — mode, palette, accent strength, ink/black mode,
   typography, prayer-clock themes. (`src/pages/AppearanceSettings.tsx`)
-- `/settings/interface` — corners, density, width, borders, surface lift.
+- `/settings/interface` — the first-class interface platform: scale, adaptive
+  layout, corners, density, width, borders, surface lift/material, interaction,
+  accessibility, complete presets and portable saved profiles.
   (`src/pages/InterfaceSettings.tsx`)
 
 Both are assembled from `src/features/appearance/components/*`, which share the

@@ -20,7 +20,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="SmartHub" />
     <title>SmartHub — أوقات الصلاة والقرآن والتقويم الهجري</title>
-    <meta name="description" content="SmartHub: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان في تطبيق عربي واحد." />
+    <meta
+      name="description"
+      content="SmartHub: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان في تطبيق عربي واحد."
+    />
     <!-- ── Web fonts ───────────────────────────────────────────────────
          This used to be THREE stylesheet requests covering nine families
          (Inter, Noto Sans Arabic, Cormorant Garamond and Amiri were each
@@ -49,13 +52,16 @@
     />
     <meta name="author" content="SmartHub" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/510b759f-93e3-4268-89b8-585a991a26c5/id-preview-ba178a4b--5e00a076-b7eb-4a24-bbac-aeff3467597a.lovable.app-1776532090540.png">
+    <meta
+      property="og:image"
+      content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/510b759f-93e3-4268-89b8-585a991a26c5/id-preview-ba178a4b--5e00a076-b7eb-4a24-bbac-aeff3467597a.lovable.app-1776532090540.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/510b759f-93e3-4268-89b8-585a991a26c5/id-preview-ba178a4b--5e00a076-b7eb-4a24-bbac-aeff3467597a.lovable.app-1776532090540.png">
-    
-    
-    
-    
+    <meta
+      name="twitter:image"
+      content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/510b759f-93e3-4268-89b8-585a991a26c5/id-preview-ba178a4b--5e00a076-b7eb-4a24-bbac-aeff3467597a.lovable.app-1776532090540.png"
+    />
+
     <meta property="og:url" content="https://amv.life/" />
     <meta property="og:site_name" content="SmartHub" />
     <script type="application/ld+json">
@@ -86,50 +92,67 @@
       }
     </script>
     <meta property="og:title" content="SmartHub — أوقات الصلاة والقرآن والتقويم الهجري" />
-  <meta name="twitter:title" content="SmartHub — أوقات الصلاة والقرآن والتقويم الهجري" />
-  <meta property="og:description" content="رفيقك اليومي: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان في تطبيق عربي واحد." />
-  <meta name="twitter:description" content="رفيقك اليومي: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان في تطبيق عربي واحد." />
-  <script>
-    (function() {
-      try {
-        const cachedTokens = localStorage.getItem('app-root-tokens-v1');
-        if (cachedTokens) {
-          const parsed = JSON.parse(cachedTokens);
-          const prototype = parsed && typeof parsed === 'object' ? Object.getPrototypeOf(parsed) : null;
-          const isPlainObject = parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) &&
-            (prototype === Object.prototype || prototype === null);
+    <meta name="twitter:title" content="SmartHub — أوقات الصلاة والقرآن والتقويم الهجري" />
+    <meta
+      property="og:description"
+      content="رفيقك اليومي: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان في تطبيق عربي واحد."
+    />
+    <meta
+      name="twitter:description"
+      content="رفيقك اليومي: أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس والديوان في تطبيق عربي واحد."
+    />
+    <script>
+      (function () {
+        try {
+          const cachedTokens = localStorage.getItem('app-root-tokens-v1');
+          if (cachedTokens) {
+            const parsed = JSON.parse(cachedTokens);
+            const prototype =
+              parsed && typeof parsed === 'object' ? Object.getPrototypeOf(parsed) : null;
+            const isPlainObject =
+              parsed !== null &&
+              typeof parsed === 'object' &&
+              !Array.isArray(parsed) &&
+              (prototype === Object.prototype || prototype === null);
 
-          if (isPlainObject) {
-            Object.entries(parsed).slice(0, 256).forEach(([key, value]) => {
-              if (key.startsWith('--') && key.length >= 3 && key.length <= 128 &&
-                  typeof value === 'string' && value.length <= 1024) {
-                document.documentElement.style.setProperty(key, value);
-              }
-            });
+            if (isPlainObject) {
+              Object.entries(parsed)
+                .slice(0, 256)
+                .forEach(([key, value]) => {
+                  if (
+                    key.startsWith('--') &&
+                    key.length >= 3 &&
+                    key.length <= 128 &&
+                    typeof value === 'string' &&
+                    value.length <= 1024
+                  ) {
+                    document.documentElement.style.setProperty(key, value);
+                  }
+                });
+            }
           }
+        } catch {
+          // Ignore an unavailable or malformed token cache and continue booting.
         }
-      } catch {
-        // Ignore an unavailable or malformed token cache and continue booting.
-      }
 
-      try {
-        const theme = localStorage.getItem('app-theme') || 'light';
-        const isDark = theme === 'dark';
-        document.documentElement.classList.toggle('dark', isDark);
+        try {
+          const theme = localStorage.getItem('app-theme') || 'light';
+          const isDark = theme === 'dark';
+          document.documentElement.classList.toggle('dark', isDark);
 
-        const lang = localStorage.getItem('app-language') || 'ar';
-        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.lang = lang;
+          const lang = localStorage.getItem('app-language') || 'ar';
+          document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.lang = lang;
 
-        // Prevent layout shift by setting correct design mode
-        document.documentElement.removeAttribute('data-md3');
-        document.documentElement.setAttribute('data-design-mode', 'classic');
-      } catch {
-        // Storage failures fall back to stylesheet and document defaults.
-      }
-    })();
-  </script>
-</head>
+          // Prevent layout shift by setting correct design mode
+          document.documentElement.removeAttribute('data-md3');
+          document.documentElement.setAttribute('data-design-mode', 'classic');
+        } catch {
+          // Storage failures fall back to stylesheet and document defaults.
+        }
+      })();
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -127,12 +127,23 @@ export function serializeAppearanceProfile(value: unknown): string {
   return JSON.stringify(sanitizeAppearanceProfile(value));
 }
 
-/** Parse and sanitize a profile. Invalid JSON and non-object payloads are rejected. */
+/** Parse an already-versioned profile. Unknown or missing versions are migrated from legacy keys. */
 export function parseAppearanceProfile(raw: string | null | undefined): AppearanceProfile | null {
   if (!raw) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
-    return isRecord(parsed) ? sanitizeAppearanceProfile(parsed) : null;
+    if (!isRecord(parsed)) return null;
+    const envelopeVersion = parsed.schemaVersion;
+    const nestedVersion = isRecord(parsed.preferences)
+      ? parsed.preferences.schemaVersion
+      : undefined;
+    if (
+      envelopeVersion !== APPEARANCE_SCHEMA_VERSION &&
+      nestedVersion !== APPEARANCE_SCHEMA_VERSION
+    ) {
+      return null;
+    }
+    return sanitizeAppearanceProfile(parsed);
   } catch {
     return null;
   }
