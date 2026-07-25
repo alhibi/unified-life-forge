@@ -17,14 +17,12 @@ export default function OptimizerPanel({
   title,
   body,
   onAccept,
-  isAr,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   body: string;
   onAccept: (next: string) => void;
-  isAr: boolean;
 }) {
   const [mode, setMode] = useState<OptimizerMode>('A');
   const { output, status, run, cancel, reset } = useOptimizer();

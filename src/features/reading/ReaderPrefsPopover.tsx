@@ -17,11 +17,9 @@ import type { ReaderPrefs } from './types';
 export function ReaderPrefsPopover({
   prefs,
   onChange,
-  isAr,
 }: {
   prefs: ReaderPrefs;
   onChange: (next: ReaderPrefs) => void;
-  isAr: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);

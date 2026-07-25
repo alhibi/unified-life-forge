@@ -260,8 +260,7 @@ type Mode = 'yatzy' | 'highroll' | 'pig';
 type Turn = 'player' | 'ai';
 
 export default function DiceGame() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [mode, setMode] = useState<Mode>(() => (localStorage.getItem('dice-mode') as Mode) || 'yatzy');
   const [aiLevel, setAiLevel] = useState<'easy' | 'hard'>(() => (localStorage.getItem('dice-ai') as 'easy' | 'hard') || 'hard');
 
@@ -338,7 +337,7 @@ export default function DiceGame() {
       'من يجمع جولات أكثر يفوز باللعبة',
       'السلسلة تتراكم مع كل فوز',
     ];
-  }, [mode, isAr]);
+  }, [mode]);
 
   const statsArr = [
     { label: 'مباريات', value: stats.gamesPlayed },
@@ -373,17 +372,16 @@ export default function DiceGame() {
 
   return (
     <GameShell title={'النرد'} icon={Dices} accentColor="hsl(346, 87%, 60%)" rules={rules} stats={statsArr} options={options}>
-      {mode === 'yatzy' && <YatzyView key="yatzy" isAr={isAr} aiLevel={aiLevel} />}
+      {mode === 'yatzy' && <YatzyView key="yatzy" aiLevel={aiLevel} />}
       {mode === 'pig' && (
         <PigView
           key={tournamentBot ? `pig-tournament-${tournamentBot.id}-${tournamentMatchId}` : 'pig'}
-          isAr={isAr}
           aiLevel={aiLevel}
           tournamentBot={tournamentBot}
           onTournamentResult={tournamentBot ? handleTournamentResult : undefined}
         />
       )}
-      {mode === 'highroll' && <HighRollView key="hr" isAr={isAr} />}
+      {mode === 'highroll' && <HighRollView key="hr" />}
     </GameShell>
   );
 }
@@ -391,7 +389,7 @@ export default function DiceGame() {
 // =============================================================================
 // Yatzy View
 // =============================================================================
-function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' }) {
+function YatzyView({ aiLevel }: { aiLevel: 'easy' | 'hard' }) {
   const [playerCard, setPlayerCard] = useState<Scorecard>({ scores: {} });
   const [aiCard, setAiCard] = useState<Scorecard>({ scores: {} });
   const [dice, setDice] = useState<number[]>([1, 1, 1, 1, 1]);
@@ -433,7 +431,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
     } else {
       setHint(null);
     }
-  }, [dice, rollsLeft, turn, playerCard, gameOver, isAr]);
+  }, [dice, rollsLeft, turn, playerCard, gameOver]);
 
   const rollDice = useCallback(() => {
     if (rolling || rollsLeft <= 0 || turn !== 'player' || gameOver) return;
@@ -613,8 +611,7 @@ function YatzyView({ isAr, aiLevel }: { isAr: boolean; aiLevel: 'easy' | 'hard' 
 // =============================================================================
 // Pig (push-your-luck) View
 // =============================================================================
-function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
-  isAr: boolean;
+function PigView({ aiLevel, tournamentBot, onTournamentResult }: {
   aiLevel: 'easy' | 'hard';
   tournamentBot?: DicePersonality | null;
   onTournamentResult?: (playerScore: number, botScore: number) => void;
@@ -689,7 +686,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
         }
       }
     }, 55);
-  }, [rolling, gameOver, turn, roundPoints, isAr, bestRoundThisGame]);
+  }, [rolling, gameOver, turn, roundPoints, bestRoundThisGame]);
 
   const playerHold = () => {
     if (rolling || gameOver || turn !== 'player' || roundPoints === 0) return;
@@ -859,7 +856,7 @@ function PigView({ isAr, aiLevel, tournamentBot, onTournamentResult }: {
 // =============================================================================
 // HighRoll View
 // =============================================================================
-function HighRollView({ isAr }: { isAr: boolean }) {
+function HighRollView({ }: { }) {
   const [hrPlayer, setHrPlayer] = useState(1);
   const [hrAi, setHrAi] = useState(1);
   const [hrScore, setHrScore] = useState({ p: 0, a: 0 });
@@ -919,7 +916,7 @@ function HighRollView({ isAr }: { isAr: boolean }) {
         }
       }
     }, 55);
-  }, [rolling, hrRound, hrRounds, hrScore, isAr, streak]);
+  }, [rolling, hrRound, hrRounds, hrScore, streak]);
 
   const finished = hrRound >= hrRounds;
 

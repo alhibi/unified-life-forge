@@ -8,7 +8,6 @@ interface ChatImageProps {
   src: string;
   alt?: string;
   className?: string;
-  isAr?: boolean;
   onLoadedSrc?: () => void;
   onClick?: (e: React.MouseEvent<HTMLImageElement>) => void;
   /** Async resolver to re-fetch a fresh signed URL on error (e.g. expired). */
@@ -62,7 +61,7 @@ const NEUTRAL = '#888888';
  *    flight.
  */
 const ChatImage: React.FC<ChatImageProps> = ({
-  src, alt, className, isAr, onLoadedSrc, onClick, refreshUrl,
+  src, alt, className, onLoadedSrc, onClick, refreshUrl,
   width, height, thumbnailDataUrl, dominantColor, maxHeight = 320,
 }) => {
   const [resolved, setResolved] = useState<string>(src || '');

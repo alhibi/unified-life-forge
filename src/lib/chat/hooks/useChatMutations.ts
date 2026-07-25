@@ -79,8 +79,7 @@ export interface UseChatMutationsResult {
 
 export function useChatMutations(activeChatId: string | null): UseChatMutationsResult {
   const { user } = useAuth();
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const viewerId = user?.id;
   const qc = useQueryClient();
 
@@ -89,7 +88,7 @@ export function useChatMutations(activeChatId: string | null): UseChatMutationsR
   const showError = useCallback((err: unknown) => {
     const ce = toChatError(err);
     toast.error(describeChatError(ce));
-  }, [isAr]);
+  }, []);
 
   // ── Send ────────────────────────────────────────────────────────────────
   const sendMutation = useMutation<ChatMessage, Error, { input: SendMessageInput; viewerId: string }>({

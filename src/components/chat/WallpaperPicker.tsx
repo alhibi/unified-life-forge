@@ -5,13 +5,12 @@ import { cn } from '@/lib/utils';
 import { WALLPAPERS } from './constants';
 
 interface WallpaperPickerProps {
-  isAr: boolean;
   currentId: string;
   onClose: () => void;
   onPick: (id: string) => void;
 }
 
-const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ isAr, currentId, onClose, onPick }) => {
+const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, onPick }) => {
   const BackIcon = ChevronRight;
   return (
     <AnimatePresence>

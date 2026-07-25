@@ -40,10 +40,9 @@ const COVER_THEMES: CoverTheme[] = [
 const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
 
 export default function ProfileEditPage() {
-  const { language } = useApp();
+  const { } = useApp();
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMountedRef = useRef(true);
 
@@ -277,7 +276,7 @@ export default function ProfileEditPage() {
       const d = new Date(createdAt);
       return d.toLocaleDateString('ar', { year: 'numeric', month: 'short' });
     } catch { return null; }
-  }, [profile, user, isAr]);
+  }, [profile, user]);
 
   const lastSeenLabel = useMemo(() => {
     const ls = (profile as any)?.last_seen;
@@ -293,7 +292,7 @@ export default function ProfileEditPage() {
       const days = Math.floor(hrs / 24);
       return `آخر ظهور قبل ${days} يوم`;
     } catch { return ''; }
-  }, [profile, isAr]);
+  }, [profile]);
 
   const copyProfileLink = async () => {
     try {

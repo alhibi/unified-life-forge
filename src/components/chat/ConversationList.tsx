@@ -16,7 +16,6 @@ import type { Conversation, ConversationFilter } from './types';
 
 interface ConversationListProps {
   conversations: Conversation[];
-  isAr: boolean;
   currentUserId: string;
   filter: ConversationFilter;
   onFilterChange: (filter: ConversationFilter) => void;
@@ -81,7 +80,7 @@ function HighlightText({ text, query }: { text: string; query?: string }) {
 
 // A row that supports a horizontal swipe revealing action indicators.
 function SwipeRow({
-  id, children, onSwipeLeft, onSwipeRight, leftLabel, rightLabel, isAr,
+  id, children, onSwipeLeft, onSwipeRight, leftLabel, rightLabel,
 }: {
   id: string;
   children: React.ReactNode;
@@ -89,7 +88,6 @@ function SwipeRow({
   onSwipeRight?: () => void;
   leftLabel?: string;
   rightLabel?: string;
-  isAr?: boolean;
 }) {
   const x = useMotionValue(0);
   const leftBg = useTransform(x, [-120, -40, 0], [
@@ -166,7 +164,7 @@ function TypingDotsMini() {
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
-  conversations, isAr, currentUserId, filter, onFilterChange, totalUnread,
+  conversations, currentUserId, filter, onFilterChange, totalUnread,
   onSelect, onNewChat, isPinned, isMuted, isArchived,
   togglePinned, toggleMuted, toggleArchived, getDraft, searchQuery, isLoading,
   typingByConv, onlineUserIds, onSearchChange, onOpenSettings, onDelete, showSearchBar,
@@ -480,7 +478,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     onSwipeRight={() => (toggleArchived(conv.id))}
                     leftLabel={(pinned ? 'إلغاء التثبيت' : 'تثبيت')}
                     rightLabel={(archived ? 'إلغاء الأرشفة' : 'أرشفة')}
-                    isAr={isAr}
                   >
                     <motion.button
                       initial={{ opacity: 0, y: 4 }}
@@ -521,7 +518,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                             'text-[11px] shrink-0 tabular-nums',
                             unread > 0 && !muted ? 'text-primary font-semibold' : 'text-muted-foreground/50'
                           )}>
-                            {conv.lastMessageTime && formatTime(conv.lastMessageTime, isAr)}
+                            {conv.lastMessageTime && formatTime(conv.lastMessageTime)}
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-2 mt-0.5">

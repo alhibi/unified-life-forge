@@ -4,7 +4,6 @@ import { useApp } from '@/contexts/AppContext';
 import { preloadAppleEmoji } from './appleEmoji';
 
 interface EmojiPickerProps {
-  isAr: boolean;
   onPick: (emoji: string) => void;
   /** When true, picker is shorter (300px). Default is 380px. */
   compact?: boolean;
@@ -26,7 +25,7 @@ interface EmojiPickerProps {
  * understands), the active locale (ar/de) and the chat composer's onPick
  * contract.
  */
-const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
+const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pickerHostRef = useRef<HTMLElement | null>(null);
   const onPickRef = useRef(onPick);
@@ -145,7 +144,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isAr, onPick, compact }) => {
     // through `onPickRef`, so a changing parent callback never tears the
     // picker down.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAr]);
+  }, []);
 
   // Hot-swap theme without remounting (emoji-mart watches the `theme`
   // attribute) and re-apply our CSS vars so colors track app theme.

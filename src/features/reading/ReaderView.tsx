@@ -79,7 +79,6 @@ interface ExtractedArticle {
 }
 
 export function ReaderView({
-  isAr,
   language,
   prefs,
   onChangePrefs,
@@ -88,7 +87,6 @@ export function ReaderView({
   isBookmarked,
   onToggleBookmark,
 }: {
-  isAr: boolean;
   language: string;
   prefs: ReaderPrefs;
   onChangePrefs: (p: ReaderPrefs) => void;
@@ -376,7 +374,7 @@ export function ReaderView({
         </h3>
         {article && (
           <>
-            <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} isAr={isAr} />
+            <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} />
             <button
               type="button"
               onClick={handleSave}
@@ -486,7 +484,6 @@ export function ReaderView({
         {!loading && !error && !article && history.length > 0 && (
           <ReaderHistoryList
             history={history}
-            isAr={isAr}
             language={language}
             onPick={(url) => {
               setInput(url);
@@ -564,14 +561,12 @@ export function ReaderView({
 
 function ReaderHistoryList({
   history,
-  isAr,
   language,
   onPick,
   onRemove,
   onClear,
 }: {
   history: ReaderHistoryEntry[];
-  isAr: boolean;
   language: string;
   onPick: (url: string) => void;
   onRemove: (url: string) => void;

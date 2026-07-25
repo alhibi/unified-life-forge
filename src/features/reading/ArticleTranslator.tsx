@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 interface ArticleTranslatorProps {
   originalHtml: string;
   originalTitle: string;
-  isAr: boolean;
   onTranslationComplete: (translatedHtml: string, translatedTitle: string) => void;
   onReset: () => void;
 }
@@ -13,7 +12,6 @@ interface ArticleTranslatorProps {
 export function ArticleTranslator({
   originalHtml,
   originalTitle,
-  isAr,
   onTranslationComplete,
   onReset,
 }: ArticleTranslatorProps) {

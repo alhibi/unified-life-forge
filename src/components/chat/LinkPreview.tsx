@@ -6,7 +6,6 @@ import { BookOpen, ExternalLink, Github, Globe, Loader2, Video } from '@/lib/ico
 
 interface LinkPreviewProps {
   url: string;
-  isAr: boolean;
 }
 
 interface LinkMeta {
@@ -17,7 +16,7 @@ interface LinkMeta {
   publisher?: string;
 }
 
-export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, isAr }) => {
+export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState<LinkMeta | null>(null);
 
@@ -111,7 +110,7 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, isAr }) => {
     return () => {
       active = false;
     };
-  }, [cleanUrl, isAr]);
+  }, [cleanUrl]);
 
   const IconComponent = () => {
     const h = cleanUrl.includes('//') ? cleanUrl.split('/')[2].toLowerCase() : '';

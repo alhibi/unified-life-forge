@@ -35,8 +35,7 @@ interface GameCardData {
 }
 
 export default function GamesPage() {
-  const { t, language } = useApp();
-  const isAr = language === 'ar';
+  const { t, } = useApp();
   const navigate = useNavigate();
 
   const getStats = <T,>(key: string): T => {
@@ -119,7 +118,7 @@ export default function GamesPage() {
       primaryStat: { label: 'فوز', value: sudStats.gamesWon || 0, accent: COLORS.sudoku },
       secondaryStat: sudStats.flawless ? { label: 'إتقان', value: sudStats.flawless } : undefined,
     },
-  ], [t, isAr, memStats, diceStats, focusStats, chessStats, puzzleStats, sudStats]);
+  ], [t, memStats, diceStats, focusStats, chessStats, puzzleStats, sudStats]);
 
   // Roll up overall progress for the header strip
   const totalWins =

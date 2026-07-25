@@ -11,7 +11,6 @@ import { startMicAnalyser, ANALYSER_BAR_COUNT, type MicAnalyserHandle } from '@/
 interface UseVoiceRecordingOptions {
   activeConvId: string | null;
   userId: string | undefined;
-  isAr: boolean;
   sendMessage: (type: string, fileUrl?: string, fileName?: string) => Promise<void>;
 }
 
@@ -69,7 +68,7 @@ function targetBitrate(mime: string): number {
  * - Refs capture the latest `activeConvId`/`userId`/`sendMessage` so onstop
  *   (fired long after start) never uses stale closures
  */
-export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: UseVoiceRecordingOptions) {
+export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoiceRecordingOptions) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [locked, setLocked] = useState(false);
@@ -102,11 +101,9 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
   const activeConvIdRef = useRef(activeConvId);
   const userIdRef = useRef(userId);
   const sendMessageRef = useRef(sendMessage);
-  const isArRef = useRef(isAr);
   useEffect(() => { activeConvIdRef.current = activeConvId; }, [activeConvId]);
   useEffect(() => { userIdRef.current = userId; }, [userId]);
   useEffect(() => { sendMessageRef.current = sendMessage; }, [sendMessage]);
-  useEffect(() => { isArRef.current = isAr; }, [isAr]);
 
   const voicePlayer = useVoicePlayer();
 
@@ -157,15 +154,14 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
   const uploadBlob = useCallback(async (blob: Blob, mime: string, ext: string): Promise<boolean> => {
     const convId = activeConvIdRef.current;
     const uid = userIdRef.current;
-    const ar = isArRef.current;
-    if (!convId || !uid) { chatError('conversationGone', ar); return false; }
+    if (!convId || !uid) { chatError('conversationGone'); return false; }
 
     // Cheap guard: don't send silent stubs
-    if (blob.size < 512) { chatError('voiceEmpty', ar); return false; }
+    if (blob.size < 512) { chatError('voiceEmpty'); return false; }
 
     // Enforce max file size. validateFile already toasts the right message.
     const probe = new File([blob], `voice.${ext}`, { type: mime });
-    if (!validateFile(probe, 'voice', ar)) return false;
+    if (!validateFile(probe, 'voice')) return false;
 
     // Use a SINGLE timestamp for both the storage path and the file_name
     // so downstream code never has to fuzzy-match by closest ts.
@@ -178,13 +174,13 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
         contentType: mime, upsert: false,
       });
       if (error) {
-        chatError('voiceUploadFailed', ar, error.message);
+        chatError('voiceUploadFailed', error.message);
         return false;
       }
       await sendMessageRef.current('voice', path, `voice_${stamp}.${ext}`);
       return true;
     } catch (err) {
-      chatError('voiceUploadFailed', ar, (err as Error)?.message);
+      chatError('voiceUploadFailed', (err as Error)?.message);
       return false;
     } finally {
       setUploadingVoice(false);
@@ -198,7 +194,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
       // Some browsers (especially iOS Safari when triggered outside a user
       // gesture by a ref-swap) need this check.
       if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-        chatError('micUnavailable', isArRef.current);
+        chatError('micUnavailable');
         return;
       }
 
@@ -242,7 +238,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
       };
 
       mediaRecorder.onerror = () => {
-        chatError('voiceUploadFailed', isArRef.current);
+        chatError('voiceUploadFailed');
         cleanupRecorder();
       };
 
@@ -260,7 +256,7 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
         cleanupRecorder();
 
         if (mode === 'cancel') return;
-        if (blob.size === 0) { chatError('voiceEmpty', isArRef.current); return; }
+        if (blob.size === 0) { chatError('voiceEmpty'); return; }
 
         if (mode === 'preview') {
           const url = URL.createObjectURL(blob);
@@ -299,13 +295,13 @@ export function useVoiceRecording({ activeConvId, userId, isAr, sendMessage }: U
         if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
           cancelModeRef.current = 'send';
           try { mediaRecorderRef.current.stop(); } catch { /* no-op */ }
-          chatError('voiceTooLong', isArRef.current);
+          chatError('voiceTooLong');
         }
       }, MAX_VOICE_SECONDS * 1000);
 
       haptic('medium');
     } catch (err) {
-      reportMicError(err, isArRef.current);
+      reportMicError(err);
       cleanupRecorder();
     }
   }, [voicePlayer, cleanupRecorder, uploadBlob]);

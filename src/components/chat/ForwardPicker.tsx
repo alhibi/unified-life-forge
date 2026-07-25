@@ -9,7 +9,6 @@ import type { Conversation, Message } from './types';
 import { getMessagePreview, stripMarkers } from './chatUtils';
 
 interface ForwardPickerProps {
-  isAr: boolean;
   messages: Message[];
   conversations: Conversation[];
   onClose: () => void;
@@ -38,7 +37,7 @@ function renderAvatar(username?: string, avatarUrl?: string | null) {
  * Modal sheet for selecting a target conversation to forward messages to.
  * Overlays on top of the chat drawer with a blur + slide-up animation.
  */
-const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversations, onClose, onForward }) => {
+const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, onClose, onForward }) => {
   const [query, setQuery] = useState('');
   const BackIcon = ChevronRight;
 
@@ -82,7 +81,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ isAr, messages, conversat
               {'رسالة محوّلة:'}
             </p>
             <p className="text-[13px] text-foreground/80 line-clamp-2" dir="auto">
-              {stripMarkers(getMessagePreview(firstMsg, isAr))}
+              {stripMarkers(getMessagePreview(firstMsg))}
               {messages.length > 1 && (
                 <span className="text-muted-foreground ms-1">
                   {`و ${messages.length - 1} رسالة أخرى`}

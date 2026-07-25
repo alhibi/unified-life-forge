@@ -7,7 +7,6 @@ import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useUserSearch, type UserSearchResult } from '@/lib/chat';
 
 interface MemberPickerProps {
-  isAr: boolean;
   /** Already-selected user ids (used to render checkmarks + drive `onChange`). */
   selectedIds: string[];
   /** User ids that should be hidden from results (e.g. existing members of a chat). */
@@ -49,8 +48,7 @@ function renderAvatar(name: string | null | undefined, avatarUrl: string | null 
  * (initial member selection) and the AddMemberSheet (post-creation
  * member additions).
  */
-const MemberPicker: React.FC<MemberPickerProps> = ({
-  isAr, selectedIds, excludeIds = [], onChange, resolveSelected,
+const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [], onChange, resolveSelected,
   placeholderAr, maxSelected = 0,
 }) => {
   const [query, setQuery] = useState('');

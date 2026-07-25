@@ -8,7 +8,6 @@ interface WeatherPlannerProps {
   temperatureC: number;
   pollenRisk: string;
   solarElevationDeg: number;
-  ar: boolean;
 }
 
 export default function WeatherPlanner({
@@ -18,7 +17,6 @@ export default function WeatherPlanner({
   temperatureC,
   pollenRisk,
   solarElevationDeg,
-  ar
 }: WeatherPlannerProps) {
 
   // Calculate running/exercise suitability (0-100)
@@ -38,23 +36,15 @@ export default function WeatherPlanner({
 
   const getD3SynthesisWindow = () => {
     if (solarElevationDeg < 45) {
-      return ar
-        ? 'زاوية الشمس منخفضة حالياً، يصعب تخليق فيتامين د الطبيعي في الجلد'
-        : 'Der Sonnenstand ist zu niedrig für eine effektive Vitamin-D-Synthese.';
+      return 'زاوية الشمس منخفضة حالياً، يصعب تخليق فيتامين د الطبيعي في الجلد';
     }
     if (uvIndex < 3) {
-      return ar
-        ? 'مؤشر الأشعة منخفض جداً، يوصى بالتعرض المباشر لمدة 30-40 دقيقة'
-        : 'Sehr niedriger UV-Index. Ein längerer Aufenthalt ist erforderlich.';
+      return 'مؤشر الأشعة منخفض جداً، يوصى بالتعرض المباشر لمدة 30-40 دقيقة';
     }
     if (uvIndex <= 7) {
-      return ar
-        ? 'مثالي! التعرض لمدة 10-15 دقيقة كافٍ جداً لتوفير احتياجك اليومي بدون ضرر'
-        : 'Perfekt! 10-15 Minuten direkte Bestrahlung sind ausreichend.';
+      return 'مثالي! التعرض لمدة 10-15 دقيقة كافٍ جداً لتوفير احتياجك اليومي بدون ضرر';
     }
-    return ar
-      ? 'الأشعة شديدة الخطورة! تجنب التعرض بدون واقي لمنع الحروق'
-      : 'Extremer UV-Index! Nur mit Sonnenschutz exponieren, um Sonnenbrand zu vermeiden.';
+    return 'الأشعة شديدة الخطورة! تجنب التعرض بدون واقي لمنع الحروق';
   };
 
   const getAdvisories = () => {
@@ -62,42 +52,32 @@ export default function WeatherPlanner({
     if (aqiUs > 100) {
       list.push({
         type: 'danger',
-        text: ar
-          ? 'الهواء غير صحي للمجموعات الحساسة. قلل من الأنشطة البدنية المجهدة خارج المنزل.'
-          : 'Schlechte Luftqualität für empfindliche Personen. Anstrengung im Freien reduzieren.'
+        text: 'الهواء غير صحي للمجموعات الحساسة. قلل من الأنشطة البدنية المجهدة خارج المنزل.'
       });
     }
     if (pollenRisk !== 'none' && pollenRisk !== 'low') {
       list.push({
         type: 'warning',
-        text: ar
-          ? 'مستوى حبوب اللقاح مرتفع، قد تعاني من أعراض الحساسية الموسمية اليوم.'
-          : 'Erhöhte Pollenbelastung. Vorsicht bei Heuschnupfen.'
+        text: 'مستوى حبوب اللقاح مرتفع، قد تعاني من أعراض الحساسية الموسمية اليوم.'
       });
     }
     if (humidityPercent > 80 && temperatureC > 28) {
       list.push({
         type: 'warning',
-        text: ar
-          ? 'رطوبة عالية خانقة مع حرارة مرتفعة، تزيد من الإرهاق الحراري وتعيق تبريد الجسم بالتعرق.'
-          : 'Kombination aus Hitze und hoher Feuchtigkeit erschwert die körpereigene Kühlung.'
+        text: 'رطوبة عالية خانقة مع حرارة مرتفعة، تزيد من الإرهاق الحراري وتعيق تبريد الجسم بالتعرق.'
       });
     }
     if (uvIndex >= 8) {
       list.push({
         type: 'danger',
-        text: ar
-          ? 'مؤشر الأشعة البنفسجية مرتفع للغاية! التعرض المباشر دون حماية يسبب حروق الجلد خلال دقائق.'
-          : 'Sehr hoher UV-Index! Direkte Sonne ohne Schutz schädigt die Haut extrem schnell.'
+        text: 'مؤشر الأشعة البنفسجية مرتفع للغاية! التعرض المباشر دون حماية يسبب حروق الجلد خلال دقائق.'
       });
     }
 
     if (list.length === 0) {
       list.push({
         type: 'success',
-        text: ar
-          ? 'الأجواء الخارجية آمنة ومريحة جداً صحياً، مثالية للاسترخاء والأنشطة في الهواء الطلق.'
-          : 'Die atmosphärischen Bedingungen sind äußerst sicher und angenehm für alle Aktivitäten.'
+        text: 'الأجواء الخارجية آمنة ومريحة جداً صحياً، مثالية للاسترخاء والأنشطة في الهواء الطلق.'
       });
     }
     return list;
@@ -112,7 +92,7 @@ export default function WeatherPlanner({
       <header className="mb-4">
         <h2 className="font-montserrat font-semibold text-[20px] leading-none text-foreground flex items-center gap-2">
           <Shield className="w-5 h-5 text-primary" />
-          {ar ? 'مخطط الأنشطة والتحذيرات الذكية' : 'Aktivitäten-Planer & Gesundheit'}
+          {'مخطط الأنشطة والتحذيرات الذكية'}
         </h2>
       </header>
 
@@ -120,7 +100,7 @@ export default function WeatherPlanner({
         {/* Activity suitability dial */}
         <div className="rounded-xl border border-border/40 bg-secondary/20 p-4 flex flex-col justify-between">
           <div>
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{ar ? 'مؤشر ممارسة الرياضة في الهواء الطلق' : 'Sporttauglichkeit im Freien'}</span>
+            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{'مؤشر ممارسة الرياضة في الهواء الطلق'}</span>
             <div className="flex items-center gap-4 mt-3">
               <svg viewBox="0 0 36 36" className="w-16 h-16 shrink-0 -rotate-90">
                 <path
@@ -147,10 +127,10 @@ export default function WeatherPlanner({
                 <span className="font-montserrat text-[32px] font-extrabold text-foreground leading-none tabular-nums">{exerciseScore}%</span>
                 <p className="text-xs text-muted-foreground mt-1 font-semibold">
                   {exerciseScore >= 80
-                    ? (ar ? 'أجواء ممتازة وملائمة للجري' : 'Hervorragendes Wetter für Sport')
+                    ? ('أجواء ممتازة وملائمة للجري')
                     : exerciseScore >= 50
-                    ? (ar ? 'ملائمة مقبولة، انتبه للحرارة' : 'Akzeptable Bedingungen')
-                    : (ar ? 'غير موصى بممارسة الرياضة خارجاً' : 'Sport im Freien nicht empfohlen')}
+                    ? ('ملائمة مقبولة، انتبه للحرارة')
+                    : ('غير موصى بممارسة الرياضة خارجاً')}
                 </p>
               </div>
             </div>
@@ -159,7 +139,7 @@ export default function WeatherPlanner({
           <div className="border-t border-border/30 pt-3 mt-4">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-1.5">
               <Sun className="w-4 h-4 text-primary" />
-              <span>{ar ? 'تخليق فيتامين د (D3 Window)' : 'Vitamin-D-Fenster'}</span>
+              <span>{'تخليق فيتامين د (D3 Window)'}</span>
             </div>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
               {getD3SynthesisWindow()}
@@ -170,7 +150,7 @@ export default function WeatherPlanner({
         {/* Health advisories & Respiratory notes */}
         <div className="rounded-xl border border-border/40 bg-secondary/20 p-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{ar ? 'الإرشادات والتحذيرات الطبية الجوية' : 'Ärztliche Wetterhinweise'}</span>
+            <span className="text-[10px] tracking-wider uppercase text-muted-foreground">{'الإرشادات والتحذيرات الطبية الجوية'}</span>
 
             <div className="space-y-2">
               {advisories.map((adv, idx) => {
@@ -197,12 +177,12 @@ export default function WeatherPlanner({
           <div className="border-t border-border/30 pt-3 mt-4 flex items-center gap-4 text-[11px] text-muted-foreground">
             <div className="flex items-center gap-1">
               <Leaf className="w-3.5 h-3.5 text-primary" />
-              <span>{ar ? 'حبوب اللقاح:' : 'Pollen:'}</span>
+              <span>{'حبوب اللقاح:'}</span>
               <span className="text-foreground font-semibold">{pollenRisk}</span>
             </div>
             <div className="flex items-center gap-1">
               <Droplets className="w-3.5 h-3.5 text-primary" />
-              <span>{ar ? 'الرطوبة:' : 'Feuchte:'}</span>
+              <span>{'الرطوبة:'}</span>
               <span className="text-foreground font-semibold">{humidityPercent}%</span>
             </div>
           </div>

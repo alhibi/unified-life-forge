@@ -50,12 +50,10 @@ interface Stats {
 type ConfirmAction = 'clear-images' | 'clear-archive' | null;
 
 export function StorageView({
-  isAr,
   bookmarksCount,
   onBack,
   onRecacheNow,
 }: {
-  isAr: boolean;
   bookmarksCount: number;
   onBack: () => void;
   onRecacheNow: () => Promise<void> | void;
@@ -364,7 +362,6 @@ export function StorageView({
 
       <ConfirmDialog
         open={confirmAction !== null}
-        isAr={isAr}
         title={confirmAction === 'clear-archive'
           ? { ar: 'مسح كل المقالات المخزّنة؟', en: 'Clear all cached articles?' }
           : { ar: 'مسح الصور المخبأة؟', en: 'Clear image cache?' }}

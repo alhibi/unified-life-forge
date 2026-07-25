@@ -46,13 +46,11 @@ interface PreviewRow extends FeedSource {
 
 export function OpmlImportDialog({
   open,
-  isAr,
   existingUrls,
   onClose,
   onImport,
 }: {
   open: boolean;
-  isAr: boolean;
   existingUrls: Set<string>;
   onClose: () => void;
   /** Called when the user confirms. Returns the {added, skipped} stats
@@ -321,7 +319,6 @@ export function OpmlImportDialog({
           {stage === 'preview' && (
             <PreviewStage
               rows={rows}
-              isAr={isAr}
               onPatchRow={patchRow}
               onSelectAll={(v) => {
                 setRows((prev) => prev.map((r) => (
@@ -414,12 +411,10 @@ export function OpmlImportDialog({
 
 function PreviewStage({
   rows,
-  isAr,
   onPatchRow,
   onSelectAll,
 }: {
   rows: PreviewRow[];
-  isAr: boolean;
   onPatchRow: (url: string, patch: Partial<PreviewRow>) => void;
   onSelectAll: (v: boolean) => void;
 }) {
@@ -463,7 +458,6 @@ function PreviewStage({
                   <PreviewRowItem
                     key={row.url}
                     row={row}
-                    isAr={isAr}
                     onPatch={onPatchRow}
                   />
                 ))}
@@ -478,11 +472,9 @@ function PreviewStage({
 
 function PreviewRowItem({
   row,
-  isAr,
   onPatch,
 }: {
   row: PreviewRow;
-  isAr: boolean;
   onPatch: (url: string, patch: Partial<PreviewRow>) => void;
 }) {
   const [catOpen, setCatOpen] = useState(false);

@@ -16,7 +16,6 @@ export interface SearchedCity {
 
 interface CitySearchProps {
   onSelectCity: (lat: number, lng: number, name: string) => void;
-  ar: boolean;
 }
 
 function getFlagEmoji(countryCode: string): string {
@@ -32,7 +31,7 @@ function getFlagEmoji(countryCode: string): string {
   }
 }
 
-export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
+export default function CitySearch({ onSelectCity, }: CitySearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchedCity[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,7 +70,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
       setLoading(true);
       try {
         const response = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${ar ? 'ar' : 'en'}`
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=${'ar'}`
         );
         const data = await response.json();
         setResults(data.results || []);
@@ -83,7 +82,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [query, ar]);
+  }, [query]);
 
   const handleSelect = (city: SearchedCity) => {
     // Add to history (limit to 5)
@@ -114,14 +113,14 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
   };
 
   return (
-    <div className="relative w-full z-30" dir={ar ? 'rtl' : 'ltr'}>
+    <div className="relative w-full z-30" dir={'rtl'}>
       <div className="relative flex items-center">
         <Search className="absolute ms-3.5 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={ar ? 'البحث عن مدينة أو قرية...' : 'Stadt oder Dorf suchen...'}
+          placeholder={'البحث عن مدينة أو قرية...'}
           className="w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all shadow-sm"
         />
         {query && (
@@ -146,14 +145,14 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
             {loading && (
               <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
                 <Loader className="w-4 h-4 animate-spin text-primary" />
-                <span>{ar ? 'جاري البحث في الأرجاء...' : 'Suche in der Welt...'}</span>
+                <span>{'جاري البحث في الأرجاء...'}</span>
               </div>
             )}
 
             {!loading && results.length > 0 && (
               <div className="space-y-1">
                 <div className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30">
-                  {ar ? 'نتائج البحث' : 'Suchergebnisse'}
+                  {'نتائج البحث'}
                 </div>
                 {results.map((city) => {
                   const isFav = favorites.some(item => item.id === city.id);
@@ -201,7 +200,7 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                 {favorites.length > 0 && (
                   <div className="space-y-1">
                     <div className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
-                      <span>{ar ? 'المدن المفضلة' : 'Favoriten'}</span>
+                      <span>{'المدن المفضلة'}</span>
                       <Star className="w-3.5 h-3.5 text-primary fill-primary" />
                     </div>
                     {favorites.map((city) => (
@@ -245,12 +244,12 @@ export default function CitySearch({ onSelectCity, ar }: CitySearchProps) {
                 {history.length > 0 && (
                   <div className="space-y-1">
                     <div className="text-[10px] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
-                      <span>{ar ? 'عمليات البحث الأخيرة' : 'Letzte Suchen'}</span>
+                      <span>{'عمليات البحث الأخيرة'}</span>
                       <button
                         onClick={clearHistory}
                         className="text-[10px] lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {ar ? 'مسح السجل' : 'Verlauf löschen'}
+                        {'مسح السجل'}
                       </button>
                     </div>
                     {history.map((city) => {

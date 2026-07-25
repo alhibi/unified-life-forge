@@ -54,7 +54,6 @@ export function ArticleReader({
   article,
   isBookmarked,
   prefs,
-  isAr,
   language,
   onBack,
   onToggleBookmark,
@@ -64,7 +63,6 @@ export function ArticleReader({
   article: FeedItem;
   isBookmarked: boolean;
   prefs: ReaderPrefs;
-  isAr: boolean;
   language: string;
   onBack: () => void;
   onToggleBookmark: () => void;
@@ -406,7 +404,7 @@ export function ArticleReader({
 
   const dirAttr = useMemo(() => {
     return 'rtl';
-  }, [isAr]);
+  }, []);
 
   return (
     <motion.div
@@ -441,7 +439,7 @@ export function ArticleReader({
           {article.source}
         </span>
         <div className="flex items-center gap-0.5">
-          <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} isAr={isAr} />
+          <ReaderPrefsPopover prefs={prefs} onChange={onChangePrefs} />
           <button
             type="button"
             onClick={onToggleBookmark}
@@ -542,7 +540,6 @@ export function ArticleReader({
           <div className="mb-4">
             <ArticleSpeechPlayer
               textToSpeak={bodyHtml || article.description || displayTitle}
-              isAr={isAr}
               language={language}
               ttsSpeed={prefs.ttsSpeed}
               onTtsSpeedChange={(speed) => onChangePrefs({ ...prefs, ttsSpeed: speed })}
@@ -554,7 +551,6 @@ export function ArticleReader({
             <ArticleTranslator
               originalHtml={originalBodyHtml || article.description || ''}
               originalTitle={originalTitle}
-              isAr={isAr}
               onTranslationComplete={(transHtml, transTitle) => {
                 setBodyHtml(transHtml);
                 setDisplayTitle(transTitle);

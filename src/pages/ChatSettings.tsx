@@ -43,8 +43,7 @@ import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
  * (`/chat/settings`) from anywhere in the app.
  */
 export default function ChatSettingsPage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -144,7 +143,6 @@ export default function ChatSettingsPage() {
                   { value: 'nobody', labelAr: 'لا أحد', },
                 ]}
                 onChange={(v) => cs.patchPrivacy({ lastSeenVisibility: v as Settings['privacy']['lastSeenVisibility'] })}
-                isAr={isAr}
               />
               <SelectRow
                 icon={<FileText />}
@@ -156,7 +154,6 @@ export default function ChatSettingsPage() {
                   { value: 'nobody', labelAr: 'لا أحد', },
                 ]}
                 onChange={(v) => cs.patchPrivacy({ bioVisibility: v as Settings['privacy']['bioVisibility'] })}
-                isAr={isAr}
               />
               <ToggleRow
                 icon={<CheckCircle2 />}
@@ -220,7 +217,6 @@ export default function ChatSettingsPage() {
                 disabled={!cs.settings.notifications.enabled}
               />
               <QuietHoursRow
-                isAr={isAr}
                 start={cs.settings.notifications.quietHoursStart}
                 end={cs.settings.notifications.quietHoursEnd}
                 onChange={(start, end) =>
@@ -244,7 +240,6 @@ export default function ChatSettingsPage() {
                   { value: 'xlarge',  labelAr: 'أكبر', },
                 ]}
                 onChange={(v) => cs.patchAppearance({ fontScale: v as Settings['appearance']['fontScale'] })}
-                isAr={isAr}
               />
               <SelectRow
                 icon={<Palette />}
@@ -256,7 +251,6 @@ export default function ChatSettingsPage() {
                   { value: 'cozy',        labelAr: 'فسيح', },
                 ]}
                 onChange={(v) => cs.patchAppearance({ density: v as Settings['appearance']['density'] })}
-                isAr={isAr}
               />
               <ToggleRow
                 icon={<ImageIcon />}
@@ -326,7 +320,6 @@ export default function ChatSettingsPage() {
                   cs.patchBehavior({
                     use24h: v === 'locale' ? null : v === '24h',
                   })}
-                isAr={isAr}
               />
             </Card>
           </Section>
@@ -400,7 +393,6 @@ export default function ChatSettingsPage() {
                   { value: '0.92', labelAr: 'ممتازة (92%)', },
                 ]}
                 onChange={(v) => cs.patchStorage({ compressionQuality: parseFloat(v) })}
-                isAr={isAr}
               />
               <ActionRow
                 icon={<Trash2 className="text-destructive" />}
@@ -584,9 +576,8 @@ interface SelectRowProps {
   value: string;
   options: Array<{ value: string; labelAr: string; }>;
   onChange: (next: string) => void;
-  isAr: boolean;
 }
-function SelectRow({ icon, label, value, options, onChange, isAr }: SelectRowProps) {
+function SelectRow({ icon, label, value, options, onChange, }: SelectRowProps) {
   const current = options.find(o => o.value === value) ?? options[0];
   return (
     <div className="relative">
@@ -692,13 +683,12 @@ function ActionRow({ icon, label, description, onClick, disabled, danger }: Acti
 }
 
 interface QuietHoursRowProps {
-  isAr: boolean;
   start: number | null;
   end: number | null;
   onChange: (start: number | null, end: number | null) => void;
   disabled?: boolean;
 }
-function QuietHoursRow({ isAr, start, end, onChange, disabled }: QuietHoursRowProps) {
+function QuietHoursRow({ start, end, onChange, disabled }: QuietHoursRowProps) {
   const enabled = start !== null && end !== null;
   return (
     <div className={cn('px-4 py-3', disabled && 'opacity-60')}>

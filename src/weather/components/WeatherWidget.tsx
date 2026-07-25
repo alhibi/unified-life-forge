@@ -30,24 +30,23 @@ function iconFor(code: number, isDay: boolean) {
   return isDay ? Sun : MoonStar;
 }
 
-function conditionLabel(code: number, ar: boolean): string {
-  if (code <= 1) return ar ? 'صافٍ' : 'Klar';
-  if (code === 2) return ar ? 'غائم جزئياً' : 'Teilweise bewölkt';
-  if (code === 3) return ar ? 'غائم' : 'Bewölkt';
-  if (code === 45 || code === 48) return ar ? 'ضباب' : 'Nebel';
-  if (code >= 51 && code <= 57) return ar ? 'رذاذ' : 'Nieselregen';
-  if (code >= 61 && code <= 67) return ar ? 'أمطار' : 'Regen';
-  if (code >= 71 && code <= 77) return ar ? 'ثلوج' : 'Schnee';
-  if (code >= 80 && code <= 82) return ar ? 'زخات مطر' : 'Regenschauer';
-  if (code >= 85 && code <= 86) return ar ? 'زخات ثلج' : 'Schneeschauer';
-  if (code >= 95) return ar ? 'عواصف رعدية' : 'Gewitter';
+function conditionLabel(code: number): string {
+  if (code <= 1) return 'صافٍ';
+  if (code === 2) return 'غائم جزئياً';
+  if (code === 3) return 'غائم';
+  if (code === 45 || code === 48) return 'ضباب';
+  if (code >= 51 && code <= 57) return 'رذاذ';
+  if (code >= 61 && code <= 67) return 'أمطار';
+  if (code >= 71 && code <= 77) return 'ثلوج';
+  if (code >= 80 && code <= 82) return 'زخات مطر';
+  if (code >= 85 && code <= 86) return 'زخات ثلج';
+  if (code >= 95) return 'عواصف رعدية';
   return '—';
 }
 
 export default function WeatherWidget() {
   const navigate = useNavigate();
-  const { language } = useApp();
-  const ar = language === 'ar';
+  const { } = useApp();
   const { data } = useWeatherData('ar');
 
   if (!data) {
@@ -55,7 +54,7 @@ export default function WeatherWidget() {
       <div
         className="w-full rounded-2xl border border-border/60 bg-card p-4 animate-pulse"
         style={{ minHeight: 132 }}
-        aria-label={ar ? 'جارٍ تحميل الطقس' : 'Wetter wird geladen'}
+        aria-label={'جارٍ تحميل الطقس'}
       />
     );
   }
@@ -66,20 +65,20 @@ export default function WeatherWidget() {
   const apparent = Math.round(current.apparentTemperature);
   const hi = Math.round(data.daily[0]?.tempMax ?? temp);
   const lo = Math.round(data.daily[0]?.tempMin ?? temp);
-  const cond = conditionLabel(current.weatherCode, ar);
+  const cond = conditionLabel(current.weatherCode);
 
   return (
     <button
       onClick={() => navigate('/weather')}
-      dir={ar ? 'rtl' : 'ltr'}
+      dir={'rtl'}
       className="w-full text-start rounded-2xl border border-border/60 bg-card overflow-hidden surface-depth-pressable active:scale-[0.98]"
-      aria-label={ar ? 'فتح تفاصيل الطقس' : 'Wetterdetails öffnen'}
+      aria-label={'فتح تفاصيل الطقس'}
     >
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="text-[15px] font-semibold text-foreground truncate">
-              {ar ? 'الطقس الآن' : 'Wetter jetzt'}
+              {'الطقس الآن'}
             </h3>
             <p className="mt-0.5 text-[12px] text-muted-foreground truncate">{cond}</p>
           </div>
@@ -96,7 +95,7 @@ export default function WeatherWidget() {
             {temp}°
           </span>
           <div className="pb-1 text-[11px] text-muted-foreground tabular-nums text-end">
-            <div>{ar ? 'الإحساس' : 'Gefühlt'} <span className="text-foreground/85 font-medium">{apparent}°</span></div>
+            <div>{'الإحساس'} <span className="text-foreground/85 font-medium">{apparent}°</span></div>
             <div>H {hi}° · L {lo}°</div>
           </div>
         </div>

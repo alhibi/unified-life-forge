@@ -33,7 +33,6 @@ export function ArticleCard({
   cached,
   language,
   density = 'comfortable',
-  isAr: isArProp,
   hasAbove = false,
   hasBelow = false,
   registerEl,
@@ -51,7 +50,6 @@ export function ArticleCard({
   cached?: boolean;
   language: string;
   density?: Density;
-  isAr?: boolean;
   hasAbove?: boolean;
   hasBelow?: boolean;
   /** Optional ref-callback so a parent IntersectionObserver can watch
@@ -64,7 +62,6 @@ export function ArticleCard({
   onMarkAboveRead?: () => void;
   onMarkBelowRead?: () => void;
 }) {
-  const isAr = isArProp ?? language === 'ar';
   const minutes = readingMinutes(
     article.fullContent || article.description || article.title,
     language,
@@ -152,7 +149,6 @@ export function ArticleCard({
         article={article}
         isRead={isRead}
         isBookmarked={isBookmarked}
-        isAr={isAr}
         hasAbove={hasAbove}
         hasBelow={hasBelow}
         onMarkRead={handleMarkRead}
@@ -163,7 +159,6 @@ export function ArticleCard({
       >
         <div ref={registerEl} data-link={article.link} className="relative overflow-hidden">
           <SwipeBackdrop
-            isAr={isAr}
             bookmarkOpacity={bookmarkBgOpacity}
             markReadOpacity={markReadBgOpacity}
             isRead={isRead}
@@ -220,7 +215,6 @@ export function ArticleCard({
         article={article}
         isRead={isRead}
         isBookmarked={isBookmarked}
-        isAr={isAr}
         hasAbove={hasAbove}
         hasBelow={hasBelow}
         onMarkRead={handleMarkRead}
@@ -231,7 +225,6 @@ export function ArticleCard({
       >
         <div ref={registerEl} data-link={article.link} className="relative overflow-hidden px-3 py-2">
           <SwipeBackdrop
-            isAr={isAr}
             bookmarkOpacity={bookmarkBgOpacity}
             markReadOpacity={markReadBgOpacity}
             isRead={isRead}
@@ -325,7 +318,6 @@ export function ArticleCard({
       article={article}
       isRead={isRead}
       isBookmarked={isBookmarked}
-      isAr={isAr}
       hasAbove={hasAbove}
       hasBelow={hasBelow}
       onMarkRead={handleMarkRead}
@@ -343,7 +335,6 @@ export function ArticleCard({
         className={`group relative overflow-hidden ${isRead ? 'opacity-70' : ''}`}
       >
         <SwipeBackdrop
-          isAr={isAr}
           bookmarkOpacity={bookmarkBgOpacity}
           markReadOpacity={markReadBgOpacity}
           isRead={isRead}
@@ -467,14 +458,12 @@ export function ArticleCard({
  * via the motion-value transforms passed in.
  */
 function SwipeBackdrop({
-  isAr,
   bookmarkOpacity,
   markReadOpacity,
   isRead,
   isBookmarked,
   rounded = false,
 }: {
-  isAr: boolean;
   bookmarkOpacity: import('framer-motion').MotionValue<number>;
   markReadOpacity: import('framer-motion').MotionValue<number>;
   isRead: boolean;

@@ -27,8 +27,7 @@ export interface UseSelfDestructResult {
 }
 
 export function useSelfDestruct(chat: ChatSummary | null | undefined): UseSelfDestructResult {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const seconds = chat?.selfDestructSeconds ?? null;
 
   const label = useMemo(() => {
@@ -39,7 +38,7 @@ export function useSelfDestruct(chat: ChatSummary | null | undefined): UseSelfDe
     if (seconds < 3600)       return `${Math.floor(seconds / 60)}m`;
     if (seconds < 86400)      return `${Math.floor(seconds / 3600)}h`;
     return `${Math.floor(seconds / 86400)}d`;
-  }, [seconds, isAr]);
+  }, [seconds]);
 
   const setSeconds = useCallback(async (next: number | null) => {
     if (!chat) return;
