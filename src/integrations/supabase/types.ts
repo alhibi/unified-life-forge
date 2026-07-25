@@ -953,6 +953,15 @@ export type Database = {
           word_count: number
         }[]
       }
+      search_profiles: {
+        Args: { lim?: number; q: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          user_id: string
+          username: string
+        }[]
+      }
       search_rss_articles: {
         Args: {
           max_rows?: number
