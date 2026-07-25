@@ -67,7 +67,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
   if (readOnly) {
     return (
       <div className="px-4 py-3 border-t border-border/15 bg-muted/15">
-        <p className="text-[12px] text-muted-foreground text-center">
+        <p className="text-[0.75rem] text-muted-foreground text-center">
           {readOnlyReason ?? ('لا يمكنك الإرسال هنا')}
         </p>
       </div>
@@ -84,12 +84,12 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
             editing ? 'bg-amber-500' : 'bg-primary',
           )} />
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">
+            <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">
               {editing
                 ? <><Pencil className="w-3 h-3" />{'تعديل'}</>
                 : <><Reply className="w-3 h-3" />{'رد'}</>}
             </p>
-            <p className="text-[12px] text-foreground/80 truncate" dir="auto">
+            <p className="text-[0.75rem] text-foreground/80 truncate" dir="auto">
               {(editing?.content ?? replyTo?.content ?? '').slice(0, 120)}
             </p>
           </div>
@@ -142,7 +142,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
             placeholder={'اكتب رسالة...'}
             className={cn(
               'w-full bg-transparent outline-none resize-none px-4 py-2.5',
-              'text-[14px] leading-snug placeholder:text-muted-foreground/40',
+              'text-[0.875rem] leading-snug placeholder:text-muted-foreground/40',
               'max-h-[140px]',
             )}
             dir="auto"

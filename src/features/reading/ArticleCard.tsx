@@ -189,7 +189,7 @@ export function ArticleCard({
               <SourcePill name={article.source} size="sm" />
               <span
                 dir="auto"
-                className={`flex-1 min-w-0 truncate text-[13px] inline-flex items-center gap-1.5 ${
+                className={`flex-1 min-w-0 truncate text-[0.8125rem] inline-flex items-center gap-1.5 ${
                   isRead ? 'font-normal text-foreground/70' : 'font-semibold text-foreground'
                 }`}
               >
@@ -198,7 +198,7 @@ export function ArticleCard({
                 )}
                 <span className="truncate">{article.title}</span>
               </span>
-              <span className="text-[10px] text-muted-foreground/70 shrink-0 tabular-nums">
+              <span className="text-[0.625rem] text-muted-foreground/70 shrink-0 tabular-nums">
                 {timeAgo(article.pubDate, language)}
               </span>
               {isBookmarked && (
@@ -267,7 +267,7 @@ export function ArticleCard({
             <div className="p-3.5 space-y-2">
               <h4
                 dir="auto"
-                className={`text-[15px] leading-snug line-clamp-2 flex items-start gap-1.5 ${
+                className={`text-[0.9375rem] leading-snug line-clamp-2 flex items-start gap-1.5 ${
                   isRead ? 'font-normal text-foreground/75' : 'font-semibold text-foreground'
                 }`}
               >
@@ -283,15 +283,15 @@ export function ArticleCard({
               )}
               <div className="flex items-center gap-2 flex-wrap">
                 <SourcePill name={article.source} size="sm" />
-                <span className="text-[11px] text-foreground/75 font-medium truncate max-w-[120px]">
+                <span className="text-[0.6875rem] text-foreground/75 font-medium truncate max-w-[120px]">
                   {article.source}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-[11px] text-muted-foreground/70 shrink-0">
+                <span className="text-[0.6875rem] text-muted-foreground/70 shrink-0">
                   {timeAgo(article.pubDate, language)}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-[11px] text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
+                <span className="text-[0.6875rem] text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
                   <Clock className="h-2.5 w-2.5" />
                   {`${minutes} د`}
                 </span>
@@ -300,7 +300,7 @@ export function ArticleCard({
                 )}
                 {cached && !isBookmarked && (
                   <span
-                    className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0"
+                    className="inline-flex items-center gap-0.5 text-[0.625rem] text-emerald-600 dark:text-emerald-400 shrink-0"
                     title={'متاحة دون اتصال'}
                   >
                     <CircleCheck className="h-2.5 w-2.5" />
@@ -372,7 +372,7 @@ export function ArticleCard({
             <div className="flex-1 min-w-0">
               <h4
                 dir="auto"
-                className={`text-[15px] leading-[1.35] line-clamp-2 tracking-[-0.005em] flex items-start gap-1.5 ${
+                className={`text-[0.9375rem] leading-[1.35] line-clamp-2 tracking-[-0.005em] flex items-start gap-1.5 ${
                   isRead
                     ? 'font-medium text-foreground/65'
                     : 'font-bold text-foreground'
@@ -386,22 +386,22 @@ export function ArticleCard({
               {article.description && (
                 <p
                   dir="auto"
-                  className="text-[12px] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
+                  className="text-[0.75rem] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
                 >
                   {article.description}
                 </p>
               )}
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <SourcePill name={article.source} size="sm" />
-                <span className="text-[11px] text-foreground/80 font-semibold truncate max-w-[120px]">
+                <span className="text-[0.6875rem] text-foreground/80 font-semibold truncate max-w-[120px]">
                   {article.source}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-[11px] text-muted-foreground/70 shrink-0">
+                <span className="text-[0.6875rem] text-muted-foreground/70 shrink-0">
                   {timeAgo(article.pubDate, language)}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-[11px] text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
+                <span className="text-[0.6875rem] text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
                   <Clock className="h-2.5 w-2.5" />
                   {`${minutes} د`}
                 </span>
@@ -410,7 +410,7 @@ export function ArticleCard({
                 )}
                 {cached && !isBookmarked && (
                   <span
-                    className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0"
+                    className="inline-flex items-center gap-0.5 text-[0.625rem] text-emerald-600 dark:text-emerald-400 shrink-0"
                     title={'متاحة دون اتصال'}
                   >
                     <CircleCheck className="h-2.5 w-2.5" />
@@ -560,7 +560,7 @@ export function HeroArticleCard({
  <div className="absolute inset-0" />
  <div className="absolute top-3 start-3 flex items-center gap-2">
  <SourcePill name={article.source} size="md" />
- <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black/70 text-white/95">
+ <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-black/70 text-white/95">
  {article.source}
  </span>
  </div>
@@ -579,11 +579,11 @@ export function HeroArticleCard({
       <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-12">
         <h2
           dir="auto"
-          className="text-white text-[18px] font-bold leading-tight line-clamp-3 "
+          className="text-white text-[1.125rem] font-bold leading-tight line-clamp-3 "
         >
           {article.title}
         </h2>
-        <div className="flex items-center gap-2 mt-2 text-white/85 text-[11px]">
+        <div className="flex items-center gap-2 mt-2 text-white/85 text-[0.6875rem]">
           <span>{timeAgo(article.pubDate, language)}</span>
           <span className="w-1 h-1 rounded-full bg-white/50" />
           <Clock className="h-3 w-3" />

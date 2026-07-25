@@ -104,7 +104,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
       />
       {c.commonMistakes.length > 0 && (
         <div className="space-y-1.5">
-          <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+          <h4 className="text-[0.6875rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
             {T.mistakes[lang]}
           </h4>
@@ -120,7 +120,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
                       : 'bg-muted/30 border-border/30'
                 }`}
               >
-                <p className={`text-[12px] font-semibold ${
+                <p className={`text-[0.75rem] font-semibold ${
                   m.severity === 'critical' ? 'text-rose-500' : m.severity === 'warning' ? 'text-amber-500' : 'text-foreground'
                 }`}>
                   {m.text[lang]}
@@ -134,10 +134,10 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
       <div className="bg-cyan-500/8 border border-cyan-500/30 rounded-xl p-3 flex items-start gap-2">
         <Wind className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-cyan-500 font-semibold mb-0.5">
+          <p className="text-[0.625rem] uppercase tracking-wider text-cyan-500 font-semibold mb-0.5">
             {T.breathing[lang]}
           </p>
-          <p className="text-[12px] text-foreground/90">{c.breathingCue[lang]}</p>
+          <p className="text-[0.75rem] text-foreground/90">{c.breathingCue[lang]}</p>
         </div>
       </div>
 
@@ -160,7 +160,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
       )}
 
       {c.finisherQuote && (
-        <p className="text-center text-[13px] italic text-muted-foreground py-2">
+        <p className="text-center text-[0.8125rem] italic text-muted-foreground py-2">
           "{c.finisherQuote[lang]}"
         </p>
       )}
@@ -171,12 +171,12 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
 function FallbackBody({ lang }: { lang: 'ar' }) {
   return (
     <div className="space-y-3">
-      <p className="text-[12px] text-muted-foreground">{T.noCues[lang]}</p>
+      <p className="text-[0.75rem] text-muted-foreground">{T.noCues[lang]}</p>
       <div className="bg-muted/30 border border-border/30 rounded-xl p-3">
-        <p className="text-[12px] text-foreground">{GENERIC_WARMUP[lang]}</p>
+        <p className="text-[0.75rem] text-foreground">{GENERIC_WARMUP[lang]}</p>
       </div>
       <div className="bg-rose-500/8 border border-rose-500/30 rounded-xl p-3">
-        <p className="text-[12px] text-foreground">{GENERIC_SAFETY[lang]}</p>
+        <p className="text-[0.75rem] text-foreground">{GENERIC_SAFETY[lang]}</p>
       </div>
     </div>
   );
@@ -187,13 +187,13 @@ function Section({
 }: { icon: React.ReactNode; title: string; items: string[]; accent: 'blue' | 'emerald' | 'amber' | 'rose' | 'violet' }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+      <h4 className="text-[0.6875rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
         {icon} {title}
       </h4>
       <ul className="space-y-1.5">
         {items.map((s, i) => (
           <li key={i} className="bg-card border border-border/40 rounded-lg p-2">
-            <p className="text-[12px] text-foreground/90 leading-relaxed">{s}</p>
+            <p className="text-[0.75rem] text-foreground/90 leading-relaxed">{s}</p>
           </li>
         ))}
       </ul>

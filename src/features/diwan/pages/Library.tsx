@@ -80,15 +80,15 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           )}
           <div className="flex-1 min-w-0">
             {/* عنوان علوي صغير بلون wax */}
-            <p className="text-[11px] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
+            <p className="text-[0.6875rem] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
               محراب · الأدب
             </p>
-            <h1 className="text-[24px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
+            <h1 className="text-[1.5rem] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
               <LibraryIcon className="w-6 h-6 text-[var(--wax)] shrink-0" />
               المكتبة الكبرى
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <p className="text-[12px] text-[#B8AA8E]">الموسوعة الشعرية العربية الخالدة</p>
+              <p className="text-[0.75rem] text-[#B8AA8E]">الموسوعة الشعرية العربية الخالدة</p>
               <FallbackBadge />
             </div>
           </div>
@@ -102,13 +102,13 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           className="rounded-[12px] border border-[var(--hairline-strong)] bg-[#1D1811] p-5 mb-5 relative overflow-hidden"
         >
           {/* علامة معينة صغيرة (◆) في الزاوية */}
-          <div className="absolute top-[12px] start-[16px] text-[10px] text-[var(--wax)] opacity-60">
+          <div className="absolute top-[12px] start-[16px] text-[0.625rem] text-[var(--wax)] opacity-60">
             ◆
           </div>
 
           <div className="flex items-center gap-1.5 mb-3.5 select-none">
             <Sparkles className="w-4 h-4 text-[var(--wax)]" />
-            <span className="text-[11px] font-bold text-[#7E7259] uppercase tracking-wider">
+            <span className="text-[0.6875rem] font-bold text-[#7E7259] uppercase tracking-wider">
               الرقوق المحفوظة
             </span>
           </div>
@@ -174,8 +174,8 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
                 <Network className="w-4 h-4 text-[var(--wax)]" />
               </div>
               <div className="text-start">
-                <p className="font-bold text-[13px] leading-tight">الشجرة الأدبية للتواصل</p>
-                <p className="text-[11px] mt-0.5 text-[#7E7259]">
+                <p className="font-bold text-[0.8125rem] leading-tight">الشجرة الأدبية للتواصل</p>
+                <p className="text-[0.6875rem] mt-0.5 text-[#7E7259]">
                   صلات الشعراء وتأثيراتهم عبر القرون
                 </p>
               </div>
@@ -203,14 +203,14 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
                       <div className="w-full h-[65vh] min-h-[380px] rounded-[12px] border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center">
                         <div className="flex flex-col items-center gap-2 text-[#7E7259]">
                           <Loader2 className="w-5 h-5 animate-spin text-[var(--wax)]" />
-                          <span className="text-[11px]">جاري بسط الشجرة الأدبية…</span>
+                          <span className="text-[0.6875rem]">جاري بسط الشجرة الأدبية…</span>
                         </div>
                       </div>
                     }
                   >
                     <LiteraryGraph onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)} />
                   </Suspense>
-                  <p className="text-[11px] text-[#7E7259] text-center mt-3 leading-relaxed max-w-sm mx-auto select-none">
+                  <p className="text-[0.6875rem] text-[#7E7259] text-center mt-3 leading-relaxed max-w-sm mx-auto select-none">
                     اضغط على أي شاعر لرؤية علاقاته الأدبية، أو انقر على "قصائده" لزيارة ديوانه
                     الخاص.
                   </p>
@@ -230,10 +230,10 @@ function Stat({ label, value, icon }: { label: string; value: string; icon: Reac
       <div className="flex items-center justify-center gap-1.5 text-[#7E7259] mb-1 select-none">
         {icon}
       </div>
-      <div className="text-[17px] font-bold text-[#F2E9D8] tabular-nums leading-tight font-amiri select-all">
+      <div className="text-[1.0625rem] font-bold text-[#F2E9D8] tabular-nums leading-tight font-amiri select-all">
         {value}
       </div>
-      <div className="text-[11px] text-[#7E7259] mt-1 select-none font-tajawal">{label}</div>
+      <div className="text-[0.6875rem] text-[#7E7259] mt-1 select-none font-tajawal">{label}</div>
     </div>
   );
 }
@@ -260,8 +260,8 @@ function ActionLink({
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-[13px] text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
-        <p className="text-[11px] text-[#7E7259] mt-0.5 truncate font-tajawal">{sub}</p>
+        <p className="font-bold text-[0.8125rem] text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
+        <p className="text-[0.6875rem] text-[#7E7259] mt-0.5 truncate font-tajawal">{sub}</p>
       </div>
       <Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />
     </Link>

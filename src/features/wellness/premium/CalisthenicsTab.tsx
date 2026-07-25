@@ -205,7 +205,7 @@ export default function CalisthenicsTab(_props: Props) {
               key={s.key}
               onClick={() => { setSection(s.key); setPickedSkill(null); }}
               aria-pressed={active}
-              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-[11px] font-semibold transition-colors ${
+              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-[0.6875rem] font-semibold transition-colors ${
                 active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -244,8 +244,8 @@ export default function CalisthenicsTab(_props: Props) {
                       <Target className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-[13px] font-bold text-foreground">{T.startAssessment[lang]}</p>
-                      <p className="text-[11px] text-muted-foreground">{T.noProgress[lang]}</p>
+                      <p className="text-[0.8125rem] font-bold text-foreground">{T.startAssessment[lang]}</p>
+                      <p className="text-[0.6875rem] text-muted-foreground">{T.noProgress[lang]}</p>
                     </div>
                   </div>
                   <button
@@ -273,16 +273,16 @@ export default function CalisthenicsTab(_props: Props) {
                   {activeProgramDef ? (
                     <div className="rounded-2xl bg-primary/8 border border-primary/30 p-3 flex items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">
+                        <p className="text-[0.625rem] uppercase tracking-wider text-primary font-semibold">
                           {T.activeProgram[lang]}
                         </p>
-                        <p className="text-[13px] font-bold text-foreground truncate">
+                        <p className="text-[0.8125rem] font-bold text-foreground truncate">
                           {activeProgramDef.name[lang]}
                         </p>
                       </div>
                       <button
                         onClick={() => setSection('programs')}
-                        className="text-[11px] font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
+                        className="text-[0.6875rem] font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
                       >
                         {T.changeProgram[lang]}
                       </button>
@@ -293,10 +293,10 @@ export default function CalisthenicsTab(_props: Props) {
                       className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center justify-between"
                     >
                       <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
                           {T.activeProgram[lang]}
                         </p>
-                        <p className="text-[12px] font-semibold text-foreground">{T.noActiveProgram[lang]}</p>
+                        <p className="text-[0.75rem] font-semibold text-foreground">{T.noActiveProgram[lang]}</p>
                       </div>
                       <Library className="w-4 h-4 text-muted-foreground" />
                     </button>
@@ -308,8 +308,8 @@ export default function CalisthenicsTab(_props: Props) {
                     className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center justify-between active:scale-[0.99]"
                   >
                     <div>
-                      <p className="text-[12px] font-bold text-foreground">{T.exploreSkills[lang]}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[0.75rem] font-bold text-foreground">{T.exploreSkills[lang]}</p>
+                      <p className="text-[0.625rem] text-muted-foreground">
                         {SKILLS.length} {'مهارة من المبتدئ للنخبة'}
                       </p>
                     </div>
@@ -326,7 +326,7 @@ export default function CalisthenicsTab(_props: Props) {
                 <>
                   <button
                     onClick={() => setPickedSkill(null)}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground"
+                    className="inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-muted-foreground"
                   >
                     <ChevronLeft className="w-4 h-4" /> {T.back[lang]}
                   </button>
@@ -378,8 +378,8 @@ export default function CalisthenicsTab(_props: Props) {
               <div className="w-12 h-12 rounded-full bg-primary/15 mx-auto flex items-center justify-center">
                 <Target className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-[15px] font-bold text-foreground">{T.startAssessment[lang]}</h3>
-              <p className="text-[12px] text-muted-foreground">
+              <h3 className="text-[0.9375rem] font-bold text-foreground">{T.startAssessment[lang]}</h3>
+              <p className="text-[0.75rem] text-muted-foreground">
                 {'12 سؤال لتحديد مستواك في كل مهارة وتوصية برنامج مناسب.'}
               </p>
               <button
@@ -446,8 +446,8 @@ function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: nu
  <Flame className="w-4 h-4 text-primary" />
  </div>
  <div>
- <h2 className="text-[14px] font-bold text-foreground leading-tight">{T.title[lang]}</h2>
- <p className="text-[10px] text-muted-foreground">{T.tagline[lang]}</p>
+ <h2 className="text-[0.875rem] font-bold text-foreground leading-tight">{T.title[lang]}</h2>
+ <p className="text-[0.625rem] text-muted-foreground">{T.tagline[lang]}</p>
  </div>
  </div>
  <div className="grid grid-cols-3 gap-1.5">
@@ -463,8 +463,8 @@ function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: s
  return (
  <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
  <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
- <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
- <div className="text-[10px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+ <div className="text-[0.875rem] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
+ <div className="text-[0.625rem] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
  </div>
  );
 }
@@ -491,21 +491,21 @@ function SuggestedNext({
       <div className="flex items-center gap-2">
         <span className="text-2xl">{skill.emoji}</span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: skill.color }}>
+          <p className="text-[0.625rem] uppercase tracking-wider font-semibold" style={{ color: skill.color }}>
             {T.todayRecommendation[lang]}
           </p>
-          <p className="text-[14px] font-bold text-foreground leading-tight">{skill.name[lang]}</p>
-          <p className="text-[10px] text-muted-foreground tabular-nums">
+          <p className="text-[0.875rem] font-bold text-foreground leading-tight">{skill.name[lang]}</p>
+          <p className="text-[0.625rem] text-muted-foreground tabular-nums">
             {CATEGORY_LABEL[skill.category][lang]} · {cur ? cur.name[lang] : '—'}
           </p>
         </div>
       </div>
       {next && (
         <div className="bg-card/80 rounded-lg p-2 border border-border/30">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
             {T.weeksToNext[lang]}
           </p>
-          <p className="text-[11px] font-semibold text-foreground">
+          <p className="text-[0.6875rem] font-semibold text-foreground">
             {next.name[lang]} <span className="text-muted-foreground">· ~{weeksToNext} {'أسابيع'}</span>
           </p>
         </div>
@@ -513,14 +513,14 @@ function SuggestedNext({
       <div className="flex gap-2">
         <button
           onClick={() => onView(skill.key)}
-          className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-[11px] font-semibold"
+          className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-[0.6875rem] font-semibold"
         >
           <BookOpen className="w-3 h-3 inline-block me-1" /> {'اعرض السلم'}
         </button>
         {cur?.isHold && (
           <button
             onClick={() => onTrain(skill.key, stepIdx)}
-            className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold inline-flex items-center justify-center gap-1"
+            className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-[0.6875rem] font-bold inline-flex items-center justify-center gap-1"
           >
             <Timer className="w-3 h-3" /> {T.startTimer[lang]}
           </button>
@@ -553,14 +553,14 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
       {/* Mastered skills */}
       {masteredArr.length > 0 && (
         <div className="rounded-2xl bg-warning/10 border border-warning/30 p-3 space-y-2">
-          <p className="text-[10px] uppercase tracking-wider text-warning font-semibold inline-flex items-center gap-1">
+          <p className="text-[0.625rem] uppercase tracking-wider text-warning font-semibold inline-flex items-center gap-1">
             <Trophy className="w-3 h-3" /> {T.mastered[lang]}
           </p>
           <div className="grid grid-cols-3 gap-1.5">
             {masteredArr.map((s) => (
               <div key={s.key} className="bg-warning/10 rounded-lg p-1.5 text-center">
                 <span className="text-lg">{s.emoji}</span>
-                <p className="text-[10px] font-bold text-foreground line-clamp-1">{s.name[lang]}</p>
+                <p className="text-[0.625rem] font-bold text-foreground line-clamp-1">{s.name[lang]}</p>
               </div>
             ))}
           </div>
@@ -569,22 +569,22 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
 
       {/* Best holds */}
       <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold inline-flex items-center gap-1">
+        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold inline-flex items-center gap-1">
           <Timer className="w-3 h-3" /> {T.bestHolds[lang]}
         </p>
         {holdEntries.length === 0 ? (
-          <p className="text-[12px] text-muted-foreground text-center py-3">{T.noHolds[lang]}</p>
+          <p className="text-[0.75rem] text-muted-foreground text-center py-3">{T.noHolds[lang]}</p>
         ) : (
           <div className="space-y-1.5">
             {holdEntries.sort((a, b) => b.sec - a.sec).map((h) => (
               <div key={h.id} className="flex items-center justify-between gap-2 bg-muted/30 rounded-lg p-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-bold text-foreground truncate">
+                  <p className="text-[0.6875rem] font-bold text-foreground truncate">
                     <span className="me-1">{h.skill.emoji}</span>
                     {h.skill.name[lang]} — {h.step.name[lang]}
                   </p>
                 </div>
-                <span className="text-[14px] font-bold tabular-nums" style={{ color: h.skill.color }}>
+                <span className="text-[0.875rem] font-bold tabular-nums" style={{ color: h.skill.color }}>
                   {h.sec}s
                 </span>
               </div>

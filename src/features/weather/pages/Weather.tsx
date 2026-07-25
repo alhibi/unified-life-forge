@@ -63,12 +63,12 @@ function Panel({ title, sub, children }: { title?: string; sub?: string; childre
       {(title || sub) && (
         <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
           {title && (
-            <h2 className="font-semibold text-[18px] leading-none text-foreground">
+            <h2 className="font-semibold text-[1.125rem] leading-none text-foreground">
               {title}
             </h2>
           )}
           {sub && (
-            <span className="text-[11px] tracking-[0.15em] uppercase text-foreground/90 font-bold tabular-nums text-end">
+            <span className="text-[0.6875rem] tracking-[0.15em] uppercase text-foreground/90 font-bold tabular-nums text-end">
               {sub}
             </span>
           )}
@@ -98,15 +98,15 @@ function Metric({
         {icon && (
           <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-primary shrink-0">{icon}</span>
         )}
-        <span className="text-[11px] tracking-[0.12em] uppercase truncate">{label}</span>
+        <span className="text-[0.6875rem] tracking-[0.12em] uppercase truncate">{label}</span>
       </div>
       <div className="mt-1 flex items-baseline gap-1 tabular-nums" dir="ltr">
-        <span className="font-bold text-[22px] leading-none text-foreground">
+        <span className="font-bold text-[1.375rem] leading-none text-foreground">
           {value}
         </span>
-        {unit && <span className="text-[12px] text-primary/90 font-bold">{unit}</span>}
+        {unit && <span className="text-[0.75rem] text-primary/90 font-bold">{unit}</span>}
       </div>
-      {hint && <p className="mt-0.5 text-[11px] text-foreground/80 font-medium truncate">{hint}</p>}
+      {hint && <p className="mt-0.5 text-[0.6875rem] text-foreground/80 font-medium truncate">{hint}</p>}
     </div>
   );
 }
@@ -131,7 +131,7 @@ function GaugeTile({
   return (
     <div className="rounded-2xl surface-depth p-3.5 min-w-0 h-full">
       <div className="flex items-center justify-between gap-2 text-foreground/90 font-semibold">
-        <span className="text-[11px] tracking-[0.12em] uppercase truncate">{label}</span>
+        <span className="text-[0.6875rem] tracking-[0.12em] uppercase truncate">{label}</span>
         {icon && (
           <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>
         )}
@@ -163,13 +163,13 @@ function GaugeTile({
         </svg>
         <div className="min-w-0">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-bold text-[22px] leading-none text-foreground">
+            <span className="font-bold text-[1.375rem] leading-none text-foreground">
               {value}
             </span>
-            {unit && <span className="text-[11px] text-primary/90 font-bold">{unit}</span>}
+            {unit && <span className="text-[0.6875rem] text-primary/90 font-bold">{unit}</span>}
           </div>
           {hint && (
-            <p className="mt-1 text-[11px] text-foreground/80 font-medium truncate">{hint}</p>
+            <p className="mt-1 text-[0.6875rem] text-foreground/80 font-medium truncate">{hint}</p>
           )}
         </div>
       </div>
@@ -225,7 +225,7 @@ function SourceHealthPanel() {
               {rows.map((r) => (
                 <div
                   key={r.id}
-                  className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-[11px] border-b border-border/20 pb-2 last:border-0 last:pb-0"
+                  className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-[0.6875rem] border-b border-border/20 pb-2 last:border-0 last:pb-0"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
@@ -303,7 +303,7 @@ function HourlyRibbon({
                 transition={{ delay: i * 0.03, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="w-[56px] shrink-0 rounded-2xl border border-border/45 bg-background/40 px-1.5 py-2.5 text-center"
               >
-                <div className="text-[10px] tracking-[0.1em] uppercase text-foreground/90 font-bold tabular-nums">
+                <div className="text-[0.625rem] tracking-[0.1em] uppercase text-foreground/90 font-bold tabular-nums">
                   {i === 0
                     ? 'الآن'
                     : new Date(e.timestamp_unix).toLocaleTimeString(locale, {
@@ -312,7 +312,7 @@ function HourlyRibbon({
                       })}
                 </div>
                 <Icon className="w-4 h-4 mx-auto my-1.5 text-primary" strokeWidth={1.4} />
-                <div className="font-bold text-[18px] leading-none text-foreground tabular-nums">
+                <div className="font-bold text-[1.125rem] leading-none text-foreground tabular-nums">
                   {Math.round(e.temperature_c)}°
                 </div>
                 <div className="mt-2 h-8 rounded-full bg-foreground/5 relative overflow-hidden">
@@ -321,7 +321,7 @@ function HourlyRibbon({
                     style={{ height: `${Math.max(6, heat * 100)}%` }}
                   />
                 </div>
-                <div className="mt-1 text-[10px] text-primary/80 tabular-nums">
+                <div className="mt-1 text-[0.625rem] text-primary/80 tabular-nums">
                   {Math.round(e.precip_probability_percent)}%
                 </div>
               </motion.div>
@@ -428,16 +428,16 @@ function WindCompass({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-extrabold text-[32px] leading-none text-foreground">
+            <span className="font-extrabold text-[2rem] leading-none text-foreground">
               {Math.round(speed)}
             </span>
-            <span className="text-[12px] text-primary/90 font-bold">km/h</span>
+            <span className="text-[0.75rem] text-primary/90 font-bold">km/h</span>
           </div>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-[0.6875rem] text-muted-foreground">
             {cardinal} · {Math.round(dirDeg)}°
           </p>
-          <p className="mt-2 text-[11px] text-foreground/80 leading-snug">{beaufort}</p>
-          <p className="mt-1 text-[10px] text-primary/80 tabular-nums" dir="ltr">
+          <p className="mt-2 text-[0.6875rem] text-foreground/80 leading-snug">{beaufort}</p>
+          <p className="mt-1 text-[0.625rem] text-primary/80 tabular-nums" dir="ltr">
             {'هبات'} {Math.round(gusts)} km/h
           </p>
         </div>
@@ -535,11 +535,11 @@ function AQIGauge({
             <circle cx={cx} cy={cy} r="4" fill="hsl(var(--foreground))" />
           </svg>
           <div className="absolute inset-x-0 -bottom-1 text-center">
-            <div className="font-bold text-[24px] leading-none text-foreground tabular-nums">
+            <div className="font-bold text-[1.5rem] leading-none text-foreground tabular-nums">
               {Math.round(caqi)}
             </div>
             <div
-              className="text-[11px] tracking-[0.12em] uppercase font-bold"
+              className="text-[0.6875rem] tracking-[0.12em] uppercase font-bold"
               style={{ color: activeBand.color }}
             >
               {activeBand.label}
@@ -547,10 +547,10 @@ function AQIGauge({
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] leading-relaxed text-muted-foreground line-clamp-3">
+          <p className="text-[0.6875rem] leading-relaxed text-muted-foreground line-clamp-3">
             {advisory}
           </p>
-          <div className="mt-2 flex items-center gap-2 text-[10px] tracking-[0.16em] uppercase text-primary/80">
+          <div className="mt-2 flex items-center gap-2 text-[0.625rem] tracking-[0.16em] uppercase text-primary/80">
             <span>{'مؤشر الصحة البشري'}</span>
             <span className="tabular-nums text-foreground font-semibold">{healthScore}/100</span>
           </div>
@@ -566,7 +566,7 @@ function AQIGauge({
               key={p.label}
               className="rounded-xl border border-border/40 bg-background/30 px-2 py-2 min-w-0"
             >
-              <div className="flex items-center justify-between text-[10px] tracking-[0.12em] uppercase text-muted-foreground">
+              <div className="flex items-center justify-between text-[0.625rem] tracking-[0.12em] uppercase text-muted-foreground">
                 <span>{p.label}</span>
                 <span className="tabular-nums font-semibold" style={{ color }}>
                   {p.value.toFixed(p.label === 'CO' ? 2 : 1)}
@@ -662,29 +662,29 @@ function LiveSunArc({
       </div>
       <div className="mt-2 grid grid-cols-3 gap-2 text-center" dir="ltr">
         <div>
-          <div className="flex items-center justify-center gap-1 text-[11px] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
+          <div className="flex items-center justify-center gap-1 text-[0.6875rem] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
             <Sunrise className="w-3 h-3 text-primary" /> {'شروق'}
           </div>
-          <div className="mt-1 font-bold text-[18px] leading-none text-foreground tabular-nums">
+          <div className="mt-1 font-bold text-[1.125rem] leading-none text-foreground tabular-nums">
             {timeLabel(sunrise, locale)}
           </div>
         </div>
         <div>
-          <div className="flex items-center justify-center gap-1 text-[11px] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
+          <div className="flex items-center justify-center gap-1 text-[0.6875rem] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
             <Sun className="w-3 h-3 text-primary" /> {'الآن'}
           </div>
-          <div className="mt-1 font-bold text-[18px] leading-none text-foreground tabular-nums">
+          <div className="mt-1 font-bold text-[1.125rem] leading-none text-foreground tabular-nums">
             {elevationDeg.toFixed(0)}°
           </div>
-          <div className="text-[11px] text-primary/90 font-bold tabular-nums">
+          <div className="text-[0.6875rem] text-primary/90 font-bold tabular-nums">
             {Math.round(azimuthDeg)}°
           </div>
         </div>
         <div>
-          <div className="flex items-center justify-center gap-1 text-[11px] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
+          <div className="flex items-center justify-center gap-1 text-[0.6875rem] tracking-[0.12em] uppercase text-foreground/90 font-semibold">
             <Sunset className="w-3 h-3 text-primary" /> {'غروب'}
           </div>
-          <div className="mt-1 font-bold text-[18px] leading-none text-foreground tabular-nums">
+          <div className="mt-1 font-bold text-[1.125rem] leading-none text-foreground tabular-nums">
             {timeLabel(sunset, locale)}
           </div>
         </div>
@@ -721,7 +721,7 @@ function DailyRangeStrip({
               transition={{ delay: i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="grid grid-cols-[56px_28px_1fr_auto] items-center gap-3"
             >
-              <span className="text-[11px] text-muted-foreground font-medium">
+              <span className="text-[0.6875rem] text-muted-foreground font-medium">
                 {i === 0
                   ? 'اليوم'
                   : new Date(d.date_unix).toLocaleDateString(locale, { weekday: 'short' })}
@@ -733,7 +733,7 @@ function DailyRangeStrip({
                   style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }}
                 />
               </div>
-              <span className="text-[11px] tabular-nums text-foreground font-medium">
+              <span className="text-[0.6875rem] tabular-nums text-foreground font-medium">
                 <span className="text-muted-foreground">{Math.round(d.low_c)}°</span>
                 <span className="mx-1 text-muted-foreground/50">·</span>
                 {Math.round(d.high_c)}°
@@ -852,11 +852,11 @@ export default function Weather() {
         <div className="px-4 py-3 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
-            <h1 className="font-bold text-[20px] leading-none text-foreground truncate">
+            <h1 className="font-bold text-[1.25rem] leading-none text-foreground truncate">
               {selectedCoords?.name || 'لوحة الأرصاد الجوية والفيزياء'}
             </h1>
             <p
-              className="mt-2 text-[11px] tracking-[0.15em] uppercase text-primary/90 font-bold tabular-nums"
+              className="mt-2 text-[0.6875rem] tracking-[0.15em] uppercase text-primary/90 font-bold tabular-nums"
               dir="ltr"
             >
               {Math.round(snapshot.meta.location.elevation_m)} m · {activeLocation?.lat.toFixed(2)},{' '}
@@ -896,7 +896,7 @@ export default function Weather() {
                 }`}
               >
                 <TabIcon className="w-4 h-4" />
-                <span className="text-[10px] leading-tight text-center truncate max-w-full">
+                <span className="text-[0.625rem] leading-tight text-center truncate max-w-full">
                   {t.label}
                 </span>
               </button>
@@ -927,22 +927,22 @@ export default function Weather() {
                 <div className="relative p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-[11px] tracking-[0.2em] uppercase text-primary/95 font-bold">
+                      <p className="text-[0.6875rem] tracking-[0.2em] uppercase text-primary/95 font-bold">
                         {comfortLabel(snapshot.temperature.thermal_comfort_level)}
                       </p>
                       <div className="mt-3 flex items-end gap-3" dir="ltr">
-                        <span className="text-[82px] leading-[0.72] text-foreground tabular-nums font-extrabold">
+                        <span className="text-[5.125rem] leading-[0.72] text-foreground tabular-nums font-extrabold">
                           {Math.round(snapshot.temperature.actual_c)}°
                         </span>
-                        <span className="mb-1 text-[24px] leading-none text-primary/90 font-bold tabular-nums">
+                        <span className="mb-1 text-[1.5rem] leading-none text-primary/90 font-bold tabular-nums">
                           /{Math.round(snapshot.temperature.apparent_c)}°
                         </span>
                       </div>
-                      <p className="mt-4 text-[14px] text-foreground/95 font-extrabold">
+                      <p className="mt-4 text-[0.875rem] text-foreground/95 font-extrabold">
                         {labelForWeatherCode(currentHour?.weather_code ?? 0)}
                       </p>
                       <p
-                        className="mt-2 text-[12px] text-foreground/90 font-bold tabular-nums"
+                        className="mt-2 text-[0.75rem] text-foreground/90 font-bold tabular-nums"
                         dir="ltr"
                       >
                         ↑ {Math.round(snapshot.temperature.daily_high_c)}° · ↓{' '}
@@ -960,11 +960,11 @@ export default function Weather() {
                         <CurrentIcon className="w-20 h-20 text-primary" strokeWidth={1.05} />
                       </motion.div>
                       <div className="text-center">
-                        <div className="text-[11px] tracking-[0.15em] uppercase text-foreground/80 font-bold">
+                        <div className="text-[0.6875rem] tracking-[0.15em] uppercase text-foreground/80 font-bold">
                           {'ثقة التنبؤ'}
                         </div>
                         <div
-                          className="font-bold text-[22px] leading-none text-foreground tabular-nums"
+                          className="font-bold text-[1.375rem] leading-none text-foreground tabular-nums"
                           dir="ltr"
                         >
                           {conf}%
@@ -1008,15 +1008,15 @@ export default function Weather() {
                         key={m.label}
                         className="rounded-xl border border-border/50 bg-background/50 py-2.5 px-1.5 shadow-sm"
                       >
-                        <div className="text-[11px] tracking-[0.1em] uppercase text-foreground/90 font-bold">
+                        <div className="text-[0.6875rem] tracking-[0.1em] uppercase text-foreground/90 font-bold">
                           {m.label}
                         </div>
                         <div className="mt-1 flex items-baseline justify-center gap-0.5 tabular-nums">
-                          <span className="font-bold text-[18px] leading-none text-foreground">
+                          <span className="font-bold text-[1.125rem] leading-none text-foreground">
                             {m.value}
                           </span>
                           {m.unit && (
-                            <span className="text-[10px] text-primary/90 font-bold">{m.unit}</span>
+                            <span className="text-[0.625rem] text-primary/90 font-bold">{m.unit}</span>
                           )}
                         </div>
                       </div>
@@ -1284,7 +1284,7 @@ export default function Weather() {
         </AnimatePresence>
 
         <footer
-          className="pt-2 pb-6 text-center text-[10px] tracking-[0.18em] uppercase text-primary/70 tabular-nums"
+          className="pt-2 pb-6 text-center text-[0.625rem] tracking-[0.18em] uppercase text-primary/70 tabular-nums"
           dir="ltr"
         >
           {tier ?? 'fresh'} · {timeLabel(snapshot.meta.last_updated_unix, locale)} ·{' '}

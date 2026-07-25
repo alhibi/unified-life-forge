@@ -145,7 +145,7 @@ const AttachmentMenu = React.memo(function AttachmentMenu({
               >
                 <opt.icon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-[10px] text-muted-foreground font-medium">{opt.label}</span>
+              <span className="text-[0.625rem] text-muted-foreground font-medium">{opt.label}</span>
             </motion.button>
           ))}
         </div>
@@ -209,16 +209,16 @@ const MentionSuggestionList = React.memo(function MentionSuggestionList({
               {user.avatarUrl ? (
                 <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-[11px] font-bold text-primary">
+                <span className="text-[0.6875rem] font-bold text-primary">
                   {(user.username || '?')[0].toUpperCase()}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium text-foreground truncate">
+              <p className="text-[0.8125rem] font-medium text-foreground truncate">
                 {user.displayName || user.username}
               </p>
-              <p className="text-[11px] text-muted-foreground">@{user.username}</p>
+              <p className="text-[0.6875rem] text-muted-foreground">@{user.username}</p>
             </div>
           </motion.button>
         ))}
@@ -242,7 +242,7 @@ const CharacterCounter = React.memo(function CharacterCounter({ count }: { count
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
-        'absolute top-1 end-2 text-[10px] font-mono tabular-nums',
+        'absolute top-1 end-2 text-[0.625rem] font-mono tabular-nums',
         isOver
           ? 'text-destructive font-bold'
           : remaining < 100
@@ -574,13 +574,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
           >
             <div className="px-3 pt-2 pb-1">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[12px] text-muted-foreground font-medium">
+                <span className="text-[0.75rem] text-muted-foreground font-medium">
                   {stagedPreviews.length} {'صورة'}
                 </span>
                 <button
                   onClick={clearStagedImages}
                   aria-label={'مسح جميع الصور'}
-                  className="text-[11px] text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors"
+                  className="text-[0.6875rem] text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors"
                 >
                   {'مسح الكل'}
                 </button>
@@ -626,11 +626,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div className="mx-3 mt-2 rounded-xl bg-primary/8 border border-primary/15 overflow-hidden">
               <div className="flex items-start gap-2 p-2.5">
                 <div className="flex-1 min-w-0 border-s-2 border-primary ps-2.5">
-                  <span className="text-[11px] font-semibold text-primary flex items-center gap-1">
+                  <span className="text-[0.6875rem] font-semibold text-primary flex items-center gap-1">
                     <Pencil className="w-3 h-3" />
                     {'تعديل الرسالة'}
                   </span>
-                  <p className="text-[11px] text-muted-foreground truncate" dir="auto">
+                  <p className="text-[0.6875rem] text-muted-foreground truncate" dir="auto">
                     {editingMessage.content}
                   </p>
                 </div>
@@ -659,10 +659,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div className="mx-3 mt-2 rounded-xl bg-accent/20 border border-border/15 overflow-hidden">
               <div className="flex items-start gap-2 p-2.5">
                 <div className="flex-1 min-w-0 border-s-2 border-primary ps-2.5">
-                  <span className="text-[11px] font-semibold text-primary block">
+                  <span className="text-[0.6875rem] font-semibold text-primary block">
                     {replyTo.sender_id === userId ? 'أنت' : activeConvOtherName || ''}
                   </span>
-                  <p className="text-[11px] text-muted-foreground truncate" dir="auto">
+                  <p className="text-[0.6875rem] text-muted-foreground truncate" dir="auto">
                     {replyTo.message_type === 'image'
                       ? '📷 ' + ((replyTo.content || '').trim() || 'صورة')
                       : replyTo.message_type === 'voice'
@@ -731,7 +731,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   emphasizeFresh={false}
                 />
               </div>
-              <span className="shrink-0 text-[11px] font-mono tabular-nums text-muted-foreground/70 pe-1">
+              <span className="shrink-0 text-[0.6875rem] font-mono tabular-nums text-muted-foreground/70 pe-1">
                 {formatRecordingTime(recordingTime)}
               </span>
             </div>
@@ -791,14 +791,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 aria-hidden="true"
               />
               <span
-                className="text-[13px] font-mono text-foreground tabular-nums tracking-wide"
+                className="text-[0.8125rem] font-mono text-foreground tabular-nums tracking-wide"
                 role="timer"
                 aria-label={`مدة التسجيل ${formatRecordingTime(recordingTime)}`}
               >
                 {formatRecordingTime(recordingTime)}
               </span>
               {!locked ? (
-                <div className="flex-1 flex items-center justify-center gap-1 text-[12px] text-muted-foreground/70">
+                <div className="flex-1 flex items-center justify-center gap-1 text-[0.75rem] text-muted-foreground/70">
                   <span className={cn('inline-block transition-transform', '-rotate-180')}>‹</span>
                   <span>{'اسحب للإلغاء'}</span>
                 </div>
@@ -961,7 +961,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   }
                 }}
                 dir="auto"
-                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[140px] resize-none ps-1.5 pe-3.5 py-[10px] text-[15px] leading-relaxed placeholder:text-muted-foreground/40"
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[140px] resize-none ps-1.5 pe-3.5 py-[10px] text-[0.9375rem] leading-relaxed placeholder:text-muted-foreground/40"
               />
             </div>
 

@@ -150,7 +150,7 @@ export default function ChessCareerPage() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-purple-200/80">
+            <p className="text-[0.625rem] uppercase tracking-wider text-purple-200/80">
               {'تقييمك الحالي'}
             </p>
             <p className="text-3xl font-black text-purple-200 tabular-nums">{career.rating}</p>
@@ -161,7 +161,7 @@ export default function ChessCareerPage() {
           <Trophy className="w-12 h-12 text-amber-400/70 stroke-[1.4]" />
         </div>
         <div className="mt-3">
-          <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
+          <div className="flex items-center justify-between text-[0.625rem] text-zinc-400 mb-1">
             <span>{trophiesWon}/{BOTS.length} {'بطل سُحق'}</span>
             {allBeaten && <span className="text-amber-300 font-bold">{'🏆 بطل العالم!'}</span>}
           </div>
@@ -213,7 +213,7 @@ export default function ChessCareerPage() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                    <span className={`text-[0.625rem] font-mono px-1.5 py-0.5 rounded ${
                       beaten ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/5 text-zinc-400'
                     }`}>
                       #{idx + 1}
@@ -223,7 +223,7 @@ export default function ChessCareerPage() {
                     </h3>
                     {beaten && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                   </div>
-                  <p className={`text-[11px] mt-0.5 line-clamp-1 ${
+                  <p className={`text-[0.6875rem] mt-0.5 line-clamp-1 ${
                     unlocked ? 'text-muted-foreground' : 'text-muted-foreground/40'
                   }`}>
                     {unlocked ? (bot.taglineAr) : ('???')}
@@ -233,7 +233,7 @@ export default function ChessCareerPage() {
                 <div className="text-end shrink-0">
                   <p className="text-xs font-bold text-purple-300 tabular-nums">{bot.elo}</p>
                   {rec && (
-                    <p className="text-[10px] text-muted-foreground tabular-nums">
+                    <p className="text-[0.625rem] text-muted-foreground tabular-nums">
                       {rec.wins}-{rec.losses}-{rec.draws}
                     </p>
                   )}
@@ -292,7 +292,7 @@ export default function ChessCareerPage() {
 
               {/* Player record vs this bot */}
               {career.records[selected.id] && (
-                <div className="rounded-xl bg-white/4 px-3 py-2 mb-4 text-[11px] flex justify-between">
+                <div className="rounded-xl bg-white/4 px-3 py-2 mb-4 text-[0.6875rem] flex justify-between">
                   <span className="text-muted-foreground">{'سجلك ضده'}</span>
                   <span className="font-mono font-bold text-foreground">
                     {career.records[selected.id].wins}{' فوز'} ·
@@ -344,7 +344,7 @@ function StatRow({ label, v, max }: { label: string; v: number; max: number }) {
   const pct = Math.max(0, Math.min(100, (v / max) * 100));
   return (
     <div>
-      <p className="text-[10px] text-zinc-500 mb-0.5">{label}</p>
+      <p className="text-[0.625rem] text-zinc-500 mb-0.5">{label}</p>
       <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
         <div className="h-full rounded-full bg-purple-400" style={{ width: `${pct}%` }} />
       </div>

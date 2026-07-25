@@ -63,14 +63,14 @@ export default function VolumeBars({
   if (data.length === 0) {
     return (
       <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
-        <p className="text-[12px] text-muted-foreground">{T.noData[lang]}</p>
+        <p className="text-[0.75rem] text-muted-foreground">{T.noData[lang]}</p>
       </div>
     );
   }
 
   return (
     <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
-      <h3 className="text-[12px] font-bold text-foreground">{T.title[lang]}</h3>
+      <h3 className="text-[0.75rem] font-bold text-foreground">{T.title[lang]}</h3>
       <div className="space-y-2">
         {data.map((row, i) => (
           <BarRow key={row.muscle} muscle={row.muscle} sets={row.sets} delay={i * 0.04} lang={lang} />
@@ -106,10 +106,10 @@ function BarRow({
   return (
     <div className="space-y-1">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[11px] font-semibold text-foreground">
+        <span className="text-[0.6875rem] font-semibold text-foreground">
           {MUSCLE_LABELS[muscle]?.[lang]}
         </span>
-        <span className="inline-flex items-center gap-1 text-[10px] tabular-nums" style={{ color }}>
+        <span className="inline-flex items-center gap-1 text-[0.625rem] tabular-nums" style={{ color }}>
           {trendIcon}
           {Math.round(sets)} {T.setsLabel[lang]}
           <span className="text-muted-foreground/70 ms-1">· {ZONE_LABEL[zone][lang]}</span>
@@ -133,7 +133,7 @@ function BarRow({
         />
       </div>
       {lm && lm.mrv > 0 && (
-        <div className="flex justify-between text-[10px] text-muted-foreground/60 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-[0.625rem] text-muted-foreground/60 tabular-nums" dir="ltr">
           <span>0</span>
           <span style={{ marginLeft: `${xPct(lm.mev)}%` }} className="-translate-x-1/2 absolute">MEV {lm.mev}</span>
           <span style={{ marginLeft: `${xPct(lm.mrv)}%` }} className="-translate-x-1/2 absolute">MRV {lm.mrv}</span>
@@ -147,7 +147,7 @@ function BarRow({
 export function VolumeZoneLegend({ lang }: { lang: 'ar' }) {
   const zones: (keyof typeof ZONE_COLOR)[] = ['below_mv', 'mv_to_mev', 'mev_to_mav', 'mav_to_mrv', 'above_mrv'];
   return (
-    <div className="flex flex-wrap gap-1.5 text-[10px]">
+    <div className="flex flex-wrap gap-1.5 text-[0.625rem]">
       {zones.map((z) => (
         <div key={z} className="inline-flex items-center gap-1">
           <span className="w-2 h-2 rounded-sm" style={{ background: ZONE_COLOR[z] }} />
@@ -162,7 +162,7 @@ export function VolumeZoneLegend({ lang }: { lang: 'ar' }) {
 export function VolumeAdvice({ muscle, sets, lang }: { muscle: MuscleGroup; sets: number; lang: 'ar' }) {
   const zone = classifyVolume(muscle, sets);
   return (
-    <p className="text-[11px] text-foreground/80" style={{ color: ZONE_COLOR[zone] }}>
+    <p className="text-[0.6875rem] text-foreground/80" style={{ color: ZONE_COLOR[zone] }}>
       {ZONE_ADVICE[zone][lang]}
     </p>
   );

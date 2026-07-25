@@ -105,7 +105,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(isActive ? null : tab.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.6875rem] font-semibold whitespace-nowrap transition-all"
                 style={{
                   background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.04)',
                   color: isActive ? accentColor : 'rgba(255,255,255,0.35)',
@@ -132,10 +132,10 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               <div className="rounded-2xl p-4 border space-y-2" style={{ background: 'rgba(255,255,255,0.03)', borderColor: `${accentColor}15` }}>
                 {rules.map((rule, i) => (
                   <div key={i} className="flex gap-2 items-start">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5" style={{ background: `${accentColor}20`, color: accentColor }}>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[0.625rem] font-bold shrink-0 mt-0.5" style={{ background: `${accentColor}20`, color: accentColor }}>
                       {i + 1}
                     </span>
-                    <p className="text-[12px] text-zinc-400 leading-relaxed">{rule}</p>
+                    <p className="text-[0.75rem] text-zinc-400 leading-relaxed">{rule}</p>
                   </div>
                 ))}
               </div>
@@ -155,7 +155,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
                   {stats.map((s, i) => (
                     <div key={i} className="text-center py-2">
                       <p className="text-lg font-black text-white">{s.value}</p>
-                      <p className="text-[10px] text-zinc-500">{s.label}</p>
+                      <p className="text-[0.625rem] text-zinc-500">{s.label}</p>
                     </div>
                   ))}
                 </div>
@@ -174,13 +174,13 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               <div className="rounded-2xl p-4 border space-y-3" style={{ background: 'rgba(255,255,255,0.03)', borderColor: `${accentColor}15` }}>
                 {options.map(opt => (
                   <div key={opt.key}>
-                    <p className="text-[11px] text-zinc-500 mb-1.5">{opt.label}</p>
+                    <p className="text-[0.6875rem] text-zinc-500 mb-1.5">{opt.label}</p>
                     <div className="flex gap-1.5 flex-wrap">
                       {opt.choices.map(choice => (
                         <button
                           key={choice.value}
                           onClick={() => opt.onChange(choice.value)}
-                          className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+                          className="px-3 py-1.5 rounded-lg text-[0.6875rem] font-semibold transition-all"
                           style={{
                             background: opt.current === choice.value ? `${accentColor}25` : 'rgba(255,255,255,0.04)',
                             color: opt.current === choice.value ? accentColor : 'rgba(255,255,255,0.4)',

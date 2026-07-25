@@ -119,7 +119,7 @@ function SwipeRow({
       >
         <div className="flex items-center gap-1.5 text-primary">
           <Archive className="w-4 h-4" />
-          <span className="text-[11px] font-medium">{leftLabel}</span>
+          <span className="text-[0.6875rem] font-medium">{leftLabel}</span>
         </div>
       </motion.div>
       <motion.div
@@ -128,7 +128,7 @@ function SwipeRow({
       >
         <div className="flex items-center gap-1.5 text-primary">
           <Pin className="w-4 h-4" />
-          <span className="text-[11px] font-medium">{rightLabel}</span>
+          <span className="text-[0.6875rem] font-medium">{rightLabel}</span>
         </div>
       </motion.div>
 
@@ -244,7 +244,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     onSearchChange?.(e.target.value);
                   }}
                   placeholder={'بحث في المحادثات...'}
-                  className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-muted-foreground/50 outline-none"
+                  className="flex-1 bg-transparent text-[0.875rem] text-foreground placeholder:text-muted-foreground/50 outline-none"
                   dir="auto"
                 />
                 {localSearch && (
@@ -275,7 +275,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 key={tab.id}
                 onClick={() => onFilterChange(tab.id)}
                 className={cn(
-                  'h-8 px-3.5 rounded-full text-[12px] font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
+                  'h-8 px-3.5 rounded-full text-[0.75rem] font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
                   active
                     ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50'
@@ -287,7 +287,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1"
+                    className="bg-primary text-primary-foreground text-[0.625rem] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1"
                   >
                     {totalUnread > 99 ? '99+' : totalUnread}
                   </motion.span>
@@ -334,10 +334,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
           <Users className="w-4 h-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-foreground">
+          <p className="text-[0.8125rem] font-semibold text-foreground">
             {'المجموعات والقنوات'}
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[0.6875rem] text-muted-foreground">
             {groupsCount > 0
               ? (`${groupsCount} ${groupsCount === 1 ? 'محادثة' : 'محادثات'}`)
               : ('إنشاء مجموعة جديدة')}
@@ -376,14 +376,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 : <MessageCircle className="h-9 w-9 text-primary/30" />}
             </motion.div>
             <div className="text-center space-y-1">
-              <p className="text-[15px] font-semibold text-foreground/60">
+              <p className="text-[0.9375rem] font-semibold text-foreground/60">
                 {filter === 'archived'
                   ? ('لا توجد محادثات مؤرشفة')
                   : filter === 'unread'
                     ? ('كل شيء تمت قراءته')
                     : ('لا توجد محادثات بعد')}
               </p>
-              <p className="text-[13px] text-muted-foreground/60">
+              <p className="text-[0.8125rem] text-muted-foreground/60">
                 {'ابدأ محادثة جديدة مع أصدقائك'}
               </p>
             </div>
@@ -391,7 +391,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         ) : filteredConversations.length === 0 && localSearch ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 px-8">
             <Search className="h-10 w-10 text-muted-foreground/20" />
-            <p className="text-[14px] text-center text-muted-foreground/60">
+            <p className="text-[0.875rem] text-center text-muted-foreground/60">
               {`لا توجد نتائج لـ "${localSearch}"`}
             </p>
           </div>
@@ -401,7 +401,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               {/* Pinned section header */}
               {filteredConversations.some(c => isPinned(c.id)) && (
                 <div className="px-4 py-1.5">
-                  <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                  <span className="text-[0.6875rem] font-medium text-muted-foreground/60 uppercase tracking-wider">
                     {'المثبتة'}
                   </span>
                 </div>
@@ -469,7 +469,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 <React.Fragment key={conv.id}>
                   {showUnpinnedHeader && (
                     <div className="px-4 py-1.5">
-                      <span className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                      <span className="text-[0.6875rem] font-medium text-muted-foreground/60 uppercase tracking-wider">
                         {'المحادثات'}
                       </span>
                     </div>
@@ -509,7 +509,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                           <div className="flex items-center gap-1.5 min-w-0">
                             {pinned && <Pin className="w-3 h-3 text-primary/60 shrink-0 rotate-45" />}
                             <span className={cn(
-                              'text-[15px] text-foreground truncate',
+                              'text-[0.9375rem] text-foreground truncate',
                               unread > 0 && !muted ? 'font-bold' : 'font-semibold'
                             )}>
                               <HighlightText text={nameToShow} query={effectiveSearchQuery} />
@@ -517,7 +517,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                             {muted && <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />}
                           </div>
                           <span className={cn(
-                            'text-[11px] shrink-0 tabular-nums',
+                            'text-[0.6875rem] shrink-0 tabular-nums',
                             unread > 0 && !muted ? 'text-primary font-semibold' : 'text-muted-foreground/50'
                           )}>
                             {conv.lastMessageTime && formatTime(conv.lastMessageTime)}
@@ -525,7 +525,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                         </div>
                         <div className="flex items-center justify-between gap-2 mt-0.5">
                           <div className={cn(
-                            'text-[13px] truncate leading-relaxed flex items-center gap-1.5 min-w-0',
+                            'text-[0.8125rem] truncate leading-relaxed flex items-center gap-1.5 min-w-0',
                             unread > 0 && !muted ? 'text-foreground/75 font-medium' : 'text-muted-foreground/65'
                           )}>
                             {conv.lastMessageFromMe && !conv.lastMessageDeleted && !draft && !otherTyping && (
@@ -546,7 +546,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                 animate={{ scale: 1 }}
                                 transition={{ type: 'spring', damping: 12 }}
                                 className={cn(
-                                  'text-[11px] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold',
+                                  'text-[0.6875rem] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold',
                                   muted
                                     ? 'bg-muted/60 text-muted-foreground'
                                     : 'bg-primary text-primary-foreground'

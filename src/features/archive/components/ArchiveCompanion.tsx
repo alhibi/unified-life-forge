@@ -129,13 +129,13 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="اطرح سؤالاً أو اكتب كلمة للبحث الفوري دلالياً…"
-              className="flex-1 bg-transparent outline-none text-[13px] placeholder:text-muted-foreground/60"
+              className="flex-1 bg-transparent outline-none text-[0.8125rem] placeholder:text-muted-foreground/60"
             />
           </AppCard>
 
           {searchQuery ? (
             <div className="space-y-2">
-              <h5 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+              <h5 className="text-[0.625rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
                 نتائج مطابقة من سياق المونوغراف
               </h5>
               {searchResults.length === 0 ? (
@@ -148,10 +148,10 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                     key={i}
                     className="p-3 rounded-xl bg-primary/[0.01] border border-primary/10"
                   >
-                    <span className="text-[10px] font-bold text-primary block mb-1">
+                    <span className="text-[0.625rem] font-bold text-primary block mb-1">
                       الموضع: {res.sectionTitle}
                     </span>
-                    <p className="text-[12px] text-foreground leading-relaxed">
+                    <p className="text-[0.75rem] text-foreground leading-relaxed">
                       ... {res.sentence} ...
                     </p>
                   </div>
@@ -175,11 +175,11 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
           <AppCard compact className="border-primary/20 bg-primary/[0.01] p-4">
             <div className="flex items-center gap-1.5 mb-1.5 text-primary">
               <Sparkles className="w-4 h-4 animate-pulse" />
-              <span className="text-[11px] font-bold uppercase tracking-wider">
+              <span className="text-[0.6875rem] font-bold uppercase tracking-wider">
                 توجيه الأطروحة الكلية
               </span>
             </div>
-            <p className="text-[13px] text-foreground leading-relaxed">
+            <p className="text-[0.8125rem] text-foreground leading-relaxed">
               هذا المونوغراف يتناول أطروحة مركزية غنية حول موضوع:{' '}
               <strong className="text-primary">« {document.title} »</strong>. ينصح بالتركيز على
               التقاطعات الدلالية والروابط التفصيلية المتعددة التي يبنيها المحرك الهرمي.
@@ -187,7 +187,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
           </AppCard>
 
           <div className="space-y-2">
-            <h5 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+            <h5 className="text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
               المحاور والهيكل المعرفي
             </h5>
             <div className="space-y-2">
@@ -196,13 +196,13 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                   key={sec.id}
                   className="flex gap-3 items-start p-3 rounded-xl bg-muted/20 border border-border/10"
                 >
-                  <span className="w-5 h-5 rounded-lg bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
+                  <span className="w-5 h-5 rounded-lg bg-primary/15 text-primary text-[0.625rem] font-bold flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
                   <div>
-                    <h6 className="text-[13px] font-bold text-foreground">{sec.title}</h6>
+                    <h6 className="text-[0.8125rem] font-bold text-foreground">{sec.title}</h6>
                     {sec.dimension && (
-                      <span className="text-[10px] font-semibold text-primary block mt-0.5">
+                      <span className="text-[0.625rem] font-semibold text-primary block mt-0.5">
                         البعد: {sec.dimension}
                       </span>
                     )}
@@ -210,7 +210,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                       {sec.subsections.map((sub) => (
                         <li
                           key={sub.id}
-                          className="text-[11px] text-muted-foreground flex items-start gap-1"
+                          className="text-[0.6875rem] text-muted-foreground flex items-start gap-1"
                         >
                           <span className="mt-1.5 w-1 h-1 rounded-full bg-muted-foreground/50 shrink-0" />
                           <span>{sub.title}</span>
@@ -227,7 +227,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
 
       {activeTab === 'insights' && (
         <div className="space-y-3">
-          <h5 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+          <h5 className="text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
             مستخلصات وبراهين معرفية تلقائية
           </h5>
           {extractedInsights.length === 0 ? (
@@ -240,9 +240,9 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                 <AppCard key={ins.id} compact className="p-3 bg-muted/20 relative group">
                   <div className="flex items-center gap-1.5 mb-1.5 text-primary/70">
                     <Quote className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold truncate">القسم: {ins.category}</span>
+                    <span className="text-[0.625rem] font-bold truncate">القسم: {ins.category}</span>
                   </div>
-                  <p className="text-[12px] text-foreground leading-relaxed pe-2 italic">
+                  <p className="text-[0.75rem] text-foreground leading-relaxed pe-2 italic">
                     « {ins.text} »
                   </p>
                   <button

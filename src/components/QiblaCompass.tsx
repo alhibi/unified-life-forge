@@ -231,7 +231,7 @@ export default function QiblaCompass() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <Compass className="w-3.5 h-3.5 text-[hsl(var(--live))]" />
-            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
+            <span className="text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
               {t.title}
             </span>
           </div>
@@ -239,7 +239,7 @@ export default function QiblaCompass() {
             {Math.round(bearing)}°{' '}
             <span className="text-sm font-medium text-muted-foreground">{compassLabel}</span>
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[0.6875rem] text-muted-foreground mt-0.5">
             {fmtKm(distanceKm)} {t.km} · {location ? t.subtitle : t.locationFallback}
           </div>
         </div>
@@ -355,7 +355,7 @@ export default function QiblaCompass() {
                   )}
 
                   {accuracy != null && accuracy > 25 && (
-                    <p className="text-[11px] text-amber-500 text-center max-w-[30ch]">
+                    <p className="text-[0.6875rem] text-amber-500 text-center max-w-[30ch]">
                       {t.calibrate}
                     </p>
                   )}
@@ -392,12 +392,12 @@ function Stat({
 }) {
   return (
     <div className="rounded-2xl bg-card/60 border border-border/40 p-3 flex flex-col gap-1">
-      <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">
+      <div className="flex items-center gap-1.5 text-muted-foreground text-[0.625rem] uppercase tracking-wider font-semibold">
         {icon}
         <span>{label}</span>
       </div>
       <div className="text-lg font-bold text-foreground tabular-nums leading-none">{value}</div>
-      {hint && <div className="text-[10px] text-muted-foreground">{hint}</div>}
+      {hint && <div className="text-[0.625rem] text-muted-foreground">{hint}</div>}
     </div>
   );
 }

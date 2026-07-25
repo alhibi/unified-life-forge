@@ -113,7 +113,7 @@ export default function MessageActionMenu({
                   {/* Message preview */}
                   <div
                     className={cn(
-                      'text-[15px] overflow-hidden',
+                      'text-[0.9375rem] overflow-hidden',
                       actionMenu.isMine
                         ? 'bg-primary/15 text-foreground'
                         : 'bg-card border border-border/15 text-foreground',
@@ -134,7 +134,7 @@ export default function MessageActionMenu({
                         </span>
                         <span
                           className={cn(
-                            'absolute bottom-[6px] flex items-center gap-[3px] text-[10px] whitespace-nowrap text-muted-foreground/50',
+                            'absolute bottom-[6px] flex items-center gap-[3px] text-[0.625rem] whitespace-nowrap text-muted-foreground/50',
                             'left-2.5',
                           )}
                         >
@@ -183,7 +183,7 @@ export default function MessageActionMenu({
                             chat.toggleReaction(actionMenu.msg.id, emoji);
                             onClose();
                           }}
-                          className="text-[22px] active:scale-125 transition-transform px-[2px]"
+                          className="text-[1.375rem] active:scale-125 transition-transform px-[2px]"
                           aria-label={`React with ${emoji}`}
                         >
                           {emoji}
@@ -241,7 +241,7 @@ export default function MessageActionMenu({
                         className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                       >
                         <Reply className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-[13px]">{'رد'}</span>
+                        <span className="text-[0.8125rem]">{'رد'}</span>
                       </button>
                       <button
                         onClick={() => {
@@ -251,7 +251,7 @@ export default function MessageActionMenu({
                         className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                       >
                         <Share2 className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-[13px]">{'توجيه'}</span>
+                        <span className="text-[0.8125rem]">{'توجيه'}</span>
                       </button>
                       {actionMenu.msg.message_type === 'text' && actionMenu.msg.content && (
                         <button
@@ -262,7 +262,7 @@ export default function MessageActionMenu({
                           className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                         >
                           <Copy className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-[13px]">{'نسخ النص'}</span>
+                          <span className="text-[0.8125rem]">{'نسخ النص'}</span>
                         </button>
                       )}
                       {actionMenu.isMine &&
@@ -276,7 +276,7 @@ export default function MessageActionMenu({
                             className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                           >
                             <Pencil className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-[13px]">{'تعديل'}</span>
+                            <span className="text-[0.8125rem]">{'تعديل'}</span>
                           </button>
                         )}
                       <button
@@ -291,7 +291,7 @@ export default function MessageActionMenu({
                         ) : (
                           <Pin className="w-4 h-4 text-muted-foreground" />
                         )}
-                        <span className="text-[13px]">
+                        <span className="text-[0.8125rem]">
                           {chat.pinnedMessage?.id === actionMenu.msg.id ? 'إلغاء التثبيت' : 'تثبيت'}
                         </span>
                       </button>
@@ -303,7 +303,7 @@ export default function MessageActionMenu({
                         className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                       >
                         <Check className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-[13px]">{'تحديد'}</span>
+                        <span className="text-[0.8125rem]">{'تحديد'}</span>
                       </button>
                       {/* Info — only meaningful for messages I sent (delivery/read receipts). */}
                       {actionMenu.isMine && !actionMenu.msg.deleted && (
@@ -315,7 +315,7 @@ export default function MessageActionMenu({
                           className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                         >
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-[13px]">{'معلومات الرسالة'}</span>
+                          <span className="text-[0.8125rem]">{'معلومات الرسالة'}</span>
                         </button>
                       )}
                       {/* Delete for me — works for any non-deleted message regardless of sender. */}
@@ -328,7 +328,7 @@ export default function MessageActionMenu({
                           className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
                         >
                           <EyeOff className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-[13px]">{'حذف لي فقط'}</span>
+                          <span className="text-[0.8125rem]">{'حذف لي فقط'}</span>
                         </button>
                       )}
                       {actionMenu.isMine && !actionMenu.msg.deleted && (
@@ -342,7 +342,7 @@ export default function MessageActionMenu({
                             className="w-full flex items-center gap-3 px-4 py-2 active:bg-destructive/10 transition-colors text-start"
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
-                            <span className="text-[13px] text-destructive">{'حذف للجميع'}</span>
+                            <span className="text-[0.8125rem] text-destructive">{'حذف للجميع'}</span>
                           </button>
                         </>
                       )}

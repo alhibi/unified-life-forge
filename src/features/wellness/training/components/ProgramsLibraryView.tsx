@@ -73,15 +73,15 @@ export default function ProgramsLibraryView({
   return (
     <div className={`space-y-3 ${className}`}>
       <div>
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
           <Library className="w-3.5 h-3.5" />
           {T.title[lang]}
         </p>
-        <p className="text-[11px] text-muted-foreground mt-0.5">{T.subtitle[lang]}</p>
+        <p className="text-[0.6875rem] text-muted-foreground mt-0.5">{T.subtitle[lang]}</p>
       </div>
 
       <div className="space-y-1.5">
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 font-semibold">
+        <div className="flex items-center gap-1.5 text-[0.625rem] text-muted-foreground/70 font-semibold">
           <Filter className="w-3 h-3" />
           {T.experience[lang]}
         </div>
@@ -90,7 +90,7 @@ export default function ProgramsLibraryView({
             <button
               key={e}
               onClick={() => setExpFilter(e)}
-              className={`shrink-0 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+              className={`shrink-0 text-[0.625rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                 expFilter === e
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-card text-muted-foreground border-border/40'
@@ -100,7 +100,7 @@ export default function ProgramsLibraryView({
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 font-semibold pt-1">
+        <div className="flex items-center gap-1.5 text-[0.625rem] text-muted-foreground/70 font-semibold pt-1">
           <Filter className="w-3 h-3" />
           {T.goal[lang]}
         </div>
@@ -109,7 +109,7 @@ export default function ProgramsLibraryView({
             <button
               key={g}
               onClick={() => setGoalFilter(g)}
-              className={`shrink-0 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+              className={`shrink-0 text-[0.625rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                 goalFilter === g
                   ? 'bg-foreground text-background border-foreground'
                   : 'bg-card text-muted-foreground border-border/40'
@@ -174,16 +174,16 @@ function ProgramCard({
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0 flex-1">
           {isActive && (
-            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
+            <span className="inline-block text-[0.625rem] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
               {T.current[lang]}
             </span>
           )}
-          <h3 className="text-[14px] font-bold text-foreground leading-tight">{p.name[lang]}</h3>
-          <p className="text-[10px] text-muted-foreground mt-0.5">{T.by[lang]} {p.author}</p>
+          <h3 className="text-[0.875rem] font-bold text-foreground leading-tight">{p.name[lang]}</h3>
+          <p className="text-[0.625rem] text-muted-foreground mt-0.5">{T.by[lang]} {p.author}</p>
         </div>
         <div className="flex flex-col gap-1 items-end shrink-0">
           <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+            className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase"
             style={{
               background: p.experience === 'beginner' ? '#22c55e20' : p.experience === 'intermediate' ? '#f59e0b20' : '#ef444420',
               color: p.experience === 'beginner' ? '#22c55e' : p.experience === 'intermediate' ? '#f59e0b' : '#ef4444',
@@ -191,13 +191,13 @@ function ProgramCard({
           >
             {EXPERIENCE_LABELS[p.experience][lang]}
           </span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-muted/60 text-muted-foreground">
+          <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-muted/60 text-muted-foreground">
             {GOAL_LABELS[p.goal][lang]}
           </span>
         </div>
       </div>
 
-      <p className="text-[11px] text-muted-foreground/90 leading-relaxed mb-2 line-clamp-2">
+      <p className="text-[0.6875rem] text-muted-foreground/90 leading-relaxed mb-2 line-clamp-2">
         {p.description[lang]}
       </p>
 
@@ -210,13 +210,13 @@ function ProgramCard({
       <div className="flex gap-1.5">
         <button
           onClick={onDetails}
-          className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-[11px] font-semibold"
+          className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-[0.6875rem] font-semibold"
         >
           {T.details[lang]}
         </button>
         <button
           onClick={onStart}
-          className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
+          className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-[0.6875rem] font-bold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
           disabled={isActive}
           style={{ opacity: isActive ? 0.5 : 1 }}
         >
@@ -232,9 +232,9 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
     <div className="bg-muted/30 rounded-lg p-1.5 text-center">
       <div className="flex items-center justify-center gap-1 text-muted-foreground">
         {icon}
-        <span className="text-[12px] font-bold tabular-nums text-foreground">{value}</span>
+        <span className="text-[0.75rem] font-bold tabular-nums text-foreground">{value}</span>
       </div>
-      <p className="text-[10px] text-muted-foreground/70 mt-0.5">{label}</p>
+      <p className="text-[0.625rem] text-muted-foreground/70 mt-0.5">{label}</p>
     </div>
   );
 }
@@ -276,7 +276,7 @@ function DetailSheet({
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-lg font-bold text-foreground">{program.name[lang]}</h2>
-                  <p className="text-[11px] text-muted-foreground">{T.by[lang]} {program.author}</p>
+                  <p className="text-[0.6875rem] text-muted-foreground">{T.by[lang]} {program.author}</p>
                 </div>
                 <button onClick={onClose} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center" aria-label="close">
                   <X className="w-4 h-4" />
@@ -284,8 +284,8 @@ function DetailSheet({
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.description[lang]}</h4>
-                <p className="text-[12px] text-foreground/90 leading-relaxed">{program.description[lang]}</p>
+                <h4 className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.description[lang]}</h4>
+                <p className="text-[0.75rem] text-foreground/90 leading-relaxed">{program.description[lang]}</p>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
@@ -295,10 +295,10 @@ function DetailSheet({
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.highlights[lang]}</h4>
+                <h4 className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.highlights[lang]}</h4>
                 <ul className="space-y-1">
                   {program.highlights.map((h, i) => (
-                    <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-[12px] text-foreground/90">
+                    <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-[0.75rem] text-foreground/90">
                       • {h[lang]}
                     </li>
                   ))}
@@ -307,10 +307,10 @@ function DetailSheet({
 
               {program.prerequisites && program.prerequisites.length > 0 && (
                 <div className="space-y-1">
-                  <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.prereq[lang]}</h4>
+                  <h4 className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.prereq[lang]}</h4>
                   <ul className="space-y-1">
                     {program.prerequisites.map((h: LocalizedString, i: number) => (
-                      <li key={i} className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-[12px] text-warning">
+                      <li key={i} className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-[0.75rem] text-warning">
                         • {h[lang]}
                       </li>
                     ))}
@@ -319,10 +319,10 @@ function DetailSheet({
               )}
 
               <div className="space-y-1">
-                <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.equipment[lang]}</h4>
+                <h4 className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.equipment[lang]}</h4>
                 <div className="flex flex-wrap gap-1">
                   {program.equipment.map((eq) => (
-                    <span key={eq} className="px-2 py-1 rounded-md bg-muted text-[10px] font-semibold text-foreground/90">
+                    <span key={eq} className="px-2 py-1 rounded-md bg-muted text-[0.625rem] font-semibold text-foreground/90">
                       {eq}
                     </span>
                   ))}
@@ -331,8 +331,8 @@ function DetailSheet({
 
               <div className="grid grid-cols-2 gap-1">
                 <div className="bg-muted/30 rounded-lg p-2">
-                  <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wider font-semibold">{T.scheme[lang]}</p>
-                  <p className="text-[11px] font-semibold text-foreground">{program.scheme[lang]}</p>
+                  <p className="text-[0.625rem] text-muted-foreground/70 uppercase tracking-wider font-semibold">{T.scheme[lang]}</p>
+                  <p className="text-[0.6875rem] font-semibold text-foreground">{program.scheme[lang]}</p>
                 </div>
               </div>
 

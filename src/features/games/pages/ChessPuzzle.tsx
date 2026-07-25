@@ -399,11 +399,11 @@ export default function ChessPuzzlePage() {
       <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-3 mb-3">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider">{themeLabels[puzzle.theme].ar}</span>
-            <span className="text-[10px] text-zinc-500">{puzzle.rating}</span>
+            <span className="text-[0.625rem] font-bold text-purple-300 uppercase tracking-wider">{themeLabels[puzzle.theme].ar}</span>
+            <span className="text-[0.625rem] text-zinc-500">{puzzle.rating}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+            <span className={`text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${
               status === 'solved' ? 'bg-emerald-500/20 text-emerald-300' :
               status === 'wrong' || showWrongFeedback ? 'bg-rose-500/20 text-rose-300' :
               status === 'hint' ? 'bg-amber-500/20 text-amber-300' :
@@ -494,7 +494,7 @@ export default function ChessPuzzlePage() {
             className="max-w-[340px] mx-auto mt-4 text-center p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
             <Sparkles className="w-7 h-7 text-emerald-300 mx-auto mb-1" />
             <p className="text-emerald-300 font-black text-lg mb-0.5">{'حللت اللغز!'}</p>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[0.6875rem] text-zinc-400">
               {'تقييم'}: <span className="text-white font-bold">{stats.rating}</span>
             </p>
           </motion.div>
@@ -507,7 +507,7 @@ export default function ChessPuzzlePage() {
             {'الحل: '}
             <span className="font-mono">{puzzle.solution.join(' ')}</span>
           </p>
-          <p className="text-[10px] text-zinc-400 mt-1">{puzzle.ar}</p>
+          <p className="text-[0.625rem] text-zinc-400 mt-1">{puzzle.ar}</p>
         </div>
       )}
 
@@ -516,32 +516,32 @@ export default function ChessPuzzlePage() {
         <button onClick={useHint} disabled={status === 'solved' || showSolution || moveIdx === 0}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 disabled:opacity-30">
           <Lightbulb className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{'تلميح'}</span>
+          <span className="text-[0.625rem] font-bold">{'تلميح'}</span>
         </button>
         <button onClick={restart}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-purple-500/15 text-purple-300 active:scale-90">
           <RotateCcw className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{'إعادة'}</span>
+          <span className="text-[0.625rem] font-bold">{'إعادة'}</span>
         </button>
         <button onClick={giveUp} disabled={status === 'solved' || showSolution}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-zinc-500/15 text-zinc-300 active:scale-90 disabled:opacity-30">
           <Check className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{'الحل'}</span>
+          <span className="text-[0.625rem] font-bold">{'الحل'}</span>
         </button>
         <button onClick={nextPuzzle}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-purple-500 text-white active:scale-90">
           <ArrowRight className="w-4 h-4" />
-          <span className="text-[10px] font-bold">{'التالي'}</span>
+          <span className="text-[0.625rem] font-bold">{'التالي'}</span>
         </button>
       </div>
 
       {/* Theme breakdown */}
       <div className="max-w-[340px] mx-auto mt-6">
-        <p className="text-[11px] text-zinc-500 mb-2 px-1">{'إحصاءات الموضوع'}</p>
+        <p className="text-[0.6875rem] text-zinc-500 mb-2 px-1">{'إحصاءات الموضوع'}</p>
         <div className="grid grid-cols-3 gap-1.5">
           {(Object.keys(themeLabels) as (PuzzleTheme | 'all')[]).filter(t => t !== 'all').map(t => (
             <div key={t} className="rounded-lg p-2 bg-white/4 border border-white/5 text-center">
-              <p className="text-[10px] text-zinc-500 mb-0.5">{themeLabels[t].ar}</p>
+              <p className="text-[0.625rem] text-zinc-500 mb-0.5">{themeLabels[t].ar}</p>
               <p className="text-sm font-bold text-purple-300 tabular-nums">{stats.themesSolved[t as PuzzleTheme] || 0}</p>
             </div>
           ))}

@@ -91,7 +91,7 @@ export default function UntimedSunnah() {
                                 onClick={() => hasDetail ? toggleItem(itemKey) : undefined}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${hasDetail ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
                               >
-                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 bg-primary/15 text-primary">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-[0.6875rem] font-bold shrink-0 bg-primary/15 text-primary">
                                   {i + 1}
                                 </span>
                                 <span className="flex-1 text-sm text-foreground leading-relaxed line-clamp-2">

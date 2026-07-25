@@ -184,7 +184,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               <span className="truncate text-body font-semibold text-foreground">{app.label}</span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="mt-1 block text-mini leading-[18px] text-muted-foreground">{app.description}</span>
+            <span className="mt-1 block text-mini leading-[1.125rem] text-muted-foreground">{app.description}</span>
             <span className="mt-2 block text-micro font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
               {app.caption}
             </span>

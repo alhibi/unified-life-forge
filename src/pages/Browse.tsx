@@ -74,7 +74,7 @@ export default function BrowsePage() {
       <div className="max-w-lg mx-auto space-y-4">
         {/* Title row */}
         <header className="flex items-center justify-between">
-          <h1 className="text-[22px] font-bold tracking-tight text-foreground">
+          <h1 className="text-[1.375rem] font-bold tracking-tight text-foreground">
             {'اطلاع'}
           </h1>
         </header>
@@ -107,7 +107,7 @@ export default function BrowsePage() {
                   )}
                   <span className="relative inline-flex items-center gap-1.5">
                     <Icon className="w-4 h-4" strokeWidth={active ? 2.4 : 2} />
-                    <span className="text-[12px] font-semibold whitespace-nowrap leading-none">
+                    <span className="text-[0.75rem] font-semibold whitespace-nowrap leading-none">
                       {t.labelAr}
                     </span>
                   </span>

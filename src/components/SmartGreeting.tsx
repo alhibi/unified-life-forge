@@ -115,11 +115,11 @@ export default function SmartGreeting() {
 
   return (
     <div className="min-w-0" dir={'rtl'}>
-      <p className="text-[22px] font-bold tracking-tight text-foreground leading-tight truncate">
+      <p className="text-[1.375rem] font-bold tracking-tight text-foreground leading-tight truncate">
         {headline}
       </p>
       <p
-        className="text-[12px] text-muted-foreground mt-1 leading-snug tabular-nums"
+        className="text-[0.75rem] text-muted-foreground mt-1 leading-snug tabular-nums"
         style={{ fontFeatureSettings: '"tnum"' }}
       >
         {primary}

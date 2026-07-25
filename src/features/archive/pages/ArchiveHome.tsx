@@ -102,7 +102,7 @@ export default function ArchiveHome() {
         </button>
       </div>
 
-      <p className="text-[13px] text-muted-foreground leading-relaxed mb-1">
+      <p className="text-[0.8125rem] text-muted-foreground leading-relaxed mb-1">
         اقترح موضوعاً ومستوى عمق، وسيبني المحرك مخطّطاً هرمياً ثم يكتب كل قسم فرعي على حدة، ثم يحفظه
         هنا برقم أرشيفي متسلسل.
       </p>
@@ -153,7 +153,7 @@ export default function ArchiveHome() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ابحث في العنوان، الملخص، أو الوسوم…"
-              className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-muted-foreground/60"
+              className="flex-1 bg-transparent outline-none text-[0.9375rem] placeholder:text-muted-foreground/60"
               style={{ fontSize: 16 }}
             />
           </AppCard>
@@ -192,13 +192,13 @@ export default function ArchiveHome() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-mono text-[10px] text-primary/70 tracking-wider">
+                            <span className="font-mono text-[0.625rem] text-primary/70 tracking-wider">
                               № {String(d.accession_number).padStart(6, '0')}
                             </span>
-                            <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/50">
+                            <span className="text-[0.625rem] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/50">
                               {DEPTH_LABEL[d.depth] || d.depth}
                             </span>
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[0.625rem] text-muted-foreground">
                               {readingTime(d.word_count)} د · {d.word_count.toLocaleString('ar-EG')}{' '}
                               كلمة
                             </span>
@@ -207,7 +207,7 @@ export default function ArchiveHome() {
                             {d.title}
                           </h3>
                           {d.abstract && (
-                            <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-2 mb-2">
+                            <p className="text-[0.8125rem] text-muted-foreground leading-relaxed line-clamp-2 mb-2">
                               {d.abstract}
                             </p>
                           )}
@@ -216,7 +216,7 @@ export default function ArchiveHome() {
                               {d.tags.slice(0, 4).map((t) => (
                                 <span
                                   key={t}
-                                  className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary"
+                                  className="text-[0.625rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary"
                                 >
                                   {t}
                                 </span>

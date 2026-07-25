@@ -31,16 +31,47 @@ export default {
         tajawal: ['"Tajawal"', 'sans-serif'],
       },
       fontSize: {
-        // Canonical type scale — strictly locked typographic scale.
-        // Body-related text uses a strict 1.6x multiplier line-height.
-        // Header/display text uses a strict 1.2x multiplier line-height.
-        micro: ['11px', { lineHeight: '18px', letterSpacing: '0.005em' }],
-        mini: ['12px', { lineHeight: '19px', letterSpacing: '0.003em' }],
-        meta: ['13px', { lineHeight: '21px' }],
-        body: ['14px', { lineHeight: '22px' }],
-        lead: ['16px', { lineHeight: '26px' }],
-        title: ['18px', { lineHeight: '22px', letterSpacing: '-0.005em' }],
-        display: ['24px', { lineHeight: '29px', letterSpacing: '-0.015em' }],
+        // ── Canonical type scale — derived, not fixed ──────────────────
+        // These used to be seven pixel literals, which meant the font-size
+        // preference (which only sets `html { font-size }`) moved almost
+        // nothing on screen. Each step is now a CSS variable computed by
+        // src/lib/fonts.ts from the user's base size and scale ratio, and the
+        // line height is derived from the leading preference:
+        //   body-family steps  →  size × --type-leading      (1.6 default)
+        //   heading steps      →  size × --type-leading-tight (1.2 default)
+        // At the default 16px base and 1.2 ratio these resolve to exactly the
+        // original 11 · 12 · 13 · 14 · 16 · 18 · 24 scale.
+        micro: [
+          'var(--fs-micro)',
+          { lineHeight: 'calc(var(--fs-micro) * var(--type-leading))', letterSpacing: '0.005em' },
+        ],
+        mini: [
+          'var(--fs-mini)',
+          { lineHeight: 'calc(var(--fs-mini) * var(--type-leading))', letterSpacing: '0.003em' },
+        ],
+        meta: ['var(--fs-meta)', { lineHeight: 'calc(var(--fs-meta) * var(--type-leading))' }],
+        body: ['var(--fs-body)', { lineHeight: 'calc(var(--fs-body) * var(--type-leading))' }],
+        lead: ['var(--fs-lead)', { lineHeight: 'calc(var(--fs-lead) * var(--type-leading))' }],
+        title: [
+          'var(--fs-title)',
+          {
+            lineHeight: 'calc(var(--fs-title) * var(--type-leading-tight))',
+            letterSpacing: '-0.005em',
+          },
+        ],
+        display: [
+          'var(--fs-display)',
+          {
+            lineHeight: 'calc(var(--fs-display) * var(--type-leading-tight))',
+            letterSpacing: '-0.015em',
+          },
+        ],
+      },
+      maxWidth: {
+        // `max-w-lg` is this app's content-column convention (40+ screens use
+        // it to centre themselves), so it follows the content-width preference.
+        // Every other max-width key keeps its Tailwind default.
+        lg: 'var(--ui-content-max)',
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -167,21 +198,26 @@ export default {
         toast: '300', // notifications always win
       },
       borderRadius: {
-        // Mathematical geometry scale: 6 / 10 / 16 / 24px.
-        // NOTE: `xl`, `2xl` and `3xl` all resolve to 24px on purpose so the
-        // largest radius has ONE meaning — the codebase used all three
-        // interchangeably believing they differed. Prefer `lg` (16px) for
-        // cards and `xl` (24px) for sheets and sections.
-        sm: '6px',
-        md: '10px',
-        lg: '16px',
-        xl: '24px',
-        '2xl': '24px',
-        '3xl': '24px',
-        input: '10px',
-        button: '10px',
-        card: '16px',
-        section: '24px',
+        // Mathematical geometry scale: 6 / 10 / 16 / 24px at corner softness
+        // 1.0. The four variables are written by src/lib/interfaceScale.ts, so
+        // the corner-softness preference moves every radius in the app in
+        // proportion — a chip, a button, a card and a sheet keep their
+        // relationship at any setting.
+        //
+        // NOTE: `xl`, `2xl` and `3xl` all resolve to the same value on purpose
+        // so the largest radius has ONE meaning — the codebase used all three
+        // interchangeably believing they differed. Prefer `lg` for cards and
+        // `xl` for sheets and sections.
+        sm: 'var(--r-sm)',
+        md: 'var(--r-md)',
+        lg: 'var(--r-lg)',
+        xl: 'var(--r-xl)',
+        '2xl': 'var(--r-xl)',
+        '3xl': 'var(--r-xl)',
+        input: 'var(--r-md)',
+        button: 'var(--r-md)',
+        card: 'var(--r-lg)',
+        section: 'var(--r-xl)',
       },
       boxShadow: {
         // The product is intentionally flat. Depth is communicated with

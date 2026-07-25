@@ -37,7 +37,7 @@ export default function EraPills({ eras, selected, onSelect, showAll = true }: P
             type="button"
             onClick={() => onSelect(null)}
             aria-pressed={selected === null}
-            className="relative pb-3 text-[14px] font-medium transition-all flex items-center gap-1.5 focus:outline-none focus-visible:text-[var(--ink-text)]"
+            className="relative pb-3 text-[0.875rem] font-medium transition-all flex items-center gap-1.5 focus:outline-none focus-visible:text-[var(--ink-text)]"
             style={{
               color: selected === null ? 'var(--ink-text)' : 'var(--ink-text-dim)',
               borderBottom: selected === null ? '2px solid var(--wax)' : '2px solid transparent',
@@ -46,7 +46,7 @@ export default function EraPills({ eras, selected, onSelect, showAll = true }: P
             <span className="font-tajawal">الكلّ</span>
             {totalPoets > 0 && (
               <span
-                className="text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all"
+                className="text-[0.625rem] px-1.5 py-0.5 rounded-full font-sans transition-all"
                 style={{
                   backgroundColor: selected === null ? 'var(--wax-soft)' : 'rgba(242,233,216,0.05)',
                   color: selected === null ? 'var(--wax)' : 'var(--ink-text-faint)',
@@ -67,7 +67,7 @@ export default function EraPills({ eras, selected, onSelect, showAll = true }: P
               onClick={() => onSelect(active ? null : era.id)}
               aria-pressed={active}
               aria-label={`عصر ${era.name_ar}`}
-              className="relative pb-3 text-[14px] font-medium transition-all flex items-center gap-1.5 focus:outline-none focus-visible:text-[var(--ink-text)]"
+              className="relative pb-3 text-[0.875rem] font-medium transition-all flex items-center gap-1.5 focus:outline-none focus-visible:text-[var(--ink-text)]"
               style={{
                 color: active ? 'var(--ink-text)' : 'var(--ink-text-dim)',
                 borderBottom: active ? '2px solid var(--wax)' : '2px solid transparent',
@@ -76,7 +76,7 @@ export default function EraPills({ eras, selected, onSelect, showAll = true }: P
               <span className="font-tajawal">{era.name_ar}</span>
               {count > 0 && (
                 <span
-                  className="text-[10px] px-1.5 py-0.5 rounded-full font-sans transition-all"
+                  className="text-[0.625rem] px-1.5 py-0.5 rounded-full font-sans transition-all"
                   style={{
                     backgroundColor: active ? 'var(--wax-soft)' : 'rgba(242,233,216,0.05)',
                     color: active ? 'var(--wax)' : 'var(--ink-text-faint)',

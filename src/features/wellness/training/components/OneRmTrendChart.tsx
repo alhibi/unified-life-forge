@@ -52,7 +52,7 @@ export default function OneRmTrendChart({
     return (
       <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
         <TrendingUp className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-        <p className="text-[12px] text-muted-foreground">{T.noData[lang]}</p>
+        <p className="text-[0.75rem] text-muted-foreground">{T.noData[lang]}</p>
       </div>
     );
   }
@@ -84,19 +84,19 @@ export default function OneRmTrendChart({
     <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
       <div className="flex items-baseline justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
             {T.title[lang]} — {exLabel}
           </p>
-          <p className="text-[20px] font-bold tabular-nums text-foreground" dir="ltr">
+          <p className="text-[1.25rem] font-bold tabular-nums text-foreground" dir="ltr">
             {current} kg
-            <span className={`text-[11px] ms-1.5 ${delta >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            <span className={`text-[0.6875rem] ms-1.5 ${delta >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
               {delta >= 0 ? '+' : ''}{delta.toFixed(1)} ({deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(1)}%)
             </span>
           </p>
         </div>
         <div className="text-end">
-          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{T.best[lang]}</p>
-          <p className="text-[14px] font-bold tabular-nums text-amber-500" dir="ltr">{best} kg</p>
+          <p className="text-[0.625rem] text-muted-foreground/60 uppercase tracking-wider">{T.best[lang]}</p>
+          <p className="text-[0.875rem] font-bold tabular-nums text-amber-500" dir="ltr">{best} kg</p>
         </div>
       </div>
 
@@ -173,7 +173,7 @@ export default function OneRmTrendChart({
       </svg>
 
       {hoveredIdx != null && (
-        <div className="flex justify-between text-[10px] text-muted-foreground" dir="ltr">
+        <div className="flex justify-between text-[0.625rem] text-muted-foreground" dir="ltr">
           <span>{points[hoveredIdx].date}</span>
           <span className="tabular-nums font-semibold text-foreground">{points[hoveredIdx].e1rm} kg</span>
         </div>

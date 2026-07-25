@@ -102,7 +102,7 @@ export default function GroupsIndexPage() {
           >
             {<ArrowRight className="w-5 h-5" />}
           </button>
-          <h1 className="flex-1 text-[16px] font-semibold truncate">
+          <h1 className="flex-1 text-[1rem] font-semibold truncate">
             {'المجموعات والقنوات'}
           </h1>
         </header>
@@ -116,7 +116,7 @@ export default function GroupsIndexPage() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder={'ابحث في المجموعات...'}
-              className="flex-1 bg-transparent text-[14px] outline-none ms-2 placeholder:text-muted-foreground/40"
+              className="flex-1 bg-transparent text-[0.875rem] outline-none ms-2 placeholder:text-muted-foreground/40"
               dir="auto"
             />
             {query && (
@@ -145,7 +145,7 @@ export default function GroupsIndexPage() {
                 type="button"
                 onClick={() => setFilter(tab.id)}
                 className={cn(
-                  'h-8 px-3.5 rounded-full text-[12px] font-medium transition-all whitespace-nowrap inline-flex items-center gap-1.5',
+                  'h-8 px-3.5 rounded-full text-[0.75rem] font-medium transition-all whitespace-nowrap inline-flex items-center gap-1.5',
                   active
                     ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
@@ -154,7 +154,7 @@ export default function GroupsIndexPage() {
                 {tab.ar}
                 {tab.count > 0 && (
                   <span className={cn(
-                    'text-[10px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1',
+                    'text-[0.625rem] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1',
                     active ? 'bg-primary-foreground/20' : 'bg-muted/50',
                   )}>
                     {tab.count}
@@ -219,7 +219,7 @@ export default function GroupsIndexPage() {
                   className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Hash className="w-4 h-4 text-primary" />
-                  <span className="text-[13px] font-semibold">{'قناة جديدة'}</span>
+                  <span className="text-[0.8125rem] font-semibold">{'قناة جديدة'}</span>
                 </motion.button>
                 <motion.button
                   type="button"
@@ -231,7 +231,7 @@ export default function GroupsIndexPage() {
                   className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
                 >
                   <Users className="w-4 h-4 text-primary" />
-                  <span className="text-[13px] font-semibold">{'مجموعة جديدة'}</span>
+                  <span className="text-[0.8125rem] font-semibold">{'مجموعة جديدة'}</span>
                 </motion.button>
               </>
             )}
@@ -282,13 +282,13 @@ function GroupRow({ chat, onClick }: GroupRowProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <span className={cn(
-            'text-[15px] text-foreground truncate',
+            'text-[0.9375rem] text-foreground truncate',
             chat.unreadCount > 0 ? 'font-bold' : 'font-semibold',
           )}>
             {chat.title || ('بدون اسم')}
           </span>
           <span className={cn(
-            'text-[11px] shrink-0 tabular-nums',
+            'text-[0.6875rem] shrink-0 tabular-nums',
             chat.unreadCount > 0 ? 'text-primary font-semibold' : 'text-muted-foreground/50',
           )}>
             {formatTime(lastTime)}
@@ -296,7 +296,7 @@ function GroupRow({ chat, onClick }: GroupRowProps) {
         </div>
         <div className="flex items-center justify-between gap-2 mt-0.5">
           <p className={cn(
-            'text-[13px] truncate leading-relaxed',
+            'text-[0.8125rem] truncate leading-relaxed',
             chat.unreadCount > 0 ? 'text-foreground/75 font-medium' : 'text-muted-foreground/65',
           )} dir="auto">
             {chat.lastMessage
@@ -311,7 +311,7 @@ function GroupRow({ chat, onClick }: GroupRowProps) {
           </p>
           <div className="flex items-center gap-1 shrink-0">
             {chat.unreadCount > 0 && (
-              <span className="text-[11px] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold bg-primary text-primary-foreground">
+              <span className="text-[0.6875rem] rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1.5 font-bold bg-primary text-primary-foreground">
                 {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
               </span>
             )}
@@ -338,7 +338,7 @@ function EmptyState({ filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProp
             ? <Hash  className="h-9 w-9 text-primary/30" />
             : <Users className="h-9 w-9 text-primary/30" />}
         </div>
-        <p className="text-[14px] font-semibold text-foreground/60 text-center">
+        <p className="text-[0.875rem] font-semibold text-foreground/60 text-center">
           {'لا نتائج تطابق التصفية'}
         </p>
       </div>
@@ -350,10 +350,10 @@ function EmptyState({ filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProp
         <Users className="h-11 w-11 text-primary/30" />
       </div>
       <div className="text-center space-y-1">
-        <p className="text-[15px] font-semibold text-foreground/70">
+        <p className="text-[0.9375rem] font-semibold text-foreground/70">
           {'لا توجد مجموعات بعد'}
         </p>
-        <p className="text-[13px] text-muted-foreground/60 max-w-xs leading-relaxed">
+        <p className="text-[0.8125rem] text-muted-foreground/60 max-w-xs leading-relaxed">
           {'أنشئ مجموعة لمحادثة عدة أصدقاء معاً، أو قناةً لبثّ التحديثات.'}
         </p>
       </div>

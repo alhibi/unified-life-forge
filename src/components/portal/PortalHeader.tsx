@@ -131,7 +131,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
                   <Settings className="h-4 w-4" aria-hidden />
                   الإعدادات
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate('/settings/theme')}>
+                <DropdownMenuItem onSelect={() => navigate('/settings/appearance')}>
                   <Grid3X3 className="h-4 w-4" aria-hidden />
                   السمة والألوان
                 </DropdownMenuItem>

@@ -213,7 +213,7 @@ export function ArticleSpeechPlayer({
 
       {expanded && voices.length > 0 && (
         <div className="pt-2 border-t border-border/30 flex flex-col gap-1.5">
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+          <label className="text-[0.625rem] text-muted-foreground uppercase tracking-wider font-semibold">
             {'اختر الصوت'}
           </label>
           <select

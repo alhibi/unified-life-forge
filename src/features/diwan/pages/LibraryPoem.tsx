@@ -157,7 +157,7 @@ export default function LibraryPoemPage() {
     return (
       <div className="min-h-screen bg-[#16130F] pt-14 px-5 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--wax)] mb-2" />
-        <p className="text-[13px] text-[#7E7259] font-tajawal">
+        <p className="text-[0.8125rem] text-[#7E7259] font-tajawal">
           جاري فتح رقوق القصيدة وفض أختامها…
         </p>
       </div>
@@ -237,12 +237,12 @@ export default function LibraryPoemPage() {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-[22px] font-bold text-[#F2E9D8] font-amiri leading-tight">
+            <h1 className="text-[1.375rem] font-bold text-[#F2E9D8] font-amiri leading-tight">
               {p.title}
             </h1>
             <Link
               to={`/diwan/library/poet/${p.poet_slug}`}
-              className="text-[12px] text-[#B8AA8E] hover:text-[var(--wax)] mt-1.5 flex items-center gap-1 font-tajawal select-none"
+              className="text-[0.75rem] text-[#B8AA8E] hover:text-[var(--wax)] mt-1.5 flex items-center gap-1 font-tajawal select-none"
             >
               <Feather className="w-3.5 h-3.5 text-[var(--wax)] shrink-0" />
               <span>{p.poet_name}</span>
@@ -284,31 +284,31 @@ export default function LibraryPoemPage() {
         {/* Meta tags with simple borders (No fill, transparent backgrounds) */}
         <div className="flex flex-wrap items-center gap-2 mb-6">
           {p.kind && (
-            <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+            <span className="px-2.5 py-1 rounded-[5px] text-[0.6875rem] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
               {p.kind}
             </span>
           )}
           {p.meter && (
-            <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+            <span className="px-2.5 py-1 rounded-[5px] text-[0.6875rem] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
               البحر: {p.meter}
             </span>
           )}
           {p.rhyme && (
-            <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+            <span className="px-2.5 py-1 rounded-[5px] text-[0.6875rem] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
               القافية: {p.rhyme}
             </span>
           )}
-          <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+          <span className="px-2.5 py-1 rounded-[5px] text-[0.6875rem] font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
             {displayVerses.length} {displayVerses.length === 1 ? 'بيت' : 'أبيات'}
           </span>
           {approxYear && (
-            <span className="px-2.5 py-1 rounded-[5px] text-[11px] font-medium border border-[var(--hairline-strong)] text-[#7E7259] font-tajawal select-none">
+            <span className="px-2.5 py-1 rounded-[5px] text-[0.6875rem] font-medium border border-[var(--hairline-strong)] text-[#7E7259] font-tajawal select-none">
               سنة النظم: {approxYear}
             </span>
           )}
           <button
             onClick={copyAll}
-            className="ms-auto flex items-center gap-1.5 text-[11px] text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-all font-tajawal"
+            className="ms-auto flex items-center gap-1.5 text-[0.6875rem] text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-all font-tajawal"
           >
             <ClipboardCopy className="w-3.5 h-3.5" />
             نسخ المخطوطة
@@ -321,7 +321,7 @@ export default function LibraryPoemPage() {
             <button
               onClick={() => setTashkeel((t) => !t)}
               aria-pressed={tashkeel}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-bold transition-all border ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[0.75rem] font-bold transition-all border ${
                 tashkeel
                   ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
                   : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
@@ -337,7 +337,7 @@ export default function LibraryPoemPage() {
             <button
               onClick={() => setShowContext((c) => !c)}
               aria-pressed={showContext}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-bold transition-all border ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[0.75rem] font-bold transition-all border ${
                 showContext
                   ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
                   : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
@@ -348,7 +348,7 @@ export default function LibraryPoemPage() {
           )}
 
           {glossaryKeys.size > 0 && (
-            <span className="flex items-center gap-1 text-[11px] text-[#7E7259] font-tajawal ms-auto select-none">
+            <span className="flex items-center gap-1 text-[0.6875rem] text-[#7E7259] font-tajawal ms-auto select-none">
               <Sparkles className="w-3.5 h-3.5 text-[var(--wax)]" />
               <span>{glossaryKeys.size} مفردات مشروحة · اضغط مطولاً</span>
             </span>
@@ -366,7 +366,7 @@ export default function LibraryPoemPage() {
           className="rounded-[14px] bg-[#1E1912] border border-[var(--hairline-strong)] p-4 sm:p-6 mb-6"
         >
           {displayVerses.length === 0 ? (
-            <p className="text-center text-[#7E7259] py-8 text-[13px] font-tajawal">
+            <p className="text-center text-[#7E7259] py-8 text-[0.8125rem] font-tajawal">
               لا توجد أبيات محفوظة لهذه القصيدة بعد في رقوقنا.
             </p>
           ) : (
@@ -392,7 +392,7 @@ export default function LibraryPoemPage() {
             href={p.source_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 mb-8 flex items-center justify-center gap-1.5 text-[11px] text-[#7E7259] hover:text-[#B8AA8E] transition-colors font-tajawal select-none"
+            className="mt-6 mb-8 flex items-center justify-center gap-1.5 text-[0.6875rem] text-[#7E7259] hover:text-[#B8AA8E] transition-colors font-tajawal select-none"
           >
             <ExternalLink className="w-3.5 h-3.5 text-[var(--wax)]" />
             المصدر الأصلي للمخطوطة

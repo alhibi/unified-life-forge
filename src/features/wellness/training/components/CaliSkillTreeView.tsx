@@ -46,17 +46,17 @@ export default function CaliSkillTreeView({
   return (
     <div className={`space-y-3 ${className}`}>
       <div>
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
           <Award className="w-3.5 h-3.5" />
           {T.title[lang]}
         </p>
-        <p className="text-[11px] text-muted-foreground mt-0.5">{T.subtitle[lang]}</p>
+        <p className="text-[0.6875rem] text-muted-foreground mt-0.5">{T.subtitle[lang]}</p>
       </div>
 
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setFilter('all')}
-          className={`shrink-0 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border ${
+          className={`shrink-0 text-[0.625rem] font-semibold px-2.5 py-1.5 rounded-full border ${
             filter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/40'
           }`}
         >
@@ -66,7 +66,7 @@ export default function CaliSkillTreeView({
           <button
             key={c}
             onClick={() => setFilter(c)}
-            className={`shrink-0 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border ${
+            className={`shrink-0 text-[0.625rem] font-semibold px-2.5 py-1.5 rounded-full border ${
               filter === c ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/40'
             }`}
           >
@@ -145,8 +145,8 @@ function SkillCard({
           ) : null}
         </div>
 
-        <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">{skill.name[lang]}</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{CATEGORY_LABEL[skill.category][lang]}</p>
+        <p className="text-[0.75rem] font-bold text-foreground leading-tight line-clamp-2">{skill.name[lang]}</p>
+        <p className="text-[0.625rem] text-muted-foreground mt-0.5">{CATEGORY_LABEL[skill.category][lang]}</p>
 
         {/* Difficulty dots */}
         <div className="flex gap-0.5 mt-1.5">
@@ -164,7 +164,7 @@ function SkillCard({
         {/* Progress */}
         {unlocked && (
           <div className="mt-2 space-y-1">
-            <div className="flex items-baseline justify-between text-[10px]">
+            <div className="flex items-baseline justify-between text-[0.625rem]">
               <span className="text-muted-foreground/70 tabular-nums">
                 {progressStep < 0 ? T.notStarted[lang] : isMastered ? T.mastered[lang] : `${T.step[lang]} ${stepIdx + 1}/${totalSteps}`}
               </span>
@@ -183,7 +183,7 @@ function SkillCard({
         )}
 
         {!unlocked && (
-          <p className="text-[10px] text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
+          <p className="text-[0.625rem] text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
         )}
       </div>
     </motion.button>

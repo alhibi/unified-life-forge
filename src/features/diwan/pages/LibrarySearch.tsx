@@ -157,7 +157,7 @@ export default function LibrarySearchPage() {
         <div className="flex items-center gap-3 mb-4">
           <BackButton fallback="/mihrab" />
           <div className="flex-1">
-            <h1 className="text-[20px] font-bold tracking-tight text-foreground flex items-center gap-2">
+            <h1 className="text-[1.25rem] font-bold tracking-tight text-foreground flex items-center gap-2">
               <Search className="w-5 h-5 text-primary" />
               البحث المتقدّم
             </h1>
@@ -187,7 +187,7 @@ export default function LibrarySearchPage() {
         <div className="flex items-center gap-2 mb-3">
           <button
             onClick={() => setShowFilters(s => !s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.75rem] font-semibold transition ${
               showFilters || activeFilters > 0
                 ? 'bg-primary/15 text-primary border border-primary/30'
                 : 'bg-muted/50 text-muted-foreground border border-transparent'
@@ -196,7 +196,7 @@ export default function LibrarySearchPage() {
             <Filter className="w-3.5 h-3.5" />
             فلاتر
             {activeFilters > 0 && (
-              <span className="bg-primary text-background text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="bg-primary text-background text-[0.625rem] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {activeFilters}
               </span>
             )}
@@ -204,7 +204,7 @@ export default function LibrarySearchPage() {
           {activeFilters > 0 && (
             <button
               onClick={resetFilters}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+              className="flex items-center gap-1 text-[0.6875rem] text-muted-foreground hover:text-foreground"
             >
               <X className="w-3 h-3" />
               إعادة ضبط
@@ -223,13 +223,13 @@ export default function LibrarySearchPage() {
         {history.length > 0 && !q && (
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1.5">
-              <p className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
+              <p className="flex items-center gap-1 text-[0.625rem] font-bold text-muted-foreground">
                 <History className="w-3 h-3" />
                 عمليات بحث سابقة
               </p>
               <button
                 onClick={clearHistory}
-                className="text-[10px] text-muted-foreground hover:text-foreground"
+                className="text-[0.625rem] text-muted-foreground hover:text-foreground"
               >
                 مسح
               </button>
@@ -239,7 +239,7 @@ export default function LibrarySearchPage() {
                 <button
                   key={h}
                   onClick={() => setQ(h)}
-                  className="px-2.5 py-1 rounded-full bg-muted/50 text-[11px] text-foreground hover:bg-muted transition"
+                  className="px-2.5 py-1 rounded-full bg-muted/50 text-[0.6875rem] text-foreground hover:bg-muted transition"
                 >
                   {h}
                 </button>
@@ -338,7 +338,7 @@ function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold transition-all ${
+      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[0.75rem] font-semibold transition-all ${
  active
  ? 'bg-card text-foreground border border-border/30'
  : 'text-muted-foreground hover:text-foreground'
@@ -353,7 +353,7 @@ function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[11px] font-bold text-muted-foreground mb-1.5">{label}</p>
+      <p className="text-[0.6875rem] font-bold text-muted-foreground mb-1.5">{label}</p>
       {children}
     </div>
   );
@@ -363,7 +363,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
+      className={`px-2.5 py-1 rounded-md text-[0.6875rem] font-medium transition ${
         active
           ? 'bg-primary text-background'
           : 'bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -382,10 +382,10 @@ function EmptyHint({ mode }: { mode: Mode }) {
           ? <ScrollText className="w-6 h-6 text-primary" />
           : <Quote className="w-6 h-6 text-primary" />}
       </div>
-      <p className="text-[14px] font-semibold text-foreground">
+      <p className="text-[0.875rem] font-semibold text-foreground">
         {mode === 'poems' ? 'ابدأ البحث في القصائد' : 'ابحث عن بيت سمعته'}
       </p>
-      <p className="text-[11px] text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
+      <p className="text-[0.6875rem] text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
         {mode === 'poems'
           ? 'أدخل كلمة أو موضوعًا، أو استخدم الفلاتر لتصفية القصائد بالعصر والبحر والقافية.'
           : 'اكتب أيّ جزء من البيت، يبحث في ملايين الأبيات ويُظهر القصيدة وصاحبها.'}
@@ -397,14 +397,14 @@ function EmptyHint({ mode }: { mode: Mode }) {
 function NoResults() {
   return (
     <div className="text-center py-10">
-      <p className="text-muted-foreground text-[13px]">لا نتائج. جرّب صياغة أخرى أو خفّف الفلاتر.</p>
+      <p className="text-muted-foreground text-[0.8125rem]">لا نتائج. جرّب صياغة أخرى أو خفّف الفلاتر.</p>
     </div>
   );
 }
 
 function ResultsCount({ total, page }: { total: number; page: number }) {
   return (
-    <p className="text-[10px] text-muted-foreground mb-2">
+    <p className="text-[0.625rem] text-muted-foreground mb-2">
       {total} نتيجة{page > 0 ? ` · صفحة ${page + 1}` : ''}
     </p>
   );
@@ -415,7 +415,7 @@ function LoadMore({ loading, onClick }: { loading: boolean; onClick: () => void 
     <button
       onClick={onClick}
       disabled={loading}
-      className="w-full mt-2 py-3 rounded-2xl bg-card border border-border/40 text-[12px] font-semibold text-primary hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-1.5"
+      className="w-full mt-2 py-3 rounded-2xl bg-card border border-border/40 text-[0.75rem] font-semibold text-primary hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-1.5"
     >
       {loading
         ? 'يحمّل…'
@@ -446,14 +446,14 @@ function VerseRow({
           className="grid grid-cols-2 gap-3 mb-2"
           style={{ fontFamily: "'Amiri', serif" }}
         >
-          <p className="text-[14px] text-foreground leading-[1.9] text-end">
+          <p className="text-[0.875rem] text-foreground leading-[1.9] text-end">
             {renderHighlighted(verse.hemistich1, highlight)}
           </p>
-          <p className="text-[14px] text-foreground leading-[1.9] text-start">
+          <p className="text-[0.875rem] text-foreground leading-[1.9] text-start">
             {renderHighlighted(verse.hemistich2 ?? '', highlight)}
           </p>
         </div>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[0.625rem] text-muted-foreground">
           <span className="text-primary font-semibold">{verse.poet_name}</span>
           {' — '}
           <span>{verse.poem_title}</span>

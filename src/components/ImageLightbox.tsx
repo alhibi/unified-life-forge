@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
-import React, { useCallback, useEffect,useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ChevronLeft, ChevronRight, Download } from '@/lib/icons';
@@ -63,16 +63,19 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     }
   }, [isZoomed]);
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    const now = Date.now();
-    if (now - lastTapRef.current < 300) {
-      handleDoubleTap();
-      lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-    }
-  }, [handleDoubleTap]);
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const now = Date.now();
+      if (now - lastTapRef.current < 300) {
+        handleDoubleTap();
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = now;
+      }
+    },
+    [handleDoubleTap],
+  );
 
   // Pinch- via touch events
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -83,19 +86,22 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
     }
   }, []);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.hypot(dx, dy);
-      const ratio = dist / pinchStartRef.current;
-      const newScale = Math.max(1, Math.min(5, scale * ratio));
-      setScale(newScale);
-      setIsZoomed(newScale > 1.1);
-      pinchStartRef.current = dist;
-    }
-  }, [scale]);
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        const ratio = dist / pinchStartRef.current;
+        const newScale = Math.max(1, Math.min(5, scale * ratio));
+        setScale(newScale);
+        setIsZoomed(newScale > 1.1);
+        pinchStartRef.current = dist;
+      }
+    },
+    [scale],
+  );
 
   // Shared element transition origin
   const getInitialPos = () => {
@@ -137,10 +143,12 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          {/* Background */}
+          {/* Background — the app's shared ink tone, not pure black. Behind a
+              photo, #000 crushes the image's own blacks; ink keeps the frame
+              readable as a surface. */}
           <motion.div
-            className="absolute inset-0 bg-black"
-            style={{ opacity: bgOpacity }}
+            className="absolute inset-0"
+            style={{ opacity: bgOpacity, backgroundColor: 'hsl(var(--theme-ink))' }}
             onClick={handleClose}
           />
 
@@ -155,13 +163,17 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
           >
             <button
               onClick={handleClose}
-              className="w-10 h-10 rounded-full bg-black/70 border border-white/20 flex items-center justify-center active:scale-90 transition-transform"
+              className="w-10 h-10 rounded-full bg-[hsl(var(--theme-ink)/0.72)] border border-white/20 flex items-center justify-center active:scale-90 transition-transform"
             >
-              {isRtl ? <ChevronRight className="w-5 h-5 text-white" /> : <ChevronLeft className="w-5 h-5 text-white" />}
+              {isRtl ? (
+                <ChevronRight className="w-5 h-5 text-white" />
+              ) : (
+                <ChevronLeft className="w-5 h-5 text-white" />
+              )}
             </button>
             <button
               onClick={handleDownload}
-              className="w-10 h-10 rounded-full bg-black/70 border border-white/20 flex items-center justify-center active:scale-90 transition-transform"
+              className="w-10 h-10 rounded-full bg-[hsl(var(--theme-ink)/0.72)] border border-white/20 flex items-center justify-center active:scale-90 transition-transform"
             >
               <Download className="w-5 h-5 text-white" />
             </button>

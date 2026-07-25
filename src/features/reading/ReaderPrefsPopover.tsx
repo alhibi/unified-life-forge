@@ -125,7 +125,7 @@ export function ReaderPrefsPopover({
                   active={prefs.lineHeight === s}
                   onClick={() => onChange({ ...prefs, lineHeight: s })}
                 >
-                  <span className="text-[10px] capitalize">
+                  <span className="text-[0.625rem] capitalize">
                     {s === 'compact' ? 'مدمج' : s === 'normal' ? 'عادي' : 'مريح'}
                   </span>
                 </SegBtn>
@@ -140,7 +140,7 @@ export function ReaderPrefsPopover({
                   title={fontFamilyLabelMap[f]}
                 >
                   <span
-                    className="text-[11px] font-semibold"
+                    className="text-[0.6875rem] font-semibold"
                     style={{
                       fontFamily:
                         f === 'serif' ? 'Georgia, serif' :
@@ -162,7 +162,7 @@ export function ReaderPrefsPopover({
                     active={prefs.theme === t}
                     onClick={() => onChange({ ...prefs, theme: t })}
                     title={themeLabelMap[t]}
-                    className={`h-10 text-[10px] flex flex-col gap-1 rounded-xl transition-all ${
+                    className={`h-10 text-[0.625rem] flex flex-col gap-1 rounded-xl transition-all ${
                       prefs.theme === t
                         ? 'bg-primary/20 text-primary border border-primary/40'
                         : 'bg-accent/40'
@@ -206,7 +206,7 @@ function PrefRow({
 }) {
   return (
     <div>
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">
+      <p className="text-[0.625rem] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">
         {label}
       </p>
       <div className="flex gap-1.5">{children}</div>

@@ -354,7 +354,7 @@ export default function PodcastDetail() {
               <button
                 onClick={handleSubscribeToggle}
                 disabled={!feed.data}
-                className="flex items-center gap-1.5 h-10 px-4 rounded-full text-[13px] font-bold transition-colors active:scale-95 disabled:opacity-50"
+                className="flex items-center gap-1.5 h-10 px-4 rounded-full text-[0.8125rem] font-bold transition-colors active:scale-95 disabled:opacity-50"
                 style={{
                   background: subscribed
                     ? 'transparent'
@@ -401,7 +401,7 @@ export default function PodcastDetail() {
                 <p className="text-sm font-bold text-foreground mb-1.5">
                   {'تعذّر تحميل البودكاست'}
                 </p>
-                <p className="text-[12px] text-muted-foreground mb-4 leading-relaxed">
+                <p className="text-[0.75rem] text-muted-foreground mb-4 leading-relaxed">
                   {'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'}
                 </p>
                 <div className="flex items-center justify-center gap-2">
@@ -426,10 +426,10 @@ export default function PodcastDetail() {
                   )}
                 </div>
                 <details className="mt-3 text-start">
-                  <summary className="text-[10px] text-muted-foreground/70 cursor-pointer">
+                  <summary className="text-[0.625rem] text-muted-foreground/70 cursor-pointer">
                     {'تفاصيل تقنية'}
                   </summary>
-                  <p className="text-[11px] text-muted-foreground mt-1 break-words" dir="ltr">
+                  <p className="text-[0.6875rem] text-muted-foreground mt-1 break-words" dir="ltr">
                     {(error as Error).message}
                   </p>
                 </details>
@@ -452,7 +452,7 @@ export default function PodcastDetail() {
                   // `max-height` with a fade gradient gives a
                   // predictable preview height regardless of inner
                   // markup. Once expanded we drop the cap entirely.
-                  className={`text-[13px] text-foreground/90 leading-relaxed podcast-html relative ${
+                  className={`text-[0.8125rem] text-foreground/90 leading-relaxed podcast-html relative ${
                     isLongDescription && !descExpanded ? 'overflow-hidden' : ''
                   }`}
                   style={
@@ -467,7 +467,7 @@ export default function PodcastDetail() {
                     type="button"
                     onClick={() => setDescExpanded((v) => !v)}
                     aria-expanded={descExpanded}
-                    className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold transition-colors"
+                    className="mt-2 inline-flex items-center gap-1 text-[0.75rem] font-semibold transition-colors"
                     style={{
                       color: 'var(--podcast-primary, hsl(var(--primary)))',
                     }}
@@ -499,18 +499,18 @@ export default function PodcastDetail() {
                   >
                     <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[0.6875rem] text-muted-foreground">
                         {'المصدر'}
                       </p>
-                      <p className="text-[12px] truncate text-foreground">{displayLink}</p>
+                      <p className="text-[0.75rem] truncate text-foreground">{displayLink}</p>
                     </div>
                   </a>
                 )}
                 <div className="flex items-center gap-3 px-4 py-3">
                   <Rss className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] text-muted-foreground">RSS</p>
-                    <p className="text-[12px] truncate text-foreground" dir="ltr">
+                    <p className="text-[0.6875rem] text-muted-foreground">RSS</p>
+                    <p className="text-[0.75rem] truncate text-foreground" dir="ltr">
                       {feed.data.origin}
                     </p>
                   </div>
@@ -519,10 +519,10 @@ export default function PodcastDetail() {
                   <div className="flex items-center gap-3 px-4 py-3">
                     <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[0.6875rem] text-muted-foreground">
                         {'اللغة'}
                       </p>
-                      <p className="text-[12px] uppercase text-foreground">
+                      <p className="text-[0.75rem] uppercase text-foreground">
                         {feed.data.languageCode}
                       </p>
                     </div>
@@ -541,7 +541,7 @@ export default function PodcastDetail() {
                   <h2 className="text-sm font-bold text-foreground">
                     {'الحلقات'}
                   </h2>
-                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                  <span className="text-[0.6875rem] text-muted-foreground tabular-nums">
                     {debouncedEpisodeQuery
                       ? `${filteredSortedEpisodes.length} / ${feed.data.episodes.length}`
                       : feed.data.episodes.length}
@@ -568,7 +568,7 @@ export default function PodcastDetail() {
                         key={f.key}
                         type="button"
                         onClick={() => setEpisodeFilter(f.key)}
-                        className={`flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] font-semibold transition-colors ${
+                        className={`flex items-center gap-1 px-2.5 h-7 rounded-full text-[0.6875rem] font-semibold transition-colors ${
                           active
                             ? 'bg-primary/10 text-primary'
                             : 'text-muted-foreground hover:text-foreground'
@@ -589,7 +589,7 @@ export default function PodcastDetail() {
                         value={episodeQuery}
                         onChange={(e) => setEpisodeQuery(e.target.value)}
                         placeholder={'ابحث في الحلقات'}
-                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[12px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[0.75rem] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                         aria-label={'بحث في الحلقات'}
                       />
                       {episodeQuery && (
@@ -605,7 +605,7 @@ export default function PodcastDetail() {
                     <button
                       type="button"
                       onClick={() => setSortOrder((o) => (o === 'newest' ? 'oldest' : 'newest'))}
-                      className="h-9 px-3 rounded-full bg-muted/40 border border-border/40 text-[12px] font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
+                      className="h-9 px-3 rounded-full bg-muted/40 border border-border/40 text-[0.75rem] font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
                       aria-label={'تبديل الترتيب'}
                       title={
                         sortOrder === 'newest'
@@ -618,7 +618,7 @@ export default function PodcastDetail() {
                       ) : (
                         <ArrowUpNarrowWide className="w-3.5 h-3.5" />
                       )}
-                      <span className="text-[11px] hidden sm:inline">
+                      <span className="text-[0.6875rem] hidden sm:inline">
                         {sortOrder === 'newest'
                           ? 'الأحدث'
                           : 'الأقدم'}
@@ -633,7 +633,7 @@ export default function PodcastDetail() {
             {isLoading && !feed.data && (
               <div className="flex flex-col items-center py-10 text-muted-foreground gap-2">
                 <Loader2 className="w-6 h-6 animate-spin" />
-                <p className="text-[12px]">
+                <p className="text-[0.75rem]">
                   {'يتم تحميل الحلقات...'}
                 </p>
               </div>
@@ -657,7 +657,7 @@ export default function PodcastDetail() {
                   <button
                     type="button"
                     onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="w-full py-3 rounded-2xl text-[13px] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition"
+                    className="w-full py-3 rounded-2xl text-[0.8125rem] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition"
                     style={{ color: 'var(--podcast-primary, hsl(var(--primary)))' }}
                   >
                     {`تحميل المزيد (${filteredSortedEpisodes.length - visibleCount})`}

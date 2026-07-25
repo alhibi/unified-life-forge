@@ -252,7 +252,7 @@ export default function PKM() {
           {/* tag tree */}
           {tagTree.length > 0 && (
             <div className="rounded-xl bg-card border border-border/50 p-2">
-              <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
+              <div className="px-2 py-1.5 text-[0.625rem] font-bold uppercase tracking-wider text-muted-foreground/70">
                 {'الوسوم'}
               </div>
               <button
@@ -304,7 +304,7 @@ export default function PKM() {
                       <div className="text-sm font-bold truncate flex-1 leading-snug">
                         {title}
                       </div>
-                      <span className="text-[10px] text-muted-foreground/70 shrink-0 mt-0.5">
+                      <span className="text-[0.625rem] text-muted-foreground/70 shrink-0 mt-0.5">
                         {new Date(n.updatedAt).toLocaleDateString('ar')}
                       </span>
                     </div>
@@ -436,7 +436,7 @@ function TagRow({
         >
           {node.name}
         </button>
-        <span className="text-[10px] text-muted-foreground/60 px-1 shrink-0">{node.count}</span>
+        <span className="text-[0.625rem] text-muted-foreground/60 px-1 shrink-0">{node.count}</span>
       </div>
       {hasChildren && open && (
         <TagTree nodes={node.children} active={active} onSelect={onSelect} depth={depth + 1} />
@@ -721,7 +721,7 @@ function Editor({
       )}
 
       {/* stats + tags footer */}
-      <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
+      <div className="flex items-center gap-3 text-[0.625rem] uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
         <span>{stats.words} {'كلمة'}</span>
         <span className="opacity-50">•</span>
         <span>{stats.chars} {'حرف'}</span>
@@ -744,13 +744,13 @@ function TagsFooter({ body, }: { body: string; }) {
   if (tags.length === 0) return null;
   return (
     <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/40">
-      <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
+      <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/60">
         {'الوسوم'}
       </span>
       {tags.map((t) => (
         <span
           key={t}
-          className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
+          className="text-[0.6875rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
         >
           #{t}
         </span>

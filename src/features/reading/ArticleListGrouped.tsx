@@ -580,7 +580,7 @@ export function ArticleListGrouped({
         </div>
       )}
       {!hasMore && totalArticleRows > INITIAL_PAGE_SIZE && (
-        <div className="py-8 text-center text-[11px] text-muted-foreground/60 tracking-wide">
+        <div className="py-8 text-center text-[0.6875rem] text-muted-foreground/60 tracking-wide">
           {'— انتهت المقالات —'}
         </div>
       )}
@@ -594,10 +594,10 @@ function BucketHeader({
 }: { label: string; count: number; }) {
   return (
     <div className="px-4 pt-4 pb-1 app-sticky-header z-sticky flex items-baseline justify-between border-b border-border/20">
-      <h5 className="text-[11px] font-bold tracking-wide uppercase text-muted-foreground">
+      <h5 className="text-[0.6875rem] font-bold tracking-wide uppercase text-muted-foreground">
         {label}
       </h5>
-      <span className="text-[10px] text-muted-foreground/60 tabular-nums">
+      <span className="text-[0.625rem] text-muted-foreground/60 tabular-nums">
         {`${count} مقالة`}
       </span>
     </div>

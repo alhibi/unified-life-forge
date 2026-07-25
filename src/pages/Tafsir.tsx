@@ -264,7 +264,7 @@ export default function TafsirPage() {
           {/* Font size controls */}
           <div className="flex items-center gap-1">
             <button aria-label="تصغير حجم الخط" onClick={() => setFontSize(s => Math.max(12, s - 1))} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center"><Minus className="w-3 h-3 text-muted-foreground" /></button>
-            <span className="text-[10px] text-muted-foreground w-5 text-center">{fontSize}</span>
+            <span className="text-[0.625rem] text-muted-foreground w-5 text-center">{fontSize}</span>
             <button aria-label="تكبير حجم الخط" onClick={() => setFontSize(s => Math.min(24, s + 1))} className="w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center"><Plus className="w-3 h-3 text-muted-foreground" /></button>
           </div>
         </div>
@@ -273,7 +273,7 @@ export default function TafsirPage() {
       <div className="px-4 pt-4 space-y-4 max-w-lg mx-auto">
         {/* Stats bar */}
         {selectedSurah !== null && (
-          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-[11px] text-muted-foreground">
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-[0.6875rem] text-muted-foreground">
             <span>{SURAHS[selectedSurah]} — {AYAH_COUNTS[selectedSurah]} آية</span>
             <span>{readCount} آية مقروءة</span>
           </div>
@@ -343,10 +343,10 @@ export default function TafsirPage() {
                   const hasBookmark = bookmarks.some(b => b.startsWith(`${index}:`));
                   return (
                     <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={`relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-xl border transition-all group ${hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-card border-border/50 hover:bg-accent/40 hover:border-primary/30'}`}>
-                      <span className="absolute top-1.5 start-2 text-[10px] text-muted-foreground/60 font-mono">{index + 1}</span>
+                      <span className="absolute top-1.5 start-2 text-[0.625rem] text-muted-foreground/60 font-mono">{index + 1}</span>
                       {hasBookmark && <BookmarkCheck className="absolute top-1.5 end-1.5 w-3 h-3 text-primary" />}
-                      <span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>
-                      <span className="text-[10px] text-muted-foreground">{AYAH_COUNTS[index]} آية</span>
+                      <span className="text-[0.8125rem] font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>
+                      <span className="text-[0.625rem] text-muted-foreground">{AYAH_COUNTS[index]} آية</span>
                     </motion.button>
                   );
                 })}
@@ -395,7 +395,7 @@ export default function TafsirPage() {
                                 {/* Toolbar */}
                                 <div className="px-3 py-2 flex items-center gap-1.5 border-b border-primary/10 flex-wrap">
                                   <BookMarked className="w-3.5 h-3.5 text-primary shrink-0" />
-                                  <span className="text-[11px] font-bold text-primary flex-1">{selectedTafsir.name}</span>
+                                  <span className="text-[0.6875rem] font-bold text-primary flex-1">{selectedTafsir.name}</span>
                                   {/* Bookmark */}
                                   <button onClick={(e) => { e.stopPropagation(); toggleBookmark(bookmarkKey); }} className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${isBookmarked ? 'bg-primary/15' : 'bg-muted/40 hover:bg-muted/60'}`}>
                                     {isBookmarked ? <BookmarkCheck className="w-3.5 h-3.5 text-primary" /> : <Bookmark className="w-3.5 h-3.5 text-muted-foreground" />}
@@ -425,7 +425,7 @@ export default function TafsirPage() {
                                   )}
                                 </div>
                                 <div className="px-4 py-2 border-t border-border/20">
-                                  <p className="text-[10px] text-muted-foreground/70 text-center">المصدر: alquran.cloud — {SURAHS[selectedSurah!]} : {selectedAyah}</p>
+                                  <p className="text-[0.625rem] text-muted-foreground/70 text-center">المصدر: alquran.cloud — {SURAHS[selectedSurah!]} : {selectedAyah}</p>
                                 </div>
                               </div>
                             </motion.div>

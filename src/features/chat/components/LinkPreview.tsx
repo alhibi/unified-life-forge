@@ -179,19 +179,19 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
                     )}
                   </div>
                   {meta.publisher && (
-                    <span className="text-[10px] uppercase tracking-wider text-[#C9A84C] font-bold font-mono">
+                    <span className="text-[0.625rem] uppercase tracking-wider text-[#C9A84C] font-bold font-mono">
                       {meta.publisher}
                     </span>
                   )}
                 </div>
 
-                <h4 className="text-[13px] font-bold text-foreground leading-snug line-clamp-1 group-hover:text-[#C9A84C] transition-colors">
+                <h4 className="text-[0.8125rem] font-bold text-foreground leading-snug line-clamp-1 group-hover:text-[#C9A84C] transition-colors">
                   {meta.title}
                 </h4>
 
                 {meta.description && (
                   <p
-                    className="text-[11px] text-muted-foreground/80 leading-relaxed line-clamp-2"
+                    className="text-[0.6875rem] text-muted-foreground/80 leading-relaxed line-clamp-2"
                     dir="auto"
                   >
                     {meta.description}

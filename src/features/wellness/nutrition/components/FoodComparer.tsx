@@ -138,8 +138,8 @@ export default function FoodComparer({ lang }: Props) {
           <Scale className="w-5 h-5 text-primary" />
           <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
-        <div className="text-[10px] text-muted-foreground mt-1 font-semibold">
+        <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
+        <div className="text-[0.625rem] text-muted-foreground mt-1 font-semibold">
           {T.per100g[lang]}
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function FoodComparer({ lang }: Props) {
                   </button>
                   <div className="space-y-1">
                     <span className="text-2xl block">{food.emoji}</span>
-                    <h4 className="text-[10px] font-bold text-foreground line-clamp-2 leading-tight">
+                    <h4 className="text-[0.625rem] font-bold text-foreground line-clamp-2 leading-tight">
                       {food.name[lang]}
                     </h4>
                   </div>
@@ -168,13 +168,13 @@ export default function FoodComparer({ lang }: Props) {
                   {winners && (
                     <div className="mt-2 space-y-0.5">
                       {winners.protein.idx === idx && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] bg-red-500/10 text-red-500 font-bold px-1 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-[0.625rem] bg-red-500/10 text-red-500 font-bold px-1 py-0.5 rounded">
                           <Award className="w-2 h-2" />
                           {T.protein[lang]}
                         </span>
                       )}
                       {winners.fiber.idx === idx && food.nutrition.fiber > 0 && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] bg-emerald-500/10 text-emerald-500 font-bold px-1 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-[0.625rem] bg-emerald-500/10 text-emerald-500 font-bold px-1 py-0.5 rounded">
                           <Award className="w-2 h-2" />
                           {T.fiber[lang]}
                         </span>
@@ -190,7 +190,7 @@ export default function FoodComparer({ lang }: Props) {
                   <div className="w-7 h-7 rounded-full bg-muted/40 flex items-center justify-center">
                     <X className="w-3.5 h-3.5 rotate-45" />
                   </div>
-                  <span className="text-[10px] font-semibold">{T.selectFood[lang]}</span>
+                  <span className="text-[0.625rem] font-semibold">{T.selectFood[lang]}</span>
                 </button>
               )}
             </div>
@@ -202,7 +202,7 @@ export default function FoodComparer({ lang }: Props) {
         <div className="flex justify-end">
           <button
             onClick={handleClearAll}
-            className="text-[10px] text-destructive hover:underline font-semibold"
+            className="text-[0.625rem] text-destructive hover:underline font-semibold"
           >
             {T.clearAll[lang]}
           </button>
@@ -213,7 +213,7 @@ export default function FoodComparer({ lang }: Props) {
         <div className="space-y-4 rounded-2xl bg-card border border-border/40 p-3.5">
           {/* Macronutrients section */}
           <div className="space-y-2.5">
-            <h5 className="text-[11px] font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
+            <h5 className="text-[0.6875rem] font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
               {T.macros[lang]}
             </h5>
             <MacroRow
@@ -255,7 +255,7 @@ export default function FoodComparer({ lang }: Props) {
 
           {/* Micro sections (Only show if at least one food has data) */}
           <div className="space-y-2.5 pt-2">
-            <h5 className="text-[11px] font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
+            <h5 className="text-[0.6875rem] font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
               {T.vitamins[lang]}
             </h5>
             {Object.keys(MICRO_LABELS)
@@ -274,7 +274,7 @@ export default function FoodComparer({ lang }: Props) {
           </div>
 
           <div className="space-y-2.5 pt-2">
-            <h5 className="text-[11px] font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
+            <h5 className="text-[0.6875rem] font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
               {T.minerals[lang]}
             </h5>
             {Object.keys(MICRO_LABELS)
@@ -348,10 +348,10 @@ export default function FoodComparer({ lang }: Props) {
                     >
                       <span className="text-2xl">{food.emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-bold text-foreground truncate">
+                        <p className="text-[0.75rem] font-bold text-foreground truncate">
                           {food.name[lang]}
                         </p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                        <p className="text-[0.625rem] text-muted-foreground mt-0.5">
                           {food.nutrition.kcal} kcal · P: {food.nutrition.protein}g · F:{' '}
                           {food.nutrition.fiber}g
                         </p>
@@ -387,7 +387,7 @@ function MacroRow({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground">
+      <div className="flex items-center justify-between text-[0.625rem] font-semibold text-muted-foreground">
         <span>{label}</span>
       </div>
       <div className="grid grid-cols-3 gap-2">
@@ -398,7 +398,7 @@ function MacroRow({
           const pct = (val / maxVal) * 100;
           return (
             <div key={i} className="space-y-0.5">
-              <span className="text-[11px] font-bold text-foreground block tabular-nums">
+              <span className="text-[0.6875rem] font-bold text-foreground block tabular-nums">
                 {val}
                 {unit}
               </span>
@@ -441,7 +441,7 @@ function MicroRow({
 
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-semibold text-muted-foreground/80">{label}</div>
+      <div className="text-[0.625rem] font-semibold text-muted-foreground/80">{label}</div>
       <div className="grid grid-cols-3 gap-2">
         {Array.from({ length: 3 }).map((_, i) => {
           const food = foods[i];
@@ -451,7 +451,7 @@ function MicroRow({
           const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
           return (
             <div key={i} className="space-y-0.5">
-              <span className="text-[10px] font-bold text-foreground block tabular-nums">
+              <span className="text-[0.625rem] font-bold text-foreground block tabular-nums">
                 {val > 0 ? `${val}${unit}` : '—'}
               </span>
               {val > 0 && (

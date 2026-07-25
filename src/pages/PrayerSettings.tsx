@@ -39,8 +39,8 @@ function RadioRow({
       }`}
     >
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-[15px] text-foreground leading-tight">{label}</p>
-        {hint && <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">{hint}</p>}
+        <p className="font-semibold text-[0.9375rem] text-foreground leading-tight">{label}</p>
+        {hint && <p className="text-[0.75rem] text-muted-foreground mt-0.5 leading-snug">{hint}</p>}
       </div>
       <div
         className={`relative w-[22px] h-[22px] rounded-full border-2 shrink-0 transition-colors ${
@@ -176,7 +176,7 @@ export default function PrayerSettings() {
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-primary stroke-[1.8]" />
             </div>
-            <h1 className="text-[22px] font-bold tracking-tight text-foreground">
+            <h1 className="text-[1.375rem] font-bold tracking-tight text-foreground">
               {'إعدادات الصلاة'}
             </h1>
           </div>
@@ -184,7 +184,7 @@ export default function PrayerSettings() {
 
         {/* Madhab Section */}
         <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
+          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
             {'المذهب الفقهي'}
           </p>
           <div role="radiogroup" aria-label={'المذهب الفقهي'} className="premium-card-elevated overflow-hidden">
@@ -203,7 +203,7 @@ export default function PrayerSettings() {
 
         {/* Calculation Method (Sunni only) */}
         <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
+          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
             {'طريقة حساب التواقيت'}
           </p>
           <div role="radiogroup" aria-label={'طريقة الحساب'} className="premium-card-elevated overflow-hidden">
@@ -223,7 +223,7 @@ export default function PrayerSettings() {
         {/* Hybrid note */}
         <motion.div variants={item} className="flex gap-3 rounded-2xl bg-primary/5 border border-primary/15 p-4">
           <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-          <p className="text-[12px] text-muted-foreground leading-relaxed">
+          <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
             {'يستخدم التطبيق نظاماً هجيناً: حساب رسمي عبر الإنترنت مع توقيت محلي احتياطي عبر معادلات فلكية، ليعمل بدقة في جميع دول العالم وحتى دون اتصال.'}
           </p>
         </motion.div>
@@ -231,14 +231,14 @@ export default function PrayerSettings() {
         {/* Info note */}
         <motion.div variants={item} className="flex gap-3 rounded-2xl bg-primary/5 border border-primary/15 p-4">
           <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-          <p className="text-[12px] text-muted-foreground leading-relaxed">
+          <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
             {'يختلف مذهب الأحناف عن غيره في وقت صلاتي العصر والعشاء؛ فيتأخر عن غيره نحو 30 دقيقة في العصر، ونحو 12 دقيقة في العشاء، بحسب اختلاف البلدان والفصول.'}
           </p>
         </motion.div>
 
         {/* High Latitude Adjustment Methods */}
         <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
+          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
             {'ضبط خطوط العرض العالية'}
           </p>
           <div role="radiogroup" aria-label={'ضبط خطوط العرض'} className="premium-card-elevated overflow-hidden">
@@ -257,16 +257,16 @@ export default function PrayerSettings() {
 
         {/* DST Toggle (boolean — Switch is correct here) */}
         <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
+          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
             {'إعدادات إضافية'}
           </p>
           <div className="premium-card-elevated overflow-hidden">
             <div className="px-4 py-3.5 flex items-center justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[15px] text-foreground leading-tight">
+                <p className="font-semibold text-[0.9375rem] text-foreground leading-tight">
                   {'التوقيت الصيفي'}
                 </p>
-                <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">
+                <p className="text-[0.75rem] text-muted-foreground mt-0.5 leading-snug">
                   {'تطبيق التوقيت الصيفي على مواقيت الصلاة'}
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function PrayerSettings() {
         <motion.div variants={item} className="pt-2">
           <button
             onClick={resetDefaults}
-            className="w-full py-3.5 rounded-2xl bg-destructive/10 text-destructive font-semibold text-[15px] active:scale-[0.98] transition-transform flex items-center justify-center gap-2 hover:bg-destructive/15"
+            className="w-full py-3.5 rounded-2xl bg-destructive/10 text-destructive font-semibold text-[0.9375rem] active:scale-[0.98] transition-transform flex items-center justify-center gap-2 hover:bg-destructive/15"
           >
             <RotateCcw className="w-4 h-4" />
             {'العودة للإعدادات الافتراضية'}

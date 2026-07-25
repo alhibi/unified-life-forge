@@ -47,10 +47,10 @@ export default function PodcastsTab() {
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-bold text-foreground">
+              <p className="text-[0.8125rem] font-bold text-foreground">
                 {'كل شيء للاستماع'}
               </p>
-              <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
+              <p className="text-[0.6875rem] text-muted-foreground leading-snug mt-0.5">
                 {'بودكاست من جميع أنحاء العالم، يصلك كل يوم محتوى جديد.'}
               </p>
             </div>
@@ -71,7 +71,7 @@ export default function PodcastsTab() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">{c.title}</p>
-            <p className="text-[11px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{c.desc}</p>
+            <p className="text-[0.6875rem] text-muted-foreground leading-snug mt-0.5 line-clamp-2">{c.desc}</p>
           </div>
           <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
         </motion.button>

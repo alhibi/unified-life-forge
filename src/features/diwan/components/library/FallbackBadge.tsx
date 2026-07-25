@@ -29,7 +29,7 @@ export default function FallbackBadge() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold ${
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.625rem] font-semibold ${
             kind === 'offline'
               ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
               : 'bg-muted/60 text-muted-foreground border border-border/30'

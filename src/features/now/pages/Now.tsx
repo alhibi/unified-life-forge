@@ -92,9 +92,9 @@ export default function Now() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-foreground">الأرشيف المعرفي</h3>
-                  <span className="font-mono text-[10px] text-primary/60 tracking-wider">№ 000001</span>
+                  <span className="font-mono text-[0.625rem] text-primary/60 tracking-wider">№ 000001</span>
                 </div>
-                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
                   اقترح موضوعاً، اختر عمقاً، واحصل على مونوغراف كامل مفهرس.
                 </p>
               </div>
@@ -120,7 +120,7 @@ export default function Now() {
                 <h3 className="font-bold text-foreground">
                   {'مذكّرتي'}
                 </h3>
-                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
                   {'ملاحظات محلية بوسم متداخل وبحث فوري.'}
                 </p>
               </div>
@@ -146,7 +146,7 @@ export default function Now() {
                 <h3 className="font-bold text-foreground">
                   {'أطلس الرحلات'}
                 </h3>
-                <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
+                <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
                   {'دليلك الشخصي للأماكن التي تستحق الرحلة.'}
                 </p>
               </div>
@@ -158,7 +158,7 @@ export default function Now() {
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
           <div className="h-px flex-1 bg-border/40" />
-          <span className="text-[11px] text-muted-foreground font-medium tracking-wide">
+          <span className="text-[0.6875rem] text-muted-foreground font-medium tracking-wide">
             {t('footer.madeBy')} <span className="text-primary font-semibold">عامر</span> {t('footer.and')} <span className="text-primary font-semibold">امولة</span> ✦
           </span>
           <div className="h-px flex-1 bg-border/40" />

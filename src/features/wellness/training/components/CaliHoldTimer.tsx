@@ -110,10 +110,10 @@ export default function CaliHoldTimer({
             </button>
 
             <div className="text-center pt-12">
-              <p className="text-white/60 text-[12px] uppercase tracking-[0.2em] font-semibold mb-1">
+              <p className="text-white/60 text-[0.75rem] uppercase tracking-[0.2em] font-semibold mb-1">
                 {skillName}
               </p>
-              <p className="text-white/40 text-[10px] mb-3 tabular-nums" dir="ltr">
+              <p className="text-white/40 text-[0.625rem] mb-3 tabular-nums" dir="ltr">
                 {T.target[lang]}: {targetSec}s {personalBest != null && ` · ${T.pb[lang]}: ${personalBest}s`}
               </p>
 
@@ -132,8 +132,8 @@ export default function CaliHoldTimer({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-[68px] font-bold tabular-nums text-white leading-none" dir="ltr">{sec}</div>
-                  <div className="text-[12px] text-white/50 mt-1">sec</div>
+                  <div className="text-[4.25rem] font-bold tabular-nums text-white leading-none" dir="ltr">{sec}</div>
+                  <div className="text-[0.75rem] text-white/50 mt-1">sec</div>
                 </div>
               </div>
 
@@ -143,7 +143,7 @@ export default function CaliHoldTimer({
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -10, opacity: 0 }}
-                    className="mt-3 inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-400 px-3 py-1.5 rounded-full text-[11px] font-bold"
+                    className="mt-3 inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-400 px-3 py-1.5 rounded-full text-[0.6875rem] font-bold"
                   >
                     <Trophy className="w-3.5 h-3.5" />
                     {T.pbBeaten[lang]}
@@ -153,7 +153,7 @@ export default function CaliHoldTimer({
                   <motion.div
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="mt-3 inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full text-[11px] font-bold"
+                    className="mt-3 inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full text-[0.6875rem] font-bold"
                   >
                     {T.targetReached[lang]}
                   </motion.div>
@@ -180,7 +180,7 @@ export default function CaliHoldTimer({
               <button
                 onClick={() => { onSave(sec); onClose(); }}
                 disabled={sec === 0}
-                className="px-4 h-11 rounded-full bg-emerald-500 text-white text-[12px] font-bold disabled:opacity-50"
+                className="px-4 h-11 rounded-full bg-emerald-500 text-white text-[0.75rem] font-bold disabled:opacity-50"
               >
                 {T.save[lang]}
               </button>

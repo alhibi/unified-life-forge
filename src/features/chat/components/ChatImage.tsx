@@ -157,7 +157,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
           <button
             type="button"
             onClick={handleRetry}
-            className="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-md bg-background/80 hover:bg-background active:scale-95 transition"
+            className="flex items-center gap-1 text-[0.6875rem] font-medium px-2 py-1 rounded-md bg-background/80 hover:bg-background active:scale-95 transition"
           >
             <RotateCw className="w-3 h-3" />
             {'إعادة المحاولة'}

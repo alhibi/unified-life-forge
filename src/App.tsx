@@ -111,10 +111,13 @@ const loadDuas = () => import("./features/duas/pages/Duas");
 const loadGroupsIndex   = () => import("@/features/chat/pages/GroupsIndex");
 const loadGroupChat     = () => import("@/features/chat/pages/GroupChat");
 const loadChatSettings  = () => import("@/features/chat/pages/ChatSettings");
-const loadTheme = () => import("./pages/ThemeSettings");
+// Appearance (colour + type) and Interface (geometry) replace the old split
+// theme/font screens. `/settings/theme` and `/settings/font` still resolve —
+// they redirect, since both paths are in the wild (deep links, the portal menu).
+const loadAppearance = () => import("./pages/AppearanceSettings");
+const loadInterface = () => import("./pages/InterfaceSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
-const loadFont = () => import("./pages/FontSettings");
 const loadMotion = () => import("./pages/MotionSettings");
 const loadPrayer = () => import("./pages/PrayerSettings");
 const loadOccasions = () => import("./features/calendar/pages/AllOccasions");
@@ -192,10 +195,10 @@ const loadNow = () => import("./features/now/pages/Now");
 // registered — they are eager and already mounted.
 // ──────────────────────────────────────────────────────────────────────
 registerRoute('/settings',          loadSettings);
-registerRoute('/settings/theme',    loadTheme);
+registerRoute('/settings/appearance', loadAppearance);
+registerRoute('/settings/interface', loadInterface);
 registerRoute('/settings/profile',  loadProfile);
 registerRoute('/profile',           loadProfile);
-registerRoute('/settings/font',     loadFont);
 registerRoute('/settings/motion',   loadMotion);
 registerRoute('/settings/prayer',   loadPrayer);
 registerRoute('/auth',              loadAuth);
@@ -257,10 +260,10 @@ const DuasPage = lazy(loadDuas);
 const GroupsIndexPage   = lazy(loadGroupsIndex);
 const GroupChatPage     = lazy(loadGroupChat);
 const ChatSettingsPage  = lazy(loadChatSettings);
-const ThemeSettingsPage = lazy(loadTheme);
+const AppearanceSettingsPage = lazy(loadAppearance);
+const InterfaceSettingsPage = lazy(loadInterface);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
-const FontSettingsPage = lazy(loadFont);
 const MotionSettingsPage = lazy(loadMotion);
 const PrayerSettingsPage = lazy(loadPrayer);
 const AllOccasionsPage = lazy(loadOccasions);
@@ -310,7 +313,7 @@ function useIdlePrefetch() {
       (window as any).requestIdleCallback ||
       ((cb) => window.setTimeout(cb, 1500));
     const id = ric(() => {
-      loadTheme(); loadProfile(); loadPrayer(); loadReading();
+      loadAppearance(); loadProfile(); loadPrayer(); loadReading();
       loadWellness(); loadDiwan();
       // Wave-1 chat surfaces. The groups index is one tap away from the
       // chat tab and the chat settings page is one tap away from there;
@@ -625,11 +628,14 @@ function AnimatedRoutes() {
                   <Route path="/games/memory/adventure" element={<ErrorBoundary><MemoryAdventurePage /></ErrorBoundary>} />
                   <Route path="/occasions" element={<ErrorBoundary><AllOccasionsPage /></ErrorBoundary>} />
                   <Route path="/reading" element={<ErrorBoundary><ReadingPage /></ErrorBoundary>} />
-                  <Route path="/settings/theme" element={<ErrorBoundary><ThemeSettingsPage /></ErrorBoundary>} />
+                  <Route path="/settings/appearance" element={<ErrorBoundary><AppearanceSettingsPage /></ErrorBoundary>} />
+                  <Route path="/settings/interface" element={<ErrorBoundary><InterfaceSettingsPage /></ErrorBoundary>} />
+                  {/* Retired paths — appearance is now one screen. */}
+                  <Route path="/settings/theme" element={<Navigate to="/settings/appearance" replace />} />
                   <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
                   <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
                   <Route path="/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
-                  <Route path="/settings/font" element={<ErrorBoundary><FontSettingsPage /></ErrorBoundary>} />
+                  <Route path="/settings/font" element={<Navigate to="/settings/appearance" replace />} />
                   <Route path="/settings/motion" element={<ErrorBoundary><MotionSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />
                   <Route path="/section/timed-sunnah" element={<ErrorBoundary><TimedSunnahPage /></ErrorBoundary>} />

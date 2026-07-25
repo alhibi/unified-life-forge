@@ -214,7 +214,7 @@ export default function VoiceBubble({
             })}
           </div>
           <div className="flex items-center justify-between" dir="ltr">
-            <span className="text-[10px] tabular-nums text-muted-foreground/50">
+            <span className="text-[0.625rem] tabular-nums text-muted-foreground/50">
               {isPlaying && duration
                 ? formatDur(progress * duration)
                 : duration
@@ -229,7 +229,7 @@ export default function VoiceBubble({
                     voicePlayer.cyclePlaybackRate();
                   }}
                   className={cn(
-                    'text-[10px] font-bold tabular-nums px-1.5 py-[1px] rounded-full leading-none transition-colors active:scale-90',
+                    'text-[0.625rem] font-bold tabular-nums px-1.5 py-[1px] rounded-full leading-none transition-colors active:scale-90',
                     isMine && isDarkBg
                       ? 'bg-primary-foreground/20 text-primary-foreground'
                       : 'bg-primary/15 text-primary',
@@ -245,11 +245,11 @@ export default function VoiceBubble({
               )}
               <span
                 className={cn(
-                  'flex items-center gap-[3px] text-[11px] leading-none',
+                  'flex items-center gap-[3px] text-[0.6875rem] leading-none',
                   isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
                 )}
               >
-                {msg.edited_at && <span className="text-[10px] italic">{'معدّلة'}</span>}
+                {msg.edited_at && <span className="text-[0.625rem] italic">{'معدّلة'}</span>}
                 {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
                 {formatClockTime(msg.created_at)}
                 {isMine && <MessageTicks status={msg.status} read={msg.read} dimmed={isDarkBg} />}

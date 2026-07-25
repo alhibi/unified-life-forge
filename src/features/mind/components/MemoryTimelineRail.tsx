@@ -65,7 +65,7 @@ export default function MemoryTimelineRail({
       <div className="h-full rounded-2xl border border-white/10 bg-black/80 flex flex-col overflow-hidden">
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="text-[10px] tracking-[0.2em] uppercase text-[color:#F2E7C9]/60 px-3 py-2 text-start hover:text-[color:#F2E7C9]/90 transition-colors"
+          className="text-[0.625rem] tracking-[0.2em] uppercase text-[color:#F2E7C9]/60 px-3 py-2 text-start hover:text-[color:#F2E7C9]/90 transition-colors"
         >
           {expanded ? 'طيّ' : 'الذاكرة'}
         </button>
@@ -91,7 +91,7 @@ export default function MemoryTimelineRail({
                   }}
                 >
                   {row.kind === 'year' ? (
-                    <div className="text-[10px] tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
+                    <div className="text-[0.625rem] tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
                       {row.year}
                     </div>
                   ) : row.kind === 'note' ? (
@@ -121,7 +121,7 @@ export default function MemoryTimelineRail({
                       <span className="flex-1 min-w-0">
                         <span
                           className={cn(
-                            'block text-[11px] leading-tight truncate',
+                            'block text-[0.6875rem] leading-tight truncate',
                             'text-[color:#F2E7C9]/85 group-hover:text-[color:#F2E7C9]',
                           )}
                           style={{ fontFamily: '"Cormorant Garamond", serif' }}
@@ -130,7 +130,7 @@ export default function MemoryTimelineRail({
                         </span>
                         {expanded && (
                           <span
-                            className="block text-[10px] text-[color:#F2E7C9]/40 mt-0.5"
+                            className="block text-[0.625rem] text-[color:#F2E7C9]/40 mt-0.5"
                             style={{ fontFamily: '"IBM Plex Mono", monospace' }}
                           >
                             {new Date(row.note.createdAt).toLocaleDateString('ar')}
@@ -148,7 +148,7 @@ export default function MemoryTimelineRail({
                     >
                       <span className="w-1 h-1 rounded-full shrink-0 bg-[color:#F2E7C9]" />
                       {expanded && (
-                        <span className="flex-1 text-[10px] text-[color:#F2E7C9]/50 truncate italic">
+                        <span className="flex-1 text-[0.625rem] text-[color:#F2E7C9]/50 truncate italic">
                           {row.event.summary}
                         </span>
                       )}

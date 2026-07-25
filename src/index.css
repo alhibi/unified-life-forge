@@ -95,8 +95,14 @@
     --border: 253.5 15.8% 83.5%; /* between 50 and 100 */
     --input: 252.6 16% 76.7%; /* 100 */
     --ring: 256.9 19.5% 32.2%;
-    --scrim: 256 23.8% 8%;
-    --radius: 1rem;
+
+    /* ── The eighth tone: ink ──────────────────────────────────────
+       Identical in all 31 themes and in both modes. A soft matte black
+       (#111113), never #000: pure black against a lit panel reads as the
+       screen rather than as a surface. Overlays, full-bleed media and the
+       OLED canvas use it, so nothing tints the content behind them. */
+    --theme-ink: 250 7% 7%;
+    --scrim: 250 7% 7%;
     --sidebar-background: 255 15.4% 94.9%;
     --sidebar-foreground: 256.8 20.2% 27%;
     --sidebar-primary: 256.9 19.5% 32.2%;
@@ -105,6 +111,61 @@
     --sidebar-accent-foreground: 256.8 20.7% 23.7%;
     --sidebar-border: 253.5 15.8% 83.5%;
     --sidebar-ring: 256.9 19.5% 32.2%;
+
+    /* ══════════════════════════════════════════════════════════════
+       GEOMETRY — the shape of the interface
+       ══════════════════════════════════════════════════════════════
+       Owned by src/lib/interfaceScale.ts, which rewrites every value below
+       on <html> from the user's interface preferences. The literals here are
+       the defaults, and they are also the pre-hydration fallback.
+
+       Every shared utility further down this file reads these — never a raw
+       rem literal — so one preference moves the entire app at once. */
+
+    /* Corner ladder: 6 · 10 · 16 · 24 at softness 1.0. */
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --r-xl: 24px;
+    --radius: 16px;
+
+    /* Density: padding, control heights, gaps, gutters. */
+    --ui-pad-card: 1rem;
+    --ui-pad-card-compact: 0.75rem;
+    --ui-control-h: 2.75rem;
+    --ui-tap: 2.75rem;
+    --ui-stack-gap: 1.5rem;
+    --ui-stack-gap-sm: 0.75rem;
+    --ui-gutter: 1rem;
+    --ui-row-icon: 2rem;
+
+    /* The single content column. */
+    --ui-content-max: 32rem;
+
+    /* Hairline volume. With no shadows anywhere, the border IS the edge. */
+    --ui-border-alpha: 0.6;
+    --ui-border-soft-alpha: 0.44;
+    --ui-border-strong-alpha: 0.87;
+    --ui-divider-alpha: 0.3;
+
+    /* ══════════════════════════════════════════════════════════════
+       TYPE SCALE — derived, not fixed
+       ══════════════════════════════════════════════════════════════
+       Owned by src/lib/fonts.ts. Sizes are in rem so the base-size
+       preference (html { font-size }) scales all seven with one number, and
+       the ratio preference changes the spread between them. The values below
+       are the default 1.2 ratio, which reproduces the app's original pixel
+       scale exactly at a 16px base: 11 · 12 · 13 · 14 · 16 · 18 · 24. */
+    --fs-micro: 0.6875rem;
+    --fs-mini: 0.75rem;
+    --fs-meta: 0.8125rem;
+    --fs-body: 0.8751rem;
+    --fs-lead: 1rem;
+    --fs-title: 1.1249rem;
+    --fs-display: 1.5rem;
+    --type-leading: 1.6;
+    --type-leading-tight: 1.2;
+    --text-opacity: 1;
 
     /* Flat-surface contract: legacy shadow variables resolve to none. */
     --shadow-color: 30 18% 14%;
@@ -154,7 +215,8 @@
     --border: 256.9 20% 28.5%;
     --input: 256.7 18.8% 35%;
     --ring: 252.8 16% 76%;
-    --scrim: 256 23.8% 2%;
+    /* Ink again — the overlay colour never changes with the mode either. */
+    --scrim: 250 7% 7%;
     --sidebar-background: 256 23.8% 12.4%;
     --sidebar-foreground: 254.1 15.6% 88%;
     --sidebar-primary: 252.8 16% 76%;
@@ -262,7 +324,7 @@
   *:focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: var(--r-sm);
   }
   html {
     -webkit-overflow-scrolling: touch;
@@ -457,25 +519,25 @@
   .premium-card-intense,
   .surface-depth {
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.6);
-    border-radius: 1rem; /* lg — the canonical card radius */
+    border: 1px solid hsl(var(--border) / var(--ui-border-alpha));
+    border-radius: var(--r-lg); /* the canonical card radius */
     box-shadow: none;
     contain: layout style;
   }
 
   /* The canonical card: one surface, one border and one standard gutter. */
   .app-card {
-    padding: 1rem;
+    padding: var(--ui-pad-card);
   }
   /* Tighter gutter for list rows. This used to also be `padding: 1rem`, i.e.
      a class that promised "compact" and changed nothing. */
   .app-card-compact {
-    padding: 0.75rem;
+    padding: var(--ui-pad-card-compact);
   }
   /* Quiet variant for a card nested inside another card. */
   .app-card-flat {
     background-color: transparent;
-    border-color: hsl(var(--border) / 0.44);
+    border-color: hsl(var(--border) / var(--ui-border-soft-alpha));
     box-shadow: none;
   }
 
@@ -517,7 +579,7 @@
   .app-sticky-header-card {
     position: sticky;
     top: 0;
-    border-bottom: 1px solid hsl(var(--border) / 0.64);
+    border-bottom: 1px solid hsl(var(--border) / var(--ui-border-alpha));
   }
   .app-sticky-header {
     background-color: hsl(var(--background));
@@ -526,11 +588,12 @@
     background-color: hsl(var(--card));
   }
 
-  /* The canonical icon button used in headers/toolbars. 44x44, rounded-md (10px). */
+  /* The canonical icon button used in headers/toolbars. Square, tap-sized,
+     radius from the shared ladder. */
   .app-icon-btn {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 0.625rem; /* 10px — matches button harmonized radius */
+    width: var(--ui-tap);
+    height: var(--ui-tap);
+    border-radius: var(--r-md);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -564,7 +627,7 @@
       -apple-system,
       sans-serif;
     font-weight: 700;
-    font-size: 11px;
+    font-size: var(--fs-micro);
     line-height: 1.4;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -577,9 +640,9 @@
      The icon inside should be `text-primary` (or `text-destructive`
      for the danger variant). Matches curium's rowIcon exactly. */
   .row-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: var(--ui-row-icon);
+    height: var(--ui-row-icon);
+    border-radius: calc(var(--r-sm) * 1.3);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -597,14 +660,17 @@
      Component files only add behaviour-specific layout around this class. */
   .app-control {
     width: 100%;
-    min-height: 2.75rem;
+    min-height: var(--ui-control-h);
     border: 1px solid hsl(var(--input));
-    border-radius: 0.625rem;
+    border-radius: var(--r-md);
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    line-height: 1.375rem;
+    /* Derived from the card gutter so a control never looks tighter or looser
+       than the surface it sits on. At the default density this is the original
+       0.5rem / 0.75rem exactly. */
+    padding: calc(var(--ui-pad-card) * 0.5) calc(var(--ui-pad-card) * 0.75);
+    font-size: var(--fs-body);
+    line-height: calc(var(--fs-body) * var(--type-leading));
     transition:
       background-color var(--duration-fast) linear,
       border-color var(--duration-fast) linear;
@@ -626,7 +692,7 @@
     opacity: 0.5;
   }
   .app-control-multiline {
-    min-height: 5rem;
+    min-height: calc(var(--ui-control-h) * 1.82);
     resize: vertical;
   }
 
@@ -641,14 +707,16 @@
   .app-overlay-surface {
     background-color: hsl(var(--card));
     color: hsl(var(--card-foreground));
-    border: 1px solid hsl(var(--border) / 0.72);
-    border-radius: 1rem;
+    /* A transient surface floats over the page, so its edge is the strong
+       one — it is the only thing telling the eye where the sheet ends. */
+    border: 1px solid hsl(var(--border) / var(--ui-border-strong-alpha));
+    border-radius: var(--r-lg);
     box-shadow: none;
   }
   .app-overlay-close {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 0.625rem;
+    width: var(--ui-tap);
+    height: var(--ui-tap);
+    border-radius: var(--r-md);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -694,8 +762,8 @@
     background-color: hsl(var(--background));
     padding-top: 3.5rem; /* 56px — clears the floating header */
     padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); /* 72px + inset */
-    padding-left: 1rem; /* 16px global edge gutter */
-    padding-right: 1rem;
+    padding-left: var(--ui-gutter);
+    padding-right: var(--ui-gutter);
   }
   .page-shell-flush {
     /* For pages with their own sticky PageHeader (no top padding). */
@@ -710,7 +778,10 @@
     padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   }
   .page-shell-inner {
-    max-width: 32rem; /* max-w-lg — single content column */
+    /* The single content column. Tailwind's `max-w-lg` resolves to the same
+       variable, so the 40-odd screens that centre themselves with that class
+       follow the width preference too. */
+    max-width: var(--ui-content-max);
     margin-left: auto;
     margin-right: auto;
   }
@@ -719,18 +790,18 @@
   .app-stack {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem; /* gap-6 = 24px (strict spacing token) */
+    gap: var(--ui-stack-gap);
   }
   .app-stack-sm {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem; /* gap-3 = 12px (allowed spacing token) */
+    gap: var(--ui-stack-gap-sm);
   }
 
   /* Canonical section heading — tiny uppercase tracking label above a group. */
   .app-section-label {
-    font-size: 11px;
-    line-height: 14px;
+    font-size: var(--fs-micro);
+    line-height: calc(var(--fs-micro) * var(--type-leading-tight));
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: hsl(var(--muted-foreground));
@@ -940,7 +1011,7 @@
     padding: 2.5rem 1.25rem;
     text-align: center;
     color: hsl(var(--muted-foreground));
-    font-size: 13px;
+    font-size: var(--fs-meta);
     line-height: 1.5;
     font-weight: 500;
   }
@@ -954,7 +1025,7 @@
   .empty-state-surface strong {
     color: hsl(var(--foreground));
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--fs-body);
   }
 
   /* ── Tab switch — Khushu / M3 Expressive scale + fade ──

@@ -157,7 +157,7 @@ function CountryDialog({
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{localized}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-[0.6875rem] text-muted-foreground truncate">
                       {c.name} · {c.code.toUpperCase()} · {c.lang}
                     </p>
                   </div>
@@ -241,7 +241,7 @@ function RegionDialog({
                     <p className="text-sm font-semibold text-foreground truncate">
                       {t(r.labelKey)}
                     </p>
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-[0.6875rem] text-muted-foreground truncate">
                       {r.countries.length} {'دولة'}
                     </p>
                   </div>
@@ -267,7 +267,7 @@ function PoweredByApplePodcasts() {
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-colors"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-[0.6875rem] font-semibold hover:bg-primary/20 transition-colors"
     >
       <Info className="w-3 h-3" />
       <span>{'مدعوم من Apple Podcasts'}</span>
@@ -310,10 +310,10 @@ function PodcastCard({
           />
         ) : null}
       </div>
-      <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">
+      <p className="text-[0.75rem] font-bold text-foreground leading-tight line-clamp-2">
         {podcast.title}
       </p>
-      <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
+      <p className="text-[0.6875rem] text-muted-foreground leading-tight line-clamp-1">
         {podcast.author}
       </p>
     </button>
@@ -602,7 +602,7 @@ export default function PodcastsPage() {
           >
             <LibraryBig className="w-4 h-4 text-foreground" />
             {subs.length > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold flex items-center justify-center">
                 {subs.length > 99 ? '99+' : subs.length}
               </span>
             )}
@@ -628,7 +628,7 @@ export default function PodcastsPage() {
                     setGenreKey(g.key);
                     setSearch('');
                   }}
-                  className={`relative px-3 py-2 text-[13px] whitespace-nowrap transition-colors ${
+                  className={`relative px-3 py-2 text-[0.8125rem] whitespace-nowrap transition-colors ${
                     isActive
                       ? 'text-primary font-semibold'
                       : 'text-muted-foreground hover:text-foreground'
@@ -652,12 +652,12 @@ export default function PodcastsPage() {
       {/* Body */}
       <div className="max-w-lg mx-auto px-4 pt-4">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[12px] text-muted-foreground line-clamp-1">{subtitle}</p>
+          <p className="text-[0.75rem] text-muted-foreground line-clamp-1">{subtitle}</p>
           {/* Total counter — useful in region mode where dedup makes
               the count non-obvious. We show "shown/total" so it's
               clear the page is paginated. */}
           {!active.isLoading && cappedList.length > 0 && (
-            <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 ms-3">
+            <span className="text-[0.6875rem] text-muted-foreground tabular-nums shrink-0 ms-3">
               {visibleList.length}/{fullList.length}
             </span>
           )}
@@ -666,7 +666,7 @@ export default function PodcastsPage() {
         {active.isLoading ? (
           <>
             {scope === 'region' && (
-              <p className="text-center text-[12px] text-muted-foreground mb-3">
+              <p className="text-center text-[0.75rem] text-muted-foreground mb-3">
                 {t('podcasts.aggregating')}
               </p>
             )}
@@ -677,7 +677,7 @@ export default function PodcastsPage() {
             <p className="text-sm font-semibold text-foreground mb-1">
               {'تعذّر تحميل البودكاست'}
             </p>
-            <p className="text-[12px] text-muted-foreground mb-4">
+            <p className="text-[0.75rem] text-muted-foreground mb-4">
               {'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'}
             </p>
             <button
@@ -692,7 +692,7 @@ export default function PodcastsPage() {
             <p className="text-sm font-semibold text-foreground mb-1">
               {'لا توجد نتائج'}
             </p>
-            <p className="text-[12px] text-muted-foreground mb-5">
+            <p className="text-[0.75rem] text-muted-foreground mb-5">
               {isSearching
                 ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
                 : 'جرّب فئة أخرى أو غيّر النطاق.'}
@@ -722,7 +722,7 @@ export default function PodcastsPage() {
               <button
                 type="button"
                 onClick={() => setVisibleCount((c) => Math.min(c + PAGE_STEP, cappedList.length))}
-                className="w-full mt-6 py-3 rounded-2xl text-[13px] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
+                className="w-full mt-6 py-3 rounded-2xl text-[0.8125rem] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
               >
                 {`تحميل المزيد (${cappedList.length - visibleList.length})`}
               </button>

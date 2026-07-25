@@ -73,7 +73,7 @@ export default function OAuthConsent() {
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-primary stroke-[1.8]" />
           </div>
-          <h1 className="text-[22px] font-bold tracking-tight text-foreground">
+          <h1 className="text-[1.375rem] font-bold tracking-tight text-foreground">
             {"منح الوصول"}
           </h1>
         </div>
@@ -84,20 +84,20 @@ export default function OAuthConsent() {
             {"جارٍ التحميل…"}
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-[13px] text-destructive">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-[0.8125rem] text-destructive">
             {error}
           </div>
         ) : details ? (
           <>
-            <p className="text-[14px] leading-relaxed text-foreground/90">
+            <p className="text-[0.875rem] leading-relaxed text-foreground/90">
               {<>سيتمكّن <b>{details.client?.name ?? ("التطبيق")}</b> من استخدام أدوات SmartHub نيابةً عنك أثناء تسجيل دخولك.</>}
             </p>
             {details.scope && (
-              <div className="rounded-xl bg-muted/40 p-3 text-[12px] text-muted-foreground font-mono break-all">
+              <div className="rounded-xl bg-muted/40 p-3 text-[0.75rem] text-muted-foreground font-mono break-all">
                 {details.scope}
               </div>
             )}
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-[0.75rem] text-muted-foreground">
               {"لا يتجاوز هذا صلاحيات حسابك أو سياسات الحماية الخلفية."}
             </p>
             <div className="flex gap-3 pt-1">

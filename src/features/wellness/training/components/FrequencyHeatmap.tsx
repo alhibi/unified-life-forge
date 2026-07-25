@@ -86,12 +86,12 @@ export default function FrequencyHeatmap({
   return (
     <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
       <div>
-        <h3 className="text-[12px] font-bold text-foreground">{T.title[lang]}</h3>
-        <p className="text-[10px] text-muted-foreground">{T.desc[lang]}</p>
+        <h3 className="text-[0.75rem] font-bold text-foreground">{T.title[lang]}</h3>
+        <p className="text-[0.625rem] text-muted-foreground">{T.desc[lang]}</p>
       </div>
 
       <div className="flex gap-1.5" dir="ltr">
-        <div className="flex flex-col gap-[2px] text-[10px] text-muted-foreground/70 pe-1 w-3 text-center pt-[12px]">
+        <div className="flex flex-col gap-[2px] text-[0.625rem] text-muted-foreground/70 pe-1 w-3 text-center pt-[12px]">
           {[1, 3, 5].map((di) => (
             <span key={di} style={{ height: cellSize, marginBottom: cellGap, lineHeight: `${cellSize}px` }}>
               {dayLabels[di]}
@@ -124,13 +124,13 @@ export default function FrequencyHeatmap({
 
       {/* Legend */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] text-muted-foreground">{T.none[lang]}</span>
+        <span className="text-[0.625rem] text-muted-foreground">{T.none[lang]}</span>
         <div className="flex items-center gap-[2px]">
           {COLORS.map((c, i) => (
             <span key={i} className="rounded-[2px]" style={{ width: cellSize, height: cellSize, background: c }} />
           ))}
         </div>
-        <span className="text-[10px] text-muted-foreground">{T.intense[lang]}</span>
+        <span className="text-[0.625rem] text-muted-foreground">{T.intense[lang]}</span>
       </div>
     </div>
   );

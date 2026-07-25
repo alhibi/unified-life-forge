@@ -58,7 +58,7 @@ function LivePreview({ speedKey, fpsKey }: { speedKey: number; fpsKey: FpsCap })
           repeatType: 'loop',
         }}
       />
-      <div className="absolute bottom-2 end-3 text-[10px] font-mono tabular-nums text-muted-foreground/70">
+      <div className="absolute bottom-2 end-3 text-[0.625rem] font-mono tabular-nums text-muted-foreground/70">
         spring · k={(MOTION.spring as any).stiffness?.toFixed?.(0)} · c={(MOTION.spring as any).damping?.toFixed?.(1)}
       </div>
     </div>
@@ -167,21 +167,21 @@ function PerfHUD({ budgetHz }: { budgetHz: number }) {
 
   const Cell = ({ label, value, unit, hint }: { label: string; value: string; unit?: string; hint?: string }) => (
     <div className="rounded-xl bg-muted/30 border border-border/30 px-3 py-2.5">
-      <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">{label}</p>
-      <p className="text-[18px] font-bold tabular-nums leading-tight mt-0.5 text-foreground">
-        {value}<span className="text-[11px] font-normal text-muted-foreground ms-0.5">{unit}</span>
+      <p className="text-[0.625rem] font-medium text-muted-foreground/70 uppercase tracking-wider">{label}</p>
+      <p className="text-[1.125rem] font-bold tabular-nums leading-tight mt-0.5 text-foreground">
+        {value}<span className="text-[0.6875rem] font-normal text-muted-foreground ms-0.5">{unit}</span>
       </p>
-      {hint && <p className="text-[10px] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
+      {hint && <p className="text-[0.625rem] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
     </div>
   );
 
   return (
     <AppCard className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+        <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider">
           {'مقاييس الأداء الحيّة'}
         </p>
-        <div className="flex items-center gap-1.5 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-[0.625rem] font-mono">
           <span className={`w-1.5 h-1.5 rounded-full bg-current ${fpsColor} animate-pulse`} />
           <span className={fpsColor}>{s.fps} / {budgetHz} Hz</span>
         </div>
@@ -246,7 +246,7 @@ export default function MotionSettings() {
         {/* Header */}
         <motion.div variants={item} className="flex items-center justify-between">
           <BackButton to="/settings" />
-          <h1 className="text-[17px] font-bold tracking-tight text-foreground">
+          <h1 className="text-[1.0625rem] font-bold tracking-tight text-foreground">
             {'الحركة والأداء'}
           </h1>
           <button
@@ -260,7 +260,7 @@ export default function MotionSettings() {
 
         {/* Live preview */}
         <motion.div variants={item} className="space-y-2">
-          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
+          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {'معاينة حية'}
           </p>
           <LivePreview speedKey={motionSpeed + springBounce + motionAmplitude} fpsKey={fpsCap} />
@@ -273,7 +273,7 @@ export default function MotionSettings() {
 
         {/* SPEED */}
         <motion.div variants={item} className="space-y-2">
-          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
+          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {'سرعة الحركة'}
           </p>
           <AppCard className="p-5 space-y-5">
@@ -283,15 +283,15 @@ export default function MotionSettings() {
                   <Gauge className="w-[18px] h-[18px] text-primary" />
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-foreground">
+                  <p className="text-[0.875rem] font-medium text-foreground">
                     {'مضاعف السرعة'}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[0.6875rem] text-muted-foreground">
                     {'يطبَّق فوراً على كل انتقالات الإطار'}
                   </p>
                 </div>
               </div>
-              <span className="text-[15px] font-bold tabular-nums text-primary">
+              <span className="text-[0.9375rem] font-bold tabular-nums text-primary">
                 {motionSpeed.toFixed(2)}×
               </span>
             </div>
@@ -312,7 +312,7 @@ export default function MotionSettings() {
                   <button
                     key={p.value}
                     onClick={() => setMotionSpeed(p.value)}
-                    className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-[0.75rem] font-medium transition-colors ${
                       active
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -328,7 +328,7 @@ export default function MotionSettings() {
 
         {/* FPS CAP */}
         <motion.div variants={item} className="space-y-2">
-          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
+          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {'حد الإطارات في الثانية'}
           </p>
           <AppCard className="p-5 space-y-4">
@@ -338,15 +338,15 @@ export default function MotionSettings() {
                   <Zap className="w-[18px] h-[18px] text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[14px] font-medium text-foreground">
+                  <p className="text-[0.875rem] font-medium text-foreground">
                     {'الحد الأقصى'}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[0.6875rem] text-muted-foreground">
                     {`شاشتك تعمل عند ~${nativeHz ?? '…'} هرتز`}
                   </p>
                 </div>
               </div>
-              <div className="text-[10px] font-mono text-muted-foreground tabular-nums">
+              <div className="text-[0.625rem] font-mono text-muted-foreground tabular-nums">
                 {'الهدف'} {budgetHz} Hz
               </div>
             </div>
@@ -360,7 +360,7 @@ export default function MotionSettings() {
                   <button
                     key={String(opt.value)}
                     onClick={() => setFpsCap(opt.value)}
-                    className={`relative py-2 rounded-lg text-[12px] font-semibold tabular-nums transition-colors ${
+                    className={`relative py-2 rounded-lg text-[0.75rem] font-semibold tabular-nums transition-colors ${
                       active
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -375,7 +375,7 @@ export default function MotionSettings() {
               })}
             </div>
 
-            <div className="flex items-start gap-2 text-[11px] text-muted-foreground/80 leading-relaxed">
+            <div className="flex items-start gap-2 text-[0.6875rem] text-muted-foreground/80 leading-relaxed">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               <p>
                 {'الحد يُطبَّق على كل حركة في التطبيق عبر requestAnimationFrame. لا يمكن تجاوز معدل تحديث شاشتك الأصلي.'}
@@ -386,7 +386,7 @@ export default function MotionSettings() {
 
         {/* AMPLITUDE */}
         <motion.div variants={item} className="space-y-2">
-          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
+          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {'شدّة الحركة'}
           </p>
           <AppCard className="p-5 space-y-5">
@@ -396,15 +396,15 @@ export default function MotionSettings() {
                   <Sparkles className="w-[18px] h-[18px] text-primary" />
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-foreground">
+                  <p className="text-[0.875rem] font-medium text-foreground">
                     {'مسافة الانزلاق والعمق'}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[0.6875rem] text-muted-foreground">
                     {'يطال انتقالات الصفحات والـ parallax'}
                   </p>
                 </div>
               </div>
-              <span className="text-[15px] font-bold tabular-nums text-primary">
+              <span className="text-[0.9375rem] font-bold tabular-nums text-primary">
                 {Math.round(motionAmplitude * 100)}%
               </span>
             </div>
@@ -428,7 +428,7 @@ export default function MotionSettings() {
                   <button
                     key={p.v}
                     onClick={() => setMotionAmplitude(p.v)}
-                    className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-[0.75rem] font-medium transition-colors ${
                       active ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
                     }`}
                   >
@@ -442,7 +442,7 @@ export default function MotionSettings() {
 
         {/* BOUNCE */}
         <motion.div variants={item} className="space-y-2">
-          <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
+          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
             {'ارتداد النوابض'}
           </p>
           <AppCard className="p-5 space-y-5">
@@ -452,15 +452,15 @@ export default function MotionSettings() {
                   <ArrowDown className="w-[18px] h-[18px] text-primary rotate-90" />
                 </div>
                 <div>
-                  <p className="text-[14px] font-medium text-foreground">
+                  <p className="text-[0.875rem] font-medium text-foreground">
                     {'نسبة التخميد'}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[0.6875rem] text-muted-foreground">
                     {'يطال كل الأزرار والقوائم والضغطات'}
                   </p>
                 </div>
               </div>
-              <span className="text-[15px] font-bold tabular-nums text-primary">
+              <span className="text-[0.9375rem] font-bold tabular-nums text-primary">
                 {Math.round(springBounce * 100)}%
               </span>
             </div>
@@ -472,7 +472,7 @@ export default function MotionSettings() {
               onValueChange={(v) => setSpringBounce(v[0] / 100)}
               aria-label={'ارتداد'}
             />
-            <div className="flex items-start gap-2 text-[11px] text-muted-foreground/80 leading-relaxed">
+            <div className="flex items-start gap-2 text-[0.6875rem] text-muted-foreground/80 leading-relaxed">
               <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
               <p>
                 {'يُحوّل تخميد النوابض حسابياً: 0% = استقرار جاف بلا تجاوز، 100% = ارتداد واضح (ζ ≈ 0.25).'}
@@ -482,7 +482,7 @@ export default function MotionSettings() {
         </motion.div>
 
         {/* Status footer */}
-        <motion.div variants={item} className="flex items-center justify-center gap-2 pt-2 pb-4 text-[11px] text-muted-foreground/60">
+        <motion.div variants={item} className="flex items-center justify-center gap-2 pt-2 pb-4 text-[0.6875rem] text-muted-foreground/60">
           <Activity className="w-3 h-3" />
           <span className="font-mono">
             {'نشط'}: {motionSpeed.toFixed(2)}× ·{' '}

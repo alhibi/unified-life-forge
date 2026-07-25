@@ -369,7 +369,7 @@ export default function AuthPage() {
                           />
                         ))}
                         <span
-                          className="text-[10px] font-medium min-w-[54px] text-end"
+                          className="text-[0.625rem] font-medium min-w-[54px] text-end"
                           style={{ color: strengthColors[strength] }}
                         >
                           {strengthLabels[strength]['ar']}

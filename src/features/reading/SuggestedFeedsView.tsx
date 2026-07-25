@@ -231,7 +231,7 @@ export function SuggestedFeedsView({
           <button
             type="button"
             onClick={selected.size === filtered.length ? clearSelection : selectAllInView}
-            className="text-[11px] font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10"
+            className="text-[0.6875rem] font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10"
           >
             {selected.size === filtered.length && filtered.length > 0
               ? ('إلغاء التحديد')
@@ -279,7 +279,7 @@ export function SuggestedFeedsView({
                 type="button"
                 onClick={() => setActiveLang(l.id)}
                 aria-pressed={activeLang === l.id}
-                className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all shrink-0 active:scale-95 ${
+                className={`px-3 py-1 rounded-full text-[0.6875rem] font-medium transition-all shrink-0 active:scale-95 ${
                   activeLang === l.id
                     ? 'bg-foreground/90 text-background'
                     : 'bg-accent/25 text-muted-foreground hover:bg-accent/40'
@@ -308,7 +308,7 @@ export function SuggestedFeedsView({
                   }`}
                 >
                   <span>{catLabel(id)}</span>
-                  <span className={`text-[10px] tabular-nums rounded-full px-1.5 py-0.5 ${
+                  <span className={`text-[0.625rem] tabular-nums rounded-full px-1.5 py-0.5 ${
                     isActive ? 'bg-primary-foreground/15' : 'bg-foreground/10'
                   }`}>{count}</span>
                 </button>
@@ -338,7 +338,7 @@ export function SuggestedFeedsView({
                   <button
                     type="button"
                     onClick={resetFilters}
-                    className="text-[12px] font-semibold text-primary px-3 py-1.5 rounded-lg hover:bg-primary/10"
+                    className="text-[0.75rem] font-semibold text-primary px-3 py-1.5 rounded-lg hover:bg-primary/10"
                   >
                     {'مسح الفلاتر'}
                   </button>
@@ -370,7 +370,7 @@ export function SuggestedFeedsView({
                       <p className="text-sm font-semibold text-foreground truncate" dir="auto">
                         {feed.name}
                       </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
                         {catLabel(feed.category)}
                       </p>
                     </div>

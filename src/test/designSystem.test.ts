@@ -30,7 +30,10 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 const FILES = walk(SRC);
-const SOURCES = FILES.map((f) => ({ file: path.relative(SRC, f), text: fs.readFileSync(f, 'utf8') }));
+const SOURCES = FILES.map((f) => ({
+  file: path.relative(SRC, f),
+  text: fs.readFileSync(f, 'utf8'),
+}));
 
 function countMatches(pattern: RegExp): { total: number; byFile: Record<string, number> } {
   const byFile: Record<string, number> = {};
@@ -54,17 +57,34 @@ describe('design-system budgets', () => {
   });
 
   it('does not add new arbitrary font sizes', () => {
-    const { total } = countMatches(/text-\[\d+(?:\.\d+)?px\]/g);
-    expect(total).toBeLessThanOrEqual(1900);
+    // Arbitrary sizes are now authored in rem (see
+    // scripts/codemod-type-rem.mjs) so the base-size preference can scale
+    // them. The budget still ratchets: prefer the canonical scale.
+    const { total } = countMatches(/text-\[\d+(?:\.\d+)?rem\]/g);
+    expect(total).toBeLessThanOrEqual(1719);
   });
 
-  it('never sets a font size below 10px', () => {
-    // Arabic script needs MORE size than Latin, not less. Anything under 10px
-    // was unreadable; 175 such declarations were raised during the audit.
+  it('never authors a type size in px', () => {
+    // A pixel font size cannot follow `html { font-size }`, so it silently
+    // opts out of the user's text-size preference — which is how the app
+    // ended up half-scaling. rem or a canonical token, never px.
     const offenders: string[] = [];
     for (const { file, text } of SOURCES) {
-      for (const match of text.matchAll(/text-\[(\d+(?:\.\d+)?)px\]/g)) {
-        if (Number(match[1]) < 10) offenders.push(`${file} → ${match[0]}`);
+      for (const match of text.matchAll(/\b(?:text|leading)-\[\d+(?:\.\d+)?px\]/g)) {
+        offenders.push(`${file} → ${match[0]}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('never sets a font size below the 10px floor', () => {
+    // Arabic script needs MORE size than Latin, not less. Anything under 10px
+    // was unreadable; 175 such declarations were raised during the audit.
+    // 0.625rem is 10px at the default 16px base.
+    const offenders: string[] = [];
+    for (const { file, text } of SOURCES) {
+      for (const match of text.matchAll(/text-\[(\d+(?:\.\d+)?)rem\]/g)) {
+        if (Number(match[1]) < 0.625) offenders.push(`${file} → ${match[0]}`);
       }
     }
     expect(offenders).toEqual([]);
@@ -100,7 +120,8 @@ describe('design-system budgets', () => {
   it('does not reintroduce physical directional utilities', () => {
     // RTL app: use ms/me/ps/pe, start/end, text-start/text-end.
     const offenders: string[] = [];
-    const pattern = /(?:^|[\s"'`])-?(?:ml|mr|pl|pr)-(?:\d|px|\[)|\btext-(?:left|right)\b|\bborder-[lr]\b|\brounded-(?:tl|tr|bl|br)-/g;
+    const pattern =
+      /(?:^|[\s"'`])-?(?:ml|mr|pl|pr)-(?:\d|px|\[)|\btext-(?:left|right)\b|\bborder-[lr]\b|\brounded-(?:tl|tr|bl|br)-/g;
     for (const { file, text } of SOURCES) {
       for (const match of text.matchAll(pattern)) {
         offenders.push(`${file} → ${match[0].trim()}`);

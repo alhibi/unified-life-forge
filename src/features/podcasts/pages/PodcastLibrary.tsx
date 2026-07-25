@@ -92,7 +92,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
         <h2 className="text-sm font-bold text-foreground">
           {'تابع الاستماع'}
         </h2>
-        <span className="text-[11px] text-muted-foreground">{items.length}</span>
+        <span className="text-[0.6875rem] text-muted-foreground">{items.length}</span>
       </div>
       <div
         className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none"
@@ -129,10 +129,10 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
                   </span>
                 </div>
                 <div className="p-2.5">
-                  <p className="text-[12px] font-bold leading-tight line-clamp-2 text-foreground">
+                  <p className="text-[0.75rem] font-bold leading-tight line-clamp-2 text-foreground">
                     {rec.episode.title}
                   </p>
-                  <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                  <p className="text-[0.6875rem] text-muted-foreground line-clamp-1 mt-0.5">
                     {rec.podcastTitle}
                   </p>
                 </div>
@@ -189,7 +189,7 @@ function SubscriptionTile({
           {/* Subtle glowing unplayed new episode badge on subscription card */}
           {hasNewEpisode && (
             <span
-              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
+              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-[0.625rem] font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
               style={{
                 background: 'hsl(var(--live))',
                 color: '#fff',
@@ -199,10 +199,10 @@ function SubscriptionTile({
             </span>
           )}
         </div>
-        <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">
+        <p className="text-[0.75rem] font-bold text-foreground leading-tight line-clamp-2">
           {podcast.title}
         </p>
-        <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
+        <p className="text-[0.6875rem] text-muted-foreground leading-tight line-clamp-1">
           {podcast.author}
         </p>
       </button>
@@ -250,8 +250,8 @@ function SubscriptionTile({
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-bold truncate">{podcast.title}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{podcast.author}</p>
+                  <p className="text-[0.8125rem] font-bold truncate">{podcast.title}</p>
+                  <p className="text-[0.6875rem] text-muted-foreground truncate">{podcast.author}</p>
                 </div>
               </div>
               <button
@@ -263,14 +263,14 @@ function SubscriptionTile({
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-destructive hover:bg-destructive/10 active:scale-95 transition"
               >
                 <Trash2 className="w-4 h-4" />
-                <span className="text-[13px] font-semibold">
+                <span className="text-[0.8125rem] font-semibold">
                   {'إلغاء الاشتراك'}
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="w-full mt-1 px-3 py-3 rounded-2xl text-foreground hover:bg-muted/60 text-[13px] font-medium"
+                className="w-full mt-1 px-3 py-3 rounded-2xl text-foreground hover:bg-muted/60 text-[0.8125rem] font-medium"
               >
                 {'إلغاء'}
               </button>
@@ -399,7 +399,7 @@ export default function PodcastLibrary() {
               className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`}
             />
           </button>
-          <span className="text-[11px] text-muted-foreground">{subs.length}</span>
+          <span className="text-[0.6875rem] text-muted-foreground">{subs.length}</span>
         </div>
       </div>
 
@@ -415,7 +415,7 @@ export default function PodcastLibrary() {
             <p className="text-sm font-semibold text-foreground mb-1">
               {'لا اشتراكات بعد'}
             </p>
-            <p className="text-[12px] text-muted-foreground mb-5 max-w-xs">
+            <p className="text-[0.75rem] text-muted-foreground mb-5 max-w-xs">
               {'اكتشف البودكاست واشترك بها لتظهر هنا.'}
             </p>
             <button
@@ -439,7 +439,7 @@ export default function PodcastLibrary() {
                   type="button"
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
-                  className={`px-2.5 h-7 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-[0.6875rem] font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
@@ -450,7 +450,7 @@ export default function PodcastLibrary() {
                   type="button"
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
-                  className={`px-2.5 h-7 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-[0.6875rem] font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >

@@ -383,7 +383,7 @@ export default function ArchiveReader() {
           <div className="flex items-center gap-3">
             <BackButton />
             <span
-              className="font-mono text-[10px] tracking-wider"
+              className="font-mono text-[0.625rem] tracking-wider"
               style={{ color: accentColor ?? 'hsl(var(--primary) / 0.7)' }}
             >
               № {String(doc.accession_number).padStart(6, '0')}
@@ -524,7 +524,7 @@ export default function ArchiveReader() {
                       <button
                         key={`${t.id}-${t.text}`}
                         onClick={() => jumpTo(t.id)}
-                        className={`w-full text-end text-sm rounded-lg px-3 py-2 hover:bg-muted transition-colors ${t.level === 3 ? 'pe-6 text-muted-foreground text-[13px]' : 'font-medium text-foreground'}`}
+                        className={`w-full text-end text-sm rounded-lg px-3 py-2 hover:bg-muted transition-colors ${t.level === 3 ? 'pe-6 text-muted-foreground text-[0.8125rem]' : 'font-medium text-foreground'}`}
                       >
                         {t.text}
                       </button>
@@ -567,7 +567,7 @@ export default function ArchiveReader() {
                 <div className="space-y-6 px-5 pt-4 pb-6 overflow-y-auto flex-1">
                   {/* Theme */}
                   <div>
-                    <div className="text-[12px] text-muted-foreground mb-2">السمة</div>
+                    <div className="text-[0.75rem] text-muted-foreground mb-2">السمة</div>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         {
@@ -599,14 +599,14 @@ export default function ArchiveReader() {
                           style={{ background: bg, color: fg }}
                         >
                           <Icon className="w-4 h-4" />
-                          <span className="text-[11px]">{label}</span>
+                          <span className="text-[0.6875rem]">{label}</span>
                         </button>
                       ))}
                     </div>
                   </div>
                   {/* Font family */}
                   <div>
-                    <div className="text-[12px] text-muted-foreground mb-2">الخط</div>
+                    <div className="text-[0.75rem] text-muted-foreground mb-2">الخط</div>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { k: 'serif' as const, label: 'كلاسيكي' },
@@ -627,10 +627,10 @@ export default function ArchiveReader() {
                   {/* Font size */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-[12px] text-muted-foreground flex items-center gap-1">
+                      <div className="text-[0.75rem] text-muted-foreground flex items-center gap-1">
                         <ALargeSmall className="w-3.5 h-3.5" /> حجم الخط
                       </div>
-                      <div className="text-[11px] tabular-nums text-muted-foreground">
+                      <div className="text-[0.6875rem] tabular-nums text-muted-foreground">
                         {prefs.size}px
                       </div>
                     </div>
@@ -664,8 +664,8 @@ export default function ArchiveReader() {
                   {/* Line height */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-[12px] text-muted-foreground">تباعد الأسطر</div>
-                      <div className="text-[11px] tabular-nums text-muted-foreground">
+                      <div className="text-[0.75rem] text-muted-foreground">تباعد الأسطر</div>
+                      <div className="text-[0.6875rem] tabular-nums text-muted-foreground">
                         {prefs.lineHeight.toFixed(2)}
                       </div>
                     </div>
@@ -680,8 +680,8 @@ export default function ArchiveReader() {
                   {/* Width */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="text-[12px] text-muted-foreground">عرض النص</div>
-                      <div className="text-[11px] tabular-nums text-muted-foreground">
+                      <div className="text-[0.75rem] text-muted-foreground">عرض النص</div>
+                      <div className="text-[0.6875rem] tabular-nums text-muted-foreground">
                         {prefs.width}px
                       </div>
                     </div>
@@ -706,8 +706,8 @@ export default function ArchiveReader() {
                         style={{ color: accentColor ?? 'hsl(var(--live, var(--primary)))' }}
                       />
                       <div className="text-end">
-                        <div className="text-[13px] font-medium">القراءة السينمائية</div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-[0.8125rem] font-medium">القراءة السينمائية</div>
+                        <div className="text-[0.6875rem] text-muted-foreground">
                           فقرات تتنفّس مع تمرير قراءتك
                         </div>
                       </div>
@@ -761,7 +761,7 @@ export default function ArchiveReader() {
               </p>
             )}
             <div
-              className="flex items-center gap-3 text-[11px] flex-wrap"
+              className="flex items-center gap-3 text-[0.6875rem] flex-wrap"
               style={{ color: mutedColor ?? 'hsl(var(--muted-foreground))' }}
             >
               <span className="flex items-center gap-1">
@@ -784,7 +784,7 @@ export default function ArchiveReader() {
                 {doc.tags.map((t) => (
                   <span
                     key={t}
-                    className="text-[10px] px-2 py-0.5 rounded-full"
+                    className="text-[0.625rem] px-2 py-0.5 rounded-full"
                     style={{
                       background: isThemed ? 'rgba(127,127,127,0.15)' : 'hsl(var(--primary) / 0.1)',
                       color: accentColor ?? 'hsl(var(--primary))',

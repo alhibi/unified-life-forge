@@ -380,7 +380,7 @@ export function KeywordAlertsView({
           <button
             type="button"
             onClick={markAllHitsSeen}
-            className="text-[11px] text-primary font-semibold px-2 py-1 rounded-lg hover:bg-primary/10"
+            className="text-[0.6875rem] text-primary font-semibold px-2 py-1 rounded-lg hover:bg-primary/10"
           >
             {'تحديد الكل'}
           </button>
@@ -388,7 +388,7 @@ export function KeywordAlertsView({
         <button
           type="button"
           onClick={runCheckNow}
-          className="text-[11px] font-semibold px-2 py-1 rounded-lg hover:bg-accent/40 text-muted-foreground"
+          className="text-[0.6875rem] font-semibold px-2 py-1 rounded-lg hover:bg-accent/40 text-muted-foreground"
         >
           {'فحص الآن'}
         </button>
@@ -407,7 +407,7 @@ export function KeywordAlertsView({
             <h4 className="text-base font-bold">
               {'سجّل الدخول لاستخدام التنبيهات'}
             </h4>
-            <p className="text-[12px] text-muted-foreground leading-relaxed">
+            <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
               {'تنبيهات الكلمات تحتاج إلى حسابك حتى نحفظها بأمان عبر الأجهزة.'}
             </p>
           </div>
@@ -447,7 +447,7 @@ export function KeywordAlertsView({
                 : <Bell className="h-4 w-4" />}
           </span>
           <div className="flex-1 min-w-0 text-start">
-            <p className="text-[13px] font-semibold truncate">
+            <p className="text-[0.8125rem] font-semibold truncate">
               {permission === 'unsupported'
                 ? ('الإشعارات غير مدعومة')
                 : permission === 'denied'
@@ -462,7 +462,7 @@ export function KeywordAlertsView({
                           ? ('وضع الموجز')
                           : ('الإشعارات مفعّلة')}
             </p>
-            <p className="text-[10px] text-muted-foreground line-clamp-1">
+            <p className="text-[0.625rem] text-muted-foreground line-clamp-1">
               {'اضغط لتعديل الإعدادات'}
             </p>
           </div>
@@ -500,7 +500,7 @@ export function KeywordAlertsView({
                 {/* Master toggle (only useful when permission is granted) */}
                 {permission === 'granted' && (
                   <div className="flex items-center gap-3">
-                    <span className="flex-1 text-[12px] font-medium">
+                    <span className="flex-1 text-[0.75rem] font-medium">
                       {'تشغيل الإشعارات'}
                     </span>
                     <Toggle
@@ -513,7 +513,7 @@ export function KeywordAlertsView({
                 {/* Sound toggle */}
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div className="flex items-center gap-3">
-                    <span className="flex-1 text-[12px] font-medium">
+                    <span className="flex-1 text-[0.75rem] font-medium">
                       {'صوت'}
                     </span>
                     <Toggle
@@ -526,7 +526,7 @@ export function KeywordAlertsView({
                 {/* Frequency: instant vs digest */}
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
+                    <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
                       {'التكرار'}
                     </p>
                     <div className="flex gap-1.5">
@@ -547,7 +547,7 @@ export function KeywordAlertsView({
                 {/* Quiet hours */}
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5 inline-flex items-center gap-1.5">
+                    <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-1.5 inline-flex items-center gap-1.5">
                       <Moon className="h-3 w-3" />
                       {'ساعات الهدوء'}
                     </p>
@@ -556,7 +556,7 @@ export function KeywordAlertsView({
                         value={notifPrefs.quietStart}
                         onChange={(v) => setNotifPrefs({ ...notifPrefs, quietStart: v })}
                       />
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[0.6875rem] text-muted-foreground">
                         {'إلى'}
                       </span>
                       <TimeInput
@@ -570,7 +570,7 @@ export function KeywordAlertsView({
                 {/* Snooze actions */}
                 {permission === 'granted' && notifPrefs.enabled && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
+                    <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-1.5">
                       {'كتم مؤقت'}
                     </p>
                     <div className="flex gap-1.5 flex-wrap">
@@ -590,7 +590,7 @@ export function KeywordAlertsView({
                         <button
                           type="button"
                           onClick={() => mute(null)}
-                          className="px-3 py-1 rounded-full text-[11px] font-medium bg-destructive/10 text-destructive"
+                          className="px-3 py-1 rounded-full text-[0.6875rem] font-medium bg-destructive/10 text-destructive"
                         >
                           {'إلغاء الكتم'}
                         </button>
@@ -631,7 +631,7 @@ export function KeywordAlertsView({
       <div className="px-4 py-3 border-b border-border/30 space-y-2.5">
         {editingAlert && (
           <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20">
-            <span className="text-[12px] font-bold text-primary inline-flex items-center gap-1.5 truncate">
+            <span className="text-[0.75rem] font-bold text-primary inline-flex items-center gap-1.5 truncate">
               <Pencil className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">
                 {`تعديل: ${editingAlert.keyword}`}
@@ -677,7 +677,7 @@ export function KeywordAlertsView({
           </Button>
         </div>
         <div className="flex flex-wrap gap-1.5 items-center">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold me-1">
+          <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold me-1">
             {'المطابقة'}
           </span>
           {([['any', 'أي'], ['whole_word', 'كلمة كاملة'], ['phrase', 'عبارة']] as const).map(
@@ -686,7 +686,7 @@ export function KeywordAlertsView({
                 key={id}
                 type="button"
                 onClick={() => setMatchMode(id)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-full text-[0.6875rem] font-medium transition-colors ${
                   matchMode === id
                     ? 'bg-primary/15 text-primary border border-primary/30'
                     : 'bg-accent/30 text-muted-foreground hover:bg-accent/50 border border-transparent'
@@ -699,7 +699,7 @@ export function KeywordAlertsView({
         </div>
         {enabledFeeds.length > 0 && (
           <div className="flex flex-wrap gap-1.5 items-center">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold me-1">
+            <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold me-1">
               {'في'}
             </span>
             {enabledFeeds.map((f) => {
@@ -714,7 +714,7 @@ export function KeywordAlertsView({
                         ? prev.filter((n) => n !== f.name)
                         : [...prev, f.name],
                     )}
-                  className={`px-2 py-1 rounded-full text-[10px] font-medium transition-colors ${
+                  className={`px-2 py-1 rounded-full text-[0.625rem] font-medium transition-colors ${
                     active
                       ? 'bg-primary/15 text-primary border border-primary/30'
                       : 'bg-accent/30 text-muted-foreground hover:bg-accent/50 border border-transparent'
@@ -728,7 +728,7 @@ export function KeywordAlertsView({
               <button
                 type="button"
                 onClick={() => setFilteredSources([])}
-                className="text-[10px] text-muted-foreground underline"
+                className="text-[0.625rem] text-muted-foreground underline"
               >
                 {'مسح'}
               </button>
@@ -758,7 +758,7 @@ export function KeywordAlertsView({
 
         {alerts.length > 0 && (
           <div className="px-4 py-3 border-b border-border/30">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+            <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
               {'تنبيهات نشطة'}
             </p>
             <div className="space-y-1.5">
@@ -778,7 +778,7 @@ export function KeywordAlertsView({
                     <p className="text-sm font-semibold truncate">
                       {alert.keyword}
                     </p>
-                    <p className="text-[10px] text-muted-foreground truncate">
+                    <p className="text-[0.625rem] text-muted-foreground truncate">
                       {alert.match_mode === 'any'
                           ? 'أي تطابق'
                           : alert.match_mode === 'whole_word'
@@ -793,7 +793,7 @@ export function KeywordAlertsView({
                   <button
                     type="button"
                     onClick={() => toggleEnabled(alert)}
-                    className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
+                    className={`text-[0.625rem] font-bold px-2 py-1 rounded-lg ${
                       alert.enabled
                         ? 'text-primary hover:bg-primary/10'
                         : 'text-muted-foreground hover:bg-accent/40'
@@ -833,7 +833,7 @@ export function KeywordAlertsView({
 
         {hits.length > 0 && (
           <div className="px-4 py-3">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+            <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
               {'تطابقات حديثة'}
             </p>
             <AnimatePresence initial={false}>
@@ -865,12 +865,12 @@ export function KeywordAlertsView({
                       {hit.source_name && (
                         <>
                           <SourcePill name={hit.source_name} size="sm" />
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-[0.6875rem] text-muted-foreground">
                             {hit.source_name}
                           </span>
                         </>
                       )}
-                      <span className="text-[11px] text-muted-foreground/70">
+                      <span className="text-[0.6875rem] text-muted-foreground/70">
                         {timeAgo(hit.matched_at, language)}
                       </span>
                     </div>
@@ -938,7 +938,7 @@ function SegButton({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-colors ${
+      className={`px-3 py-1.5 rounded-xl text-[0.6875rem] font-medium transition-colors ${
         active
           ? 'bg-primary text-primary-foreground'
           : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
@@ -954,7 +954,7 @@ function SnoozeChip({ label, onClick }: { label: string; onClick: () => void }) 
     <button
       type="button"
       onClick={onClick}
-      className="px-3 py-1 rounded-full text-[11px] font-medium bg-accent/30 text-muted-foreground hover:bg-accent/50"
+      className="px-3 py-1 rounded-full text-[0.6875rem] font-medium bg-accent/30 text-muted-foreground hover:bg-accent/50"
     >
       {label}
     </button>
@@ -973,7 +973,7 @@ function TimeInput({
       type="time"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="bg-background border border-border/60 rounded-lg text-[12px] px-2 py-1 tabular-nums"
+      className="bg-background border border-border/60 rounded-lg text-[0.75rem] px-2 py-1 tabular-nums"
       dir="ltr"
     />
   );
