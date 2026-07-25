@@ -471,10 +471,7 @@ export async function searchUsers(query: string, limit: number = 12): Promise<Ar
   const q = query.trim();
   if (q.length < 2) return [];
   const { data, error } = await supabase
-    .from('profiles')
-    .select('user_id, username, display_name, avatar_url')
-    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
-    .limit(limit);
+    .rpc('search_profiles', { q, lim: limit });
   if (error) throw new Error(error.message);
   return (data ?? []).map(r => ({
     userId:      r.user_id,
