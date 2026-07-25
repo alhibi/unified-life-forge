@@ -188,7 +188,7 @@ function DuaModal({
                     className="bg-muted/40 rounded-xl p-4 space-y-2"
                   >
                     <p
-                      className="text-foreground text-base leading-loose font-medium text-right"
+                      className="text-foreground text-base leading-loose font-medium text-end"
                       dir="rtl"
                       style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}
                     >
@@ -277,7 +277,7 @@ function NawawiModal({
               <div className="overflow-y-auto flex-1 p-4">
                 <div className="bg-muted/40 rounded-xl p-4 space-y-3">
                   <p
-                    className="text-foreground text-base leading-[2] font-medium text-right"
+                    className="text-foreground text-base leading-[2] font-medium text-end"
                     dir="rtl"
                     style={{ fontFamily: "'Amiri', 'Noto Sans Arabic', serif" }}
                   >

@@ -70,7 +70,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
         </div>
 
         {/* Float Control badge */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-3 pointer-events-none">
+        <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between gap-3 pointer-events-none">
           <div className="flex items-center gap-1.5 bg-background/90 backdrop-blur border border-border/30 px-2.5 py-1.5 rounded-xl shadow-md pointer-events-auto">
             <MapPin className="w-3.5 h-3.5 text-primary" />
             <span className="font-montserrat font-bold text-[11px] text-foreground tabular-nums">

@@ -154,7 +154,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-            className="fixed left-2 right-2 z-float pointer-events-none"
+            className="fixed start-2 end-2 z-float pointer-events-none"
             // Stacks above the floating portal dock (there is no bottom
             // navigation bar in this app — see src/lib/layout.ts).
             style={{

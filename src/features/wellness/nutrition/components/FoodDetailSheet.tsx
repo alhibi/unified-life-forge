@@ -492,11 +492,11 @@ function NutrientBar({
           style={{ width: `${Math.min(100, rdaPct)}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-[10px] font-semibold text-foreground w-12 text-right" dir="ltr">
+      <span className="text-[10px] font-semibold text-foreground w-12 text-end" dir="ltr">
         {value}
         {unit}
       </span>
-      <span className="text-[10px] text-muted-foreground w-8 text-right">{rdaPct}%</span>
+      <span className="text-[10px] text-muted-foreground w-8 text-end">{rdaPct}%</span>
     </div>
   );
 }

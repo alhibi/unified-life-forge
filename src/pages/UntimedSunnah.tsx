@@ -114,7 +114,7 @@ export default function UntimedSunnah() {
                                     transition={{ duration: 0.15, ease: 'easeInOut' }}
                                     className="overflow-hidden"
                                   >
-                                    <div className="px-4 pb-3 mr-9 ml-9">
+                                    <div className="px-4 pb-3 me-9 ms-9">
                                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">
                                         {item.description}
                                       </p>

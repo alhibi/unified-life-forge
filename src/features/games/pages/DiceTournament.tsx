@@ -106,7 +106,7 @@ export default function DiceTournamentPage() {
                   "{bot.taglineAr}"
                 </p>
               </div>
-              <div className="text-right shrink-0">
+              <div className="text-end shrink-0">
                 <p className="text-[10px] text-amber-300 uppercase tracking-wider">{'حد التوقف'}</p>
  <p className="text-base font-black text-amber-300">{bot.baseHold}</p>
  </div>
@@ -119,7 +119,7 @@ export default function DiceTournamentPage() {
  className="w-full py-4 rounded-2xl font-black text-amber-950"
  style={{ }}
         >
-          <Sparkles className="w-5 h-5 inline mr-1.5" />
+          <Sparkles className="w-5 h-5 inline me-1.5" />
           {'ابدأ البطولة'}
         </button>
       </GameShell>
@@ -187,7 +187,7 @@ export default function DiceTournamentPage() {
               {'سحقت جميع المنافسين'}
             </p>
             <button onClick={reset} className="mt-4 px-6 py-2 rounded-xl bg-amber-500 text-amber-950 font-bold text-sm">
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
+              <RotateCcw className="w-3.5 h-3.5 inline me-1.5" />
               {'بطولة جديدة'}
             </button>
           </motion.div>
@@ -205,7 +205,7 @@ export default function DiceTournamentPage() {
                 : ''}
             </p>
             <button onClick={reset} className="px-6 py-2 rounded-xl bg-rose-500 text-white font-bold text-sm">
-              <RotateCcw className="w-3.5 h-3.5 inline mr-1.5" />
+              <RotateCcw className="w-3.5 h-3.5 inline me-1.5" />
               {'حاول مرة أخرى'}
             </button>
           </motion.div>

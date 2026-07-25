@@ -193,7 +193,7 @@ function LiftRow({
       {/* Tier ladder */}
       <div className="relative h-2.5 rounded-full bg-muted/40 overflow-hidden">
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
+          className="absolute inset-y-0 start-0 rounded-full"
           style={{ background: color }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}

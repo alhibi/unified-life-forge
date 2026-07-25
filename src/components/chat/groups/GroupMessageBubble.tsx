@@ -126,8 +126,8 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
           className={cn(
             'rounded-2xl px-3 py-2 select-none cursor-default',
             isMine
-              ? 'bg-primary text-primary-foreground rounded-br-md'
-              : 'bg-card border border-border/15 rounded-bl-md',
+              ? 'bg-primary text-primary-foreground rounded-ee-md'
+              : 'bg-card border border-border/15 rounded-es-md',
             failed && 'opacity-70 ring-1 ring-destructive/30',
           )}
         >

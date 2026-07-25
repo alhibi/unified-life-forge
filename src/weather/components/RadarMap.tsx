@@ -252,7 +252,7 @@ export default function RadarMap({
         )}
 
         {/* Ambient Overlay details */}
-        <div className="absolute bottom-3 left-3 right-3 flex justify-between text-[10px] text-muted-foreground pointer-events-none">
+        <div className="absolute bottom-3 start-3 end-3 flex justify-between text-[10px] text-muted-foreground pointer-events-none">
           <div className="flex items-center gap-1 bg-background/60 backdrop-blur border border-border/30 px-2 py-1 rounded-md">
             <Wind className="w-3.5 h-3.5 text-primary" />
             <span className="font-semibold tabular-nums text-foreground">{windSpeedKph} km/h</span>

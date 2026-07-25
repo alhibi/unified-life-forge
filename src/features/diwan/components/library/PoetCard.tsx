@@ -77,7 +77,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
             </div>
 
             {poet.bio && (
-              <p className="text-[13px] text-[#B8AA8E] leading-relaxed mt-1.5 line-clamp-2 pr-0.5">
+              <p className="text-[13px] text-[#B8AA8E] leading-relaxed mt-1.5 line-clamp-2 pe-0.5">
                 {poet.bio}
               </p>
             )}

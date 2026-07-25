@@ -803,7 +803,7 @@ function ArcStrip({
 
       {/* Sunrise / Sunset corner labels */}
       {sunriseStr && (
-        <div className="absolute bottom-2 left-[18px] flex items-center gap-1 pointer-events-none">
+        <div className="absolute bottom-2 start-[18px] flex items-center gap-1 pointer-events-none">
           <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
           <div className="flex flex-col leading-none">
             <span className="text-[10px] font-medium leading-none text-muted-foreground/70">
@@ -816,7 +816,7 @@ function ArcStrip({
         </div>
       )}
       {sunsetStr && (
-        <div className="absolute bottom-2 right-[18px] flex items-center gap-1 pointer-events-none">
+        <div className="absolute bottom-2 end-[18px] flex items-center gap-1 pointer-events-none">
           <div className="flex flex-col items-end leading-none">
             <span className="text-[10px] font-medium leading-none text-muted-foreground/70">
               Sunset
@@ -832,7 +832,7 @@ function ArcStrip({
       {/* Makruh badge top-right */}
       {currentMakruh && (
         <div
-          className="absolute top-1.5 right-2 px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide"
+          className="absolute top-1.5 end-2 px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide"
           style={{
             backgroundColor:
               currentMakruh.label === 'Zawal'
@@ -1129,13 +1129,13 @@ function HijriCalendarStrip({
 
   // Accent hex per color class
   const accentMap: Record<string, string> = {
-    'border-l-emerald-500': '#10b981',
-    'border-l-emerald-600': '#059669',
-    'border-l-sky-500': '#0ea5e9',
-    'border-l-violet-500': '#8b5cf6',
-    'border-l-amber-500': '#f59e0b',
-    'border-l-yellow-500': '#eab308',
-    'border-l-yellow-600': '#ca8a04',
+    'border-s-emerald-500': '#10b981',
+    'border-s-emerald-600': '#059669',
+    'border-s-sky-500': '#0ea5e9',
+    'border-s-violet-500': '#8b5cf6',
+    'border-s-amber-500': '#f59e0b',
+    'border-s-yellow-500': '#eab308',
+    'border-s-yellow-600': '#ca8a04',
   };
 
   return (
@@ -1178,7 +1178,7 @@ function HijriCalendarStrip({
             <button
               key={occ.id}
               onClick={() => navigate('/occasions')}
-              className="flex-shrink-0 flex flex-col gap-0.5 rounded-lg px-2 py-1.5 min-w-[96px] max-w-[112px] text-right active:opacity-70 transition-opacity"
+              className="flex-shrink-0 flex flex-col gap-0.5 rounded-lg px-2 py-1.5 min-w-[96px] max-w-[112px] text-end active:opacity-70 transition-opacity"
               style={{ background: `${accent}12`, borderLeft: `2px solid ${accent}40` }}
             >
               {/* Days countdown + month */}

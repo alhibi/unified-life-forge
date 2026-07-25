@@ -106,9 +106,9 @@ function PlaceDetailContent({ place, language }: { place: TravelPlace; language:
       <div className="relative bg-muted">
         {photoUrls.length > 0 ? (
           <Carousel setApi={setCarouselApi} opts={{ direction: 'rtl', loop: photoUrls.length > 1 }}>
-            <CarouselContent className="ml-0">
+            <CarouselContent className="ms-0">
               {photoUrls.map((url, index) => (
-                <CarouselItem key={`${url}-${index}`} className="pl-0">
+                <CarouselItem key={`${url}-${index}`} className="ps-0">
                   <img
                     src={url}
                     alt={

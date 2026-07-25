@@ -173,7 +173,7 @@ export default function MealTracker() {
                 <div className="flex items-center gap-2 px-3 py-2 bg-muted/30">
                   <Icon className="w-3.5 h-3.5" style={{ color }} />
                   <span className="text-[11px] font-semibold text-foreground">{label[lang]}</span>
-                  <span className="text-[10px] text-muted-foreground ml-auto">{items.length}</span>
+                  <span className="text-[10px] text-muted-foreground ms-auto">{items.length}</span>
                 </div>
                 <div className="divide-y divide-border/20">
                   {items.map((entry) => {
@@ -298,7 +298,7 @@ function AddMealForm({
                   <button
                     key={food.id}
                     onClick={() => handleSelectFood(food)}
-                    className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 active:scale-98 transition-all text-left"
+                    className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 active:scale-98 transition-all text-start"
                   >
                     <span className="text-lg">{food.emoji}</span>
                     <div className="flex-1 min-w-0">

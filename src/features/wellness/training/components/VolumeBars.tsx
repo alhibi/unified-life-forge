@@ -123,7 +123,7 @@ function BarRow({
           </>
         )}
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
+          className="absolute inset-y-0 start-0 rounded-full"
           style={{ background: color }}
           initial={{ width: 0 }}
           animate={{ width: `${xPct(sets)}%` }}

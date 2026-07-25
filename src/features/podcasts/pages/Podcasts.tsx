@@ -640,7 +640,7 @@ export default function PodcastsPage() {
                   {isActive && (
                     <motion.span
                       layoutId="podcasts-tab-underline"
-                      className="absolute left-2 right-2 -bottom-0.5 h-[2px] rounded-full bg-primary"
+                      className="absolute start-2 end-2 -bottom-0.5 h-[2px] rounded-full bg-primary"
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -734,7 +734,7 @@ export default function PodcastsPage() {
       </div>
 
       {/* Floating "Powered by" pill */}
-      <div className="fixed bottom-4 left-0 right-0 z-40 flex justify-center pointer-events-none">
+      <div className="fixed bottom-4 start-0 end-0 z-40 flex justify-center pointer-events-none">
         <div className="pointer-events-auto">
           <PoweredByApplePodcasts />
         </div>
