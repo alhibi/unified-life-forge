@@ -13,6 +13,16 @@ Pause, Play,   RefreshCw, Shuffle as ShuffleIcon, Sparkles,   Timer as TimerIcon
 type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 type Mode = 'classic' | 'endless' | 'timeattack' | 'daily' | 'versus' | 'adventure';
 
+/** Local mode ids → the progression system's canonical GameMode ids. */
+const PROGRESSION_MODE: Record<Mode, ProgressionMode> = {
+  classic: 'memory-classic',
+  endless: 'memory-endless',
+  timeattack: 'memory-time-attack',
+  daily: 'memory-daily',
+  versus: 'memory-versus',
+  adventure: 'memory-adventure',
+};
+
 // =============================================================================
 // Themes
 // =============================================================================
@@ -110,6 +120,8 @@ function loadStats(): MemoryStats {
   } catch { return { ...DEFAULT_STATS }; }
 }
 import { getGameProgress,saveGameProgress } from '../api';
+import MatchReportDialog from '../components/MatchReportDialog';
+import { dayKey, type GameMode as ProgressionMode, type MatchReport, reportMatch } from '../progression';
 
 function saveStatsFn(s: MemoryStats) {
   localStorage.setItem('memory-stats', JSON.stringify(s));
@@ -215,6 +227,8 @@ export default function MemoryGame() {
 
   // Mode-specific state
   const [endlessLevel, setEndlessLevel] = useState(1);
+  // Post-session reward screen — see MatchReportDialog.
+  const [matchReport, setMatchReport] = useState<MatchReport | null>(null);
   const [timeAttackLeft, setTimeAttackLeft] = useState(60);
   const [timeAttackPairs, setTimeAttackPairs] = useState(0);
   const [versusScores, setVersusScores] = useState({ player: 0, ai: 0 });
@@ -267,6 +281,19 @@ export default function MemoryGame() {
             saveStatsFn(s2); setStats(s2);
             checkAchievements(s2);
             playSfx('lose'); vibrate([60, 60, 200]);
+            // Time-attack ends when the clock runs out — the board never
+            // "solves" — so this is where the session is reported. It counts as
+            // a win: the run completed, and the pair count is the achievement.
+            setMatchReport(
+              reportMatch({
+                game: 'memory',
+                mode: 'memory-time-attack',
+                outcome: 'win',
+                difficulty,
+                score: newPairs,
+                record: { value: newPairs },
+              }),
+            );
             return 0;
           }
           return s - 1;
@@ -303,6 +330,18 @@ export default function MemoryGame() {
       if (nextLevel - 1 > s.bestEndlessLevel) s.bestEndlessLevel = nextLevel - 1;
       saveStatsFn(s); setStats(s);
       playSfx('level'); vibrate([20, 40, 20]);
+      // Endless has no end state: every cleared round IS a completed board, so
+      // each one is reported. The report is intentionally NOT surfaced as a
+      // dialog here — interrupting an endless run with a reward screen every few
+      // seconds would ruin the mode. XP, records and challenges still accrue.
+      reportMatch({
+        game: 'memory',
+        mode: 'memory-endless',
+        outcome: 'win',
+        difficulty,
+        score: endlessLevel,
+        record: { value: endlessLevel },
+      });
       return;
     }
     if (mode === 'versus') {
@@ -367,6 +406,24 @@ export default function MemoryGame() {
     }
     setScore(finalScore);
     checkAchievements(s);
+
+    // Feed the shared progression spine.
+    const progressionMode = PROGRESSION_MODE[mode];
+    setMatchReport(
+      reportMatch({
+        game: 'memory',
+        mode: progressionMode,
+        outcome: 'win',
+        difficulty,
+        durationMs: timer * 1000,
+        score: finalScore,
+        // Fewest moves is the classic record; other modes score on points.
+        record:
+          progressionMode === 'memory-classic'
+            ? { value: moves, lowerIsBetter: true }
+            : { value: finalScore },
+      }),
+    );
   }
 
   function finishVersus() {
@@ -389,6 +446,17 @@ export default function MemoryGame() {
     s.level = levelFromXp(s.xp);
     saveStatsFn(s); setStats(s);
     checkAchievements(s);
+
+    setMatchReport(
+      reportMatch({
+        game: 'memory',
+        mode: 'memory-versus',
+        outcome: versusScores.player > versusScores.ai ? 'win' : 'loss',
+        difficulty,
+        durationMs: timer * 1000,
+        score: versusScores.player,
+      }),
+    );
   }
 
   function checkAchievements(s: MemoryStats) {
@@ -955,6 +1023,7 @@ export default function MemoryGame() {
           </motion.div>
         )}
       </AnimatePresence>
+      <MatchReportDialog report={matchReport} onClose={() => setMatchReport(null)} day={dayKey()} />
     </GameShell>
   );
 }
