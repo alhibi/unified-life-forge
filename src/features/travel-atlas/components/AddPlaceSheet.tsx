@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '@/contexts/AppContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 import { COUNTRY_CATALOG } from '../countriesCatalog';
 import { useCreatePlace } from '../hooks';
@@ -62,7 +62,6 @@ export default function AddPlaceSheet({
 }: AddPlaceSheetProps) {
   const { language } = useApp();
   const isAr = language === 'ar';
-  const { toast } = useToast();
   const createPlace = useCreatePlace();
 
   const [countryIso, setCountryIso] = useState<string>(defaultCountryIso ?? '');
@@ -119,10 +118,8 @@ export default function AddPlaceSheet({
         const la = pos.coords.latitude;
         const lo = pos.coords.longitude;
         if (selectedCountry && !containsPoint(selectedCountry.bounds, [lo, la], 0.75)) {
-          toast({
-            title: 'موقعك خارج الدولة المختارة',
+          toast.error('موقعك خارج الدولة المختارة', {
             description: 'اختر الدولة الصحيحة أو حدّد النقطة يدويًا.',
-            variant: 'destructive',
           });
           return;
         }
@@ -130,10 +127,7 @@ export default function AddPlaceSheet({
         setLng(lo.toFixed(6));
       },
       () => {
-        toast({
-          title: 'تعذّر جلب الموقع',
-          variant: 'destructive',
-        });
+        toast.error('تعذّر جلب الموقع');
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -156,24 +150,16 @@ export default function AddPlaceSheet({
     const latN = Number(lat);
     const lngN = Number(lng);
     if (!country || !nameAr.trim() || !Number.isFinite(latN) || !Number.isFinite(lngN)) {
-      toast({
-        title: 'أكمل الحقول المطلوبة',
-        variant: 'destructive',
-      });
+      toast.error('أكمل الحقول المطلوبة');
       return;
     }
     if (latN < -90 || latN > 90 || lngN < -180 || lngN > 180) {
-      toast({
-        title: 'إحداثيات غير صحيحة',
-        variant: 'destructive',
-      });
+      toast.error('إحداثيات غير صحيحة');
       return;
     }
     if (!containsPoint(country.bounds, [lngN, latN], 0.75)) {
-      toast({
-        title: 'النقطة خارج الدولة المختارة',
+      toast.error('النقطة خارج الدولة المختارة', {
         description: 'اختر الدولة المناسبة أو حدّد نقطة داخل حدودها.',
-        variant: 'destructive',
       });
       return;
     }
@@ -195,14 +181,12 @@ export default function AddPlaceSheet({
           .slice(0, 8),
         photos: photos.length > 0 ? photos : undefined,
       });
-      toast({ title: 'تمت الإضافة' });
+      toast.success('تمت الإضافة');
       reset();
       onOpenChange(false);
     } catch (err) {
-      toast({
-        title: 'تعذّرت الإضافة',
+      toast.error('تعذّرت الإضافة', {
         description: (err as Error)?.message,
-        variant: 'destructive',
       });
     }
   };

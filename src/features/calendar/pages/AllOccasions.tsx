@@ -7,7 +7,6 @@ import {
   getEventsForMonth,
   formatGregorianDate,
   HIJRI_MONTHS,
-  HIJRI_MONTHS_EN,
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
@@ -61,7 +60,7 @@ export default function AllOccasions() {
 
   return (
     <div
-      className="min-h-screen bg-background pb-28 px-4 pt-6"
+      className="min-h-screen bg-background pb-page px-4 pt-6"
       dir={'rtl'}
     >
       <SEO
@@ -129,10 +128,10 @@ export default function AllOccasions() {
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-[9px] text-muted-foreground tabular-nums">
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
                     {count}
                   </span>
-                  <span className="text-[9px] text-muted-foreground/70">
+                  <span className="text-[10px] text-muted-foreground/70">
                     {'مناسبة'}
                   </span>
                   {isCurrent && (
@@ -273,14 +272,14 @@ function EventListCard({
     >
       <div className="flex items-center justify-between mb-1">
         <span
-          className="text-[9px] font-bold uppercase tracking-wider"
+          className="text-[10px] font-bold uppercase tracking-wider"
           style={{ color: accent }}
         >
           {monthLabel} {dayLabel}
         </span>
         {event.isMajorHoliday && (
           <span
-            className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+            className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: `${accent}26`, color: accent }}
           >
             {'عيد'}
@@ -390,7 +389,7 @@ function DetailContent({
         </span>
         {event.isMajorHoliday && (
           <span
-            className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+            className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: `${accent}26`, color: accent }}
           >
             {'عيد كبير'}

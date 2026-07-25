@@ -148,7 +148,7 @@ export const EditedBadge = React.memo(function EditedBadge({
   return (
     <span
       className={cn(
-        'text-[9px] italic',
+        'text-[10px] italic',
         dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
       )}
     >
@@ -190,7 +190,7 @@ export const SelfDestructTimer = React.memo(function SelfDestructTimer({
 
   return (
     <motion.span
-      className="inline-flex items-center gap-0.5 text-[9px] text-orange-500/80"
+      className="inline-flex items-center gap-0.5 text-[10px] text-orange-500/80"
       animate={{ opacity: [0.6, 1, 0.6] }}
       transition={{ duration: 2, repeat: Infinity }}
     >
@@ -395,7 +395,7 @@ export const ReactionPill = React.memo(
         </motion.span>
         {count > 1 && (
           <motion.span
-            className="text-[9px] text-muted-foreground font-medium tabular-nums"
+            className="text-[10px] text-muted-foreground font-medium tabular-nums"
             key={count}
             initial={{ scale: 0, y: 4 }}
             animate={{ scale: 1, y: 0 }}
@@ -606,7 +606,7 @@ export const SeenByAvatars = React.memo(function SeenByAvatars({
             {s.avatarUrl ? (
               <img src={s.avatarUrl} alt={s.username} className="w-full h-full object-cover" />
             ) : (
-              <span className="w-full h-full flex items-center justify-center text-[7px] font-bold text-muted-foreground">
+              <span className="w-full h-full flex items-center justify-center text-[10px] font-bold text-muted-foreground">
                 {(s.username || '?')[0].toUpperCase()}
               </span>
             )}
@@ -614,7 +614,7 @@ export const SeenByAvatars = React.memo(function SeenByAvatars({
         ))}
       </div>
       {extra > 0 && (
-        <span className="text-[9px] text-muted-foreground/60 tabular-nums">+{extra}</span>
+        <span className="text-[10px] text-muted-foreground/60 tabular-nums">+{extra}</span>
       )}
     </motion.div>
   );

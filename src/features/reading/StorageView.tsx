@@ -417,7 +417,7 @@ function Stat({
       </div>
       <p className="text-2xl font-bold tabular-nums">{value}</p>
       {hint && (
-        <p className="text-[9px] text-muted-foreground/70 mt-0.5">{hint}</p>
+        <p className="text-[10px] text-muted-foreground/70 mt-0.5">{hint}</p>
       )}
     </div>
   );

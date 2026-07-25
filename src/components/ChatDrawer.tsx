@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 
 import ImageLightbox from '@/components/ImageLightbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,7 +18,6 @@ import {
   Calendar,
   Check,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   Copy,
   CornerDownLeft,
@@ -376,7 +375,7 @@ function VoiceBubble({
                 )}
               >
                 {msg.edited_at && (
-                  <span className="text-[9px] italic">{'معدّلة'}</span>
+                  <span className="text-[10px] italic">{'معدّلة'}</span>
                 )}
                 {isFading && <Timer className="h-[10px] w-[10px] animate-pulse" />}
                 {formatClockTime(msg.created_at)}
@@ -986,7 +985,7 @@ export default function ChatDrawer({
                 ) : (
                   <Bell className="w-4 h-4" />
                 )}
-                <span className="text-[10.5px] font-medium">
+                <span className="text-[10px] font-medium">
                   {chat.chatPrefs.isMuted(chat.activeConv.id)
                     ? 'مكتوم'
                     : 'كتم'}
@@ -1007,7 +1006,7 @@ export default function ChatDrawer({
                     chat.chatPrefs.isPinned(chat.activeConv.id) && 'rotate-45',
                   )}
                 />
-                <span className="text-[10.5px] font-medium">
+                <span className="text-[10px] font-medium">
                   {chat.chatPrefs.isPinned(chat.activeConv.id)
                     ? 'مثبّتة'
                     : 'تثبيت'}
@@ -1026,7 +1025,7 @@ export default function ChatDrawer({
                 ) : (
                   <Archive className="w-4 h-4" />
                 )}
-                <span className="text-[10.5px] font-medium">
+                <span className="text-[10px] font-medium">
                   {chat.chatPrefs.isArchived(chat.activeConv.id)
                     ? 'إلغاء الأرشفة'
                     : 'أرشفة'}
@@ -1211,7 +1210,7 @@ export default function ChatDrawer({
                             className="aspect-square bg-muted/20 flex flex-col items-center justify-center gap-1.5 p-2"
                           >
                             <FileText className="w-6 h-6 text-muted-foreground" />
-                            <span className="text-[9px] text-muted-foreground truncate w-full text-center">
+                            <span className="text-[10px] text-muted-foreground truncate w-full text-center">
                               {readableFileName(m.file_name)}
                             </span>
                           </div>
@@ -1476,7 +1475,7 @@ export default function ChatDrawer({
                 >
                   <BackIcon className="w-5 h-5 text-foreground" />
                   {totalUnread > 0 && (
-                    <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
+                    <span className="absolute -top-0.5 -end-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-1">
                       {totalUnread > 9 ? '9+' : totalUnread}
                     </span>
                   )}
@@ -1970,7 +1969,7 @@ export default function ChatDrawer({
                         {showDate && (
                           <div className="flex justify-center py-4">
                             <span className="text-[11px] text-muted-foreground/70 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full font-medium ">
-                              {formatDateSeparator(msg.created_at, chat.isAr)}
+                              {formatDateSeparator(msg.created_at)}
                             </span>
                           </div>
                         )}
@@ -2220,7 +2219,7 @@ export default function ChatDrawer({
                                             dir="ltr"
                                           >
                                             {msg.edited_at && (
-                                              <span className="text-[9px] italic">
+                                              <span className="text-[10px] italic">
                                                 {'معدّلة'}
                                               </span>
                                             )}
@@ -2324,7 +2323,7 @@ export default function ChatDrawer({
                                             dir="ltr"
                                           >
                                             {msg.edited_at && (
-                                              <span className="text-[9px] italic">
+                                              <span className="text-[10px] italic">
                                                 {'معدّلة'}
                                               </span>
                                             )}

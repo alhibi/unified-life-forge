@@ -230,7 +230,7 @@ const STARS = makeStars(0xa5b8c7, 260);
 // Component
 // ─────────────────────────────────────────────────────────────────────────────
 function UmmahPulse() {
-  const { language, prayerMadhab } = useApp();
+  const { prayerMadhab } = useApp();
   const [now, setNow] = useState(() => new Date());
   const [expanded, setExpanded] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -801,7 +801,7 @@ function UmmahPulse() {
                   {c.nameAr}
                 </h3>
                 {c.name === 'Makkah' && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
                     ★ {t('قبلة', 'Qibla')}
                   </span>
                 )}
@@ -861,11 +861,11 @@ function UmmahPulse() {
                   boxShadow: `inset 0 0 0 1px ${m.color}`,
                 } : undefined}
               >
-                <p className="text-[9px] font-semibold leading-tight"
+                <p className="text-[10px] font-semibold leading-tight"
                    style={{ color: isCurrent ? m.color : 'hsl(var(--muted-foreground))' }}>
                   {m.ar}
                 </p>
-                <p className="text-[10.5px] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
+                <p className="text-[10px] font-bold tabular-nums text-foreground mt-0.5" dir="ltr">
                   {formatLocalMinutes(min)}
                 </p>
               </div>
@@ -874,14 +874,14 @@ function UmmahPulse() {
         </div>
 
         {/* Meta row: method + madhhab + qibla */}
-        <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between gap-3 text-[10.5px]">
+        <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between gap-3 text-[10px]">
           <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
             <Info className="w-3 h-3 shrink-0" />
             <span className="truncate">
               {METHOD_LABELS[c.method].ar}
             </span>
             <span
-              className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
+              className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
               title={t('مذهب العصر الرسمي للبلد', 'Offizielles Asr-Madhab des Landes')}
             >
               {c.shadowUsed === 2 ? t('عصر حنفي', 'Asr Hanafi') : t('عصر جمهور', 'Asr Mehrheit')}
@@ -959,7 +959,7 @@ function UmmahPulse() {
         </div>
 
         <p
-          className="text-[10.5px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
+          className="text-[10px] text-muted-foreground text-center mt-2.5 leading-relaxed px-2"
           dir={'rtl'}
         >
           {t(
@@ -1060,7 +1060,7 @@ function UmmahPulse() {
                         <button
                           key={r}
                           onClick={() => setRegionFilter(r)}
-                          className={`shrink-0 px-2.5 py-1 rounded-full border text-[10.5px] font-medium transition-all ${
+                          className={`shrink-0 px-2.5 py-1 rounded-full border text-[10px] font-medium transition-all ${
                             active
                               ? 'bg-foreground/90 text-background border-foreground'
                               : 'bg-card border-border/30 text-muted-foreground hover:text-foreground'
@@ -1136,12 +1136,12 @@ function UmmahPulse() {
                               <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
                                 {c.nameAr}
                                 {c.name === 'Makkah' && (
-                                  <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
+                                  <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
                                     ★
                                   </span>
                                 )}
                               </p>
-                              <p className="text-[10.5px] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5" dir="ltr">
+                              <p className="text-[10px] text-muted-foreground tabular-nums leading-tight mt-0.5 flex items-center gap-1.5" dir="ltr">
                                 <span>{c.info.localClock}</span>
                                 <span className="opacity-60">·</span>
                                 <span className="opacity-80">

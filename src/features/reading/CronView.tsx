@@ -339,13 +339,13 @@ function FeedHealthRow({
         <div className="flex items-center gap-1.5">
           <p className="text-sm font-semibold truncate">{feed.name}</p>
           {!feed.enabled && (
-            <span className="text-[9px] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground">
+            <span className="text-[10px] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground">
               {'موقوف'}
             </span>
           )}
           {failing && (
             <span
-              className="text-[9px] uppercase tracking-wider px-1.5 rounded bg-destructive/15 text-destructive font-bold tabular-nums"
+              className="text-[10px] uppercase tracking-wider px-1.5 rounded bg-destructive/15 text-destructive font-bold tabular-nums"
               title={meta?.last_error || ''}
             >
               {`${meta?.consecutive_failures} فشل`}
@@ -353,7 +353,7 @@ function FeedHealthRow({
           )}
           {cached && !failing && (
             <span
-              className="text-[9px] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground"
+              className="text-[10px] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground"
               title={'مخبأ - بدون تغيير'}
             >
               304

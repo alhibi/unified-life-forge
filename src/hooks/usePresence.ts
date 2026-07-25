@@ -481,7 +481,6 @@ export function useUserOnline(otherUserId: string | undefined): boolean {
  */
 export function formatLastSeen(
   dateStr: string | null | undefined,
-  isAr: boolean,
 ): { text: string; isOnline: boolean } {
   if (!dateStr) return { text: 'غير معروف', isOnline: false };
 

@@ -369,7 +369,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 {food.benefits[lang].map((benefit, i) => (
                   <div key={i} className="flex items-start gap-2 text-[11px]">
                     <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-emerald-500 text-[8px] font-bold">{i + 1}</span>
+                      <span className="text-emerald-500 text-[10px] font-bold">{i + 1}</span>
                     </div>
                     <p className="text-foreground/80 leading-relaxed">{benefit}</p>
                   </div>
@@ -386,7 +386,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog }: Pro
                 {food.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[9px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
+                    className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
                   >
                     {TAG_LABELS[tag]?.[lang] || tag}
                   </span>
@@ -465,7 +465,7 @@ function MacroItem({
           {unit}
         </span>
       </div>
-      <span className="text-[8px] text-muted-foreground leading-tight text-center">{label}</span>
+      <span className="text-[10px] text-muted-foreground leading-tight text-center">{label}</span>
     </div>
   );
 }
@@ -492,11 +492,11 @@ function NutrientBar({
           style={{ width: `${Math.min(100, rdaPct)}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-[9px] font-semibold text-foreground w-12 text-right" dir="ltr">
+      <span className="text-[10px] font-semibold text-foreground w-12 text-right" dir="ltr">
         {value}
         {unit}
       </span>
-      <span className="text-[8px] text-muted-foreground w-8 text-right">{rdaPct}%</span>
+      <span className="text-[10px] text-muted-foreground w-8 text-right">{rdaPct}%</span>
     </div>
   );
 }

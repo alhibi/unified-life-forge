@@ -213,8 +213,7 @@ function legalCandidates(board: Board, r: number, c: number, variant: Variant): 
 // Component
 // ============================================================================
 export default function SudokuPage() {
-  const { t, language } = useApp();
-  const isAr = language === 'ar';
+  const { t, } = useApp();
 
   const savedGame = useMemo(() => loadGameState(), []);
 
@@ -701,7 +700,7 @@ export default function SudokuPage() {
                       {cell}
                     </span>
                   ) : cellNotes.size > 0 ? (
-                    <div className="grid grid-cols-3 gap-0 text-[6px] text-muted-foreground/70 leading-none w-full h-full p-[2px]">
+                    <div className="grid grid-cols-3 gap-0 text-[10px] text-muted-foreground/70 leading-none w-full h-full p-[2px]">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                         <span key={n} className="flex items-center justify-center font-medium">
                           {cellNotes.has(n.toString()) ? n : ''}
@@ -733,7 +732,7 @@ export default function SudokuPage() {
                       : 'text-foreground hover:bg-secondary'
                 }`}>
                 <span className="text-[18px] font-bold leading-none">{n}</span>
-                <span className={`text-[9px] mt-0.5 leading-none font-medium ${
+                <span className={`text-[10px] mt-0.5 leading-none font-medium ${
                   isComplete ? 'text-muted-foreground/30' : 'text-muted-foreground/60'
                 }`}>
                   {remaining}
@@ -755,7 +754,7 @@ export default function SudokuPage() {
             className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[8px] font-bold flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center">
                 {maxHints - hintsUsed}
               </span>
             )}

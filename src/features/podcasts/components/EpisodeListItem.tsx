@@ -95,7 +95,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
   seedL,
   allEpisodes,
 }: EpisodeListItemProps) {
-  const { language } = useApp();
+  const { } = useApp();
   const lang = 'ar';
   const player = usePodcastPlayer();
   const playState = usePlayState(episode.id, episode.duration);
@@ -250,7 +250,7 @@ const EpisodeListItem = memo(function EpisodeListItem({
           onClick={handlePlay}
           disabled={!episode.audioUrl}
           aria-label={isThisPlaying ? 'Pause' : 'Play'}
-          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors active:scale-95 overflow-hidden"
+          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-[12px] font-semibold transition-colors active:scale-95 overflow-hidden"
           style={{
             background: 'var(--podcast-primary, hsl(var(--primary)))',
             color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',

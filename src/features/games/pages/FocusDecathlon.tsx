@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Crosshair, Brain, Zap, Hash, Layers, Target, Award, RotateCcw, ChevronRight, Trophy } from '@/lib/icons';
+import { Zap, Award, RotateCcw, ChevronRight, Trophy } from '@/lib/icons';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================
@@ -635,7 +635,7 @@ function NBackEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => 
     }, 1900);
   };
 
-  useEffect(() => { setTimeout(() => run(0, []), 400); return () => clearTimeout(tref.current); /* eslint-disable-next-line */ }, []);
+  useEffect(() => { setTimeout(() => run(0, []), 400); return () => clearTimeout(tref.current);   }, []);
 
   const onMatch = () => {
     if (responded.current || done) return;
@@ -695,7 +695,7 @@ function AimEvent({ isAr, onDone }: { isAr: boolean; onDone: (raw: number) => vo
       });
     }, 1000);
     return () => clearInterval(id);
-    // eslint-disable-next-line
+     
   }, []);
 
   // End when timer hits 0

@@ -13,8 +13,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, X, ChevronDown, Dumbbell, Apple, BookOpen, Zap,
-  Trophy, Flame, AlertCircle, Target, Lightbulb, Clock,
-  ChevronRight, Activity, Heart, Brain, Moon, Sparkles,
+  Trophy, Flame, AlertCircle, Target, Lightbulb, Clock, Activity, Heart, Brain, Moon, Sparkles,
   Filter, Sprout, Droplet, Wind, Sun, Compass,
 } from '@/lib/icons';
 import { useApp } from '@/contexts/AppContext';
@@ -147,7 +146,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
             >
               <div className="text-base mb-1">{p.emoji}</div>
               <h4 className="text-[11px] font-semibold mb-1 text-foreground">{p.title[lang]}</h4>
-              <p className="text-[9px] text-muted-foreground leading-relaxed line-clamp-3">
+              <p className="text-[10px] text-muted-foreground leading-relaxed line-clamp-3">
                 {p.body[lang]}
               </p>
             </motion.div>
@@ -226,7 +225,7 @@ function SkillCard({
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
             <DifficultyDots level={skill.difficulty} color={skill.color} />
-            <span className="text-[9px] text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground">
               {skill.estimatedMonths} {T.months[lang]}
             </span>
           </div>
@@ -252,7 +251,7 @@ function SkillCard({
           >
             <div className="px-3 pb-3 space-y-3 border-t border-border/30 pt-3">
               {/* Description */}
-              <p className="text-[10.5px] text-foreground/80 leading-relaxed">
+              <p className="text-[10px] text-foreground/80 leading-relaxed">
                 {skill.description[lang]}
               </p>
 
@@ -286,7 +285,7 @@ function SkillCard({
                     >
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <span
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0"
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
                           style={{ backgroundColor: skill.color }}
                         >
                           {i + 1}
@@ -295,14 +294,14 @@ function SkillCard({
                           {lvl.name[lang]}
                         </span>
                       </div>
-                      <p className="text-[9.5px] text-muted-foreground leading-relaxed mb-1">
+                      <p className="text-[10px] text-muted-foreground leading-relaxed mb-1">
                         {lvl.description[lang]}
                       </p>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[8.5px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
                           {lvl.prescription[lang]}
                         </span>
-                        <span className="text-[8.5px] text-muted-foreground/70">
+                        <span className="text-[10px] text-muted-foreground/70">
                           → {lvl.progressCriteria[lang]}
                         </span>
                       </div>
@@ -463,18 +462,18 @@ function FoodCard({
             {food.name[lang]}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[9px] text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground">
               {food.per100g.kcal} {T.kcal[lang]}
             </span>
-            <span className="text-[9px] text-muted-foreground">·</span>
-            <span className="text-[9px] text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground">·</span>
+            <span className="text-[10px] text-muted-foreground">
               P {food.per100g.protein}g
             </span>
             {food.glycemicIndex != null && (
               <>
-                <span className="text-[9px] text-muted-foreground">·</span>
+                <span className="text-[10px] text-muted-foreground">·</span>
                 <span
-                  className="text-[8.5px] font-semibold px-1 py-0.5 rounded"
+                  className="text-[10px] font-semibold px-1 py-0.5 rounded"
                   style={{ backgroundColor: `${giColor}20`, color: giColor }}
                 >
                   GI {food.glycemicIndex}
@@ -513,7 +512,7 @@ function FoodCard({
                 {food.optimalTimes.map((t, i) => (
                   <span
                     key={i}
-                    className="text-[8.5px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-medium"
+                    className="text-[10px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-medium"
                   >
                     {MEAL_TIME_LABELS[t][lang]}
                   </span>
@@ -545,7 +544,7 @@ function FoodCard({
                   {food.keyNutrients[lang].map((n, i) => (
                     <span
                       key={i}
-                      className="text-[8.5px] px-1.5 py-0.5 rounded-md font-medium"
+                      className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
                       style={{
                         backgroundColor: `${food.color}15`,
                         color: food.color,
@@ -680,7 +679,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                       <h3 className="text-[12px] font-semibold text-foreground truncate">
                         {chapter.title[lang]}
                       </h3>
-                      <p className="text-[9px] text-muted-foreground line-clamp-1 mt-0.5">
+                      <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
                         {chapter.facts.length} {'حقيقة'}
                       </p>
                     </div>
@@ -698,7 +697,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                         className="overflow-hidden"
                       >
                         <div className="px-3 pb-3 space-y-2 border-t border-border/30 pt-3">
-                          <p className="text-[10.5px] text-foreground/80 leading-relaxed mb-2">
+                          <p className="text-[10px] text-foreground/80 leading-relaxed mb-2">
                             {chapter.description[lang]}
                           </p>
                           {chapter.facts.map((fact, i) => (
@@ -708,7 +707,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                             >
                               <div className="flex items-start gap-2">
                                 <div
-                                  className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-bold text-white shrink-0 mt-0.5"
+                                  className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-white shrink-0 mt-0.5"
                                   style={{ backgroundColor: chapter.color }}
                                 >
                                   {i + 1}
@@ -719,7 +718,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                                   </h4>
                                 </div>
                                 <span
-                                  className="text-[8.5px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                                  className="text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0"
                                   style={{
                                     backgroundColor: `${chapter.color}15`,
                                     color: chapter.color,
@@ -792,7 +791,7 @@ function StatBox({
     <div className="rounded-lg p-2 bg-muted/20 border border-border/30">
       <div className="flex items-center gap-1 mb-0.5">
         <Icon className="w-2.5 h-2.5" style={{ color }} />
-        <span className="text-[8.5px] text-muted-foreground font-medium uppercase tracking-wide">
+        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
           {label}
         </span>
       </div>
@@ -815,7 +814,7 @@ function MacroBox({
       <div className="text-[10px] font-bold" style={{ color }}>
         {value}{unit}
       </div>
-      <div className="text-[8px] text-muted-foreground uppercase tracking-wide">
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wide">
         {label}
       </div>
     </div>

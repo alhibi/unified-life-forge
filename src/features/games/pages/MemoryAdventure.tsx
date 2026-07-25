@@ -27,8 +27,7 @@ const TWIST_LABELS: Record<string, { ar: string; emoji: string }> = {
 };
 
 export default function MemoryAdventurePage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const navigate = useNavigate();
   const [save] = useState(loadAdventure);
   const [selected, setSelected] = useState<AdventureStage | null>(null);

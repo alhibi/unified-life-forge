@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Camera, ChevronRight, ChevronLeft, Users, Hash, ArrowRight, ArrowLeft,
+  X, Camera, ChevronRight, Users, Hash, ArrowLeft,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useChatMutations, useUserSearch, type UserSearchResult, type ChatSummary } from '@/lib/chat';
@@ -262,7 +262,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({
             </div>
 
             {/* Permissions hint */}
-            <div className="rounded-2xl bg-muted/15 border border-border/15 p-3.5 text-[12.5px] text-muted-foreground leading-relaxed">
+            <div className="rounded-2xl bg-muted/15 border border-border/15 p-3.5 text-[12px] text-muted-foreground leading-relaxed">
               {kind === 'group'
                 ? ('بإمكان جميع الأعضاء إرسال الرسائل افتراضياً. يمكنك تغيير ذلك من إعدادات المجموعة بعد الإنشاء.')
                 : ('في القناة، يمكن للمشرفين فقط نشر الرسائل، ويمكن للأعضاء قراءتها والتفاعل معها.')}
@@ -309,7 +309,7 @@ function KindChip({ active, onClick, icon, label }: KindChipProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-[12.5px] font-medium transition-all',
+        'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-[12px] font-medium transition-all',
         active
           ? 'bg-primary text-primary-foreground '
           : 'bg-muted/30 text-muted-foreground active:bg-muted/50',

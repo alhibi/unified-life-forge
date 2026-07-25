@@ -66,7 +66,6 @@ export default function PlaceDetailSheet({
 }
 
 function PlaceDetailContent({ place, language }: { place: TravelPlace; language: 'ar' }) {
-  const isAr = language === 'ar';
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [activePhoto, setActivePhoto] = useState(0);
   const [favorite, setFavorite] = useState(() => readFavorites().has(place.id));

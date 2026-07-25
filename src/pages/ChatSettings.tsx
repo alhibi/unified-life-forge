@@ -117,7 +117,7 @@ export default function ChatSettingsPage() {
         description={'الخصوصية، الإشعارات، التخزين والمظهر للدردشة.'}
         path="/chat/settings"
       />
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-screen bg-background pb-page">
         <PageHeader
           title={'إعدادات المحادثات'}
           subtitle={'تطبَّق على جميع المحادثات'}
@@ -337,7 +337,7 @@ export default function ChatSettingsPage() {
               {storageReport && (
                 <div className="px-4 py-3.5 border-b border-border/15">
                   <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-[12.5px] font-medium text-foreground">
+                    <span className="text-[12px] font-medium text-foreground">
                       {'الاستخدام الحالي'}
                     </span>
                     <span className="text-[12px] text-muted-foreground tabular-nums">
@@ -494,7 +494,7 @@ export default function ChatSettingsPage() {
             </Card>
           </Section>
 
-          <p className="text-[10.5px] text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
+          <p className="text-[10px] text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
             <AlertTriangle className="inline w-3 h-3 me-1 -mt-0.5" />
             {'هذه الإعدادات تُحفظ تلقائياً وتُزامَن عبر أجهزتك.'}
           </p>
@@ -510,7 +510,7 @@ interface SectionProps { title: string; children: React.ReactNode }
 function Section({ title, children }: SectionProps) {
   return (
     <motion.div variants={item} className="space-y-2">
-      <p className="text-[10.5px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
+      <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
         {title}
       </p>
       {children}
@@ -557,7 +557,7 @@ function ToggleRow({ icon, label, description, value, onChange, disabled }: Togg
       <div className="flex-1 min-w-0">
         <p className="text-[14px] font-medium text-foreground">{label}</p>
         {description && (
-          <p className="text-[11.5px] text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
+          <p className="text-[11px] text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
         )}
       </div>
       <span
@@ -595,7 +595,7 @@ function SelectRow({ icon, label, value, options, onChange, isAr }: SelectRowPro
           {icon}
         </span>
         <span className="flex-1 text-[14px] font-medium text-foreground">{label}</span>
-        <span className="text-[12.5px] text-muted-foreground inline-flex items-center gap-1">
+        <span className="text-[12px] text-muted-foreground inline-flex items-center gap-1">
           {current.labelAr}
           <ChevronDown className="w-3.5 h-3.5" />
         </span>
@@ -625,14 +625,13 @@ interface NumberRowProps {
   helperAr?: string;
 }
 function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: NumberRowProps) {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   return (
     <div className="px-4 py-3">
       <div className="flex items-center gap-3 mb-2">
         <span className="shrink-0 text-primary [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.7]">{icon}</span>
         <span className="flex-1 text-[14px] font-medium text-foreground">{label}</span>
-        <span className="text-[12.5px] text-muted-foreground tabular-nums min-w-[2ch] text-end">{value}</span>
+        <span className="text-[12px] text-muted-foreground tabular-nums min-w-[2ch] text-end">{value}</span>
       </div>
       <input
         type="range"
@@ -642,7 +641,7 @@ function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: N
         className="w-full accent-primary"
       />
       {helperAr && (
-        <p className="text-[10.5px] text-muted-foreground/70 mt-1">
+        <p className="text-[10px] text-muted-foreground/70 mt-1">
           {helperAr}
         </p>
       )}
@@ -685,7 +684,7 @@ function ActionRow({ icon, label, description, onClick, disabled, danger }: Acti
           {label}
         </p>
         {description && (
-          <p className="text-[11.5px] text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
+          <p className="text-[11px] text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
         )}
       </div>
     </button>

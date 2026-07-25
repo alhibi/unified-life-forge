@@ -134,7 +134,7 @@ function xpProgress(stats: MemoryStats): { current: number; need: number; pct: n
 // =============================================================================
 function shuffle<T>(arr: T[], seed?: number): T[] {
   const a = [...arr];
-  let rng = seed != null ? mulberry(seed) : Math.random;
+  const rng = seed != null ? mulberry(seed) : Math.random;
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
@@ -557,7 +557,7 @@ export default function MemoryGame() {
     const mm = m ?? mode;
     setDifficulty(d); setThemeId(th.id); setMode(mm);
     let deck: string[];
-    let pairs = DIFF_PAIRS[d];
+    const pairs = DIFF_PAIRS[d];
     if (mm === 'daily') deck = buildDeck(DIFF_PAIRS.medium, th, dailySeed());
     else if (mm === 'endless') deck = buildDeck(5, th);
     else if (mm === 'timeattack') deck = buildDeck(4, th);
@@ -581,7 +581,7 @@ export default function MemoryGame() {
   }, [difficulty, theme, mode, adventureStage]);
 
   // Re-init when mode changes
-  useEffect(() => { newGame(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [mode]);
+  useEffect(() => { newGame();   }, [mode]);
 
   const startGame = () => { setGameStarted(true); setIsRunning(true); setIsPaused(false); };
   const togglePause = () => { if (!gameStarted) { startGame(); return; } setIsPaused(p => !p); };
@@ -948,7 +948,7 @@ export default function MemoryGame() {
  opacity: unlocked ? 1 : 0.45,
  }}>
  <span className="text-lg leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
- <span className="text-[8px] font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
+ <span className="text-[10px] font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
  </div>
  );
  })}
@@ -1047,7 +1047,7 @@ function StatCard({ value, label }: { value: string | number; label: string }) {
   return (
     <div className="text-center p-2 rounded-xl bg-white/4 border border-white/5">
       <div className="text-base font-bold text-white tabular-nums">{value}</div>
-      <div className="text-[9px] text-zinc-500">{label}</div>
+      <div className="text-[10px] text-zinc-500">{label}</div>
     </div>
   );
 }
@@ -1064,7 +1064,7 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (
-        <span className="absolute -bottom-1 -right-1 text-[9px] font-black px-1 rounded-full"
+        <span className="absolute -bottom-1 -right-1 text-[10px] font-black px-1 rounded-full"
           style={{ background: color, color: '#fff' }}>{count}</span>
       )}
     </button>

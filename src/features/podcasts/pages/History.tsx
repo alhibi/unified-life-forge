@@ -60,7 +60,7 @@ function HistoryRow({
   onClick: () => void;
   onRemove: () => void;
 }) {
-  const { language } = useApp();
+  const { } = useApp();
   const lang = 'ar';
   const artwork = entry.podcastImageUrl;
   const pct =
@@ -127,7 +127,7 @@ function HistoryRow({
 
 export default function HistoryPage() {
   const navigate = useNavigate();
-  const { language } = useApp();
+  const { } = useApp();
   const lang = 'ar';
   const history = useHistory();
 
@@ -162,7 +162,7 @@ export default function HistoryPage() {
   }, [history, lang]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-page">
       <SEO
         title={
           '\u0633\u062c\u0644 \u0627\u0644\u0627\u0633\u062a\u0645\u0627\u0639'

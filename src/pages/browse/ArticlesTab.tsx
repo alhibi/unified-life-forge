@@ -23,9 +23,8 @@ import {
 import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
 
 export default function ArticlesTab() {
-  const { language, dir } = useApp();
+  const { dir } = useApp();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const primary = {

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   MessageCircle, Pencil, Pin, BellOff, Archive, Check, CheckCheck,
-  Image as ImageIcon, Mic, FileText, ArchiveRestore, Users, ChevronRight, ChevronLeft,
-  Search, X, Settings, Phone, Video, Star, Trash2, Bell,
+  Image as ImageIcon, Mic, FileText, ArchiveRestore, Users, ChevronLeft,
+  Search, X, Settings,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -275,7 +275,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 key={tab.id}
                 onClick={() => onFilterChange(tab.id)}
                 className={cn(
-                  'h-8 px-3.5 rounded-full text-[12.5px] font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
+                  'h-8 px-3.5 rounded-full text-[12px] font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
                   active
                     ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50'
@@ -334,7 +334,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           <Users className="w-4 h-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13.5px] font-semibold text-foreground">
+          <p className="text-[13px] font-semibold text-foreground">
             {'المجموعات والقنوات'}
           </p>
           <p className="text-[11px] text-muted-foreground">

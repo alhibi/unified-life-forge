@@ -125,7 +125,7 @@ export default function StrengthStandardsView({
                   {p.exerciseKey === 'squat' ? ('سكوات') : p.exerciseKey === 'bench' ? ('بنش') : ('ديدليفت')}
                 </p>
                 <p className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">{p.oneRm}</p>
-                <p className="text-[9px] font-bold uppercase" style={{ color: LEVEL_COLORS[p.level] }}>
+                <p className="text-[10px] font-bold uppercase" style={{ color: LEVEL_COLORS[p.level] }}>
                   {LEVEL_LABELS[p.level][lang]}
                 </p>
               </div>

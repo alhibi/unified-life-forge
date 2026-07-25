@@ -1,215 +1,221 @@
-import React from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { Check, Type, ALargeSmall, Bold, Eye } from '@/lib/icons';
-import BackButton from '@/components/BackButton';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+
+import PageHeader from '@/components/PageHeader';
 import { Slider } from '@/components/ui/slider';
-import { pageStagger as stagger, pageItem as item } from '@/lib/motion';
-
-const FONTS = [
-  { id: 'default', nameAr: 'الافتراضي', family: "'Inter', 'Noto Sans Arabic', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
-  { id: 'cairo', nameAr: 'القاهرة', family: "'Cairo', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
-  { id: 'tajawal', nameAr: 'تجوال', family: "'Tajawal', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
-  { id: 'ibm-plex', nameAr: 'آي بي إم بلكس عربي', family: "'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
-  { id: 'readex', nameAr: 'ريدكس برو', family: "'Readex Pro', 'Inter', system-ui, sans-serif", sampleAr: 'بسم الله الرحمن الرحيم', },
-];
-
-const SIZES = [
-  { id: 'small', label: { ar: 'صغير', }, scale: 0.88 },
-  { id: 'medium', label: { ar: 'متوسط', }, scale: 1 },
-  { id: 'large', label: { ar: 'كبير', }, scale: 1.12 },
-];
-
-const WEIGHTS = [
-  { value: 300, label: { ar: 'خفيف', } },
-  { value: 400, label: { ar: 'عادي', } },
-  { value: 500, label: { ar: 'متوسط', } },
-  { value: 600, label: { ar: 'نصف سميك', } },
-  { value: 700, label: { ar: 'سميك', } },
-];
+import { useApp } from '@/contexts/AppContext';
+import {
+  FONT_OPTIONS,
+  FONT_SIZE_STEPS,
+  FONT_WEIGHTS,
+  MAX_FONT_WEIGHT,
+  MIN_FONT_WEIGHT,
+  resolveFontId,
+  resolveFontSize,
+} from '@/lib/fonts';
+import { ALargeSmall, Bold, Check, Eye, Type } from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 export default function FontSettingsPage() {
-  const { language, fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity } = useApp();
-  const navigate = useNavigate();
-  const isAr = language === 'ar';
+  const { fontFamily, setFontFamily, fontSize, setFontSize, fontWeight, setFontWeight, fontOpacity, setFontOpacity } =
+    useApp();
 
-  const currentFont = FONTS.find(f => f.id === fontFamily) || FONTS[0];
-  const currentSize = SIZES.find(s => s.id === fontSize) || SIZES[1];
-  const currentWeightLabel = WEIGHTS.find(w => w.value === fontWeight)?.label[language] || String(fontWeight);
+  const activeFontId = resolveFontId(fontFamily);
+  const activeSizeId = resolveFontSize(fontSize);
+  const currentFont = FONT_OPTIONS.find((f) => f.id === activeFontId) ?? FONT_OPTIONS[0];
+  const currentSize = FONT_SIZE_STEPS.find((s) => s.id === activeSizeId) ?? FONT_SIZE_STEPS[1];
+  const currentWeightLabel =
+    FONT_WEIGHTS.find((w) => w.value === fontWeight)?.label ?? String(fontWeight);
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
-        {/* Header */}
-        <motion.div variants={item} className="flex items-center gap-3 mb-1">
-          <BackButton to="/settings" />
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Type className="w-5 h-5 text-primary stroke-[1.8]" />
-            </div>
-            <h1 className="text-[22px] font-bold tracking-tight text-foreground">
-              {'الخط'}
-            </h1>
-          </div>
-        </motion.div>
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        title="الخط"
+        subtitle="نوع الخط وحجمه وسماكته"
+        backTo="/settings"
+        sticky
+        icon={
+          <span className="row-icon">
+            <Type className="h-4 w-4" aria-hidden />
+          </span>
+        }
+      />
 
-        {/* Font Family */}
-        <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
-            {'نوع الخط'}
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="mx-auto max-w-lg space-y-6 px-4 pb-10 pt-4"
+      >
+        {/* ── نوع الخط ── */}
+        <motion.section variants={item} aria-labelledby="font-family-label">
+          <p id="font-family-label" className="app-section-label">
+            نوع الخط
           </p>
           <div className="space-y-2">
-            {FONTS.map((f) => {
-              const isActive = fontFamily === f.id;
+            {FONT_OPTIONS.map((f) => {
+              const isActive = activeFontId === f.id;
               return (
                 <button
                   key={f.id}
+                  type="button"
                   onClick={() => setFontFamily(f.id)}
-                  className={`w-full premium-card p-4 flex items-center justify-between active:scale-[0.99] transition-all ${isActive ? 'ring-2 ring-primary/30' : ''}`}
+                  aria-pressed={isActive}
+                  className={`app-card app-card-pressable flex w-full items-center justify-between gap-3 text-start ${
+                    isActive ? 'border-primary/50' : ''
+                  }`}
                 >
-                  <div className="text-start">
-                    <p className="font-semibold text-[15px] text-foreground">{f.nameAr}</p>
-                    <p className="text-[13px] text-muted-foreground mt-1" style={{ fontFamily: f.family }}>
-                      {f.sampleAr}
-                    </p>
-                  </div>
+                  <span className="min-w-0">
+                    <span className="block text-[15px] font-semibold text-foreground">{f.label}</span>
+                    <span
+                      className="mt-1 block truncate text-lead text-muted-foreground"
+                      style={{ fontFamily: f.family }}
+                    >
+                      بسم الله الرحمن الرحيم
+                    </span>
+                    <span className="mt-1 block text-mini text-muted-foreground/80">{f.note}</span>
+                  </span>
                   {isActive && (
-                    <motion.div
+                    <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary"
                     >
-                      <Check className="w-4 h-4 text-primary-foreground stroke-[2.5]" />
-                    </motion.div>
+                      <Check className="h-4 w-4 stroke-[2.5] text-primary-foreground" aria-hidden />
+                    </motion.span>
                   )}
                 </button>
               );
             })}
           </div>
-        </motion.div>
+        </motion.section>
 
-        {/* Font Size */}
-        <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1 flex items-center gap-1.5">
-            <ALargeSmall className="w-4 h-4" />
-            {'حجم الخط'}
+        {/* ── حجم الخط ── */}
+        <motion.section variants={item} aria-labelledby="font-size-label">
+          <p id="font-size-label" className="app-section-label flex items-center gap-1.5">
+            <ALargeSmall className="h-4 w-4" aria-hidden />
+            حجم الخط
           </p>
-          <div className="premium-card p-2 flex gap-1.5">
-            {SIZES.map((s) => {
-              const isActive = fontSize === s.id;
+          <div className="app-card flex gap-1.5 p-2">
+            {FONT_SIZE_STEPS.map((s) => {
+              const isActive = activeSizeId === s.id;
               return (
                 <button
                   key={s.id}
+                  type="button"
                   onClick={() => setFontSize(s.id)}
-                  className={`flex-1 py-3 rounded-xl text-[14px] font-medium transition-all relative ${
-                    isActive
-                      ? 'text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
+                  aria-pressed={isActive}
+                  className={`relative flex-1 rounded-md py-3 text-body font-medium ${
+                    isActive ? 'text-primary-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   {isActive && (
-                    <motion.div
-                      layoutId="fontSize"
-                      className="absolute inset-0 bg-primary rounded-xl"
+                    <motion.span
+                      layoutId="fontSizeIndicator"
+                      className="absolute inset-0 rounded-md bg-primary"
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <span className="relative z-10">{s.label[language]}</span>
+                  <span className="relative z-raised">{s.label}</span>
                 </button>
               );
             })}
           </div>
-        </motion.div>
+        </motion.section>
 
-        {/* Font Weight */}
-        <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1 flex items-center gap-1.5">
-            <Bold className="w-4 h-4" />
-            {'سماكة الخط'}
+        {/* ── سماكة الخط ── */}
+        <motion.section variants={item} aria-labelledby="font-weight-label">
+          <p id="font-weight-label" className="app-section-label flex items-center gap-1.5">
+            <Bold className="h-4 w-4" aria-hidden />
+            سماكة الخط
           </p>
-          <div className="premium-card p-4 space-y-3">
+          <div className="app-card space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-muted-foreground">{'خفيف'}</span>
-              <span className="text-[13px] font-semibold text-foreground">{currentWeightLabel}</span>
-              <span className="text-[12px] text-muted-foreground">{'سميك'}</span>
+              <span className="text-mini text-muted-foreground">عادي</span>
+              <span className="text-meta font-semibold text-foreground">{currentWeightLabel}</span>
+              <span className="text-mini text-muted-foreground">سميك</span>
             </div>
             <Slider
               value={[fontWeight]}
               onValueChange={([v]) => setFontWeight(v)}
-              min={300}
-              max={700}
+              min={MIN_FONT_WEIGHT}
+              max={MAX_FONT_WEIGHT}
               step={100}
-              className="w-full"
+              aria-label="سماكة الخط"
             />
             <div className="flex justify-between px-1">
-              {WEIGHTS.map(w => (
+              {FONT_WEIGHTS.map((w) => (
                 <button
                   key={w.value}
+                  type="button"
                   onClick={() => setFontWeight(w.value)}
-                  className={`w-2 h-2 rounded-full transition-colors ${fontWeight === w.value ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                  aria-label={`سماكة ${w.label}`}
+                  className={`h-2 w-2 rounded-full ${
+                    fontWeight === w.value ? 'bg-primary' : 'bg-muted-foreground/30'
+                  }`}
                 />
               ))}
             </div>
           </div>
-        </motion.div>
+        </motion.section>
 
-        {/* Font Opacity */}
-        <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1 flex items-center gap-1.5">
-            <Eye className="w-4 h-4" />
-            {'شفافية النص'}
+        {/* ── شفافية النص ── */}
+        <motion.section variants={item} aria-labelledby="font-opacity-label">
+          <p id="font-opacity-label" className="app-section-label flex items-center gap-1.5">
+            <Eye className="h-4 w-4" aria-hidden />
+            شفافية النص
           </p>
-          <div className="premium-card p-4 space-y-3">
+          <div className="app-card space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] text-muted-foreground">30%</span>
-              <span className="text-[13px] font-semibold text-foreground">{Math.round(fontOpacity * 100)}%</span>
-              <span className="text-[12px] text-muted-foreground">100%</span>
+              <span className="text-mini text-muted-foreground">60%</span>
+              <span className="text-meta font-semibold text-foreground">
+                {Math.round(fontOpacity * 100)}%
+              </span>
+              <span className="text-mini text-muted-foreground">100%</span>
             </div>
+            {/* Floor raised from 30% to 60%: below that the body text fell
+                under the WCAG AA contrast threshold on every theme. */}
             <Slider
               value={[fontOpacity * 100]}
               onValueChange={([v]) => setFontOpacity(v / 100)}
-              min={30}
+              min={60}
               max={100}
               step={5}
-              className="w-full"
+              aria-label="شفافية النص"
             />
           </div>
-        </motion.div>
+        </motion.section>
 
-        {/* Preview */}
-        <motion.div variants={item}>
-          <p className="text-[13px] font-medium text-muted-foreground mb-2.5 px-1">
-            {'معاينة'}
+        {/* ── معاينة ── */}
+        <motion.section variants={item} aria-labelledby="font-preview-label">
+          <p id="font-preview-label" className="app-section-label">
+            معاينة
           </p>
-          <div className="premium-card p-5 space-y-3">
+          <div className="app-card space-y-3">
             <p
-              className="text-foreground leading-relaxed"
+              className="leading-relaxed text-foreground"
               style={{
                 fontFamily: currentFont.family,
-                fontSize: `${currentSize.scale * 1}rem`,
-                fontWeight: fontWeight,
+                fontSize: `${currentSize.scale}rem`,
+                fontWeight,
                 opacity: fontOpacity,
               }}
             >
-              {'بسم الله الرحمن الرحيم. هذا نص تجريبي لمعاينة إعدادات الخط المختارة مع جميع التعديلات.'}
+              بسم الله الرحمن الرحيم. هذا نص تجريبي لمعاينة إعدادات الخط المختارة مع جميع التعديلات.
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
-              <span className="text-[11px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-lg">
-                {currentFont.nameAr}
-              </span>
-              <span className="text-[11px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-lg">
-                {currentSize.label[language]}
-              </span>
-              <span className="text-[11px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-lg">
-                {currentWeightLabel}
-              </span>
-              <span className="text-[11px] text-muted-foreground bg-secondary/60 px-2 py-1 rounded-lg">
-                {Math.round(fontOpacity * 100)}%
-              </span>
+              {[currentFont.label, currentSize.label, currentWeightLabel, `${Math.round(fontOpacity * 100)}%`].map(
+                (chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-sm bg-secondary/60 px-2 py-1 text-mini text-muted-foreground"
+                  >
+                    {chip}
+                  </span>
+                ),
+              )}
             </div>
           </div>
-        </motion.div>
+        </motion.section>
       </motion.div>
     </div>
   );

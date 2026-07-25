@@ -25,8 +25,6 @@
  * Palette, radii, type ramp and motion curves live in
  * `src/styles/modkeys.css` under `--mk-*` so the app's own theme engine
  * (which rewrites `--background`, `--primary`, …) never disturbs them.
- * `preserve-fx` on the root opts this page out of the global FLATTEN
- * rule, because the modkeys look needs its soft 4/16px shadows.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -43,24 +41,16 @@ import {
   MkBookmark,
   MkChevronNext,
   MkChevronPrev,
-  MkClock,
-  MkCloudSun,
   MkCompass,
   MkCrown,
   MkDice,
-  MkGear,
   MkGridView,
   MkHouse,
-  MkLayers,
   MkListView,
   MkLogo,
   MkMessage,
-  MkMic,
   MkMoon,
-  MkPencil,
   MkPulse,
-  MkSpin,
-  MkStar,
   MkSun,
   MkUser,
 } from '@/components/portal/MkIcons';
@@ -341,7 +331,7 @@ export default function Portal() {
   );
 
   return (
-    <div className="mk preserve-fx">
+    <div className="mk">
       <SEO
         title="amv.life — بوابتك الشخصية"
         description="بوابة amv.life الشخصية: الرئيسي، المحراب، العافية، الدردشة، اطلاع، المعرفة، والألعاب — تطبيقات متكاملة في مكان واحد."

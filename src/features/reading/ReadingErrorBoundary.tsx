@@ -165,7 +165,6 @@ function ErrorFallback({
   onClearAndRetry: () => void;
   clearing: boolean;
 }) {
-  const isAr = lang === 'ar';
 
   const iconMap: Record<State['errorKind'], ReactNode> = {
     network: <WifiOff className="h-12 w-12 text-amber-500/70" />,
@@ -290,7 +289,6 @@ function FatalErrorFallback({
   onClearAndRetry: () => void;
   clearing: boolean;
 }) {
-  const isAr = lang === 'ar';
 
   return (
     <motion.div

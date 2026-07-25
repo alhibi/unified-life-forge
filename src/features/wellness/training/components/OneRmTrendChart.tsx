@@ -93,7 +93,7 @@ export default function OneRmTrendChart({
           </p>
         </div>
         <div className="text-end">
-          <p className="text-[9px] text-muted-foreground/60 uppercase tracking-wider">{T.best[lang]}</p>
+          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{T.best[lang]}</p>
           <p className="text-[14px] font-bold tabular-nums text-amber-500" dir="ltr">{best} kg</p>
         </div>
       </div>

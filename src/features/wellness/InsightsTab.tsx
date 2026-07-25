@@ -48,7 +48,6 @@ export default function InsightsTab({
 }: Props) {
   const { language } = useApp();
   const lang = language as Lang;
-  const isAr = lang === 'ar';
 
   const insights = useMemo(
     () => runAllInsights({ supplements, intakeLogs, dietLogs, skinHair }),

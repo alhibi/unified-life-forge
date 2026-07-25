@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { useAuth } from '@/hooks/useAuth';
-import { Languages, Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, AlertTriangle, Gauge } from '@/lib/icons';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Palette, ChevronLeft, UserCircle, LogOut, Type, BookOpen, Gauge } from '@/lib/icons';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { toast } from 'sonner';
@@ -21,7 +21,6 @@ export default function SettingsPage() {
   const { t, theme, language, setLanguage, prayerMadhab } = useApp();
   const { user, username, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const isAr = language === 'ar';
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // ── Deep-Polish: Draft storage for settings form ─────────────────────
@@ -124,7 +123,7 @@ export default function SettingsPage() {
   // Language picker retired — the app is Arabic-only.
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+    <div className="min-h-screen bg-background pb-page px-5 pt-10">
       <SEO title="الإعدادات — SmartHub" description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub." path="/settings" />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
 

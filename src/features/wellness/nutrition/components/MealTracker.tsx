@@ -76,7 +76,7 @@ const T = {
 };
 
 export default function MealTracker() {
-  const { language } = useApp();
+  const { } = useApp();
   const lang: Lang = 'ar';
   // Re-render when the cloud-backed meal log cache changes.
   useNutritionCache();
@@ -173,7 +173,7 @@ export default function MealTracker() {
                 <div className="flex items-center gap-2 px-3 py-2 bg-muted/30">
                   <Icon className="w-3.5 h-3.5" style={{ color }} />
                   <span className="text-[11px] font-semibold text-foreground">{label[lang]}</span>
-                  <span className="text-[9px] text-muted-foreground ml-auto">{items.length}</span>
+                  <span className="text-[10px] text-muted-foreground ml-auto">{items.length}</span>
                 </div>
                 <div className="divide-y divide-border/20">
                   {items.map((entry) => {
@@ -187,7 +187,7 @@ export default function MealTracker() {
                           <p className="text-[11px] font-medium text-foreground truncate">
                             {food.name[lang]}
                           </p>
-                          <p className="text-[9px] text-muted-foreground" dir="ltr">
+                          <p className="text-[10px] text-muted-foreground" dir="ltr">
                             {n.kcal} kcal · {n.protein}g P · {n.carbs}g C · {n.fat}g F
                           </p>
                         </div>
@@ -303,7 +303,7 @@ function AddMealForm({
                     <span className="text-lg">{food.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-medium truncate">{food.name[lang]}</p>
-                      <p className="text-[9px] text-muted-foreground" dir="ltr">
+                      <p className="text-[10px] text-muted-foreground" dir="ltr">
                         {food.nutrition.kcal} kcal · P:{food.nutrition.protein}g
                       </p>
                     </div>
@@ -430,7 +430,7 @@ function TotalStat({
         {value}
         {suffix}
       </p>
-      <p className="text-[8px] text-muted-foreground">{label}</p>
+      <p className="text-[10px] text-muted-foreground">{label}</p>
     </div>
   );
 }

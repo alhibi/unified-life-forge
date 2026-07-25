@@ -21,7 +21,6 @@ export default function CountryMapPage() {
   const { countryId } = useParams<{ countryId: string }>();
   const location = useLocation();
   const { language } = useApp();
-  const isAr = language === 'ar';
   const routeState = location.state as TravelMapRouteState | null;
   const routedCountry = routeState?.country?.id === countryId ? routeState?.country : undefined;
   const countryQuery = useTravelCountry(countryId);

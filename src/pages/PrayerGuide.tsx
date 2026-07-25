@@ -49,9 +49,8 @@ const FAQ: Record<Lang, FaqItem[]> = {
 };
 
 export default function PrayerGuide() {
-  const { language } = useApp();
+  const { } = useApp();
   const lang: Lang = 'ar';
-  const isAr = lang === 'ar';
 
   const title = 'الدليل الشامل لأوقات الصلاة وطرق الحساب — SmartHub';
   const description = 'دليل شامل لأوقات الصلاة الخمس، طرق الحساب الفلكية (أم القرى، رابطة العالم الإسلامي، ISNA)، اتجاه القبلة، وأسئلة شائعة عن الصلاة في الإسلام.';
@@ -100,7 +99,7 @@ export default function PrayerGuide() {
       ];
 
   return (
-    <div dir={'rtl'} className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div dir={'rtl'} className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
         title={title}
         description={description}

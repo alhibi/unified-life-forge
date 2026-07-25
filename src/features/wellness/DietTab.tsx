@@ -18,7 +18,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Trash2, Calendar as CalIcon, Search, Beef, Wheat, Salad, Flame,
   Minus, Plus, Info, Sparkles,
@@ -98,7 +98,6 @@ function MacroTotals({
   targets: { kcal: number; protein: number; carbs: number; fat: number } | null;
   lang: Lang;
 }) {
-  const isAr = lang === 'ar';
   const cells: Array<{
     key: 'kcal' | 'protein' | 'carbs' | 'fat';
     label: string;
@@ -151,15 +150,15 @@ function MacroTotals({
               <div className="text-center" dir="ltr">
                 <div className="text-[14px] font-bold tabular-nums leading-none text-foreground">
                   <AnimatedNumber value={cur} digits={key === 'kcal' ? 0 : 1} />
-                  <span className="text-[9px] text-muted-foreground ms-0.5">{suffix}</span>
+                  <span className="text-[10px] text-muted-foreground ms-0.5">{suffix}</span>
                 </div>
                 {tgtLabel && (
-                  <div className="text-[8.5px] text-muted-foreground/70 mt-0.5">
+                  <div className="text-[10px] text-muted-foreground/70 mt-0.5">
                     /{tgtLabel}{suffix}
                   </div>
                 )}
               </div>
-              <p className="text-[8.5px] uppercase tracking-wider font-semibold text-muted-foreground/70">
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70">
                 {label}
               </p>
             </div>
@@ -258,7 +257,7 @@ function LogRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <p className="text-[13px] font-semibold text-foreground truncate">{label}</p>
-          <span className="text-[9px] text-muted-foreground/60 shrink-0" dir="ltr">
+          <span className="text-[10px] text-muted-foreground/60 shrink-0" dir="ltr">
             {Math.round(grams)} g
           </span>
         </div>
@@ -321,7 +320,6 @@ export default function DietTab({
 }: Props) {
   const { language } = useApp();
   const lang = language as Lang;
-  const isAr = lang === 'ar';
   const [date, setDate] = useState(todayIso());
   const [query, setQuery] = useState('');
   const [activeCat, setActiveCat] = useState<FoodCategory | 'all'>('all');
@@ -510,11 +508,11 @@ export default function DietTab({
                             {f.label[lang]}
                           </span>
                           {known ? (
-                            <span className="text-[8.5px] text-muted-foreground/70 tabular-nums" dir="ltr">
+                            <span className="text-[10px] text-muted-foreground/70 tabular-nums" dir="ltr">
                               {m.kcal} {T.kcal[lang]} · {fmtG(m.protein)}g P
                             </span>
                           ) : (
-                            <span className="text-[8.5px] text-muted-foreground/40">—</span>
+                            <span className="text-[10px] text-muted-foreground/40">—</span>
                           )}
                         </button>
                       );

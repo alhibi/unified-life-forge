@@ -64,7 +64,6 @@ const MICRO_LABELS: Record<string, { ar: string; unit: string }> = {
 };
 
 export default function FoodComparer({ lang }: Props) {
-  const isAr = lang === 'ar';
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
@@ -169,13 +168,13 @@ export default function FoodComparer({ lang }: Props) {
                   {winners && (
                     <div className="mt-2 space-y-0.5">
                       {winners.protein.idx === idx && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] bg-red-500/10 text-red-500 font-bold px-1 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] bg-red-500/10 text-red-500 font-bold px-1 py-0.5 rounded">
                           <Award className="w-2 h-2" />
                           {T.protein[lang]}
                         </span>
                       )}
                       {winners.fiber.idx === idx && food.nutrition.fiber > 0 && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] bg-emerald-500/10 text-emerald-500 font-bold px-1 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-[10px] bg-emerald-500/10 text-emerald-500 font-bold px-1 py-0.5 rounded">
                           <Award className="w-2 h-2" />
                           {T.fiber[lang]}
                         </span>
@@ -191,7 +190,7 @@ export default function FoodComparer({ lang }: Props) {
                   <div className="w-7 h-7 rounded-full bg-muted/40 flex items-center justify-center">
                     <X className="w-3.5 h-3.5 rotate-45" />
                   </div>
-                  <span className="text-[9px] font-semibold">{T.selectFood[lang]}</span>
+                  <span className="text-[10px] font-semibold">{T.selectFood[lang]}</span>
                 </button>
               )}
             </div>
@@ -452,7 +451,7 @@ function MicroRow({
           const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
           return (
             <div key={i} className="space-y-0.5">
-              <span className="text-[10.5px] font-bold text-foreground block tabular-nums">
+              <span className="text-[10px] font-bold text-foreground block tabular-nums">
                 {val > 0 ? `${val}${unit}` : '—'}
               </span>
               {val > 0 && (

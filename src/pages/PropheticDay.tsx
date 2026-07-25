@@ -97,11 +97,10 @@ import { pageStagger as stagger, pageItem as fadeItem } from '@/lib/motion';
 
 export default function PropheticDay() {
   const navigate = useNavigate();
-  const { language, dir } = useApp();
-  const isAr = language === 'ar';
+  const { dir } = useApp();
 
   return (
-    <div className="min-h-screen bg-background pb-24" dir={dir}>
+    <div className="min-h-screen bg-background pb-page" dir={dir}>
       <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
       {/* Header */}
       <PageHeader sticky title={'نظرة على يوم النبي ﷺ'} className="px-4 py-3 bg-background border-b border-border" />

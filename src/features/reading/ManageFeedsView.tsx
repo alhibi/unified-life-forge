@@ -242,7 +242,7 @@ export function ManageFeedsView({
                         )}
                         {cached && !failed && (
                           <span
-                            className="text-[9px] px-1.5 rounded bg-foreground/10 text-muted-foreground"
+                            className="text-[10px] px-1.5 rounded bg-foreground/10 text-muted-foreground"
                             title={'مخبأ'}
                           >
                             304

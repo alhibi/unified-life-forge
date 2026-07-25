@@ -7,7 +7,7 @@ import { useMindState } from '../hooks/useMindState';
 import MemoryTimelineRail from '../components/MemoryTimelineRail';
 import MindFallback2D from '../components/MindFallback2D';
 import { formatAge } from '../lib/growth';
-import { ArrowLeft, ArrowRight } from '@/lib/icons';
+import { ArrowRight } from '@/lib/icons';
 
 const MindScene = lazy(() => import('../components/MindScene'));
 

@@ -172,7 +172,7 @@ export default function GamesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-28 pt-14">
+    <div className="min-h-screen bg-background pb-page pt-14">
       <SEO title="الألعاب — SmartHub" description="مجموعة ألعاب ذهنية: سودوكو، شطرنج، ألغاز، ذاكرة، تركيز ونرد. أنماط متعددة وذكاء اصطناعي متقدم." path="/games" />
 
       {/* Header — unified PageHeader (top-level tab, no back) */}
@@ -286,12 +286,12 @@ export default function GamesPage() {
                     <h2 className="font-bold text-[16px] text-foreground leading-tight mb-2">{game.title}</h2>
                     <div className="flex flex-wrap gap-1.5">
                       {game.modes.slice(0, 4).map(mode => (
-                        <span key={mode} className="text-[9px] font-semibold px-2 py-0.5 rounded-md bg-foreground/5 text-muted-foreground/90 border border-border/30">
+                        <span key={mode} className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-foreground/5 text-muted-foreground/90 border border-border/30">
                           {mode}
                         </span>
                       ))}
                       {game.modes.length > 4 && (
-                        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-md text-muted-foreground/60 bg-foreground/3">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md text-muted-foreground/60 bg-foreground/3">
                           +{game.modes.length - 4}
                         </span>
                       )}
@@ -349,7 +349,7 @@ function ProgressTile({ icon: Icon, value, label, color }: { icon: typeof Trophy
     <div className="flex flex-col items-center text-center py-1">
       <Icon className="w-4 h-4 mb-1" style={{ color }} />
       <p className="text-base font-black tabular-nums" style={{ color }}>{value}</p>
-      <p className="text-[9px] text-muted-foreground leading-tight">{label}</p>
+      <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>
     </div>
   );
 }

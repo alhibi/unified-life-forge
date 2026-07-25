@@ -611,7 +611,7 @@ export default function Knowledge() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
         path="/knowledge"
         title="موسوعة الرقي — معرفة منتقاة"
@@ -866,7 +866,7 @@ function ModelDetailDialog({
 
               {/* Title + price */}
               <div className="space-y-1.5">
-                <h3 className="text-[26px] font-bold tracking-tight text-foreground leading-tight">
+                <h3 className="text-[24px] font-bold tracking-tight text-foreground leading-tight">
                   {model.name}
                 </h3>
                 <div className="flex items-baseline gap-2">
@@ -896,7 +896,7 @@ function ModelDetailDialog({
                     <span
                       className="mt-[9px] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.7)]"
                     />
-                    <span className="text-[13.5px] leading-relaxed text-foreground/90">{h}</span>
+                    <span className="text-[13px] leading-relaxed text-foreground/90">{h}</span>
                   </li>
                 ))}
               </ul>
@@ -910,10 +910,10 @@ function ModelDetailDialog({
                     key={label}
                     className="rounded-2xl border border-border/50 bg-foreground/[0.025] p-3.5"
                   >
-                    <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
                       {label}
                     </div>
-                    <div className="mt-1.5 text-[13.5px] font-medium text-foreground">
+                    <div className="mt-1.5 text-[13px] font-medium text-foreground">
                       {model.fields[i]}
                     </div>
                   </div>
@@ -932,7 +932,7 @@ function ModelDetailDialog({
                     key={e.label}
                     className={`px-2 text-center ${i > 0 ? "border-r border-border/40" : ""}`}
                   >
-                    <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
                       {e.label}
                     </div>
                     <div className="mt-1 text-[12px] font-medium text-foreground">{e.value}</div>

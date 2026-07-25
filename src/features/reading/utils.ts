@@ -22,7 +22,6 @@ export function safeHref(url: string | null | undefined): string {
  */
 export function timeAgo(dateStr: string, lang: string): string {
   if (!dateStr) return '';
-  const isAr = lang === 'ar';
   try {
     const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) return '';

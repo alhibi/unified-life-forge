@@ -357,7 +357,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 {conns > 2 && (
                   <g transform={`translate(${radius * 0.7}, ${-radius * 0.7})`}>
                     <circle r="8" fill={node.color} opacity="0.9" />
-                    <text textAnchor="middle" y="3.5" className="fill-white text-[8px] font-bold pointer-events-none">{conns}</text>
+                    <text textAnchor="middle" y="3.5" className="fill-white text-[10px] font-bold pointer-events-none">{conns}</text>
                   </g>
                 )}
 
@@ -375,7 +375,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 <text
                   y={radius + 26}
                   textAnchor="middle"
-                  className="fill-muted-foreground text-[8px] pointer-events-none select-none"
+                  className="fill-muted-foreground text-[10px] pointer-events-none select-none"
                 >
                   {node.eraAr}
                 </text>
@@ -495,7 +495,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-[13px] font-bold text-foreground" style={{ fontFamily: "'Amiri', serif" }}>{other.name}</span>
-                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">{relationLabels[l.relation.type]}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">{relationLabels[l.relation.type]}</span>
                           </div>
                           <p className="text-[11px] text-muted-foreground leading-relaxed">{l.relation.description}</p>
                         </div>
@@ -542,14 +542,14 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   className={`flex-1 flex flex-col items-center gap-1 py-1 px-1 rounded-xl transition-all ${isHighlighted ? 'opacity-100' : 'opacity-40'} hover:opacity-100 active:scale-95`}
                 >
                   <div className="w-full h-1.5 rounded-full transition-all" style={{ backgroundColor: color, opacity: isHighlighted ? 0.9 : 0.3 }} />
-                  <span className="text-[8px] font-medium text-muted-foreground leading-none">{label}</span>
+                  <span className="text-[10px] font-medium text-muted-foreground leading-none">{label}</span>
                 </button>
               );
             })}
           </div>
           {/* Hint text */}
           {!selected && (
-            <p className="text-[9px] text-muted-foreground/60 text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
+            <p className="text-[10px] text-muted-foreground/60 text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
           )}
         </div>
       </div>

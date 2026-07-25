@@ -25,7 +25,7 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({ role, isAr, size = 'sm', customTi
     'inline-flex items-center gap-0.5 rounded-full font-medium leading-none',
     size === 'sm'
       ? 'text-[10px] h-[15px] px-1.5'
-      : 'text-[11.5px] h-[19px] px-2',
+      : 'text-[11px] h-[19px] px-2',
     role === 'owner'
       ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25'
       : role === 'admin'

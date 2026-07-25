@@ -149,15 +149,42 @@
   * {
     @apply border-border;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* `touch-action: manipulation` only belongs on things you tap. Applying
+     it to `*` also disabled pinch-zoom and double-tap inside maps, charts,
+     canvases and images. */
+  button,
+  a,
+  [role='button'],
+  [role='tab'],
+  label,
+  summary,
+  input[type='checkbox'],
+  input[type='radio'] {
     touch-action: manipulation;
   }
-  /* ── Linear-style global color transition ──
-     Makes theme switches and hover state changes feel buttery.
-     Only color/background-color/border-color/fill/stroke — does NOT
-     touch transform/opacity so press feedback stays snappy. */
-  *,
-  *::before,
-  *::after {
+
+  /* ── Colour transitions ──
+     Scoped to surfaces that actually change colour on interaction or on a
+     theme swap. The previous version put a 5-property transition on `*`,
+     `*::before` AND `*::after`, which meant every one of the thousands of
+     nodes in a long list (poetry, food atlas, chat) carried a live
+     transition the compositor had to track. */
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [role='menuitem'],
+  [data-state],
+  .app-card,
+  .premium-card,
+  .surface-depth,
+  .row-icon {
     transition:
       color 150ms linear,
       background-color 150ms linear,
@@ -169,20 +196,22 @@
     *,
     *::before,
     *::after {
-      transition: none !important;
+      transition-duration: 1ms !important;
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
     }
   }
 
-  /* ── Linear-style scrollbars ──
-     Thin 6px rail, transparent track, thumb fades in on hover/scroll. */
+  /* ── Scrollbars ──
+     Thin 6px rail with a visible thumb. NOTE: a later block in this file
+     used to re-hide every scrollbar globally (`width: 0; display: none`),
+     which silently cancelled these rules and left desktop users with no
+     scroll affordance at all. That block is gone — hide scrollbars
+     per-container with `.scrollbar-none` when it is a deliberate choice
+     (carousels, chip rails). */
   * {
     scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-  }
-  *:hover,
-  *:focus-within,
-  *:active {
-    scrollbar-color: hsl(var(--foreground) / 0.2) transparent;
+    scrollbar-color: hsl(var(--foreground) / 0.22) transparent;
   }
   ::-webkit-scrollbar {
     width: 6px;
@@ -192,38 +221,30 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--foreground) / 0.15);
+    background: hsl(var(--foreground) / 0.18);
     border-radius: 999px;
-    opacity: 0;
-    transition:
-      opacity 200ms linear,
-      background-color 150ms linear;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--foreground) / 0.3);
+    background: hsl(var(--foreground) / 0.32);
   }
-  /* Reveal thumb when the scroll container (or any ancestor) is hovered
-     or being interacted with. */
-  :hover::-webkit-scrollbar-thumb,
-  :focus-within::-webkit-scrollbar-thumb,
-  :active::-webkit-scrollbar-thumb {
-    opacity: 1;
-  }
-  /* ── Focus ring: outline-only, no box-shadow (accessibility + perf) ── */
+
+  /* ── Focus ring: outline only ──
+     The old rule contradicted its own comment by adding an `!important`
+     box-shadow, which double-drew the ring and forced a paint layer. */
   *:focus {
     outline: none;
   }
   *:focus-visible {
-    outline: 2px solid hsl(var(--primary) / 0.20);
+    outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
     border-radius: 6px;
-    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.20) !important;
   }
   html {
     -webkit-overflow-scrolling: touch;
     -webkit-text-size-adjust: 100%;
     overscroll-behavior: contain;
-    scroll-behavior: smooth;
+    /* `scroll-behavior: smooth` fought ScrollToTop, which restores per-tab
+       offsets with `behavior: 'instant'`. Opt in per call site instead. */
   }
   body {
     @apply bg-background text-foreground;
@@ -257,16 +278,10 @@
     stroke-width: 2;
   }
 
-  button,
-  [role='button'],
-  a {
-    -webkit-tap-highlight-color: transparent;
-  }
-  button:active,
-  [role='button']:active,
-  a:active {
-    transform: scale(0.98);
-  }
+  /* Press feedback is defined ONCE, further down under
+     "Native press feedback". This block used to declare a competing
+     `scale(0.98)` here and `scale(0.96)` there, plus a third
+     `scale(0.98) !important` via `.active-tactile`. */
 
   /* Disable text selection on interactive UI, allow on content */
   button,
@@ -287,11 +302,18 @@
     user-select: text;
   }
 
-  /* Minimum 16px on inputs to prevent iOS zoom */
-  input,
-  textarea,
-  select {
-    font-size: 16px !important;
+  /* ── iOS focus-zoom guard ──
+     Safari zooms the viewport when a focused field is under 16px. The old
+     rule enforced `font-size: 16px !important` on EVERY input on EVERY
+     device, which flattened the type scale of small filters and inline
+     editors on desktop too. Now it is scoped to touch pointers, where it
+     is the only place the behaviour actually exists. */
+  @media (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -350,54 +372,10 @@
     background-color: hsl(var(--accent) / 0.4);
   }
 
-  /* ──────────────────────────────────────────────────────────────
-     AMBIENT BREATH — single global radial halo anchored to the
-     top-center of the viewport, gently breathing 6s. Tinted with
-     the unified --live token at very low alpha so the entire app
-     reads as "alive but quiet" — the user's chosen direction. Lives
-     on a fixed, pointer-events:none pseudo-element on <body>, so
-     every route inherits the same heartbeat without any per-page
-     code. Pure opacity → compositor-only, 0 layout cost.
-     ────────────────────────────────────────────────────────────── */
-  body::before {
-    content: none;
-  }
-  @keyframes ambient-breath {
-    0%,
-    100% {
-      opacity: 0.55;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
-  /* Slow conic aurora rotation — sub-perceptible movement that makes
-     the active tab feel alive without ever drawing attention. */
-  @keyframes aurora-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @keyframes halo-breath {
-    0%,
-    100% {
-      opacity: 0.85;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.06);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    body::before {
-      animation: none;
-      opacity: 0.7;
-    }
-  }
+  /* NOTE: the "ambient breath" halo (`body::before` + the
+     `ambient-breath` / `aurora-spin` / `halo-breath` keyframes) was
+     removed. `body::before` was already `content: none`, so the element
+     never rendered and the three keyframe blocks were unreachable. */
 
   /* ──────────────────────────────────────────────────────────────
      LIVE PULSE — the single chromatic note. A tiny copper dot or
@@ -432,28 +410,11 @@
     }
   }
 
-  /* ── Sidebar: shrink, never disappear ──
-     Smooth width transition using global tokens. When collapsed, the
-     sidebar narrows to the icon rail instead of sliding offscreen. */
-  [data-sidebar='sidebar'],
-  [data-sidebar='sidebar'] ~ *,
-  .group\/sidebar-wrapper [data-variant],
-  .group\/sidebar-wrapper > div {
-    transition:
-      width var(--duration-normal) var(--ease-out-expo),
-      left var(--duration-normal) var(--ease-out-expo),
-      right var(--duration-normal) var(--ease-out-expo),
-      transform var(--duration-normal) var(--ease-out-expo) !important;
-    will-change: width;
-    contain: layout style;
-  }
-  /* Force-shrink even in offcanvas mode — keep icon rail visible */
-  .group\/sidebar-wrapper [data-collapsible='offcanvas'] {
-    width: var(--sidebar-width-icon) !important;
-  }
-  .group\/sidebar-wrapper [data-state='collapsed'] [data-sidebar='sidebar'] {
-    width: var(--sidebar-width-icon) !important;
-  }
+  /* NOTE: the `[data-sidebar]` / `.group/sidebar-wrapper` rules were
+     removed together with src/components/ui/sidebar.tsx — nothing in the
+     app ever rendered a sidebar, and the block animated `width` (a layout
+     property) with `!important`. */
+
   @keyframes glass-overlay-in {
     from {
       opacity: 0;
@@ -488,8 +449,9 @@
     border-radius: var(--radius);
     box-shadow: none;
     contain: layout style;
-    content-visibility: auto;
-    contain-intrinsic-size: auto 200px;
+    /* No `content-visibility: auto` here — see the note further down. Every
+       card silently guessing a 200px intrinsic height made the page height
+       (and the scrollbar) jump while scrolling. */
   }
 
   /* ──────────────────────────────────────────────────────────────
@@ -554,18 +516,9 @@
   .app-icon-btn:hover {
     background-color: hsl(var(--accent));
   }
-  .app-icon-btn:active {
-    transform: scale(0.98);
-  }
-
-  /* Tactile active micro-scaling classes for general interactive buttons & nav nodes */
-  .active-tactile {
-    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1) !important;
-    will-change: transform;
-  }
-  .active-tactile:active {
-    transform: scale(0.98) !important;
-  }
+  /* Press feedback comes from the single global rule — no per-class
+     override here. `.active-tactile` was removed: it was unused in JSX and
+     only existed to fight the two other press rules with `!important`. */
 
   /* ──────────────────────────────────────────────────────────────
      CURIUM PAPER & INK PRIMITIVES
@@ -610,11 +563,6 @@
     color: hsl(var(--destructive));
   }
 
-  /* ──────────────────────────────────────────────────────────────
-     FLATTEN — kill every shadow and gradient app-wide.
-     The bottom nav explicitly opts-out by carrying `.preserve-fx`
-     so its glyph-edge-trace and live aura stay intact.
-     ────────────────────────────────────────────────────────────── */
 }
 
 @layer utilities {
@@ -622,28 +570,36 @@
   .shadow-none {
     box-shadow: none !important;
   }
-  /* Decorative gradients are not part of the product chrome. */
-  [class*='bg-gradient-']:not(.preserve-fx):not(.preserve-fx *) {
-    background-image: none !important;
-  }
-  .app-icon-btn:active {
-    transform: scale(0.94);
-  }
+
+  /* NOTE: the "FLATTEN" rule that force-cleared `background-image` on any
+     `[class*='bg-gradient-']` element was removed. There are zero
+     `bg-gradient-*` classes left in the codebase, so it only served to
+     silently blank out any gradient a future change might introduce. */
 
   /* Canonical page shell — every full-screen route uses these spacings.
-     pt-14 leaves room for the floating header, pb-28 for the floating
-     bottom-nav pill. px-4 is the global edge gutter. */
+     There is no bottom navigation bar in this app (it was retired for the
+     Portal launcher), so the bottom padding only has to clear the floating
+     dock + the home-indicator safe area — it used to reserve a full 112px
+     for a nav that no longer renders, leaving dead space on every page. */
   .page-shell {
     min-height: 100dvh;
     background-color: hsl(var(--background));
-    padding-top: 3.5rem; /* pt-14 = 56px (multiple of 8px) */
-    padding-bottom: 7rem; /* pb-28 = 112px (multiple of 8px) — clears bottom nav pill */
-    padding-left: 1rem; /* px-4 = 16px (strict spacing token) */
+    padding-top: 3.5rem; /* 56px — clears the floating header */
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); /* 72px + inset */
+    padding-left: 1rem; /* 16px global edge gutter */
     padding-right: 1rem;
   }
   .page-shell-flush {
     /* For pages with their own sticky PageHeader (no top padding). */
     padding-top: 0;
+  }
+
+  /* Canonical bottom padding for a scrollable page root. Clears the
+     floating dock + podcast mini-player + the home-indicator inset, and
+     nothing more. Replaces the ad-hoc `pb-24` / `pb-28` / `pb-32` that were
+     each guessing at the height of a bottom nav that no longer exists. */
+  .pb-page {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
   }
   .page-shell-inner {
     max-width: 32rem; /* max-w-lg — single content column */
@@ -952,32 +908,30 @@
   }
 }
 
-/* ─── Global content-visibility: skip rendering work for off-screen content ─── */
-/* Applies to common card/section/list patterns. Browser keeps these elements
-   collapsed (placeholder-sized) until they scroll near the viewport.
-   Avoids: sticky/fixed elements, the bottom nav, modals, anything in chat
-   (which has its own optimizations), and elements relying on intersection
-   observers for entrance animations. */
-article,
+/* ─── Opt-in content-visibility ────────────────────────────────────────
+   `content-visibility: auto` is a real win for long lists, but it has to
+   be opted into per container. It used to be applied blindly to every
+   `article`, `.card`, `.premium-card*` and `ul.cv > li` in the app with a
+   guessed `contain-intrinsic-size: auto 240px`. Because the guess almost
+   never matched the real height, the document height changed as content
+   scrolled into view: the scrollbar jumped, anchored scroll positions
+   drifted, `position: sticky` inside a skipped subtree stopped working,
+   and in-page find (Ctrl+F) could not reach the text.
+
+   Use the explicit `.cv-*` utilities (declared above) or `[data-cv]` on
+   containers whose height you actually know. */
 section.cv,
 [data-cv],
-.card,
 ul.cv > li,
 ol.cv > li {
   content-visibility: auto;
   contain-intrinsic-size: auto 240px;
 }
 
-/* Hide ALL scrollbars globally but keep scroll functional */
-::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
-  display: none;
-}
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
+/* NOTE: the global "hide ALL scrollbars" block was removed — it cancelled
+   the styled thin scrollbars declared in the base layer and left desktop
+   users with no scroll affordance. Use `.scrollbar-none` on the specific
+   container (carousel, chip rail) when hiding is intentional. */
 
 /* RTL */
 [dir='rtl'] {
@@ -1029,17 +983,20 @@ body {
   backface-visibility: hidden;
 }
 
-/* ── Native press feedback — strict spec ─────────────────────
-   • Press-in:  scale 1 → 0.96, 80ms ease-out-cubic.
-                Active-state rule below provides the timing
-                that's used at the moment :active is gained.
-   • Press-out: scale 0.96 → 1, 120ms spring (stiffness 400,
-                damping 20). CSS approximates the spring with
-                the back-easing curve below. Used when :active
-                is released and the element returns to base. */
+/* ── Native press feedback — the ONLY definition ──────────────
+   • Press-in:  scale 1 → 0.96, 80ms ease-out-cubic
+   • Press-out: scale 0.96 → 1, 120ms spring-ish curve
+   Three competing rules used to exist (0.98 in @layer base, 0.96 here,
+   and `.active-tactile { scale(0.98) !important }`); whichever loaded
+   last silently won. Anything that needs different physics opts out with
+   `[data-no-press]`.
+
+   `a:active` is limited to link-shaped controls: scaling and fading every
+   inline text link on tap made body copy feel broken. */
 button,
-a,
-[role='button'] {
+[role='button'],
+a[class*='rounded'],
+a[role='link'][class*='px-'] {
   transition:
     transform var(--motion-press-out) var(--motion-ease-spring),
     opacity var(--motion-press-out) var(--motion-ease-spring);
@@ -1047,12 +1004,24 @@ a,
 }
 button:active,
 [role='button']:active,
-a:active {
+a[class*='rounded']:active {
   transition:
     transform var(--motion-press-in) var(--motion-ease-out-cubic),
     opacity var(--motion-press-in) var(--motion-ease-out-cubic);
   transform: scale(0.96);
   opacity: 0.92;
+}
+button[data-no-press]:active,
+[role='button'][data-no-press]:active {
+  transform: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  button:active,
+  [role='button']:active,
+  a[class*='rounded']:active {
+    transform: none;
+  }
 }
 
 /* ── Modal / Dialog / Sheet — spec-compliant timing ──────────
@@ -1168,59 +1137,48 @@ main#main-content [data-tab-layer='true'] {
   will-change: transform, opacity;
 }
 
-/* TideBar tab buttons handle their own active-state physics (the icon
-   lifts and scales above the wave). Keep press feedback subtle so it
-   doesn't compete with the wave / lift animation. */
-[data-tide-bar] button {
-  transition: opacity 120ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-[data-tide-bar] button:active {
-  transform: none;
-  opacity: 0.85;
-}
-
-/* ── BottomNav — solid positioning layer ─────────────────────
-   Ensures the bar is always flush to the physical bottom of the
-   viewport (including safe-area), never floats or overlaps content
-   unpredictably.  The `env()` padding is declared here in CSS as
-   a fallback; the component also sets it inline for SSR/JSX paths. */
-nav.bottom-nav {
-  /* Guarantee the nav is above every page layer. */
-  z-index: 9999;
-  /* Safe-area: fills the iPhone home-indicator region with the same
-     background as the nav, so there's no bleed of page content. */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* Isolate stacking context so no ancestor transform can capture it */
-  isolation: isolate;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
+/* NOTE: the `[data-tide-bar]` and `nav.bottom-nav` rules were removed with
+   src/components/BottomNav.tsx. Nothing rendered either element, and the
+   nav rule reserved `z-index: 9999` — outside the canonical z scale. */
 
 /* Disable browser context menu on UI elements */
-nav,
 button,
 [role='button'],
 .no-context-menu {
   -webkit-touch-callout: none;
 }
 
-/* Smooth theme transition — scoped to color and layout props with an ultra-soft, air-like long cubic-bezier for a breathtaking luxury feel */
+/* ── Theme cross-fade ─────────────────────────────────────────────────
+   Applied for 300ms by AppContext while it swaps the CSS custom
+   properties, then removed. AppContext also skips it on first paint.
+
+   The previous version transitioned `transform`, `padding`,
+   `border-radius`, `border-width`, `box-shadow` and `backdrop-filter` on
+   EVERY element for up to 1200ms with `!important`. That forced a full
+   layout + paint on every frame for over a second (so switching theme —
+   or just opening the app — visibly "melted in"), and the `transform`
+   entry overrode every framer-motion animation running at the time.
+
+   Only genuinely cheap, genuinely colour-related properties are animated
+   now, and never `transform`. */
 html.theme-transition,
 html.theme-transition *,
 html.theme-transition *::before,
 html.theme-transition *::after {
   transition:
-    background-color 1100ms cubic-bezier(0.19, 1, 0.22, 1),
-    color 900ms cubic-bezier(0.19, 1, 0.22, 1),
-    border-color 1000ms cubic-bezier(0.19, 1, 0.22, 1),
-    border-radius 1200ms cubic-bezier(0.19, 1, 0.22, 1),
-    box-shadow 1200ms cubic-bezier(0.19, 1, 0.22, 1),
-    padding 1000ms cubic-bezier(0.19, 1, 0.22, 1),
-    border-width 1000ms cubic-bezier(0.19, 1, 0.22, 1),
-    backdrop-filter 1200ms cubic-bezier(0.19, 1, 0.22, 1),
-    fill 900ms cubic-bezier(0.19, 1, 0.22, 1),
-    stroke 900ms cubic-bezier(0.19, 1, 0.22, 1),
-    transform 1100ms cubic-bezier(0.19, 1, 0.22, 1) !important;
+    background-color 260ms var(--ease-out-expo),
+    color 260ms var(--ease-out-expo),
+    border-color 260ms var(--ease-out-expo),
+    fill 260ms var(--ease-out-expo),
+    stroke 260ms var(--ease-out-expo) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
+  }
 }
 
 
@@ -1401,21 +1359,12 @@ input.podcast-seek::-moz-range-track {
   opacity: 0.55;
 }
 
-/* Breathing rim around the cover art — gives the artwork a sense of
-   life when audio is actually playing. Combined with a tiny scale
-   transition driven from React (so the cover "compresses" when paused
-   like Apple Music's vinyl/cover behavior). */
-@keyframes podcast-art-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 1;
-  }
-}
+/* NOTE: `@keyframes podcast-art-pulse` was removed — every keyframe held
+   `opacity: 1`, so it animated nothing while still keeping the artwork on
+   its own permanently-active compositor layer. `.podcast-art-pulse` is now
+   a no-op hook kept only so existing markup keeps compiling. */
 .podcast-art-pulse {
-  animation: podcast-art-pulse 4s ease-in-out infinite;
+  /* intentionally empty */
 }
 
 /* Slow drifting gradient blobs that fill the ambient backdrop. They
@@ -1448,21 +1397,8 @@ input.podcast-seek::-moz-range-track {
   animation: podcast-blob-drift 28s ease-in-out infinite reverse;
 }
 
-/* Mini-player glow shadow that breathes with playback. Subtle — we
-   don't want to draw attention away from page content, just hint that
-   audio is alive. */
-@keyframes podcast-mini-glow {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-.podcast-mini-glow[data-playing='true'] {
-  animation: podcast-mini-glow 3.6s ease-in-out infinite;
-}
+/* NOTE: `@keyframes podcast-mini-glow` was removed for the same reason as
+   podcast-art-pulse — all keyframes were `opacity: 1`. */
 
 /* Seek bar refinements — the basic styles above stay intact; we only
    add hover/active states (thumb scale + ring glow) and a slightly
@@ -1484,21 +1420,8 @@ input.podcast-seek:active::-moz-range-thumb {
   transform: scale(1.25);
 }
 
-/* Play button glow — when audio is actively playing the primary
-   transport button picks up a soft halo from the seed color. Painted
-   via `box-shadow` so we don't need an extra DOM node. */
-@keyframes podcast-play-glow {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-.podcast-play-button[data-playing='true'] {
-  animation: podcast-play-glow 3.2s ease-in-out infinite;
-}
+/* NOTE: `@keyframes podcast-play-glow` was removed — all keyframes were
+   `opacity: 1`, i.e. an infinite animation that never changed anything. */
 
 /* Honor the user's reduced-motion preference for every animation we
    added above. Static fallbacks already look correct (the equalizer
@@ -1506,11 +1429,8 @@ input.podcast-seek:active::-moz-range-thumb {
    and the artwork keeps its idle shadow). */
 @media (prefers-reduced-motion: reduce) {
   .podcast-eq[data-playing='true'] > span,
-  .podcast-art-pulse,
   .podcast-blob-a,
-  .podcast-blob-b,
-  .podcast-mini-glow[data-playing='true'],
-  .podcast-play-button[data-playing='true'] {
+  .podcast-blob-b {
     animation: none !important;
   }
 }

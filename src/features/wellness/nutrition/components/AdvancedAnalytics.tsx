@@ -30,7 +30,6 @@ const T = {
 };
 
 export default function AdvancedAnalytics({ lang }: Props) {
-  const isAr = lang === 'ar';
   const logs = useMemo(() => getMealLog(), []);
 
   // Compute stats

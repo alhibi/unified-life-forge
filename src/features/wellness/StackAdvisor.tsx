@@ -13,7 +13,6 @@ import {
   type Lang,
 } from './wellnessData';
 import type { Supplement } from './wellnessDb';
-import { CATEGORY_META, categoryOf } from './foodCategories';
 import { FoodIcon } from './foodIcons';
 
 function FoodChip({ foodKey, label }: { foodKey: string; label: string }) {
@@ -37,7 +36,6 @@ interface Props {
 export default function StackAdvisor({ supplements }: Props) {
   const { language } = useApp();
   const lang = language as Lang;
-  const isAr = lang === 'ar';
 
   const activeNutrients = useMemo(() => {
     const set = new Set<string>();
@@ -249,7 +247,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {syn.title[lang]}
                     </h4>
                     {isFull && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
                         <Check className="w-2.5 h-2.5" />
                         {'مكتمل'}
                       </span>

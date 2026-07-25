@@ -87,7 +87,7 @@ function CountryDialog({
   value: string;
   onSelect: (cc: string) => void;
 }) {
-  const { language } = useApp();
+  const { } = useApp();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -194,7 +194,7 @@ function RegionDialog({
   value: string;
   onSelect: (key: string) => void;
 }) {
-  const { language, t } = useApp();
+  const { t } = useApp();
 
   if (!open) return null;
   return createPortal(
@@ -263,7 +263,7 @@ function RegionDialog({
 /* -------------------------------------------------------------------------- */
 
 function PoweredByApplePodcasts() {
-  const { language } = useApp();
+  const { } = useApp();
   return (
     <a
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"
@@ -312,7 +312,7 @@ function PodcastCard({
           />
         ) : null}
       </div>
-      <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">
+      <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">
         {podcast.title}
       </p>
       <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
@@ -358,7 +358,7 @@ const RENDER_CAP = 600;
 const PAGE_STEP = 60;
 
 export default function PodcastsPage() {
-  const { language, t } = useApp();
+  const { t } = useApp();
   const navigate = useNavigate();
   const subs = useSubscriptions();
 
@@ -525,7 +525,7 @@ export default function PodcastsPage() {
   })();
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-page">
       <SEO
         title={'بودكاست — SmartHub'}
         description={
@@ -630,7 +630,7 @@ export default function PodcastsPage() {
                     setGenreKey(g.key);
                     setSearch('');
                   }}
-                  className={`relative px-3 py-2 text-[13.5px] whitespace-nowrap transition-colors ${
+                  className={`relative px-3 py-2 text-[13px] whitespace-nowrap transition-colors ${
                     isActive
                       ? 'text-primary font-semibold'
                       : 'text-muted-foreground hover:text-foreground'

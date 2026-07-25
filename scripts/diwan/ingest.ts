@@ -16,7 +16,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { RawEra, RawPoem, RawPoet, RawVerse } from './types.ts';
+import type { RawEra, RawPoem, RawPoet } from './types.ts';
 
 const OUT_DIR = path.resolve(process.cwd(), 'scripts/diwan/out');
 

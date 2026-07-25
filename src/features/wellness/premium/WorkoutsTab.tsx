@@ -406,7 +406,7 @@ function BubbleStat({ icon, value, label, color }: { icon: React.ReactNode; valu
         {icon}
       </div>
       <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
-      <div className="text-[8.5px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+      <div className="text-[10px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
     </div>
   );
 }

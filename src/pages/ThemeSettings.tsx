@@ -194,7 +194,7 @@ function ThemePresetsCategorized({
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.id)}
-              className="relative flex-1 py-2 text-[10.5px] font-bold transition-colors duration-300 z-10 focus:outline-none"
+              className="relative flex-1 py-2 text-[10px] font-bold transition-colors duration-300 z-10 focus:outline-none"
             >
               {isSelected && (
                 <motion.div
@@ -374,7 +374,7 @@ export default function ThemeSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
         title={'المظهر والألوان — SmartHub'}
         description={

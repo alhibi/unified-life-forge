@@ -47,7 +47,7 @@ const SUB_TABS: {
 ];
 
 export default function NutritionTab() {
-  const { language } = useApp();
+  const { } = useApp();
   const lang: Lang = 'ar';
   const [subTab, setSubTab] = useState<SubTab>('explore');
 

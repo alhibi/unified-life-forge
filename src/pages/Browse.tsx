@@ -43,8 +43,7 @@ const TABS: TabDef[] = [
 ];
 
 export default function BrowsePage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
 
   const [tab, setTab] = useState<TabKey>(() => {
     try {
@@ -59,7 +58,7 @@ export default function BrowsePage() {
   }, [tab]);
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-10">
+    <div className="min-h-screen bg-background pb-page px-5 pt-10">
       <SEO
         title={'اطلاع — بودكاست ومقالات — SmartHub'}
         description={'مركز الاكتشاف: بودكاست ومقالات في مكان واحد.'}

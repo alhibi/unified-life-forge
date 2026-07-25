@@ -120,7 +120,7 @@ export default function DeloadAdvisor({
             className="absolute -translate-x-1/2 -top-0.5 w-3 h-3 rounded-full bg-foreground border-2 border-background"
           />
         </div>
-        <div className="flex justify-between text-[8.5px] text-muted-foreground/70 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-[10px] text-muted-foreground/70 tabular-nums" dir="ltr">
           <span>0.0</span>
           <span>0.8</span>
           <span>1.3</span>
@@ -144,7 +144,7 @@ export default function DeloadAdvisor({
 function Metric({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div className="bg-muted/30 rounded-lg p-1.5 text-center">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
       <p className="text-[14px] font-bold tabular-nums" style={{ color: color ?? 'currentColor' }}>{value}</p>
     </div>
   );

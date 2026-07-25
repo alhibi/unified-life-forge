@@ -22,11 +22,24 @@ export default defineConfig(({ mode }) => ({
           motion: ['framer-motion'],
           query: ['@tanstack/react-query'],
           supabase: ['@supabase/supabase-js'],
+          // The icon barrel (src/lib/icons.tsx) re-exports ~210 Phosphor
+          // glyphs, and every Phosphor glyph def ships all six weights.
+          // Because nearly every route imports at least one icon, Rollup
+          // hoisted the whole set into the ENTRY chunk: 671 kB of the
+          // 802 kB entry was icon path data, so the app shell could not
+          // start executing until all of it had been parsed.
+          //
+          // Splitting it out does not reduce total bytes, but it does:
+          //   • let the browser download it in parallel with the shell,
+          //   • shrink the entry chunk to the code that actually boots,
+          //   • and keep it in cache across deploys (it changes rarely).
+          // The deeper fix is to stop shipping five unused weights per
+          // glyph — tracked separately.
+          icons: ['@phosphor-icons/react'],
           ui: [
             '@radix-ui/react-dialog',
             '@radix-ui/react-popover',
             '@radix-ui/react-tooltip',
-            '@radix-ui/react-tabs',
           ],
         },
       },

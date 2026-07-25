@@ -45,7 +45,7 @@ interface InsightSection {
 }
 
 export default function NutritionInsights() {
-  const { language } = useApp();
+  const { } = useApp();
   const lang: Lang = 'ar';
 
   const sections: InsightSection[] = useMemo(

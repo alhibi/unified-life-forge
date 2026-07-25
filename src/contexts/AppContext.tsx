@@ -5,6 +5,14 @@ import type { User } from '@supabase/supabase-js';
 import { themePresets, generateThemeTokens, applyThemeTokens, type ThemeStyle,  } from '@/utils/themeEngine';
 import { translate, type Language } from '@/i18n';
 import { applyMotionSpeed, installFpsCap, applyMotionAmplitude, applyMotionBounce } from '@/lib/motionRuntime';
+import {
+  clampFontWeight,
+  DEFAULT_FONT_ID,
+  FONT_SIZE_STEPS,
+  fontStackFor,
+  resolveFontId,
+  resolveFontSize,
+} from '@/lib/fonts';
 
 // 'system' was intentionally removed from the public theme API — users
 // pick Light or Dark explicitly. Any stale localStorage value is
@@ -92,13 +100,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
-    localStorage.getItem('app-font-family') || 'plex-mono'
+    resolveFontId(localStorage.getItem('app-font-family'))
   );
   const [fontSize, setFontSizeState] = useState<string>(() =>
-    localStorage.getItem('app-font-size') || 'medium'
+    resolveFontSize(localStorage.getItem('app-font-size'))
   );
   const [fontWeight, setFontWeightState] = useState<number>(() =>
-    parseInt(localStorage.getItem('app-font-weight') || '400', 10)
+    clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10))
   );
   const [fontOpacity, setFontOpacityState] = useState<number>(() =>
     parseFloat(localStorage.getItem('app-font-opacity') || '1')
@@ -181,7 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
     setColorThemeState('paper'); localStorage.setItem('app-color-theme', 'paper');
 
-    setFontFamilyState('plex-mono'); localStorage.setItem('app-font-family', 'plex-mono');
+    setFontFamilyState(DEFAULT_FONT_ID); localStorage.setItem('app-font-family', DEFAULT_FONT_ID);
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');
     setFontWeightState(400); localStorage.setItem('app-font-weight', '400');
     setFontOpacityState(1); localStorage.setItem('app-font-opacity', '1');
@@ -238,9 +246,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.blackMode !== undefined) { setBlackModeState(s.blackMode); localStorage.setItem('app-black-mode', String(s.blackMode)); }
         if (s.colorTheme) { setColorThemeState(s.colorTheme); localStorage.setItem('app-color-theme', s.colorTheme); }
 
-        if (s.fontFamily) { setFontFamilyState(s.fontFamily); localStorage.setItem('app-font-family', s.fontFamily); }
-        if (s.fontSize) { setFontSizeState(s.fontSize); localStorage.setItem('app-font-size', s.fontSize); }
-        if (s.fontWeight !== undefined) { setFontWeightState(s.fontWeight); localStorage.setItem('app-font-weight', String(s.fontWeight)); }
+        if (s.fontFamily) { const id = resolveFontId(s.fontFamily); setFontFamilyState(id); localStorage.setItem('app-font-family', id); }
+        if (s.fontSize) { const sz = resolveFontSize(s.fontSize); setFontSizeState(sz); localStorage.setItem('app-font-size', sz); }
+        if (s.fontWeight !== undefined) { const w = clampFontWeight(Number(s.fontWeight)); setFontWeightState(w); localStorage.setItem('app-font-weight', String(w)); }
         if (s.fontOpacity !== undefined) { setFontOpacityState(s.fontOpacity); localStorage.setItem('app-font-opacity', String(s.fontOpacity)); }
         if (s.prayerMadhab) { setPrayerMadhabState(s.prayerMadhab); localStorage.setItem('app-prayer-madhab', s.prayerMadhab); }
         if (s.midnightMode !== undefined) { setMidnightModeState(s.midnightMode); localStorage.setItem('app-midnight-mode', String(s.midnightMode)); }
@@ -296,9 +304,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       blackMode: localStorage.getItem('app-black-mode') === 'true',
       colorTheme: localStorage.getItem('app-color-theme') || 'default',
 
-      fontFamily: localStorage.getItem('app-font-family') || 'default',
-      fontSize: localStorage.getItem('app-font-size') || 'medium',
-      fontWeight: parseInt(localStorage.getItem('app-font-weight') || '400', 10),
+      fontFamily: resolveFontId(localStorage.getItem('app-font-family')),
+      fontSize: resolveFontSize(localStorage.getItem('app-font-size')),
+      fontWeight: clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10)),
       fontOpacity: parseFloat(localStorage.getItem('app-font-opacity') || '1'),
       prayerMadhab: localStorage.getItem('app-prayer-madhab') || 'shafii',
       midnightMode: parseInt(localStorage.getItem('app-midnight-mode') || '0', 10),
@@ -389,20 +397,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [scheduleSave]);
 
   const setFontFamily = useCallback((f: string) => {
-    setFontFamilyState(f);
-    localStorage.setItem('app-font-family', f);
+    const id = resolveFontId(f);
+    setFontFamilyState(id);
+    localStorage.setItem('app-font-family', id);
     scheduleSave();
   }, [scheduleSave]);
 
   const setFontSize = useCallback((s: string) => {
-    setFontSizeState(s);
-    localStorage.setItem('app-font-size', s);
+    const size = resolveFontSize(s);
+    setFontSizeState(size);
+    localStorage.setItem('app-font-size', size);
     scheduleSave();
   }, [scheduleSave]);
 
   const setFontWeight = useCallback((w: number) => {
-    setFontWeightState(w);
-    localStorage.setItem('app-font-weight', String(w));
+    const clamped = clampFontWeight(w);
+    setFontWeightState(clamped);
+    localStorage.setItem('app-font-weight', String(clamped));
     scheduleSave();
   }, [scheduleSave]);
 
@@ -509,24 +520,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timeout);
   }, [theme, dir, language, paletteStyle, blackMode, colorTheme]);
 
-  // Apply font family, size, weight & opacity
+  // Apply font family, size, weight & opacity. All id resolution lives in
+  // src/lib/fonts.ts so the settings screen and this provider can never
+  // disagree about what a font id means again.
   useEffect(() => {
-    const fontMap: Record<string, string> = {
-      default: "'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif",
-      'plex-mono': "'IBM Plex Mono', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, monospace",
-      inter: "'Inter', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif",
-      cairo: "'Cairo', 'Inter', system-ui, -apple-system, sans-serif",
-      tajawal: "'Tajawal', 'Inter', system-ui, -apple-system, sans-serif",
-      'ibm-plex': "'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif",
-      readex: "'Readex Pro', 'Inter', system-ui, -apple-system, sans-serif",
-    };
-    const sizeMap: Record<string, string> = { small: '14px', medium: '16px', large: '18px' };
-    const ff = fontMap[fontFamily] || fontMap.default;
-    document.documentElement.style.setProperty('--font-display', ff);
-    document.documentElement.style.setProperty('--font-body', ff);
-    document.documentElement.style.fontSize = sizeMap[fontSize] || '16px';
-    document.documentElement.style.fontWeight = String(fontWeight);
-    document.documentElement.style.setProperty('--text-opacity', String(fontOpacity));
+    const root = document.documentElement;
+    const stack = fontStackFor(fontFamily);
+    const step =
+      FONT_SIZE_STEPS.find((s) => s.id === resolveFontSize(fontSize)) ?? FONT_SIZE_STEPS[1];
+    root.style.setProperty('--font-display', stack);
+    root.style.setProperty('--font-body', stack);
+    root.style.fontSize = step.rootSize;
+    root.style.fontWeight = String(clampFontWeight(fontWeight));
+    root.style.setProperty('--text-opacity', String(fontOpacity));
   }, [fontFamily, fontSize, fontWeight, fontOpacity]);
 
   // Apply motion speed scale (mutates MOTION/motionWeight/DURATION

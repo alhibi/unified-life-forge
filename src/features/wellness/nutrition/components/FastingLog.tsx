@@ -55,7 +55,6 @@ const PROTOCOLS = [
 ];
 
 export default function FastingLog({ lang }: Props) {
-  const isAr = lang === 'ar';
   const [activeSession, setActiveSession] = useState<FastingSession | null>(null);
   const [history, setHistory] = useState<FastingSession[]>([]);
   const [selectedProtocol, setSelectedProtocol] = useState(PROTOCOLS[0]);
@@ -234,7 +233,7 @@ export default function FastingLog({ lang }: Props) {
                   }`}
                 >
                   <p className="text-xs">{proto.name}</p>
-                  <p className="text-[8px] font-normal mt-0.5 opacity-80">
+                  <p className="text-[10px] font-normal mt-0.5 opacity-80">
                     {proto.hours} {T.hours[lang]}
                   </p>
                 </button>

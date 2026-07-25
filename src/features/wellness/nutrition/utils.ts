@@ -4,10 +4,10 @@
  */
 
 import type {
-  NutritionFoodItem, NutritionSearchFilters, NutritionCategory,
-  DietaryTag, AllergenType, FullNutrition, MacroNutrients,
+  NutritionFoodItem, NutritionSearchFilters,
+  DietaryTag, FullNutrition, MacroNutrients,
   MealEntry, DailyNutritionGoal, DailyIntakeSummary, MealType,
-  VitaminProfile, MineralProfile, NutrientRDA, Lang,
+  VitaminProfile, MineralProfile, NutrientRDA,
 } from './types';
 import { RDA_MALE as RDA_MALE_VAL, RDA_FEMALE as RDA_FEMALE_VAL } from './types';
 import { NUTRITION_DATABASE, FOOD_BY_ID } from './data';

@@ -47,7 +47,7 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
         {/* Event Title */}
         <div className="flex items-center gap-2 mb-2.5">
           <MapPin className="w-3.5 h-3.5 text-[var(--wax)] flex-shrink-0" />
-          <p className="text-[12.5px] font-bold text-[#F2E9D8] font-tajawal">
+          <p className="text-[12px] font-bold text-[#F2E9D8] font-tajawal">
             {ctx.event}
           </p>
         </div>

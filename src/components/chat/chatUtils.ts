@@ -31,7 +31,7 @@ export function formatClockTime(dateStr: string): string {
 }
 
 /** "Today / Yesterday / 15 April" separator. */
-export function formatDateSeparator(dateStr: string, isAr: boolean): string {
+export function formatDateSeparator(dateStr: string): string {
   const d = new Date(dateStr);
   const today = new Date();
   const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);

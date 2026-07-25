@@ -578,7 +578,7 @@ function ExerciseBlock({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card rounded-xl p-2 text-center border border-border/30">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
       <p className="text-[14px] font-bold tabular-nums text-foreground" dir="ltr">{value}</p>
     </div>
   );

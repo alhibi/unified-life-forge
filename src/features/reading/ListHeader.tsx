@@ -185,7 +185,7 @@ export function ListHeader({
               <h3 className="text-[17px] font-bold truncate">
                 {'إطلاع'}
               </h3>
-              <span className="text-[10.5px] text-muted-foreground/80 tabular-nums truncate">
+              <span className="text-[10px] text-muted-foreground/80 tabular-nums truncate">
                 {`${articleCount} مقالة · ${unreadCount} غير مقروء`}
               </span>
             </div>

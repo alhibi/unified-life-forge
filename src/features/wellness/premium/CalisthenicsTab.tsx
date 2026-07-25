@@ -36,7 +36,7 @@ import CaliProgramView from '../training/components/CaliProgramView';
 
 interface Props {
   /** Optional cross-tab navigation callback (parent prop, currently unused). */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   onJump?: (key: string) => void;
 }
 
@@ -447,7 +447,7 @@ function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: nu
  </div>
  <div>
  <h2 className="text-[14px] font-bold text-foreground leading-tight">{T.title[lang]}</h2>
- <p className="text-[9px] text-muted-foreground">{T.tagline[lang]}</p>
+ <p className="text-[10px] text-muted-foreground">{T.tagline[lang]}</p>
  </div>
  </div>
  <div className="grid grid-cols-3 gap-1.5">
@@ -464,7 +464,7 @@ function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: s
  <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
  <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
  <div className="text-[14px] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
- <div className="text-[8.5px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+ <div className="text-[10px] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
  </div>
  );
 }
@@ -502,7 +502,7 @@ function SuggestedNext({
       </div>
       {next && (
         <div className="bg-card/80 rounded-lg p-2 border border-border/30">
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
             {T.weeksToNext[lang]}
           </p>
           <p className="text-[11px] font-semibold text-foreground">

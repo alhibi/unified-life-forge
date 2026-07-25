@@ -66,8 +66,7 @@ function loadSort(): SortMode {
 
 function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
   const player = usePodcastPlayer();
-  const { language } = useApp();
-  const lang = 'ar';
+  const { } = useApp();
 
   if (items.length === 0) return null;
 
@@ -171,8 +170,7 @@ function SubscriptionTile({
   onUnsubscribe: () => void;
   hasNewEpisode?: boolean;
 }) {
-  const { language } = useApp();
-  const lang = 'ar';
+  const { } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -204,7 +202,7 @@ function SubscriptionTile({
             </span>
           )}
         </div>
-        <p className="text-[12.5px] font-bold text-foreground leading-tight line-clamp-2">
+        <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">
           {podcast.title}
         </p>
         <p className="text-[11px] text-muted-foreground leading-tight line-clamp-1">
@@ -293,7 +291,7 @@ function SubscriptionTile({
 
 export default function PodcastLibrary() {
   const navigate = useNavigate();
-  const { language } = useApp();
+  const { } = useApp();
   const lang = 'ar';
   const subs = useSubscriptions();
   const recents = useRecentEpisodes();
@@ -379,7 +377,7 @@ export default function PodcastLibrary() {
   }, [subs, sortMode, lang]);
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="min-h-screen bg-background pb-page">
       <SEO
         title={'مكتبة البودكاست'}
         description={
@@ -445,7 +443,7 @@ export default function PodcastLibrary() {
                   type="button"
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
-                  className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
@@ -456,7 +454,7 @@ export default function PodcastLibrary() {
                   type="button"
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
-                  className={`px-2.5 h-7 rounded-full text-[11.5px] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-[11px] font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >

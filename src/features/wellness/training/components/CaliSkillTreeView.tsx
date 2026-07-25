@@ -144,7 +144,7 @@ function SkillCard({
         </div>
 
         <p className="text-[12px] font-bold text-foreground leading-tight line-clamp-2">{skill.name[lang]}</p>
-        <p className="text-[9px] text-muted-foreground mt-0.5">{CATEGORY_LABEL[skill.category][lang]}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5">{CATEGORY_LABEL[skill.category][lang]}</p>
 
         {/* Difficulty dots */}
         <div className="flex gap-0.5 mt-1.5">
@@ -162,7 +162,7 @@ function SkillCard({
         {/* Progress */}
         {unlocked && (
           <div className="mt-2 space-y-1">
-            <div className="flex items-baseline justify-between text-[9px]">
+            <div className="flex items-baseline justify-between text-[10px]">
               <span className="text-muted-foreground/70 tabular-nums">
                 {progressStep < 0 ? T.notStarted[lang] : isMastered ? T.mastered[lang] : `${T.step[lang]} ${stepIdx + 1}/${totalSteps}`}
               </span>
@@ -181,7 +181,7 @@ function SkillCard({
         )}
 
         {!unlocked && (
-          <p className="text-[9px] text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
+          <p className="text-[10px] text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
         )}
       </div>
     </motion.button>

@@ -269,7 +269,7 @@ export default function MuscleBodyMap({
 
       {/* Legend */}
       {showLegend && (
-        <div className="flex items-center gap-3 text-[9px]">
+        <div className="flex items-center gap-3 text-[10px]">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: PRIMARY_COLOR }} />
             <span className="text-muted-foreground">{legendLabels.primary}</span>

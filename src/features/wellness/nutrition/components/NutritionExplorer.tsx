@@ -82,9 +82,8 @@ const SMART_SECTIONS = [
 ] as const;
 
 export default function NutritionExplorer() {
-  const { language } = useApp();
+  const { } = useApp();
   const lang: Lang = 'ar';
-  const isAr = lang === 'ar';
 
   // Re-render when the cloud-backed favorites / recents cache changes.
   useNutritionCache();

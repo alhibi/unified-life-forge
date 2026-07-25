@@ -192,7 +192,7 @@ export default function LibraryPoemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
+    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
       <SEO
         title={`${p.title} — ${p.poet_name}`}
         description={p.opening ?? ''}
@@ -293,7 +293,7 @@ export default function LibraryPoemPage() {
           )}
           <button
             onClick={copyAll}
-            className="ms-auto flex items-center gap-1.5 text-[11.5px] text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-all font-tajawal"
+            className="ms-auto flex items-center gap-1.5 text-[11px] text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-all font-tajawal"
           >
             <ClipboardCopy className="w-3.5 h-3.5" />
             نسخ المخطوطة
@@ -354,7 +354,7 @@ export default function LibraryPoemPage() {
           style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}
         >
           {displayVerses.length === 0 ? (
-            <p className="text-center text-[#7E7259] py-8 text-[13.5px] font-tajawal">
+            <p className="text-center text-[#7E7259] py-8 text-[13px] font-tajawal">
               لا توجد أبيات محفوظة لهذه القصيدة بعد في رقوقنا.
             </p>
           ) : (

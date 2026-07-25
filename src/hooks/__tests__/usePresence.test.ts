@@ -123,39 +123,31 @@ describe('usePresence module tests', () => {
       vi.setSystemTime(new Date('2025-01-01T12:00:00.000Z'));
     });
 
-    it('handles null, undefined, or invalid dates in English and Arabic', async () => {
+    // The app is Arabic-only, so `formatLastSeen` no longer takes an
+    // `isAr` flag and always returns Arabic copy.
+    it('handles null, undefined and invalid dates', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
-      expect(fls(null, false)).toEqual({ text: 'Unknown', isOnline: false });
-      expect(fls(undefined, false)).toEqual({ text: 'Unknown', isOnline: false });
-      expect(fls('invalid-date', false)).toEqual({ text: 'Unknown', isOnline: false });
-
-      expect(fls(null, true)).toEqual({ text: 'غير معروف', isOnline: false });
-      expect(fls(undefined, true)).toEqual({ text: 'غير معروف', isOnline: false });
-      expect(fls('invalid-date', true)).toEqual({ text: 'غير معروف', isOnline: false });
+      expect(fls(null)).toEqual({ text: 'غير معروف', isOnline: false });
+      expect(fls(undefined)).toEqual({ text: 'غير معروف', isOnline: false });
+      expect(fls('invalid-date')).toEqual({ text: 'غير معروف', isOnline: false });
     });
 
     it('detects online status within threshold', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
       const recentDate = new Date('2025-01-01T11:59:30.000Z').toISOString(); // 30s ago
-      expect(fls(recentDate, false)).toEqual({ text: 'Online', isOnline: true });
-      expect(fls(recentDate, true)).toEqual({ text: 'متصل الآن', isOnline: true });
+      expect(fls(recentDate)).toEqual({ text: 'متصل الآن', isOnline: true });
     });
 
     it('formats just now (between 60s and 120s)', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
       const justNowDate = new Date('2025-01-01T11:58:10.000Z').toISOString(); // 110s ago
-      expect(fls(justNowDate, false)).toEqual({ text: 'Just now', isOnline: false });
-      expect(fls(justNowDate, true)).toEqual({ text: 'منذ لحظات', isOnline: false });
+      expect(fls(justNowDate)).toEqual({ text: 'منذ لحظات', isOnline: false });
     });
 
     it('formats minutes ago', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
       const minutesDate = new Date('2025-01-01T11:50:00.000Z').toISOString(); // 10m ago
-      expect(fls(minutesDate, false)).toEqual({
-        text: 'Last seen 10m ago',
-        isOnline: false,
-      });
-      expect(fls(minutesDate, true)).toEqual({
+      expect(fls(minutesDate)).toEqual({
         text: 'آخر ظهور قبل 10 دقيقة',
         isOnline: false,
       });
@@ -164,28 +156,22 @@ describe('usePresence module tests', () => {
     it('formats hours ago', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
       const hoursDate = new Date('2025-01-01T09:00:00.000Z').toISOString(); // 3h ago
-      expect(fls(hoursDate, false)).toEqual({
-        text: 'Last seen 3h ago',
-        isOnline: false,
-      });
-      expect(fls(hoursDate, true)).toEqual({
+      expect(fls(hoursDate)).toEqual({
         text: 'آخر ظهور قبل 3 ساعة',
         isOnline: false,
       });
     });
 
-    it('formats days ago', async () => {
+    it('formats days ago with a weekday name', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
       const daysDate = new Date('2024-12-29T12:00:00.000Z').toISOString(); // 3 days ago (Sunday)
-      expect(fls(daysDate, false).text).toContain('Last seen');
-      expect(fls(daysDate, true).text).toContain('آخر ظهور يوم');
+      expect(fls(daysDate).text).toContain('آخر ظهور يوم');
     });
 
     it('formats older dates absolutely', async () => {
       const { formatLastSeen: fls } = await import('../usePresence');
       const oldDate = new Date('2024-10-15T12:00:00.000Z').toISOString();
-      expect(fls(oldDate, false).text).toContain('Last seen');
-      expect(fls(oldDate, true).text).toContain('آخر ظهور');
+      expect(fls(oldDate).text).toContain('آخر ظهور');
     });
   });
 

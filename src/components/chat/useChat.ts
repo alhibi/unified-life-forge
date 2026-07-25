@@ -9,7 +9,6 @@ import { useOtherUserPresence, useUserOnline, useOnlineUserIds, formatLastSeen, 
 import { getSignedFileUrl, getMessagePreview } from './chatUtils';
 import { playChatSound, primeAudio, haptic } from './sounds';
 import { useChatPrefs } from './useChatPrefs';
-import { acquireTypingChannel } from './typingChannels';
 import {
   chatError, chatSuccess, describeError, validateFile, clampText,
   MAX_STAGED_IMAGES,
@@ -142,7 +141,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   const otherPresence = useMemo(() => {
     const ls = realtimeLastSeen ?? activeConv?.otherLastSeen ?? null;
-    const formatted = formatLastSeen(ls, isAr);
+    const formatted = formatLastSeen(ls);
     if (otherIsLiveOnline) {
       return { text: 'متصل الآن', isOnline: true };
     }
@@ -488,7 +487,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         const uid = userIdRef.current;
         if (!uid) return;
         const activeId = activeConvIdRef.current;
-        const isAr = isArRef.current;
 
         if (payload.eventType === 'INSERT') {
           const msg = payload.new as Message;

@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import {
   Send, Mic, X, Pencil, Check, Trash2, Plus, Smile, Lock,
-  Play, Pause, Loader2, Camera, FileText, MapPin, Clock,
-  AtSign, Hash, Calendar, Paperclip, Image as ImageIcon,
-  Video, Sticker, GripVertical,
+  Play, Pause, Loader2, Camera, FileText, MapPin, Image as ImageIcon,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';

@@ -14,7 +14,6 @@ const notifyPlayFailure = () => {
   const now = Date.now();
   if (now - lastPlayErrorAt < 2500) return; // throttle bursts
   lastPlayErrorAt = now;
-  const isAr = detectIsAr();
   toast.error('تعذر تشغيل الرسالة الصوتية');
 };
 

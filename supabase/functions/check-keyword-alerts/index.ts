@@ -108,7 +108,7 @@ serve(async (req) => {
 
   // Optional manual scope from the request body. Service role (cron)
   // can scope to anyone; an authenticated user is forced to themselves.
-  let scope: { user_id?: string; alert_id?: string } = {};
+  const scope: { user_id?: string; alert_id?: string } = {};
   if (req.method === "POST") {
     try {
       const body = await req.json().catch(() => ({}));

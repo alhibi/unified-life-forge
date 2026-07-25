@@ -38,9 +38,7 @@ import {
   ArrowSquareOut,
   ArrowsClockwise,
   ArrowsCounterClockwise,
-  ArrowsIn,
   ArrowsOut,
-  At,
   Barbell,
   Bell,
   BellRinging,
@@ -75,7 +73,6 @@ import {
   CircleHalf,
   CircleNotch,
   Clipboard,
-  ClipboardText,
   Clock,
   ClockCounterClockwise,
   Cloud,
@@ -89,14 +86,11 @@ import {
   Cookie,
   Copy,
   Crosshair,
-  CrosshairSimple,
   Crown,
   Database,
   DeviceMobile,
   DiceFive,
   DoorOpen,
-  Dot,
-  DotsSixVertical,
   DotsThree,
   DotsThreeVertical,
   DownloadSimple,
@@ -120,14 +114,12 @@ import {
   Gear,
   GearSix,
   Globe,
-  GlobeHemisphereWest,
   Grains,
   GridNine,
   HandHeart,
   HardDrive,
   Hash,
   Heart,
-  Heartbeat,
   House,
   Image,
   ImageBroken,
@@ -147,7 +139,6 @@ import {
   MapTrifold,
   Medal,
   Microphone,
-  MicrophoneSlash,
   Minus,
   Moon,
   MoonStars,
@@ -156,14 +147,9 @@ import {
   Orange,
   Palette,
   PaperPlaneTilt,
-  Paperclip,
   Pause,
   PencilSimple,
   PencilSimpleLine,
-  Phone,
-  PhoneIncoming,
-  PhoneOutgoing,
-  PhoneSlash,
   PiggyBank,
   Plant,
   Play,
@@ -185,7 +171,6 @@ import {
   ShieldSlash,
   ShieldWarning,
   Shuffle,
-  Sidebar,
   SignIn,
   SignOut,
   SlidersHorizontal,
@@ -198,7 +183,6 @@ import {
   SquaresFour,
   Stack,
   Star,
-  Sticker,
   Sun,
   SunDim,
   SunHorizon,
@@ -208,7 +192,6 @@ import {
   TextAa,
   TextB,
   TextT,
-  ThumbsUp,
   Timer,
   Translate,
   Trash,
@@ -224,7 +207,6 @@ import {
   Users,
   Vibrate,
   VideoCamera,
-  VideoCameraSlash,
   Warning,
   WarningCircle,
   WifiHigh,
@@ -314,9 +296,7 @@ const Icon_ArrowRight = /*#__PURE__*/ makeIcon(ArrowRight, 'ArrowRight');
 const Icon_ArrowSquareOut = /*#__PURE__*/ makeIcon(ArrowSquareOut, 'ArrowSquareOut');
 const Icon_ArrowsClockwise = /*#__PURE__*/ makeIcon(ArrowsClockwise, 'ArrowsClockwise');
 const Icon_ArrowsCounterClockwise = /*#__PURE__*/ makeIcon(ArrowsCounterClockwise, 'ArrowsCounterClockwise');
-const Icon_ArrowsIn = /*#__PURE__*/ makeIcon(ArrowsIn, 'ArrowsIn');
 const Icon_ArrowsOut = /*#__PURE__*/ makeIcon(ArrowsOut, 'ArrowsOut');
-const Icon_At = /*#__PURE__*/ makeIcon(At, 'At');
 const Icon_Barbell = /*#__PURE__*/ makeIcon(Barbell, 'Barbell');
 const Icon_Bell = /*#__PURE__*/ makeIcon(Bell, 'Bell');
 const Icon_BellRinging = /*#__PURE__*/ makeIcon(BellRinging, 'BellRinging');
@@ -351,28 +331,24 @@ const Icon_Circle = /*#__PURE__*/ makeIcon(Circle, 'Circle');
 const Icon_CircleHalf = /*#__PURE__*/ makeIcon(CircleHalf, 'CircleHalf');
 const Icon_CircleNotch = /*#__PURE__*/ makeIcon(CircleNotch, 'CircleNotch');
 const Icon_Clipboard = /*#__PURE__*/ makeIcon(Clipboard, 'Clipboard');
-const Icon_ClipboardText = /*#__PURE__*/ makeIcon(ClipboardText, 'ClipboardText');
 const Icon_Clock = /*#__PURE__*/ makeIcon(Clock, 'Clock');
 const Icon_ClockCounterClockwise = /*#__PURE__*/ makeIcon(ClockCounterClockwise, 'ClockCounterClockwise');
 const Icon_Cloud = /*#__PURE__*/ makeIcon(Cloud, 'Cloud');
 const Icon_CloudFog = /*#__PURE__*/ makeIcon(CloudFog, 'CloudFog');
 const Icon_CloudLightning = /*#__PURE__*/ makeIcon(CloudLightning, 'CloudLightning');
+const Icon_CloudSun = /*#__PURE__*/ makeIcon(CloudSun, 'CloudSun');
 const Icon_CloudRain = /*#__PURE__*/ makeIcon(CloudRain, 'CloudRain');
 const Icon_CloudSnow = /*#__PURE__*/ makeIcon(CloudSnow, 'CloudSnow');
-const Icon_CloudSun = /*#__PURE__*/ makeIcon(CloudSun, 'CloudSun');
 const Icon_Coffee = /*#__PURE__*/ makeIcon(Coffee, 'Coffee');
 const Icon_Compass = /*#__PURE__*/ makeIcon(Compass, 'Compass');
 const Icon_Cookie = /*#__PURE__*/ makeIcon(Cookie, 'Cookie');
 const Icon_Copy = /*#__PURE__*/ makeIcon(Copy, 'Copy');
 const Icon_Crosshair = /*#__PURE__*/ makeIcon(Crosshair, 'Crosshair');
-const Icon_CrosshairSimple = /*#__PURE__*/ makeIcon(CrosshairSimple, 'CrosshairSimple');
 const Icon_Crown = /*#__PURE__*/ makeIcon(Crown, 'Crown');
 const Icon_Database = /*#__PURE__*/ makeIcon(Database, 'Database');
 const Icon_DeviceMobile = /*#__PURE__*/ makeIcon(DeviceMobile, 'DeviceMobile');
 const Icon_DiceFive = /*#__PURE__*/ makeIcon(DiceFive, 'DiceFive');
 const Icon_DoorOpen = /*#__PURE__*/ makeIcon(DoorOpen, 'DoorOpen');
-const Icon_Dot = /*#__PURE__*/ makeIcon(Dot, 'Dot');
-const Icon_DotsSixVertical = /*#__PURE__*/ makeIcon(DotsSixVertical, 'DotsSixVertical');
 const Icon_DotsThree = /*#__PURE__*/ makeIcon(DotsThree, 'DotsThree');
 const Icon_DotsThreeVertical = /*#__PURE__*/ makeIcon(DotsThreeVertical, 'DotsThreeVertical');
 const Icon_DownloadSimple = /*#__PURE__*/ makeIcon(DownloadSimple, 'DownloadSimple');
@@ -396,14 +372,12 @@ const Icon_Gauge = /*#__PURE__*/ makeIcon(Gauge, 'Gauge');
 const Icon_Gear = /*#__PURE__*/ makeIcon(Gear, 'Gear');
 const Icon_GearSix = /*#__PURE__*/ makeIcon(GearSix, 'GearSix');
 const Icon_Globe = /*#__PURE__*/ makeIcon(Globe, 'Globe');
-const Icon_GlobeHemisphereWest = /*#__PURE__*/ makeIcon(GlobeHemisphereWest, 'GlobeHemisphereWest');
 const Icon_Grains = /*#__PURE__*/ makeIcon(Grains, 'Grains');
 const Icon_GridNine = /*#__PURE__*/ makeIcon(GridNine, 'GridNine');
 const Icon_HandHeart = /*#__PURE__*/ makeIcon(HandHeart, 'HandHeart');
 const Icon_HardDrive = /*#__PURE__*/ makeIcon(HardDrive, 'HardDrive');
 const Icon_Hash = /*#__PURE__*/ makeIcon(Hash, 'Hash');
 const Icon_Heart = /*#__PURE__*/ makeIcon(Heart, 'Heart');
-const Icon_Heartbeat = /*#__PURE__*/ makeIcon(Heartbeat, 'Heartbeat');
 const Icon_House = /*#__PURE__*/ makeIcon(House, 'House');
 const Icon_Image = /*#__PURE__*/ makeIcon(Image, 'Image');
 const Icon_ImageBroken = /*#__PURE__*/ makeIcon(ImageBroken, 'ImageBroken');
@@ -423,7 +397,6 @@ const Icon_MapPin = /*#__PURE__*/ makeIcon(MapPin, 'MapPin');
 const Icon_MapTrifold = /*#__PURE__*/ makeIcon(MapTrifold, 'MapTrifold');
 const Icon_Medal = /*#__PURE__*/ makeIcon(Medal, 'Medal');
 const Icon_Microphone = /*#__PURE__*/ makeIcon(Microphone, 'Microphone');
-const Icon_MicrophoneSlash = /*#__PURE__*/ makeIcon(MicrophoneSlash, 'MicrophoneSlash');
 const Icon_Minus = /*#__PURE__*/ makeIcon(Minus, 'Minus');
 const Icon_Moon = /*#__PURE__*/ makeIcon(Moon, 'Moon');
 const Icon_MoonStars = /*#__PURE__*/ makeIcon(MoonStars, 'MoonStars');
@@ -432,14 +405,9 @@ const Icon_Newspaper = /*#__PURE__*/ makeIcon(Newspaper, 'Newspaper');
 const Icon_Orange = /*#__PURE__*/ makeIcon(Orange, 'Orange');
 const Icon_Palette = /*#__PURE__*/ makeIcon(Palette, 'Palette');
 const Icon_PaperPlaneTilt = /*#__PURE__*/ makeIcon(PaperPlaneTilt, 'PaperPlaneTilt');
-const Icon_Paperclip = /*#__PURE__*/ makeIcon(Paperclip, 'Paperclip');
 const Icon_Pause = /*#__PURE__*/ makeIcon(Pause, 'Pause');
 const Icon_PencilSimple = /*#__PURE__*/ makeIcon(PencilSimple, 'PencilSimple');
 const Icon_PencilSimpleLine = /*#__PURE__*/ makeIcon(PencilSimpleLine, 'PencilSimpleLine');
-const Icon_Phone = /*#__PURE__*/ makeIcon(Phone, 'Phone');
-const Icon_PhoneIncoming = /*#__PURE__*/ makeIcon(PhoneIncoming, 'PhoneIncoming');
-const Icon_PhoneOutgoing = /*#__PURE__*/ makeIcon(PhoneOutgoing, 'PhoneOutgoing');
-const Icon_PhoneSlash = /*#__PURE__*/ makeIcon(PhoneSlash, 'PhoneSlash');
 const Icon_PiggyBank = /*#__PURE__*/ makeIcon(PiggyBank, 'PiggyBank');
 const Icon_Plant = /*#__PURE__*/ makeIcon(Plant, 'Plant');
 const Icon_Play = /*#__PURE__*/ makeIcon(Play, 'Play');
@@ -461,7 +429,6 @@ const Icon_ShieldCheck = /*#__PURE__*/ makeIcon(ShieldCheck, 'ShieldCheck');
 const Icon_ShieldSlash = /*#__PURE__*/ makeIcon(ShieldSlash, 'ShieldSlash');
 const Icon_ShieldWarning = /*#__PURE__*/ makeIcon(ShieldWarning, 'ShieldWarning');
 const Icon_Shuffle = /*#__PURE__*/ makeIcon(Shuffle, 'Shuffle');
-const Icon_Sidebar = /*#__PURE__*/ makeIcon(Sidebar, 'Sidebar');
 const Icon_SignIn = /*#__PURE__*/ makeIcon(SignIn, 'SignIn');
 const Icon_SignOut = /*#__PURE__*/ makeIcon(SignOut, 'SignOut');
 const Icon_SlidersHorizontal = /*#__PURE__*/ makeIcon(SlidersHorizontal, 'SlidersHorizontal');
@@ -474,7 +441,6 @@ const Icon_SpeakerSlash = /*#__PURE__*/ makeIcon(SpeakerSlash, 'SpeakerSlash');
 const Icon_SquaresFour = /*#__PURE__*/ makeIcon(SquaresFour, 'SquaresFour');
 const Icon_Stack = /*#__PURE__*/ makeIcon(Stack, 'Stack');
 const Icon_Star = /*#__PURE__*/ makeIcon(Star, 'Star');
-const Icon_Sticker = /*#__PURE__*/ makeIcon(Sticker, 'Sticker');
 const Icon_Sun = /*#__PURE__*/ makeIcon(Sun, 'Sun');
 const Icon_SunDim = /*#__PURE__*/ makeIcon(SunDim, 'SunDim');
 const Icon_SunHorizon = /*#__PURE__*/ makeIcon(SunHorizon, 'SunHorizon');
@@ -484,7 +450,6 @@ const Icon_Target = /*#__PURE__*/ makeIcon(Target, 'Target');
 const Icon_TextAa = /*#__PURE__*/ makeIcon(TextAa, 'TextAa');
 const Icon_TextB = /*#__PURE__*/ makeIcon(TextB, 'TextB');
 const Icon_TextT = /*#__PURE__*/ makeIcon(TextT, 'TextT');
-const Icon_ThumbsUp = /*#__PURE__*/ makeIcon(ThumbsUp, 'ThumbsUp');
 const Icon_Timer = /*#__PURE__*/ makeIcon(Timer, 'Timer');
 const Icon_Translate = /*#__PURE__*/ makeIcon(Translate, 'Translate');
 const Icon_Trash = /*#__PURE__*/ makeIcon(Trash, 'Trash');
@@ -500,7 +465,6 @@ const Icon_UserPlus = /*#__PURE__*/ makeIcon(UserPlus, 'UserPlus');
 const Icon_Users = /*#__PURE__*/ makeIcon(Users, 'Users');
 const Icon_Vibrate = /*#__PURE__*/ makeIcon(Vibrate, 'Vibrate');
 const Icon_VideoCamera = /*#__PURE__*/ makeIcon(VideoCamera, 'VideoCamera');
-const Icon_VideoCameraSlash = /*#__PURE__*/ makeIcon(VideoCameraSlash, 'VideoCameraSlash');
 const Icon_Warning = /*#__PURE__*/ makeIcon(Warning, 'Warning');
 const Icon_WarningCircle = /*#__PURE__*/ makeIcon(WarningCircle, 'WarningCircle');
 const Icon_WifiHigh = /*#__PURE__*/ makeIcon(WifiHigh, 'WifiHigh');
@@ -524,7 +488,6 @@ export {
   Icon_ArrowRight as ArrowRight,
   Icon_SortAscending as ArrowUpNarrowWide,
   Icon_SortDescending as ArrowUpWideNarrow,
-  Icon_At as AtSign,
   Icon_Medal as Award,
   Icon_ChartBar as BarChart3,
   Icon_Bell as Bell,
@@ -561,15 +524,12 @@ export {
   Icon_Orange as Citrus,
   Icon_Clipboard as Clipboard,
   Icon_Clipboard as ClipboardCopy,
-  Icon_ClipboardText as ClipboardList,
   Icon_Clock as Clock,
   Icon_Cloud as Cloud,
   Icon_CloudRain as CloudDrizzle,
   Icon_CloudFog as CloudFog,
-  Icon_CloudSnow as CloudHail,
   Icon_CloudLightning as CloudLightning,
   Icon_CloudRain as CloudRain,
-  Icon_CloudRain as CloudRainWind,
   Icon_CloudSnow as CloudSnow,
   Icon_CloudSun as CloudSun,
   Icon_Cloud as Cloudy,
@@ -584,7 +544,6 @@ export {
   Icon_Database as Database,
   Icon_DiceFive as Dices,
   Icon_DoorOpen as DoorOpen,
-  Icon_Dot as Dot,
   Icon_DownloadSimple as Download,
   Icon_Drop as Droplet,
   Icon_Drop as Droplets,
@@ -606,14 +565,11 @@ export {
   Icon_GameController as Gamepad2,
   Icon_Gauge as Gauge,
   Icon_Globe as Globe,
-  Icon_GlobeHemisphereWest as Globe2,
   Icon_GridNine as Grid3X3,
-  Icon_DotsSixVertical as GripVertical,
   Icon_HandHeart as HandHeart,
   Icon_HardDrive as HardDrive,
   Icon_Hash as Hash,
   Icon_Heart as Heart,
-  Icon_Heartbeat as HeartPulse,
   Icon_Question as HelpCircle,
   Icon_ClockCounterClockwise as History,
   Icon_House as Home,
@@ -633,7 +589,6 @@ export {
   Icon_Link as Link2,
   Icon_List as List,
   Icon_CircleNotch as Loader2,
-  Icon_CrosshairSimple as Locate,
   Icon_Lock as Lock,
   Icon_SignIn as LogIn,
   Icon_SignOut as LogOut,
@@ -643,8 +598,6 @@ export {
   Icon_ChatCircle as MessageCircle,
   Icon_ChatText as MessageSquareText,
   Icon_Microphone as Mic,
-  Icon_MicrophoneSlash as MicOff,
-  Icon_ArrowsIn as Minimize2,
   Icon_Minus as Minus,
   Icon_Moon as Moon,
   Icon_MoonStars as MoonStar,
@@ -654,15 +607,9 @@ export {
   Icon_ShareNetwork as Network,
   Icon_Newspaper as Newspaper,
   Icon_Palette as Palette,
-  Icon_Sidebar as PanelLeft,
-  Icon_Paperclip as Paperclip,
   Icon_Pause as Pause,
   Icon_PencilSimple as Pencil,
   Icon_PencilSimpleLine as PenLine,
-  Icon_Phone as Phone,
-  Icon_PhoneIncoming as PhoneIncoming,
-  Icon_PhoneSlash as PhoneOff,
-  Icon_PhoneOutgoing as PhoneOutgoing,
   Icon_PiggyBank as PiggyBank,
   Icon_PushPin as Pin,
   Icon_PushPinSlash as PinOff,
@@ -699,14 +646,12 @@ export {
   Icon_Sparkle as Sparkles,
   Icon_Plant as Sprout,
   Icon_Star as Star,
-  Icon_Sticker as Sticker,
   Icon_Sun as Sun,
   Icon_SunDim as SunDim,
   Icon_SunHorizon as Sunrise,
   Icon_SunHorizon as Sunset,
   Icon_Sword as Swords,
   Icon_Target as Target,
-  Icon_ThumbsUp as ThumbsUp,
   Icon_Timer as Timer,
   Icon_Timer as TimerOff,
   Icon_Trash as Trash,
@@ -728,7 +673,6 @@ export {
   Icon_ForkKnife as UtensilsCrossed,
   Icon_Vibrate as Vibrate,
   Icon_VideoCamera as Video,
-  Icon_VideoCameraSlash as VideoOff,
   Icon_SpeakerHigh as Volume2,
   Icon_SpeakerSlash as VolumeX,
   Icon_Grains as Wheat,

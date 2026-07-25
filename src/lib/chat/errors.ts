@@ -82,7 +82,7 @@ export function toChatError(err: unknown, fallback: ChatErrorCode = 'UNKNOWN'): 
 }
 
 /** Bilingual surface message for a ChatError. */
-export function describeChatError(e: ChatError, isAr: boolean): string {
+export function describeChatError(e: ChatError): string {
   switch (e.code) {
     case 'NETWORK':           return 'لا يوجد اتصال — حاول مرة أخرى';
     case 'NOT_CONFIGURED':    return 'الخدمة غير مهيّأة';

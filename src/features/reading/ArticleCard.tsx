@@ -393,7 +393,7 @@ export function ArticleCard({
               {article.description && (
                 <p
                   dir="auto"
-                  className="text-[12.5px] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
+                  className="text-[12px] text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
                 >
                   {article.description}
                 </p>
@@ -531,7 +531,6 @@ export function HeroArticleCard({
   onOpen: () => void;
   onToggleBookmark: () => void;
 }) {
-  const isAr = language === 'ar';
   const minutes = readingMinutes(
     article.fullContent || article.description || article.title,
     language,

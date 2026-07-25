@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Loader2, LogIn, ScrollText } from '@/lib/icons';
+import { Heart, Loader2, LogIn } from '@/lib/icons';
 import SEO from '@/components/SEO';
 import BackButton from '@/components/BackButton';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
@@ -23,7 +23,7 @@ export default function LibraryFavoritesPage() {
   const showAuthCallout = !sbReady || !user;
 
   return (
-    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-28 px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
+    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
       <SEO
         title="مفضّلتي — المكتبة الكبرى"
         description="القصائد التي حفظتَها في مفضّلتك."
@@ -40,7 +40,7 @@ export default function LibraryFavoritesPage() {
             <p className="text-[11px] font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
               محراب · الأدب
             </p>
-            <h1 className="text-[26px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
+            <h1 className="text-[24px] font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
               <Heart className="w-6 h-6 text-[var(--wax)] shrink-0" fill="currentColor" />
               مفضّلتي الخاصة
             </h1>

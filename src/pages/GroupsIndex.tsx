@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft, ArrowRight, Plus, Users, Hash, Search, X,
+import { ArrowRight, Plus, Users, Hash, Search, X,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/AppContext';
@@ -103,7 +102,7 @@ export default function GroupsIndexPage() {
           >
             {<ArrowRight className="w-5 h-5" />}
           </button>
-          <h1 className="flex-1 text-[16.5px] font-semibold truncate">
+          <h1 className="flex-1 text-[16px] font-semibold truncate">
             {'المجموعات والقنوات'}
           </h1>
         </header>
@@ -146,7 +145,7 @@ export default function GroupsIndexPage() {
                 type="button"
                 onClick={() => setFilter(tab.id)}
                 className={cn(
-                  'h-8 px-3.5 rounded-full text-[12.5px] font-medium transition-all whitespace-nowrap inline-flex items-center gap-1.5',
+                  'h-8 px-3.5 rounded-full text-[12px] font-medium transition-all whitespace-nowrap inline-flex items-center gap-1.5',
                   active
                     ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
@@ -355,7 +354,7 @@ function EmptyState({ isAr, filter, hasAny, onNewGroup, onNewChannel }: EmptySta
         <Users className="h-11 w-11 text-primary/30" />
       </div>
       <div className="text-center space-y-1">
-        <p className="text-[15.5px] font-semibold text-foreground/70">
+        <p className="text-[15px] font-semibold text-foreground/70">
           {'لا توجد مجموعات بعد'}
         </p>
         <p className="text-[13px] text-muted-foreground/60 max-w-xs leading-relaxed">

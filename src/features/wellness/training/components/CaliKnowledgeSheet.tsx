@@ -211,7 +211,7 @@ function Section({ icon, title, body }: { icon?: React.ReactNode; title: string;
 function Mini({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div className={`rounded-lg p-1.5 text-center ${highlight ? 'bg-primary/15 border border-primary/30' : 'bg-muted/30'}`}>
-      <p className="text-[8.5px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
       <p className={`text-[14px] font-bold tabular-nums ${highlight ? 'text-primary' : 'text-foreground'}`}>{value}</p>
     </div>
   );

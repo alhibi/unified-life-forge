@@ -198,7 +198,7 @@ export default function GroupChatPage() {
       const same = prev
         && new Date(prev.createdAt).toDateString() === new Date(m.createdAt).toDateString();
       if (!same) {
-        out.push({ kind: 'date', key: `d-${m.id}`, label: formatDateSeparator(m.createdAt, isAr) });
+        out.push({ kind: 'date', key: `d-${m.id}`, label: formatDateSeparator(m.createdAt) });
       }
       const showSender =
         m.senderId !== user.id
@@ -252,8 +252,8 @@ export default function GroupChatPage() {
           >
             <GroupAvatar chat={chat} className="h-9 w-9" />
             <div className="flex-1 min-w-0">
-              <p className="text-[14.5px] font-semibold truncate">{chat.title || ('بدون اسم')}</p>
-              <p className="text-[11.5px] text-muted-foreground truncate">
+              <p className="text-[14px] font-semibold truncate">{chat.title || ('بدون اسم')}</p>
+              <p className="text-[11px] text-muted-foreground truncate">
                 {typing.anyOtherTyping ? (
                   <span className="inline-flex items-center gap-1 text-primary">
                     <TypingDots size={3} />
@@ -309,7 +309,7 @@ export default function GroupChatPage() {
                 type="button"
                 onClick={() => void messagesQ.loadOlder()}
                 disabled={messagesQ.isFetchingOlder}
-                className="text-[11.5px] font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
+                className="text-[11px] font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
               >
                 {messagesQ.isFetchingOlder
                   ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -322,7 +322,7 @@ export default function GroupChatPage() {
           {messagesQ.messages.length === 0 && !messagesQ.isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-3 py-12">
               <MessageCircle className="w-10 h-10 opacity-30" />
-              <p className="text-[13.5px]">
+              <p className="text-[13px]">
                 {'لا رسائل بعد. ابدأ المحادثة.'}
               </p>
             </div>
@@ -332,7 +332,7 @@ export default function GroupChatPage() {
             if (item.kind === 'date') {
               return (
                 <div key={item.key} className="flex justify-center py-2">
-                  <span className="text-[10.5px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
+                  <span className="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
                     {item.label}
                   </span>
                 </div>

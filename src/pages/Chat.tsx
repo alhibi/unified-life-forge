@@ -35,8 +35,7 @@ function ChatSkeleton() {
 }
 
 export default function ChatPage() {
-  const { language, t } = useApp();
-  const isAr = language === 'ar';
+  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   // Singleton hook — same value (and same network cost) as BottomNav and Index.

@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+// One toast system. The Radix-based <Toaster/> used to be mounted next to
+// Sonner even though a single call site (AddPlaceSheet) used it, so the app
+// shipped two snackbar implementations with two different looks.
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useApp } from "@/contexts/AppContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
@@ -24,22 +26,27 @@ import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
 import { useInChatConversation } from "@/lib/inChatConversation";
 import EdgeSwipeBack from "@/components/EdgeSwipeBack";
 import { registerRoute } from "@/lib/routePrefetch";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { SystemEngineProvider, useSystemEngine } from "@/contexts/SystemEngineContext";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 import { CommandPalette } from "@/components/CommandPalette";
-import { Layout } from "lucide-react";
+// Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
+// the entry chunk for the 99% of sessions that never enable it.
+const SplitWorkspace = lazy(() => import("@/components/SplitWorkspace"));
 
 // Eager load the portal (new home) — tiny, no heavy data fetch.
 import Portal from "./pages/Portal";
-// Tab pages that stay mounted across navigation are eager-imported so
-// switching between bottom-nav tabs feels instant (no remount/refetch).
-// The new IA reorganisation kept only three persistent tabs (Home,
-// Games, Chat). Heavier hubs (Wellness, Mihrab, Browse) and the
-// `/diwan` redirect are routed lazily below — see the comments on
-// `loadWellness` / `loadMihrab` / `loadBrowse`.
-import GamesPage from "./features/games/pages/Games";
-import ChatPage from "./pages/Chat";
+// The other two persistent tabs (Games, Chat) are LAZY but still
+// persistent: <PersistentTabs/> keeps each slot mounted once it has been
+// visited, so switching back is instant — but their code no longer ships
+// in the entry chunk. Chat alone (ChatDrawer + useChat + the whole realtime
+// stack) was ~165 kB gzip of JavaScript that every visitor downloaded and
+// parsed before the home screen could paint, even though most sessions
+// never open it. Both are prefetched on idle below, so the first tap still
+// feels immediate.
+const loadGames = () => import("./features/games/pages/Games");
+const loadChatTab = () => import("./pages/Chat");
+const GamesPage = lazy(loadGames);
+const ChatPage = lazy(loadChatTab);
 
 function AutoPrayerThemeRunner() {
   useAutoPrayerTheme();
@@ -243,6 +250,8 @@ registerRoute('/archive/:id',    loadArchiveReader);
 registerRoute('/pkm',            loadPKM);
 registerRoute('/pkm/mind',       loadMind);
 registerRoute('/now',            loadNow);
+registerRoute('/games',           loadGames);
+registerRoute('/chat',            loadChatTab);
 
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -318,6 +327,9 @@ function useIdlePrefetch() {
       // chat tab and the chat settings page is one tap away from there;
       // pre-warming both keeps the first navigation instant.
       loadGroupsIndex(); loadChatSettings();
+      // The Games and Chat tabs are lazy now (see the top of this file), so
+      // warm them here — the first tap must not wait on a network round trip.
+      loadGames(); loadChatTab();
       // The new IA hubs are the most likely first taps on every cold
       // session, so warm them up alongside the existing tabs. Settings
       // is now reached from the home avatar shortcut, so prefetch it
@@ -421,10 +433,25 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
   // ref-like memo of the last non-null `active` so during the exit
   // animation (active just became null) we still render the tab the
   // user came from instead of flashing empty content.
-  const [lastTab, setLastTab] = useState<TabPath | null>(active);
+  //
+  // `seen` rides along in the same state object: a lazy tab must not be
+  // RENDERED before it is first visited, otherwise React.lazy would start
+  // its dynamic import during the initial paint and we would be back to
+  // eager-loading the whole chat stack on the home screen. Keeping both
+  // fields in one atom means one state update per tab change instead of two.
+  const [tabState, setTabState] = useState<{ last: TabPath | null; seen: Set<TabPath> }>(() => ({
+    last: active,
+    seen: new Set(active ? [active] : []),
+  }));
   useEffect(() => {
-    if (active !== null) setLastTab(active);
+    if (active === null) return;
+    setTabState((prev) =>
+      prev.last === active && prev.seen.has(active)
+        ? prev
+        : { last: active, seen: new Set(prev.seen).add(active) },
+    );
   }, [active]);
+  const { last: lastTab, seen } = tabState;
 
   const variants = useMemo(
     () => (prefersReducedMotion
@@ -439,29 +466,36 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
 
   const showing: TabPath | null = active ?? lastTab;
 
-  const slot = (path: TabPath, node: React.ReactNode) => (
+  // A slot renders its tab lazily and never unmounts it once seen, so the
+  // Suspense fallback is only ever paid on the very first visit.
+  const slot = (path: TabPath, node: React.ReactNode) => {
+    if (!seen.has(path)) return null;
+    return (
     <div
       key={path}
       style={{ display: showing === path ? 'block' : 'none' }}
       aria-hidden={showing !== path}
     >
       <ErrorBoundary>
-        {showing === path && active !== null ? (
-          // Tab→tab swap micro-motion. Skipped during the exit phase
-          // (active === null) so we don't fight the wrapper's slide.
-          <div
-            key={`tab-anim-${path}`}
-            className="tab-zoom-in"
-            style={{ willChange: 'opacity, transform' }}
-          >
-            {node}
-          </div>
-        ) : (
-          node
-        )}
+        <Suspense fallback={<PageSkeleton />}>
+          {showing === path && active !== null ? (
+            // Tab→tab swap micro-motion. Skipped during the exit phase
+            // (active === null) so we don't fight the wrapper's slide.
+            <div
+              key={`tab-anim-${path}`}
+              className="tab-zoom-in"
+              style={{ willChange: 'opacity, transform' }}
+            >
+              {node}
+            </div>
+          ) : (
+            node
+          )}
+        </Suspense>
       </ErrorBoundary>
     </div>
-  );
+    );
+  };
 
   return (
     <AnimatePresence initial={false} custom={mode}>
@@ -657,55 +691,17 @@ function AnimatedRoutes() {
       <CommandPalette />
 
       {effectiveSplitActive ? (
-        <PanelGroup
-          direction={splitLayout}
-          onLayout={(sizes) => {
-            if (sizes[1] !== undefined) setSplitSize(sizes[1]);
-          }}
-          className="h-full w-full"
-        >
-          <Panel defaultSize={100 - splitSize} minSize={20}>
+        <Suspense fallback={primaryContent}>
+          <SplitWorkspace
+            url={splitUrl}
+            size={splitSize}
+            onSizeChange={setSplitSize}
+            layout={splitLayout}
+            onClose={() => setSplitActive(false)}
+          >
             {primaryContent}
-          </Panel>
-          <PanelResizeHandle className={`relative flex items-center justify-center bg-neutral-950 border-neutral-800 transition-colors hover:bg-neutral-800 ${splitLayout === 'vertical' ? 'h-2 w-full cursor-row-resize border-y' : 'w-2 h-full cursor-col-resize border-x'}`}>
-            <div className={`rounded-full bg-neutral-750 ${splitLayout === 'vertical' ? 'w-8 h-1' : 'w-1 h-8'}`} />
-          </PanelResizeHandle>
-          <Panel defaultSize={splitSize} minSize={20}>
-            <div className="h-full w-full bg-neutral-950 border-neutral-800 flex flex-col relative"
-                 style={{
-                   borderLeftWidth: splitLayout === 'horizontal' ? '1px' : '0px',
-                   borderTopWidth: splitLayout === 'vertical' ? '1px' : '0px',
-                 }}>
-              {/* Header for Secondary Workspace Panel */}
-              <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-neutral-800 text-xs text-neutral-400 font-mono">
-                <div className="flex items-center gap-2">
-                  <Layout className="w-3.5 h-3.5 text-[#C9A84C]" />
-                  <span className="font-semibold text-neutral-300">
-                    مساحة العمل الثانوية
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] bg-neutral-950 px-2 py-0.5 rounded border border-neutral-800 text-neutral-400 max-w-[120px] truncate">
-                    {splitUrl}
-                  </span>
-                  <button
-                    onClick={() => setSplitActive(false)}
-                    className="text-neutral-400 hover:text-neutral-200 transition-colors p-1"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-
-              {/* Responsive isolated Sub-Page View using dynamic iframe */}
-              <iframe
-                src={`${window.location.origin}${splitUrl}?is_split_pane=true`}
-                className="flex-1 w-full border-none bg-neutral-950"
-                title="Secondary Workspace Pane"
-              />
-            </div>
-          </Panel>
-        </PanelGroup>
+          </SplitWorkspace>
+        </Suspense>
       ) : (
         primaryContent
       )}
@@ -723,7 +719,6 @@ const App = () => (
           <PodcastPlayerProvider>
           <TooltipProvider>
             <ErrorBoundary>
-              <Toaster />
               <Sonner />
               <BrowserRouter>
                 <AutoPrayerThemeRunner />

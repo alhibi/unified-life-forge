@@ -5,8 +5,7 @@ import { nutrientsAtlas } from './nutrientsAtlas';
 import { useApp } from '@/contexts/AppContext';
 
 export default function AtlasTab() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [query, setQuery] = useState('');
   const [openCat, setOpenCat] = useState<string | null>(nutrientsAtlas[0].key);
   const [openItem, setOpenItem] = useState<string | null>(null);
@@ -108,7 +107,7 @@ export default function AtlasTab() {
                                         animate={{ height: 'auto', opacity: 1, marginTop: 8 }}
                                         exit={{ height: 0, opacity: 0, marginTop: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="overflow-hidden text-[12.5px] text-muted-foreground leading-relaxed"
+                                        className="overflow-hidden text-[12px] text-muted-foreground leading-relaxed"
                                       >
                                         {it.desc}
                                       </motion.p>

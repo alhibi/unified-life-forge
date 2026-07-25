@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, Trophy, Sparkles, Zap, ChevronRight, Play, RotateCcw, User as UserIcon } from '@/lib/icons';
+import { Trophy, Sparkles, ChevronRight, Play, RotateCcw } from '@/lib/icons';
 import {
   DICE_BOTS, DicePersonality,
   TournamentState, TournamentMatch,
@@ -108,7 +108,7 @@ export default function DiceTournamentPage() {
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-[9px] text-amber-300 uppercase tracking-wider">{'حد التوقف'}</p>
+                <p className="text-[10px] text-amber-300 uppercase tracking-wider">{'حد التوقف'}</p>
  <p className="text-base font-black text-amber-300">{bot.baseHold}</p>
  </div>
  </div>

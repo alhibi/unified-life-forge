@@ -150,8 +150,7 @@ function pickNextPuzzle(stats: PuzzleStats, theme: PuzzleTheme | 'all'): ChessPu
 // Component
 // =============================================================================
 export default function ChessPuzzlePage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [stats, setStats] = useState<PuzzleStats>(loadStats);
 
   useEffect(() => {
@@ -518,22 +517,22 @@ export default function ChessPuzzlePage() {
         <button onClick={useHint} disabled={status === 'solved' || showSolution || moveIdx === 0}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 disabled:opacity-30">
           <Lightbulb className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{'تلميح'}</span>
+          <span className="text-[10px] font-bold">{'تلميح'}</span>
         </button>
         <button onClick={restart}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-purple-500/15 text-purple-300 active:scale-90">
           <RotateCcw className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{'إعادة'}</span>
+          <span className="text-[10px] font-bold">{'إعادة'}</span>
         </button>
         <button onClick={giveUp} disabled={status === 'solved' || showSolution}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-zinc-500/15 text-zinc-300 active:scale-90 disabled:opacity-30">
           <Check className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{'الحل'}</span>
+          <span className="text-[10px] font-bold">{'الحل'}</span>
         </button>
         <button onClick={nextPuzzle}
           className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-purple-500 text-white active:scale-90">
           <ArrowRight className="w-4 h-4" />
-          <span className="text-[9px] font-bold">{'التالي'}</span>
+          <span className="text-[10px] font-bold">{'التالي'}</span>
         </button>
       </div>
 
@@ -543,7 +542,7 @@ export default function ChessPuzzlePage() {
         <div className="grid grid-cols-3 gap-1.5">
           {(Object.keys(themeLabels) as (PuzzleTheme | 'all')[]).filter(t => t !== 'all').map(t => (
             <div key={t} className="rounded-lg p-2 bg-white/4 border border-white/5 text-center">
-              <p className="text-[9px] text-zinc-500 mb-0.5">{themeLabels[t].ar}</p>
+              <p className="text-[10px] text-zinc-500 mb-0.5">{themeLabels[t].ar}</p>
               <p className="text-sm font-bold text-purple-300 tabular-nums">{stats.themesSolved[t as PuzzleTheme] || 0}</p>
             </div>
           ))}

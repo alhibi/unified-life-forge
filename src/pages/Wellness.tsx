@@ -89,7 +89,6 @@ const TABS: TabDef[] = [
 
 export default function WellnessPage() {
   const { language } = useApp();
-  const isAr = language === 'ar';
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -239,7 +238,7 @@ export default function WellnessPage() {
       fallbackTitleAr="قسم الصحة والعافية"
       fallbackDescAr="يرجى تسجيل الدخول للوصول إلى برامج التمرين والتحليلات الصحية ومزامنتها سحابياً."
     >
-      <div className="min-h-screen bg-background pb-24">
+      <div className="min-h-screen bg-background pb-page">
       <SEO
         title={'الصحة والعافية — SmartHub'}
         description={'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'}

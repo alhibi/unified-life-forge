@@ -107,7 +107,7 @@ export default function LibraryPoetPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-28 px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-primary-foreground">
+    <div className="min-h-screen bg-background text-foreground pb-page px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-primary-foreground">
       <SEO
         title={`${p.name_ar} — قصائده وسيرته`}
         description={p.bio ?? ''}
@@ -141,7 +141,7 @@ export default function LibraryPoetPage() {
 
           {/* اسم الشاعر وعنوانه وتاريخ حياته */}
           <h2
-            className="text-[26px] font-bold text-foreground text-center leading-tight mb-2"
+            className="text-[24px] font-bold text-foreground text-center leading-tight mb-2"
             style={{ fontFamily: "'Amiri', serif" }}
           >
             {p.name_ar}
@@ -261,7 +261,7 @@ export default function LibraryPoetPage() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground text-[12.5px] font-tajawal">
+          <div className="text-center py-12 text-muted-foreground text-[12px] font-tajawal">
             {q ? 'لا قصائد مطابقة في هذا المخطوط.' : 'لا قصائد محفوظة لهذا الشاعر بعد.'}
           </div>
         ) : (

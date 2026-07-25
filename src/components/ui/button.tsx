@@ -42,7 +42,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, onClick, onPointerDown, type, isLoading, loadingText, disabled, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     const isDisabled = disabled || isLoading;
-    const isAr = typeof document !== "undefined" && document.documentElement.dir === "rtl";
 
     // Linear-style fast tap: fire onClick on pointerdown (80–100ms faster).
     // Skip for submit/reset (forms need a real click) and when modifier

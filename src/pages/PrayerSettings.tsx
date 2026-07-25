@@ -64,12 +64,11 @@ function RadioRow({
 
 export default function PrayerSettings() {
   const {
-    language, prayerMadhab, setPrayerMadhab,
+    prayerMadhab, setPrayerMadhab,
     latitudeAdjMethod, setLatitudeAdjMethod,
     dstEnabled, setDstEnabled,
     calcMethod, setCalcMethod,
   } = useApp();
-  const isAr = language === 'ar';
 
   const resetDefaults = () => {
     setPrayerMadhab('shafii');
@@ -162,7 +161,7 @@ export default function PrayerSettings() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-28 px-5 pt-14">
+    <div className="min-h-screen bg-background pb-page px-5 pt-14">
       <SEO
         title={'إعدادات الصلاة — SmartHub'}
         description={'اختر المذهب وطريقة الحساب لأوقات الصلاة في SmartHub.'}

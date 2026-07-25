@@ -35,8 +35,7 @@ function formatDurationShort(durationSec: number): string {
 
 export default function QueueSheet({ open, onClose }: QueueSheetProps) {
   const player = usePodcastPlayer();
-  const { language } = useApp();
-  const lang = 'ar';
+  const { } = useApp();
 
   const items = player.queueItems;
 

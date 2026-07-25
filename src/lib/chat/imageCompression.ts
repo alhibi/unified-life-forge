@@ -39,7 +39,18 @@
 //     the JPEG path) or non-image files (return as-is).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import imageCompression from 'browser-image-compression';
+// `browser-image-compression` is ~55 kB and is only needed the moment a user
+// actually picks an image. It used to be a static import, and because the
+// global <ImageUploadProvider/> pulls this module in, it shipped in the entry
+// chunk for every visitor. Loaded on first use and memoised instead.
+type ImageCompressionFn = typeof import('browser-image-compression')['default'];
+
+let compressorPromise: Promise<ImageCompressionFn> | null = null;
+
+function loadCompressor(): Promise<ImageCompressionFn> {
+  compressorPromise ??= import('browser-image-compression').then((m) => m.default);
+  return compressorPromise;
+}
 
 /** Threshold below which we skip compression entirely. */
 const COMPRESS_THRESHOLD_BYTES = 256 * 1024; // 256 KB
@@ -120,6 +131,7 @@ export async function compressForChat(file: File): Promise<CompressedImage> {
   // ── Compress the full-size image ──────────────────────────────────────────
   let compressed: File;
   try {
+    const imageCompression = await loadCompressor();
     compressed = await imageCompression(file, {
       maxSizeMB: TARGET_FULL_MB,
       maxWidthOrHeight: MAX_FULL_DIMENSION_PX,
@@ -142,6 +154,7 @@ export async function compressForChat(file: File): Promise<CompressedImage> {
   // ── Generate the thumbnail ────────────────────────────────────────────────
   let thumbnail: Blob | null = null;
   try {
+    const imageCompression = await loadCompressor();
     const thumbFile = await imageCompression(file, {
       maxSizeMB: TARGET_THUMB_MB,
       maxWidthOrHeight: THUMB_DIMENSION_PX,

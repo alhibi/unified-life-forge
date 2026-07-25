@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Crosshair, Zap, Brain, Hash, RotateCcw, Target, Layers, TrendingUp } from '@/lib/icons';
+import { Crosshair, Zap, Brain, Hash, RotateCcw, Target, Layers } from '@/lib/icons';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 
 // =============================================================================

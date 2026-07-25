@@ -153,7 +153,7 @@ export function useLiveHijriDate(): LiveHijri {
     };
     arm();
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Re-check on visibility / focus (handles laptop sleep, tab switch).
@@ -184,7 +184,7 @@ export function useLiveHijriDate(): LiveHijri {
       refresh('umm-al-qura');
     });
     return () => ctrl.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   return state;

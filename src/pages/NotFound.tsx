@@ -20,15 +20,14 @@ import { useApp } from "@/contexts/AppContext";
  */
 const NotFound = () => {
   const location = useLocation();
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-background pb-24 pt-6 px-5">
+    <div className="min-h-screen bg-background pb-page pt-6 px-5">
       <SEO
         title={'الصفحة غير موجودة — SmartHub'}
         description={'لم نعثر على هذه الصفحة'}

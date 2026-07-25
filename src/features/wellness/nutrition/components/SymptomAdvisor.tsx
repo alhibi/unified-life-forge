@@ -197,11 +197,11 @@ export default function SymptomAdvisor({ lang }: Props) {
                     <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
                       <Info className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <h4 className="text-[12.5px] font-bold text-foreground">
+                    <h4 className="text-[12px] font-bold text-foreground">
                       {def.nutrientName[lang]}
                     </h4>
                   </div>
-                  <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
                     {def.cause[lang]}
                   </p>
                   <div className="space-y-1.5 pt-1.5 border-t border-border/30">
@@ -220,7 +220,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                           </div>
                           <button
                             onClick={() => handleQuickLog(food)}
-                            className="flex items-center gap-1 text-[9px] bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
+                            className="flex items-center gap-1 text-[10px] bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
                           >
                             <Plus className="w-3 h-3" />
                             {T.quickAdd[lang]}

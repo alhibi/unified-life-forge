@@ -2,7 +2,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import BackButton from '@/components/BackButton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Settings2, BarChart3, ChevronDown, X, Volume2, VolumeX, Vibrate, type LucideIcon } from '@/lib/icons';
+import { Info, Settings2, BarChart3, Volume2, VolumeX, Vibrate, type LucideIcon } from '@/lib/icons';
 import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/features/games/utils/gameFeedback';
 
 interface GameStats {
@@ -30,8 +30,7 @@ interface GameShellProps {
 }
 
 export default function GameShell({ title, icon: Icon, accentColor, rules, stats, options, children, headerRight }: GameShellProps) {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const [activeTab, setActiveTab] = useState<'game' | 'rules' | 'stats' | 'options' | null>(null);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
   const [hapticsOff, setHapticsOffState] = useState<boolean>(() => isHapticsOff());
@@ -57,7 +56,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   ];
 
   return (
-    <div className="min-h-screen pb-28 pt-4" style={{ }}>
+    <div className="min-h-screen pb-page pt-4" style={{ }}>
       <div className="px-5">
         {/* Header — back, title, and game-feedback toggles all sit on
             a single row. Previously the back button lived on its own

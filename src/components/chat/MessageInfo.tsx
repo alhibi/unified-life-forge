@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, CheckCheck, Clock, Pencil, ChevronRight, ChevronLeft } from '@/lib/icons';
+import { X, Check, CheckCheck, Clock, Pencil, ChevronRight } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import type { Message } from './types';
 import { readableFileName } from '@/lib/chat/imageMeta';

@@ -131,7 +131,7 @@ function BarRow({
         />
       </div>
       {lm && lm.mrv > 0 && (
-        <div className="flex justify-between text-[8.5px] text-muted-foreground/60 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-[10px] text-muted-foreground/60 tabular-nums" dir="ltr">
           <span>0</span>
           <span style={{ marginLeft: `${xPct(lm.mev)}%` }} className="-translate-x-1/2 absolute">MEV {lm.mev}</span>
           <span style={{ marginLeft: `${xPct(lm.mrv)}%` }} className="-translate-x-1/2 absolute">MRV {lm.mrv}</span>

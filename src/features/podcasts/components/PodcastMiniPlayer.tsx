@@ -21,7 +21,7 @@
 // sheet isn't already open — same gating logic Podium uses.
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { KeyboardEvent, memo, MouseEvent, useCallback, useState } from 'react';
+import { KeyboardEvent, lazy, memo, MouseEvent, Suspense, useCallback, useState } from 'react';
 
 import { FLOATING_STACK_OFFSET } from '@/lib/layout';
 import {
@@ -30,7 +30,10 @@ import {
 } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { Loader2, Pause, Play, RotateCcw, RotateCw } from '@/lib/icons';
 
-import PlayerSheet from './PlayerSheet';
+// The mini-player is mounted on EVERY route, so a static import of
+// PlayerSheet pulled it — plus QueueSheet and all of DOMPurify — into the
+// entry chunk for every visitor. It is only ever rendered after a tap.
+const PlayerSheet = lazy(() => import('./PlayerSheet'));
 
 const MINI_PLAYER_HEIGHT = 64;
 /** Mini-player skip increment, in seconds. Mirrors the full sheet
@@ -271,7 +274,11 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
         )}
       </AnimatePresence>
 
-      <PlayerSheet open={sheetOpen} onClose={closeSheet} />
+      {sheetOpen && (
+        <Suspense fallback={null}>
+          <PlayerSheet open={sheetOpen} onClose={closeSheet} />
+        </Suspense>
+      )}
     </>
   );
 });

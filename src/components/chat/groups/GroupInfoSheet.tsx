@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, ChevronRight, ChevronLeft, Users, Pencil, Check, BellOff, Bell, Pin, PinOff,
+  X, ChevronRight, Users, Pencil, Check, BellOff, Bell, Pin, PinOff,
   Archive, ArchiveRestore, LogOut, Trash2, Hash, Eye, MessageSquareText, Shield,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -319,7 +319,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({
                 />
               )}
             </div>
-            <p className="text-[10.5px] text-muted-foreground/70 px-2 mt-2 leading-relaxed">
+            <p className="text-[10px] text-muted-foreground/70 px-2 mt-2 leading-relaxed">
               <Shield className="inline w-3 h-3 me-1 -mt-0.5" />
               {'الحذف نهائي ولا يمكن التراجع عنه. الأعضاء سيفقدون كل الرسائل.'}
             </p>
@@ -336,7 +336,7 @@ interface SectionProps { title?: string; children: React.ReactNode }
 function Section({ title, children }: SectionProps) {
   return (
     <div className="px-4 mt-3">
-      {title && <h3 className="text-[10.5px] uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
+      {title && <h3 className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
       {children}
     </div>
   );
@@ -375,7 +375,7 @@ function PermissionRow({ icon, label, value, onClick }: PermissionRowProps) {
     >
       <span className="shrink-0">{icon}</span>
       <span className="flex-1 text-[14px] text-foreground">{label}</span>
-      <span className="text-[12.5px] text-muted-foreground">{value}</span>
+      <span className="text-[12px] text-muted-foreground">{value}</span>
     </button>
   );
 }

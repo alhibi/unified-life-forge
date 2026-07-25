@@ -87,7 +87,7 @@ export default function MemoryTimelineRail({
                   }}
                 >
                   {row.kind === 'year' ? (
-                    <div className="text-[9px] tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
+                    <div className="text-[10px] tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
                       {row.year}
                     </div>
                   ) : row.kind === 'note' ? (
@@ -121,7 +121,7 @@ export default function MemoryTimelineRail({
                           {row.note.title || ('بدون عنوان')}
                         </span>
                         {expanded && (
-                          <span className="block text-[9px] text-[color:#F2E7C9]/40 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+                          <span className="block text-[10px] text-[color:#F2E7C9]/40 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
                             {new Date(row.note.createdAt).toLocaleDateString('ar')}
                           </span>
                         )}

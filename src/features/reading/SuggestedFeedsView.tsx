@@ -318,7 +318,7 @@ export function SuggestedFeedsView({
         </div>
       )}
 
-      <div className="flex-1 p-4 overflow-y-auto pb-24">
+      <div className="flex-1 p-4 overflow-y-auto pb-page">
         {filtered.length === 0
           ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">

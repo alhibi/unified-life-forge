@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, ChevronRight, ChevronLeft, UserPlus, MoreHorizontal, Shield,
+  X, ChevronRight, UserPlus, MoreHorizontal, Shield,
   ShieldOff, UserMinus, AlertTriangle,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -344,7 +344,7 @@ function RowAction({ icon, label, onClick, danger }: RowActionProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-2 px-3 h-10 text-start text-[13.5px] active:bg-accent/40',
+        'w-full flex items-center gap-2 px-3 h-10 text-start text-[13px] active:bg-accent/40',
         danger ? 'text-destructive' : 'text-foreground',
       )}
     >

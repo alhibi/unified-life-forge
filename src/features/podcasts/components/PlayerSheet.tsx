@@ -156,7 +156,7 @@ function EqIndicator({ playing, className }: { playing: boolean; className?: str
 
 export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
   const player = usePodcastPlayer();
-  const { language } = useApp();
+  const { } = useApp();
   const lang = 'ar';
 
   // Sleep-timer popover open/close. Kept here (not inside the popover
@@ -712,7 +712,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                   player.setSpeed(s);
                                   setSpeedOpen(false);
                                 }}
-                                className="px-2 py-2 rounded-xl text-[12.5px] font-semibold tabular-nums transition-colors"
+                                className="px-2 py-2 rounded-xl text-[12px] font-semibold tabular-nums transition-colors"
                                 style={{
                                   background: active
                                     ? 'var(--podcast-primary, hsl(var(--primary)))'

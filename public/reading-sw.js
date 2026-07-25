@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 /**
  * Kill-switch service worker for the reading feature.
  *

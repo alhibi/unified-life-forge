@@ -148,7 +148,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                     key={i}
                     className="p-3 rounded-xl bg-primary/[0.01] border border-primary/10"
                   >
-                    <span className="text-[9px] font-bold text-primary block mb-1">
+                    <span className="text-[10px] font-bold text-primary block mb-1">
                       الموضع: {res.sectionTitle}
                     </span>
                     <p className="text-[12px] text-foreground leading-relaxed">
@@ -202,7 +202,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                   <div>
                     <h6 className="text-[13px] font-bold text-foreground">{sec.title}</h6>
                     {sec.dimension && (
-                      <span className="text-[9px] font-semibold text-primary block mt-0.5">
+                      <span className="text-[10px] font-semibold text-primary block mt-0.5">
                         البعد: {sec.dimension}
                       </span>
                     )}
@@ -240,7 +240,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                 <AppCard key={ins.id} compact className="p-3 bg-muted/20 relative group">
                   <div className="flex items-center gap-1.5 mb-1.5 text-primary/70">
                     <Quote className="w-3.5 h-3.5" />
-                    <span className="text-[9px] font-bold truncate">القسم: {ins.category}</span>
+                    <span className="text-[10px] font-bold truncate">القسم: {ins.category}</span>
                   </div>
                   <p className="text-[12px] text-foreground leading-relaxed pr-2 italic">
                     « {ins.text} »

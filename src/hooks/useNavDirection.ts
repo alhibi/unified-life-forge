@@ -90,7 +90,7 @@ export function useNavDirection(): NavDirection {
     // location.key changes on every navigation (even when pathname is
     // identical), but we want the mode tied to pathname so this memo
     // recomputes once per real route change.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [location.pathname, navType]);
 
   // Update the refs AFTER the mode is computed for this render. We use

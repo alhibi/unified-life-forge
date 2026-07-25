@@ -117,7 +117,7 @@ function CaliProgramCard({
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="min-w-0 flex-1">
           {isActive && (
-            <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
+            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/15 px-1.5 py-0.5 rounded mb-1">
               {T.current[lang]}
             </span>
           )}
@@ -125,7 +125,7 @@ function CaliProgramCard({
           <p className="text-[10px] text-muted-foreground mt-0.5">{T.by[lang]} {p.author}</p>
         </div>
         <span
-          className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase shrink-0"
+          className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0"
           style={{
             background: p.experience === 'beginner' ? '#22c55e20' : p.experience === 'intermediate' ? '#f59e0b20' : '#ef444420',
             color: p.experience === 'beginner' ? '#22c55e' : p.experience === 'intermediate' ? '#f59e0b' : '#ef4444',
@@ -168,7 +168,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
         {icon}
         <span className="text-[12px] font-bold tabular-nums text-foreground">{value}</span>
       </div>
-      <p className="text-[9px] text-muted-foreground/70 mt-0.5">{label}</p>
+      <p className="text-[10px] text-muted-foreground/70 mt-0.5">{label}</p>
     </div>
   );
 }
@@ -280,7 +280,7 @@ function CaliDetailSheet({
                   {program.weekTemplate[0]?.sessions.slice(0, 4).map((s) => (
                     <div key={s.key} className="bg-card border border-border/40 rounded-lg p-2.5">
                       <p className="text-[11px] font-bold text-foreground">{s.name[lang]}</p>
-                      <p className="text-[9px] text-muted-foreground tabular-nums">{s.exercises.length} {T.exercises[lang]} · {s.estMinutes} {T.minutes[lang]}</p>
+                      <p className="text-[10px] text-muted-foreground tabular-nums">{s.exercises.length} {T.exercises[lang]} · {s.estMinutes} {T.minutes[lang]}</p>
                     </div>
                   ))}
                 </div>

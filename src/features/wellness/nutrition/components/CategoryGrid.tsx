@@ -62,7 +62,7 @@ export default function CategoryGrid({ lang, onSelect }: Props) {
             <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2">
               {info.label[lang]}
             </span>
-            <span className="absolute top-1.5 right-1.5 text-[8px] bg-primary/10 text-primary rounded-full px-1.5 py-0.5 font-bold">
+            <span className="absolute top-1.5 right-1.5 text-[10px] bg-primary/10 text-primary rounded-full px-1.5 py-0.5 font-bold">
               {info.count}
             </span>
           </motion.button>

@@ -81,8 +81,7 @@ export default function PodcastDetail() {
   const decoded = useMemo(() => decodeRouteId(routeId), [routeId]);
   const location = useLocation();
   const hint = (location.state ?? null) as RouteHint | null;
-  const { language } = useApp();
-  const lang = 'ar';
+  const { } = useApp();
 
   // Step 1 — get podcast metadata.
   // Three branches in order of preference:
@@ -455,7 +454,7 @@ export default function PodcastDetail() {
                   // `max-height` with a fade gradient gives a
                   // predictable preview height regardless of inner
                   // markup. Once expanded we drop the cap entirely.
-                  className={`text-[13.5px] text-foreground/90 leading-relaxed podcast-html relative ${
+                  className={`text-[13px] text-foreground/90 leading-relaxed podcast-html relative ${
                     isLongDescription && !descExpanded ? 'overflow-hidden' : ''
                   }`}
                   style={
@@ -505,7 +504,7 @@ export default function PodcastDetail() {
                       <p className="text-[11px] text-muted-foreground">
                         {'المصدر'}
                       </p>
-                      <p className="text-[12.5px] truncate text-foreground">{displayLink}</p>
+                      <p className="text-[12px] truncate text-foreground">{displayLink}</p>
                     </div>
                   </a>
                 )}
@@ -513,7 +512,7 @@ export default function PodcastDetail() {
                   <Rss className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] text-muted-foreground">RSS</p>
-                    <p className="text-[12.5px] truncate text-foreground" dir="ltr">
+                    <p className="text-[12px] truncate text-foreground" dir="ltr">
                       {feed.data.origin}
                     </p>
                   </div>
@@ -525,7 +524,7 @@ export default function PodcastDetail() {
                       <p className="text-[11px] text-muted-foreground">
                         {'اللغة'}
                       </p>
-                      <p className="text-[12.5px] uppercase text-foreground">
+                      <p className="text-[12px] uppercase text-foreground">
                         {feed.data.languageCode}
                       </p>
                     </div>
@@ -592,7 +591,7 @@ export default function PodcastDetail() {
                         value={episodeQuery}
                         onChange={(e) => setEpisodeQuery(e.target.value)}
                         placeholder={'ابحث في الحلقات'}
-                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[12.5px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className="w-full h-9 ps-8 pe-8 rounded-full bg-muted/40 border border-border/40 text-[12px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                         aria-label={'بحث في الحلقات'}
                       />
                       {episodeQuery && (
@@ -621,7 +620,7 @@ export default function PodcastDetail() {
                       ) : (
                         <ArrowUpNarrowWide className="w-3.5 h-3.5" />
                       )}
-                      <span className="text-[11.5px] hidden sm:inline">
+                      <span className="text-[11px] hidden sm:inline">
                         {sortOrder === 'newest'
                           ? 'الأحدث'
                           : 'الأقدم'}

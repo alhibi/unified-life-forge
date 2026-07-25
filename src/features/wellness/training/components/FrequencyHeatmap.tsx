@@ -90,7 +90,7 @@ export default function FrequencyHeatmap({
       </div>
 
       <div className="flex gap-1.5" dir="ltr">
-        <div className="flex flex-col gap-[2px] text-[8px] text-muted-foreground/70 pe-1 w-3 text-center pt-[12px]">
+        <div className="flex flex-col gap-[2px] text-[10px] text-muted-foreground/70 pe-1 w-3 text-center pt-[12px]">
           {[1, 3, 5].map((di) => (
             <span key={di} style={{ height: cellSize, marginBottom: cellGap, lineHeight: `${cellSize}px` }}>
               {dayLabels[di]}

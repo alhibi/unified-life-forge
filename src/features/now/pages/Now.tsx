@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import PrayerTimes from '@/components/PrayerTimes';
 import { motion } from 'framer-motion';
@@ -28,7 +26,7 @@ export default function Now() {
     if (locationStatus === 'idle') void requestLocation();
   }, [locationStatus, requestLocation]);
 
-  const { t, language } = useApp();
+  const { t, } = useApp();
   const navigate = useNavigate();
 
   return (
@@ -95,7 +93,7 @@ export default function Now() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-foreground">الأرشيف المعرفي</h3>
-                  <span className="font-mono text-[9px] text-primary/60 tracking-wider">№ 000001</span>
+                  <span className="font-mono text-[10px] text-primary/60 tracking-wider">№ 000001</span>
                 </div>
                 <p className="text-[12px] text-muted-foreground leading-relaxed mt-0.5">
                   اقترح موضوعاً، اختر عمقاً، واحصل على مونوغراف كامل مفهرس.

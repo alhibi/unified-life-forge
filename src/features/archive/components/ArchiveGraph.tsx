@@ -479,7 +479,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
                 docSummary && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[9px] text-primary/70">
+                      <span className="font-mono text-[10px] text-primary/70">
                         № {String(docSummary.accession_number).padStart(6, '0')}
                       </span>
                       <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/60">
@@ -506,7 +506,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
                         {docSummary.tags.map((t) => (
                           <span
                             key={t}
-                            className="text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary"
+                            className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary"
                           >
                             #{t}
                           </span>

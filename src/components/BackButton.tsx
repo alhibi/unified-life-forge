@@ -59,7 +59,7 @@ export default function BackButton({
 }: BackButtonProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { language } = useApp();
+  const { } = useApp();
   const label = ariaLabel ?? ('رجوع');
 
   const handleClick = useCallback(() => {

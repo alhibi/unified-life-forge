@@ -4,7 +4,7 @@ import { Gauge, Zap, RotateCcw, Info, Activity, Sparkles, ArrowDown } from '@/li
 import { motion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import BackButton from '@/components/BackButton';
-import { pageStagger as stagger, pageItem as item, motionWeight, MOTION } from '@/lib/motion';
+import { pageStagger as stagger, pageItem as item, MOTION } from '@/lib/motion';
 import { measureDisplayHz } from '@/lib/motionRuntime';
 import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
@@ -170,7 +170,7 @@ function PerfHUD({ isAr, budgetHz }: { isAr: boolean; budgetHz: number }) {
       <p className="text-[18px] font-bold tabular-nums leading-tight mt-0.5 text-foreground">
         {value}<span className="text-[11px] font-normal text-muted-foreground ms-0.5">{unit}</span>
       </p>
-      {hint && <p className="text-[9px] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
+      {hint && <p className="text-[10px] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
     </div>
   );
 
@@ -235,7 +235,7 @@ export default function MotionSettings() {
   const budgetHz = fpsCap === 'auto' ? (nativeHz ?? 60) : fpsCap;
 
   return (
-    <div className="min-h-screen bg-background pb-24 px-5 pt-10">
+    <div className="min-h-screen bg-background pb-page px-5 pt-10">
       <SEO
         title={'الحركة والأداء — SmartHub'}
         description={'تحكم بسرعة الحركة وحد الإطارات في الثانية.'}

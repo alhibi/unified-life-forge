@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Swords, Trophy, Flame } from '@/lib/icons';
+import { Dices, RotateCcw, Crown, Bot, User as UserIcon, PiggyBank, Trophy, Flame } from '@/lib/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import {
   DICE_BOTS, DicePersonality, effectiveThreshold,
-  loadTournament, saveTournament, recordPlayerMatch, TournamentState,
+  loadTournament, saveTournament, recordPlayerMatch,
 } from '@/features/games/data/diceTournament';
 
 // =============================================================================
@@ -55,7 +55,7 @@ function DiceFace({ value, held, rolling, onClick, color, size = 'md' }: {
         ))
       )}
       {held && size !== 'lg' && (
-        <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-wider px-1.5 py-0.5 rounded-full ${
+        <span className={`absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded-full ${
           isGold ? 'bg-amber-500 text-amber-50' : 'bg-rose-500 text-white'
         }`}>
           HOLD
@@ -937,12 +937,12 @@ function HighRollView({ isAr }: { isAr: boolean }) {
 
       <div className="flex items-center justify-between mb-4 px-3">
         <div className="text-left">
-          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{'أنت'}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'أنت'}</p>
           <p className="text-3xl font-black text-amber-400">{hrScore.p}</p>
         </div>
         <div className="text-[10px] text-zinc-500">{hrRound}/{hrRounds}</div>
         <div className="text-right">
-          <p className="text-[9px] text-zinc-500 uppercase tracking-wider">{'الخصم'}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{'الخصم'}</p>
           <p className="text-3xl font-black text-rose-400">{hrScore.a}</p>
         </div>
       </div>
@@ -1031,7 +1031,7 @@ function ScorecardSection(props: {
             <span className={`font-semibold ${filled ? 'text-zinc-400' : `text-${accentColor}-200`}`}>{lbl(cat)}</span>
             <span className="flex items-center gap-1.5">
               {aVal !== undefined && (
-                <span className="text-[9px] text-rose-400/70 font-mono">{aVal}</span>
+                <span className="text-[10px] text-rose-400/70 font-mono">{aVal}</span>
               )}
               <span className={`font-mono font-bold ${filled ? 'text-white' : preview && preview > 0 ? `text-${accentColor}-300` : 'text-zinc-400'}`}>
                 {filled ? pVal : preview !== undefined ? preview : '-'}

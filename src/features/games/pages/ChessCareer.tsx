@@ -76,8 +76,7 @@ export function recordCareerResult(botId: string, result: 'win' | 'loss' | 'draw
 // Component
 // =============================================================================
 export default function ChessCareerPage() {
-  const { language } = useApp();
-  const isAr = language === 'ar';
+  const { } = useApp();
   const navigate = useNavigate();
   const [career, setCareer] = useState<CareerStats>(loadCareer);
 
@@ -234,7 +233,7 @@ export default function ChessCareerPage() {
                 <div className="text-right shrink-0">
                   <p className="text-xs font-bold text-purple-300 tabular-nums">{bot.elo}</p>
                   {rec && (
-                    <p className="text-[9px] text-muted-foreground tabular-nums">
+                    <p className="text-[10px] text-muted-foreground tabular-nums">
                       {rec.wins}-{rec.losses}-{rec.draws}
                     </p>
                   )}
@@ -345,7 +344,7 @@ function StatRow({ label, v, max }: { label: string; v: number; max: number }) {
   const pct = Math.max(0, Math.min(100, (v / max) * 100));
   return (
     <div>
-      <p className="text-[9px] text-zinc-500 mb-0.5">{label}</p>
+      <p className="text-[10px] text-zinc-500 mb-0.5">{label}</p>
       <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
         <div className="h-full rounded-full bg-purple-400" style={{ width: `${pct}%` }} />
       </div>

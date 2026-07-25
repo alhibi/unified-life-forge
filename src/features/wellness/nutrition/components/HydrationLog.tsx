@@ -34,7 +34,6 @@ const T = {
 const AMOUNTS = [250, 500, 750];
 
 export default function HydrationLog({ lang }: Props) {
-  const isAr = lang === 'ar';
   const [logs, setLogs] = useState<HydrationEvent[]>([]);
 
   const fetchLogs = async () => {

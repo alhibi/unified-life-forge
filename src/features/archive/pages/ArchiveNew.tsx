@@ -556,7 +556,7 @@ function GenerationOverlay({
                           )}
                         </div>
                         <span
-                          className={`text-[9px] ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/60'}`}
+                          className={`text-[10px] ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/60'}`}
                         >
                           {STAGE_LABEL[s]}
                         </span>

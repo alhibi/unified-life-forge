@@ -107,7 +107,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
             </span>
             {sender.role !== 'member' && (
               <span className={cn(
-                'text-[9px] px-1 py-px rounded-full font-medium',
+                'text-[10px] px-1 py-px rounded-full font-medium',
                 sender.role === 'owner'
                   ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                   : 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
@@ -145,7 +145,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
               )}
             >
               <p className={cn(
-                'text-[10.5px] font-semibold truncate',
+                'text-[10px] font-semibold truncate',
                 isMine ? 'text-primary-foreground/85' : 'text-primary',
               )}>
                 {replyTarget?.senderId === myUserId
@@ -166,7 +166,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({
           )}
 
           <p
-            className="text-[14.5px] leading-relaxed whitespace-pre-wrap break-words"
+            className="text-[14px] leading-relaxed whitespace-pre-wrap break-words"
             dir="auto"
           >
             {renderRichText(message.content)}
