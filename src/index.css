@@ -43,20 +43,39 @@
     --spring-exit: var(--ease-in);
     --spring-ios: var(--ease-spring);
     --ease-out-soft: var(--ease-out-expo);
-    --background: 36 18% 96%;
-    --foreground: 30 16% 14%;
-    --card: 38 24% 99%;
-    --card-foreground: 30 16% 14%;
-    --popover: 38 24% 99%;
-    --popover-foreground: 30 16% 14%;
-    --primary: 28 42% 34%;
-    --primary-foreground: 38 30% 98%;
-    --secondary: 36 14% 91%;
-    --secondary-foreground: 30 14% 24%;
-    --muted: 36 14% 91%;
-    --muted-foreground: 30 10% 38%;
-    --accent: 36 14% 91%;
-    --accent-foreground: 28 42% 30%;
+    /* ── The 7-step tonal scale of the default theme ──────────────
+       50 #f1f0f4 · 100 #bebacd · 200 #a49db8 · 300 #756b92
+       400 #4b4262 · 500 #373049 · 600 #1c1827
+
+       These seven tones are the palette. Every semantic token below is a
+       sample of the same curve, which is why the app reads as one colour
+       system instead of a background colour plus an accent colour.
+
+       This block is the pre-hydration fallback only — themeEngine.ts rewrites
+       all of it on <html> as soon as the app boots (including for the other 30
+       themes). Keep it in sync with generateThemeTokens(default, 'neutral'). */
+    --theme-50: 255 15.4% 94.9%;
+    --theme-100: 252.6 16% 76.7%;
+    --theme-200: 255.6 16% 66.9%;
+    --theme-300: 255.4 15.4% 49.6%;
+    --theme-400: 256.9 19.5% 32.2%;
+    --theme-500: 256.8 20.7% 23.7%;
+    --theme-600: 256 23.8% 12.4%;
+
+    --background: 255 15.4% 94.9%; /* 50  — the canvas */
+    --foreground: 256 23.8% 12.4%; /* 600 — body text */
+    --card: 255 13.1% 98.6%; /* above 50, lifted toward white */
+    --card-foreground: 256 23.8% 12.4%;
+    --popover: 255 13.1% 98.6%;
+    --popover-foreground: 256 23.8% 12.4%;
+    --primary: 256.9 19.5% 32.2%; /* 400 — actions */
+    --primary-foreground: 255 9.2% 97.5%;
+    --secondary: 254.4 15.5% 90.6%; /* just below 50 — recessed surface */
+    --secondary-foreground: 256.8 20.2% 27%;
+    --muted: 254.4 15.5% 90.6%;
+    --muted-foreground: 256.1 17.4% 41%;
+    --accent: 254.4 15.5% 90.6%;
+    --accent-foreground: 256.8 20.7% 23.7%; /* 500 */
     --destructive: 0 58% 42%;
     --destructive-foreground: 0 0% 100%;
     --success: 145 42% 34%;
@@ -73,19 +92,19 @@
     --sev-extreme: 295 32% 42%;
     --error: 0 58% 42%;
     --error-foreground: 0 0% 100%;
-    --border: 34 13% 82%;
-    --input: 34 13% 72%;
-    --ring: 28 42% 34%;
-    --scrim: 24 14% 8%;
+    --border: 253.5 15.8% 83.5%; /* between 50 and 100 */
+    --input: 252.6 16% 76.7%; /* 100 */
+    --ring: 256.9 19.5% 32.2%;
+    --scrim: 256 23.8% 8%;
     --radius: 1rem;
-    --sidebar-background: 36 18% 96%;
-    --sidebar-foreground: 30 14% 24%;
-    --sidebar-primary: 28 42% 34%;
-    --sidebar-primary-foreground: 38 30% 98%;
-    --sidebar-accent: 36 14% 91%;
-    --sidebar-accent-foreground: 28 42% 30%;
-    --sidebar-border: 34 13% 82%;
-    --sidebar-ring: 28 42% 34%;
+    --sidebar-background: 255 15.4% 94.9%;
+    --sidebar-foreground: 256.8 20.2% 27%;
+    --sidebar-primary: 256.9 19.5% 32.2%;
+    --sidebar-primary-foreground: 255 9.2% 97.5%;
+    --sidebar-accent: 254.4 15.5% 90.6%;
+    --sidebar-accent-foreground: 256.8 20.7% 23.7%;
+    --sidebar-border: 253.5 15.8% 83.5%;
+    --sidebar-ring: 256.9 19.5% 32.2%;
 
     /* Flat-surface contract: legacy shadow variables resolve to none. */
     --shadow-color: 30 18% 14%;
@@ -98,28 +117,32 @@
     --font-body:
       'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-    /* One chromatic note: a muted copper for active/live states only. */
-    --live: 28 42% 40%;
-    --live-soft: 28 35% 56%;
-    --live-glow: 28 46% 52%;
+    /* Active/live states — step 300 of the scale, deepened just enough to stay
+       readable as text on the canvas. */
+    --live: 255.6 15.9% 47.6%;
+    --live-soft: 255.6 16% 66.9%; /* 200 */
+    --live-glow: 255.9 16.7% 44%;
   }
 
   .dark {
+    /* The same seven tones, read from the other end of the ladder: step 600 is
+       now the canvas and step 100 carries the actions. The theme keeps its
+       identity across modes instead of becoming a different colour. */
     color-scheme: dark;
-    --background: 30 9% 10%;
-    --foreground: 34 20% 92%;
-    --card: 30 8% 15%;
-    --card-foreground: 34 20% 92%;
-    --popover: 30 8% 15%;
-    --popover-foreground: 34 20% 92%;
-    --primary: 29 40% 72%;
-    --primary-foreground: 30 14% 14%;
-    --secondary: 30 8% 21%;
-    --secondary-foreground: 34 18% 88%;
-    --muted: 30 8% 21%;
-    --muted-foreground: 34 12% 72%;
-    --accent: 30 8% 21%;
-    --accent-foreground: 29 40% 78%;
+    --background: 256 23.8% 12.4%; /* 600 */
+    --foreground: 254.7 15.5% 93%;
+    --card: 256.3 22.6% 16.8%;
+    --card-foreground: 254.7 15.5% 93%;
+    --popover: 256.3 22.6% 16.8%;
+    --popover-foreground: 254.7 15.5% 93%;
+    --primary: 252.8 16% 76%; /* ≈100 */
+    --primary-foreground: 256 23.8% 12.4%;
+    --secondary: 256.7 21% 22.5%; /* ≈500 */
+    --secondary-foreground: 254.1 15.6% 88%;
+    --muted: 256.7 21% 22.5%;
+    --muted-foreground: 254.2 16% 71.5%;
+    --accent: 256.7 21% 22.5%;
+    --accent-foreground: 253.2 15.9% 81%;
     --destructive: 0 58% 68%;
     --destructive-foreground: 0 20% 10%;
     --success: 145 38% 64%;
@@ -128,22 +151,22 @@
     --warning-foreground: 35 40% 12%;
     --error: 0 58% 68%;
     --error-foreground: 0 20% 10%;
-    --border: 30 8% 29%;
-    --input: 30 8% 36%;
-    --ring: 29 40% 72%;
-    --scrim: 24 14% 4%;
-    --sidebar-background: 30 9% 10%;
-    --sidebar-foreground: 34 18% 88%;
-    --sidebar-primary: 29 40% 72%;
-    --sidebar-primary-foreground: 30 14% 14%;
-    --sidebar-accent: 30 8% 21%;
-    --sidebar-accent-foreground: 29 40% 78%;
-    --sidebar-border: 30 8% 29%;
-    --sidebar-ring: 29 40% 72%;
-    --shadow-color: 25 20% 2%;
-    --live: 29 42% 68%;
-    --live-soft: 29 30% 58%;
-    --live-glow: 29 42% 72%;
+    --border: 256.9 20% 28.5%;
+    --input: 256.7 18.8% 35%;
+    --ring: 252.8 16% 76%;
+    --scrim: 256 23.8% 2%;
+    --sidebar-background: 256 23.8% 12.4%;
+    --sidebar-foreground: 254.1 15.6% 88%;
+    --sidebar-primary: 252.8 16% 76%;
+    --sidebar-primary-foreground: 256 23.8% 12.4%;
+    --sidebar-accent: 256.7 21% 22.5%;
+    --sidebar-accent-foreground: 253.2 15.9% 81%;
+    --sidebar-border: 256.9 20% 28.5%;
+    --sidebar-ring: 252.8 16% 76%;
+    --shadow-color: 256 24% 2%;
+    --live: 254.7 16% 70%;
+    --live-soft: 255.5 15.7% 58%;
+    --live-glow: 252.8 16% 76%;
   }
 }
 

@@ -121,7 +121,7 @@ async function navigationHandler(request) {
     return new Response(
       '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8">' +
         '<title>بدون اتصال</title>' +
-        '<body style="font-family:system-ui;display:grid;place-items:center;min-height:100vh;margin:0;background:#f5f3ef;color:#282622">' +
+        '<body style="font-family:system-ui;display:grid;place-items:center;min-height:100vh;margin:0;background:#f1f0f4;color:#1c1827">' +
         '<div style="text-align:center;padding:24px"><p style="font-size:17px;font-weight:600">لا يوجد اتصال بالإنترنت</p>' +
         '<p style="font-size:14px;opacity:.7">افتح التطبيق مرة واحدة أثناء الاتصال ليعمل بدون شبكة بعدها.</p></div>',
       { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } },

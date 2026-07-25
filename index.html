@@ -6,8 +6,11 @@
          handled in index.css for coarse pointers only. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f5f3ef" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#191817" media="(prefers-color-scheme: dark)" />
+    <!-- Step 50 and step 600 of the default theme scale — see
+         src/utils/themeEngine.ts. These must equal --background in each mode
+         or the OS chrome flashes a different colour than the app boots into. -->
+    <meta name="theme-color" content="#f1f0f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1c1827" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />

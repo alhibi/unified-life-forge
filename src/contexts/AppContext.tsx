@@ -97,7 +97,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.getItem('app-black-mode') === 'true'
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() =>
-    (localStorage.getItem('app-color-theme') as ColorTheme) || 'paper'
+    // 'default' is the shipped 7-tone palette (#f1f0f4 → #1c1827).
+    (localStorage.getItem('app-color-theme') as ColorTheme) || 'default'
   );
 
   const [fontFamily, setFontFamilyState] = useState<string>(() =>
@@ -188,7 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // different value here made sign-out change the app's look.
     setPaletteStyleState('neutral'); localStorage.setItem('app-palette-style', 'neutral');
     setBlackModeState(false); localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('paper'); localStorage.setItem('app-color-theme', 'paper');
+    setColorThemeState('default'); localStorage.setItem('app-color-theme', 'default');
 
     setFontFamilyState(DEFAULT_FONT_ID); localStorage.setItem('app-font-family', DEFAULT_FONT_ID);
     setFontSizeState('medium'); localStorage.setItem('app-font-size', 'medium');

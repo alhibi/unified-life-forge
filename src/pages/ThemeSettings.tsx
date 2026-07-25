@@ -31,6 +31,8 @@ import {
   createDynamicPreset,
   extractDominantColor,
   generateThemeTokens,
+  getThemeScaleColors,
+  SCALE_STEPS,
   themePresets,
   type ThemeStyle,
 } from '@/utils/themeEngine';
@@ -100,7 +102,7 @@ const THEME_CATEGORIES: ThemeCategory[] = [
     id: 'classic',
     nameAr: 'الكلاسيكية والرصينة',
     nameEn: 'Classic & Ink',
-    presets: ['paper', 'default', 'mono', 'coffee', 'fog', 'obsidian'],
+    presets: ['default', 'paper', 'mono', 'coffee', 'fog', 'obsidian'],
   },
   {
     id: 'nature',
@@ -168,6 +170,8 @@ function ThemePresetsCategorized({
     return cat?.presets.includes(preset.id);
   });
 
+  const activePreset = themePresets.find((preset) => preset.id === colorTheme);
+
   return (
     <motion.div variants={item} className="premium-card-elevated p-5 space-y-5">
       <div className="text-center">
@@ -175,7 +179,7 @@ function ThemePresetsCategorized({
           {'لوحة الألوان'}
         </h2>
         <p className="text-[10px] text-muted-foreground/80 mt-0.5">
-          {'اختر لون إبراز واحداً؛ تبقى الأسطح والخلفيات محايدة ومتناسقة'}
+          {'كل ثيم سبع درجات متناسقة (50 ← 600) تُوزَّع على التطبيق بالكامل'}
         </p>
       </div>
 
@@ -234,23 +238,12 @@ function ThemePresetsCategorized({
                       : 'border-border/50 group-hover:border-border'
                   }`}
                 >
-                  <div className="absolute inset-0">
-                    <div
-                      className="absolute top-0 start-0 w-full h-1/4"
-                      style={{ backgroundColor: colors[0] }}
-                    />
-                    <div
-                      className="absolute top-[25%] start-0 w-full h-1/4"
-                      style={{ backgroundColor: colors[1] }}
-                    />
-                    <div
-                      className="absolute top-[50%] start-0 w-full h-1/4"
-                      style={{ backgroundColor: colors[2] }}
-                    />
-                    <div
-                      className="absolute top-[75%] start-0 w-full h-1/4"
-                      style={{ backgroundColor: colors[3] }}
-                    />
+                  {/* All seven tones, lightest at the top — the swatch is the
+                      palette itself, not an impression of it. */}
+                  <div className="absolute inset-0 flex flex-col">
+                    {colors.map((color, i) => (
+                      <div key={i} className="w-full flex-1" style={{ backgroundColor: color }} />
+                    ))}
                   </div>
                   <AnimatePresence>
                     {isActive && (
@@ -277,6 +270,30 @@ function ThemePresetsCategorized({
           })}
         </AnimatePresence>
       </div>
+
+      {/* The active theme's seven tones, named. This is the contract the whole
+          app is built on, so it is worth showing explicitly. */}
+      {activePreset && (
+        <div className="space-y-2 pt-1 border-t border-border/40">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-muted-foreground">{'درجات الثيم'}</span>
+            <span className="text-[10px] text-muted-foreground/70">{activePreset.name}</span>
+          </div>
+          <div className="flex gap-1">
+            {getPreviewColors(activePreset).map((color, i) => (
+              <div key={SCALE_STEPS[i]} className="flex-1 space-y-1">
+                <div
+                  className="h-7 w-full rounded-md border border-border/40"
+                  style={{ backgroundColor: color }}
+                />
+                <div className="text-micro text-center text-muted-foreground/70 tabular-nums">
+                  {SCALE_STEPS[i]}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -362,15 +379,10 @@ export default function ThemeSettingsPage() {
   const getPreviewColor = (preset: (typeof themePresets)[0], mode: 'light' | 'dark' = theme) =>
     `hsl(${getPresetPreviewTokens(preset, mode)['--primary']})`;
 
-  const getPreviewColors = (preset: (typeof themePresets)[0]) => {
-    const tokens = getPresetPreviewTokens(preset);
-    return [
-      `hsl(${tokens['--primary']})`,
-      `hsl(${tokens['--live-soft']})`,
-      `hsl(${tokens['--card']})`,
-      `hsl(${tokens['--secondary']})`,
-    ];
-  };
+  // The swatch shows the theme's actual published palette — all seven tones,
+  // 50 → 600 — not a sample of four generated tokens.
+  const getPreviewColors = (preset: (typeof themePresets)[0]) =>
+    getThemeScaleColors(preset, paletteStyle as ThemeStyle);
 
   return (
     <div className="min-h-screen bg-background pb-page px-5 pt-14">
