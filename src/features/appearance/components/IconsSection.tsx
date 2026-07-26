@@ -10,17 +10,17 @@ import {
   Feather,
   Heart,
   Home,
+  type IconComponent,
+  type IconSet,
   MapPin,
   MessageCircle,
+  readIconSet,
   Search,
+  setIconSet,
   Settings,
   Sparkles,
   Star,
   Sun,
-  type IconComponentProps,
-  type IconSet,
-  readIconSet,
-  setIconSet,
 } from '@/lib/icons';
 
 import { SettingsSection } from './AppearancePrimitives';
@@ -61,11 +61,10 @@ const PRESETS: readonly Preset[] = [
 ];
 
 /** Small gallery of representative glyphs so the difference is immediate. */
-const SAMPLE: FC[] = [Home, Search, Heart, Bell, Compass, MapPin, Star, Sun];
-type FC = (props: IconComponentProps) => JSX.Element;
+const SAMPLE: IconComponent[] = [Home, Search, Heart, Bell, Compass, MapPin, Star, Sun];
 
-// Extra glyphs we tuck into the active preview strip.
-const EXTRA: FC[] = [Camera, BookOpen, Feather, MessageCircle, Sparkles, Settings];
+// Extra glyphs we tuck into the expanded preview.
+const EXTRA: IconComponent[] = [Camera, BookOpen, Feather, MessageCircle, Sparkles, Settings];
 
 export default function IconsSection() {
   const [active, setActive] = useState<IconSet>(() => readIconSet());
