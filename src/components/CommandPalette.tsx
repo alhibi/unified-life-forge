@@ -44,7 +44,8 @@ const ROUTES: { path: string; label: string; keywords: string; icon: typeof Comp
   { path: '/weather', label: 'الطقس بالتفصيل', keywords: 'weather forecast طقس توقعات', icon: MapPin },
   { path: '/pkm', label: 'الذاكرة — الملاحظات', keywords: 'pkm notes ذاكرة ملاحظات', icon: Sparkles },
   { path: '/journal', label: 'مذكرتي', keywords: 'journal diary مذكرة يوميات', icon: BookOpen },
-  { path: '/travel-atlas', label: 'أطلس الرحلات', keywords: 'travel atlas places أطلس رحلات أماكن', icon: MapPin },
+  { path: '/travel-atlas', label: 'أطلس الرحلات — خريطة أماكنك', keywords: 'travel atlas places map أطلس رحلات أماكن خريطة سفر سياحة دول', icon: MapPin },
+  { path: '/travel-atlas/trips', label: 'رحلاتي — تخطيط الرحلات', keywords: 'trips itinerary plan رحلات خطة مسار جدول', icon: MapPin },
   { path: '/archive', label: 'أرشيف المعرفة', keywords: 'archive أرشيف', icon: Shield },
   { path: '/settings', label: 'الإعدادات', keywords: 'settings preferences إعدادات', icon: Settings },
 ];

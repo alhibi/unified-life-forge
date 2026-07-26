@@ -1,4 +1,4 @@
-import { expect, type Page,test as base } from '@playwright/test';
+import { expect, type Page, test as base } from '@playwright/test';
 
 /**
  * Shared fixtures for the E2E suite.
@@ -125,6 +125,26 @@ async function stubExternalNetwork(page: Page): Promise<void> {
           daily: { time: [], temperature_2m_max: [], temperature_2m_min: [], weather_code: [] },
         }),
       });
+    }
+
+    // Basemap styles for the travel atlas. A valid but empty MapLibre style
+    // lets the map reach its `load` event without any tile traffic, so the
+    // atlas specs exercise real map wiring instead of an error state.
+    if (url.host.includes('openfreemap.org')) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ version: 8, sources: {}, layers: [] }),
+      });
+    }
+
+    // Satellite raster tiles and the geocoder are only touched by explicit user
+    // actions; stubbed so a stray request cannot fail a spec.
+    if (url.host.includes('arcgisonline.com')) {
+      return route.fulfill({ status: 200, contentType: 'image/png', body: '' });
+    }
+    if (url.host.includes('nominatim.openstreetmap.org')) {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
     }
 
     // Web fonts: an empty stylesheet is enough, the app has self-hosted
