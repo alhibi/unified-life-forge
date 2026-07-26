@@ -1,4 +1,4 @@
-import type { Coordinates, CountryBounds } from '../types';
+import type { CountryBounds } from '../types';
 
 /**
  * Destination catalog.
@@ -567,41 +567,10 @@ export const COUNTRY_CATALOG: readonly CountryCatalogEntry[] = [
   },
 ] as const;
 
-const BY_ISO = new Map<string, CountryCatalogEntry>(
-  COUNTRY_CATALOG.map((entry) => [entry.isoCode, entry]),
-);
-
-export function findCatalogCountry(
-  isoCode: string | null | undefined,
-): CountryCatalogEntry | undefined {
-  if (!isoCode) return undefined;
-  return BY_ISO.get(isoCode.toUpperCase());
-}
-
-/** Geometric centre of a bounding box — the seed value for `countries.center`. */
-export function boundsCenter(bounds: CountryBounds): Coordinates {
-  return [(bounds.sw[0] + bounds.ne[0]) / 2, (bounds.sw[1] + bounds.ne[1]) / 2];
-}
-
-/**
- * Best catalog match for a coordinate, used to pre-select the country after a
- * map pick or a geolocation read. Smallest containing box wins so Palestine is
- * not shadowed by a larger neighbour's bounding rectangle.
- */
-export function catalogCountryAt([lng, lat]: Coordinates): CountryCatalogEntry | undefined {
-  let best: CountryCatalogEntry | undefined;
-  let bestArea = Number.POSITIVE_INFINITY;
-  for (const entry of COUNTRY_CATALOG) {
-    const { sw, ne } = entry.bounds;
-    if (lng < sw[0] || lng > ne[0] || lat < sw[1] || lat > ne[1]) continue;
-    const area = (ne[0] - sw[0]) * (ne[1] - sw[1]);
-    if (area < bestArea) {
-      bestArea = area;
-      best = entry;
-    }
-  }
-  return best;
-}
+// Lookup, coordinate resolution and centre-of-country now live in
+// `countryRegistry.ts`, which answers for all 178 countries rather than only the
+// curated 78. This file is purely the curated source data that registry merges
+// over.
 
 export function continentLabel(continent: Continent): string {
   return CONTINENTS.find((entry) => entry.key === continent)?.label ?? '';

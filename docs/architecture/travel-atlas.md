@@ -130,6 +130,48 @@ list fallback instead of a blank rectangle.
 Basemaps (`data/mapStyles.ts`): OpenFreeMap positron / liberty / dark, plus Esri
 World Imagery as an inline raster style. All key-free, all attributed.
 
+## Applying the schema
+
+The feature degrades quietly by design — a missing table or column is caught in
+`api.ts` and shown as an empty atlas rather than an error screen. That is right
+for a user and useless for a deploy: "my places don't save" looks exactly like "I
+have no places yet".
+
+So there are two operational tools:
+
+- **`supabase/migrations/APPLY_TRAVEL_ATLAS.sql`** — the two travel migrations
+  consolidated into one idempotent paste-once file for the Supabase SQL editor.
+  It only ever adds columns, tables, policies and indexes; running it twice
+  changes nothing. It carries no timestamp prefix, so no migration runner picks
+  it up — the real history stays in the two dated files.
+- **`node scripts/travel/check-db.mjs`** — probes the live project with the
+  publishable key and prints exactly which migration is missing. It needs no
+  secrets: a missing relation answers `PGRST205`, a missing column `42703`, and a
+  table that exists but refuses an anonymous read (trips, country stamps) answers
+  401/403, which the script correctly reads as "present, private by design".
+
+## Countries
+
+Two lists used to exist and only one was reachable. The curated catalog
+(`data/countriesCatalog.ts`, 78 entries with hand-written Arabic names and
+regions tuned for this audience) fed the place form, so **a place in Rwanda or
+Uruguay simply could not be saved** — the country was not on the list. Meanwhile
+the dotted stamp map already knew all 178.
+
+`data/countryRegistry.ts` merges them, curated-wins: where a country appears in
+both, the hand-written name and the region (الخليج / المشرق / شمال أفريقيا rather
+than a flat "Asia") are kept; everything else comes from
+`data/worldCountries.generated.ts`, emitted by the same dot-grid script with a
+real bounding box per country. It is a static module rather than a fetch because
+country selection has to be synchronous, and 178 rows of two names and four
+numbers is ~25 kB.
+
+`atlasCountryAt()` is a **rectangle** test, not a polygon test: open water inside
+a country's box resolves to that country. Deliberate — the alternative is
+shipping ~840 kB of polygons to answer a question whose only uses are
+pre-selecting a dropdown and _warning_ about a mismatch. Neither ever overrides
+what the user chose.
+
 ## Data
 
 One Supabase chokepoint: `api.ts`. Nothing else in the feature touches the
@@ -141,8 +183,15 @@ private travel journal is hundreds of rows, not millions, so this makes each
 screen instant, makes the offline cache trivially correct, and removes any chance
 of two overlapping queries disagreeing.
 
-`offlineCache.ts` is a Dexie v2 mirror (countries · places · trips) read
+`offlineCache.ts` is a Dexie v3 mirror (countries · places · trips · stamps) read
 stale-while-revalidate. Travel is exactly when the network is worst.
+
+That store is **not** user-scoped, which is why `signOut()` in
+`src/hooks/useAuth.tsx` clears it. It is the only IndexedDB cache in the app
+holding another account's content, so without that call the next person to use the
+device would be served the previous account's saved places. It is imported
+dynamically there so a global auth hook does not pull Dexie and a feature's data
+layer into its chunk for every visitor.
 
 Photos use **public** URLs, not signed ones: the bucket is public, and one-hour
 signed URLs silently broke every photo held in the offline cache — the case the
@@ -163,6 +212,21 @@ That migration also fixes two defects that made v1 unusable:
   UUID while the client uploaded to `<user_id>/<place_id>/…`, so every photo
   upload was rejected by RLS. Paths are now owner-scoped, which also lets an
   upload happen before the place row exists.
+
+## Country stamps and the record
+
+A country is stamped as a whole, independently of the places inside it — and the
+two halves must not contradict each other:
+
+- `computePassport()` counts countries as the **union** of "holds a saved place"
+  and "is stamped". A country can be stamped with nothing pinned in it; counting
+  only the former would under-report the record and disagree with the map.
+- Marking a place visited **auto-stamps its country** (`stampCountryOf` in
+  `api.ts`). Otherwise someone ticks off a café in Tbilisi and Georgia stays
+  blank on the poster, waiting to be stamped by hand. The upsert uses
+  `ignoreDuplicates`, so an existing stamp — its status, year, visit count and
+  note — is never overwritten. It is a convenience, not a requirement: a failure
+  is logged and the place is still saved.
 
 ## Design decisions worth keeping
 

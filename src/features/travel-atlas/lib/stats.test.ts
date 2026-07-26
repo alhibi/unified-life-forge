@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Coordinates, TravelCountry, TravelPlace, VisitStatus } from '../types';
+import type { Coordinates, CountryStamp, TravelCountry, TravelPlace, VisitStatus } from '../types';
 import { bestMonthsAcross, buildCountrySummaries, computePassport } from './stats';
 
 function country(id: string, isoCode: string, nameAr: string): TravelCountry {
@@ -160,6 +160,49 @@ describe('computePassport', () => {
       place('d', 'sa'),
     ];
     expect(computePassport(places, []).citiesTouched).toBe(2);
+  });
+});
+
+describe('computePassport with country stamps', () => {
+  function stamp(isoCode: string, status: CountryStamp['status'] = 'visited'): CountryStamp {
+    return { id: isoCode, isoCode, status, firstYear: null, visitCount: 1, noteAr: null };
+  }
+
+  it('counts a stamped country that holds no saved place', () => {
+    // The whole point of the stamp map: a country can be recorded without
+    // pinning anything inside it. Counting only countries that contain places
+    // would under-report the record and contradict the map.
+    const passport = computePassport([], [], [stamp('JP'), stamp('IT')]);
+    expect(passport.countriesTouched).toBe(2);
+    expect(passport.countriesVisited).toBe(2);
+    expect(passport.continentsTouched).toBe(2);
+  });
+
+  it('does not double-count a country that is both stamped and holds places', () => {
+    const summaries = buildCountrySummaries([SA], [place('a', 'sa', { visitStatus: 'visited' })]);
+    const passport = computePassport([place('a', 'sa', { visitStatus: 'visited' })], summaries, [
+      stamp('SA'),
+    ]);
+    expect(passport.countriesTouched).toBe(1);
+    expect(passport.countriesVisited).toBe(1);
+  });
+
+  it('treats a wish as touched but not visited', () => {
+    const passport = computePassport([], [], [stamp('PE', 'wishlist')]);
+    expect(passport.countriesTouched).toBe(1);
+    expect(passport.countriesVisited).toBe(0);
+  });
+
+  it('counts living somewhere as having visited it', () => {
+    const passport = computePassport([], [], [stamp('DE', 'lived')]);
+    expect(passport.countriesVisited).toBe(1);
+  });
+
+  it('is unchanged when no stamps are passed', () => {
+    const summaries = buildCountrySummaries([SA, JO], [place('a', 'sa'), place('b', 'jo')]);
+    const withoutArg = computePassport([place('a', 'sa'), place('b', 'jo')], summaries);
+    expect(withoutArg.countriesTouched).toBe(2);
+    expect(withoutArg.countriesVisited).toBe(0);
   });
 });
 

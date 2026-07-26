@@ -9,9 +9,6 @@ import { DEFAULT_MAP_STYLE_ID, isMapStyleId, type MapStyleId } from '../data/map
 
 const STYLE_KEY = 'travel-atlas:map-style';
 const GLOBE_KEY = 'travel-atlas:globe';
-const VIEW_KEY = 'travel-atlas:atlas-view';
-
-export type AtlasView = 'map' | 'list';
 
 function read(key: string): string | null {
   try {
@@ -84,12 +81,4 @@ export function readExploreCamera(): StoredCamera | null {
 
 export function writeExploreCamera(camera: StoredCamera): void {
   write(CAMERA_KEY, JSON.stringify(camera));
-}
-
-export function readAtlasView(): AtlasView {
-  return read(VIEW_KEY) === 'list' ? 'list' : 'map';
-}
-
-export function writeAtlasView(view: AtlasView): void {
-  write(VIEW_KEY, view);
 }

@@ -1,6 +1,13 @@
 import { CATEGORIES } from '../data/categories';
-import { type Continent, findCatalogCountry } from '../data/countriesCatalog';
-import type { Coordinates, PlaceCategory, TravelCountry, TravelPlace } from '../types';
+import type { Continent } from '../data/countriesCatalog';
+import { findAtlasCountry } from '../data/countryRegistry';
+import type {
+  Coordinates,
+  CountryStamp,
+  PlaceCategory,
+  TravelCountry,
+  TravelPlace,
+} from '../types';
 import { boundsCenterOf, haversineMeters } from './geo';
 
 /**
@@ -77,7 +84,7 @@ export function buildCountrySummaries(
 
     summaries.push({
       country,
-      continent: findCatalogCountry(country.isoCode)?.continent ?? null,
+      continent: findAtlasCountry(country.isoCode)?.continent ?? null,
       total: own.length,
       visited,
       planned,
@@ -123,7 +130,17 @@ export interface PassportStats {
   averageRating: number | null;
 }
 
-export function computePassport(places: TravelPlace[], summaries: CountrySummary[]): PassportStats {
+/**
+ * @param stamps Country stamps count toward the country totals on their own. A
+ *   country can be stamped without a single place saved in it — that is the
+ *   whole point of the stamp map — so counting only countries that contain
+ *   places would under-report the record and contradict the map.
+ */
+export function computePassport(
+  places: TravelPlace[],
+  summaries: CountrySummary[],
+  stamps: CountryStamp[] = [],
+): PassportStats {
   const categoryCounts = new Map<PlaceCategory, number>();
   const monthHistogram = new Array<number>(12).fill(0);
   const yearCounts = new Map<number, number>();
@@ -170,8 +187,23 @@ export function computePassport(places: TravelPlace[], summaries: CountrySummary
     if (!southernmost || place.coordinates[1] < southernmost.coordinates[1]) southernmost = place;
   }
 
+  // Countries are the union of "has a saved place" and "is stamped". Both are
+  // real evidence of having been somewhere, and they overlap freely.
+  const touchedCountries = new Set<string>();
+  const visitedCountries = new Set<string>();
+
   for (const summary of summaries) {
+    touchedCountries.add(summary.country.isoCode);
+    if (summary.visited > 0) visitedCountries.add(summary.country.isoCode);
     if (summary.continent) continents.add(summary.continent);
+  }
+
+  for (const stamp of stamps) {
+    touchedCountries.add(stamp.isoCode);
+    // A wish is not a visit; living somewhere unquestionably is.
+    if (stamp.status !== 'wishlist') visitedCountries.add(stamp.isoCode);
+    const continent = findAtlasCountry(stamp.isoCode)?.continent;
+    if (continent) continents.add(continent);
   }
 
   return {
@@ -180,8 +212,8 @@ export function computePassport(places: TravelPlace[], summaries: CountrySummary
     plannedPlaces: planned,
     wishlistPlaces: wishlist,
     favoritePlaces: favorites,
-    countriesTouched: summaries.length,
-    countriesVisited: summaries.filter((summary) => summary.visited > 0).length,
+    countriesTouched: touchedCountries.size,
+    countriesVisited: visitedCountries.size,
     continentsTouched: continents.size,
     citiesTouched: cities.size,
     photosCount: photos,

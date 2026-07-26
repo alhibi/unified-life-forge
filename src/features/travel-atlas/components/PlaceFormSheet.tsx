@@ -26,8 +26,8 @@ import { Loader2 } from '@/lib/icons';
 
 import type { PlaceLinkDraft } from '../api';
 import { PRICE_LEVELS, VISIT_STATUS_META } from '../data/categories';
-import { CONTINENTS, COUNTRY_CATALOG, findCatalogCountry } from '../data/countriesCatalog';
-import { useCreatePlace, useSetCoverPhoto, useUpdatePlace } from '../hooks';
+import { atlasCountriesByRegion, findAtlasCountry } from '../data/countryRegistry';
+import { useCreatePlace, useSetCoverPhoto, useUpdatePhotoCaption, useUpdatePlace } from '../hooks';
 import { containsPoint, isValidCoordinatePair } from '../lib/geo';
 import { isValidUrl } from '../lib/validation';
 import type { Coordinates, PlaceCategory, TravelPlace, VisitStatus } from '../types';
@@ -136,6 +136,7 @@ export default function PlaceFormSheet({
   const createPlace = useCreatePlace();
   const updatePlace = useUpdatePlace();
   const setCover = useSetCoverPhoto();
+  const setCaption = useUpdatePhotoCaption();
 
   // Seeded once, on mount. Callers render this sheet conditionally
   // (`{open && <PlaceFormSheet …/>}`), so every open is a fresh mount with a
@@ -154,18 +155,12 @@ export default function PlaceFormSheet({
     setForm((current) => ({ ...current, ...next }));
   }, []);
 
-  const country = useMemo(() => findCatalogCountry(form.countryIso), [form.countryIso]);
+  const country = useMemo(() => findAtlasCountry(form.countryIso), [form.countryIso]);
 
-  const groupedCountries = useMemo(
-    () =>
-      CONTINENTS.map((continent) => ({
-        continent,
-        entries: COUNTRY_CATALOG.filter((entry) => entry.continent === continent.key)
-          .slice()
-          .sort((a, b) => a.nameAr.localeCompare(b.nameAr, 'ar')),
-      })).filter((group) => group.entries.length > 0),
-    [],
-  );
+  // All 178 countries, grouped by region. This list used to be the 78-entry
+  // curated catalog, which meant a place in Rwanda or Uruguay could not be
+  // saved at all.
+  const groupedCountries = useMemo(() => atlasCountriesByRegion(), []);
 
   const handleLocationChange = useCallback((coordinates: Coordinates) => {
     setForm((current) => ({ ...current, coordinates }));
@@ -179,8 +174,7 @@ export default function PlaceFormSheet({
       city: current.city || (meta.city ?? ''),
       address: current.address || (meta.address ?? ''),
       countryIso:
-        current.countryIso ||
-        (meta.isoCode && findCatalogCountry(meta.isoCode) ? meta.isoCode : ''),
+        current.countryIso || (meta.isoCode && findAtlasCountry(meta.isoCode) ? meta.isoCode : ''),
     }));
   }, []);
 
@@ -264,9 +258,9 @@ export default function PlaceFormSheet({
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
                   {groupedCountries.map((group) => (
-                    <SelectGroup key={group.continent.key}>
-                      <SelectLabel>{group.continent.label}</SelectLabel>
-                      {group.entries.map((entry) => (
+                    <SelectGroup key={group.region.key}>
+                      <SelectLabel>{group.region.label}</SelectLabel>
+                      {group.countries.map((entry) => (
                         <SelectItem key={entry.isoCode} value={entry.isoCode}>
                           {entry.nameAr}
                         </SelectItem>
@@ -446,6 +440,13 @@ export default function PlaceFormSheet({
                 place
                   ? (photoId) => {
                       setCover.mutate({ placeId: place.id, photoId });
+                    }
+                  : undefined
+              }
+              onCaptionCommit={
+                place
+                  ? (photoId, captionAr) => {
+                      setCaption.mutate({ photoId, captionAr });
                     }
                   : undefined
               }

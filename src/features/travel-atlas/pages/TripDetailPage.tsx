@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -39,14 +39,21 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
+  Map as MapIcon,
   MoreVertical,
   Navigation,
+  Pencil,
   Route,
   Trash2,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import TripChecklist from '../components/TripChecklist';
+import TripEditSheet from '../components/TripEditSheet';
+
+// The map engine is the heaviest dependency in the app; a trip page opened only
+// to tick a packing list must not pay for it.
+const TripRouteMap = lazy(() => import('../components/TripRouteMap'));
 import { categoryMeta } from '../data/categories';
 import {
   useDeleteTrip,
@@ -88,6 +95,9 @@ export default function TripDetailPage() {
     null,
   );
   const [panel, setPanel] = useState<'itinerary' | 'checklist'>('itinerary');
+  const [editing, setEditing] = useState(false);
+  /** Which day's route is shown on the map; null hides it. */
+  const [mappedDay, setMappedDay] = useState<number | null>(null);
 
   const placeIndex = useMemo(() => new Map(places.map((place) => [place.id, place])), [places]);
 
@@ -205,6 +215,10 @@ export default function TripDetailPage() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => setEditing(true)} className="gap-2">
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                تعديل الرحلة
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => setConfirmDelete(true)}
                 className="gap-2 text-destructive"
@@ -291,6 +305,19 @@ export default function TripDetailPage() {
                         {formatDistance(day.distanceMeters)}
                       </span>
                     )}
+                    {day.entries.length >= 2 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMappedDay(mappedDay === day.dayIndex ? null : day.dayIndex)
+                        }
+                        aria-pressed={mappedDay === day.dayIndex}
+                        className="inline-flex items-center gap-1 hover:text-foreground"
+                      >
+                        <MapIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                        {mappedDay === day.dayIndex ? 'أخفِ الخريطة' : 'على الخريطة'}
+                      </button>
+                    )}
                     {day.entries.length >= 3 && (
                       <button
                         type="button"
@@ -303,6 +330,17 @@ export default function TripDetailPage() {
                     )}
                   </span>
                 </div>
+
+                {mappedDay === day.dayIndex && (
+                  <Suspense
+                    fallback={<div className="skeleton mb-2 h-56 w-full" aria-hidden="true" />}
+                  >
+                    <TripRouteMap
+                      places={day.entries.map((entry) => entry.place)}
+                      className="mb-2 h-56 overflow-hidden rounded-card border border-border"
+                    />
+                  </Suspense>
+                )}
 
                 <AppCard className="p-0">
                   <ol className="divide-y divide-border">
@@ -445,6 +483,8 @@ export default function TripDetailPage() {
           }}
         />
       )}
+
+      {editing && <TripEditSheet trip={trip} onOpenChange={setEditing} />}
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
