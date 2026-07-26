@@ -12,6 +12,7 @@ import {
   Home,
   type IconComponent,
   type IconSet,
+  IconSetOverride,
   MapPin,
   MessageCircle,
   readIconSet,
@@ -126,10 +127,12 @@ export default function IconsSection() {
                   )}
                 </div>
 
-                {/* Live preview strip — every icon renders in the currently
-                    active library, so pressing a preset instantly repaints
-                    every glyph on screen including this row. */}
-                <PreviewStrip highlighted={isActive} />
+                {/* Each row previews its OWN library — so all three rows
+                    render side-by-side in three different personalities and
+                    the difference is impossible to miss. */}
+                <IconSetOverride value={preset.id}>
+                  <PreviewStrip highlighted={isActive} />
+                </IconSetOverride>
               </button>
             );
           })}

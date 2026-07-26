@@ -60,6 +60,9 @@ export function useIconSet(): IconSet {
   return useContext(IconSetContext);
 }
 
+/** Exposed so a subtree (e.g. previews) can force-render icons in another set. */
+export const IconSetOverride = IconSetContext.Provider;
+
 /**
  * Change the active icon library. Writes to localStorage and broadcasts a
  * DOM event so every mounted `IconProvider` re-renders immediately without
@@ -112,10 +115,21 @@ function pickComponent(set: IconSet, names: Names) {
     return LucideLib[names.l] ?? LucideLib[names.p] ?? PhosLib[names.p];
   }
   if (set === 'tabler') {
+    // Tabler often reorders words (CheckCircle → CircleCheck, BellOff → BellOff,
+    // ArrowDownWideNarrow → SortDescending2, etc.). Try the direct alias, the
+    // Icon+lucideName form, a word-swap variant, then fall back to lucide and
+    // finally phosphor so no glyph disappears.
+    const swapped = names.l.replace(
+      /^([A-Z][a-z0-9]+)([A-Z][a-zA-Z0-9]+)$/,
+      (_m, a: string, b: string) => `Icon${b}${a}`,
+    );
     return (
       TablerLib[names.t] ??
       TablerLib['Icon' + names.l] ??
+      TablerLib[swapped] ??
+      TablerLib['Icon' + names.p] ??
       LucideLib[names.l] ??
+      LucideLib[names.p] ??
       PhosLib[names.p]
     );
   }
@@ -145,7 +159,7 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
     return (
       <P
         ref={ref}
-        weight={weight ?? (isSolid ? 'fill' : undefined)}
+        weight={weight ?? (isSolid ? 'fill' : 'duotone')}
         // Phosphor accepts a color prop, not a stroke number.
         {...(rest as unknown as IconProps)}
       />
@@ -170,8 +184,10 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
     ...(rest as Record<string, unknown>),
   };
   if (set === 'tabler') {
-    extra.stroke = strokeNum ?? 1.75;
+    // Airy, hand-drawn feel that reads as *tabler* at a glance.
+    extra.stroke = strokeNum ?? 1.25;
   } else {
+    // Lucide — geometric and technical.
     extra.strokeWidth = strokeNum ?? 2;
   }
   const Any = Comp as unknown as FC<Record<string, unknown>>;
