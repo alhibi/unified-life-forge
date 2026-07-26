@@ -199,6 +199,42 @@ const DATA: Record<string, CategoryData> = {
           },
         ]
       },
+      {
+        id:"lamborghini", name:"Lamborghini", origin:"Sant'Agata, IT", founded:"1963", logo:"L",
+        tagline:"الجرأة والتصميم الهجومي المطلق",
+        desc:"تجسيد العنف البصري والأداء الجبار من قلب إيطاليا.",
+        models:[
+          {
+            id:"revuelto", name:"Revuelto V12 Hybrid", color:"#FF6F00", year:"2024",
+            type:"PHEV Hypercar", price:"$608,000",
+            tags:["V12","Hybrid","AWD","Monofuselage"],
+            story:"عصر جديد للثور الإيطالي الهائج. تجمع Revuelto بين محرك V12 الأسطوري وثلاثة محركات كهربائية.",
+            highlights:["هيكل أحادي كربوني متكامل وخفيف الوزن","دوران محرك يصل إلى 9,500 دورة/دقيقة","أول هجين خارق بمحرك V12 ذو تنفس طبيعي"],
+            perf:{ "0→100 كم/ساعة":"2.5 ث", "0→200 كم/ساعة":"7.0 ث", "السرعة القصوى":"350 كم/ساعة", "الوزن الجاف":"1,775 كغ" },
+            engine:{ "المحرك":"6.5L V12 + 3 E-Motors", "الاستطاعة":"1,015 حصان", "العزم":"807 Nm @ 6,750 RPM", "ناقل الحركة":"8DCT مزدوج القابض", "الدفع":"AWD إلكتروني" },
+            chassis:{ "قاعدة العجلات":"2,779 ملم", "الفرامل":"كربون سيراميك", "الإطارات":"265/35 ZR20 (أمامي)", "توزيع الوزن":"44:56" },
+            bar:{ label:"مؤشر الأداء", value:98 }
+          }
+        ]
+      },
+      {
+        id:"aston_martin", name:"Aston Martin", origin:"Gaydon, UK", founded:"1913", logo:"AM",
+        tagline:"القوة والجمال والروح البريطانية الخالدة",
+        desc:"أناقة لا غبار عليها ممزوجة بقوة رعدية وهندسة دقيقة للغاية.",
+        models:[
+          {
+            id:"valkyrie", name:"Valkyrie Hybrid", color:"#33691E", year:"2024",
+            type:"Formula-1 For The Road", price:"$3,500,000",
+            tags:["Cosworth V12","F1 Aero","Active Suspension","Limited"],
+            story:"ثمرة التعاون بين عبقري الهوائية أدريان نيوي وأستون مارتن. طائرة حربية حقيقية تلامس الإسفلت.",
+            highlights:["محرك Cosworth ذو تنفس طبيعي يدور حتى 11,100 RPM","توليد داونفورس يعادل وزن السيارة ذاته","هيكل كربوني بالكامل بدون برغي حديدي واحد"],
+            perf:{ "0→100 كم/ساعة":"2.6 ث", "السرعة القصوى":"400 كم/ساعة", "الداونفورس":"1,100 كغ", "الوزن":"1,030 كغ" },
+            engine:{ "المحرك":"6.5L Cosworth V12 NA", "الاستطاعة":"1,155 حصان @ 10,500 RPM", "العزم":"900 Nm @ 6,000 RPM", "نظام هجين":"KERS مستوحى من F1" },
+            chassis:{ "الهيكل":"MonoCell كربوني بالكامل", "التعليق":"نشط تكيفي نشط", "ناقل الحركة":"7-Speed تسلسلي", "الفرامل":"F1-grade كربون" },
+            bar:{ label:"مؤشر الأداء", value:100 }
+          }
+        ]
+      }
     ]
   },
 
@@ -263,6 +299,42 @@ const DATA: Record<string, CategoryData> = {
           },
         ]
       },
+      {
+        id:"amouage", name:"Amouage", origin:"Muscat, OM", founded:"1983", logo:"A",
+        tagline:"هدية الملوك وسحر الشرق الأصيل",
+        desc:"تأسست الدار العُمانية الفاخرة بأمر سامي لإحياء تراث العطور الشرقية البديعة.",
+        models:[
+          {
+            id:"interlude", name:"Interlude Man", color:"#1E3A8A", year:"2012",
+            type:"Spicy Amber Woody", price:"$360 / 100ml",
+            tags:["Beast Mode","Incense","Oryx-grade","Royal"],
+            story:"الوحش الأزرق الأسطوري. عطر ذو طابع دخاني وخشبي مهيب، يحيطك بهالة من الهيبة والسلطة الكلاسيكية.",
+            highlights:["اللبان الحوجري العماني الفاخر يغلب على القلب","ثبات يدوم لأيام على الملابس والجلد بلا كلل","توازن حاد بين التوابل والأخشاب النبيلة"],
+            pyramid:{ "رائحة القمة":"الأوريغانو، الفلفل الأسود، البرغموت", "رائحة القلب":"البخور، العنبر، الأوبوبوناكس، القريضة", "رائحة القاعدة":"الجلود، العود، الباتشولي، خشب الصندل" },
+            character:{ "العائلة الشمية":"Spicy Amber Woody", "التركيز":"Eau de Parfum", "الانتشار":"وحشي (10/10)", "الديمومة":"24+ ساعة", "الموسم المثالي":"الشتاء والأجواء الباردة" },
+            notes:{ "المُعطّر":"Pierre Negrin", "سنة الإطلاق":"2012", "الأحجام":"50 / 100ml", "ملاحظة":"عطر شتوي بامتياز" },
+            bar:{ label:"قوة الديمومة والثبات", value:99 }
+          }
+        ]
+      },
+      {
+        id:"roja", name:"Roja Parfums", origin:"London, UK", founded:"2011", logo:"R",
+        tagline:"أفخم عطور الأرض قاطبة",
+        desc:"ابتكرها روجا دوف بمكونات تفوق في نقائها وسعرها غرامات الذهب الخالص.",
+        models:[
+          {
+            id:"elysium", name:"Elysium Pour Homme", color:"#1565C0", year:"2017",
+            type:"Fresh Citrus Fougere", price:"$315 / 100ml",
+            tags:["Elite Fresh","Seductive","Niche Standard","Summery"],
+            story:"بوابة العطور المنعشة الراقية. عطر يفيض بالحيوية والأناقة، يجمع بين الفواكه والجلود بانسجام تام.",
+            highlights:["جريب فروت طبيعي بالكامل ومشرق للغاية","قاعدة مسكية عنبرية تمنحه لمسة ترف لا تقاوم","محبوب الملايين وأكثر عطور روجا مبيعاً"],
+            pyramid:{ "رائحة القمة":"الجريب فروت، الليمون، الزعتر، البرغموت", "رائحة القلب":"التفاح، الياسمين، الفلفل الوردي، نجيل الهند", "رائحة القاعدة":"العنبر الرمادي، الجلود، الفانيليا، الأرز" },
+            character:{ "العائلة الشمية":"Citrus Aromatic Fougere", "التركيز":"Parfum Cologne", "الانتشار":"عالي جداً (7/10)", "الديمومة":"8–10 ساعات", "الموسم المثالي":"الربيع والصيف" },
+            notes:{ "المُعطّر":"Roja Dove", "سنة الإطلاق":"2017", "الأحجام":"100ml", "ملاحظة":"عطر نهاري بامتياز" },
+            bar:{ label:"نقاء المكونات الطبيعية", value:94 }
+          }
+        ]
+      }
     ]
   },
 
@@ -289,7 +361,7 @@ const DATA: Record<string, CategoryData> = {
             id:"sky6002", name:"Sky Moon Tourbillon 6002G", color:"#F0E68C", year:"2019",
             type:"Double-Sided Grand Complication", price:"$1,200,000–$1,800,000",
             tags:["Platinum","12 Complications","Double Tourbillon","Celestial Map"],
-            story:"الساعة التي تُبيّن أن باتيك تصنع فناً، لا توقيتاً. وجهان، 12 وظيفة، خريطة سماء تتحرك بدقة فلكية — وسنوات عمل خلف كل قطعة.",
+            story:"الساعة التي تُبيّن أن باتيك تصنع فناً, لا توقيتاً. وجهان، 12 وظيفة، خريطة سماء تتحرك بدقة فلكية — وسنوات عمل خلف كل قطعة.",
             highlights:["خريطة سماء متحركة تعرض موقع النجوم في أي مكان بالعالم","الـMinute Repeater يُنتج أصفى رنين في تاريخ الساعات","تحتاج ساعات عمل أسبوعياً من الحرفيين لإنهاء وجه واحد"],
             movement:{ "الحركة":"Calibre R TO 27 QR SID LU CL", "النوع":"يدوي التعبئة", "التعقيدات":"12 وظيفة كاملة", "عدد القطع":"686 قطعة", "مدة التصنيع":"سنوات لكل قطعة" },
             case:{ "القطر":"42.8 ملم", "السُمك":"16.25 ملم", "المادة":"ذهب أبيض 18 قيراط", "المقاومة":"30 متر", "الوجهان":"أمامي + خلفي — كلاهما معقّد" },
@@ -327,6 +399,42 @@ const DATA: Record<string, CategoryData> = {
           },
         ]
       },
+      {
+        id:"vacheron", name:"Vacheron Constantin", origin:"Geneva, CH", founded:"1755", logo:"VC",
+        tagline:"أقدم صانع ساعات مستمر بلا انقطاع",
+        desc:"فخر جنيف الأبدي. تمثل الساعات الفاخرة التي تحمل شعار صليب مالطا قمة الصياغة الراقية.",
+        models:[
+          {
+            id:"overseas", name:"Overseas Dual Time", color:"#0D47A1", year:"2023",
+            type:"Luxury Sports GMT", price:"$31,000",
+            tags:["Maltese Cross","Triple Straps","AM/PM Indicator"],
+            story:"رفيق الترحال المرموق. تجمع ساعة Overseas بين مقاومة الماء القوية والهندسة المتأصلة.",
+            highlights:["صليب مالطا المحفور على جوانب السوار المعدني الأنيق","نظام ذكي وسريع لتغيير السوار من فولاذ إلى مطاط أو جلد طبيعي","مؤشر ليل/نهار لراحة المسافر الفاخر عبر القارات"],
+            movement:{ "الحركة":"Calibre 5110 DT", "النوع":"أوتوماتيك ذاتي التعبئة", "القطع":"234 قطعة", "الاحتياطي":"60 ساعة" },
+            case:{ "القطر":"41 ملم", "السُمك":"12.8 ملم", "المادة":"فولاذ 316L فائق المقاومة", "المقاومة":"150 متر" },
+            dial:{ "النوع":"أزرق مطلي بالورنيش الشفاف", "المؤشرات":"ذهب أبيض عيار 18 مطلي بمادة لومينوفا" },
+            bar:{ label:"ملائمة السفر الفاخر", value:95 }
+          }
+        ]
+      },
+      {
+        id:"rolex", name:"Rolex", origin:"Geneva, CH", founded:"1905", logo:"R",
+        tagline:"التاج الأيقوني وعلامة الإنجاز الإنساني",
+        desc:"توقيت الملوك والرؤساء ومحطمي الأرقام القياسية العالمية.",
+        models:[
+          {
+            id:"daytona", name:"Cosmograph Daytona", color:"#111111", year:"2024",
+            type:"Sport Luxury Chronograph", price:"$15,100 (رسمي) — $35,000+",
+            tags:["Cerachrom","Chronometer","Oystersteel","Paul Newman Legacy"],
+            story:"ساعة سباق السيارات الرياضية الأشهر تاريخياً. لا تزال Daytona متربعة على عرش الرغبة والطلب العالمي بلا منازع.",
+            highlights:["إطار Cerachrom مدمج بمقياس تاكيمتر مقاوم للخدش تماماً","دقة متناهية معتمدة من معهد COSC السويسري بنسبة تفوق ±2 ثانية في اليوم","تاريخ حافل بالمجمّعين والمزادات العالمية"],
+            movement:{ "الحركة":"Calibre 4131 (Rolex خاص)", "النوع":"أوتوماتيك ذاتي التعبئة", "الاحتياطي":"72 ساعة", "الدقة":"±2 ثانية/يوم (كرونومتر خارق)" },
+            case:{ "القطر":"40 ملم", "المادة":"Oystersteel 904L", "المقاومة":"100 متر", "الزجاج":"صفير مقاوم للانعكاس" },
+            dial:{ "القرص":"أسود متباين مع حلقات فضية للعدادات الثلاثية" },
+            bar:{ label:"قيمة الاستثمار طويل الأجل", value:98 }
+          }
+        ]
+      }
     ]
   },
 
@@ -380,6 +488,42 @@ const DATA: Record<string, CategoryData> = {
           },
         ]
       },
+      {
+        id:"brioni", name:"Brioni", origin:"Rome, IT", founded:"1945", logo:"B",
+        tagline:"بدلة الرجل النبيل ومقياس الهيبة الإيطالية",
+        desc:"كل خط مرسوم باليد، وكل غرزة مصممة بقياس الجسد لتتحرك معك كطبقة جلد ثانية.",
+        models:[
+          {
+            id:"bespoke_suit", name:"بدلة بيسبوك غولد لاين", color:"#1B263B", year:"2024",
+            type:"Haute Bespoke Tailoring", price:"$15,000 – $45,000",
+            tags:["Super 250s Wool","Silk Lining","30+ Measure Points","Roman Cut"],
+            story:"البدلة المفضلة لملوك الدبلوماسية ورجال الأعمال. تصنع ببطء مفرط في مشاغل الدار في روما.",
+            highlights:["120 ساعة على الأقل من الخياطة اليدوية الخالصة","أصواف 'Super 250s' النادرة والناعمة للغاية كالحرير الطبيعي","تأتي مع ضمان ملائمة كامل وحقيبة سفر مخملية مخصصة"],
+            fiber:{ "الخامة":"100% Super 250s Virgin Wool", "البطانة":"حرير طبيعي 100% من بحيرة كومو", "بلد الغزل":"Quarona, Italy" },
+            craft:{ "الخياطة":"يدوية كاملة بإبر حريرية دقيقة", "ساعات التحضير":"120–150 ساعة عمل متواصلة", "العناية":"تخزين معلق وتهوية مستمرة فقط" },
+            sizing:{ "التخصيص":"تطريز مونوغرام الاسم بخيوط ذهبية عيار 18" },
+            bar:{ label:"دقة ومستوى التفصيل يدوياً", value:100 }
+          }
+        ]
+      },
+      {
+        id:"brunello", name:"Brunello Cucinelli", origin:"Solomeo, IT", founded:"1978", logo:"BC",
+        tagline:"ملك الكشمير الإيطالي وروح سولوميو البديعة",
+        desc:"فلسفة الفخامة الإنسانية الهادئة والملابس المصنوعة في القرى التاريخية بأمبريا.",
+        models:[
+          {
+            id:"suede_jacket", name:"جاكيت سويدي منجد بالحرير", color:"#8D6E63", year:"2024",
+            type:"Luxury Smart Casual Outerwear", price:"$5,200",
+            tags:["Premium Suede","Silk-Woven","Solomeo Crafted"],
+            story:"يدمج هذا الجاكيت بين متانة الجلد السويدي الإيطالي المختار وفخامة التبطين الحريري الداخلي الناعم.",
+            highlights:["جلد سويدي طبيعي ذو ملمس كشميري رقيق للغاية","أزرار طبيعية من قرون الغزال المعالجة باليد","تصميم ذو تفاصيل إنسانية وهندسية هادئة"],
+            fiber:{ "المادة":"جلد سويدي طبيعي فائق النعومة", "البطانة":"حرير وتيسير خفيف", "المنشأ":"أتيليه سولوميو، إيطاليا" },
+            craft:{ "الحياكة":"آلات ريفية تقليدية باليد", "الكي":"بخار دافئ بمستويات حرارة دقيقة" },
+            sizing:{ "الألوان Available":"رمادي حجري، بني كستنائي، بيج سولوميو" },
+            bar:{ label:"مستوى النعومة والملمس", value:95 }
+          }
+        ]
+      }
     ]
   },
 
@@ -457,6 +601,23 @@ const DATA: Record<string, CategoryData> = {
           },
         ]
       },
+      {
+        id:"laduree", name:"Ladurée", origin:"Paris, FR", founded:"1862", logo:"L",
+        tagline:"مخترع الماكرون الفرنسي الكلاسيكي المزدوج",
+        desc:"تأسست الدار في شارع رويال بباريس لتمثل الفخامة والمذاق الأرستقراطي الراقي.",
+        models:[
+          {
+            id:"box_gold_macarons", name:"صندوق ماكرون الملوك الذهبي", color:"#E1BEE7", year:"2024",
+            type:"Royal Confectionery Box", price:"€45 / 12 Pieces",
+            tags:["Tahiti Vanilla","Pistachio","24K Gold Foil","Classic"],
+            story:"تشكيلة بديعة مصنوعة من أنعم دقيق لوز ومزينة يدوياً بأوراق الذهب عيار 24 الصالحة للأكل.",
+            highlights:["استخدام الفانيليا الطبيعية المستوردة من جزر تاهيتي","قشور اللوز متناهية النعومة وتذوب في الفم بلطف وسحر","التعبئة والتغليف في صندوق مخملي فاخر يستحق التقدير"],
+            components:{ "القشرة":"دقيق اللوز الفاخر مع بياض البيض والسكر المطحون دقيقاً", "الكريمة":"غاناش الشوكولاتة البيضاء مع خلاصة فانيليا تاهيتي النادرة" },
+            process:{ "تخمير العجينة":"خبز على حرارة 140 درجة لمدة 12 دقيقة", "التزيين":"تطبيق رقائق الذهب عيار 24 يدوياً بملقط خاص" },
+            bar:{ label:"الأناقة والفخامة الفرنسية", value:96 }
+          }
+        ]
+      }
     ]
   },
 
@@ -798,6 +959,10 @@ export default function Knowledge() {
   const switchCat = (id: string) => { setActiveCat(id); setActiveBrand(null); setActiveModel(null); };
   const selectBrand = (id: string) => { setActiveBrand(id); setActiveModel(null); };
 
+  // Calculate stats to display total brands and total items/models accurately
+  const totalBrands = catData?.brands?.length || 0;
+  const totalItems = catData?.brands?.reduce((acc, b) => acc + (b.models?.length || 0), 0) || 0;
+
   return (
     <div style={{ minHeight:"100vh", background:"#080808", color:"#fff", overflowX:"hidden" }} dir="rtl">
       <SEO
@@ -1005,7 +1170,7 @@ export default function Knowledge() {
             <div style={{ fontSize:"clamp(32px,7vw,48px)", color:"#161616", marginBottom:"14px" }}>{cat.icon}</div>
             <div style={{ color:"#262626", fontSize:"12px", fontFamily:"'Amiri', serif" }}>اختر علامة تجارية للاستكشاف</div>
             <div style={{ color:"#1c1c1c", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.2em", marginTop:"7px" }}>
-              {catData.brands.length} BRANDS · {catData.brands.reduce((a,b) => a + b.models.length, 0)} ITEMS
+              {totalBrands} BRANDS · {totalItems} ITEMS
             </div>
           </div>
         )}
@@ -1014,7 +1179,7 @@ export default function Knowledge() {
         <div style={{ marginTop:"52px", paddingTop:"18px", borderTop:"1px solid #0e0e0e", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:"8px" }}>
           <div style={{ fontSize:"7px", color:"#1e1e1e", fontFamily:"monospace", letterSpacing:"0.2em" }}>LISSAN · قسم المعرفة</div>
           <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", opacity:0.35, letterSpacing:"0.15em" }}>
-            {cat.labelEn.toUpperCase()} — {catData.brands.reduce((a,b) => a + b.models.length, 0)} CURATED
+            {cat.labelEn.toUpperCase()} — {totalItems} CURATED
           </div>
         </div>
       </div>
