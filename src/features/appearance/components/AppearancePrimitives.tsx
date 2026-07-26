@@ -3,17 +3,22 @@ import type { ReactNode } from 'react';
 
 import { AppCard } from '@/components/ui/app-shell';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Check } from '@/lib/icons';
-import { pageItem as item } from '@/lib/motion';
+import { MOTION, pageItem as item } from '@/lib/motion';
 
 /**
- * The shared atoms of the appearance surface.
+ * The shared atoms of the settings surfaces.
  *
- * Both settings screens — المظهر and الواجهة — are built exclusively from
- * these four pieces, so a section about colour and a section about corner
- * radius read as the same product rather than two screens that happen to
- * live next to each other. Everything here is presentational: no context,
- * no persistence, no local state beyond what framer-motion needs.
+ * المظهر, الواجهة والأبعاد and الحركة والأداء are all built exclusively from
+ * these pieces, so a section about colour, a section about corner radius and a
+ * section about frame pacing read as the same product rather than three screens
+ * that happen to live next to each other.
+ *
+ * Everything here is presentational: no context, no persistence, no local state
+ * beyond what framer-motion needs. Timings come from `MOTION`, never from a
+ * literal — these components are inside the very screens that configure motion,
+ * so they must demonstrate the settings they are editing.
  */
 
 // ─── Section ────────────────────────────────────────────────
@@ -24,11 +29,13 @@ interface SettingsSectionProps {
   subtitle?: string;
   /** Decorative glyph — wrap in nothing, the section supplies `.row-icon`. */
   icon?: ReactNode;
+  /** Right-aligned affordance: a per-section reset, a live readout, a badge. */
+  action?: ReactNode;
   children: ReactNode;
 }
 
-/** One card, one heading, one stack. Every section on both pages uses it. */
-export function SettingsSection({ title, subtitle, icon, children }: SettingsSectionProps) {
+/** One card, one heading, one stack. Every section on every screen uses it. */
+export function SettingsSection({ title, subtitle, icon, action, children }: SettingsSectionProps) {
   return (
     <motion.section variants={item}>
       <AppCard className="space-y-4">
@@ -42,6 +49,7 @@ export function SettingsSection({ title, subtitle, icon, children }: SettingsSec
               <p className="mt-0.5 text-mini text-muted-foreground/80">{subtitle}</p>
             ) : null}
           </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
         </div>
         {children}
       </AppCard>
@@ -70,7 +78,15 @@ interface SegmentedControlProps {
   'aria-label'?: string;
 }
 
-/** The canonical one-of-N picker: the active pill slides between options. */
+/**
+ * The canonical one-of-N picker: the active pill slides between options.
+ *
+ * The pill rides `MOTION.spring`, which means it inherits the user's speed and
+ * bounce settings — and, critically, stops overshooting entirely when the easing
+ * profile forbids overshoot. It used to carry a hardcoded stiffness/damping pair
+ * that always overshot slightly, which is exactly the kind of small, repeated
+ * rebound the motion brief rules out.
+ */
 export function SegmentedControl({
   options,
   value,
@@ -96,7 +112,7 @@ export function SegmentedControl({
               <motion.span
                 layoutId={layoutId}
                 className="absolute inset-0 rounded-md bg-primary"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={MOTION.spring}
               />
             )}
             <span className="relative z-raised block truncate">{option.label}</span>
@@ -143,6 +159,7 @@ export function OptionCard({ title, note, active, onClick, children }: OptionCar
         <motion.span
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
+          transition={MOTION.overlayIn}
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary"
           aria-hidden
         >
@@ -171,9 +188,17 @@ interface SliderRowProps {
   onChange: (value: number) => void;
   /** Optional shortcut chips for the values that were actually designed. */
   presets?: readonly SliderPreset[];
+  /** One line explaining what moving this slider actually does. */
+  note?: string;
+  /**
+   * The exact value this setting resolves to, in the unit it is applied in.
+   * A percentage tells the user nothing about whether a gutter became 14px or
+   * 22px; this does. Shown in a monospace readout beside the label.
+   */
+  resolved?: string;
 }
 
-/** Label + readout + slider, with optional preset chips underneath. */
+/** Label + readout + slider, with optional preset chips and a resolved value. */
 export function SliderRow({
   label,
   valueLabel,
@@ -183,12 +208,21 @@ export function SliderRow({
   step,
   onChange,
   presets,
+  note,
+  resolved,
 }: SliderRowProps) {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-meta text-muted-foreground">{label}</span>
-        <span className="text-meta font-semibold tabular-nums text-foreground">{valueLabel}</span>
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="min-w-0 truncate text-meta text-muted-foreground">{label}</span>
+        <span className="flex shrink-0 items-baseline gap-2">
+          {resolved ? (
+            <span className="font-mono text-micro tabular-nums text-muted-foreground/70">
+              {resolved}
+            </span>
+          ) : null}
+          <span className="text-meta font-semibold tabular-nums text-foreground">{valueLabel}</span>
+        </span>
       </div>
       <Slider
         value={[value]}
@@ -220,6 +254,134 @@ export function SliderRow({
           })}
         </div>
       ) : null}
+      {note ? <p className="text-micro text-muted-foreground">{note}</p> : null}
     </div>
+  );
+}
+
+// ─── Toggle row ─────────────────────────────────────────────
+
+interface ToggleRowProps {
+  id: string;
+  label: string;
+  note: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}
+
+/** Label + explanation + switch. The one shape for every boolean setting. */
+export function ToggleRow({ id, label, note, checked, onCheckedChange }: ToggleRowProps) {
+  return (
+    <div className="flex min-h-[var(--ui-touch-min)] items-center justify-between gap-4 py-1">
+      <label htmlFor={id} className="min-w-0 flex-1 cursor-pointer text-start">
+        <span className="block text-body font-medium text-foreground">{label}</span>
+        <span className="mt-0.5 block text-mini text-muted-foreground">{note}</span>
+      </label>
+      <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  );
+}
+
+// ─── Choice row ─────────────────────────────────────────────
+
+export interface ChoiceOption {
+  id: string;
+  label: string;
+  note?: string;
+}
+
+interface ChoiceRowProps {
+  label: string;
+  options: readonly ChoiceOption[];
+  value: string;
+  onChange: (id: string) => void;
+  layoutId: string;
+  /** Shown under the control: the note belonging to the ACTIVE option. */
+  showActiveNote?: boolean;
+}
+
+/**
+ * A labelled segmented control that also explains the option currently
+ * selected. Nine of these stacked would be unreadable without the label, and
+ * unusable without the note.
+ */
+export function ChoiceRow({
+  label,
+  options,
+  value,
+  onChange,
+  layoutId,
+  showActiveNote = true,
+}: ChoiceRowProps) {
+  const active = options.find((option) => option.id === value);
+  return (
+    <div className="space-y-2">
+      <span className="block text-meta text-muted-foreground">{label}</span>
+      <SegmentedControl
+        options={options}
+        value={value}
+        onChange={onChange}
+        layoutId={layoutId}
+        aria-label={label}
+      />
+      {showActiveNote && active?.note ? (
+        <p className="text-micro text-muted-foreground">{active.note}</p>
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Token inspector ────────────────────────────────────────
+
+export interface InspectorEntry {
+  /** The CSS custom property or concept, e.g. `--ui-pad-card`. */
+  token: string;
+  /** What it controls, in one short phrase. */
+  label: string;
+  /** The resolved value, e.g. `16px`. */
+  value: string;
+}
+
+/**
+ * A monospace readout of what the current settings actually compile to.
+ *
+ * This is the difference between a settings screen that says "110%" and one the
+ * user can reason about: every number below is the literal value written onto
+ * `<html>`, so a designer can verify a spec and a power user can see precisely
+ * which px their choices produced.
+ */
+export function TokenInspector({ entries }: { entries: readonly InspectorEntry[] }) {
+  return (
+    <div className="overflow-hidden rounded-md bg-secondary/60">
+      <dl className="divide-y">
+        {entries.map((entry) => (
+          <div key={entry.token} className="flex items-baseline justify-between gap-3 px-3 py-2">
+            <dt className="min-w-0">
+              <span className="block truncate text-mini text-foreground">{entry.label}</span>
+              <span className="block truncate font-mono text-micro text-muted-foreground/70">
+                {entry.token}
+              </span>
+            </dt>
+            <dd className="shrink-0 font-mono text-mini font-semibold tabular-nums text-foreground">
+              {entry.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+// ─── Feedback line ──────────────────────────────────────────
+
+/** The one shape for a success/error line under a destructive or IO action. */
+export function FeedbackLine({ tone, message }: { tone: 'success' | 'error'; message: string }) {
+  return (
+    <p
+      role={tone === 'error' ? 'alert' : 'status'}
+      className={`text-meta ${tone === 'error' ? 'text-destructive' : 'text-foreground'}`}
+    >
+      {message}
+    </p>
   );
 }

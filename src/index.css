@@ -14,10 +14,39 @@
          • ease-in         — element EXIT  (soft start, fast finish)
          • ease-spring     — user INTERACT (lively, elastic)
     */
-    --duration-instant: 80ms;
-    --duration-fast: 150ms;
-    --duration-normal: 250ms;
-    --duration-slow: 350ms;
+    /* ── The motion multipliers ────────────────────────────────────
+       Written on <html> by src/lib/motionRuntime.ts. Declared here as the
+       pre-hydration fallback AND as the contract: every duration in this
+       file is expressed as `calc(<base> * var(--motion-duration-scale))`, so the
+       speed preference reaches CSS-only motion (Radix + tailwindcss-animate,
+       vaul, sonner, native press feedback) exactly as it reaches
+       framer-motion. Never author a bare `ms` duration below. */
+    --motion-scale: 1; /* duration multiplier = 1 / speed. Written by JS. */
+    --motion-speed: 1;
+    --motion-nav-scale: 1; /* screen transitions only */
+    --motion-amp: 1;
+    --motion-bounce: 0;
+    --motion-stagger: 1;
+    --motion-press-strength: 1;
+
+    /* ── The governor's own multipliers ────────────────────────────
+       `--motion-scale` and `--motion-amp` are written as INLINE styles on
+       <html> by the runtime, so a stylesheet rule can never override them —
+       inline always wins. The adaptive governor therefore needs its own pair
+       of variables, and every consumer multiplies by both.
+
+       That is what `--motion-duration-scale` is for: it is the ONE value CSS
+       should read. It composes the user's choice with the governor's, and
+       because both custom properties resolve on <html>, the inline value and
+       the attribute-driven value compose correctly. */
+    --motion-perf-scale: 1;
+    --motion-perf-amp: 1;
+    --motion-duration-scale: calc(var(--motion-scale) * var(--motion-perf-scale));
+
+    --duration-instant: calc(80ms * var(--motion-duration-scale));
+    --duration-fast: calc(150ms * var(--motion-duration-scale));
+    --duration-normal: calc(250ms * var(--motion-duration-scale));
+    --duration-slow: calc(350ms * var(--motion-duration-scale));
 
     /* Organic neutral palette — semantic tokens are the only source of color. */
     --ink-bg: #f5f3ef;
@@ -36,6 +65,17 @@
     --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+    /* ── The active easing family ──────────────────────────────────
+       Written on <html> by applyEasingProfile(). These four are what CSS
+       should reach for; the four literals above are the legacy names kept
+       for call sites that have not migrated. The values here match the
+       `silk` family so a pre-hydration frame already speaks it. */
+    --motion-ease-nav: cubic-bezier(0.22, 1, 0.36, 1);
+    --motion-ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+    --motion-ease-exit: cubic-bezier(0.4, 0, 0.9, 1);
+    --motion-ease-in-out: cubic-bezier(0.5, 0, 0.2, 1);
+    --motion-ease-press: cubic-bezier(0.22, 1, 0.36, 1);
 
     /* Aliases — backward compatibility across the codebase */
     --spring-snappy: var(--ease-spring);
@@ -139,19 +179,28 @@
     --ui-tap: 44px;
     --ui-touch-min: 44px;
     --ui-scale: 1;
+    --ui-spacing-scale: 1;
     --ui-stack-gap: 24px;
     --ui-stack-gap-sm: 12px;
     --ui-gutter: 16px;
     --ui-row-icon: 32px;
 
+    /* The shared page / panel header height. */
+    --ui-header-h: 56px;
+
     /* The single content column. */
     --ui-content-max: 512px;
 
+    /* Extra bottom clearance the user can add on top of the device inset. */
+    --ui-safe-extra: 0px;
+
     /* Hairline volume. With no shadows anywhere, the border IS the edge. */
+    --ui-border-width: 1px;
     --ui-border-alpha: 0.6;
     --ui-border-soft-alpha: 0.44;
     --ui-border-strong-alpha: 0.87;
     --ui-divider-alpha: 0.3;
+    --ui-divider-width: 1px;
 
     /* Advanced interface character and accessibility. */
     --ui-material-alpha: 0.96;
@@ -160,11 +209,29 @@
     --ui-interaction-offset: 2px;
     --ui-icon-stroke: 2;
     --ui-focus-width: 2px;
+    --ui-focus-offset: 2px;
     --ui-adaptive-layout: 1;
+    --ui-radius-profile: 0;
     --ui-reduced-transparency: 0;
     --ui-stronger-contrast: 0;
     --ui-large-touch-targets: 0;
     --ui-clearer-focus: 0;
+
+    /* Scrollbar affordance. `--ui-scrollbar-ff` carries the Firefox keyword,
+       because `scrollbar-width` accepts no numeric value. */
+    --ui-scrollbar-size: 6px;
+    --ui-scrollbar-ff: thin;
+    --ui-scrollbar-alpha: 0.18;
+    --ui-scrollbar-hover-alpha: 0.32;
+
+    /* ── The resolved press transform ──────────────────────────────
+       Composed from BOTH platforms: the interface platform owns the shape of
+       the press (`--ui-interaction-*`), the motion platform owns how much of
+       it is expressed (`--motion-press-strength`). At strength 0 nothing
+       moves, but the colour feedback still fires — which is the behaviour
+       users who disable motion actually want. */
+    --ui-press-scale: calc(1 - (1 - var(--ui-interaction-scale)) * var(--motion-press-strength));
+    --ui-press-offset: calc(var(--ui-interaction-offset) * var(--motion-press-strength));
 
     /* ══════════════════════════════════════════════════════════════
        TYPE SCALE — derived, not fixed
@@ -293,12 +360,20 @@
   .surface-depth,
   .row-icon {
     transition:
-      color 150ms linear,
-      background-color 150ms linear,
-      border-color 150ms linear,
-      fill 150ms linear,
-      stroke 150ms linear;
+      color var(--duration-fast) linear,
+      background-color var(--duration-fast) linear,
+      border-color var(--duration-fast) linear,
+      fill var(--duration-fast) linear,
+      stroke var(--duration-fast) linear;
   }
+
+  /* ── Reduced motion ──
+     Two sources, one rule. The media query covers the OS preference before
+     any JavaScript runs; the attribute covers the same OS preference PLUS
+     the in-app "تقليل الحركة" switch, and is written by
+     `applyReduceMotion()` in src/lib/motionRuntime.ts. Keeping both means a
+     cold boot with the OS setting on never shows a single animated frame,
+     and the in-app switch takes effect without a reload. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -306,7 +381,16 @@
       transition-duration: 1ms !important;
       animation-duration: 1ms !important;
       animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
     }
+  }
+  html[data-reduced-motion='true'] *,
+  html[data-reduced-motion='true'] *::before,
+  html[data-reduced-motion='true'] *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 
   /* ── Scrollbars ──
@@ -317,22 +401,22 @@
      per-container with `.scrollbar-none` when it is a deliberate choice
      (carousels, chip rails). */
   * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--foreground) / 0.22) transparent;
+    scrollbar-width: var(--ui-scrollbar-ff);
+    scrollbar-color: hsl(var(--foreground) / var(--ui-scrollbar-alpha)) transparent;
   }
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: var(--ui-scrollbar-size);
+    height: var(--ui-scrollbar-size);
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--foreground) / 0.18);
+    background: hsl(var(--foreground) / var(--ui-scrollbar-alpha));
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--foreground) / 0.32);
+    background: hsl(var(--foreground) / var(--ui-scrollbar-hover-alpha));
   }
 
   /* ── Focus ring: outline only ──
@@ -343,7 +427,7 @@
   }
   *:focus-visible {
     outline: var(--ui-focus-width) solid hsl(var(--ring));
-    outline-offset: 2px;
+    outline-offset: var(--ui-focus-offset);
     border-radius: var(--r-sm);
   }
   html {
@@ -351,8 +435,17 @@
     -webkit-text-size-adjust: 100%;
     font-weight: var(--font-weight, 400);
     overscroll-behavior: contain;
-    /* `scroll-behavior: smooth` fought ScrollToTop, which restores per-tab
-       offsets with `behavior: 'instant'`. Opt in per call site instead. */
+    /* Reserve the scrollbar gutter permanently. Without this, a page that
+       grows past the viewport mid-render shifts every centered column by the
+       scrollbar width — a reflow the user reads as a stutter, and the single
+       most common cause of "the layout jumped while I was scrolling". */
+    scrollbar-gutter: stable;
+    /* Anchor jumps and `scrollIntoView` land below the sticky header instead
+       of underneath it. */
+    scroll-padding-block-start: var(--ui-header-h);
+    /* `scroll-behavior: smooth` is opt-in per profile — see the scroll runtime
+       block further down. ScrollToTop restores per-tab offsets with
+       `behavior: 'instant'`, which always wins over this. */
   }
   body {
     @apply bg-background text-foreground;
@@ -429,16 +522,16 @@
   /* Canonical floating surface: opaque, quiet and defined by one hairline. */
   .glass-overlay {
     background-color: hsl(var(--popover));
-    border: 1px solid hsl(var(--border) / 0.72);
+    border: var(--ui-border-width) solid hsl(var(--border) / 0.72);
     box-shadow: none;
-    will-change: transform, opacity;
-    transform: translateZ(0);
   }
   .glass-overlay[data-state='open'] {
-    animation: glass-overlay-in 150ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: glass-overlay-in calc(160ms * var(--motion-duration-scale)) var(--motion-ease-enter)
+      both;
   }
   .glass-overlay[data-state='closed'] {
-    animation: glass-overlay-out 120ms cubic-bezier(0.4, 0, 1, 1) both;
+    animation: glass-overlay-out calc(120ms * var(--motion-duration-scale)) var(--motion-ease-exit)
+      both;
   }
   .glass-overlay input,
   .glass-overlay textarea {
@@ -498,6 +591,11 @@
      app ever rendered a sidebar, and the block animated `width` (a layout
      property) with `!important`. */
 
+  /* ── Transient-surface entrances, one per overlay style ───────────
+     `.glass-overlay` (menus, popovers, selects, tooltips) picks its keyframe
+     pair from `html[data-overlay-style]`. The default `fade` pair touches
+     opacity only — nothing translates, nothing scales, so a menu cannot
+     appear to pop out of the button that opened it. */
   @keyframes glass-overlay-in {
     from {
       opacity: 0;
@@ -516,6 +614,42 @@
     to {
       opacity: 0;
       transform: translateY(-8px);
+    }
+  }
+  @keyframes glass-overlay-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes glass-overlay-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes glass-overlay-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes glass-overlay-scale-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.96);
     }
   }
 
@@ -540,7 +674,7 @@
   .premium-card-intense,
   .surface-depth {
     background-color: hsl(var(--card) / var(--ui-material-alpha));
-    border: 1px solid hsl(var(--border) / var(--ui-border-alpha));
+    border: var(--ui-border-width) solid hsl(var(--border) / var(--ui-border-alpha));
     border-radius: var(--r-lg); /* the canonical card radius */
     box-shadow: none;
     contain: layout style;
@@ -569,15 +703,14 @@
   .app-card-pressable,
   .surface-depth-pressable {
     transition:
-      transform 120ms var(--ease-spring),
-      background-color 150ms var(--ease-out-expo),
-      border-color 150ms ease-out;
+      transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press),
+      background-color var(--duration-fast) var(--motion-ease-enter),
+      border-color var(--duration-fast) var(--motion-ease-enter);
     cursor: pointer;
-    will-change: transform;
   }
   .app-card-pressable:active,
   .surface-depth-pressable:active {
-    transform: scale(var(--ui-interaction-scale)) translateY(var(--ui-interaction-offset));
+    transform: scale(var(--ui-press-scale)) translateY(var(--ui-press-offset));
     background-color: hsl(var(--accent) / 0.4);
   }
   @media (prefers-reduced-motion: reduce) {
@@ -585,6 +718,10 @@
     .surface-depth-pressable:active {
       transform: none;
     }
+  }
+  html[data-reduced-motion='true'] .app-card-pressable:active,
+  html[data-reduced-motion='true'] .surface-depth-pressable:active {
+    transform: none;
   }
 
   /* ── Sticky page / panel header chrome ────────────────────────────
@@ -600,7 +737,8 @@
   .app-sticky-header-card {
     position: sticky;
     top: 0;
-    border-bottom: 1px solid hsl(var(--border) / var(--ui-border-alpha));
+    min-height: var(--ui-header-h);
+    border-bottom: var(--ui-border-width) solid hsl(var(--border) / var(--ui-border-alpha));
   }
   .app-sticky-header {
     background-color: hsl(var(--background));
@@ -621,10 +759,9 @@
     background-color: hsl(var(--accent) / 0.5);
     color: hsl(var(--foreground));
     transition:
-      background-color 150ms linear,
-      transform 120ms var(--ease-spring);
+      background-color var(--duration-fast) linear,
+      transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press);
     position: relative;
-    will-change: transform;
   }
   .app-icon-btn:hover {
     background-color: hsl(var(--accent));
@@ -682,7 +819,7 @@
   .app-control {
     width: 100%;
     min-height: var(--ui-control-h);
-    border: 1px solid hsl(var(--input));
+    border: var(--ui-border-width) solid hsl(var(--input));
     border-radius: var(--r-md);
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -706,7 +843,7 @@
   .app-control:focus-visible {
     border-color: hsl(var(--ring));
     outline: var(--ui-focus-width) solid hsl(var(--ring) / 0.22);
-    outline-offset: 1px;
+    outline-offset: calc(var(--ui-focus-offset) * 0.5);
   }
   .app-control:disabled {
     cursor: not-allowed;
@@ -730,7 +867,7 @@
     color: hsl(var(--card-foreground));
     /* A transient surface floats over the page, so its edge is the strong
        one — it is the only thing telling the eye where the sheet ends. */
-    border: 1px solid hsl(var(--border) / var(--ui-border-strong-alpha));
+    border: var(--ui-border-width) solid hsl(var(--border) / var(--ui-border-strong-alpha));
     border-radius: var(--r-lg);
     box-shadow: none;
   }
@@ -781,10 +918,12 @@
   .page-shell {
     min-height: 100dvh;
     background-color: hsl(var(--background));
-    padding-top: 3.5rem; /* 56px — clears the floating header */
-    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); /* 72px + inset */
-    padding-left: var(--ui-gutter);
-    padding-right: var(--ui-gutter);
+    /* Clears the floating header — follows the header-height preference. */
+    padding-top: var(--ui-header-h);
+    padding-bottom: calc(
+      4.5rem + var(--ui-safe-extra) + env(safe-area-inset-bottom, 0px)
+    ); /* 72px + user inset + device inset */
+    padding-inline: var(--ui-gutter);
   }
   .page-shell-flush {
     /* For pages with their own sticky PageHeader (no top padding). */
@@ -796,7 +935,7 @@
      nothing more. Replaces the ad-hoc `pb-24` / `pb-28` / `pb-32` that were
      each guessing at the height of a bottom nav that no longer exists. */
   .pb-page {
-    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(4.5rem + var(--ui-safe-extra) + env(safe-area-inset-bottom, 0px));
   }
   .page-shell-inner {
     /* The single content column. Tailwind's `max-w-lg` resolves to the same
@@ -817,6 +956,16 @@
     display: flex;
     flex-direction: column;
     gap: var(--ui-stack-gap-sm);
+  }
+
+  /* A single row divider that follows the divider-volume preference. Use this
+     rather than a hand-picked `border-border/40` so one setting moves every
+     separator in the app together. */
+  .app-divider-b {
+    border-block-end: var(--ui-divider-width) solid hsl(var(--border) / var(--ui-divider-alpha));
+  }
+  .app-divider-t {
+    border-block-start: var(--ui-divider-width) solid hsl(var(--border) / var(--ui-divider-alpha));
   }
 
   /* Canonical section heading — tiny uppercase tracking label above a group. */
@@ -955,21 +1104,21 @@
     animation-delay: 0ms;
   }
   .stagger-tight > *:nth-child(2) {
-    animation-delay: 20ms;
+    animation-delay: calc(20ms * var(--motion-stagger) * var(--motion-duration-scale));
   }
   .stagger-tight > *:nth-child(3) {
-    animation-delay: 40ms;
+    animation-delay: calc(40ms * var(--motion-stagger) * var(--motion-duration-scale));
   }
   .stagger-tight > *:nth-child(4) {
-    animation-delay: 60ms;
+    animation-delay: calc(60ms * var(--motion-stagger) * var(--motion-duration-scale));
   }
   .stagger-tight > *:nth-child(5),
   .stagger-tight > *:nth-child(n + 6) {
-    animation-delay: 80ms;
+    animation-delay: calc(80ms * var(--motion-stagger) * var(--motion-duration-scale));
   }
   .stagger-tight > * {
-    animation-duration: 250ms;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-duration: calc(250ms * var(--motion-duration-scale));
+    animation-timing-function: var(--motion-ease-enter);
     animation-fill-mode: both;
   }
 
@@ -1014,9 +1163,9 @@
   .empty-state,
   [data-empty='true'],
   [data-state='empty'] {
-    animation: empty-state-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: empty-state-in calc(300ms * var(--motion-duration-scale)) var(--motion-ease-enter)
+      both;
     transform-origin: center;
-    will-change: transform, opacity;
   }
 
   /* ── Unified empty-state visual rule ──
@@ -1072,16 +1221,31 @@
       opacity: 1;
     }
   }
+  /* Tab→tab swap micro-motion. Follows the navigation character: the default
+     `silk` style fades only — a scale on every bottom-nav tap is the kind of
+     repeated flourish that becomes tiring within a session. */
   .tab-zoom-in {
-    animation:
-      tab-enter-scale 350ms cubic-bezier(0.2, 0, 0, 1) both,
-      tab-enter-fade 240ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
+    animation: tab-enter-fade calc(180ms * var(--motion-duration-scale) * var(--motion-nav-scale))
+      var(--motion-ease-enter) both;
     transform-origin: center center;
+  }
+  html[data-nav-style='depth'] .tab-zoom-in {
+    animation:
+      tab-enter-scale calc(350ms * var(--motion-duration-scale) * var(--motion-nav-scale))
+        var(--motion-ease-nav) both,
+      tab-enter-fade calc(240ms * var(--motion-duration-scale) * var(--motion-nav-scale))
+        var(--motion-ease-enter) calc(100ms * var(--motion-duration-scale)) both;
+  }
+  html[data-nav-style='instant'] .tab-zoom-in {
+    animation: none;
   }
   @media (prefers-reduced-motion: reduce) {
     .tab-zoom-in {
       animation: none;
     }
+  }
+  html[data-reduced-motion='true'] .tab-zoom-in {
+    animation: none;
   }
 }
 
@@ -1125,24 +1289,34 @@ ol.cv > li {
    Do NOT introduce new ad-hoc durations or cubic-beziers — pick
    one of the tokens below or add it to MOTION first. */
 :root {
-  /* iOS-style cubic-beziers (match motion.ts EaseTuples) */
+  /* Legacy fixed curves. Prefer the four `--motion-ease-nav/enter/exit/press`
+     variables written by applyEasingProfile() — these do NOT follow the user's
+     easing profile and exist only for call sites that have not migrated. */
   --motion-ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --motion-ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
   --motion-ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --motion-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Spec durations */
-  --motion-push: 300ms;
-  --motion-pop: 260ms;
-  --motion-modal-in: 320ms;
-  --motion-modal-out: 260ms;
-  --motion-fade: 200ms;
-  --motion-press-in: 80ms;
-  --motion-press-out: 120ms;
+  /* Spec durations. Each one is the BASE value multiplied by the live speed
+     scale, and the two navigation durations additionally follow the
+     navigation-specific multiplier. Because these are `calc()` expressions
+     over custom properties, changing one number on <html> retimes every
+     CSS-driven animation in the app on the next frame. */
+  --motion-push: calc(300ms * var(--motion-duration-scale) * var(--motion-nav-scale));
+  --motion-pop: calc(260ms * var(--motion-duration-scale) * var(--motion-nav-scale));
+  --motion-modal-in: calc(320ms * var(--motion-duration-scale));
+  --motion-modal-out: calc(260ms * var(--motion-duration-scale));
+  --motion-overlay-in: calc(160ms * var(--motion-duration-scale));
+  --motion-overlay-out: calc(120ms * var(--motion-duration-scale));
+  --motion-collapse-in: calc(260ms * var(--motion-duration-scale));
+  --motion-collapse-out: calc(200ms * var(--motion-duration-scale));
+  --motion-fade: calc(200ms * var(--motion-duration-scale));
+  --motion-press-in: calc(80ms * var(--motion-duration-scale));
+  --motion-press-out: calc(120ms * var(--motion-duration-scale));
 
-  /* Outgoing-screen parallax ratio (35%) */
-  --motion-parallax: 0.35;
+  /* Outgoing-screen parallax ratio, scaled by the amplitude preference and by
+     the governor's own amplitude multiplier. */
+  --motion-parallax: calc(0.35 * var(--motion-amp) * var(--motion-perf-amp));
 }
 
 /* ── Document-level GPU promotion ─────────────────────────────
@@ -1175,17 +1349,18 @@ button,
 a[class*='rounded'],
 a[role='link'][class*='px-'] {
   transition:
-    transform var(--motion-press-out) var(--motion-ease-spring),
-    opacity var(--motion-press-out) var(--motion-ease-spring);
+    transform var(--motion-press-out) var(--motion-ease-press),
+    opacity var(--motion-press-out) var(--motion-ease-press);
   transform-origin: center;
 }
 button:active,
 [role='button']:active,
 a[class*='rounded']:active {
   transition:
-    transform var(--motion-press-in) var(--motion-ease-out-cubic),
-    opacity var(--motion-press-in) var(--motion-ease-out-cubic);
-  transform: scale(var(--ui-interaction-scale)) translateY(var(--ui-interaction-offset));
+    transform var(--motion-press-in) var(--motion-ease-press),
+    opacity var(--motion-press-in) var(--motion-ease-press);
+  /* Both platforms compose here — see --ui-press-scale in the base layer. */
+  transform: scale(var(--ui-press-scale)) translateY(var(--ui-press-offset));
   opacity: 0.92;
 }
 button[data-no-press]:active,
@@ -1199,6 +1374,11 @@ button[data-no-press]:active,
   a[class*='rounded']:active {
     transform: none;
   }
+}
+html[data-reduced-motion='true'] button:active,
+html[data-reduced-motion='true'] [role='button']:active,
+html[data-reduced-motion='true'] a[class*='rounded']:active {
+  transform: none;
 }
 
 /* ── Modal / Dialog / Sheet — spec-compliant timing ──────────
@@ -1214,14 +1394,105 @@ button[data-no-press]:active,
 [data-vaul-drawer][data-state='open'],
 [data-radix-popper-content-wrapper] [data-state='open'] {
   animation-duration: var(--motion-modal-in) !important;
-  animation-timing-function: var(--motion-ease-out-cubic) !important;
+  animation-timing-function: var(--motion-ease-enter) !important;
 }
 [role='dialog'][data-state='closed'],
 [role='alertdialog'][data-state='closed'],
 [data-vaul-drawer][data-state='closed'],
 [data-radix-popper-content-wrapper] [data-state='closed'] {
   animation-duration: var(--motion-modal-out) !important;
-  animation-timing-function: var(--motion-ease-in-cubic) !important;
+  animation-timing-function: var(--motion-ease-exit) !important;
+}
+/* A menu / popover / select / tooltip is lighter than a full sheet, so it gets
+   the shorter overlay timing rather than the modal one. */
+[data-ui-surface='menu'][data-state='open'],
+[data-ui-surface='popover'][data-state='open'],
+[data-ui-surface='tooltip'][data-state='open'] {
+  animation-duration: var(--motion-overlay-in) !important;
+}
+[data-ui-surface='menu'][data-state='closed'],
+[data-ui-surface='popover'][data-state='closed'],
+[data-ui-surface='tooltip'][data-state='closed'] {
+  animation-duration: var(--motion-overlay-out) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   OVERLAY CHARACTER — html[data-overlay-style]
+   ══════════════════════════════════════════════════════════════
+   tailwindcss-animate builds its `animate-in` / `animate-out` keyframes from
+   a set of CSS variables (`--tw-enter-scale`, `--tw-enter-translate-y`, …)
+   that the utility classes set. That means the "pop" of a dialog is data, not
+   code — so the overlay-character preference can neutralise it centrally
+   without touching a single call site, and without any component losing its
+   fade.
+
+   Bottom sheets and drawers are deliberately EXCLUDED: a sheet that does not
+   travel from its edge stops reading as a sheet. Only the surfaces whose
+   entrance is decorative are flattened.
+   ────────────────────────────────────────────────────────────── */
+html[data-overlay-style='fade'] [data-ui-surface='dialog'],
+html[data-overlay-style='fade'] [data-ui-surface='menu'],
+html[data-overlay-style='fade'] [data-ui-surface='popover'],
+html[data-overlay-style='fade'] [data-ui-surface='tooltip'],
+html[data-overlay-style='fade'] [role='alertdialog'] {
+  --tw-enter-scale: 1;
+  --tw-exit-scale: 1;
+  --tw-enter-translate-x: 0;
+  --tw-enter-translate-y: 0;
+  --tw-exit-translate-x: 0;
+  --tw-exit-translate-y: 0;
+}
+/* `lift` keeps a short rise but still refuses to scale. */
+html[data-overlay-style='lift'] [data-ui-surface='dialog'],
+html[data-overlay-style='lift'] [data-ui-surface='menu'],
+html[data-overlay-style='lift'] [data-ui-surface='popover'],
+html[data-overlay-style='lift'] [data-ui-surface='tooltip'],
+html[data-overlay-style='lift'] [role='alertdialog'] {
+  --tw-enter-scale: 1;
+  --tw-exit-scale: 1;
+  --tw-enter-translate-x: 0;
+  --tw-exit-translate-x: 0;
+  --tw-enter-translate-y: 6px;
+  --tw-exit-translate-y: 6px;
+}
+/* `scale` is the classic behaviour — nothing to override. */
+
+/* The hand-rolled `.glass-overlay` animation follows the same three
+   characters by swapping its keyframe pair. */
+html[data-overlay-style='fade'] .glass-overlay[data-state='open'] {
+  animation-name: glass-overlay-fade-in;
+}
+html[data-overlay-style='fade'] .glass-overlay[data-state='closed'] {
+  animation-name: glass-overlay-fade-out;
+}
+html[data-overlay-style='scale'] .glass-overlay[data-state='open'] {
+  animation-name: glass-overlay-scale-in;
+}
+html[data-overlay-style='scale'] .glass-overlay[data-state='closed'] {
+  animation-name: glass-overlay-scale-out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   EXPAND / COLLAPSE — the one non-bouncy disclosure
+   ══════════════════════════════════════════════════════════════
+   Radix publishes the measured content height as
+   `--radix-accordion-content-height` / `--radix-collapsible-content-height`.
+   Animating to that value is the only way to expand a region without a
+   layout-thrashing JS measurement loop, and a TWEEN is mandatory: a spring on
+   a height makes every element below the panel oscillate, which is exactly
+   the rebound the motion brief rules out.
+
+   The keyframe pair itself lives in `tailwind.config.ts` as
+   `animate-collapse-down` / `animate-collapse-up`, already multiplied by the
+   speed scale and bound to the active easing family. The primitives in
+   `src/components/ui/accordion.tsx` and `collapsible.tsx` apply those classes
+   and feed `--collapse-target-height` from the matching Radix measurement, so
+   one keyframe pair serves every disclosure in the app.
+
+   A disclosure must also clip its own overflow, otherwise the content paints
+   outside the animating box for the whole transition. */
+[data-ui-surface='disclosure'] {
+  overflow: hidden;
 }
 
 /* ── Toast / Snackbar (Sonner) — spec timings ─────────────────
@@ -1230,7 +1501,7 @@ button[data-no-press]:active,
    --y-offset is sonner's own variable for the slide-in distance. */
 [data-sonner-toaster] [data-sonner-toast] {
   transition-duration: var(--motion-fade) !important;
-  transition-timing-function: var(--motion-ease-out-cubic) !important;
+  transition-timing-function: var(--motion-ease-enter) !important;
 }
 [data-sonner-toaster] [data-sonner-toast][data-mounted='false'] {
   /* The 8px translate matches the spec's "fade + translateY(-8px)". */
@@ -1279,39 +1550,181 @@ main#main-content {
       the immediate page wrapper keep the transition layer cold-
       cache-friendly on iOS Safari. */
 main#main-content > div {
-  /* PageTransition emits a motion.div as the only direct child of
-     <main>. GPU promotion via will-change (avoids creating a
-     containing block unlike transform: translateZ(0)). */
-  will-change: transform, opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
-/*  2. Suppress any legacy `transition: all` declarations that
-       sneak in from third-party CSS — they would force
-       non-GPU properties (width, top, etc.) to animate alongside
-       transform during a slide and produce visible jitter. */
-@media (prefers-reduced-motion: no-preference) {
-  main#main-content [data-page-surface] {
-    transition:
-      transform var(--motion-push, 300ms) var(--motion-ease-out-quad),
-      opacity var(--motion-push, 300ms) var(--motion-ease-out-quad);
-  }
+/*  2. NEVER declare a CSS transition on `transform` or `opacity` of a
+       framer-motion surface.
+
+       This block used to do exactly that: `[data-page-surface]` carried a
+       300ms CSS transition on both properties. framer-motion writes those
+       same properties as INLINE styles once per frame, so every frame was
+       animated twice — once by framer at its own timing, and once by the CSS
+       transition chasing framer's last value. The result was a visible
+       double-easing on entry and a page that appeared to hesitate before
+       settling, which is the "تهنيج" the motion brief calls out. The fix is
+       to own the property in exactly one system: framer.
+
+       What remains here is only the guarantee that nothing else animates a
+       layout property on the page surface. */
+main#main-content [data-page-surface] {
+  transition-property: none;
 }
 
-/*  3. iOS Safari: hint the rendering engine to keep the
-       compositor on a 120 Hz cadence. The perspective property
-       on main is removed because it creates a containing block
-       that can interfere with fixed positioning of children.
-       Instead, individual page surfaces handle their own 3D
-       context via PageTransition inline styles. */
+/*  3. GPU promotion, gated on the user's compositor-hints switch.
 
-/*  4. Tab layer (PersistentTabs) — promote to its own surface so
-       its slide-off doesn't repaint the route container. */
-main#main-content [data-tab-layer='true'] {
-  transform: translateZ(0);
-  backface-visibility: hidden;
+       A promoted layer is not free: it costs video memory and pins a texture
+       for as long as the hint stands. On low-memory devices turning this OFF
+       is genuinely smoother, which is why it is a preference rather than a
+       hardcoded optimisation. When it is on, we promote exactly three things:
+       the route container, the persistent tab layer, and any open transient
+       surface — the only elements that animate a whole subtree. */
+html[data-compositor-hints='true'] main#main-content > div,
+html[data-compositor-hints='true'] main#main-content [data-tab-layer='true'] {
   will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+html[data-compositor-hints='true'] .glass-overlay[data-state='open'],
+html[data-compositor-hints='true'] [data-ui-surface='sheet'][data-state='open'],
+html[data-compositor-hints='true'] [data-ui-surface='dialog'][data-state='open'] {
+  will-change: transform, opacity;
+}
+/* With hints off, make sure nothing is left holding a stale promotion. */
+html[data-compositor-hints='false'] main#main-content > div,
+html[data-compositor-hints='false'] main#main-content [data-tab-layer='true'],
+html[data-compositor-hints='false'] .glass-overlay,
+html[data-compositor-hints='false'] [data-ui-surface='sheet'],
+html[data-compositor-hints='false'] [data-ui-surface='dialog'] {
+  will-change: auto;
+}
+
+/*  4. Tab layer (PersistentTabs) — keep its rasterisation stable while it
+       animates out, without creating a containing block that would break the
+       fixed-position surfaces rendered as siblings of <main>. */
+main#main-content [data-tab-layer='true'] {
+  backface-visibility: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SCROLL GOVERNOR — html[data-scrolling]
+   ══════════════════════════════════════════════════════════════
+   Set by src/lib/scrollRuntime.ts for the duration of a fling and cleared
+   140ms after the last scroll event, or immediately on any pointer/key input.
+
+   While the content is moving, three kinds of work are suspended:
+
+     1. Hit-testing and :hover recalculation. `pointer-events: none` on the
+        body is the single cheapest way to stop the browser resolving what is
+        under the finger 120 times a second, and hover state is not observable
+        during a fling anyway. It is safe here ONLY because any `pointerdown`
+        clears the flag before a tap can be dispatched — see scrollRuntime.
+     2. The colour transitions that every card, row, link and `[data-state]`
+        element carries. In a long list that is thousands of live transitions
+        the compositor would otherwise have to track.
+     3. Decorative infinite animations, which are invisible mid-fling and
+        cost a paint each.
+
+   `native` opts out of all of it: the attribute is never set.
+   ────────────────────────────────────────────────────────────── */
+/* Suspending hit-testing is gated on `data-fling`, NOT `data-scrolling`, and
+   additionally scoped to touch pointers.
+
+   `data-fling` is only set while the scroll is driven by a finger or by the
+   momentum immediately following one (see scrollRuntime.ts). That distinction is
+   load-bearing: during a finger fling the touch that stops momentum is a
+   gesture, and browsers already suppress its click, so nothing the user meant to
+   activate is lost. A PROGRAMMATIC scroll — `scrollIntoView`, an anchor jump, a
+   newly-revealed section scrolling itself into view — can be followed
+   milliseconds later by a tap the user fully intends, and swallowing that would
+   be a real bug. A programmatic scroll never sets `data-fling`.
+
+   Desktop keeps full hit-testing regardless and gives up only the colour
+   transitions below, which is where most of its scroll cost is anyway. */
+@media (hover: none) and (pointer: coarse) {
+  html[data-fling='true'] body {
+    pointer-events: none;
+  }
+}
+html[data-scrolling='true'] a,
+html[data-scrolling='true'] button,
+html[data-scrolling='true'] input,
+html[data-scrolling='true'] textarea,
+html[data-scrolling='true'] select,
+html[data-scrolling='true'] [role='button'],
+html[data-scrolling='true'] [role='tab'],
+html[data-scrolling='true'] [role='option'],
+html[data-scrolling='true'] [role='menuitem'],
+html[data-scrolling='true'] [data-state],
+html[data-scrolling='true'] .app-card,
+html[data-scrolling='true'] .premium-card,
+html[data-scrolling='true'] .surface-depth,
+html[data-scrolling='true'] .row-icon {
+  transition: none;
+}
+html[data-scrolling='true'] .live-dot,
+html[data-scrolling='true'] .skeleton::after,
+html[data-scrolling='true'] .podcast-eq > span,
+html[data-scrolling='true'] .archive-ambient {
+  animation-play-state: paused;
+}
+
+/* `smooth` is the only profile that opts the document into animated
+   programmatic scrolling. The explicit `behavior: 'instant'` calls in
+   ScrollToTop always win over this, so per-tab restoration stays snappy. */
+html[data-scroll-profile='smooth'] {
+  scroll-behavior: smooth;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ADAPTIVE PERFORMANCE — html[data-perf-mode='saver']
+   ══════════════════════════════════════════════════════════════
+   Written by the governor in src/lib/perfMonitor.ts after three consecutive
+   seconds of missed frames, and cleared after six healthy ones. It cuts the
+   work that costs the most per frame and delivers the least: travel distance,
+   decorative infinite animation, and layer promotion.
+
+   Everything here is reversible and purely visual — no interaction, no
+   affordance and no state indicator is ever removed.
+   ────────────────────────────────────────────────────────────── */
+html[data-perf-mode='saver'] {
+  /* NOT `--motion-scale` / `--motion-amp`: those are inline styles written by
+     the runtime and a stylesheet cannot override an inline declaration. The
+     governor owns its own pair, and every consumer multiplies by both. */
+  --motion-perf-scale: 0.72;
+  --motion-perf-amp: 0.35;
+}
+html[data-perf-mode='saver'] .live-dot,
+html[data-perf-mode='saver'] .archive-ambient,
+html[data-perf-mode='saver'] .archive-cinematic .end-ornament > span,
+html[data-perf-mode='saver'] .podcast-eq[data-playing='true'] > span {
+  animation: none;
+}
+html[data-perf-mode='saver'] .glass-overlay,
+html[data-perf-mode='saver'] main#main-content [data-tab-layer='true'] {
+  will-change: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ROW DIVIDERS — one volume for the whole app
+   ══════════════════════════════════════════════════════════════
+   Tailwind's `divide-y` writes a border on every sibling but takes its colour
+   from `border-border`, i.e. full alpha, and its width from a fixed 1px. That
+   is why the same list read differently depending on which alpha a screen had
+   guessed. Both now follow the interface platform.
+
+   Matched with `[class~=…]` so `divide-y-0` and `divide-y-2` — which mean
+   something deliberately different — are left alone.
+   ────────────────────────────────────────────────────────────── */
+[class~='divide-y'] > :not([hidden]) ~ :not([hidden]) {
+  border-top-width: var(--ui-divider-width);
+  border-bottom-width: 0;
+  border-color: hsl(var(--border) / var(--ui-divider-alpha));
+}
+[class~='divide-x'] > :not([hidden]) ~ :not([hidden]) {
+  border-inline-start-width: var(--ui-divider-width);
+  border-inline-end-width: 0;
+  border-color: hsl(var(--border) / var(--ui-divider-alpha));
 }
 
 /* NOTE: the `[data-tide-bar]` and `nav.bottom-nav` rules were removed with
@@ -1343,11 +1756,11 @@ html.theme-transition *,
 html.theme-transition *::before,
 html.theme-transition *::after {
   transition:
-    background-color 260ms var(--ease-out-expo),
-    color 260ms var(--ease-out-expo),
-    border-color 260ms var(--ease-out-expo),
-    fill 260ms var(--ease-out-expo),
-    stroke 260ms var(--ease-out-expo) !important;
+    background-color calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    color calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    border-color calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    fill calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    stroke calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out) !important;
 }
 @media (prefers-reduced-motion: reduce) {
   html.theme-transition,
@@ -1356,6 +1769,12 @@ html.theme-transition *::after {
   html.theme-transition *::after {
     transition: none !important;
   }
+}
+html[data-reduced-motion='true'].theme-transition,
+html[data-reduced-motion='true'].theme-transition *,
+html[data-reduced-motion='true'].theme-transition *::before,
+html[data-reduced-motion='true'].theme-transition *::after {
+  transition: none !important;
 }
 
 /* ─── Native Android Chat Performance ─── */
@@ -1608,7 +2027,8 @@ input.podcast-seek:active::-moz-range-thumb {
   }
 }
 .animate-knowledge-fade-slide {
-  animation: knowledge-fade-slide-in 0.35s ease-out both;
+  animation: knowledge-fade-slide-in calc(350ms * var(--motion-duration-scale))
+    var(--motion-ease-enter) both;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -1662,7 +2082,7 @@ input.podcast-seek:active::-moz-range-thumb {
 }
 .archive-cinematic .reveal {
   opacity: 1;
-  animation: archive-reveal 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: archive-reveal calc(520ms * var(--motion-duration-scale)) var(--motion-ease-enter) both;
   will-change: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

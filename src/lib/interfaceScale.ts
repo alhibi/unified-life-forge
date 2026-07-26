@@ -1,21 +1,71 @@
 import {
+  ADVANCED_INTERFACE_KEYS,
+  clampBorderWidth,
+  clampContentMeasure,
+  clampSpacingScale,
+  clampTapTarget,
   clampUiScale,
   DEFAULT_ADVANCED_INTERFACE_PREFERENCES,
+  type DividerStyle,
   type InteractionStyle,
+  MAX_SAFE_AREA_EXTRA,
+  MIN_SAFE_AREA_EXTRA,
+  type RadiusProfile,
+  sanitizeDividerStyle,
   sanitizeInteractionStyle,
+  sanitizeRadiusProfile,
+  sanitizeScrollbarStyle,
   sanitizeSurfaceMaterial,
+  type ScrollbarStyle,
   type SurfaceMaterial,
 } from './appearancePreferences';
 import { applyRootTokens } from './rootTokens';
 
 export type {
   AdvancedInterfacePreferences,
+  DividerStyle,
   InteractionStyle,
+  RadiusProfile,
+  ScrollbarStyle,
   SurfaceMaterial,
+} from './appearancePreferences';
+export {
+  MAX_CONTENT_MEASURE,
+  MAX_SPACING_SCALE,
+  MAX_UI_SCALE,
+  MIN_CONTENT_MEASURE,
+  MIN_SPACING_SCALE,
+  MIN_UI_SCALE,
 } from './appearancePreferences';
 export { applyRootTokens } from './rootTokens';
 
-const RADIUS_LADDER = { sm: 6, md: 10, lg: 16, xl: 24 } as const;
+/* ─────────────────────────────────────────────────────────────────────
+ * 1. CORNERS
+ * ───────────────────────────────────────────────────────────────────── */
+
+/**
+ * The four steps of the radius ladder. The shipped values live in
+ * `RADIUS_PROFILE_LADDERS.graded` below — 6 / 10 / 16 / 24 at softness 1.0.
+ */
+export type RadiusStep = 'sm' | 'md' | 'lg' | 'xl';
+
+/**
+ * A radius profile is a per-step multiplier on the shipped ladder. `graded` is
+ * identity, so the default rendering is byte-for-byte what shipped before.
+ */
+const RADIUS_PROFILE_LADDERS: Record<RadiusProfile, Record<RadiusStep, number>> = {
+  graded: { sm: 6, md: 10, lg: 16, xl: 24 },
+  // One meaning for "rounded": every surface shares the mid radius.
+  uniform: { sm: 12, md: 12, lg: 12, xl: 12 },
+  // Crisp small controls, markedly softer large surfaces.
+  expressive: { sm: 4, md: 9, lg: 20, xl: 34 },
+};
+
+export const RADIUS_PROFILE_OPTIONS = [
+  { id: 'graded', label: 'متدرّج', note: '٦ · ١٠ · ١٦ · ٢٤ — العلاقة الأصلية' },
+  { id: 'uniform', label: 'موحّد', note: 'نصف قطر واحد لكل الأسطح' },
+  { id: 'expressive', label: 'مُعبّر', note: 'عناصر صغيرة حادّة وأسطح كبيرة ناعمة' },
+] as const satisfies readonly { id: RadiusProfile; label: string; note: string }[];
 
 export const MIN_CORNER_SOFTNESS = 0;
 export const MAX_CORNER_SOFTNESS = 1.6;
@@ -34,8 +84,16 @@ export function clampCornerSoftness(value: number): number {
   return Math.min(MAX_CORNER_SOFTNESS, Math.max(MIN_CORNER_SOFTNESS, value));
 }
 
-// Geometry is stored as numeric pixels. uiScale is applied only when tokens are
-// generated, so changing the typography base never moves shared interface chrome.
+/* ─────────────────────────────────────────────────────────────────────
+ * 2. DENSITY
+ *
+ * Geometry is stored as numeric pixels. uiScale is applied only when tokens are
+ * generated, so changing the typography base never moves shared interface
+ * chrome. `spacingScale` multiplies the breathing room alone — paddings, gaps
+ * and gutters — leaving control heights and tap targets exactly where the
+ * density level put them.
+ * ───────────────────────────────────────────────────────────────────── */
+
 export interface DensityLevel {
   id: string;
   label: string;
@@ -101,12 +159,19 @@ export function resolveDensity(value: string | null | undefined): DensityId {
     : DEFAULT_DENSITY;
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+ * 3. CONTENT MEASURE
+ * ───────────────────────────────────────────────────────────────────── */
+
 export interface WidthOption {
   id: string;
   label: string;
   note: string;
-  /** Numeric pixel measure, or null when the content should fill its container. */
-  max: number | null;
+  /**
+   * Numeric pixel measure, `null` when the content should fill its container,
+   * or `'custom'` when the value comes from `contentWidthCustom`.
+   */
+  max: number | null | 'custom';
 }
 
 export const WIDTH_OPTIONS = [
@@ -114,6 +179,7 @@ export const WIDTH_OPTIONS = [
   { id: 'standard', label: 'قياسي', note: 'الافتراضي', max: 512 },
   { id: 'wide', label: 'واسع', note: 'مساحة أكبر للجداول والقوائم', max: 608 },
   { id: 'full', label: 'كامل', note: 'يستخدم كل عرض الشاشة', max: null },
+  { id: 'custom', label: 'مخصص', note: 'مقاس بالبكسل تحدده بنفسك', max: 'custom' },
 ] as const satisfies readonly WidthOption[];
 
 export type WidthId = (typeof WIDTH_OPTIONS)[number]['id'];
@@ -122,6 +188,10 @@ export const DEFAULT_WIDTH: WidthId = 'standard';
 export function resolveWidth(value: string | null | undefined): WidthId {
   return WIDTH_OPTIONS.some((width) => width.id === value) ? (value as WidthId) : DEFAULT_WIDTH;
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 4. EDGES
+ * ───────────────────────────────────────────────────────────────────── */
 
 export interface BorderOption {
   id: string;
@@ -145,14 +215,45 @@ export function resolveBorder(value: string | null | undefined): BorderId {
     : DEFAULT_BORDER;
 }
 
+export const BORDER_WIDTH_PRESETS = [
+  { value: 1, label: 'شعري' },
+  { value: 1.5, label: 'متوسط' },
+  { value: 2, label: 'عريض' },
+] as const;
+
+/** Relative volume of an in-surface row divider, as a factor of the border alpha. */
+const DIVIDER_FACTORS: Record<DividerStyle, number> = {
+  hairline: 0.9,
+  soft: 0.55,
+  none: 0,
+};
+
+export const DIVIDER_STYLE_OPTIONS = [
+  { id: 'hairline', label: 'صريح', note: 'خط واضح بين كل صفّين' },
+  { id: 'soft', label: 'ناعم', note: 'الافتراضي — فاصل هادئ' },
+  { id: 'none', label: 'بدون', note: 'المسافة وحدها هي الفاصل' },
+] as const satisfies readonly { id: DividerStyle; label: string; note: string }[];
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 5. SCALE, MATERIAL, INTERACTION
+ * ───────────────────────────────────────────────────────────────────── */
+
 export const UI_SCALE_OPTIONS = [
   { value: 0.85, label: 'صغير' },
   { value: 1, label: 'قياسي' },
   { value: 1.1, label: 'واسع' },
   { value: 1.2, label: 'كبير' },
+  { value: 1.35, label: 'ضخم' },
 ] as const;
 
 export const UI_SCALE_PRESETS = UI_SCALE_OPTIONS;
+
+export const SPACING_SCALE_PRESETS = [
+  { value: 0.8, label: 'ضيّق' },
+  { value: 1, label: 'قياسي' },
+  { value: 1.2, label: 'مريح' },
+  { value: 1.45, label: 'فسيح' },
+] as const;
 
 export const ADAPTIVE_LAYOUT_OPTIONS = [
   { value: true, label: 'تلقائي' },
@@ -187,6 +288,26 @@ export const INTERACTION_STYLE_OPTIONS = [
 
 export const INTERACTION_STYLES = INTERACTION_STYLE_OPTIONS;
 
+export const SCROLLBAR_STYLE_OPTIONS = [
+  { id: 'auto', label: 'كامل', note: 'شريط تمرير عريض وواضح' },
+  { id: 'thin', label: 'رقيق', note: 'الافتراضي — ٦ بكسل' },
+  { id: 'hidden', label: 'مخفي', note: 'بلا شريط تمرير مرئي' },
+] as const satisfies readonly { id: ScrollbarStyle; label: string; note: string }[];
+
+/** Track width in px and thumb alpha per scrollbar style. */
+const SCROLLBAR_METRICS: Record<ScrollbarStyle, { size: number; alpha: number }> = {
+  auto: { size: 10, alpha: 0.26 },
+  thin: { size: 6, alpha: 0.18 },
+  hidden: { size: 0, alpha: 0 },
+};
+
+/** The shared page/panel header height in px at scale 1. */
+const BASE_HEADER_HEIGHT = 56;
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 6. PRESETS — complete configurations, not single knobs.
+ * ───────────────────────────────────────────────────────────────────── */
+
 export interface InterfacePreset {
   id: string;
   label: string;
@@ -204,6 +325,19 @@ export interface InterfacePreset {
   strongerContrast: boolean;
   largeTouchTargets: boolean;
   clearerFocus: boolean;
+  spacingScale: number;
+  radiusProfile: RadiusProfile;
+  borderWidth: number;
+  dividerStyle: DividerStyle;
+  iconWeightScale: number;
+  rowIconScale: number;
+  focusOffset: number;
+  pressDepth: number;
+  tapTargetMin: number;
+  contentWidthCustom: number;
+  headerScale: number;
+  scrollbarStyle: ScrollbarStyle;
+  safeAreaExtra: number;
 }
 
 const DEFAULT_ADVANCED = DEFAULT_ADVANCED_INTERFACE_PREFERENCES;
@@ -230,6 +364,9 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     border: 'subtle',
     surfaceLift: 'flat',
     ...DEFAULT_ADVANCED,
+    spacingScale: 1.2,
+    dividerStyle: 'none',
+    headerScale: 1.05,
   },
   {
     id: 'precision',
@@ -241,6 +378,10 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     border: 'defined',
     surfaceLift: 'lifted',
     ...DEFAULT_ADVANCED,
+    spacingScale: 0.88,
+    dividerStyle: 'hairline',
+    borderWidth: 1,
+    headerScale: 0.92,
   },
   {
     id: 'soft',
@@ -252,6 +393,8 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     border: 'subtle',
     surfaceLift: 'lifted',
     ...DEFAULT_ADVANCED,
+    radiusProfile: 'uniform',
+    iconWeightScale: 0.9,
   },
   {
     id: 'pulse',
@@ -266,6 +409,10 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     interactionStyle: 'lively',
     surfaceMaterial: 'airy',
     uiScale: 1.05,
+    radiusProfile: 'expressive',
+    pressDepth: 1.3,
+    iconWeightScale: 1.15,
+    rowIconScale: 1.12,
   },
   {
     id: 'studio',
@@ -273,12 +420,16 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     note: 'مساحة عمل واسعة ومصقولة لصناعة المحتوى',
     cornerSoftness: 0.8,
     density: 'comfortable',
-    width: 'wide',
+    width: 'custom',
     border: 'standard',
     surfaceLift: 'subtle',
     ...DEFAULT_ADVANCED,
     surfaceMaterial: 'soft',
     adaptiveLayout: true,
+    contentWidthCustom: 720,
+    spacingScale: 1.1,
+    scrollbarStyle: 'auto',
+    headerScale: 1.1,
   },
   {
     id: 'focus',
@@ -297,6 +448,11 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     clearerFocus: true,
     reducedTransparency: true,
     uiScale: 1.1,
+    borderWidth: 1.5,
+    dividerStyle: 'hairline',
+    focusOffset: 4,
+    tapTargetMin: 52,
+    iconWeightScale: 1.15,
   },
   {
     id: 'oled',
@@ -311,6 +467,53 @@ export const INTERFACE_PRESETS: readonly InterfacePreset[] = [
     surfaceMaterial: 'solid',
     reducedTransparency: true,
     strongerContrast: true,
+    dividerStyle: 'hairline',
+    scrollbarStyle: 'hidden',
+  },
+  {
+    id: 'accessible',
+    label: 'إتاحة',
+    note: 'أكبر مقاس وأوسع لمس وأقوى تركيز في التطبيق',
+    cornerSoftness: 1,
+    density: 'comfortable',
+    width: 'standard',
+    border: 'defined',
+    surfaceLift: 'subtle',
+    ...DEFAULT_ADVANCED,
+    uiScale: 1.2,
+    spacingScale: 1.2,
+    strongerContrast: true,
+    largeTouchTargets: true,
+    clearerFocus: true,
+    reducedTransparency: true,
+    borderWidth: 2,
+    dividerStyle: 'hairline',
+    focusOffset: 5,
+    pressDepth: 0.6,
+    tapTargetMin: 60,
+    iconWeightScale: 1.25,
+    rowIconScale: 1.25,
+    headerScale: 1.2,
+    scrollbarStyle: 'auto',
+    safeAreaExtra: 12,
+  },
+  {
+    id: 'dense',
+    label: 'كثيف',
+    note: 'أقصى محتوى ممكن — للشاشات الكبيرة والقوائم الطويلة',
+    cornerSoftness: 0.6,
+    density: 'compact',
+    width: 'custom',
+    border: 'subtle',
+    surfaceLift: 'flat',
+    ...DEFAULT_ADVANCED,
+    uiScale: 0.9,
+    spacingScale: 0.75,
+    contentWidthCustom: 860,
+    dividerStyle: 'soft',
+    rowIconScale: 0.85,
+    headerScale: 0.88,
+    scrollbarStyle: 'thin',
   },
 ];
 
@@ -328,18 +531,20 @@ export interface InterfacePrefs {
   strongerContrast?: boolean;
   largeTouchTargets?: boolean;
   clearerFocus?: boolean;
+  spacingScale?: number;
+  radiusProfile?: RadiusProfile;
+  borderWidth?: number;
+  dividerStyle?: DividerStyle;
+  iconWeightScale?: number;
+  rowIconScale?: number;
+  focusOffset?: number;
+  pressDepth?: number;
+  tapTargetMin?: number;
+  contentWidthCustom?: number;
+  headerScale?: number;
+  scrollbarStyle?: ScrollbarStyle;
+  safeAreaExtra?: number;
 }
-
-const advancedKeys: readonly (keyof typeof DEFAULT_ADVANCED)[] = [
-  'uiScale',
-  'adaptiveLayout',
-  'surfaceMaterial',
-  'interactionStyle',
-  'reducedTransparency',
-  'strongerContrast',
-  'largeTouchTargets',
-  'clearerFocus',
-];
 
 /** The preset id matching the current settings exactly, or null if tuned. */
 export function matchInterfacePreset(prefs: InterfacePrefs): string | null {
@@ -353,21 +558,78 @@ export function matchInterfacePreset(prefs: InterfacePrefs): string | null {
         preset.surfaceLift === prefs.surfaceLift;
       if (!geometryMatches) return false;
 
-      return advancedKeys.every((key) => prefs[key] === undefined || preset[key] === prefs[key]);
+      return ADVANCED_INTERFACE_KEYS.every((key) => {
+        const value = prefs[key];
+        if (value === undefined) return true;
+        const target = preset[key];
+        if (typeof value === 'number' && typeof target === 'number') {
+          return Math.abs(value - target) < 0.005;
+        }
+        return value === target;
+      });
     })?.id ?? null
   );
 }
 
-function px(value: number, scale: number): string {
-  return `${Math.round(value * scale * 100) / 100}px`;
+/* ─────────────────────────────────────────────────────────────────────
+ * 7. TOKEN COMPILATION
+ * ───────────────────────────────────────────────────────────────────── */
+
+function round(value: number, precision = 2): number {
+  const factor = 10 ** precision;
+  return Math.round(value * factor) / factor;
 }
 
-/** Resolve interface preferences into data-friendly root custom properties. */
-export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
+function px(value: number, scale: number): string {
+  return `${round(value * scale)}px`;
+}
+
+function alpha(value: number): string {
+  return String(round(value, 3));
+}
+
+/**
+ * The fully-resolved geometry of the interface, in the same units the tokens
+ * are emitted in. The settings screen renders this so the user can read the
+ * exact px value every control produces instead of guessing from a percentage.
+ */
+export interface ResolvedInterfaceGeometry {
+  uiScale: number;
+  spacingScale: number;
+  radius: Record<RadiusStep, number>;
+  cardPadding: number;
+  cardPaddingCompact: number;
+  controlHeight: number;
+  tapSize: number;
+  stackGap: number;
+  stackGapSmall: number;
+  gutter: number;
+  rowIcon: number;
+  headerHeight: number;
+  contentMax: number | null;
+  borderWidth: number;
+  borderAlpha: number;
+  dividerAlpha: number;
+  materialAlpha: number;
+  overlayAlpha: number;
+  pressScale: number;
+  pressOffset: number;
+  iconStroke: number;
+  focusWidth: number;
+  focusOffset: number;
+  scrollbarSize: number;
+  safeAreaExtra: number;
+  adaptiveLayout: boolean;
+}
+
+/** Resolve interface preferences into the exact numbers the tokens carry. */
+export function resolveInterfaceGeometry(prefs: InterfacePrefs): ResolvedInterfaceGeometry {
   const uiScale = clampUiScale(prefs.uiScale ?? DEFAULT_ADVANCED.uiScale);
+  const spacingScale = clampSpacingScale(prefs.spacingScale ?? DEFAULT_ADVANCED.spacingScale);
   const density = DENSITY_LEVELS.find((item) => item.id === resolveDensity(prefs.density))!;
   const width = WIDTH_OPTIONS.find((item) => item.id === resolveWidth(prefs.width))!;
   const border = BORDER_OPTIONS.find((item) => item.id === resolveBorder(prefs.border))!;
+
   const surfaceMaterial = sanitizeSurfaceMaterial(
     prefs.surfaceMaterial ?? DEFAULT_ADVANCED.surfaceMaterial,
   );
@@ -376,58 +638,168 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
   );
   const material = SURFACE_MATERIAL_OPTIONS.find((item) => item.id === surfaceMaterial)!;
   const interaction = INTERACTION_STYLE_OPTIONS.find((item) => item.id === interactionStyle)!;
+
   const adaptiveLayout = prefs.adaptiveLayout ?? DEFAULT_ADVANCED.adaptiveLayout;
   const reducedTransparency = prefs.reducedTransparency ?? DEFAULT_ADVANCED.reducedTransparency;
   const strongerContrast = prefs.strongerContrast ?? DEFAULT_ADVANCED.strongerContrast;
   const largeTouchTargets = prefs.largeTouchTargets ?? DEFAULT_ADVANCED.largeTouchTargets;
   const clearerFocus = prefs.clearerFocus ?? DEFAULT_ADVANCED.clearerFocus;
+
+  const radiusProfile = sanitizeRadiusProfile(
+    prefs.radiusProfile ?? DEFAULT_ADVANCED.radiusProfile,
+  );
+  const dividerStyle = sanitizeDividerStyle(prefs.dividerStyle ?? DEFAULT_ADVANCED.dividerStyle);
+  const scrollbarStyle = sanitizeScrollbarStyle(
+    prefs.scrollbarStyle ?? DEFAULT_ADVANCED.scrollbarStyle,
+  );
+
+  const borderWidth = clampBorderWidth(prefs.borderWidth ?? DEFAULT_ADVANCED.borderWidth);
+  const iconWeightScale = prefs.iconWeightScale ?? DEFAULT_ADVANCED.iconWeightScale;
+  const rowIconScale = prefs.rowIconScale ?? DEFAULT_ADVANCED.rowIconScale;
+  const focusOffset = prefs.focusOffset ?? DEFAULT_ADVANCED.focusOffset;
+  const pressDepth = prefs.pressDepth ?? DEFAULT_ADVANCED.pressDepth;
+  const tapTargetMin = clampTapTarget(prefs.tapTargetMin ?? DEFAULT_ADVANCED.tapTargetMin);
+  const contentWidthCustom = clampContentMeasure(
+    prefs.contentWidthCustom ?? DEFAULT_ADVANCED.contentWidthCustom,
+  );
+  const headerScale = prefs.headerScale ?? DEFAULT_ADVANCED.headerScale;
+
+  const softness = clampCornerSoftness(prefs.cornerSoftness);
+  const ladder = RADIUS_PROFILE_LADDERS[radiusProfile];
+
   const borderAlpha = Math.min(1, border.alpha * (strongerContrast ? 1.3 : 1));
-  const radius = (base: number) => px(base * clampCornerSoftness(prefs.cornerSoftness), uiScale);
-  const touchSize = largeTouchTargets ? Math.max(density.tapSize, 52) : density.tapSize;
-  const controlHeight = largeTouchTargets
-    ? Math.max(density.controlHeight, touchSize)
-    : density.controlHeight;
-  const materialAlpha = reducedTransparency ? 1 : material.alpha;
-  const overlayAlpha = reducedTransparency ? 1 : material.overlayAlpha;
+
+  // Touch floor: the explicit minimum, the density's own tap size, and the
+  // accessibility switch's 52px floor all compete — the largest wins.
+  const touchSize = Math.max(density.tapSize, tapTargetMin, largeTouchTargets ? 52 : 0);
+  const controlHeight = Math.max(density.controlHeight, largeTouchTargets ? touchSize : 0);
+
+  // Press physics: `pressScale` is expressed as a depth away from 1 so the
+  // multiplier behaves linearly and 0 means "no movement at all".
+  const pressScale = round(1 - (1 - interaction.pressScale) * pressDepth, 4);
+  const pressOffset = round(interaction.offset * pressDepth, 2);
+
+  const focusWidth = clearerFocus ? Math.max(3, interaction.focusWidth) : interaction.focusWidth;
+
+  const contentMax =
+    width.max === null ? null : width.max === 'custom' ? contentWidthCustom : width.max;
 
   return {
-    '--ui-scale': String(uiScale),
-    '--r-sm': radius(RADIUS_LADDER.sm),
-    '--r-md': radius(RADIUS_LADDER.md),
-    '--r-lg': radius(RADIUS_LADDER.lg),
-    '--r-xl': radius(RADIUS_LADDER.xl),
-    '--radius': radius(RADIUS_LADDER.lg),
-    '--ui-pad-card': px(density.cardPadding, uiScale),
-    '--ui-pad-card-compact': px(density.cardPaddingCompact, uiScale),
-    '--ui-control-h': px(controlHeight, uiScale),
-    '--ui-button-sm-h': px(40, uiScale),
-    '--ui-button-h': px(44, uiScale),
-    '--ui-button-lg-h': px(48, uiScale),
-    '--ui-tap': px(touchSize, uiScale),
-    '--ui-touch-min': px(touchSize, uiScale),
-    '--ui-stack-gap': px(density.stackGap, uiScale),
-    '--ui-stack-gap-sm': px(density.stackGapSmall, uiScale),
-    '--ui-gutter': adaptiveLayout
-      ? `clamp(${px(density.gutter * 0.75, uiScale)}, 4vw, ${px(density.gutter * 1.5, uiScale)})`
-      : px(density.gutter, uiScale),
-    '--ui-row-icon': px(density.rowIcon, uiScale),
-    '--ui-content-max': width.max === null ? '100%' : px(width.max, uiScale),
-    '--ui-border-alpha': String(Math.round(borderAlpha * 1000) / 1000),
-    '--ui-border-soft-alpha': String(Math.round(borderAlpha * 0.73 * 1000) / 1000),
-    '--ui-divider-alpha': String(Math.round(borderAlpha * 0.55 * 1000) / 1000),
-    '--ui-border-strong-alpha': String(Math.min(1, Math.round(borderAlpha * 1.45 * 1000) / 1000)),
-    '--ui-material-alpha': String(materialAlpha),
-    '--ui-surface-alpha': String(materialAlpha),
-    '--ui-material-overlay-alpha': String(overlayAlpha),
-    '--ui-interaction-scale': String(interaction.pressScale),
-    '--ui-interaction-offset': px(interaction.offset, uiScale),
-    '--ui-icon-stroke': String(interaction.iconStroke),
-    '--ui-focus-width': px(
-      clearerFocus ? Math.max(3, interaction.focusWidth) : interaction.focusWidth,
-      uiScale,
+    uiScale,
+    spacingScale,
+    radius: {
+      sm: round(ladder.sm * softness * uiScale),
+      md: round(ladder.md * softness * uiScale),
+      lg: round(ladder.lg * softness * uiScale),
+      xl: round(ladder.xl * softness * uiScale),
+    },
+    cardPadding: round(density.cardPadding * spacingScale * uiScale),
+    cardPaddingCompact: round(density.cardPaddingCompact * spacingScale * uiScale),
+    controlHeight: round(controlHeight * uiScale),
+    tapSize: round(touchSize * uiScale),
+    stackGap: round(density.stackGap * spacingScale * uiScale),
+    stackGapSmall: round(density.stackGapSmall * spacingScale * uiScale),
+    gutter: round(density.gutter * spacingScale * uiScale),
+    rowIcon: round(density.rowIcon * rowIconScale * uiScale),
+    headerHeight: round(BASE_HEADER_HEIGHT * headerScale * uiScale),
+    contentMax: contentMax === null ? null : round(contentMax * uiScale, 0),
+    borderWidth: round(borderWidth, 2),
+    borderAlpha: round(borderAlpha, 3),
+    dividerAlpha: round(borderAlpha * DIVIDER_FACTORS[dividerStyle], 3),
+    materialAlpha: reducedTransparency ? 1 : material.alpha,
+    overlayAlpha: reducedTransparency ? 1 : material.overlayAlpha,
+    pressScale,
+    pressOffset,
+    iconStroke: round(interaction.iconStroke * iconWeightScale, 2),
+    focusWidth: round(focusWidth * uiScale, 2),
+    focusOffset: round(focusOffset, 1),
+    scrollbarSize: SCROLLBAR_METRICS[scrollbarStyle].size,
+    // Defensive clamp: `resolveInterfaceGeometry` is public and may be handed a
+    // raw object that never passed through the preference sanitizer.
+    safeAreaExtra: Math.min(
+      MAX_SAFE_AREA_EXTRA,
+      Math.max(
+        MIN_SAFE_AREA_EXTRA,
+        Math.round(prefs.safeAreaExtra ?? DEFAULT_ADVANCED.safeAreaExtra),
+      ),
     ),
-    '--ui-adaptive-layout': adaptiveLayout ? '1' : '0',
-    '--ui-adaptive-gutter-factor': adaptiveLayout ? '1' : '0',
+    adaptiveLayout,
+  };
+}
+
+/** Resolve interface preferences into data-friendly root custom properties. */
+export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
+  const g = resolveInterfaceGeometry(prefs);
+  const scrollbarStyle = sanitizeScrollbarStyle(
+    prefs.scrollbarStyle ?? DEFAULT_ADVANCED.scrollbarStyle,
+  );
+  const dividerStyle = sanitizeDividerStyle(prefs.dividerStyle ?? DEFAULT_ADVANCED.dividerStyle);
+  const radiusProfile = sanitizeRadiusProfile(
+    prefs.radiusProfile ?? DEFAULT_ADVANCED.radiusProfile,
+  );
+  const reducedTransparency = prefs.reducedTransparency ?? DEFAULT_ADVANCED.reducedTransparency;
+  const strongerContrast = prefs.strongerContrast ?? DEFAULT_ADVANCED.strongerContrast;
+  const largeTouchTargets = prefs.largeTouchTargets ?? DEFAULT_ADVANCED.largeTouchTargets;
+  const clearerFocus = prefs.clearerFocus ?? DEFAULT_ADVANCED.clearerFocus;
+  const metrics = SCROLLBAR_METRICS[scrollbarStyle];
+
+  return {
+    '--ui-scale': String(g.uiScale),
+    '--ui-spacing-scale': String(g.spacingScale),
+
+    '--r-sm': `${g.radius.sm}px`,
+    '--r-md': `${g.radius.md}px`,
+    '--r-lg': `${g.radius.lg}px`,
+    '--r-xl': `${g.radius.xl}px`,
+    '--radius': `${g.radius.lg}px`,
+    '--ui-radius-profile':
+      radiusProfile === 'graded' ? '0' : radiusProfile === 'uniform' ? '1' : '2',
+
+    '--ui-pad-card': `${g.cardPadding}px`,
+    '--ui-pad-card-compact': `${g.cardPaddingCompact}px`,
+    '--ui-control-h': `${g.controlHeight}px`,
+    '--ui-button-sm-h': px(40, g.uiScale),
+    '--ui-button-h': px(44, g.uiScale),
+    '--ui-button-lg-h': px(48, g.uiScale),
+    '--ui-tap': `${g.tapSize}px`,
+    '--ui-touch-min': `${g.tapSize}px`,
+    '--ui-stack-gap': `${g.stackGap}px`,
+    '--ui-stack-gap-sm': `${g.stackGapSmall}px`,
+    '--ui-gutter': g.adaptiveLayout
+      ? `clamp(${round(g.gutter * 0.75)}px, 4vw, ${round(g.gutter * 1.5)}px)`
+      : `${g.gutter}px`,
+    '--ui-row-icon': `${g.rowIcon}px`,
+    '--ui-header-h': `${g.headerHeight}px`,
+    '--ui-content-max': g.contentMax === null ? '100%' : `${g.contentMax}px`,
+    '--ui-safe-extra': `${g.safeAreaExtra}px`,
+
+    '--ui-border-width': `${g.borderWidth}px`,
+    '--ui-border-alpha': alpha(g.borderAlpha),
+    '--ui-border-soft-alpha': alpha(g.borderAlpha * 0.73),
+    '--ui-divider-alpha': alpha(g.dividerAlpha),
+    '--ui-divider-width': dividerStyle === 'none' ? '0px' : `${g.borderWidth}px`,
+    '--ui-border-strong-alpha': alpha(Math.min(1, g.borderAlpha * 1.45)),
+
+    '--ui-material-alpha': String(g.materialAlpha),
+    '--ui-surface-alpha': String(g.materialAlpha),
+    '--ui-material-overlay-alpha': String(g.overlayAlpha),
+
+    '--ui-interaction-scale': String(g.pressScale),
+    '--ui-interaction-offset': `${g.pressOffset}px`,
+    '--ui-icon-stroke': String(g.iconStroke),
+    '--ui-focus-width': `${g.focusWidth}px`,
+    '--ui-focus-offset': `${g.focusOffset}px`,
+
+    '--ui-scrollbar-size': `${metrics.size}px`,
+    '--ui-scrollbar-alpha': alpha(metrics.alpha),
+    '--ui-scrollbar-hover-alpha': alpha(Math.min(1, metrics.alpha * 1.8)),
+    // Firefox only accepts the keywords, so the keyword itself travels as a
+    // custom property: `scrollbar-width: var(--ui-scrollbar-ff)`.
+    '--ui-scrollbar-ff':
+      scrollbarStyle === 'hidden' ? 'none' : scrollbarStyle === 'auto' ? 'auto' : 'thin',
+
+    '--ui-adaptive-layout': g.adaptiveLayout ? '1' : '0',
+    '--ui-adaptive-gutter-factor': g.adaptiveLayout ? '1' : '0',
     '--ui-reduced-transparency': reducedTransparency ? '1' : '0',
     '--ui-stronger-contrast': strongerContrast ? '1' : '0',
     '--ui-large-touch-targets': largeTouchTargets ? '1' : '0',

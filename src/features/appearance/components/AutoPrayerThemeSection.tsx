@@ -11,6 +11,7 @@ import {
   setPrayerThemeFor,
 } from '@/hooks/useAutoPrayerTheme';
 import { Check, ChevronDown, Clock, Moon, Sun } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 import { generateThemeTokens, themePresets, type ThemeStyle } from '@/utils/themeEngine';
 
 import { SettingsSection } from './AppearancePrimitives';
@@ -139,7 +140,10 @@ export default function AutoPrayerThemeSection() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+                          // A tween, never a spring: this animates a HEIGHT, and
+                          // an overshooting height makes every row below the
+                          // panel visibly bounce as it settles.
+                          transition={MOTION.collapseOpen}
                           className="overflow-hidden"
                         >
                           <div className="space-y-3 p-3 pt-0">

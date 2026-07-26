@@ -242,6 +242,17 @@ export default {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0px' },
         },
+        // Generic disclosure pair. `--collapse-target-height` is supplied by
+        // the primitive from whichever Radix measurement variable applies, so
+        // one keyframe pair serves accordion, collapsible and inline panels.
+        'collapse-down': {
+          from: { height: '0px', opacity: '0' },
+          to: { height: 'var(--collapse-target-height, auto)', opacity: '1' },
+        },
+        'collapse-up': {
+          from: { height: 'var(--collapse-target-height, auto)', opacity: '1' },
+          to: { height: '0px', opacity: '0' },
+        },
         'fade-in': {
           from: { opacity: '0', transform: 'translateY(6px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
@@ -256,24 +267,51 @@ export default {
         },
       },
       animation: {
-        // ENTER → ease-out-expo, EXIT → ease-in, INTERACT → spring snappy
-        'accordion-down': 'accordion-down 0.28s cubic-bezier(0.19, 1, 0.22, 1)',
-        'accordion-up': 'accordion-up 0.22s cubic-bezier(0.4, 0, 1, 1)',
-        'fade-in': 'fade-in 0.5s cubic-bezier(0.19, 1, 0.22, 1) both',
-        'scale-in': 'scale-in 0.35s cubic-bezier(0.19, 1, 0.22, 1) both',
-        'slide-up': 'slide-up 0.5s cubic-bezier(0.19, 1, 0.22, 1) both',
+        // Every duration is the base value times the live speed multiplier and
+        // every curve comes from the active easing family, so a utility class
+        // written in JSX obeys /settings/motion exactly like a framer variant
+        // does. Never reintroduce a literal `0.28s` or a raw cubic-bezier here.
+        'accordion-down':
+          'accordion-down calc(280ms * var(--motion-duration-scale)) var(--motion-ease-enter)',
+        'accordion-up':
+          'accordion-up calc(220ms * var(--motion-duration-scale)) var(--motion-ease-exit)',
+        'collapse-down':
+          'collapse-down calc(260ms * var(--motion-duration-scale)) var(--motion-ease-enter) both',
+        'collapse-up':
+          'collapse-up calc(200ms * var(--motion-duration-scale)) var(--motion-ease-exit) both',
+        'fade-in':
+          'fade-in calc(500ms * var(--motion-duration-scale)) var(--motion-ease-enter) both',
+        'scale-in':
+          'scale-in calc(350ms * var(--motion-duration-scale)) var(--motion-ease-enter) both',
+        'slide-up':
+          'slide-up calc(500ms * var(--motion-duration-scale)) var(--motion-ease-enter) both',
       },
       transitionTimingFunction: {
+        // The four names that follow the user's easing profile.
+        nav: 'var(--motion-ease-nav)',
+        enter: 'var(--motion-ease-enter)',
+        exit: 'var(--motion-ease-exit)',
+        press: 'var(--motion-ease-press)',
+        // Legacy fixed curves, kept for call sites that have not migrated.
         'linear-app': 'cubic-bezier(0.25, 0.1, 0.25, 1)',
         'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
         in: 'cubic-bezier(0.4, 0, 1, 1)',
         spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
       transitionDuration: {
-        instant: '80ms',
-        fast: '150ms',
-        normal: '250ms',
-        slow: '350ms',
+        // `duration-fast` in JSX now scales with the speed preference, because
+        // it resolves to the same variable the stylesheet uses.
+        instant: 'var(--duration-instant)',
+        fast: 'var(--duration-fast)',
+        normal: 'var(--duration-normal)',
+        slow: 'var(--duration-slow)',
+      },
+      borderWidth: {
+        // `border` and `border-hairline` both follow the interface platform's
+        // edge-thickness preference, so a surface cannot opt out of it by
+        // accident.
+        DEFAULT: 'var(--ui-border-width)',
+        hairline: 'var(--ui-border-width)',
       },
     },
   },

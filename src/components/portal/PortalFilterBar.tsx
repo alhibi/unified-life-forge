@@ -17,9 +17,10 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { memo } from 'react';
 
 import { Grid3X3, Rows3, Search, X } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
-import { PORTAL_CATEGORIES,type PortalCategory } from './apps';
+import { PORTAL_CATEGORIES, type PortalCategory } from './apps';
 import type { PortalViewMode } from './usePortalPrefs';
 
 export interface PortalFilterBarProps {
@@ -86,7 +87,11 @@ function PortalFilterBarImpl({
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
         >
-          {view === 'grid' ? <Grid3X3 className="h-5 w-5" aria-hidden /> : <Rows3 className="h-5 w-5" aria-hidden />}
+          {view === 'grid' ? (
+            <Grid3X3 className="h-5 w-5" aria-hidden />
+          ) : (
+            <Rows3 className="h-5 w-5" aria-hidden />
+          )}
         </button>
       </div>
 
@@ -121,9 +126,7 @@ function PortalFilterBarImpl({
                   // Painted before the label in DOM order, so the label sits on
                   // top without introducing an ad-hoc z-index.
                   className="absolute inset-0 rounded-sm bg-primary"
-                  transition={
-                    reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }
-                  }
+                  transition={reduce ? { duration: 0 } : MOTION.spring}
                   aria-hidden
                 />
               )}

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import { Contrast, Moon, Sun } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 import { INK_CSS } from '@/utils/themeEngine';
 
 import { SettingsSection } from './AppearancePrimitives';
@@ -46,7 +47,7 @@ export default function ModeSection() {
                   <motion.div
                     layoutId="activeThemeMode"
                     className="absolute inset-0 z-base rounded-full bg-primary"
-                    transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                    transition={MOTION.spring}
                   />
                 )}
                 <Icon

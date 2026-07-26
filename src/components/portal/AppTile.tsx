@@ -21,6 +21,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { forwardRef, memo, useCallback, useRef } from 'react';
 
 import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 import type { PortalApp } from './apps';
@@ -107,15 +108,16 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         reduce
           ? { duration: 0.12, ease: 'linear' }
           : {
-              type: 'spring',
-              stiffness: 420,
-              damping: 34,
-              mass: 0.9,
+              // The shared spring, so the tile follows the speed and bounce
+              // settings and stops overshooting entirely under the `silk`
+              // easing family. It used to carry its own ζ ≈ 0.81 pair, which
+              // meant every tile on the home grid settled with a small rebound
+              // no preference could reach.
+              ...MOTION.spring,
               // Cap the cascade: item 7 must not wait 240 ms to exist.
               delay: Math.min(index, 6) * 0.035,
             }
       }
-      style={{ willChange: 'transform, opacity' }}
       className="relative"
     >
       <button
@@ -170,10 +172,14 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           {list && (
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2">
-                <span className="truncate text-body font-semibold text-foreground">{app.label}</span>
+                <span className="truncate text-body font-semibold text-foreground">
+                  {app.label}
+                </span>
                 {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
               </span>
-              <span className="mt-0.5 block truncate text-mini text-muted-foreground">{app.description}</span>
+              <span className="mt-0.5 block truncate text-mini text-muted-foreground">
+                {app.description}
+              </span>
             </span>
           )}
         </span>
@@ -184,7 +190,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               <span className="truncate text-body font-semibold text-foreground">{app.label}</span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="mt-1 block text-mini leading-[1.125rem] text-muted-foreground">{app.description}</span>
+            <span className="mt-1 block text-mini leading-[1.125rem] text-muted-foreground">
+              {app.description}
+            </span>
             <span className="mt-2 block text-micro font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
               {app.caption}
             </span>
@@ -204,7 +212,12 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           </span>
         )}
 
-        {list && <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />}
+        {list && (
+          <ChevronRight
+            className="ms-auto h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
+            aria-hidden
+          />
+        )}
       </button>
 
       {/* Detail affordance — separate button so the tile's primary tap stays
