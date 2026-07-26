@@ -7,9 +7,13 @@ import {
 } from './data/countriesCatalog';
 import { preparePlacePhoto } from './lib/photoPipeline';
 import {
+  type ChecklistCategory,
   type Coordinates,
+  type CountryStamp,
+  isChecklistCategory,
   isPlaceCategory,
   isPlaceLinkKind,
+  isStampStatus,
   isTripStatus,
   isVisitStatus,
   normalizeBestMonths,
@@ -19,9 +23,11 @@ import {
   type PlaceLink,
   type PlaceLinkKind,
   type PlacePhoto,
+  type StampStatus,
   type TravelCountry,
   type TravelPlace,
   type Trip,
+  type TripChecklistItem,
   type TripStop,
   type TripWithStops,
   type VisitStatus,
@@ -122,6 +128,7 @@ interface TripRow {
   status: string | null;
   created_at: string | null;
   trip_places: TripStopRow[] | null;
+  trip_checklist: TripChecklistRow[] | null;
 }
 
 interface TripStopRow {
@@ -130,6 +137,26 @@ interface TripStopRow {
   place_id: string;
   day_index: number | null;
   sort_order: number | null;
+  note_ar: string | null;
+  start_time: string | null;
+  duration_minutes: number | null;
+}
+
+interface TripChecklistRow {
+  id: string;
+  trip_id: string;
+  label: string;
+  category: string | null;
+  is_done: boolean | null;
+  sort_order: number | null;
+}
+
+interface CountryStampRow {
+  id: string;
+  iso_code: string;
+  status: string | null;
+  first_year: number | null;
+  visit_count: number | null;
   note_ar: string | null;
 }
 
@@ -152,8 +179,11 @@ const PLACE_COLUMNS = `
 const TRIP_COLUMNS = `
   id, title, country_id, start_date, end_date, notes_ar, budget_amount,
   budget_currency, status, created_at,
-  trip_places ( id, trip_id, place_id, day_index, sort_order, note_ar )
+  trip_places ( id, trip_id, place_id, day_index, sort_order, note_ar, start_time, duration_minutes ),
+  trip_checklist ( id, trip_id, label, category, is_done, sort_order )
 `;
+
+const STAMP_COLUMNS = 'id, iso_code, status, first_year, visit_count, note_ar';
 
 /**
  * A migration that has not been applied yet must degrade to "empty atlas", not
@@ -270,8 +300,25 @@ function mapTrip(row: TripRow): TripWithStops {
     createdAt: row.created_at,
     stops: (row.trip_places ?? [])
       .map(mapTripStop)
-      .sort((a, b) => a.dayIndex - b.dayIndex || a.sortOrder - b.sortOrder),
+      // A stop with a clock time sorts by it; the rest keep their manual order
+      // underneath, so a half-planned day still reads top to bottom.
+      .sort(
+        (a, b) =>
+          a.dayIndex - b.dayIndex ||
+          compareOptionalTime(a.startTime, b.startTime) ||
+          a.sortOrder - b.sortOrder,
+      ),
+    checklist: (row.trip_checklist ?? [])
+      .map(mapChecklistItem)
+      .sort((a, b) => a.sortOrder - b.sortOrder),
   };
+}
+
+function compareOptionalTime(a: string | null, b: string | null): number {
+  if (a === b) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return a.localeCompare(b);
 }
 
 function mapTripStop(row: TripStopRow): TripStop {
@@ -281,6 +328,31 @@ function mapTripStop(row: TripStopRow): TripStop {
     placeId: row.place_id,
     dayIndex: row.day_index ?? 1,
     sortOrder: row.sort_order ?? 0,
+    noteAr: row.note_ar,
+    // Postgres returns `HH:MM:SS`; the UI only ever shows and edits `HH:MM`.
+    startTime: row.start_time ? row.start_time.slice(0, 5) : null,
+    durationMinutes: row.duration_minutes,
+  };
+}
+
+function mapChecklistItem(row: TripChecklistRow): TripChecklistItem {
+  return {
+    id: row.id,
+    tripId: row.trip_id,
+    label: row.label,
+    category: isChecklistCategory(row.category) ? row.category : 'other',
+    isDone: row.is_done ?? false,
+    sortOrder: row.sort_order ?? 0,
+  };
+}
+
+function mapCountryStamp(row: CountryStampRow): CountryStamp {
+  return {
+    id: row.id,
+    isoCode: row.iso_code,
+    status: isStampStatus(row.status) ? row.status : 'visited',
+    firstYear: row.first_year,
+    visitCount: row.visit_count ?? 1,
     noteAr: row.note_ar,
   };
 }
@@ -393,6 +465,65 @@ export async function fetchTrips(): Promise<TripWithStops[]> {
     throw error;
   }
   return ((data ?? []) as TripRow[]).map(mapTrip);
+}
+
+export async function fetchCountryStamps(): Promise<CountryStamp[]> {
+  const userId = await currentUserId();
+  if (!userId) return [];
+
+  const { data, error } = await db
+    .from('country_stamps')
+    .select(STAMP_COLUMNS)
+    .eq('user_id', userId);
+
+  if (error) {
+    if (isMissingRelation(error)) return [];
+    throw error;
+  }
+  return ((data ?? []) as CountryStampRow[]).map(mapCountryStamp);
+}
+
+export interface StampFields {
+  status: StampStatus;
+  firstYear?: number | null;
+  visitCount?: number;
+  noteAr?: string | null;
+}
+
+/**
+ * Stamps a country, or updates the existing stamp. Upsert on
+ * `(user_id, iso_code)` so tapping the same country twice never creates a
+ * duplicate row — the map has no concept of two stamps on one country.
+ */
+export async function setCountryStamp(isoCode: string, fields: StampFields): Promise<CountryStamp> {
+  const userId = await requireUserId();
+  const { data, error } = await db
+    .from('country_stamps')
+    .upsert(
+      {
+        user_id: userId,
+        iso_code: isoCode.toUpperCase(),
+        status: fields.status,
+        first_year: fields.firstYear ?? null,
+        visit_count: Math.max(0, Math.min(999, fields.visitCount ?? 1)),
+        note_ar: emptyToNull(fields.noteAr),
+      },
+      { onConflict: 'user_id,iso_code' },
+    )
+    .select(STAMP_COLUMNS)
+    .single();
+  if (error) throw error;
+  return mapCountryStamp(data as CountryStampRow);
+}
+
+export async function removeCountryStamp(isoCode: string): Promise<void> {
+  const userId = await requireUserId();
+  const { error } = await db
+    .from('country_stamps')
+    .delete()
+    .eq('user_id', userId)
+    .eq('iso_code', isoCode.toUpperCase());
+  if (error) throw error;
 }
 
 // ── Country seeding ─────────────────────────────────────────────────────────
@@ -725,11 +856,53 @@ export async function saveTripStopOrder(
   );
 }
 
-export async function updateTripStopNote(stopId: string, noteAr: string | null): Promise<void> {
-  const { error } = await db
-    .from('trip_places')
-    .update({ note_ar: emptyToNull(noteAr) })
-    .eq('id', stopId);
+export interface TripStopFields {
+  noteAr?: string | null;
+  /** `HH:MM`, or null to clear the clock time. */
+  startTime?: string | null;
+  durationMinutes?: number | null;
+}
+
+export async function updateTripStop(stopId: string, fields: TripStopFields): Promise<void> {
+  const columns: Record<string, unknown> = {};
+  if (fields.noteAr !== undefined) columns.note_ar = emptyToNull(fields.noteAr);
+  if (fields.startTime !== undefined) {
+    columns.start_time = fields.startTime ? `${fields.startTime}:00` : null;
+  }
+  if (fields.durationMinutes !== undefined) columns.duration_minutes = fields.durationMinutes;
+  if (Object.keys(columns).length === 0) return;
+
+  const { error } = await db.from('trip_places').update(columns).eq('id', stopId);
+  if (error) throw error;
+}
+
+// ── Packing checklist ───────────────────────────────────────────────────────
+
+export async function addChecklistItems(
+  tripId: string,
+  items: { label: string; category: ChecklistCategory }[],
+): Promise<void> {
+  const rows = items
+    .map((item, index) => ({
+      trip_id: tripId,
+      label: item.label.trim(),
+      category: item.category,
+      sort_order: (Date.now() % 100000) + index,
+    }))
+    .filter((row) => row.label.length > 0);
+  if (rows.length === 0) return;
+
+  const { error } = await db.from('trip_checklist').insert(rows);
+  if (error) throw error;
+}
+
+export async function setChecklistItemDone(itemId: string, isDone: boolean): Promise<void> {
+  const { error } = await db.from('trip_checklist').update({ is_done: isDone }).eq('id', itemId);
+  if (error) throw error;
+}
+
+export async function removeChecklistItem(itemId: string): Promise<void> {
+  const { error } = await db.from('trip_checklist').delete().eq('id', itemId);
   if (error) throw error;
 }
 

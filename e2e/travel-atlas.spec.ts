@@ -69,3 +69,104 @@ test.describe('travel atlas', () => {
     await expect(page.getByText('لم نجد هذه الرحلة')).toBeVisible();
   });
 });
+
+/**
+ * The two map surfaces, guarding the two defects that made the atlas look empty:
+ *
+ *   1. MapLibre's stylesheet declares `position: relative` on the element it is
+ *      handed. It loads after Tailwind, so it beat `absolute inset-0`, the
+ *      container collapsed to zero height and the canvas fell back to its
+ *      intrinsic 300 px — a blank map with no error anywhere.
+ *
+ *   2. MapLibre derives its worker URL from its own `import.meta.url`. Vite never
+ *      emitted that file, so the worker 404'd and NO vector tile was ever
+ *      requested: the map showed only its low-zoom raster layer and nothing else,
+ *      again silently.
+ *
+ * Both were invisible to every assertion that only checked for mounted content,
+ * which is why these two check pixels and workers instead.
+ */
+test.describe('travel atlas maps', () => {
+  test('the map canvas fills its container', async ({ page }) => {
+    await page.goto('/travel-atlas/explore');
+    const canvas = page.locator('canvas.maplibregl-canvas');
+    await expect(canvas).toBeVisible();
+
+    const sizes = await page.evaluate(() => {
+      const element = document.querySelector('canvas.maplibregl-canvas') as HTMLCanvasElement;
+      const surface = document.querySelector('.travel-map') as HTMLElement;
+      return {
+        canvasHeight: element.clientHeight,
+        surfaceHeight: surface.clientHeight,
+      };
+    });
+
+    expect(sizes.surfaceHeight).toBeGreaterThan(300);
+    // The intrinsic canvas height is 300; anything at or near it means the
+    // container collapsed and the map is not really rendering.
+    expect(sizes.canvasHeight).toBeGreaterThanOrEqual(sizes.surfaceHeight - 1);
+  });
+
+  test('the vector tile worker is served', async ({ page }) => {
+    await page.goto('/travel-atlas/explore');
+    await expect(page.locator('canvas.maplibregl-canvas')).toBeVisible();
+
+    // Wait for the worker pool, which MapLibre creates on the first map.
+    await page.waitForFunction(() => true);
+    const workerUrl = await page.evaluate(async () => {
+      // The worker asset must exist at the URL MapLibre was given, otherwise
+      // vector tiles are never parsed.
+      const scripts = performance
+        .getEntriesByType('resource')
+        .map((entry) => entry.name)
+        .filter((name) => /maplibre-gl-worker/.test(name));
+      if (scripts.length === 0) return null;
+      const response = await fetch(scripts[0]);
+      return `${response.status}`;
+    });
+
+    expect(workerUrl, 'MapLibre requested no worker script').not.toBeNull();
+    expect(workerUrl).toBe('200');
+  });
+
+  test('the country stamp map draws the world without any tiles', async ({ page }) => {
+    await page.goto('/travel-atlas/countries');
+
+    await expect(page.getByRole('heading', { name: 'خريطة البلدان', level: 1 })).toBeVisible();
+    await expect(page.getByRole('img', { name: /خريطة العالم منقّطة/ })).toBeVisible();
+
+    // The dotted map is a 2D canvas, so its pixels are readable — which makes it
+    // the one map surface that can be asserted to have actually painted.
+    //
+    // Polled rather than sampled once: the grid is fetched and then drawn, so a
+    // single read right after mount races the first paint and fails only under
+    // load, which is the worst kind of test.
+    await page.waitForFunction(
+      () => {
+        const canvas = document.querySelector('.travel-dot-map canvas') as HTMLCanvasElement | null;
+        const context = canvas?.getContext('2d');
+        if (!canvas || !context || canvas.width === 0) return false;
+        const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+        let opaque = 0;
+        for (let index = 3; index < data.length; index += 400) {
+          if (data[index] > 0) opaque += 1;
+          if (opaque > 50) return true;
+        }
+        return false;
+      },
+      undefined,
+      { timeout: 15000 },
+    );
+
+    // 178 countries come from the generated asset; a broken fetch shows 0.
+    await expect(page.getByText(/من \d+ دولة/)).toBeVisible();
+  });
+
+  test('the atlas keeps its map when the place list is empty', async ({ page }) => {
+    // Regression: the world map used to be REPLACED by the sign-in prompt, so a
+    // new visitor opened the atlas and found no map at all.
+    await page.goto('/travel-atlas');
+    await expect(page.locator('canvas.maplibregl-canvas')).toBeVisible();
+    await expect(page.getByText(/سجّل الدخول ليكون لك أطلس|أضف مكانك الأول/)).toBeVisible();
+  });
+});

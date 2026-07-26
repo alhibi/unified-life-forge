@@ -2,42 +2,59 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import {
+  addChecklistItems,
   addTripStop,
   createPlace,
   type CreatePlaceInput,
   createTrip,
   deletePlace,
   deleteTrip,
+  fetchCountryStamps,
   fetchMyPlaces,
   fetchNearbyPlaces,
   fetchPlaceById,
   fetchTravelCountries,
   fetchTrips,
+  removeChecklistItem,
+  removeCountryStamp,
   removeTripStop,
   saveTripStopOrder,
+  setChecklistItemDone,
+  setCountryStamp,
   setCoverPhoto,
   setPlaceFavorite,
   setPlaceRating,
   setPlaceVisitStatus,
+  type StampFields,
   type TripFields,
+  type TripStopFields,
   updatePlace,
   type UpdatePlaceInput,
   updateTrip,
-  updateTripStopNote,
+  updateTripStop,
 } from './api';
 import { buildCountrySummaries, computePassport } from './lib/stats';
 import {
   cacheCountries,
   cachePlaces,
+  cacheStamps,
   cacheTrips,
   getCachedCountries,
   getCachedPlaces,
+  getCachedStamps,
   getCachedTrips,
   invalidateCache,
   isCacheStale,
 } from './offlineCache';
 import { travelAtlasKeys } from './queryKeys';
-import type { TravelCountry, TravelPlace, TripWithStops, VisitStatus } from './types';
+import type {
+  ChecklistCategory,
+  CountryStamp,
+  TravelCountry,
+  TravelPlace,
+  TripWithStops,
+  VisitStatus,
+} from './types';
 
 /**
  * Offline-first read.
@@ -47,7 +64,7 @@ import type { TravelCountry, TravelPlace, TripWithStops, VisitStatus } from './t
  * point of an atlas you carry abroad.
  */
 async function offlineFirst<T>(
-  key: 'countries' | 'places' | 'trips',
+  key: 'countries' | 'places' | 'trips' | 'stamps',
   fetcher: () => Promise<T>,
   readCache: () => Promise<T | null>,
   writeCache: (value: T) => Promise<void>,
@@ -402,11 +419,137 @@ export function useSaveTripStopOrder() {
   });
 }
 
-export function useUpdateTripStopNote() {
+export function useUpdateTripStop() {
   const invalidate = useTripsInvalidator();
   return useMutation({
-    mutationFn: ({ stopId, noteAr }: { stopId: string; noteAr: string | null }) =>
-      updateTripStopNote(stopId, noteAr),
+    mutationFn: ({ stopId, fields }: { stopId: string; fields: TripStopFields }) =>
+      updateTripStop(stopId, fields),
     onSuccess: invalidate,
+  });
+}
+
+// ── Packing checklist ───────────────────────────────────────────────────────
+
+export function useAddChecklistItems() {
+  const invalidate = useTripsInvalidator();
+  return useMutation({
+    mutationFn: ({
+      tripId,
+      items,
+    }: {
+      tripId: string;
+      items: { label: string; category: ChecklistCategory }[];
+    }) => addChecklistItems(tripId, items),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSetChecklistItemDone() {
+  const queryClient = useQueryClient();
+  const invalidate = useTripsInvalidator();
+  return useMutation({
+    mutationFn: ({ itemId, isDone }: { itemId: string; isDone: boolean }) =>
+      setChecklistItemDone(itemId, isDone),
+    // Ticking a packing list is a rapid-fire action; waiting on the network for
+    // each box would make the list feel stuck.
+    onMutate: async ({ itemId, isDone }) => {
+      const key = travelAtlasKeys.trips();
+      const previous = queryClient.getQueryData<TripWithStops[]>(key);
+      if (previous) {
+        queryClient.setQueryData<TripWithStops[]>(
+          key,
+          previous.map((trip) => ({
+            ...trip,
+            checklist: trip.checklist.map((item) =>
+              item.id === itemId ? { ...item, isDone } : item,
+            ),
+          })),
+        );
+      }
+      return { previous };
+    },
+    onError: (_error, _args, context) => {
+      if (context?.previous) queryClient.setQueryData(travelAtlasKeys.trips(), context.previous);
+    },
+    onSettled: invalidate,
+  });
+}
+
+export function useRemoveChecklistItem() {
+  const invalidate = useTripsInvalidator();
+  return useMutation({
+    mutationFn: (itemId: string) => removeChecklistItem(itemId),
+    onSuccess: invalidate,
+  });
+}
+
+// ── Country stamps ──────────────────────────────────────────────────────────
+
+export function useCountryStamps() {
+  return useQuery({
+    queryKey: travelAtlasKeys.stamps(),
+    queryFn: () => offlineFirst('stamps', fetchCountryStamps, getCachedStamps, cacheStamps),
+  });
+}
+
+function useStampsInvalidator() {
+  const queryClient = useQueryClient();
+  return async () => {
+    await invalidateCache('stamps');
+    await queryClient.invalidateQueries({ queryKey: travelAtlasKeys.stamps() });
+  };
+}
+
+export function useSetCountryStamp() {
+  const queryClient = useQueryClient();
+  const invalidate = useStampsInvalidator();
+
+  return useMutation({
+    mutationFn: ({ isoCode, fields }: { isoCode: string; fields: StampFields }) =>
+      setCountryStamp(isoCode, fields),
+    // The stamp map is a poster you tap: the dot must fill instantly.
+    onMutate: async ({ isoCode, fields }) => {
+      const key = travelAtlasKeys.stamps();
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<CountryStamp[]>(key);
+      const optimistic: CountryStamp = {
+        id: `pending:${isoCode}`,
+        isoCode: isoCode.toUpperCase(),
+        status: fields.status,
+        firstYear: fields.firstYear ?? null,
+        visitCount: fields.visitCount ?? 1,
+        noteAr: fields.noteAr ?? null,
+      };
+      const rest = (previous ?? []).filter((stamp) => stamp.isoCode !== optimistic.isoCode);
+      queryClient.setQueryData<CountryStamp[]>(key, [...rest, optimistic]);
+      return { previous };
+    },
+    onError: (_error, _args, context) => {
+      if (context?.previous) queryClient.setQueryData(travelAtlasKeys.stamps(), context.previous);
+    },
+    onSettled: invalidate,
+  });
+}
+
+export function useRemoveCountryStamp() {
+  const queryClient = useQueryClient();
+  const invalidate = useStampsInvalidator();
+
+  return useMutation({
+    mutationFn: (isoCode: string) => removeCountryStamp(isoCode),
+    onMutate: async (isoCode) => {
+      const key = travelAtlasKeys.stamps();
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<CountryStamp[]>(key);
+      queryClient.setQueryData<CountryStamp[]>(
+        key,
+        (previous ?? []).filter((stamp) => stamp.isoCode !== isoCode.toUpperCase()),
+      );
+      return { previous };
+    },
+    onError: (_error, _args, context) => {
+      if (context?.previous) queryClient.setQueryData(travelAtlasKeys.stamps(), context.previous);
+    },
+    onSettled: invalidate,
   });
 }

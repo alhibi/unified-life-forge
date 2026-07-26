@@ -1,4 +1,16 @@
 import type { Map as MapLibreMap, StyleSpecification } from 'maplibre-gl';
+/**
+ * MapLibre parses vector tiles in a Web Worker, and it derives that worker's URL
+ * from its own `import.meta.url` — expecting a sibling `maplibre-gl-worker.mjs`.
+ * Vite never emits that file, so the request 404'd, the worker died silently, and
+ * the map rendered ONLY its low-zoom raster layer: a blank-looking map with no
+ * streets, labels or borders, and not one error in the console.
+ *
+ * `?worker&url` makes Vite bundle the worker properly (resolving its own shared
+ * chunk) and hand back the hashed URL, which is then handed to MapLibre below.
+ * This import costs a URL string, not the map engine.
+ */
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
 import { mapStyleEntry, type MapStyleId } from '../data/mapStyles';
 import type { Coordinates, CountryBounds } from '../types';
@@ -102,6 +114,10 @@ export class MapController {
     ]);
     if (this.disposed || !this.container) return;
 
+    // Must happen before the first Map is constructed: the worker pool is created
+    // lazily on that call and the URL is read once.
+    maplibre.setWorkerUrl(maplibreWorkerUrl);
+
     const entry = mapStyleEntry(this.options.styleId);
     const map = new maplibre.Map({
       container,
@@ -128,9 +144,15 @@ export class MapController {
 
     this.instance = map;
     map.addControl(new maplibre.AttributionControl({ compact: true }), 'bottom-right');
-    if (this.options.globe) this.applyProjection(true);
 
-    map.on('load', () => this.patch({ map, isReady: true, error: null }));
+    map.on('load', () => {
+      // The projection has to be (re-)applied AFTER the style loads. Setting it
+      // on a freshly constructed map is silently discarded, because loading a
+      // style applies that style's own projection — which is mercator — and the
+      // globe reverted to flat with no error.
+      if (this.options.globe) this.applyProjection(true);
+      this.patch({ map, isReady: true, error: null });
+    });
     map.on('error', (event: { error?: { message?: string; status?: number } }) => {
       // Individual tile 404s are normal at the edge of coverage and must not
       // put an error banner over a working map.
@@ -163,10 +185,11 @@ export class MapController {
     const entry = mapStyleEntry(styleId);
     this.patch({ error: null });
     map.setStyle(entry.style as string | StyleSpecification);
-    // Globe survives a style swap in MapLibre, but a style that declares its own
-    // projection would override it — re-assert after the new style settles.
+    // The incoming style brings its own projection, so the globe has to be
+    // re-asserted once it has settled — same reason as on first load.
     if (this.options.globe) {
-      this.styleReloadTimer = window.setTimeout(() => this.applyProjection(true), 60);
+      map.once('styledata', () => this.applyProjection(true));
+      this.styleReloadTimer = window.setTimeout(() => this.applyProjection(true), 200);
     }
   }
 

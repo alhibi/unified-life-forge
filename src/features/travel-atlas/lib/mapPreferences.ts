@@ -47,6 +47,45 @@ export function writeGlobeEnabled(enabled: boolean): void {
   write(GLOBE_KEY, enabled ? 'true' : 'false');
 }
 
+const CAMERA_KEY = 'travel-atlas:explore-camera';
+
+export interface StoredCamera {
+  center: [number, number];
+  zoom: number;
+}
+
+/**
+ * The explore map reopens where it was left.
+ *
+ * A detailed map is a place you were working in — reopening it on the whole
+ * planet throws away the navigation the user already did.
+ */
+export function readExploreCamera(): StoredCamera | null {
+  const raw = read(CAMERA_KEY);
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const { center, zoom } = parsed as { center?: unknown; zoom?: unknown };
+    if (
+      Array.isArray(center) &&
+      center.length === 2 &&
+      center.every((value) => typeof value === 'number' && Number.isFinite(value)) &&
+      typeof zoom === 'number' &&
+      Number.isFinite(zoom)
+    ) {
+      return { center: [center[0], center[1]], zoom };
+    }
+  } catch {
+    // Corrupt value: fall through to the default camera.
+  }
+  return null;
+}
+
+export function writeExploreCamera(camera: StoredCamera): void {
+  write(CAMERA_KEY, JSON.stringify(camera));
+}
+
 export function readAtlasView(): AtlasView {
   return read(VIEW_KEY) === 'list' ? 'list' : 'map';
 }

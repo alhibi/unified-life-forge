@@ -46,7 +46,17 @@ export default function MapSurface({
       className={cn('travel-map relative isolate h-full w-full overflow-hidden', className)}
       dir="ltr"
     >
-      <div ref={containerRef} className="absolute inset-0" />
+      {/*
+        Sized with `h-full w-full`, NOT `absolute inset-0`.
+
+        MapLibre adds a `.maplibregl-map` class to whatever element it is given,
+        and its stylesheet declares `position: relative` on that class. That rule
+        loads after Tailwind's utilities, so it beat `.absolute`: the insets
+        stopped applying, this element collapsed to zero height, and the canvas
+        fell back to its intrinsic 300 px with nothing painted in it. A
+        percentage height cannot be overridden the same way.
+      */}
+      <div ref={containerRef} className="h-full w-full" />
       {children}
     </div>
   );

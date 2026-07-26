@@ -39,6 +39,7 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'clipboard_items', ownerColumn: 'user_id', label: 'الحافظة' },
   { table: 'places', ownerColumn: 'user_id', label: 'الأماكن المحفوظة' },
   { table: 'trips', ownerColumn: 'user_id', label: 'خطط الرحلات' },
+  { table: 'country_stamps', ownerColumn: 'user_id', label: 'الدول المسجّلة' },
   { table: 'game_progress', ownerColumn: 'user_id', label: 'تقدّم الألعاب' },
   { table: 'reading_feeds', ownerColumn: 'user_id', label: 'خلاصات القراءة' },
   { table: 'reading_bookmarks', ownerColumn: 'user_id', label: 'العلامات المرجعية' },

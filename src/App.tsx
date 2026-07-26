@@ -192,6 +192,10 @@ const loadTravelMap = () => import("./features/travel-atlas/pages/CountryMapPage
 const loadTravelPlace = () => import("./features/travel-atlas/pages/PlaceDetailPage");
 const loadTravelTrips = () => import("./features/travel-atlas/pages/TripsPage");
 const loadTravelTrip = () => import("./features/travel-atlas/pages/TripDetailPage");
+// The atlas has two deliberately different maps: `explore` is a full-detail
+// street map, `countries` is a tile-free dotted poster for stamping countries.
+const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMapPage");
+const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
 // "Now" (الرئيسي) — the former home page content, now a standalone
 // app reached from the portal grid.
@@ -223,6 +227,8 @@ registerRoute('/weather',           loadWeather);
 registerRoute('/knowledge',         loadKnowledge);
 registerRoute('/journal',           loadJournal);
 registerRoute('/travel-atlas',      loadTravelAtlas);
+registerRoute('/travel-atlas/explore', loadTravelExplore);
+registerRoute('/travel-atlas/countries', loadTravelCountries);
 registerRoute('/travel-atlas/place/:placeId', loadTravelPlace);
 registerRoute('/travel-atlas/trips', loadTravelTrips);
 registerRoute('/travel-atlas/trips/:tripId', loadTravelTrip);
@@ -305,6 +311,8 @@ const TravelMapPage = lazy(loadTravelMap);
 const TravelPlacePage = lazy(loadTravelPlace);
 const TravelTripsPage = lazy(loadTravelTrips);
 const TravelTripPage = lazy(loadTravelTrip);
+const TravelExplorePage = lazy(loadTravelExplore);
+const TravelCountriesPage = lazy(loadTravelCountries);
 const PrayerGuidePage = lazy(loadPrayerGuide);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
@@ -631,11 +639,13 @@ function AnimatedRoutes() {
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
                   <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
-                  {/* Travel Atlas. Order matters: the literal `place` and
-                      `trips` segments must be matched BEFORE the
-                      `:countryId` wildcard, or a place link resolves as a
-                      country id and renders "country not found". */}
+                  {/* Travel Atlas. Order matters: every literal segment
+                      (`explore`, `countries`, `place`, `trips`) must be matched
+                      BEFORE the `:countryId` wildcard, or those links resolve as
+                      country ids and render "country not found". */}
                   <Route path="/travel-atlas" element={<ErrorBoundary><TravelAtlasPage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas/explore" element={<ErrorBoundary><TravelExplorePage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas/countries" element={<ErrorBoundary><TravelCountriesPage /></ErrorBoundary>} />
                   <Route path="/travel-atlas/place/:placeId" element={<ErrorBoundary><TravelPlacePage /></ErrorBoundary>} />
                   <Route path="/travel-atlas/trips" element={<ErrorBoundary><TravelTripsPage /></ErrorBoundary>} />
                   <Route path="/travel-atlas/trips/:tripId" element={<ErrorBoundary><TravelTripPage /></ErrorBoundary>} />

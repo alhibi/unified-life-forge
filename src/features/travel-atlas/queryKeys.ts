@@ -6,4 +6,5 @@ export const travelAtlasKeys = {
   place: (placeId: string) => [...travelAtlasKeys.all, 'place', placeId] as const,
   nearby: (placeId: string) => [...travelAtlasKeys.all, 'nearby', placeId] as const,
   trips: () => [...travelAtlasKeys.all, 'trips'] as const,
+  stamps: () => [...travelAtlasKeys.all, 'stamps'] as const,
 } as const;
