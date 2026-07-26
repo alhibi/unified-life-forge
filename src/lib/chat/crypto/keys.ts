@@ -192,8 +192,8 @@ export async function deriveConversationKey(
     {
       name: 'HKDF',
       hash: 'SHA-256',
-      salt: utf8(`${a}|${b}`),
-      info: utf8(PROTOCOL_INFO),
+      salt: utf8(`${a}|${b}`) as BufferSource,
+      info: utf8(PROTOCOL_INFO) as BufferSource,
     },
     hkdfKey,
     { name: 'AES-GCM', length: 256 },
@@ -214,7 +214,7 @@ export async function deriveConversationKey(
 export async function safetyNumber(myPublicRaw: string, peerPublicRaw: string): Promise<string> {
   const { utf8 } = await import('./envelope');
   const [a, b] = [myPublicRaw, peerPublicRaw].sort();
-  const digest = await subtle().digest('SHA-256', utf8(`${PROTOCOL_INFO}|${a}|${b}`));
+  const digest = await subtle().digest('SHA-256', utf8(`${PROTOCOL_INFO}|${a}|${b}`) as BufferSource);
   const bytes = new Uint8Array(digest);
 
   const groups: string[] = [];
