@@ -97,9 +97,15 @@ export type IconComponentProps = Omit<IconProps, 'weight'> & {
 
 type Names = { p: string; l: string; t: string };
 
-const PhosLib = PhosMod as Record<string, PhosphorIcon | undefined>;
-const LucideLib = LucideMod as Record<string, FC<SVGProps<SVGSVGElement>> | undefined>;
-const TablerLib = TablerMod as Record<string, FC<SVGProps<SVGSVGElement> & { stroke?: number }> | undefined>;
+const PhosLib = PhosMod as unknown as Record<string, PhosphorIcon | undefined>;
+const LucideLib = LucideMod as unknown as Record<
+  string,
+  FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined
+>;
+const TablerLib = TablerMod as unknown as Record<
+  string,
+  FC<SVGProps<SVGSVGElement> & { stroke?: number }> | undefined
+>;
 
 function pickComponent(set: IconSet, names: Names) {
   if (set === 'lucide') {
@@ -157,12 +163,13 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
     : typeof strokeWidth === 'string' ? Number.parseFloat(strokeWidth)
     : strokeFromWeight;
 
+  const strokeNum = typeof stroke === 'number' && Number.isFinite(stroke) ? stroke : undefined;
   if (set === 'tabler') {
     const T = Comp as FC<SVGProps<SVGSVGElement> & { stroke?: number }>;
     return (
       <T
         ref={ref as never}
-        stroke={stroke ?? 1.75}
+        stroke={strokeNum ?? 1.75}
         {...(isSolid ? { fill: 'currentColor' } : {})}
         {...(rest as SVGProps<SVGSVGElement>)}
       />
@@ -174,7 +181,7 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
   return (
     <L
       ref={ref as never}
-      strokeWidth={stroke ?? 2}
+      strokeWidth={strokeNum ?? 2}
       {...(isSolid ? { fill: 'currentColor' } : {})}
       {...(rest as SVGProps<SVGSVGElement>)}
     />
