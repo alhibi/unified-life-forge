@@ -8,6 +8,8 @@ import type { CountrySummary, PassportStats } from '../lib/stats';
 interface PassportPanelProps {
   passport: PassportStats;
   summaries: CountrySummary[];
+  /** Countries stamped on the country map, with or without a saved place. */
+  stampCount?: number;
 }
 
 /**
@@ -19,12 +21,14 @@ interface PassportPanelProps {
  * habitually travel in. All derived from data already on screen elsewhere, so
  * nothing here can disagree with the map.
  */
-export default function PassportPanel({ passport, summaries }: PassportPanelProps) {
+export default function PassportPanel({ passport, summaries, stampCount = 0 }: PassportPanelProps) {
   const peakMonth = Math.max(...passport.monthHistogram, 1);
   const topCategories = passport.categoryBreakdown.slice(0, 6);
   const maxCategory = topCategories[0]?.count ?? 1;
 
-  if (passport.totalPlaces === 0) {
+  // A record can consist of stamped countries alone — someone who marked twenty
+  // countries on the poster and has not pinned a single café still has a record.
+  if (passport.totalPlaces === 0 && stampCount === 0) {
     return (
       <div className="empty-state empty-state-surface min-h-[40dvh]">
         <MapPinned data-empty-icon aria-hidden="true" />

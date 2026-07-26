@@ -162,6 +162,19 @@ test.describe('travel atlas maps', () => {
     await expect(page.getByText(/من \d+ دولة/)).toBeVisible();
   });
 
+  test('a place can be filed in any country on earth', async ({ page }) => {
+    // Regression: the picker was fed the 78-entry curated catalog, so a place in
+    // Rwanda or Uruguay could not be saved at all. It now reads the merged
+    // registry — all 178 countries, grouped by region.
+    await page.goto('/travel-atlas');
+    await page.getByRole('button', { name: 'أضف مكانًا' }).first().click();
+    await page.getByRole('combobox').first().click();
+
+    await expect(page.getByRole('option').first()).toBeVisible();
+    expect(await page.getByRole('option').count()).toBeGreaterThan(150);
+    await expect(page.getByRole('option', { name: 'رواندا' })).toBeVisible();
+  });
+
   test('the atlas keeps its map when the place list is empty', async ({ page }) => {
     // Regression: the world map used to be REPLACED by the sign-in prompt, so a
     // new visitor opened the atlas and found no map at all.

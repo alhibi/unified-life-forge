@@ -55,7 +55,7 @@ type AtlasTab = 'world' | 'places' | 'passport';
 export default function TravelAtlasPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { countries, places, summaries, passport, isLoading, isError } = useAtlas();
+  const { countries, places, stamps, summaries, passport, isLoading, isError } = useAtlas();
   const toggleFavorite = useToggleFavorite();
 
   const [tab, setTab] = useState<AtlasTab>('world');
@@ -278,7 +278,7 @@ export default function TravelAtlasPage() {
 
         <TabsContent value="passport" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
           <div className="mx-auto w-full max-w-lg pt-3">
-            <PassportPanel passport={passport} summaries={summaries} />
+            <PassportPanel passport={passport} summaries={summaries} stampCount={stamps.length} />
           </div>
         </TabsContent>
       </Tabs>

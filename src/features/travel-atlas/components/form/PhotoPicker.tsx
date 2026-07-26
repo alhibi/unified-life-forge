@@ -18,6 +18,8 @@ interface PhotoPickerProps {
   onFilesChange: (files: File[]) => void;
   /** Promote a stored photo to cover (edit mode only). */
   onSetCover?: (photoId: string) => void;
+  /** Save a caption for a stored photo (edit mode only). */
+  onCaptionCommit?: (photoId: string, caption: string | null) => void;
 }
 
 /**
@@ -34,6 +36,7 @@ export default function PhotoPicker({
   files,
   onFilesChange,
   onSetCover,
+  onCaptionCommit,
 }: PhotoPickerProps) {
   // Object URLs are derived, not state: deriving them keeps the previews in the
   // same render as the files they belong to, and the effect exists only to hand
@@ -73,36 +76,52 @@ export default function PhotoPicker({
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {kept.map((photo) => (
-          <figure
-            key={photo.id}
-            className="relative h-24 w-24 overflow-hidden rounded-card border border-border"
-          >
-            <img
-              src={photo.url}
-              alt={photo.captionAr ?? ''}
-              className="h-full w-full object-cover"
-            />
-            <button
-              type="button"
-              onClick={() => onRemovedIdsChange([...removedIds, photo.id])}
-              aria-label="حذف الصورة"
-              className="absolute end-1 top-1 grid h-7 w-7 place-items-center rounded-full border border-border bg-background text-foreground"
-            >
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
-            </button>
-            {onSetCover && (
+          <figure key={photo.id} className="w-24 space-y-1">
+            <span className="relative block h-24 w-24 overflow-hidden rounded-card border border-border">
+              <img
+                src={photo.url}
+                alt={photo.captionAr ?? ''}
+                className="h-full w-full object-cover"
+              />
               <button
                 type="button"
-                onClick={() => onSetCover(photo.id)}
-                aria-label={photo.isCover ? 'هذه صورة الغلاف' : 'اجعلها صورة الغلاف'}
-                aria-pressed={photo.isCover}
-                className={cn(
-                  'absolute bottom-1 start-1 grid h-7 w-7 place-items-center rounded-full border border-border bg-background',
-                  photo.isCover ? 'text-[hsl(var(--live))]' : 'text-muted-foreground',
-                )}
+                onClick={() => onRemovedIdsChange([...removedIds, photo.id])}
+                aria-label="حذف الصورة"
+                className="absolute end-1 top-1 grid h-7 w-7 place-items-center rounded-full border border-border bg-background text-foreground"
               >
-                <Star className="h-3.5 w-3.5" fill={photo.isCover ? 'currentColor' : undefined} />
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
+              {onSetCover && (
+                <button
+                  type="button"
+                  onClick={() => onSetCover(photo.id)}
+                  aria-label={photo.isCover ? 'هذه صورة الغلاف' : 'اجعلها صورة الغلاف'}
+                  aria-pressed={photo.isCover}
+                  className={cn(
+                    'absolute bottom-1 start-1 grid h-7 w-7 place-items-center rounded-full border border-border bg-background',
+                    photo.isCover ? 'text-[hsl(var(--live))]' : 'text-muted-foreground',
+                  )}
+                >
+                  <Star className="h-3.5 w-3.5" fill={photo.isCover ? 'currentColor' : undefined} />
+                </button>
+              )}
+            </span>
+
+            {onCaptionCommit && (
+              // Committed on blur, not per keystroke: a caption is one thought,
+              // and a request per letter would be absurd.
+              <input
+                type="text"
+                defaultValue={photo.captionAr ?? ''}
+                onBlur={(event) => {
+                  const next = event.target.value.trim();
+                  if (next === (photo.captionAr ?? '')) return;
+                  onCaptionCommit(photo.id, next || null);
+                }}
+                placeholder="تعليق"
+                aria-label="تعليق الصورة"
+                className="app-control h-8 w-24 px-2 text-micro"
+              />
             )}
           </figure>
         ))}

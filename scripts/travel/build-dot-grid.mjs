@@ -116,6 +116,10 @@ const lonAt = (col) => -180 + (col + 0.5) * STEP;
 const latAt = (row) => MAX_LAT - (row + 0.5) * STEP;
 
 const countries = [];
+/** iso → polygon bounding box, for the generated TypeScript module only. */
+const countryBoxes = new Map();
+/** iso → Natural Earth CONTINENT, mapped to the app's regions in TypeScript. */
+const continents = new Map();
 let dotCount = 0;
 /** One dot belongs to one country; first match wins so borders do not double up. */
 const claimed = new Set();
@@ -176,6 +180,13 @@ for (const feature of features) {
 
   dotCount += dots.length;
 
+  // The bounding box is kept for the generated TypeScript module: the place form
+  // needs it to frame its map on the chosen country and to sanity-check a picked
+  // point. It is deliberately NOT written into the JSON asset — the dotted map
+  // never needs it, and the asset is fetched by every visitor of that screen.
+  countryBoxes.set(iso, box);
+  continents.set(iso, feature.properties.CONTINENT ?? '');
+
   countries.push({
     iso,
     ar: feature.properties.NAME_AR || feature.properties.NAME_EN || iso,
@@ -198,11 +209,56 @@ for (const feature of features) {
  * their capital coordinates; each gets one dot, which is all a stamp needs.
  */
 const MICRO_STATES = [
-  { iso: 'BH', ar: 'البحرين', en: 'Bahrain', cont: 'آسيا', lon: 50.55, lat: 26.05 },
-  { iso: 'SG', ar: 'سنغافورة', en: 'Singapore', cont: 'آسيا', lon: 103.82, lat: 1.35 },
-  { iso: 'MV', ar: 'المالديف', en: 'Maldives', cont: 'آسيا', lon: 73.5, lat: 4.2 },
-  { iso: 'MT', ar: 'مالطا', en: 'Malta', cont: 'أوروبا', lon: 14.4, lat: 35.9 },
-  { iso: 'LU', ar: 'لوكسمبورغ', en: 'Luxembourg', cont: 'أوروبا', lon: 6.13, lat: 49.81 },
+  {
+    iso: 'BH',
+    ar: 'البحرين',
+    en: 'Bahrain',
+    cont: 'آسيا',
+    ne: 'Asia',
+    lon: 50.55,
+    lat: 26.05,
+    pad: 0.35,
+  },
+  {
+    iso: 'SG',
+    ar: 'سنغافورة',
+    en: 'Singapore',
+    cont: 'آسيا',
+    ne: 'Asia',
+    lon: 103.82,
+    lat: 1.35,
+    pad: 0.25,
+  },
+  {
+    iso: 'MV',
+    ar: 'المالديف',
+    en: 'Maldives',
+    cont: 'آسيا',
+    ne: 'Asia',
+    lon: 73.5,
+    lat: 4.2,
+    pad: 4,
+  },
+  {
+    iso: 'MT',
+    ar: 'مالطا',
+    en: 'Malta',
+    cont: 'أوروبا',
+    ne: 'Europe',
+    lon: 14.4,
+    lat: 35.9,
+    pad: 0.25,
+  },
+  {
+    iso: 'LU',
+    ar: 'لوكسمبورغ',
+    en: 'Luxembourg',
+    cont: 'أوروبا',
+    ne: 'Europe',
+    lon: 6.13,
+    lat: 49.81,
+    pad: 0.4,
+  },
 ];
 
 for (const state of MICRO_STATES) {
@@ -211,6 +267,16 @@ for (const state of MICRO_STATES) {
   if (!cell) continue;
   claimed.add(cell.row * cols + cell.col);
   dotCount += 1;
+  // No polygon to measure, so the box is a small window around the capital —
+  // enough for the picker to open on the country rather than the hemisphere.
+  const pad = state.pad ?? 0.6;
+  countryBoxes.set(state.iso, {
+    minX: state.lon - pad,
+    minY: state.lat - pad,
+    maxX: state.lon + pad,
+    maxY: state.lat + pad,
+  });
+  continents.set(state.iso, state.ne);
   countries.push({
     iso: state.iso,
     ar: state.ar,
@@ -244,6 +310,64 @@ countries.sort((a, b) => a.iso.localeCompare(b.iso));
 
 const payload = { step: STEP, cols, rows, minLat: MIN_LAT, maxLat: MAX_LAT, countries };
 writeFileSync(OUT, JSON.stringify(payload), 'utf8');
+
+/**
+ * Also emit a TypeScript module with every country's names and bounding box.
+ *
+ * The place form used to offer only the 78 hand-written catalog entries, so a
+ * place in Rwanda or Uruguay simply could not be saved. The polygons needed to
+ * fix that are already parsed here, so the full list ships as a static module
+ * rather than a fetch: country selection has to be synchronous, and 178 rows of
+ * two names and four numbers is ~20 kB.
+ *
+ * The curated catalog stays authoritative where the two overlap — its Arabic
+ * names and its Gulf/Levant/Maghreb grouping suit this audience better than
+ * Natural Earth's flat continents. See `data/countryRegistry.ts`.
+ */
+const round = (value) => Math.round(value * 100) / 100;
+const tsRows = countries
+  .map((country) => {
+    const box = countryBoxes.get(country.iso);
+    return (
+      `  { iso: '${country.iso}', nameAr: ${JSON.stringify(country.ar)}, ` +
+      `nameEn: ${JSON.stringify(country.en)}, ` +
+      `continent: ${JSON.stringify(continents.get(country.iso) ?? '')}, ` +
+      `bounds: { sw: [${round(box.minX)}, ${round(box.minY)}], ne: [${round(box.maxX)}, ${round(box.maxY)}] } },`
+    );
+  })
+  .join('\n');
+
+writeFileSync(
+  path.resolve(
+    import.meta.dirname,
+    '../../src/features/travel-atlas/data/worldCountries.generated.ts',
+  ),
+  `// GENERATED FILE — do not edit by hand.
+// Run: node scripts/travel/build-dot-grid.mjs
+//
+// Every country on the dotted world map, with the bounding box the place form
+// needs to frame its picker and to sanity-check a picked point. Derived from
+// Natural Earth 1:110m (public domain); Arabic names are its own NAME_AR field.
+// Boxes are rounded to two decimals — about a kilometre, far finer than a
+// country-framing camera needs.
+
+import type { CountryBounds } from '../types';
+
+export interface GeneratedCountry {
+  iso: string;
+  nameAr: string;
+  nameEn: string;
+  /** Natural Earth CONTINENT, mapped to the app's regions in the registry. */
+  continent: string;
+  bounds: CountryBounds;
+}
+
+export const WORLD_COUNTRIES: readonly GeneratedCountry[] = [
+${tsRows}
+] as const;
+`,
+  'utf8',
+);
 
 const bytes = JSON.stringify(payload).length;
 console.log(

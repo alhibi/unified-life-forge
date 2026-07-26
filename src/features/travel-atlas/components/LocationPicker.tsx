@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Copy, Loader2, MapPin, Search, X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
-import { catalogCountryAt } from '../data/countriesCatalog';
+import { atlasCountryAt } from '../data/countryRegistry';
 import type { MapStyleId } from '../data/mapStyles';
 import { formatCoordinates } from '../lib/geo';
 import { type GeocodeResult, reverseGeocode, searchPlaces } from '../lib/geocoding';
@@ -198,7 +198,7 @@ export default function LocationPicker({
 
   const mismatch = useMemo(() => {
     if (!value || !expectedIsoCode) return null;
-    const detected = catalogCountryAt(value);
+    const detected = atlasCountryAt(value);
     if (!detected || detected.isoCode === expectedIsoCode) return null;
     return detected.nameAr;
   }, [expectedIsoCode, value]);

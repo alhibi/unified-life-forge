@@ -12,7 +12,7 @@ import MarkerOverlay from '../components/map/MarkerOverlay';
 import { useMapController } from '../components/map/useMapController';
 import { useVisibleMarkers } from '../components/map/useVisibleMarkers';
 import PlacePeekCard from '../components/PlacePeekCard';
-import { catalogCountryAt } from '../data/countriesCatalog';
+import { atlasCountryAt } from '../data/countryRegistry';
 import type { MapStyleId } from '../data/mapStyles';
 import { useMyPlaces, useToggleFavorite } from '../hooks';
 import { directionsUrl, formatCoordinates } from '../lib/geo';
@@ -185,7 +185,7 @@ export default function ExploreMapPage() {
     }
   };
 
-  const droppedCountry = dropped ? catalogCountryAt(dropped) : undefined;
+  const droppedCountry = dropped ? atlasCountryAt(dropped) : undefined;
 
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">

@@ -21,16 +21,11 @@
 // The exported `useAuth()` API is deliberately unchanged so existing
 // call sites do not need any edits.
 
-import type { Session,User } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
-import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
-import {
-  localGetSession,
-  localSignIn,
-  localSignOut,
-  localSignUp,
-} from '@/lib/auth/localAuthStore';
+import { isSupabaseConfigured, supabase } from '@/integrations/supabase/client';
+import { localGetSession, localSignIn, localSignOut, localSignUp } from '@/lib/auth/localAuthStore';
 
 interface Profile {
   username: string;
@@ -258,13 +253,36 @@ async function signOut(): Promise<void> {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('profile:draft:') || key.startsWith('chat:draft:') || key.startsWith('pkm:draft:'))) {
+      if (
+        key &&
+        (key.startsWith('profile:draft:') ||
+          key.startsWith('chat:draft:') ||
+          key.startsWith('pkm:draft:'))
+      ) {
         keysToRemove.push(key);
       }
     }
     keysToRemove.forEach((k) => localStorage.removeItem(k));
   } catch (e) {
     console.warn('Failed to clear cached drafts during signout:', e);
+  }
+
+  // The travel atlas mirrors the signed-in user's places, trips and country
+  // stamps into IndexedDB so the map works on a plane. That store is NOT
+  // user-scoped, so without this the next person to use the device — or the
+  // same person signed out — would be served the previous account's saved
+  // places from the cache. Every other local purge above is a localStorage
+  // key; this is the only IndexedDB one, and it is the only cache in the app
+  // holding another account's content.
+  //
+  // Imported dynamically on purpose: a global auth hook must not pull Dexie
+  // and a feature's data layer into its chunk for every visitor.
+  try {
+    const { clearAtlasCache } = await import('@/features/travel-atlas/offlineCache');
+    await clearAtlasCache();
+  } catch (e) {
+    // Never block sign-out on a cache that refuses to open.
+    console.warn('Failed to clear the travel atlas cache during signout:', e);
   }
 
   if (!isSupabaseConfigured) {
@@ -279,10 +297,7 @@ async function saveSettings(settings: Record<string, unknown>) {
   if (!currentUser) return;
   const { error } = await supabase
     .from('user_settings')
-    .upsert(
-      { user_id: currentUser.id, settings: settings as any },
-      { onConflict: 'user_id' },
-    );
+    .upsert({ user_id: currentUser.id, settings: settings as any }, { onConflict: 'user_id' });
   return error;
 }
 
@@ -330,7 +345,9 @@ export function useAuth(): UseAuthResult {
     listeners.add(listener);
     // Catch any updates that landed between render and effect commit.
     setSnap(snapshot());
-    return () => { listeners.delete(listener); };
+    return () => {
+      listeners.delete(listener);
+    };
   }, []);
 
   return {

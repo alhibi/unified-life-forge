@@ -2518,3 +2518,20 @@ input.podcast-seek:active::-moz-range-thumb {
   background-color: hsl(var(--live));
   pointer-events: none;
 }
+
+/* Numbered stop on the trip route map. Shares the marker anchor's positioning;
+   only the badge itself differs from a place pin. */
+.travel-route-stop {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border: 2px solid hsl(var(--live));
+  border-radius: 999px;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

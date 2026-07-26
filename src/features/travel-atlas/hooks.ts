@@ -28,6 +28,7 @@ import {
   type StampFields,
   type TripFields,
   type TripStopFields,
+  updatePhotoCaption,
   updatePlace,
   type UpdatePlaceInput,
   updateTrip,
@@ -105,10 +106,12 @@ export function useMyPlaces() {
 
 const EMPTY_COUNTRIES: TravelCountry[] = [];
 const EMPTY_PLACES: TravelPlace[] = [];
+const EMPTY_STAMPS: CountryStamp[] = [];
 
 export interface AtlasData {
   countries: TravelCountry[];
   places: TravelPlace[];
+  stamps: CountryStamp[];
   summaries: ReturnType<typeof buildCountrySummaries>;
   passport: ReturnType<typeof computePassport>;
   isLoading: boolean;
@@ -120,18 +123,26 @@ export interface AtlasData {
 export function useAtlas(): AtlasData {
   const countriesQuery = useTravelCountries();
   const placesQuery = useMyPlaces();
+  // Stamps belong here rather than only on the stamp screen: they are part of
+  // the record, so the passport totals have to see them.
+  const stampsQuery = useCountryStamps();
 
   // Memoised rather than `?? []` inline: a fresh empty array on every render
   // would invalidate every derived memo below it.
   const countries = useMemo(() => countriesQuery.data ?? EMPTY_COUNTRIES, [countriesQuery.data]);
   const places = useMemo(() => placesQuery.data ?? EMPTY_PLACES, [placesQuery.data]);
+  const stamps = useMemo(() => stampsQuery.data ?? EMPTY_STAMPS, [stampsQuery.data]);
 
   const summaries = useMemo(() => buildCountrySummaries(countries, places), [countries, places]);
-  const passport = useMemo(() => computePassport(places, summaries), [places, summaries]);
+  const passport = useMemo(
+    () => computePassport(places, summaries, stamps),
+    [places, stamps, summaries],
+  );
 
   return {
     countries,
     places,
+    stamps,
     summaries,
     passport,
     isLoading: countriesQuery.isLoading || placesQuery.isLoading,
@@ -314,6 +325,15 @@ export function useSetRating() {
     (place, { rating }) => ({ ...place, rating }),
     ({ placeId }) => placeId,
   );
+}
+
+export function useUpdatePhotoCaption() {
+  const invalidate = usePlacesInvalidator();
+  return useMutation({
+    mutationFn: ({ photoId, captionAr }: { photoId: string; captionAr: string | null }) =>
+      updatePhotoCaption(photoId, captionAr),
+    onSuccess: invalidate,
+  });
 }
 
 export function useSetCoverPhoto() {

@@ -1,10 +1,6 @@
 import { supabase as typedClient } from '@/integrations/supabase/client';
 
-import {
-  boundsCenter,
-  type CountryCatalogEntry,
-  findCatalogCountry,
-} from './data/countriesCatalog';
+import { type AtlasCountry, atlasCountryCenter, findAtlasCountry } from './data/countryRegistry';
 import { preparePlacePhoto } from './lib/photoPipeline';
 import {
   type ChecklistCategory,
@@ -531,10 +527,10 @@ export async function removeCountryStamp(isoCode: string): Promise<void> {
 /**
  * Country rows are public reference data with no client write policy, so the
  * first place saved in a country creates its row. `center` is derived from the
- * catalog bounds — v1 omitted it against a NOT NULL column, which is why saving
- * a place in a new country used to fail outright.
+ * country's bounds — v1 omitted it against a NOT NULL column, which is why
+ * saving a place in a new country used to fail outright.
  */
-async function ensureCountry(entry: CountryCatalogEntry): Promise<string> {
+async function ensureCountry(entry: AtlasCountry): Promise<string> {
   const { data: existing, error: selectError } = await db
     .from('countries')
     .select('id')
@@ -543,7 +539,7 @@ async function ensureCountry(entry: CountryCatalogEntry): Promise<string> {
   if (selectError && !isMissingRelation(selectError)) throw selectError;
   if (existing?.id) return existing.id as string;
 
-  const [lng, lat] = boundsCenter(entry.bounds);
+  const [lng, lat] = atlasCountryCenter(entry);
   const { data: inserted, error: insertError } = await db
     .from('countries')
     .insert({
@@ -590,7 +586,7 @@ export interface PlaceFields {
 
 export interface CreatePlaceInput extends PlaceFields {
   /** Catalog entry, so the country row can be seeded on demand. */
-  country: CountryCatalogEntry;
+  country: AtlasCountry;
   photos?: File[];
   links?: PlaceLinkDraft[];
 }
@@ -661,7 +657,7 @@ export async function updatePlace(input: UpdatePlaceInput): Promise<TravelPlace>
   const columns = toPlaceColumns(input.fields);
 
   if (input.countryIso) {
-    const entry = findCatalogCountry(input.countryIso);
+    const entry = findAtlasCountry(input.countryIso);
     if (entry) columns.country_id = await ensureCountry(entry);
   }
 
@@ -704,7 +700,7 @@ export async function setPlaceVisitStatus(
   placeId: string,
   visitStatus: VisitStatus,
 ): Promise<TravelPlace> {
-  return updatePlace({
+  const place = await updatePlace({
     id: placeId,
     fields: {
       visitStatus,
@@ -713,6 +709,47 @@ export async function setPlaceVisitStatus(
       ...(visitStatus === 'visited' ? { visitedOn: todayIso() } : {}),
     },
   });
+
+  if (visitStatus === 'visited') await stampCountryOf(place);
+  return place;
+}
+
+/**
+ * Marking a place visited implies the country was visited.
+ *
+ * Otherwise the two halves of the record contradict each other: a traveller
+ * ticks off a café in Tbilisi and the country map still shows Georgia blank,
+ * waiting to be stamped by hand. `ignoreDuplicates` is the important part — an
+ * existing stamp is never touched, so a "lived here" stamp, its year, its visit
+ * count and its note all survive.
+ */
+async function stampCountryOf(place: TravelPlace): Promise<void> {
+  try {
+    const { data: country } = await db
+      .from('countries')
+      .select('iso_code')
+      .eq('id', place.countryId)
+      .maybeSingle();
+    const isoCode = country?.iso_code as string | undefined;
+    if (!isoCode) return;
+
+    await db.from('country_stamps').upsert(
+      {
+        user_id: place.userId,
+        iso_code: isoCode.toUpperCase(),
+        status: 'visited',
+        first_year: place.visitedOn ? Number(place.visitedOn.slice(0, 4)) : null,
+        visit_count: 1,
+      },
+      { onConflict: 'user_id,iso_code', ignoreDuplicates: true },
+    );
+  } catch (error) {
+    // A convenience, not a requirement: the place is already saved, and the
+    // stamps table may not exist yet on an un-migrated database.
+    if (!isMissingRelation(error)) {
+      console.warn('[TravelAtlas] could not stamp the country automatically', error);
+    }
+  }
 }
 
 export async function setPlaceFavorite(placeId: string, isFavorite: boolean): Promise<TravelPlace> {
