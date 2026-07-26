@@ -1,17 +1,28 @@
 import Dexie, { type Table } from 'dexie';
 
-import type { TravelCountry, TravelPlace } from './types';
+import type { TravelCountry, TravelPlace, TripWithStops } from './types';
 
-// ── Dexie Schema ────────────────────────────────────────────────────────────
-// Stores countries and places locally for offline access. The cache follows a
-// stale-while-revalidate pattern: read from Dexie immediately, then revalidate
-// against Supabase in the background.
+/**
+ * Offline mirror of the atlas.
+ *
+ * Travel is exactly when the network is worst: a foreign SIM, a plane, a valley
+ * with no signal. The atlas therefore reads from Dexie first and revalidates
+ * against Supabase in the background, so opening a saved place on a mountain
+ * road shows the notes and photos that were there yesterday.
+ *
+ * v2 replaces the per-country place store with a single mirror of the user's
+ * whole atlas, matching the one-query read in `api.ts`.
+ */
 
 interface CachedCountry extends TravelCountry {
   cachedAt: number;
 }
 
 interface CachedPlace extends TravelPlace {
+  cachedAt: number;
+}
+
+interface CachedTrip extends TripWithStops {
   cachedAt: number;
 }
 
@@ -23,6 +34,7 @@ interface CacheMetadata {
 class TravelAtlasCache extends Dexie {
   countries!: Table<CachedCountry, string>;
   places!: Table<CachedPlace, string>;
+  trips!: Table<CachedTrip, string>;
   metadata!: Table<CacheMetadata, string>;
 
   constructor() {
@@ -32,29 +44,68 @@ class TravelAtlasCache extends Dexie {
       places: 'id, countryId, cachedAt',
       metadata: 'key',
     });
+    // v2 adds trips and drops the per-country places metadata keys, which no
+    // longer have a writer. Dexie replays this upgrade on existing clients.
+    this.version(2)
+      .stores({
+        countries: 'id, isoCode, cachedAt',
+        places: 'id, countryId, visitStatus, cachedAt',
+        trips: 'id, cachedAt',
+        metadata: 'key',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table<CacheMetadata, string>('metadata')
+          .filter((entry) => entry.key.startsWith('places:'))
+          .delete();
+      });
   }
 }
 
 const db = new TravelAtlasCache();
 
-// ── Cache TTL (24 hours) ────────────────────────────────────────────────────
+/** Long enough to survive a flight, short enough to not feel stale on land. */
 const CACHE_TTL = 24 * 60 * 60 * 1000;
 
-function isStale(cachedAt: number): boolean {
-  return Date.now() - cachedAt > CACHE_TTL;
+type CacheKey = 'countries' | 'places' | 'trips';
+
+function stripCacheField<T extends { cachedAt?: number }>(entry: T): T {
+  const copy = { ...entry };
+  delete copy.cachedAt;
+  return copy;
 }
 
-// ── Countries Cache ─────────────────────────────────────────────────────────
+async function markFresh(key: CacheKey): Promise<void> {
+  await db.metadata.put({ key, updatedAt: Date.now() });
+}
+
+export async function isCacheStale(key: CacheKey): Promise<boolean> {
+  try {
+    const meta = await db.metadata.get(key);
+    if (!meta) return true;
+    return Date.now() - meta.updatedAt > CACHE_TTL;
+  } catch {
+    return true;
+  }
+}
+
+export async function invalidateCache(key: CacheKey): Promise<void> {
+  try {
+    await db.metadata.delete(key);
+  } catch (error) {
+    console.warn('[TravelAtlasCache] invalidate failed', error);
+  }
+}
+
+// ── Countries ───────────────────────────────────────────────────────────────
 
 export async function getCachedCountries(): Promise<TravelCountry[] | null> {
   try {
     const cached = await db.countries.toArray();
     if (cached.length === 0) return null;
-
-    // Return data even if stale (stale-while-revalidate)
-    return cached.map(stripCacheFields);
+    return cached.map(stripCacheField);
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to read countries:', error);
+    console.warn('[TravelAtlasCache] read countries failed', error);
     return null;
   }
 }
@@ -62,115 +113,78 @@ export async function getCachedCountries(): Promise<TravelCountry[] | null> {
 export async function cacheCountries(countries: TravelCountry[]): Promise<void> {
   try {
     const now = Date.now();
-    const cached: CachedCountry[] = countries.map((c) => ({ ...c, cachedAt: now }));
-
     await db.transaction('rw', db.countries, db.metadata, async () => {
-      // Clear old data and insert fresh
       await db.countries.clear();
-      await db.countries.bulkPut(cached);
-      await db.metadata.put({ key: 'countries', updatedAt: now });
+      await db.countries.bulkPut(countries.map((country) => ({ ...country, cachedAt: now })));
+      await markFresh('countries');
     });
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to cache countries:', error);
+    console.warn('[TravelAtlasCache] write countries failed', error);
   }
 }
 
-export async function isCountriesCacheStale(): Promise<boolean> {
-  try {
-    const meta = await db.metadata.get('countries');
-    if (!meta) return true;
-    return isStale(meta.updatedAt);
-  } catch {
-    return true;
-  }
-}
+// ── Places ──────────────────────────────────────────────────────────────────
 
-// ── Places Cache (per country) ──────────────────────────────────────────────
-
-export async function getCachedPlaces(countryId: string): Promise<TravelPlace[] | null> {
+export async function getCachedPlaces(): Promise<TravelPlace[] | null> {
   try {
-    const cached = await db.places.where('countryId').equals(countryId).toArray();
+    const cached = await db.places.toArray();
     if (cached.length === 0) return null;
-
-    return cached.map(stripCacheFields);
+    return cached.map(stripCacheField);
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to read places:', error);
+    console.warn('[TravelAtlasCache] read places failed', error);
     return null;
   }
 }
 
-export async function cachePlaces(countryId: string, places: TravelPlace[]): Promise<void> {
+export async function cachePlaces(places: TravelPlace[]): Promise<void> {
   try {
     const now = Date.now();
-    const cached: CachedPlace[] = places.map((p) => ({ ...p, cachedAt: now }));
-
     await db.transaction('rw', db.places, db.metadata, async () => {
-      // Remove old places for this country before inserting
-      await db.places.where('countryId').equals(countryId).delete();
-      await db.places.bulkPut(cached);
-      await db.metadata.put({ key: `places:${countryId}`, updatedAt: now });
+      await db.places.clear();
+      await db.places.bulkPut(places.map((place) => ({ ...place, cachedAt: now })));
+      await markFresh('places');
     });
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to cache places:', error);
+    console.warn('[TravelAtlasCache] write places failed', error);
   }
 }
 
-export async function isPlacesCacheStale(countryId: string): Promise<boolean> {
-  try {
-    const meta = await db.metadata.get(`places:${countryId}`);
-    if (!meta) return true;
-    return isStale(meta.updatedAt);
-  } catch {
-    return true;
-  }
-}
+// ── Trips ───────────────────────────────────────────────────────────────────
 
-// ── Single Country Cache ────────────────────────────────────────────────────
-
-export async function getCachedCountry(countryId: string): Promise<TravelCountry | null> {
+export async function getCachedTrips(): Promise<TripWithStops[] | null> {
   try {
-    const cached = await db.countries.get(countryId);
-    if (!cached) return null;
-    return stripCacheFields(cached);
+    const cached = await db.trips.toArray();
+    if (cached.length === 0) return null;
+    return cached.map(stripCacheField);
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to read country:', error);
+    console.warn('[TravelAtlasCache] read trips failed', error);
     return null;
   }
 }
 
-// ── Invalidation ────────────────────────────────────────────────────────────
-
-export async function invalidatePlacesCache(countryId: string): Promise<void> {
+export async function cacheTrips(trips: TripWithStops[]): Promise<void> {
   try {
-    await db.metadata.delete(`places:${countryId}`);
+    const now = Date.now();
+    await db.transaction('rw', db.trips, db.metadata, async () => {
+      await db.trips.clear();
+      await db.trips.bulkPut(trips.map((trip) => ({ ...trip, cachedAt: now })));
+      await markFresh('trips');
+    });
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to invalidate places cache:', error);
+    console.warn('[TravelAtlasCache] write trips failed', error);
   }
 }
 
-export async function invalidateCountriesCache(): Promise<void> {
+/** Called on sign-out — one account's atlas must not leak into the next. */
+export async function clearAtlasCache(): Promise<void> {
   try {
-    await db.metadata.delete('countries');
-  } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to invalidate countries cache:', error);
-  }
-}
-
-export async function clearAllCache(): Promise<void> {
-  try {
-    await db.transaction('rw', db.countries, db.places, db.metadata, async () => {
+    await db.transaction('rw', db.countries, db.places, db.trips, db.metadata, async () => {
       await db.countries.clear();
       await db.places.clear();
+      await db.trips.clear();
       await db.metadata.clear();
     });
   } catch (error) {
-    console.warn('[TravelAtlasCache] Failed to clear cache:', error);
+    console.warn('[TravelAtlasCache] clear failed', error);
   }
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function stripCacheFields<T extends { cachedAt?: number }>(obj: T): Omit<T, 'cachedAt'> {
-  const { ...rest } = obj;
-  return rest as Omit<T, 'cachedAt'>;
 }

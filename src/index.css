@@ -2205,102 +2205,264 @@ input.podcast-seek:active::-moz-range-thumb {
   container-type: inline-size;
 }
 
-/* ── Travel Atlas map ─────────────────────────────────────────
-   Raster tiles keep the atlas stable on low-memory/WebGL-hostile devices.
-   Photo pins are DOM-first so saved places remain visible even if a map
-   tile fails to load. */
-.travel-atlas-map {
-  touch-action: none !important;
-}
 
-.travel-raster-map {
+/* ── Travel Atlas ──────────────────────────────────────────────────────────
+   The map is the one screen in the app where a third-party canvas sits under
+   our chrome, so its imported stylesheet is normalised here rather than in the
+   component: MapLibre ships its own button chrome, blue focus rings and pill
+   attribution, none of which belong next to the app's flat surfaces.
+
+   Markers are DOM, not canvas symbols. A saved place is a photograph, and the
+   pin is that photograph — which also means a failed tile request still leaves
+   a readable atlas behind. */
+
+.travel-map {
   background-color: hsl(var(--muted));
 }
 
-.travel-raster-map__tiles {
-  filter: saturate(0.72) contrast(0.92) brightness(0.72);
+.travel-map .maplibregl-canvas:focus {
+  outline: none;
 }
 
-.travel-raster-map__tile {
-  user-select: none;
-  image-rendering: auto;
-  opacity: 0.9;
+/* MapLibre's default attribution is a white pill with its own radius and font.
+   Re-skinned to the app's surface so it reads as part of the interface. */
+.travel-map .maplibregl-ctrl-attrib {
+  background-color: hsl(var(--background) / 0.86);
+  color: hsl(var(--muted-foreground));
+  border-radius: var(--r-sm);
+  font-size: var(--fs-micro);
+  line-height: 1.4;
 }
 
-.travel-raster-map__shade {
-  pointer-events: none;
-  background-color: hsl(var(--background) / 0.16);
+.travel-map .maplibregl-ctrl-attrib a {
+  color: hsl(var(--muted-foreground));
 }
 
-.travel-photo-marker {
+.travel-map .maplibregl-ctrl-attrib-button {
+  background-color: transparent;
+}
+
+.travel-map .maplibregl-ctrl-bottom-right,
+.travel-map .maplibregl-ctrl-bottom-left {
+  z-index: 1;
+}
+
+/* ── Marker positioning ────────────────────────────────────────────────────
+   The anchor is what JavaScript moves each frame (transform only, so the
+   compositor handles it). The visual marker is a separate child so its own
+   enter animation and press feedback never fight the position write. */
+.travel-marker-anchor {
+  position: absolute;
+  top: 0;
+  /* Physical `left` is correct here: this is a projected pixel coordinate in a
+     force-LTR map canvas, not a text-direction-dependent inset. */
+  left: 0;
+  will-change: transform;
+}
+
+.travel-marker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  transform: translate(-50%, -50%);
+}
+
+.travel-marker__dot {
   --marker-accent: hsl(var(--live));
   position: relative;
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  padding: 0;
+  width: 44px;
+  height: 44px;
   overflow: hidden;
   border: 2px solid var(--marker-accent);
   border-radius: 999px;
-  background: hsl(var(--card));
+  background-color: hsl(var(--card));
   color: var(--marker-accent);
   cursor: pointer;
-  opacity: 0;
-  transform: scale(0.62);
+  pointer-events: auto;
   transition:
-    opacity var(--duration-normal) var(--ease-out-expo),
-    transform var(--duration-slow) var(--ease-spring),
-    border-color var(--duration-fast) linear;
-  will-change: opacity, transform;
+    transform var(--duration-fast) var(--motion-ease-press),
+    border-width var(--duration-fast) linear;
 }
 
-.travel-photo-marker[data-visible='true'] {
-  opacity: 1;
-  transform: scale(1);
+.travel-marker__dot:hover {
+  transform: scale(1.06);
 }
 
-.travel-photo-marker--react {
-  position: absolute;
-  z-index: 3;
+.travel-marker__dot[data-active] {
+  border-width: 3px;
+  transform: scale(1.12);
 }
 
-.travel-photo-marker:active {
-  transform: scale(0.9);
-}
-
-.travel-photo-marker:focus-visible {
-  outline: 2px solid hsl(var(--background));
+.travel-marker__dot:focus-visible {
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
-.travel-photo-marker__image,
-.travel-photo-marker__fallback {
-  position: absolute;
-  inset: 0;
+.travel-marker__image {
   width: 100%;
   height: 100%;
-}
-
-.travel-photo-marker__image {
-  z-index: 1;
   object-fit: cover;
 }
 
-.travel-photo-marker__fallback {
+.travel-marker__badge {
+  position: absolute;
+  top: -1px;
+  /* Physical side: the badge is pinned to the pin's own geometry. */
+  right: -1px;
   display: grid;
   place-items: center;
-  padding: 9px;
-  background: hsl(var(--card));
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background-color: hsl(var(--background));
+  color: hsl(var(--live));
 }
 
-.travel-photo-marker__fallback svg {
-  width: 100%;
-  height: 100%;
+.travel-marker__label {
+  max-width: 9rem;
+  padding: 0.125rem 0.375rem;
+  border: var(--ui-border-width) solid hsl(var(--border));
+  border-radius: var(--r-sm);
+  background-color: hsl(var(--background) / 0.92);
+  color: hsl(var(--foreground));
+  font-size: var(--fs-micro);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.travel-cluster {
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  border: 2px solid hsl(var(--live));
+  border-radius: 999px;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform var(--duration-fast) var(--motion-ease-press);
+}
+
+.travel-cluster:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.travel-cluster:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.travel-cluster__count {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-mini);
+  font-weight: 600;
+}
+
+/* ── Map toolbar ───────────────────────────────────────────────────────────*/
+.travel-map-controls {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.travel-map-control {
+  border: var(--ui-border-width) solid hsl(var(--border));
+  background-color: hsl(var(--background) / 0.94);
+}
+
+.travel-map-control:hover {
+  background-color: hsl(var(--accent));
+}
+
+.travel-map-control-group {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--ui-border-width) solid hsl(var(--border));
+  border-radius: var(--r-md);
+  background-color: hsl(var(--background) / 0.94);
+}
+
+.travel-map-control--stacked {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.travel-map-control-group .travel-map-control--stacked + .travel-map-control--stacked {
+  border-block-start: var(--ui-border-width) solid hsl(var(--border));
+}
+
+/* ── Location picker ───────────────────────────────────────────────────────
+   The pin stays pinned to the centre of the viewport and the MAP moves under
+   it. Dragging a tiny pin with a fingertip that covers it is the single most
+   common failure of "choose a point" flows. */
+.travel-picker-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  color: hsl(var(--live));
+}
+
+.travel-picker-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: -0.625rem;
+  margin-left: -0.625rem;
+  border: var(--ui-border-width) solid hsl(var(--live));
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+/* ── Season strip ──────────────────────────────────────────────────────────
+   Twelve cells encoding "is this month good here". The fill is a real data
+   encoding (chosen / not chosen), not decoration. */
+.travel-month-cell {
+  display: grid;
+  place-items: center;
+  min-height: 2.75rem;
+  border: var(--ui-border-width) solid hsl(var(--border));
+  border-radius: var(--r-sm);
+  background-color: transparent;
+  color: hsl(var(--muted-foreground));
+  font-size: var(--fs-micro);
+  transition:
+    background-color var(--duration-fast) linear,
+    color var(--duration-fast) linear;
+}
+
+.travel-month-cell[data-selected='true'] {
+  background-color: hsl(var(--live) / 0.16);
+  border-color: hsl(var(--live));
+  color: hsl(var(--foreground));
+  font-weight: 600;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .travel-photo-marker {
+  .travel-marker__dot,
+  .travel-cluster {
     transition: none;
+  }
+  .travel-cluster:hover {
+    transform: translate(-50%, -50%);
+  }
+  .travel-marker__dot:hover {
+    transform: none;
   }
 }

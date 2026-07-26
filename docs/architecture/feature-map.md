@@ -25,6 +25,7 @@ Legend: ✅ done · 🟡 partial · 🔴 not started · ⚪ N/A
 | **Auth** | `pages/Auth.tsx` | — | `hooks/useAuth.tsx`, `lib/auth/localAuthStore.ts` | 🟡 |
 | **Tafsir / QuranVirtues** | `pages/Tafsir.tsx`, `QuranVirtues.tsx` | embedded | embedded | 🔴 |
 | **Browse** | `pages/Browse.tsx`, `pages/browse/*` | — | shell for Reading + Podcasts | ⚪ |
+| **Travel Atlas** | `features/travel-atlas/pages/` (5 pages) | `features/travel-atlas/components/` (+ `components/map/`, `components/form/`) | `features/travel-atlas/api.ts` (sole Supabase chokepoint) + `hooks.ts` + `queryKeys.ts` + `lib/` + `data/` + `offlineCache.ts` (Dexie) | ✅ |
 
 ### Outstanding work on Chat
 

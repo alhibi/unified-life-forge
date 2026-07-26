@@ -183,8 +183,15 @@ const loadPKM = () => import("./features/pkm/pages/PKM");
 const loadMind = () => import("./features/mind/pages/Mind");
 // "مذكرتي" — journal with 3D brain hero.
 const loadJournal = () => import("./features/journal/pages/JournalHome");
+// Travel Atlas — five surfaces: the world overview, one country's map, a place
+// record, the trip list and one trip's itinerary. All lazy: the map engine
+// (MapLibre) is the heaviest dependency in the app and must never reach a
+// visitor who does not open the atlas.
 const loadTravelAtlas = () => import("./features/travel-atlas/pages/TravelAtlasPage");
 const loadTravelMap = () => import("./features/travel-atlas/pages/CountryMapPage");
+const loadTravelPlace = () => import("./features/travel-atlas/pages/PlaceDetailPage");
+const loadTravelTrips = () => import("./features/travel-atlas/pages/TripsPage");
+const loadTravelTrip = () => import("./features/travel-atlas/pages/TripDetailPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
 // "Now" (الرئيسي) — the former home page content, now a standalone
 // app reached from the portal grid.
@@ -216,6 +223,9 @@ registerRoute('/weather',           loadWeather);
 registerRoute('/knowledge',         loadKnowledge);
 registerRoute('/journal',           loadJournal);
 registerRoute('/travel-atlas',      loadTravelAtlas);
+registerRoute('/travel-atlas/place/:placeId', loadTravelPlace);
+registerRoute('/travel-atlas/trips', loadTravelTrips);
+registerRoute('/travel-atlas/trips/:tripId', loadTravelTrip);
 registerRoute('/travel-atlas/:countryId', loadTravelMap);
 registerRoute('/reading',           loadReading);
 registerRoute('/occasions',         loadOccasions);
@@ -292,6 +302,9 @@ const KnowledgePage = lazy(loadKnowledge);
 const JournalPage = lazy(loadJournal);
 const TravelAtlasPage = lazy(loadTravelAtlas);
 const TravelMapPage = lazy(loadTravelMap);
+const TravelPlacePage = lazy(loadTravelPlace);
+const TravelTripsPage = lazy(loadTravelTrips);
+const TravelTripPage = lazy(loadTravelTrip);
 const PrayerGuidePage = lazy(loadPrayerGuide);
 const DiwanLibraryPage = lazy(loadLibrary);
 const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
@@ -618,7 +631,14 @@ function AnimatedRoutes() {
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
                   <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
+                  {/* Travel Atlas. Order matters: the literal `place` and
+                      `trips` segments must be matched BEFORE the
+                      `:countryId` wildcard, or a place link resolves as a
+                      country id and renders "country not found". */}
                   <Route path="/travel-atlas" element={<ErrorBoundary><TravelAtlasPage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas/place/:placeId" element={<ErrorBoundary><TravelPlacePage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas/trips" element={<ErrorBoundary><TravelTripsPage /></ErrorBoundary>} />
+                  <Route path="/travel-atlas/trips/:tripId" element={<ErrorBoundary><TravelTripPage /></ErrorBoundary>} />
                   <Route path="/travel-atlas/:countryId" element={<ErrorBoundary><TravelMapPage /></ErrorBoundary>} />
                   <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
                   <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />

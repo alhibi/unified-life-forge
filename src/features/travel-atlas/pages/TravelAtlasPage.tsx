@@ -1,189 +1,337 @@
-import { MapPinned, Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppCard } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
+import { Download, Globe, Heart, LogIn, Luggage, MapPinned, MoreVertical, Plus } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
-import AddPlaceSheet from '../components/AddPlaceSheet';
-import { useTravelCountries } from '../hooks';
-import type { TravelCountry } from '../types';
+import PassportPanel from '../components/PassportPanel';
+import PlaceFilterBar from '../components/PlaceFilterBar';
+import PlaceRow from '../components/PlaceRow';
+import { categoryMeta } from '../data/categories';
+import { continentLabel } from '../data/countriesCatalog';
+import { useAtlas, useToggleFavorite } from '../hooks';
+import { downloadGeoJson } from '../lib/exportAtlas';
+import { DEFAULT_FILTERS, filterPlaces, hasActiveFilters } from '../lib/filtering';
+import type { CountrySummary } from '../lib/stats';
+import type { TravelPlace } from '../types';
 
+const WorldAtlasMap = lazy(() => import('../components/WorldAtlasMap'));
+const PlaceFormSheet = lazy(() => import('../components/PlaceFormSheet'));
+
+type AtlasTab = 'world' | 'places' | 'passport';
+
+/**
+ * The atlas entry point.
+ *
+ * It opens on a MAP, not a list of country names — the whole promise of the
+ * feature is that your travelling has a shape, and a globe with your countries
+ * on it says that in one glance. The list and the record are there for the two
+ * other real questions: "find that place I saved" and "what does my travelling
+ * look like".
+ */
 export default function TravelAtlasPage() {
   const navigate = useNavigate();
-  const { data: countries = [], isLoading, error } = useTravelCountries();
-  const [addOpen, setAddOpen] = useState(false);
-  const totalPlaces = useMemo(
-    () => countries.reduce((total, country) => total + country.placesCount, 0),
-    [countries],
-  );
-  const maxCount = Math.max(...countries.map((country) => country.placesCount), 1);
+  const { user } = useAuth();
+  const { countries, places, summaries, passport, isLoading, isError } = useAtlas();
+  const toggleFavorite = useToggleFavorite();
 
-  const openCountry = (country: TravelCountry) => {
-    navigate(`/travel-atlas/${country.id}`, { state: { country } });
+  const [tab, setTab] = useState<AtlasTab>('world');
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const filtered = useMemo(() => filterPlaces(places, filters), [places, filters]);
+
+  const openCountry = (summary: CountrySummary) => {
+    navigate(`/travel-atlas/${summary.country.id}`, { state: { country: summary.country } });
+  };
+
+  const openPlace = (place: TravelPlace) => {
+    navigate(`/travel-atlas/place/${place.id}`, { state: { place } });
+  };
+
+  const exportAtlas = () => {
+    if (places.length === 0) {
+      toast.error('لا أماكن للتصدير بعد');
+      return;
+    }
+    downloadGeoJson(places, countries);
+    toast.success('تم تصدير أطلسك بصيغة GeoJSON');
   };
 
   return (
-    <div className="page-shell page-shell-flush">
+    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
       <SEO
-        title={'أطلس الرحلات — amv.life'}
-        description={
-          'دليل شخصي للأماكن التي تستحق الرحلة.'
-        }
+        title="أطلس الرحلات — amv.life"
+        description="دليلك السياحي الشخصي: خريطة الأماكن التي تستحق الرحلة، بصورها وتفاصيلها ومواسمها."
         path="/travel-atlas"
       />
+
       <PageHeader
-        title={'أطلس الرحلات'}
+        title="أطلس الرحلات"
         subtitle={
-          totalPlaces > 0
-            ? `${totalPlaces} مكانًا محفوظًا`
-            : 'دليلك الشخصي للأماكن'
+          passport.totalPlaces > 0
+            ? `${passport.totalPlaces} مكانًا في ${passport.countriesTouched} دولة`
+            : 'دليلك السياحي الشخصي'
         }
         icon={<MapPinned className="h-5 w-5 text-[hsl(var(--live))]" aria-hidden="true" />}
         sticky
+        className="shrink-0 border-b border-border"
         right={
-          totalPlaces > 0 ? (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5"
-              onClick={() => setAddOpen(true)}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setFormOpen(true)}
+              className="app-icon-btn text-[hsl(var(--live))]"
+              aria-label="أضف مكانًا"
             >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              {'إضافة'}
-            </Button>
-          ) : null
+              <Plus className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className="app-icon-btn" aria-label="خيارات الأطلس">
+                  <MoreVertical className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-48">
+                <DropdownMenuItem
+                  onSelect={() => navigate('/travel-atlas/trips')}
+                  className="gap-2"
+                >
+                  <Luggage className="h-4 w-4" aria-hidden="true" />
+                  رحلاتي
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={exportAtlas} className="gap-2">
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                  تصدير GeoJSON
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         }
       />
 
-      <main className="mx-auto w-full max-w-5xl px-4 py-8">
-        {isLoading ? (
-          <CountryGridSkeleton />
-        ) : error ? (
-          <div className="empty-state empty-state-surface min-h-[45dvh]" role="alert">
-            <strong>{'تعذّر تحميل الأطلس'}</strong>
-            <span>
-              {'تحقق من الاتصال ثم حاول مجددًا.'}
-            </span>
-          </div>
-        ) : totalPlaces === 0 ? (
-          <div className="empty-state empty-state-surface min-h-[55dvh]">
-            <MapPinned data-empty-icon aria-hidden="true" />
-            <strong>
-              {'أضف مكانك الأول، ولتبدأ الخريطة.'}
-            </strong>
-            <Button
-              type="button"
-              onClick={() => setAddOpen(true)}
-              className="mt-6 gap-2"
-              size="lg"
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              {'إضافة مكان'}
-            </Button>
-          </div>
-        ) : (
-          <section
-            className="grid grid-cols-12 gap-x-4 gap-y-7"
-            aria-label={'الدول حسب كثافة الأماكن'}
-          >
-            {countries.map((country, index) => (
-              <CountryTile
-                key={country.id}
-                country={country}
-                maxCount={maxCount}
-                rank={index}
-                onOpen={() => openCountry(country)}
-              />
-            ))}
-          </section>
-        )}
-      </main>
+      <Tabs
+        value={tab}
+        onValueChange={(value) => setTab(value as AtlasTab)}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <TabsList className="mx-4 mt-3 shrink-0 self-start">
+          <TabsTrigger value="world">الخريطة</TabsTrigger>
+          <TabsTrigger value="places">الأماكن</TabsTrigger>
+          <TabsTrigger value="passport">سجلّي</TabsTrigger>
+        </TabsList>
 
-      <AddPlaceSheet open={addOpen} onOpenChange={setAddOpen} />
+        {/* The map stays mounted so the camera and the globe spin survive a tab
+            switch; Radix would otherwise unmount and rebuild it. */}
+        <div className={cn('relative mt-3 min-h-0 flex-1', tab !== 'world' && 'hidden')}>
+          {isLoading ? (
+            <div className="skeleton h-full rounded-none" />
+          ) : places.length === 0 ? (
+            <EmptyAtlas isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
+          ) : (
+            <Suspense fallback={<div className="skeleton h-full rounded-none" />}>
+              <WorldAtlasMap
+                summaries={summaries}
+                places={places}
+                onSelectCountry={openCountry}
+                onSelectPlace={openPlace}
+                unsupportedFallback={
+                  <div className="grid h-full place-items-center px-6 text-center">
+                    <p className="text-body text-muted-foreground">
+                      الخريطة غير مدعومة على هذا الجهاز — استعرض أماكنك من تبويب «الأماكن».
+                    </p>
+                  </div>
+                }
+              />
+            </Suspense>
+          )}
+        </div>
+
+        <TabsContent value="places" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
+          {places.length === 0 ? (
+            <EmptyAtlas isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} inline />
+          ) : (
+            <div className="mx-auto w-full max-w-lg">
+              <div className="sticky top-0 z-sticky -mx-1 bg-background px-1 pt-3 pb-2">
+                <PlaceFilterBar
+                  filters={filters}
+                  onChange={setFilters}
+                  resultCount={filtered.length}
+                />
+              </div>
+
+              {summaries.length > 1 && !hasActiveFilters(filters) && (
+                <section className="mb-5">
+                  <h3 className="app-section-label">حسب الدولة</h3>
+                  <ul className="grid grid-cols-2 gap-3">
+                    {summaries.map((summary) => (
+                      <li key={summary.country.id}>
+                        <CountryCard summary={summary} onOpen={() => openCountry(summary)} />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              <section>
+                <h3 className="app-section-label">
+                  {hasActiveFilters(filters) ? 'النتائج' : 'كل الأماكن'}
+                </h3>
+                {filtered.length === 0 ? (
+                  <div className="empty-state empty-state-surface min-h-[30dvh]">
+                    <MapPinned data-empty-icon aria-hidden="true" />
+                    <strong>لا مكان يطابق التصفية</strong>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => setFilters(DEFAULT_FILTERS)}
+                    >
+                      إلغاء التصفية
+                    </Button>
+                  </div>
+                ) : (
+                  <ul>
+                    {filtered.map((place) => (
+                      <li key={place.id}>
+                        <PlaceRow
+                          place={place}
+                          onOpen={() => openPlace(place)}
+                          onToggleFavorite={() =>
+                            toggleFavorite.mutate({
+                              placeId: place.id,
+                              isFavorite: !place.isFavorite,
+                            })
+                          }
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="passport" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
+          <div className="mx-auto w-full max-w-lg pt-3">
+            <PassportPanel passport={passport} summaries={summaries} />
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {isError && (
+        <p
+          className="shrink-0 border-t border-border px-4 py-2 text-center text-micro text-muted-foreground"
+          role="status"
+        >
+          تعذّر الاتصال — نعرض آخر نسخة محفوظة على جهازك.
+        </p>
+      )}
+
+      {formOpen && (
+        <Suspense fallback={null}>
+          <PlaceFormSheet
+            open={formOpen}
+            onOpenChange={setFormOpen}
+            onSaved={(place) => navigate(`/travel-atlas/place/${place.id}`)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
 
-function CountryTile({
-  country,
-  maxCount,
-  rank,
-  onOpen,
-}: {
-  country: TravelCountry;
-  maxCount: number;
-  rank: number;
-  onOpen: () => void;
-}) {
-  const density = Math.max(country.placesCount / maxCount, 0.08);
-  const tier = density >= 0.66 ? 'hero' : density >= 0.3 ? 'large' : 'compact';
-  const spanClass =
-    tier === 'hero'
-      ? 'col-span-12 sm:col-span-8'
-      : tier === 'large'
-        ? 'col-span-12 sm:col-span-6 lg:col-span-4'
-        : 'col-span-6 sm:col-span-4 lg:col-span-3';
-  const titleClass =
-    tier === 'hero'
-      ? 'text-[clamp(1.75rem,5vw,3.5rem)]'
-      : tier === 'large'
-        ? 'text-[clamp(1.35rem,3vw,2.25rem)]'
-        : 'text-title';
+function CountryCard({ summary, onOpen }: { summary: CountrySummary; onOpen: () => void }) {
+  const top = summary.topCategory ? categoryMeta(summary.topCategory) : null;
+  const TopIcon = top?.icon;
 
   return (
-    <button
-      type="button"
+    <AppCard
+      as="button"
+      pressable
       onClick={onOpen}
-      className={`${spanClass} group min-h-28 border-b border-border px-1 py-3 text-start transition-colors hover:border-[hsl(var(--live))] focus-visible:border-[hsl(var(--live))]`}
-      style={{ animationDelay: `${Math.min(rank * 35, 210)}ms` }}
-      aria-label={`${country.nameAr}, ${country.placesCount}`}
+      className="w-full overflow-hidden p-0 text-start"
     >
-      <span className="flex items-start justify-between gap-3">
-        <span className="min-w-0">
-          <span
-            className={`${titleClass} block font-semibold leading-[1.1] tracking-tight text-foreground`}
-          >
-            {country.nameAr}
-          </span>
-          <span className="mt-1 block text-micro uppercase tracking-[0.14em] text-muted-foreground">
-            {country.nameEn}
-          </span>
-        </span>
-        <span className="shrink-0 rounded-full border border-border px-2 py-0.5 font-mono text-micro tabular-nums text-muted-foreground">
-          {country.placesCount}
-        </span>
-      </span>
-      <span className="mt-5 block h-px bg-border" aria-hidden="true">
-        <span
-          className="block h-px origin-start bg-[hsl(var(--live))] transition-[width] duration-normal ease-out-expo group-hover:w-full"
-          style={{ width: `${Math.round(18 + density * 82)}%` }}
+      {summary.coverPhotoUrl ? (
+        <img
+          src={summary.coverPhotoUrl}
+          alt=""
+          className="h-24 w-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
-      </span>
-    </button>
+      ) : (
+        <div className="grid h-24 place-items-center bg-muted text-muted-foreground">
+          <Globe className="h-6 w-6" aria-hidden="true" />
+        </div>
+      )}
+      <div className="p-3">
+        <p className="truncate text-body font-semibold text-foreground">{summary.country.nameAr}</p>
+        <p className="mt-0.5 truncate text-micro text-muted-foreground">
+          {summary.continent ? continentLabel(summary.continent) : summary.country.nameEn}
+        </p>
+        <p className="mt-2 flex items-center gap-2 text-micro text-muted-foreground">
+          <span className="font-mono tabular-nums">
+            {summary.visited}/{summary.total}
+          </span>
+          {TopIcon && <TopIcon className="h-3.5 w-3.5" aria-hidden="true" />}
+          {summary.favorites > 0 && (
+            <span className="inline-flex items-center gap-0.5">
+              <Heart className="h-3 w-3 text-[hsl(var(--live))]" fill="currentColor" />
+              {summary.favorites}
+            </span>
+          )}
+        </p>
+      </div>
+    </AppCard>
   );
 }
 
-function CountryGridSkeleton() {
-  const spans = [
-    'col-span-12 sm:col-span-8',
-    'col-span-12 sm:col-span-4',
-    'col-span-6 sm:col-span-5',
-    'col-span-6 sm:col-span-3',
-    'col-span-6 sm:col-span-4',
-    'col-span-6 sm:col-span-4',
-  ];
+function EmptyAtlas({
+  isSignedIn,
+  onAdd,
+  inline = false,
+}: {
+  isSignedIn: boolean;
+  onAdd: () => void;
+  inline?: boolean;
+}) {
+  if (!isSignedIn) {
+    return (
+      <div className={cn('empty-state empty-state-surface', inline ? 'min-h-[40dvh]' : 'h-full')}>
+        <LogIn data-empty-icon aria-hidden="true" />
+        <strong>سجّل الدخول ليكون لك أطلس</strong>
+        <span>أماكنك وصورها ورحلاتك تُحفظ في حسابك وتتزامن بين أجهزتك.</span>
+        <Button asChild className="mt-6">
+          <a href="/auth">تسجيل الدخول</a>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-12 gap-x-4 gap-y-7" aria-label="Loading">
-      {spans.map((spanClass, index) => (
-        <div key={index} className={`${spanClass} min-h-28 border-b border-border py-3`}>
-          <div className="skeleton h-7 w-2/3" />
-          <div className="skeleton mt-2 h-3 w-1/3" />
-          <div className="skeleton mt-8 h-px w-full" />
-        </div>
-      ))}
+    <div className={cn('empty-state empty-state-surface', inline ? 'min-h-[40dvh]' : 'h-full')}>
+      <MapPinned data-empty-icon aria-hidden="true" />
+      <strong>أضف مكانك الأول ولتبدأ الخريطة</strong>
+      <span>مقهى تحبه، وادٍ زرته، أو مكان تنوي الوصول إليه يومًا.</span>
+      <Button type="button" className="mt-6 gap-2" size="lg" onClick={onAdd}>
+        <Plus className="h-4 w-4" aria-hidden="true" />
+        أضف مكانًا
+      </Button>
     </div>
   );
 }

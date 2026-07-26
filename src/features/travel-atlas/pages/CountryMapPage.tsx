@@ -1,213 +1,337 @@
-import { AlertCircle, MapPinned, Plus, RefreshCw } from 'lucide-react';
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, Info, List, Map as MapIcon, MapPinned, Plus } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
-import AddPlaceSheet from '../components/AddPlaceSheet';
-import PlaceDetailSheet from '../components/PlaceDetailSheet';
-import { useCountryPlaces, useTravelCountry } from '../hooks';
-import type { TravelMapRouteState } from '../types';
+import CountryFactsPanel from '../components/CountryFactsPanel';
+import PlaceFilterBar from '../components/PlaceFilterBar';
+import PlacePeekCard from '../components/PlacePeekCard';
+import PlaceRow from '../components/PlaceRow';
+import { useCountryPlaces, useToggleFavorite, useTravelCountry } from '../hooks';
+import { DEFAULT_FILTERS, filterPlaces, hasActiveFilters } from '../lib/filtering';
+import type { Coordinates, TravelPlace } from '../types';
 
-// Lazy load the MapLibre-based clustered map to avoid blocking initial render
-const ClusteredMap = lazy(() => import('../components/ClusteredMap'));
+// The map engine and the form are the two heavy chunks in the feature; neither
+// is needed to render the header and the list.
+const CountryAtlasMap = lazy(() => import('../components/CountryAtlasMap'));
+const PlaceFormSheet = lazy(() => import('../components/PlaceFormSheet'));
 
-// Fallback to raster map if MapLibre fails to load
-const TravelAtlasMap = lazy(() => import('../components/TravelAtlasMap'));
+type CountryView = 'map' | 'list' | 'guide';
 
+/**
+ * One country, three ways to read it: the map, the list, and the country
+ * briefing. Filters are shared — narrowing to "cafés I have not visited yet"
+ * narrows the MAP too, which is what makes the filter worth having.
+ */
 export default function CountryMapPage() {
   const { countryId } = useParams<{ countryId: string }>();
-  const location = useLocation();
-  const { language } = useApp();
-  const routeState = location.state as TravelMapRouteState | null;
-  const routedCountry = routeState?.country?.id === countryId ? routeState?.country : undefined;
-  const countryQuery = useTravelCountry(countryId);
-  const placesQuery = useCountryPlaces(countryId);
-  const country = routedCountry ?? countryQuery.data;
-  const places = useMemo(() => placesQuery.data ?? [], [placesQuery.data]);
-  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
-  const [mapError, setMapError] = useState<string | null>(null);
-  const [mapInstanceKey, setMapInstanceKey] = useState(0);
-  const [addOpen, setAddOpen] = useState(false);
-  const [useRasterFallback, setUseRasterFallback] = useState(false);
-  const selectedPlace = useMemo(
-    () => places.find((place) => place.id === selectedPlaceId) ?? null,
-    [places, selectedPlaceId],
+  const navigate = useNavigate();
+  const country = useTravelCountry(countryId);
+  const { places: countryPlaces, isLoading, isError } = useCountryPlaces(countryId);
+  const toggleFavorite = useToggleFavorite();
+
+  const [view, setView] = useState<CountryView>('map');
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [focusCoordinates, setFocusCoordinates] = useState<Coordinates | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const places = useMemo(() => filterPlaces(countryPlaces, filters), [countryPlaces, filters]);
+  const selected = useMemo(
+    () => places.find((place) => place.id === selectedId) ?? null,
+    [places, selectedId],
   );
 
-  const selectPlace = useCallback((placeId: string) => {
-    setSelectedPlaceId(placeId);
+  const openDetails = useCallback(
+    (place: TravelPlace) => {
+      navigate(`/travel-atlas/place/${place.id}`, { state: { place } });
+    },
+    [navigate],
+  );
+
+  const selectFromList = useCallback((place: TravelPlace) => {
+    setSelectedId(place.id);
+    setFocusCoordinates(place.coordinates);
+    setView('map');
   }, []);
 
-  const changeDetailOpen = useCallback((open: boolean) => {
-    if (!open) setSelectedPlaceId(null);
-  }, []);
+  if (!country && isLoading) return <CountryMapSkeleton />;
 
-  const handleMapError = useCallback((message: string) => {
-    setMapError(message);
-    // Fallback to raster map if MapLibre fails
-    setUseRasterFallback(true);
-  }, []);
-
-  if (!country && countryQuery.isLoading) {
-    return <MapPageSkeleton />;
-  }
-
-  if (!country || countryQuery.error) {
+  if (!country) {
     return (
       <div className="page-shell page-shell-flush">
-        <PageHeader title={'أطلس الرحلات'} backTo="/travel-atlas" sticky />
+        <PageHeader title="أطلس الرحلات" backTo="/travel-atlas" sticky />
         <div className="empty-state empty-state-surface min-h-[70dvh]" role="alert">
           <AlertCircle data-empty-icon aria-hidden="true" />
-          <strong>
-            {'تعذّر العثور على هذه الدولة'}
-          </strong>
+          <strong>تعذّر العثور على هذه الدولة</strong>
+          <span>ربما حُذفت آخر أماكنها. ارجع إلى الأطلس واختر دولة أخرى.</span>
         </div>
       </div>
     );
   }
 
+  const showFilters = view !== 'guide';
+
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
       <SEO
-        title={`${country.nameAr} — ${'أطلس الرحلات'}`}
-        description={`خريطة أماكن ${country.nameAr}`}
+        title={`${country.nameAr} — أطلس الرحلات`}
+        description={`خريطة الأماكن المحفوظة في ${country.nameAr}: ${countryPlaces.length} مكانًا.`}
         path={`/travel-atlas/${country.id}`}
       />
+
       <PageHeader
         title={country.nameAr}
-        subtitle={
-          `${places.length} مكانًا على الخريطة`
-        }
+        subtitle={`${countryPlaces.length} مكانًا · ${country.nameEn}`}
         backTo="/travel-atlas"
-        className="relative z-sticky shrink-0 border-b border-border bg-background"
+        sticky
+        className="shrink-0 border-b border-border"
         right={
-          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-border px-2 font-mono text-micro tabular-nums text-muted-foreground">
-            {places.length}
-          </span>
+          <div className="flex items-center gap-1" role="group" aria-label="طريقة العرض">
+            <ViewButton
+              label="خريطة"
+              icon={<MapIcon className="h-4 w-4" aria-hidden="true" />}
+              isActive={view === 'map'}
+              onClick={() => setView('map')}
+            />
+            <ViewButton
+              label="قائمة"
+              icon={<List className="h-4 w-4" aria-hidden="true" />}
+              isActive={view === 'list'}
+              onClick={() => setView('list')}
+            />
+            <ViewButton
+              label="دليل الدولة"
+              icon={<Info className="h-4 w-4" aria-hidden="true" />}
+              isActive={view === 'guide'}
+              onClick={() => setView('guide')}
+            />
+          </div>
         }
       />
 
+      {showFilters && countryPlaces.length > 0 && (
+        <div className="shrink-0 border-b border-border px-4 py-2">
+          <PlaceFilterBar filters={filters} onChange={setFilters} resultCount={places.length} />
+        </div>
+      )}
+
       <main className="relative min-h-0 flex-1">
-        <Suspense fallback={<MapSkeleton />}>
-          {useRasterFallback ? (
-            <TravelAtlasMap
-              key={mapInstanceKey}
-              bounds={country.bounds}
+        {/* The map stays mounted across view switches so the camera survives. */}
+        <div className={cn('absolute inset-0', view !== 'map' && 'hidden')}>
+          <Suspense fallback={<MapLoading />}>
+            <CountryAtlasMap
               places={places}
-              language={language}
-              onSelectPlace={selectPlace}
-              onReady={() => setMapError(null)}
-              onError={setMapError}
+              bounds={country.bounds}
+              activePlaceId={selectedId}
+              focusCoordinates={focusCoordinates}
+              onSelectPlace={(place) => setSelectedId(place.id)}
+              unsupportedFallback={
+                <div className="grid h-full place-items-center px-6 text-center">
+                  <p className="text-body text-muted-foreground">
+                    الخريطة غير مدعومة على هذا الجهاز — استعرض أماكنك من تبويب القائمة.
+                  </p>
+                </div>
+              }
             />
-          ) : (
-            <ClusteredMap
-              key={mapInstanceKey}
-              bounds={country.bounds}
-              places={places}
-              language={language}
-              onSelectPlace={selectPlace}
-              onReady={() => setMapError(null)}
-              onError={handleMapError}
+          </Suspense>
+
+          {selected && (
+            <PlacePeekCard
+              place={selected}
+              onOpenDetails={() => openDetails(selected)}
+              onToggleFavorite={() =>
+                toggleFavorite.mutate({ placeId: selected.id, isFavorite: !selected.isFavorite })
+              }
+              onClose={() => setSelectedId(null)}
             />
           )}
-        </Suspense>
 
-        <button
-          type="button"
-          onClick={() => setAddOpen(true)}
-          aria-label={'إضافة مكان'}
-          className="absolute bottom-6 end-4 z-raised inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background px-4 text-body font-semibold text-foreground transition-transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Plus className="h-4 w-4 text-[hsl(var(--live))]" aria-hidden="true" />
-          {'إضافة مكان'}
-        </button>
-
-        {mapError && (
-          <div
-            className="absolute inset-x-4 top-4 mx-auto flex max-w-sm items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-mini text-foreground"
-            role="alert"
-          >
-            <AlertCircle className="h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
-            <span className="min-w-0 flex-1 truncate">{mapError}</span>
-            <button
+          {!selected && (
+            <Button
               type="button"
-              onClick={() => {
-                setMapError(null);
-                setMapInstanceKey((key) => key + 1);
-              }}
-              className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-button border border-border px-2.5 font-semibold"
+              size="lg"
+              className="absolute bottom-4 start-4 gap-2"
+              onClick={() => setFormOpen(true)}
             >
-              <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
-              {'إعادة'}
-            </button>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              أضف مكانًا
+            </Button>
+          )}
+        </div>
+
+        {view === 'list' && (
+          <div className="absolute inset-0 overflow-y-auto px-4 pb-page">
+            {places.length === 0 ? (
+              <EmptyList
+                hasFilters={hasActiveFilters(filters)}
+                onClear={() => setFilters(DEFAULT_FILTERS)}
+                onAdd={() => setFormOpen(true)}
+              />
+            ) : (
+              <ul>
+                {places.map((place) => (
+                  <li key={place.id}>
+                    <PlaceRow
+                      place={place}
+                      onOpen={() => openDetails(place)}
+                      onToggleFavorite={() =>
+                        toggleFavorite.mutate({
+                          placeId: place.id,
+                          isFavorite: !place.isFavorite,
+                        })
+                      }
+                      showLocation
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {places.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => setFormOpen(true)}
+                >
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  أضف مكانًا
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => selectFromList(places[0])}
+                >
+                  <MapIcon className="h-4 w-4" aria-hidden="true" />
+                  اعرضها على الخريطة
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
-        {placesQuery.isLoading && !mapError && (
-          <div className="pointer-events-none absolute inset-x-4 top-4 mx-auto max-w-xs rounded-lg border border-border bg-background px-3 py-2 text-center text-mini text-muted-foreground">
-            {'نرتّب الأماكن على الخريطة…'}
+        {view === 'guide' && (
+          <div className="absolute inset-0 overflow-y-auto px-4 py-4 pb-page">
+            <div className="mx-auto w-full max-w-lg">
+              <CountryFactsPanel country={country} places={countryPlaces} />
+            </div>
           </div>
         )}
 
-        {placesQuery.error && !mapError && (
-          <div
-            className="absolute inset-x-4 top-4 mx-auto flex max-w-sm items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-mini text-foreground"
+        {isError && view !== 'guide' && (
+          <p
+            className="absolute inset-x-4 top-4 mx-auto max-w-sm rounded-card border border-border bg-background px-3 py-2 text-center text-mini text-foreground"
             role="alert"
           >
-            <AlertCircle className="h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
-            {'تعذّر تحميل الأماكن.'}
-          </div>
-        )}
-
-        {!placesQuery.isLoading && !placesQuery.error && places.length === 0 && (
-          <div className="pointer-events-none absolute inset-x-4 bottom-6 mx-auto flex max-w-xs items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-mini text-muted-foreground">
-            <MapPinned className="h-4 w-4" aria-hidden="true" />
-            {'لا أماكن في هذه الخريطة بعد.'}
-          </div>
+            تعذّر تحميل الأماكن — نعرض آخر نسخة محفوظة على جهازك.
+          </p>
         )}
       </main>
 
-      <PlaceDetailSheet
-        place={selectedPlace}
-        open={Boolean(selectedPlace)}
-        onOpenChange={changeDetailOpen}
-        language={language}
-      />
-
-      <AddPlaceSheet
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        defaultCountryIso={country.isoCode}
-      />
+      {formOpen && (
+        <Suspense fallback={null}>
+          <PlaceFormSheet
+            open={formOpen}
+            onOpenChange={setFormOpen}
+            defaultCountryIso={country.isoCode}
+            onSaved={(place) => {
+              setSelectedId(place.id);
+              setFocusCoordinates(place.coordinates);
+              setView('map');
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
 
-function MapPageSkeleton() {
+function ViewButton({
+  label,
+  icon,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={isActive}
+      aria-label={label}
+      className={cn('app-icon-btn', isActive ? 'text-[hsl(var(--live))]' : 'text-muted-foreground')}
+    >
+      {icon}
+    </button>
+  );
+}
+
+function EmptyList({
+  hasFilters,
+  onClear,
+  onAdd,
+}: {
+  hasFilters: boolean;
+  onClear: () => void;
+  onAdd: () => void;
+}) {
+  return (
+    <div className="empty-state empty-state-surface min-h-[50dvh]">
+      <MapPinned data-empty-icon aria-hidden="true" />
+      <strong>{hasFilters ? 'لا مكان يطابق التصفية' : 'لا أماكن في هذه الدولة بعد'}</strong>
+      <span>
+        {hasFilters ? 'وسّع نطاق البحث أو ألغِ التصفية.' : 'أضف أول مكان لتبدأ خريطتك هنا.'}
+      </span>
+      <Button type="button" className="mt-6 gap-2" onClick={hasFilters ? onClear : onAdd}>
+        {hasFilters ? (
+          'إلغاء التصفية'
+        ) : (
+          <>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            أضف مكانًا
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+function MapLoading() {
+  return (
+    <div className="grid h-full place-items-center bg-muted">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <span
+          className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent"
+          aria-hidden="true"
+        />
+        <span className="text-mini">نحضّر الخريطة…</span>
+      </div>
+    </div>
+  );
+}
+
+function CountryMapSkeleton() {
   return (
     <div className="flex h-[100dvh] flex-col bg-background">
-      <div className="flex h-[68px] shrink-0 items-center gap-3 border-b border-border px-4">
-        <div className="skeleton h-11 w-11 rounded-2xl" />
+      <div className="flex h-[var(--ui-header-h)] shrink-0 items-center gap-3 border-b border-border px-4">
+        <div className="skeleton h-11 w-11 rounded-md" />
         <div className="min-w-0 flex-1">
           <div className="skeleton h-5 w-36" />
           <div className="skeleton mt-1 h-3 w-24" />
         </div>
       </div>
       <div className="skeleton min-h-0 flex-1 rounded-none" />
-    </div>
-  );
-}
-
-function MapSkeleton() {
-  return (
-    <div className="flex h-full w-full items-center justify-center bg-muted">
-      <div className="flex flex-col items-center gap-3 text-muted-foreground">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        <span className="text-mini">Loading map...</span>
-      </div>
     </div>
   );
 }

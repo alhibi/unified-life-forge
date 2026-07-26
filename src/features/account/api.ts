@@ -38,6 +38,7 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'wellness_records', ownerColumn: 'user_id', label: 'سجلات العافية' },
   { table: 'clipboard_items', ownerColumn: 'user_id', label: 'الحافظة' },
   { table: 'places', ownerColumn: 'user_id', label: 'الأماكن المحفوظة' },
+  { table: 'trips', ownerColumn: 'user_id', label: 'خطط الرحلات' },
   { table: 'game_progress', ownerColumn: 'user_id', label: 'تقدّم الألعاب' },
   { table: 'reading_feeds', ownerColumn: 'user_id', label: 'خلاصات القراءة' },
   { table: 'reading_bookmarks', ownerColumn: 'user_id', label: 'العلامات المرجعية' },
@@ -171,9 +172,7 @@ export async function buildAccountExport(params: {
  * identifier for a caller to substitute. Returns a discriminated result rather
  * than throwing, matching the error convention in docs/CONTRIBUTING.md §5.
  */
-export async function deleteOwnAccount(): Promise<
-  { ok: true } | { ok: false; error: string }
-> {
+export async function deleteOwnAccount(): Promise<{ ok: true } | { ok: false; error: string }> {
   const { error } = await sb.rpc('delete_own_account');
   if (error) {
     return { ok: false, error: (error as { message?: string }).message ?? 'حدث خطأ غير متوقع' };
