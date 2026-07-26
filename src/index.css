@@ -2205,7 +2205,6 @@ input.podcast-seek:active::-moz-range-thumb {
   container-type: inline-size;
 }
 
-
 /* ── Travel Atlas ──────────────────────────────────────────────────────────
    The map is the one screen in the app where a third-party canvas sits under
    our chrome, so its imported stylesheet is normalised here rather than in the
@@ -2465,4 +2464,57 @@ input.podcast-seek:active::-moz-range-thumb {
   .travel-marker__dot:hover {
     transform: none;
   }
+}
+
+/* ── Dotted country map ────────────────────────────────────────────────────
+   The stamp map is drawn on a canvas, which cannot read Tailwind classes. These
+   four custom properties are the bridge: the canvas reads their COMPUTED values,
+   so the poster follows the active theme and the user's accent instead of
+   hard-coding its own palette.
+
+   This is the feature's second documented colour key, and like the first it
+   encodes state rather than decorating: filled = been there, outlined = want to
+   go, ink = lived there, grey = untouched. */
+.travel-dot-map {
+  --dot-blank: hsl(var(--border));
+  --dot-visited: hsl(var(--live));
+  --dot-lived: hsl(var(--foreground));
+  --dot-wishlist: hsl(var(--muted-foreground));
+  touch-action: manipulation;
+}
+
+.travel-dot-map canvas {
+  display: block;
+  cursor: pointer;
+}
+
+/* ── Explore map ───────────────────────────────────────────────────────────
+   The detailed map is a full-bleed surface with its own floating chrome, so the
+   search field sits over the canvas rather than in a page header. */
+.travel-explore-search {
+  position: absolute;
+  inset-inline: 0.75rem;
+  top: 0.75rem;
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+/* The toolbar drops below the floating search field on the explore map. A
+   Tailwind `top-*` utility cannot win here — this rule is authored after the
+   utilities layer — so the offset is a named modifier instead. */
+.travel-map-controls--below-search {
+  top: 4.75rem;
+}
+
+.travel-explore-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: -0.25rem;
+  margin-left: -0.25rem;
+  border-radius: 999px;
+  background-color: hsl(var(--live));
+  pointer-events: none;
 }

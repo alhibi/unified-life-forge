@@ -19,7 +19,7 @@ import {
   Waves,
 } from '@/lib/icons';
 
-import type { PlaceCategory, VisitStatus } from '../types';
+import type { ChecklistCategory, PlaceCategory, StampStatus, VisitStatus } from '../types';
 
 /**
  * Category presentation.
@@ -168,6 +168,70 @@ const STATUS_INDEX = new Map<VisitStatus, VisitStatusMeta>(
 export function visitStatusMeta(status: VisitStatus): VisitStatusMeta {
   return STATUS_INDEX.get(status) ?? VISIT_STATUS_META[0];
 }
+
+// ── Country stamps ──────────────────────────────────────────────────────────
+// A country is stamped as a whole, independently of the places saved inside it.
+// Three states, matching the three CSS custom properties the dotted map reads.
+
+export interface StampStatusMeta {
+  value: StampStatus;
+  label: string;
+  /** Verb on the stamping button. */
+  action: string;
+  icon: IconComponent;
+}
+
+export const STAMP_STATUS_META: readonly StampStatusMeta[] = [
+  { value: 'visited', label: 'زرتها', action: 'زرتها', icon: MapPin },
+  { value: 'lived', label: 'عشت فيها', action: 'عشت فيها', icon: BedDouble },
+  { value: 'wishlist', label: 'أتمنى زيارتها', action: 'أتمنى زيارتها', icon: Compass },
+] as const;
+
+export function stampStatusMeta(status: StampStatus): StampStatusMeta {
+  return STAMP_STATUS_META.find((entry) => entry.value === status) ?? STAMP_STATUS_META[0];
+}
+
+// ── Packing checklist ───────────────────────────────────────────────────────
+
+export const CHECKLIST_CATEGORY_META: readonly {
+  value: ChecklistCategory;
+  label: string;
+  icon: IconComponent;
+}[] = [
+  { value: 'documents', label: 'أوراق ووثائق', icon: ScrollText },
+  { value: 'clothes', label: 'ملابس', icon: BedDouble },
+  { value: 'gear', label: 'أجهزة وعتاد', icon: Binoculars },
+  { value: 'health', label: 'صحة ودواء', icon: Leaf },
+  { value: 'money', label: 'مال ودفع', icon: Store },
+  { value: 'other', label: 'أخرى', icon: MapPin },
+] as const;
+
+/**
+ * Starter packing list. A blank checklist is a chore; these are the items a
+ * traveller would otherwise write out by hand every single trip.
+ */
+export const CHECKLIST_SUGGESTIONS: readonly {
+  label: string;
+  category: ChecklistCategory;
+}[] = [
+  { label: 'جواز السفر', category: 'documents' },
+  { label: 'التأشيرة أو تصريح الدخول', category: 'documents' },
+  { label: 'تذاكر الطيران', category: 'documents' },
+  { label: 'حجز الإقامة', category: 'documents' },
+  { label: 'تأمين السفر', category: 'documents' },
+  { label: 'رخصة القيادة الدولية', category: 'documents' },
+  { label: 'شاحن وكابلات', category: 'gear' },
+  { label: 'محوّل قابس', category: 'gear' },
+  { label: 'بطارية متنقّلة', category: 'gear' },
+  { label: 'سمّاعات', category: 'gear' },
+  { label: 'أدوية شخصية', category: 'health' },
+  { label: 'حافظة إسعاف صغيرة', category: 'health' },
+  { label: 'واقٍ من الشمس', category: 'health' },
+  { label: 'بطاقة بنكية تعمل خارج البلد', category: 'money' },
+  { label: 'نقد بالعملة المحلية', category: 'money' },
+  { label: 'سجادة صلاة صغيرة', category: 'other' },
+  { label: 'خرائط محفوظة للعمل بدون إنترنت', category: 'other' },
+] as const;
 
 // ── Price level ─────────────────────────────────────────────────────────────
 

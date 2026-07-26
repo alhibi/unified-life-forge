@@ -8,14 +8,57 @@ practical detail a frequent traveller needs on arrival.
 | Route                          | Screen                                     | What it answers                     |
 | ------------------------------ | ------------------------------------------ | ----------------------------------- |
 | `/travel-atlas`                | World map (globe) · places list · record   | "what does my travelling look like" |
+| `/travel-atlas/explore`        | Full-detail street map                     | "what is around here"               |
+| `/travel-atlas/countries`      | Dotted country-stamp poster                | "which countries have I been to"    |
 | `/travel-atlas/:countryId`     | One country: map · list · country briefing | "what have I saved here"            |
 | `/travel-atlas/place/:placeId` | The full place record                      | "tell me everything about this"     |
 | `/travel-atlas/trips`          | Trip list                                  | "which plan am I working on"        |
-| `/travel-atlas/trips/:tripId`  | Day-by-day itinerary                       | "what am I doing on day 2"          |
+| `/travel-atlas/trips/:tripId`  | Itinerary with times + packing list        | "what am I doing at 09:00 on day 2" |
 
-Route order in `App.tsx` matters: `place/` and `trips` are literal segments and
-must be matched **before** the `:countryId` wildcard. `e2e/travel-atlas.spec.ts`
-pins that.
+Route order in `App.tsx` matters: `explore`, `countries`, `place/` and `trips` are
+literal segments and must be matched **before** the `:countryId` wildcard.
+`e2e/travel-atlas.spec.ts` pins that.
+
+## Three maps, on purpose
+
+They are not variants of one map — each answers a question the others answer badly.
+
+|            | Overview (`/travel-atlas`) | Explore (`/explore`)          | Countries (`/countries`) |
+| ---------- | -------------------------- | ----------------------------- | ------------------------ |
+| Engine     | MapLibre, globe projection | MapLibre, mercator            | 2D canvas, no tiles      |
+| Basemap    | quiet (positron)           | detailed (liberty) by default | none                     |
+| Zoom       | 1.2 – 18                   | up to 19, street level        | fixed poster             |
+| Shows      | country bubbles → pins     | streets, POIs, labels, pins   | one dot per 1.5° of land |
+| A tap does | opens a country            | drops a pin, offers to save   | stamps a country         |
+
+The explore map is the one that has to feel like a maps app: search, satellite,
+current location, street-level detail, and a tap on empty ground that
+reverse-geocodes and offers to save the spot.
+
+The country map is the opposite bet. At country granularity a street map is noise,
+so there are no tiles at all: the world is a grid of dots and a stamped country
+fills in. It is drawn on a canvas rather than as ~6,800 SVG circles so a stamp
+repaints in one frame on a phone. Canvas is invisible to assistive technology, so
+the page always pairs it with a searchable country list — both the accessible path
+and the faster one once the map is crowded.
+
+### The dot grid asset
+
+`scripts/travel/build-dot-grid.mjs` turns Natural Earth 1:110m country polygons
+into `public/data/world-dots.json` (~72 kB, ~22 kB gzipped): 178 countries, 6,846
+dots, and the Arabic name of every country. It is fetched, not imported, so it
+never enters a JS chunk. The output is committed; re-run the script only if the
+source data or the grid resolution changes.
+
+Two decisions in it are load-bearing:
+
+- **Smallest countries claim their dots first.** A dot is wider than Lebanon, so
+  resolving big countries first silently erased Palestine, Lebanon, Bahrain, Qatar
+  and a dozen others into a larger neighbour. On a map whose purpose is stamping
+  countries, a country you cannot see is a country you cannot stamp.
+- **Micro-states are added by hand.** The 1:110m dataset omits Bahrain, Singapore
+  and the Maldives entirely — three places this app's readers travel to more than
+  most of the 174 countries that are in it.
 
 ## The zoom ladder
 
@@ -53,6 +96,31 @@ Marker positions are written straight to `style.transform` inside a
 `requestAnimationFrame` on the map's own `move` events
 (`components/map/useProjectedNodes.ts`) — never through React state. Re-rendering
 dozens of components per frame drops a phone to single-digit FPS.
+
+### Two silent failures worth remembering
+
+Both of these made the map render as a blank rectangle with **no error anywhere** —
+no console message, no failed request, no exception. They are now covered by
+`e2e/travel-atlas.spec.ts › travel atlas maps`.
+
+1. **The container collapsed.** MapLibre adds a `.maplibregl-map` class to the
+   element it is handed, and its stylesheet declares `position: relative` on that
+   class. The stylesheet loads after Tailwind's utilities, so it beat
+   `absolute inset-0`: the insets stopped applying, the element's height went to
+   zero, and the canvas fell back to its intrinsic 300 px. The container is now
+   sized with `h-full w-full`, which cannot be overridden the same way.
+
+2. **The tile worker was never served.** MapLibre parses vector tiles in a Web
+   Worker whose URL it derives from its own `import.meta.url`, expecting a sibling
+   `maplibre-gl-worker.mjs`. Vite never emits that file, so the worker 404'd and
+   _not one_ `.pbf` was ever requested — the map drew only its low-zoom raster
+   layer, which looks like a plausible map at world zoom and like a blank page over
+   a city. Fixed by importing the worker with Vite's `?worker&url` and passing the
+   emitted URL to `setWorkerUrl()` before the first map is constructed.
+
+Also note: `setProjection()` must be called **after** the style loads. On a fresh
+map it is silently discarded, because loading a style applies that style's own
+projection — which is mercator — so the globe quietly reverted to flat.
 
 MapLibre (~950 kB) and its stylesheet (~70 kB) are dynamically imported inside
 `MapController.attach()`, so they never reach a visitor who does not open a map.
