@@ -1,47 +1,60 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo } from 'react';
 
-import { AppCard } from '@/components/ui/app-shell';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
+import {
+  MAX_CONTENT_MEASURE,
+  MAX_FOCUS_OFFSET,
+  MAX_HEADER_SCALE,
+  MAX_ICON_WEIGHT_SCALE,
+  MAX_PRESS_DEPTH,
+  MAX_ROW_ICON_SCALE,
+  MAX_SAFE_AREA_EXTRA,
+  MAX_SPACING_SCALE,
+  MAX_TAP_TARGET,
+  MAX_UI_SCALE,
+  MIN_CONTENT_MEASURE,
+  MIN_FOCUS_OFFSET,
+  MIN_HEADER_SCALE,
+  MIN_ICON_WEIGHT_SCALE,
+  MIN_PRESS_DEPTH,
+  MIN_ROW_ICON_SCALE,
+  MIN_SAFE_AREA_EXTRA,
+  MIN_SPACING_SCALE,
+  MIN_TAP_TARGET,
+  MIN_UI_SCALE,
+} from '@/lib/appearancePreferences';
 import {
   Circle,
   Contrast,
-  Download,
+  Crosshair,
   Eye,
   Layers,
   Maximize2,
-  RefreshCcw,
   Rows3,
   Save,
   SlidersHorizontal,
-  Trash2,
-  Upload,
+  Target,
+  Type,
 } from '@/lib/icons';
-import {
-  createSavedInterfaceProfile,
-  INTERFACE_PROFILES_STORAGE_KEY,
-  INTERFACE_PROFILES_VERSION,
-  MAX_INTERFACE_PROFILE_IMPORT_BYTES,
-  MAX_INTERFACE_PROFILES,
-  parseInterfaceProfilesImport,
-  readInterfaceProfiles,
-  type SavedInterfaceProfile,
-  writeInterfaceProfiles,
-} from '@/lib/interfaceProfiles';
+import type { InterfaceProfileSettings } from '@/lib/interfaceProfiles';
 import {
   BORDER_OPTIONS,
+  BORDER_WIDTH_PRESETS,
   CORNER_PRESETS,
   DENSITY_LEVELS,
+  DIVIDER_STYLE_OPTIONS,
   INTERACTION_STYLE_OPTIONS,
   INTERFACE_PRESETS,
   matchInterfacePreset,
   MAX_CORNER_SOFTNESS,
   MIN_CORNER_SOFTNESS,
+  RADIUS_PROFILE_OPTIONS,
   resolveBorder,
   resolveDensity,
+  resolveInterfaceGeometry,
   resolveWidth,
+  SCROLLBAR_STYLE_OPTIONS,
+  SPACING_SCALE_PRESETS,
   SURFACE_MATERIAL_OPTIONS,
   UI_SCALE_OPTIONS,
   WIDTH_OPTIONS,
@@ -49,11 +62,18 @@ import {
 import type { SurfaceLift } from '@/utils/themeEngine';
 
 import {
+  type ChoiceOption,
+  ChoiceRow,
+  type InspectorEntry,
   SegmentedControl,
   type SegmentedOption,
   SettingsSection,
   SliderRow,
+  ToggleRow,
+  TokenInspector,
 } from './AppearancePrimitives';
+import InterfacePreview from './interface/InterfacePreview';
+import InterfaceProfiles from './interface/InterfaceProfiles';
 
 const LIFT_OPTIONS: { id: SurfaceLift; label: string }[] = [
   { id: 'flat', label: 'مسطح' },
@@ -64,108 +84,30 @@ const LIFT_OPTIONS: { id: SurfaceLift; label: string }[] = [
 const toOptions = (levels: readonly { id: string; label: string }[]): SegmentedOption[] =>
   levels.map((level) => ({ id: level.id, label: level.label }));
 
-interface ToggleRowProps {
-  id: string;
-  label: string;
-  note: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-}
+const toChoices = (
+  levels: readonly { id: string; label: string; note?: string }[],
+): ChoiceOption[] =>
+  levels.map((level) => ({ id: level.id, label: level.label, note: level.note }));
 
-function ToggleRow({ id, label, note, checked, onCheckedChange }: ToggleRowProps) {
-  return (
-    <div className="flex min-h-[var(--ui-touch-min)] items-center justify-between gap-4 py-1">
-      <label htmlFor={id} className="min-w-0 flex-1 cursor-pointer text-start">
-        <span className="block text-body font-medium text-foreground">{label}</span>
-        <span className="mt-0.5 block text-mini text-muted-foreground">{note}</span>
-      </label>
-      <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
-    </div>
-  );
-}
+const percent = (value: number) => `${Math.round(value * 100)}٪`;
 
-interface InterfacePreviewProps {
-  uiScale: number;
-  adaptiveLayout: boolean;
-  surfaceMaterial: string;
-  interactionStyle: string;
-  accessibilityCount: number;
-}
-
-/** A live miniature that consumes the same root tokens as the full product. */
-function InterfacePreview({
-  uiScale,
-  adaptiveLayout,
-  surfaceMaterial,
-  interactionStyle,
-  accessibilityCount,
-}: InterfacePreviewProps) {
-  const materialLabel = SURFACE_MATERIAL_OPTIONS.find((item) => item.id === surfaceMaterial)?.label;
-  const interactionLabel = INTERACTION_STYLE_OPTIONS.find(
-    (item) => item.id === interactionStyle,
-  )?.label;
-
-  return (
-    <AppCard flat className="space-y-3 bg-background" aria-label="معاينة حية للواجهة">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-start">
-          <div className="text-body font-semibold text-foreground">مساحة العمل</div>
-          <div className="text-mini text-muted-foreground">معاينة مباشرة لكل تغيير</div>
-        </div>
-        <span className="rounded-sm bg-primary px-2.5 py-1 text-mini font-medium text-primary-foreground">
-          {Math.round(uiScale * 100)}٪
-        </span>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="app-card app-card-compact">
-          <div className="text-micro text-muted-foreground">التخطيط</div>
-          <div className="mt-1 text-mini font-semibold text-foreground">
-            {adaptiveLayout ? 'تكيفي' : 'ثابت'}
-          </div>
-        </div>
-        <div className="app-card app-card-compact">
-          <div className="text-micro text-muted-foreground">الخامة</div>
-          <div className="mt-1 text-mini font-semibold text-foreground">{materialLabel}</div>
-        </div>
-        <div className="app-card app-card-compact">
-          <div className="text-micro text-muted-foreground">التفاعل</div>
-          <div className="mt-1 text-mini font-semibold text-foreground">{interactionLabel}</div>
-        </div>
-      </div>
-
-      <div className="app-card app-card-compact flex items-center gap-3">
-        <span className="row-icon">
-          <Layers className="h-4 w-4" aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1 text-start">
-          <div className="text-body font-semibold text-foreground">بطاقة نموذجية</div>
-          <div className="mt-0.5 text-mini text-muted-foreground">
-            توضح الحواف والكثافة والحدود والخامة
-          </div>
-        </div>
-        <span className="text-mini text-muted-foreground">{accessibilityCount} تحسينات</span>
-      </div>
-
-      <input
-        className="app-control"
-        placeholder="حقل إدخال"
-        aria-label="حقل إدخال للمعاينة"
-        readOnly
-      />
-
-      <div className="flex gap-2">
-        <span className="flex min-h-11 flex-1 items-center justify-center rounded-md bg-primary px-3 py-2 text-meta font-semibold text-primary-foreground">
-          إجراء أساسي
-        </span>
-        <span className="flex min-h-11 flex-1 items-center justify-center rounded-md bg-secondary px-3 py-2 text-meta font-semibold text-secondary-foreground">
-          ثانوي
-        </span>
-      </div>
-    </AppCard>
-  );
-}
-
+/**
+ * "الواجهة والأبعاد" — the interface platform.
+ *
+ * Twenty-six independent, composable instruments. Three principles keep that
+ * many controls usable rather than overwhelming:
+ *
+ *   1. Every control shows its RESOLVED value, not just its position. A slider
+ *      that reads "110٪ · 18px" tells the user what they are actually getting;
+ *      one that reads "110٪" does not.
+ *   2. Nothing is decorative. Each setting compiles into a CSS custom property
+ *      that shared utilities already read, so it reaches every screen in the
+ *      app at once. The token inspector at the bottom proves it by printing the
+ *      literal values written onto `<html>`.
+ *   3. Ten complete presets cover the real configurations; the individual
+ *      instruments exist for the user who wants to go past them, and the
+ *      "مخصص" badge makes it obvious when they have.
+ */
 export default function InterfaceSection() {
   const {
     cornerSoftness,
@@ -194,47 +136,104 @@ export default function InterfaceSection() {
     setLargeTouchTargets,
     clearerFocus,
     setClearerFocus,
+    spacingScale,
+    setSpacingScale,
+    radiusProfile,
+    setRadiusProfile,
+    borderWidth,
+    setBorderWidth,
+    dividerStyle,
+    setDividerStyle,
+    iconWeightScale,
+    setIconWeightScale,
+    rowIconScale,
+    setRowIconScale,
+    focusOffset,
+    setFocusOffset,
+    pressDepth,
+    setPressDepth,
+    tapTargetMin,
+    setTapTargetMin,
+    contentWidthCustom,
+    setContentWidthCustom,
+    headerScale,
+    setHeaderScale,
+    scrollbarStyle,
+    setScrollbarStyle,
+    safeAreaExtra,
+    setSafeAreaExtra,
     applyAdvancedInterfacePreferences,
     resetInterfacePreferences,
   } = useApp();
-  const [profiles, setProfiles] = useState<SavedInterfaceProfile[]>(readInterfaceProfiles);
-  const [profileName, setProfileName] = useState('');
-  const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(
-    null,
-  );
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const syncProfiles = (event: StorageEvent) => {
-      if (event.key === INTERFACE_PROFILES_STORAGE_KEY || event.key === null) {
-        setProfiles(readInterfaceProfiles());
-      }
-    };
-    window.addEventListener('storage', syncProfiles);
-    return () => window.removeEventListener('storage', syncProfiles);
-  }, []);
 
   const activeDensity = resolveDensity(uiDensity);
   const activeWidth = resolveWidth(contentWidth);
   const activeBorder = resolveBorder(borderStrength);
-  const advancedPreferences = {
-    uiScale,
-    adaptiveLayout,
-    surfaceMaterial,
-    interactionStyle,
-    reducedTransparency,
-    strongerContrast,
-    largeTouchTargets,
-    clearerFocus,
-  };
-  const activePreset = matchInterfacePreset({
-    cornerSoftness,
-    density: uiDensity,
-    width: contentWidth,
-    border: borderStrength,
-    surfaceLift,
-    ...advancedPreferences,
-  });
+
+  const advancedPreferences = useMemo(
+    () => ({
+      uiScale,
+      adaptiveLayout,
+      surfaceMaterial,
+      interactionStyle,
+      reducedTransparency,
+      strongerContrast,
+      largeTouchTargets,
+      clearerFocus,
+      spacingScale,
+      radiusProfile,
+      borderWidth,
+      dividerStyle,
+      iconWeightScale,
+      rowIconScale,
+      focusOffset,
+      pressDepth,
+      tapTargetMin,
+      contentWidthCustom,
+      headerScale,
+      scrollbarStyle,
+      safeAreaExtra,
+    }),
+    [
+      uiScale,
+      adaptiveLayout,
+      surfaceMaterial,
+      interactionStyle,
+      reducedTransparency,
+      strongerContrast,
+      largeTouchTargets,
+      clearerFocus,
+      spacingScale,
+      radiusProfile,
+      borderWidth,
+      dividerStyle,
+      iconWeightScale,
+      rowIconScale,
+      focusOffset,
+      pressDepth,
+      tapTargetMin,
+      contentWidthCustom,
+      headerScale,
+      scrollbarStyle,
+      safeAreaExtra,
+    ],
+  );
+
+  const settings = useMemo(
+    () => ({
+      cornerSoftness,
+      density: activeDensity,
+      width: activeWidth,
+      border: activeBorder,
+      surfaceLift,
+      ...advancedPreferences,
+    }),
+    [cornerSoftness, activeDensity, activeWidth, activeBorder, surfaceLift, advancedPreferences],
+  );
+
+  /** The exact numbers the tokens carry — the source for every readout below. */
+  const geometry = useMemo(() => resolveInterfaceGeometry(settings), [settings]);
+  const activePreset = matchInterfacePreset(settings);
 
   const densityNote = DENSITY_LEVELS.find((item) => item.id === activeDensity)?.note ?? '';
   const widthNote = WIDTH_OPTIONS.find((item) => item.id === activeWidth)?.note ?? '';
@@ -249,19 +248,19 @@ export default function InterfaceSection() {
     clearerFocus,
   ].filter(Boolean).length;
 
-  const applyCompleteSettings = (settings: SavedInterfaceProfile['settings']) => {
-    setCornerSoftness(settings.cornerSoftness);
-    setUiDensity(settings.density);
-    setContentWidth(settings.width);
-    setBorderStrength(settings.border);
-    setSurfaceLift(settings.surfaceLift);
-    applyAdvancedInterfacePreferences(settings);
+  const applyCompleteSettings = (next: InterfaceProfileSettings) => {
+    setCornerSoftness(next.cornerSoftness);
+    setUiDensity(next.density);
+    setContentWidth(next.width);
+    setBorderStrength(next.border);
+    setSurfaceLift(next.surfaceLift);
+    applyAdvancedInterfacePreferences(next);
   };
 
   const applyPreset = (id: string) => {
     const preset = INTERFACE_PRESETS.find((item) => item.id === id);
     if (!preset) return;
-    applyCompleteSettings(preset);
+    applyCompleteSettings(preset as unknown as InterfaceProfileSettings);
   };
 
   const applyLift = (id: string) => {
@@ -269,128 +268,71 @@ export default function InterfaceSection() {
     if (option) setSurfaceLift(option.id);
   };
 
-  const captureCurrentSettings = (): SavedInterfaceProfile['settings'] => ({
-    cornerSoftness,
-    density: activeDensity,
-    width: activeWidth,
-    border: activeBorder,
-    surfaceLift,
-    ...advancedPreferences,
-  });
-
-  const saveProfile = () => {
-    const currentProfiles = readInterfaceProfiles();
-    if (currentProfiles.length >= MAX_INTERFACE_PROFILES) {
-      setProfiles(currentProfiles);
-      setFeedback({ tone: 'error', message: 'وصلت إلى الحد الأقصى: ٨ ملفات واجهة.' });
-      return;
-    }
-    const name = profileName.trim() || `ملف واجهة ${currentProfiles.length + 1}`;
-    const next = writeInterfaceProfiles([
-      ...currentProfiles,
-      createSavedInterfaceProfile(name, captureCurrentSettings()),
-    ]);
-    setProfiles(next);
-    setProfileName('');
-    setFeedback({ tone: 'success', message: `حُفظ «${name}» بإعدادات الواجهة الحالية.` });
-  };
-
-  const applyProfile = (profile: SavedInterfaceProfile) => {
-    applyCompleteSettings(profile.settings);
-    setFeedback({ tone: 'success', message: `طُبّق «${profile.name}» بالكامل.` });
-  };
-
-  const deleteProfile = (id: string) => {
-    const currentProfiles = readInterfaceProfiles();
-    const profile = currentProfiles.find((item) => item.id === id);
-    const next = writeInterfaceProfiles(currentProfiles.filter((item) => item.id !== id));
-    setProfiles(next);
-    setFeedback({
-      tone: 'success',
-      message: profile ? `حُذف «${profile.name}».` : 'حُذف ملف الواجهة.',
-    });
-  };
-
-  const exportProfiles = () => {
-    const currentProfiles = readInterfaceProfiles();
-    setProfiles(currentProfiles);
-    if (currentProfiles.length === 0) {
-      setFeedback({ tone: 'error', message: 'احفظ ملف واجهة واحداً على الأقل قبل التصدير.' });
-      return;
-    }
-    const blob = new Blob(
-      [JSON.stringify({ version: INTERFACE_PROFILES_VERSION, profiles: currentProfiles }, null, 2)],
-      { type: 'application/json' },
-    );
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'interface-profiles.json';
-    document.body.appendChild(anchor);
-    try {
-      anchor.click();
-      setFeedback({ tone: 'success', message: 'صُدّرت ملفات الواجهة بصيغة JSON.' });
-    } finally {
-      anchor.remove();
-      URL.revokeObjectURL(url);
-    }
-  };
-
-  const importProfiles = async (file: File | undefined) => {
-    if (!file) return;
-    if (file.size > MAX_INTERFACE_PROFILE_IMPORT_BYTES) {
-      setFeedback({
-        tone: 'error',
-        message: 'حجم ملف الواجهة أكبر من الحد المسموح (٢٥٦ كيلوبايت).',
-      });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
-    try {
-      const imported = parseInterfaceProfilesImport(await file.text());
-      if (!imported) {
-        setFeedback({ tone: 'error', message: 'تعذر قراءة الملف. اختر ملف واجهة JSON صالحاً.' });
-        return;
-      }
-      const currentProfiles = readInterfaceProfiles();
-      const room = MAX_INTERFACE_PROFILES - currentProfiles.length;
-      if (room <= 0) {
-        setProfiles(currentProfiles);
-        setFeedback({ tone: 'error', message: 'احذف ملفاً محفوظاً قبل الاستيراد.' });
-        return;
-      }
-      const stamp = Date.now();
-      const additions = imported.slice(0, room).map((profile, index) => ({
-        ...profile,
-        id: `imported-${stamp}-${index}`,
-      }));
-      const skipped = imported.length - additions.length;
-      const next = writeInterfaceProfiles([...currentProfiles, ...additions]);
-      setProfiles(next);
-      setFeedback({
-        tone: 'success',
-        message:
-          skipped > 0
-            ? `استُورد ${additions.length} وتُرك ${skipped} لبلوغ حد الملفات الثمانية.`
-            : `استُورد ${additions.length} من ملفات الواجهة بنجاح.`,
-      });
-    } catch {
-      setFeedback({ tone: 'error', message: 'حدث خطأ أثناء قراءة ملف الاستيراد.' });
-    } finally {
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const resetInterface = () => {
-    resetInterfacePreferences();
-    setFeedback({ tone: 'success', message: 'عادت إعدادات الواجهة فقط إلى قيمها الافتراضية.' });
-  };
+  const inspectorEntries: readonly InspectorEntry[] = useMemo(
+    () => [
+      { token: '--ui-scale', label: 'مقياس الواجهة', value: String(geometry.uiScale) },
+      {
+        token: '--ui-spacing-scale',
+        label: 'مضاعف المساحات',
+        value: String(geometry.spacingScale),
+      },
+      {
+        token: '--r-sm / --r-xl',
+        label: 'سلّم الأنصاف',
+        value: `${geometry.radius.sm}px … ${geometry.radius.xl}px`,
+      },
+      { token: '--ui-pad-card', label: 'حشو البطاقة', value: `${geometry.cardPadding}px` },
+      { token: '--ui-stack-gap', label: 'مسافة المكدّس', value: `${geometry.stackGap}px` },
+      { token: '--ui-gutter', label: 'هامش الصفحة', value: `${geometry.gutter}px` },
+      { token: '--ui-control-h', label: 'ارتفاع العنصر', value: `${geometry.controlHeight}px` },
+      { token: '--ui-touch-min', label: 'أصغر هدف لمس', value: `${geometry.tapSize}px` },
+      { token: '--ui-row-icon', label: 'أيقونة الصفّ', value: `${geometry.rowIcon}px` },
+      { token: '--ui-header-h', label: 'ارتفاع الرأس', value: `${geometry.headerHeight}px` },
+      {
+        token: '--ui-content-max',
+        label: 'عرض المحتوى',
+        value: geometry.contentMax === null ? '100%' : `${geometry.contentMax}px`,
+      },
+      { token: '--ui-border-width', label: 'سماكة الحدّ', value: `${geometry.borderWidth}px` },
+      { token: '--ui-border-alpha', label: 'شفافية الحدّ', value: String(geometry.borderAlpha) },
+      { token: '--ui-divider-alpha', label: 'شفافية الفاصل', value: String(geometry.dividerAlpha) },
+      {
+        token: '--ui-material-alpha',
+        label: 'شفافية السطح',
+        value: String(geometry.materialAlpha),
+      },
+      {
+        token: '--ui-interaction-scale',
+        label: 'مقياس الضغط',
+        value: String(geometry.pressScale),
+      },
+      {
+        token: '--ui-interaction-offset',
+        label: 'إزاحة الضغط',
+        value: `${geometry.pressOffset}px`,
+      },
+      { token: '--ui-icon-stroke', label: 'ثقل الأيقونة', value: String(geometry.iconStroke) },
+      {
+        token: '--ui-focus-width',
+        label: 'حلقة التركيز',
+        value: `${geometry.focusWidth}px / ${geometry.focusOffset}px`,
+      },
+      {
+        token: '--ui-scrollbar-size',
+        label: 'شريط التمرير',
+        value: `${geometry.scrollbarSize}px`,
+      },
+      { token: '--ui-safe-extra', label: 'هامش سفلي إضافي', value: `${geometry.safeAreaExtra}px` },
+    ],
+    [geometry],
+  );
 
   return (
     <>
+      {/* ── 1. Complete characters ─────────────────────────────────── */}
       <SettingsSection
-        title="منصة الواجهة"
-        subtitle="ثمانية طوابع كاملة، ومعاينة حية لكل تفصيل"
+        title="طوابع الواجهة"
+        subtitle="عشرة طوابع كاملة، ومعاينة حية لكل تفصيل"
         icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />}
       >
         <div className="flex flex-wrap gap-1.5">
@@ -424,72 +366,298 @@ export default function InterfaceSection() {
             : 'إعدادات مضبوطة يدوياً — لا تطابق أي طابع جاهز'}
         </p>
         <InterfacePreview
-          uiScale={uiScale}
-          adaptiveLayout={adaptiveLayout}
-          surfaceMaterial={surfaceMaterial}
-          interactionStyle={interactionStyle}
+          geometry={geometry}
+          materialLabel={
+            SURFACE_MATERIAL_OPTIONS.find((item) => item.id === surfaceMaterial)?.label
+          }
+          interactionLabel={
+            INTERACTION_STYLE_OPTIONS.find((item) => item.id === interactionStyle)?.label
+          }
           accessibilityCount={accessibilityCount}
         />
       </SettingsSection>
 
+      {/* ── 2. Scale and breathing room ────────────────────────────── */}
       <SettingsSection
-        title="المقياس والتكيف"
-        subtitle="حجم كروم الواجهة واستجابته للمساحة المتاحة"
+        title="المقياس والمساحات"
+        subtitle="حجم كروم الواجهة، ومقدار الهواء بين عناصره"
         icon={<Maximize2 className="h-4 w-4" aria-hidden />}
       >
         <SliderRow
           label="مقياس الواجهة"
-          valueLabel={`${Math.round(uiScale * 100)}٪`}
+          valueLabel={percent(uiScale)}
+          resolved={`${geometry.controlHeight}px عنصر`}
           value={uiScale}
-          min={UI_SCALE_OPTIONS[0].value}
-          max={UI_SCALE_OPTIONS[UI_SCALE_OPTIONS.length - 1].value}
+          min={MIN_UI_SCALE}
+          max={MAX_UI_SCALE}
           step={0.01}
           onChange={setUiScale}
           presets={UI_SCALE_OPTIONS}
+          note="يكبّر كل الهندسة معاً — الأنصاف والحشو والارتفاعات وأهداف اللمس. لا يمسّ حجم الخط."
+        />
+        <SliderRow
+          label="مضاعف المساحات"
+          valueLabel={percent(spacingScale)}
+          resolved={`${geometry.cardPadding}px حشو · ${geometry.stackGap}px مسافة`}
+          value={spacingScale}
+          min={MIN_SPACING_SCALE}
+          max={MAX_SPACING_SCALE}
+          step={0.05}
+          onChange={setSpacingScale}
+          presets={SPACING_SCALE_PRESETS}
+          note="يوسّع أو يضيّق الهواء وحده: الحشو والمسافات والهوامش، دون تغيير ارتفاع أي عنصر."
         />
         <ToggleRow
           id="adaptive-layout"
           label="تخطيط تكيفي"
-          note="يضبط الهوامش والقياس وفق مساحة الشاشة"
+          note="يجعل هامش الصفحة يتنفّس مع عرض الشاشة بدل قيمة ثابتة"
           checked={adaptiveLayout}
           onCheckedChange={setAdaptiveLayout}
         />
       </SettingsSection>
 
+      {/* ── 3. Corners ─────────────────────────────────────────────── */}
       <SettingsSection
-        title="خامة السطح"
-        subtitle="درجة حضور الأسطح مع الحفاظ على العقد المسطح"
-        icon={<Layers className="h-4 w-4" aria-hidden />}
+        title="الحواف"
+        subtitle="مضاعف واحد وطابع واحد يحرّكان سلّم الأنصاف كله"
+        icon={<Circle className="h-4 w-4" aria-hidden />}
       >
-        <SegmentedControl
-          options={toOptions(SURFACE_MATERIAL_OPTIONS)}
-          value={surfaceMaterial}
-          onChange={(value) => setSurfaceMaterial(value as typeof surfaceMaterial)}
-          layoutId="surfaceMaterialIndicator"
-          aria-label="خامة السطح"
+        <SliderRow
+          label="نعومة الحواف"
+          valueLabel={cornerPreset ? cornerPreset.label : cornerSoftness.toFixed(2)}
+          resolved={`${geometry.radius.sm} · ${geometry.radius.md} · ${geometry.radius.lg} · ${geometry.radius.xl}px`}
+          value={cornerSoftness}
+          min={MIN_CORNER_SOFTNESS}
+          max={MAX_CORNER_SOFTNESS}
+          step={0.05}
+          onChange={setCornerSoftness}
+          presets={CORNER_PRESETS}
+          note={cornerPreset?.note}
+        />
+        <ChoiceRow
+          label="طابع السلّم"
+          options={toChoices(RADIUS_PROFILE_OPTIONS)}
+          value={radiusProfile}
+          onChange={(value) => setRadiusProfile(value as typeof radiusProfile)}
+          layoutId="radiusProfileIndicator"
         />
       </SettingsSection>
 
+      {/* ── 4. Density ─────────────────────────────────────────────── */}
       <SettingsSection
-        title="طابع التفاعل"
-        subtitle="استجابة الضغط وحضور الأيقونات ومؤشر التركيز"
-        icon={<Eye className="h-4 w-4" aria-hidden />}
+        title="الكثافة"
+        subtitle="حشو البطاقات وارتفاع العناصر والمسافات"
+        icon={<Rows3 className="h-4 w-4" aria-hidden />}
       >
         <SegmentedControl
-          options={toOptions(INTERACTION_STYLE_OPTIONS)}
-          value={interactionStyle}
-          onChange={(value) => setInteractionStyle(value as typeof interactionStyle)}
-          layoutId="interactionStyleIndicator"
-          aria-label="طابع التفاعل"
+          options={toOptions(DENSITY_LEVELS)}
+          value={activeDensity}
+          onChange={setUiDensity}
+          layoutId="uiDensityIndicator"
+          aria-label="الكثافة"
         />
+        <p className="text-micro text-muted-foreground">{densityNote}</p>
       </SettingsSection>
 
+      {/* ── 5. Content measure ─────────────────────────────────────── */}
       <SettingsSection
-        title="إتاحة ووضوح"
-        subtitle="تحسينات مستقلة للشفافية والتباين واللمس والتركيز"
+        title="عرض المحتوى"
+        subtitle="مقاس عمود المحتوى الوحيد في التطبيق"
+        icon={<Maximize2 className="h-4 w-4" aria-hidden />}
+      >
+        <SegmentedControl
+          options={toOptions(WIDTH_OPTIONS)}
+          value={activeWidth}
+          onChange={setContentWidth}
+          layoutId="contentWidthIndicator"
+          aria-label="عرض المحتوى"
+        />
+        <p className="text-micro text-muted-foreground">{widthNote}</p>
+        {activeWidth === 'custom' ? (
+          <SliderRow
+            label="المقاس المخصص"
+            valueLabel={`${contentWidthCustom}px`}
+            resolved={
+              geometry.contentMax === null ? '100%' : `${geometry.contentMax}px بعد المقياس`
+            }
+            value={contentWidthCustom}
+            min={MIN_CONTENT_MEASURE}
+            max={MAX_CONTENT_MEASURE}
+            step={8}
+            onChange={setContentWidthCustom}
+            note="يُضرب في مقياس الواجهة، فيتبع العمود المقاس العام تلقائياً."
+          />
+        ) : null}
+      </SettingsSection>
+
+      {/* ── 6. Edges and dividers ──────────────────────────────────── */}
+      <SettingsSection
+        title="الحدود والفواصل"
+        subtitle="بلا ظلال، الحدّ هو حافة السطح"
         icon={<Contrast className="h-4 w-4" aria-hidden />}
       >
-        <div className="divide-y divide-border">
+        <div className="space-y-2">
+          <span className="block text-meta text-muted-foreground">قوة الحدود</span>
+          <SegmentedControl
+            options={toOptions(BORDER_OPTIONS)}
+            value={activeBorder}
+            onChange={setBorderStrength}
+            layoutId="borderStrengthIndicator"
+            aria-label="قوة الحدود"
+          />
+          <p className="text-micro text-muted-foreground">{borderNote}</p>
+        </div>
+        <SliderRow
+          label="سماكة الحدّ"
+          valueLabel={`${borderWidth}px`}
+          resolved={`شفافية ${geometry.borderAlpha}`}
+          value={borderWidth}
+          min={1}
+          max={2}
+          step={0.25}
+          onChange={setBorderWidth}
+          presets={BORDER_WIDTH_PRESETS}
+          note="تطال كل سطح محكوم: البطاقات والحقول والرؤوس والطبقات العائمة."
+        />
+        <ChoiceRow
+          label="فواصل الصفوف"
+          options={toChoices(DIVIDER_STYLE_OPTIONS)}
+          value={dividerStyle}
+          onChange={(value) => setDividerStyle(value as typeof dividerStyle)}
+          layoutId="dividerStyleIndicator"
+        />
+      </SettingsSection>
+
+      {/* ── 7. Surface ─────────────────────────────────────────────── */}
+      <SettingsSection
+        title="السطح وبروزه"
+        subtitle="درجة حضور الأسطح، وكم تنفصل البطاقة عن الصفحة"
+        icon={<Layers className="h-4 w-4" aria-hidden />}
+      >
+        <div className="space-y-2">
+          <span className="block text-meta text-muted-foreground">خامة السطح</span>
+          <SegmentedControl
+            options={toOptions(SURFACE_MATERIAL_OPTIONS)}
+            value={surfaceMaterial}
+            onChange={(value) => setSurfaceMaterial(value as typeof surfaceMaterial)}
+            layoutId="surfaceMaterialIndicator"
+            aria-label="خامة السطح"
+          />
+        </div>
+        <div className="space-y-2">
+          <span className="block text-meta text-muted-foreground">بروز الأسطح</span>
+          <SegmentedControl
+            options={LIFT_OPTIONS}
+            value={surfaceLift}
+            onChange={applyLift}
+            layoutId="surfaceLiftIndicator"
+            aria-label="بروز الأسطح"
+          />
+          <p className="text-micro text-muted-foreground">
+            التطبيق مسطح بالتصميم؛ فرق إضاءة السطح والحدّ الرفيع هما دليلا العمق
+          </p>
+        </div>
+      </SettingsSection>
+
+      {/* ── 8. Interaction and touch ───────────────────────────────── */}
+      <SettingsSection
+        title="التفاعل واللمس"
+        subtitle="استجابة الضغط ومساحة الأصابع"
+        icon={<Target className="h-4 w-4" aria-hidden />}
+      >
+        <div className="space-y-2">
+          <span className="block text-meta text-muted-foreground">طابع التفاعل</span>
+          <SegmentedControl
+            options={toOptions(INTERACTION_STYLE_OPTIONS)}
+            value={interactionStyle}
+            onChange={(value) => setInteractionStyle(value as typeof interactionStyle)}
+            layoutId="interactionStyleIndicator"
+            aria-label="طابع التفاعل"
+          />
+        </div>
+        <SliderRow
+          label="عمق الضغط"
+          valueLabel={percent(pressDepth)}
+          resolved={`${geometry.pressScale} · ${geometry.pressOffset}px`}
+          value={pressDepth}
+          min={MIN_PRESS_DEPTH}
+          max={MAX_PRESS_DEPTH}
+          step={0.05}
+          onChange={setPressDepth}
+          note="يضبط شكل الضغط. أمّا مقدار الحركة المعروض منه فيُضبط من «الحركة والأداء»."
+        />
+        <SliderRow
+          label="أصغر هدف لمس"
+          valueLabel={`${tapTargetMin}px`}
+          resolved={`${geometry.tapSize}px بعد المقياس`}
+          value={tapTargetMin}
+          min={MIN_TAP_TARGET}
+          max={MAX_TAP_TARGET}
+          step={2}
+          onChange={setTapTargetMin}
+          note="حدّ أدنى مطلق لكل عنصر تفاعلي. يفوز الأكبر بينه وبين الكثافة وخيار الإتاحة."
+        />
+      </SettingsSection>
+
+      {/* ── 9. Icons and headers ───────────────────────────────────── */}
+      <SettingsSection
+        title="الأيقونات والرؤوس"
+        subtitle="ثقل الخطوط وحجم الرقائق وارتفاع الرأس"
+        icon={<Type className="h-4 w-4" aria-hidden />}
+      >
+        <SliderRow
+          label="ثقل الأيقونات"
+          valueLabel={percent(iconWeightScale)}
+          resolved={`سماكة ${geometry.iconStroke}`}
+          value={iconWeightScale}
+          min={MIN_ICON_WEIGHT_SCALE}
+          max={MAX_ICON_WEIGHT_SCALE}
+          step={0.05}
+          onChange={setIconWeightScale}
+          note="يُضرب في السماكة القادمة من طابع التفاعل، فيطال كل أيقونة في التطبيق."
+        />
+        <SliderRow
+          label="حجم رقاقة الأيقونة"
+          valueLabel={percent(rowIconScale)}
+          resolved={`${geometry.rowIcon}px`}
+          value={rowIconScale}
+          min={MIN_ROW_ICON_SCALE}
+          max={MAX_ROW_ICON_SCALE}
+          step={0.05}
+          onChange={setRowIconScale}
+          note="المربّع الملوّن الذي يحمل الأيقونة في صفوف القوائم والإعدادات."
+        />
+        <SliderRow
+          label="ارتفاع الرأس"
+          valueLabel={percent(headerScale)}
+          resolved={`${geometry.headerHeight}px`}
+          value={headerScale}
+          min={MIN_HEADER_SCALE}
+          max={MAX_HEADER_SCALE}
+          step={0.05}
+          onChange={setHeaderScale}
+          note="يطال رؤوس الصفحات واللواصق، ومسافة توقّف التمرير تحتها."
+        />
+      </SettingsSection>
+
+      {/* ── 10. Focus and accessibility ────────────────────────────── */}
+      <SettingsSection
+        title="التركيز والإتاحة"
+        subtitle="تحسينات مستقلة للشفافية والتباين واللمس والتركيز"
+        icon={<Crosshair className="h-4 w-4" aria-hidden />}
+      >
+        <SliderRow
+          label="إزاحة حلقة التركيز"
+          valueLabel={`${focusOffset}px`}
+          resolved={`سماكة ${geometry.focusWidth}px`}
+          value={focusOffset}
+          min={MIN_FOCUS_OFFSET}
+          max={MAX_FOCUS_OFFSET}
+          step={0.5}
+          onChange={setFocusOffset}
+          note="المسافة بين العنصر وحلقة لوحة المفاتيح حوله."
+        />
+        <div className="divide-y">
           <ToggleRow
             id="reduced-transparency"
             label="شفافية أقل"
@@ -507,7 +675,7 @@ export default function InterfaceSection() {
           <ToggleRow
             id="large-touch-targets"
             label="أهداف لمس أكبر"
-            note="يوسع الحد الأدنى للعناصر التفاعلية"
+            note="يرفع الحد الأدنى للعناصر التفاعلية إلى ٥٢ بكسل على الأقل"
             checked={largeTouchTargets}
             onCheckedChange={setLargeTouchTargets}
           />
@@ -521,186 +689,52 @@ export default function InterfaceSection() {
         </div>
       </SettingsSection>
 
+      {/* ── 11. Scrolling chrome and bottom clearance ──────────────── */}
       <SettingsSection
-        title="الحواف"
-        subtitle="مضاعف واحد يحرّك سلّم الأنصاف كله معاً"
-        icon={<Circle className="h-4 w-4" aria-hidden />}
+        title="شريط التمرير والحافة"
+        subtitle="أثر التمرير على الشاشة، والمساحة أسفل كل صفحة"
+        icon={<Eye className="h-4 w-4" aria-hidden />}
       >
+        <ChoiceRow
+          label="شريط التمرير"
+          options={toChoices(SCROLLBAR_STYLE_OPTIONS)}
+          value={scrollbarStyle}
+          onChange={(value) => setScrollbarStyle(value as typeof scrollbarStyle)}
+          layoutId="scrollbarStyleIndicator"
+        />
         <SliderRow
-          label="نعومة الحواف"
-          valueLabel={cornerPreset ? cornerPreset.label : cornerSoftness.toFixed(2)}
-          value={cornerSoftness}
-          min={MIN_CORNER_SOFTNESS}
-          max={MAX_CORNER_SOFTNESS}
-          step={0.05}
-          onChange={setCornerSoftness}
-          presets={CORNER_PRESETS}
+          label="هامش سفلي إضافي"
+          valueLabel={`${safeAreaExtra}px`}
+          resolved="يُضاف فوق هامش الجهاز"
+          value={safeAreaExtra}
+          min={MIN_SAFE_AREA_EXTRA}
+          max={MAX_SAFE_AREA_EXTRA}
+          step={2}
+          onChange={setSafeAreaExtra}
+          note="لأجهزة تخفي آخر سطر خلف شريط النظام أو الإيماءات."
         />
-        {cornerPreset ? (
-          <p className="text-micro text-muted-foreground">{cornerPreset.note}</p>
-        ) : null}
       </SettingsSection>
 
+      {/* ── 12. What it all compiles to ────────────────────────────── */}
       <SettingsSection
-        title="الكثافة"
-        subtitle="حشو البطاقات وارتفاع العناصر والمسافات"
-        icon={<Rows3 className="h-4 w-4" aria-hidden />}
+        title="مفتّش الرموز"
+        subtitle="القيم الحقيقية المكتوبة على جذر المستند الآن"
+        icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />}
       >
-        <SegmentedControl
-          options={toOptions(DENSITY_LEVELS)}
-          value={activeDensity}
-          onChange={setUiDensity}
-          layoutId="uiDensityIndicator"
-          aria-label="الكثافة"
-        />
-        <p className="text-micro text-muted-foreground">{densityNote}</p>
-      </SettingsSection>
-
-      <SettingsSection
-        title="عرض المحتوى"
-        subtitle="مقاس عمود المحتوى الوحيد في التطبيق"
-        icon={<Maximize2 className="h-4 w-4" aria-hidden />}
-      >
-        <SegmentedControl
-          options={toOptions(WIDTH_OPTIONS)}
-          value={activeWidth}
-          onChange={setContentWidth}
-          layoutId="contentWidthIndicator"
-          aria-label="عرض المحتوى"
-        />
-        <p className="text-micro text-muted-foreground">{widthNote}</p>
-      </SettingsSection>
-
-      <SettingsSection
-        title="قوة الحدود"
-        subtitle="بلا ظلال، الحدّ هو حافة السطح"
-        icon={<Contrast className="h-4 w-4" aria-hidden />}
-      >
-        <SegmentedControl
-          options={toOptions(BORDER_OPTIONS)}
-          value={activeBorder}
-          onChange={setBorderStrength}
-          layoutId="borderStrengthIndicator"
-          aria-label="قوة الحدود"
-        />
-        <p className="text-micro text-muted-foreground">{borderNote}</p>
-      </SettingsSection>
-
-      <SettingsSection
-        title="بروز الأسطح"
-        subtitle="كم تنفصل البطاقة عن الصفحة"
-        icon={<Layers className="h-4 w-4" aria-hidden />}
-      >
-        <SegmentedControl
-          options={LIFT_OPTIONS}
-          value={surfaceLift}
-          onChange={applyLift}
-          layoutId="surfaceLiftIndicator"
-          aria-label="بروز الأسطح"
-        />
+        <TokenInspector entries={inspectorEntries} />
         <p className="text-micro text-muted-foreground">
-          التطبيق مسطح بالتصميم؛ فرق إضاءة السطح والحد الرفيع هما دليلا العمق
+          كل قيمة أعلاه خاصية CSS مخصّصة تقرأها أدوات التطبيق المشتركة، ولذلك يصل الإعداد الواحد إلى
+          كل الشاشات في اللحظة نفسها.
         </p>
       </SettingsSection>
 
-      <SettingsSection
-        title="ملفات الواجهة"
-        subtitle="احفظ إعدادات الواجهة وحدها أو انقلها بصيغة JSON"
+      {/* ── 13. Portable profiles ──────────────────────────────────── */}
+      <InterfaceProfiles
+        capture={() => settings as unknown as InterfaceProfileSettings}
+        apply={applyCompleteSettings}
+        reset={resetInterfacePreferences}
         icon={<Save className="h-4 w-4" aria-hidden />}
-      >
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            value={profileName}
-            onChange={(event) => setProfileName(event.target.value)}
-            maxLength={48}
-            placeholder={`ملف واجهة ${profiles.length + 1}`}
-            aria-label="اسم ملف الواجهة"
-          />
-          <Button
-            type="button"
-            onClick={saveProfile}
-            disabled={profiles.length >= MAX_INTERFACE_PROFILES}
-          >
-            <Save aria-hidden />
-            حفظ الحالي
-          </Button>
-        </div>
-
-        {profiles.length > 0 ? (
-          <div className="space-y-2" aria-label="ملفات الواجهة المحفوظة">
-            {profiles.map((profile) => (
-              <AppCard key={profile.id} compact flat className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => applyProfile(profile)}
-                  className="min-h-[var(--ui-touch-min)] min-w-0 flex-1 text-start"
-                >
-                  <span className="block truncate text-body font-medium text-foreground">
-                    {profile.name}
-                  </span>
-                  <span className="block text-mini text-muted-foreground">
-                    {Math.round(profile.settings.uiScale * 100)}٪ ·{' '}
-                    {DENSITY_LEVELS.find((item) => item.id === profile.settings.density)?.label} ·{' '}
-                    {
-                      SURFACE_MATERIAL_OPTIONS.find(
-                        (item) => item.id === profile.settings.surfaceMaterial,
-                      )?.label
-                    }
-                  </span>
-                </button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => deleteProfile(profile.id)}
-                  aria-label={`حذف ${profile.name}`}
-                >
-                  <Trash2 aria-hidden />
-                </Button>
-              </AppCard>
-            ))}
-          </div>
-        ) : (
-          <p className="text-mini text-muted-foreground">لا توجد ملفات محفوظة بعد.</p>
-        )}
-
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <Button type="button" variant="secondary" onClick={exportProfiles}>
-            <Download aria-hidden />
-            تصدير
-          </Button>
-          <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            <Upload aria-hidden />
-            استيراد
-          </Button>
-          <Button type="button" variant="outline" onClick={resetInterface}>
-            <RefreshCcw aria-hidden />
-            إعادة الضبط
-          </Button>
-        </div>
-        <Input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json,.json"
-          className="sr-only"
-          aria-label="اختيار ملف واجهة JSON للاستيراد"
-          onChange={(event) => void importProfiles(event.target.files?.[0])}
-        />
-
-        {feedback ? (
-          <p
-            role={feedback.tone === 'error' ? 'alert' : 'status'}
-            className={`text-meta ${
-              feedback.tone === 'error' ? 'text-destructive' : 'text-foreground'
-            }`}
-          >
-            {feedback.message}
-          </p>
-        ) : null}
-        <p className="text-micro text-muted-foreground">
-          الحد الأقصى ٨ ملفات. لا تتضمن الملفات بيانات الحساب أو إعدادات الميزات الأخرى.
-        </p>
-      </SettingsSection>
+      />
     </>
   );
 }

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { House } from '@/lib/icons';
 import { FLOATING_DOCK_OFFSET, FLOATING_DOCK_SIZE } from '@/lib/layout';
+import { MOTION } from '@/lib/motion';
 
 /**
  * Floating "return to portal" dock. Rendered globally by App.tsx and
@@ -21,9 +22,7 @@ export default function PortalBackButton() {
   const { dir } = useApp();
 
   const hidden =
-    pathname === '/' ||
-    pathname.startsWith('/auth') ||
-    pathname.startsWith('/.lovable/oauth');
+    pathname === '/' || pathname.startsWith('/auth') || pathname.startsWith('/.lovable/oauth');
 
   const sideClass = dir === 'rtl' ? 'right-4' : 'left-4';
 
@@ -36,7 +35,7 @@ export default function PortalBackButton() {
           initial={{ opacity: 0, y: 16, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.9 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+          transition={MOTION.spring}
           whileTap={{ scale: 0.92 }}
           onClick={() => navigate('/')}
           aria-label="العودة إلى البوابة"

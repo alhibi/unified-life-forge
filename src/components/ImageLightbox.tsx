@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ChevronLeft, ChevronRight, Download } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 
 interface ImageLightboxProps {
   src: string;
@@ -208,7 +209,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
               initial={getInitialPos()}
               animate={{ x: 0, y: 0, scale: 1, opacity: 1 }}
               exit={originRect ? getInitialPos() : { opacity: 0, scale: 0.8 }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              transition={MOTION.spring}
               onClick={handleClick}
               draggable={false}
             />

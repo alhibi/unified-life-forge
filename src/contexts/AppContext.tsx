@@ -17,10 +17,13 @@ import {
   type AdvancedInterfacePreferences,
   APPEARANCE_PREFERENCES_STORAGE_KEY,
   DEFAULT_ADVANCED_INTERFACE_PREFERENCES,
+  type DividerStyle,
   type InteractionStyle,
   parseAppearanceProfile,
+  type RadiusProfile,
   readAppearancePreferences,
   sanitizeAdvancedInterfacePreferences,
+  type ScrollbarStyle,
   type SurfaceMaterial,
   writeAppearancePreferences,
 } from '@/lib/appearancePreferences';
@@ -47,11 +50,37 @@ import {
   resolveWidth,
 } from '@/lib/interfaceScale';
 import {
+  DEFAULT_MOTION_PREFERENCES,
+  type EasingProfile,
+  MOTION_PREFERENCES_STORAGE_KEY,
+  MOTION_PRESETS,
+  type MotionPreferences,
+  type NavTransitionStyle,
+  type OverlayStyle,
+  parseMotionProfile,
+  readMotionPreferences,
+  sanitizeMotionPreferences,
+  type ScrollProfile,
+  writeMotionPreferences,
+} from '@/lib/motionPreferences';
+import {
+  applyCompositorHints,
+  applyEasingProfile,
+  applyListStagger,
   applyMotionAmplitude,
   applyMotionBounce,
   applyMotionSpeed,
+  applyNavDuration,
+  applyNavStyle,
+  applyOverlayStyle,
+  applyPressFeedback,
+  applyReduceMotion,
+  getNativeHz,
   installFpsCap,
+  measureDisplayHz,
 } from '@/lib/motionRuntime';
+import { installPerfGovernor, setFrameBudgetHz } from '@/lib/perfMonitor';
+import { applyScrollProfile } from '@/lib/scrollRuntime';
 import {
   applyThemeTokens,
   generateThemeTokens,
@@ -156,6 +185,46 @@ interface AppContextType {
   setLargeTouchTargets: (v: boolean) => void;
   clearerFocus: boolean;
   setClearerFocus: (v: boolean) => void;
+  /** ── Interface v3: fine-grain dimensions ── */
+  /** Multiplier on every gap, gutter and card padding. Independent of uiScale. */
+  spacingScale: number;
+  setSpacingScale: (v: number) => void;
+  /** How the four-step radius ladder spreads. */
+  radiusProfile: RadiusProfile;
+  setRadiusProfile: (v: RadiusProfile) => void;
+  /** Hairline thickness in px for every governed surface edge. */
+  borderWidth: number;
+  setBorderWidth: (v: number) => void;
+  /** Volume of in-surface row dividers. */
+  dividerStyle: DividerStyle;
+  setDividerStyle: (v: DividerStyle) => void;
+  /** Multiplier on the icon stroke weight resolved from the interaction style. */
+  iconWeightScale: number;
+  setIconWeightScale: (v: number) => void;
+  /** Multiplier on the size of the tinted row-icon chip. */
+  rowIconScale: number;
+  setRowIconScale: (v: number) => void;
+  /** Gap in px between a focused element and its focus ring. */
+  focusOffset: number;
+  setFocusOffset: (v: number) => void;
+  /** Multiplier on the press scale + travel resolved from the interaction style. */
+  pressDepth: number;
+  setPressDepth: (v: number) => void;
+  /** Absolute floor in px for any interactive target. */
+  tapTargetMin: number;
+  setTapTargetMin: (v: number) => void;
+  /** Content measure in px, used when `contentWidth` is `custom`. */
+  contentWidthCustom: number;
+  setContentWidthCustom: (v: number) => void;
+  /** Multiplier on the shared page/panel header height. */
+  headerScale: number;
+  setHeaderScale: (v: number) => void;
+  /** Scrollbar affordance. */
+  scrollbarStyle: ScrollbarStyle;
+  setScrollbarStyle: (v: ScrollbarStyle) => void;
+  /** Extra px below every page, on top of the device safe area. */
+  safeAreaExtra: number;
+  setSafeAreaExtra: (v: number) => void;
   applyAdvancedInterfacePreferences: (preferences: unknown) => void;
   resetInterfacePreferences: () => void;
   language: Language;
@@ -200,6 +269,49 @@ interface AppContextType {
   /** Spring bounce 0..1. 0 = critically damped, 1 = pronounced overshoot. */
   springBounce: number;
   setSpringBounce: (b: number) => void;
+  /** ── Motion platform ── */
+  /** How a screen enters and leaves. */
+  navStyle: NavTransitionStyle;
+  setNavStyle: (v: NavTransitionStyle) => void;
+  /** The curve family the whole app speaks. */
+  easingProfile: EasingProfile;
+  setEasingProfile: (v: EasingProfile) => void;
+  /** Scroll behaviour and how hard the scroll frame budget is defended. */
+  scrollProfile: ScrollProfile;
+  setScrollProfile: (v: ScrollProfile) => void;
+  /** How transient surfaces (menus, dialogs, popovers) appear. */
+  overlayStyle: OverlayStyle;
+  setOverlayStyle: (v: OverlayStyle) => void;
+  /** Multiplier applied to screen transitions only. */
+  navDuration: number;
+  setNavDuration: (v: number) => void;
+  /** Cadence of page/list entrance staggering. 0 = every child at once. */
+  listStagger: number;
+  setListStagger: (v: number) => void;
+  /** How much of the press response actually moves. */
+  pressFeedback: number;
+  setPressFeedback: (v: number) => void;
+  /** In-app reduced motion. ORs with the OS preference. */
+  reduceMotion: boolean;
+  setReduceMotion: (v: boolean) => void;
+  /** Edge-swipe- gesture. */
+  gestureBack: boolean;
+  setGestureBack: (v: boolean) => void;
+  /** How little travel commits the swipe-back. Higher = more sensitive. */
+  gestureSensitivity: number;
+  setGestureSensitivity: (v: number) => void;
+  /** Let the runtime degrade motion when frames are being dropped. */
+  adaptivePerformance: boolean;
+  setAdaptivePerformance: (v: boolean) => void;
+  /** GPU layer promotion for animated surfaces. */
+  compositorHints: boolean;
+  setCompositorHints: (v: boolean) => void;
+  /** Apply a sanitized motion document (import, cloud, saved profile). */
+  applyMotionPreferences: (preferences: unknown) => void;
+  /** Apply one of the complete named motion characters. */
+  applyMotionPreset: (id: string) => void;
+  /** Restore every motion setting — both halves — to its shipped value. */
+  resetMotionPreferences: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -208,7 +320,13 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 // change. Multiple rapid changes coalesce into a single upsert.
 const SAVE_DEBOUNCE_MS = 400;
 
-const ADVANCED_LEGACY_KEYS: Record<keyof AdvancedInterfacePreferences, string> = {
+/**
+ * The pre-v2 era stored these eight settings in their own keys. We keep
+ * mirroring them so a downgrade — or any other tab still running an older
+ * bundle — reads a coherent state. The thirteen v3 fields were never mirrored
+ * and deliberately are not: the versioned document is their only home.
+ */
+const ADVANCED_LEGACY_KEYS: Partial<Record<keyof AdvancedInterfacePreferences, string>> = {
   uiScale: 'app-ui-scale',
   adaptiveLayout: 'app-adaptive-layout',
   surfaceMaterial: 'app-surface-material',
@@ -228,10 +346,15 @@ function persistAdvancedInterfacePreferences(preferences: AdvancedInterfacePrefe
     try {
       localStorage.setItem(storageKey, String(profile[key]));
     } catch {
-      // The v2 writer and React state remain authoritative when storage is unavailable.
+      // The versioned writer and React state remain authoritative when storage
+      // is unavailable.
     }
   }
   return sanitizeAdvancedInterfacePreferences(profile);
+}
+
+function persistMotionPreferences(preferences: MotionPreferences): MotionPreferences {
+  return sanitizeMotionPreferences(writeMotionPreferences(preferences));
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -304,7 +427,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
     strongerContrast,
     largeTouchTargets,
     clearerFocus,
+    spacingScale,
+    radiusProfile,
+    borderWidth,
+    dividerStyle,
+    iconWeightScale,
+    rowIconScale,
+    focusOffset,
+    pressDepth,
+    tapTargetMin,
+    contentWidthCustom,
+    headerScale,
+    scrollbarStyle,
+    safeAreaExtra,
   } = advancedInterfacePreferences;
+
+  // The motion platform's versioned half. Speed / amplitude / bounce / fps cap
+  // keep their own keys below because they predate this document and are
+  // already mirrored to the cloud one field at a time.
+  const [motionPreferences, setMotionPreferencesState] = useState<MotionPreferences>(() =>
+    sanitizeMotionPreferences(readMotionPreferences()),
+  );
+  const motionPreferencesRef = useRef(motionPreferences);
+  const {
+    navStyle,
+    easingProfile,
+    scrollProfile,
+    overlayStyle,
+    navDuration,
+    listStagger,
+    pressFeedback,
+    reduceMotion,
+    gestureBack,
+    gestureSensitivity,
+    adaptivePerformance,
+    compositorHints,
+  } = motionPreferences;
   const [fontWeight, setFontWeightState] = useState<number>(() =>
     clampFontWeight(parseInt(localStorage.getItem('app-font-weight') ?? '400', 10)),
   );
@@ -457,6 +615,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-motion-amplitude', '1');
     setSpringBounceState(0);
     localStorage.setItem('app-spring-bounce', '0');
+    const defaultMotion = persistMotionPreferences(DEFAULT_MOTION_PREFERENCES);
+    motionPreferencesRef.current = defaultMotion;
+    setMotionPreferencesState(defaultMotion);
     setTimeout(() => {
       syncRef.current = false;
     }, 100);
@@ -627,6 +788,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setSpringBounceState(s.springBounce);
           localStorage.setItem('app-spring-bounce', String(s.springBounce));
         }
+        if (s.motionPreferences && typeof s.motionPreferences === 'object') {
+          const motion = sanitizeMotionPreferences(
+            s.motionPreferences,
+            motionPreferencesRef.current,
+          );
+          motionPreferencesRef.current = persistMotionPreferences(motion);
+          setMotionPreferencesState(motionPreferencesRef.current);
+        }
         // Also load game stats and locations if stored
         if (s.gameStats) localStorage.setItem('game-stats', JSON.stringify(s.gameStats));
         if (s.savedLocations)
@@ -697,6 +866,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     settings.fpsCap = localStorage.getItem('app-fps-cap') || 'auto';
     settings.motionAmplitude = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
     settings.springBounce = parseFloat(localStorage.getItem('app-spring-bounce') || '0');
+    settings.motionPreferences = readMotionPreferences();
     // Also save game stats and locations
     try {
       settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}');
@@ -960,6 +1130,60 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [updateAdvancedInterfacePreferences],
   );
 
+  /* ── Interface v3 setters ────────────────────────────────────────── */
+  const setSpacingScale = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ spacingScale: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setRadiusProfile = useCallback(
+    (value: RadiusProfile) => updateAdvancedInterfacePreferences({ radiusProfile: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setBorderWidth = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ borderWidth: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setDividerStyle = useCallback(
+    (value: DividerStyle) => updateAdvancedInterfacePreferences({ dividerStyle: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setIconWeightScale = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ iconWeightScale: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setRowIconScale = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ rowIconScale: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setFocusOffset = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ focusOffset: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setPressDepth = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ pressDepth: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setTapTargetMin = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ tapTargetMin: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setContentWidthCustom = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ contentWidthCustom: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setHeaderScale = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ headerScale: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setScrollbarStyle = useCallback(
+    (value: ScrollbarStyle) => updateAdvancedInterfacePreferences({ scrollbarStyle: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+  const setSafeAreaExtra = useCallback(
+    (value: number) => updateAdvancedInterfacePreferences({ safeAreaExtra: value }),
+    [updateAdvancedInterfacePreferences],
+  );
+
   const resetInterfacePreferences = useCallback(() => {
     setCornerSoftness(DEFAULT_CORNER_SOFTNESS);
     setUiDensity(DEFAULT_DENSITY);
@@ -1089,6 +1313,106 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [scheduleSave],
   );
 
+  /* ── Motion platform ─────────────────────────────────────────────── */
+
+  const updateMotionPreferences = useCallback(
+    (patch: Partial<MotionPreferences>) => {
+      const next = sanitizeMotionPreferences(
+        { ...motionPreferencesRef.current, ...patch },
+        motionPreferencesRef.current,
+      );
+      motionPreferencesRef.current = persistMotionPreferences(next);
+      setMotionPreferencesState(motionPreferencesRef.current);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  const applyMotionPreferences = useCallback(
+    (preferences: unknown) => {
+      const next = sanitizeMotionPreferences(preferences, motionPreferencesRef.current);
+      motionPreferencesRef.current = persistMotionPreferences(next);
+      setMotionPreferencesState(motionPreferencesRef.current);
+      scheduleSave();
+    },
+    [scheduleSave],
+  );
+
+  const setNavStyle = useCallback(
+    (value: NavTransitionStyle) => updateMotionPreferences({ navStyle: value }),
+    [updateMotionPreferences],
+  );
+  const setEasingProfile = useCallback(
+    (value: EasingProfile) => updateMotionPreferences({ easingProfile: value }),
+    [updateMotionPreferences],
+  );
+  const setScrollProfileSetting = useCallback(
+    (value: ScrollProfile) => updateMotionPreferences({ scrollProfile: value }),
+    [updateMotionPreferences],
+  );
+  const setOverlayStyle = useCallback(
+    (value: OverlayStyle) => updateMotionPreferences({ overlayStyle: value }),
+    [updateMotionPreferences],
+  );
+  const setNavDuration = useCallback(
+    (value: number) => updateMotionPreferences({ navDuration: value }),
+    [updateMotionPreferences],
+  );
+  const setListStagger = useCallback(
+    (value: number) => updateMotionPreferences({ listStagger: value }),
+    [updateMotionPreferences],
+  );
+  const setPressFeedback = useCallback(
+    (value: number) => updateMotionPreferences({ pressFeedback: value }),
+    [updateMotionPreferences],
+  );
+  const setReduceMotion = useCallback(
+    (value: boolean) => updateMotionPreferences({ reduceMotion: value }),
+    [updateMotionPreferences],
+  );
+  const setGestureBack = useCallback(
+    (value: boolean) => updateMotionPreferences({ gestureBack: value }),
+    [updateMotionPreferences],
+  );
+  const setGestureSensitivity = useCallback(
+    (value: number) => updateMotionPreferences({ gestureSensitivity: value }),
+    [updateMotionPreferences],
+  );
+  const setAdaptivePerformance = useCallback(
+    (value: boolean) => updateMotionPreferences({ adaptivePerformance: value }),
+    [updateMotionPreferences],
+  );
+  const setCompositorHints = useCallback(
+    (value: boolean) => updateMotionPreferences({ compositorHints: value }),
+    [updateMotionPreferences],
+  );
+
+  /**
+   * A motion preset is a complete character, so it writes BOTH halves of the
+   * platform: the versioned document AND the four legacy runtime keys. A preset
+   * that only changed the easing would not actually feel different.
+   */
+  const applyMotionPreset = useCallback(
+    (id: string) => {
+      const preset = MOTION_PRESETS.find((item) => item.id === id);
+      if (!preset) return;
+      const { speed, amplitude, bounce, ...preferences } = preset.values;
+      setMotionSpeed(speed);
+      setMotionAmplitude(amplitude);
+      setSpringBounce(bounce);
+      applyMotionPreferences(preferences);
+    },
+    [applyMotionPreferences, setMotionAmplitude, setMotionSpeed, setSpringBounce],
+  );
+
+  const resetMotionPreferences = useCallback(() => {
+    setMotionSpeed(1);
+    setMotionAmplitude(1);
+    setSpringBounce(0);
+    setFpsCap('auto');
+    applyMotionPreferences(DEFAULT_MOTION_PREFERENCES);
+  }, [applyMotionPreferences, setFpsCap, setMotionAmplitude, setMotionSpeed, setSpringBounce]);
+
   // Keep open tabs visually synchronized without routing storage events back
   // through public setters (which would schedule a redundant cloud write).
   useEffect(() => {
@@ -1124,6 +1448,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       advancedInterfacePreferencesRef.current = advanced;
       setAdvancedInterfacePreferencesState(advanced);
+      const storedMotion = parseMotionProfile(localStorage.getItem(MOTION_PREFERENCES_STORAGE_KEY));
+      const motion = sanitizeMotionPreferences(storedMotion ?? DEFAULT_MOTION_PREFERENCES);
+      motionPreferencesRef.current = motion;
+      setMotionPreferencesState(motion);
     };
 
     const onStorage = (event: StorageEvent) => {
@@ -1139,6 +1467,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           );
           advancedInterfacePreferencesRef.current = advanced;
           setAdvancedInterfacePreferencesState(advanced);
+          break;
+        }
+        case MOTION_PREFERENCES_STORAGE_KEY: {
+          const motion = sanitizeMotionPreferences(
+            parseMotionProfile(value) ?? DEFAULT_MOTION_PREFERENCES,
+          );
+          motionPreferencesRef.current = motion;
+          setMotionPreferencesState(motion);
           break;
         }
         case 'app-theme':
@@ -1190,6 +1526,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
           break;
         case 'app-border-strength':
           setBorderStrengthState(resolveBorder(value));
+          break;
+        case 'app-motion-speed': {
+          const speed = Number(value ?? 1);
+          setMotionSpeedState(Number.isFinite(speed) && speed > 0 ? speed : 1);
+          break;
+        }
+        case 'app-motion-amplitude': {
+          const amplitude = Number(value ?? 1);
+          setMotionAmplitudeState(Number.isFinite(amplitude) && amplitude >= 0 ? amplitude : 1);
+          break;
+        }
+        case 'app-spring-bounce': {
+          const bounce = Number(value ?? 0);
+          setSpringBounceState(Number.isFinite(bounce) && bounce >= 0 ? bounce : 0);
+          break;
+        }
+        case 'app-fps-cap':
+          setFpsCapState(
+            value === '60' || value === '90' || value === '120'
+              ? (Number(value) as FpsCap)
+              : 'auto',
+          );
           break;
         default:
           break;
@@ -1288,6 +1646,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
         strongerContrast,
         largeTouchTargets,
         clearerFocus,
+        spacingScale,
+        radiusProfile,
+        borderWidth,
+        dividerStyle,
+        iconWeightScale,
+        rowIconScale,
+        focusOffset,
+        pressDepth,
+        tapTargetMin,
+        contentWidthCustom,
+        headerScale,
+        scrollbarStyle,
+        safeAreaExtra,
       }),
     );
   }, [
@@ -1304,13 +1675,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     strongerContrast,
     largeTouchTargets,
     clearerFocus,
+    spacingScale,
+    radiusProfile,
+    borderWidth,
+    dividerStyle,
+    iconWeightScale,
+    rowIconScale,
+    focusOffset,
+    pressDepth,
+    tapTargetMin,
+    contentWidthCustom,
+    headerScale,
+    scrollbarStyle,
+    safeAreaExtra,
   ]);
 
-  // Apply motion speed scale (mutates MOTION/motionWeight/DURATION
-  // baselines and exposes --motion-scale CSS var).
+  // ── Motion platform ────────────────────────────────────────────────
+  //
+  // Each effect owns exactly one runtime concern. They are deliberately
+  // separate rather than one combined effect so that changing, say, the
+  // overlay character does not re-run the speed recomputation.
+
+  // Speed scale — mutates the MOTION/motionWeight/DURATION baselines and
+  // publishes --motion-scale, which every CSS duration multiplies by.
   useEffect(() => {
     applyMotionSpeed(motionSpeed);
   }, [motionSpeed]);
+
+  // Screen-transition-only duration multiplier.
+  useEffect(() => {
+    applyNavDuration(navDuration);
+  }, [navDuration]);
 
   // Amplitude (translate distance + push/pop parallax).
   useEffect(() => {
@@ -1322,9 +1717,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     applyMotionBounce(springBounce);
   }, [springBounce]);
 
-  // Install / refresh the global rAF cap.
+  // The curve family framer-motion AND the stylesheet both read.
+  useEffect(() => {
+    applyEasingProfile(easingProfile);
+  }, [easingProfile]);
+
+  // Entrance cadence for every page that uses pageStagger/pageItem.
+  useEffect(() => {
+    applyListStagger(listStagger);
+  }, [listStagger]);
+
+  // How much of the press response is expressed.
+  useEffect(() => {
+    applyPressFeedback(pressFeedback);
+  }, [pressFeedback]);
+
+  // Navigation character — read by buildNavVariants and by CSS.
+  useEffect(() => {
+    applyNavStyle(navStyle);
+  }, [navStyle]);
+
+  // Transient-surface character — neutralises the bouncy pop when set to fade.
+  useEffect(() => {
+    applyOverlayStyle(overlayStyle);
+  }, [overlayStyle]);
+
+  // Scroll behaviour plus the fling governor.
+  useEffect(() => {
+    applyScrollProfile(scrollProfile);
+  }, [scrollProfile]);
+
+  // In-app reduced motion, OR-ed with the OS preference inside the runtime.
+  useEffect(() => {
+    applyReduceMotion(reduceMotion);
+  }, [reduceMotion]);
+
+  // GPU layer promotion.
+  useEffect(() => {
+    applyCompositorHints(compositorHints);
+  }, [compositorHints]);
+
+  // The adaptive governor that degrades motion under sustained frame loss.
+  useEffect(() => {
+    installPerfGovernor(adaptivePerformance);
+  }, [adaptivePerformance]);
+
+  // Install / refresh the global rAF cap, and tell the frame monitor which
+  // budget to measure against. When the cap is 'auto' the budget is the panel's
+  // own refresh rate, so "60 of 60" on a 60 Hz screen reads as healthy rather
+  // than as half the frames being missed.
   useEffect(() => {
     installFpsCap(fpsCap === 'auto' ? null : fpsCap);
+    if (fpsCap === 'auto') {
+      const known = getNativeHz();
+      if (known !== null) setFrameBudgetHz(known);
+      else void measureDisplayHz().then(setFrameBudgetHz);
+    } else {
+      setFrameBudgetHz(fpsCap);
+    }
     return () => {
       /* keep cap across unmount — provider lives for the app lifetime */
     };
@@ -1384,6 +1834,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setLargeTouchTargets,
       clearerFocus,
       setClearerFocus,
+      spacingScale,
+      setSpacingScale,
+      radiusProfile,
+      setRadiusProfile,
+      borderWidth,
+      setBorderWidth,
+      dividerStyle,
+      setDividerStyle,
+      iconWeightScale,
+      setIconWeightScale,
+      rowIconScale,
+      setRowIconScale,
+      focusOffset,
+      setFocusOffset,
+      pressDepth,
+      setPressDepth,
+      tapTargetMin,
+      setTapTargetMin,
+      contentWidthCustom,
+      setContentWidthCustom,
+      headerScale,
+      setHeaderScale,
+      scrollbarStyle,
+      setScrollbarStyle,
+      safeAreaExtra,
+      setSafeAreaExtra,
       applyAdvancedInterfacePreferences,
       resetInterfacePreferences,
       prayerMadhab,
@@ -1404,6 +1880,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMotionAmplitude,
       springBounce,
       setSpringBounce,
+      navStyle,
+      setNavStyle,
+      easingProfile,
+      setEasingProfile,
+      scrollProfile,
+      setScrollProfile: setScrollProfileSetting,
+      overlayStyle,
+      setOverlayStyle,
+      navDuration,
+      setNavDuration,
+      listStagger,
+      setListStagger,
+      pressFeedback,
+      setPressFeedback,
+      reduceMotion,
+      setReduceMotion,
+      gestureBack,
+      setGestureBack,
+      gestureSensitivity,
+      setGestureSensitivity,
+      adaptivePerformance,
+      setAdaptivePerformance,
+      compositorHints,
+      setCompositorHints,
+      applyMotionPreferences,
+      applyMotionPreset,
+      resetMotionPreferences,
     }),
     [
       language,
@@ -1458,6 +1961,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setLargeTouchTargets,
       clearerFocus,
       setClearerFocus,
+      spacingScale,
+      setSpacingScale,
+      radiusProfile,
+      setRadiusProfile,
+      borderWidth,
+      setBorderWidth,
+      dividerStyle,
+      setDividerStyle,
+      iconWeightScale,
+      setIconWeightScale,
+      rowIconScale,
+      setRowIconScale,
+      focusOffset,
+      setFocusOffset,
+      pressDepth,
+      setPressDepth,
+      tapTargetMin,
+      setTapTargetMin,
+      contentWidthCustom,
+      setContentWidthCustom,
+      headerScale,
+      setHeaderScale,
+      scrollbarStyle,
+      setScrollbarStyle,
+      safeAreaExtra,
+      setSafeAreaExtra,
       applyAdvancedInterfacePreferences,
       resetInterfacePreferences,
       prayerMadhab,
@@ -1478,6 +2007,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMotionAmplitude,
       springBounce,
       setSpringBounce,
+      navStyle,
+      setNavStyle,
+      easingProfile,
+      setEasingProfile,
+      scrollProfile,
+      setScrollProfileSetting,
+      overlayStyle,
+      setOverlayStyle,
+      navDuration,
+      setNavDuration,
+      listStagger,
+      setListStagger,
+      pressFeedback,
+      setPressFeedback,
+      reduceMotion,
+      setReduceMotion,
+      gestureBack,
+      setGestureBack,
+      gestureSensitivity,
+      setGestureSensitivity,
+      adaptivePerformance,
+      setAdaptivePerformance,
+      compositorHints,
+      setCompositorHints,
+      applyMotionPreferences,
+      applyMotionPreset,
+      resetMotionPreferences,
     ],
   );
 

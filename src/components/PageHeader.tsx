@@ -36,7 +36,7 @@ interface PageHeaderProps {
  * Layout: `[ back ] [ icon ] [ title / subtitle ] [ right actions ]`
  *
  * Visual contract:
- *   • One height (min-h-14 / 56px).
+ *   • One height, from `--ui-header-h` (56px at the default header scale).
  *   • One sticky token (z-header + opaque semantic surface + hairline).
  *   • One title token (`text-title`) and one subtitle token (`text-micro`).
  *   • Back-button comes from the unified `<BackButton/>` (smart back,
@@ -61,7 +61,10 @@ export default function PageHeader({
   return (
     <header
       className={cn(
-        'flex min-h-14 items-center gap-2 px-4 py-2',
+        // The height follows the interface platform's header-scale preference,
+        // and `scroll-padding-block-start` in index.css reads the same token so
+        // anchor jumps always land clear of it.
+        'flex min-h-[var(--ui-header-h)] items-center gap-2 px-4 py-2',
         sticky && 'z-header app-sticky-header',
         className,
       )}

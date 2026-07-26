@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useApp } from '@/contexts/AppContext';
 import { Check, Circle, Droplets, ImageIcon, Palette, Sparkles, Zap } from '@/lib/icons';
-import { pageItem as item } from '@/lib/motion';
+import { MOTION, pageItem as item } from '@/lib/motion';
 import {
   createDynamicPreset,
   extractDominantColor,
@@ -175,7 +175,7 @@ function ThemePresetsCategorized({
                 <motion.div
                   layoutId="activeCategoryGlow"
                   className="absolute inset-0 z-base rounded-md border border-border bg-background"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  transition={MOTION.spring}
                 />
               )}
               <span

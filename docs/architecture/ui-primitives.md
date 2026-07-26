@@ -240,32 +240,66 @@ pixel-to-rem conversion; new code should prefer canonical `text-*` steps.
 ## Geometry: the shape of the interface
 
 `src/lib/interfaceScale.ts` owns everything about interface shape, material and
-interaction that is not colour and not type. The system has independent,
+interaction that is not colour and not type. The system has 26 independent,
 composable instruments:
 
-| instrument  | control                            | principal tokens                                                                |
-| ----------- | ---------------------------------- | ------------------------------------------------------------------------------- |
-| scale       | `0.85 → 1.20`                      | every `--ui-*` geometry token, emitted as px                                    |
-| corners     | one softness multiplier, `0 → 1.6` | `--r-sm/md/lg/xl`, `--radius`                                                   |
-| density     | compact / cozy / comfortable       | card, control, tap, stack, gutter and row-icon tokens                           |
-| width       | narrow / standard / wide / full    | `--ui-content-max`                                                              |
-| borders     | subtle / standard / defined        | `--ui-border-*`, `--ui-divider-alpha`                                           |
-| adaptation  | automatic / fixed                  | adaptive clamp for page gutters                                                 |
-| material    | solid / soft / airy                | `--ui-material-alpha`, `--ui-material-overlay-alpha`                            |
-| interaction | calm / balanced / lively           | press scale/offset, icon stroke and focus width                                 |
-| access      | four independent switches          | opacity override, stronger edges, 52px touch targets and clearer keyboard focus |
+| instrument       | control                                  | principal tokens                                                                |
+| ---------------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| scale            | `0.80 → 1.35`                            | every `--ui-*` geometry token, emitted as px                                    |
+| spacing          | `0.70 → 1.45`, independent of scale      | `--ui-spacing-scale`, card padding, stack gaps, page gutter                     |
+| corners          | one softness multiplier, `0 → 1.6`       | `--r-sm/md/lg/xl`, `--radius`                                                   |
+| radius profile   | graded / uniform / expressive            | the ratios between the four radius steps                                        |
+| density          | compact / cozy / comfortable             | card, control, tap, stack, gutter and row-icon tokens                           |
+| width            | narrow / standard / wide / full / custom | `--ui-content-max`                                                              |
+| custom measure   | `320 → 960px`                            | `--ui-content-max` when width is `custom`                                       |
+| borders          | subtle / standard / defined              | `--ui-border-*`                                                                 |
+| border width     | `1 → 2px`                                | `--ui-border-width` on every governed surface edge                              |
+| dividers         | hairline / soft / none                   | `--ui-divider-alpha`, `--ui-divider-width`                                      |
+| adaptation       | automatic / fixed                        | adaptive clamp for page gutters                                                 |
+| material         | solid / soft / airy                      | `--ui-material-alpha`, `--ui-material-overlay-alpha`                            |
+| lift             | flat / subtle / lifted                   | surface lightness (owned by the palette — see Surface lift)                     |
+| interaction      | calm / balanced / lively                 | press scale/offset, icon stroke and focus width                                 |
+| press depth      | `0 → 1.6`                                | `--ui-interaction-scale`, `--ui-interaction-offset`                             |
+| tap floor        | `40 → 64px`                              | `--ui-tap`, `--ui-touch-min`                                                    |
+| icon weight      | `0.70 → 1.40`                            | `--ui-icon-stroke`                                                              |
+| row-icon size    | `0.80 → 1.40`                            | `--ui-row-icon`                                                                 |
+| header height    | `0.85 → 1.35`                            | `--ui-header-h`, and `scroll-padding-block-start`                               |
+| focus offset     | `0 → 6px`                                | `--ui-focus-offset`                                                             |
+| scrollbar        | full / thin / hidden                     | `--ui-scrollbar-size`, `--ui-scrollbar-ff`, `--ui-scrollbar-alpha`              |
+| bottom clearance | `0 → 40px`                               | `--ui-safe-extra`, added on top of the device inset                             |
+| access           | four independent switches                | opacity override, stronger edges, 52px touch targets and clearer keyboard focus |
 
 Geometry is authored as numeric pixels and multiplied by `uiScale` only when
 tokens are compiled. It never depends on `html { font-size }`. The radius
 ladder is multiplied rather than replaced, so a chip, button, card and sheet
 keep their relationship at every setting. `--ui-content-max` also backs
-Tailwind's `max-w-lg`, so existing centered routes participate automatically.
+Tailwind's `max-w-lg`, so existing centered routes participate automatically,
+and `--ui-border-width` backs Tailwind's default `border` width so a surface
+cannot opt out of the edge preference by accident.
 
-Eight designed presets ship as complete configurations: signature, reading,
-precision, soft, pulse, studio, focus and OLED. Pulse and studio provide more
-expressive young-facing characters without breaking the flat-surface contract;
-focus and OLED are accessibility/dark-surface configurations rather than mere
-colour skins.
+`spacingScale` and `uiScale` are deliberately separate: scale grows _everything_
+including control heights and tap targets, while spacing grows only the air
+between things. A user who wants a denser screen without smaller touch targets
+needs both knobs, not one.
+
+`resolveInterfaceGeometry()` returns the exact numbers the tokens carry. The
+settings screen renders it twice — once as the per-control "resolved" readout and
+once as the token inspector — so a control never reports a percentage the user
+cannot translate into pixels.
+
+Ten designed presets ship as complete configurations: signature, reading,
+precision, soft, pulse, studio, focus, OLED, accessible and dense. Pulse and
+studio provide more expressive characters without breaking the flat-surface
+contract; focus, OLED, accessible and dense are functional configurations rather
+than mere colour skins.
+
+Motion is the sibling platform and lives in
+[`motion-system.md`](./motion-system.md). The two compose in exactly one place:
+the press response. The interface platform owns its _shape_
+(`--ui-interaction-scale` / `-offset`), the motion platform owns _how much of it
+is expressed_ (`--motion-press-strength`), and `--ui-press-scale` in `index.css`
+is the composition. At strength 0 nothing moves but the colour feedback still
+fires — which is what users who disable motion actually want.
 
 ### The rule for new CSS
 
@@ -292,11 +326,12 @@ element on the screen that refuses to move with the rest.
 ## Persistence, profiles and cold boot
 
 Appearance platform state is versioned by
-`src/lib/appearancePreferences.ts` (`APPEARANCE_SCHEMA_VERSION = 2`). Reads are
-sanitized and migrate the former independent `app-*` keys; writes keep a
-complete v2 value and cloud persistence in sync. `AppContext` listens for
-`storage` events, so another tab updates without reloading and without saving
-the same value back to the cloud.
+`src/lib/appearancePreferences.ts` (`APPEARANCE_SCHEMA_VERSION = 3`). Reads are
+sanitized; v2 documents and the pre-v2 independent `app-*` keys both upgrade in
+place, with the fields they lack resolving to their defaults — which is exactly
+the geometry the user already had. Writes keep a complete v3 value and cloud
+persistence in sync. `AppContext` listens for `storage` events, so another tab
+updates without reloading and without saving the same value back to the cloud.
 
 Every compiled theme, typography and interface token is merged by
 `src/lib/rootTokens.ts` into `app-root-tokens-v1`. The bounded inline boot
@@ -305,20 +340,38 @@ preventing theme flash and geometry jumps without duplicating token-generation
 logic in HTML.
 
 Users can keep up to eight named interface profiles. A profile contains only
-the 13 interface settings, is sanitized on import, and can be exported as a
-versioned JSON document. It never contains identity, account or feature data.
+the 26 interface settings, is sanitized on import, and can be exported as a
+versioned JSON document (`INTERFACE_PROFILES_VERSION = 2`; v1 documents still
+import). It never contains identity, account or feature data.
 
 ## Where the settings live
 
-Two screens, split by what they change rather than by which file they came from:
+Three screens, split by what they change rather than by which file they came
+from:
 
 - `/settings/appearance` — mode, palette, accent strength, ink/black mode,
   typography, prayer-clock themes. (`src/pages/AppearanceSettings.tsx`)
-- `/settings/interface` — the first-class interface platform: scale, adaptive
-  layout, corners, density, width, borders, surface lift/material, interaction,
-  accessibility, complete presets and portable saved profiles.
-  (`src/pages/InterfaceSettings.tsx`)
+- `/settings/interface` — **الواجهة والأبعاد**, the interface platform: scale,
+  spacing, corners and radius profile, density, width and custom measure, edges
+  and dividers, surface material and lift, interaction and touch, icons and
+  headers, focus and accessibility, scrollbar and bottom clearance, a live token
+  inspector, ten complete presets and portable saved profiles.
+  (`src/pages/InterfaceSettings.tsx` → `InterfaceSection.tsx`)
+- `/settings/motion` — **الحركة والأداء**, the motion platform. See
+  [`motion-system.md`](./motion-system.md). (`src/pages/MotionSettings.tsx` →
+  `src/features/motion/`)
 
-Both are assembled from `src/features/appearance/components/*`, which share the
-atoms in `AppearancePrimitives.tsx`. `/settings/theme` and `/settings/font`
-redirect to the appearance screen — both paths are in the wild.
+All three are assembled from the atoms in
+`src/features/appearance/components/AppearancePrimitives.tsx` — `SettingsSection`,
+`SegmentedControl`, `ChoiceRow`, `SliderRow`, `ToggleRow`, `OptionCard`,
+`TokenInspector`, `FeedbackLine` — so a section about colour, a section about
+corner radius and a section about frame pacing read as the same product.
+`/settings/theme` and `/settings/font` redirect to the appearance screen — both
+paths are in the wild.
+
+### Every control shows its resolved value
+
+`SliderRow` takes a `resolved` prop and a `note`. A slider that reads
+`110٪ · 48px عنصر` tells the user what they are getting; one that reads `110٪`
+does not. With 26 instruments, that readout is the difference between a settings
+screen a power user can reason about and one they have to guess at.

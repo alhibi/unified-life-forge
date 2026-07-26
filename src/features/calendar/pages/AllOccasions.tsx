@@ -10,6 +10,7 @@ import {
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
+import { MOTION } from '@/lib/motion';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
@@ -315,7 +316,7 @@ function EventDetailDialog({
             initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 24, opacity: 0 }}
-            transition={{ type: 'spring', damping: 24, stiffness: 260 }}
+            transition={MOTION.spring}
  onClick={(e) => e.stopPropagation()}
  className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 p-6 max-h-[85vh] overflow-y-auto"
  dir={'rtl'}

@@ -7,12 +7,18 @@
  */
 
 export {
+  type ChoiceOption,
+  ChoiceRow,
+  FeedbackLine,
+  type InspectorEntry,
   OptionCard,
   SegmentedControl,
   type SegmentedOption,
   SettingsSection,
   type SliderPreset,
   SliderRow,
+  ToggleRow,
+  TokenInspector,
 } from './components/AppearancePrimitives';
 export { default as AutoPrayerThemeSection } from './components/AutoPrayerThemeSection';
 export { default as InterfaceSection } from './components/InterfaceSection';

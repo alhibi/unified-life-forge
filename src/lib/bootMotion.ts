@@ -1,40 +1,52 @@
 /**
  * bootMotion — one-shot, idempotent setup performed at app launch.
  *
- * Goals (web equivalent of the spec's "request highest refresh rate"
- * rule from the native motion guidelines):
+ * Goals:
  *
- *   1. Honor prefers-reduced-motion globally.
- *      Mirror the OS setting onto <html data-reduced-motion="..."> so
- *      CSS that lives in scoped stylesheets (or inline styles built
- *      from data-attributes) can react without re-parsing the media
- *      query. Listens for changes so users can toggle the setting at
- *      runtime and have the UI respond without reload.
+ *   1. Honor prefers-reduced-motion globally, and keep honoring it.
+ *      The OS preference is mirrored onto `<html data-reduced-motion>` so
+ *      CSS can react without re-parsing a media query, and so the in-app
+ *      "تقليل الحركة" switch can OR itself with the OS one. The listener
+ *      routes back through `applyReduceMotion`, which re-reads the app
+ *      preference — otherwise toggling the OS setting at runtime would
+ *      silently discard the user's in-app choice.
  *
- *   2. Promote <main> to a GPU layer via will-change.
- *      The route container gets promoted so page transitions
- *      composite against a stable surface. We use `will-change`
- *      instead of `transform: translateZ(0)` to avoid creating a
- *      containing block that would break position:fixed elements
- *      (like the BottomNav) in the document tree.
+ *   2. Publish the default motion data attributes BEFORE React mounts, so
+ *      the first frame already speaks the shipped motion language instead
+ *      of briefly rendering with none of it.
  *
- *   3. Pre-warm the compositor.
- *      Mobile Safari/Chromium establish the compositor thread lazily,
- *      so the very first transition can pay a one-frame cost while the
- *      GPU layer is being created. A nested rAF on boot pushes the
- *      compositor to initialize before any user interaction.
+ *   3. Install the scroll governor (see `scrollRuntime.ts`).
+ *
+ *   4. Pre-warm the compositor. Mobile Safari/Chromium establish the
+ *      compositor thread lazily, so the very first transition can pay a
+ *      one-frame cost while the GPU layer is being created. A nested rAF
+ *      on boot pushes the compositor to initialize before any interaction.
+ *
+ *   5. Measure the display's real refresh rate once, so the frame cap can
+ *      skip installing a throttle the hardware already enforces and the
+ *      diagnostics panel can tell the user what their panel actually does.
  *
  * What this function does NOT do:
- *   - Apply transforms to <html> or <body>. Any transform on these
- *     elements breaks position:fixed for ALL descendants, making the
- *     BottomNav scroll with content instead of staying pinned.
- *   - Request a specific refresh rate. The browser already drives
- *     transform/opacity animations at the display's native vsync.
+ *   - Apply transforms to <html> or <body>. Any transform on these breaks
+ *     position:fixed for ALL descendants.
+ *   - Promote layers. GPU promotion is now expressed in CSS, gated on
+ *     `html[data-compositor-hints='true']`, so the user's "تلميحات المُركّب"
+ *     switch genuinely controls it.
  *   - Start any animation loops or timers.
  *
- * Idempotent: safe to call more than once (HMR, route mounting), but
- * the listener is only attached on the first call.
+ * Idempotent: safe to call more than once (HMR, route mounting), but the
+ * listeners are only attached on the first call.
  */
+
+import {
+  applyCompositorHints,
+  applyNavStyle,
+  applyOverlayStyle,
+  applyReduceMotion,
+  getMotionRuntimeState,
+  measureDisplayHz,
+} from './motionRuntime';
+import { applyScrollProfile } from './scrollRuntime';
 
 let booted = false;
 
@@ -43,50 +55,40 @@ export function bootMotion(): void {
   if (booted) return;
   booted = true;
 
-  // ── 1. Mirror prefers-reduced-motion onto <html> ──
+  // ── 1. Mirror prefers-reduced-motion onto <html>, OR-ed with the app switch ──
   const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const apply = (matches: boolean) => {
-    document.documentElement.dataset.reducedMotion = String(matches);
-  };
-  apply(mq.matches);
-  // `addEventListener` on MediaQueryList is supported on every
-  // browser our viewport hits (Safari ≥ 14, Chrome ≥ 39). The
-  // legacy `addListener` API is intentionally not polyfilled.
+  applyReduceMotion(getMotionRuntimeState().reduceMotion);
+  // `addEventListener` on MediaQueryList is supported on every browser our
+  // viewport hits (Safari ≥ 14, Chrome ≥ 39). The legacy `addListener` API is
+  // intentionally not polyfilled.
   if (typeof mq.addEventListener === 'function') {
-    mq.addEventListener('change', (e) => apply(e.matches));
+    mq.addEventListener('change', () => {
+      // Re-read the app preference so the OR stays correct.
+      applyReduceMotion(getMotionRuntimeState().reduceMotion);
+    });
   }
 
-  // ── 2. Promote <main> to a GPU layer ──
-  // We promote the route container so page transitions always composite
-  // against a stable surface even if a slow sub-page paints late.
-  //
-  // IMPORTANT: We intentionally do NOT apply transform to <html> or <body>.
-  // Any transform on an ancestor of a position:fixed element causes it to
-  // lose viewport-relative positioning — the element becomes relative to
-  // the transformed ancestor instead. This broke the BottomNav which uses
-  // position:fixed to stay at the viewport bottom.
-  //
-  // The <main> element can safely have a transform because the BottomNav
-  // is rendered as a sibling of <main>, not inside it.
-  let attempts = 0;
-  const promoteMain = () => {
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.style.willChange = 'transform';
-      main.style.backfaceVisibility = 'hidden';
-      return;
-    }
-    if (++attempts < 10) requestAnimationFrame(promoteMain);
-  };
-  requestAnimationFrame(promoteMain);
+  // ── 2. Seed the motion data attributes with the shipped defaults ──
+  // AppContext overwrites these a tick later with the persisted values; seeding
+  // them here means the very first paint is never attribute-less (which would
+  // fall through to the CSS defaults, and those must agree — see index.css).
+  const initial = getMotionRuntimeState();
+  applyNavStyle(initial.navStyle);
+  applyOverlayStyle(initial.overlayStyle);
+  applyCompositorHints(initial.compositorHints);
 
-  // ── 3. Pre-warm the compositor with a nested rAF ──
-  // The first rAF ticks at the next vsync boundary; the second runs
-  // after the browser has produced one frame, by which point the
-  // compositor thread is fully initialized.
+  // ── 3. Scroll governor ──
+  applyScrollProfile(initial.scrollProfile);
+
+  // ── 4. Pre-warm the compositor with a nested rAF ──
+  // The first rAF ticks at the next vsync boundary; the second runs after the
+  // browser has produced one frame, by which point the compositor thread is
+  // fully initialized.
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       // No work — the side effect IS the warm-up.
+      // ── 5. Measure the panel once the first frames have settled. ──
+      void measureDisplayHz();
     });
   });
 }

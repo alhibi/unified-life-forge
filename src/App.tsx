@@ -27,7 +27,11 @@ import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 import { usePresence } from "@/hooks/usePresence";
 import { IconProvider } from "@/lib/icons";
 import { useInChatConversation } from "@/lib/inChatConversation";
-import { buildTabLayerVariants, type NavMode } from "@/lib/motion";
+import {
+  buildTabLayerVariants,
+  type NavMode,
+  REDUCED_MOTION_TAB_LAYER_VARIANTS,
+} from "@/lib/motion";
 import { navStart } from "@/lib/navPerf";
 import { registerRoute } from "@/lib/routePrefetch";
 // Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
@@ -418,9 +422,11 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
   //     newly-shown slot — a tiny 200 ms vertical fade-up so the
   //     change registers without a horizontal slide.
   // ────────────────────────────────────────────────────────────────
-  const { dir } = useApp();
+  const { dir, navStyle, reduceMotion } = useApp();
   const rtl = dir === 'rtl';
-  const prefersReducedMotion = useReducedMotion();
+  // Either source of reduced motion wins. The OS preference can never be
+  // overridden by the in-app switch — only reinforced.
+  const prefersReducedMotion = useReducedMotion() || reduceMotion;
   // Track which tab to display while the layer is mounted. We keep a
   // ref-like memo of the last non-null `active` so during the exit
   // animation (active just became null) we still render the tab the
@@ -445,15 +451,14 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
   }, [active]);
   const { last: lastTab, seen } = tabState;
 
+  // The tab layer follows the SAME navigation character as every other page,
+  // otherwise the user sees two different transitions overlap when they leave a
+  // tab for a deep sub-page.
   const variants = useMemo(
     () => (prefersReducedMotion
-      ? {
-          initial: { opacity: 0, x: 0 },
-          animate: { opacity: 1, x: 0, transition: { duration: 0.10, ease: 'linear' as const } },
-          exit:    { opacity: 0, x: 0, transition: { duration: 0.07, ease: 'linear' as const } },
-        }
-      : buildTabLayerVariants(rtl)),
-    [rtl, prefersReducedMotion],
+      ? REDUCED_MOTION_TAB_LAYER_VARIANTS
+      : buildTabLayerVariants(rtl, navStyle)),
+    [rtl, navStyle, prefersReducedMotion],
   );
 
   const showing: TabPath | null = active ?? lastTab;
@@ -473,11 +478,7 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
           {showing === path && active !== null ? (
             // Tab→tab swap micro-motion. Skipped during the exit phase
             // (active === null) so we don't fight the wrapper's slide.
-            <div
-              key={`tab-anim-${path}`}
-              className="tab-zoom-in"
-              style={{ willChange: 'opacity, transform' }}
-            >
+            <div key={`tab-anim-${path}`} className="tab-zoom-in">
               {node}
             </div>
           ) : (
@@ -507,10 +508,9 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
             top: 0,
             left: 0,
             right: 0,
-            // Lock GPU compositing — same hints as PageTransition so
-            // the layer rides the same fast-path on iOS Safari /
-            // ProMotion displays.
-            willChange: 'transform, opacity',
+            // Same compositing contract as PageTransition: keep the layer's
+            // rasterisation stable, but leave `will-change` to index.css so the
+            // user's compositor-hints preference genuinely controls it.
             transformStyle: 'preserve-3d',
             backfaceVisibility: 'hidden',
             zIndex: 0,

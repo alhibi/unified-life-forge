@@ -1,497 +1,58 @@
 import { motion } from 'framer-motion';
-import React, { useEffect, useRef, useState } from 'react';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
-import { Slider } from '@/components/ui/slider';
-import type { FpsCap } from '@/contexts/AppContext';
-import { useApp } from '@/contexts/AppContext';
-import { Activity, ArrowDown,Gauge, Info, RotateCcw, Sparkles, Zap } from '@/lib/icons';
-import { MOTION,pageItem as item, pageStagger as stagger } from '@/lib/motion';
-import { measureDisplayHz } from '@/lib/motionRuntime';
+import { MotionSection } from '@/features/motion';
+import { Gauge } from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 /**
- * /settings/motion
+ * /settings/motion — الحركة والأداء.
  *
- * Real (not cosmetic) control over the app's motion system.
+ * The motion platform: the navigation character, the easing family, the scroll
+ * behaviour, how transient surfaces appear, the three global multipliers, the
+ * back gesture, the frame budget, the adaptive governor, and a live readout of
+ * the frames the user is actually getting.
  *
- *  • Speed slider mutates the central MOTION/motionWeight/DURATION
- *    baselines through `applyMotionSpeed` — every new framer-motion
- *    transition immediately picks up the new duration.
+ * Nothing on this screen is cosmetic. Every control either mutates the shared
+ * `MOTION` token object that framer-motion reads on its next transition, or
+ * publishes a CSS custom property / data attribute that `index.css` reads — and
+ * usually both, which is why one change is felt by framer-motion, Radix,
+ * tailwindcss-animate, vaul, sonner and the native press feedback at once.
  *
- *  • FPS cap wraps `window.requestAnimationFrame` globally — every
- *    rAF-driven animation (springs, qibla compass, live ribbon,
- *    typing dots, page transitions) is throttled in lockstep.
- *
- * A live preview row at the top animates continuously so the change
- * is felt the instant the slider/segment moves, not just on the next
- * navigation.
+ * The page shell matches `/settings/interface` exactly (SEO + PageHeader +
+ * a staggered column) so the two halves of the platform read as one product.
  */
-
-const SPEED_PRESETS: { value: number; labelAr: string; }[] = [
-  { value: 0.5, labelAr: 'هادئ',   },
-  { value: 0.75, labelAr: 'لطيف',   },
-  { value: 1,    labelAr: 'افتراضي', },
-  { value: 1.25, labelAr: 'سريع', },
-  { value: 1.5,  labelAr: 'فوري',  },
-];
-
-const FPS_OPTIONS: { value: FpsCap; label: string }[] = [
-  { value: 'auto', label: 'Auto' },
-  { value: 60,    label: '60 Hz' },
-  { value: 90,    label: '90 Hz' },
-  { value: 120,   label: '120 Hz' },
-];
-
-function LivePreview({ speedKey, fpsKey }: { speedKey: number; fpsKey: FpsCap }) {
-  // Remount on each change so the user feels the new timing immediately.
+export default function MotionSettingsPage() {
   return (
-    <div className="relative h-24 rounded-2xl bg-card border border-border/40 overflow-hidden">
-      <motion.div
-        key={`${speedKey}-${fpsKey}`}
-        className="absolute top-1/2 -translate-y-1/2 start-3 w-10 h-10 rounded-full bg-primary shadow-lg"
-        animate={{ x: [0, 230, 0] }}
-        transition={{
-          ...MOTION.spring,
-          repeat: Infinity,
-          repeatType: 'loop',
-        }}
-      />
-      <div className="absolute bottom-2 end-3 text-[0.625rem] font-mono tabular-nums text-muted-foreground/70">
-        spring · k={(MOTION.spring as any).stiffness?.toFixed?.(0)} · c={(MOTION.spring as any).damping?.toFixed?.(1)}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Live performance HUD — measures the SAME wrapped rAF the rest of the
- * app uses, so the numbers reflect the user's actual experience.
- *
- *   • fps        — frames delivered in the last second
- *   • frame ms   — exponential moving average of inter-frame delta
- *   • p95 ms     — 95th-percentile frame time over a rolling 120-frame window
- *   • drops      — frames missed vs the budget (cap ?? native) in last second
- *   • jank       — lifetime count of frames > 1.5 × budget
- *   • longtask   — PerformanceObserver long-task count (>50ms blocking)
- *   • heap       — performance.memory.usedJSHeapSize (Chromium)
- */
-interface PerfStats {
-  fps: number;
-  frameAvg: number;
-  framep95: number;
-  drops: number;
-  jank: number;
-  longTasks: number;
-  heapMB: number | null;
-  budget: number;
-}
-
-function usePerfStats(budgetHz: number): PerfStats {
-  const [stats, setStats] = useState<PerfStats>({
-    fps: 0, frameAvg: 0, framep95: 0, drops: 0, jank: 0, longTasks: 0, heapMB: null, budget: 1000 / budgetHz,
-  });
-  const budgetRef = useRef(1000 / budgetHz);
-  useEffect(() => { budgetRef.current = 1000 / budgetHz; }, [budgetHz]);
-
-  useEffect(() => {
-    let raf = 0;
-    let stopped = false;
-    let last = performance.now();
-    let avg = 0;                                // EMA frame time
-    let frames = 0;
-    let windowStart = last;
-    let jankLifetime = 0;
-    let longTasks = 0;
-    const samples: number[] = [];               // rolling for p95
-
-    let po: PerformanceObserver | null = null;
-    try {
-      po = new PerformanceObserver((list) => { longTasks += list.getEntries().length; });
-      po.observe({ entryTypes: ['longtask'] });
-    } catch { /* unsupported (Safari) */ }
-
-    const tick = (ts: number) => {
-      if (stopped) return;
-      const dt = ts - last;
-      last = ts;
-      frames++;
-      avg = avg === 0 ? dt : avg * 0.9 + dt * 0.1;
-      samples.push(dt);
-      if (samples.length > 120) samples.shift();
-      const budget = budgetRef.current;
-      if (dt > budget * 1.5) jankLifetime++;
-
-      if (ts - windowStart >= 1000) {
-        const fps = Math.round((frames * 1000) / (ts - windowStart));
-        const expected = Math.round((ts - windowStart) / budget);
-        const drops = Math.max(0, expected - frames);
-        const sorted = [...samples].sort((a, b) => a - b);
-        const p95 = sorted[Math.floor(sorted.length * 0.95)] ?? avg;
-        // perf.memory is Chromium-only and non-standard.
-        const mem = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
-        setStats({
-          fps,
-          frameAvg: avg,
-          framep95: p95,
-          drops,
-          jank: jankLifetime,
-          longTasks,
-          heapMB: mem ? mem.usedJSHeapSize / 1024 / 1024 : null,
-          budget,
-        });
-        windowStart = ts;
-        frames = 0;
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
-    return () => {
-      stopped = true;
-      cancelAnimationFrame(raf);
-      po?.disconnect();
-    };
-  }, []);
-
-  return stats;
-}
-
-function PerfHUD({ budgetHz }: { budgetHz: number }) {
-  const s = usePerfStats(budgetHz);
-  const fpsColor =
-    s.fps >= budgetHz - 5 ? 'text-emerald-500'
-    : s.fps >= budgetHz - 15 ? 'text-amber-500'
-    : 'text-rose-500';
-
-  const Cell = ({ label, value, unit, hint }: { label: string; value: string; unit?: string; hint?: string }) => (
-    <div className="rounded-xl bg-muted/30 border border-border/30 px-3 py-2.5">
-      <p className="text-[0.625rem] font-medium text-muted-foreground/70 uppercase tracking-wider">{label}</p>
-      <p className="text-[1.125rem] font-bold tabular-nums leading-tight mt-0.5 text-foreground">
-        {value}<span className="text-[0.6875rem] font-normal text-muted-foreground ms-0.5">{unit}</span>
-      </p>
-      {hint && <p className="text-[0.625rem] font-mono text-muted-foreground/60 mt-0.5">{hint}</p>}
-    </div>
-  );
-
-  return (
-    <AppCard className="space-y-3">
-      <div className="flex items-center justify-between">
-        <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider">
-          {'مقاييس الأداء الحيّة'}
-        </p>
-        <div className="flex items-center gap-1.5 text-[0.625rem] font-mono">
-          <span className={`w-1.5 h-1.5 rounded-full bg-current ${fpsColor} animate-pulse`} />
-          <span className={fpsColor}>{s.fps} / {budgetHz} Hz</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-2">
-        <Cell label="FPS"        value={String(s.fps)}                   unit="hz"  hint={`target ${budgetHz}`} />
-        <Cell label={'إطار'}  value={s.frameAvg.toFixed(1)} unit="ms" hint={`p95 ${s.framep95.toFixed(1)}`} />
-        <Cell label={'سقوط'}   value={String(s.drops)}     unit="/s"  hint={`budget ${s.budget.toFixed(1)}ms`} />
-        <Cell label={'تأخّر'}   value={String(s.jank)}      unit=""    hint={'مدى الجلسة'} />
-        <Cell label="long-task"  value={String(s.longTasks)}              unit=""    hint=">50ms" />
-        <Cell label="heap"
-              value={s.heapMB == null ? '—' : s.heapMB.toFixed(1)}
-              unit={s.heapMB == null ? '' : 'MB'}
-              hint={s.heapMB == null ? ('غير مدعوم') : 'JS'} />
-      </div>
-    </AppCard>
-  );
-}
-
-export default function MotionSettings() {
-  const {
-    
-    motionSpeed, setMotionSpeed,
-    fpsCap, setFpsCap,
-    motionAmplitude, setMotionAmplitude,
-    springBounce, setSpringBounce,
-  } = useApp();
-  const [nativeHz, setNativeHz] = useState<number | null>(null);
-
-  // Detect the display's true refresh rate once on mount so we can warn
-  // the user if they pick a cap above what their hardware can show.
-  useEffect(() => {
-    measureDisplayHz(300).then(setNativeHz);
-  }, []);
-
-  // Live-bind the slider to motionSpeed; we debounce nothing — the cost
-  // is one CSS-var write + one in-place mutation per drag tick.
-  const onSliderChange = (v: number[]) => {
-    const next = v[0] / 100; // slider 50–150 → 0.5–1.5
-    setMotionSpeed(Number(next.toFixed(2)));
-  };
-
-  const reset = () => {
-    setMotionSpeed(1);
-    setFpsCap('auto');
-    setMotionAmplitude(1);
-    setSpringBounce(0);
-  };
-
-  // Budget for the HUD — the user-chosen cap, or detected native rate.
-  const budgetHz = fpsCap === 'auto' ? (nativeHz ?? 60) : fpsCap;
-
-  return (
-    <div className="min-h-screen bg-background pb-page px-5 pt-10">
+    <div className="min-h-screen bg-background">
       <SEO
-        title={'الحركة والأداء — SmartHub'}
-        description={'تحكم بسرعة الحركة وحد الإطارات في الثانية.'}
+        title="الحركة والأداء — SmartHub"
+        description="منصة متقدمة لضبط انتقالات الشاشات ومنحنيات التسارع ونعومة التمرير وميزانية الإطارات في SmartHub."
         path="/settings/motion"
       />
-      <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
-
-        {/* Header */}
-        <motion.div variants={item} className="flex items-center justify-between">
-          <BackButton to="/settings" />
-          <h1 className="text-[1.0625rem] font-bold tracking-tight text-foreground">
-            {'الحركة والأداء'}
-          </h1>
-          <button
-            onClick={reset}
-            aria-label={'استعادة الافتراضي'}
-            className="w-10 h-10 rounded-full flex items-center justify-center active:bg-muted/40 transition-colors"
-          >
-            <RotateCcw className="w-4 h-4 text-muted-foreground" />
-          </button>
-        </motion.div>
-
-        {/* Live preview */}
-        <motion.div variants={item} className="space-y-2">
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {'معاينة حية'}
-          </p>
-          <LivePreview speedKey={motionSpeed + springBounce + motionAmplitude} fpsKey={fpsCap} />
-        </motion.div>
-
-        {/* Live performance HUD */}
-        <motion.div variants={item}>
-          <PerfHUD budgetHz={budgetHz} />
-        </motion.div>
-
-        {/* SPEED */}
-        <motion.div variants={item} className="space-y-2">
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {'سرعة الحركة'}
-          </p>
-          <AppCard className="p-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Gauge className="w-[18px] h-[18px] text-primary" />
-                </div>
-                <div>
-                  <p className="text-[0.875rem] font-medium text-foreground">
-                    {'مضاعف السرعة'}
-                  </p>
-                  <p className="text-[0.6875rem] text-muted-foreground">
-                    {'يطبَّق فوراً على كل انتقالات الإطار'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-[0.9375rem] font-bold tabular-nums text-primary">
-                {motionSpeed.toFixed(2)}×
-              </span>
-            </div>
-
-            <Slider
-              value={[Math.round(motionSpeed * 100)]}
-              min={50}
-              max={150}
-              step={5}
-              onValueChange={onSliderChange}
-              aria-label={'سرعة الحركة'}
-            />
-
-            <div className="flex flex-wrap gap-1.5">
-              {SPEED_PRESETS.map(p => {
-                const active = Math.abs(motionSpeed - p.value) < 0.02;
-                return (
-                  <button
-                    key={p.value}
-                    onClick={() => setMotionSpeed(p.value)}
-                    className={`px-3 py-1.5 rounded-lg text-[0.75rem] font-medium transition-colors ${
-                      active
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
-                    }`}
-                  >
-                    {p.labelAr} · {p.value}×
-                  </button>
-                );
-              })}
-            </div>
-          </AppCard>
-        </motion.div>
-
-        {/* FPS CAP */}
-        <motion.div variants={item} className="space-y-2">
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {'حد الإطارات في الثانية'}
-          </p>
-          <AppCard className="p-5 space-y-4">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Zap className="w-[18px] h-[18px] text-primary" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[0.875rem] font-medium text-foreground">
-                    {'الحد الأقصى'}
-                  </p>
-                  <p className="text-[0.6875rem] text-muted-foreground">
-                    {`شاشتك تعمل عند ~${nativeHz ?? '…'} هرتز`}
-                  </p>
-                </div>
-              </div>
-              <div className="text-[0.625rem] font-mono text-muted-foreground tabular-nums">
-                {'الهدف'} {budgetHz} Hz
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-1.5">
-              {FPS_OPTIONS.map(opt => {
-                const active = fpsCap === opt.value;
-                const exceedsNative =
-                  typeof opt.value === 'number' && nativeHz != null && opt.value > nativeHz + 5;
-                return (
-                  <button
-                    key={String(opt.value)}
-                    onClick={() => setFpsCap(opt.value)}
-                    className={`relative py-2 rounded-lg text-[0.75rem] font-semibold tabular-nums transition-colors ${
-                      active
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
-                    }`}
-                  >
-                    {opt.label}
-                    {exceedsNative && !active && (
-                      <span className="absolute -top-1 -end-1 w-2 h-2 rounded-full bg-amber-500" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex items-start gap-2 text-[0.6875rem] text-muted-foreground/80 leading-relaxed">
-              <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <p>
-                {'الحد يُطبَّق على كل حركة في التطبيق عبر requestAnimationFrame. لا يمكن تجاوز معدل تحديث شاشتك الأصلي.'}
-              </p>
-            </div>
-          </AppCard>
-        </motion.div>
-
-        {/* AMPLITUDE */}
-        <motion.div variants={item} className="space-y-2">
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {'شدّة الحركة'}
-          </p>
-          <AppCard className="p-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-[18px] h-[18px] text-primary" />
-                </div>
-                <div>
-                  <p className="text-[0.875rem] font-medium text-foreground">
-                    {'مسافة الانزلاق والعمق'}
-                  </p>
-                  <p className="text-[0.6875rem] text-muted-foreground">
-                    {'يطال انتقالات الصفحات والـ parallax'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-[0.9375rem] font-bold tabular-nums text-primary">
-                {Math.round(motionAmplitude * 100)}%
-              </span>
-            </div>
-            <Slider
-              value={[Math.round(motionAmplitude * 100)]}
-              min={0}
-              max={150}
-              step={5}
-              onValueChange={(v) => setMotionAmplitude(v[0] / 100)}
-              aria-label={'شدّة الحركة'}
-            />
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                { v: 0,    arA: 'بدون',     deA: 'Aus' },
-                { v: 0.5,  arA: 'خفيف',     deA: 'Leicht' },
-                { v: 1,    arA: 'افتراضي',  deA: 'Standard' },
-                { v: 1.5,  arA: 'سينمائي',  deA: 'Kinetisch' },
-              ].map(p => {
-                const active = Math.abs(motionAmplitude - p.v) < 0.02;
-                return (
-                  <button
-                    key={p.v}
-                    onClick={() => setMotionAmplitude(p.v)}
-                    className={`px-3 py-1.5 rounded-lg text-[0.75rem] font-medium transition-colors ${
-                      active ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
-                    }`}
-                  >
-                    {p.arA}
-                  </button>
-                );
-              })}
-            </div>
-          </AppCard>
-        </motion.div>
-
-        {/* BOUNCE */}
-        <motion.div variants={item} className="space-y-2">
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-            {'ارتداد النوابض'}
-          </p>
-          <AppCard className="p-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <ArrowDown className="w-[18px] h-[18px] text-primary rotate-90" />
-                </div>
-                <div>
-                  <p className="text-[0.875rem] font-medium text-foreground">
-                    {'نسبة التخميد'}
-                  </p>
-                  <p className="text-[0.6875rem] text-muted-foreground">
-                    {'يطال كل الأزرار والقوائم والضغطات'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-[0.9375rem] font-bold tabular-nums text-primary">
-                {Math.round(springBounce * 100)}%
-              </span>
-            </div>
-            <Slider
-              value={[Math.round(springBounce * 100)]}
-              min={0}
-              max={100}
-              step={5}
-              onValueChange={(v) => setSpringBounce(v[0] / 100)}
-              aria-label={'ارتداد'}
-            />
-            <div className="flex items-start gap-2 text-[0.6875rem] text-muted-foreground/80 leading-relaxed">
-              <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <p>
-                {'يُحوّل تخميد النوابض حسابياً: 0% = استقرار جاف بلا تجاوز، 100% = ارتداد واضح (ζ ≈ 0.25).'}
-              </p>
-            </div>
-          </AppCard>
-        </motion.div>
-
-        {/* Status footer */}
-        <motion.div variants={item} className="flex items-center justify-center gap-2 pt-2 pb-4 text-[0.6875rem] text-muted-foreground/60">
-          <Activity className="w-3 h-3" />
-          <span className="font-mono">
-            {'نشط'}: {motionSpeed.toFixed(2)}× ·{' '}
-            {fpsCap === 'auto' ? ('تلقائي') : `${fpsCap} Hz`} ·{' '}
-            amp {Math.round(motionAmplitude * 100)}% ·{' '}
-            bounce {Math.round(springBounce * 100)}%
+      <PageHeader
+        title="منصة الحركة"
+        subtitle="الانتقال والتمرير والإطارات"
+        backTo="/settings"
+        sticky
+        icon={
+          <span className="row-icon">
+            <Gauge className="h-4 w-4" aria-hidden />
           </span>
-        </motion.div>
+        }
+      />
 
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+        className="mx-auto max-w-lg space-y-6 px-4 pb-page pt-4"
+      >
+        <MotionSection />
+        <motion.p variants={item} className="text-center text-micro text-muted-foreground">
+          إعداد واحد يترجم إلى مضاعف أو منحنى على جذر المستند، فيصل إلى كل حركة في التطبيق فوراً
+        </motion.p>
       </motion.div>
     </div>
   );
