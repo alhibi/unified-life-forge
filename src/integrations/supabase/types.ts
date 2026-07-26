@@ -148,6 +148,7 @@ export type Database = {
       countries: {
         Row: {
           bounds: Json
+          continent: string | null
           cover_image_url: string | null
           created_at: string
           id: string
@@ -159,6 +160,7 @@ export type Database = {
         }
         Insert: {
           bounds: Json
+          continent?: string | null
           cover_image_url?: string | null
           created_at?: string
           id?: string
@@ -170,6 +172,7 @@ export type Database = {
         }
         Update: {
           bounds?: Json
+          continent?: string | null
           cover_image_url?: string | null
           created_at?: string
           id?: string
@@ -178,6 +181,42 @@ export type Database = {
           name_en?: string
           places_count?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      country_stamps: {
+        Row: {
+          created_at: string | null
+          first_year: number | null
+          id: string
+          iso_code: string
+          note_ar: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+          visit_count: number
+        }
+        Insert: {
+          created_at?: string | null
+          first_year?: number | null
+          id?: string
+          iso_code: string
+          note_ar?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          visit_count?: number
+        }
+        Update: {
+          created_at?: string | null
+          first_year?: number | null
+          id?: string
+          iso_code?: string
+          note_ar?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          visit_count?: number
         }
         Relationships: []
       }
@@ -554,8 +593,47 @@ export type Database = {
         }
         Relationships: []
       }
+      place_links: {
+        Row: {
+          created_at: string | null
+          id: string
+          kind: string
+          label: string | null
+          place_id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          kind?: string
+          label?: string | null
+          place_id: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          kind?: string
+          label?: string | null
+          place_id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_links_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       place_photos: {
         Row: {
+          caption_ar: string | null
           created_at: string
           id: string
           is_cover: boolean
@@ -564,6 +642,7 @@ export type Database = {
           storage_path: string
         }
         Insert: {
+          caption_ar?: string | null
           created_at?: string
           id?: string
           is_cover?: boolean
@@ -572,6 +651,7 @@ export type Database = {
           storage_path: string
         }
         Update: {
+          caption_ar?: string | null
           created_at?: string
           id?: string
           is_cover?: boolean
@@ -591,52 +671,79 @@ export type Database = {
       }
       places: {
         Row: {
+          address: string | null
+          best_months: number[]
           best_time_to_visit: string | null
           category: string
+          city: string | null
           country_id: string
           cover_photo_url: string | null
           created_at: string
           description_ar: string | null
+          duration_minutes: number | null
           id: string
+          is_favorite: boolean
           location: Json
           name_ar: string
           name_en: string | null
+          price_level: number | null
           rating: number | null
           tags: string[]
+          tips_ar: string | null
           updated_at: string
           user_id: string
+          visit_status: string
+          visited_on: string | null
         }
         Insert: {
+          address?: string | null
+          best_months?: number[]
           best_time_to_visit?: string | null
           category?: string
+          city?: string | null
           country_id: string
           cover_photo_url?: string | null
           created_at?: string
           description_ar?: string | null
+          duration_minutes?: number | null
           id?: string
+          is_favorite?: boolean
           location: Json
           name_ar: string
           name_en?: string | null
+          price_level?: number | null
           rating?: number | null
           tags?: string[]
+          tips_ar?: string | null
           updated_at?: string
           user_id: string
+          visit_status?: string
+          visited_on?: string | null
         }
         Update: {
+          address?: string | null
+          best_months?: number[]
           best_time_to_visit?: string | null
           category?: string
+          city?: string | null
           country_id?: string
           cover_photo_url?: string | null
           created_at?: string
           description_ar?: string | null
+          duration_minutes?: number | null
           id?: string
+          is_favorite?: boolean
           location?: Json
           name_ar?: string
           name_en?: string | null
+          price_level?: number | null
           rating?: number | null
           tags?: string[]
+          tips_ar?: string | null
           updated_at?: string
           user_id?: string
+          visit_status?: string
+          visited_on?: string | null
         }
         Relationships: [
           {
@@ -860,6 +967,148 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      trip_checklist: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          is_done: boolean
+          label: string
+          sort_order: number
+          trip_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_done?: boolean
+          label: string
+          sort_order?: number
+          trip_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_done?: boolean
+          label?: string
+          sort_order?: number
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_checklist_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_places: {
+        Row: {
+          created_at: string | null
+          day_index: number
+          duration_minutes: number | null
+          id: string
+          note_ar: string | null
+          place_id: string
+          sort_order: number
+          start_time: string | null
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_index?: number
+          duration_minutes?: number | null
+          id?: string
+          note_ar?: string | null
+          place_id: string
+          sort_order?: number
+          start_time?: string | null
+          trip_id: string
+        }
+        Update: {
+          created_at?: string | null
+          day_index?: number
+          duration_minutes?: number | null
+          id?: string
+          note_ar?: string | null
+          place_id?: string
+          sort_order?: number
+          start_time?: string | null
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_places_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_places_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          budget_amount: number | null
+          budget_currency: string | null
+          country_id: string | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          notes_ar: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          budget_amount?: number | null
+          budget_currency?: string | null
+          country_id?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          notes_ar?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Update: {
+          budget_amount?: number | null
+          budget_currency?: string | null
+          country_id?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          notes_ar?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trips_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_settings: {
         Row: {
