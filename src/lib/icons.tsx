@@ -84,6 +84,7 @@ export function readIconSet(): IconSet {
 /* ------------------------------------------------------------------------- */
 
 export type { Icon as LucideIcon } from '@phosphor-icons/react';
+export type IconComponent = PhosphorIcon;
 
 export const ICON_WEIGHT: NonNullable<IconProps['weight']> = 'regular';
 export const ICON_DEFAULT_SIZE = 24;
@@ -219,669 +220,669 @@ export function IconProvider({ children }: { children: ReactNode }) {
 /* ------------------------------------------------------------------------- */
 /*  Public icon exports — 221 aliases sharing the codebase's legacy names     */
 /* ------------------------------------------------------------------------- */
-export const ALargeSmall: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TextAa', l: 'ALargeSmall', t: 'IconALargeSmall' }} {...props} />
-);
-export const Activity: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Pulse', l: 'Activity', t: 'IconActivity' }} {...props} />
-);
-export const AlertCircle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'WarningCircle', l: 'AlertCircle', t: 'IconAlertCircle' }} {...props} />
-);
-export const AlertTriangle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Warning', l: 'AlertTriangle', t: 'IconAlertTriangle' }} {...props} />
-);
-export const Archive: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Archive', l: 'Archive', t: 'IconArchive' }} {...props} />
-);
-export const ArchiveRestore: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Archive', l: 'ArchiveRestore', t: 'IconArchiveRestore' }} {...props} />
-);
-export const ArrowDown: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowDown', l: 'ArrowDown', t: 'IconArrowDown' }} {...props} />
-);
-export const ArrowDownAZ: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SortAscending', l: 'ArrowDownAZ', t: 'IconArrowDownAZ' }} {...props} />
-);
-export const ArrowDownNarrowWide: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SortAscending', l: 'ArrowDownNarrowWide', t: 'IconArrowDownNarrowWide' }} {...props} />
-);
-export const ArrowDownWideNarrow: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SortDescending', l: 'ArrowDownWideNarrow', t: 'IconArrowDownWideNarrow' }} {...props} />
-);
-export const ArrowLeft: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowLeft', l: 'ArrowLeft', t: 'IconArrowLeft' }} {...props} />
-);
-export const ArrowRight: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowRight', l: 'ArrowRight', t: 'IconArrowRight' }} {...props} />
-);
-export const ArrowUpNarrowWide: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SortAscending', l: 'ArrowUpNarrowWide', t: 'IconArrowUpNarrowWide' }} {...props} />
-);
-export const ArrowUpWideNarrow: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SortDescending', l: 'ArrowUpWideNarrow', t: 'IconArrowUpWideNarrow' }} {...props} />
-);
-export const Award: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Medal', l: 'Award', t: 'IconAward' }} {...props} />
-);
-export const BarChart3: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ChartBar', l: 'BarChart3', t: 'IconBarChart3' }} {...props} />
-);
-export const BedDouble: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Bed', l: 'BedDouble', t: 'IconBedDouble' }} {...props} />
-);
-export const Bell: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Bell', l: 'Bell', t: 'IconBell' }} {...props} />
-);
-export const BellOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BellSlash', l: 'BellOff', t: 'IconBellOff' }} {...props} />
-);
-export const BellRing: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BellRinging', l: 'BellRing', t: 'IconBellRing' }} {...props} />
-);
-export const Binoculars: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Binoculars', l: 'Binoculars', t: 'IconBinoculars' }} {...props} />
-);
-export const Bold: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TextB', l: 'Bold', t: 'IconBold' }} {...props} />
-);
-export const BookMarked: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BookBookmark', l: 'BookMarked', t: 'IconBookMarked' }} {...props} />
-);
-export const BookOpen: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BookOpen', l: 'BookOpen', t: 'IconBookOpen' }} {...props} />
-);
-export const Bookmark: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BookmarkSimple', l: 'Bookmark', t: 'IconBookmark' }} {...props} />
-);
-export const BookmarkCheck: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BookmarkSimple', l: 'BookmarkCheck', t: 'IconBookmarkCheck' }} {...props} />
-);
-export const Bot: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Robot', l: 'Bot', t: 'IconBot' }} {...props} />
-);
-export const Brain: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Brain', l: 'Brain', t: 'IconBrain' }} {...props} />
-);
-export const Building: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Buildings', l: 'Building', t: 'IconBuilding' }} {...props} />
-);
-export const Bus: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Bus', l: 'Bus', t: 'IconBus' }} {...props} />
-);
-export const Calculator: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Calculator', l: 'Calculator', t: 'IconCalculator' }} {...props} />
-);
-export const Calendar: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Calendar', l: 'Calendar', t: 'IconCalendar' }} {...props} />
-);
-export const CalendarDays: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CalendarDots', l: 'CalendarDays', t: 'IconCalendarDays' }} {...props} />
-);
-export const CalendarIcon: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Calendar', l: 'CalendarIcon', t: 'IconCalendarIcon' }} {...props} />
-);
-export const Camera: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Camera', l: 'Camera', t: 'IconCamera' }} {...props} />
-);
-export const Car: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Car', l: 'Car', t: 'IconCar' }} {...props} />
-);
-export const Carrot: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Carrot', l: 'Carrot', t: 'IconCarrot' }} {...props} />
-);
-export const Check: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Check', l: 'Check', t: 'IconCheck' }} {...props} />
-);
-export const CheckCheck: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Checks', l: 'CheckCheck', t: 'IconCheckCheck' }} {...props} />
-);
-export const CheckCircle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CheckCircle', l: 'CheckCircle', t: 'IconCheckCircle' }} {...props} />
-);
-export const CheckCircle2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CheckCircle', l: 'CheckCircle2', t: 'IconCheckCircle2' }} {...props} />
-);
-export const Cherry: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Cherries', l: 'Cherry', t: 'IconCherry' }} {...props} />
-);
-export const ChevronDown: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CaretDown', l: 'ChevronDown', t: 'IconChevronDown' }} {...props} />
-);
-export const ChevronLeft: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CaretLeft', l: 'ChevronLeft', t: 'IconChevronLeft' }} {...props} />
-);
-export const ChevronRight: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CaretRight', l: 'ChevronRight', t: 'IconChevronRight' }} {...props} />
-);
-export const ChevronUp: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CaretUp', l: 'ChevronUp', t: 'IconChevronUp' }} {...props} />
-);
-export const ChevronsDown: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CaretDoubleDown', l: 'ChevronsDown', t: 'IconChevronsDown' }} {...props} />
-);
-export const ChevronsUp: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CaretDoubleUp', l: 'ChevronsUp', t: 'IconChevronsUp' }} {...props} />
-);
-export const Circle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Circle', l: 'Circle', t: 'IconCircle' }} {...props} />
-);
-export const CircleCheck: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CheckCircle', l: 'CircleCheck', t: 'IconCircleCheck' }} {...props} />
-);
-export const Citrus: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Orange', l: 'Citrus', t: 'IconCitrus' }} {...props} />
-);
-export const Clipboard: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Clipboard', l: 'Clipboard', t: 'IconClipboard' }} {...props} />
-);
-export const ClipboardCopy: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Clipboard', l: 'ClipboardCopy', t: 'IconClipboardCopy' }} {...props} />
-);
-export const Clock: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Clock', l: 'Clock', t: 'IconClock' }} {...props} />
-);
-export const Cloud: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Cloud', l: 'Cloud', t: 'IconCloud' }} {...props} />
-);
-export const CloudDrizzle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CloudRain', l: 'CloudDrizzle', t: 'IconCloudDrizzle' }} {...props} />
-);
-export const CloudFog: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CloudFog', l: 'CloudFog', t: 'IconCloudFog' }} {...props} />
-);
-export const CloudLightning: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CloudLightning', l: 'CloudLightning', t: 'IconCloudLightning' }} {...props} />
-);
-export const CloudRain: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CloudRain', l: 'CloudRain', t: 'IconCloudRain' }} {...props} />
-);
-export const CloudSnow: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CloudSnow', l: 'CloudSnow', t: 'IconCloudSnow' }} {...props} />
-);
-export const CloudSun: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CloudSun', l: 'CloudSun', t: 'IconCloudSun' }} {...props} />
-);
-export const Cloudy: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Cloud', l: 'Cloudy', t: 'IconCloudy' }} {...props} />
-);
-export const Coffee: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Coffee', l: 'Coffee', t: 'IconCoffee' }} {...props} />
-);
-export const Compass: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Compass', l: 'Compass', t: 'IconCompass' }} {...props} />
-);
-export const Contrast: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CircleHalf', l: 'Contrast', t: 'IconContrast' }} {...props} />
-);
-export const Cookie: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Cookie', l: 'Cookie', t: 'IconCookie' }} {...props} />
-);
-export const Copy: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Copy', l: 'Copy', t: 'IconCopy' }} {...props} />
-);
-export const CornerDownLeft: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowElbowDownLeft', l: 'CornerDownLeft', t: 'IconCornerDownLeft' }} {...props} />
-);
-export const Crosshair: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Crosshair', l: 'Crosshair', t: 'IconCrosshair' }} {...props} />
-);
-export const Crown: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Crown', l: 'Crown', t: 'IconCrown' }} {...props} />
-);
-export const Database: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Database', l: 'Database', t: 'IconDatabase' }} {...props} />
-);
-export const Dices: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'DiceFive', l: 'Dices', t: 'IconDices' }} {...props} />
-);
-export const DoorOpen: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'DoorOpen', l: 'DoorOpen', t: 'IconDoorOpen' }} {...props} />
-);
-export const Download: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'DownloadSimple', l: 'Download', t: 'IconDownload' }} {...props} />
-);
-export const Droplet: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Drop', l: 'Droplet', t: 'IconDroplet' }} {...props} />
-);
-export const Droplets: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Drop', l: 'Droplets', t: 'IconDroplets' }} {...props} />
-);
-export const Dumbbell: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Barbell', l: 'Dumbbell', t: 'IconDumbbell' }} {...props} />
-);
-export const Egg: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Egg', l: 'Egg', t: 'IconEgg' }} {...props} />
-);
-export const Eraser: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Eraser', l: 'Eraser', t: 'IconEraser' }} {...props} />
-);
-export const ExternalLink: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowSquareOut', l: 'ExternalLink', t: 'IconExternalLink' }} {...props} />
-);
-export const Eye: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Eye', l: 'Eye', t: 'IconEye' }} {...props} />
-);
-export const EyeOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'EyeSlash', l: 'EyeOff', t: 'IconEyeOff' }} {...props} />
-);
-export const Feather: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Feather', l: 'Feather', t: 'IconFeather' }} {...props} />
-);
-export const FileText: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'FileText', l: 'FileText', t: 'IconFileText' }} {...props} />
-);
-export const Filter: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Funnel', l: 'Filter', t: 'IconFilter' }} {...props} />
-);
-export const Fish: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Fish', l: 'Fish', t: 'IconFish' }} {...props} />
-);
-export const Flag: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Flag', l: 'Flag', t: 'IconFlag' }} {...props} />
-);
-export const Flame: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Flame', l: 'Flame', t: 'IconFlame' }} {...props} />
-);
-export const FlaskConical: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Flask', l: 'FlaskConical', t: 'IconFlaskConical' }} {...props} />
-);
-export const FolderOpen: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'FolderOpen', l: 'FolderOpen', t: 'IconFolderOpen' }} {...props} />
-);
-export const Forward: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowBendUpRight', l: 'Forward', t: 'IconForward' }} {...props} />
-);
-export const Gamepad2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'GameController', l: 'Gamepad2', t: 'IconGamepad2' }} {...props} />
-);
-export const Gauge: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Gauge', l: 'Gauge', t: 'IconGauge' }} {...props} />
-);
-export const Globe: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Globe', l: 'Globe', t: 'IconGlobe' }} {...props} />
-);
-export const Grid3X3: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'GridNine', l: 'Grid3X3', t: 'IconGrid3X3' }} {...props} />
-);
-export const HandHeart: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'HandHeart', l: 'HandHeart', t: 'IconHandHeart' }} {...props} />
-);
-export const HardDrive: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'HardDrive', l: 'HardDrive', t: 'IconHardDrive' }} {...props} />
-);
-export const Hash: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Hash', l: 'Hash', t: 'IconHash' }} {...props} />
-);
-export const Heart: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Heart', l: 'Heart', t: 'IconHeart' }} {...props} />
-);
-export const HelpCircle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Question', l: 'HelpCircle', t: 'IconHelpCircle' }} {...props} />
-);
-export const History: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ClockCounterClockwise', l: 'History', t: 'IconHistory' }} {...props} />
-);
-export const Home: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'House', l: 'Home', t: 'IconHome' }} {...props} />
-);
-export const House: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'House', l: 'House', t: 'IconHouse' }} {...props} />
-);
-export const Image: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Image', l: 'Image', t: 'IconImage' }} {...props} />
-);
-export const ImageIcon: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Image', l: 'ImageIcon', t: 'IconImageIcon' }} {...props} />
-);
-export const ImageOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ImageBroken', l: 'ImageOff', t: 'IconImageOff' }} {...props} />
-);
-export const Info: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Info', l: 'Info', t: 'IconInfo' }} {...props} />
-);
-export const Key: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Key', l: 'Key', t: 'IconKey' }} {...props} />
-);
-export const Landmark: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Bank', l: 'Landmark', t: 'IconLandmark' }} {...props} />
-);
-export const Languages: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Translate', l: 'Languages', t: 'IconLanguages' }} {...props} />
-);
-export const Layers: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Stack', l: 'Layers', t: 'IconLayers' }} {...props} />
-);
-export const LayoutGrid: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SquaresFour', l: 'LayoutGrid', t: 'IconLayoutGrid' }} {...props} />
-);
-export const Leaf: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Leaf', l: 'Leaf', t: 'IconLeaf' }} {...props} />
-);
-export const Library: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Books', l: 'Library', t: 'IconLibrary' }} {...props} />
-);
-export const LibraryBig: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Books', l: 'LibraryBig', t: 'IconLibraryBig' }} {...props} />
-);
-export const Lightbulb: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Lightbulb', l: 'Lightbulb', t: 'IconLightbulb' }} {...props} />
-);
-export const Link2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Link', l: 'Link2', t: 'IconLink2' }} {...props} />
-);
-export const List: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'List', l: 'List', t: 'IconList' }} {...props} />
-);
-export const Loader2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'CircleNotch', l: 'Loader2', t: 'IconLoader2' }} {...props} />
-);
-export const Lock: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Lock', l: 'Lock', t: 'IconLock' }} {...props} />
-);
-export const LogIn: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SignIn', l: 'LogIn', t: 'IconLogIn' }} {...props} />
-);
-export const LogOut: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SignOut', l: 'LogOut', t: 'IconLogOut' }} {...props} />
-);
-export const Luggage: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SuitcaseRolling', l: 'Luggage', t: 'IconLuggage' }} {...props} />
-);
-export const Map: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'MapTrifold', l: 'Map', t: 'IconMap' }} {...props} />
-);
-export const MapPin: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'MapPin', l: 'MapPin', t: 'IconMapPin' }} {...props} />
-);
-export const Maximize2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowsOut', l: 'Maximize2', t: 'IconMaximize2' }} {...props} />
-);
-export const MessageCircle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ChatCircle', l: 'MessageCircle', t: 'IconMessageCircle' }} {...props} />
-);
-export const MessageSquareText: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ChatText', l: 'MessageSquareText', t: 'IconMessageSquareText' }} {...props} />
-);
-export const Mic: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Microphone', l: 'Mic', t: 'IconMic' }} {...props} />
-);
-export const Minus: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Minus', l: 'Minus', t: 'IconMinus' }} {...props} />
-);
-export const Moon: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Moon', l: 'Moon', t: 'IconMoon' }} {...props} />
-);
-export const MoonStar: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'MoonStars', l: 'MoonStar', t: 'IconMoonStar' }} {...props} />
-);
-export const MoreHorizontal: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'DotsThree', l: 'MoreHorizontal', t: 'IconMoreHorizontal' }} {...props} />
-);
-export const MoreVertical: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'DotsThreeVertical', l: 'MoreVertical', t: 'IconMoreVertical' }} {...props} />
-);
-export const Mountain: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Mountains', l: 'Mountain', t: 'IconMountain' }} {...props} />
-);
-export const Navigation: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'NavigationArrow', l: 'Navigation', t: 'IconNavigation' }} {...props} />
-);
-export const Network: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ShareNetwork', l: 'Network', t: 'IconNetwork' }} {...props} />
-);
-export const Newspaper: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Newspaper', l: 'Newspaper', t: 'IconNewspaper' }} {...props} />
-);
-export const Paintbrush: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PaintBrush', l: 'Paintbrush', t: 'IconPaintbrush' }} {...props} />
-);
-export const Palette: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Palette', l: 'Palette', t: 'IconPalette' }} {...props} />
-);
-export const Pause: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Pause', l: 'Pause', t: 'IconPause' }} {...props} />
-);
-export const PenLine: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PencilSimpleLine', l: 'PenLine', t: 'IconPenLine' }} {...props} />
-);
-export const Pencil: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PencilSimple', l: 'Pencil', t: 'IconPencil' }} {...props} />
-);
-export const PiggyBank: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PiggyBank', l: 'PiggyBank', t: 'IconPiggyBank' }} {...props} />
-);
-export const Pin: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PushPin', l: 'Pin', t: 'IconPin' }} {...props} />
-);
-export const PinOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PushPinSlash', l: 'PinOff', t: 'IconPinOff' }} {...props} />
-);
-export const Plane: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Airplane', l: 'Plane', t: 'IconPlane' }} {...props} />
-);
-export const Play: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Play', l: 'Play', t: 'IconPlay' }} {...props} />
-);
-export const Plus: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Plus', l: 'Plus', t: 'IconPlus' }} {...props} />
-);
-export const Puzzle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PuzzlePiece', l: 'Puzzle', t: 'IconPuzzle' }} {...props} />
-);
-export const Quote: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Quotes', l: 'Quote', t: 'IconQuote' }} {...props} />
-);
-export const RefreshCcw: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowsCounterClockwise', l: 'RefreshCcw', t: 'IconRefreshCcw' }} {...props} />
-);
-export const RefreshCw: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowsClockwise', l: 'RefreshCw', t: 'IconRefreshCw' }} {...props} />
-);
-export const Repeat: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Repeat', l: 'Repeat', t: 'IconRepeat' }} {...props} />
-);
-export const Reply: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowBendUpLeft', l: 'Reply', t: 'IconReply' }} {...props} />
-);
-export const RotateCcw: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowCounterClockwise', l: 'RotateCcw', t: 'IconRotateCcw' }} {...props} />
-);
-export const RotateCw: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowClockwise', l: 'RotateCw', t: 'IconRotateCw' }} {...props} />
-);
-export const Route: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Path', l: 'Route', t: 'IconRoute' }} {...props} />
-);
-export const Rows3: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Rows', l: 'Rows3', t: 'IconRows3' }} {...props} />
-);
-export const Rss: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Rss', l: 'Rss', t: 'IconRss' }} {...props} />
-);
-export const Salad: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'BowlFood', l: 'Salad', t: 'IconSalad' }} {...props} />
-);
-export const Save: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'FloppyDisk', l: 'Save', t: 'IconSave' }} {...props} />
-);
-export const ScrollText: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Scroll', l: 'ScrollText', t: 'IconScrollText' }} {...props} />
-);
-export const Search: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'MagnifyingGlass', l: 'Search', t: 'IconSearch' }} {...props} />
-);
-export const Send: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'PaperPlaneTilt', l: 'Send', t: 'IconSend' }} {...props} />
-);
-export const Settings: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'GearSix', l: 'Settings', t: 'IconSettings' }} {...props} />
-);
-export const Settings2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Gear', l: 'Settings2', t: 'IconSettings2' }} {...props} />
-);
-export const Share2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ShareNetwork', l: 'Share2', t: 'IconShare2' }} {...props} />
-);
-export const Shield: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Shield', l: 'Shield', t: 'IconShield' }} {...props} />
-);
-export const ShieldAlert: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ShieldWarning', l: 'ShieldAlert', t: 'IconShieldAlert' }} {...props} />
-);
-export const ShieldCheck: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ShieldCheck', l: 'ShieldCheck', t: 'IconShieldCheck' }} {...props} />
-);
-export const ShieldOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ShieldSlash', l: 'ShieldOff', t: 'IconShieldOff' }} {...props} />
-);
-export const Shirt: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TShirt', l: 'Shirt', t: 'IconShirt' }} {...props} />
-);
-export const Shuffle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Shuffle', l: 'Shuffle', t: 'IconShuffle' }} {...props} />
-);
-export const SlidersHorizontal: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SlidersHorizontal', l: 'SlidersHorizontal', t: 'IconSlidersHorizontal' }} {...props} />
-);
-export const Smartphone: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'DeviceMobile', l: 'Smartphone', t: 'IconSmartphone' }} {...props} />
-);
-export const Smile: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Smiley', l: 'Smile', t: 'IconSmile' }} {...props} />
-);
-export const Sparkles: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Sparkle', l: 'Sparkles', t: 'IconSparkles' }} {...props} />
-);
-export const Sprout: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Plant', l: 'Sprout', t: 'IconSprout' }} {...props} />
-);
-export const Star: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Star', l: 'Star', t: 'IconStar' }} {...props} />
-);
-export const Store: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Storefront', l: 'Store', t: 'IconStore' }} {...props} />
-);
-export const Sun: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Sun', l: 'Sun', t: 'IconSun' }} {...props} />
-);
-export const SunDim: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SunDim', l: 'SunDim', t: 'IconSunDim' }} {...props} />
-);
-export const Sunrise: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SunHorizon', l: 'Sunrise', t: 'IconSunrise' }} {...props} />
-);
-export const Sunset: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SunHorizon', l: 'Sunset', t: 'IconSunset' }} {...props} />
-);
-export const Swords: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Sword', l: 'Swords', t: 'IconSwords' }} {...props} />
-);
-export const Target: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Target', l: 'Target', t: 'IconTarget' }} {...props} />
-);
-export const Timer: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Timer', l: 'Timer', t: 'IconTimer' }} {...props} />
-);
-export const TimerOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Timer', l: 'TimerOff', t: 'IconTimerOff' }} {...props} />
-);
-export const Trash: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Trash', l: 'Trash', t: 'IconTrash' }} {...props} />
-);
-export const Trash2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TrashSimple', l: 'Trash2', t: 'IconTrash2' }} {...props} />
-);
-export const Trees: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Tree', l: 'Trees', t: 'IconTrees' }} {...props} />
-);
-export const TrendingDown: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TrendDown', l: 'TrendingDown', t: 'IconTrendingDown' }} {...props} />
-);
-export const TrendingUp: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TrendUp', l: 'TrendingUp', t: 'IconTrendingUp' }} {...props} />
-);
-export const Trophy: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Trophy', l: 'Trophy', t: 'IconTrophy' }} {...props} />
-);
-export const Type: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'TextT', l: 'Type', t: 'IconType' }} {...props} />
-);
-export const Undo2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ArrowArcLeft', l: 'Undo2', t: 'IconUndo2' }} {...props} />
-);
-export const Unlock: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'LockOpen', l: 'Unlock', t: 'IconUnlock' }} {...props} />
-);
-export const Upload: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'UploadSimple', l: 'Upload', t: 'IconUpload' }} {...props} />
-);
-export const User: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'User', l: 'User', t: 'IconUser' }} {...props} />
-);
-export const User2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'User', l: 'User2', t: 'IconUser2' }} {...props} />
-);
-export const UserCircle: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'UserCircle', l: 'UserCircle', t: 'IconUserCircle' }} {...props} />
-);
-export const UserMinus: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'UserMinus', l: 'UserMinus', t: 'IconUserMinus' }} {...props} />
-);
-export const UserPlus: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'UserPlus', l: 'UserPlus', t: 'IconUserPlus' }} {...props} />
-);
-export const Users: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Users', l: 'Users', t: 'IconUsers' }} {...props} />
-);
-export const Utensils: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ForkKnife', l: 'Utensils', t: 'IconUtensils' }} {...props} />
-);
-export const UtensilsCrossed: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'ForkKnife', l: 'UtensilsCrossed', t: 'IconUtensilsCrossed' }} {...props} />
-);
-export const Vibrate: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Vibrate', l: 'Vibrate', t: 'IconVibrate' }} {...props} />
-);
-export const Video: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'VideoCamera', l: 'Video', t: 'IconVideo' }} {...props} />
-);
-export const Volume2: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SpeakerHigh', l: 'Volume2', t: 'IconVolume2' }} {...props} />
-);
-export const VolumeX: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'SpeakerSlash', l: 'VolumeX', t: 'IconVolumeX' }} {...props} />
-);
-export const Waves: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Waves', l: 'Waves', t: 'IconWaves' }} {...props} />
-);
-export const Wheat: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Grains', l: 'Wheat', t: 'IconWheat' }} {...props} />
-);
-export const Wifi: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'WifiHigh', l: 'Wifi', t: 'IconWifi' }} {...props} />
-);
-export const WifiOff: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'WifiSlash', l: 'WifiOff', t: 'IconWifiOff' }} {...props} />
-);
-export const Wind: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Wind', l: 'Wind', t: 'IconWind' }} {...props} />
-);
-export const Wrench: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Wrench', l: 'Wrench', t: 'IconWrench' }} {...props} />
-);
-export const X: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'X', l: 'X', t: 'IconX' }} {...props} />
-);
-export const Zap: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'Lightning', l: 'Zap', t: 'IconZap' }} {...props} />
-);
-export const ZoomIn: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'MagnifyingGlassPlus', l: 'ZoomIn', t: 'IconZoomIn' }} {...props} />
-);
-export const ZoomOut: FC<IconComponentProps> = (props) => (
-  <IconSlot names={{ p: 'MagnifyingGlassMinus', l: 'ZoomOut', t: 'IconZoomOut' }} {...props} />
-);
+export const ALargeSmall = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ALargeSmall(props, ref) { return <IconSlot ref={ref} names={{ p: 'TextAa', l: 'ALargeSmall', t: 'IconALargeSmall' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Activity = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Activity(props, ref) { return <IconSlot ref={ref} names={{ p: 'Pulse', l: 'Activity', t: 'IconActivity' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const AlertCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function AlertCircle(props, ref) { return <IconSlot ref={ref} names={{ p: 'WarningCircle', l: 'AlertCircle', t: 'IconAlertCircle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const AlertTriangle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function AlertTriangle(props, ref) { return <IconSlot ref={ref} names={{ p: 'Warning', l: 'AlertTriangle', t: 'IconAlertTriangle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Archive = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Archive(props, ref) { return <IconSlot ref={ref} names={{ p: 'Archive', l: 'Archive', t: 'IconArchive' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArchiveRestore = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArchiveRestore(props, ref) { return <IconSlot ref={ref} names={{ p: 'Archive', l: 'ArchiveRestore', t: 'IconArchiveRestore' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowDown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowDown(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowDown', l: 'ArrowDown', t: 'IconArrowDown' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowDownAZ = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowDownAZ(props, ref) { return <IconSlot ref={ref} names={{ p: 'SortAscending', l: 'ArrowDownAZ', t: 'IconArrowDownAZ' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowDownNarrowWide = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowDownNarrowWide(props, ref) { return <IconSlot ref={ref} names={{ p: 'SortAscending', l: 'ArrowDownNarrowWide', t: 'IconArrowDownNarrowWide' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowDownWideNarrow = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowDownWideNarrow(props, ref) { return <IconSlot ref={ref} names={{ p: 'SortDescending', l: 'ArrowDownWideNarrow', t: 'IconArrowDownWideNarrow' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowLeft = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowLeft(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowLeft', l: 'ArrowLeft', t: 'IconArrowLeft' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowRight = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowRight(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowRight', l: 'ArrowRight', t: 'IconArrowRight' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowUpNarrowWide = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowUpNarrowWide(props, ref) { return <IconSlot ref={ref} names={{ p: 'SortAscending', l: 'ArrowUpNarrowWide', t: 'IconArrowUpNarrowWide' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ArrowUpWideNarrow = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowUpWideNarrow(props, ref) { return <IconSlot ref={ref} names={{ p: 'SortDescending', l: 'ArrowUpWideNarrow', t: 'IconArrowUpWideNarrow' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Award = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Award(props, ref) { return <IconSlot ref={ref} names={{ p: 'Medal', l: 'Award', t: 'IconAward' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BarChart3 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BarChart3(props, ref) { return <IconSlot ref={ref} names={{ p: 'ChartBar', l: 'BarChart3', t: 'IconBarChart3' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BedDouble = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BedDouble(props, ref) { return <IconSlot ref={ref} names={{ p: 'Bed', l: 'BedDouble', t: 'IconBedDouble' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Bell = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Bell(props, ref) { return <IconSlot ref={ref} names={{ p: 'Bell', l: 'Bell', t: 'IconBell' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BellOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BellOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'BellSlash', l: 'BellOff', t: 'IconBellOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BellRing = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BellRing(props, ref) { return <IconSlot ref={ref} names={{ p: 'BellRinging', l: 'BellRing', t: 'IconBellRing' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Binoculars = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Binoculars(props, ref) { return <IconSlot ref={ref} names={{ p: 'Binoculars', l: 'Binoculars', t: 'IconBinoculars' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Bold = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Bold(props, ref) { return <IconSlot ref={ref} names={{ p: 'TextB', l: 'Bold', t: 'IconBold' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BookMarked = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BookMarked(props, ref) { return <IconSlot ref={ref} names={{ p: 'BookBookmark', l: 'BookMarked', t: 'IconBookMarked' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BookOpen = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BookOpen(props, ref) { return <IconSlot ref={ref} names={{ p: 'BookOpen', l: 'BookOpen', t: 'IconBookOpen' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Bookmark = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Bookmark(props, ref) { return <IconSlot ref={ref} names={{ p: 'BookmarkSimple', l: 'Bookmark', t: 'IconBookmark' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const BookmarkCheck = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BookmarkCheck(props, ref) { return <IconSlot ref={ref} names={{ p: 'BookmarkSimple', l: 'BookmarkCheck', t: 'IconBookmarkCheck' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Bot = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Bot(props, ref) { return <IconSlot ref={ref} names={{ p: 'Robot', l: 'Bot', t: 'IconBot' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Brain = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Brain(props, ref) { return <IconSlot ref={ref} names={{ p: 'Brain', l: 'Brain', t: 'IconBrain' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Building = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Building(props, ref) { return <IconSlot ref={ref} names={{ p: 'Buildings', l: 'Building', t: 'IconBuilding' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Bus = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Bus(props, ref) { return <IconSlot ref={ref} names={{ p: 'Bus', l: 'Bus', t: 'IconBus' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Calculator = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Calculator(props, ref) { return <IconSlot ref={ref} names={{ p: 'Calculator', l: 'Calculator', t: 'IconCalculator' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Calendar = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Calendar(props, ref) { return <IconSlot ref={ref} names={{ p: 'Calendar', l: 'Calendar', t: 'IconCalendar' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CalendarDays = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CalendarDays(props, ref) { return <IconSlot ref={ref} names={{ p: 'CalendarDots', l: 'CalendarDays', t: 'IconCalendarDays' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CalendarIcon = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CalendarIcon(props, ref) { return <IconSlot ref={ref} names={{ p: 'Calendar', l: 'CalendarIcon', t: 'IconCalendarIcon' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Camera = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Camera(props, ref) { return <IconSlot ref={ref} names={{ p: 'Camera', l: 'Camera', t: 'IconCamera' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Car = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Car(props, ref) { return <IconSlot ref={ref} names={{ p: 'Car', l: 'Car', t: 'IconCar' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Carrot = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Carrot(props, ref) { return <IconSlot ref={ref} names={{ p: 'Carrot', l: 'Carrot', t: 'IconCarrot' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Check = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Check(props, ref) { return <IconSlot ref={ref} names={{ p: 'Check', l: 'Check', t: 'IconCheck' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CheckCheck = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CheckCheck(props, ref) { return <IconSlot ref={ref} names={{ p: 'Checks', l: 'CheckCheck', t: 'IconCheckCheck' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CheckCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CheckCircle(props, ref) { return <IconSlot ref={ref} names={{ p: 'CheckCircle', l: 'CheckCircle', t: 'IconCheckCircle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CheckCircle2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CheckCircle2(props, ref) { return <IconSlot ref={ref} names={{ p: 'CheckCircle', l: 'CheckCircle2', t: 'IconCheckCircle2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Cherry = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Cherry(props, ref) { return <IconSlot ref={ref} names={{ p: 'Cherries', l: 'Cherry', t: 'IconCherry' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ChevronDown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ChevronDown(props, ref) { return <IconSlot ref={ref} names={{ p: 'CaretDown', l: 'ChevronDown', t: 'IconChevronDown' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ChevronLeft = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ChevronLeft(props, ref) { return <IconSlot ref={ref} names={{ p: 'CaretLeft', l: 'ChevronLeft', t: 'IconChevronLeft' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ChevronRight = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ChevronRight(props, ref) { return <IconSlot ref={ref} names={{ p: 'CaretRight', l: 'ChevronRight', t: 'IconChevronRight' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ChevronUp = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ChevronUp(props, ref) { return <IconSlot ref={ref} names={{ p: 'CaretUp', l: 'ChevronUp', t: 'IconChevronUp' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ChevronsDown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ChevronsDown(props, ref) { return <IconSlot ref={ref} names={{ p: 'CaretDoubleDown', l: 'ChevronsDown', t: 'IconChevronsDown' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ChevronsUp = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ChevronsUp(props, ref) { return <IconSlot ref={ref} names={{ p: 'CaretDoubleUp', l: 'ChevronsUp', t: 'IconChevronsUp' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Circle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Circle(props, ref) { return <IconSlot ref={ref} names={{ p: 'Circle', l: 'Circle', t: 'IconCircle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CircleCheck = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CircleCheck(props, ref) { return <IconSlot ref={ref} names={{ p: 'CheckCircle', l: 'CircleCheck', t: 'IconCircleCheck' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Citrus = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Citrus(props, ref) { return <IconSlot ref={ref} names={{ p: 'Orange', l: 'Citrus', t: 'IconCitrus' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Clipboard = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Clipboard(props, ref) { return <IconSlot ref={ref} names={{ p: 'Clipboard', l: 'Clipboard', t: 'IconClipboard' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ClipboardCopy = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ClipboardCopy(props, ref) { return <IconSlot ref={ref} names={{ p: 'Clipboard', l: 'ClipboardCopy', t: 'IconClipboardCopy' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Clock = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Clock(props, ref) { return <IconSlot ref={ref} names={{ p: 'Clock', l: 'Clock', t: 'IconClock' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Cloud = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Cloud(props, ref) { return <IconSlot ref={ref} names={{ p: 'Cloud', l: 'Cloud', t: 'IconCloud' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CloudDrizzle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CloudDrizzle(props, ref) { return <IconSlot ref={ref} names={{ p: 'CloudRain', l: 'CloudDrizzle', t: 'IconCloudDrizzle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CloudFog = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CloudFog(props, ref) { return <IconSlot ref={ref} names={{ p: 'CloudFog', l: 'CloudFog', t: 'IconCloudFog' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CloudLightning = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CloudLightning(props, ref) { return <IconSlot ref={ref} names={{ p: 'CloudLightning', l: 'CloudLightning', t: 'IconCloudLightning' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CloudRain = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CloudRain(props, ref) { return <IconSlot ref={ref} names={{ p: 'CloudRain', l: 'CloudRain', t: 'IconCloudRain' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CloudSnow = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CloudSnow(props, ref) { return <IconSlot ref={ref} names={{ p: 'CloudSnow', l: 'CloudSnow', t: 'IconCloudSnow' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CloudSun = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CloudSun(props, ref) { return <IconSlot ref={ref} names={{ p: 'CloudSun', l: 'CloudSun', t: 'IconCloudSun' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Cloudy = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Cloudy(props, ref) { return <IconSlot ref={ref} names={{ p: 'Cloud', l: 'Cloudy', t: 'IconCloudy' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Coffee = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Coffee(props, ref) { return <IconSlot ref={ref} names={{ p: 'Coffee', l: 'Coffee', t: 'IconCoffee' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Compass = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Compass(props, ref) { return <IconSlot ref={ref} names={{ p: 'Compass', l: 'Compass', t: 'IconCompass' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Contrast = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Contrast(props, ref) { return <IconSlot ref={ref} names={{ p: 'CircleHalf', l: 'Contrast', t: 'IconContrast' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Cookie = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Cookie(props, ref) { return <IconSlot ref={ref} names={{ p: 'Cookie', l: 'Cookie', t: 'IconCookie' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Copy = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Copy(props, ref) { return <IconSlot ref={ref} names={{ p: 'Copy', l: 'Copy', t: 'IconCopy' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const CornerDownLeft = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CornerDownLeft(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowElbowDownLeft', l: 'CornerDownLeft', t: 'IconCornerDownLeft' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Crosshair = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Crosshair(props, ref) { return <IconSlot ref={ref} names={{ p: 'Crosshair', l: 'Crosshair', t: 'IconCrosshair' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Crown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Crown(props, ref) { return <IconSlot ref={ref} names={{ p: 'Crown', l: 'Crown', t: 'IconCrown' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Database = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Database(props, ref) { return <IconSlot ref={ref} names={{ p: 'Database', l: 'Database', t: 'IconDatabase' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Dices = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Dices(props, ref) { return <IconSlot ref={ref} names={{ p: 'DiceFive', l: 'Dices', t: 'IconDices' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const DoorOpen = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function DoorOpen(props, ref) { return <IconSlot ref={ref} names={{ p: 'DoorOpen', l: 'DoorOpen', t: 'IconDoorOpen' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Download = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Download(props, ref) { return <IconSlot ref={ref} names={{ p: 'DownloadSimple', l: 'Download', t: 'IconDownload' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Droplet = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Droplet(props, ref) { return <IconSlot ref={ref} names={{ p: 'Drop', l: 'Droplet', t: 'IconDroplet' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Droplets = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Droplets(props, ref) { return <IconSlot ref={ref} names={{ p: 'Drop', l: 'Droplets', t: 'IconDroplets' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Dumbbell = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Dumbbell(props, ref) { return <IconSlot ref={ref} names={{ p: 'Barbell', l: 'Dumbbell', t: 'IconDumbbell' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Egg = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Egg(props, ref) { return <IconSlot ref={ref} names={{ p: 'Egg', l: 'Egg', t: 'IconEgg' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Eraser = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Eraser(props, ref) { return <IconSlot ref={ref} names={{ p: 'Eraser', l: 'Eraser', t: 'IconEraser' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ExternalLink = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ExternalLink(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowSquareOut', l: 'ExternalLink', t: 'IconExternalLink' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Eye = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Eye(props, ref) { return <IconSlot ref={ref} names={{ p: 'Eye', l: 'Eye', t: 'IconEye' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const EyeOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function EyeOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'EyeSlash', l: 'EyeOff', t: 'IconEyeOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Feather = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Feather(props, ref) { return <IconSlot ref={ref} names={{ p: 'Feather', l: 'Feather', t: 'IconFeather' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const FileText = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function FileText(props, ref) { return <IconSlot ref={ref} names={{ p: 'FileText', l: 'FileText', t: 'IconFileText' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Filter = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Filter(props, ref) { return <IconSlot ref={ref} names={{ p: 'Funnel', l: 'Filter', t: 'IconFilter' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Fish = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Fish(props, ref) { return <IconSlot ref={ref} names={{ p: 'Fish', l: 'Fish', t: 'IconFish' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Flag = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Flag(props, ref) { return <IconSlot ref={ref} names={{ p: 'Flag', l: 'Flag', t: 'IconFlag' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Flame = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Flame(props, ref) { return <IconSlot ref={ref} names={{ p: 'Flame', l: 'Flame', t: 'IconFlame' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const FlaskConical = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function FlaskConical(props, ref) { return <IconSlot ref={ref} names={{ p: 'Flask', l: 'FlaskConical', t: 'IconFlaskConical' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const FolderOpen = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function FolderOpen(props, ref) { return <IconSlot ref={ref} names={{ p: 'FolderOpen', l: 'FolderOpen', t: 'IconFolderOpen' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Forward = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Forward(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowBendUpRight', l: 'Forward', t: 'IconForward' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Gamepad2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Gamepad2(props, ref) { return <IconSlot ref={ref} names={{ p: 'GameController', l: 'Gamepad2', t: 'IconGamepad2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Gauge = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Gauge(props, ref) { return <IconSlot ref={ref} names={{ p: 'Gauge', l: 'Gauge', t: 'IconGauge' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Globe = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Globe(props, ref) { return <IconSlot ref={ref} names={{ p: 'Globe', l: 'Globe', t: 'IconGlobe' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Grid3X3 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Grid3X3(props, ref) { return <IconSlot ref={ref} names={{ p: 'GridNine', l: 'Grid3X3', t: 'IconGrid3X3' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const HandHeart = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function HandHeart(props, ref) { return <IconSlot ref={ref} names={{ p: 'HandHeart', l: 'HandHeart', t: 'IconHandHeart' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const HardDrive = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function HardDrive(props, ref) { return <IconSlot ref={ref} names={{ p: 'HardDrive', l: 'HardDrive', t: 'IconHardDrive' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Hash = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Hash(props, ref) { return <IconSlot ref={ref} names={{ p: 'Hash', l: 'Hash', t: 'IconHash' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Heart = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Heart(props, ref) { return <IconSlot ref={ref} names={{ p: 'Heart', l: 'Heart', t: 'IconHeart' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const HelpCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function HelpCircle(props, ref) { return <IconSlot ref={ref} names={{ p: 'Question', l: 'HelpCircle', t: 'IconHelpCircle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const History = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function History(props, ref) { return <IconSlot ref={ref} names={{ p: 'ClockCounterClockwise', l: 'History', t: 'IconHistory' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Home = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Home(props, ref) { return <IconSlot ref={ref} names={{ p: 'House', l: 'Home', t: 'IconHome' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const House = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function House(props, ref) { return <IconSlot ref={ref} names={{ p: 'House', l: 'House', t: 'IconHouse' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Image = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Image(props, ref) { return <IconSlot ref={ref} names={{ p: 'Image', l: 'Image', t: 'IconImage' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ImageIcon = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ImageIcon(props, ref) { return <IconSlot ref={ref} names={{ p: 'Image', l: 'ImageIcon', t: 'IconImageIcon' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ImageOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ImageOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'ImageBroken', l: 'ImageOff', t: 'IconImageOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Info = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Info(props, ref) { return <IconSlot ref={ref} names={{ p: 'Info', l: 'Info', t: 'IconInfo' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Key = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Key(props, ref) { return <IconSlot ref={ref} names={{ p: 'Key', l: 'Key', t: 'IconKey' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Landmark = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Landmark(props, ref) { return <IconSlot ref={ref} names={{ p: 'Bank', l: 'Landmark', t: 'IconLandmark' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Languages = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Languages(props, ref) { return <IconSlot ref={ref} names={{ p: 'Translate', l: 'Languages', t: 'IconLanguages' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Layers = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Layers(props, ref) { return <IconSlot ref={ref} names={{ p: 'Stack', l: 'Layers', t: 'IconLayers' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const LayoutGrid = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function LayoutGrid(props, ref) { return <IconSlot ref={ref} names={{ p: 'SquaresFour', l: 'LayoutGrid', t: 'IconLayoutGrid' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Leaf = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Leaf(props, ref) { return <IconSlot ref={ref} names={{ p: 'Leaf', l: 'Leaf', t: 'IconLeaf' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Library = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Library(props, ref) { return <IconSlot ref={ref} names={{ p: 'Books', l: 'Library', t: 'IconLibrary' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const LibraryBig = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function LibraryBig(props, ref) { return <IconSlot ref={ref} names={{ p: 'Books', l: 'LibraryBig', t: 'IconLibraryBig' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Lightbulb = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Lightbulb(props, ref) { return <IconSlot ref={ref} names={{ p: 'Lightbulb', l: 'Lightbulb', t: 'IconLightbulb' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Link2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Link2(props, ref) { return <IconSlot ref={ref} names={{ p: 'Link', l: 'Link2', t: 'IconLink2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const List = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function List(props, ref) { return <IconSlot ref={ref} names={{ p: 'List', l: 'List', t: 'IconList' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Loader2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Loader2(props, ref) { return <IconSlot ref={ref} names={{ p: 'CircleNotch', l: 'Loader2', t: 'IconLoader2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Lock = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Lock(props, ref) { return <IconSlot ref={ref} names={{ p: 'Lock', l: 'Lock', t: 'IconLock' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const LogIn = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function LogIn(props, ref) { return <IconSlot ref={ref} names={{ p: 'SignIn', l: 'LogIn', t: 'IconLogIn' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const LogOut = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function LogOut(props, ref) { return <IconSlot ref={ref} names={{ p: 'SignOut', l: 'LogOut', t: 'IconLogOut' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Luggage = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Luggage(props, ref) { return <IconSlot ref={ref} names={{ p: 'SuitcaseRolling', l: 'Luggage', t: 'IconLuggage' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Map = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Map(props, ref) { return <IconSlot ref={ref} names={{ p: 'MapTrifold', l: 'Map', t: 'IconMap' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const MapPin = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MapPin(props, ref) { return <IconSlot ref={ref} names={{ p: 'MapPin', l: 'MapPin', t: 'IconMapPin' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Maximize2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Maximize2(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowsOut', l: 'Maximize2', t: 'IconMaximize2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const MessageCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MessageCircle(props, ref) { return <IconSlot ref={ref} names={{ p: 'ChatCircle', l: 'MessageCircle', t: 'IconMessageCircle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const MessageSquareText = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MessageSquareText(props, ref) { return <IconSlot ref={ref} names={{ p: 'ChatText', l: 'MessageSquareText', t: 'IconMessageSquareText' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Mic = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Mic(props, ref) { return <IconSlot ref={ref} names={{ p: 'Microphone', l: 'Mic', t: 'IconMic' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Minus = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Minus(props, ref) { return <IconSlot ref={ref} names={{ p: 'Minus', l: 'Minus', t: 'IconMinus' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Moon = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Moon(props, ref) { return <IconSlot ref={ref} names={{ p: 'Moon', l: 'Moon', t: 'IconMoon' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const MoonStar = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MoonStar(props, ref) { return <IconSlot ref={ref} names={{ p: 'MoonStars', l: 'MoonStar', t: 'IconMoonStar' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const MoreHorizontal = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MoreHorizontal(props, ref) { return <IconSlot ref={ref} names={{ p: 'DotsThree', l: 'MoreHorizontal', t: 'IconMoreHorizontal' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const MoreVertical = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MoreVertical(props, ref) { return <IconSlot ref={ref} names={{ p: 'DotsThreeVertical', l: 'MoreVertical', t: 'IconMoreVertical' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Mountain = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Mountain(props, ref) { return <IconSlot ref={ref} names={{ p: 'Mountains', l: 'Mountain', t: 'IconMountain' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Navigation = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Navigation(props, ref) { return <IconSlot ref={ref} names={{ p: 'NavigationArrow', l: 'Navigation', t: 'IconNavigation' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Network = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Network(props, ref) { return <IconSlot ref={ref} names={{ p: 'ShareNetwork', l: 'Network', t: 'IconNetwork' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Newspaper = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Newspaper(props, ref) { return <IconSlot ref={ref} names={{ p: 'Newspaper', l: 'Newspaper', t: 'IconNewspaper' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Paintbrush = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Paintbrush(props, ref) { return <IconSlot ref={ref} names={{ p: 'PaintBrush', l: 'Paintbrush', t: 'IconPaintbrush' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Palette = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Palette(props, ref) { return <IconSlot ref={ref} names={{ p: 'Palette', l: 'Palette', t: 'IconPalette' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Pause = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Pause(props, ref) { return <IconSlot ref={ref} names={{ p: 'Pause', l: 'Pause', t: 'IconPause' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const PenLine = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function PenLine(props, ref) { return <IconSlot ref={ref} names={{ p: 'PencilSimpleLine', l: 'PenLine', t: 'IconPenLine' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Pencil = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Pencil(props, ref) { return <IconSlot ref={ref} names={{ p: 'PencilSimple', l: 'Pencil', t: 'IconPencil' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const PiggyBank = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function PiggyBank(props, ref) { return <IconSlot ref={ref} names={{ p: 'PiggyBank', l: 'PiggyBank', t: 'IconPiggyBank' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Pin = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Pin(props, ref) { return <IconSlot ref={ref} names={{ p: 'PushPin', l: 'Pin', t: 'IconPin' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const PinOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function PinOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'PushPinSlash', l: 'PinOff', t: 'IconPinOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Plane = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Plane(props, ref) { return <IconSlot ref={ref} names={{ p: 'Airplane', l: 'Plane', t: 'IconPlane' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Play = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Play(props, ref) { return <IconSlot ref={ref} names={{ p: 'Play', l: 'Play', t: 'IconPlay' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Plus = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Plus(props, ref) { return <IconSlot ref={ref} names={{ p: 'Plus', l: 'Plus', t: 'IconPlus' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Puzzle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Puzzle(props, ref) { return <IconSlot ref={ref} names={{ p: 'PuzzlePiece', l: 'Puzzle', t: 'IconPuzzle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Quote = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Quote(props, ref) { return <IconSlot ref={ref} names={{ p: 'Quotes', l: 'Quote', t: 'IconQuote' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const RefreshCcw = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function RefreshCcw(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowsCounterClockwise', l: 'RefreshCcw', t: 'IconRefreshCcw' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const RefreshCw = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function RefreshCw(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowsClockwise', l: 'RefreshCw', t: 'IconRefreshCw' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Repeat = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Repeat(props, ref) { return <IconSlot ref={ref} names={{ p: 'Repeat', l: 'Repeat', t: 'IconRepeat' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Reply = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Reply(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowBendUpLeft', l: 'Reply', t: 'IconReply' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const RotateCcw = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function RotateCcw(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowCounterClockwise', l: 'RotateCcw', t: 'IconRotateCcw' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const RotateCw = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function RotateCw(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowClockwise', l: 'RotateCw', t: 'IconRotateCw' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Route = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Route(props, ref) { return <IconSlot ref={ref} names={{ p: 'Path', l: 'Route', t: 'IconRoute' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Rows3 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Rows3(props, ref) { return <IconSlot ref={ref} names={{ p: 'Rows', l: 'Rows3', t: 'IconRows3' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Rss = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Rss(props, ref) { return <IconSlot ref={ref} names={{ p: 'Rss', l: 'Rss', t: 'IconRss' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Salad = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Salad(props, ref) { return <IconSlot ref={ref} names={{ p: 'BowlFood', l: 'Salad', t: 'IconSalad' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Save = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Save(props, ref) { return <IconSlot ref={ref} names={{ p: 'FloppyDisk', l: 'Save', t: 'IconSave' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ScrollText = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ScrollText(props, ref) { return <IconSlot ref={ref} names={{ p: 'Scroll', l: 'ScrollText', t: 'IconScrollText' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Search = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Search(props, ref) { return <IconSlot ref={ref} names={{ p: 'MagnifyingGlass', l: 'Search', t: 'IconSearch' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Send = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Send(props, ref) { return <IconSlot ref={ref} names={{ p: 'PaperPlaneTilt', l: 'Send', t: 'IconSend' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Settings = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Settings(props, ref) { return <IconSlot ref={ref} names={{ p: 'GearSix', l: 'Settings', t: 'IconSettings' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Settings2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Settings2(props, ref) { return <IconSlot ref={ref} names={{ p: 'Gear', l: 'Settings2', t: 'IconSettings2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Share2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Share2(props, ref) { return <IconSlot ref={ref} names={{ p: 'ShareNetwork', l: 'Share2', t: 'IconShare2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Shield = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Shield(props, ref) { return <IconSlot ref={ref} names={{ p: 'Shield', l: 'Shield', t: 'IconShield' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ShieldAlert = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ShieldAlert(props, ref) { return <IconSlot ref={ref} names={{ p: 'ShieldWarning', l: 'ShieldAlert', t: 'IconShieldAlert' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ShieldCheck = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ShieldCheck(props, ref) { return <IconSlot ref={ref} names={{ p: 'ShieldCheck', l: 'ShieldCheck', t: 'IconShieldCheck' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ShieldOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ShieldOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'ShieldSlash', l: 'ShieldOff', t: 'IconShieldOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Shirt = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Shirt(props, ref) { return <IconSlot ref={ref} names={{ p: 'TShirt', l: 'Shirt', t: 'IconShirt' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Shuffle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Shuffle(props, ref) { return <IconSlot ref={ref} names={{ p: 'Shuffle', l: 'Shuffle', t: 'IconShuffle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const SlidersHorizontal = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function SlidersHorizontal(props, ref) { return <IconSlot ref={ref} names={{ p: 'SlidersHorizontal', l: 'SlidersHorizontal', t: 'IconSlidersHorizontal' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Smartphone = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Smartphone(props, ref) { return <IconSlot ref={ref} names={{ p: 'DeviceMobile', l: 'Smartphone', t: 'IconSmartphone' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Smile = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Smile(props, ref) { return <IconSlot ref={ref} names={{ p: 'Smiley', l: 'Smile', t: 'IconSmile' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Sparkles = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Sparkles(props, ref) { return <IconSlot ref={ref} names={{ p: 'Sparkle', l: 'Sparkles', t: 'IconSparkles' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Sprout = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Sprout(props, ref) { return <IconSlot ref={ref} names={{ p: 'Plant', l: 'Sprout', t: 'IconSprout' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Star = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Star(props, ref) { return <IconSlot ref={ref} names={{ p: 'Star', l: 'Star', t: 'IconStar' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Store = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Store(props, ref) { return <IconSlot ref={ref} names={{ p: 'Storefront', l: 'Store', t: 'IconStore' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Sun = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Sun(props, ref) { return <IconSlot ref={ref} names={{ p: 'Sun', l: 'Sun', t: 'IconSun' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const SunDim = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function SunDim(props, ref) { return <IconSlot ref={ref} names={{ p: 'SunDim', l: 'SunDim', t: 'IconSunDim' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Sunrise = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Sunrise(props, ref) { return <IconSlot ref={ref} names={{ p: 'SunHorizon', l: 'Sunrise', t: 'IconSunrise' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Sunset = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Sunset(props, ref) { return <IconSlot ref={ref} names={{ p: 'SunHorizon', l: 'Sunset', t: 'IconSunset' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Swords = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Swords(props, ref) { return <IconSlot ref={ref} names={{ p: 'Sword', l: 'Swords', t: 'IconSwords' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Target = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Target(props, ref) { return <IconSlot ref={ref} names={{ p: 'Target', l: 'Target', t: 'IconTarget' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Timer = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Timer(props, ref) { return <IconSlot ref={ref} names={{ p: 'Timer', l: 'Timer', t: 'IconTimer' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const TimerOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function TimerOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'Timer', l: 'TimerOff', t: 'IconTimerOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Trash = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Trash(props, ref) { return <IconSlot ref={ref} names={{ p: 'Trash', l: 'Trash', t: 'IconTrash' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Trash2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Trash2(props, ref) { return <IconSlot ref={ref} names={{ p: 'TrashSimple', l: 'Trash2', t: 'IconTrash2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Trees = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Trees(props, ref) { return <IconSlot ref={ref} names={{ p: 'Tree', l: 'Trees', t: 'IconTrees' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const TrendingDown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function TrendingDown(props, ref) { return <IconSlot ref={ref} names={{ p: 'TrendDown', l: 'TrendingDown', t: 'IconTrendingDown' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const TrendingUp = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function TrendingUp(props, ref) { return <IconSlot ref={ref} names={{ p: 'TrendUp', l: 'TrendingUp', t: 'IconTrendingUp' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Trophy = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Trophy(props, ref) { return <IconSlot ref={ref} names={{ p: 'Trophy', l: 'Trophy', t: 'IconTrophy' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Type = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Type(props, ref) { return <IconSlot ref={ref} names={{ p: 'TextT', l: 'Type', t: 'IconType' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Undo2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Undo2(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowArcLeft', l: 'Undo2', t: 'IconUndo2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Unlock = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Unlock(props, ref) { return <IconSlot ref={ref} names={{ p: 'LockOpen', l: 'Unlock', t: 'IconUnlock' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Upload = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Upload(props, ref) { return <IconSlot ref={ref} names={{ p: 'UploadSimple', l: 'Upload', t: 'IconUpload' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const User = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function User(props, ref) { return <IconSlot ref={ref} names={{ p: 'User', l: 'User', t: 'IconUser' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const User2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function User2(props, ref) { return <IconSlot ref={ref} names={{ p: 'User', l: 'User2', t: 'IconUser2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const UserCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function UserCircle(props, ref) { return <IconSlot ref={ref} names={{ p: 'UserCircle', l: 'UserCircle', t: 'IconUserCircle' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const UserMinus = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function UserMinus(props, ref) { return <IconSlot ref={ref} names={{ p: 'UserMinus', l: 'UserMinus', t: 'IconUserMinus' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const UserPlus = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function UserPlus(props, ref) { return <IconSlot ref={ref} names={{ p: 'UserPlus', l: 'UserPlus', t: 'IconUserPlus' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Users = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Users(props, ref) { return <IconSlot ref={ref} names={{ p: 'Users', l: 'Users', t: 'IconUsers' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Utensils = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Utensils(props, ref) { return <IconSlot ref={ref} names={{ p: 'ForkKnife', l: 'Utensils', t: 'IconUtensils' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const UtensilsCrossed = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function UtensilsCrossed(props, ref) { return <IconSlot ref={ref} names={{ p: 'ForkKnife', l: 'UtensilsCrossed', t: 'IconUtensilsCrossed' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Vibrate = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Vibrate(props, ref) { return <IconSlot ref={ref} names={{ p: 'Vibrate', l: 'Vibrate', t: 'IconVibrate' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Video = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Video(props, ref) { return <IconSlot ref={ref} names={{ p: 'VideoCamera', l: 'Video', t: 'IconVideo' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Volume2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Volume2(props, ref) { return <IconSlot ref={ref} names={{ p: 'SpeakerHigh', l: 'Volume2', t: 'IconVolume2' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const VolumeX = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function VolumeX(props, ref) { return <IconSlot ref={ref} names={{ p: 'SpeakerSlash', l: 'VolumeX', t: 'IconVolumeX' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Waves = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Waves(props, ref) { return <IconSlot ref={ref} names={{ p: 'Waves', l: 'Waves', t: 'IconWaves' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Wheat = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Wheat(props, ref) { return <IconSlot ref={ref} names={{ p: 'Grains', l: 'Wheat', t: 'IconWheat' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Wifi = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Wifi(props, ref) { return <IconSlot ref={ref} names={{ p: 'WifiHigh', l: 'Wifi', t: 'IconWifi' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const WifiOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function WifiOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'WifiSlash', l: 'WifiOff', t: 'IconWifiOff' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Wind = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Wind(props, ref) { return <IconSlot ref={ref} names={{ p: 'Wind', l: 'Wind', t: 'IconWind' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Wrench = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Wrench(props, ref) { return <IconSlot ref={ref} names={{ p: 'Wrench', l: 'Wrench', t: 'IconWrench' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const X = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function X(props, ref) { return <IconSlot ref={ref} names={{ p: 'X', l: 'X', t: 'IconX' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Zap = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Zap(props, ref) { return <IconSlot ref={ref} names={{ p: 'Lightning', l: 'Zap', t: 'IconZap' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ZoomIn = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ZoomIn(props, ref) { return <IconSlot ref={ref} names={{ p: 'MagnifyingGlassPlus', l: 'ZoomIn', t: 'IconZoomIn' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const ZoomOut = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ZoomOut(props, ref) { return <IconSlot ref={ref} names={{ p: 'MagnifyingGlassMinus', l: 'ZoomOut', t: 'IconZoomOut' }} {...props} />; },
+) as unknown as PhosphorIcon;
 
 /* Fallback: unmapped lucide-style names keep resolving from lucide. */
 export * from 'lucide-react';
