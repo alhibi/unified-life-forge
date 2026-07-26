@@ -44,9 +44,9 @@ export async function encryptText(
   // from a counter that could restart after a reload.
   const iv = randomIv();
   const ciphertext = await subtle().encrypt(
-    { name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 },
+    { name: 'AES-GCM', iv: iv as BufferSource, additionalData: aad as BufferSource, tagLength: 128 },
     key,
-    utf8(plaintext),
+    utf8(plaintext) as BufferSource,
   );
   return encodeEnvelope({ iv, ciphertext: new Uint8Array(ciphertext) });
 }
@@ -60,9 +60,9 @@ export async function decryptText(
   if (!envelope) return null;
   try {
     const plaintext = await subtle().decrypt(
-      { name: 'AES-GCM', iv: envelope.iv, additionalData: aad, tagLength: 128 },
+      { name: 'AES-GCM', iv: envelope.iv as BufferSource, additionalData: aad as BufferSource, tagLength: 128 },
       key,
-      envelope.ciphertext,
+      envelope.ciphertext as BufferSource,
     );
     return fromUtf8(new Uint8Array(plaintext));
   } catch {
