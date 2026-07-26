@@ -1,55 +1,51 @@
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { AnimatePresence, motion } from 'framer-motion';
-import { type ComponentType, useMemo, useState } from 'react';
+import { useState, useEffect } from "react";
+import BackButton from "@/components/BackButton";
+import SEO from "@/components/SEO";
 
-import BackButton from '@/components/BackButton';
-import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
-import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
-import {
-  ArrowUpSquare,
-  BookOpen,
-  Car,
-  ChevronRight,
-  Clock,
-  Cookie,
-  Shirt,
-  Sparkle,
-} from '@/lib/icons';
-import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
-
-/**
- * /knowledge — "موسوعة الرقي"
- * A self-contained luxury knowledge catalog. Five worlds: cars, perfumery,
- * horology, fashion, confiserie. RTL, dark (#080808). Tailwind only; dynamic
- * accent colors via inline style (per-category / per-model).
- */
-
-type CategoryId = 'cars' | 'perfumes' | 'watches' | 'fashion' | 'sweets';
-
+// ─── TYPES & INTERFACES ──────────────────────────────────────────────────────
 interface Category {
-  id: CategoryId;
-  icon: ComponentType<{ className?: string }>;
+  id: string;
+  icon: string;
   label: string;
   labelEn: string;
   color: string;
-  barLabel: string;
-  fieldLabels: [string, string, string, string]; // 4 main fields
+  bg: string;
 }
 
 interface Model {
   id: string;
   name: string;
-  type: string;
-  year: string;
-  price: string;
   color: string;
-  desc: string;
-  highlights: string[];
-  fields: [string, string, string, string]; // 4 values matching category.fieldLabels
-  extras: { label: string; value: string }[]; // 3 extra spec rows
-  barValue: number; // 0-100
+  year: string;
+  type: string;
+  price: string;
   tags: string[];
+  story: string;
+  highlights: string[];
+  bar: { label: string; value: number };
+  perf?: Record<string, string>;
+  engine?: Record<string, string>;
+  chassis?: Record<string, string>;
+  pyramid?: Record<string, string>;
+  character?: Record<string, string>;
+  notes?: Record<string, string>;
+  movement?: Record<string, string>;
+  case?: Record<string, string>;
+  dial?: Record<string, string>;
+  complications?: Record<string, string>;
+  fiber?: Record<string, string>;
+  leather?: Record<string, string>;
+  craft?: Record<string, string>;
+  hardware?: Record<string, string>;
+  sizing?: Record<string, string>;
+  market?: Record<string, string>;
+  components?: Record<string, string>;
+  process?: Record<string, string>;
+  tasting?: Record<string, string>;
+  origin_story?: Record<string, string>;
+  profile?: Record<string, string>;
+  technical?: Record<string, string>;
+  uses?: Record<string, string>;
 }
 
 interface Brand {
@@ -58,1420 +54,752 @@ interface Brand {
   origin: string;
   founded: string;
   logo: string;
+  tagline: string;
   desc: string;
   models: Model[];
 }
 
-// ─────────────────────────── Categories ───────────────────────────
+interface CategoryData {
+  brands: Brand[];
+}
+
+interface ModalContentProps {
+  m: Model;
+  color: string;
+}
+
+interface SectionProps {
+  title: string;
+  color: string;
+  children: React.ReactNode;
+}
+
+interface Grid2Props {
+  data?: Record<string, string>;
+  color: string;
+}
+
+interface PyramidBlockProps {
+  data?: Record<string, string>;
+  color: string;
+}
+
+interface ComponentsBlockProps {
+  data?: Record<string, string>;
+  color: string;
+}
+
+interface DetailModalProps {
+  model: Model;
+  brand: Brand;
+  catId: string;
+  catColor: string;
+  onClose: () => void;
+}
+
+// ─── CATEGORIES ───────────────────────────────────────────────────────────────
 const CATEGORIES: Category[] = [
-  {
-    id: 'cars',
-    icon: Car,
-    label: 'السيارات',
-    labelEn: 'Automobiles',
-    color: '#C8A96E',
-    barLabel: 'مستوى الأداء',
-    fieldLabels: ['المحرك', 'القوة', 'العزم', 'التسارع'],
-  },
-  {
-    id: 'perfumes',
-    icon: Sparkle,
-    label: 'العطور',
-    labelEn: 'Perfumery',
-    color: '#D4A5C9',
-    barLabel: 'الديمومة',
-    fieldLabels: ['رائحة القمة', 'القلب', 'القاعدة', 'العائلة'],
-  },
-  {
-    id: 'watches',
-    icon: Clock,
-    label: 'الساعات',
-    labelEn: 'Horology',
-    color: '#7EB8C9',
-    barLabel: 'التعقيد التقني',
-    fieldLabels: ['الحركة', 'نوع الحركة', 'الدقة', 'مقاومة الماء'],
-  },
-  {
-    id: 'fashion',
-    icon: Shirt,
-    label: 'الأزياء',
-    labelEn: 'Fashion',
-    color: '#C9A87E',
-    barLabel: 'مستوى الحرفية',
-    fieldLabels: ['الخامة', 'طريقة الصنع', 'بلد المنشأ', 'مدة التصنيع'],
-  },
-  {
-    id: 'sweets',
-    icon: Cookie,
-    label: 'الحلويات',
-    labelEn: 'Confiserie',
-    color: '#C97E8A',
-    barLabel: 'دقة التحضير',
-    fieldLabels: ['المكونات', 'القاعدة', 'الحشوة', 'وقت التحضير'],
-  },
+  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"#C8A96E", bg:"from-amber-950"   },
+  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"#D4A5C9", bg:"from-purple-950"  },
+  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"#7EB8C9", bg:"from-sky-950"     },
+  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"#C9A87E", bg:"from-stone-900"   },
+  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"#C97E8A", bg:"from-rose-950"    },
 ];
 
-// ────────────────────────────── Data ──────────────────────────────
-const DATA: Record<CategoryId, Brand[]> = {
-  cars: [
-    {
-      id: 'porsche',
-      name: 'Porsche',
-      origin: 'ألمانيا',
-      founded: '1931',
-      logo: 'P',
-      desc: 'روح الأداء وجمال التصميم في جسد واحد.',
-      models: [
-        {
-          id: '911s',
-          name: '911 Carrera S',
-          type: 'Sports',
-          year: '2024',
-          price: '$145,000',
-          color: '#C8A96E',
-          desc: 'الأصيل الخالد. أيقونة 60 عاماً من الحماس والدقة الألمانية. الـ911 ليست مجرد سيارة — إنها فلسفة في الحركة.',
-          highlights: [
-            'محرك خلفي أفقي فريد',
-            'فنانة المنعطفات الألمانية',
-            'إرث ستة عقود لا يُعادل',
-          ],
-          fields: ['3.0L Twin-Turbo Flat-6', '450 حصان', '530 نيوتن متر', '0–100 في 3.5ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '308 كم/س' },
-            { label: 'الوزن', value: '1,515 كغ' },
-            { label: 'القاعدة', value: '2,450 ملم' },
-          ],
-          barValue: 88,
-          tags: ['RWD', 'PDK', 'Sport Chrono'],
-        },
-        {
-          id: 'taycan',
-          name: 'Taycan Turbo S',
-          type: 'Electric',
-          year: '2024',
-          price: '$188,000',
-          color: '#5B9BD5',
-          desc: 'ثورة كهربائية بروح بورش الحقيقية. أسرع من الكارييرا، أهدأ من الصمت، أجمل من المتوقع.',
-          highlights: [
-            'شحن فائق 800 فولت',
-            'صفر انبعاثات، لا حدود للإحساس',
-            'الأسرع في تاريخ بورش',
-          ],
-          fields: ['محركان كهربائيان AWD', '761 حصان', '1,050 نيوتن متر', '0–100 في 2.8ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '260 كم/س' },
-            { label: 'البطارية', value: '93.4 kWh' },
-            { label: 'المدى', value: '630 كم' },
-          ],
-          barValue: 95,
-          tags: ['AWD', '800V', 'Launch Control'],
-        },
-        {
-          id: 'gt3',
-          name: '911 GT3 RS',
-          type: 'Track King',
-          year: '2023',
-          price: '$225,000',
-          color: '#E85D04',
-          desc: 'المضمار بثياب الشارع. هندسة جوية استثنائية، أجنحة نشطة، و9,000 دورة من الانتشاء.',
-          highlights: [
-            'أجنحة DRS نشطة ديناميكياً',
-            '9,000 RPM — أعلى من الفئة',
-            'حقّق 6:49 على نوردشلايف',
-          ],
-          fields: ['4.0L Flat-6 شفط طبيعي', '525 حصان', '465 نيوتن متر', '0–100 في 3.2ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '296 كم/س' },
-            { label: 'الوزن', value: '1,450 كغ' },
-            { label: 'نوردشلايف', value: '6:49.328' },
-          ],
-          barValue: 98,
-          tags: ['RWD', 'Manual', 'Weissach'],
-        },
-      ],
-    },
-    {
-      id: 'audi',
-      name: 'Audi',
-      origin: 'ألمانيا',
-      founded: '1909',
-      logo: 'A',
-      desc: 'Vorsprung durch Technik — التقدم عبر التكنولوجيا.',
-      models: [
-        {
-          id: 'r8',
-          name: 'R8 V10 Performance',
-          type: 'Supercar',
-          year: '2023',
-          price: '$198,000',
-          color: '#E0E0E0',
-          desc: 'آخر V10 طبيعي من أودي. صوت أسطوري عند 8,250 دورة/دقيقة يجعل جلدك ينتفض.',
-          highlights: ['V10 شفط طبيعي 8,250 RPM', 'Quattro AWD الأسطوري', 'هيكل ألومنيوم وكربون'],
-          fields: ['5.2L V10 شفط طبيعي', '620 حصان', '580 نيوتن متر', '0–100 في 3.1ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '331 كم/س' },
-            { label: 'الوزن', value: '1,695 كغ' },
-            { label: 'القاعدة', value: '2,650 ملم' },
-          ],
-          barValue: 93,
-          tags: ['AWD', 'Quattro', 'Mid-Engine'],
-        },
-        {
-          id: 'rs6',
-          name: 'RS6 Avant',
-          type: 'Wagon Beast',
-          year: '2024',
-          price: '$132,000',
-          color: '#2D6A4F',
-          desc: 'عربة العائلة التي تهزم السيارات الرياضية. عملية بالكامل، وحشية بالكامل، أنيقة تماماً.',
-          highlights: [
-            '850 نيوتن متر في لحظة',
-            'Dynamic Ride Control التكيفي',
-            '5 مقاعد وأداء السباق',
-          ],
-          fields: ['4.0L Twin-Turbo V8', '630 حصان', '850 نيوتن متر', '0–100 في 3.4ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '305 كم/س' },
-            { label: 'الوزن', value: '2,035 كغ' },
-            { label: 'الحمولة', value: '565–1,680 لتر' },
-          ],
-          barValue: 90,
-          tags: ['AWD', 'Quattro', 'Air Suspension'],
-        },
-      ],
-    },
-    {
-      id: 'amg',
-      name: 'Mercedes-AMG',
-      origin: 'ألمانيا',
-      founded: '1967',
-      logo: 'M',
-      desc: 'Das Beste oder Nichts — الأفضل أو لا شيء.',
-      models: [
-        {
-          id: 'gt63s',
-          name: 'GT 63 S E Performance',
-          type: 'Hybrid Beast',
-          year: '2024',
-          price: '$165,000',
-          color: '#D4AF37',
-          desc: 'الأقوى من AMG على الإطلاق. هجين مذهل، عزم خيالي، فخامة سيدان مع قلب سباق.',
-          highlights: [
-            '843 حصان — أقوى AMG في التاريخ',
-            'E-Boost الكهربائي الفوري',
-            '4 أبواب وروح GT',
-          ],
-          fields: ['4.0L V8 + محرك كهربائي', '843 حصان', '1,470 نيوتن متر', '0–100 في 2.9ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '316 كم/س' },
-            { label: 'الوزن', value: '2,385 كغ' },
-            { label: 'البطارية', value: '6.1 kWh' },
-          ],
-          barValue: 97,
-          tags: ['AWD', 'Hybrid', '4-Door GT'],
-        },
-      ],
-    },
-    {
-      id: 'ferrari',
-      name: 'Ferrari',
-      origin: 'إيطاليا',
-      founded: '1947',
-      logo: 'F',
-      desc: 'حيث الفن يلتقي بالأداء — Il Cavallino Rampante.',
-      models: [
-        {
-          id: 'sf90',
-          name: 'SF90 Stradale',
-          type: 'Hybrid Hypercar',
-          year: '2024',
-          price: '$625,000',
-          color: '#CC0000',
-          desc: 'ألف حصان إيطالي في سيارة أرضية. معجزة هجينة من مارانيلو. الأسرع فيراري إنتاجية.',
-          highlights: [
-            'ألف حصان من V8 وثلاث كهربائيات',
-            'AWD لأول مرة في فيراري',
-            '0–200 في 6.7 ثانية',
-          ],
-          fields: ['4.0L V8 + 3 محركات كهربائية', '1,000 حصان', '800 نيوتن متر', '0–100 في 2.5ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '340 كم/س' },
-            { label: 'الوزن', value: '1,570 كغ' },
-            { label: 'EV مدى', value: '25 كم' },
-          ],
-          barValue: 99,
-          tags: ['AWD', 'Hybrid', 'PHEV'],
-        },
-        {
-          id: 'purosangue',
-          name: 'Purosangue V12',
-          type: 'Luxury SUV',
-          year: '2024',
-          price: '$400,000',
-          color: '#800000',
-          desc: 'أول سيارة بأربعة أبواب وأربعة مقاعد من فيراري مع محرك V12 ذو تنفس طبيعي ساحر.',
-          highlights: ['أبواب خلفية تفتح بشكل عكسي مذهل', 'محرك V12 تنفس طبيعي في قمة الروعة', 'نظام تعليق نشط متطور للغاية'],
-          fields: ['6.5L V12 تنفس طبيعي', '725 حصان', '716 نيوتن متر', '0–100 في 3.3ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '310 كم/س' },
-            { label: 'الوزن', value: '2,033 كغ' },
-            { label: 'توزيع الوزن', value: '49:51' },
-          ],
-          barValue: 96,
-          tags: ['V12', 'AWD', '4-Door'],
-        }
-      ],
-    },
-    {
-      id: 'bugatti',
-      name: 'Bugatti',
-      origin: 'فرنسا',
-      founded: '1909',
-      logo: 'B',
-      desc: 'إذا كان قابلاً للمقارنة، فهو ليس بوغاتي.',
-      models: [
-        {
-          id: 'chiron_ss',
-          name: 'Chiron Super Sport',
-          type: 'Hypercar',
-          year: '2023',
-          price: '$3,825,000',
-          color: '#1A237E',
-          desc: 'القمة المطلقة في هندسة السرعة والفخامة. وحش بـ 16 أسطوانة يلتهم المسافات كأنه طائرة نفاثة أرضية.',
-          highlights: ['أربع شواحن توربينية عملاقة', 'هيكل كربوني فائق الانسيابية', 'سرعة قصوى محددة لسلامة الإطارات'],
-          fields: ['8.0L Quad-Turbo W16', '1600 حصان', '1600 نيوتن متر', '0–100 في 2.2ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '440 كم/س' },
-            { label: 'الوزن', value: '1,945 كغ' },
-            { label: 'معدل الانبعاث', value: 'كثيف' },
-          ],
-          barValue: 100,
-          tags: ['W16', 'AWD', 'SuperSport'],
-        }
-      ]
-    },
-    {
-      id: 'aston_martin',
-      name: 'Aston Martin',
-      origin: 'بريطانيا',
-      founded: '1913',
-      logo: 'AM',
-      desc: 'الفخامة البريطانية والأداء الرياضي الخالد.',
-      models: [
-        {
-          id: 'dbs_sl',
-          name: 'DBS Superleggera',
-          type: 'Grand Tourer',
-          year: '2023',
-          price: '$330,000',
-          color: '#004D40',
-          desc: 'الوحش الأنيق. سيارة الـ Grand Tourer الأجمل التي تجمع بين الفخامة المفرطة وعزم الدوران العنيف.',
-          highlights: ['تصميم خارجي ساحر ومقدمة مرعبة', 'هيكل خفيف للغاية من ألياف الكربون', 'صوت عادم بريطاني مذهل'],
-          fields: ['5.2L Twin-Turbo V12', '715 حصان', '900 نيوتن متر', '0–100 في 3.4ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '340 كم/س' },
-            { label: 'الوزن', value: '1,693 كغ' },
-            { label: 'ناقل الحركة', value: 'ZF 8-Speed' },
-          ],
-          barValue: 91,
-          tags: ['V12', 'RWD', 'Carbon-Fiber'],
-        },
-        {
-          id: 'valkyrie',
-          name: 'Valkyrie',
-          type: 'Hypercar',
-          year: '2024',
-          price: '$3,500,000',
-          color: '#33691E',
-          desc: 'سيارة فورمولا 1 مخصصة للطرق العامة. ثمرة التعاون بين أستون مارتن وعبقري الهوائية أدريان نيوي.',
-          highlights: ['محرك Cosworth ذو دوران مرعب 11,100 دورة', 'توليد قوة داونفورس تعادل الطائرات', 'هيكل كربوني بالكامل لا مثيل له'],
-          fields: ['6.5L V12 Hybrid', '1155 حصان', '900 نيوتن متر', '0–100 في 2.6ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '400 كم/س' },
-            { label: 'الوزن', value: '1,030 كغ' },
-            { label: 'مستوى الدوران', value: '11,100 RPM' },
-          ],
-          barValue: 100,
-          tags: ['V12', 'Hybrid', 'F1-inspired'],
-        }
-      ]
-    },
-    {
-      id: 'lamborghini',
-      name: 'Lamborghini',
-      origin: 'إيطاليا',
-      founded: '1963',
-      logo: 'L',
-      desc: 'روح التصميم الهجومي الحاد والجرأة اللامحدودة.',
-      models: [
-        {
-          id: 'revuelto',
-          name: 'Revuelto V12 Hybrid',
-          type: 'Hypercar',
-          year: '2024',
-          price: '$608,000',
-          color: '#FF6F00',
-          desc: 'الخليفة الشرعي لأفنتادور. أول سيارة هجينة فائقة الأداء بمحرك V12 وثلاثة محركات كهربائية.',
-          highlights: ['أول وحش هجين خارق بمحرك V12', 'علبة تروس مزدوجة القابض بـ 8 سرعات', 'هيكل أحادي كربوني متكامل'],
-          fields: ['6.5L V12 + 3 E-Motors', '1015 حصان', '807 نيوتن متر', '0–100 في 2.5ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '350 كم/س' },
-            { label: 'الوزن', value: '1,775 كغ' },
-            { label: 'وضع القيادة', value: '13 وضع قياسي' },
-          ],
-          barValue: 98,
-          tags: ['V12', 'Hybrid', 'AWD'],
-        }
-      ]
-    },
-    {
-      id: 'rolls_royce',
-      name: 'Rolls-Royce',
-      origin: 'بريطانيا',
-      founded: '1906',
-      logo: 'RR',
-      desc: 'الملك غير المتوج لعالم السيارات الفاخرة.',
-      models: [
-        {
-          id: 'phantom8',
-          name: 'Phantom VIII',
-          type: 'Ultra-Luxury Sedan',
-          year: '2024',
-          price: '$460,000',
-          color: '#3E2723',
-          desc: 'قمة الفخامة المطلقة والهدوء التام. واحة متحركة تعزل ركابها تماماً عن ضوضاء العالم الخارجي.',
-          highlights: ['نظام تعليق هوائي يقرأ الطريق بالكاميرات', 'سقف مرصع بالألياف الضوئية يحاكي النجوم', 'صوت عزل مطلق أشبه بغرفة صامتة'],
-          fields: ['6.75L Twin-Turbo V12', '563 حصان', '900 نيوتن متر', '0–100 في 5.3ث'],
-          extras: [
-            { label: 'السرعة القصوى', value: '250 كم/س' },
-            { label: 'الوزن', value: '2,560 كغ' },
-            { label: 'نوع العجلات', value: '22-inch Silent' },
-          ],
-          barValue: 99,
-          tags: ['V12', 'Luxury', 'Sovereign'],
-        }
-      ]
-    }
-  ],
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const DATA: Record<string, CategoryData> = {
 
-  perfumes: [
-    {
-      id: 'creed',
-      name: 'Creed',
-      origin: 'فرنسا / لندن',
-      founded: '1760',
-      logo: 'C',
-      desc: 'عطر الملوك والأرستقراطية منذ ثلاثة قرون.',
-      models: [
-        {
-          id: 'aventus',
-          name: 'Aventus',
-          type: 'Woody Aromatic',
-          year: '2010',
-          price: '$495 / 50ml',
-          color: '#D4A5C9',
-          desc: 'الأسطورة الحية. يجسد انتصار نابليون. الأكثر نقاشاً عبر الإنترنت — يختلف من جلد لآخر ومن دفعة لأخرى.',
-          highlights: [
-            'بتولا مدخّنة تميّزه فوراً',
-            'قاعدة المسك والعنبر والعود',
-            'ظاهرة ثقافية عالمية',
-          ],
-          fields: ['برغموت، أناناس، تفاح', 'بتولا مدخّنة وورد', 'مسك، عنبر، عود', 'Woody Chypre'],
-          extras: [
-            { label: 'الديمومة', value: '12–14 ساعة' },
-            { label: 'الانتشار', value: 'قوي جداً' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 90,
-          tags: ['Masculine', 'Iconic', 'Projection'],
-        },
-        {
-          id: 'virgin',
-          name: 'Virgin Island Water',
-          type: 'Tropical Fresh',
-          year: '2007',
-          price: '$410 / 50ml',
-          color: '#7EC8E3',
-          desc: 'رحلة إلى جزر العذراء في زجاجة. الرم الحقيقي واللايم والجوز — إجازة حرفية على جلدك.',
-          highlights: ['رم حقيقي في التركيبة', 'مثالي لفصل الصيف', 'يُفاجئ من يتوقع كريد تقليدياً'],
-          fields: ['ليمون، رم، جوز هند', 'زنجبيل وخيزران', 'مسك أبيض', 'Aquatic Tropical'],
-          extras: [
-            { label: 'الديمومة', value: '8–10 ساعات' },
-            { label: 'الانتشار', value: 'معتدل' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 70,
-          tags: ['Unisex', 'Beach', 'Summer'],
-        },
-        {
-          id: 'git',
-          name: 'Green Irish Tweed',
-          type: 'Fougere Fresh',
-          year: '1985',
-          price: '$430 / 50ml',
-          color: '#4A9B7F',
-          desc: 'الجد الشرعي لكول ووتر وكل عطر أخضر طازج عرفه العالم. الأصل قبل النسخ.',
-          highlights: [
-            'صدر عام 1985 — قبل كل المنافسين',
-            'ملهم لجيل كامل من العطور',
-            'بساطة الملوك الحقيقيين',
-          ],
-          fields: ['ليمون أخضر وعنبر', 'زنبق الوادي وحشيش', 'خشب الصندل', 'Fougere Aromatic'],
-          extras: [
-            { label: 'الديمومة', value: '10–12 ساعة' },
-            { label: 'الانتشار', value: 'معتدل' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 80,
-          tags: ['Masculine', 'Classic', 'GOAT'],
-        },
-      ],
-    },
-    {
-      id: 'mfk',
-      name: 'Maison Francis Kurkdjian',
-      origin: 'فرنسا',
-      founded: '2009',
-      logo: 'MFK',
-      desc: 'العطّار الذي أعاد تعريف الفخامة الفرنسية الحديثة.',
-      models: [
-        {
-          id: 'br540',
-          name: 'Baccarat Rouge 540',
-          type: 'Floral Woody Musky',
-          year: '2015',
-          price: '$335 / 70ml',
-          color: '#E8B4A0',
-          desc: 'الظاهرة العالمية. زعفران خشبي محمّص مع خيط من العود والمسك. لم يُمل أحد حتى الآن.',
-          highlights: [
-            'الأكثر مبيعاً في الفئة الراقية',
-            'يُستشعر قبل دخول صاحبه',
-            'أثار موجة تقليد عالمية',
-          ],
-          fields: ['زعفران وجريب فروت', 'ياسمين مصري وعود', 'أرز ومسك', 'Woody Floral Musky'],
-          extras: [
-            { label: 'الديمومة', value: '14+ ساعة' },
-            { label: 'الانتشار', value: 'كثيف جداً' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 96,
-          tags: ['Unisex', 'Iconic', 'Compliments'],
-        },
-        {
-          id: 'oudsm',
-          name: 'Oud Satin Mood',
-          type: 'Woody Oriental',
-          year: '2015',
-          price: '$360 / 70ml',
-          color: '#8B5A6E',
-          desc: 'ساتان شرقي يلامس البشرة. عود ناعم محتضن بالورد والبنفسج — فخامة هادئة وحميمة.',
-          highlights: ['عود مصقول لا يُثقل', 'خيوط ورد بلغاري', 'حضور أنيق دافئ'],
-          fields: ['بنفسج وفلفل', 'ورد ومستكة', 'عود وفانيليا', 'Woody Oriental'],
-          extras: [
-            { label: 'الديمومة', value: '12+ ساعة' },
-            { label: 'الانتشار', value: 'كثيف' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 94,
-          tags: ['Unisex', 'Oud', 'Cozy'],
-        },
-      ],
-    },
-    {
-      id: 'lv',
-      name: 'Louis Vuitton Parfums',
-      origin: 'فرنسا',
-      founded: '1854',
-      logo: 'LV',
-      desc: 'فن العطر من أعظم دور الأزياء الباريسية.',
-      models: [
-        {
-          id: 'ombre',
-          name: 'Ombré Nomade',
-          type: 'Woody Oud',
-          year: '2018',
-          price: '$520 / 50ml',
-          color: '#8B4513',
-          desc: 'رحلة البدوي عبر الصحراء والغابات. عود لاوسي نادر مُوازَن بالخشب ونسمة من الورد والبنفسج.',
-          highlights: [
-            'عود لاوسي من أندر الأنواع',
-            'كثافة استثنائية لا تذوب',
-            'مستوحى من ترحال البدو',
-          ],
-          fields: ['برتقال وبنفسج', 'ورد وخشب لاوس', 'عود ومسك', 'Woody Oriental'],
-          extras: [
-            { label: 'الديمومة', value: '14+ ساعة' },
-            { label: 'الانتشار', value: 'كثيف' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 95,
-          tags: ['Unisex', 'Oud', 'Statement'],
-        },
-        {
-          id: 'imagination',
-          name: 'Imagination',
-          type: 'Fresh Citrus',
-          year: '2021',
-          price: '$320 / 100ml',
-          color: '#4DD0E1',
-          desc: 'أيقونة الإبداع والانتعاش من لويس فويتون. عطر نضر يجمع بين الحمضيات الإيطالية والشاي الأسود.',
-          highlights: ['أفضل عطور الصيف والانتعاش حالياً', 'نوتات الشاي الأسود المدخن بنعومة', 'نقاء متناهي ومكونات طبيعية'],
-          fields: ['البرغموت، البرتقال المر', 'الشاي الأسود، القرفة', 'الأمبروكسان، البخور', 'Citrus Aquatic'],
-          extras: [
-            { label: 'الديمومة', value: '10–12 ساعة' },
-            { label: 'الانتشار', value: 'قوي وراقي' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 91,
-          tags: ['Summer', 'Citrus', 'Clean'],
-        }
-      ],
-    },
-    {
-      id: 'amouage',
-      name: 'Amouage',
-      origin: 'عُمان',
-      founded: '1983',
-      logo: 'A',
-      desc: 'هدية الملوك وسحر الشرق الأصيل وفخامته المعاصرة.',
-      models: [
-        {
-          id: 'interlude',
-          name: 'Interlude Man',
-          type: 'Spicy Amber',
-          year: '2012',
-          price: '$360 / 100ml',
-          color: '#1E3A8A',
-          desc: 'الوحش الأزرق. عطر ذو طابع دخاني شرقي مهيب، يجمع بين البخور اللبان والجلود والأخشاب بروعة.',
-          highlights: ['اللبان العماني الفاخر بتركيز عالٍ', 'عطر ذو هيبة وحضور طاغٍ لا ينسى', 'قوة ديمومة خيالية تتجاوز الأيام'],
-          fields: ['الأوريغانو، الفلفل، البرغموت', 'البخور، العنبر، الأوبوبوناكس', 'الجلود، العود، الباتشولي', 'Amber Woody'],
-          extras: [
-            { label: 'الديمومة', value: '24+ ساعة' },
-            { label: 'الانتشار', value: 'وحشي' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 98,
-          tags: ['Beast-Mode', 'Incense', 'Royal'],
-        },
-        {
-          id: 'reflection',
-          name: 'Reflection Man',
-          type: 'Floral Woody',
-          year: '2007',
-          price: '$360 / 100ml',
-          color: '#E0E0E0',
-          desc: 'انعكاس النقاء والرجولة العصرية الهادئة. مزيج زهري خشبي ناعم وساحر يمنح شعوراً رائعاً.',
-          highlights: ['نوتة زهر البرتقال والياسمين المصقولة', 'عطر رجالي زهري غاية في الأناقة', 'محبوب جداً للمناسبات الرسمية واليومية'],
-          fields: ['إكليل الجبل، الفلفل الحلو', 'الياسمين، زهر البرتقال', 'خشب الصندل، الباتشولي', 'Woody Floral'],
-          extras: [
-            { label: 'الديمومة', value: '8–10 ساعات' },
-            { label: 'الانتشار', value: 'ممتاز وناعم' },
-            { label: 'التركيز', value: 'EDP' },
-          ],
-          barValue: 87,
-          tags: ['Elegant', 'Floral', 'Fresh'],
-        }
-      ]
-    },
-    {
-      id: 'tomford',
-      name: 'Tom Ford Beauty',
-      origin: 'الولايات المتحدة',
-      founded: '2005',
-      logo: 'TF',
-      desc: 'العطور الفاخرة التي تفيض جاذبية وجرأة وتفرداً.',
-      models: [
-        {
-          id: 'tobaccovanille',
-          name: 'Tobacco Vanille',
-          type: 'Warm Spicy',
-          year: '2007',
-          price: '$295 / 50ml',
-          color: '#4E342E',
-          desc: 'تحفة توم فورد التي أعادت تعريف عطور التبغ والحلويات الفاخرة. مزيج غني ودافئ كليالٍ شتوية.',
-          highlights: ['أوراق التبغ الإنجليزية الفاخرة', 'فانيليا غنية وكاكاو دافئ ولذيذ', 'مثالي للأجواء الباردة والمناسبات الفخمة'],
-          fields: ['أوراق التبغ، التوابل', 'الفانيليا، الكاكاو، زهرة التبغ', 'الفواكه المجففة، الأخشاب', 'Amber Spicy'],
-          extras: [
-            { label: 'الديمومة', value: '12–15 ساعة' },
-            { label: 'الانتشار', value: 'قوي جداً' },
-            { label: 'التركيز', value: 'Eau de Parfum' },
-          ],
-          barValue: 93,
-          tags: ['Winter', 'Tobacco', 'Sweet'],
-        },
-        {
-          id: 'oudwood',
-          name: 'Oud Wood',
-          type: 'Woody Amber',
-          year: '2007',
-          price: '$295 / 50ml',
-          color: '#212121',
-          desc: 'العطر الذي أدخل ثقافة العود والشرق إلى عطور النيش الغربية بأسلوب راقٍ وغامض.',
-          highlights: ['العود المدخن اللطيف غير الحاد', 'خشب الصندل والسموكي الراقي', 'عطر رسمي وجذاب بلا حدود'],
-          fields: ['الهيل، فلفل سيتشوان', 'العود، خشب الصندل، نجيل الهند', 'الفانيليا، العنبر، التونكا', 'Woody Oud'],
-          extras: [
-            { label: 'الديمومة', value: '8–10 ساعات' },
-            { label: 'الانتشار', value: 'معتدل فخم' },
-            { label: 'التركيز', value: 'Eau de Parfum' },
-          ],
-          barValue: 85,
-          tags: ['Oud', 'Classic', 'Signature'],
-        }
-      ]
-    },
-    {
-      id: 'roja',
-      name: 'Roja Parfums',
-      origin: 'بريطانيا',
-      founded: '2011',
-      logo: 'R',
-      desc: 'أفخم العطور في العالم من العطار الأسطوري روجا دوف.',
-      models: [
-        {
-          id: 'elysium',
-          name: 'Elysium Pour Homme',
-          type: 'Fresh Citrus',
-          year: '2017',
-          price: '$315 / 100ml',
-          color: '#1565C0',
-          desc: 'العطر السماوي الفاخر. توليفة منعشة تفوق الوصف تجمع الحمضيات الغنية والروائح العشبية.',
-          highlights: ['مكونات طبيعية بالغة النقاء والندرة', 'عطر منعش ذو طابع نيش فريد', 'قاعدة عنبرية مسكية تضفي فخامة إضافية'],
-          fields: ['الجريب فروت، الليمون، الزعتر', 'التفاح، الياسمين، الفلفل الوردي', 'العنبر، الجلود، الأرز، العود', 'Citrus Fougere'],
-          extras: [
-            { label: 'الديمومة', value: '8–10 ساعات' },
-            { label: 'الانتشار', value: 'رائع وراقي' },
-            { label: 'التركيز', value: 'Parfum Cologne' },
-          ],
-          barValue: 89,
-          tags: ['Fresh', 'Niche', 'Compliment-Magnet'],
-        }
-      ]
-    }
-  ],
+  // ══ CARS ══════════════════════════════════════════════════════════════════
+  cars: {
+    brands: [
+      {
+        id:"porsche", name:"Porsche", origin:"Stuttgart, DE", founded:"1931", logo:"P",
+        tagline:"روح الأداء — في جسد من الفولاذ",
+        desc:"منذ 1931، تصنع بورش السيارة التي تُعيد تعريف العلاقة بين الإنسان والطريق.",
+        models:[
+          {
+            id:"911s", name:"911 Carrera S", color:"#C8A96E", year:"2024",
+            type:"Sports Coupe", price:"$145,000",
+            tags:["RWD","PDK 8-Speed","Sport Chrono","PASM"],
+            story:"ستة عقود، قلب واحد. الـ911 لم تتغير لأنها كانت صحيحة منذ البداية. المحرك خلفي، الثقل خلفي، والشعور لا يوصف.",
+            highlights:["محرك Flat-6 أفقي خلف المحور الخلفي — فريد عالمياً","أداء مضمار على إطارات الشارع","هيكل ألومنيوم هجين يوفر 50% من الوزن"],
+            perf:{ "0→100 كم/ساعة":"3.5 ث", "0→200 كم/ساعة":"11.9 ث", "السرعة القصوى":"308 كم/ساعة", "نوع التسارع":"Sport Chrono" },
+            engine:{ "المحرك":"3.0L Flat-6 Biturbo", "الاستطاعة":"450 حصان @ 6,500 RPM", "العزم":"530 Nm @ 2,300 RPM", "ناقل الحركة":"PDK 8 سرعات", "نظام الدفع":"RWD" },
+            chassis:{ "الوزن":"1,515 كغ", "قاعدة العجلات":"2,450 ملم", "الإطارات الأمامية":"245/35 ZR20", "الإطارات الخلفية":"305/30 ZR21", "الفرامل الأمامية":"PCCB كربون اختياري" },
+            bar:{ label:"مؤشر الأداء", value:88 }
+          },
+          {
+            id:"taycan", name:"Taycan Turbo S", color:"#5B9BD5", year:"2024",
+            type:"Electric Sport Sedan", price:"$188,000",
+            tags:["AWD","800V Architecture","Launch Control","PDCC Sport"],
+            story:"ثورة هادئة. بورش أثبتت أن الكهربائي لا يعني الملل — الـTaycan يتسارع بشكل يصعب تصديقه وفرامله تعيد شحن البطارية.",
+            highlights:["معمارية 800 فولت — أسرع شحن في الفئة","نظام PDCC يُلغي الميل الجانبي شبه كلياً","Launch Control يُفعّل كامل الطاقة في 0.5 ثانية"],
+            perf:{ "0→100 كم/ساعة":"2.8 ث", "0→200 كم/ساعة":"9.2 ث", "السرعة القصوى":"260 كم/ساعة (مقيّدة)", "Launch Control":"نعم — غير محدود" },
+            engine:{ "المحركان":"Front + Rear PSM Motors", "الاستطاعة (Overboost)":"761 حصان", "العزم الفوري":"1,050 Nm", "البطارية":"93.4 kWh (نت)", "الشحن الأقصى":"270 kW DC" },
+            chassis:{ "الوزن":"2,305 كغ", "المدى (WLTP)":"630 كم", "قاعدة العجلات":"2,900 ملم", "الإطارات الأمامية":"265/35 ZR21", "الإطارات الخلفية":"305/30 ZR21" },
+            bar:{ label:"مؤشر الأداء", value:96 }
+          },
+          {
+            id:"gt3rs", name:"911 GT3 RS", color:"#E85D04", year:"2023",
+            type:"Track-Focused Homologation", price:"$225,000",
+            tags:["RWD","PDK","Weissach Package","DRS Active Aero"],
+            story:"هذه ليست سيارة — هذا مقاتل طائرات مع لوحات ترخيص. الأجنحة النشطة توفر ضغطاً أرضياً أعلى من وزن السيارة نفسها.",
+            highlights:["أجنحة DRS: وضع السحب لأقصى سرعة + وضع الضغط للمنعطفات","4.0L Flat-6 يصل 9,000 RPM — أعلى دوران في فئته","Nordschleife: 6:49.328 — ركوردة إنتاجية قياسية"],
+            perf:{ "0→100 كم/ساعة":"3.2 ث", "السرعة القصوى":"296 كم/ساعة", "نوردشلايف":"6:49.328", "الضغط الأرضي":"409 كغ @ 200 كم/ساعة" },
+            engine:{ "المحرك":"4.0L Flat-6 شفط طبيعي", "الاستطاعة":"525 حصان @ 9,000 RPM", "العزم":"465 Nm @ 6,300 RPM", "دوران المحرك":"9,000 RPM (أقصى)", "ناقل الحركة":"PDK 7 سرعات مع Launch" },
+            chassis:{ "الوزن":"1,450 كغ", "الهيكل":"ألومنيوم هجين + CFRP", "الإطارات الأمامية":"275/35 R20 Michelin Cup 2R", "الإطارات الخلفية":"335/30 R21 Michelin Cup 2R", "الكسارة الهوائية":"نشطة إلكترونياً" },
+            bar:{ label:"مؤشر الأداء", value:99 }
+          },
+        ]
+      },
+      {
+        id:"ferrari", name:"Ferrari", origin:"Maranello, IT", founded:"1947", logo:"F",
+        tagline:"Non si può spiegare — لا يمكن تفسيره، فقط إحساسه",
+        desc:"من مارانيلو، تخرج كل سنة بضع مئات من السيارات التي تحرك قلوب الملايين.",
+        models:[
+          {
+            id:"sf90", name:"SF90 Stradale", color:"#CC0000", year:"2024",
+            type:"PHEV Hypercar", price:"$625,000",
+            tags:["AWD","PHEV","eSSC","F1-Trac","Side Slip Control 6.0"],
+            story:"فيراري الهجينة الأولى بدفع رباعي في تاريخ البيت. ثلاثة محركات كهربائية تضاف إلى V8 لينتج نظام يشبه F1.",
+            highlights:["أول فيراري AWD في تاريخ الإنتاج","ألف حصان من 4 مصادر — V8 + 3 كهربائيات","0-200 في 6.7 ثانية — أسرع إنتاجية فيراري عبر التاريخ"],
+            perf:{ "0→100 كم/ساعة":"2.5 ث", "0→200 كم/ساعة":"6.7 ث", "السرعة القصوى":"340 كم/ساعة", "مدى EV":"25 كم (EV Only Mode)" },
+            engine:{ "محرك البنزين":"4.0L V8 Biturbo — 780 حصان", "المحرك الأمامي":"2 × Axial Flux (eSSC)", "المحرك الخلفي":"1 × MGU-K خلف ناقل الحركة", "إجمالي الاستطاعة":"1,000 حصان / 800 Nm", "البطارية":"7.9 kWh" },
+            chassis:{ "الوزن":"1,570 كغ", "الهيكل":"CFRP بالكامل", "ناقل الحركة":"8DCT F1 + eSSC", "نظام الدفع":"AWD ذكي", "الفرامل":"Brembo CCM-R Ceramic" },
+            bar:{ label:"مؤشر الأداء", value:100 }
+          },
+          {
+            id:"purosangue", name:"Purosangue V12", color:"#8B0000", year:"2023",
+            type:"Sports SUV", price:"$395,000",
+            tags:["AWD","V12 NA","4 Porte","Active Suspension"],
+            story:"فيراري رفضت صنع SUV لعقود. حين قررت، جعلتها الأقوى في الفئة وأضافت V12 شفطاً طبيعياً لا يملكه أي SUV آخر.",
+            highlights:["V12 6.5L شفط طبيعي — غير موجود في أي SUV آخر","أبواب خلفية تُفتح عكسياً (Dihedral) — اقتراح فيراري","Active Suspension تكيفي يُلغي الميل كلياً في المنعطفات"],
+            perf:{ "0→100 كم/ساعة":"3.3 ث", "السرعة القصوى":"310 كم/ساعة", "0→200 كم/ساعة":"10.6 ث", "الفرامل 100→0":"32 متر" },
+            engine:{ "المحرك":"6.5L V12 Naturally Aspirated", "الاستطاعة":"725 حصان @ 7,750 RPM", "العزم":"716 Nm @ 6,250 RPM", "ناقل الحركة":"8DCT Dual Clutch", "دوران المحرك":"8,250 RPM (أقصى)" },
+            chassis:{ "الوزن":"2,033 كغ", "قاعدة العجلات":"3,020 ملم", "الخزان":"90 لتر", "التعليق":"Active Magnetic Ride 4.0", "الإطارات":"296/35 ZR22 (خلفي)" },
+            bar:{ label:"مؤشر الأداء", value:93 }
+          },
+        ]
+      },
+      {
+        id:"amg", name:"Mercedes-AMG", origin:"Affalterbach, DE", founded:"1967", logo:"AMG",
+        tagline:"One Man, One Engine — كل محرك يبنيه رجل واحد بيده",
+        desc:"ورشة صغيرة في أفالتيرباخ حوّلت مرسيدس إلى وحوش. كل محرك AMG يوقّعه الميكانيكي الذي بناه.",
+        models:[
+          {
+            id:"gt63se", name:"AMG GT 63 S E Performance", color:"#D4AF37", year:"2024",
+            type:"PHEV Performance Sedan", price:"$165,000",
+            tags:["AWD","PHEV","843hp","4MATIC+","E-Boost"],
+            story:"الأقوى من AMG على الإطلاق. يجمع V8 بيتوربو مع محرك كهربائي خلفي لينتج 1,470 Nm من العزم — عزم شاحنة في جسد سيدان فاخر.",
+            highlights:["1,470 Nm عزم — الأعلى في تاريخ AMG","E-Boost يُضيف 204 حصاناً إضافياً كهربائياً","النظام الهجين يقلل استهلاك الوقود 30% في المدينة"],
+            perf:{ "0→100 كم/ساعة":"2.9 ث", "السرعة القصوى":"316 كم/ساعة", "0→200 كم/ساعة":"9.4 ث", "Launch Control":"Race Start Mode" },
+            engine:{ "محرك البنزين":"4.0L V8 Biturbo — 639 حصان", "المحرك الكهربائي":"204 حصان (خلفي)", "الاستطاعة الإجمالية":"843 حصان", "العزم الإجمالي":"1,470 Nm", "البطارية":"6.1 kWh AMG HighPerformance" },
+            chassis:{ "الوزن":"2,385 كغ", "قاعدة العجلات":"3,070 ملم", "ناقل الحركة":"AMG Speedshift MCT 9-Speed", "نظام الدفع":"AMG Performance 4MATIC+", "الفرامل":"AMG Ceramic Composite (اختياري)" },
+            bar:{ label:"مؤشر الأداء", value:97 }
+          },
+        ]
+      },
+    ]
+  },
 
-  watches: [
-    {
-      id: 'patek',
-      name: 'Patek Philippe',
-      origin: 'جنيف، سويسرا',
-      founded: '1839',
-      logo: 'PP',
-      desc: 'لا تملك باتيك — أنت تحفظها للجيل القادم.',
-      models: [
-        {
-          id: 'naut',
-          name: 'Nautilus 5711/1A',
-          type: 'Integrated Bracelet',
-          year: '1976',
-          price: '+$150,000',
-          color: '#4A9B7F',
-          desc: 'جيرالد جنتا والساعة التي غيّرت الفولاذ إلى فخامة. الأندر والأغلى من الفولاذ في التاريخ.',
-          highlights: [
-            'أوقفت إنتاجها 2021 فارتفع سعرها',
-            'نسيج الأوجانو الأيقوني',
-            'الحلم المستحيل للمجمعين',
-          ],
-          fields: ['Calibre 26-330 S C', 'أوتوماتيك', '±2 ث/يوم', '120 متر'],
-          extras: [
-            { label: 'القطر', value: '40 ملم' },
-            { label: 'السُمك', value: '8.3 ملم' },
-            { label: 'الاحتياطي', value: '45 ساعة' },
-          ],
-          barValue: 99,
-          tags: ['Steel', 'Iconic', 'Discontinued'],
-        },
-        {
-          id: 'sky',
-          name: 'Sky Moon Tourbillon 6002G',
-          type: 'Grand Complication',
-          year: '2001',
-          price: '$1,200,000+',
-          color: '#E0E0E0',
-          desc: 'التاج المطلق. جانبان، 12 وظيفة، توربيون من الخلف، خريطة سماوية. قمة صناعة الساعات.',
-          highlights: ['12 تعقيداً في ساعة واحدة', 'توربيون مزدوج', 'خريطة السماء المتحركة'],
-          fields: ['Calibre R TO 27 QR SID LU CL', 'يدوي', 'كرونومتر', '30 متر'],
-          extras: [
-            { label: 'القطر', value: '42 ملم' },
-            { label: 'وظائف', value: '12 تعقيد' },
-            { label: 'المادة', value: 'بلاتينيوم' },
-          ],
-          barValue: 100,
-          tags: ['Platinum', 'Tourbillon', 'Grand'],
-        },
-      ],
-    },
-    {
-      id: 'ap',
-      name: 'Audemars Piguet',
-      origin: 'لو براسوس، سويسرا',
-      founded: '1875',
-      logo: 'AP',
-      desc: 'منذ 1875 — الجرأة في التصميم، التفوق في الصناعة.',
-      models: [
-        {
-          id: 'roo',
-          name: 'Royal Oak Offshore 44',
-          type: 'Sport Chronograph',
-          year: '1993',
-          price: '$38,000',
-          color: '#1A1A2E',
-          desc: 'الجرأة بأبعادها القصوى. ساعة رياضية بفولاذ متين، بيزل ثماني، حضور لا يُخطئه أحد.',
-          highlights: ['بيزل ثماني أيقوني', 'حركة كرونوغراف داخلية', 'حضور رياضي قوي'],
-          fields: ['Calibre 4401', 'أوتوماتيك', '±2 ث/يوم', '100 متر'],
-          extras: [
-            { label: 'القطر', value: '44 ملم' },
-            { label: 'الاحتياطي', value: '70 ساعة' },
-            { label: 'المادة', value: 'Steel/Ceramic' },
-          ],
-          barValue: 82,
-          tags: ['Steel', 'Chrono', 'Sport'],
-        },
-        {
-          id: 'royal_oak_15500',
-          name: 'Royal Oak 15500ST',
-          type: 'Sport Luxury',
-          year: '2019',
-          price: '$45,000',
-          color: '#2196F3',
-          desc: 'التصميم الكلاسيكي الخالد من جيرالد جنتا. الساعة التي حددت مفهوم الساعات الرياضية الفاخرة.',
-          highlights: ['ميناء بنمط طوابع البريد "Grande Tapisserie"', 'سوار متكامل فولاذي مذهل هندسياً', 'إطار ثماني الأضلاع ببراغي مكشوفة'],
-          fields: ['Calibre 4302', 'أوتوماتيك', '±2 ث/يوم', '50 متر'],
-          extras: [
-            { label: 'القطر', value: '41 ملم' },
-            { label: 'الاحتياطي', value: '70 ساعة' },
-            { label: 'المادة', value: 'Stainless Steel' },
-          ],
-          barValue: 94,
-          tags: ['Steel', 'Tapisserie', 'Classic'],
-        }
-      ],
-    },
-    {
-      id: 'rolex',
-      name: 'Rolex',
-      origin: 'جنيف، سويسرا',
-      founded: '1905',
-      logo: 'R',
-      desc: 'التاج الذي عرّف الدقة الحديثة.',
-      models: [
-        {
-          id: 'daytona',
-          name: 'Daytona 116500LN',
-          type: 'Sport Chronograph',
-          year: '2016',
-          price: '+$35,000',
-          color: '#111111',
-          desc: 'كرونوغراف السباق الأسطوري. بيزل سيراميك أسود، بسيط الشكل، صعب المنال.',
-          highlights: ['بيزل Cerachrom السيراميكي', 'حركة 4130 المعيارية', 'قائمة انتظار سنوات'],
-          fields: ['Calibre 4130', 'أوتوماتيك', '±2 ث/يوم', '100 متر'],
-          extras: [
-            { label: 'القطر', value: '40 ملم' },
-            { label: 'الاحتياطي', value: '72 ساعة' },
-            { label: 'المادة', value: '904L Steel' },
-          ],
-          barValue: 92,
-          tags: ['Steel', 'Chrono', 'Icon'],
-        },
-        {
-          id: 'sub',
-          name: 'Submariner Date 126610LV',
-          type: 'Dive Watch',
-          year: '2020',
-          price: '$10,800',
-          color: '#2D6A4F',
-          desc: 'ساعة الغوص التي أصبحت معياراً عالمياً. بيزل أخضر، إطار 41 ملم، إرث ستة عقود.',
-          highlights: ['بيزل سيراميك أخضر', 'مقاومة 300 متر', 'الكلاسيكي الذي لا يُخطئ'],
-          fields: ['Calibre 3235', 'أوتوماتيك', '±2 ث/يوم', '300 متر'],
-          extras: [
-            { label: 'القطر', value: '41 ملم' },
-            { label: 'الاحتياطي', value: '70 ساعة' },
-            { label: 'البيزل', value: 'Cerachrom أخضر' },
-          ],
-          barValue: 88,
-          tags: ['Steel', 'Diver', 'Hulk'],
-        },
-      ],
-    },
-    {
-      id: 'vacheron',
-      name: 'Vacheron Constantin',
-      origin: 'جنيف، سويسرا',
-      founded: '1755',
-      logo: 'VC',
-      desc: 'أقدم صانع ساعات مستمر في العالم بلا انقطاع.',
-      models: [
-        {
-          id: 'overseas',
-          name: 'Overseas Dual Time',
-          type: 'Travel Luxury',
-          year: '2023',
-          price: '$28,000',
-          color: '#0D47A1',
-          desc: 'رفيق السفر الفاخر. تصميم رائع يحاكي شعار "صليب مالطا" مع نظام تبديل أحزمة سريع وسهل.',
-          highlights: ['صليب مالطا الأيقوني مدمج في التصميم', 'تأتي مع أحزمة فولاذ، مطاط وجلد', 'وظيفة عرض التوقيت المزدوج بدقة متناهية'],
-          fields: ['Calibre 5110 DT', 'أوتوماتيك', '±2 ث/يوم', '150 متر'],
-          extras: [
-            { label: 'القطر', value: '41 ملم' },
-            { label: 'الاحتياطي', value: '60 ساعة' },
-            { label: 'نظام الأحزمة', value: 'ثلاث أحزمة مجانية' },
-          ],
-          barValue: 95,
-          tags: ['Travel', 'MalteseCross', 'Versatile'],
-        }
-      ]
-    },
-    {
-      id: 'richardmille',
-      name: 'Richard Mille',
-      origin: 'سويسرا',
-      founded: '2001',
-      logo: 'RM',
-      desc: 'آلات سباق للمعصم — قمة الهندسة والابتكار العصري.',
-      models: [
-        {
-          id: 'rm1103',
-          name: 'RM 11-03 McLaren',
-          type: 'Avant-Garde Chrono',
-          year: '2018',
-          price: '$350,000',
-          color: '#E65100',
-          desc: 'ساعة مصممة بالتعاون مع ماكلارين للسيارات الرياضية. هيكل مصنوع من التيتانيوم والكربون المتطور جداً.',
-          highlights: ['مستوحاة من تصاميم سيارات ماكلارين الفاخرة', 'هيكل كربوني فائق الصلابة ومقاوم للصدمات', 'حركة هيكلية مكشوفة تفوق الوصف'],
-          fields: ['RMAC3 Flyback', 'أوتوماتيك', 'كرونومتر', '50 متر'],
-          extras: [
-            { label: 'الأبعاد', value: '50 x 44 ملم' },
-            { label: 'الوزن', value: 'خفيف جداً' },
-            { label: 'المادة', value: 'Carbon TPT' },
-          ],
-          barValue: 97,
-          tags: ['McLaren', 'CarbonTPT', 'Futuristic'],
-        }
-      ]
-    },
-    {
-      id: 'lange_sohne',
-      name: 'A. Lange & Söhne',
-      origin: 'ألمانيا',
-      founded: '1845',
-      logo: 'ALS',
-      desc: 'الدقة الجرمانية والأناقة الساكسونية في أبهى صورها.',
-      models: [
-        {
-          id: 'lange1',
-          name: 'Lange 1 White Gold',
-          type: 'Dress Watch',
-          year: '2024',
-          price: '$42,000',
-          color: '#ECEFF1',
-          desc: 'الساعة الأيقونية التي أعادت إحياء صناعة الساعات الألمانية بعد سقوط جدار برلين. ميناء غير متماثل فريد.',
-          highlights: ['نافذة التاريخ الثنائية المستوحاة من دار أوبرا درسدن', 'تشطيب يدوي مذهل لجسور الفضة الألمانية', 'توازن هندسي مثالي حائز على براءة اختراع'],
-          fields: ['Calibre L121.1', 'يدوي', 'دقة مذهلة', '30 متر'],
-          extras: [
-            { label: 'القطر', value: '38.5 ملم' },
-            { label: 'الاحتياطي', value: '72 ساعة' },
-            { label: 'المادة', value: 'White Gold' },
-          ],
-          barValue: 98,
-          tags: ['German', 'Asymmetrical', 'Dress'],
-        }
-      ]
-    }
-  ],
+  // ══ PERFUMES ══════════════════════════════════════════════════════════════
+  perfumes: {
+    brands:[
+      {
+        id:"creed", name:"Creed", origin:"Paris / London", founded:"1760", logo:"C",
+        tagline:"عطّارو الملوك منذ 1760",
+        desc:"أقدم دار عطور فاخرة مستقلة في العالم. كل زجاجة نتيجة حرفية يدوية حقيقية.",
+        models:[
+          {
+            id:"aventus", name:"Aventus", color:"#D4A5C9", year:"2010",
+            type:"Woody Aromatic Chypre", price:"$495 / 50ml",
+            tags:["Masculine","Projection Beast","Iconic","Batch-Variable"],
+            story:"أطلقه أوليفييه كريد تكريماً لنابليون. منذ 2010 وهو الأكثر نقاشاً ومبيعاً في تاريخ العطور الراقية — يختلف من دفعة لأخرى ومن جلد لآخر.",
+            highlights:["كل دفعة إنتاج تختلف قليلاً — المجمّعون يصنّفون كل batch","بتولا مدخّنة في القلب تميّزه فوراً قبل أن ترى الزجاجة","حضور إشعاعي يصل 3 أمتار — يسبق دخولك الغرفة"],
+            pyramid:{ "رائحة القمة":"برغموت إيطالي، أناناس، تفاح أخضر، كاسيس", "رائحة القلب":"بتولا مدخّنة، ورد بلغاري، ياسمين، نعناع", "رائحة القاعدة":"مسك، عنبر رمادي، عود، باتشولي، أملبريت" },
+            character:{ "العائلة الشمية":"Woody Chypre Aromatic", "التركيز":"Eau de Parfum", "الانتشار":"عالي جداً (8/10)", "الديمومة":"12–14 ساعة", "الموسم المثالي":"خريف / شتاء / ربيع" },
+            notes:{ "المُعطّر":"أوليفييه كريد", "سنة الإطلاق":"2010", "الأحجام":"30 / 50 / 100 / 250ml", "اللانشر الخاص":"Aventus for Her (2016)" },
+            bar:{ label:"قوة الحضور", value:95 }
+          },
+          {
+            id:"virgin", name:"Virgin Island Water", color:"#7EC8E3", year:"2007",
+            type:"Tropical Aquatic Fresh", price:"$410 / 50ml",
+            tags:["Unisex","Beach Signature","Rum","Summer Masterpiece"],
+            story:"الرحلة في زجاجة. اختلط فيها عصير الليمون والرم الكاريبي مع نسيم جوز الهند. الأقل توقعاً من كريد — والأكثر فرحاً.",
+            highlights:["الرم الحقيقي في التركيبة — ليس مجرد تأثير","يُعيد ذاكرة الشاطئ والصيف بمجرد رشّة واحدة","Unisex حقيقي — يعمل على الجلد الأنثوي والذكوري بشكل مختلف وجميل"],
+            pyramid:{ "رائحة القمة":"ليمون أخضر، رم كاريبي، جوز هند طازج", "رائحة القلب":"زنجبيل، خيزران، موز خضر", "رائحة القاعدة":"مسك أبيض، خشب أرز فرجيني" },
+            character:{ "العائلة الشمية":"Tropical Aquatic Fougere", "التركيز":"Eau de Parfum", "الانتشار":"معتدل (5/10)", "الديمومة":"8–10 ساعات", "الموسم المثالي":"ربيع / صيف حصراً" },
+            notes:{ "المُعطّر":"Pierre Bourdon", "سنة الإطلاق":"2007", "الأحجام":"50 / 100 / 250ml", "تحذير":"لا يناسب الطقس البارد" },
+            bar:{ label:"الانتعاش والخفة", value:85 }
+          },
+        ]
+      },
+      {
+        id:"mfk", name:"Maison Francis Kurkdjian", origin:"Paris, FR", founded:"2009", logo:"MFK",
+        tagline:"العطر كفن معماري — هندسة شمية",
+        desc:"فرانسيس كوركجيان — العطّار الذي فاز بـ Prix François Coty وهو في الثلاثينيات. MFK دار تخصصها الكمال الفرنسي الحديث.",
+        models:[
+          {
+            id:"br540", name:"Baccarat Rouge 540", color:"#E8B4A0", year:"2015",
+            type:"Floral Woody Musky Amber", price:"$335 / 70ml",
+            tags:["Unisex","Global Phenomenon","Compliment Magnet","Long-Lasting"],
+            story:"أُنشئ أصلاً لدار Baccarat للكريستال كعطر حصري. حين طرحه MFK للعموم, أصبح الأكثر تداولاً في السوشيال ميديا — ظاهرة لا تُفسَّر.",
+            highlights:["بلّورة الأملبريت (Ambroxan) هي سر دفء لا ينتهي","الزعفران + ياسمين + عود = مثلث يُدمن عليه أي أنف","أثار أكثر من 200 محاولة تقليد في السوق — لم تنجح أي"],
+            pyramid:{ "رائحة القمة":"زعفران فارسي، تفاح البخور (فريو)", "رائحة القلب":"ياسمين مصري (جراند كرو)، ورد جوري", "رائحة القاعدة":"عود، أملبريت (Ambroxan)، أرز سيدار" },
+            character:{ "العائلة الشمية":"Woody Floral Amber Musky", "التركيز":"Eau de Parfum", "الانتشار":"كثيف جداً (9/10)", "الديمومة":"14–16+ ساعة", "الموسم المثالي":"طوال العام" },
+            notes:{ "المُعطّر":"Francis Kurkdjian", "المصدر":"طُلب من Baccarat Crystal 2014", "الأحجام":"35 / 70 / 200ml + Extrait de Parfum", "نسخة أقوى":"540 Extrait de Parfum — 2022" },
+            bar:{ label:"الديمومة والإشعاع", value:97 }
+          },
+          {
+            id:"oud", name:"Oud Satin Mood", color:"#8B5A6E", year:"2015",
+            type:"Floral Woody Oriental Oud", price:"$360 / 70ml",
+            tags:["Unisex","Oud Gateway","Romantic","Evening"],
+            story:"البوابة المثالية لعالم العود لمن يخشاه. كوركجيان أحاط العود بالفانيليا والورد حتى أصبح حضنًا دافئاً لا وحشاً.",
+            highlights:["عود مُلطَّف بالفانيليا — مثالي لمن لا يُحب العود الخام","ورد تركي من مزارع Isparta عالية الجودة","يتطور من رومانسي في البداية إلى دافئ وعميق في القاعدة"],
+            pyramid:{ "رائحة القمة":"ورد تركي (Isparta)، فانيليا بوربون", "رائحة القلب":"عود هندي، بخور (Olibanum)", "رائحة القاعدة":"مسك أبيض، خشب الأرز الأطلسي، عنبر" },
+            character:{ "العائلة الشمية":"Floral Woody Oriental", "التركيز":"Eau de Parfum", "الانتشار":"كثيف (7/10)", "الديمومة":"12–14 ساعة", "الموسم المثالي":"خريف / شتاء / مساء" },
+            notes:{ "المُعطّر":"Francis Kurkdjian", "مناسبة":"عشاء، مناسبات رسمية، ليلية", "الأحجام":"70 / 200ml", "ملاحظة":"يحتاج تطور 30 دقيقة على الجلد" },
+            bar:{ label:"الدفء والعمق", value:92 }
+          },
+        ]
+      },
+    ]
+  },
 
-  fashion: [
-    {
-      id: 'loro',
-      name: 'Loro Piana',
-      origin: 'إيطاليا',
-      founded: '1924',
-      logo: 'LP',
-      desc: 'أرقى الألياف الطبيعية في العالم — الڤيكونيا والكشمير الرضيع.',
-      models: [
-        {
-          id: 'vicuna',
-          name: 'معطف الڤيكونيا',
-          type: 'Ultra-Luxury Outerwear',
-          year: '2024',
-          price: '$18,000–$60,000',
-          color: '#C9A87E',
-          desc: 'ألياف الڤيكونيا الأندر في العالم. ناعمة كالحرير، دافئة كالنار، خفيفة كالنسيم.',
-          highlights: [
-            '12 ميكرون — الأنعم في الطبيعة',
-            'حصاد كل ثلاث سنوات من حيوان واحد',
-            'ست أشهر من العمل اليدوي',
-          ],
-          fields: ['100% ألياف الڤيكونيا', 'يدوي 6 أشهر', 'بيرو / إيطاليا', '6 أشهر'],
-          extras: [
-            { label: 'النعومة', value: '12 ميكرون' },
-            { label: 'الإنتاج السنوي', value: 'محدود' },
-            { label: 'المنشأ', value: 'Andes — Peru' },
-          ],
-          barValue: 99,
-          tags: ['Vicuña', 'Bespoke', 'Rare'],
-        },
-        {
-          id: 'babycash',
-          name: 'كنزة Baby Cashmere',
-          type: 'Knitwear',
-          year: '2024',
-          price: '$2,800–$5,500',
-          color: '#D4C5A9',
-          desc: 'كشمير من ماعز الـHircus الرضيع — أنعم 80 غراماً تنتجها العنزة في حياتها الأولى.',
-          highlights: [
-            '80 غم فقط لكل عنزة سنوياً',
-            '13.5 ميكرون من النعومة',
-            'دفء استثنائي بوزن خفيف',
-          ],
-          fields: ['100% Baby Cashmere', 'حياكة إيطالية', 'منغوليا / إيطاليا', '3 أشهر'],
-          extras: [
-            { label: 'النعومة', value: '13.5 ميكرون' },
-            { label: 'العمر', value: 'أول سنة فقط' },
-            { label: 'المنشأ', value: 'Mongolia' },
-          ],
-          barValue: 96,
-          tags: ['Cashmere', 'Knit', 'Rare'],
-        },
-      ],
-    },
-    {
-      id: 'hermes',
-      name: 'Hermès',
-      origin: 'باريس، فرنسا',
-      founded: '1837',
-      logo: 'H',
-      desc: 'بيت السرج الذي أصبح إمبراطورية الفخامة الفرنسية.',
-      models: [
-        {
-          id: 'birkin',
-          name: 'Birkin 25 Togo',
-          type: 'Iconic Handbag',
-          year: '1984',
-          price: '$12,000–$500,000+',
-          color: '#BF5E3B',
-          desc: 'الحقيبة الأسطورة. حرفي واحد، 18 ساعة عمل، قائمة انتظار سنوات. أداة فخامة عابرة للأجيال.',
-          highlights: [
-            'حرفي فرنسي واحد لكل قطعة',
-            '18 ساعة من الخياطة اليدوية',
-            'تتفوق على الذهب كاستثمار',
-          ],
-          fields: ['جلد Togo عجل فرنسي', 'يدوي بالكامل', 'فرنسا', '18 ساعة'],
-          extras: [
-            { label: 'الحرفي', value: 'فرد واحد' },
-            { label: 'الحجم', value: '25 سم' },
-            { label: 'المنشأ', value: 'France' },
-          ],
-          barValue: 97,
-          tags: ['Birkin', 'Iconic', 'Investment'],
-        },
-        {
-          id: 'kelly',
-          name: 'Kelly 32 Retourné',
-          type: 'Structured Bag',
-          year: '1956',
-          price: '$10,000–$400,000+',
-          color: '#1C3A5E',
-          desc: 'حقيبة الأميرة جريس كيلي. أناقة بنيوية، خطوط هندسية، إرث ملكي على الكتف.',
-          highlights: ['سُميّت تكريماً للأميرة كيلي', 'بنية محكمة بقفل ذهبي', 'خياطة سرج تقليدية'],
-          fields: ['جلد Togo / Epsom', 'يدوي بالكامل', 'فرنسا', '20+ ساعة'],
-          extras: [
-            { label: 'الحرفي', value: 'فرد واحد' },
-            { label: 'الحجم', value: '32 سم' },
-            { label: 'المنشأ', value: 'France' },
-          ],
-          barValue: 95,
-          tags: ['Kelly', 'Iconic', 'Royal'],
-        },
-      ],
-    },
-    {
-      id: 'brioni',
-      name: 'Brioni',
-      origin: 'روما، إيطاليا',
-      founded: '1945',
-      logo: 'B',
-      desc: 'بدلة الرجل الحر — مفصّلة بدقة الفنانين الرومان.',
-      models: [
-        {
-          id: 'vanquish',
-          name: 'Vanquish II Bespoke',
-          type: 'Bespoke Suit',
-          year: '2024',
-          price: '$15,000–$65,000',
-          color: '#2C3E50',
-          desc: 'بدلة بيسبوك من أنعم الأقمشة في العالم. كل غرزة بيد فنان، كل خط بقياس الجسد.',
-          highlights: [
-            "قماش Super 250's–300's",
-            '120+ ساعة من العمل اليدوي',
-            'تفصيل من قياس الجسد مباشرة',
-          ],
-          fields: ["Super 250's–300's", 'بيسبوك يدوي', 'إيطاليا', '8–12 أسبوعاً'],
-          extras: [
-            { label: 'ساعات العمل', value: '120+ ساعة' },
-            { label: 'القياسات', value: '30+ نقطة' },
-            { label: 'المنشأ', value: 'Italy' },
-          ],
-          barValue: 100,
-          tags: ['Bespoke', 'Wool', 'Tailored'],
-        },
-      ],
-    },
-    {
-      id: 'brunello',
-      name: 'Brunello Cucinelli',
-      origin: 'سولوميو، إيطاليا',
-      founded: '1978',
-      logo: 'BC',
-      desc: 'ملك الكشمير الإيطالي وفلسفة الفخامة الإنسانية الهادئة.',
-      models: [
-        {
-          id: 'cashmere_vest',
-          name: 'سترة الكشمير المبطنة',
-          type: 'Luxury Outerwear',
-          year: '2024',
-          price: '$3,800',
-          color: '#D7CCC8',
-          desc: 'سترة كلاسيكية تدمج بين الحماية من الطقس ونعومة الكشمير الإيطالي الفاخر من جبال أمبريا.',
-          highlights: ['كشمير معالج ومقاوم للمطر والرياح', 'تبطين حراري خفيف وعالي الكفاءة', 'لمسات جلدية وقرنية يدوية'],
-          fields: ['كشمير وحرير ناعم', 'صناعة يدوية إيطالية', 'إيطاليا', 'شهر ونصف'],
-          extras: [
-            { label: 'المواد الأساسية', value: '92% كشمير 8% حرير' },
-            { label: 'التبطين', value: 'أوز حراري فاخر' },
-            { label: 'التشطيب', value: 'يدوي بالكامل' },
-          ],
-          barValue: 94,
-          tags: ['QuietLuxury', 'Cashmere', 'Umbria'],
-        },
-        {
-          id: 'suede_loafers',
-          name: 'حذاء السويدي الفاخر',
-          type: 'Luxury Footwear',
-          year: '2024',
-          price: '$1,200',
-          color: '#8D6E63',
-          desc: 'حذاء كاجوال راقٍ ومريح للغاية، مصنوع من جلد السويدي الإيطالي فائق النعومة والمقاوم للماء والخدوش.',
-          highlights: ['جلد سويدي منتقى بعناية بالغة', 'نعل مرن ومريح للمشي الطويل واليومي', 'شريط يدوي محاك بخيوط حريرية متينة'],
-          fields: ['جلد سويدي فاخر وحرير', 'خياطة يدوية متقنة', 'سولوميو، إيطاليا', 'شهر واحد'],
-          extras: [
-            { label: 'المنشأ والورش', value: 'Solomeo Atelier' },
-            { label: 'مقاومة الماء', value: 'معالج مسبقاً' },
-            { label: 'النعل والبطانة', value: 'جلد طبيعي مرن' },
-          ],
-          barValue: 92,
-          tags: ['Footwear', 'Suede', 'Handcrafted'],
-        }
-      ]
-    },
-    {
-      id: 'chanel_fashion',
-      name: 'Chanel',
-      origin: 'باريس، فرنسا',
-      founded: '1910',
-      logo: 'CH',
-      desc: 'الدار التي غيرت أزياء المرأة إلى الأبد بالتويد والقصات الثورية.',
-      models: [
-        {
-          id: 'tweed_jacket',
-          name: 'بدلة التويد الكلاسيكية',
-          type: 'Haute Couture',
-          year: '2024',
-          price: '$8,500',
-          color: '#E0F7FA',
-          desc: 'التوقيع الخالد لـ كوكو شانيل. جاكيت تويد منسوج يدوياً يحاكي الرقي والجمال الباريسي في كل غرزة.',
-          highlights: ['نسيج التويد الخاص الذي تم تطويره في فرنسا', 'أزرار معدنية فريدة محفورة بشعار الدار باليد', 'قصة دقيقة للغاية تمنح حرية حركة مثالية'],
-          fields: ['نسيج تويد صوفي فاخر', 'حياكة يدوية باريسية', 'فرنسا', '4 أشهر'],
-          extras: [
-            { label: 'ساعات الحياكة', value: '80+ ساعة' },
-            { label: 'البطانة الداخلية', value: '100% حرير طبيعي' },
-            { label: 'موقع الإنتاج', value: 'Rue Cambon - Paris' },
-          ],
-          barValue: 97,
-          tags: ['Tweed', 'Couture', 'Coco'],
-        },
-        {
-          id: 'bag_2_55',
-          name: 'حقيبة Chanel 2.55',
-          type: 'Iconic Accessory',
-          year: '1955',
-          price: '$10,200',
-          color: '#000000',
-          desc: 'أول حقيبة يد مزودة بحزام كتف معدني في التاريخ. رمز الاستقلال والأناقة العملية التي لا تشيخ.',
-          highlights: ['قفل مستطيل يسمى قفل الآنسة الأسطوري', 'مبطنة بجلد العجل باللون العنابي الكلاسيكي', 'سلسلة معدنية منسوجة يدوياً'],
-          fields: ['جلد عجل مبطن مدبوغ', 'خياطة يدوية فرنسية', 'فرنسا', '3 أشهر'],
-          extras: [
-            { label: 'المهندس المصمم', value: 'Coco Chanel' },
-            { label: 'تاريخ الإطلاق', value: 'فبراير 1955' },
-            { label: 'نوع الجلد', value: 'Aged Calfskin' },
-          ],
-          barValue: 96,
-          tags: ['2.55', 'Vintage', 'CaviarLeather'],
-        }
-      ]
-    }
-  ],
+  // ══ WATCHES ═══════════════════════════════════════════════════════════════
+  watches: {
+    brands:[
+      {
+        id:"patek", name:"Patek Philippe", origin:"Geneva, CH", founded:"1839", logo:"PP",
+        tagline:"You never actually own a Patek Philippe",
+        desc:"الدار التي تصنع أقل من 70,000 ساعة سنوياً — وكل واحدة منها تحفة لا تُكرَّر.",
+        models:[
+          {
+            id:"nautilus5711", name:"Nautilus 5711/1A-011", color:"#4A9B7F", year:"2021",
+            type:"Integrated Steel Bracelet", price:"$150,000–$200,000 (السوق الثانوية)",
+            tags:["Discontinued","Steel GOAT","Opaline Dial","Green Bezel 2021"],
+            story:"توقّفت باتيك عن إنتاجها عام 2021 — فارتفع سعرها ثلاثة أضعاف في أسبوع. اللون الأخير كان Tiffany Blue وصل في المزادات إلى $6.5 مليون.",
+            highlights:["جيرالد جنتا رسمها في ليلة واحدة عام 1972 على علبة سجائر","نسيج الأوجانو على القرص — نمط أيقوني لا يُنسخ بكفاءة","السعر في السوق ارتفع 300% بعد إيقاف الإنتاج"],
+            movement:{ "الحركة":"Calibre 26-330 S C", "النوع":"أوتوماتيك ذاتي التعبئة", "الدوران":"21,600 vph", "الاحتياطي":"45 ساعة", "عدد القطع":"324 قطعة" },
+            case:{ "القطر":"40 ملم", "السُمك":"8.3 ملم", "المادة":"فولاذ 316L المصقول/المفروش", "المقاومة":"120 متر", "الزجاج":"صفير مقبب (وجهان)" },
+            dial:{ "النوع":"Opaline مع نسيج Clous de Paris", "المؤشرات":"Baton ذهب أبيض مدمج", "لون الإبرات":"ذهب أبيض", "التاريخ":"نافذة 3 ساعة" },
+            bar:{ label:"ندرة الحصول عليها اليوم", value:99 }
+          },
+          {
+            id:"sky6002", name:"Sky Moon Tourbillon 6002G", color:"#F0E68C", year:"2019",
+            type:"Double-Sided Grand Complication", price:"$1,200,000–$1,800,000",
+            tags:["Platinum","12 Complications","Double Tourbillon","Celestial Map"],
+            story:"الساعة التي تُبيّن أن باتيك تصنع فناً، لا توقيتاً. وجهان، 12 وظيفة، خريطة سماء تتحرك بدقة فلكية — وسنوات عمل خلف كل قطعة.",
+            highlights:["خريطة سماء متحركة تعرض موقع النجوم في أي مكان بالعالم","الـMinute Repeater يُنتج أصفى رنين في تاريخ الساعات","تحتاج ساعات عمل أسبوعياً من الحرفيين لإنهاء وجه واحد"],
+            movement:{ "الحركة":"Calibre R TO 27 QR SID LU CL", "النوع":"يدوي التعبئة", "التعقيدات":"12 وظيفة كاملة", "عدد القطع":"686 قطعة", "مدة التصنيع":"سنوات لكل قطعة" },
+            case:{ "القطر":"42.8 ملم", "السُمك":"16.25 ملم", "المادة":"ذهب أبيض 18 قيراط", "المقاومة":"30 متر", "الوجهان":"أمامي + خلفي — كلاهما معقّد" },
+            complications:{ "الوجه الأمامي":"Perpetual Calendar + Minute Repeater + Moonphase", "الوجه الخلفي":"Celestial Chart + Sidereal Time + Tourbillon مزدوج", "إضافات":"وقت شروق وغروب الشمس" },
+            bar:{ label:"التعقيد الهندسي", value:100 }
+          },
+        ]
+      },
+      {
+        id:"ap", name:"Audemars Piguet", origin:"Le Brassus, CH", founded:"1875", logo:"AP",
+        tagline:"منذ 1875 — يتحدّى العرف ويُعيد تعريف الجرأة",
+        desc:"AP من الدرجة الأولى في جرأة التصميم. Royal Oak، Offshore، Code 11.59 — كلها أثارت الجدل ثم أصبحت أيقونات.",
+        models:[
+          {
+            id:"offshore44ti", name:"Royal Oak Offshore 44 Titanium", color:"#4A90D9", year:"2022",
+            type:"Sport Luxury Chronograph", price:"$38,500",
+            tags:["Titanium","70hr Reserve","COSC Certified","Tapisserie"],
+            story:"The Beast. ضخامة مدروسة، وحشية مضبوطة. الأوفشور 44 لمن يريد أن يُثير الاهتمام قبل أن يتكلم.",
+            highlights:["70 ساعة احتياطي طاقة — استثنائي في الفئة","تيتانيوم Grade 23 أخف وأصلب من الفولاذ","نسيج الـTapisserie على القرص — يدوي بالكامل"],
+            movement:{ "الحركة":"Calibre 4401", "النوع":"أوتوماتيك ذاتي التعبئة", "الدوران":"21,600 vph", "الاحتياطي":"70 ساعة", "شهادة الدقة":"COSC ±4 ث/يوم" },
+            case:{ "القطر":"44 ملم", "السُمك":"14.4 ملم", "المادة":"تيتانيوم Grade 23", "المقاومة":"100 متر", "المزلاج":"Folding Clasp تيتانيوم" },
+            dial:{ "النوع":"Méga Tapisserie (يدوي)", "الكرونوغراف":"3 عقارب + 30دق + 12ساعة", "لون القرص":"فحمي مع لمسات زرقاء", "المؤشرات":"Appliqué معدنية" },
+            bar:{ label:"احتياطي الطاقة", value:85 }
+          },
+          {
+            id:"concept_ft", name:"Concept Flying Tourbillon GMT", color:"#1A2744", year:"2021",
+            type:"Openworked Grand Complication", price:"$380,000",
+            tags:["Limited","Flying Tourbillon","GMT","Titanium","Skeletonized"],
+            story:"الشفافية المطلقة. كل تروس الحركة مكشوفة خلف زجاج الصفير. الفن الميكانيكي في أعلى تجلياته — توربيون يطير دون محور سفلي.",
+            highlights:["Flying Tourbillon — لا محور سفلي، يُعطي وهم الطيران","مجوّف بالكامل — ترى الحركة مباشرة من الوجهين","إنتاج محدود لا يُكشف عن عدده"],
+            movement:{ "الحركة":"Calibre 2953 (AP خاص)", "النوع":"يدوي التعبئة", "الاحتياطي":"72 ساعة", "التعقيد":"Flying Tourbillon + GMT", "عدد القطع":"343 قطعة" },
+            case:{ "القطر":"44 ملم", "السُمك":"10.4 ملم", "المادة":"تيتانيوم + DLC Black", "المقاومة":"20 متر فقط", "الهيكل":"مجوّف من وجهين" },
+            dial:{ "القرص":"لا يوجد — هيكل مكشوف كامل", "الجسر الرئيسي":"تيتانيوم منقوش يدوياً", "لون الحركة":"رمادي + ذهبي", "الميناء":"لا يوجد — الحركة ظاهرة" },
+            bar:{ label:"التعقيد الهندسي", value:96 }
+          },
+        ]
+      },
+    ]
+  },
 
-  sweets: [
-    {
-      id: 'ph',
-      name: 'Pierre Hermé',
-      origin: 'باريس، فرنسا',
-      founded: '1998',
-      logo: 'PH',
-      desc: 'بيكاسو الحلويات — كل قطعة عمل فني صالح للأكل.',
-      models: [
-        {
-          id: 'ispahan',
-          name: 'Ispahan',
-          type: 'Macaron Signature',
-          year: '2001',
-          price: '€9 / قطعة',
-          color: '#E8A0B4',
-          desc: 'الورد واللتيشي وتوت العُليق — ثلاثية باريسية أصبحت توقيع بيير إرميه حول العالم.',
-          highlights: [
-            'توقيع بيير إرميه الأشهر',
-            'ثلاثية نكهات متوازنة',
-            '3 أيام من التحضير الدقيق',
-          ],
-          fields: ['ورد، لتيشي، توت', 'ماكرون باللوز', 'كريمة ورد ولتيشي', '3 أيام'],
-          extras: [
-            { label: 'الصلاحية', value: '3 أيام' },
-            { label: 'الحفظ', value: '4–6°C' },
-            { label: 'الوزن', value: '≈35 غم' },
-          ],
-          barValue: 97,
-          tags: ['Macaron', 'Rose', 'Signature'],
-        },
-        {
-          id: 'mogador',
-          name: 'Mogador Tarte',
-          type: 'Signature Tarte',
-          year: '2005',
-          price: '€85',
-          color: '#F4A460',
-          desc: 'باشن فروت وشوكولاتة حليب — حلاوة استوائية تُكمل غناشيه فالرونا الناعم.',
-          highlights: ['غاناش Valrhona فاخر', 'توازن حمض الباشن', 'قاعدة Paris-Brest'],
-          fields: ['باشن فروت وشوكولاتة 40%', 'Paris-Brest', 'غاناش Valrhona', 'يومان'],
-          extras: [
-            { label: 'الصلاحية', value: 'يومان' },
-            { label: 'الحفظ', value: '4°C' },
-            { label: 'حصص', value: '6–8 أفراد' },
-          ],
-          barValue: 94,
-          tags: ['Tarte', 'Passion', 'Valrhona'],
-        },
-        {
-          id: 'citron',
-          name: 'Tarte Citron Infiniment',
-          type: 'Citrus Tarte',
-          year: '2008',
-          price: '€75',
-          color: '#F4D03F',
-          desc: 'ليمون بروفانس بكل دفئه. حمضي مشرق على قاعدة مقرمشة مع مارينغ إيطالي محروق.',
-          highlights: ['ليمون بروفانس طازج', 'مارينغ إيطالي محروق', 'توازن حامض/حلو مثالي'],
-          fields: ['ليمون، بيض، زبدة', 'Sablé Breton', 'كريمة ليمون', 'يومان'],
-          extras: [
-            { label: 'الصلاحية', value: 'يومان' },
-            { label: 'الحفظ', value: '4°C' },
-            { label: 'حصص', value: '6–8 أفراد' },
-          ],
-          barValue: 90,
-          tags: ['Tarte', 'Citron', 'Provence'],
-        },
-      ],
-    },
-    {
-      id: 'valrhona',
-      name: 'Valrhona',
-      origin: 'فرنسا',
-      founded: '1922',
-      logo: 'V',
-      desc: 'بيت الشوكولاتة الذي يصنع لأفضل شيفات العالم منذ قرن.',
-      models: [
-        {
-          id: 'guanaja',
-          name: 'Guanaja 70%',
-          type: 'Grand Cru Dark',
-          year: '1986',
-          price: '€25 / 250g',
-          color: '#3D1A00',
-          desc: '70% كاكاو من ترينيداد والكاريبي. مرارة عميقة، أرومات حمضية، نهاية طويلة.',
-          highlights: ['كاكاو Trinitario كاريبي', 'تخمير 10 أيام', '70% — التوازن الكلاسيكي'],
-          fields: ['كاكاو 70%', 'كاكاو خالص', '—', 'تخمير 10 أيام'],
-          extras: [
-            { label: 'الأصل', value: 'Trinidad / Caribbean' },
-            { label: 'الصلاحية', value: '12 شهر' },
-            { label: 'الحفظ', value: '16–18°C' },
-          ],
-          barValue: 82,
-          tags: ['Dark', '70%', 'Grand Cru'],
-        },
-        {
-          id: 'dulcey',
-          name: 'Dulcey Blond 32%',
-          type: 'Blonde Chocolate',
-          year: '2012',
-          price: '€22 / 250g',
-          color: '#D4A017',
-          desc: 'شوكولاتة شقراء بنكهة الكراميل والبسكويت والفانيليا — اختراع فالرونا الذي غيّر السوق.',
-          highlights: [
-            'أول شوكولاتة شقراء عالمياً',
-            'كراميل وبسكويت طبيعي',
-            '32% كاكاو لطف لا يُقاوم',
-          ],
-          fields: ['كاكاو 32%', 'حليب وزبدة كاكاو', '—', 'خبز طويل'],
-          extras: [
-            { label: 'النكهة', value: 'كراميل / بسكويت' },
-            { label: 'الصلاحية', value: '12 شهر' },
-            { label: 'الحفظ', value: '16–18°C' },
-          ],
-          barValue: 98,
-          tags: ['Blonde', '32%', 'Iconic'],
-        },
-      ],
-    },
-    {
-      id: 'laduree',
-      name: 'Ladurée',
-      origin: 'باريس، فرنسا',
-      founded: '1862',
-      logo: 'L',
-      desc: 'مخترع الماكرون المزدوج والجمال الكلاسيكي الباريسي الراقي.',
-      models: [
-        {
-          id: 'macaron_box',
-          name: 'علبة ماكرون الملوك',
-          type: 'Luxury Gift Box',
-          year: '2024',
-          price: '€45 / 12 قطعة',
-          color: '#E1BEE7',
-          desc: 'مجموعة منتقاة من الماكرون الباريسي الفاخر المزين بأوراق الذهب عيار 24 والنكهات النادرة.',
-          highlights: ['أوراق الذهب الصالحة للأكل عيار 24', 'مستخلص الفانيليا من جزر تاهيتي النادرة', 'علبة كرتونية مخملية فاخرة'],
-          fields: ['فانيليا تاهيتي، فستق حلبي', 'قشرة لوز ناعمة', 'كريمة فانيليا وغناش', '3 أيام'],
-          extras: [
-            { label: 'عدد القطع', value: '12 قطعة فاخرة' },
-            { label: 'نكهات بارزة', value: 'فستق حلبي، فانيليا' },
-            { label: 'الصلاحية والحرارة', value: '3 أيام في 4°C' },
-          ],
-          barValue: 95,
-          tags: ['Ladurée', 'TahitiVanilla', 'ParisianClassic'],
-        },
-        {
-          id: 'marie_antoinette',
-          name: 'تارت ماري أنطوانيت',
-          type: 'Royal Cake',
-          year: '2024',
-          price: '€18 / قطعة',
-          color: '#F8BBD0',
-          desc: 'حلوى ملكية ساحرة بنكهة الشاي الأسود والزهور والفواكه المجففة اللذيذة.',
-          highlights: ['شاي ماري أنطوانيت المعطر الحصري', 'ورد بري طازج للتزيين الجمالي', 'قوام كريمي مخملي ناعم للغاية'],
-          fields: ['شاي معطر، فواكه برية', 'عجينة الغريبة الهشة', 'موس الشاي المعطر والكرز', '3 أيام'],
-          extras: [
-            { label: 'النوع', value: 'موس وتارت ملكي' },
-            { label: 'العناصر الرئيسية', value: 'توت أزرق، ورد بري' },
-            { label: 'الصلاحية والحرارة', value: 'يومان في 4°C' },
-          ],
-          barValue: 93,
-          tags: ['Royal', 'MarieAntoinette', 'RoseTea'],
-        }
-      ]
-    },
-    {
-      id: 'armani_dolci',
-      name: 'Armani / Dolci',
-      origin: 'ميلانو، إيطاليا',
-      founded: '2002',
-      logo: 'AD',
-      desc: 'شوكولاتة وحلويات مصممة بأسلوب الأناقة البسيطة من جورجيو أرماني.',
-      models: [
-        {
-          id: 'armani_pralines',
-          name: 'شوكولاتة برالين الفاخرة',
-          type: 'Designer Chocolate',
-          year: '2024',
-          price: '€65 / 16 قطعة',
-          color: '#FFE082',
-          desc: 'قطع الشوكولاتة ذات الأشكال الهندسية المثالية المصممة والمصنوعة يدوياً في إيطاليا بتركيز الكاكاو الفاخر.',
-          highlights: ['تصميم مربع هندسي مثالي يعكس فلسفة أرماني', 'كاكاو من مزارع مستدامة وحصرية في فنزويلا', 'علب مخملية مغلفة بشرائط برونزية فاخرة'],
-          fields: ['كاكاو فنزويلي 60-85%', 'قالب شوكولاتة هندسي', 'بندق بييمونتي المقرمش', 'تخمير 7 أيام'],
-          extras: [
-            { label: 'الإنتاج', value: 'يدوي في ميلانو' },
-            { label: 'الوزن الكلي', value: '250 غرام' },
-            { label: 'الصلاحية والحرارة', value: '6 أشهر في 16°C' },
-          ],
-          barValue: 94,
-          tags: ['Armani', 'Pralines', 'PiemonteHazelnut'],
-        }
-      ]
-    },
-    {
-      id: 'marchesi',
-      name: 'Marchesi 1824',
-      origin: 'ميلانو، إيطاليا',
-      founded: '1824',
-      logo: 'M',
-      desc: 'أعرق وأفخم صانعي المعجنات والحلويات الإيطالية الكلاسيكية في ميلانو.',
-      models: [
-        {
-          id: 'panettone_classic',
-          name: 'بانتوني ميلانو الأصيل',
-          type: 'Traditional Panettone',
-          year: '1824',
-          price: '€60 / 1kg',
-          color: '#FFF59D',
-          desc: 'خبز البانتوني الإيطالي التقليدي المخمر طبيعياً لمدة 48 ساعة والمزين بالزبيب والفواكه المجففة الفاخرة.',
-          highlights: ['تخمير طبيعي بطيء لمدة 48 ساعة كاملة', 'فواكه مجففة مستوردة من جنوب إيطاليا', 'وصفة سرية متوارثة منذ عام 1824'],
-          fields: ['خميرة برية، دقيق، بيض بلدي', 'عجينة مخمرة ببطء شديد', 'زبيب، برتقال مجفف معسل', '3 أيام'],
-          extras: [
-            { label: 'مدة التحضير', value: '48 ساعة تخمير' },
-            { label: 'الحفظ والحرارة', value: 'درجة حرارة الغرفة' },
-            { label: 'المنشأ التاريخي', value: 'Milano - Italy' },
-          ],
-          barValue: 98,
-          tags: ['Panettone', 'Milano', 'LievitoMadre'],
-        },
-        {
-          id: 'crostata_cioccolato',
-          name: 'تارت كروستاتا بالشوكولاتة',
-          type: 'Classic Italian Tart',
-          year: '2024',
-          price: '€45',
-          color: '#8D6E63',
-          desc: 'تارت كروستاتا الكلاسيكية بعجينتها المقرمشة والغنية بزبدة بروفانس ومحشوة بغاناش الكاكاو الداكن 70%.',
-          highlights: ['عجينة باستا فرولا الإيطالية التقليدية', 'غاناش الشوكولاتة الغني المذوب بلطف وببطء', 'تزيين هندسي رائع بالكاكاو والذهب'],
-          fields: ['زبدة، كاكاو 70%، فانيليا', 'Pasta Frolla مقرمشة', 'غاناش الشوكولاتة الداكنة', 'يومان'],
-          extras: [
-            { label: 'القطر والنسب', value: '22 سم - 6 حصص' },
-            { label: 'الصلاحية والحرارة', value: '3 أيام في 4°C' },
-            { label: 'الدهون الأساسية', value: 'زبدة بروفانس الفاخرة' },
-          ],
-          barValue: 92,
-          tags: ['Crostata', 'Tart', 'ProvenceButter'],
-        }
-      ]
-    }
-  ],
+  // ══ FASHION ═══════════════════════════════════════════════════════════════
+  fashion: {
+    brands:[
+      {
+        id:"loro", name:"Loro Piana", origin:"Quarona, IT", founded:"1924", logo:"LP",
+        tagline:"الفخامة التي لا تصرخ — أندر الألياف الطبيعية",
+        desc:"لورو بيانا تملك حقوق حصرية على الڤيكونيا البيروفية وعلى Baby Cashmere الهيركاني. لا تُعلن ولا تُبرز شعارها — الخامة تتكلم.",
+        models:[
+          {
+            id:"vicuna_coat", name:"معطف الڤيكونيا الكامل", color:"#C9A87E", year:"2024",
+            type:"Ultra-Luxury Statement Outerwear", price:"$18,000 – $60,000",
+            tags:["Vicuña","12 Microns","Hand-Loomed Peru","CITES Protected"],
+            story:"أغلى خيط حيواني في العالم. الڤيكونيا تُقصّ مرة كل سنتين، ولا تُستأصل بالذبح — محمية بموجب اتفاقية CITES الدولية منذ 1975.",
+            highlights:["12 ميكرون — أرق من الكشمير بـ30%، أكثر دفئاً بـ40%","30 ڤيكونيا على الأقل لكل معطف واحد","المنسوج يدوياً بنول تقليدي في بيرو، التشطيب في إيطاليا"],
+            fiber:{ "الخامة":"100% Vicuña (Vicugna vicugna)", "النعومة":"12 ميكرون (أدق من الإنسان × 7)", "المصدر":"Pampas Galeras, Peru 4,500m", "طريقة الجمع":"Chaku — طقس أندي سنوي", "الكمية السنوية":"5,000 كغ فقط عالمياً" },
+            craft:{ "النسج":"نول يدوي تقليدي", "الخياطة":"يدوية في قوارنا إيطاليا", "مدة التصنيع":"6 أشهر للقطعة الواحدة", "العناية":"تنظيف جاف عند متخصص فقط", "عمر القطعة":"يتجاوز عمر صاحبها" },
+            sizing:{ "النماذج المتاحة":"معطف، سترة، وشاح، بطانية", "الألوان":"ذهبي طبيعي (لون الڤيكونيا) أو مصبوغ", "التخصيص":"بيسبوك متاح بـ+40%", "الحماية القانونية":"CITES Appendix II — محمية دولياً" },
+            bar:{ label:"ندرة الخامة عالمياً", value:100 }
+          },
+          {
+            id:"baby_cashmere_hoodie", name:"هودي Baby Cashmere", color:"#E8DCC8", year:"2024",
+            type:"Ultra-Fine Knitwear", price:"$3,200",
+            tags:["Baby Cashmere","14 Microns","Hircus Goat","Seasonal"],
+            story:"كشمير صغار الماعز الهيركاني قبل أول تساقط طبيعي — 14 ميكرون من النعومة الخيالية. LP تملك حقوق حصرية على هذا الخيط.",
+            highlights:["14 ميكرون — الكشمير العادي 16–18، الكشمير الرديء 20+","كل صغير ماعز يُنتج 80–100 غرام فقط سنوياً","LP تملك حقوقاً حصرية على الاسم والخيط"],
+            fiber:{ "الخامة":"100% Baby Cashmere Hircus", "النعومة":"14–14.5 ميكرون", "المصدر":"إيران + أفغانستان (الأقل تلوثاً)", "عمر الحيوان":"أول تساقط فقط قبل 6 أشهر", "الكمية السنوية":"30 طن فقط عالمياً" },
+            craft:{ "الحياكة":"آلة إيطالية 16-gauge (أدق ما يُصنع)", "الغرزة":"Jersey + Rib (بحسب القطعة)", "الصباغة":"طبيعية + كيميائية بارزة بلا أضرار", "العناية":"غسيل بارد يدوي — تجفيف مسطح فقط", "الكي":"بخار خفيف فقط" },
+            sizing:{ "النماذج":"هودي، كنزة، كارديجان، بدلة", "الألوان":"40+ درجة موسمية", "مقاسات":"XS → XXL مع تفصيل اختياري", "التخصيص":"monogram يدوي متاح" },
+            bar:{ label:"نعومة الخيط", value:96 }
+          },
+        ]
+      },
+      {
+        id:"hermes", name:"Hermès", origin:"Paris, FR", founded:"1837", logo:"H",
+        tagline:"منذ 1837 — الحرفي في قلب كل قطعة",
+        desc:"Hermès بدأت صانعة سروج خيل للأرستقراطية الفرنسية. اليوم كل حقيبة تُصنع بنفس فلسفة السرج — حرفي واحد، من البداية للنهاية.",
+        models:[
+          {
+            id:"birkin25", name:"Birkin 25 Togo Leather", color:"#BF5E3B", year:"1984 (أيقونة مستمرة)",
+            type:"Ultimate Status Handbag", price:"$12,000 (رسمي) — $500,000+ (مزادات)",
+            tags:["Togo","Handstitched","18K Hardware","100yr Warranty"],
+            story:"وُلدت في طائرة عندما التقت Jane Birkin بالرئيس التنفيذي Jean-Louis Dumas وشكت من صعوبة إيجاد حقيبة جيدة. أخرج مظروفاً ورسم عليه تصميماً.",
+            highlights:["حرفي واحد يصنع كل قطعة من البداية للنهاية — 18–24 ساعة عمل","إبزيم Palladium أو ذهب 18 قيراط — يدوي بالكامل","ترتفع قيمتها 14.2% سنوياً في المتوسط — تتفوق على S&P500 تاريخياً"],
+            leather:{ "نوع الجلد":"Togo (عجل فرنسي مدبوغ بنباتات)", "الخصائص":"ناعم، مقاوم للخدش، يتحسن بالاستخدام", "البديل الأندر":"Niloticus Crocodile / Himalaya", "الخياطة":"Saddle Stitch يدوي بإبرتين", "الخيط":"حرير لينين مشمّع" },
+            hardware:{ "المعدن الأساسي":"Palladium (فضي مطفأ)", "البديل":"Gold-Plated 18K", "الإبزيم":"Turnlock يدوي (laquage)", "التخصيص":"Rose Gold، Permabrass، Brushed Gold", "الختم":"مكتوب يدوياً في باريس" },
+            market:{ "قائمة الانتظار":"5–10 سنوات رسمياً", "الحصول عليها":"يتطلب تاريخ شراء مع Hermès", "عائد الاستثمار":"14.2% سنوياً (Knight Frank 2022)", "الأحجام":"25 / 30 / 35 / 40 سم", "ندرة Himalaya":"واحدة أو اثنتان سنوياً عالمياً" },
+            bar:{ label:"عائد الاستثمار التاريخي", value:92 }
+          },
+        ]
+      },
+    ]
+  },
+
+  // ══ SWEETS ════════════════════════════════════════════════════════════════
+  sweets: {
+    brands:[
+      {
+        id:"pierre", name:"Pierre Hermé", origin:"Paris, FR", founded:"1998", logo:"PH",
+        tagline:"Picasso of Pastry — باكاسو الحلويات الفرنسية",
+        desc:"تتلمذ على يد Gaston Lenôtre في سن 14. أصبح Chef Pâtissier لدى Fauchon في 24. غيّر قواعد الحلويات الفرنسية للأبد وهو في الثلاثينيات.",
+        models:[
+          {
+            id:"ispahan_cake", name:"Ispahan — La Tarte 20cm", color:"#E8A0B4", year:"2001 (أيقونة)",
+            type:"Signature Rose-Lychee-Raspberry Tarte", price:"€85 / تورتة للـ6–8",
+            tags:["Signature Creation","World-Copied","Rose","Seasonal Lychee"],
+            story:"ألهمته حديقة إصفهان الفارسية وشعر الرومي عن الورد. ثلاثة مكونات فقط — لكن توازنها الدقيق يتطلب 3 أيام تحضير ومهارة لا تُتعلم في كتاب.",
+            highlights:["الأكثر تقليداً في تاريخ الحلويات الفرنسية الحديثة","الليتشي الطازج موسمي — التورتة تتغير خارج الموسم","كريمة الورد تُصنع من تقطير بتلات ورد حقيقية — ليس مستخلصاً"],
+            components:{ "القاعدة":"Dacquoise اللوز — بيض + سكر + لوز خشن", "المحيط":"ماكرون الورد الكبير (15 سم)", "الكريمة":"Mousseline ورد بلغاري من Grasse", "الحشوة":"ليتشي طازج أو معلّب (راهي 5 نجوم)", "التشطيب":"حبات توت العُليق الطازجة منظّمة يدوياً" },
+            process:{ "اليوم الأول":"خبز Dacquoise + تحضير كريمة الورد", "اليوم الثاني":"خبز ماكرون الورد + تجميع الطبقات", "اليوم الثالث":"التشطيب + التقديم", "درجة الصعوبة":"عالية جداً — فشل 90% من المحاولات الأولى", "درجة التقديم":"تُقدَّم بارداً (4°C)" },
+            tasting:{ "القوام":"ثلاثة طبقات — هش + كريمي + طري في آن واحد", "التوازن":"حموضة التوت تكسر حلاوة الورد والليتشي", "الألوان":"وردي فاتح + أحمر + أخضر — جمال بصري أول", "الديمومة":"3 أيام حداً أقصى (4°C)", "التقطيع":"يحتاج سكيناً مبللاً وساخناً" },
+            bar:{ label:"دقة التحضير الفنية", value:97 }
+          },
+          {
+            id:"2000feuilles", name:"2000 Feuilles au Praliné", color:"#D4A56A", year:"2006",
+            type:"Reimagined Mille-Feuille", price:"€75 / تورتة",
+            tags:["Mille-Feuille Revolution","Praline","Caramel","Deconstructed"],
+            story:"أأخذ Hermé أشهر حلوى فرنسية — Mille-Feuille — وقلبها رأساً على عقب. بدلاً من الكريمة السادة، استخدم Praline Feuilletine الذي يبقى هشاً لأيام.",
+            highlights:["ابتكر Praline Feuilletine — خليط البندق + الكراميل المُقرمش يمنع الترطيب","القشرات المطبوخة عمياء (à blanc) تضمن الهشاشة المثالية","يُبقى هشاً لـ48 ساعة — عكس الـMille-Feuille التقليدي الذي يلين بساعات"],
+            components:{ "العجينة":"Pâte Feuilletée — 729 طبقة زبدة وعجين بالتناوب", "الكريمة":"Mousseline Praliné Feuilletine (بلدق + بندق + Pailleté feuilletine)", "الكراميل":"Caramel au Beurre Salé (نصف مالح)", "التشطيب":"صفائح Feuilletage مكرملة فوق الكريمة", "الديكور":"مسحوق البندق + ذهب خوراقي" },
+            process:{ "اليوم الأول":"طي عجينة Feuilletée (6 طيات بفترات تبريد)", "اليوم الثاني":"الخبز العمياء + تصنيع Praline Feuilletine", "اليوم الثالث":"التجميع + الكراميل + التشطيب", "درجة الصعوبة":"خبير فقط — العجينة حساسة للحرارة والرطوبة", "السر":"الزبدة 84% دهون من Poitou-Charentes" },
+            tasting:{ "القوام":"هش خارجياً + كريمي مترامش داخلياً", "النكهة":"بندق + كراميل مالح + زبدة عالية الجودة", "الحرارة المثالية":"غرفة (20°C) — مباشر من البراد أقل جودة", "الديمومة":"48 ساعة (4°C)", "التقطيع":"سكين مسنّن فقط" },
+            bar:{ label:"تعقيد التقنية الفنية", value:94 }
+          },
+          {
+            id:"mogador_tarte", name:"Mogador — Tarte Passion-Chocolat", color:"#F4A460", year:"2005",
+            type:"Exotic Chocolate-Passion Tarte", price:"€75 / تورتة",
+            tags:["Passion Fruit","Valrhona Milk Choc 40%","Ganache","Mogador"],
+            story:"Mogador — مدينة مغربية ساحلية اليوم تُعرف بالصويرة. ألهم الشيف اسم مقرونه الشهير بالشوكولاتة والباشن فروت — ثم حوّله تورتة كاملة.",
+            highlights:["Ganache يستخدم Valrhona Jivara 40% فقط — لا شوكولاتة بديلة","الباشن فروت من مزارع برازيلية محددة — الحموضة تُوازن دهنية الـGanache بدقة","طبقة Croustillant Feuilletine تمنع تراجع الجودة لـ48 ساعة"],
+            components:{ "القاعدة":"Pâte Sablée بالشوكولاتة (مُقرمشة ملوّنة)", "Croustillant":"Feuilletine + Jivara 40% + Praliné (طبقة هشة حاجزة)", "Ganache":"Jivara 40% + كريمة 35% + باشن فروت طازج", "Crémeux":"باشن فروت + بيض + زبدة (طبقة حامضة)", "التشطيب":"مرآة شوكولاتة حليب + بذور Passion للديكور" },
+            process:{ "اليوم الأول":"خبز القاعدة + صنع Ganache + تبريد الطبقات", "اليوم الثاني":"تجميع الطبقات + Crémeux + التبريد", "التشطيب":"مرآة الشوكولاتة تُصب في آخر 2 ساعة", "درجة الصعوبة":"عالية — الـGanache يتجمد بسرعة", "درجة صب المرآة":"31–32°C بالضبط" },
+            tasting:{ "التوازن":"حموضة الباشن فروت 45% + دهنية الشوكولاتة 55%", "الديمومة":"48 ساعة (4°C)", "تسلسل النكهة":"أول شوكولاتة حليب → ثم انفجار الباشن → ثم هشاشة القاعدة", "الحرارة المثالية":"15–18°C — يُخرج من البراد 20 دقيقة قبل التقديم" },
+            bar:{ label:"توازن النكهات المتضادة", value:93 }
+          },
+        ]
+      },
+      {
+        id:"valrhona", name:"Valrhona", origin:"Tain-l'Hermitage, FR", founded:"1922", logo:"V",
+        tagline:"Ensemble on va plus loin — معاً نصل أبعد",
+        desc:"أسسها Albéric Guironnet عام 1922 بهدف واحد: تعليم العالم ما هي الشوكولاتة الحقيقية. اليوم تُدرّب 25,000 شيف سنوياً في Cité du Chocolat.",
+        models:[
+          {
+            id:"guanaja70", name:"Guanaja 70% — Grand Cru", color:"#3D1A00", year:"1986",
+            type:"Intense Dark Chocolate Grand Cru", price:"€25 / 250g | €180 / كغ",
+            tags:["First 70%","Grand Cru","Professional Standard","1986 Pioneer"],
+            story:"1986 — العالم كله يصنع شوكولاتة داكنة بنسبة 60% أو أقل. Valrhona كسرت القاعدة وأطلقت أول 70% رسمية. الصناعة كلها تبعتها بعد 10 سنوات.",
+            highlights:["أول شوكولاتة 70% في التاريخ — 1986","تُستخدم في 80% من مطاعم الميشلان 3 نجوم عالمياً","اسمها من Guanaja — جزيرة هندوراس حيث لمس Columbus الكاكاو أول مرة"],
+            origin_story:{ "بلد المنشأ":"Trinidad + جزر الكاريبي (blend)", "نوع الحبة":"Trinitario (هجين Forastero + Criollo)", "المزارع":"شراكات مباشرة مع المزارعين", "التخمير":"7–10 أيام مُراقَب", "التجفيف":"شمسي طبيعي على طاولات مرتفعة" },
+            profile:{ "نسبة الكاكاو":"70%", "النكهات الأساسية":"فاكهة حمراء، قهوة، كاكاو عميق", "النكهات الثانوية":"توابل، عرق الليمون، خشب", "الحموضة":"متوسطة (مميزة)", "الحلاوة المتبقية":"ضعيفة — مرجعية للداكنة" },
+            technical:{ "قطعة التذوق":"كسرها يُصدر صوتاً (Snap) — علامة جودة", "نقطة الإذابة":"31–32°C (يذوب عند لمسه تقريباً)", "الـCrystallization":"Form V فقط للبريق المثالي", "التخزين":"16–18°C / رطوبة أقل من 60%", "العمر":"24 شهر في التخزين الصحيح" },
+            uses:{ "الـGanache":"المرجع الذهبي عالمياً", "الـMousse":"يُعطي بنية مثالية", "الـTempering":"يستجيب بدقة استثنائية", "الخبز":"يحتفظ بنكهته حتى 200°C", "التذوق المباشر":"يُذاب على اللسان ببطء — لا يُمضغ" },
+            bar:{ label:"عمق الكاكاو وشدته", value:85 }
+          },
+          {
+            id:"dulcey32", name:"Dulcey Blond 32%", color:"#D4A017", year:"2012",
+            type:"Blonde Chocolate — 4th Category", price:"€22 / 250g",
+            tags:["Happy Accident","Blonde","4th Category","Caramel Biscuit","Unique"],
+            story:"2006 — الشيف Frédéric Bau نسي زجاجة شوكولاتة بيضاء في Bain-marie على حرارة منخفضة لساعات. حين عاد وجد لوناً ذهبياً ونكهة لم يتخيلها. 6 سنوات تجارب قبل الإطلاق عام 2012.",
+            highlights:["اكتُشفت بالصدفة التامة — أهم اكتشاف في الشوكولاتة منذ عقود","الفئة الرابعة: داكنة / حليب / بيضاء / بلوند — Dulcey أسّستها","طعم البسكويت والكراميل لا نظير له في أي شوكولاتة أخرى"],
+            origin_story:{ "المبتكر":"Frédéric Bau (Chef École Valrhona)", "سنة الاكتشاف":"2006 — بالصدفة", "سنة الإطلاق":"2012 — بعد 6 سنوات تجارب", "الأساس":"White Chocolate مُكرملة ببطء (120°C / 4–6 ساعات)", "مكونات سر الصنع":"حليب مجفف + سكر مكرمل + كاكاو butter" },
+            profile:{ "نسبة الكاكاو":"32% (كاكاو butter فقط — لا solid)", "اللون":"ذهبي — Dulcey = دُلسيّ بالإسبانية (حلو)", "النكهات الأساسية":"بسكويت بلغاري، كراميل مالح خفيف", "النكهات الثانوية":"فانيليا، حليب كامل الدسم", "الحموضة":"لا توجد — ناعمة كلياً" },
+            technical:{ "نقطة الإذابة":"28–29°C (أسرع من الداكنة)", "الـCrystallization":"Form V — أصعب من الداكنة", "التخزين":"16°C / رطوبة أقل 50% (أحساس للرطوبة)", "العمر":"12 شهر (أقل من الداكنة)", "التحدي":"يتطلب دقة تمبير أعلى لأنه أقل استقراراً" },
+            uses:{ "الـGanache":"يُعطي Ganache دافئاً لا نظير له", "الـMousse":"خفيف ومذاق استثنائي", "التزيين":"لونه الذهبي ديكور بحد ذاته", "السكب":"مرايا بلوند — اتجاه جديد", "المزج":"مع Guanaja = توازن غير متوقع" },
+            bar:{ label:"تفرد النكهة وعدم الوجود البديل", value:99 }
+          },
+        ]
+      },
+    ]
+  },
+
 };
 
-// ────────────────────────── Components ──────────────────────────
-
-export default function Knowledge() {
-  const [activeCat, setActiveCat] = useState<CategoryId>('cars');
-  const [activeBrandId, setActiveBrandId] = useState<string | null>(null);
-  const [activeModel, setActiveModel] = useState<Model | null>(null);
-
-  const category = useMemo(() => CATEGORIES.find((c) => c.id === activeCat)!, [activeCat]);
-  const brands = DATA[activeCat];
-  const activeBrand = useMemo(
-    () => brands.find((b) => b.id === activeBrandId) ?? null,
-    [brands, activeBrandId],
+// ─── CATEGORY-SPECIFIC MODAL RENDERER ─────────────────────────────────────────
+function CarsModalContent({ m, color }: ModalContentProps) {
+  return (
+    <>
+      <Section title="أداء قياسي" color={color}>
+        <Grid2 data={m.perf} color={color} />
+      </Section>
+      <Section title="المحرك والقوة" color={color}>
+        <Grid2 data={m.engine} color={color} />
+      </Section>
+      <Section title="الشاصي والأبعاد" color={color}>
+        <Grid2 data={m.chassis} color={color} />
+      </Section>
+    </>
   );
+}
 
-  const handleSelectCategory = (id: CategoryId) => {
-    setActiveCat(id);
-    setActiveBrandId(null);
+function PerfumesModalContent({ m, color }: ModalContentProps) {
+  return (
+    <>
+      <Section title="هرم الرائحة" color={color}>
+        <PyramidBlock data={m.pyramid} color={color} />
+      </Section>
+      <Section title="شخصية العطر" color={color}>
+        <Grid2 data={m.character} color={color} />
+      </Section>
+      <Section title="معلومات المعطّر" color={color}>
+        <Grid2 data={m.notes} color={color} />
+      </Section>
+    </>
+  );
+}
+
+function WatchesModalContent({ m, color }: ModalContentProps) {
+  return (
+    <>
+      <Section title="الحركة الداخلية" color={color}>
+        <Grid2 data={m.movement} color={color} />
+      </Section>
+      <Section title="العلبة والقياسات" color={color}>
+        <Grid2 data={m.case} color={color} />
+      </Section>
+      <Section title={m.dial ? "القرص والوجه" : m.complications ? "التعقيدات الكاملة" : "مواصفات إضافية"} color={color}>
+        <Grid2 data={m.dial || m.complications} color={color} />
+      </Section>
+    </>
+  );
+}
+
+function FashionModalContent({ m, color }: ModalContentProps) {
+  return (
+    <>
+      <Section title={m.fiber ? "الخامة والألياف" : m.leather ? "الجلد والخياطة" : "المادة الخام"} color={color}>
+        <Grid2 data={m.fiber || m.leather} color={color} />
+      </Section>
+      <Section title={m.craft ? "الصناعة والحرفية" : m.hardware ? "المعادن والإبازيم" : "التفاصيل"} color={color}>
+        <Grid2 data={m.craft || m.hardware} color={color} />
+      </Section>
+      <Section title={m.sizing ? "الأحجام والتخصيص" : m.market ? "السوق والاستثمار" : "إضافي"} color={color}>
+        <Grid2 data={m.sizing || m.market} color={color} />
+      </Section>
+    </>
+  );
+}
+
+function SweetsModalContent({ m, color }: ModalContentProps) {
+  return (
+    <>
+      <Section title="مكونات القطعة" color={color}>
+        <ComponentsBlock data={m.components} color={color} />
+      </Section>
+      <Section title="عملية التحضير" color={color}>
+        <Grid2 data={m.process} color={color} />
+      </Section>
+      <Section title="التذوق والتقديم" color={color}>
+        <Grid2 data={m.tasting || m.origin_story || m.profile} color={color} />
+      </Section>
+      {m.technical && (
+        <Section title="التقنية والتخزين" color={color}>
+          <Grid2 data={m.technical} color={color} />
+        </Section>
+      )}
+      {m.uses && (
+        <Section title="الاستخدامات الاحترافية" color={color}>
+          <Grid2 data={m.uses} color={color} />
+        </Section>
+      )}
+    </>
+  );
+}
+
+// ─── SHARED SUBCOMPONENTS ──────────────────────────────────────────────────────
+function Section({ title, color, children }: SectionProps) {
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <div style={{
+        fontSize: "8px", color: color, fontFamily: "monospace",
+        letterSpacing: "0.22em", marginBottom: "10px", opacity: 0.8,
+        display: "flex", alignItems: "center", gap: "8px"
+      }}>
+        <div style={{ width: "16px", height: "1px", background: color, opacity: 0.5 }} />
+        {title.toUpperCase()}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Grid2({ data, color }: Grid2Props) {
+  if (!data) return null;
+  const entries = Object.entries(data);
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+      {entries.map(([k, v]) => (
+        <div key={k} style={{
+          background: "#0e0e0e", border: "1px solid #1c1c1c",
+          borderRadius: "8px", padding: "11px 10px",
+        }}>
+          <div style={{ fontSize: "7px", color: "#484848", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "5px" }}>
+            {k.replace(/_/g, " ")}
+          </div>
+          <div style={{ fontSize: "11px", color: "#d8d8d8", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>
+            {v}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PyramidBlock({ data, color }: PyramidBlockProps) {
+  if (!data) return null;
+  const layers = [
+    { key: "رائحة القمة",  icon: "▲", note: "أول 15 دقيقة" },
+    { key: "رائحة القلب",  icon: "◆", note: "15 دقيقة – 4 ساعات" },
+    { key: "رائحة القاعدة",icon: "▼", note: "4 ساعات+" },
+  ];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      {layers.map((l, i) => {
+        const val = data[l.key];
+        if (!val) return null;
+        const widths = ["80%", "92%", "100%"];
+        return (
+          <div key={l.key} style={{
+            background: "#0e0e0e", border: `1px solid ${i === 0 ? color + "30" : "#1c1c1c"}`,
+            borderRadius: "8px", padding: "10px 12px",
+            width: widths[i], marginLeft: i === 0 ? "auto" : i === 1 ? "auto" : "0",
+            marginRight: i === 0 ? "auto" : i === 1 ? "auto" : "0",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+              <span style={{ fontSize: "7px", color: i === 0 ? color : "#444", fontFamily: "monospace", letterSpacing: "0.15em" }}>
+                {l.icon} {l.key.toUpperCase()}
+              </span>
+              <span style={{ fontSize: "7px", color: "#333", fontFamily: "monospace" }}>{l.note}</span>
+            </div>
+            <div style={{ fontSize: "11px", color: "#ccc", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.5" }}>{val}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ComponentsBlock({ data, color }: ComponentsBlockProps) {
+  if (!data) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      {Object.entries(data).map(([k, v], i) => (
+        <div key={k} style={{
+          display: "flex", gap: "10px", alignItems: "flex-start",
+          background: "#0e0e0e", border: "1px solid #1a1a1a",
+          borderRadius: "8px", padding: "10px 12px",
+        }}>
+          <div style={{
+            width: "22px", height: "22px", borderRadius: "6px", flexShrink: 0,
+            background: `${color}18`, border: `1px solid ${color}28`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: "9px", color: color, fontFamily: "monospace", fontWeight: "bold"
+          }}>{i + 1}</div>
+          <div>
+            <div style={{ fontSize: "7px", color: "#484848", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "3px" }}>
+              {k.replace(/_/g, " ")}
+            </div>
+            <div style={{ fontSize: "11px", color: "#ccc", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>{v}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── DETAIL MODAL ──────────────────────────────────────────────────────────────
+function DetailModal({ model, brand, catId, catColor, onClose }: DetailModalProps) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { setTimeout(() => setVisible(true), 20); }, []);
+  const handleClose = () => { setVisible(false); setTimeout(onClose, 350); };
+
+  const renderContent = () => {
+    switch (catId) {
+      case "cars":     return <CarsModalContent m={model} color={model.color} />;
+      case "perfumes": return <PerfumesModalContent m={model} color={model.color} />;
+      case "watches":  return <WatchesModalContent m={model} color={model.color} />;
+      case "fashion":  return <FashionModalContent m={model} color={model.color} />;
+      case "sweets":   return <SweetsModalContent m={model} color={model.color} />;
+      default:         return null;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-page px-5 pt-14">
+    <div onClick={handleClose} style={{
+      position:"fixed", inset:0, zIndex:999,
+      background:"rgba(0,0,0,0.9)", backdropFilter:"blur(24px)",
+      display:"flex", alignItems:"center", justifyContent:"center", padding:"16px",
+      opacity: visible ? 1 : 0, transition:"opacity 0.35s ease",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background:"linear-gradient(160deg, #141414 0%, #0c0c0c 60%, #0f0f0f 100%)",
+        border:`1px solid ${model.color}38`, borderRadius:"24px",
+        width:"100%", maxWidth:"520px", maxHeight:"90vh", overflowY:"auto",
+        position:"relative",
+        transform: visible ? "translateY(0) scale(1)" : "translateY(28px) scale(0.97)",
+        transition:"all 0.45s cubic-bezier(0.23,1,0.32,1)",
+        boxShadow:`0 60px 140px ${model.color}15, 0 0 0 1px ${model.color}15 inset`,
+      }}>
+        {/* Glow top */}
+        <div style={{
+          position:"absolute", top:0, left:0, right:0, height:"150px",
+          background:`radial-gradient(ellipse at 50% -10%, ${model.color}28 0%, transparent 70%)`,
+          borderRadius:"24px 24px 0 0", pointerEvents:"none"
+        }} />
+
+        {/* Close */}
+        <button onClick={handleClose} style={{
+          position:"absolute", top:"16px", right:"16px", zIndex:10,
+          background:"#1a1a1a", border:"1px solid #2a2a2a", borderRadius:"50%",
+          width:"32px", height:"32px", color:"#666", fontSize:"13px",
+          cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
+        }}>✕</button>
+
+        <div style={{ padding:"36px 26px 32px" }} dir="rtl">
+
+          {/* Breadcrumb */}
+          <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"20px", flexWrap:"wrap" }}>
+            <span style={{
+              padding:"3px 10px", background:`${model.color}15`,
+              border:`1px solid ${model.color}30`, borderRadius:"20px",
+              fontSize:"8px", color:model.color, fontFamily:"monospace", letterSpacing:"0.14em"
+            }}>{brand.name.toUpperCase()}</span>
+            <span style={{ color:"#333", fontSize:"9px", fontFamily:"monospace" }}>·</span>
+            <span style={{ color:"#444", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.1em" }}>
+              {model.type} · {model.year}
+            </span>
+          </div>
+
+          {/* Name */}
+          <h2 style={{
+            fontFamily:"'Cormorant Garamond', serif",
+            fontSize:"clamp(24px,5vw,36px)", fontWeight:"300",
+            color:"#f0f0f0", lineHeight:"1.1", marginBottom:"8px"
+          }}>{model.name}</h2>
+
+          {/* Price */}
+          <div style={{ fontSize:"14px", color:model.color, fontFamily:"monospace", marginBottom:"20px", opacity:0.9 }}>
+            {model.price}
+          </div>
+
+          {/* Story */}
+          <p style={{
+            color:"#888", fontSize:"12.5px", fontFamily:"'Amiri', serif",
+            lineHeight:"1.9", marginBottom:"24px",
+            paddingRight:"12px", borderRight:`2px solid ${model.color}35`,
+          }}>{model.story}</p>
+
+          {/* Highlights */}
+          <div style={{ marginBottom:"24px" }}>
+            <div style={{ fontSize:"8px", color:"#383838", fontFamily:"monospace", letterSpacing:"0.22em", marginBottom:"12px", display:"flex", alignItems:"center", gap:"8px" }}>
+              <div style={{ width:"16px", height:"1px", background:"#383838" }} />
+              أبرز المميزات
+            </div>
+            {model.highlights.map((h, i) => (
+              <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:"10px", marginBottom:"9px" }}>
+                <div style={{ width:"4px", height:"4px", background:model.color, borderRadius:"50%", marginTop:"6px", flexShrink:0 }} />
+                <span style={{ color:"#bbb", fontSize:"12px", fontFamily:"'Amiri', serif", lineHeight:"1.7" }}>{h}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Category-specific content */}
+          {renderContent()}
+
+          {/* Bar */}
+          <div style={{ background:"#0c0c0c", border:"1px solid #1a1a1a", borderRadius:"10px", padding:"14px", marginBottom:"18px" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
+              <span style={{ fontSize:"8px", color:"#444", fontFamily:"monospace", letterSpacing:"0.15em" }}>{model.bar.label}</span>
+              <span style={{ fontSize:"11px", color:model.color, fontFamily:"monospace" }}>{model.bar.value} / 100</span>
+            </div>
+            <div style={{ height:"2px", background:"#1a1a1a", borderRadius:"1px", overflow:"hidden" }}>
+              <div style={{
+                height:"100%", background:`linear-gradient(90deg, ${model.color}55, ${model.color})`,
+                borderRadius:"1px",
+                width: visible ? `${model.bar.value}%` : "0%",
+                transition:"width 1.5s cubic-bezier(0.23,1,0.32,1) 0.4s",
+              }} />
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div style={{ display:"flex", flexWrap:"wrap", gap:"5px" }}>
+            {model.tags.map(t => (
+              <span key={t} style={{
+                padding:"3px 9px", background:`${model.color}10`,
+                border:`1px solid ${model.color}25`, borderRadius:"20px",
+                fontSize:"8px", color:model.color, fontFamily:"monospace", letterSpacing:"0.08em"
+              }}>{t}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN ──────────────────────────────────────────────────────────────────────
+export default function Knowledge() {
+  const [activeCat, setActiveCat] = useState<string>("cars");
+  const [activeBrand, setActiveBrand] = useState<string | null>(null);
+  const [activeModel, setActiveModel] = useState<Model | null>(null);
+
+  const cat = CATEGORIES.find(c => c.id === activeCat)!;
+  const catData = DATA[activeCat];
+  const brand = activeBrand ? catData.brands.find(b => b.id === activeBrand) : null;
+
+  const switchCat = (id: string) => { setActiveCat(id); setActiveBrand(null); setActiveModel(null); };
+  const selectBrand = (id: string) => { setActiveBrand(id); setActiveModel(null); };
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#080808", color:"#fff", overflowX:"hidden" }} dir="rtl">
       <SEO
         path="/knowledge"
         title="موسوعة الرقي — معرفة منتقاة"
@@ -1493,342 +821,214 @@ export default function Knowledge() {
           ],
         }}
       />
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="space-y-5 max-w-lg mx-auto"
-      >
-        {/* Header — matches Theme/Prayer settings pattern */}
-        <motion.div variants={item} className="flex items-center gap-3 mb-1">
-          <BackButton />
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-primary" />
-            </div>
-            <h1 className="text-lg font-bold text-foreground">موسوعة الرقي</h1>
-          </div>
-        </motion.div>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amiri:wght@400;700&display=swap');
+        * { box-sizing:border-box; margin:0; padding:0; }
+        ::-webkit-scrollbar { width:3px; }
+        ::-webkit-scrollbar-thumb { background:#252525; border-radius:2px; }
+        button { font-family:inherit; outline:none; }
+        @keyframes fadeSlide { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+      `}</style>
 
-        {/* Category strip */}
-        <motion.nav variants={item} className="grid grid-cols-5 gap-2" aria-label="الفئات">
-          {CATEGORIES.map((c) => {
-            const active = c.id === activeCat;
-            const Icon = c.icon;
+      {/* Ambient */}
+      <div style={{
+        position:"fixed", top:"-300px", left:"50%", transform:"translateX(-50%)",
+        width:"1000px", height:"600px",
+        background:`radial-gradient(ellipse, ${cat.color}0d 0%, transparent 65%)`,
+        pointerEvents:"none", transition:"background 1.4s ease", zIndex:0,
+      }} />
+
+      <div style={{ position:"relative", zIndex:1, maxWidth:"860px", margin:"0 auto", padding:"clamp(24px,5vw,48px) clamp(16px,4vw,32px)" }}>
+
+        {/* Header */}
+        <div style={{ marginBottom:"clamp(28px,5vw,44px)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+            <BackButton />
+            <div style={{ fontSize:"8px", color:"#282828", fontFamily:"monospace", letterSpacing:"0.4em" }}>
+              LISSAN · قسم المعرفة
+            </div>
+          </div>
+          <div style={{ display:"flex", alignItems:"baseline", gap:"10px", flexWrap:"wrap" }}>
+            <h1 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:"#efefef", lineHeight:"1", letterSpacing:"-0.03em" }}>
+              موسوعة
+            </h1>
+            <span style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:cat.color, lineHeight:"1", letterSpacing:"-0.03em", fontStyle:"italic", transition:"color 0.8s ease" }}>
+              الرقي
+            </span>
+          </div>
+          <p style={{ color:"#303030", fontSize:"11px", fontFamily:"'Amiri', serif", marginTop:"10px" }}>
+            السيارات · العطور · الساعات · الأزياء · الحلويات
+          </p>
+        </div>
+
+        {/* Category Nav */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:"6px", marginBottom:"clamp(24px,4vw,40px)" }}>
+          {CATEGORIES.map(c => {
+            const active = activeCat === c.id;
             return (
-              <button
-                key={c.id}
-                onClick={() => handleSelectCategory(c.id)}
-                className={`surface-depth-pressable flex flex-col items-center justify-center rounded-2xl px-1.5 py-3 transition-all ${
-                  active ? 'ring-1 ring-primary/60' : ''
-                }`}
-                aria-pressed={active}
-              >
-                <Icon className={`w-5 h-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
-                <span
-                  className={`mt-1.5 text-[0.6875rem] font-semibold leading-tight text-center ${
-                    active ? 'text-primary' : 'text-foreground'
-                  }`}
-                >
-                  {c.label}
-                </span>
+              <button key={c.id} onClick={() => switchCat(c.id)} style={{
+                background: active ? `radial-gradient(ellipse at 50% 0%, ${c.color}1e, transparent 85%)` : "transparent",
+                border:`1px solid ${active ? c.color + "48" : "#1c1c1c"}`,
+                borderRadius:"14px", padding:"clamp(12px,2.5vw,22px) 6px", cursor:"pointer",
+                transition:"all 0.4s cubic-bezier(0.23,1,0.32,1)",
+                transform: active ? "translateY(-2px)" : "translateY(0)",
+              }}>
+                <div style={{ fontSize:"clamp(16px,3vw,24px)", color: active ? c.color : "#3a3a3a", marginBottom:"6px", transition:"all 0.35s", filter: active ? `drop-shadow(0 0 8px ${c.color}65)` : "none" }}>{c.icon}</div>
+                <div style={{ color: active ? "#dedede" : "#484848", fontSize:"clamp(9px,1.6vw,11px)", fontFamily:"'Amiri', serif" }}>{c.label}</div>
+                <div style={{ color: active ? c.color : "#222", fontSize:"7px", fontFamily:"monospace", letterSpacing:"0.1em", marginTop:"3px", opacity: active ? 0.8 : 1 }}>{c.labelEn}</div>
               </button>
             );
           })}
-        </motion.nav>
-
-        {/* Brands OR Models — mutually exclusive to avoid double scroll */}
-        <div className="relative">
-          <AnimatePresence mode="wait" initial={false}>
-            {!activeBrand ? (
-              <motion.section
-                key={`brands-${activeCat}`}
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -12 }}
-                transition={{ duration: 0.28, ease: [0.22, 0.9, 0.32, 1] }}
-                aria-label="الماركات"
-                className="space-y-3"
-              >
-                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  الماركات
-                </h2>
-                <motion.div
-                  className="space-y-2.5"
-                  initial="hidden"
-                  animate="show"
-                  variants={{ show: { transition: { staggerChildren: 0.04 } } }}
-                >
-                  {brands.map((b) => (
-                    <motion.div
-                      key={b.id}
-                      variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
-                      transition={{ duration: 0.25, ease: [0.22, 0.9, 0.32, 1] }}
-                    >
-                      <AppCard
-                        as="button"
-                        pressable
-                        onClick={() => setActiveBrandId(b.id)}
-                        className="block w-full text-end"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-base font-bold text-primary">
-                            {b.logo}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[0.9375rem] font-semibold text-foreground truncate">
-                              {b.name}
-                            </div>
-                            <div className="text-[0.6875rem] text-muted-foreground truncate">
-                              {b.origin} · {b.founded}
-                            </div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                        </div>
-                      </AppCard>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </motion.section>
-            ) : (
-              <motion.section
-                key={`models-${activeBrand.id}`}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 12 }}
-                transition={{ duration: 0.28, ease: [0.22, 0.9, 0.32, 1] }}
-                aria-label="الطرازات"
-                className="space-y-3"
-              >
-                <button
-                  onClick={() => setActiveBrandId(null)}
-                  className="surface-depth-pressable flex items-center gap-2 rounded-2xl px-3 py-2 text-[0.75rem] text-muted-foreground"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                  <span>عودة إلى الماركات</span>
-                </button>
-                <div className="flex items-center gap-3 px-1">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-sm font-bold text-primary">
-                    {activeBrand.logo}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[0.9375rem] font-semibold text-foreground truncate">
-                      {activeBrand.name}
-                    </div>
-                    <div className="text-[0.6875rem] text-muted-foreground truncate">
-                      {activeBrand.origin} · {activeBrand.founded}
-                    </div>
-                  </div>
-                </div>
-                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 pt-1">
-                  الطرازات
-                </h2>
-                <motion.div
-                  className="space-y-2.5"
-                  initial="hidden"
-                  animate="show"
-                  variants={{
-                    show: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
-                  }}
-                >
-                  {activeBrand.models.map((m) => (
-                    <motion.div
-                      key={m.id}
-                      variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-                      transition={{ duration: 0.28, ease: [0.22, 0.9, 0.32, 1] }}
-                    >
-                      <AppCard
-                        as="button"
-                        pressable
-                        onClick={() => setActiveModel(m)}
-                        className="block w-full text-end"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="text-[0.9375rem] font-semibold text-foreground">
-                              {m.name}
-                            </div>
-                            <div className="mt-1 flex flex-wrap items-center gap-2">
-                              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.625rem] text-primary">
-                                {m.type}
-                              </span>
-                              <span className="text-[0.625rem] text-muted-foreground">
-                                {m.year} · {m.price}
-                              </span>
-                            </div>
-                          </div>
-                          <ArrowUpSquare className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
-                        </div>
-                        <p className="mt-2.5 line-clamp-2 text-[0.8125rem] leading-relaxed text-muted-foreground">
-                          {m.desc}
-                        </p>
-                      </AppCard>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </motion.section>
-            )}
-          </AnimatePresence>
         </div>
-      </motion.div>
 
-      {/* ── Detail dialog ── */}
-      <ModelDetailDialog
-        model={activeModel}
-        brand={activeBrand}
-        category={category}
-        onClose={() => setActiveModel(null)}
-      />
-    </div>
-  );
-}
+        {/* Divider */}
+        <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"24px" }}>
+          <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, transparent, ${cat.color}28)` }} />
+          <span style={{ color:cat.color, fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.28em", opacity:0.7 }}>{cat.labelEn.toUpperCase()}</span>
+          <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${cat.color}28, transparent)` }} />
+        </div>
 
-function ModelDetailDialog({
-  model,
-  brand,
-  category,
-  onClose,
-}: {
-  model: Model | null;
-  brand: Brand | null;
-  category: Category;
-  onClose: () => void;
-}) {
-  return (
-    <Drawer
-      open={model !== null}
-      onOpenChange={(o: boolean) => {
-        if (!o) onClose();
-      }}
-    >
-      <DrawerContent className="max-h-[88dvh] border-border/60 bg-card text-foreground" dir="rtl">
-        <VisuallyHidden>
-          <DrawerTitle>{model?.name ?? 'تفاصيل'}</DrawerTitle>
-        </VisuallyHidden>
+        {/* Layout */}
+        <div style={{ display:"grid", gridTemplateColumns: activeBrand ? "clamp(160px,26%,220px) 1fr" : "1fr", gap:"14px", alignItems:"start" }}>
 
-        {model && (
-          <div className="relative overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+6rem)]">
-            {/* Header pills */}
-            <div className="px-6 pt-5 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[0.625rem] font-semibold tracking-wider text-primary">
-                  {brand?.name}
-                </span>
-                <span className="rounded-full border border-border/60 bg-foreground/[0.04] px-2.5 py-0.5 text-[0.625rem] uppercase tracking-wider text-muted-foreground">
-                  {model.type}
-                </span>
-                <span className="text-[0.625rem] text-muted-foreground/80">{model.year}</span>
-              </div>
+          {/* Brands Column */}
+          <div style={{ animation:"fadeIn 0.4s ease" }}>
+            <div style={{ fontSize:"7px", color:"#2e2e2e", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"10px" }}>
+              ─── BRANDS
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:"7px" }}>
+              {catData.brands.map(b => {
+                const sel = activeBrand === b.id;
+                return (
+                  <button key={b.id} onClick={() => selectBrand(b.id)} style={{
+                    background: sel ? `linear-gradient(135deg, ${cat.color}12, ${cat.color}06)` : "#0d0d0d",
+                    border:`1px solid ${sel ? cat.color+"40" : "#181818"}`,
+                    borderRadius:"12px", padding:"14px", cursor:"pointer",
+                    transition:"all 0.35s cubic-bezier(0.23,1,0.32,1)", textAlign:"right",
+                  }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom: sel ? "0" : "7px" }}>
+                      <div style={{
+                        width:"34px", height:"34px", borderRadius:"8px", flexShrink:0,
+                        background: sel ? `${cat.color}16` : "#131313",
+                        border:`1px solid ${sel ? cat.color+"30" : "#202020"}`,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        color: sel ? cat.color : "#3a3a3a", fontFamily:"serif", fontSize:"10px", fontWeight:"bold",
+                      }}>{b.logo}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ color: sel ? "#eeeeee" : "#888", fontSize:"13px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500" }}>{b.name}</div>
+                        <div style={{ color:"#333", fontSize:"8px", fontFamily:"monospace" }}>{b.origin} · {b.founded}</div>
+                      </div>
+                    </div>
+                    {!activeBrand && (
+                      <div style={{ marginTop: "10px" }}>
+                        <div style={{ color: cat.color, fontSize:"9px", fontFamily:"'Cormorant Garamond', serif", fontStyle:"italic", marginBottom:"4px", opacity:0.7 }}>{b.tagline}</div>
+                        <div style={{ color:"#383838", fontSize:"10px", fontFamily:"'Amiri', serif", lineHeight:"1.5" }}>{b.desc}</div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              {/* Title + price */}
-              <div className="space-y-1.5">
-                <h3 className="text-[1.5rem] font-bold tracking-tight text-foreground leading-tight">
-                  {model.name}
-                </h3>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-light text-primary">{model.price}</span>
+          {/* Models Column */}
+          {activeBrand && brand && (
+            <div style={{ animation:"fadeSlide 0.4s cubic-bezier(0.23,1,0.32,1)" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"14px" }}>
+                <div>
+                  <div style={{ fontSize:"7px", color:"#2e2e2e", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"3px" }}>─── {brand.name.toUpperCase()}</div>
+                  <div style={{ fontSize:"9px", color:cat.color, fontFamily:"'Cormorant Garamond', serif", fontStyle:"italic", opacity:0.7 }}>{brand.tagline}</div>
                 </div>
+                <button onClick={() => { setActiveBrand(null); setActiveModel(null); }} style={{
+                  background:"transparent", border:"1px solid #1a1a1a", borderRadius:"7px",
+                  padding:"5px 11px", color:"#3a3a3a", fontSize:"8px", fontFamily:"monospace", cursor:"pointer",
+                }}>رجوع ←</button>
               </div>
-            </div>
 
-            {/* Hairline divider */}
-            <div className="mx-6 mt-6 h-px bg-border/60" />
-
-            {/* Description */}
-            <div className="px-6 pt-5">
-              <p className="text-[0.875rem] font-light leading-loose text-muted-foreground">
-                {model.desc}
-              </p>
-            </div>
-
-            {/* Highlights */}
-            <div className="px-6 pt-7">
-              <h4 className="mb-3 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">
-                أبرز المميزات
-              </h4>
-              <ul className="space-y-2.5">
-                {model.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="mt-[9px] inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                    <span className="text-[0.8125rem] leading-relaxed text-foreground/90">{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 2x2 main fields */}
-            <div className="px-6 pt-7">
-              <div className="grid grid-cols-2 gap-2.5">
-                {category.fieldLabels.map((label, i) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-border/50 bg-foreground/[0.025] p-3.5"
+              <div style={{ display:"flex", flexDirection:"column", gap:"9px" }}>
+                {brand.models.map((m, i) => (
+                  <button key={m.id} onClick={() => setActiveModel(m)} style={{
+                    background:"linear-gradient(135deg, #0f0f0f, #0c0c0c)", border:"1px solid #191919",
+                    borderRadius:"13px", padding:"16px", cursor:"pointer", textAlign:"right",
+                    transition:"all 0.3s cubic-bezier(0.23,1,0.32,1)", position:"relative", overflow:"hidden",
+                    animation:`fadeSlide 0.4s ease ${i*0.07}s both`,
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = m.color+"40"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "#191919"; e.currentTarget.style.transform = "translateY(0)"; }}
                   >
-                    <div className="text-[0.625rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
-                      {label}
+                    {/* Corner glow */}
+                    <div style={{ position:"absolute", top:0, right:0, width:"70px", height:"70px", background:`radial-gradient(circle at 80% 20%, ${m.color}15, transparent 70%)`, borderRadius:"0 13px 0 70px", pointerEvents:"none" }} />
+
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"7px" }}>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ color:"#eeeeee", fontSize:"14px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500", marginBottom:"4px" }}>{m.name}</div>
+                        <span style={{ display:"inline-block", padding:"1px 7px", background:`${m.color}16`, border:`1px solid ${m.color}30`, borderRadius:"20px", fontSize:"7px", color:m.color, fontFamily:"monospace", letterSpacing:"0.1em" }}>{m.type.toUpperCase()}</span>
+                      </div>
+                      <div style={{ textAlign:"left" }}>
+                        <div style={{ color:cat.color, fontSize:"8px", fontFamily:"monospace", opacity:0.7 }}>{m.year}</div>
+                        <div style={{ color:"#444", fontSize:"8px", fontFamily:"monospace", marginTop:"2px" }}>{m.price.split(" ")[0]}</div>
+                      </div>
                     </div>
-                    <div className="mt-1.5 text-[0.8125rem] font-medium text-foreground">
-                      {model.fields[i]}
+
+                    <p style={{ color:"#484848", fontSize:"11px", fontFamily:"'Amiri', serif", lineHeight:"1.6", marginBottom:"9px" }}>
+                      {m.story.slice(0, 100)}…
+                    </p>
+
+                    {/* Mini bar */}
+                    <div style={{ marginBottom:"8px" }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"4px" }}>
+                        <span style={{ fontSize:"7px", color:"#2e2e2e", fontFamily:"monospace" }}>{m.bar.label}</span>
+                        <span style={{ fontSize:"7px", color:m.color, fontFamily:"monospace", opacity:0.7 }}>{m.bar.value}%</span>
+                      </div>
+                      <div style={{ height:"1px", background:"#181818", borderRadius:"1px" }}>
+                        <div style={{ height:"100%", width:`${m.bar.value}%`, background:`linear-gradient(90deg, ${m.color}44, ${m.color}88)`, borderRadius:"1px" }} />
+                      </div>
                     </div>
-                  </div>
+
+                    <div style={{ display:"flex", gap:"4px", flexWrap:"wrap", marginBottom:"7px" }}>
+                      {m.tags.slice(0,3).map(t => (
+                        <span key={t} style={{ padding:"1px 6px", background:"#121212", border:"1px solid #1e1e1e", borderRadius:"4px", fontSize:"7px", color:"#444", fontFamily:"monospace" }}>{t}</span>
+                      ))}
+                    </div>
+                    <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", letterSpacing:"0.15em", opacity:0.5 }}>تفاصيل كاملة ↗</div>
+                  </button>
                 ))}
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Extras */}
-            <div className="px-6 pt-7">
-              <h4 className="mb-3 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-muted-foreground/70">
-                تفاصيل إضافية
-              </h4>
-              <div className="grid grid-cols-3 gap-0 rounded-2xl border border-border/50 bg-foreground/[0.025] py-3.5">
-                {model.extras.map((e, i) => (
-                  <div
-                    key={e.label}
-                    className={`px-2 text-center ${i > 0 ? 'border-e border-border/40' : ''}`}
-                  >
-                    <div className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground/70">
-                      {e.label}
-                    </div>
-                    <div className="mt-1 text-[0.75rem] font-medium text-foreground">{e.value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div className="px-6 pt-7">
-              <div className="mb-2.5 flex items-center justify-between">
-                <span className="text-[0.625rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
-                  {category.barLabel}
-                </span>
-                <span className="text-[0.75rem] font-semibold text-primary tabular-nums">
-                  {model.barValue}%
-                </span>
-              </div>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-foreground/[0.06]">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-700"
-                  style={{ width: `${model.barValue}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div className="px-6 pt-6 pb-8">
-              <div className="flex flex-wrap gap-1.5">
-                {model.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-lg border border-border/50 bg-foreground/[0.025] px-2.5 py-1 text-[0.625rem] font-medium tracking-wider text-muted-foreground"
-                  >
-                    #{t}
-                  </span>
-                ))}
-              </div>
+        {/* Empty State */}
+        {!activeBrand && (
+          <div style={{ marginTop:"32px", padding:"44px 28px", border:"1px dashed #141414", borderRadius:"18px", textAlign:"center", animation:"fadeIn 0.5s ease" }}>
+            <div style={{ fontSize:"clamp(32px,7vw,48px)", color:"#161616", marginBottom:"14px" }}>{cat.icon}</div>
+            <div style={{ color:"#262626", fontSize:"12px", fontFamily:"'Amiri', serif" }}>اختر علامة تجارية للاستكشاف</div>
+            <div style={{ color:"#1c1c1c", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.2em", marginTop:"7px" }}>
+              {catData.brands.length} BRANDS · {catData.brands.reduce((a,b) => a + b.models.length, 0)} ITEMS
             </div>
           </div>
         )}
-      </DrawerContent>
-    </Drawer>
+
+        {/* Footer */}
+        <div style={{ marginTop:"52px", paddingTop:"18px", borderTop:"1px solid #0e0e0e", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:"8px" }}>
+          <div style={{ fontSize:"7px", color:"#1e1e1e", fontFamily:"monospace", letterSpacing:"0.2em" }}>LISSAN · قسم المعرفة</div>
+          <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", opacity:0.35, letterSpacing:"0.15em" }}>
+            {cat.labelEn.toUpperCase()} — {catData.brands.reduce((a,b) => a + b.models.length, 0)} CURATED
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {activeModel && brand && (
+        <DetailModal
+          model={activeModel}
+          brand={brand}
+          catId={activeCat}
+          catColor={cat.color}
+          onClose={() => setActiveModel(null)}
+        />
+      )}
+    </div>
   );
 }
