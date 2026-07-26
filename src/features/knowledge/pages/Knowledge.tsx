@@ -1,6 +1,6 @@
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { AnimatePresence,motion } from 'framer-motion';
-import { type ComponentType,useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { type ComponentType, useMemo, useState } from 'react';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
@@ -16,7 +16,7 @@ import {
   Shirt,
   Sparkle,
 } from '@/lib/icons';
-import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 /**
  * /knowledge — "موسوعة الرقي"
@@ -302,8 +302,156 @@ const DATA: Record<CategoryId, Brand[]> = {
           barValue: 99,
           tags: ['AWD', 'Hybrid', 'PHEV'],
         },
+        {
+          id: 'purosangue',
+          name: 'Purosangue V12',
+          type: 'Luxury SUV',
+          year: '2024',
+          price: '$400,000',
+          color: '#800000',
+          desc: 'أول سيارة بأربعة أبواب وأربعة مقاعد من فيراري مع محرك V12 ذو تنفس طبيعي ساحر.',
+          highlights: ['أبواب خلفية تفتح بشكل عكسي مذهل', 'محرك V12 تنفس طبيعي في قمة الروعة', 'نظام تعليق نشط متطور للغاية'],
+          fields: ['6.5L V12 تنفس طبيعي', '725 حصان', '716 نيوتن متر', '0–100 في 3.3ث'],
+          extras: [
+            { label: 'السرعة القصوى', value: '310 كم/س' },
+            { label: 'الوزن', value: '2,033 كغ' },
+            { label: 'توزيع الوزن', value: '49:51' },
+          ],
+          barValue: 96,
+          tags: ['V12', 'AWD', '4-Door'],
+        }
       ],
     },
+    {
+      id: 'bugatti',
+      name: 'Bugatti',
+      origin: 'فرنسا',
+      founded: '1909',
+      logo: 'B',
+      desc: 'إذا كان قابلاً للمقارنة، فهو ليس بوغاتي.',
+      models: [
+        {
+          id: 'chiron_ss',
+          name: 'Chiron Super Sport',
+          type: 'Hypercar',
+          year: '2023',
+          price: '$3,825,000',
+          color: '#1A237E',
+          desc: 'القمة المطلقة في هندسة السرعة والفخامة. وحش بـ 16 أسطوانة يلتهم المسافات كأنه طائرة نفاثة أرضية.',
+          highlights: ['أربع شواحن توربينية عملاقة', 'هيكل كربوني فائق الانسيابية', 'سرعة قصوى محددة لسلامة الإطارات'],
+          fields: ['8.0L Quad-Turbo W16', '1600 حصان', '1600 نيوتن متر', '0–100 في 2.2ث'],
+          extras: [
+            { label: 'السرعة القصوى', value: '440 كم/س' },
+            { label: 'الوزن', value: '1,945 كغ' },
+            { label: 'معدل الانبعاث', value: 'كثيف' },
+          ],
+          barValue: 100,
+          tags: ['W16', 'AWD', 'SuperSport'],
+        }
+      ]
+    },
+    {
+      id: 'aston_martin',
+      name: 'Aston Martin',
+      origin: 'بريطانيا',
+      founded: '1913',
+      logo: 'AM',
+      desc: 'الفخامة البريطانية والأداء الرياضي الخالد.',
+      models: [
+        {
+          id: 'dbs_sl',
+          name: 'DBS Superleggera',
+          type: 'Grand Tourer',
+          year: '2023',
+          price: '$330,000',
+          color: '#004D40',
+          desc: 'الوحش الأنيق. سيارة الـ Grand Tourer الأجمل التي تجمع بين الفخامة المفرطة وعزم الدوران العنيف.',
+          highlights: ['تصميم خارجي ساحر ومقدمة مرعبة', 'هيكل خفيف للغاية من ألياف الكربون', 'صوت عادم بريطاني مذهل'],
+          fields: ['5.2L Twin-Turbo V12', '715 حصان', '900 نيوتن متر', '0–100 في 3.4ث'],
+          extras: [
+            { label: 'السرعة القصوى', value: '340 كم/س' },
+            { label: 'الوزن', value: '1,693 كغ' },
+            { label: 'ناقل الحركة', value: 'ZF 8-Speed' },
+          ],
+          barValue: 91,
+          tags: ['V12', 'RWD', 'Carbon-Fiber'],
+        },
+        {
+          id: 'valkyrie',
+          name: 'Valkyrie',
+          type: 'Hypercar',
+          year: '2024',
+          price: '$3,500,000',
+          color: '#33691E',
+          desc: 'سيارة فورمولا 1 مخصصة للطرق العامة. ثمرة التعاون بين أستون مارتن وعبقري الهوائية أدريان نيوي.',
+          highlights: ['محرك Cosworth ذو دوران مرعب 11,100 دورة', 'توليد قوة داونفورس تعادل الطائرات', 'هيكل كربوني بالكامل لا مثيل له'],
+          fields: ['6.5L V12 Hybrid', '1155 حصان', '900 نيوتن متر', '0–100 في 2.6ث'],
+          extras: [
+            { label: 'السرعة القصوى', value: '400 كم/س' },
+            { label: 'الوزن', value: '1,030 كغ' },
+            { label: 'مستوى الدوران', value: '11,100 RPM' },
+          ],
+          barValue: 100,
+          tags: ['V12', 'Hybrid', 'F1-inspired'],
+        }
+      ]
+    },
+    {
+      id: 'lamborghini',
+      name: 'Lamborghini',
+      origin: 'إيطاليا',
+      founded: '1963',
+      logo: 'L',
+      desc: 'روح التصميم الهجومي الحاد والجرأة اللامحدودة.',
+      models: [
+        {
+          id: 'revuelto',
+          name: 'Revuelto V12 Hybrid',
+          type: 'Hypercar',
+          year: '2024',
+          price: '$608,000',
+          color: '#FF6F00',
+          desc: 'الخليفة الشرعي لأفنتادور. أول سيارة هجينة فائقة الأداء بمحرك V12 وثلاثة محركات كهربائية.',
+          highlights: ['أول وحش هجين خارق بمحرك V12', 'علبة تروس مزدوجة القابض بـ 8 سرعات', 'هيكل أحادي كربوني متكامل'],
+          fields: ['6.5L V12 + 3 E-Motors', '1015 حصان', '807 نيوتن متر', '0–100 في 2.5ث'],
+          extras: [
+            { label: 'السرعة القصوى', value: '350 كم/س' },
+            { label: 'الوزن', value: '1,775 كغ' },
+            { label: 'وضع القيادة', value: '13 وضع قياسي' },
+          ],
+          barValue: 98,
+          tags: ['V12', 'Hybrid', 'AWD'],
+        }
+      ]
+    },
+    {
+      id: 'rolls_royce',
+      name: 'Rolls-Royce',
+      origin: 'بريطانيا',
+      founded: '1906',
+      logo: 'RR',
+      desc: 'الملك غير المتوج لعالم السيارات الفاخرة.',
+      models: [
+        {
+          id: 'phantom8',
+          name: 'Phantom VIII',
+          type: 'Ultra-Luxury Sedan',
+          year: '2024',
+          price: '$460,000',
+          color: '#3E2723',
+          desc: 'قمة الفخامة المطلقة والهدوء التام. واحة متحركة تعزل ركابها تماماً عن ضوضاء العالم الخارجي.',
+          highlights: ['نظام تعليق هوائي يقرأ الطريق بالكاميرات', 'سقف مرصع بالألياف الضوئية يحاكي النجوم', 'صوت عزل مطلق أشبه بغرفة صامتة'],
+          fields: ['6.75L Twin-Turbo V12', '563 حصان', '900 نيوتن متر', '0–100 في 5.3ث'],
+          extras: [
+            { label: 'السرعة القصوى', value: '250 كم/س' },
+            { label: 'الوزن', value: '2,560 كغ' },
+            { label: 'نوع العجلات', value: '22-inch Silent' },
+          ],
+          barValue: 99,
+          tags: ['V12', 'Luxury', 'Sovereign'],
+        }
+      ]
+    }
   ],
 
   perfumes: [
@@ -459,8 +607,146 @@ const DATA: Record<CategoryId, Brand[]> = {
           barValue: 95,
           tags: ['Unisex', 'Oud', 'Statement'],
         },
+        {
+          id: 'imagination',
+          name: 'Imagination',
+          type: 'Fresh Citrus',
+          year: '2021',
+          price: '$320 / 100ml',
+          color: '#4DD0E1',
+          desc: 'أيقونة الإبداع والانتعاش من لويس فويتون. عطر نضر يجمع بين الحمضيات الإيطالية والشاي الأسود.',
+          highlights: ['أفضل عطور الصيف والانتعاش حالياً', 'نوتات الشاي الأسود المدخن بنعومة', 'نقاء متناهي ومكونات طبيعية'],
+          fields: ['البرغموت، البرتقال المر', 'الشاي الأسود، القرفة', 'الأمبروكسان، البخور', 'Citrus Aquatic'],
+          extras: [
+            { label: 'الديمومة', value: '10–12 ساعة' },
+            { label: 'الانتشار', value: 'قوي وراقي' },
+            { label: 'التركيز', value: 'EDP' },
+          ],
+          barValue: 91,
+          tags: ['Summer', 'Citrus', 'Clean'],
+        }
       ],
     },
+    {
+      id: 'amouage',
+      name: 'Amouage',
+      origin: 'عُمان',
+      founded: '1983',
+      logo: 'A',
+      desc: 'هدية الملوك وسحر الشرق الأصيل وفخامته المعاصرة.',
+      models: [
+        {
+          id: 'interlude',
+          name: 'Interlude Man',
+          type: 'Spicy Amber',
+          year: '2012',
+          price: '$360 / 100ml',
+          color: '#1E3A8A',
+          desc: 'الوحش الأزرق. عطر ذو طابع دخاني شرقي مهيب، يجمع بين البخور اللبان والجلود والأخشاب بروعة.',
+          highlights: ['اللبان العماني الفاخر بتركيز عالٍ', 'عطر ذو هيبة وحضور طاغٍ لا ينسى', 'قوة ديمومة خيالية تتجاوز الأيام'],
+          fields: ['الأوريغانو، الفلفل، البرغموت', 'البخور، العنبر، الأوبوبوناكس', 'الجلود، العود، الباتشولي', 'Amber Woody'],
+          extras: [
+            { label: 'الديمومة', value: '24+ ساعة' },
+            { label: 'الانتشار', value: 'وحشي' },
+            { label: 'التركيز', value: 'EDP' },
+          ],
+          barValue: 98,
+          tags: ['Beast-Mode', 'Incense', 'Royal'],
+        },
+        {
+          id: 'reflection',
+          name: 'Reflection Man',
+          type: 'Floral Woody',
+          year: '2007',
+          price: '$360 / 100ml',
+          color: '#E0E0E0',
+          desc: 'انعكاس النقاء والرجولة العصرية الهادئة. مزيج زهري خشبي ناعم وساحر يمنح شعوراً رائعاً.',
+          highlights: ['نوتة زهر البرتقال والياسمين المصقولة', 'عطر رجالي زهري غاية في الأناقة', 'محبوب جداً للمناسبات الرسمية واليومية'],
+          fields: ['إكليل الجبل، الفلفل الحلو', 'الياسمين، زهر البرتقال', 'خشب الصندل، الباتشولي', 'Woody Floral'],
+          extras: [
+            { label: 'الديمومة', value: '8–10 ساعات' },
+            { label: 'الانتشار', value: 'ممتاز وناعم' },
+            { label: 'التركيز', value: 'EDP' },
+          ],
+          barValue: 87,
+          tags: ['Elegant', 'Floral', 'Fresh'],
+        }
+      ]
+    },
+    {
+      id: 'tomford',
+      name: 'Tom Ford Beauty',
+      origin: 'الولايات المتحدة',
+      founded: '2005',
+      logo: 'TF',
+      desc: 'العطور الفاخرة التي تفيض جاذبية وجرأة وتفرداً.',
+      models: [
+        {
+          id: 'tobaccovanille',
+          name: 'Tobacco Vanille',
+          type: 'Warm Spicy',
+          year: '2007',
+          price: '$295 / 50ml',
+          color: '#4E342E',
+          desc: 'تحفة توم فورد التي أعادت تعريف عطور التبغ والحلويات الفاخرة. مزيج غني ودافئ كليالٍ شتوية.',
+          highlights: ['أوراق التبغ الإنجليزية الفاخرة', 'فانيليا غنية وكاكاو دافئ ولذيذ', 'مثالي للأجواء الباردة والمناسبات الفخمة'],
+          fields: ['أوراق التبغ، التوابل', 'الفانيليا، الكاكاو، زهرة التبغ', 'الفواكه المجففة، الأخشاب', 'Amber Spicy'],
+          extras: [
+            { label: 'الديمومة', value: '12–15 ساعة' },
+            { label: 'الانتشار', value: 'قوي جداً' },
+            { label: 'التركيز', value: 'Eau de Parfum' },
+          ],
+          barValue: 93,
+          tags: ['Winter', 'Tobacco', 'Sweet'],
+        },
+        {
+          id: 'oudwood',
+          name: 'Oud Wood',
+          type: 'Woody Amber',
+          year: '2007',
+          price: '$295 / 50ml',
+          color: '#212121',
+          desc: 'العطر الذي أدخل ثقافة العود والشرق إلى عطور النيش الغربية بأسلوب راقٍ وغامض.',
+          highlights: ['العود المدخن اللطيف غير الحاد', 'خشب الصندل والسموكي الراقي', 'عطر رسمي وجذاب بلا حدود'],
+          fields: ['الهيل، فلفل سيتشوان', 'العود، خشب الصندل، نجيل الهند', 'الفانيليا، العنبر، التونكا', 'Woody Oud'],
+          extras: [
+            { label: 'الديمومة', value: '8–10 ساعات' },
+            { label: 'الانتشار', value: 'معتدل فخم' },
+            { label: 'التركيز', value: 'Eau de Parfum' },
+          ],
+          barValue: 85,
+          tags: ['Oud', 'Classic', 'Signature'],
+        }
+      ]
+    },
+    {
+      id: 'roja',
+      name: 'Roja Parfums',
+      origin: 'بريطانيا',
+      founded: '2011',
+      logo: 'R',
+      desc: 'أفخم العطور في العالم من العطار الأسطوري روجا دوف.',
+      models: [
+        {
+          id: 'elysium',
+          name: 'Elysium Pour Homme',
+          type: 'Fresh Citrus',
+          year: '2017',
+          price: '$315 / 100ml',
+          color: '#1565C0',
+          desc: 'العطر السماوي الفاخر. توليفة منعشة تفوق الوصف تجمع الحمضيات الغنية والروائح العشبية.',
+          highlights: ['مكونات طبيعية بالغة النقاء والندرة', 'عطر منعش ذو طابع نيش فريد', 'قاعدة عنبرية مسكية تضفي فخامة إضافية'],
+          fields: ['الجريب فروت، الليمون، الزعتر', 'التفاح، الياسمين، الفلفل الوردي', 'العنبر، الجلود، الأرز، العود', 'Citrus Fougere'],
+          extras: [
+            { label: 'الديمومة', value: '8–10 ساعات' },
+            { label: 'الانتشار', value: 'رائع وراقي' },
+            { label: 'التركيز', value: 'Parfum Cologne' },
+          ],
+          barValue: 89,
+          tags: ['Fresh', 'Niche', 'Compliment-Magnet'],
+        }
+      ]
+    }
   ],
 
   watches: [
@@ -540,6 +826,24 @@ const DATA: Record<CategoryId, Brand[]> = {
           barValue: 82,
           tags: ['Steel', 'Chrono', 'Sport'],
         },
+        {
+          id: 'royal_oak_15500',
+          name: 'Royal Oak 15500ST',
+          type: 'Sport Luxury',
+          year: '2019',
+          price: '$45,000',
+          color: '#2196F3',
+          desc: 'التصميم الكلاسيكي الخالد من جيرالد جنتا. الساعة التي حددت مفهوم الساعات الرياضية الفاخرة.',
+          highlights: ['ميناء بنمط طوابع البريد "Grande Tapisserie"', 'سوار متكامل فولاذي مذهل هندسياً', 'إطار ثماني الأضلاع ببراغي مكشوفة'],
+          fields: ['Calibre 4302', 'أوتوماتيك', '±2 ث/يوم', '50 متر'],
+          extras: [
+            { label: 'القطر', value: '41 ملم' },
+            { label: 'الاحتياطي', value: '70 ساعة' },
+            { label: 'المادة', value: 'Stainless Steel' },
+          ],
+          barValue: 94,
+          tags: ['Steel', 'Tapisserie', 'Classic'],
+        }
       ],
     },
     {
@@ -588,6 +892,90 @@ const DATA: Record<CategoryId, Brand[]> = {
         },
       ],
     },
+    {
+      id: 'vacheron',
+      name: 'Vacheron Constantin',
+      origin: 'جنيف، سويسرا',
+      founded: '1755',
+      logo: 'VC',
+      desc: 'أقدم صانع ساعات مستمر في العالم بلا انقطاع.',
+      models: [
+        {
+          id: 'overseas',
+          name: 'Overseas Dual Time',
+          type: 'Travel Luxury',
+          year: '2023',
+          price: '$28,000',
+          color: '#0D47A1',
+          desc: 'رفيق السفر الفاخر. تصميم رائع يحاكي شعار "صليب مالطا" مع نظام تبديل أحزمة سريع وسهل.',
+          highlights: ['صليب مالطا الأيقوني مدمج في التصميم', 'تأتي مع أحزمة فولاذ، مطاط وجلد', 'وظيفة عرض التوقيت المزدوج بدقة متناهية'],
+          fields: ['Calibre 5110 DT', 'أوتوماتيك', '±2 ث/يوم', '150 متر'],
+          extras: [
+            { label: 'القطر', value: '41 ملم' },
+            { label: 'الاحتياطي', value: '60 ساعة' },
+            { label: 'نظام الأحزمة', value: 'ثلاث أحزمة مجانية' },
+          ],
+          barValue: 95,
+          tags: ['Travel', 'MalteseCross', 'Versatile'],
+        }
+      ]
+    },
+    {
+      id: 'richardmille',
+      name: 'Richard Mille',
+      origin: 'سويسرا',
+      founded: '2001',
+      logo: 'RM',
+      desc: 'آلات سباق للمعصم — قمة الهندسة والابتكار العصري.',
+      models: [
+        {
+          id: 'rm1103',
+          name: 'RM 11-03 McLaren',
+          type: 'Avant-Garde Chrono',
+          year: '2018',
+          price: '$350,000',
+          color: '#E65100',
+          desc: 'ساعة مصممة بالتعاون مع ماكلارين للسيارات الرياضية. هيكل مصنوع من التيتانيوم والكربون المتطور جداً.',
+          highlights: ['مستوحاة من تصاميم سيارات ماكلارين الفاخرة', 'هيكل كربوني فائق الصلابة ومقاوم للصدمات', 'حركة هيكلية مكشوفة تفوق الوصف'],
+          fields: ['RMAC3 Flyback', 'أوتوماتيك', 'كرونومتر', '50 متر'],
+          extras: [
+            { label: 'الأبعاد', value: '50 x 44 ملم' },
+            { label: 'الوزن', value: 'خفيف جداً' },
+            { label: 'المادة', value: 'Carbon TPT' },
+          ],
+          barValue: 97,
+          tags: ['McLaren', 'CarbonTPT', 'Futuristic'],
+        }
+      ]
+    },
+    {
+      id: 'lange_sohne',
+      name: 'A. Lange & Söhne',
+      origin: 'ألمانيا',
+      founded: '1845',
+      logo: 'ALS',
+      desc: 'الدقة الجرمانية والأناقة الساكسونية في أبهى صورها.',
+      models: [
+        {
+          id: 'lange1',
+          name: 'Lange 1 White Gold',
+          type: 'Dress Watch',
+          year: '2024',
+          price: '$42,000',
+          color: '#ECEFF1',
+          desc: 'الساعة الأيقونية التي أعادت إحياء صناعة الساعات الألمانية بعد سقوط جدار برلين. ميناء غير متماثل فريد.',
+          highlights: ['نافذة التاريخ الثنائية المستوحاة من دار أوبرا درسدن', 'تشطيب يدوي مذهل لجسور الفضة الألمانية', 'توازن هندسي مثالي حائز على براءة اختراع'],
+          fields: ['Calibre L121.1', 'يدوي', 'دقة مذهلة', '30 متر'],
+          extras: [
+            { label: 'القطر', value: '38.5 ملم' },
+            { label: 'الاحتياطي', value: '72 ساعة' },
+            { label: 'المادة', value: 'White Gold' },
+          ],
+          barValue: 98,
+          tags: ['German', 'Asymmetrical', 'Dress'],
+        }
+      ]
+    }
   ],
 
   fashion: [
@@ -727,6 +1115,98 @@ const DATA: Record<CategoryId, Brand[]> = {
         },
       ],
     },
+    {
+      id: 'brunello',
+      name: 'Brunello Cucinelli',
+      origin: 'سولوميو، إيطاليا',
+      founded: '1978',
+      logo: 'BC',
+      desc: 'ملك الكشمير الإيطالي وفلسفة الفخامة الإنسانية الهادئة.',
+      models: [
+        {
+          id: 'cashmere_vest',
+          name: 'سترة الكشمير المبطنة',
+          type: 'Luxury Outerwear',
+          year: '2024',
+          price: '$3,800',
+          color: '#D7CCC8',
+          desc: 'سترة كلاسيكية تدمج بين الحماية من الطقس ونعومة الكشمير الإيطالي الفاخر من جبال أمبريا.',
+          highlights: ['كشمير معالج ومقاوم للمطر والرياح', 'تبطين حراري خفيف وعالي الكفاءة', 'لمسات جلدية وقرنية يدوية'],
+          fields: ['كشمير وحرير ناعم', 'صناعة يدوية إيطالية', 'إيطاليا', 'شهر ونصف'],
+          extras: [
+            { label: 'المواد الأساسية', value: '92% كشمير 8% حرير' },
+            { label: 'التبطين', value: 'أوز حراري فاخر' },
+            { label: 'التشطيب', value: 'يدوي بالكامل' },
+          ],
+          barValue: 94,
+          tags: ['QuietLuxury', 'Cashmere', 'Umbria'],
+        },
+        {
+          id: 'suede_loafers',
+          name: 'حذاء السويدي الفاخر',
+          type: 'Luxury Footwear',
+          year: '2024',
+          price: '$1,200',
+          color: '#8D6E63',
+          desc: 'حذاء كاجوال راقٍ ومريح للغاية، مصنوع من جلد السويدي الإيطالي فائق النعومة والمقاوم للماء والخدوش.',
+          highlights: ['جلد سويدي منتقى بعناية بالغة', 'نعل مرن ومريح للمشي الطويل واليومي', 'شريط يدوي محاك بخيوط حريرية متينة'],
+          fields: ['جلد سويدي فاخر وحرير', 'خياطة يدوية متقنة', 'سولوميو، إيطاليا', 'شهر واحد'],
+          extras: [
+            { label: 'المنشأ والورش', value: 'Solomeo Atelier' },
+            { label: 'مقاومة الماء', value: 'معالج مسبقاً' },
+            { label: 'النعل والبطانة', value: 'جلد طبيعي مرن' },
+          ],
+          barValue: 92,
+          tags: ['Footwear', 'Suede', 'Handcrafted'],
+        }
+      ]
+    },
+    {
+      id: 'chanel_fashion',
+      name: 'Chanel',
+      origin: 'باريس، فرنسا',
+      founded: '1910',
+      logo: 'CH',
+      desc: 'الدار التي غيرت أزياء المرأة إلى الأبد بالتويد والقصات الثورية.',
+      models: [
+        {
+          id: 'tweed_jacket',
+          name: 'بدلة التويد الكلاسيكية',
+          type: 'Haute Couture',
+          year: '2024',
+          price: '$8,500',
+          color: '#E0F7FA',
+          desc: 'التوقيع الخالد لـ كوكو شانيل. جاكيت تويد منسوج يدوياً يحاكي الرقي والجمال الباريسي في كل غرزة.',
+          highlights: ['نسيج التويد الخاص الذي تم تطويره في فرنسا', 'أزرار معدنية فريدة محفورة بشعار الدار باليد', 'قصة دقيقة للغاية تمنح حرية حركة مثالية'],
+          fields: ['نسيج تويد صوفي فاخر', 'حياكة يدوية باريسية', 'فرنسا', '4 أشهر'],
+          extras: [
+            { label: 'ساعات الحياكة', value: '80+ ساعة' },
+            { label: 'البطانة الداخلية', value: '100% حرير طبيعي' },
+            { label: 'موقع الإنتاج', value: 'Rue Cambon - Paris' },
+          ],
+          barValue: 97,
+          tags: ['Tweed', 'Couture', 'Coco'],
+        },
+        {
+          id: 'bag_2_55',
+          name: 'حقيبة Chanel 2.55',
+          type: 'Iconic Accessory',
+          year: '1955',
+          price: '$10,200',
+          color: '#000000',
+          desc: 'أول حقيبة يد مزودة بحزام كتف معدني في التاريخ. رمز الاستقلال والأناقة العملية التي لا تشيخ.',
+          highlights: ['قفل مستطيل يسمى قفل الآنسة الأسطوري', 'مبطنة بجلد العجل باللون العنابي الكلاسيكي', 'سلسلة معدنية منسوجة يدوياً'],
+          fields: ['جلد عجل مبطن مدبوغ', 'خياطة يدوية فرنسية', 'فرنسا', '3 أشهر'],
+          extras: [
+            { label: 'المهندس المصمم', value: 'Coco Chanel' },
+            { label: 'تاريخ الإطلاق', value: 'فبراير 1955' },
+            { label: 'نوع الجلد', value: 'Aged Calfskin' },
+          ],
+          barValue: 96,
+          tags: ['2.55', 'Vintage', 'CaviarLeather'],
+        }
+      ]
+    }
   ],
 
   sweets: [
@@ -848,25 +1328,128 @@ const DATA: Record<CategoryId, Brand[]> = {
         },
       ],
     },
+    {
+      id: 'laduree',
+      name: 'Ladurée',
+      origin: 'باريس، فرنسا',
+      founded: '1862',
+      logo: 'L',
+      desc: 'مخترع الماكرون المزدوج والجمال الكلاسيكي الباريسي الراقي.',
+      models: [
+        {
+          id: 'macaron_box',
+          name: 'علبة ماكرون الملوك',
+          type: 'Luxury Gift Box',
+          year: '2024',
+          price: '€45 / 12 قطعة',
+          color: '#E1BEE7',
+          desc: 'مجموعة منتقاة من الماكرون الباريسي الفاخر المزين بأوراق الذهب عيار 24 والنكهات النادرة.',
+          highlights: ['أوراق الذهب الصالحة للأكل عيار 24', 'مستخلص الفانيليا من جزر تاهيتي النادرة', 'علبة كرتونية مخملية فاخرة'],
+          fields: ['فانيليا تاهيتي، فستق حلبي', 'قشرة لوز ناعمة', 'كريمة فانيليا وغناش', '3 أيام'],
+          extras: [
+            { label: 'عدد القطع', value: '12 قطعة فاخرة' },
+            { label: 'نكهات بارزة', value: 'فستق حلبي، فانيليا' },
+            { label: 'الصلاحية والحرارة', value: '3 أيام في 4°C' },
+          ],
+          barValue: 95,
+          tags: ['Ladurée', 'TahitiVanilla', 'ParisianClassic'],
+        },
+        {
+          id: 'marie_antoinette',
+          name: 'تارت ماري أنطوانيت',
+          type: 'Royal Cake',
+          year: '2024',
+          price: '€18 / قطعة',
+          color: '#F8BBD0',
+          desc: 'حلوى ملكية ساحرة بنكهة الشاي الأسود والزهور والفواكه المجففة اللذيذة.',
+          highlights: ['شاي ماري أنطوانيت المعطر الحصري', 'ورد بري طازج للتزيين الجمالي', 'قوام كريمي مخملي ناعم للغاية'],
+          fields: ['شاي معطر، فواكه برية', 'عجينة الغريبة الهشة', 'موس الشاي المعطر والكرز', '3 أيام'],
+          extras: [
+            { label: 'النوع', value: 'موس وتارت ملكي' },
+            { label: 'العناصر الرئيسية', value: 'توت أزرق، ورد بري' },
+            { label: 'الصلاحية والحرارة', value: 'يومان في 4°C' },
+          ],
+          barValue: 93,
+          tags: ['Royal', 'MarieAntoinette', 'RoseTea'],
+        }
+      ]
+    },
+    {
+      id: 'armani_dolci',
+      name: 'Armani / Dolci',
+      origin: 'ميلانو، إيطاليا',
+      founded: '2002',
+      logo: 'AD',
+      desc: 'شوكولاتة وحلويات مصممة بأسلوب الأناقة البسيطة من جورجيو أرماني.',
+      models: [
+        {
+          id: 'armani_pralines',
+          name: 'شوكولاتة برالين الفاخرة',
+          type: 'Designer Chocolate',
+          year: '2024',
+          price: '€65 / 16 قطعة',
+          color: '#FFE082',
+          desc: 'قطع الشوكولاتة ذات الأشكال الهندسية المثالية المصممة والمصنوعة يدوياً في إيطاليا بتركيز الكاكاو الفاخر.',
+          highlights: ['تصميم مربع هندسي مثالي يعكس فلسفة أرماني', 'كاكاو من مزارع مستدامة وحصرية في فنزويلا', 'علب مخملية مغلفة بشرائط برونزية فاخرة'],
+          fields: ['كاكاو فنزويلي 60-85%', 'قالب شوكولاتة هندسي', 'بندق بييمونتي المقرمش', 'تخمير 7 أيام'],
+          extras: [
+            { label: 'الإنتاج', value: 'يدوي في ميلانو' },
+            { label: 'الوزن الكلي', value: '250 غرام' },
+            { label: 'الصلاحية والحرارة', value: '6 أشهر في 16°C' },
+          ],
+          barValue: 94,
+          tags: ['Armani', 'Pralines', 'PiemonteHazelnut'],
+        }
+      ]
+    },
+    {
+      id: 'marchesi',
+      name: 'Marchesi 1824',
+      origin: 'ميلانو، إيطاليا',
+      founded: '1824',
+      logo: 'M',
+      desc: 'أعرق وأفخم صانعي المعجنات والحلويات الإيطالية الكلاسيكية في ميلانو.',
+      models: [
+        {
+          id: 'panettone_classic',
+          name: 'بانتوني ميلانو الأصيل',
+          type: 'Traditional Panettone',
+          year: '1824',
+          price: '€60 / 1kg',
+          color: '#FFF59D',
+          desc: 'خبز البانتوني الإيطالي التقليدي المخمر طبيعياً لمدة 48 ساعة والمزين بالزبيب والفواكه المجففة الفاخرة.',
+          highlights: ['تخمير طبيعي بطيء لمدة 48 ساعة كاملة', 'فواكه مجففة مستوردة من جنوب إيطاليا', 'وصفة سرية متوارثة منذ عام 1824'],
+          fields: ['خميرة برية، دقيق، بيض بلدي', 'عجينة مخمرة ببطء شديد', 'زبيب، برتقال مجفف معسل', '3 أيام'],
+          extras: [
+            { label: 'مدة التحضير', value: '48 ساعة تخمير' },
+            { label: 'الحفظ والحرارة', value: 'درجة حرارة الغرفة' },
+            { label: 'المنشأ التاريخي', value: 'Milano - Italy' },
+          ],
+          barValue: 98,
+          tags: ['Panettone', 'Milano', 'LievitoMadre'],
+        },
+        {
+          id: 'crostata_cioccolato',
+          name: 'تارت كروستاتا بالشوكولاتة',
+          type: 'Classic Italian Tart',
+          year: '2024',
+          price: '€45',
+          color: '#8D6E63',
+          desc: 'تارت كروستاتا الكلاسيكية بعجينتها المقرمشة والغنية بزبدة بروفانس ومحشوة بغاناش الكاكاو الداكن 70%.',
+          highlights: ['عجينة باستا فرولا الإيطالية التقليدية', 'غاناش الشوكولاتة الغني المذوب بلطف وببطء', 'تزيين هندسي رائع بالكاكاو والذهب'],
+          fields: ['زبدة، كاكاو 70%، فانيليا', 'Pasta Frolla مقرمشة', 'غاناش الشوكولاتة الداكنة', 'يومان'],
+          extras: [
+            { label: 'القطر والنسب', value: '22 سم - 6 حصص' },
+            { label: 'الصلاحية والحرارة', value: '3 أيام في 4°C' },
+            { label: 'الدهون الأساسية', value: 'زبدة بروفانس الفاخرة' },
+          ],
+          barValue: 92,
+          tags: ['Crostata', 'Tart', 'ProvenceButter'],
+        }
+      ]
+    }
   ],
 };
-
-// ────────────────────────── Helpers ──────────────────────────
-
-function hexToRgba(hex: string, alpha: number) {
-  const h = hex.replace('#', '');
-  const full =
-    h.length === 3
-      ? h
-          .split('')
-          .map((c) => c + c)
-          .join('')
-      : h;
-  const r = parseInt(full.slice(0, 2), 16);
-  const g = parseInt(full.slice(2, 4), 16);
-  const b = parseInt(full.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 // ────────────────────────── Components ──────────────────────────
 
