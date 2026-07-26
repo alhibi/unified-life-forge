@@ -14,7 +14,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
-import { Download, Globe, Heart, LogIn, Luggage, MapPinned, MoreVertical, Plus } from '@/lib/icons';
+import {
+  Download,
+  Globe,
+  Heart,
+  LogIn,
+  Luggage,
+  MapPinned,
+  MoreVertical,
+  Plus,
+  Search,
+} from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import PassportPanel from '../components/PassportPanel';
@@ -107,6 +117,20 @@ export default function TravelAtlasPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-48">
                 <DropdownMenuItem
+                  onSelect={() => navigate('/travel-atlas/explore')}
+                  className="gap-2"
+                >
+                  <Search className="h-4 w-4" aria-hidden="true" />
+                  خريطة تفصيلية
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => navigate('/travel-atlas/countries')}
+                  className="gap-2"
+                >
+                  <Globe className="h-4 w-4" aria-hidden="true" />
+                  خريطة البلدان
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onSelect={() => navigate('/travel-atlas/trips')}
                   className="gap-2"
                 >
@@ -134,35 +158,61 @@ export default function TravelAtlasPage() {
           <TabsTrigger value="passport">سجلّي</TabsTrigger>
         </TabsList>
 
-        {/* The map stays mounted so the camera and the globe spin survive a tab
-            switch; Radix would otherwise unmount and rebuild it. */}
+        {/* The map is ALWAYS mounted.
+            It used to be replaced by the empty state whenever the atlas had no
+            places, which meant a new or signed-out visitor opened "أطلس الرحلات"
+            and found no map at all — the feature looked broken because its
+            centrepiece was missing. A globe with nothing on it is still the
+            invitation; the prompt now floats over it.
+            Keeping it mounted across tab switches also preserves the camera,
+            which Radix would otherwise discard by unmounting the panel. */}
         <div className={cn('relative mt-3 min-h-0 flex-1', tab !== 'world' && 'hidden')}>
-          {isLoading ? (
-            <div className="skeleton h-full rounded-none" />
-          ) : places.length === 0 ? (
-            <EmptyAtlas isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
-          ) : (
-            <Suspense fallback={<div className="skeleton h-full rounded-none" />}>
-              <WorldAtlasMap
-                summaries={summaries}
-                places={places}
-                onSelectCountry={openCountry}
-                onSelectPlace={openPlace}
-                unsupportedFallback={
-                  <div className="grid h-full place-items-center px-6 text-center">
-                    <p className="text-body text-muted-foreground">
-                      الخريطة غير مدعومة على هذا الجهاز — استعرض أماكنك من تبويب «الأماكن».
-                    </p>
-                  </div>
-                }
-              />
-            </Suspense>
+          <Suspense fallback={<div className="skeleton h-full rounded-none" />}>
+            <WorldAtlasMap
+              summaries={summaries}
+              places={places}
+              onSelectCountry={openCountry}
+              onSelectPlace={openPlace}
+              unsupportedFallback={
+                <div className="grid h-full place-items-center px-6 text-center">
+                  <p className="text-body text-muted-foreground">
+                    الخريطة غير مدعومة على هذا الجهاز — استعرض أماكنك من تبويب «الأماكن».
+                  </p>
+                </div>
+              }
+            />
+          </Suspense>
+
+          {!isLoading && places.length === 0 && (
+            <FirstRunPrompt isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
           )}
+
+          <nav
+            className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-2"
+            aria-label="خرائط أخرى"
+          >
+            <button
+              type="button"
+              onClick={() => navigate('/travel-atlas/explore')}
+              className="inline-flex h-11 items-center gap-1.5 rounded-button border border-border bg-background px-3 text-mini text-foreground"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              خريطة تفصيلية
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/travel-atlas/countries')}
+              className="inline-flex h-11 items-center gap-1.5 rounded-button border border-border bg-background px-3 text-mini text-foreground"
+            >
+              <Globe className="h-4 w-4" aria-hidden="true" />
+              خريطة البلدان
+            </button>
+          </nav>
         </div>
 
         <TabsContent value="places" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
           {places.length === 0 ? (
-            <EmptyAtlas isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} inline />
+            <EmptyAtlas isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
           ) : (
             <div className="mx-auto w-full max-w-lg">
               <div className="sticky top-0 z-sticky -mx-1 bg-background px-1 pt-3 pb-2">
@@ -301,18 +351,54 @@ function CountryCard({ summary, onOpen }: { summary: CountrySummary; onOpen: () 
   );
 }
 
-function EmptyAtlas({
-  isSignedIn,
-  onAdd,
-  inline = false,
-}: {
-  isSignedIn: boolean;
-  onAdd: () => void;
-  inline?: boolean;
-}) {
+/**
+ * Floats over the map on a first run instead of replacing it. The globe is the
+ * product's promise; hiding it behind a sign-in wall was the reason the feature
+ * read as broken.
+ */
+function FirstRunPrompt({ isSignedIn, onAdd }: { isSignedIn: boolean; onAdd: () => void }) {
+  return (
+    // Sits above the map-switch buttons, clear of the toolbar in the top corner.
+    <div className="pointer-events-none absolute inset-x-3 bottom-20 flex justify-center">
+      <AppCard className="pointer-events-auto max-w-sm text-center">
+        {isSignedIn ? (
+          <>
+            <MapPinned className="mx-auto h-6 w-6 text-[hsl(var(--live))]" aria-hidden="true" />
+            <p className="mt-2 text-body font-semibold text-foreground">
+              أضف مكانك الأول ولتبدأ الخريطة
+            </p>
+            <p className="mt-1 text-mini text-muted-foreground">
+              مقهى تحبه، وادٍ زرته، أو مكان تنوي الوصول إليه يومًا.
+            </p>
+            <Button type="button" className="mt-4 gap-2" onClick={onAdd}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              أضف مكانًا
+            </Button>
+          </>
+        ) : (
+          <>
+            <LogIn className="mx-auto h-6 w-6 text-[hsl(var(--live))]" aria-hidden="true" />
+            <p className="mt-2 text-body font-semibold text-foreground">
+              سجّل الدخول ليكون لك أطلس
+            </p>
+            <p className="mt-1 text-mini text-muted-foreground">
+              أماكنك وصورها ورحلاتك تُحفظ في حسابك وتتزامن بين أجهزتك.
+            </p>
+            <Button asChild className="mt-4">
+              <a href="/auth">تسجيل الدخول</a>
+            </Button>
+          </>
+        )}
+      </AppCard>
+    </div>
+  );
+}
+
+/** The list and record tabs still need a full-height empty state. */
+function EmptyAtlas({ isSignedIn, onAdd }: { isSignedIn: boolean; onAdd: () => void }) {
   if (!isSignedIn) {
     return (
-      <div className={cn('empty-state empty-state-surface', inline ? 'min-h-[40dvh]' : 'h-full')}>
+      <div className="empty-state empty-state-surface min-h-[40dvh]">
         <LogIn data-empty-icon aria-hidden="true" />
         <strong>سجّل الدخول ليكون لك أطلس</strong>
         <span>أماكنك وصورها ورحلاتك تُحفظ في حسابك وتتزامن بين أجهزتك.</span>
@@ -324,7 +410,7 @@ function EmptyAtlas({
   }
 
   return (
-    <div className={cn('empty-state empty-state-surface', inline ? 'min-h-[40dvh]' : 'h-full')}>
+    <div className="empty-state empty-state-surface min-h-[40dvh]">
       <MapPinned data-empty-icon aria-hidden="true" />
       <strong>أضف مكانك الأول ولتبدأ الخريطة</strong>
       <span>مقهى تحبه، وادٍ زرته، أو مكان تنوي الوصول إليه يومًا.</span>

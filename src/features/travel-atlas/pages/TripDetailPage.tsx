@@ -22,10 +22,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { Textarea } from '@/components/ui/textarea';
 import {
   AlertCircle,
+  CheckCheck,
   ChevronDown,
   ChevronUp,
+  Clock,
   MoreVertical,
   Navigation,
   Route,
@@ -33,6 +46,7 @@ import {
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
+import TripChecklist from '../components/TripChecklist';
 import { categoryMeta } from '../data/categories';
 import {
   useDeleteTrip,
@@ -40,6 +54,7 @@ import {
   useRemoveTripStop,
   useSaveTripStopOrder,
   useTrip,
+  useUpdateTripStop,
 } from '../hooks';
 import { formatDistance, haversineMeters, orderByNearestNeighbour } from '../lib/geo';
 import type { TravelPlace, TripStop } from '../types';
@@ -65,9 +80,14 @@ export default function TripDetailPage() {
   const { data: places = [] } = useMyPlaces();
   const removeStop = useRemoveTripStop();
   const saveOrder = useSaveTripStopOrder();
+  const updateStop = useUpdateTripStop();
   const deleteTrip = useDeleteTrip();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingStop, setEditingStop] = useState<{ stop: TripStop; place: TravelPlace } | null>(
+    null,
+  );
+  const [panel, setPanel] = useState<'itinerary' | 'checklist'>('itinerary');
 
   const placeIndex = useMemo(() => new Map(places.map((place) => [place.id, place])), [places]);
 
@@ -206,7 +226,51 @@ export default function TripDetailPage() {
           </AppCard>
         )}
 
-        {days.length === 0 ? (
+        <div className="mb-5">
+          <div
+            className="inline-flex gap-1 rounded-button border border-border p-1"
+            role="group"
+            aria-label="لوحة الرحلة"
+          >
+            <button
+              type="button"
+              onClick={() => setPanel('itinerary')}
+              aria-pressed={panel === 'itinerary'}
+              className={cn(
+                'inline-flex min-h-11 items-center gap-1.5 rounded-button px-3 text-mini',
+                panel === 'itinerary'
+                  ? 'bg-[hsl(var(--live)/0.1)] text-foreground'
+                  : 'text-muted-foreground',
+              )}
+            >
+              <Route className="h-4 w-4" aria-hidden="true" />
+              الخطة
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanel('checklist')}
+              aria-pressed={panel === 'checklist'}
+              className={cn(
+                'inline-flex min-h-11 items-center gap-1.5 rounded-button px-3 text-mini',
+                panel === 'checklist'
+                  ? 'bg-[hsl(var(--live)/0.1)] text-foreground'
+                  : 'text-muted-foreground',
+              )}
+            >
+              <CheckCheck className="h-4 w-4" aria-hidden="true" />
+              الحاجيات
+              {trip.checklist.length > 0 && (
+                <span className="font-mono tabular-nums">
+                  {trip.checklist.filter((item) => item.isDone).length}/{trip.checklist.length}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {panel === 'checklist' ? (
+          <TripChecklist tripId={trip.id} items={trip.checklist} />
+        ) : days.length === 0 ? (
           <div className="empty-state empty-state-surface min-h-[45dvh]">
             <Route data-empty-icon aria-hidden="true" />
             <strong>لا محطات في هذه الرحلة</strong>
@@ -271,7 +335,24 @@ export default function TripDetailPage() {
                             </span>
                           </button>
 
+                          {entry.stop.startTime && (
+                            <span
+                              className="shrink-0 font-mono text-mini tabular-nums text-muted-foreground"
+                              dir="ltr"
+                            >
+                              {entry.stop.startTime}
+                            </span>
+                          )}
+
                           <div className="flex shrink-0 items-center">
+                            <button
+                              type="button"
+                              onClick={() => setEditingStop(entry)}
+                              aria-label="وقت المحطة وملاحظتها"
+                              className="grid h-9 w-9 place-items-center rounded-button text-muted-foreground hover:text-foreground"
+                            >
+                              <Clock className="h-4 w-4" aria-hidden="true" />
+                            </button>
                             <button
                               type="button"
                               onClick={() => moveStop(day, index, -1)}
@@ -352,6 +433,19 @@ export default function TripDetailPage() {
         )}
       </main>
 
+      {editingStop && (
+        <StopEditSheet
+          key={editingStop.stop.id}
+          stop={editingStop.stop}
+          place={editingStop.place}
+          onClose={() => setEditingStop(null)}
+          onSave={(fields) => {
+            updateStop.mutate({ stopId: editingStop.stop.id, fields });
+            setEditingStop(null);
+          }}
+        />
+      )}
+
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -367,6 +461,101 @@ export default function TripDetailPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+/**
+ * Time, length and note for one stop.
+ *
+ * A clock time is what turns a list of places into a plan you can follow, and it
+ * also re-sorts the day automatically — timed stops rise above untimed ones.
+ */
+function StopEditSheet({
+  stop,
+  place,
+  onClose,
+  onSave,
+}: {
+  stop: TripStop;
+  place: TravelPlace;
+  onClose: () => void;
+  onSave: (fields: {
+    startTime: string | null;
+    durationMinutes: number | null;
+    noteAr: string | null;
+  }) => void;
+}) {
+  const [time, setTime] = useState(stop.startTime ?? '');
+  const [duration, setDuration] = useState(
+    stop.durationMinutes === null ? '' : String(stop.durationMinutes),
+  );
+  const [note, setNote] = useState(stop.noteAr ?? '');
+
+  return (
+    <Sheet open onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="bottom" className="max-h-[80dvh] overflow-y-auto rounded-t-3xl">
+        <SheetHeader className="text-start">
+          <SheetTitle>{place.nameAr}</SheetTitle>
+          <SheetDescription>وقت المحطة في الخطة</SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="stop-time">الوقت</Label>
+              <Input
+                id="stop-time"
+                type="time"
+                value={time}
+                onChange={(event) => setTime(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stop-duration">المدة (دقائق)</Label>
+              <Input
+                id="stop-duration"
+                inputMode="numeric"
+                value={duration}
+                placeholder={place.durationMinutes ? String(place.durationMinutes) : '60'}
+                onChange={(event) => setDuration(event.target.value.replace(/[^\d]/g, ''))}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stop-note">ملاحظة</Label>
+            <Textarea
+              id="stop-note"
+              rows={3}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="حجز، تذكرة، أو تنبيه لنفسك"
+            />
+          </div>
+        </div>
+
+        <SheetFooter className="mt-6 flex-row gap-2">
+          <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
+            إلغاء
+          </Button>
+          <Button
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              const minutes = Number(duration);
+              onSave({
+                startTime: time || null,
+                durationMinutes:
+                  Number.isFinite(minutes) && minutes >= 5 && minutes <= 1440 ? minutes : null,
+                noteAr: note.trim() || null,
+              });
+            }}
+          >
+            حفظ
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
 

@@ -48,6 +48,20 @@ export type PlaceLinkKind = (typeof PLACE_LINK_KINDS)[number];
 export const TRIP_STATUSES = ['draft', 'planned', 'active', 'done'] as const;
 export type TripStatus = (typeof TRIP_STATUSES)[number];
 
+/** A whole country, stamped — independent of whether any place inside it is saved. */
+export const STAMP_STATUSES = ['visited', 'wishlist', 'lived'] as const;
+export type StampStatus = (typeof STAMP_STATUSES)[number];
+
+export const CHECKLIST_CATEGORIES = [
+  'documents',
+  'clothes',
+  'gear',
+  'health',
+  'money',
+  'other',
+] as const;
+export type ChecklistCategory = (typeof CHECKLIST_CATEGORIES)[number];
+
 export type Coordinates = [longitude: number, latitude: number];
 
 export interface CountryBounds {
@@ -135,10 +149,32 @@ export interface TripStop {
   dayIndex: number;
   sortOrder: number;
   noteAr: string | null;
+  /** `HH:MM` — when this stop is meant to happen. */
+  startTime: string | null;
+  durationMinutes: number | null;
+}
+
+export interface TripChecklistItem {
+  id: string;
+  tripId: string;
+  label: string;
+  category: ChecklistCategory;
+  isDone: boolean;
+  sortOrder: number;
 }
 
 export interface TripWithStops extends Trip {
   stops: TripStop[];
+  checklist: TripChecklistItem[];
+}
+
+export interface CountryStamp {
+  id: string;
+  isoCode: string;
+  status: StampStatus;
+  firstYear: number | null;
+  visitCount: number;
+  noteAr: string | null;
 }
 
 export interface NearbyPlace {
@@ -203,6 +239,14 @@ export function isPlaceLinkKind(value: unknown): value is PlaceLinkKind {
 
 export function isTripStatus(value: unknown): value is TripStatus {
   return typeof value === 'string' && (TRIP_STATUSES as readonly string[]).includes(value);
+}
+
+export function isStampStatus(value: unknown): value is StampStatus {
+  return typeof value === 'string' && (STAMP_STATUSES as readonly string[]).includes(value);
+}
+
+export function isChecklistCategory(value: unknown): value is ChecklistCategory {
+  return typeof value === 'string' && (CHECKLIST_CATEGORIES as readonly string[]).includes(value);
 }
 
 /** Month numbers, de-duplicated, sorted, and clamped to the calendar. */
