@@ -4,6 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import {
   AutoPrayerThemeSection,
+  IconsSection,
   ModeSection,
   PaletteSection,
   TypographySection,
@@ -49,6 +50,7 @@ export default function AppearanceSettingsPage() {
         <ModeSection />
         <PaletteSection />
         <TypographySection />
+        <IconsSection />
         <AutoPrayerThemeSection />
         <motion.p variants={item} className="text-center text-micro text-muted-foreground">
           كل تغيير يُطبَّق فوراً ويُحفظ مع حسابك
