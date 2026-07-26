@@ -164,28 +164,18 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
     : strokeFromWeight;
 
   const strokeNum = typeof stroke === 'number' && Number.isFinite(stroke) ? stroke : undefined;
+  const extra: Record<string, unknown> = {
+    ref,
+    ...(isSolid ? { fill: 'currentColor' } : {}),
+    ...(rest as Record<string, unknown>),
+  };
   if (set === 'tabler') {
-    const T = Comp as FC<SVGProps<SVGSVGElement> & { stroke?: number }>;
-    return (
-      <T
-        ref={ref as never}
-        stroke={strokeNum ?? 1.75}
-        {...(isSolid ? { fill: 'currentColor' } : {})}
-        {...(rest as SVGProps<SVGSVGElement>)}
-      />
-    );
+    extra.stroke = strokeNum ?? 1.75;
+  } else {
+    extra.strokeWidth = strokeNum ?? 2;
   }
-
-  // lucide
-  const L = Comp as FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }>;
-  return (
-    <L
-      ref={ref as never}
-      strokeWidth={strokeNum ?? 2}
-      {...(isSolid ? { fill: 'currentColor' } : {})}
-      {...(rest as SVGProps<SVGSVGElement>)}
-    />
-  );
+  const Any = Comp as unknown as FC<Record<string, unknown>>;
+  return <Any {...extra} />;
 });
 
 /* ------------------------------------------------------------------------- */
