@@ -34,10 +34,22 @@ export function PageShell({
   return (
     <div
       data-ui-surface="page"
-      className={cn('page-shell', flush && 'page-shell-flush', className)}
+      className={cn('page-shell relative overflow-hidden', flush && 'page-shell-flush', className)}
       {...rest}
     >
-      {centered ? <div className="page-shell-inner app-stack">{children}</div> : children}
+      {/* High-fidelity ambient radial glow matching the active theme's primary accent color */}
+      <div
+        className="pointer-events-none fixed top-[-300px] left-1/2 h-[600px] w-[1000px] -translate-x-1/2 opacity-60 dark:opacity-100 transition-all duration-1000"
+        style={{
+          background: 'radial-gradient(ellipse, hsl(var(--primary) / 0.06) 0%, transparent 65%)',
+          zIndex: 0,
+        }}
+      />
+      {centered ? (
+        <div className="page-shell-inner app-stack relative z-base">{children}</div>
+      ) : (
+        <div className="relative z-base">{children}</div>
+      )}
     </div>
   );
 }
