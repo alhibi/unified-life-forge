@@ -377,9 +377,9 @@ interface LiftLevels {
 }
 
 const SURFACE_LIFT: Record<SurfaceLift, LiftLevels> = {
-  flat: { light: [95.8, 92.4], dark: [13.9, 18], black: [8.6, 12] },
-  subtle: { light: [98.6, 90.6], dark: [16.8, 22.5], black: [11, 15] },
-  lifted: { light: [100, 88.6], dark: [19.6, 26], black: [13.6, 18.4] },
+  flat: { light: [95.8, 92.4], dark: [5, 7.5], black: [4.5, 6.5] },
+  subtle: { light: [98.6, 90.6], dark: [6, 9], black: [5, 8] },
+  lifted: { light: [100, 88.6], dark: [7, 10.5], black: [6, 9] },
 };
 
 // ─── Token Generation ───────────────────────────────────────
@@ -514,10 +514,10 @@ export function generateThemeTokens(
   const inkTone = (l: number): Hsl => [INK[0], INK[1], l];
   const surfaceAt = (l: number): Hsl => (isBlack ? inkTone(l) : tone(l));
 
-  const bgL = isBlack ? INK[2] : scale[6][2]; // ink, or the theme's step 600
+  const bgL = isBlack ? 3 : 3.5; // Exactly 3% (#080808) or 3.5% (#09090a) for the themed dark canvas!
   const [cardL, raisedL] = isBlack ? levels.black : levels.dark;
-  const borderL = isBlack ? 20 : 28.5;
-  const inputL = isBlack ? 26 : 35;
+  const borderL = isBlack ? 9 : 10; // Faint, razor-sharp obsidian borders matching "موسوعة الرقي"
+  const inputL = isBlack ? 11 : 12; // Input background levels matching the luxury dark aesthetic
 
   const canvas = surfaceAt(bgL);
   const surface = surfaceAt(cardL);

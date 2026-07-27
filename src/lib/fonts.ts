@@ -74,7 +74,7 @@ export const FONT_OPTIONS: readonly FontOption[] = [
   {
     id: 'amiri',
     label: 'أميري',
-    family: "'Amiri', 'Scheherazade New', serif",
+    family: "'Amiri', 'Cormorant Garamond', 'Scheherazade New', serif",
     note: 'نسخ تقليدي — رائع للعناوين والشعر، ثقيل للمتون الطويلة',
     display: true,
     body: true,
@@ -90,7 +90,7 @@ export const FONT_OPTIONS: readonly FontOption[] = [
 ] as const;
 
 export const DEFAULT_FONT_ID: FontId = 'ibm-plex';
-export const DEFAULT_DISPLAY_FONT_ID: FontId = 'ibm-plex';
+export const DEFAULT_DISPLAY_FONT_ID: FontId = 'amiri';
 
 /** Font ids that shipped in earlier builds and must keep resolving. */
 const LEGACY_ALIASES: Record<string, FontId> = {
