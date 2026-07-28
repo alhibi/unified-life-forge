@@ -39,6 +39,7 @@ import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalHeader from '@/components/portal/PortalHeader';
 import PortalLiveBand from '@/components/portal/PortalLiveBand';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
+import PrayerTimes from '@/components/PrayerTimes';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
@@ -350,6 +351,12 @@ export default function Portal() {
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Prayer Times widget rendered as a normal widget on the first page */}
+            <div className="space-y-4">
+              <h2 className="sr-only">مواقيت الصلاة</h2>
+              <PrayerTimes />
             </div>
 
             <PortalLiveBand />
