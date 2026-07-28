@@ -47,10 +47,10 @@ function LiveRow({ onClick, label, children, first }: RowProps) {
       onClick={onClick}
       aria-label={label}
       className={[
-        'group flex w-full items-center gap-3 text-start',
+        'group flex w-full items-center gap-3 text-start active-tactile',
         'min-h-[56px] px-4 py-3',
         first ? '' : 'border-t border-border',
-        'transition-colors duration-fast ease-out-expo hover:bg-muted/60',
+        'transition-[background-color,transform] duration-fast ease-out-expo hover:bg-muted/60',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
       ].join(' ')}
     >
@@ -117,7 +117,7 @@ function PrayerRow() {
         thickness={3}
         label={`مضى ${toArabicDigits(percent)}٪ من الوقت الحالي`}
       >
-        <span className="live-dot h-1.5 w-1.5 rounded-full" aria-hidden />
+        <span className="live-dot h-1.5 w-1.5 rounded-full bg-[hsl(var(--live))]" aria-hidden />
       </ProgressRing>
 
       <span className="min-w-0 flex-1">
@@ -134,7 +134,7 @@ function PrayerRow() {
               {next.label}
             </motion.span>
           </AnimatePresence>
-          <span className="text-mini text-muted-foreground" dir="ltr">
+          <span className="text-mini font-plex-mono tabular-nums text-muted-foreground" dir="ltr">
             {next.clock}
           </span>
         </span>
@@ -180,25 +180,25 @@ function WeatherRow() {
   return (
     <LiveRow onClick={() => navigate('/weather')} label={`الطقس الآن ${temp} درجة ${condition.label}`}>
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
-        <Icon className="h-5 w-5" aria-hidden />
+        <Icon className="h-5 w-5 text-[hsl(var(--live))]" aria-hidden />
       </span>
 
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
-          <span className="text-title font-semibold tabular-nums text-foreground" dir="ltr">
+          <span className="text-title font-semibold font-plex-mono tabular-nums text-foreground" dir="ltr">
             {temp}°
           </span>
           <span className="truncate text-mini text-muted-foreground">{condition.label}</span>
         </span>
-        <span className="mt-0.5 flex items-center gap-3 text-mini text-muted-foreground" dir="ltr">
-          <span className="tabular-nums">
+        <span className="mt-0.5 flex items-center gap-3 text-mini font-plex-mono tabular-nums text-muted-foreground" dir="ltr">
+          <span>
             H {hi}° · L {lo}°
           </span>
-          <span className="inline-flex items-center gap-1 tabular-nums">
+          <span className="inline-flex items-center gap-1">
             <Droplets className="h-3.5 w-3.5" aria-hidden />
             {Math.round(current.humidity)}%
           </span>
-          <span className="inline-flex items-center gap-1 tabular-nums">
+          <span className="inline-flex items-center gap-1">
             <Wind className="h-3.5 w-3.5" aria-hidden />
             {Math.round(current.windSpeed)} km/h
           </span>
@@ -233,7 +233,7 @@ function DateRow({ now }: { now: Date }) {
 
       <RollingDigits
         value={clock}
-        className="text-title font-semibold text-foreground"
+        className="text-title font-semibold font-plex-mono tabular-nums text-foreground"
         aria-label={`الساعة ${clock}`}
       />
     </LiveRow>

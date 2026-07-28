@@ -40,6 +40,7 @@ import PortalHeader from '@/components/portal/PortalHeader';
 import PortalLiveBand from '@/components/portal/PortalLiveBand';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -60,6 +61,38 @@ function greetingFor(date: Date): string {
   if (hour < 15) return 'نهارك سعيد';
   if (hour < 19) return 'مساء الخير';
   return 'طاب مساؤك';
+}
+
+interface Verse {
+  text: string;
+  author: string;
+}
+
+const VERSES_BY_TIME: Record<'morning' | 'afternoon' | 'evening' | 'night', Verse> = {
+  morning: {
+    text: "أَعَزُّ مَكَانٍ فِي الدُّنَى سَرْجُ سَابِحٍ ... وَخَيْرُ جَلِيسٍ فِي الزَّمَانِ كِتَابُ",
+    author: "أبو الطيب المتنبي"
+  },
+  afternoon: {
+    text: "الْجِدُّ يُقَرِّبُ كُلَّ أَمْرٍ شَاسِعٍ ... وَالْجِدُّ يَفْتَحُ كُلَّ بَابٍ مُغْلَقِ",
+    author: "الإمام الشافعي"
+  },
+  evening: {
+    text: "عَلَى قَدْرِ أَهْلِ الْعَزْمِ تَأْتِي الْعَزَائِمُ ... وَتَأْتِي عَلَى قَدْرِ الْكِرَامِ الْمَكَارِمُ",
+    author: "أبو الطيب المتنبي"
+  },
+  night: {
+    text: "إِذَا سَجَا اللَّيْلُ وَاسْتَعْرَتْ كَوَاكِبُهُ ... فَابْسُطْ يَدَيْكَ إِلَى الرَّحْمَنِ تَبْتَهِلُ",
+    author: "أدب عام"
+  }
+};
+
+function getTimeOfDay(date: Date): 'morning' | 'afternoon' | 'evening' | 'night' {
+  const hour = date.getHours();
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 15) return 'afternoon';
+  if (hour >= 15 && hour < 19) return 'evening';
+  return 'night';
 }
 
 export default function Portal() {
@@ -236,7 +269,7 @@ export default function Portal() {
   );
 
   return (
-    <div className="min-h-[100dvh] bg-background">
+    <PageShell centered={false} flush className="min-h-[100dvh] bg-background pb-page">
       <SEO
         title="amv.life — بوابتك الشخصية"
         description="بوابة amv.life الشخصية: الرئيسي، المحراب، العافية، الدردشة، اطلاع، المعرفة، والألعاب — تطبيقات متكاملة في مكان واحد."
@@ -250,11 +283,73 @@ export default function Portal() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8">
           <div className="min-w-0 space-y-6">
-            {/* Greeting — one line, no hero block. The launcher's job is to
-                get out of the way. */}
-            <div className="flex items-baseline gap-2">
-              <p className="text-display font-semibold text-foreground">{greetingFor(new Date())}</p>
-              {username && <p className="truncate text-meta text-muted-foreground">{username}</p>}
+            {/* Elegant Editorial Welcome Hero */}
+            <div className="relative overflow-hidden rounded-xl border border-border bg-card p-6 md:p-8 transition-colors duration-normal">
+              {/* Dynamic decorative line with copper accent on hover */}
+              <div className="absolute top-0 start-0 h-1 w-24 bg-[hsl(var(--live))]" />
+
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-2.5 w-2.5 rounded-full bg-[hsl(var(--live))] animate-pulse" />
+                    <p className="text-mini font-semibold tracking-[0.14em] uppercase text-[hsl(var(--live))]">
+                      مرحبًا بك في فضاء السكينة والعمل
+                    </p>
+                  </div>
+
+                  <div className="flex items-baseline gap-2.5">
+                    <h2 className="text-display font-bold text-foreground">
+                      {greetingFor(new Date())}
+                    </h2>
+                    {username && (
+                      <span className="text-title font-medium text-muted-foreground">
+                        ، {username}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Decorative luxury brand mark / seal */}
+                <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-secondary/50 text-[hsl(var(--live))]">
+                  <span className="font-amiri text-title font-bold">ع</span>
+                </div>
+              </div>
+
+              {/* Soulful Classical Arabic Verse Card */}
+              <div className="mt-6 border-t border-border/60 pt-5">
+                <div className="relative">
+                  {/* Elegant quotation mark or ornament */}
+                  <span className="absolute -top-3 start-1 select-none font-amiri text-[2.5rem] leading-none text-[hsl(var(--live))]/15">
+                    «
+                  </span>
+                  <p className="font-amiri text-[1.2rem] font-medium leading-[2.1] text-foreground/90 ps-6 text-start md:text-center select-all">
+                    {(() => {
+                      const timeOfDay = getTimeOfDay(new Date());
+                      const verse = VERSES_BY_TIME[timeOfDay];
+                      // Highlight the separator "..." elegantly using the live copper accent
+                      const parts = verse.text.split("...");
+                      if (parts.length === 2) {
+                        return (
+                          <>
+                            <span>{parts[0]}</span>
+                            <span className="mx-3 text-[hsl(var(--live))] font-sans font-light text-meta">◆</span>
+                            <span>{parts[1]}</span>
+                          </>
+                        );
+                      }
+                      return verse.text;
+                    })()}
+                  </p>
+                  <span className="absolute -bottom-3 end-1 select-none font-amiri text-[2.5rem] leading-none text-[hsl(var(--live))]/15">
+                    »
+                  </span>
+                </div>
+                <div className="mt-3 flex justify-end">
+                  <span className="rounded-full bg-secondary/80 px-3 py-1 text-micro font-medium text-muted-foreground border border-border/40">
+                    {VERSES_BY_TIME[getTimeOfDay(new Date())].author}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <PortalLiveBand />
@@ -381,6 +476,6 @@ export default function Portal() {
           />
         )}
       </ResponsiveDrawer>
-    </div>
+    </PageShell>
   );
 }
