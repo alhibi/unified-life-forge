@@ -10,7 +10,7 @@ import { useWellnessData } from '@/features/wellness/useWellnessData';
 import {
 Apple,
   BookOpen, Brain, ChevronRight, Download, Dumbbell,
-  Library, ShieldCheck, Trash2, Utensils, X, } from '@/lib/icons';
+  Library, ShieldCheck, Trash2, Utensils, X, Activity, } from '@/lib/icons';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,
@@ -28,12 +28,13 @@ const EncyclopediaTab = lazy(() => import('@/features/wellness/EncyclopediaTab')
 const NutritionTab    = lazy(() =>
   import('@/features/wellness/nutrition/components').then(m => ({ default: m.NutritionTab })),
 );
+const ActivityTrackerTab = lazy(() => import('@/features/fitness/ActivityTrackerTab'));
 
 import { exportAll } from '@/features/wellness/wellnessDb';
 import { confirmDialog } from '@/lib/confirmDialog';
 
 type TabKey =
-  | 'workouts' | 'cali'
+  | 'workouts' | 'cali' | 'activity'
   | 'diet' | 'nutrition'
   | 'insights' | 'atlas' | 'encyclopedia';
 
@@ -80,6 +81,7 @@ interface TabDef {
 const TABS: TabDef[] = [
   { key: 'workouts',    labelAr: 'التمارين',      icon: Dumbbell,   group: 0 },
   { key: 'cali',        labelAr: 'كاليستنيكس',  icon: Dumbbell,   group: 0 },
+  { key: 'activity',    labelAr: 'تتبع الأنشطة',  icon: Activity,   group: 0 },
   { key: 'nutrition',   labelAr: 'التغذية الذكية', icon: Apple,   group: 1 },
   { key: 'diet',        labelAr: 'سجل الطعام',     icon: Utensils,   group: 1 },
   { key: 'insights',    labelAr: 'التحليلات',      icon: Brain,      group: 1 },
@@ -202,6 +204,8 @@ export default function WellnessPage() {
         );
       case 'cali':
         return <CalisthenicsTab onJump={(k) => setTab(k as TabKey)} />;
+      case 'activity':
+        return <ActivityTrackerTab />;
       case 'diet':
         return (
           <DietTab
