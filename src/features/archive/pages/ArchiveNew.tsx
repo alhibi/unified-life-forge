@@ -13,21 +13,21 @@ import type { ArchiveDepth, ProgressEvent } from '../types';
 const DEPTHS: { key: ArchiveDepth; title: string; subtitle: string; est: string }[] = [
   {
     key: 'standard',
-    title: 'قياسي',
-    subtitle: '4 × 2 · ~4400 كلمة · بحث + هيكل + كتابة',
-    est: '~3 دقائق',
+    title: 'قياسي (السرعة والخفة)',
+    subtitle: '4 × 2 · ~4800 كلمة · بحث هجين + تصميم الهيكل + كتابة كامل الفصول',
+    est: '~45 ثانية (متوازي)',
   },
   {
     key: 'deep',
-    title: 'متعمّق',
-    subtitle: '5 × 3 · ~13500 كلمة · بحث + هيكل + نقد + كتابة + تلميع',
-    est: '~8 دقائق',
+    title: 'متعمّق (الرصانة الأكاديمية)',
+    subtitle: '5 × 3 · ~14250 كلمة · بحث هجين + هيكل مفصل + نقد ذاتي للهيكل + كتابة غنية + تلميع لغوي',
+    est: '~1.5 دقيقة (متوازي)',
   },
   {
     key: 'deepest',
-    title: 'أقصى عمق',
-    subtitle: '6 × 4 · ~31000 كلمة · بحث موسّع + نقد + بحث دقيق لكل فقرة + تلميع',
-    est: '~20 دقيقة',
+    title: 'الأطروحة الموسوعية الإمبراطورية (البُعد الأقصى)',
+    subtitle: '7 × 4 · ~45000 كلمة · مونوغراف فخم كالأطروحات الفلسفية الكبرى + مراجعة ونقد صارم + بحث ويب ميكرو تفصيلي لكل فقرة + تلميع أدبي بليغ ومبهر',
+    est: '~2.5 دقيقة (تسريع فائق)',
   },
 ];
 
@@ -40,6 +40,12 @@ const AVAILABLE_MODELS = [
   'gpt-4o-mini',
   'gpt-4o',
   'deepseek-chat',
+  'deepseek-r1',
+  'o3-mini',
+  'o1-mini',
+  'o1',
+  'qwen-2.5-72b',
+  'llama-3.3-70b',
 ];
 
 // Empty by default — backend picks the right model per depth level.
@@ -93,13 +99,13 @@ const STAGE_LABEL: Record<PipelineStage, string> = {
 };
 
 const STAGE_HEADLINE: Record<PipelineStage, string> = {
-  research: 'نمشّط الويب بحثاً عن الحقائق',
-  outline: 'نصمّم هيكل المعرفة',
-  critique: 'ننقد الهيكل ونشحذه',
-  expansion: 'نكتب الفصول واحداً تلو الآخر',
-  polish: 'نلمّع اللغة والإيقاع',
-  synthesis: 'نجمع الأرشيف ونفهرسه',
-  filed: 'اكتمل — نفتح الأرشيف',
+  research: 'نمشّط الويب بحثاً عن الحقائق والأفكار',
+  outline: 'نصمّم هيكل المعرفة الكوني',
+  critique: 'ننقد الهيكل المعرفي ونشحذه بذكاء',
+  expansion: 'نكتب الفصول بالتوازي لسرعة خارقة ورصانة قصوى',
+  polish: 'نلمّع جودة السرد والإيقاع والأدبيات',
+  synthesis: 'نجمع الأرشيف ونخرجه بجمالية فائقة',
+  filed: 'اكتمل بنجاح — يتم فتح الأرشيف الآن',
 };
 
 export default function ArchiveNew() {
@@ -141,7 +147,7 @@ export default function ArchiveNew() {
         return;
       }
       console.error(e);
-      setError(e?.message || 'حدث خطأ');
+      setError(e?.message || 'حدث خطأ غير متوقع');
       setStage('error');
     }
   }
@@ -217,7 +223,7 @@ export default function ArchiveNew() {
       </AppCard>
 
       <AppCard>
-        <label className="block text-[0.8125rem] font-semibold text-foreground mb-3">مستوى العمق</label>
+        <label className="block text-[0.8125rem] font-semibold text-foreground mb-3">مستوى العمق المعرفي</label>
         <div className="flex flex-col gap-2">
           {DEPTHS.map((d) => (
             <button
@@ -226,15 +232,15 @@ export default function ArchiveNew() {
               onClick={() => setDepth(d.key)}
               className={`text-start rounded-xl border p-3 transition-all ${
                 depth === d.key
-                  ? 'border-primary/70 bg-primary/5'
+                  ? 'border-primary/70 bg-primary/5 ring-1 ring-primary/30'
                   : 'border-border/40 bg-muted/20 active:scale-[0.98]'
               }`}
             >
               <div className="flex items-center justify-between mb-0.5">
                 <span className="font-bold text-foreground">{d.title}</span>
-                <span className="text-[0.6875rem] text-muted-foreground">{d.est}</span>
+                <span className="text-[0.6875rem] text-muted-foreground font-mono">{d.est}</span>
               </div>
-              <div className="text-[0.75rem] text-muted-foreground">{d.subtitle}</div>
+              <div className="text-[0.75rem] text-muted-foreground leading-relaxed">{d.subtitle}</div>
             </button>
           ))}
         </div>
@@ -246,7 +252,7 @@ export default function ArchiveNew() {
           disabled={running}
           className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-[0.8125rem] font-semibold text-foreground hover:bg-muted/40 transition-all"
         >
-          <span>⚙️ إعدادات النماذج</span>
+          <span>⚙️ إعدادات النماذج والذكاء الاصطناعي</span>
           <ChevronDown
             className={`w-4 h-4 transition-transform ${showModels ? 'rotate-180' : ''}`}
           />
@@ -257,7 +263,7 @@ export default function ArchiveNew() {
             {(['outline', 'expansion', 'synthesis'] as const).map((stage) => (
               <div key={stage}>
                 <label className="block text-[0.75rem] font-semibold text-foreground mb-2 capitalize">
-                  {stage === 'outline' && '📋 نموذج الهيكل'}
+                  {stage === 'outline' && '📋 نموذج الهيكل والبحث'}
                   {stage === 'expansion' && '✍️ نموذج التوسيع والكتابة'}
                   {stage === 'synthesis' && '🏷️ نموذج التلخيص والوسوم'}
                 </label>
@@ -295,7 +301,7 @@ export default function ArchiveNew() {
           className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[0.9375rem] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
         >
           <Sparkles className="w-4 h-4" />
-          ابدأ التوليد
+          ابدأ التوليد فائق السرعة
         </button>
       )}
 

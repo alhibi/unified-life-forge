@@ -25,6 +25,12 @@ const AVAILABLE_MODELS: ModelConfig = {
   "gpt-4o-mini":          "openai/gpt-4o-mini",
   "gpt-4o":               "openai/gpt-4o",
   "deepseek-chat":        "deepseek/deepseek-chat",
+  "deepseek-r1":          "deepseek/deepseek-r1",
+  "o3-mini":              "openai/o3-mini",
+  "o1-mini":              "openai/o1-mini",
+  "o1":                   "openai/o1",
+  "qwen-2.5-72b":         "qwen/qwen-2.5-72b-instruct",
+  "llama-3.3-70b":        "meta-llama/llama-3.3-70b-instruct",
 };
 
 interface PolicyConfig {
@@ -38,9 +44,9 @@ interface PolicyConfig {
 }
 
 const DEFAULT_POLICY: Record<Depth, PolicyConfig> = {
-  standard: { sections: 4, subs: 2, words: 550,  complexity: "قياسي",     critique: false, microResearch: false, polish: false },
-  deep:     { sections: 5, subs: 3, words: 900,  complexity: "متعمّق",    critique: true,  microResearch: false, polish: true  },
-  deepest:  { sections: 6, subs: 4, words: 1300, complexity: "أقصى عمق", critique: true,  microResearch: true,  polish: true  },
+  standard: { sections: 4, subs: 2, words: 600,  complexity: "قياسي",     critique: false, microResearch: false, polish: false },
+  deep:     { sections: 5, subs: 3, words: 950,  complexity: "متعمّق",    critique: true,  microResearch: false, polish: true  },
+  deepest:  { sections: 7, subs: 4, words: 1600, complexity: "أطروحة معرفية إمبراطورية", critique: true,  microResearch: true,  polish: true  },
 };
 
 const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
@@ -58,7 +64,7 @@ interface RequestBody {
 // `online` = true يُلحق ":online" بمعرّف النموذج ليفعّل بحث الويب الهجين في OpenRouter.
 async function callOpenRouter(model: string, system: string, user: string, maxTokens: number, json = false, online = false): Promise<string> {
   const fullModel = online && !model.endsWith(":online") ? `${model}:online` : model;
-  console.log(`[archive-generate] Calling ${model} with ${maxTokens} max tokens`);
+  console.log(`[archive-generate] Calling ${fullModel} with ${maxTokens} max tokens`);
   const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -122,7 +128,12 @@ function researchPrompt(topic: string, depth: Depth) {
 }
 
 function outlinePrompt(topic: string, depth: Depth, policy: PolicyConfig, research: any) {
-  const system = `أنت رئيس تحرير أبحاث في أرشيف معرفي راقٍ. مهمتك تصميم هيكل بحث طويل ومعمّق قبل أن تُكتب كلمة واحدة.
+  const isDeepest = depth === "deepest";
+  const depthNotice = isDeepest
+    ? `\nتنبيه خاص بمستوى العمق الأقصى (البُعد الموسوعي الإمبراطوري الفائق): يجب تصميم الهيكل كـ 'أطروحة موسوعية كبرى' (Imperial Cognitive Thesis). صمم أقساماً كبرى تغطي الجوانب المعرفية والتاريخية والتقنية والفلسفية، واحرص على أن يتضمن الهيكل فصلاً ختامياً يستشرف المستقبل أو يدمج الموضوع في سياق فلسفي كوني. اجعل العناوين أدبية، وبليغة، ومثيرة للدهشة والاهتمام الأدبي والفكري والجمالي.`
+    : "";
+
+  const system = `أنت رئيس تحرير أبحاث في أرشيف معرفي راقٍ. مهمتك تصميم هيكل بحث طويل ومعمّق قبل أن تُكتب كلمة واحدة.${depthNotice}
 
 لأي موضوع، استعِن بأي من هذه الأبعاد المناسبة (لا تُقحم بُعداً لا يخدم الموضوع):
 - الأصول التاريخية والسياق
@@ -168,14 +179,14 @@ function expansionPrompt(outline: any, section: any, sub: any, prev: string, idx
 خريطة كامل البحث — للسياق فقط. لا تُكرّر هذه، ولا تنجرف إلى غير قسمك:
 ${map}
 ${microBlock}
-الاستمرارية — آخر ما كُتب. اجعل جملتك الأولى امتداراً طبيعياً لها دون الإشارة إليها أو الإعلان عن انتقال:
+الاستمرارية — آخر ما كُتب. اجعل جملتك الأولى امتداداً طبيعياً لها دون الإشارة إليها أو الإعلان عن انتقال:
 "${prev}"
 
 قواعد صارمة:
 - أخرِج المتن فقط. لا عنوان، لا "بالطبع، إليك…"، لا خاتمة تلخّص، لا تشويق لما بعد.
 - اكتب حوالي ${sub.targetWords ?? 700} كلمة (± 15%). لا تنقص عن ${Math.round((sub.targetWords ?? 700) * 0.85)}.
 - التزم بالزاوية المحدّدة: ${sub.angle}
-- بالعربية الفصحى، بأسلوب أدبي معرفي رصين.`;
+- بالعربية الفصحى، بأسلوب أدبي معرفي رصين ومبهر للغاية.`;
   const user = `القسم: ${section.title}\nالقسم الفرعي: ${sub.title}\nالزاوية: ${sub.angle}`;
   return { system, user };
 }
@@ -204,16 +215,22 @@ function lastSentences(s: string, n: number): string {
   const parts = s.trim().split(/(?<=[.!؟?])\s+/);
   return parts.slice(-n).join(" ").slice(-500);
 }
+
+// Order-preserving compilation of parallelized results
 function compile(outline: any, generated: any[]): string {
-  const by = new Map<string, any[]>();
+  const lookup = new Map<string, string>();
   for (const g of generated) {
-    const arr = by.get(g.sectionId) ?? [];
-    arr.push(g); by.set(g.sectionId, arr);
+    lookup.set(`${g.sectionId}-${g.subsectionId}`, g.markdown);
   }
+
   const body = outline.sections.map((sec: any) => {
-    const subs = (by.get(sec.id) ?? []).map((g) => `### ${g.title}\n\n${g.markdown.trim()}`).join("\n\n");
+    const subs = sec.subsections.map((sub: any) => {
+      const markdown = lookup.get(`${sec.id}-${sub.id}`) || `*تعذر توليد هذا القسم الفرعي بسبب خطأ فني أثناء المعالجة.*`;
+      return `### ${sub.title}\n\n${markdown.trim()}`;
+    }).join("\n\n");
     return `## ${sec.title}\n\n${subs}`;
   }).join("\n\n");
+
   return `# ${outline.title}\n\n${body}`;
 }
 
@@ -246,7 +263,6 @@ Deno.serve(async (req) => {
   }
 
   // تحديد النماذج - استخدم المخصص أو الافتراضي
-  // Depth-aware defaults: cheap+fast for standard, stronger models as depth grows.
   const depthDefaults: Record<Depth, { outline: string; expansion: string; synthesis: string }> = {
     standard: { outline: "gemini-2.5-flash",      expansion: "gemini-2.5-flash", synthesis: "gemini-2.5-flash" },
     deep:     { outline: "gemini-2.5-flash",      expansion: "gemini-2.5-flash", synthesis: "gemini-2.5-pro"   },
@@ -320,39 +336,88 @@ Deno.serve(async (req) => {
 
         send({ stage: "outline_done", outline });
 
-        // Stage 2: Sequential expansion (with optional per-subsection micro-research)
-        const totalSubs = outline.sections.reduce((n: number, s: any) => n + s.subsections.length, 0);
-        const generated: any[] = [];
-        let prev = outline.synopsis || outline.title;
-        let done = 0;
+        // Compile a flat list of subsections to parallelize safely with rate-limit control (batches)
+        const tasks: { section: any; sub: any; taskIndex: number }[] = [];
         for (const section of outline.sections) {
           for (const sub of section.subsections) {
-            done++;
-            let micro: any = null;
-            if (policy.microResearch) {
-              send({ stage: "expansion", message: `بحث دقيق: ${sub.title}`, current: done, total: totalSubs, model: modelNames.outline });
-              try {
-                const mp = microResearchPrompt(topic, sub);
-                micro = await callJSON<any>(models.outline, mp.system, mp.user, 900, true);
-              } catch (e) { console.warn("micro-research failed", e); }
-            }
-            send({ stage: "expansion", message: `توسيع: ${section.title} ← ${sub.title}`, current: done, total: totalSubs, model: modelNames.expansion });
-            const ep = expansionPrompt(outline, section, sub, prev, done, totalSubs, micro);
-            const maxTok = Math.min(6144, Math.max(900, Math.round(policy.words * 2.1)));
-            let md = await callOpenRouter(models.expansion, ep.system, ep.user, maxTok);
-
-            // Stage 2.5: polish pass (deep + deepest)
-            if (policy.polish) {
-              send({ stage: "polish", message: `تلميع: ${sub.title}`, current: done, total: totalSubs, model: modelNames.expansion });
-              try {
-                const pp = polishPrompt(sub, md);
-                md = await callOpenRouter(models.expansion, pp.system, pp.user, maxTok);
-              } catch (e) { console.warn("polish failed", e); }
-            }
-
-            generated.push({ sectionId: section.id, subsectionId: sub.id, title: sub.title, markdown: md, wordCount: countWords(md) });
-            prev = lastSentences(md, 2);
+            tasks.push({ section, sub, taskIndex: tasks.length + 1 });
           }
+        }
+        const totalSubs = tasks.length;
+        const generated: any[] = [];
+        const batchSize = 6; // High concurrency yet extremely safe against OpenRouter rate limits
+        let done = 0;
+
+        for (let i = 0; i < tasks.length; i += batchSize) {
+          const chunk = tasks.slice(i, i + batchSize);
+
+          const results = await Promise.all(
+            chunk.map(async (task) => {
+              const { section, sub, taskIndex } = task;
+              let micro: any = null;
+
+              // Subsection-level micro-research
+              if (policy.microResearch) {
+                send({ stage: "expansion", message: `بحث دقيق: ${sub.title}`, current: done + 1, total: totalSubs, model: modelNames.outline });
+                try {
+                  const mp = microResearchPrompt(topic, sub);
+                  micro = await callJSON<any>(models.outline, mp.system, mp.user, 900, true);
+                } catch (e) {
+                  console.warn(`[archive-generate] micro-research failed for ${sub.title}`, e);
+                }
+              }
+
+              // Sub-section expansion
+              send({ stage: "expansion", message: `توسيع وتحرير: ${section.title} ← ${sub.title}`, current: done + 1, total: totalSubs, model: modelNames.expansion });
+              try {
+                const prevContext = outline.synopsis || outline.title;
+                const ep = expansionPrompt(outline, section, sub, prevContext, taskIndex, totalSubs, micro);
+                const maxTok = Math.min(6144, Math.max(900, Math.round((sub.targetWords ?? policy.words) * 2.1)));
+                let md = await callOpenRouter(models.expansion, ep.system, ep.user, maxTok);
+
+                // Polish step
+                if (policy.polish) {
+                  send({ stage: "polish", message: `تلميع الصياغة: ${sub.title}`, current: done + 1, total: totalSubs, model: modelNames.expansion });
+                  try {
+                    const pp = polishPrompt(sub, md);
+                    md = await callOpenRouter(models.expansion, pp.system, pp.user, maxTok);
+                  } catch (e) {
+                    console.warn(`[archive-generate] polish failed for ${sub.title}`, e);
+                  }
+                }
+
+                return {
+                  sectionId: section.id,
+                  subsectionId: sub.id,
+                  title: sub.title,
+                  markdown: md,
+                  wordCount: countWords(md),
+                };
+              } catch (err: any) {
+                console.error(`[archive-generate] Error generating subsection ${sub.title}:`, err);
+                // Return a descriptive notice so we don't crash the entire document generation!
+                return {
+                  sectionId: section.id,
+                  subsectionId: sub.id,
+                  title: sub.title,
+                  markdown: `*تعذر توليد هذا القسم الفرعي تلقائياً بسبب حدوث خطأ أثناء المعالجة: ${err?.message || "خطأ غير معروف"}.*`,
+                  wordCount: 15,
+                };
+              }
+            })
+          );
+
+          generated.push(...results);
+          done += chunk.length;
+
+          // Send current status updates
+          send({
+            stage: "expansion",
+            message: `أُنجز ${done} من أصل ${totalSubs} أقسام فرعية بالكامل`,
+            current: done,
+            total: totalSubs,
+            model: modelNames.expansion,
+          });
         }
 
         // Stage 3: Synthesis + metadata
@@ -366,7 +431,7 @@ Deno.serve(async (req) => {
           console.error("metadata failed", e);
         }
 
-        // Save
+        // Save to database
         const { data: saved, error: saveErr } = await supabase
           .from("archive_documents")
           .insert({
