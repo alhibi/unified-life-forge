@@ -73,7 +73,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           {!tab && (
             <div className="mt-1 shrink-0">
               <BackButton
-                fallback="/mihrab"
+                fallback="/"
                 className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all"
               />
             </div>
