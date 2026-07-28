@@ -161,6 +161,19 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     ],
   },
   {
+    key: 'journal',
+    path: '/journal',
+    label: 'مذكرتي',
+    caption: 'JOURNAL',
+    description: 'دفتر يومي يعكس توازنك وعاداتك',
+    cat: 'body',
+    icon: PenLine,
+    keywords: 'journal diary مذكرة يوميات مذكرتي عافية',
+    links: [
+      { path: '/journal', label: 'مذكرتي', note: 'تدوين الحال والعادات', icon: PenLine },
+    ],
+  },
+  {
     key: 'chat',
     path: '/chat',
     label: 'الدردشة',
@@ -217,6 +230,33 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/knowledge', label: 'الموسوعة', note: 'المدخل الرئيسي', icon: Crown },
       { path: '/archive', label: 'الأرشيف', note: 'المحفوظات والقراءة', icon: Archive },
       { path: '/pkm', label: 'الذاكرة', note: 'الملاحظات والخرائط', icon: Brain },
+    ],
+  },
+  {
+    key: 'archive',
+    path: '/archive',
+    label: 'أرشيف المعرفة',
+    caption: 'ARCHIVE',
+    description: 'مونوغرافات وأبحاث مولّدة بذكاء اصطناعي',
+    cat: 'mind',
+    icon: Archive,
+    keywords: 'archive أرشيف مونوغرافات معرفة بحث ذكاء',
+    links: [
+      { path: '/archive', label: 'الأرشيف المعرفي', note: 'المحفوظات والقراءة', icon: Archive },
+      { path: '/archive/new', label: 'توليد جديد', note: 'مونوغراف ذكي لموضوع جديد', icon: Sparkles },
+    ],
+  },
+  {
+    key: 'pkm',
+    path: '/pkm',
+    label: 'الذاكرة الرقمية',
+    caption: 'MEMORY',
+    description: 'ملاحظات محلية بوسم متداخل وبحث فوري',
+    cat: 'mind',
+    icon: Brain,
+    keywords: 'pkm notes memory ذاكرة ملاحظات مذكرتي وسم الذاكرة الرقمية',
+    links: [
+      { path: '/pkm', label: 'الذاكرة الشخصية', note: 'ملاحظاتك وأفكارك المصنفة', icon: Brain },
     ],
   },
   {

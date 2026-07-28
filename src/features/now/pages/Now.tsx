@@ -6,12 +6,11 @@ import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import PrayerTimes from '@/components/PrayerTimes';
 import SEO from '@/components/SEO';
 import SmartGreeting from '@/components/SmartGreeting';
-import { AppCard,PageShell } from '@/components/ui/app-shell';
+import { PageShell } from '@/components/ui/app-shell';
 import UmmahPulse from '@/components/UmmahPulse';
 import { useApp } from '@/contexts/AppContext';
 import WeatherWidget from '@/features/weather/components/WeatherWidget';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { ChevronLeft, FileText, MapPinned,Sparkles } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 export default function Now() {
@@ -78,82 +77,6 @@ export default function Now() {
             home page is back to answering only "what should I do
             right now?" — prayer times, weather, current sunnah,
             ummah pulse, and saved locations. */}
-        {/* Universal Knowledge Archive — entry card */}
-        <motion.section variants={item} aria-labelledby="home-archive-h">
-          <h2 id="home-archive-h" className="sr-only">الأرشيف المعرفي</h2>
-          <button
-            onClick={() => navigate('/archive')}
-            className="w-full text-start rounded-2xl p-4 border border-primary/25 bg-primary/5 active:scale-[0.98] transition-transform"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-foreground">الأرشيف المعرفي</h3>
-                  <span className="font-mono text-[0.625rem] text-primary/60 tracking-wider">№ 000001</span>
-                </div>
-                <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
-                  اقترح موضوعاً، اختر عمقاً، واحصل على مونوغراف كامل مفهرس.
-                </p>
-              </div>
-              <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
-            </div>
-          </button>
-        </motion.section>
-
-        {/* PKM — personal knowledge base entry card */}
-        <motion.section variants={item} aria-labelledby="home-pkm-h">
-          <h2 id="home-pkm-h" className="sr-only">{'مذكّرتي'}</h2>
-          <AppCard
-            as="button"
-            pressable
-            onClick={() => navigate('/pkm')}
-            className="w-full text-start"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-foreground">
-                  {'مذكّرتي'}
-                </h3>
-                <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
-                  {'ملاحظات محلية بوسم متداخل وبحث فوري.'}
-                </p>
-              </div>
-              <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
-            </div>
-          </AppCard>
-        </motion.section>
-
-        {/* Travel Atlas — tourism guide entry card */}
-        <motion.section variants={item} aria-labelledby="home-travel-h">
-          <h2 id="home-travel-h" className="sr-only">{'أطلس الرحلات'}</h2>
-          <AppCard
-            as="button"
-            pressable
-            onClick={() => navigate('/travel-atlas')}
-            className="w-full text-start"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[hsl(var(--live)/0.15)] flex items-center justify-center shrink-0">
-                <MapPinned className="w-5 h-5 text-[hsl(var(--live))]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-foreground">
-                  {'أطلس الرحلات'}
-                </h3>
-                <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
-                  {'دليلك الشخصي للأماكن التي تستحق الرحلة.'}
-                </p>
-              </div>
-              <ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />
-            </div>
-          </AppCard>
-        </motion.section>
 
         {/* Made by Amer */}
         <motion.div variants={item} className="flex items-center justify-center gap-2 py-6 mt-4">
