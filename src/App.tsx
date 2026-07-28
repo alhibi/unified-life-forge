@@ -108,6 +108,9 @@ const loadChessCareer = () => import("./features/games/pages/ChessCareer");
 const loadMemoryAdventure = () => import("./features/games/pages/MemoryAdventure");
 const loadSettings = () => import("./pages/Settings");
 const loadDuas = () => import("./features/duas/pages/Duas");
+const loadQuran = () => import("./pages/Quran");
+const loadDhikr = () => import("./pages/Dhikr");
+const loadSunnah = () => import("./pages/Sunnah");
 // Wave-1 chat surface — three new lazy pages backed by the new
 // data layer. Kept off the eager bundle since group/channel chats
 // and chat settings are reachable only via deep-link or via the
@@ -210,6 +213,9 @@ const loadNow = () => import("./features/now/pages/Now");
 // registered — they are eager and already mounted.
 // ──────────────────────────────────────────────────────────────────────
 registerRoute('/settings',          loadSettings);
+registerRoute('/quran',             loadQuran);
+registerRoute('/dhikr',             loadDhikr);
+registerRoute('/sunnah',            loadSunnah);
 registerRoute('/settings/appearance', loadAppearance);
 registerRoute('/settings/interface', loadInterface);
 registerRoute('/settings/profile',  loadProfile);
@@ -277,6 +283,9 @@ const ChessCareerPage = lazy(loadChessCareer);
 const MemoryAdventurePage = lazy(loadMemoryAdventure);
 const SettingsPage = lazy(loadSettings);
 const DuasPage = lazy(loadDuas);
+const QuranPage = lazy(loadQuran);
+const DhikrPage = lazy(loadDhikr);
+const SunnahPage = lazy(loadSunnah);
 const GroupsIndexPage   = lazy(loadGroupsIndex);
 const GroupChatPage     = lazy(loadGroupChat);
 const ChatSettingsPage  = lazy(loadChatSettings);
@@ -339,7 +348,7 @@ function useIdlePrefetch() {
       ((cb) => window.setTimeout(cb, 1500));
     const id = ric(() => {
       loadAppearance(); loadProfile(); loadPrayer(); loadReading();
-      loadWellness(); loadDiwan();
+      loadWellness(); loadDiwan(); loadQuran(); loadDhikr(); loadSunnah();
       // Wave-1 chat surfaces. The groups index is one tap away from the
       // chat tab and the chat settings page is one tap away from there;
       // pre-warming both keeps the first navigation instant.
@@ -631,6 +640,9 @@ function AnimatedRoutes() {
                   <Route path="/chat/g/:chatId" element={<ErrorBoundary><GroupChatPage /></ErrorBoundary>} />
                   <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
                   <Route path="/duas" element={<ErrorBoundary><DuasPage /></ErrorBoundary>} />
+                  <Route path="/quran" element={<ErrorBoundary><QuranPage /></ErrorBoundary>} />
+                  <Route path="/dhikr" element={<ErrorBoundary><DhikrPage /></ErrorBoundary>} />
+                  <Route path="/sunnah" element={<ErrorBoundary><SunnahPage /></ErrorBoundary>} />
                   <Route path="/wellness" element={<ErrorBoundary><WellnessPage /></ErrorBoundary>} />
                   <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
                   <Route path="/browse" element={<ErrorBoundary><BrowsePage /></ErrorBoundary>} />
