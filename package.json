@@ -21,6 +21,8 @@
     "lint:budget": "node scripts/lint-budget.mjs"
   },
   "dependencies": {
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/geolocation": "^8.2.0",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@fontsource/cormorant-garamond": "^5.2.11",
