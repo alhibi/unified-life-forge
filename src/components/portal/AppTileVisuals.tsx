@@ -1,184 +1,77 @@
 import { memo } from 'react';
 
 /**
- * Returns Tailwind classes for the tile's background gradient, border highlight,
- * icon container, and hover glow based on the app's key.
+ * Returns Tailwind classes for the ticket's 3-tone palette.
+ * Colors: gold/tan, grey-white, crimson-red.
  */
-export function getTileTheme(key: string) {
-  switch (key) {
-    case 'now':
-      return {
-        bg: 'bg-gradient-to-br from-emerald-900/40 to-slate-900/60',
-        border: 'group-hover:border-emerald-500/50',
-        icon: 'bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
-      };
-    case 'quran':
-      return {
-        bg: 'bg-gradient-to-br from-slate-900/80 to-blue-950/80',
-        border: 'group-hover:border-[#D4AF37]/50',
-        icon: 'bg-[#D4AF37]/15 text-[#D4AF37] group-hover:bg-[#D4AF37]/25',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]',
-      };
-    case 'dhikr':
-      return {
-        bg: 'bg-gradient-to-br from-teal-900/40 to-slate-900/60',
-        border: 'group-hover:border-teal-500/50',
-        icon: 'bg-teal-500/20 text-teal-400 group-hover:bg-teal-500/30 group-hover:text-teal-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(20,184,166,0.15)]',
-      };
-    case 'sunnah':
-      return {
-        bg: 'bg-gradient-to-br from-amber-900/30 to-lime-900/30',
-        border: 'group-hover:border-amber-500/50',
-        icon: 'bg-amber-500/20 text-amber-400 group-hover:bg-amber-500/30 group-hover:text-amber-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]',
-      };
-    case 'diwan':
-      return {
-        bg: 'bg-gradient-to-br from-rose-950/50 to-violet-950/50',
-        border: 'group-hover:border-rose-500/50',
-        icon: 'bg-rose-500/20 text-rose-400 group-hover:bg-rose-500/30 group-hover:text-rose-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]',
-      };
-    case 'wellness':
-      return {
-        bg: 'bg-gradient-to-br from-emerald-950/60 to-cyan-950/60',
-        border: 'group-hover:border-cyan-400/50',
-        icon: 'bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 group-hover:text-cyan-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(34,211,238,0.15)]',
-      };
-    case 'journal':
-      return {
-        bg: 'bg-gradient-to-br from-orange-950/50 to-violet-950/60',
-        border: 'group-hover:border-orange-500/50',
-        icon: 'bg-orange-500/20 text-orange-400 group-hover:bg-orange-500/30 group-hover:text-orange-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(249,115,22,0.15)]',
-      };
-    case 'chat':
-      return {
-        bg: 'bg-gradient-to-br from-indigo-950/60 to-purple-950/60',
-        border: 'group-hover:border-indigo-400/50',
-        icon: 'bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:text-indigo-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(129,140,248,0.15)]',
-      };
-    default:
-      return {
-        bg: 'bg-card/40',
-        border: 'group-hover:border-primary/50',
-        icon: 'bg-secondary text-foreground group-hover:bg-secondary/80',
-        glow: 'group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]',
-      };
+export function getTileTheme(key: string, index: number = 0) {
+  const tone = index % 3;
+
+  if (tone === 0) {
+    // Gold/Tan tone (01, 04, 07, 10, 13)
+    return {
+      bg: 'bg-[#C8B69A]',
+      border: 'border-[#9F8A6B]/30 group-hover:border-[#9F8A6B]/50',
+      icon: 'bg-[#8C7654] text-[#EBE3D5]',
+      glow: 'group-hover:shadow-[0_0_20px_rgba(200,182,154,0.3)]',
+      text: 'text-[#3E2F1B]',
+      textMuted: 'text-[#5E4C33]',
+      paintingBorder: 'border-[#5E4C33]',
+    };
+  } else if (tone === 1) {
+    // Grey-White tone (02, 05, 08, 11, 14)
+    return {
+      bg: 'bg-[#D6D6D6]',
+      border: 'border-[#A3A3A3]/30 group-hover:border-[#A3A3A3]/50',
+      icon: 'bg-[#666666] text-[#E0E0E0]',
+      glow: 'group-hover:shadow-[0_0_20px_rgba(214,214,214,0.2)]',
+      text: 'text-[#2A2A2A]',
+      textMuted: 'text-[#555555]',
+      paintingBorder: 'border-[#555555]',
+    };
+  } else {
+    // Crimson-Red tone (03, 06, 09, 12, 15)
+    return {
+      bg: 'bg-[#7A2125]',
+      border: 'border-[#521215]/30 group-hover:border-[#521215]/50',
+      icon: 'bg-[#4B1214] text-[#F5E6E6]',
+      glow: 'group-hover:shadow-[0_0_20px_rgba(122,33,37,0.4)]',
+      text: 'text-[#F5E6E6]',
+      textMuted: 'text-[#D4B3B3]',
+      paintingBorder: 'border-[#4B1214]',
+    };
   }
 }
 
-function NowBackground() {
+const IMAGES: Record<string, string> = {
+  now: 'https://images.unsplash.com/photo-1509653087866-91f6c2ab53f4?auto=format&fit=crop&q=80&w=600', // Classical astronomy/clock
+  quran: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80&w=600', // Scholar at book
+  dhikr: 'https://images.unsplash.com/photo-1558500282-588494917a26?auto=format&fit=crop&q=80&w=600', // Figure in nature
+  sunnah: 'https://images.unsplash.com/photo-1596704987748-0d121bf302f7?auto=format&fit=crop&q=80&w=600', // Botanical
+  diwan: 'https://images.unsplash.com/photo-1579603058869-3178c7c9ecf8?auto=format&fit=crop&q=80&w=600', // Scholar writing
+  wellness: 'https://images.unsplash.com/photo-1549429712-4299b82142e0?auto=format&fit=crop&q=80&w=600', // Garden classical
+  journal: 'https://images.unsplash.com/photo-1580130095874-1a2c3a37ba7a?auto=format&fit=crop&q=80&w=600', // Old desk/quill
+  chat: 'https://images.unsplash.com/photo-1606553890259-7ff025d535cd?auto=format&fit=crop&q=80&w=600', // Classical figures conversing
+  podcasts: 'https://images.unsplash.com/photo-1548398453-380ff9f91a56?auto=format&fit=crop&q=80&w=600', // Vintage radio vibe
+  reading: 'https://images.unsplash.com/photo-1548048026-5a1a941d93d3?auto=format&fit=crop&q=80&w=600', // Library
+  knowledge: 'https://images.unsplash.com/photo-1505664159518-86d705c49bba?auto=format&fit=crop&q=80&w=600', // Alchemist/lecture
+  archive: 'https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&fit=crop&q=80&w=600', // Ancient scrolls
+  pkm: 'https://images.unsplash.com/photo-1563804860268-d069eab7ed6f?auto=format&fit=crop&q=80&w=600', // Diagrams/sketches
+  atlas: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=600', // Vintage map
+  games: 'https://images.unsplash.com/photo-1580541832626-2a7131ee809f?auto=format&fit=crop&q=80&w=600', // Chess classic
+};
+
+export const TileBackground = memo(function TileBackground({ appKey, theme }: { appKey: string, theme: any }) {
+  const src = IMAGES[appKey] || IMAGES['now'];
+
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <defs>
-        <radialGradient id="now-rays" cx="50%" cy="0%" r="100%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="100" cy="-20" r="150" fill="url(#now-rays)" className="text-emerald-300" />
-      <path d="M100 -20 L20 200 M100 -20 L60 200 M100 -20 L100 200 M100 -20 L140 200 M100 -20 L180 200" stroke="currentColor" strokeWidth="0.5" className="text-emerald-200" />
-    </svg>
+    <div className={`relative w-full h-[140px] mb-4 border-[3px] p-1 rounded-sm shadow-inner ${theme.paintingBorder}`}>
+      <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')]" />
+      <img
+        src={src}
+        alt=""
+        className="h-full w-full object-cover filter contrast-125 saturate-50 sepia-[20%] brightness-90 rounded-sm"
+      />
+    </div>
   );
-}
-
-function QuranBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-[0.07]" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-      <pattern id="quran-star" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M20 0 L25 15 L40 20 L25 25 L20 40 L15 25 L0 20 L15 15 Z" fill="none" stroke="currentColor" strokeWidth="1" className="text-[#D4AF37]" />
-        <circle cx="20" cy="20" r="10" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-[#D4AF37]" />
-      </pattern>
-      <rect x="0" y="0" width="100%" height="100%" fill="url(#quran-star)" />
-    </svg>
-  );
-}
-
-function DhikrBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-20" viewBox="0 0 200 100" preserveAspectRatio="none">
-      <path d="M0,50 Q50,20 100,50 T200,50" fill="none" stroke="currentColor" strokeWidth="2" className="text-teal-400 opacity-50" />
-      <path d="M0,60 Q50,30 100,60 T200,60" fill="none" stroke="currentColor" strokeWidth="1" className="text-teal-300 opacity-30" />
-      <circle cx="25" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-      <circle cx="75" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-      <circle cx="125" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-      <circle cx="175" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-    </svg>
-  );
-}
-
-function SunnahBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <path d="M0 200 Q 100 100 200 200" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500" />
-      <path d="M20 200 Q 100 120 180 200" fill="none" stroke="currentColor" strokeWidth="1" className="text-lime-500" />
-      <path d="M40 200 Q 100 140 160 200" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-amber-400" />
-      <circle cx="100" cy="180" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-amber-300" />
-    </svg>
-  );
-}
-
-function DiwanBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-[0.12]" viewBox="0 0 200 100" preserveAspectRatio="none">
-      <path d="M-20,120 Q60,-20 120,50 T220,10" fill="none" stroke="currentColor" strokeWidth="3" className="text-rose-400" />
-      <path d="M0,100 Q80,0 140,40 T240,20" fill="none" stroke="currentColor" strokeWidth="1" className="text-violet-400" />
-      <path d="M60,40 C 70,30 90,30 100,50 C 110,70 130,80 150,60" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-rose-300" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function WellnessBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-15" viewBox="0 0 200 100" preserveAspectRatio="none">
-      <path d="M0,50 L40,50 L50,20 L70,80 L80,50 L200,50" fill="none" stroke="currentColor" strokeWidth="2" className="text-cyan-400" strokeLinejoin="round" />
-      <path d="M0,60 L35,60 L45,30 L65,90 L75,60 L200,60" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-emerald-400" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function JournalBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <pattern id="journal-lines" x="0" y="0" width="200" height="20" patternUnits="userSpaceOnUse">
-        <line x1="0" y1="19" x2="200" y2="19" stroke="currentColor" strokeWidth="1" className="text-orange-300" />
-      </pattern>
-      <rect x="0" y="0" width="100%" height="100%" fill="url(#journal-lines)" />
-      <circle cx="30" cy="50" r="1" fill="currentColor" className="text-violet-300" />
-      <circle cx="150" cy="30" r="1.5" fill="currentColor" className="text-violet-300" />
-      <circle cx="100" cy="120" r="1" fill="currentColor" className="text-violet-300" />
-      <circle cx="180" cy="150" r="2" fill="currentColor" className="text-violet-300" />
-    </svg>
-  );
-}
-
-function ChatBackground() {
-  return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <path d="M40,140 C 40,90 120,90 120,140 C 120,190 40,190 40,140 Z" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400" />
-      <path d="M40,170 L 20,180 L 30,160" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400" strokeLinejoin="round" />
-
-      <path d="M90,60 C 90,20 170,20 170,60 C 170,100 90,100 90,60 Z" fill="none" stroke="currentColor" strokeWidth="1" className="text-purple-400" />
-      <path d="M170,80 L 190,90 L 180,70" fill="none" stroke="currentColor" strokeWidth="1" className="text-purple-400" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-export const TileBackground = memo(function TileBackground({ appKey }: { appKey: string }) {
-  switch (appKey) {
-    case 'now': return <NowBackground />;
-    case 'quran': return <QuranBackground />;
-    case 'dhikr': return <DhikrBackground />;
-    case 'sunnah': return <SunnahBackground />;
-    case 'diwan': return <DiwanBackground />;
-    case 'wellness': return <WellnessBackground />;
-    case 'journal': return <JournalBackground />;
-    case 'chat': return <ChatBackground />;
-    default: return null;
-  }
 });
