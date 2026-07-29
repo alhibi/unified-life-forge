@@ -258,19 +258,37 @@ export function useActivityTracking() {
       }
 
       setRoute((prev) => {
-        const updated = [...prev, nextPoint];
-        // Calculate new cumulative distance
-        let totalD = 0;
-        for (let i = 0; i < updated.length - 1; i++) {
-          totalD += calculateHaversineDistance(updated[i], updated[i + 1]);
+        let isValidPoint = true;
+        let distSinceLast = 0;
+
+        if (prev.length > 0) {
+          const lastPoint = prev[prev.length - 1];
+          distSinceLast = calculateHaversineDistance(lastPoint, nextPoint);
+
+          // Noise Filtering: Reject points that are < 1m (static drift) or impossibly fast (> 15 m/s)
+          // (assuming ~3s sampling, 15 m/s * 3s = 45m max realistic jump)
+          const timeDiffSecs = (nextPoint.timestamp - lastPoint.timestamp) / 1000;
+          const speed = timeDiffSecs > 0 ? distSinceLast / timeDiffSecs : 0;
+
+          if (!isSimulated) {
+             if (distSinceLast < 1 || speed > 15) {
+               isValidPoint = false;
+             }
+          }
         }
-        setDistanceMeters(totalD);
 
-        // Live MET-based Calories burn calculation
-        const activeType = motionStateRef.current === 'running' ? 'running' : 'walking';
-        setCalories(estimateCalories(activeType, duration, userWeight));
+        if (isValidPoint) {
+           const updated = [...prev, nextPoint];
+           setDistanceMeters((prevDist) => prevDist + distSinceLast);
 
-        return updated;
+           // Live MET-based Calories burn calculation
+           const activeType = motionStateRef.current === 'running' ? 'running' : 'walking';
+           setCalories(estimateCalories(activeType, duration, userWeight));
+
+           return updated;
+        }
+
+        return prev;
       });
 
     }, samplingInterval);
