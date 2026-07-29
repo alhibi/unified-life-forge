@@ -24,6 +24,7 @@ import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
+import { getTileTheme, TileBackground } from './AppTileVisuals';
 import type { PortalApp } from './apps';
 
 const LONG_PRESS_MS = 420;
@@ -56,6 +57,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
   forwardedRef,
 ) {
   const reduce = useReducedMotion();
+  const theme = getTileTheme(app.key);
   const Icon = app.icon;
   const longPressTimer = useRef<number | null>(null);
   const longPressFired = useRef(false);
@@ -138,14 +140,25 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
         className={cn(
-          'app-card group relative w-full text-start',
+          'app-card group relative w-full text-start overflow-hidden backdrop-blur-md',
+          theme.bg,
+          theme.border,
+          theme.glow,
+          'border border-border/40',
           'transition-[transform,border-color,background-color] duration-normal ease-out-expo',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          'hover:-translate-y-0.5',
+          'hover:scale-[1.02]',
           active && 'border-primary/70 bg-accent/40',
           list ? 'flex items-center gap-3' : 'flex min-h-[124px] flex-col gap-3',
         )}
       >
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <TileBackground appKey={app.key} />
+        </div>
+
+        {/* Content wrapper with z-10 */}
+        <div className={cn("relative z-10 flex h-full w-full gap-3", list ? "items-center" : "flex-col")}>
+
         {/* Editorial index number — gives the neutral grid a typographic
             anchor without adding colour or ornament. */}
         {!list && (
@@ -163,7 +176,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               'flex h-11 w-11 shrink-0 items-center justify-center rounded-md',
               'transition-[transform,background-color,color] duration-normal ease-out-expo',
               'group-hover:scale-105 group-focus-visible:scale-105',
-              active ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground',
+              active ? 'bg-primary text-primary-foreground' : theme.icon,
             )}
           >
             <Icon className="h-5 w-5" aria-hidden />
@@ -172,7 +185,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           {list && (
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2">
-                <span className="truncate text-body font-semibold text-foreground">
+                <span className="truncate text-body font-bold text-foreground drop-shadow-sm">
                   {app.label}
                 </span>
                 {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
@@ -187,10 +200,10 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         {!list && (
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-2">
-              <span className="truncate text-body font-semibold text-foreground">{app.label}</span>
+              <span className="truncate text-body font-bold text-foreground drop-shadow-sm">{app.label}</span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="mt-1 block text-mini leading-[1.125rem] text-muted-foreground">
+            <span className="mt-1 block text-mini leading-[1.125rem] text-muted-foreground/90">
               {app.description}
             </span>
             <span className="mt-2 block text-micro font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
@@ -218,6 +231,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             aria-hidden
           />
         )}
+        </div>
       </button>
 
       {/* Detail affordance — separate button so the tile's primary tap stays
