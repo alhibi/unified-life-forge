@@ -7,6 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import { BookOpen, Check,Info, RotateCcw } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import PageHeader from '@/components/PageHeader';
+import { PageShell, Section, AppCard } from '@/components/ui/app-shell';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatMethod = 'middle' | 'seventh' | 'angle';
@@ -162,7 +164,7 @@ export default function PrayerSettings() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-page px-5 pt-14">
+    <PageShell className="pt-14">
       <SEO
         title={'إعدادات الصلاة — SmartHub'}
         description={'اختر المذهب وطريقة الحساب لأوقات الصلاة في SmartHub.'}
@@ -170,24 +172,18 @@ export default function PrayerSettings() {
       />
       <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5 max-w-lg mx-auto">
         {/* Header */}
-        <motion.div variants={item} className="flex items-center gap-3 mb-1">
-          <BackButton to="/settings" />
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-primary stroke-[1.8]" />
-            </div>
-            <h1 className="text-[1.375rem] font-bold tracking-tight text-foreground">
-              {'إعدادات الصلاة'}
-            </h1>
-          </div>
+        <motion.div variants={item}>
+          <PageHeader
+            title="إعدادات الصلاة"
+            backTo="/settings"
+            icon={<span className="row-icon"><BookOpen className="w-4 h-4" aria-hidden /></span>}
+          />
         </motion.div>
 
         {/* Madhab Section */}
         <motion.div variants={item}>
-          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
-            {'المذهب الفقهي'}
-          </p>
-          <div role="radiogroup" aria-label={'المذهب الفقهي'} className="premium-card-elevated overflow-hidden">
+          <Section label="المذهب الفقهي">
+          <AppCard className="p-0 overflow-hidden divide-y divide-border/30" role="radiogroup" aria-label="المذهب الفقهي">
             {madhabs.map((m, idx) => (
               <RadioRow
                 key={m.id}
@@ -198,15 +194,14 @@ export default function PrayerSettings() {
                 isLast={idx === madhabs.length - 1}
               />
             ))}
-          </div>
+          </AppCard>
+          </Section>
         </motion.div>
 
         {/* Calculation Method (Sunni only) */}
         <motion.div variants={item}>
-          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
-            {'طريقة حساب التواقيت'}
-          </p>
-          <div role="radiogroup" aria-label={'طريقة الحساب'} className="premium-card-elevated overflow-hidden">
+          <Section label="طريقة حساب التواقيت">
+          <AppCard className="p-0 overflow-hidden divide-y divide-border/30" role="radiogroup" aria-label="طريقة الحساب">
             {calcOptions.map((m, idx) => (
               <RadioRow
                 key={String(m.id)}
@@ -217,7 +212,8 @@ export default function PrayerSettings() {
                 isLast={idx === calcOptions.length - 1}
               />
             ))}
-          </div>
+          </AppCard>
+          </Section>
         </motion.div>
 
         {/* Hybrid note */}
@@ -238,10 +234,8 @@ export default function PrayerSettings() {
 
         {/* High Latitude Adjustment Methods */}
         <motion.div variants={item}>
-          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
-            {'ضبط خطوط العرض العالية'}
-          </p>
-          <div role="radiogroup" aria-label={'ضبط خطوط العرض'} className="premium-card-elevated overflow-hidden">
+          <Section label="ضبط خطوط العرض العالية">
+          <AppCard className="p-0 overflow-hidden divide-y divide-border/30" role="radiogroup" aria-label="ضبط خطوط العرض">
             {latMethods.map((m, idx) => (
               <RadioRow
                 key={m.id}
@@ -252,15 +246,14 @@ export default function PrayerSettings() {
                 isLast={idx === latMethods.length - 1}
               />
             ))}
-          </div>
+          </AppCard>
+          </Section>
         </motion.div>
 
         {/* DST Toggle (boolean — Switch is correct here) */}
         <motion.div variants={item}>
-          <p className="text-[0.8125rem] font-medium text-muted-foreground mb-2.5 px-1">
-            {'إعدادات إضافية'}
-          </p>
-          <div className="premium-card-elevated overflow-hidden">
+          <Section label="إعدادات إضافية">
+          <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
             <div className="px-4 py-3.5 flex items-center justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-[0.9375rem] text-foreground leading-tight">
@@ -274,7 +267,8 @@ export default function PrayerSettings() {
                 <Switch checked={dstEnabled} onCheckedChange={setDstEnabled} />
               </div>
             </div>
-          </div>
+          </AppCard>
+          </Section>
         </motion.div>
 
         {/* Reset Button */}
@@ -288,6 +282,6 @@ export default function PrayerSettings() {
           </button>
         </motion.div>
       </motion.div>
-    </div>
+    </PageShell>
   );
 }

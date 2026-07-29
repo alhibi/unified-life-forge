@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
@@ -26,6 +27,7 @@ import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 import packageJson from '../../package.json';
+import { PageShell, Section } from '@/components/ui/app-shell';
 
 export default function SettingsPage() {
   const { t, theme, language, prayerMadhab } = useApp();
@@ -110,10 +112,8 @@ export default function SettingsPage() {
   };
 
   const renderGroup = (title: string, items: SettingRow[]) => (
-    <motion.div variants={item} className="space-y-1">
-      <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
-        {title}
-      </p>
+    <motion.div variants={item}>
+      <Section label={title}>
       <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
         {items.map((si) => (
           <button
@@ -134,13 +134,14 @@ export default function SettingsPage() {
           </button>
         ))}
       </AppCard>
+      </Section>
     </motion.div>
   );
 
   // Language picker retired — the app is Arabic-only.
 
   return (
-    <div className="min-h-screen bg-background pb-page px-5 pt-10">
+    <PageShell className="pt-10">
       <SEO
         title="الإعدادات — SmartHub"
         description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub."
@@ -155,15 +156,8 @@ export default function SettingsPage() {
         {/* Header — settings is no longer a bottom-nav tab; the user
             reaches it from the avatar shortcut on Home, so we need a
             visible Back affordance to close the loop. */}
-        <motion.div variants={item} className="flex items-center justify-between">
-          {/* Settings is a hub reached from Home — force back to home so
-              the user never gets bounced back into a sub-setting they just
-              closed (e.g. /settings/theme → /settings → back = theme = loop). */}
-          <BackButton to="/" />
-          <h1 className="text-[1.0625rem] font-bold tracking-tight text-foreground">
-            {t('settings.title')}
-          </h1>
-          <div className="w-10" />
+        <motion.div variants={item}>
+          <PageHeader title={t('settings.title')} backTo="/" hideBack={false} />
         </motion.div>
 
         {/* Profile / Account Card */}
@@ -305,6 +299,6 @@ export default function SettingsPage() {
           </button>
         </div>
       </ResponsiveDrawer>
-    </div>
+    </PageShell>
   );
 }

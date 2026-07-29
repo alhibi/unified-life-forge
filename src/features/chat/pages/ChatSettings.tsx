@@ -25,6 +25,7 @@ import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
+import { PageShell, Section, AppCard } from '@/components/ui/app-shell';
 
 /**
  * /chat/settings — comprehensive chat-specific preferences synced via
@@ -115,7 +116,7 @@ export default function ChatSettingsPage() {
         description={'الخصوصية، الإشعارات، التخزين والمظهر للدردشة.'}
         path="/chat/settings"
       />
-      <div className="min-h-screen bg-background pb-page">
+      <PageShell flush>
         <PageHeader
           title={'إعدادات المحادثات'}
           subtitle={'تطبَّق على جميع المحادثات'}
@@ -131,13 +132,16 @@ export default function ChatSettingsPage() {
         >
           {/* Encryption — transparency first: nothing to toggle, everything to
               disclose. See DeviceKeyCard. */}
-          <Section title={'التشفير'}>
+          <motion.div variants={item}>
+            <Section label={'التشفير'}>
             <DeviceKeyCard userId={user?.id} />
-          </Section>
+            </Section>
+          </motion.div>
 
           {/* Privacy */}
-          <Section title={'الخصوصية'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'الخصوصية'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               <SelectRow
                 icon={cs.settings.privacy.lastSeenVisibility === 'nobody' ? <EyeOff /> : <Eye />}
                 label={'آخر ظهور'}
@@ -180,12 +184,14 @@ export default function ChatSettingsPage() {
                 value={cs.settings.privacy.blockUnknownUsers}
                 onChange={(v) => cs.patchPrivacy({ blockUnknownUsers: v })}
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Notifications */}
-          <Section title={'الإشعارات'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'الإشعارات'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               <ToggleRow
                 icon={cs.settings.notifications.enabled ? <Bell /> : <BellOff />}
                 label={'تفعيل الإشعارات'}
@@ -228,12 +234,14 @@ export default function ChatSettingsPage() {
                   cs.patchNotifications({ quietHoursStart: start, quietHoursEnd: end })}
                 disabled={!cs.settings.notifications.enabled}
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Appearance */}
-          <Section title={'المظهر'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'المظهر'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               <SelectRow
                 icon={<Type />}
                 label={'حجم الخط'}
@@ -275,12 +283,14 @@ export default function ChatSettingsPage() {
                 value={cs.settings.appearance.alwaysShowTime}
                 onChange={(v) => cs.patchAppearance({ alwaysShowTime: v })}
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Behavior */}
-          <Section title={'سلوك المحادثة'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'سلوك المحادثة'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               <ToggleRow
                 icon={<Send />}
                 label={'إرسال بضغطة Enter'}
@@ -326,12 +336,14 @@ export default function ChatSettingsPage() {
                     use24h: v === 'locale' ? null : v === '24h',
                   })}
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Storage */}
-          <Section title={'التخزين والبيانات'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'التخزين والبيانات'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               {storageReport && (
                 <div className="px-4 py-3.5 border-b border-border/15">
                   <div className="flex items-baseline justify-between mb-2">
@@ -407,12 +419,14 @@ export default function ChatSettingsPage() {
                 disabled={busyClear}
                 danger
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Blocked users */}
-          <Section title={'المستخدمون المحظورون'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'المستخدمون المحظورون'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               {blockedLoading ? (
                 <SkeletonRow />
               ) : blocked.length === 0 ? (
@@ -453,12 +467,14 @@ export default function ChatSettingsPage() {
                   );
                 })
               )}
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Backup */}
-          <Section title={'النسخ الاحتياطي'}>
-            <Card>
+          <motion.div variants={item}>
+            <Section label={'النسخ الاحتياطي'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
               <ActionRow
                 icon={<Download />}
                 label={'تصدير المحادثات (JSON)'}
@@ -472,12 +488,14 @@ export default function ChatSettingsPage() {
                 onClick={() => toast.info('قريباً')}
                 disabled
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           {/* Danger zone */}
-          <Section title={'إجراءات متقدّمة'}>
-            <Card variant="danger">
+          <motion.div variants={item}>
+            <Section label={'إجراءات متقدّمة'}>
+            <AppCard className="p-0 overflow-hidden divide-y divide-destructive/10 bg-destructive/5 border border-destructive/15">
               <ActionRow
                 icon={<RefreshCcw className="text-destructive" />}
                 label={'إعادة تعيين كل الإعدادات'}
@@ -488,46 +506,25 @@ export default function ChatSettingsPage() {
                 }}
                 danger
               />
-            </Card>
-          </Section>
+            </AppCard>
+            </Section>
+          </motion.div>
 
           <p className="text-[0.625rem] text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
             <AlertTriangle className="inline w-3 h-3 me-1 -mt-0.5" />
             {'هذه الإعدادات تُحفظ تلقائياً وتُزامَن عبر أجهزتك.'}
           </p>
         </motion.div>
-      </div>
+      </PageShell>
     </ErrorBoundary>
   );
 }
 
 // ── Reusable building blocks ────────────────────────────────────────────────
 
-interface SectionProps { title: string; children: React.ReactNode }
-function Section({ title, children }: SectionProps) {
-  return (
-    <motion.div variants={item} className="space-y-2">
-      <p className="text-[0.625rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1">
-        {title}
-      </p>
-      {children}
-    </motion.div>
-  );
-}
 
-interface CardProps { children: React.ReactNode; variant?: 'default' | 'danger' }
-function Card({ children, variant }: CardProps) {
-  return (
-    <div className={cn(
-      'rounded-2xl overflow-hidden divide-y',
-      variant === 'danger'
-        ? 'bg-destructive/5 border border-destructive/15 divide-destructive/10'
-        : 'bg-card border border-border/40 divide-border/30',
-    )}>
-      {children}
-    </div>
-  );
-}
+
+
 
 interface ToggleRowProps {
   icon: React.ReactNode;
