@@ -24,6 +24,7 @@ import {
 
 import { deleteFitnessActivity, insertFitnessActivity } from './api';
 import { FullActivityMap } from './FullActivityMap';
+import { HealthConnectCard } from './HealthConnectCard';
 import { RouteThumbnail } from './RouteThumbnail';
 import type { FitnessActivity, RoutePoint } from './types';
 import { estimateCalories,useActivityTracking } from './useActivityTracking';
