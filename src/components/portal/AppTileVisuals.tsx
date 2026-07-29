@@ -1,72 +1,39 @@
+import { motion } from 'framer-motion';
 import { memo } from 'react';
 
 /**
- * Returns Tailwind classes for the tile's background gradient, border highlight,
- * icon container, and hover glow based on the app's key.
+ * Returns Tailwind classes for the tile's 3-tone matte background, border highlight,
+ * and hover glow based on its grid index.
  */
-export function getTileTheme(key: string) {
-  switch (key) {
-    case 'now':
+export function getTileTheme(key: string, index: number) {
+  const tone = index % 3;
+  switch (tone) {
+    case 0:
       return {
-        bg: 'bg-gradient-to-br from-emerald-900/40 to-slate-900/60',
-        border: 'group-hover:border-emerald-500/50',
-        icon: 'bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-emerald-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]',
-      };
-    case 'quran':
-      return {
-        bg: 'bg-gradient-to-br from-slate-900/80 to-blue-950/80',
-        border: 'group-hover:border-[#D4AF37]/50',
-        icon: 'bg-[#D4AF37]/15 text-[#D4AF37] group-hover:bg-[#D4AF37]/25',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]',
-      };
-    case 'dhikr':
-      return {
-        bg: 'bg-gradient-to-br from-teal-900/40 to-slate-900/60',
-        border: 'group-hover:border-teal-500/50',
-        icon: 'bg-teal-500/20 text-teal-400 group-hover:bg-teal-500/30 group-hover:text-teal-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(20,184,166,0.15)]',
-      };
-    case 'sunnah':
-      return {
-        bg: 'bg-gradient-to-br from-amber-900/30 to-lime-900/30',
+        bg: 'bg-amber-900/10 dark:bg-amber-900/20',
         border: 'group-hover:border-amber-500/50',
-        icon: 'bg-amber-500/20 text-amber-400 group-hover:bg-amber-500/30 group-hover:text-amber-300',
+        icon: 'text-amber-700 dark:text-amber-400',
         glow: 'group-hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]',
       };
-    case 'diwan':
+    case 1:
       return {
-        bg: 'bg-gradient-to-br from-rose-950/50 to-violet-950/50',
+        bg: 'bg-stone-200/50 dark:bg-stone-800/50',
+        border: 'group-hover:border-stone-400/50',
+        icon: 'text-stone-700 dark:text-stone-300',
+        glow: 'group-hover:shadow-[0_0_20px_rgba(168,162,158,0.15)]',
+      };
+    case 2:
+      return {
+        bg: 'bg-rose-900/10 dark:bg-rose-900/20',
         border: 'group-hover:border-rose-500/50',
-        icon: 'bg-rose-500/20 text-rose-400 group-hover:bg-rose-500/30 group-hover:text-rose-300',
+        icon: 'text-rose-700 dark:text-rose-400',
         glow: 'group-hover:shadow-[0_0_20px_rgba(244,63,94,0.15)]',
-      };
-    case 'wellness':
-      return {
-        bg: 'bg-gradient-to-br from-emerald-950/60 to-cyan-950/60',
-        border: 'group-hover:border-cyan-400/50',
-        icon: 'bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 group-hover:text-cyan-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(34,211,238,0.15)]',
-      };
-    case 'journal':
-      return {
-        bg: 'bg-gradient-to-br from-orange-950/50 to-violet-950/60',
-        border: 'group-hover:border-orange-500/50',
-        icon: 'bg-orange-500/20 text-orange-400 group-hover:bg-orange-500/30 group-hover:text-orange-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(249,115,22,0.15)]',
-      };
-    case 'chat':
-      return {
-        bg: 'bg-gradient-to-br from-indigo-950/60 to-purple-950/60',
-        border: 'group-hover:border-indigo-400/50',
-        icon: 'bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:text-indigo-300',
-        glow: 'group-hover:shadow-[0_0_20px_rgba(129,140,248,0.15)]',
       };
     default:
       return {
         bg: 'bg-card/40',
         border: 'group-hover:border-primary/50',
-        icon: 'bg-secondary text-foreground group-hover:bg-secondary/80',
+        icon: 'text-foreground',
         glow: 'group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]',
       };
   }
@@ -74,97 +41,210 @@ export function getTileTheme(key: string) {
 
 function NowBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <defs>
-        <radialGradient id="now-rays" cx="50%" cy="0%" r="100%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="100" cy="-20" r="150" fill="url(#now-rays)" className="text-emerald-300" />
-      <path d="M100 -20 L20 200 M100 -20 L60 200 M100 -20 L100 200 M100 -20 L140 200 M100 -20 L180 200" stroke="currentColor" strokeWidth="0.5" className="text-emerald-200" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.circle
+        animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        cx="100" cy="100" r="50"
+        className="fill-emerald-500/20"
+      />
     </svg>
   );
 }
 
 function QuranBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-[0.07]" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-      <pattern id="quran-star" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M20 0 L25 15 L40 20 L25 25 L20 40 L15 25 L0 20 L15 15 Z" fill="none" stroke="currentColor" strokeWidth="1" className="text-[#D4AF37]" />
-        <circle cx="20" cy="20" r="10" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-[#D4AF37]" />
-      </pattern>
-      <rect x="0" y="0" width="100%" height="100%" fill="url(#quran-star)" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.path
+        animate={{ rotate: 360 }}
+        transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+        d="M100 20 L120 80 L180 100 L120 120 L100 180 L80 120 L20 100 L80 80 Z"
+        className="fill-none stroke-amber-500 opacity-20"
+        strokeWidth="2"
+        style={{ originX: "50%", originY: "50%" }}
+      />
     </svg>
   );
 }
 
 function DhikrBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-20" viewBox="0 0 200 100" preserveAspectRatio="none">
-      <path d="M0,50 Q50,20 100,50 T200,50" fill="none" stroke="currentColor" strokeWidth="2" className="text-teal-400 opacity-50" />
-      <path d="M0,60 Q50,30 100,60 T200,60" fill="none" stroke="currentColor" strokeWidth="1" className="text-teal-300 opacity-30" />
-      <circle cx="25" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-      <circle cx="75" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-      <circle cx="125" cy="42" r="3" fill="currentColor" className="text-teal-200" />
-      <circle cx="175" cy="42" r="3" fill="currentColor" className="text-teal-200" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.circle
+        animate={{ y: [0, -10, 0] }}
+        transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        cx="100" cy="100" r="20"
+        className="fill-teal-400 opacity-30"
+      />
     </svg>
   );
 }
 
 function SunnahBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <path d="M0 200 Q 100 100 200 200" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-500" />
-      <path d="M20 200 Q 100 120 180 200" fill="none" stroke="currentColor" strokeWidth="1" className="text-lime-500" />
-      <path d="M40 200 Q 100 140 160 200" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-amber-400" />
-      <circle cx="100" cy="180" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-amber-300" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.path
+        animate={{ rotate: [0, 10, 0] }}
+        transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        d="M50 150 Q100 50 150 150 Q100 200 50 150"
+        className="fill-none stroke-amber-500 opacity-20"
+        strokeWidth="3"
+        style={{ originX: "50%", originY: "50%" }}
+      />
     </svg>
   );
 }
 
 function DiwanBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-[0.12]" viewBox="0 0 200 100" preserveAspectRatio="none">
-      <path d="M-20,120 Q60,-20 120,50 T220,10" fill="none" stroke="currentColor" strokeWidth="3" className="text-rose-400" />
-      <path d="M0,100 Q80,0 140,40 T240,20" fill="none" stroke="currentColor" strokeWidth="1" className="text-violet-400" />
-      <path d="M60,40 C 70,30 90,30 100,50 C 110,70 130,80 150,60" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-rose-300" strokeLinecap="round" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.path
+        animate={{ pathLength: [0, 1, 0] }}
+        transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        d="M0 100 Q100 0 200 100"
+        className="fill-none stroke-rose-400 opacity-30"
+        strokeWidth="4"
+      />
     </svg>
   );
 }
 
 function WellnessBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-15" viewBox="0 0 200 100" preserveAspectRatio="none">
-      <path d="M0,50 L40,50 L50,20 L70,80 L80,50 L200,50" fill="none" stroke="currentColor" strokeWidth="2" className="text-cyan-400" strokeLinejoin="round" />
-      <path d="M0,60 L35,60 L45,30 L65,90 L75,60 L200,60" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-emerald-400" strokeLinejoin="round" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.circle
+        animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        cx="100" cy="100" r="60"
+        className="fill-cyan-400 opacity-20"
+      />
     </svg>
   );
 }
 
 function JournalBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <pattern id="journal-lines" x="0" y="0" width="200" height="20" patternUnits="userSpaceOnUse">
-        <line x1="0" y1="19" x2="200" y2="19" stroke="currentColor" strokeWidth="1" className="text-orange-300" />
-      </pattern>
-      <rect x="0" y="0" width="100%" height="100%" fill="url(#journal-lines)" />
-      <circle cx="30" cy="50" r="1" fill="currentColor" className="text-violet-300" />
-      <circle cx="150" cy="30" r="1.5" fill="currentColor" className="text-violet-300" />
-      <circle cx="100" cy="120" r="1" fill="currentColor" className="text-violet-300" />
-      <circle cx="180" cy="150" r="2" fill="currentColor" className="text-violet-300" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.line
+        animate={{ x1: [0, 10, 0] }}
+        transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        x1="0" y1="100" x2="200" y2="100"
+        className="stroke-violet-300 opacity-40"
+        strokeWidth="2"
+      />
     </svg>
   );
 }
 
 function ChatBackground() {
   return (
-    <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 200 200" preserveAspectRatio="none">
-      <path d="M40,140 C 40,90 120,90 120,140 C 120,190 40,190 40,140 Z" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400" />
-      <path d="M40,170 L 20,180 L 30,160" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400" strokeLinejoin="round" />
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.path
+        animate={{ y: [0, -5, 0] }}
+        transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        d="M50 50 h100 v100 h-100 z"
+        className="fill-none stroke-indigo-400 opacity-20"
+        strokeWidth="3"
+      />
+    </svg>
+  );
+}
 
-      <path d="M90,60 C 90,20 170,20 170,60 C 170,100 90,100 90,60 Z" fill="none" stroke="currentColor" strokeWidth="1" className="text-purple-400" />
-      <path d="M170,80 L 190,90 L 180,70" fill="none" stroke="currentColor" strokeWidth="1" className="text-purple-400" strokeLinejoin="round" />
+function PodcastsBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.line
+        animate={{ y1: [40, 20, 40] }}
+        transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        x1="100" y1="40" x2="100" y2="160"
+        className="stroke-blue-400 opacity-30"
+        strokeWidth="6"
+      />
+    </svg>
+  );
+}
+
+function ReadingBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.rect
+        animate={{ y: [45, 55, 45] }}
+        transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        x="50" y="50" width="100" height="15"
+        className="fill-slate-400 opacity-20"
+      />
+    </svg>
+  );
+}
+
+function KnowledgeBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.circle
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+        cx="100" cy="100" r="80"
+        strokeDasharray="10 10"
+        className="fill-none stroke-amber-400 opacity-20"
+        strokeWidth="3"
+        style={{ originX: "50%", originY: "50%" }}
+      />
+    </svg>
+  );
+}
+
+function ArchiveBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.rect
+        animate={{ scaleY: [1, 1.1, 1] }}
+        transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        x="60" y="60" width="80" height="80"
+        className="fill-none stroke-slate-500 opacity-20"
+        strokeWidth="3"
+        style={{ originX: "50%", originY: "50%" }}
+      />
+    </svg>
+  );
+}
+
+function PKMBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.circle
+        animate={{ r: [5, 12, 5] }}
+        transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        cx="100" cy="100" r="5"
+        className="fill-emerald-400 opacity-40"
+      />
+    </svg>
+  );
+}
+
+function AtlasBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.circle
+        animate={{ x: [0, 15, 0] }}
+        transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        cx="100" cy="100" r="60"
+        className="fill-none stroke-sky-400 opacity-20"
+        strokeWidth="3"
+      />
+    </svg>
+  );
+}
+
+function GamesBackground() {
+  return (
+    <svg className="absolute inset-0 h-full w-full opacity-30" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+      <motion.rect
+        animate={{ rotate: 90 }}
+        transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        x="80" y="80" width="40" height="40"
+        className="fill-rose-400 opacity-30"
+        style={{ originX: "50%", originY: "50%" }}
+      />
     </svg>
   );
 }
@@ -179,6 +259,13 @@ export const TileBackground = memo(function TileBackground({ appKey }: { appKey:
     case 'wellness': return <WellnessBackground />;
     case 'journal': return <JournalBackground />;
     case 'chat': return <ChatBackground />;
+    case 'podcasts': return <PodcastsBackground />;
+    case 'reading': return <ReadingBackground />;
+    case 'knowledge': return <KnowledgeBackground />;
+    case 'archive': return <ArchiveBackground />;
+    case 'pkm': return <PKMBackground />;
+    case 'atlas': return <AtlasBackground />;
+    case 'games': return <GamesBackground />;
     default: return null;
   }
 });

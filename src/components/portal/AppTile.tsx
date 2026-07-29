@@ -24,8 +24,8 @@ import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
-import { getTileTheme, TileBackground } from './AppTileVisuals';
 import type { PortalApp } from './apps';
+import { getTileTheme, TileBackground } from './AppTileVisuals';
 
 const LONG_PRESS_MS = 420;
 
@@ -57,8 +57,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
   forwardedRef,
 ) {
   const reduce = useReducedMotion();
-  const theme = getTileTheme(app.key);
-  const Icon = app.icon;
+  const theme = getTileTheme(app.key, index);
   const longPressTimer = useRef<number | null>(null);
   const longPressFired = useRef(false);
 
@@ -122,6 +121,13 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       }
       className="relative"
     >
+      <svg className="absolute w-0 h-0" aria-hidden="true">
+        <filter id="paper-noise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.15 0" in="noise" result="coloredNoise" />
+          <feBlend in="SourceGraphic" in2="coloredNoise" mode="multiply" />
+        </filter>
+      </svg>
       <button
         ref={(el) => registerRef?.(index, el)}
         type="button"
@@ -140,49 +146,30 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
         className={cn(
-          'app-card group relative w-full text-start overflow-hidden backdrop-blur-md',
+          'app-card group relative w-full text-start overflow-hidden font-amiri',
           theme.bg,
           theme.border,
           theme.glow,
-          'border border-border/40',
+          'border',
           'transition-[transform,border-color,background-color] duration-normal ease-out-expo',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'hover:scale-[1.02]',
           active && 'border-primary/70 bg-accent/40',
-          list ? 'flex items-center gap-3' : 'flex min-h-[124px] flex-col gap-3',
+          list ? 'flex items-center gap-3 p-4' : 'flex min-h-[140px] flex-col justify-between p-4',
         )}
       >
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <TileBackground appKey={app.key} />
         </div>
 
-        {/* Content wrapper with z-10 */}
-        <div className={cn("relative z-10 flex h-full w-full gap-3", list ? "items-center" : "flex-col")}>
+        {/* Paper texture overlay */}
+        <div className="pointer-events-none absolute inset-0 z-10 mix-blend-multiply opacity-40 dark:opacity-20 [filter:url(#paper-noise)]" aria-hidden="true" />
 
-        {/* Editorial index number — gives the neutral grid a typographic
-            anchor without adding colour or ornament. */}
-        {!list && (
-          <span
-            className="pointer-events-none absolute top-3 end-3 text-micro font-semibold tabular-nums text-muted-foreground/45"
-            aria-hidden
-          >
-            {String(index + 1).padStart(2, '0')}
-          </span>
-        )}
+        {/* Content wrapper with z-20 */}
+        <div className={cn("relative z-20 flex h-full w-full", list ? "items-center" : "flex-col justify-between")}>
 
-        <span className="flex items-center gap-3">
-          <span
-            className={cn(
-              'flex h-11 w-11 shrink-0 items-center justify-center rounded-md',
-              'transition-[transform,background-color,color] duration-normal ease-out-expo',
-              'group-hover:scale-105 group-focus-visible:scale-105',
-              active ? 'bg-primary text-primary-foreground' : theme.icon,
-            )}
-          >
-            <Icon className="h-5 w-5" aria-hidden />
-          </span>
-
-          {list && (
+        {list ? (
+          <span className="flex w-full items-center gap-4">
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-2">
                 <span className="truncate text-body font-bold text-foreground drop-shadow-sm">
@@ -194,29 +181,58 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
                 {app.description}
               </span>
             </span>
-          )}
-        </span>
-
-        {!list && (
-          <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-2">
-              <span className="truncate text-body font-bold text-foreground drop-shadow-sm">{app.label}</span>
-              {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
-            </span>
-            <span className="mt-1 block text-mini leading-[1.125rem] text-muted-foreground/90">
-              {app.description}
-            </span>
-            <span className="mt-2 block text-micro font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
-              {app.caption}
+            <span className="flex flex-col items-end gap-1 font-mono text-xs text-muted-foreground/60">
+              <span>Nº {String(index + 1).padStart(4, '0')}</span>
+              <span>EST. 2024</span>
             </span>
           </span>
+        ) : (
+          <>
+            <div className="flex w-full items-start justify-between">
+              <span className="min-w-0 flex-1 pe-4">
+                <span className="flex items-center gap-2">
+                  <span className="truncate text-title font-bold text-foreground drop-shadow-sm">{app.label}</span>
+                  {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
+                </span>
+                <span className="mt-1 block text-mini leading-[1.4] text-muted-foreground/90">
+                  {app.description}
+                </span>
+                <span className="mt-2 block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/70 font-sans">
+                  {app.caption}
+                </span>
+              </span>
+              <div className="flex flex-col items-end gap-1 text-end">
+                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground/60">
+                  Nº {String(index + 1).padStart(4, '0')}
+                </span>
+                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground/60">
+                  EST. 2024
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 flex h-8 w-full items-center justify-between opacity-30 gap-[1px]">
+              <div className="w-[2px] h-full bg-current" />
+              <div className="w-[1px] h-full bg-current" />
+              <div className="w-[3px] h-full bg-current" />
+              <div className="w-[1px] h-full bg-current" />
+              <div className="w-[4px] h-full bg-current" />
+              <div className="w-[1px] h-full bg-current" />
+              <div className="w-[2px] h-full bg-current" />
+              <div className="w-[1px] h-full bg-current" />
+              <div className="w-[3px] h-full bg-current" />
+              <div className="w-[2px] h-full bg-current" />
+              <div className="w-[1px] h-full bg-current" />
+              <div className="w-[5px] h-full bg-current" />
+            </div>
+          </>
         )}
 
         {typeof badge === 'number' && badge > 0 && (
           <span
             className={cn(
               'absolute flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5',
-              'bg-primary text-primary-foreground text-micro font-bold tabular-nums',
+              'bg-primary text-primary-foreground text-xs font-bold tabular-nums',
               list ? 'end-14 top-1/2 -translate-y-1/2' : 'top-3 start-3',
             )}
             aria-label={`${badge} غير مقروء`}
