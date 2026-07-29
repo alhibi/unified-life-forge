@@ -3,6 +3,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { getProfile } from '../wellness/wellnessDb';
 import { insertFitnessActivity, listFitnessActivities } from './api';
 import type { FitnessActivity, MotionState, RoutePoint } from './types';
+import { simplifyRoute } from './routeSimplifier';
 
 // Haversine distance formula in meters
 export function calculateHaversineDistance(p1: { lat: number; lng: number }, p2: { lat: number; lng: number }): number {
@@ -300,6 +301,9 @@ export function useActivityTracking() {
     // Persist activity to Supabase if valid points exist
     if (finalDuration >= 5 && currentRoute.length > 0) {
       try {
+        // Simplify the route points before saving (target: max ~100 points)
+        const simplifiedRoute = simplifyRoute(currentRoute, 100);
+
         await insertFitnessActivity({
           activity_type: activityType,
           source: trackingSource || 'manual',
@@ -309,7 +313,7 @@ export function useActivityTracking() {
           distance_meters: Math.round(finalDistance * 10) / 10,
           calories: finalCalories,
           avg_heart_rate: null,
-          route: currentRoute,
+          route: simplifiedRoute,
         });
         refresh();
       } catch (e) {

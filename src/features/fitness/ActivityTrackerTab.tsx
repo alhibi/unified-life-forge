@@ -21,6 +21,9 @@ import { useActivityTracking, calculateHaversineDistance } from './useActivityTr
 import { deleteFitnessActivity } from './api';
 import type { FitnessActivity, RoutePoint } from './types';
 import { toast } from 'sonner';
+import { RouteThumbnail } from './RouteThumbnail';
+import { FullActivityMap } from './FullActivityMap';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 
 // Minimal custom inline RouteCanvas component
 interface RouteCanvasProps {
@@ -170,6 +173,8 @@ export function RouteCanvas({ route, width = 300, height = 160 }: RouteCanvasPro
 
 export default function ActivityTrackerTab() {
   const { language } = useApp();
+  const [selectedActivity, setSelectedActivity] = useState<FitnessActivity | null>(null);
+
   const {
     activities,
     loading,
@@ -584,8 +589,16 @@ export default function ActivityTrackerTab() {
                   </div>
 
                   {act.route && act.route.length > 0 && (
-                    <div className="overflow-hidden rounded-lg">
-                      <RouteCanvas route={act.route} height={90} />
+                    <div
+                      onClick={() => setSelectedActivity(act)}
+                      className="overflow-hidden rounded-lg cursor-pointer bg-muted/5 border border-border/20 p-2 hover:bg-[#B8492E]/5 hover:border-[#B8492E]/30 transition-colors"
+                      title="عرض الخريطة التفاعلية"
+                    >
+                      <RouteThumbnail route={act.route} height={80} />
+                      <div className="mt-1 flex items-center justify-center gap-1 text-[0.5625rem] text-[#B8492E] font-medium">
+                        <MapPin className="w-3 h-3" />
+                        <span>انقر لعرض الخريطة التفاعلية</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -594,6 +607,82 @@ export default function ActivityTrackerTab() {
           </div>
         )}
       </div>
+
+      {/* Detailed Activity Map Modal/Drawer */}
+      <ResponsiveDrawer
+        open={!!selectedActivity}
+        onOpenChange={(open) => !open && setSelectedActivity(null)}
+        title={
+          selectedActivity
+            ? selectedActivity.activity_type === 'running'
+              ? 'تفاصيل الجري الخارجي'
+              : 'تفاصيل المشي الخارجي'
+            : ''
+        }
+        description={
+          selectedActivity
+            ? new Date(selectedActivity.start_time).toLocaleDateString('ar-SA', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : ''
+        }
+      >
+        {selectedActivity && (
+          <div className="space-y-4">
+            <FullActivityMap activity={selectedActivity} height={300} />
+
+            <div className="grid grid-cols-3 gap-2.5 text-center text-xs border-t border-b border-border/30 py-3 mt-2">
+              <div>
+                <p className="text-[0.625rem] text-muted-foreground mb-0.5">{'المسافة'}</p>
+                <p className="text-[1rem] font-bold text-foreground Montserrat tabular-nums">
+                  {Math.round(((selectedActivity.distance_meters || 0) / 1000) * 100) / 100}{' '}
+                  <span className="text-[0.6875rem] font-medium text-muted-foreground">كم</span>
+                </p>
+              </div>
+              <div>
+                <p className="text-[0.625rem] text-muted-foreground mb-0.5">{'المدة'}</p>
+                <p className="text-[1rem] font-bold text-foreground Montserrat tabular-nums">
+                  {Math.round((selectedActivity.duration_seconds || 0) / 60)}{' '}
+                  <span className="text-[0.6875rem] font-medium text-muted-foreground">دقيقة</span>
+                </p>
+              </div>
+              <div>
+                <p className="text-[0.625rem] text-muted-foreground mb-0.5">{'السعرات المحروقة'}</p>
+                <p className="text-[1rem] font-bold text-foreground Montserrat tabular-nums">
+                  {Math.round(selectedActivity.calories || 0)}{' '}
+                  <span className="text-[0.6875rem] font-medium text-muted-foreground">سعرة</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-muted/10 border border-border/20 rounded-xl p-3 text-[0.6875rem] space-y-1.5 text-muted-foreground">
+              <div className="flex justify-between">
+                <span>{'طريقة التسجيل:'}</span>
+                <span className="font-bold text-foreground">
+                  {selectedActivity.source === 'auto' ? 'تتبع تلقائي بالخلفية' : 'تتبع يدوي'}
+                </span>
+              </div>
+              {selectedActivity.duration_seconds && selectedActivity.distance_meters && (
+                <div className="flex justify-between">
+                  <span>{'معدل السرعة:'}</span>
+                  <span className="font-bold text-foreground Montserrat tabular-nums">
+                    {(
+                      (selectedActivity.distance_meters / selectedActivity.duration_seconds) *
+                      3.6
+                    ).toFixed(1)}{' '}
+                    كم/س
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </ResponsiveDrawer>
 
       {/* Permission Rationale Modal */}
       <AnimatePresence>
