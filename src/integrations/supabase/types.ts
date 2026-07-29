@@ -220,6 +220,93 @@ export type Database = {
         }
         Relationships: []
       }
+      fitness_activities: {
+        Row: {
+          activity_type: string
+          avg_heart_rate: number | null
+          calories: number | null
+          created_at: string | null
+          distance_meters: number | null
+          duration_seconds: number | null
+          end_time: string | null
+          external_id: string | null
+          id: string
+          route: Json | null
+          source: string
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          avg_heart_rate?: number | null
+          calories?: number | null
+          created_at?: string | null
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          end_time?: string | null
+          external_id?: string | null
+          id?: string
+          route?: Json | null
+          source: string
+          start_time: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          avg_heart_rate?: number | null
+          calories?: number | null
+          created_at?: string | null
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          end_time?: string | null
+          external_id?: string | null
+          id?: string
+          route?: Json | null
+          source?: string
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fitness_daily_metrics: {
+        Row: {
+          avg_heart_rate: number | null
+          calories: number | null
+          date: string
+          distance_meters: number | null
+          id: string
+          sleep_minutes: number | null
+          source: string | null
+          steps: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_heart_rate?: number | null
+          calories?: number | null
+          date: string
+          distance_meters?: number | null
+          id?: string
+          sleep_minutes?: number | null
+          source?: string | null
+          steps?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_heart_rate?: number | null
+          calories?: number | null
+          date?: string
+          distance_meters?: number | null
+          id?: string
+          sleep_minutes?: number | null
+          source?: string | null
+          steps?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           content: string
