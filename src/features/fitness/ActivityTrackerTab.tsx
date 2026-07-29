@@ -148,16 +148,6 @@ export default function ActivityTrackerTab() {
       };
     });
 
-    // Baseline background steps (represents daily background activity)
-    const stepsSeed = [6420, 7150, 5890, 8240, 9110, 7430, 8310];
-    const calSeed = [230, 260, 210, 290, 310, 250, 280];
-
-    daysData.forEach((day, idx) => {
-      // Seed general background daily steps
-      day.steps = stepsSeed[idx % stepsSeed.length];
-      day.calories = calSeed[idx % calSeed.length];
-    });
-
     // Overlay actual GPS track steps and calories on top of daily baseline
     activities.forEach((act) => {
       const actDate = act.start_time.substring(0, 10);
@@ -179,10 +169,10 @@ export default function ActivityTrackerTab() {
     const todayStr = new Date().toISOString().substring(0, 10);
 
     // Default high-precision baseline values for general physical life
-    let steps = 8432;
-    let distanceKm = 5.8;
-    let calories = 342;
-    let heartRate = 72;
+    let steps = 0;
+    let distanceKm = 0;
+    let calories = 0;
+    let heartRate = 0;
 
     // Filter sessions recorded today
     const todayActivities = activities.filter(
@@ -197,9 +187,18 @@ export default function ActivityTrackerTab() {
       distanceKm = Math.round((distanceKm + sessionDist / 1000) * 10) / 10;
       calories = Math.round(calories + sessionCals);
 
-      // Compute weighted average heart rate if registered, fallback to standard active values
-      const hrSum = todayActivities.reduce((sum, a) => sum + (a.avg_heart_rate || 125), 0);
-      heartRate = Math.round((heartRate + hrSum) / (todayActivities.length + 1));
+      // Compute weighted average heart rate if registered, ignore missing values
+      let validHrCount = 0;
+      const hrSum = todayActivities.reduce((sum, a) => {
+        if (a.avg_heart_rate) {
+          validHrCount++;
+          return sum + a.avg_heart_rate;
+        }
+        return sum;
+      }, 0);
+      if (validHrCount > 0) {
+        heartRate = Math.round(hrSum / validHrCount);
+      }
     }
 
     return { steps, distanceKm, calories, heartRate };
@@ -385,7 +384,7 @@ export default function ActivityTrackerTab() {
               <div className="border-r border-border/30 px-3 py-1 col-span-2 md:col-span-1">
                 <span className="text-[0.5625rem] text-muted-foreground/80 block">نبضات القلب</span>
                 <span className="text-xl font-bold text-foreground Montserrat tabular-nums leading-none">
-                  {selectedActivity.avg_heart_rate || 135}
+                  {selectedActivity.avg_heart_rate || '--'}
                   <span className="text-[0.625rem] font-normal text-muted-foreground ms-1">ن/د</span>
                 </span>
               </div>
