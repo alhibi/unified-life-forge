@@ -24,6 +24,7 @@ import {
 
 import { deleteFitnessActivity, insertFitnessActivity } from './api';
 import { FullActivityMap } from './FullActivityMap';
+import { HealthConnectCard } from './HealthConnectCard';
 import { RouteThumbnail } from './RouteThumbnail';
 import type { FitnessActivity, RoutePoint } from './types';
 import { estimateCalories,useActivityTracking } from './useActivityTracking';
@@ -425,6 +426,9 @@ export default function ActivityTrackerTab() {
             exit={{ opacity: 0, y: -6 }}
             className="space-y-6"
           >
+            {/* Health Connect / HealthKit sync */}
+            <HealthConnectCard onSynced={refresh} />
+
             {/* Header Summary: Restrained Typographic Stat Blocks (No heavy icon-cards) */}
             <div className="flex flex-col space-y-4">
               <div className="grid grid-cols-4 gap-2 border-b border-border/30 pb-4">

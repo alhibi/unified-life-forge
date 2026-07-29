@@ -1,11 +1,13 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "vite_react_shadcn_ts",
       "dependencies": {
         "@capacitor/core": "^8.4.2",
         "@capacitor/geolocation": "^8.2.0",
+        "@capgo/capacitor-health": "^8.10.0",
         "@emoji-mart/data": "^1.2.1",
         "@emoji-mart/react": "^1.1.1",
         "@fontsource/cormorant-garamond": "^5.2.11",
@@ -167,6 +169,8 @@
     "@capacitor/geolocation": ["@capacitor/geolocation@8.2.0", "", { "dependencies": { "@capacitor/synapse": "^1.0.4" }, "peerDependencies": { "@capacitor/core": ">=8.0.0" } }, "sha512-N29QcoIPmme0xSxRkm7+3hjoHp6mBAOarxecvtCCZKyOBeKiJsFUq981cezg2XWBa6fhCXJMCCjQPngKK/dIag=="],
 
     "@capacitor/synapse": ["@capacitor/synapse@1.0.4", "", {}, "sha512-/C1FUo8/OkKuAT4nCIu/34ny9siNHr9qtFezu4kxm6GY1wNFxrCFWjfYx5C1tUhVGz3fxBABegupkpjXvjCHrw=="],
+
+    "@capgo/capacitor-health": ["@capgo/capacitor-health@8.10.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@capgo/capacitor-health/-/capacitor-health-8.10.0.tgz", { "peerDependencies": { "@capacitor/core": ">=8.0.0" } }, "sha512-H5EY+D8zSoZi7DpHaXrMS/hZKzMFZEzesFBjs+k9kUMHbemU/uya2xbEQKwy/ZdHaeiBNuBASpHyWshifv4adw=="],
 
     "@dimforge/rapier3d-compat": ["@dimforge/rapier3d-compat@0.12.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@dimforge/rapier3d-compat/-/rapier3d-compat-0.12.0.tgz", {}, "sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow=="],
 
