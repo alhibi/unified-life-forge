@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import { getProfile } from '../wellness/wellnessDb';
 import { insertFitnessActivity, listDailyMetrics, listFitnessActivities } from './api';
