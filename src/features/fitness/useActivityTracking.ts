@@ -205,160 +205,256 @@ export function useActivityTracking() {
     } catch { /* noop */ }
   }, []);
 
-  // --- Core Tracking Start & Stop Logic ---
+  // --- Core Tracking Engine (Kalman filtered, auto-pause aware) ---
 
-  // Starts a GPS tracking session (manual or auto)
-  const startTracking = useCallback(async (source: 'auto' | 'manual', forceType?: 'walking' | 'running') => {
-    if (isTrackingRef.current) return;
-
-    // Reset session states
-    const startTs = Date.now();
-    setStartTime(startTs);
-    setRoute([]);
-    setDistanceMeters(0);
-    setCalories(0);
-    setDurationSeconds(0);
-    setTrackingSource(source);
-    setIsTracking(true);
-    setActivityType(forceType || (motionStateRef.current === 'running' ? 'running' : 'walking'));
-
-    // Reset inactivity counter
-    setSecondsInactive(0);
-
-    // Initial location grab
-    let startPoint: RoutePoint | null = null;
-    try {
-      const pos = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 5000,
-      });
-      startPoint = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        timestamp: pos.timestamp || Date.now(),
-      };
-      setRoute([startPoint]);
-    } catch {
-      // Mock initial point if location fails (especially on web desktop or offline)
-      startPoint = {
-        lat: 24.7136, // Riyadh
-        lng: 46.6753,
-        timestamp: Date.now(),
-      };
-      setRoute([startPoint]);
-    }
-
-    // High frequency point-sampling interval (every 3 seconds)
-    const samplingInterval = 3000;
-    gpsTimerRef.current = setInterval(async () => {
+  /**
+   * Ingests one raw GPS fix: filters noise, accumulates distance, moving time,
+   * calories, elevation and manages auto-pause. Runs off refs (no re-render).
+   */
+  const ingestFix = useCallback(
+    (raw: { lat: number; lng: number; timestamp: number; acc?: number; alt?: number }, simulated = false) => {
+      const session = sessionRef.current;
       if (!isTrackingRef.current) return;
 
-      const duration = Math.round((Date.now() - startTs) / 1000);
-      setDurationSeconds(duration);
+      const accuracy = raw.acc ?? (simulated ? 5 : 999);
+      if (!simulated && accuracy > MAX_ACCURACY_METERS) return; // too noisy to trust
 
-      let nextPoint: RoutePoint;
-      if (isSimulated) {
-        // Generate continuous simulated route points for high-fidelity visualization
-        const last = routeRef.current[routeRef.current.length - 1] || startPoint;
-        const speed = motionStateRef.current === 'running' ? 0.0003 : 0.0001; // lat/lng change per tick
-        // Create an organic curve shape
-        const angle = duration * 0.05;
-        nextPoint = {
-          lat: last.lat + speed * Math.cos(angle) * simulatedSpeedMultiplier,
-          lng: last.lng + speed * Math.sin(angle) * simulatedSpeedMultiplier,
-          timestamp: Date.now(),
-        };
-      } else {
+      const filtered = simulated
+        ? { lat: raw.lat, lng: raw.lng, accuracy }
+        : kalmanRef.current.process(raw.lat, raw.lng, accuracy, raw.timestamp);
+
+      const point: RoutePoint = {
+        lat: filtered.lat,
+        lng: filtered.lng,
+        timestamp: raw.timestamp,
+        ...(typeof raw.alt === 'number' ? { alt: Math.round(raw.alt * 10) / 10 } : {}),
+        acc: Math.round(filtered.accuracy),
+      };
+
+      const previous = routeRef.current[routeRef.current.length - 1];
+
+      if (!previous) {
+        routeRef.current = [point];
+        session.lastFixTs = raw.timestamp;
+        return;
+      }
+
+      const dtSeconds = Math.max(0, (raw.timestamp - previous.timestamp) / 1000);
+      const stepMeters = haversine(previous, point);
+      const speed = dtSeconds > 0 ? stepMeters / dtSeconds : 0;
+
+      // Outlier rejection: teleports and static drift are discarded.
+      if (!simulated && (speed > MAX_SPEED_MPS || stepMeters < MIN_STEP_METERS)) {
+        speedWindowRef.current.push(0);
+        if (speedWindowRef.current.length > 5) speedWindowRef.current.shift();
+        session.lastFixTs = raw.timestamp;
+        return;
+      }
+
+      speedWindowRef.current.push(speed);
+      if (speedWindowRef.current.length > 5) speedWindowRef.current.shift();
+
+      routeRef.current = [...routeRef.current, point];
+      session.lastFixTs = raw.timestamp;
+
+      if (!session.paused && !session.manualPaused) {
+        session.distance += stepMeters;
+        session.movingMs += dtSeconds * 1000;
+        session.calories += caloriesForSlice(speed, dtSeconds, weightRef.current);
+      }
+    },
+    []
+  );
+
+  /** Starts a GPS tracking session (manual or auto). */
+  const startTracking = useCallback(
+    async (source: 'auto' | 'manual', forceType?: 'walking' | 'running') => {
+      if (isTrackingRef.current) return;
+
+      const startTs = Date.now();
+      sessionRef.current = {
+        startTs,
+        distance: 0,
+        calories: 0,
+        movingMs: 0,
+        stillSeconds: 0,
+        paused: false,
+        manualPaused: false,
+        lastFixTs: 0,
+      };
+      kalmanRef.current.reset();
+      speedWindowRef.current = [];
+      routeRef.current = [];
+
+      setStartTime(startTs);
+      setRoute([]);
+      setDistanceMeters(0);
+      setCalories(0);
+      setDurationSeconds(0);
+      setSplits([]);
+      setElevationGain(0);
+      setIsPaused(false);
+      setAutoPaused(false);
+      setCurrentSpeedMps(0);
+      setGpsAccuracy(null);
+      setTrackingSource(source);
+      setSecondsInactive(0);
+      setActivityType(forceType || (motionStateRef.current === 'running' ? 'running' : 'walking'));
+      setIsTracking(true);
+      isTrackingRef.current = true;
+
+      if (!isSimulatedRef.current) {
+        // Seed the first fix, then hand over to a continuous OS-level watch:
+        // event-driven updates are far cheaper and more accurate than polling.
         try {
-          const pos = await Geolocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 3000,
-          });
-          nextPoint = {
+          const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 8000 });
+          ingestFix({
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
             timestamp: pos.timestamp || Date.now(),
-          };
+            acc: pos.coords.accuracy,
+            alt: pos.coords.altitude ?? undefined,
+          });
         } catch {
-          // Graceful fallback for simulator when GPS drops
-          const last = routeRef.current[routeRef.current.length - 1] || startPoint;
-          nextPoint = {
-            lat: last!.lat + 0.00002,
-            lng: last!.lng + 0.00002,
-            timestamp: Date.now(),
-          };
+          /* the watch below may still deliver fixes */
         }
+
+        try {
+          watchIdRef.current = await Geolocation.watchPosition(
+            { enableHighAccuracy: true, timeout: 20000 },
+            (pos, err) => {
+              if (err || !pos) return;
+              ingestFix({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                timestamp: pos.timestamp || Date.now(),
+                acc: pos.coords.accuracy,
+                alt: pos.coords.altitude ?? undefined,
+              });
+            }
+          );
+        } catch (e) {
+          console.error('Unable to start GPS watch:', e);
+        }
+      } else {
+        // Simulation seeds a deterministic starting point (Riyadh).
+        ingestFix({ lat: 24.7136, lng: 46.6753, timestamp: startTs, acc: 5, alt: 612 }, true);
       }
 
-      setRoute((prev) => {
-        let isValidPoint = true;
-        let distSinceLast = 0;
+      // Single 1 Hz publisher: derives all live UI metrics from refs.
+      gpsTimerRef.current = setInterval(() => {
+        if (!isTrackingRef.current) return;
+        const session = sessionRef.current;
 
-        if (prev.length > 0) {
-          const lastPoint = prev[prev.length - 1];
-          distSinceLast = calculateHaversineDistance(lastPoint, nextPoint);
-
-          // Noise Filtering: Reject points that are < 1m (static drift) or impossibly fast (> 15 m/s)
-          // (assuming ~3s sampling, 15 m/s * 3s = 45m max realistic jump)
-          const timeDiffSecs = (nextPoint.timestamp - lastPoint.timestamp) / 1000;
-          const speed = timeDiffSecs > 0 ? distSinceLast / timeDiffSecs : 0;
-
-          if (!isSimulated) {
-             if (distSinceLast < 1 || speed > 15) {
-               isValidPoint = false;
-             }
+        if (isSimulatedRef.current) {
+          const last = routeRef.current[routeRef.current.length - 1];
+          const step = motionStateRef.current === 'running' ? 0.00006 : 0.000022;
+          const angle = (Date.now() - session.startTs) / 8000;
+          if (last) {
+            ingestFix(
+              {
+                lat: last.lat + step * Math.cos(angle) * simulatedSpeedRef.current,
+                lng: last.lng + step * Math.sin(angle) * simulatedSpeedRef.current,
+                timestamp: Date.now(),
+                acc: 5,
+                alt: (last.alt ?? 612) + Math.sin(angle * 3) * 0.8,
+              },
+              true
+            );
           }
         }
 
-        if (isValidPoint) {
-           const updated = [...prev, nextPoint];
-           setDistanceMeters((prevDist) => prevDist + distSinceLast);
+        // Rolling speed (smoothed) + stale-fix decay
+        const window = speedWindowRef.current;
+        const staleFix = session.lastFixTs > 0 && Date.now() - session.lastFixTs > 8000;
+        const smoothed = staleFix
+          ? 0
+          : window.length
+            ? window.reduce((sum, v) => sum + v, 0) / window.length
+            : 0;
 
-           // Live MET-based Calories burn calculation
-           const activeType = motionStateRef.current === 'running' ? 'running' : 'walking';
-           setCalories(estimateCalories(activeType, duration, userWeight));
-
-           return updated;
+        // Auto-pause / auto-resume
+        if (!session.manualPaused) {
+          if (smoothed < PAUSE_SPEED_MPS) {
+            session.stillSeconds += 1;
+            if (!session.paused && session.stillSeconds >= AUTO_PAUSE_AFTER_SECONDS) {
+              session.paused = true;
+              setAutoPaused(true);
+              setIsPaused(true);
+            }
+          } else {
+            session.stillSeconds = 0;
+            if (session.paused && smoothed > RESUME_SPEED_MPS) {
+              session.paused = false;
+              setAutoPaused(false);
+              setIsPaused(false);
+            }
+          }
         }
 
-        return prev;
-      });
+        if (!session.paused && !session.manualPaused) {
+          // Moving time is authoritative; stationary seconds never inflate it.
+          setDurationSeconds(Math.round(session.movingMs / 1000) || Math.round((Date.now() - session.startTs) / 1000));
+        }
 
-    }, samplingInterval);
+        setRoute(routeRef.current);
+        setDistanceMeters(session.distance);
+        setCalories(Math.round(session.calories * 10) / 10);
+        setCurrentSpeedMps(Math.round(smoothed * 100) / 100);
+        const lastPoint = routeRef.current[routeRef.current.length - 1];
+        setGpsAccuracy(lastPoint?.acc ?? null);
+        setSplits(computeSplits(routeRef.current));
+        setElevationGain(elevationProfile(routeRef.current).gain);
+      }, 1000);
+    },
+    [ingestFix]
+  );
 
-  }, [isSimulated, simulatedSpeedMultiplier, userWeight]);
+  /** Manually pause / resume the running session. */
+  const togglePause = useCallback(() => {
+    const session = sessionRef.current;
+    session.manualPaused = !session.manualPaused;
+    session.paused = session.manualPaused;
+    session.stillSeconds = 0;
+    setAutoPaused(false);
+    setIsPaused(session.manualPaused);
+  }, []);
 
-  // Ends a GPS tracking session, saves metrics to DB, clears interval
+  /** Ends the session, persists it to the cloud, and releases all sensors. */
   const stopTracking = useCallback(async () => {
     if (!isTrackingRef.current) return;
+    isTrackingRef.current = false;
 
-    // Clear GPS watch timer
     if (gpsTimerRef.current) {
       clearInterval(gpsTimerRef.current);
       gpsTimerRef.current = null;
     }
-
-    const currentRoute = routeRef.current;
-    const finalDuration = Math.round((Date.now() - (startTime || Date.now())) / 1000);
-
-    // Calculate final distance
-    let finalDistance = 0;
-    for (let i = 0; i < currentRoute.length - 1; i++) {
-      finalDistance += calculateHaversineDistance(currentRoute[i], currentRoute[i + 1]);
+    if (watchIdRef.current) {
+      try {
+        await Geolocation.clearWatch({ id: watchIdRef.current });
+      } catch { /* noop */ }
+      watchIdRef.current = null;
     }
 
-    const finalCalories = estimateCalories(activityType, finalDuration, userWeight);
+    const session = sessionRef.current;
+    const currentRoute = routeRef.current;
+    const movingSeconds = Math.round(session.movingMs / 1000);
+    const elapsedSeconds = Math.round((Date.now() - session.startTs) / 1000);
+    const finalDuration = movingSeconds > 0 ? movingSeconds : elapsedSeconds;
+    const finalDistance = session.distance;
+    const finalCalories =
+      session.calories > 0
+        ? Math.round(session.calories * 10) / 10
+        : estimateCalories(activityTypeRef.current, finalDuration, weightRef.current);
 
-    // Persist activity to Supabase if valid points exist
-    if (finalDuration >= 5 && currentRoute.length > 0) {
+    // Persist only meaningful sessions (>= 10s of movement and real distance).
+    if (finalDuration >= 10 && finalDistance >= 20 && currentRoute.length > 1) {
       try {
-        // Simplify the route points before saving (target: max ~100 points)
-        const simplifiedRoute = simplifyRoute(currentRoute, 100);
-
+        const simplifiedRoute = simplifyRoute(currentRoute, 150);
         await insertFitnessActivity({
-          activity_type: activityType,
-          source: trackingSource || 'manual',
-          start_time: new Date(startTime || Date.now()).toISOString(),
+          activity_type: activityTypeRef.current,
+          source: trackingSourceRef.current || 'manual',
+          start_time: new Date(session.startTs).toISOString(),
           end_time: new Date().toISOString(),
           duration_seconds: finalDuration,
           distance_meters: Math.round(finalDistance * 10) / 10,
@@ -372,11 +468,13 @@ export function useActivityTracking() {
       }
     }
 
-    // Reset state
     setIsTracking(false);
     setTrackingSource(null);
     setStartTime(null);
-  }, [activityType, startTime, trackingSource, userWeight, refresh]);
+    setIsPaused(false);
+    setAutoPaused(false);
+    setCurrentSpeedMps(0);
+  }, [refresh]);
 
   // --- Motion Detection Engine ---
 
