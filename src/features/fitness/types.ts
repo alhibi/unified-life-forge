@@ -6,10 +6,23 @@ export interface RoutePoint {
   lat: number;
   lng: number;
   timestamp: number;
+  /** Altitude in meters, when the device reports it. */
+  alt?: number;
+  /** Horizontal accuracy in meters, when reported. */
+  acc?: number;
 }
 
 export type ActivitySource = 'auto' | 'manual';
 export type MotionState = 'resting' | 'walking' | 'running';
+
+/** One fixed-distance segment of a recorded route. */
+export interface TrackSplit {
+  index: number;
+  distanceMeters: number;
+  seconds: number;
+  paceSecPerKm: number;
+  partial: boolean;
+}
 
 export interface FitnessActivity {
   id: string;
