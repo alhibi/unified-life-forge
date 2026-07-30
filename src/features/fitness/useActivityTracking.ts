@@ -632,6 +632,7 @@ export function useActivityTracking() {
 
   return {
     activities,
+    dailyMetrics,
     loading,
     permissionState,
     isTracking,
@@ -642,6 +643,15 @@ export function useActivityTracking() {
     distanceMeters,
     calories,
     durationSeconds,
+    isPaused,
+    autoPaused,
+    currentSpeedMps,
+    currentPaceSecPerKm: speedToPace(currentSpeedMps),
+    avgPaceSecPerKm: distanceMeters > 50 && durationSeconds > 0 ? (durationSeconds / distanceMeters) * 1000 : 0,
+    gpsAccuracy,
+    splits,
+    elevationGain,
+    togglePause,
     autoDetectEnabled,
     motionState,
     accelMagnitude,
