@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { fitnessActivitySchema } from './schemas';
 import type { FitnessActivity } from './types';
+import type { DailyMetric } from './stats';
 
 // Use type assertion to bypass strict table name checking in generated types
 const client = supabase as any;
@@ -88,4 +89,34 @@ export async function deleteFitnessActivity(id: string): Promise<void> {
     console.error('Failed to delete fitness activity:', error);
     throw error;
   }
+}
+
+/**
+ * Lists daily health metrics (steps, distance, calories, heart rate, sleep)
+ * for the last `days` days, oldest first. Used by the analytics dashboard.
+ */
+export async function listDailyMetrics(days = 90): Promise<DailyMetric[]> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user?.id;
+  if (!userId) return [];
+
+  const since = new Date();
+  since.setDate(since.getDate() - Math.max(1, days));
+  const month = String(since.getMonth() + 1).padStart(2, '0');
+  const day = String(since.getDate()).padStart(2, '0');
+  const sinceKey = `${since.getFullYear()}-${month}-${day}`;
+
+  const { data, error } = await client
+    .from('fitness_daily_metrics')
+    .select('date, steps, distance_meters, calories, avg_heart_rate, sleep_minutes')
+    .eq('user_id', userId)
+    .gte('date', sinceKey)
+    .order('date', { ascending: true });
+
+  if (error) {
+    console.error('Failed to list daily fitness metrics:', error);
+    return [];
+  }
+
+  return (data || []) as DailyMetric[];
 }
