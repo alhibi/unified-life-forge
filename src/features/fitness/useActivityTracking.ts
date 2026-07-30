@@ -119,11 +119,25 @@ export function useActivityTracking() {
   // Sync refs with state to avoid closure issues in callbacks
   useEffect(() => {
     isTrackingRef.current = isTracking;
-    routeRef.current = route;
     motionStateRef.current = motionState;
     secondsSustainedRef.current = secondsSustained;
     secondsInactiveRef.current = secondsInactive;
-  }, [isTracking, route, motionState, secondsSustained, secondsInactive]);
+  }, [isTracking, motionState, secondsSustained, secondsInactive]);
+
+  // Mirrors of values the engine reads inside timers/callbacks (no stale closures)
+  const weightRef = useRef(userWeight);
+  const activityTypeRef = useRef<'walking' | 'running'>(activityType);
+  const trackingSourceRef = useRef<'auto' | 'manual' | null>(trackingSource);
+  const isSimulatedRef = useRef(isSimulated);
+  const simulatedSpeedRef = useRef(simulatedSpeedMultiplier);
+
+  useEffect(() => {
+    weightRef.current = userWeight;
+    activityTypeRef.current = activityType;
+    trackingSourceRef.current = trackingSource;
+    isSimulatedRef.current = isSimulated;
+    simulatedSpeedRef.current = simulatedSpeedMultiplier;
+  }, [userWeight, activityType, trackingSource, isSimulated, simulatedSpeedMultiplier]);
 
   // Load activities, device daily metrics and the athlete profile
   const refresh = useCallback(async () => {
