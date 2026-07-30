@@ -1,24 +1,34 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import { getProfile } from '../wellness/wellnessDb';
-import { insertFitnessActivity, listFitnessActivities } from './api';
-import type { FitnessActivity, MotionState, RoutePoint } from './types';
+import { insertFitnessActivity, listDailyMetrics, listFitnessActivities } from './api';
+import type { FitnessActivity, MotionState, RoutePoint, TrackSplit } from './types';
+import type { DailyMetric } from './stats';
 import { simplifyRoute } from './routeSimplifier';
+import {
+  GeoKalmanFilter,
+  caloriesForSlice,
+  computeSplits,
+  elevationProfile,
+  haversine,
+  speedToPace,
+} from './metrics';
 
-// Haversine distance formula in meters
-export function calculateHaversineDistance(p1: { lat: number; lng: number }, p2: { lat: number; lng: number }): number {
-  const R = 6371000; // Earth's radius in meters
-  const dLat = ((p2.lat - p1.lat) * Math.PI) / 180;
-  const dLng = ((p2.lng - p1.lng) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((p1.lat * Math.PI) / 180) *
-      Math.cos((p2.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+/** Haversine distance formula in meters (kept as the public engine helper). */
+export const calculateHaversineDistance = haversine;
+
+/** Reject fixes noisier than this (meters of horizontal accuracy). */
+const MAX_ACCURACY_METERS = 35;
+/** Minimum accepted movement between fixes — anything smaller is GPS drift. */
+const MIN_STEP_METERS = 2.5;
+/** Physically impossible sprint speed for a human on foot (m/s). */
+const MAX_SPEED_MPS = 12;
+/** Speed below which we consider the athlete stopped (m/s). */
+const PAUSE_SPEED_MPS = 0.5;
+/** Speed at which an auto-paused session resumes (m/s). */
+const RESUME_SPEED_MPS = 0.9;
+/** Sustained stillness before auto-pause kicks in (seconds). */
+const AUTO_PAUSE_AFTER_SECONDS = 12;
 
 // MET values for basic activities
 export const MET_VALUES = {
@@ -40,6 +50,7 @@ export function estimateCalories(
 
 export function useActivityTracking() {
   const [activities, setActivities] = useState<FitnessActivity[]>([]);
+  const [dailyMetrics, setDailyMetrics] = useState<DailyMetric[]>([]);
   const [loading, setLoading] = useState(true);
   const [permissionState, setPermissionState] = useState<string>('prompt');
 
@@ -52,6 +63,14 @@ export function useActivityTracking() {
   const [distanceMeters, setDistanceMeters] = useState(0);
   const [calories, setCalories] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(0);
+
+  // Precision metrics
+  const [isPaused, setIsPaused] = useState(false);
+  const [autoPaused, setAutoPaused] = useState(false);
+  const [currentSpeedMps, setCurrentSpeedMps] = useState(0);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
+  const [splits, setSplits] = useState<TrackSplit[]>([]);
+  const [elevationGain, setElevationGain] = useState(0);
 
   // Background Auto-Detection Settings
   const [autoDetectEnabled, setAutoDetectEnabled] = useState(() => {
@@ -84,6 +103,18 @@ export function useActivityTracking() {
   const secondsInactiveRef = useRef(0);
   const gpsTimerRef = useRef<any>(null);
   const motionTimerRef = useRef<any>(null);
+  const kalmanRef = useRef<GeoKalmanFilter>(new GeoKalmanFilter());
+  const speedWindowRef = useRef<number[]>([]);
+  const sessionRef = useRef({
+    startTs: 0,
+    distance: 0,
+    calories: 0,
+    movingMs: 0,
+    stillSeconds: 0,
+    paused: false,
+    manualPaused: false,
+    lastFixTs: 0,
+  });
 
   // Sync refs with state to avoid closure issues in callbacks
   useEffect(() => {
@@ -94,15 +125,17 @@ export function useActivityTracking() {
     secondsInactiveRef.current = secondsInactive;
   }, [isTracking, route, motionState, secondsSustained, secondsInactive]);
 
-  // Load activities and user profile
+  // Load activities, device daily metrics and the athlete profile
   const refresh = useCallback(async () => {
     try {
       setLoading(true);
-      const [list, profile] = await Promise.all([
+      const [list, metrics, profile] = await Promise.all([
         listFitnessActivities(),
+        listDailyMetrics(120),
         getProfile(),
       ]);
       setActivities(list);
+      setDailyMetrics(metrics);
       if (profile && profile.weightKg) {
         setUserWeight(profile.weightKg);
       }
