@@ -22,6 +22,10 @@
  * Returns a debounced version of `fn` that delays execution by `ms`.
  * Includes a `.flush()` method to immediately invoke the pending call.
  */
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('chat:perf');
+
 export function debounce<T extends (...args: any[]) => any>(
   fn: T,
   ms: number,
@@ -119,7 +123,7 @@ function _flushIdleQueue(deadline?: IdleDeadline): void {
 
   while (_idleQueue.length > 0 && hasTime()) {
     const task = _idleQueue.shift()!;
-    try { task(); } catch (e) { console.warn('[chat/perf] idle task error:', e); }
+    try { task(); } catch (e) { log.warn('idle task error', e); }
   }
 
   // If there are remaining tasks, reschedule

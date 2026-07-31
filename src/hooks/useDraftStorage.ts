@@ -13,6 +13,9 @@
 import { useCallback,useEffect, useState } from 'react';
 
 import { createDraftStorage, type DraftConfig } from '@/lib/draftStorage';
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('drafts');
 
 export function useDraftStorage<T>(
   key: string,
@@ -61,7 +64,7 @@ export function useDraftStorage<T>(
 
         return result;
       } catch (err) {
-        console.error('Draft submission failed:', err);
+        log.error('Draft submission failed', err);
         throw err;
       } finally {
         setIsLoading(false);

@@ -53,6 +53,10 @@ function loadCompressor(): Promise<ImageCompressionFn> {
 }
 
 /** Threshold below which we skip compression entirely. */
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('chat:compress');
+
 const COMPRESS_THRESHOLD_BYTES = 256 * 1024; // 256 KB
 
 /** Hard cap on the long edge of the compressed full-size image. */
@@ -147,7 +151,7 @@ export async function compressForChat(file: File): Promise<CompressedImage> {
       initialQuality: 0.82,
     });
   } catch (err) {
-    console.warn('[chat/compress] full-size compression failed', err);
+    log.warn('full-size compression failed', err);
     return fallback;
   }
 
@@ -171,7 +175,7 @@ export async function compressForChat(file: File): Promise<CompressedImage> {
     }
   } catch (err) {
     // Thumbnail failure is non-fatal — we just won't have a placeholder.
-    console.warn('[chat/compress] thumbnail generation failed', err);
+    log.warn('thumbnail generation failed', err);
   }
 
   // ── Read dimensions + dominant colour ─────────────────────────────────────
@@ -186,7 +190,7 @@ export async function compressForChat(file: File): Promise<CompressedImage> {
       dominantColor = await sampleDominantColor(thumbnail).catch(() => dominantColor);
     }
   } catch (err) {
-    console.warn('[chat/compress] post-compress probe failed', err);
+    log.warn('post-compress probe failed', err);
   }
 
   // Wrap the compressed Blob back into a File so downstream code (which

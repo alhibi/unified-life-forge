@@ -2,6 +2,9 @@ import React, { createContext, useCallback, useContext, useRef,useState } from '
 
 import { supabase } from '@/integrations/supabase/client';
 import { compressionSaving, type PreparedAsset,prepareImageForChat } from '@/lib/chat/mediaPipeline';
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('image-upload');
 
 export interface PendingUpload {
   tempId: string;
@@ -208,7 +211,7 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       const storagePath = await uploadPromise;
       const ratio = compressionSaving({ originalBytes, file: asset.file });
       if (ratio > 0) {
-        console.info(`[image-upload] compressed ${ratio}% (${originalBytes} → ${asset.file.size} bytes)`);
+        log.info(`compressed ${ratio}% (${originalBytes} → ${asset.file.size} bytes)`);
       }
       setUploads(prev => prev.map(u => u.tempId === tempId
         ? { ...u, status: 'done', progress: 100, storagePath, errorMessage: undefined }

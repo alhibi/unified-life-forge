@@ -12,10 +12,31 @@ export { scrubVerboseDetails };
 interface Props {
   children: ReactNode;
   fallbackTitle?: string;
+  /**
+   * Values that, when any of them changes, clear the error and re-render the
+   * children.
+   *
+   * Without this, a boundary that caught once stayed broken: `hasError` only
+   * cleared when the user pressed "إعادة المحاولة", so navigating away from a
+   * failing route and back again — or fixing the input that caused the throw —
+   * still showed the fallback. `RouteErrorBoundary` below passes the router
+   * location, which is the reset key that matters for a per-route boundary.
+   */
+  resetKeys?: readonly unknown[];
+  /**
+   * Where "الرئيسية" should go. Provided by `RouteErrorBoundary` so the button
+   * performs a client-side navigation; omitted for the boundary that sits outside
+   * the router, which has no other option than a document load.
+   */
+  onNavigateHome?: () => void;
 }
 
 interface State {
   hasError: boolean;
+}
+
+function keysChanged(a: readonly unknown[] = [], b: readonly unknown[] = []): boolean {
+  return a.length !== b.length || a.some((value, i) => !Object.is(value, b[i]));
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
@@ -23,6 +44,12 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(): State {
     return { hasError: true };
+  }
+
+  componentDidUpdate(prev: Props) {
+    if (this.state.hasError && keysChanged(prev.resetKeys, this.props.resetKeys)) {
+      this.setState({ hasError: false });
+    }
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
@@ -48,7 +75,15 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   handleGoHome = () => {
     this.setState({ hasError: false });
-    window.location.href = '/';
+    if (this.props.onNavigateHome) {
+      // A client-side navigation. The previous unconditional
+      // `window.location.href = '/'` threw away the whole JS heap, the React
+      // Query cache and the service worker's warm state to recover from a
+      // component-level error — a full cold start as the routine repair action.
+      this.props.onNavigateHome();
+      return;
+    }
+    window.location.assign('/');
   };
 
   render() {

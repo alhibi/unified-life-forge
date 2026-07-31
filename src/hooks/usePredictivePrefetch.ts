@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 
+import { logger } from '@/lib/logger';
 import { prefetchRoute } from '@/lib/routePrefetch';
+
+const log = logger.scope('prefetch');
 
 interface PointerState {
   x: number;
@@ -83,7 +86,7 @@ export function usePredictivePrefetch() {
             if (path && !prefetchedPaths.current.has(path)) {
               prefetchedPaths.current.add(path);
               prefetchRoute(path);
-              console.debug(`[Predictive Prefetch Engine] Warming up intended route: "${path}"`);
+              log.debug(`Warming up intended route: "${path}"`);
             }
           }
         });
@@ -112,7 +115,7 @@ export function usePredictivePrefetch() {
         if (path && !prefetchedPaths.current.has(path)) {
           prefetchedPaths.current.add(path);
           prefetchRoute(path);
-          console.debug(`[Predictive Touch Engine] Mobile warming: "${path}"`);
+          log.debug(`Mobile warming: "${path}"`);
         }
       }
     };

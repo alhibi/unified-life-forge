@@ -7,6 +7,10 @@
 import { useCallback,useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('network');
+
 export interface NetworkStatus {
   isOnline: boolean;
   lastChange: Date | null;
@@ -207,12 +211,12 @@ export function useOfflineStorage<T>(
       // This is a placeholder - the actual execution logic should be provided
       await Promise.all(queue.map(async (item) => {
         // TODO: Add execution logic here
-        console.log('Executing queued item:', item);
+        log.debug('Executing queued item', item);
       }));
 
       clearQueue();
     } catch (error) {
-      console.error('Failed to execute queue:', error);
+      log.error('Failed to execute queue', error);
     }
   }, [isOnline, queue]);
 

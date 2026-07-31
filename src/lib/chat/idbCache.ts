@@ -29,7 +29,11 @@
 //   treat the cache as a hint, never as authoritative state.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { logger } from '@/lib/logger';
+
 import type { ChatMessage, ChatSummary } from './types';
+
+const log = logger.scope('chat:idb');
 
 const DB_NAME    = 'smarthub-chat';
 const DB_VERSION = 1;
@@ -97,7 +101,7 @@ function openDb(): Promise<IDBDatabase> {
         recoveryAttempted = true;
         dbPromise = null;
         // Likely a partial upgrade or a corrupted page — wipe and reopen.
-        console.warn('[chat/idb] open failed, attempting recovery', err);
+        log.warn('open failed, attempting recovery', err);
         try {
           const del = indexedDB.deleteDatabase(DB_NAME);
           del.onsuccess = () => resolve(openDb().then(db => db));
@@ -111,7 +115,7 @@ function openDb(): Promise<IDBDatabase> {
     };
 
     req.onblocked = () => {
-      console.warn('[chat/idb] upgrade blocked by another tab');
+      log.warn('upgrade blocked by another tab');
     };
   });
 
@@ -166,7 +170,7 @@ export async function cacheChats(chats: ChatSummary[]): Promise<void> {
     }));
     await trimChatsIfNeeded();
   } catch (e) {
-    console.warn('[chat/idb] cacheChats failed', e);
+    log.warn('cacheChats failed', e);
   }
 }
 
@@ -255,7 +259,7 @@ export async function cacheMessages(chatId: string, msgs: ChatMessage[]): Promis
     }));
     await trimMessagesForChatIfNeeded(chatId);
   } catch (e) {
-    console.warn('[chat/idb] cacheMessages failed', e);
+    log.warn('cacheMessages failed', e);
   }
 }
 

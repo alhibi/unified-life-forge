@@ -91,6 +91,15 @@ jobs:
           grep -q "PRECACHE" dist/sw.js || { echo "sw.js has no precache manifest"; exit 1; }
           echo "sw.js present ($(wc -c < dist/sw.js) bytes)"
 
+      - name: Service-worker assertions (need dist/)
+        # build/__tests__/appShellServiceWorker.test.ts is `describe.runIf(hasBuild)`
+        # so that `bun run test` works on a clean checkout. The consequence was
+        # that its 7 assertions ran on no machine at all: the `verify` job has no
+        # dist/, and this job never ran the tests. The grep above only proves the
+        # word PRECACHE appears somewhere — these check the manifest actually
+        # covers every asset index.html loads up front.
+        run: bun run test build/__tests__/appShellServiceWorker.test.ts
+
       - name: Report bundle sizes
         # Not a gate, just a number in the log so a jump is visible in review.
         run: |

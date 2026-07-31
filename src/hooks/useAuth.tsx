@@ -26,6 +26,9 @@ import { useEffect, useState } from 'react';
 
 import { isSupabaseConfigured, supabase } from '@/integrations/supabase/client';
 import { localGetSession, localSignIn, localSignOut, localSignUp } from '@/lib/auth/localAuthStore';
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('auth');
 
 interface Profile {
   username: string;
@@ -245,7 +248,7 @@ async function signOut(): Promise<void> {
     try {
       localStorage.removeItem(`profile:draft:${userId}`);
     } catch (e) {
-      console.warn('Failed to remove profile draft during signout:', e);
+      log.warn('Failed to remove profile draft during signout', e);
     }
   }
 
@@ -264,7 +267,7 @@ async function signOut(): Promise<void> {
     }
     keysToRemove.forEach((k) => localStorage.removeItem(k));
   } catch (e) {
-    console.warn('Failed to clear cached drafts during signout:', e);
+    log.warn('Failed to clear cached drafts during signout', e);
   }
 
   // The travel atlas mirrors the signed-in user's places, trips and country
@@ -282,7 +285,7 @@ async function signOut(): Promise<void> {
     await clearAtlasCache();
   } catch (e) {
     // Never block sign-out on a cache that refuses to open.
-    console.warn('Failed to clear the travel atlas cache during signout:', e);
+    log.warn('Failed to clear the travel atlas cache during signout', e);
   }
 
   if (!isSupabaseConfigured) {

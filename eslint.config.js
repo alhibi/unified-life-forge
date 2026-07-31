@@ -118,7 +118,48 @@ export default tseslint.config(
         },
       ],
       "@typescript-eslint/ban-ts-comment": "warn",
+
+      //   no-console (migrating to src/lib/logger.ts)
+      //     160 bare console calls across 65 files. 84 of them were
+      //     `console.error` in a catch block, which means the error was handled,
+      //     logged nowhere anyone reads, and never reached the telemetry drain —
+      //     the most useful errors were the least observable. They also print
+      //     unscrubbed JWTs and Supabase hostnames, which users paste into bug
+      //     reports.
+      //
+      //     `logger.error()` both prints and reports. The infrastructure and data
+      //     layers (lib/, contexts/, hooks/, features/*/api.ts) are migrated;
+      //     the remaining UI-level call sites are budgeted so the count can only
+      //     fall. New code should never need an exception.
+      "no-console": "warn",
     },
+  },
+  {
+    files: [
+      // The logger is the one place allowed to reach the console — that is its job.
+      "src/lib/logger.ts",
+      // The drain itself. `logger` imports `telemetry`, so telemetry importing
+      // `logger` back would be an import cycle; and when the Sentry SDK fails to
+      // load, the console is genuinely the only sink left.
+      "src/lib/telemetry.ts",
+      // Dev-only instrumentation whose whole point is `%c`-styled devtools output.
+      // Routing it through the logger would strip the formatting that makes it
+      // readable, and it is already gated behind `import.meta.env.DEV`.
+      "src/lib/navPerf.ts",
+    ],
+    rules: { "no-console": "off" },
+  },
+  {
+    // Build scripts, Deno edge functions and Playwright specs have no logger and
+    // no telemetry drain: stdout *is* their observability layer.
+    files: [
+      "scripts/**/*.{ts,mjs,js}",
+      "build/**/*.ts",
+      "supabase/functions/**/*.ts",
+      "e2e/**/*.ts",
+      "*.config.{js,ts,cjs,mjs}",
+    ],
+    rules: { "no-console": "off" },
   },
   // Ensure prettier config disables formatting conflicts
   eslintConfigPrettier,

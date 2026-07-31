@@ -19,7 +19,11 @@
 // or not permitted — they degrade to no-ops.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { logger } from '@/lib/logger';
+
 import { CHAT_SETTINGS_DEFAULTS, type ChatSettingsNotifications } from './settings';
+
+const log = logger.scope('chat:notifications');
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -243,7 +247,7 @@ function _showNativeNotification(payload: ChatNotificationPayload, count: number
       notification.close();
     };
   } catch (e) {
-    console.warn('[chat/notifications] Failed to show notification:', e);
+    log.warn('Failed to show notification', e);
   }
 }
 

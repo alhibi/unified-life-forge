@@ -1,5 +1,9 @@
 import * as React from 'react';
 
+import { logger } from '@/lib/logger';
+
+const log = logger.scope('drafts');
+
 /**
  * Draft Storage Utility
  * 
@@ -127,7 +131,7 @@ export function createDraftStorage(): DraftStorage {
       localStorage.setItem(storageKey, JSON.stringify(storageData));
       config?.onSave?.(data);
     } catch (error) {
-      console.warn(`Failed to save draft for key "${key}":`, error);
+      log.warn(`Failed to save draft for key "${key}":`, error);
     }
   };
 
@@ -158,7 +162,7 @@ export function createDraftStorage(): DraftStorage {
       config?.onLoad?.(data);
       return data;
     } catch (error) {
-      console.warn(`Failed to load draft for key "${key}":`, error);
+      log.warn(`Failed to load draft for key "${key}":`, error);
       return null;
     }
   };
@@ -170,7 +174,7 @@ export function createDraftStorage(): DraftStorage {
       localStorage.removeItem(storageKey);
       config?.onClear?.();
     } catch (error) {
-      console.warn(`Failed to clear draft for key "${key}":`, error);
+      log.warn(`Failed to clear draft for key "${key}":`, error);
     }
   };
 
