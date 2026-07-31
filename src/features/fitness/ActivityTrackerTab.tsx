@@ -1,12 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from 'recharts';
 import { toast } from 'sonner';
 
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
@@ -17,50 +10,24 @@ import {
   Info,
   MapPin,
   Play,
-  Square,
   Trash2,
-  Zap,
 } from '@/lib/icons';
 
 import { deleteFitnessActivity, insertFitnessActivity } from './api';
 import { FullActivityMap } from './FullActivityMap';
 import { HealthConnectCard } from './HealthConnectCard';
+import { LiveSessionPanel } from './LiveSessionPanel';
 import { RouteThumbnail } from './RouteThumbnail';
+import { dayKey } from './stats';
+import { StatsPanel } from './StatsPanel';
 import type { FitnessActivity, RoutePoint } from './types';
 import { estimateCalories,useActivityTracking } from './useActivityTracking';
-
-interface ChartTooltipProps {
-  active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
-  unit?: string;
-}
-
-/**
- * Custom Tooltip for Recharts following the "Zen Elite" design language.
- * Restrained dark theme backdrop, thin border, clear typographic layout.
- */
-function CustomChartTooltip({ active, payload, label, unit = '' }: ChartTooltipProps) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background/95 border border-border/40 px-3 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
-        <p className="text-[0.625rem] text-muted-foreground/80 mb-0.5 font-bold">{label}</p>
-        <p className="text-[0.75rem] font-bold text-foreground Montserrat tabular-nums">
-          {Number(payload[0].value).toLocaleString('ar-SA')}
-          <span className="text-[0.625rem] text-muted-foreground/80 font-normal ms-1">
-            {unit}
-          </span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-}
 
 export default function ActivityTrackerTab() {
   // Real-time track state & activity helpers
   const {
     activities,
+    dailyMetrics,
     loading,
     permissionState,
     isTracking,
@@ -70,6 +37,14 @@ export default function ActivityTrackerTab() {
     distanceMeters,
     calories,
     durationSeconds,
+    isPaused,
+    autoPaused,
+    currentPaceSecPerKm,
+    avgPaceSecPerKm,
+    gpsAccuracy,
+    splits,
+    elevationGain,
+    togglePause,
     autoDetectEnabled,
     motionState,
     accelMagnitude,
@@ -131,42 +106,10 @@ export default function ActivityTrackerTab() {
     return { primaryColor, gridColor, textFill };
   }, [isDark]);
 
-  // Aggregate user statistics for the last 7 days (Weekly Trend Data)
-  const weeklyTrends = useMemo(() => {
-    // Create an array of the last 7 days starting from today and moving backward
-    const daysData = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      const dayName = d.toLocaleDateString('ar-SA', { weekday: 'short' });
-      const dateKey = d.toISOString().substring(0, 10);
-      return {
-        dateKey,
-        day: dayName,
-        steps: 0,
-        calories: 0,
-        hasActivity: false,
-      };
-    });
-
-    // Overlay actual GPS track steps and calories on top of daily baseline
-    activities.forEach((act) => {
-      const actDate = act.start_time.substring(0, 10);
-      const match = daysData.find((d) => d.dateKey === actDate);
-      if (match) {
-        match.hasActivity = true;
-        const extraSteps = Math.round((act.distance_meters || 0) / 0.75);
-        const extraCalories = Math.round(act.calories || 0);
-        match.steps += extraSteps;
-        match.calories += extraCalories;
-      }
-    });
-
-    return daysData;
-  }, [activities]);
-
-  // Summary Metrics (Today's performance)
+  // Summary Metrics (Today's performance) — device metrics win over GPS estimates.
   const todaySummary = useMemo(() => {
-    const todayStr = new Date().toISOString().substring(0, 10);
+    const todayStr = dayKey(new Date());
+    const deviceToday = dailyMetrics.find((m) => m.date === todayStr);
 
     // Default high-precision baseline values for general physical life
     let steps = 0;
@@ -174,12 +117,19 @@ export default function ActivityTrackerTab() {
     let calories = 0;
     let heartRate = 0;
 
+    if (deviceToday) {
+      steps = Math.round(deviceToday.steps || 0);
+      distanceKm = Math.round(((deviceToday.distance_meters || 0) / 1000) * 10) / 10;
+      calories = Math.round(deviceToday.calories || 0);
+      heartRate = Math.round(deviceToday.avg_heart_rate || 0);
+    }
+
     // Filter sessions recorded today
     const todayActivities = activities.filter(
-      (a) => a.start_time.substring(0, 10) === todayStr
+      (a) => dayKey(a.start_time) === todayStr
     );
 
-    if (todayActivities.length > 0) {
+    if (todayActivities.length > 0 && !deviceToday) {
       const sessionDist = todayActivities.reduce((sum, a) => sum + (a.distance_meters || 0), 0);
       const sessionCals = todayActivities.reduce((sum, a) => sum + (a.calories || 0), 0);
 
@@ -202,7 +152,7 @@ export default function ActivityTrackerTab() {
     }
 
     return { steps, distanceKm, calories, heartRate };
-  }, [activities]);
+  }, [activities, dailyMetrics]);
 
   // Request location permission flow
   const handlePermissionRequest = async () => {
@@ -280,16 +230,6 @@ export default function ActivityTrackerTab() {
     }
   };
 
-  const formatTrackingTime = (totalSecs: number) => {
-    const hrs = Math.floor(totalSecs / 3600);
-    const mins = Math.floor((totalSecs % 3600) / 60);
-    const secs = totalSecs % 60;
-    return [
-      hrs > 0 ? String(hrs).padStart(2, '0') : null,
-      String(mins).padStart(2, '0'),
-      String(secs).padStart(2, '0'),
-    ].filter(Boolean).join(':');
-  };
 
   return (
     <div
@@ -466,138 +406,33 @@ export default function ActivityTrackerTab() {
               </div>
             </div>
 
-            {/* Two Beautifully Styled Small Trend Charts (Stacked dynamically, Minimal styling) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Steps AreaChart */}
-              <div className="space-y-2 text-start">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[0.6875rem] font-bold text-foreground tracking-wide uppercase">
-                    معدل الخطوات اليومي
-                  </h3>
-                  <span className="text-[0.5625rem] text-muted-foreground/80 Montserrat">آخر 7 أيام</span>
-                </div>
-                <div className="h-28 w-full border border-border/20 bg-card/10 rounded-xl p-1.5">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={weeklyTrends} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
-                      <defs>
-                        <linearGradient id="stepsGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={colors.primaryColor} stopOpacity={0.15} />
-                          <stop offset="95%" stopColor={colors.primaryColor} stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="day"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 8, fill: colors.textFill }}
-                      />
-                      <Tooltip content={<CustomChartTooltip unit="خطوة" />} cursor={{ stroke: 'rgba(255,255,255,0.02)' }} />
-                      <Area
-                        type="monotone"
-                        dataKey="steps"
-                        stroke={colors.primaryColor}
-                        strokeWidth={1}
-                        fillOpacity={1}
-                        fill="url(#stepsGradient)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Calories AreaChart */}
-              <div className="space-y-2 text-start">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[0.6875rem] font-bold text-foreground tracking-wide uppercase">
-                    السعرات المحروقة اليومية
-                  </h3>
-                  <span className="text-[0.5625rem] text-muted-foreground/80 Montserrat">آخر 7 أيام</span>
-                </div>
-                <div className="h-28 w-full border border-border/20 bg-card/10 rounded-xl p-1.5">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={weeklyTrends} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
-                      <defs>
-                        <linearGradient id="calsGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={colors.primaryColor} stopOpacity={0.15} />
-                          <stop offset="95%" stopColor={colors.primaryColor} stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="day"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 8, fill: colors.textFill }}
-                      />
-                      <Tooltip content={<CustomChartTooltip unit="سعرة" />} cursor={{ stroke: 'rgba(255,255,255,0.02)' }} />
-                      <Area
-                        type="monotone"
-                        dataKey="calories"
-                        stroke={colors.primaryColor}
-                        strokeWidth={1}
-                        fillOpacity={1}
-                        fill="url(#calsGradient)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
+            {/* Analytics: range summary, trends, streaks and records */}
+            <StatsPanel
+              activities={activities}
+              metrics={dailyMetrics}
+              accent={colors.primaryColor}
+            />
 
             {/* GPS Tracker Live Panel or Action Triggers */}
             <AnimatePresence mode="wait">
               {isTracking ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="rounded-section border-2 border-[hsl(var(--fitness-primary)/0.4)] bg-card/40 p-4 space-y-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-bold bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))]">
-                      <Zap className="w-3.5 h-3.5 animate-pulse text-[hsl(var(--fitness-primary))]" />
-                      {activityType === 'running' ? 'تتبع الجري نشط' : 'تتبع المشي نشط'}
-                      {trackingSource === 'auto' && ' (تلقائي)'}
-                    </span>
-                    <span className="text-[0.6875rem] font-semibold text-muted-foreground Montserrat tabular-nums">
-                      {formatTrackingTime(durationSeconds)}
-                    </span>
-                  </div>
-
-                  {/* Inline Live map route canvas preview */}
-                  <div className="rounded-xl overflow-hidden border border-border/30 h-32 bg-background/50">
-                    <FullActivityMap route={route} height={128} />
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-[0.5625rem] text-muted-foreground">المسافة</p>
-                      <p className="text-[0.9375rem] font-bold Montserrat tabular-nums text-foreground">
-                        {Math.round(distanceMeters)} <span className="text-[0.625rem] text-muted-foreground">م</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[0.5625rem] text-muted-foreground">السرعة الحالية</p>
-                      <p className="text-[0.9375rem] font-bold Montserrat tabular-nums text-foreground">
-                        {durationSeconds > 0 ? Math.round((distanceMeters / durationSeconds) * 3.6 * 10) / 10 : 0}
-                        <span className="text-[0.625rem] text-muted-foreground ms-1">كم/س</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[0.5625rem] text-muted-foreground">السعرات المقدرة</p>
-                      <p className="text-[0.9375rem] font-bold Montserrat tabular-nums text-foreground">
-                        {calories} <span className="text-[0.625rem] text-muted-foreground">ك</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleStopManual}
-                    className="w-full h-10 rounded-button bg-destructive text-destructive-foreground text-[0.6875rem] font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
-                  >
-                    <Square className="w-3.5 h-3.5" />
-                    إيقاف وحفظ تتبع النشاط
-                  </button>
-                </motion.div>
+                <LiveSessionPanel
+                  activityType={activityType}
+                  trackingSource={trackingSource}
+                  route={route}
+                  distanceMeters={distanceMeters}
+                  durationSeconds={durationSeconds}
+                  calories={calories}
+                  currentPaceSecPerKm={currentPaceSecPerKm}
+                  avgPaceSecPerKm={avgPaceSecPerKm}
+                  gpsAccuracy={gpsAccuracy}
+                  elevationGain={elevationGain}
+                  splits={splits}
+                  isPaused={isPaused}
+                  autoPaused={autoPaused}
+                  onTogglePause={togglePause}
+                  onStop={handleStopManual}
+                />
               ) : (
                 /* Primary Actions Grid */
                 <div className="grid grid-cols-2 gap-3">
