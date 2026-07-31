@@ -1,12 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from 'recharts';
 import { toast } from 'sonner';
 
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
@@ -25,42 +18,18 @@ import {
 import { deleteFitnessActivity, insertFitnessActivity } from './api';
 import { FullActivityMap } from './FullActivityMap';
 import { HealthConnectCard } from './HealthConnectCard';
+import { LiveSessionPanel } from './LiveSessionPanel';
 import { RouteThumbnail } from './RouteThumbnail';
+import { StatsPanel } from './StatsPanel';
+import { dayKey } from './stats';
 import type { FitnessActivity, RoutePoint } from './types';
 import { estimateCalories,useActivityTracking } from './useActivityTracking';
-
-interface ChartTooltipProps {
-  active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
-  unit?: string;
-}
-
-/**
- * Custom Tooltip for Recharts following the "Zen Elite" design language.
- * Restrained dark theme backdrop, thin border, clear typographic layout.
- */
-function CustomChartTooltip({ active, payload, label, unit = '' }: ChartTooltipProps) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background/95 border border-border/40 px-3 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
-        <p className="text-[0.625rem] text-muted-foreground/80 mb-0.5 font-bold">{label}</p>
-        <p className="text-[0.75rem] font-bold text-foreground Montserrat tabular-nums">
-          {Number(payload[0].value).toLocaleString('ar-SA')}
-          <span className="text-[0.625rem] text-muted-foreground/80 font-normal ms-1">
-            {unit}
-          </span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-}
 
 export default function ActivityTrackerTab() {
   // Real-time track state & activity helpers
   const {
     activities,
+    dailyMetrics,
     loading,
     permissionState,
     isTracking,
@@ -70,6 +39,14 @@ export default function ActivityTrackerTab() {
     distanceMeters,
     calories,
     durationSeconds,
+    isPaused,
+    autoPaused,
+    currentPaceSecPerKm,
+    avgPaceSecPerKm,
+    gpsAccuracy,
+    splits,
+    elevationGain,
+    togglePause,
     autoDetectEnabled,
     motionState,
     accelMagnitude,
