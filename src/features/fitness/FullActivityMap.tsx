@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+import L from 'leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { MapPin } from '@/lib/icons';
+
 import type { FitnessActivity, RoutePoint } from './types';
-import { MapPin, ZoomIn, ZoomOut, Maximize } from '@/lib/icons';
 
 export interface FullActivityMapProps {
   activity?: FitnessActivity;
@@ -172,11 +175,11 @@ export function FullActivityMap({
             ? 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(110%) saturate(80%)'
             : 'none',
         }}
-        className="w-full bg-background z-0"
+        className="w-full bg-background z-base"
       />
 
       {/* Floating coordinates badge */}
-      <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md border border-border/40 px-2.5 py-1 rounded-xl pointer-events-none z-10 flex items-center gap-1.5 shadow-sm">
+      <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md border border-border/40 px-2.5 py-1 rounded-xl pointer-events-none z-raised flex items-center gap-1.5 shadow-sm">
         <MapPin className="w-3.5 h-3.5 text-primary" />
         <span className="font-bold text-[0.625rem] text-foreground Montserrat tabular-nums">
           {pts[0].lat.toFixed(4)}, {pts[0].lng.toFixed(4)}

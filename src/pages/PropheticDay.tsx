@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
@@ -97,7 +96,6 @@ const sections: TimeSection[] = [
 import { pageItem as fadeItem,pageStagger as stagger } from '@/lib/motion';
 
 export default function PropheticDay() {
-  const navigate = useNavigate();
   const { dir } = useApp();
 
   return (

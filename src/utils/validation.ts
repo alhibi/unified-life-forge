@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
 // Username constraints mapping to useAuth: 3–24 chars, letters, digits, underscore only
 export const usernameSchema = z

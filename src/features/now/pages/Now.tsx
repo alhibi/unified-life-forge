@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import CurrentTimeSunnah from '@/components/CurrentTimeSunnah';
 import PrayerTimes from '@/components/PrayerTimes';
@@ -25,7 +24,6 @@ export default function Now() {
   }, [locationStatus, requestLocation]);
 
   const { t, } = useApp();
-  const navigate = useNavigate();
 
   return (
     <PageShell>

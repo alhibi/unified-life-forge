@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import DeviceKeyCard from '@/features/chat/components/DeviceKeyCard';
@@ -25,7 +26,6 @@ import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
-import { PageShell, Section, AppCard } from '@/components/ui/app-shell';
 
 /**
  * /chat/settings — comprehensive chat-specific preferences synced via

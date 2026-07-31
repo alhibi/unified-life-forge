@@ -1,6 +1,6 @@
 import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
 import { createClient } from "@supabase/supabase-js";
-import { z } from "zod";
+import * as z from "zod";
 
 function supabaseForUser(ctx: ToolContext) {
   return createClient(

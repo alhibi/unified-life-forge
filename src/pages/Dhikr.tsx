@@ -3,6 +3,7 @@ import React from 'react';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
+
 import DhikrTab from './mihrab/DhikrTab';
 
 export default function DhikrPage() {

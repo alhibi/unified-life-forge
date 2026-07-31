@@ -1,10 +1,37 @@
 import { supabase } from '@/integrations/supabase/client';
-import { fitnessActivitySchema } from './schemas';
-import type { FitnessActivity } from './types';
-import type { DailyMetric } from './stats';
+import type { Database } from '@/integrations/supabase/types';
 
-// Use type assertion to bypass strict table name checking in generated types
-const client = supabase as any;
+import { fitnessActivitySchema } from './schemas';
+import type { DailyMetric } from './stats';
+import type { FitnessActivity } from './types';
+import { isActivitySource, parseRoute } from './types';
+
+// This module previously routed every query through `supabase as any`, with the
+// comment "bypass strict table name checking in generated types". Both fitness
+// tables are in fact fully present in src/integrations/supabase/types.ts, so the
+// cast bought nothing and cost everything: misspelt columns, wrong filter values
+// and bad row shapes all compiled. The typed client is used directly below.
+
+/** A row as it actually comes back from Postgres: `route` is still raw JSON. */
+type FitnessActivityRow =
+  Database['public']['Tables']['fitness_activities']['Row'];
+
+/**
+ * Converts a database row into the domain type.
+ *
+ * `route` is a `jsonb` column, so it arrives as `Json` and has to be parsed
+ * rather than asserted; `source` is a bare `text` column in the generated types,
+ * so the CHECK constraint's values are re-established here. Anything unexpected
+ * degrades to a safe default instead of being trusted downstream.
+ */
+function toActivity(row: FitnessActivityRow): FitnessActivity {
+  return {
+    ...row,
+    source: isActivitySource(row.source) ? row.source : 'manual',
+    route: parseRoute(row.route),
+    created_at: row.created_at ?? row.start_time,
+  };
+}
 
 /**
  * Lists all fitness activities for the currently authenticated user,
@@ -17,7 +44,7 @@ export async function listFitnessActivities(): Promise<FitnessActivity[]> {
     return [];
   }
 
-  const { data, error } = await client
+  const { data, error } = await supabase
     .from('fitness_activities')
     .select('*')
     .eq('user_id', userId)
@@ -28,7 +55,7 @@ export async function listFitnessActivities(): Promise<FitnessActivity[]> {
     throw error;
   }
 
-  return (data || []) as FitnessActivity[];
+  return (data ?? []).map(toActivity);
 }
 
 /**
@@ -47,17 +74,16 @@ export async function insertFitnessActivity(
     throw new Error('fitness:unauthorized');
   }
 
-  const payload = {
-    ...activity,
-    user_id: userId,
-  };
+  // Validate before touching the network so a bad payload fails locally with a
+  // field-level Zod error rather than as an opaque Postgres constraint violation.
+  const validated = fitnessActivitySchema.parse({ ...activity, user_id: userId });
 
-  // Validate utilizing our schema before DB insertion
-  const validatedPayload = fitnessActivitySchema.parse(payload);
-
-  const { data, error } = await client
+  // `user_id` is optional in the schema (callers may omit it — it is filled in
+  // from the session above), but the column is NOT NULL. Restating it here is
+  // what lets the compiler verify the insert instead of us asserting it.
+  const { data, error } = await supabase
     .from('fitness_activities')
-    .insert([validatedPayload])
+    .insert([{ ...validated, user_id: userId }])
     .select()
     .single();
 
@@ -66,7 +92,7 @@ export async function insertFitnessActivity(
     throw error;
   }
 
-  return data as FitnessActivity;
+  return toActivity(data);
 }
 
 /**
@@ -79,7 +105,7 @@ export async function deleteFitnessActivity(id: string): Promise<void> {
     throw new Error('fitness:unauthorized');
   }
 
-  const { error } = await client
+  const { error } = await supabase
     .from('fitness_activities')
     .delete()
     .eq('id', id)
@@ -106,7 +132,7 @@ export async function listDailyMetrics(days = 90): Promise<DailyMetric[]> {
   const day = String(since.getDate()).padStart(2, '0');
   const sinceKey = `${since.getFullYear()}-${month}-${day}`;
 
-  const { data, error } = await client
+  const { data, error } = await supabase
     .from('fitness_daily_metrics')
     .select('date, steps, distance_meters, calories, avg_heart_rate, sleep_minutes')
     .eq('user_id', userId)
@@ -118,5 +144,7 @@ export async function listDailyMetrics(days = 90): Promise<DailyMetric[]> {
     return [];
   }
 
-  return (data || []) as DailyMetric[];
+  // The select list matches DailyMetric field for field, so the compiler checks
+  // this rather than a cast asserting it.
+  return data ?? [];
 }

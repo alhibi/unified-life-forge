@@ -110,26 +110,26 @@ function LiveSessionPanelImpl({
             <span className="text-[0.8125rem] font-extrabold tabular-nums text-foreground">
               {formatPace(paced)}
             </span>
-            <span className="text-[0.5rem] text-muted-foreground mt-0.5">د/كم</span>
+            <span className="text-micro text-muted-foreground mt-0.5">د/كم</span>
           </span>
         </ProgressRing>
 
         <div className="grid grid-cols-3 gap-2 flex-1 text-center">
           <div>
-            <p className="text-[0.5625rem] text-muted-foreground">المسافة</p>
+            <p className="text-micro text-muted-foreground">المسافة</p>
             <p className="text-[0.9375rem] font-bold tabular-nums text-foreground">
               {(distanceMeters / 1000).toFixed(2)}
               <span className="text-[0.625rem] text-muted-foreground ms-1">كم</span>
             </p>
           </div>
           <div>
-            <p className="text-[0.5625rem] text-muted-foreground">متوسط الإيقاع</p>
+            <p className="text-micro text-muted-foreground">متوسط الإيقاع</p>
             <p className="text-[0.9375rem] font-bold tabular-nums text-foreground">
               {formatPace(avgPaceSecPerKm)}
             </p>
           </div>
           <div>
-            <p className="text-[0.5625rem] text-muted-foreground">السعرات</p>
+            <p className="text-micro text-muted-foreground">السعرات</p>
             <p className="text-[0.9375rem] font-bold tabular-nums text-foreground">
               {Math.round(calories)}
               <span className="text-[0.625rem] text-muted-foreground ms-1">ك</span>
@@ -139,7 +139,7 @@ function LiveSessionPanelImpl({
       </div>
 
       {/* Signal + elevation strip */}
-      <div className="flex items-center justify-between text-[0.5625rem] text-muted-foreground border-y border-border/20 py-2">
+      <div className="flex items-center justify-between text-micro text-muted-foreground border-y border-border/20 py-2">
         <span className="inline-flex items-center gap-1.5">
           <span
             className={`w-1.5 h-1.5 rounded-full ${
@@ -172,7 +172,7 @@ function LiveSessionPanelImpl({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <p className="text-[0.5625rem] text-muted-foreground mb-1.5">سبليتات كل كيلومتر</p>
+            <p className="text-micro text-muted-foreground mb-1.5">سبليتات كل كيلومتر</p>
             <div className="space-y-1 max-h-32 overflow-y-auto pe-1">
               {splits.map((split) => {
                 const best = Math.min(
@@ -184,7 +184,7 @@ function LiveSessionPanelImpl({
                     : 0;
                 return (
                   <div key={split.index} className="flex items-center gap-2">
-                    <span className="w-4 text-[0.5625rem] tabular-nums text-muted-foreground">
+                    <span className="w-4 text-micro tabular-nums text-muted-foreground">
                       {split.index}
                     </span>
                     <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
@@ -193,7 +193,7 @@ function LiveSessionPanelImpl({
                         style={{ width: `${Math.round(ratio * 100)}%` }}
                       />
                     </div>
-                    <span className="text-[0.5625rem] tabular-nums text-foreground font-bold">
+                    <span className="text-micro tabular-nums text-foreground font-bold">
                       {formatPace(split.paceSecPerKm)}
                       {split.partial && (
                         <span className="text-muted-foreground font-normal ms-1">

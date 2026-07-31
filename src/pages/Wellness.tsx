@@ -1,6 +1,6 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { lazy, Suspense,useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import AuthGuard from '@/components/AuthGuard';
@@ -8,9 +8,9 @@ import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import {
-Apple,
+Activity,Apple,
   BookOpen, Brain, ChevronRight, Download, Dumbbell,
-  Library, ShieldCheck, Trash2, Utensils, X, Activity, } from '@/lib/icons';
+  Library, ShieldCheck, Trash2, Utensils, X,  } from '@/lib/icons';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,
@@ -91,7 +91,6 @@ const TABS: TabDef[] = [
 
 export default function WellnessPage() {
   const { language } = useApp();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const data = useWellnessData();
 

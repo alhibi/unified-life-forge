@@ -36,6 +36,11 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'mind_state', ownerColumn: 'user_id', label: 'حالة الذهن' },
   { table: 'archive_documents', ownerColumn: 'user_id', label: 'الأرشيف' },
   { table: 'wellness_records', ownerColumn: 'user_id', label: 'سجلات العافية' },
+  // Fitness data is the most sensitive the app holds: `route` is a JSONB track
+  // of GPS points and `avg_heart_rate` is biometric. Both must leave with the
+  // user, not just be deleted with them.
+  { table: 'fitness_activities', ownerColumn: 'user_id', label: 'أنشطة اللياقة' },
+  { table: 'fitness_daily_metrics', ownerColumn: 'user_id', label: 'قياسات اللياقة اليومية' },
   { table: 'clipboard_items', ownerColumn: 'user_id', label: 'الحافظة' },
   { table: 'places', ownerColumn: 'user_id', label: 'الأماكن المحفوظة' },
   { table: 'trips', ownerColumn: 'user_id', label: 'خطط الرحلات' },

@@ -1,6 +1,6 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo,useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { useApp } from '@/contexts/AppContext';
 import GameShell from '@/features/games/components/GameShell';
@@ -805,7 +805,6 @@ const playCastleSound = () => { playSfx('castle'); vibrate([20, 30, 20]); };
 // ========== Component ==========
 export default function ChessPage() {
   const { t, language } = useApp();
-  const navigate = useNavigate();
   
   const savedChess = React.useMemo(() => loadChessGame(), []);
 

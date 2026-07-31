@@ -1,8 +1,10 @@
 import { Health, type HealthDataType, type Workout } from '@capgo/capacitor-health';
 
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
-const client = supabase as any;
+type ActivityInsert = Database['public']['Tables']['fitness_activities']['Insert'];
+type DailyMetricInsert = Database['public']['Tables']['fitness_daily_metrics']['Insert'];
 
 /**
  * Health Connect (Android) / HealthKit (iOS) integration.
@@ -36,9 +38,22 @@ export async function checkHealthAvailability(): Promise<HealthAvailability> {
       platform: res.platform,
       reason: res.reason || 'health_connect_unavailable',
     };
-  } catch (e: any) {
-    return { available: false, reason: e?.message || 'health_connect_error' };
+  } catch (e: unknown) {
+    return { available: false, reason: errorMessage(e, 'health_connect_error') };
   }
+}
+
+/**
+ * Pulls a message off an unknown thrown value.
+ *
+ * `catch (e: any)` let `e?.message` compile while quietly permitting anything —
+ * including a rejected value that is a string or a DOMException, where `.message`
+ * is `undefined` and the caller ends up showing "undefined" to the user.
+ */
+export function errorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error) return error;
+  return fallback;
 }
 
 /**
@@ -156,7 +171,7 @@ export async function syncDailyMetrics(
     ensureBucket(buckets, ymd(new Date(s.startDate))).sleep_minutes = Math.round(minutes);
   }
 
-  const rows = [...buckets.values()].map((b) => ({
+  const rows: DailyMetricInsert[] = [...buckets.values()].map((b) => ({
     ...b,
     user_id: userId,
     source: 'health_connect',
@@ -165,7 +180,7 @@ export async function syncDailyMetrics(
 
   if (rows.length === 0) return { upserted: 0 };
 
-  const { error } = await client
+  const { error } = await supabase
     .from('fitness_daily_metrics')
     .upsert(rows, { onConflict: 'user_id,date' });
 
@@ -216,29 +231,32 @@ export async function syncExerciseSessions(
   if (workouts.length === 0) return { imported: 0, skippedOverlap: 0 };
 
   // Load the user's existing activities in the window to detect overlaps.
-  const { data: existing } = await client
+  const { data: existing } = await supabase
     .from('fitness_activities')
     .select('id, start_time, end_time, external_id')
     .eq('user_id', userId)
     .gte('start_time', toISO(new Date(start.getTime() - 24 * 60 * 60 * 1000)))
     .lte('start_time', toISO(new Date(end.getTime() + 24 * 60 * 60 * 1000)));
 
-  const existingRanges: Array<{ s: number; e: number; ext: string | null }> = (
-    existing || []
-  ).map((r: any) => ({
+  const existingRanges = (existing ?? []).map((r) => ({
     s: new Date(r.start_time).getTime(),
     e: r.end_time ? new Date(r.end_time).getTime() : new Date(r.start_time).getTime(),
-    ext: r.external_id ?? null,
+    ext: r.external_id,
   }));
 
   let imported = 0;
   let skipped = 0;
-  const toInsert: any[] = [];
+  const toInsert: ActivityInsert[] = [];
 
   for (const w of workouts) {
     const s = new Date(w.startDate).getTime();
     const e = new Date(w.endDate).getTime();
-    const platformId = (w as any).platformId as string | undefined;
+    // `platformId` is the stable per-record id Health Connect / HealthKit assigns.
+    // It is not in the plugin's `Workout` type, so it is read defensively rather
+    // than by casting the whole workout to `any` and losing every other field's
+    // type along with it.
+    const platformId =
+      'platformId' in w && typeof w.platformId === 'string' ? w.platformId : undefined;
 
     const overlaps = existingRanges.some(
       (r) => (platformId && r.ext === platformId) || (s < r.e && e > r.s),
@@ -265,7 +283,7 @@ export async function syncExerciseSessions(
   }
 
   if (toInsert.length > 0) {
-    const { error } = await client.from('fitness_activities').insert(toInsert);
+    const { error } = await supabase.from('fitness_activities').insert(toInsert);
     if (error) {
       console.error('[healthConnect] insert workouts failed:', error);
       throw error;

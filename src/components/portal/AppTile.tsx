@@ -158,15 +158,15 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           list ? 'flex items-center gap-3 p-4' : 'flex min-h-[140px] flex-col justify-between p-4',
         )}
       >
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 z-base overflow-hidden">
           <TileBackground appKey={app.key} />
         </div>
 
         {/* Paper texture overlay */}
-        <div className="pointer-events-none absolute inset-0 z-10 mix-blend-multiply opacity-40 dark:opacity-20 [filter:url(#paper-noise)]" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 z-raised mix-blend-multiply opacity-40 dark:opacity-20 [filter:url(#paper-noise)]" aria-hidden="true" />
 
-        {/* Content wrapper with z-20 */}
-        <div className={cn("relative z-20 flex h-full w-full", list ? "items-center" : "flex-col justify-between")}>
+        {/* Content wrapper with z-raised-above */}
+        <div className={cn("relative z-raised-above flex h-full w-full", list ? "items-center" : "flex-col justify-between")}>
 
         {list ? (
           <span className="flex w-full items-center gap-4">

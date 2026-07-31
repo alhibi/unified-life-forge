@@ -1,14 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect,useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-// Best-effort language detection so the play-failure toast follows the user's
-// preferred locale without coupling this context to AppContext.
-const detectIsAr = (): boolean => {
-  if (typeof document === 'undefined') return false;
-  const lang = document.documentElement.lang || localStorage.getItem('app-language') || '';
-  return lang.toLowerCase().startsWith('ar');
-};
-
+// The failure toast is Arabic-only, like the rest of the app, so the locale
+// detection this file used to carry had no consumer.
 let lastPlayErrorAt = 0;
 const notifyPlayFailure = () => {
   const now = Date.now();

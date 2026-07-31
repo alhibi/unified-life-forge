@@ -135,7 +135,6 @@ function findHiddenSingle(cands: Candidates): SolverHint | null {
       if (places.length === 1) {
         const [r, c] = places[0];
         const unitName = u.name === 'row' ? `الصف ${u.idx + 1}` : u.name === 'col' ? `العمود ${u.idx + 1}` : `المربع ${u.idx + 1}`;
-        const unitNameDe = u.name === 'row' ? `Reihe ${u.idx + 1}` : u.name === 'col' ? `Spalte ${u.idx + 1}` : `Block ${u.idx + 1}`;
         return {
           technique: 'hiddenSingle',
           placements: [{ r, c, value: v }],

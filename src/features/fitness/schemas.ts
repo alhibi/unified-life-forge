@@ -1,4 +1,6 @@
-import { z } from 'zod';
+import * as z from 'zod';
+
+import { ACTIVITY_SOURCES } from './types';
 
 /**
  * Zod schema validation for a single RoutePoint coordinate.
@@ -18,7 +20,9 @@ export const fitnessActivitySchema = z.object({
   id: z.string().uuid().optional(),
   user_id: z.string().uuid().optional(),
   activity_type: z.string().min(1, 'نوع النشاط مطلوب'),
-  source: z.enum(['auto', 'manual']),
+  // Derived from ACTIVITY_SOURCES rather than repeated, so this schema cannot
+  // reject a value the database accepts (it previously omitted 'health_connect').
+  source: z.enum(ACTIVITY_SOURCES),
   start_time: z.string().datetime(),
   end_time: z.string().datetime().nullable().optional(),
   duration_seconds: z.number().int().nonnegative().nullable().optional(),

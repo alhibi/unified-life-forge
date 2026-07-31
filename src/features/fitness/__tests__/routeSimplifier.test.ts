@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it } from 'vitest';
-import { getPerpendicularDistance, simplifyRouteFixed, simplifyRoute } from '../routeSimplifier';
+
+import { getPerpendicularDistance, simplifyRoute,simplifyRouteFixed } from '../routeSimplifier';
 import type { RoutePoint } from '../types';
 
 describe('Route Simplification Engine Tests', () => {

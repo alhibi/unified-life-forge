@@ -1,6 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
@@ -19,7 +18,6 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export default function UntimedSunnah() {
-  const navigate = useNavigate();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
 

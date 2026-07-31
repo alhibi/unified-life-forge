@@ -176,6 +176,7 @@ export default {
         base: '0',
         scrim: '5', // in-page dismiss layer, below `raised` content
         raised: '10', // in-flow layering inside a card / section
+        'raised-above': '11', // a card's own content over its texture/tint overlay
         sticky: '20', // sticky sub-headers, list group headers
         header: '30', // page headers
         float: '40', // floating dock, podcast mini-player

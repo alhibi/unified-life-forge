@@ -29,9 +29,6 @@ type StatusFilter = NoteStatus | 'all';
 const STATUS_LABEL_AR: Record<StatusFilter, string> = {
   all: 'الكل', draft: 'مسودات', active: 'نشِطة', archived: 'مؤرشفة',
 };
-const STATUS_LABEL_DE: Record<StatusFilter, string> = {
-  all: 'Alle', draft: 'Entwürfe', active: 'Aktiv', archived: 'Archiviert',
-};
 
 function titleOf(n: LocalNote): string {
   if (n.title.trim()) return n.title;

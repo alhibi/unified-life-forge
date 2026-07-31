@@ -1,19 +1,37 @@
+import type { HealthDataType } from '@capgo/capacitor-health';
 import { motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Activity, Heart, RefreshCw, Settings, Zap } from '@/lib/icons';
+import { Heart, RefreshCw, Settings, Zap } from '@/lib/icons';
 
 import {
-  HEALTH_CONNECT_INSTALL_URL,
   checkHealthAvailability,
   checkHealthPermissions,
+  errorMessage,
+  HEALTH_CONNECT_INSTALL_URL,
   openHealthConnectSettings,
   requestHealthPermissions,
   syncHealthData,
 } from './healthConnect';
 
 type Phase = 'checking' | 'unavailable' | 'needs-permission' | 'ready' | 'syncing';
+
+/**
+ * The metrics this card asks for, typed as the plugin's own union.
+ *
+ * Written inline as bare strings before, which forced `includes(k as any)` at both
+ * call sites and meant a typo — or a metric the plugin renamed — would silently
+ * read as "permission missing" forever rather than failing to compile.
+ */
+const REQUIRED_HEALTH_TYPES: readonly HealthDataType[] = [
+  'steps',
+  'distance',
+  'calories',
+  'heartRate',
+  'sleep',
+  'workouts',
+];
 
 interface Props {
   onSynced?: () => void;
@@ -29,9 +47,11 @@ export function HealthConnectCard({ onSynced }: Props) {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
 
-  const evaluate = useCallback(async () => {
-    setPhase('checking');
+  const evaluate = useCallback(async (signal?: { cancelled: boolean }) => {
+    const live = () => !signal?.cancelled;
+
     const avail = await checkHealthAvailability();
+    if (!live()) return;
     if (avail.platform) setPlatform(avail.platform);
     if (!avail.available) {
       setPhase('unavailable');
@@ -40,25 +60,33 @@ export function HealthConnectCard({ onSynced }: Props) {
     }
     try {
       const status = await checkHealthPermissions();
-      const need = ['steps', 'distance', 'calories', 'heartRate', 'sleep', 'workouts'].some(
-        (k) => !status.readAuthorized.includes(k as any),
-      );
+      if (!live()) return;
+      const need = REQUIRED_HEALTH_TYPES.some((k) => !status.readAuthorized.includes(k));
       setPhase(need ? 'needs-permission' : 'ready');
     } catch {
-      setPhase('needs-permission');
+      if (live()) setPhase('needs-permission');
     }
   }, []);
 
   useEffect(() => {
-    evaluate();
+    // `phase` already initialises to 'checking', so the effect does not need to
+    // set it — which is what made this a synchronous setState in an effect body
+    // and a cascading render on every mount.
+    //
+    // The guard object matters independently of the lint rule: both awaits below
+    // can resolve after the card unmounts (the permission prompt is slow), and
+    // the previous version called setState unconditionally when they did.
+    const signal = { cancelled: false };
+    void evaluate(signal);
+    return () => {
+      signal.cancelled = true;
+    };
   }, [evaluate]);
 
   const handleGrant = async () => {
     try {
       const status = await requestHealthPermissions();
-      const grantedAll = ['steps', 'distance', 'calories', 'heartRate', 'sleep', 'workouts'].every(
-        (k) => status.readAuthorized.includes(k as any),
-      );
+      const grantedAll = REQUIRED_HEALTH_TYPES.every((k) => status.readAuthorized.includes(k));
       if (grantedAll) {
         setPhase('ready');
         toast.success('تم منح الأذونات');
@@ -69,8 +97,8 @@ export function HealthConnectCard({ onSynced }: Props) {
         setPhase('needs-permission');
         toast.error('تم رفض الأذونات');
       }
-    } catch (e: any) {
-      toast.error(e?.message || 'تعذّر طلب الأذونات');
+    } catch (e: unknown) {
+      toast.error(errorMessage(e, 'تعذّر طلب الأذونات'));
     }
   };
 
@@ -85,8 +113,8 @@ export function HealthConnectCard({ onSynced }: Props) {
         }`,
       );
       onSynced?.();
-    } catch (e: any) {
-      toast.error(e?.message || 'فشلت المزامنة');
+    } catch (e: unknown) {
+      toast.error(errorMessage(e, 'فشلت المزامنة'));
     } finally {
       setPhase('ready');
     }

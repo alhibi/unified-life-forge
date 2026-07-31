@@ -1,18 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { getProfile } from '../wellness/wellnessDb';
 import { insertFitnessActivity, listDailyMetrics, listFitnessActivities } from './api';
-import type { FitnessActivity, MotionState, RoutePoint, TrackSplit } from './types';
-import type { DailyMetric } from './stats';
-import { simplifyRoute } from './routeSimplifier';
 import {
-  GeoKalmanFilter,
   caloriesForSlice,
   computeSplits,
   elevationProfile,
+  GeoKalmanFilter,
   haversine,
   speedToPace,
 } from './metrics';
+import { simplifyRoute } from './routeSimplifier';
+import type { DailyMetric } from './stats';
+import type { FitnessActivity, MotionState, RoutePoint, TrackSplit } from './types';
 
 /** Haversine distance formula in meters (kept as the public engine helper). */
 export const calculateHaversineDistance = haversine;
@@ -101,8 +102,12 @@ export function useActivityTracking() {
   const motionStateRef = useRef<MotionState>('resting');
   const secondsSustainedRef = useRef(0);
   const secondsInactiveRef = useRef(0);
-  const gpsTimerRef = useRef<any>(null);
-  const motionTimerRef = useRef<any>(null);
+  // `setInterval` returns `number` in the DOM and `Timeout` in Node's types; the
+  // repo compiles with @types/node present, so `ReturnType<typeof setInterval>`
+  // is the portable spelling. `any` here silently accepted a Promise, a string,
+  // or anything else being stored and later passed to clearInterval.
+  const gpsTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const motionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const kalmanRef = useRef<GeoKalmanFilter>(new GeoKalmanFilter());
   const speedWindowRef = useRef<number[]>([]);
   const sessionRef = useRef({
@@ -116,13 +121,23 @@ export function useActivityTracking() {
     lastFixTs: 0,
   });
 
+  // When auto-detect is off the motion engine never runs, so these readings are
+  // not state that needs clearing — they are simply not meaningful. Deriving them
+  // once here (rather than resetting them with three setState calls inside the
+  // engine effect) removes a render cascade on every toggle and, more importantly,
+  // keeps the mirrored refs and the returned values in agreement: resetting only
+  // the state let the ref-sync effect below write the stale reading straight back.
+  const effectiveMotionState: MotionState = autoDetectEnabled ? motionState : 'resting';
+  const effectiveAccelMagnitude = autoDetectEnabled ? accelMagnitude : 0;
+  const effectiveSecondsSustained = autoDetectEnabled ? secondsSustained : 0;
+
   // Sync refs with state to avoid closure issues in callbacks
   useEffect(() => {
     isTrackingRef.current = isTracking;
-    motionStateRef.current = motionState;
-    secondsSustainedRef.current = secondsSustained;
+    motionStateRef.current = effectiveMotionState;
+    secondsSustainedRef.current = effectiveSecondsSustained;
     secondsInactiveRef.current = secondsInactive;
-  }, [isTracking, motionState, secondsSustained, secondsInactive]);
+  }, [isTracking, effectiveMotionState, effectiveSecondsSustained, secondsInactive]);
 
   // Mirrors of values the engine reads inside timers/callbacks (no stale closures)
   const weightRef = useRef(userWeight);
@@ -139,50 +154,73 @@ export function useActivityTracking() {
     simulatedSpeedRef.current = simulatedSpeedMultiplier;
   }, [userWeight, activityType, trackingSource, isSimulated, simulatedSpeedMultiplier]);
 
-  // Load activities, device daily metrics and the athlete profile
-  const refresh = useCallback(async () => {
+  /**
+   * Fetches activities, device metrics and the athlete profile.
+   *
+   * `cancel` lets the caller abandon the result. Without it, the three awaits below
+   * resolved after the tab unmounted and wrote to unmounted state — the fitness tab
+   * is one route in a persistent-tab shell, so that happened on ordinary navigation,
+   * not just on teardown.
+   */
+  const loadData = useCallback(async (cancel?: { cancelled: boolean }) => {
     try {
-      setLoading(true);
       const [list, metrics, profile] = await Promise.all([
         listFitnessActivities(),
         listDailyMetrics(120),
         getProfile(),
       ]);
+      if (cancel?.cancelled) return;
       setActivities(list);
       setDailyMetrics(metrics);
-      if (profile && profile.weightKg) {
+      if (profile?.weightKg) {
         setUserWeight(profile.weightKg);
       }
     } catch (e) {
       console.error('Error refreshing activity data:', e);
     } finally {
-      setLoading(false);
+      if (!cancel?.cancelled) setLoading(false);
     }
   }, []);
 
-  // Initialize
-  useEffect(() => {
-    refresh();
-    checkPermissions();
-  }, [refresh]);
+  /** Re-reads everything and shows the spinner. Called after a mutation. */
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    await loadData();
+  }, [loadData]);
 
-  // Check location permission state
-  const checkPermissions = async () => {
+  // Check location permission state.
+  //
+  // Declared above the mount effect that calls it: as a plain `const` arrow it was
+  // in its temporal dead zone at that point, so the effect captured a binding that
+  // was only populated by the time it ran — legal at runtime, but it silently
+  // stopped tracking changes to the function.
+  const checkPermissions = useCallback(async (cancel?: { cancelled: boolean }) => {
     try {
       if (typeof window !== 'undefined' && 'Capacitor' in window) {
         const perm = await Geolocation.checkPermissions();
-        setPermissionState(perm.location);
-      } else {
-        // Web fallback
-        if (navigator.permissions) {
-          const status = await navigator.permissions.query({ name: 'geolocation' as any });
-          setPermissionState(status.state);
-        }
+        if (!cancel?.cancelled) setPermissionState(perm.location);
+      } else if (navigator.permissions) {
+        const status = await navigator.permissions.query({ name: 'geolocation' });
+        if (!cancel?.cancelled) setPermissionState(status.state);
       }
     } catch {
-      setPermissionState('prompt');
+      if (!cancel?.cancelled) setPermissionState('prompt');
     }
-  };
+  }, []);
+
+  // Initial load.
+  //
+  // `loading` already initialises to `true` and `permissionState` to `'prompt'`, so
+  // there is nothing to set before the awaits — which is what let this effect stop
+  // calling setState synchronously and stop cascading a render on every mount.
+  useEffect(() => {
+    const cancel = { cancelled: false };
+    void loadData(cancel);
+    void checkPermissions(cancel);
+    return () => {
+      cancel.cancelled = true;
+    };
+  }, [loadData, checkPermissions]);
 
   // Request location permission
   const requestLocationPermission = async (): Promise<boolean> => {
@@ -494,12 +532,9 @@ export function useActivityTracking() {
 
   // Setup motion sensors
   useEffect(() => {
-    if (!autoDetectEnabled) {
-      setMotionState('resting');
-      setAccelMagnitude(0);
-      setSecondsSustained(0);
-      return;
-    }
+    // No reset needed: `effectiveMotionState` and friends above already read as
+    // resting whenever this flag is off, and the ref mirror follows them.
+    if (!autoDetectEnabled) return;
 
     // High frequency accelerometer monitor (1 second checks)
     const accelSamples: number[] = [];
@@ -653,9 +688,9 @@ export function useActivityTracking() {
     elevationGain,
     togglePause,
     autoDetectEnabled,
-    motionState,
-    accelMagnitude,
-    secondsSustained,
+    motionState: effectiveMotionState,
+    accelMagnitude: effectiveAccelMagnitude,
+    secondsSustained: effectiveSecondsSustained,
     secondsInactive,
     isSimulated,
     simulatedSpeedMultiplier,

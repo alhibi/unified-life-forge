@@ -21,8 +21,8 @@ export {
   TokenInspector,
 } from './components/AppearancePrimitives';
 export { default as AutoPrayerThemeSection } from './components/AutoPrayerThemeSection';
-export { default as InterfaceSection } from './components/InterfaceSection';
 export { default as IconsSection } from './components/IconsSection';
+export { default as InterfaceSection } from './components/InterfaceSection';
 export { default as ModeSection } from './components/ModeSection';
 export { default as PaletteSection } from './components/PaletteSection';
 export { default as TypographySection } from './components/TypographySection';

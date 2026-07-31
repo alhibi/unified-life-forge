@@ -29,7 +29,6 @@ const T = {
 };
 
 const DAYS_AR = ['أ', 'إ', 'ث', 'أ', 'خ', 'ج', 'س'];
-const DAYS_DE = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
 const COLORS = ['#1e293b22', '#10b98140', '#10b98180', '#10b981c0', '#10b981'];
 

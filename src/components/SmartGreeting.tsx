@@ -22,9 +22,6 @@ import { fetchPrayerTimings } from '@/hooks/usePrayerTimesCache';
 const PRAYER_AR: Record<string, string> = {
   Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء',
 };
-const PRAYER_DE: Record<string, string> = {
-  Fajr: 'Fajr', Dhuhr: 'Dhuhr', Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha',
-};
 
 function todayAt(hhmm: string): number | null {
   const [h, m] = hhmm.split(':').map(Number);

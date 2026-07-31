@@ -1,6 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
@@ -35,7 +34,6 @@ import { pageItem as itemAnim,pageStagger as container } from '@/lib/motion';
 
 export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);
-  const navigate = useNavigate();
 
   const handleSurahTap = (i: number) => {
     setTappedSurah(i);

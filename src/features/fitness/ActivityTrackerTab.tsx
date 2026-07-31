@@ -274,7 +274,7 @@ export default function ActivityTrackerTab() {
                 </span>
               </div>
               <span
-                className={`px-2 py-0.5 rounded text-[0.5625rem] font-semibold border ${
+                className={`px-2 py-0.5 rounded text-micro font-semibold border ${
                   selectedActivity.source === 'auto'
                     ? 'bg-[hsl(var(--fitness-primary)/0.1)] text-[hsl(var(--fitness-primary))] border-[hsl(var(--fitness-primary)/0.2)]'
                     : 'bg-muted/40 text-muted-foreground border-border/40'
@@ -291,22 +291,22 @@ export default function ActivityTrackerTab() {
 
             {/* Metrics Instrument Grid */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
-              <div className="border-r border-border/30 px-3 py-1">
-                <span className="text-[0.5625rem] text-muted-foreground/80 block">المسافة</span>
+              <div className="border-s border-border/30 px-3 py-1">
+                <span className="text-micro text-muted-foreground/80 block">المسافة</span>
                 <span className="text-xl font-bold text-foreground Montserrat tabular-nums leading-none">
                   {Math.round(((selectedActivity.distance_meters || 0) / 1000) * 100) / 100}
                   <span className="text-[0.625rem] font-normal text-muted-foreground ms-1">كم</span>
                 </span>
               </div>
-              <div className="border-r border-border/30 px-3 py-1">
-                <span className="text-[0.5625rem] text-muted-foreground/80 block">المدة الزمنية</span>
+              <div className="border-s border-border/30 px-3 py-1">
+                <span className="text-micro text-muted-foreground/80 block">المدة الزمنية</span>
                 <span className="text-xl font-bold text-foreground Montserrat tabular-nums leading-none">
                   {Math.round((selectedActivity.duration_seconds || 0) / 60)}
                   <span className="text-[0.625rem] font-normal text-muted-foreground ms-1">دقيقة</span>
                 </span>
               </div>
-              <div className="border-r border-border/30 px-3 py-1">
-                <span className="text-[0.5625rem] text-muted-foreground/80 block">معدل السرعة</span>
+              <div className="border-s border-border/30 px-3 py-1">
+                <span className="text-micro text-muted-foreground/80 block">معدل السرعة</span>
                 <span className="text-xl font-bold text-foreground Montserrat tabular-nums leading-none">
                   {selectedActivity.duration_seconds && selectedActivity.distance_meters
                     ? ((selectedActivity.distance_meters / selectedActivity.duration_seconds) * 3.6).toFixed(1)
@@ -314,15 +314,15 @@ export default function ActivityTrackerTab() {
                   <span className="text-[0.625rem] font-normal text-muted-foreground ms-1">كم/س</span>
                 </span>
               </div>
-              <div className="border-r border-border/30 px-3 py-1">
-                <span className="text-[0.5625rem] text-muted-foreground/80 block">السعرات</span>
+              <div className="border-s border-border/30 px-3 py-1">
+                <span className="text-micro text-muted-foreground/80 block">السعرات</span>
                 <span className="text-xl font-bold text-foreground Montserrat tabular-nums leading-none">
                   {Math.round(selectedActivity.calories || 0)}
                   <span className="text-[0.625rem] font-normal text-muted-foreground ms-1">سعرة</span>
                 </span>
               </div>
-              <div className="border-r border-border/30 px-3 py-1 col-span-2 md:col-span-1">
-                <span className="text-[0.5625rem] text-muted-foreground/80 block">نبضات القلب</span>
+              <div className="border-s border-border/30 px-3 py-1 col-span-2 md:col-span-1">
+                <span className="text-micro text-muted-foreground/80 block">نبضات القلب</span>
                 <span className="text-xl font-bold text-foreground Montserrat tabular-nums leading-none">
                   {selectedActivity.avg_heart_rate || '--'}
                   <span className="text-[0.625rem] font-normal text-muted-foreground ms-1">ن/د</span>
@@ -379,7 +379,7 @@ export default function ActivityTrackerTab() {
                     خطوة اليوم
                   </span>
                 </div>
-                <div className="flex flex-col text-start border-r border-border/20 ps-3">
+                <div className="flex flex-col text-start border-s border-border/20 ps-3">
                   <span className="text-3xl md:text-4xl font-extrabold text-foreground Montserrat tabular-nums tracking-tight leading-none">
                     {todaySummary.distanceKm.toFixed(1)}
                   </span>
@@ -387,7 +387,7 @@ export default function ActivityTrackerTab() {
                     المسافة (كم)
                   </span>
                 </div>
-                <div className="flex flex-col text-start border-r border-border/20 ps-3">
+                <div className="flex flex-col text-start border-s border-border/20 ps-3">
                   <span className="text-3xl md:text-4xl font-extrabold text-foreground Montserrat tabular-nums tracking-tight leading-none">
                     {todaySummary.calories}
                   </span>
@@ -395,7 +395,7 @@ export default function ActivityTrackerTab() {
                     السعرات (سعرة)
                   </span>
                 </div>
-                <div className="flex flex-col text-start border-r border-border/20 ps-3">
+                <div className="flex flex-col text-start border-s border-border/20 ps-3">
                   <span className="text-3xl md:text-4xl font-extrabold text-foreground Montserrat tabular-nums tracking-tight leading-none">
                     {todaySummary.heartRate}
                   </span>
@@ -485,15 +485,15 @@ export default function ActivityTrackerTab() {
               {autoDetectEnabled && (
                 <div className="pt-3 border-t border-border/20 grid grid-cols-2 gap-4">
                   <div className="space-y-0.5">
-                    <p className="text-[0.5625rem] text-muted-foreground">حالة الحركة النشطة</p>
+                    <p className="text-micro text-muted-foreground">حالة الحركة النشطة</p>
                     <span className="text-[0.6875rem] font-bold text-[hsl(var(--fitness-primary))] flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--fitness-primary))] animate-ping" />
                       {motionState === 'running' ? 'جري' : motionState === 'walking' ? 'مشي' : 'سكون'}
-                      <span className="text-[0.5625rem] font-normal text-muted-foreground">({accelMagnitude} m/s²)</span>
+                      <span className="text-micro font-normal text-muted-foreground">({accelMagnitude} m/s²)</span>
                     </span>
                   </div>
                   <div className="space-y-0.5">
-                    <p className="text-[0.5625rem] text-muted-foreground">عداد الحركة المستمرة</p>
+                    <p className="text-micro text-muted-foreground">عداد الحركة المستمرة</p>
                     <div className="text-[0.6875rem] font-bold text-foreground Montserrat tabular-nums">
                       {isTracking ? 'قيد التسجيل' : `${secondsSustained} / 60 ثانية`}
                     </div>
@@ -511,7 +511,7 @@ export default function ActivityTrackerTab() {
                 </div>
                 <button
                   onClick={() => setShowSimulator(!showSimulator)}
-                  className="text-[0.5625rem] font-bold text-[hsl(var(--fitness-primary))] px-2 py-0.5 rounded border border-[hsl(var(--fitness-primary)/0.2)] hover:bg-[hsl(var(--fitness-primary)/0.05)]"
+                  className="text-micro font-bold text-[hsl(var(--fitness-primary))] px-2 py-0.5 rounded border border-[hsl(var(--fitness-primary)/0.2)] hover:bg-[hsl(var(--fitness-primary)/0.05)]"
                 >
                   {showSimulator ? 'إخفاء اللوحة' : 'فتح اللوحة'}
                 </button>
@@ -544,13 +544,13 @@ export default function ActivityTrackerTab() {
                   {isSimulated && (
                     <div className="space-y-3 bg-background/40 rounded-lg p-2.5 border border-border/20">
                       <div className="space-y-1">
-                        <p className="text-[0.5625rem] text-muted-foreground">نوع الحركة:</p>
+                        <p className="text-micro text-muted-foreground">نوع الحركة:</p>
                         <div className="grid grid-cols-3 gap-1.5">
                           {(['resting', 'walking', 'running'] as const).map((state) => (
                             <button
                               key={state}
                               onClick={() => simulateMotion(state)}
-                              className={`py-1 rounded text-[0.5625rem] font-bold transition-all ${
+                              className={`py-1 rounded text-micro font-bold transition-all ${
                                 motionState === state
                                   ? 'bg-[hsl(var(--fitness-primary))] text-primary-foreground'
                                   : 'bg-muted/50 text-muted-foreground'
@@ -563,17 +563,17 @@ export default function ActivityTrackerTab() {
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-[0.5625rem] text-muted-foreground">إضافة زمن مسرّع:</p>
+                        <p className="text-micro text-muted-foreground">إضافة زمن مسرّع:</p>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             onClick={() => triggerSimulatedTick(15)}
-                            className="py-1 rounded bg-[hsl(var(--fitness-primary)/0.1)] text-[hsl(var(--fitness-primary))] text-[0.5625rem] font-bold"
+                            className="py-1 rounded bg-[hsl(var(--fitness-primary)/0.1)] text-[hsl(var(--fitness-primary))] text-micro font-bold"
                           >
                             +15 ثانية
                           </button>
                           <button
                             onClick={() => triggerSimulatedTick(45)}
-                            className="py-1 rounded bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))] text-[0.5625rem] font-bold"
+                            className="py-1 rounded bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))] text-micro font-bold"
                           >
                             +45 ثانية
                           </button>
@@ -623,14 +623,14 @@ export default function ActivityTrackerTab() {
                             {act.route && act.route.length > 0 ? (
                               <RouteThumbnail route={act.route} height={40} className="w-full h-full text-[hsl(var(--fitness-primary))]" />
                             ) : (
-                              <span className="text-[0.5rem] text-muted-foreground/60">بلا مسار</span>
+                              <span className="text-micro text-muted-foreground/60">بلا مسار</span>
                             )}
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[0.75rem] font-bold text-foreground">
                               {act.activity_type === 'running' ? 'جري خارجي' : 'مشي خارجي'}
                             </span>
-                            <span className="text-[0.5625rem] text-muted-foreground/80 Montserrat">
+                            <span className="text-micro text-muted-foreground/80 Montserrat">
                               {startTimeDate.toLocaleDateString('ar-SA', {
                                 month: 'short',
                                 day: 'numeric',
@@ -643,11 +643,11 @@ export default function ActivityTrackerTab() {
 
                         {/* Left: Compact Stats & Chevron */}
                         <div className="flex items-center gap-3">
-                          <div className="text-right">
+                          <div className="text-start">
                             <p className="text-[0.75rem] font-bold text-foreground Montserrat tabular-nums leading-none">
-                              {distanceKm} <span className="text-[0.5625rem] font-normal text-muted-foreground">كم</span>
+                              {distanceKm} <span className="text-micro font-normal text-muted-foreground">كم</span>
                             </p>
-                            <p className="text-[0.5625rem] text-muted-foreground Montserrat tabular-nums mt-0.5">
+                            <p className="text-micro text-muted-foreground Montserrat tabular-nums mt-0.5">
                               {durationMins} د • {Math.round(act.calories || 0)} سعرة
                             </p>
                           </div>

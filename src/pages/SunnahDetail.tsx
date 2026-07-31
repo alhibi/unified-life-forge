@@ -1,6 +1,6 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import { useApp } from '@/contexts/AppContext';
@@ -14,7 +14,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [fontSize, setFontSize] = useState(18);
   const [direction, setDirection] = useState(0);
-  const navigate = useNavigate();
   const { dir } = useApp();
 
   const item = data.items[currentIndex];
@@ -104,7 +103,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
 }
 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
-  const navigate = useNavigate();
   
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };

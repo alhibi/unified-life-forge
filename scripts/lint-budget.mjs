@@ -16,7 +16,8 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -24,18 +25,32 @@ const BUDGET_FILE = path.resolve(import.meta.dirname, '../lint-budget.json');
 const write = process.argv.includes('--write');
 
 function runEslint() {
-  // ESLint exits non-zero when it reports errors; we want the JSON either way.
-  let stdout;
+  // The report is several megabytes. Capturing it through stdout made this
+  // script depend on the runtime honouring `maxBuffer` — Bun's `node` shim does
+  // not, so the JSON arrived truncated and the script died on
+  // `SyntaxError: Unterminated string` instead of reporting the budget.
+  // `--output-file` moves the payload out of the pipe entirely, which is
+  // correct on every runtime rather than on the one we happened to test.
+  const dir = mkdtempSync(path.join(tmpdir(), 'lint-budget-'));
+  const reportFile = path.join(dir, 'eslint.json');
   try {
-    stdout = execFileSync('bunx', ['eslint', '.', '-f', 'json'], {
-      encoding: 'utf8',
-      maxBuffer: 256 * 1024 * 1024,
-    });
-  } catch (err) {
-    if (!err.stdout) throw err;
-    stdout = err.stdout;
+    // ESLint exits non-zero when it reports errors; the report is still written.
+    try {
+      execFileSync('bunx', ['eslint', '.', '-f', 'json', '--output-file', reportFile], {
+        stdio: ['ignore', 'ignore', 'inherit'],
+      });
+    } catch (err) {
+      // Only a missing report means the run itself failed.
+      try {
+        readFileSync(reportFile, 'utf8');
+      } catch {
+        throw err;
+      }
+    }
+    return JSON.parse(readFileSync(reportFile, 'utf8'));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
-  return JSON.parse(stdout);
 }
 
 const results = runEslint();

@@ -61,7 +61,7 @@ describe('design-system budgets', () => {
     // scripts/codemod-type-rem.mjs) so the base-size preference can scale
     // them. The budget still ratchets: prefer the canonical scale.
     const { total } = countMatches(/text-\[\d+(?:\.\d+)?rem\]/g);
-    expect(total).toBeLessThanOrEqual(1719);
+    expect(total).toBeLessThanOrEqual(1713);
   });
 
   it('never authors a type size in px', () => {

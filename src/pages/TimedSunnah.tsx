@@ -1,6 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react'; 
-import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
@@ -10,7 +9,6 @@ import { BookOpen,Calendar, ChevronDown, Cloud, CloudSun, Copy, Moon, Sun } from
 import { notify } from '@/lib/notify';
 
 export default function TimedSunnah() {
-  const navigate = useNavigate();
   const { t, dir } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);

@@ -210,26 +210,15 @@ function buildSummary(reasons: DeloadReason[], severity: DeloadSeverity): { ar: 
       ar: 'الحمل التدريبي ضمن المنطقة المثالية. تابع برنامجك.',
     };
   }
+  // A parallel German string was assembled here for every branch and then never
+  // read — the return type only ever had `ar`. The linter could not see it because
+  // `.push()` counts as using the array.
   const arParts: string[] = [];
-  const deParts: string[] = [];
-  if (reasons.includes('acwr_high')) {
-    arParts.push('تراكم حمل عالٍ');
-    deParts.push('hohe Belastung');
-  }
-  if (reasons.includes('soreness')) {
-    arParts.push('وجع متراكم');
-    deParts.push('viel Muskelkater');
-  }
-  if (reasons.includes('no_pr_streak')) {
-    arParts.push('ركود في الأرقام القياسية');
-    deParts.push('Stagnation der Rekorde');
-  }
-  if (reasons.includes('scheduled')) {
-    arParts.push('أسبوع ديلود مقرر');
-    deParts.push('geplante Deload-Woche');
-  }
+  if (reasons.includes('acwr_high')) arParts.push('تراكم حمل عالٍ');
+  if (reasons.includes('soreness')) arParts.push('وجع متراكم');
+  if (reasons.includes('no_pr_streak')) arParts.push('ركود في الأرقام القياسية');
+  if (reasons.includes('scheduled')) arParts.push('أسبوع ديلود مقرر');
   const sevAr = severity === 'reset' ? 'ديلود قوي' : severity === 'standard' ? 'ديلود معتاد' : 'ديلود خفيف';
-  const sevDe = severity === 'reset' ? 'starker Deload' : severity === 'standard' ? 'klassischer Deload' : 'sanfter Deload';
   return {
     ar: `موصى به ${sevAr} — ${arParts.join('، ')}.`,
   };

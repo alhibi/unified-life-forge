@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, expect, it, vi } from 'vitest';
+
 import { calculateHaversineDistance, estimateCalories } from '../useActivityTracking';
 
 // Mock Geolocation and Supabase to isolate tests
