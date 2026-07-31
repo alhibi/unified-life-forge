@@ -10,9 +10,7 @@ import {
   Info,
   MapPin,
   Play,
-  Square,
   Trash2,
-  Zap,
 } from '@/lib/icons';
 
 import { deleteFitnessActivity, insertFitnessActivity } from './api';
@@ -20,8 +18,8 @@ import { FullActivityMap } from './FullActivityMap';
 import { HealthConnectCard } from './HealthConnectCard';
 import { LiveSessionPanel } from './LiveSessionPanel';
 import { RouteThumbnail } from './RouteThumbnail';
-import { StatsPanel } from './StatsPanel';
 import { dayKey } from './stats';
+import { StatsPanel } from './StatsPanel';
 import type { FitnessActivity, RoutePoint } from './types';
 import { estimateCalories,useActivityTracking } from './useActivityTracking';
 
@@ -232,16 +230,6 @@ export default function ActivityTrackerTab() {
     }
   };
 
-  const formatTrackingTime = (totalSecs: number) => {
-    const hrs = Math.floor(totalSecs / 3600);
-    const mins = Math.floor((totalSecs % 3600) / 60);
-    const secs = totalSecs % 60;
-    return [
-      hrs > 0 ? String(hrs).padStart(2, '0') : null,
-      String(mins).padStart(2, '0'),
-      String(secs).padStart(2, '0'),
-    ].filter(Boolean).join(':');
-  };
 
   return (
     <div

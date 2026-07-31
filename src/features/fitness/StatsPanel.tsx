@@ -15,8 +15,8 @@ import {
   buildDailySeries,
   computeRecords,
   computeStreaks,
-  summarizeRange,
   type DailyMetric,
+  summarizeRange,
 } from './stats';
 import type { FitnessActivity } from './types';
 
