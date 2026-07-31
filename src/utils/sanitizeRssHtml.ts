@@ -9,28 +9,56 @@ import DOMPurify from 'dompurify';
 
 // One configured profile shared across the app. Centralising it means a
 // future tweak (allow `<aside>`, deny `<figure>`, etc.) is a single edit.
+//
+// NOTE ON `USE_PROFILES` — it used to be set here, and it silently disabled the
+// two allowlists below. DOMPurify *replaces* `ALLOWED_TAGS` and `ALLOWED_ATTR`
+// with the profile's own sets when `USE_PROFILES` is present rather than
+// intersecting them, so the carefully written 25-tag / 13-attribute allowlist did
+// nothing and the full HTML profile was in force. Demonstrated with dompurify
+// 3.4.3: `<div style="position:fixed">` and `<table>` both survived a config whose
+// allowlists named neither.
+//
+// The practical consequence was that `style` was allowed on every element, so a
+// feed could ship `style="position:fixed;inset:0;z-index:99999"` and cover the
+// whole viewport with its own content — and only the `FORBID_*` denylists were
+// actually protecting anything, which is the weaker posture the header comment
+// above says this module moved away from. It is removed; the allowlists are now
+// the primary control and the denylists are defence in depth.
 const RSS_SANITIZE_CONFIG = {
   ALLOWED_TAGS: [
-    'p', 'br', 'span', 'div',
+    'p', 'br', 'span', 'div', 'hr',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'strong', 'b', 'em', 'i', 'u', 's', 'code', 'pre', 'blockquote',
     'a', 'img', 'figure', 'figcaption',
-    'ul', 'ol', 'li',
-    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+    'table', 'caption', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+    // Common in article prose. Previously reachable only because USE_PROFILES was
+    // quietly allowing the whole HTML profile; naming them keeps the rendering
+    // identical now that the allowlist is real. `KEEP_CONTENT` means an omitted
+    // tag loses its formatting but never its text.
+    'sup', 'sub', 'small', 'mark', 'abbr', 'time', 'q', 'cite', 'del', 'ins',
   ],
   ALLOWED_ATTR: [
     'href', 'src', 'alt', 'title',
     'width', 'height',
     'target', 'rel', 'loading',
+    // Set by the hook below. Without it here, a second sanitise pass strips the
+    // attribute the first pass added, so the function was not idempotent.
+    'referrerpolicy',
     'class',
+    'datetime', 'cite',
   ],
   ALLOW_DATA_ATTR: false,
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'svg', 'math', 'form', 'input', 'button', 'meta', 'link'],
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'srcset', 'srcdoc', 'formaction'],
-  // Only allow http(s) and relative URLs. data: URLs are blocked outright
-  // since a base64 SVG can still contain script in some browsers.
+  // http(s), mailto, tel and relative URLs only.
+  //
+  // This does NOT cover `data:` — DOMPurify exempts a fixed set of media tags
+  // (img, audio, video, source, track) from `ALLOWED_URI_REGEXP` entirely, so a
+  // `data:` image passes no matter what this pattern says. The header comment
+  // claimed data URLs were "blocked outright"; they were not. The hook below
+  // enforces it, because a config key cannot.
   ALLOWED_URI_REGEXP: /^(?:(?:https?:|mailto:|tel:)|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
-  USE_PROFILES: { html: true },
   KEEP_CONTENT: true,
 };
 
@@ -43,12 +71,26 @@ function ensureHook(): void {
   hookInstalled = true;
   DOMPurify.addHook('afterSanitizeAttributes', (node) => {
     if (!(node instanceof Element)) return;
+
+    // `data:` bypasses ALLOWED_URI_REGEXP on DOMPurify's media tags, so it has to
+    // be rejected here. Feeds address their media over http(s); a data URL in one
+    // is an unvetted channel that also defeats the referrer policy below and shows
+    // up in no CSP report.
+    for (const attr of ['src', 'href'] as const) {
+      const value = node.getAttribute(attr);
+      if (value && /^\s*data:/i.test(value)) node.removeAttribute(attr);
+    }
+
     if (node.tagName === 'A') {
       node.setAttribute('target', '_blank');
       node.setAttribute('rel', 'noopener noreferrer nofollow');
     }
-    if (node.tagName === 'IMG' && !node.getAttribute('loading')) {
-      node.setAttribute('loading', 'lazy');
+    if (node.tagName === 'IMG') {
+      // Set unconditionally rather than only when `loading` is absent: gating both
+      // attributes on one of them meant re-sanitising already-clean output dropped
+      // `referrerpolicy` (stripped on the way in, not re-added on the way out), so
+      // the second pass produced different HTML from the first.
+      if (!node.getAttribute('loading')) node.setAttribute('loading', 'lazy');
       node.setAttribute('referrerpolicy', 'no-referrer');
     }
   });

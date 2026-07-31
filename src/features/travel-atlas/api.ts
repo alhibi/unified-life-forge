@@ -1,6 +1,10 @@
 import { supabase as typedClient } from '@/integrations/supabase/client';
 
-import { type AtlasCountry, atlasCountryCenter, findAtlasCountry } from './data/countryRegistry';
+// `atlasCountryCenter` is no longer imported here: the ensure_country RPC derives
+// the centre from the bounds server-side, so the client no longer computes a value
+// the database is about to recompute anyway. It is still exported and tested for
+// the map's own use.
+import { type AtlasCountry, findAtlasCountry } from './data/countryRegistry';
 import { preparePlacePhoto } from './lib/photoPipeline';
 import {
   type ChecklistCategory,
@@ -525,10 +529,20 @@ export async function removeCountryStamp(isoCode: string): Promise<void> {
 // ── Country seeding ─────────────────────────────────────────────────────────
 
 /**
- * Country rows are public reference data with no client write policy, so the
- * first place saved in a country creates its row. `center` is derived from the
- * country's bounds — v1 omitted it against a NOT NULL column, which is why
- * saving a place in a new country used to fail outright.
+ * Resolves a catalogue entry to a `countries.id`, creating the row on first use.
+ *
+ * `countries` is world-readable reference data with **no client INSERT policy** —
+ * 20260725093631 dropped the `WITH CHECK (true)` one that let any authenticated
+ * account write arbitrary rows into a table everyone reads. This function used to
+ * insert directly, so from that migration onward every `createPlace` in a country
+ * without an existing row threw an RLS violation and the save failed outright.
+ *
+ * It now calls the `ensure_country` SECURITY DEFINER RPC
+ * (supabase/migrations/20260731120000_ensure_country_rpc.sql), which validates the
+ * ISO code, name lengths, continent and bounds server-side, owns `places_count`
+ * and `cover_image_url` itself, derives `center` from the bounds, and is
+ * idempotent under concurrent first-saves. The read below stays as a fast path so
+ * the common case — a country that already exists — costs a plain SELECT.
  */
 async function ensureCountry(entry: AtlasCountry): Promise<string> {
   const { data: existing, error: selectError } = await db
@@ -539,21 +553,16 @@ async function ensureCountry(entry: AtlasCountry): Promise<string> {
   if (selectError && !isMissingRelation(selectError)) throw selectError;
   if (existing?.id) return existing.id as string;
 
-  const [lng, lat] = atlasCountryCenter(entry);
-  const { data: inserted, error: insertError } = await db
-    .from('countries')
-    .insert({
-      iso_code: entry.isoCode,
-      name_ar: entry.nameAr,
-      name_en: entry.nameEn,
-      continent: entry.continent,
-      center: { type: 'Point', coordinates: [lng, lat] },
-      bounds: { sw: entry.bounds.sw, ne: entry.bounds.ne },
-    })
-    .select('id')
-    .single();
-  if (insertError) throw insertError;
-  return inserted.id as string;
+  const { data: id, error: rpcError } = await db.rpc('ensure_country', {
+    p_iso_code: entry.isoCode,
+    p_name_ar: entry.nameAr,
+    p_name_en: entry.nameEn,
+    p_bounds: { sw: entry.bounds.sw, ne: entry.bounds.ne },
+    p_continent: entry.continent ?? null,
+  });
+  if (rpcError) throw rpcError;
+  if (!id) throw new Error('atlas:country_unavailable');
+  return id as string;
 }
 
 // ── Writes ──────────────────────────────────────────────────────────────────

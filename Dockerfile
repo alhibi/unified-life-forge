@@ -22,8 +22,13 @@ RUN bun run build
 # ==========================================
 FROM nginx:1.27-alpine AS runner
 
-# Copy custom high-performance, secure Nginx configuration
+# Copy custom high-performance, secure Nginx configuration.
+# security-headers.conf is `include`d by every location block in nginx.conf —
+# nginx's add_header does not inherit, so the set has to be repeated per location.
+# nginx fails to start if the include is missing, so a forgotten COPY here surfaces
+# immediately rather than as a silently header-less deployment.
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/security-headers.conf /etc/nginx/security-headers.conf
 
 # Copy production assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
