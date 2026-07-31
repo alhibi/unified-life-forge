@@ -64,10 +64,11 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
-import { useApp } from '@/contexts/AppContext';
+import { useAppSelector } from '@/contexts/AppContext';
 
 import { type IconName } from './icons/names';
 import hugeiconsRegistry from './icons/registry.hugeicons';
@@ -231,7 +232,16 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
 /* ------------------------------------------------------------------------- */
 
 export function IconProvider({ children }: { children: ReactNode }) {
-  const { interactionStyle } = useApp();
+  // `useAppSelector`, not `useApp()`. This provider sits above the entire tree and
+  // reads exactly one field, but `useApp()` subscribes to all 125 members of
+  // AppContext, so every preference change anywhere re-rendered it.
+  //
+  // Note on what this does and does not fix: the icons *below* this provider are
+  // protected by the `useMemo` further down, not by this line — that was measured,
+  // not assumed (`AppContext.renders.test.tsx` still passes with `useApp()` here, and
+  // fails the moment the memo goes). What the selector removes is this component's
+  // own render work on every unrelated preference change.
+  const interactionStyle = useAppSelector((s) => s.interactionStyle);
   const weight: NonNullable<IconProps['weight']> =
     interactionStyle === 'lively' ? 'bold' : ICON_WEIGHT;
 
@@ -255,8 +265,22 @@ export function IconProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute('data-icon-set', set);
   }, [set]);
 
+  // Memoised because this is a *context value*. An inline object literal is a new
+  // reference on every render, so Phosphor's IconContext was invalidated — and every
+  // icon on screen re-rendered — whenever this provider rendered, even though
+  // `weight` almost never changes. Since this provider sits above the whole tree and
+  // used to re-render on any of 125 preference fields, that was every icon in the
+  // app on every settings tweak.
+  //
+  // Removing this `useMemo` makes `AppContext.renders.test.tsx` fail; it is the load-
+  // bearing half of the fix.
+  const iconContextValue = useMemo(
+    () => ({ weight, size: ICON_DEFAULT_SIZE, color: 'currentColor' }),
+    [weight],
+  );
+
   return (
-    <IconContext.Provider value={{ weight, size: ICON_DEFAULT_SIZE, color: 'currentColor' }}>
+    <IconContext.Provider value={iconContextValue}>
       <IconSetContext.Provider value={set}>{children}</IconSetContext.Provider>
     </IconContext.Provider>
   );

@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -315,6 +316,91 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Selector subscriptions
+ *
+ * `AppContextType` has 125 members and the `value` memo below has a 128-entry
+ * dependency array, so any preference change produces a new object and re-renders
+ * every one of the 54 files calling `useApp()` — including the ones that only read
+ * `theme` while `motionSpeed` changed.
+ *
+ * Splitting the provider into separate contexts would mean editing all 54 call
+ * sites. This is the cheaper half of the fix: the same value is also published
+ * through a tiny external store, so a consumer can subscribe to one field instead
+ * of the whole object. `useApp()` is untouched and keeps working exactly as before;
+ * `useAppSelector()` is the path for new code and for the hot consumers.
+ *
+ * `src/contexts/__tests__/AppContext.renders.test.tsx` measures both.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+interface AppStore {
+  subscribe(onChange: () => void): () => void;
+  getSnapshot(): AppContextType;
+}
+
+const AppStoreContext = createContext<AppStore | undefined>(undefined);
+
+/** Shallow equality over one level of an object, for object-returning selectors. */
+function shallowEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) return false;
+  const ka = Object.keys(a as Record<string, unknown>);
+  const kb = Object.keys(b as Record<string, unknown>);
+  if (ka.length !== kb.length) return false;
+  return ka.every(
+    (k) =>
+      Object.hasOwn(b as Record<string, unknown>, k) &&
+      Object.is((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
+  );
+}
+
+/**
+ * Subscribes to one slice of the app preferences.
+ *
+ * ```ts
+ * const theme = useAppSelector((s) => s.theme);
+ * ```
+ *
+ * Re-renders only when the selected value changes. A selector may return an object
+ * — the result is compared shallowly, so `(s) => ({ a: s.a, b: s.b })` is stable and
+ * does not send `useSyncExternalStore` into a loop.
+ *
+ * Prefer this over `useApp()` in anything that renders often, and especially in
+ * anything mounted high in the tree.
+ */
+export function useAppSelector<T>(selector: (state: AppContextType) => T): T {
+  const store = useContext(AppStoreContext);
+  if (!store) throw new Error('useAppSelector must be used within AppProvider');
+
+  // The last value handed to React, kept so `getSnapshot` can return a
+  // referentially stable result for an equal-but-new selector output. Without this,
+  // an object-returning selector produces a fresh object on every call and React
+  // treats the store as permanently changed.
+  const cache = useRef<{ source: AppContextType; value: T } | null>(null);
+
+  const getSelection = useCallback(() => {
+    const source = store.getSnapshot();
+    const previous = cache.current;
+    if (previous && previous.source === source) return previous.value;
+
+    const next = selector(source);
+    if (previous && shallowEqual(previous.value, next)) {
+      // Same value, new source object: keep the old reference so React sees no
+      // change, but remember the new source so the comparison is not redone.
+      cache.current = { source, value: previous.value };
+      return previous.value;
+    }
+    cache.current = { source, value: next };
+    return next;
+    // `selector` is intentionally not a dependency: call sites pass an inline arrow,
+    // which would be a new function every render and make this callback useless.
+    // The selector is expected to be pure in the state it is given.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store]);
+
+  return useSyncExternalStore(store.subscribe, getSelection, getSelection);
+}
 
 // How long to wait before flushing settings to the database after a setting
 // change. Multiple rapid changes coalesce into a single upsert.
@@ -2037,7 +2123,46 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  // ── Publish the same value through an external store ────────────────────
+  //
+  // The snapshot is assigned during render rather than in an effect, deliberately.
+  // An effect runs after commit, so for one commit a `useAppSelector` consumer would
+  // still read the previous value while a `useApp()` consumer already had the new
+  // one — the two would disagree about the current theme within a single frame.
+  // Assigning here keeps them in step, which is the property
+  // `AppContext.renders.test.tsx` asserts under "does not tear".
+  //
+  // This is safe for a mirror of a value React itself just computed: the ref is only
+  // ever written with `value`, never read to produce `value`, so a discarded render
+  // leaves nothing stale behind — the next render overwrites it before any consumer
+  // can observe it.
+  const snapshot = useRef(value);
+  snapshot.current = value;
+
+  const listeners = useRef<Set<() => void>>(new Set());
+
+  const store = useMemo<AppStore>(
+    () => ({
+      subscribe(onChange) {
+        listeners.current.add(onChange);
+        return () => listeners.current.delete(onChange);
+      },
+      getSnapshot: () => snapshot.current,
+    }),
+    [],
+  );
+
+  // Notifying in an effect (not during render) is required: calling a subscriber
+  // mid-render would setState on another component while this one is rendering.
+  useEffect(() => {
+    for (const listener of listeners.current) listener();
+  }, [value]);
+
+  return (
+    <AppStoreContext.Provider value={store}>
+      <AppContext.Provider value={value}>{children}</AppContext.Provider>
+    </AppStoreContext.Provider>
+  );
 }
 
 export function useApp() {
