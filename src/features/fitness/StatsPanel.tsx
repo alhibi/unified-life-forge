@@ -8,7 +8,7 @@
 import { memo, useMemo, useState } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 
-import { Flame, Footprints, Mountain, Timer, TrendingUp, Trophy } from '@/lib/icons';
+import { Flame, Gauge, Mountain, Timer, TrendingUp, Trophy } from '@/lib/icons';
 
 import { formatDuration, formatPace } from './metrics';
 import {
@@ -218,7 +218,7 @@ function StatsPanelImpl({ activities, metrics, accent }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Footprints className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <Gauge className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             <div>
               <p className="text-[0.5625rem] text-muted-foreground">أسرع إيقاع</p>
               <p className="text-[0.75rem] font-bold tabular-nums text-foreground">
