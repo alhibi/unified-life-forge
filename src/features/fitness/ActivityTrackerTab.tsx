@@ -108,42 +108,10 @@ export default function ActivityTrackerTab() {
     return { primaryColor, gridColor, textFill };
   }, [isDark]);
 
-  // Aggregate user statistics for the last 7 days (Weekly Trend Data)
-  const weeklyTrends = useMemo(() => {
-    // Create an array of the last 7 days starting from today and moving backward
-    const daysData = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      const dayName = d.toLocaleDateString('ar-SA', { weekday: 'short' });
-      const dateKey = d.toISOString().substring(0, 10);
-      return {
-        dateKey,
-        day: dayName,
-        steps: 0,
-        calories: 0,
-        hasActivity: false,
-      };
-    });
-
-    // Overlay actual GPS track steps and calories on top of daily baseline
-    activities.forEach((act) => {
-      const actDate = act.start_time.substring(0, 10);
-      const match = daysData.find((d) => d.dateKey === actDate);
-      if (match) {
-        match.hasActivity = true;
-        const extraSteps = Math.round((act.distance_meters || 0) / 0.75);
-        const extraCalories = Math.round(act.calories || 0);
-        match.steps += extraSteps;
-        match.calories += extraCalories;
-      }
-    });
-
-    return daysData;
-  }, [activities]);
-
-  // Summary Metrics (Today's performance)
+  // Summary Metrics (Today's performance) — device metrics win over GPS estimates.
   const todaySummary = useMemo(() => {
-    const todayStr = new Date().toISOString().substring(0, 10);
+    const todayStr = dayKey(new Date());
+    const deviceToday = dailyMetrics.find((m) => m.date === todayStr);
 
     // Default high-precision baseline values for general physical life
     let steps = 0;
@@ -151,12 +119,19 @@ export default function ActivityTrackerTab() {
     let calories = 0;
     let heartRate = 0;
 
+    if (deviceToday) {
+      steps = Math.round(deviceToday.steps || 0);
+      distanceKm = Math.round(((deviceToday.distance_meters || 0) / 1000) * 10) / 10;
+      calories = Math.round(deviceToday.calories || 0);
+      heartRate = Math.round(deviceToday.avg_heart_rate || 0);
+    }
+
     // Filter sessions recorded today
     const todayActivities = activities.filter(
-      (a) => a.start_time.substring(0, 10) === todayStr
+      (a) => dayKey(a.start_time) === todayStr
     );
 
-    if (todayActivities.length > 0) {
+    if (todayActivities.length > 0 && !deviceToday) {
       const sessionDist = todayActivities.reduce((sum, a) => sum + (a.distance_meters || 0), 0);
       const sessionCals = todayActivities.reduce((sum, a) => sum + (a.calories || 0), 0);
 
@@ -179,7 +154,7 @@ export default function ActivityTrackerTab() {
     }
 
     return { steps, distanceKm, calories, heartRate };
-  }, [activities]);
+  }, [activities, dailyMetrics]);
 
   // Request location permission flow
   const handlePermissionRequest = async () => {
