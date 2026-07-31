@@ -418,138 +418,33 @@ export default function ActivityTrackerTab() {
               </div>
             </div>
 
-            {/* Two Beautifully Styled Small Trend Charts (Stacked dynamically, Minimal styling) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Steps AreaChart */}
-              <div className="space-y-2 text-start">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[0.6875rem] font-bold text-foreground tracking-wide uppercase">
-                    معدل الخطوات اليومي
-                  </h3>
-                  <span className="text-[0.5625rem] text-muted-foreground/80 Montserrat">آخر 7 أيام</span>
-                </div>
-                <div className="h-28 w-full border border-border/20 bg-card/10 rounded-xl p-1.5">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={weeklyTrends} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
-                      <defs>
-                        <linearGradient id="stepsGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={colors.primaryColor} stopOpacity={0.15} />
-                          <stop offset="95%" stopColor={colors.primaryColor} stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="day"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 8, fill: colors.textFill }}
-                      />
-                      <Tooltip content={<CustomChartTooltip unit="خطوة" />} cursor={{ stroke: 'rgba(255,255,255,0.02)' }} />
-                      <Area
-                        type="monotone"
-                        dataKey="steps"
-                        stroke={colors.primaryColor}
-                        strokeWidth={1}
-                        fillOpacity={1}
-                        fill="url(#stepsGradient)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Calories AreaChart */}
-              <div className="space-y-2 text-start">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[0.6875rem] font-bold text-foreground tracking-wide uppercase">
-                    السعرات المحروقة اليومية
-                  </h3>
-                  <span className="text-[0.5625rem] text-muted-foreground/80 Montserrat">آخر 7 أيام</span>
-                </div>
-                <div className="h-28 w-full border border-border/20 bg-card/10 rounded-xl p-1.5">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={weeklyTrends} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
-                      <defs>
-                        <linearGradient id="calsGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={colors.primaryColor} stopOpacity={0.15} />
-                          <stop offset="95%" stopColor={colors.primaryColor} stopOpacity={0.0} />
-                        </linearGradient>
-                      </defs>
-                      <XAxis
-                        dataKey="day"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 8, fill: colors.textFill }}
-                      />
-                      <Tooltip content={<CustomChartTooltip unit="سعرة" />} cursor={{ stroke: 'rgba(255,255,255,0.02)' }} />
-                      <Area
-                        type="monotone"
-                        dataKey="calories"
-                        stroke={colors.primaryColor}
-                        strokeWidth={1}
-                        fillOpacity={1}
-                        fill="url(#calsGradient)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
+            {/* Analytics: range summary, trends, streaks and records */}
+            <StatsPanel
+              activities={activities}
+              metrics={dailyMetrics}
+              accent={colors.primaryColor}
+            />
 
             {/* GPS Tracker Live Panel or Action Triggers */}
             <AnimatePresence mode="wait">
               {isTracking ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  className="rounded-section border-2 border-[hsl(var(--fitness-primary)/0.4)] bg-card/40 p-4 space-y-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-bold bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))]">
-                      <Zap className="w-3.5 h-3.5 animate-pulse text-[hsl(var(--fitness-primary))]" />
-                      {activityType === 'running' ? 'تتبع الجري نشط' : 'تتبع المشي نشط'}
-                      {trackingSource === 'auto' && ' (تلقائي)'}
-                    </span>
-                    <span className="text-[0.6875rem] font-semibold text-muted-foreground Montserrat tabular-nums">
-                      {formatTrackingTime(durationSeconds)}
-                    </span>
-                  </div>
-
-                  {/* Inline Live map route canvas preview */}
-                  <div className="rounded-xl overflow-hidden border border-border/30 h-32 bg-background/50">
-                    <FullActivityMap route={route} height={128} />
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-[0.5625rem] text-muted-foreground">المسافة</p>
-                      <p className="text-[0.9375rem] font-bold Montserrat tabular-nums text-foreground">
-                        {Math.round(distanceMeters)} <span className="text-[0.625rem] text-muted-foreground">م</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[0.5625rem] text-muted-foreground">السرعة الحالية</p>
-                      <p className="text-[0.9375rem] font-bold Montserrat tabular-nums text-foreground">
-                        {durationSeconds > 0 ? Math.round((distanceMeters / durationSeconds) * 3.6 * 10) / 10 : 0}
-                        <span className="text-[0.625rem] text-muted-foreground ms-1">كم/س</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[0.5625rem] text-muted-foreground">السعرات المقدرة</p>
-                      <p className="text-[0.9375rem] font-bold Montserrat tabular-nums text-foreground">
-                        {calories} <span className="text-[0.625rem] text-muted-foreground">ك</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleStopManual}
-                    className="w-full h-10 rounded-button bg-destructive text-destructive-foreground text-[0.6875rem] font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
-                  >
-                    <Square className="w-3.5 h-3.5" />
-                    إيقاف وحفظ تتبع النشاط
-                  </button>
-                </motion.div>
+                <LiveSessionPanel
+                  activityType={activityType}
+                  trackingSource={trackingSource}
+                  route={route}
+                  distanceMeters={distanceMeters}
+                  durationSeconds={durationSeconds}
+                  calories={calories}
+                  currentPaceSecPerKm={currentPaceSecPerKm}
+                  avgPaceSecPerKm={avgPaceSecPerKm}
+                  gpsAccuracy={gpsAccuracy}
+                  elevationGain={elevationGain}
+                  splits={splits}
+                  isPaused={isPaused}
+                  autoPaused={autoPaused}
+                  onTogglePause={togglePause}
+                  onStop={handleStopManual}
+                />
               ) : (
                 /* Primary Actions Grid */
                 <div className="grid grid-cols-2 gap-3">
