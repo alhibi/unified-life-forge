@@ -75,8 +75,11 @@ jobs:
           fi
           echo "Icon registries are up to date."
 
-      - name: Unit tests
-        run: bun run test
+      - name: Unit tests with coverage thresholds
+        # Coverage is a ratchet with floors set from a measured run (see the note in
+        # vitest.config.ts about why they are low rather than aspirational). Istanbul,
+        # not v8: @vitest/coverage-v8 needs node:inspector, which Bun does not have.
+        run: bun run test:coverage
 
   build:
     name: Production build
@@ -118,16 +121,47 @@ jobs:
         # covers every asset index.html loads up front.
         run: bun run test build/__tests__/appShellServiceWorker.test.ts
 
-      - name: Report bundle sizes
-        # Not a gate, just a number in the log so a jump is visible in review.
+      - name: First-paint bundle budget
+        # This step used to only *print* the largest chunks. Printing is not gating:
+        # the entry chunk reached 11 MB raw / 1.97 MB gzipped behind a blocking
+        # <script> — 96% of it icon data from four libraries — and the number was in
+        # the log on every single run.
+        #
+        # It now fails the build. It measures only what a first-time visitor must
+        # download before anything renders (entry script + stylesheet + every
+        # modulepreload in index.html); lazy route chunks are excluded, because
+        # deferring them is the whole point of the code splitting.
         run: |
-          echo "### Largest chunks" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          ls -S dist/assets/*.js | head -12 | while read -r f; do
-            printf '%8s KB  %s\n' "$(( $(wc -c < "$f") / 1024 ))" "$(basename "$f")"
-          done >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          echo "Total JS: $(( $(cat dist/assets/*.js | wc -c) / 1024 )) KB" >> "$GITHUB_STEP_SUMMARY"
+          # Deliberately not `bun run bundle:budget | tee`. GitHub runs steps with
+          # `bash -e`, not `-o pipefail`, so a pipeline exits with the status of the
+          # LAST command — `tee` always succeeds, and the gate would silently never
+          # fail. Capture first, then re-raise the real exit code.
+          set -o pipefail
+          bun run bundle:budget | tee budget.txt
+          status=$?
+          {
+            echo '### First-paint bundle budget'
+            echo '```'
+            cat budget.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          rm -f budget.txt
+          exit $status
+
+      - name: Report all chunk sizes
+        # Still useful in review, but no longer the only thing between a size
+        # regression and production.
+        if: always()
+        run: |
+          {
+            echo '### All chunks'
+            echo '```'
+            ls -S dist/assets/*.js | head -15 | while read -r f; do
+              printf '%8s KB  %s\n' "$(( $(wc -c < "$f") / 1024 ))" "$(basename "$f")"
+            done
+            echo "Total JS: $(( $(cat dist/assets/*.js | wc -c) / 1024 )) KB"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   e2e:
     name: End-to-end (Playwright)

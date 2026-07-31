@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { supabase } from '@/integrations/supabase/client';
 
+import { coalesceOutbox } from '../lib/coalesceOutbox';
 import { type LocalNote,type OutboxEntry, pkmDb } from '../lib/db';
 
 const BATCH = 20;
@@ -138,23 +139,10 @@ export function useSyncEngine() {
       const pkmNotes = batch.filter((entry) => entry.table === 'pkm_notes');
       if (pkmNotes.length === 0) return true;
 
-      // Coalesce operations: only keep the last operation per rowId
-      const coalescedMap = new Map<string, OutboxEntry>();
-      for (const entry of pkmNotes) {
-        coalescedMap.set(entry.rowId, entry);
-      }
-      const coalescedEntries = Array.from(coalescedMap.values());
-
-      const upserts: Record<string, unknown>[] = [];
-      const deleteIds: string[] = [];
-
-      for (const entry of coalescedEntries) {
-        if (entry.op === 'delete') {
-          deleteIds.push(entry.rowId);
-        } else {
-          upserts.push(entry.payload);
-        }
-      }
+      // Collapse the batch to at most one upsert and one tombstone call. Lives in
+      // lib/coalesceOutbox.ts so it can actually be tested — see the note there
+      // about the test that used to "cover" it.
+      const { upserts, deleteIds } = coalesceOutbox(pkmNotes);
 
       if (upserts.length > 0) {
         const { error } = await supabase

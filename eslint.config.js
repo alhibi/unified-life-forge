@@ -119,6 +119,34 @@ export default tseslint.config(
       ],
       "@typescript-eslint/ban-ts-comment": "warn",
 
+      //   no-restricted-imports — the data-layer chokepoint
+      //     docs/architecture/data-layer.md states the rule plainly: "No file
+      //     outside src/features/*/api.ts (or src/lib/<feature>/api.ts) may import
+      //     from @/integrations/supabase/client." Nothing enforced it, and 54 of the
+      //     65 importers are in breach — contexts, hooks, page components and
+      //     feature internals all reach the database directly.
+      //
+      //     That is why there are three separate offline caches, why the same query
+      //     is written differently in two chat stacks, and why `AppContext` is both
+      //     a theming provider and a data-access layer. It is a warning rather than
+      //     an error because 54 files cannot move at once; the override below turns
+      //     it off for the paths the rule actually permits, so new code cannot add
+      //     to the count.
+      'no-restricted-imports': [
+        'warn',
+        {
+          paths: [
+            {
+              name: '@/integrations/supabase/client',
+              message:
+                'Only a feature api.ts may talk to Supabase (docs/architecture/data-layer.md). ' +
+                'Put the query in src/features/<feature>/api.ts or src/lib/<feature>/api.ts and ' +
+                'import that instead. src/lib/chat/ is the reference implementation.',
+            },
+          ],
+        },
+      ],
+
       //   no-console (migrating to src/lib/logger.ts)
       //     160 bare console calls across 65 files. 84 of them were
       //     `console.error` in a catch block, which means the error was handled,
@@ -148,6 +176,17 @@ export default tseslint.config(
       "src/lib/navPerf.ts",
     ],
     rules: { "no-console": "off" },
+  },
+  {
+    // The data layer itself, plus the client module. These are the files the rule
+    // exists to concentrate Supabase access *into*.
+    files: [
+      "src/features/*/api.ts",
+      "src/features/*/lib/api.ts",
+      "src/lib/*/api.ts",
+      "src/integrations/supabase/**/*.ts",
+    ],
+    rules: { "no-restricted-imports": "off" },
   },
   {
     // The icon barrel and its generated registries.

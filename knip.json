@@ -1,0 +1,31 @@
+{
+  "entry": [
+    "src/main.tsx",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "tailwind.config.ts",
+    "postcss.config.js",
+    "eslint.config.js",
+    "scripts/**/*.{mjs,ts}",
+    "build/**/*.ts",
+    "e2e/**/*.ts",
+    "supabase/functions/**/index.ts",
+    "src/**/*.{test,spec}.{ts,tsx}"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "build/**/*.ts", "scripts/**/*.{mjs,ts}"],
+  "ignore": [
+    "src/integrations/supabase/types.ts",
+    "src/lib/icons/registry.*.ts",
+    "src/components/ui/**"
+  ],
+  "ignoreDependencies": [
+    "@fontsource/cormorant-garamond",
+    "@fontsource/montserrat",
+    "tailwindcss-animate",
+    "@tailwindcss/typography",
+    "autoprefixer",
+    "postcss"
+  ],
+  "ignoreBinaries": ["supabase"]
+}
