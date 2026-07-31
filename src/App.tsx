@@ -5,9 +5,11 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 
 import { CommandPalette } from "@/components/CommandPalette";
 import EdgeSwipeBack from "@/components/EdgeSwipeBack";
+import AuthGuard from "@/components/AuthGuard";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import PortalBackButton from "@/components/portal/PortalBackButton";
+import RouteErrorBoundary from "@/components/RouteErrorBoundary";
 import ScrollToTop from "@/components/ScrollToTop";
 // One toast system. The Radix-based <Toaster/> used to be mounted next to
 // Sonner even though a single call site (AddPlaceSheet) used it, so the app
@@ -26,7 +28,6 @@ import { useNavDirection } from "@/hooks/useNavDirection";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 import { usePresence } from "@/hooks/usePresence";
 import { IconProvider } from "@/lib/icons";
-import { useInChatConversation } from "@/lib/inChatConversation";
 import {
   buildTabLayerVariants,
   type NavMode,
@@ -34,6 +35,11 @@ import {
 } from "@/lib/motion";
 import { navStart } from "@/lib/navPerf";
 import { registerRoute } from "@/lib/routePrefetch";
+import {
+  ROUTE_COMPONENTS,
+  ROUTE_REDIRECTS,
+  ROUTES,
+} from "@/routes/manifest";
 // Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
 // the entry chunk for the 99% of sessions that never enable it.
 const SplitWorkspace = lazy(() => import("@/components/SplitWorkspace"));
@@ -48,7 +54,11 @@ import Portal from "./pages/Portal";
 // parsed before the home screen could paint, even though most sessions
 // never open it. Both are prefetched on idle below, so the first tap still
 // feels immediate.
-const loadGames = () => import("./features/games/pages/Games");
+//
+// These two stay here rather than in src/routes/manifest.ts because they are not
+// routed pages: <PersistentTabs/> mounts them once and toggles visibility, so the
+// manifest's `<Route>`/AuthGuard/error-boundary machinery does not apply to them.
+const loadGames = () => import("@/features/games/pages/Games");
 const loadChatTab = () => import("@/features/chat/pages/Chat");
 const GamesPage = lazy(loadGames);
 const ChatPage = lazy(loadChatTab);
@@ -100,242 +110,73 @@ function NetworkConnectivityListener() {
 
 // Lazy load all non-tab pages
 // Lazy loaders are kept as named factories so we can prefetch them on idle.
-const loadSudoku = () => import("./features/games/pages/Sudoku");
-const loadChess = () => import("./features/games/pages/Chess");
-const loadMemory = () => import("./features/games/pages/MemoryGame");
-const loadChessPuzzle = () => import("./features/games/pages/ChessPuzzle");
-const loadChessCareer = () => import("./features/games/pages/ChessCareer");
-const loadMemoryAdventure = () => import("./features/games/pages/MemoryAdventure");
-const loadSettings = () => import("./pages/Settings");
-const loadDuas = () => import("./features/duas/pages/Duas");
-const loadQuran = () => import("./pages/Quran");
-const loadDhikr = () => import("./pages/Dhikr");
-const loadSunnah = () => import("./pages/Sunnah");
+
 // Wave-1 chat surface — three new lazy pages backed by the new
 // data layer. Kept off the eager bundle since group/channel chats
 // and chat settings are reachable only via deep-link or via the
 // "Groups & Channels" entry in the legacy chat list.
-const loadGroupsIndex   = () => import("@/features/chat/pages/GroupsIndex");
-const loadGroupChat     = () => import("@/features/chat/pages/GroupChat");
-const loadChatSettings  = () => import("@/features/chat/pages/ChatSettings");
+
 // Appearance (colour + type) and Interface (geometry) replace the old split
 // theme/font screens. `/settings/theme` and `/settings/font` still resolve —
 // they redirect, since both paths are in the wild (deep links, the portal menu).
-const loadAppearance = () => import("./pages/AppearanceSettings");
-const loadInterface = () => import("./pages/InterfaceSettings");
-const loadAuth = () => import("./pages/Auth");
-const loadProfile = () => import("./pages/ProfileEdit");
-const loadMotion = () => import("./pages/MotionSettings");
-const loadPrayer = () => import("./pages/PrayerSettings");
-const loadOccasions = () => import("./features/calendar/pages/AllOccasions");
-const loadReading = () => import("./pages/Reading");
-const loadTimed = () => import("./pages/TimedSunnah");
-const loadSunnahDetail = () => import("./pages/SunnahDetail");
-const loadProphetic = () => import("./pages/PropheticDay");
-const loadUntimed = () => import("./pages/UntimedSunnah");
-const loadVirtues = () => import("./pages/QuranVirtues");
-const loadTafsir = () => import("./pages/Tafsir");
-const loadPodcasts = () => import("./features/podcasts/pages/Podcasts");
-const loadPodcastDetail = () => import("./features/podcasts/pages/PodcastDetail");
-const loadPodcastLibrary = () => import("./features/podcasts/pages/PodcastLibrary");
-const loadPodcastHistory = () => import("./features/podcasts/pages/History");
-const loadNotFound = () => import("./pages/NotFound");
+
 // Wellness and Diwan tabs are lazy because their static data files
 // (~10k lines combined) make eager-loading them measurable on cold
 // homepage paint. The bottom nav still highlights them and the tap
 // switches the route normally — first visit pays a brief skeleton,
 // subsequent visits hit React.lazy's module cache and are instant.
-const loadWellness = () => import("./pages/Wellness");
-const loadDiwan = () => import("./features/diwan/pages/Diwan");
+
 // Hubs introduced by the IA reorganisation: `/browse` ("اطلاع")
 // groups Podcasts + Articles, `/mihrab` groups Quran/Dhikr/Sunnah/
 // Literature. Both are lightweight landings on top of the existing
 // deep pages, so they're lazy-loaded — they should not pay any
 // cost on cold home paint.
-const loadBrowse = () => import("./pages/Browse");
-const loadMihrab = () => import("./pages/Mihrab");
+
 // Weather hub — comprehensive 7-day forecast + details view reachable
 // from the bottom nav. Lazy because the home page already shows a tiny
 // `WeatherWidget` and most users won't drill into the full hub on every
 // session; the prefetch on idle warms it up so the first tap is fast.
-const loadWeather = () => import("./features/weather/pages/Weather");
+
 // Knowledge hub — "المعرفة": a self-contained luxury catalog (cars,
 // perfumes, watches, fashion, sweets). Lazy because its rich static
 // data set should not weigh on the cold home paint; it's prefetched on
 // idle so the first tap from the bottom nav renders instantly.
-const loadKnowledge = () => import("./features/knowledge/pages/Knowledge");
+
 // Long-form SEO guide to Islamic prayer (Salah). Lightweight static
 // page reachable from /mihrab — kept lazy because it's only loaded
 // when a user (or a crawler) drills in from the Mihrab hub.
-const loadPrayerGuide = () => import("./pages/PrayerGuide");
+
 // Diwan library — adab.com integration
-const loadLibrary = () => import("./features/diwan/pages/Library");
-const loadLibraryPoets = () => import("./features/diwan/pages/LibraryPoets");
-const loadLibraryPoet = () => import("./features/diwan/pages/LibraryPoet");
-const loadLibraryPoem = () => import("./features/diwan/pages/LibraryPoem");
-const loadLibrarySearch = () => import("./features/diwan/pages/LibrarySearch");
-const loadLibraryFavorites = () => import("./features/diwan/pages/LibraryFavorites");
+
 // Universal Knowledge Archive — long-form AI-generated monographs, filed
 // with an accession number, searchable, and rendered in a serif reader.
-const loadArchiveHome   = () => import("./features/archive/pages/ArchiveHome");
-const loadArchiveNew    = () => import("./features/archive/pages/ArchiveNew");
-const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader");
+
 // PKM — local-first personal knowledge base (MVP).
-const loadPKM = () => import("./features/pkm/pages/PKM");
+
 // Living Mind — dedicated contemplative 3D destination for PKM.
-const loadMind = () => import("./features/mind/pages/Mind");
+
 // "مذكرتي" — journal with 3D brain hero.
-const loadJournal = () => import("./features/journal/pages/JournalHome");
+
 // Travel Atlas — five surfaces: the world overview, one country's map, a place
 // record, the trip list and one trip's itinerary. All lazy: the map engine
 // (MapLibre) is the heaviest dependency in the app and must never reach a
 // visitor who does not open the atlas.
-const loadTravelAtlas = () => import("./features/travel-atlas/pages/TravelAtlasPage");
-const loadTravelMap = () => import("./features/travel-atlas/pages/CountryMapPage");
-const loadTravelPlace = () => import("./features/travel-atlas/pages/PlaceDetailPage");
-const loadTravelTrips = () => import("./features/travel-atlas/pages/TripsPage");
-const loadTravelTrip = () => import("./features/travel-atlas/pages/TripDetailPage");
+
 // The atlas has two deliberately different maps: `explore` is a full-detail
 // street map, `countries` is a tile-free dotted poster for stamping countries.
-const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMapPage");
-const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
-const loadOAuthConsent = () => import("./pages/OAuthConsent");
+
 // "Now" (الرئيسي) — the former home page content, now a standalone
 // app reached from the portal grid.
-const loadNow = () => import("./features/now/pages/Now");
 
-// ──────────────────────────────────────────────────────────────────────
-// Register every lazy route in the central prefetch registry so any
-// in-app intent surface (BottomNav pointerdown, NavLink hover, smart
-// back, etc.) can warm the module ahead of the actual navigation. The
-// registry de-dupes loaders, so this is safe to call from anywhere.
-// Persistent tab paths (`/`, `/games`, `/chat`) are intentionally NOT
-// registered — they are eager and already mounted.
-// ──────────────────────────────────────────────────────────────────────
-registerRoute('/settings',          loadSettings);
-registerRoute('/quran',             loadQuran);
-registerRoute('/dhikr',             loadDhikr);
-registerRoute('/sunnah',            loadSunnah);
-registerRoute('/settings/appearance', loadAppearance);
-registerRoute('/settings/interface', loadInterface);
-registerRoute('/settings/profile',  loadProfile);
-registerRoute('/profile',           loadProfile);
-registerRoute('/settings/motion',   loadMotion);
-registerRoute('/settings/prayer',   loadPrayer);
-registerRoute('/auth',              loadAuth);
-registerRoute('/duas',              loadDuas);
-registerRoute('/wellness',          loadWellness);
-registerRoute('/diwan',             loadDiwan);
-registerRoute('/browse',            loadBrowse);
-registerRoute('/mihrab',            loadMihrab);
-registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
-registerRoute('/weather',           loadWeather);
-registerRoute('/knowledge',         loadKnowledge);
-registerRoute('/journal',           loadJournal);
-registerRoute('/travel-atlas',      loadTravelAtlas);
-registerRoute('/travel-atlas/explore', loadTravelExplore);
-registerRoute('/travel-atlas/countries', loadTravelCountries);
-registerRoute('/travel-atlas/place/:placeId', loadTravelPlace);
-registerRoute('/travel-atlas/trips', loadTravelTrips);
-registerRoute('/travel-atlas/trips/:tripId', loadTravelTrip);
-registerRoute('/travel-atlas/:countryId', loadTravelMap);
-registerRoute('/reading',           loadReading);
-registerRoute('/occasions',         loadOccasions);
-registerRoute('/tafsir',            loadTafsir);
-registerRoute('/podcasts',          loadPodcasts);
-registerRoute('/podcasts/library',  loadPodcastLibrary);
-registerRoute('/podcasts/:id',      loadPodcastDetail);
-registerRoute('/podcasts/history', loadPodcastHistory);
-registerRoute('/chat/groups',       loadGroupsIndex);
-registerRoute('/chat/settings',     loadChatSettings);
-registerRoute('/chat/g/:chatId',    loadGroupChat);
-registerRoute('/section/timed-sunnah',         loadTimed);
-registerRoute('/section/timed-sunnah/:categoryId', loadSunnahDetail);
-registerRoute('/section/untimed-sunnah',       loadUntimed);
-registerRoute('/section/prophetic-day',        loadProphetic);
-registerRoute('/section/quran-virtues',        loadVirtues);
-registerRoute('/games/sudoku',            loadSudoku);
-registerRoute('/games/chess',             loadChess);
-registerRoute('/games/chess/puzzles',     loadChessPuzzle);
-registerRoute('/games/chess/career',      loadChessCareer);
-registerRoute('/games/memory',            loadMemory);
-registerRoute('/games/memory/adventure',  loadMemoryAdventure);
-registerRoute('/diwan/library',           loadLibrary);
-registerRoute('/diwan/library/search',    loadLibrarySearch);
-registerRoute('/diwan/library/poets',     loadLibraryPoets);
-registerRoute('/diwan/library/poet/:slug', loadLibraryPoet);
-registerRoute('/diwan/library/poem/:slug', loadLibraryPoem);
-registerRoute('/diwan/library/favorites', loadLibraryFavorites);
-registerRoute('/archive',        loadArchiveHome);
-registerRoute('/archive/new',    loadArchiveNew);
-registerRoute('/archive/:id',    loadArchiveReader);
-registerRoute('/pkm',            loadPKM);
-registerRoute('/pkm/mind',       loadMind);
-registerRoute('/now',            loadNow);
-registerRoute('/games',           loadGames);
-registerRoute('/chat',            loadChatTab);
-
-const SudokuPage = lazy(loadSudoku);
-const ChessPage = lazy(loadChess);
-const MemoryGame = lazy(loadMemory);
-const ChessPuzzlePage = lazy(loadChessPuzzle);
-const ChessCareerPage = lazy(loadChessCareer);
-const MemoryAdventurePage = lazy(loadMemoryAdventure);
-const SettingsPage = lazy(loadSettings);
-const DuasPage = lazy(loadDuas);
-const QuranPage = lazy(loadQuran);
-const DhikrPage = lazy(loadDhikr);
-const SunnahPage = lazy(loadSunnah);
-const GroupsIndexPage   = lazy(loadGroupsIndex);
-const GroupChatPage     = lazy(loadGroupChat);
-const ChatSettingsPage  = lazy(loadChatSettings);
-const AppearanceSettingsPage = lazy(loadAppearance);
-const InterfaceSettingsPage = lazy(loadInterface);
-const AuthPage = lazy(loadAuth);
-const ProfileEditPage = lazy(loadProfile);
-const MotionSettingsPage = lazy(loadMotion);
-const PrayerSettingsPage = lazy(loadPrayer);
-const AllOccasionsPage = lazy(loadOccasions);
-const ReadingPage = lazy(loadReading);
-const TimedSunnahPage = lazy(loadTimed);
-const SunnahDetailPage = lazy(loadSunnahDetail);
-const PropheticDayPage = lazy(loadProphetic);
-const UntimedSunnahPage = lazy(loadUntimed);
-const QuranVirtuesPage = lazy(loadVirtues);
-const TafsirPage = lazy(loadTafsir);
-const PodcastsPage = lazy(loadPodcasts);
-const PodcastDetailPage = lazy(loadPodcastDetail);
-const PodcastLibraryPage = lazy(loadPodcastLibrary);
-const PodcastHistoryPage = lazy(loadPodcastHistory);
-const NotFound = lazy(loadNotFound);
-const WellnessPage = lazy(loadWellness);
-const DiwanPage = lazy(loadDiwan);
-const BrowsePage = lazy(loadBrowse);
-const MihrabPage = lazy(loadMihrab);
-const WeatherPage = lazy(loadWeather);
-const KnowledgePage = lazy(loadKnowledge);
-const JournalPage = lazy(loadJournal);
-const TravelAtlasPage = lazy(loadTravelAtlas);
-const TravelMapPage = lazy(loadTravelMap);
-const TravelPlacePage = lazy(loadTravelPlace);
-const TravelTripsPage = lazy(loadTravelTrips);
-const TravelTripPage = lazy(loadTravelTrip);
-const TravelExplorePage = lazy(loadTravelExplore);
-const TravelCountriesPage = lazy(loadTravelCountries);
-const PrayerGuidePage = lazy(loadPrayerGuide);
-const DiwanLibraryPage = lazy(loadLibrary);
-const DiwanLibraryPoetsPage = lazy(loadLibraryPoets);
-const DiwanLibraryPoetPage = lazy(loadLibraryPoet);
-const DiwanLibraryPoemPage = lazy(loadLibraryPoem);
-const DiwanLibrarySearchPage = lazy(loadLibrarySearch);
-const DiwanLibraryFavoritesPage = lazy(loadLibraryFavorites);
-const ArchiveHomePage   = lazy(loadArchiveHome);
-const ArchiveNewPage    = lazy(loadArchiveNew);
-const ArchiveReaderPage = lazy(loadArchiveReader);
-const PKMPage           = lazy(loadPKM);
-const MindPage          = lazy(loadMind);
-const OAuthConsentPage  = lazy(loadOAuthConsent);
-const NowPage           = lazy(loadNow);
+// Register every route in the central prefetch registry so any intent surface
+// (NavLink hover, pointerdown, smart back) can warm the module ahead of the
+// navigation. Driven by the manifest, so a route can no longer be routed but
+// unregistered — which is what had happened to /.lovable/oauth/consent and the
+// catch-all. Persistent tab paths are registered separately below: they are lazy
+// but always mounted, so they are not in the page manifest.
+for (const route of ROUTES) registerRoute(route.path, route.load);
+registerRoute('/games', loadGames);
+registerRoute('/chat', loadChatTab);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -343,34 +184,40 @@ const NowPage           = lazy(loadNow);
 // first tap doesn't pay the network/parse cost in the foreground.
 function useIdlePrefetch() {
   useEffect(() => {
+    // Only warm chunks when the connection and device can afford it. This used to
+    // download ~20 chunks unconditionally on every cold session, which on a metered
+    // or slow connection competes with the page the user is actually waiting for.
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (connection?.saveData) return;
+    if (connection?.effectiveType && /(^|-)2g$/.test(connection.effectiveType)) return;
+    const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    if (typeof memory === 'number' && memory > 0 && memory < 2) return;
+
     const ric: (cb: () => void) => number =
-      (window as any).requestIdleCallback ||
-      ((cb) => window.setTimeout(cb, 1500));
+      (window as Window & { requestIdleCallback?: (cb: () => void) => number })
+        .requestIdleCallback ?? ((cb) => window.setTimeout(cb, 1500));
+
     const id = ric(() => {
-      loadAppearance(); loadProfile(); loadPrayer(); loadReading();
-      loadWellness(); loadDiwan(); loadQuran(); loadDhikr(); loadSunnah();
-      // Wave-1 chat surfaces. The groups index is one tap away from the
-      // chat tab and the chat settings page is one tap away from there;
-      // pre-warming both keeps the first navigation instant.
-      loadGroupsIndex(); loadChatSettings();
-      // The Games and Chat tabs are lazy now (see the top of this file), so
-      // warm them here — the first tap must not wait on a network round trip.
-      loadGames(); loadChatTab();
-      // The new IA hubs are the most likely first taps on every cold
-      // session, so warm them up alongside the existing tabs. Settings
-      // is now reached from the home avatar shortcut, so prefetch it
-      // too — the user is one tap away.
-      loadBrowse(); loadMihrab(); loadSettings();
-      // Weather hub is in the bottom nav alongside Browse/Mihrab; warm
-      // it up on idle so the first tap renders instantly.
-      loadWeather();
-      // Knowledge hub is a bottom-nav tab too — prefetch it so the
-      // first tap doesn't pay the chunk download in the foreground.
-      loadKnowledge();
+      // The set is declared in the manifest rather than as a hand-kept list of
+      // loader calls, so warming a route cannot drift from routing it.
+      for (const route of ROUTES) {
+        if (route.prefetchOnIdle) void route.load();
+      }
+      // The Games and Chat tabs are lazy but always mounted, so they live outside
+      // the page manifest and are warmed explicitly.
+      void loadGames();
+      void loadChatTab();
     });
+
     return () => {
-      const cic = (window as any).cancelIdleCallback;
-      if (cic) cic(id); else clearTimeout(id);
+      const cancel = (window as Window & { cancelIdleCallback?: (id: number) => void })
+        .cancelIdleCallback;
+      if (cancel) cancel(id);
+      else clearTimeout(id);
     };
   }, []);
 }
@@ -386,7 +233,6 @@ const queryClient = new QueryClient({
   },
 });
 
-
 // Skeleton fallback matching app layout
 const PageSkeleton = () => (
   <div className="min-h-screen p-4 space-y-4">
@@ -398,13 +244,16 @@ const PageSkeleton = () => (
   </div>
 );
 
-// All paths where BottomNav is visible — used to decide whether
-// <main> should reserve space at the bottom for the nav bar.
-// Must stay in sync with the `tabs` array in BottomNav.tsx.
-// The bottom nav was retired in favour of the Portal launcher. Kept as
-// an empty set so any `navVisible` checks below cleanly resolve to
-// false — no route reserves bottom padding for a nav bar anymore.
-const ALL_NAV_PATHS = new Set<string>();
+// `ALL_NAV_PATHS` used to live here: an intentionally empty `Set<string>`, kept so
+// that `navVisible` checks "cleanly resolve to false" after the bottom nav was
+// retired in favour of the Portal launcher.
+//
+// An always-false condition is not a clean resolution, it is dead code that reads
+// as live. It made `navVisible` permanently false, which made the
+// `paddingBottom: calc(62px + safe-area)` branch unreachable, which in turn made the
+// `useInChatConversation()` call that guarded it pointless — a hook subscribing to
+// route state on every render to feed a branch that could never be taken. All three
+// are gone.
 
 // Tab routes that stay mounted across navigation. Their components are
 // rendered once in <PersistentTabs/> and toggled with display:none — never
@@ -577,16 +426,9 @@ function AnimatedRoutes() {
   // PageTransition can pick the right slide direction (and so OUTGOING
   // pages know whether to leave to the left or right with parallax).
   const { mode } = useNavDirection();
-  const inChatConversation = useInChatConversation();
   const activeTab = (TAB_PATHS as readonly string[]).includes(location.pathname)
     ? (location.pathname as TabPath)
     : null;
-  // Show bottom padding on ALL nav-tab routes (not just persistent tabs)
-  // so the BottomNav never overlaps page content.
-  // ...except inside a 1:1 chat conversation, where the BottomNav is hidden
-  // by inChatConversation — without this guard <main> reserved a 62px dead
-  // strip below the chat composer.
-  const navVisible = ALL_NAV_PATHS.has(location.pathname) && !inChatConversation;
 
   const mainStyle = effectiveSplitActive
     ? {
@@ -600,12 +442,6 @@ function AnimatedRoutes() {
         // (which sets `position: absolute` during exit) is pinned to
         // <main>'s box and never stacks above the incoming page.
         position: 'relative' as const,
-        // Reserve space for the bottom nav on all routes where it is
-        // visible. Sub-pages (non-nav routes) do NOT render BottomNav
-        // so they don't need the bottom padding.
-        paddingBottom: navVisible
-          ? `calc(62px + env(safe-area-inset-bottom, 0px))`
-          : 0,
         // Minimum height ensures content fills viewport even on short pages
         minHeight: '100dvh',
       };
@@ -627,88 +463,44 @@ function AnimatedRoutes() {
             <PageTransition key={location.pathname}>
               <Suspense fallback={<PageSkeleton />}>
                 <Routes location={location}>
-                  {/* Persistent tab paths are handled by <PersistentTabs/>. */}
-                  <Route path="/" element={null} />
-                  <Route path="/index" element={<Navigate to="/" replace />} />
-                  <Route path="/games" element={null} />
-                  <Route path="/chat" element={null} />
-                  {/* New chat surfaces (groups/channels + dedicated settings).
-                      NOTE: order matters. /chat/groups must be matched BEFORE
-                      /chat/g/:chatId so a literal "groups" segment isn't captured. */}
-                  <Route path="/chat/groups" element={<ErrorBoundary><GroupsIndexPage /></ErrorBoundary>} />
-                  <Route path="/chat/settings" element={<ErrorBoundary><ChatSettingsPage /></ErrorBoundary>} />
-                  <Route path="/chat/g/:chatId" element={<ErrorBoundary><GroupChatPage /></ErrorBoundary>} />
-                  <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
-                  <Route path="/duas" element={<ErrorBoundary><DuasPage /></ErrorBoundary>} />
-                  <Route path="/quran" element={<ErrorBoundary><QuranPage /></ErrorBoundary>} />
-                  <Route path="/dhikr" element={<ErrorBoundary><DhikrPage /></ErrorBoundary>} />
-                  <Route path="/sunnah" element={<ErrorBoundary><SunnahPage /></ErrorBoundary>} />
-                  <Route path="/wellness" element={<ErrorBoundary><WellnessPage /></ErrorBoundary>} />
-                  <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
-                  <Route path="/browse" element={<ErrorBoundary><BrowsePage /></ErrorBoundary>} />
-                  <Route path="/mihrab" element={<ErrorBoundary><MihrabPage /></ErrorBoundary>} />
-                  <Route path="/mihrab/prayer-guide" element={<ErrorBoundary><PrayerGuidePage /></ErrorBoundary>} />
-                  <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
-                  <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
-                  <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
-                  {/* Travel Atlas. Order matters: every literal segment
-                      (`explore`, `countries`, `place`, `trips`) must be matched
-                      BEFORE the `:countryId` wildcard, or those links resolve as
-                      country ids and render "country not found". */}
-                  <Route path="/travel-atlas" element={<ErrorBoundary><TravelAtlasPage /></ErrorBoundary>} />
-                  <Route path="/travel-atlas/explore" element={<ErrorBoundary><TravelExplorePage /></ErrorBoundary>} />
-                  <Route path="/travel-atlas/countries" element={<ErrorBoundary><TravelCountriesPage /></ErrorBoundary>} />
-                  <Route path="/travel-atlas/place/:placeId" element={<ErrorBoundary><TravelPlacePage /></ErrorBoundary>} />
-                  <Route path="/travel-atlas/trips" element={<ErrorBoundary><TravelTripsPage /></ErrorBoundary>} />
-                  <Route path="/travel-atlas/trips/:tripId" element={<ErrorBoundary><TravelTripPage /></ErrorBoundary>} />
-                  <Route path="/travel-atlas/:countryId" element={<ErrorBoundary><TravelMapPage /></ErrorBoundary>} />
-                  <Route path="/games/sudoku" element={<ErrorBoundary><SudokuPage /></ErrorBoundary>} />
-                  <Route path="/games/chess" element={<ErrorBoundary><ChessPage /></ErrorBoundary>} />
-                  <Route path="/games/chess/puzzles" element={<ErrorBoundary><ChessPuzzlePage /></ErrorBoundary>} />
-                  <Route path="/games/chess/career" element={<ErrorBoundary><ChessCareerPage /></ErrorBoundary>} />
-                  <Route path="/games/memory" element={<ErrorBoundary><MemoryGame /></ErrorBoundary>} />
-                  <Route path="/games/memory/adventure" element={<ErrorBoundary><MemoryAdventurePage /></ErrorBoundary>} />
-                  <Route path="/occasions" element={<ErrorBoundary><AllOccasionsPage /></ErrorBoundary>} />
-                  <Route path="/reading" element={<ErrorBoundary><ReadingPage /></ErrorBoundary>} />
-                  <Route path="/settings/appearance" element={<ErrorBoundary><AppearanceSettingsPage /></ErrorBoundary>} />
-                  <Route path="/settings/interface" element={<ErrorBoundary><InterfaceSettingsPage /></ErrorBoundary>} />
-                  {/* Retired paths — appearance is now one screen. */}
-                  <Route path="/settings/theme" element={<Navigate to="/settings/appearance" replace />} />
-                  <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
-                  <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
-                  <Route path="/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
-                  <Route path="/settings/font" element={<Navigate to="/settings/appearance" replace />} />
-                  <Route path="/settings/motion" element={<ErrorBoundary><MotionSettingsPage /></ErrorBoundary>} />
-                  <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />
-                  <Route path="/section/timed-sunnah" element={<ErrorBoundary><TimedSunnahPage /></ErrorBoundary>} />
-                  <Route path="/section/timed-sunnah/:categoryId" element={<ErrorBoundary><SunnahDetailPage /></ErrorBoundary>} />
-                  <Route path="/section/untimed-sunnah" element={<ErrorBoundary><UntimedSunnahPage /></ErrorBoundary>} />
-                  <Route path="/section/prophetic-day" element={<ErrorBoundary><PropheticDayPage /></ErrorBoundary>} />
-                  <Route path="/section/quran-virtues" element={<ErrorBoundary><QuranVirtuesPage /></ErrorBoundary>} />
-                  <Route path="/tafsir" element={<ErrorBoundary><TafsirPage /></ErrorBoundary>} />
-                  <Route path="/podcasts" element={<ErrorBoundary><PodcastsPage /></ErrorBoundary>} />
-                  <Route path="/podcasts/library" element={<ErrorBoundary><PodcastLibraryPage /></ErrorBoundary>} />
-                  <Route path="/podcasts/history" element={<ErrorBoundary><PodcastHistoryPage /></ErrorBoundary>} />
-                  <Route path="/podcasts/:id" element={<ErrorBoundary><PodcastDetailPage /></ErrorBoundary>} />
-                  {/* Diwan Library — adab.com */}
-                  <Route path="/diwan/library" element={<ErrorBoundary><DiwanLibraryPage /></ErrorBoundary>} />
-                  <Route path="/diwan/library/search" element={<ErrorBoundary><DiwanLibrarySearchPage /></ErrorBoundary>} />
-                  <Route path="/diwan/library/poets" element={<ErrorBoundary><DiwanLibraryPoetsPage /></ErrorBoundary>} />
-                  <Route path="/diwan/library/poet/:slug" element={<ErrorBoundary><DiwanLibraryPoetPage /></ErrorBoundary>} />
-                  <Route path="/diwan/library/poem/:slug" element={<ErrorBoundary><DiwanLibraryPoemPage /></ErrorBoundary>} />
-                  <Route path="/diwan/library/favorites" element={<ErrorBoundary><DiwanLibraryFavoritesPage /></ErrorBoundary>} />
-                  {/* Universal Knowledge Archive — order matters: /archive/new
-                      must match before /archive/:id. */}
-                  <Route path="/archive"       element={<ErrorBoundary><ArchiveHomePage /></ErrorBoundary>} />
-                  <Route path="/archive/new"   element={<ErrorBoundary><ArchiveNewPage /></ErrorBoundary>} />
-                  <Route path="/archive/:id"   element={<ErrorBoundary><ArchiveReaderPage /></ErrorBoundary>} />
-                  {/* PKM — personal knowledge base (local-first MVP). */}
-                  <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
-                  <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
-                  <Route path="/now"           element={<ErrorBoundary><NowPage /></ErrorBoundary>} />
-                  {/* OAuth consent for external clients (MCP / Agent integrations). */}
-                  <Route path="/.lovable/oauth/consent" element={<ErrorBoundary><OAuthConsentPage /></ErrorBoundary>} />
-                  <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
+                  {/* Persistent tab paths render null here — <PersistentTabs/> owns
+                      them and keeps each slot mounted so switching back is instant. */}
+                  {TAB_PATHS.map((path) => (
+                    <Route key={path} path={path} element={null} />
+                  ))}
+
+                  {ROUTE_REDIRECTS.map(({ from, to }) => (
+                    <Route key={from} path={from} element={<Navigate to={to} replace />} />
+                  ))}
+
+                  {/* Every page route, derived from src/routes/manifest.ts.
+                      This replaces ~62 hand-written lines, each of which repeated the
+                      same <ErrorBoundary> wrapper — none of which reset on navigation.
+                      <RouteErrorBoundary> keys itself on the router location, so
+                      leaving a broken route and coming back clears the error. */}
+                  {ROUTES.map(({ path, requiresAuth, authFallback }) => {
+                    const Page = ROUTE_COMPONENTS.get(path)!;
+                    return (
+                      <Route
+                        key={path}
+                        path={path}
+                        element={
+                          <RouteErrorBoundary>
+                            {requiresAuth ? (
+                              <AuthGuard
+                                fallbackTitleAr={authFallback?.titleAr}
+                                fallbackDescAr={authFallback?.descAr}
+                              >
+                                <Page />
+                              </AuthGuard>
+                            ) : (
+                              <Page />
+                            )}
+                          </RouteErrorBoundary>
+                        }
+                      />
+                    );
+                  })}
                 </Routes>
               </Suspense>
             </PageTransition>

@@ -83,8 +83,14 @@ test.describe('settings', () => {
     await expect(page.getByText('حذف الحساب')).toHaveCount(0);
     await expect(page.getByText('تصدير بياناتي')).toHaveCount(0);
 
-    // The sections that do not need an account must still be there. Scoped to
-    // the group heading: the label also appears on the theme row inside it.
-    await expect(page.getByRole('paragraph').filter({ hasText: 'المظهر' })).toBeVisible();
+    // The sections that do not need an account must still be there.
+    //
+    // Matched by exact text rather than by role. The previous locator was
+    // `getByRole('paragraph').filter({ hasText: 'المظهر' })`, but `renderGroup` emits
+    // the group label in a <div>, not a <p> — so this assertion could never pass and
+    // never had, on a spec that no CI job ran. `exact: true` is what distinguishes the
+    // group heading from the row inside it labelled 'المظهر والألوان والخطوط', which
+    // is the ambiguity the role filter was there to resolve.
+    await expect(page.getByText('المظهر', { exact: true })).toBeVisible();
   });
 });

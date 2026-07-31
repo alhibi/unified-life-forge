@@ -3,7 +3,6 @@ import React, { lazy, Suspense,useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import AuthGuard from '@/components/AuthGuard';
 import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
@@ -235,11 +234,12 @@ export default function WellnessPage() {
     }
   }, [tab, data]);
 
+  // The sign-in gate lives in src/routes/manifest.ts (`requiresAuth` +
+  // `authFallback`), alongside the other 13 routes that hold per-user data. This page
+  // used to be the only one in the app that guarded itself, which is why the other
+  // 13 went unguarded for so long — the pattern was invisible from the route table.
   return (
-    <AuthGuard
-      fallbackTitleAr="قسم الصحة والعافية"
-      fallbackDescAr="يرجى تسجيل الدخول للوصول إلى برامج التمرين والتحليلات الصحية ومزامنتها سحابياً."
-    >
+    <>
       <div className="min-h-screen bg-background pb-page">
       <SEO
         title={'الصحة والعافية — SmartHub'}
@@ -481,6 +481,6 @@ export default function WellnessPage() {
         )}
       </AnimatePresence>
       </div>
-    </AuthGuard>
+    </>
   );
 }
