@@ -1,9 +1,9 @@
 import { AnimatePresence,motion } from 'framer-motion';
-import { Clock, Compass, Info,MapPin, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useApp } from '@/contexts/AppContext';
+import { Clock, Compass, Info, MapPin, Search, X } from '@/lib/icons';
 import {
   bearingToCompass,
   type CalculationMethodId,

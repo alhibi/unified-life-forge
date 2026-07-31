@@ -1,0 +1,20 @@
+
+/**
+ * Builds one exported icon component.
+ *
+ * Replaces 242 near-identical hand-written `forwardRef` blocks — 726 lines whose
+ * only per-icon content was a name. The `#__PURE__` annotation marks each call so
+ * Rollup may drop an export that no module imports.
+ *
+ * Everything from this comment down is generated from ICON_NAMES by
+ * `bun run icons:generate`, so the export list cannot drift from the manifest or
+ * the registries. `icons/__tests__/registry.test.ts` fails if it does.
+ */
+function icon(iconName: IconName) {
+  const Component = forwardRef<SVGSVGElement, IconComponentProps>((props, ref) => (
+    <IconSlot ref={ref} {...props} iconName={iconName} />
+  ));
+  Component.displayName = iconName;
+  return Component as unknown as PhosphorIcon;
+}
+

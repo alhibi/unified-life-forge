@@ -1,6 +1,7 @@
-import { Layout, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+
+import { Layout, X } from '@/lib/icons';
 
 interface SplitWorkspaceProps {
   /** The app's normal content, rendered in the primary pane. */

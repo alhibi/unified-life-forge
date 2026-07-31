@@ -57,6 +57,24 @@ jobs:
       - name: Lint budget (budgeted warnings must not increase)
         run: bun run lint:budget
 
+      - name: Icon registries match the manifest
+        # src/lib/icons/registry.*.ts and the export list in src/lib/icons.tsx are
+        # generated from ICON_NAMES. They are committed so the build never depends
+        # on the generator, which means they can be edited by hand or left stale
+        # after a manifest change. Regenerating and diffing is the only way to know.
+        #
+        # registry.test.ts already checks manifest ↔ registry ↔ exports agree; this
+        # additionally catches an edit that is self-consistent but not what the
+        # generator would produce.
+        run: |
+          bun run icons:generate
+          if ! git diff --quiet -- src/lib/icons.tsx src/lib/icons; then
+            echo "::error::Generated icon files are out of date. Run 'bun run icons:generate' and commit."
+            git --no-pager diff --stat -- src/lib/icons.tsx src/lib/icons
+            exit 1
+          fi
+          echo "Icon registries are up to date."
+
       - name: Unit tests
         run: bun run test
 
