@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { AppCard, Section } from '@/components/ui/app-shell';
 import { Skeleton } from '@/components/ui/skeleton';
 export function FitnessDashboardSkeleton() {

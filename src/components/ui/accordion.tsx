@@ -4,30 +4,16 @@ import * as React from 'react';
 import { ChevronDown } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
-/**
- * Accordion — the canonical disclosure group.
- *
- * Motion contract
- * ───────────────
- * Expanding a panel is the one place in the app where a LAYOUT property has to
- * animate: the content below genuinely has to move down. Two rules make that
- * safe and smooth:
- *
- *   1. It is a tween, never a spring. A spring on a height overshoots, and an
- *      overshooting height makes every element below the panel visibly bounce
- *      — the exact rebound the motion brief rules out.
- *   2. The target height comes from Radix's own measurement
- *      (`--radix-accordion-content-height`), so there is no per-frame
- *      JavaScript measuring anything. The keyframe interpolates between two
- *      known numbers, which the browser can do without a layout pass per frame.
- *
- * Timing and easing are inherited from `animate-collapse-down` /
- * `animate-collapse-up` in `tailwind.config.ts`, both of which are multiplied
- * by `--motion-scale` and bound to the active easing family. So an accordion
- * follows /settings/motion without knowing that screen exists.
- */
 
-const Accordion = AccordionPrimitive.Root;
+const Accordion = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root> | any
+>(({ ...props }, ref) => (
+  // @ts-ignore Typescript is overly strict here
+  <AccordionPrimitive.Root ref={ref} {...props} />
+));
+Accordion.displayName = 'Accordion';
+
 
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,

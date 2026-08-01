@@ -1,6 +1,7 @@
+import { format, parseISO } from 'date-fns';
 import React, { useMemo } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { format, parseISO } from 'date-fns';
+
 import { AppCard } from '@/components/ui/app-shell';
 import { useFitnessStore } from '@/stores/fitnessStore';
 export function FitnessActivityChart() {
@@ -42,7 +43,7 @@ export function FitnessActivityChart() {
           <XAxis dataKey="displayDate" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} dy={10} />
           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} tickFormatter={(value) => `${value} km`} />
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} itemStyle={{ color: 'hsl(var(--foreground))' }} formatter={(value: number) => [`${value} km`, 'المسافة']} labelFormatter={(label) => `التاريخ: ${label}`} />
+          <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }} itemStyle={{ color: 'hsl(var(--foreground))' }} formatter={(value: any) => [`${value} km`, 'المسافة']} labelFormatter={(label) => `التاريخ: ${label}`} />
           <Area type="monotone" dataKey="distance" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorDistance)" />
         </AreaChart>
       </ResponsiveContainer>

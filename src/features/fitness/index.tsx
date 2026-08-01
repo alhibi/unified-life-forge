@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
-import { FitnessErrorBoundary } from './ui/components/FitnessErrorBoundary';
+
 import { FitnessDashboardSkeleton } from './ui/components/FitnessDashboardSkeleton';
+import { FitnessErrorBoundary } from './ui/components/FitnessErrorBoundary';
 import { FitnessDashboardPage } from './ui/pages/FitnessDashboardPage';
 export function FitnessFeature() {
   return (

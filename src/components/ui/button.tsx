@@ -5,7 +5,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex min-h-[var(--ui-touch-min)] items-center justify-center gap-2 whitespace-nowrap rounded-md text-body font-medium antialiased transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+  'inline-flex min-h-[var(--ui-touch-min)] items-center justify-center gap-2 whitespace-nowrap rounded-md text-body font-medium antialiased transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 active:scale-[0.98] shadow-sm',
   {
     variants: {
       variant: {
@@ -13,8 +13,8 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+        ghost: 'hover:bg-accent hover:text-accent-foreground shadow-none',
+        link: 'text-primary underline-offset-4 hover:underline shadow-none',
       },
       size: {
         default: 'h-[var(--ui-button-h)] px-4 py-2',
