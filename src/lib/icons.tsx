@@ -18,19 +18,19 @@
  * call sites keep working unchanged.
  */
 import * as PhosMod from '@phosphor-icons/react';
-import { IconContext, type Icon as PhosphorIcon, type IconProps } from '@phosphor-icons/react';
-import * as LucideMod from 'lucide-react';
+import { type Icon as PhosphorIcon, IconContext, type IconProps } from '@phosphor-icons/react';
 import * as TablerMod from '@tabler/icons-react';
 import * as HugeMod from 'hugeicons-react';
+import * as LucideMod from 'lucide-react';
 import {
   createContext,
+  type FC,
   forwardRef,
+  type ReactNode,
+  type SVGProps,
   useContext,
   useEffect,
   useState,
-  type FC,
-  type ReactNode,
-  type SVGProps,
 } from 'react';
 
 import { useApp } from '@/contexts/AppContext';

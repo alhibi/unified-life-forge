@@ -3,6 +3,7 @@ import React from 'react';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
+
 import SunnahTab from './mihrab/SunnahTab';
 
 export default function SunnahPage() {

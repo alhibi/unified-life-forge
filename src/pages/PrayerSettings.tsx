@@ -1,14 +1,13 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import { BookOpen, Check,Info, RotateCcw } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
-import PageHeader from '@/components/PageHeader';
-import { PageShell, Section, AppCard } from '@/components/ui/app-shell';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
 type LatMethod = 'middle' | 'seventh' | 'angle';

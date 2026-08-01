@@ -1,7 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
+
 import { fitnessActivitySchema } from './schemas';
-import type { FitnessActivity } from './types';
 import type { DailyMetric } from './stats';
+import type { FitnessActivity } from './types';
 
 // Use type assertion to bypass strict table name checking in generated types
 const client = supabase as any;

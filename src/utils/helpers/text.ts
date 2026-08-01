@@ -1,0 +1,6 @@
+import DOMPurify from 'dompurify';
+export function stripHtmlTags(html: string): string { if (!html) return ''; return html.replace(/<[^>]*>?/gm, ''); }
+export function sanitizeRichText(dirtyInput: string): string { if (!dirtyInput) return ''; return DOMPurify.sanitize(dirtyInput, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class'], }); }
+export function truncate(text: string, maxLength: number): string { if (!text || text.length <= maxLength) return text; return text.substring(0, maxLength).trim() + '...'; }
+export function safeJsonParse<T>(jsonString: string, fallback: T): T { try { return JSON.parse(jsonString) as T; } catch (error) { return fallback; } }
+export function debounce<T extends (...args: any[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void { let timeout: ReturnType<typeof setTimeout> | null = null; return function (this: any, ...args: Parameters<T>) { const context = this; if (timeout) clearTimeout(timeout); timeout = setTimeout(() => func.apply(context, args), wait); }; }

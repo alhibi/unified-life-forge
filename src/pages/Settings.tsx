@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import BackButton from '@/components/BackButton';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppCard } from '@/components/ui/app-shell';
+import { PageShell, Section } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
 import { AccountPrivacySection } from '@/features/account';
@@ -27,7 +27,6 @@ import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 import packageJson from '../../package.json';
-import { PageShell, Section } from '@/components/ui/app-shell';
 
 export default function SettingsPage() {
   const { t, theme, language, prayerMadhab } = useApp();

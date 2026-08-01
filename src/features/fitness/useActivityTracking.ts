@@ -1,18 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { getProfile } from '../wellness/wellnessDb';
 import { insertFitnessActivity, listDailyMetrics, listFitnessActivities } from './api';
-import type { FitnessActivity, MotionState, RoutePoint, TrackSplit } from './types';
-import type { DailyMetric } from './stats';
-import { simplifyRoute } from './routeSimplifier';
 import {
-  GeoKalmanFilter,
   caloriesForSlice,
   computeSplits,
   elevationProfile,
+  GeoKalmanFilter,
   haversine,
   speedToPace,
 } from './metrics';
+import { simplifyRoute } from './routeSimplifier';
+import type { DailyMetric } from './stats';
+import type { FitnessActivity, MotionState, RoutePoint, TrackSplit } from './types';
 
 /** Haversine distance formula in meters (kept as the public engine helper). */
 export const calculateHaversineDistance = haversine;
