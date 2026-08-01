@@ -7,6 +7,13 @@ import {
   profileSchema,
   validatePayload,
 } from '../validation';
+import {
+  createApiResponseSchema,
+  isUserProfile,
+  isPKMNote,
+  isFitnessActivity,
+  UserProfileSchema,
+} from '../validation/schemas';
 
 describe('Zod Validation Schemas', () => {
   describe('authCredentialsSchema', () => {
@@ -97,6 +104,68 @@ describe('Zod Validation Schemas', () => {
       expect(() => validatePayload(pkmNoteSchema, data)).toThrow(
         'Validation Error: Title is required',
       );
+    });
+  });
+
+  describe('Enterprise Schemas & Type Guards', () => {
+    it('validates and guards UserProfile models', () => {
+      const validProfile = {
+        id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+        email: 'jules@zen.co',
+        username: 'jules_architect',
+        full_name: 'Jules Verne',
+        preferences: {
+          theme: 'obsidian',
+          language: 'ar',
+          sound_enabled: true,
+          vibration_enabled: false,
+          reduced_motion: true,
+          data_saver: true,
+          battery_saver: false,
+        },
+      };
+
+      expect(isUserProfile(validProfile)).toBe(true);
+      expect(isUserProfile({ ...validProfile, email: 'not-an-email' })).toBe(false);
+    });
+
+    it('validates and guards PKMNotes', () => {
+      const validNote = {
+        id: '2a1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6e',
+        title: 'Architectural Mastery',
+        content: 'Zen Elite guidelines build perfect apps.',
+        tags: [
+          { id: '1a1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6f', name: 'Elite', color: '#B8492E' },
+        ],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_archived: false,
+        status: 'active',
+      };
+
+      expect(isPKMNote(validNote)).toBe(true);
+      expect(isPKMNote({ ...validNote, id: 'bad-uuid' })).toBe(false);
+    });
+
+    it('generates correct enveloped api schemas', () => {
+      const profileListSchema = createApiResponseSchema(UserProfileSchema);
+      const envelopePayload = {
+        data: {
+          id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+          email: 'jules@zen.co',
+          username: 'jules_architect',
+          full_name: 'Jules Verne',
+        },
+        error: null,
+        meta: {
+          timestamp: new Date().toISOString(),
+          processing_time_ms: 12,
+        },
+        status: 'success',
+      };
+
+      const parsed = profileListSchema.safeParse(envelopePayload);
+      expect(parsed.success).toBe(true);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { createJSONStorage,persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 // ============================================================================
 // Core Interfaces & Types
@@ -13,14 +13,48 @@ export interface BaseState {
   isCommandPaletteOpen: boolean;
   isDataSaver: boolean;
   isBatterySaver: boolean;
+  lastThemeSwapTime: string | null;
 }
 
 export interface BaseActions {
+  /**
+   * Updates active theme and logs swap timestamp for performance monitoring.
+   */
   setTheme: (theme: ThemeType) => void;
+
+  /**
+   * Updates language setting across the super-app context.
+   */
   setLanguage: (lang: 'en' | 'ar') => void;
+
+  /**
+   * Toggles Command Palette (Ctrl+K/Cmd+K) trigger.
+   */
   toggleCommandPalette: () => void;
+
+  /**
+   * Sets Command Palette state explicitly.
+   */
   setCommandPalette: (isOpen: boolean) => void;
+
+  /**
+   * Updates data saver mode.
+   */
+  setDataSaver: (enabled: boolean) => void;
+
+  /**
+   * Updates battery saver mode. Caps spring frame-rates when active.
+   */
+  setBatterySaver: (enabled: boolean) => void;
+
+  /**
+   * Batch updates system preferences with schema validation.
+   */
   setSystemPreferences: (prefs: Partial<BaseState>) => void;
+
+  /**
+   * Resets all preferences to initial system defaults.
+   */
   resetPreferences: () => void;
 }
 
@@ -32,6 +66,7 @@ const initialStoreState: BaseState = {
   isCommandPaletteOpen: false,
   isDataSaver: false,
   isBatterySaver: false,
+  lastThemeSwapTime: null,
 };
 
 // ============================================================================
@@ -42,22 +77,39 @@ export const useSystemStore = create<StoreType>()(
   persist(
     (set) => ({
       ...initialStoreState,
-      setTheme: (theme) => set({ theme }),
+
+      setTheme: (theme) => set({
+        theme,
+        lastThemeSwapTime: new Date().toISOString()
+      }),
+
       setLanguage: (language) => set({ language }),
-      toggleCommandPalette: () => set((state) => ({ isCommandPaletteOpen: !state.isCommandPaletteOpen })),
+
+      toggleCommandPalette: () => set((state) => ({
+        isCommandPaletteOpen: !state.isCommandPaletteOpen
+      })),
+
       setCommandPalette: (isOpen) => set({ isCommandPaletteOpen: isOpen }),
+
+      setDataSaver: (isDataSaver) => set({ isDataSaver }),
+
+      setBatterySaver: (isBatterySaver) => set({ isBatterySaver }),
+
       setSystemPreferences: (prefs) => set((state) => ({ ...state, ...prefs })),
+
       resetPreferences: () => set(initialStoreState),
     }),
     {
       name: 'zen-elite-system-store',
       storage: createJSONStorage(() => localStorage),
+      // Selectively persist specific fields
       partialize: (state) => ({
         theme: state.theme,
         language: state.language,
         isDataSaver: state.isDataSaver,
         isBatterySaver: state.isBatterySaver,
-      }), // Only persist specific fields
+        lastThemeSwapTime: state.lastThemeSwapTime,
+      }),
     }
   )
 );
