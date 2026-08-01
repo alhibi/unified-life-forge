@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { FitnessActivity, GeoCoordinate } from '../utils/validation/schemas';
+import { createJSONStorage,persist } from 'zustand/middleware';
+
 import { haversineDistance } from '../utils/helpers/math';
+import { FitnessActivity, GeoCoordinate } from '../utils/validation/schemas';
 export interface FitnessState { activities: FitnessActivity[]; currentActivity: FitnessActivity | null; isTracking: boolean; totalDistance: number; }
 export interface FitnessActions { startActivity: (type: FitnessActivity['type'], userId: string) => void; stopActivity: () => void; addCoordinate: (coord: GeoCoordinate) => void; clearHistory: () => void; }
 const initialFitnessState: FitnessState = { activities: [], currentActivity: null, isTracking: false, totalDistance: 0 };

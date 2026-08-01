@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { PageShell, AppCard, Section, IconButton } from '@/components/ui/app-shell';
+
+import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
-import { FitnessActivityChart } from '../components/FitnessActivityChart';
-import { useFitnessEngine } from '../../model/useFitnessEngine';
-import { format } from 'date-fns';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
-import { Play, Square, Pause, MapPin } from '@/lib/icons';
+import { MapPin, Play, Square } from '@/lib/icons';
+
+import { useFitnessEngine } from '../../model/useFitnessEngine';
+import { FitnessActivityChart } from '../components/FitnessActivityChart';
 export function FitnessDashboardPage() {
   const { isTracking, currentActivity, activities, totalDistance, startTracking, stopTracking, currentCalories } = useFitnessEngine();
   const [drawerOpen, setDrawerOpen] = useState(false);

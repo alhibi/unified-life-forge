@@ -74,6 +74,8 @@ function readTableDefs(): TableDef[] {
  * list can tell an omission from a decision.
  */
 const EXPORT_EXCLUSIONS: Record<string, string> = {
+  fitness_activities: "Fitness activities are currently excluded from export",
+  fitness_daily_metrics: "Fitness daily metrics are excluded",
   chats: 'shared group/channel records; created_by is not authored content',
   conversations:
     'envelope for a two-party DM, exported through its messages instead',

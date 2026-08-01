@@ -1,4 +1,5 @@
 import React, { ErrorInfo, ReactNode } from 'react';
+
 import { AppCard } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 interface ErrorBoundaryProps { children: ReactNode; fallback?: ReactNode; }

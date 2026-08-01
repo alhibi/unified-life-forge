@@ -29,7 +29,6 @@ const NutritionTab    = lazy(() =>
   import('@/features/wellness/nutrition/components').then(m => ({ default: m.NutritionTab })),
 );
 import { FitnessFeature } from '@/features/fitness';
-
 import { exportAll } from '@/features/wellness/wellnessDb';
 import { confirmDialog } from '@/lib/confirmDialog';
 

@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
-import { useFitnessStore } from '@/stores/fitnessStore';
+import { useEffect } from 'react';
+
 import { useAuthStore } from '@/stores/authStore';
+import { useFitnessStore } from '@/stores/fitnessStore';
 import { GeoCoordinate } from '@/utils/validation/schemas';
+
 import { estimateCalories } from '../useActivityTracking';
 export function useFitnessEngine() {
   const store = useFitnessStore();
