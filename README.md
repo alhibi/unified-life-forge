@@ -1,237 +1,187 @@
-# SmartHub
+# 🏛️ SmartHub: Zen Elite Super-App
+### المِحرَابُ الرَّقَمِيُّ النُّخْبَوِيُّ — مَوْسُوعَةُ الرُّقِيِّ وَالفَخَامَةِ الهَادِئَةِ
 
-> تطبيق إسلامي شامل: أوقات الصلاة، الأذكار، القرآن الكريم، التقويم الهجري، الطقس، الألعاب والمراسلة في مكان واحد.
+[![CI Workflow](https://github.com/smarthub/smarthub/actions/workflows/ci.yml/badge.svg)](https://github.com/smarthub/smarthub/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-copper?color=B8492E)](./LICENSE)
+[![Design: Quiet Luxury](https://img.shields.io/badge/Design-Quiet%20Luxury%20%2F%20Zen%20Elite-B8492E)](#)
+[![Architecture: FSD](https://img.shields.io/badge/Architecture-Feature--Sliced%20Design-0d0d0d)](#)
 
-A comprehensive Islamic companion web app. It bundles **prayer times** (Aladhan + astronomical calculation), a dual **Hijri/Gregorian calendar**, Quran virtues and tafsir, prophetic-day routines, timed and untimed Sunnah libraries, duas, a classical **Arabic poetry diwan**, **weather** (Open-Meteo), Islamic occasions, an **RSS reader**, a knowledge **archive**, a **PKM** note layer, a **travel atlas**, end-to-end **messaging**, and a collection of **games**. The interface is Arabic-only (RTL) with an "Obsidian Depth" dark theme.
-
-A machine-readable summary of every page lives at [`public/llms.txt`](./public/llms.txt).
+> **SmartHub** is a highly-sophisticated, state-of-the-art Islamic companion and personal knowledge Super-App. Built strictly under the design philosophy of **"Quiet Luxury / Zen Elite"** (Obsidian Luxury), it prioritizes extreme restraint, pixel-perfect mathematical layouts, tactile interactions, and ultra-high-fidelity offline capabilities. The application features **10 fully decoupled standalone application modules** and **6 Next-Generation System Engines** running on an optimized, zero-warning TypeScript and WebAssembly architectural foundation.
 
 ---
 
-## Quickstart
+## 🎨 Design Philosophy: "Quiet Luxury / Zen Elite"
 
-Prerequisites: **[Bun](https://bun.sh)** ≥ 1.2 (the project uses `bun.lock` exclusively — see [Package Manager](#package-manager)).
+The Super-App is governed by strict, non-negotiable visual invariants configured to look like a high-end luxury instrument (reminiscent of Leica, Porsche, and bespoke mechanical watch faces).
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   OBSIDIAN LUXURY LIGHTING             │
+│                                                        │
+│  Canvas Background: 3.0% - 3.5% Lightness (#080808)    │
+│  Card Surfaces:     5.0% - 6.0% Lightness (#0d0d0d)    │
+│  Borders/Hairlines: 9.0% - 10.0% Lightness (#181818)   │
+│                                                        │
+│  Sole Chromatic Accent: Copper / Clay (#B8492E) ───[•] │
+└────────────────────────────────────────────────────────┘
+```
+
+### 📐 The Mathematical 8px Grid System
+All spacing, padding, margins, and gaps must strictly adhere to the base grid units:
+- **`4px`** (micro adjustments, status indicators)
+- **`8px`** (gaps, inline element padding)
+- **`12px`** (compact cards, form elements)
+- **`16px`** (standard cards padding, lists)
+- **`24px`** (outer margins, dashboard section gaps)
+- **`32px` / `48px` / `64px`** (structural offsets and hero divisions)
+
+### 🖋️ Typographic & Font Architecture
+- **DEFAULT_DISPLAY_FONT_ID (`Amiri`)**: Elegant, editorial classical Arabic serif layout stack, accompanied by **Cormorant Garamond** for beautifully integrated Latin metrics, brand subtitles, and headers.
+- **DEFAULT_BODY_FONT_ID (`IBM Plex Sans Arabic` / `Noto Sans Arabic`)**: High-legibility, ultra-sharp sans-serif stack optimized for lengthy readings and interface controls.
+- **Numeric Font Stack (`Montserrat` / `IBM Plex Mono`)**: Active clock tickers, metrics, coordinates, and statistics are displayed in Montserrat with the `tabular-nums` class to completely eradicate visual shifting and layout jumping during high-frequency updates.
+
+---
+
+## 📱 The 10 Standalone Application Modules
+SmartHub decouples traditional web-app modules into ten beautifully-crafted standalone experiences, each with dedicated route controls, independent lazy boundaries, optimized back targets, and bespoke semantic headers.
+
+### 1. 📖 القرآن الكريم (The Holy Quran & Tafsir)
+- **Core Architecture:** Standardized deep-linking via query parameters synchronizes Surah, Ayah, and Tafsir state directly with the URL.
+- **Tafsir Engine:** Fully integrated Arabic Tafsir browser (`Tafsir.tsx`) with instant 300ms debounced search, providing elegant typography, multi-source Tafsir, and custom copy/share sheets.
+
+### 2. 📿 الأذكار والدعاء (Dhikr & Devotional Core)
+- **Tactile Feedback:** Uses the custom Web Audio API synthesis engine to generate micro-tactile sound cues (using dynamic gain and frequency oscillators) coupled with the `navigator.vibrate` API for a physical rosary experience.
+- **Touch Targets:** Micro-interacts and increment targets expand invisibly (minimum `44x44px` mobile targets) via a pseudo-element expansion pattern (`relative before:absolute before:-inset-2 before:content-['']`).
+
+### 3. 📜 السنة النبوية (The Prophetic Sunnah)
+- **Structured Repositories:** Bundles curated databases of timed routines (morning, evening, travel, sleep, prayer) and untimed Prophetic traditions (the Nawawi Forty Hadiths).
+- **Off-grid Readiness:** Operates completely offline with zero network latency, pulling from highly-compressed bundled static JSON datasets.
+
+### 4. 📜 ديوان الشعر العربي (Classical Arabic Poetry)
+- **Manuscript Theme (مخطوطة):** A night-only classical editorial layout powered by specialized css variables:
+  - `--ink-bg: #16130F` (parchment sub-dark background)
+  - `--ink-card: #1E1912` (inkwell raised card surfaces)
+  - `--wax: #B8492E` (wax-seal avatar backgrounds and active metrics)
+- **The Corpus:** Exactly **170 classical poets** distributed across six eras: *Jahili, Mukhadram, Islami, Umawi, Abbasi, and Andalusi*.
+- **Interactive Details:** Dotted crease lines simulating folded paper, wax-seal icons, and high-performance Arabic rhyme end-letter highlights using efficient grouping algorithms.
+
+### 5. 🎙️ البودكاست (Podcast & Media Hub)
+- **Design Constraint:** Adheres strictly to the Zen Elite system with solid `hsl(var(--card))` card structures. It strictly rejects distracting "frosted glass" or heavy backdrop filters.
+- **The Player:** Highly responsive bottom-drawer sheet interface (`PlayerSheet`) and modular `PodcastMiniPlayer` synchronizing audio playback state with passive service worker listening.
+
+### 6. 🔖 القراءة المتكاملة (Advanced Reading & Article Extraction)
+- **Tactile Cylindrical Sliders:** Features custom vertical sliders for text size, weight, and screen brightness, matching the styling of physical controls.
+- **Acoustic Highlight:** Synchronizes browser-native Text-to-Speech voices with visually highlighted active paragraphs in real-time.
+- **Technical Capabilities:** Offline article compilation, screen wake-lock preservation, and defensive DOMPurify sanitization.
+
+### 7. 📝 يومياتي (My Journal)
+- **Decoupled Privacy:** A private, secure journaling space using local client storage, automatic draft preservation, and encrypted synchronization boundaries with the backend database.
+- **Editorial Timelines:** Features timeline visualization with custom mood and thematic tags styled in muted copper tones.
+
+### 8. 📂 أرشيف المعرفة (The Knowledge Archive)
+- **Parallel Subsection Generation:** Utilizing premium models (DeepSeek-R1, o1, o1-mini, o3-mini, Llama-3.3-70b, Qwen-2.5-72b), the Supabase Edge Function parallelizes AI subsection rendering in strict batches of six, reducing compilation depth wait times from 20 minutes to less than 2.5 minutes while elegantly handling failures with placeholder warnings.
+
+### 9. 🧠 الذاكرة الرقمية (PKM & Digital Memory Note-taking)
+- **Real-Time URL Syncing:** Notes, active ID, status filters, tags, and search queries are synchronized instantly with browser URL parameters.
+- **Flicker-Free Search:** Incorporates a high-performance 300ms debounce on all user inputs to eliminate visual grid reflows.
+
+### 10. 🗺️ أطلس السفر (The Travel Atlas & Fitness Tracker)
+- **Visual Mapping:** Leaflet OpenStreetMap widgets utilizing custom-designed SVG start/end nodes, auto-bounding fit views, and adaptive dark-mode map tile filters.
+- **Douglas-Peucker Route Simplifier:** Downsamples extensive geographical track points to a maximum of 100 coordinates using a binary search on epsilon before database commit, minimizing payload storage.
+- **Precision Tracker (Leica Style):** Features a moss-green primary accent (`--fitness-primary`, HSL Hue 100), stacked Recharts area charts, step-trends, and a GPS noise filter rejecting static drift (< 1m motion) or speed anomalies (> 15 m/s).
+
+---
+
+## ⚡ Next-Gen System Engines
+
+SmartHub is orchestrating six underlying high-performance system engines seamlessly registered inside `src/contexts/SystemEngineContext.tsx`:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                  SYSTEM ENGINE ORCHESTRATION                 │
+│                                                              │
+│  [1] Command Palette  ◄──►  [2] Hardware & Environmental     │
+│  [3] Predictive Prefetch  ◄►  [4] State History (Undo/Redo)   │
+│  [5] Split-Pane Layout ◄──► [6] Silent Biometric Passkeys    │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+1. **Global Command Palette (`cmdk`):** Accessible globally via `Ctrl+K` or `Cmd+K`. Fully indexing application routes, deep page sections, active tools, and settings.
+2. **Hardware & Environmental Engine:** Monitors device performance parameters (`navigator.connection`, `navigator.getBattery`). On low power or slow connection, it activates battery-saver modes, capping Framer Motion and spring animation frame rates and disabling heavy background particles.
+3. **Intent-Based Predictive Prefetching (`usePredictivePrefetch`):** Observes pointer velocity, hover coordinates, and trajectory vectors to warm-up and prefetch lazy chunk bundles before the user commits to a click.
+4. **Universal State History Engine:** Bound globally to `Cmd+Z` / `Cmd+Shift+Z` to trace, commit, and undo/redo complex nested states across note-taking (PKM), journaling, and configuration grids.
+5. **Split-Pane Layout Engine (`react-resizable-panels`):** Renders responsive, multi-view side-by-side interfaces on desktop. It automatically flags nested frames (`is_split_pane=true`) to suppress redundant headers, navigation sidebars, and duplicate menus inside sub-iframes.
+6. **Silent Biometric Passkey Engine:** Native WebAuthn integration supporting secure passwordless lock/unlock transitions. Includes high-fidelity secure PIN overlays for fallback verification.
+
+---
+
+## 🛠️ The Under-The-Hood Tech Stack
+
+SmartHub leverages a highly responsive, modern engineering stack calibrated for high-density computations:
+
+- **Build Systems & Environment:** [Bun 1.2](https://bun.sh) with Vite 8 + SWC compiling TypeScript 5 in strict-mode, delivering rapid development HMR and clean minification pipelines.
+- **State Management:** Fully-typed [Zustand](https://github.com/pmndrs/zustand) stores (Auth, Fitness, System) equipped with partial persistence, rollback transactional execution models, and session capping (max 10 active concurrent caches to prevent storage exhaustion).
+- **Asynchronous Data Queries:** [TanStack Query v5](https://tanstack.com/query) for caching, optimistic UI updates, and intelligent refetch thresholds.
+- **Thermodynamic Engine (WebAssembly):** Loads, compiles, and runs heavy thermodynamic computations (such as Thom's discomfort indexes) via a custom WebAssembly helper hook (`useAssemblyScript.ts`) utilizing ES2024 `Promise.withResolvers` with elegant mathematical JS fallbacks.
+- **XSS & Security Hardening:** Search query results and chat search highlights parse plain-text segments safely into pure React `<span>` and `<mark>` nodes without resorting to `dangerouslySetInnerHTML`. Custom sanitizers defensively strip attribute injections (e.g., `<mark onclick="...">`).
+- **Telemetry:** In-memory buffer capped at 100 entries scrubs database URLs, Sentry tokens, JWTs, and stack traces inside `ErrorBoundary.tsx` prior to shipping logs.
+
+---
+
+## 📦 Scripts Reference
+
+Manage the Super-App codebase with the following specialized commands:
+
+| Command | Action |
+| :--- | :--- |
+| `bun install` | Resolves and installs dependencies using the unified `bun.lock` lockfile. |
+| `bun run dev` | Spins up the high-performance Vite local development server on port `8080`. |
+| `bun run build` | Compiles the production application bundle into the `dist/` directory. |
+| `NODE_OPTIONS="--max-old-space-size=4096" bun run build` | Build override allocating additional node heap memory to prevent Out of Memory errors. |
+| `bun run lint` | Audits the codebase for syntax or stylistic anomalies. Expects **0 errors**. |
+| `bun run lint:budget` | Verifies warn counts against frozen limits in `lint-budget.json` to prevent debt growth. |
+| `bun run test` | Executes unit tests via the Vitest engine. |
+| `bun run e2e` | Runs Playwright end-to-end user flows in simulated environments (desktop & Pixel 7). |
+| `bun run verify` | Combines TypeScript typecheck, lint audits, and unit tests to ensure absolute stability. |
+
+---
+
+## 🚀 Quickstart for Developers
+
+Follow these steps to get your environment up and running in less than two minutes:
 
 ```bash
-# 1. Install dependencies
+# 1. Clone the repository and navigate to its root directory
+git clone https://github.com/smarthub/smarthub.git
+cd smarthub
+
+# 2. Install dependencies with the Bun package manager
 bun install
 
-# 2. Configure the backend (Supabase). See `.env.example`.
+# 3. Establish environmental configurations
 cp .env.example .env
-$EDITOR .env
 
-# 3. Start the dev server (Vite, port 8080)
+# 4. Fire up the local Vite development server
 bun run dev
 ```
 
-Open `http://localhost:8080`. The app degrades gracefully when Supabase isn't configured — local-only features (prayer times, weather, games, static Diwan content) keep working, and a single console banner explains what's disabled.
+*Note: SmartHub is designed with exceptional fallback behaviors. If Supabase configuration variables are not declared in your `.env` file, the application seamlessly activates local-offline mode. Prayer times, localized search, poetry engines, and games remain fully operational.*
 
 ---
 
-## Scripts
+## 🏛️ Contributing and Code Guidelines
 
-| Command | What it does |
-|---|---|
-| `bun run dev` | Vite dev server with HMR on `:8080` |
-| `bun run build` | Production build (Rollup → `dist/`) |
-| `bun run build:dev` | Development-mode build (sourcemaps, no minification) |
-| `bun run preview` | Serve the built `dist/` locally |
-| `bun run lint` | ESLint over the repo. Must report **0 errors**. |
-| `bun run lint:fix` | ESLint with autofix |
-| `bun run lint:budget` | Fails if any budgeted warning count rises — see [Lint budget](#lint-budget) |
-| `bun run typecheck` | `tsc --noEmit` against `tsconfig.app.json` |
-| `bun run test` | Vitest in single-run mode |
-| `bun run test:watch` | Vitest in watch mode |
-| `bun run e2e` | Playwright end-to-end tests (`e2e/`). Builds the app and serves it itself. |
-| `bun run verify` | `typecheck` + `lint` + `test` — what CI runs |
-| `bun run format` | Prettier write |
-| `bun run format:check` | Prettier check |
+To maintain the extreme precision and stability of the Super-App, contributors must adhere to the following architectural agreements:
 
-The one-off Diwan ingest pipeline in `scripts/diwan/` has no package script; run
-the files directly with `bun scripts/diwan/<file>.ts` when you need them. They
-require `SUPABASE_SERVICE_ROLE_KEY` (see [Environment Variables](#environment-variables)).
+1. **Adhere to Feature-Sliced Design (FSD):** Features must reside entirely inside their respective `src/features/<feature_name>` directory. Cross-feature imports must target public endpoints or shared primitives inside `src/components/ui/app-shell.tsx`.
+2. **No Direct Supabase Imports in Components:** Never import the Supabase client directly within a visual React component. Move all transactional queries, calls, or subscriptions inside `api.ts` inside the feature boundary.
+3. **No Placeholders:** We write fully completed, production-ready, highly typed code. Avoid placeholders (`// TODO`, `// keep existing code`). Implement deep-dives and edge cases directly.
+4. **Local Verification:** Always run `bun run verify` and verify that unit and visual alignment guidelines are fully met before pushing changes.
 
 ---
 
-## Tech Stack
+## ⚖️ License
 
-- **Build / dev** — Vite 5 + SWC, TypeScript 5 strict mode, Tailwind 3 with design tokens, shadcn-style primitives (Radix + tailwind-variants).
-- **Frontend** — React 18, React Router 6, framer-motion, Phosphor icons (via the `src/lib/icons.tsx` barrel), TanStack Query for server state.
-- **Backend** — Supabase (Postgres + Row-Level Security + Auth + Realtime + Storage + Edge Functions in `supabase/functions/`).
-- **Astronomy** — `adhan` for prayer-time calculation, with the [Aladhan API](https://aladhan.com/prayer-times-api) used as the primary source and `adhan` as offline fallback.
-- **Weather** — [Open-Meteo](https://open-meteo.com) (no API key required).
-- **PWA** — `public/manifest.json` plus two service workers: an app-shell worker generated at build time by the `appShellServiceWorker()` Vite plugin (`build/swTemplate.js` → `dist/sw.js`, registered in `src/lib/registerServiceWorker.ts`), and a separate reading-mode cache worker (`public/reading-sw.js`).
-- **Observability** — `src/lib/telemetry.ts` scrubs and forwards uncaught errors to Sentry when `VITE_SENTRY_DSN` is set; otherwise it buffers them in memory for local debugging.
-- **Tests** — Vitest for unit, Playwright for E2E (`e2e/`).
-
----
-
-## Project Structure
-
-```
-src/
-├─ App.tsx                   # Routing + persistent-tabs layer
-├─ main.tsx                  # Entry point (boots motion, SW, telemetry)
-├─ components/
-│  ├─ ui/                    # shadcn primitives + app-shell
-│  └─ portal/                # Portal launcher chrome
-├─ pages/                    # Route components not yet migrated to features/
-├─ features/                 # account, archive, calendar, chat, clipboard,
-│                            # diwan, duas, games, journal, knowledge, mind,
-│                            # now, pkm, podcasts, reading, travel-atlas,
-│                            # weather, wellness
-├─ hooks/                    # useAuth, usePresence, usePrayerTimesCache, ...
-├─ contexts/                 # AppContext (theme, settings), VoicePlayerContext
-├─ integrations/supabase/    # Client + generated DB types
-├─ lib/                      # chat/, auth/, icons, telemetry, prayerTimes, motion
-├─ i18n/                     # ar.json + lookup helper
-├─ data/                     # Static datasets (sunnah, nawawi hadiths)
-└─ utils/themeEngine.ts      # Dynamic palette generator (Material-3-style)
-
-build/                       # Vite plugins: app-shell SW, Phosphor weight pruning
-docs/architecture/           # ADR-style notes (persistent tabs, Diwan, data layer)
-e2e/                         # Playwright specs
-public/data/                 # Runtime-fetched datasets (diwan poetry corpus)
-supabase/
-├─ functions/                # Edge functions (RSS, keyword alerts, search, account)
-└─ migrations/               # SQL migrations
-scripts/diwan/               # One-shot scrapers + ingest pipeline
-```
-
-### Persistent tabs
-
-The bottom nav has been retired in favour of the Portal launcher. Three hot routes (`/`, `/games`, `/chat` — see `TAB_PATHS` in [`src/App.tsx`](./src/App.tsx)) are rendered together inside `<PersistentTabs>` and toggled with `display:none` rather than remounted, so returning to them is instant. Every other destination is a lazy route so a cold homepage visit doesn't pay for it. Details: [`docs/architecture/persistent-tabs.md`](./docs/architecture/persistent-tabs.md).
-
-### Diwan library
-
-Adab.com integration with offline fallback to bundled JSON. Architecture: [`docs/architecture/diwan-library.md`](./docs/architecture/diwan-library.md).
-
----
-
-## Environment Variables
-
-See [`.env.example`](./.env.example) for the full list. The required browser-side variables are:
-
-| Variable | Purpose |
-|---|---|
-| `VITE_SUPABASE_URL` | Project URL, e.g. `https://xxx.supabase.co` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Anon (publishable) key — safe to ship to the client |
-| `VITE_SUPABASE_PROJECT_ID` | Used by some edge-function URLs |
-
-Optional browser-side variables:
-
-| Variable | Purpose |
-|---|---|
-| `VITE_SENTRY_DSN` | Enables the Sentry error drain. Unset ⇒ errors buffer in memory only. |
-| `VITE_APP_VERSION` | Release tag attached to Sentry events. Defaults to `dev`. |
-
-Server-side scripts (`scripts/diwan/ingest.ts`) additionally need `SUPABASE_SERVICE_ROLE_KEY`. Never expose that key to the browser; it bypasses RLS entirely.
-
-When env vars are missing, [`src/integrations/supabase/client.ts`](./src/integrations/supabase/client.ts) returns a structured 503 (`{ code: 'supabase_not_configured' }`) for every request and skips realtime subscriptions, so feature code can branch cleanly via the exported `isSupabaseConfigured` flag.
-
----
-
-## End-to-end tests
-
-```bash
-bunx playwright install chromium   # once
-bun run e2e
-```
-
-Specs live in [`e2e/`](./e2e). The config builds the app and serves it with
-`vite preview` through Playwright's own `webServer`, so you do not start
-anything yourself. Two projects run every spec: desktop Chrome and an emulated
-Pixel 7, because the app is phone-first (the bottom nav was replaced by the
-Portal launcher, `ResponsiveDrawer` switches between a sheet and a dialog on
-viewport width, and safe-area insets drive the layout).
-
-No Supabase credentials are used. The client falls back to placeholders and the
-app degrades to local-only mode, so the suite runs on a fork with no secrets and
-covers the signed-out paths a first-time visitor actually lands on.
-
-[`e2e/fixtures.ts`](./e2e/fixtures.ts) gives every spec two things:
-
-- **External network is stubbed.** Aladhan, Open-Meteo, alquran.cloud and Google
-  Fonts are fulfilled locally; anything else off-origin is aborted, so a new
-  outbound request fails visibly instead of turning into flake.
-- **Console and page errors fail the test.** A spec cannot pass while the app
-  throws. Opt out at describe level with
-  `test.use({ allowConsoleErrors: true })` when the error is what you are
-  asserting.
-
----
-
-## Lint budget
-
-`bun run lint` must report **zero errors**. On top of that, a set of rules is
-deliberately demoted to warnings because the repo has a real backlog against
-them — mostly the React Compiler rule family (`react-hooks/refs`,
-`set-state-in-effect`, …), `no-explicit-any`, and dead declarations left by
-feature removals.
-
-A warning nobody counts is a warning that grows, so the current per-rule counts
-are frozen in [`lint-budget.json`](./lint-budget.json) and
-`bun run lint:budget` fails if any of them rises. The debt can shrink freely; it
-cannot grow.
-
-```bash
-bun run lint:budget             # what CI runs
-bun run lint:budget -- --write  # after you FIX some, to lock in the lower count
-```
-
-Only ever use `--write` to record a reduction. If it raises a number you are
-recording a regression — fix the finding instead. The reasoning behind each
-budgeted rule, and what fixing it actually involves, is in the comment block in
-[`eslint.config.js`](./eslint.config.js).
-
----
-
-## Package Manager
-
-This repository uses **Bun** with a single text-format lockfile (`bun.lock`). The legacy binary `bun.lockb` and any `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` are gitignored to prevent multi-manager drift. If you must use npm or pnpm, regenerate locally — but please don't commit the artefact.
-
----
-
-## Internationalization
-
-**The app is currently Arabic-only.** The single translation table lives in
-[`src/i18n/ar.json`](./src/i18n/ar.json); `AppContext` coerces any persisted
-language preference to `'ar'`. The `useApp().t(key)` helper falls back to the key
-itself for missing entries.
-
-To add a new key: add `"my.new.key": "..."` to `ar.json`, then call
-`t('my.new.key')` from any component that imports `useApp`.
-
-> **Caveat before adding a second language:** `ar.json` holds ~326 keys while the
-> app spans 550+ source files, so most UI strings are hardcoded Arabic literals.
-> Adding a locale is an extraction project, not a new-file project. The wiring
-> itself is small — extend the `Language` union and the lookup map in
-> [`src/i18n/index.ts`](./src/i18n/index.ts) and stop the `'ar'` coercion in
-> [`src/contexts/AppContext.tsx`](./src/contexts/AppContext.tsx).
-
----
-
-## Authentication
-
-Supabase email-password auth, but usernames are mapped to a synthetic email `<username>@smartapp.local` so users only ever see a username field. See [`src/hooks/useAuth.tsx`](./src/hooks/useAuth.tsx) for the validation rules. The hook is implemented as a module-level singleton — every consumer subscribes to one underlying `onAuthStateChange` listener.
-
----
-
-## Contributing
-
-Before opening a PR, please:
-
-1. Run `bun run verify` (`typecheck` + `lint` + `test`). This is exactly what the
-   [CI workflow](./.github/workflows/ci.yml) runs on every push and pull request,
-   so a green local run means a green PR.
-2. Run `bun run e2e` if you changed routing, prayer times, or the chat surface.
-3. If you change a tab route or a sub-route prefetch list, update [`docs/architecture/persistent-tabs.md`](./docs/architecture/persistent-tabs.md).
-4. If you add or migrate a feature, flip its row in [`docs/architecture/feature-map.md`](./docs/architecture/feature-map.md).
-
-See [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md) for the full guide.
-
----
-
-## License
-
-MIT — see [`LICENSE`](./LICENSE).
+Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
+<sub align="right">محراب الرقي — ٢٠٢٥ م</sub>
