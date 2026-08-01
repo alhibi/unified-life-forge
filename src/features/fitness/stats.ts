@@ -3,8 +3,8 @@
  * streaks and personal records. No React, no I/O.
  */
 
-import type { FitnessActivity } from './types';
 import { estimateSteps } from './metrics';
+import type { FitnessActivity } from './types';
 
 export interface DailyMetric {
   date: string; // YYYY-MM-DD

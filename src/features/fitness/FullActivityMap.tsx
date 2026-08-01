@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+import L from 'leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { MapPin } from '@/lib/icons';
+
 import type { FitnessActivity, RoutePoint } from './types';
-import { MapPin, ZoomIn, ZoomOut, Maximize } from '@/lib/icons';
 
 export interface FullActivityMapProps {
   activity?: FitnessActivity;

@@ -1,7 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
 
 // Lazy load the great library page
 const DiwanLibraryPage = lazy(() => import('./Library'));

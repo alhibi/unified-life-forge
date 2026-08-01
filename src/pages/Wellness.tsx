@@ -8,9 +8,9 @@ import SEO from '@/components/SEO';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import {
-Apple,
+Activity,Apple,
   BookOpen, Brain, ChevronRight, Download, Dumbbell,
-  Library, ShieldCheck, Trash2, Utensils, X, Activity, } from '@/lib/icons';
+  Library, ShieldCheck, Trash2, Utensils, X,  } from '@/lib/icons';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,
@@ -28,7 +28,7 @@ const EncyclopediaTab = lazy(() => import('@/features/wellness/EncyclopediaTab')
 const NutritionTab    = lazy(() =>
   import('@/features/wellness/nutrition/components').then(m => ({ default: m.NutritionTab })),
 );
-const ActivityTrackerTab = lazy(() => import('@/features/fitness/ActivityTrackerTab'));
+import { FitnessFeature } from '@/features/fitness';
 
 import { exportAll } from '@/features/wellness/wellnessDb';
 import { confirmDialog } from '@/lib/confirmDialog';
@@ -205,7 +205,7 @@ export default function WellnessPage() {
       case 'cali':
         return <CalisthenicsTab onJump={(k) => setTab(k as TabKey)} />;
       case 'activity':
-        return <ActivityTrackerTab />;
+        return <FitnessFeature />;
       case 'diet':
         return (
           <DietTab

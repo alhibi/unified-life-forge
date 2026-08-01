@@ -1,4 +1,5 @@
 import React from 'react';
+
 import type { FitnessActivity, RoutePoint } from './types';
 
 export interface RouteThumbnailProps {

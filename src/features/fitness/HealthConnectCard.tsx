@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Activity, Heart, RefreshCw, Settings, Zap } from '@/lib/icons';
+import { Heart, RefreshCw, Settings, Zap } from '@/lib/icons';
 
 import {
-  HEALTH_CONNECT_INSTALL_URL,
   checkHealthAvailability,
   checkHealthPermissions,
+  HEALTH_CONNECT_INSTALL_URL,
   openHealthConnectSettings,
   requestHealthPermissions,
   syncHealthData,
