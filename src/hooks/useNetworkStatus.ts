@@ -4,7 +4,7 @@
  * Listens for online/offline events and provides network status.
  * Also provides a function to trigger toast notifications for network status changes.
  */
-import { useCallback,useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export interface NetworkStatus {
@@ -162,24 +162,41 @@ export function useNetworkRetry<T>(
   return { execute, retryCount, isRetrying };
 }
 
+export type OfflineSyncStatus = 'idle' | 'syncing' | 'success' | 'error';
+
+export interface OfflineStorageConfig<T> {
+  onProcessItem?: (item: T) => Promise<void>;
+  maxRetriesPerItem?: number;
+  retryDelayMs?: number; // customizable delay for testing and tuning backoffs
+}
+
 /**
  * useOfflineStorage Hook
  * 
  * Buffers operations when offline and executes them when online.
- * Useful for queueing actions during network outages.
+ * Fully-typed robust implementation with transaction safety, retries, error capturing,
+ * and state notifications.
  * 
  * @param key - Storage key for the queue
- * @returns Object with queue, addItem, executeQueue, and clearQueue
+ * @param config - Operational configuration
  */
 export function useOfflineStorage<T>(
-  key: string
+  key: string,
+  config?: OfflineStorageConfig<T>
 ): {
   queue: T[];
   addItem: (item: T) => void;
-  executeQueue: () => Promise<void>;
+  executeQueue: (processItem?: (item: T) => Promise<void>) => Promise<void>;
   clearQueue: () => void;
+  syncStatus: OfflineSyncStatus;
+  lastSyncTime: Date | null;
+  error: Error | null;
 } {
   const { isOnline } = useNetworkStatus();
+  const [syncStatus, setSyncStatus] = useState<OfflineSyncStatus>('idle');
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [syncError, setSyncError] = useState<Error | null>(null);
+
   const [queue, setQueue] = useState<T[]>(() => {
     try {
       const saved = localStorage.getItem(key);
@@ -189,47 +206,101 @@ export function useOfflineStorage<T>(
     }
   });
 
+  // Keep localStorage sync clean and free from stale files
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify(queue));
+      if (queue.length === 0) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, JSON.stringify(queue));
+      }
     } catch {
-      // Ignore errors (e.g., private browsing mode)
+      // Ignore storage limit / incognito exceptions
     }
   }, [key, queue]);
 
-  const executeQueue = useCallback(async (): Promise<void> => {
-    if (!isOnline || queue.length === 0) {
+  const executeQueue = useCallback(async (
+    processItemOverride?: (item: T) => Promise<void>
+  ): Promise<void> => {
+    // Guards: don't execute if offline, empty, or already in progress!
+    if (!isOnline || queue.length === 0 || syncStatus === 'syncing') {
       return;
     }
 
-    try {
-      // Execute all items in the queue
-      // This is a placeholder - the actual execution logic should be provided
-      await Promise.all(queue.map(async (item) => {
-        // TODO: Add execution logic here
-        console.log('Executing queued item:', item);
-      }));
-
-      clearQueue();
-    } catch (error) {
-      console.error('Failed to execute queue:', error);
+    const processor = processItemOverride ?? config?.onProcessItem;
+    if (!processor) {
+      setSyncStatus('idle');
+      return;
     }
-  }, [isOnline, queue]);
+
+    setSyncStatus('syncing');
+    setSyncError(null);
+
+    const itemsToProcess = [...queue];
+    const failedItems: T[] = [];
+    const maxRetries = config?.maxRetriesPerItem ?? 3;
+    const delayBase = config?.retryDelayMs ?? 500;
+
+    try {
+      for (const item of itemsToProcess) {
+        let attempts = 0;
+        let success = false;
+        let lastErr: any = null;
+
+        while (attempts < maxRetries && !success) {
+          try {
+            await processor(item);
+            success = true;
+          } catch (err) {
+            attempts++;
+            lastErr = err;
+            if (attempts < maxRetries && delayBase > 0) {
+              await new Promise((r) => setTimeout(r, delayBase * attempts));
+            }
+          }
+        }
+
+        if (!success) {
+          failedItems.push(item);
+          console.error('Failed to process offline queue item after retries:', item, lastErr);
+        }
+      }
+
+      setQueue(failedItems);
+      setLastSyncTime(new Date());
+
+      if (failedItems.length > 0) {
+        setSyncStatus('error');
+        setSyncError(new Error(`Failed to sync ${failedItems.length} items in the queue`));
+      } else {
+        setSyncStatus('success');
+        // Reset status back to idle after a short delay
+        setTimeout(() => setSyncStatus('idle'), 3000);
+      }
+    } catch (globalErr: any) {
+      setSyncStatus('error');
+      setSyncError(globalErr instanceof Error ? globalErr : new Error(String(globalErr)));
+    }
+  }, [isOnline, queue, config?.onProcessItem, config?.maxRetriesPerItem, config?.retryDelayMs, syncStatus]);
 
   const addItem = useCallback(
     (item: T) => {
       setQueue((prev) => [...prev, item]);
-
-      if (isOnline) {
-        // Try to execute immediately if online
-        executeQueue();
-      }
     },
-    [isOnline, executeQueue]
+    []
   );
+
+  // Automatically trigger sync when coming online
+  useEffect(() => {
+    if (isOnline && queue.length > 0 && syncStatus === 'idle') {
+      executeQueue();
+    }
+  }, [isOnline, queue.length, executeQueue, syncStatus]);
 
   const clearQueue = useCallback(() => {
     setQueue([]);
+    setSyncStatus('idle');
+    setSyncError(null);
     try {
       localStorage.removeItem(key);
     } catch {
@@ -237,5 +308,13 @@ export function useOfflineStorage<T>(
     }
   }, [key]);
 
-  return { queue, addItem, executeQueue, clearQueue };
+  return {
+    queue,
+    addItem,
+    executeQueue,
+    clearQueue,
+    syncStatus,
+    lastSyncTime,
+    error: syncError,
+  };
 }
