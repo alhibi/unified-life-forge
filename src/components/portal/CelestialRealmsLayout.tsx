@@ -6,10 +6,10 @@
 import { AnimatePresence } from 'framer-motion';
 import { useMemo } from 'react';
 
+import { PORTAL_APPS,type PortalApp } from '@/components/portal/apps';
 import AppTile from '@/components/portal/AppTile';
-import { type PortalApp, PORTAL_APPS } from '@/components/portal/apps';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
-import { BookOpen, Brain, Dumbbell, Gamepad2, Pin } from '@/lib/icons';
+import { BookOpen, Brain, Dumbbell, Gamepad2 } from '@/lib/icons';
 
 interface CelestialRealmsLayoutProps {
   visibleApps: readonly PortalApp[];
@@ -145,7 +145,7 @@ export default function CelestialRealmsLayout({
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-amiri text-title font-extrabold text-foreground">{realm.title}</h3>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground opacity-60">
+                  <span className="text-micro font-mono uppercase tracking-widest text-muted-foreground opacity-60">
                     {realm.subtitle}
                   </span>
                 </div>

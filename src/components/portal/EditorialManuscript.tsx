@@ -57,7 +57,7 @@ export default function EditorialManuscript({ username }: EditorialManuscriptPro
   return (
     <div className="relative overflow-hidden rounded-xl border border-amber-900/20 bg-[#16130F] text-[#F2E9D8] p-6 md:p-8 transition-colors duration-normal shadow-2xl">
       {/* Structural Crease Page Fold Visual */}
-      <div className="absolute top-0 bottom-0 left-[50%] -translate-x-1/2 w-px border-l border-dashed border-[#7E7259]/15 pointer-events-none" />
+      <div className="absolute top-0 bottom-0 left-[50%] -translate-x-1/2 w-px border-s border-dashed border-[#7E7259]/15 pointer-events-none" />
 
       {/* Manuscript Corner Crop-marks & Framing */}
       <span className="absolute top-2 start-2 w-3 h-3 border-t border-s border-[#7E7259]/30" />
@@ -99,7 +99,7 @@ export default function EditorialManuscript({ username }: EditorialManuscriptPro
           {/* Circular watermark path */}
           <svg className="absolute inset-0 h-full w-full opacity-20 rotate-slow" viewBox="0 0 100 100">
             <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="transparent" />
-            <text className="fill-[#F2E9D8] text-[8px] tracking-[1px] font-tajawal">
+            <text className="fill-[#F2E9D8] text-mini tracking-[1px] font-tajawal">
               <textPath href="#circlePath">السكينة والعمل • AMV.LIFE • </textPath>
             </text>
           </svg>

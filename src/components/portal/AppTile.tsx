@@ -240,7 +240,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             {/* Interactive Miniature Digital Wax Seal Seal Badge */}
             <div className="absolute bottom-1 start-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-normal">
               <div className="h-3 w-3 rounded-full bg-[hsl(var(--live))] animate-pulse" />
-              <span className="text-[8px] font-mono tracking-wider uppercase text-[hsl(var(--live))]">ACTIVE SEAL</span>
+              <span className="text-mini font-mono tracking-wider uppercase text-[hsl(var(--live))]">ACTIVE SEAL</span>
             </div>
 
             <div className="mt-4 flex h-8 w-full items-center justify-between opacity-30 gap-[1px]">

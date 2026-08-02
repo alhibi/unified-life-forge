@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAuthStore } from '../authStore';
 import { UserProfile } from '../../utils/validation/schemas';
+import { useAuthStore } from '../authStore';
 
 describe('useAuthStore Zustand Engine', () => {
   const mockUser: UserProfile = {
