@@ -10,6 +10,7 @@
  * Phosphor set) — the portal no longer ships its own parallel glyph family.
  */
 import {
+  Activity,
   Archive,
   BookMarked,
   BookOpen,
@@ -35,6 +36,7 @@ import {
   Newspaper,
   PenLine,
   Puzzle,
+  Scale,
   ScrollText,
   Search,
   Settings2,
@@ -158,6 +160,21 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     links: [
       { path: '/wellness', label: 'مركز العافية', note: 'التمارين والخطط', icon: Dumbbell },
       { path: '/journal', label: 'مذكرتي', note: 'تدوين الحال والعادات', icon: PenLine },
+    ],
+  },
+  {
+    key: 'fitness',
+    path: '/fitness',
+    label: 'اللياقة البدنية',
+    caption: 'FITNESS',
+    description: 'تتبع المسارات الجغرافية، جداول التمارين، وتطور مؤشرات الجسم',
+    cat: 'body',
+    icon: Activity,
+    keywords: 'fitness running walking tracking gps body weight لياقة بدنية مشي جري تتبع جداول تمارين وزن جسم',
+    links: [
+      { path: '/fitness', label: 'تتبع الأنشطة الحية', note: 'تتبع GPS ذكي وحالة التسارع', icon: Activity },
+      { path: '/fitness', label: 'جداول التمارين الأسبوعية', note: 'تخطيط الجلسات ومؤقت الاستراحة', icon: Calendar },
+      { path: '/fitness', label: 'مؤشرات وتطور الجسم', note: 'تسجيل قياسات الوزن ونسبة الدهون', icon: Scale },
     ],
   },
   {
