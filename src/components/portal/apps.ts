@@ -26,6 +26,7 @@ import {
   Grid3X3,
   HandHeart,
   type IconComponent,
+  Languages,
   Layers,
   Library,
   Luggage,
@@ -304,6 +305,19 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/games/chess', label: 'الشطرنج', note: 'مباريات وألغاز', icon: Swords },
       { path: '/games/sudoku', label: 'سودوكو', note: 'خمس درجات', icon: Grid3X3 },
       { path: '/games/memory', label: 'أزواج الذاكرة', note: 'أطوار متعددة', icon: Puzzle },
+    ],
+  },
+  {
+    key: 'de-learning',
+    path: '/de-learning',
+    label: 'ديوان الألمانية',
+    caption: 'DE-LEARNING',
+    description: 'تعلم الألمانية بأسلوب منهجي برابط لغوي مبتكر مع لغتك العربية',
+    cat: 'mind',
+    icon: Languages,
+    keywords: 'de-learning german lingo language study ألماني ألمانية لغة دراسة ديوان فكر',
+    links: [
+      { path: '/de-learning', label: 'ديوان الألمانية', note: 'اللوحة الرئيسية للوحدات والدروس', icon: Languages },
     ],
   },
 ] as const;

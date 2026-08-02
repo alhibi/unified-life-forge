@@ -204,6 +204,7 @@ const loadOAuthConsent = () => import("./pages/OAuthConsent");
 // "Now" (الرئيسي) — the former home page content, now a standalone
 // app reached from the portal grid.
 const loadNow = () => import("./features/now/pages/Now");
+const loadDeLearning = () => import("./features/de-learning/pages/GermanHome");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -276,7 +277,9 @@ registerRoute('/pkm/mind',       loadMind);
 registerRoute('/now',            loadNow);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
+registerRoute('/de-learning',     loadDeLearning);
 
+const DeLearningPage = lazy(loadDeLearning);
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
@@ -370,6 +373,7 @@ function useIdlePrefetch() {
       // Knowledge hub is a bottom-nav tab too — prefetch it so the
       // first tap doesn't pay the chunk download in the foreground.
       loadKnowledge();
+      loadDeLearning();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -710,6 +714,7 @@ function AnimatedRoutes() {
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
                   <Route path="/now"           element={<ErrorBoundary><NowPage /></ErrorBoundary>} />
+                  <Route path="/de-learning"   element={<ErrorBoundary><DeLearningPage /></ErrorBoundary>} />
                   {/* OAuth consent for external clients (MCP / Agent integrations). */}
                   <Route path="/.lovable/oauth/consent" element={<ErrorBoundary><OAuthConsentPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />
