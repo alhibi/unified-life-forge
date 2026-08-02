@@ -38,7 +38,7 @@ export function useMapController(options: MapControllerOptions): {
 /** Attaches the map to its container once the element exists. */
 export function useMapAttach(
   controller: MapController,
-  containerRef: RefObject<HTMLDivElement>,
+  containerRef: RefObject<HTMLDivElement | null>,
 ): void {
   const attachedRef = useRef(false);
   useEffect(() => {
@@ -56,7 +56,7 @@ export function useMapAttach(
  */
 export function useMapResize(
   controller: MapController,
-  containerRef: RefObject<HTMLElement>,
+  containerRef: RefObject<HTMLElement | null>,
 ): void {
   useEffect(() => {
     const node = containerRef.current;

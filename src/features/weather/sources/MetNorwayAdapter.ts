@@ -21,10 +21,10 @@ interface MetResp {
 }
 
 export class MetNorwayAdapter extends BaseAdapter {
-  readonly id: SourceId = 'met-norway';
-  readonly meta = SOURCE_REGISTRY['met-norway'];
+  override readonly id: SourceId = 'met-norway';
+  override readonly meta = SOURCE_REGISTRY['met-norway'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const url = `https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${ctx.lat.toFixed(2)}&lon=${ctx.lng.toFixed(2)}`;
     const r = await safeJson<MetResp>(url, { headers: { 'User-Agent': UA }, signal: ctx.signal });
     const first = r.properties?.timeseries?.[0];

@@ -12,10 +12,10 @@ interface OUResp {
 }
 
 export class OpenUVAdapter extends BaseAdapter {
-  readonly id: SourceId = 'openuv';
-  readonly meta = SOURCE_REGISTRY['openuv'];
+  override readonly id: SourceId = 'openuv';
+  override readonly meta = SOURCE_REGISTRY['openuv'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const key = ctx.apiKey ?? readEnv(this.meta.apiKeyEnv);
     if (!key) return {};
     const r = await safeJson<OUResp>(

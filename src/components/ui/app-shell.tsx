@@ -62,7 +62,7 @@ interface AppCardProps extends DivProps {
   /** Adds spring press feedback. Use when the card is a button. */
   pressable?: boolean;
   /** Render as a different element (button, a, section…). */
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
 }
 
 type AppCardElementProps = DivProps & {

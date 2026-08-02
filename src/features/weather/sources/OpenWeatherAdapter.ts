@@ -11,10 +11,10 @@ interface OWMResp {
 }
 
 export class OpenWeatherAdapter extends BaseAdapter {
-  readonly id: SourceId = 'openweathermap';
-  readonly meta = SOURCE_REGISTRY['openweathermap'];
+  override readonly id: SourceId = 'openweathermap';
+  override readonly meta = SOURCE_REGISTRY['openweathermap'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const key = ctx.apiKey ?? readEnv(this.meta.apiKeyEnv);
     if (!key) return {};
     const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${ctx.lat.toFixed(2)}&lon=${ctx.lng.toFixed(2)}&exclude=minutely,alerts&units=metric&appid=${key}`;

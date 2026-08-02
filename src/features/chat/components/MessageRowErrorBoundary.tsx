@@ -61,14 +61,14 @@ export class MessageRowErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     // Tag log lines so they're easy to grep in production console
     // exports without polluting the global error stream.
     console.error('[chat/message-row] render failed', error, info);
     this.props.onError?.(error, info);
   }
 
-  render() {
+  override render() {
     if (!this.state.hasError) return this.props.children;
     const { isMine, } = this.props;
     return (

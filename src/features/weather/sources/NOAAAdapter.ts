@@ -27,10 +27,10 @@ interface ForecastResp {
 }
 
 export class NOAAAdapter extends BaseAdapter {
-  readonly id: SourceId = 'noaa';
-  readonly meta = SOURCE_REGISTRY['noaa'];
+  override readonly id: SourceId = 'noaa';
+  override readonly meta = SOURCE_REGISTRY['noaa'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     if (!isLikelyUS(ctx.lat, ctx.lng)) return {};
     const points = await safeJson<PointsResp>(
       `https://api.weather.gov/points/${ctx.lat.toFixed(2)},${ctx.lng.toFixed(2)}`,

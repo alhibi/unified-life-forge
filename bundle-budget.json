@@ -1,0 +1,6 @@
+{
+  "maxBytes": 20777036,
+  "toleranceMaxBytes": 21815887,
+  "updatedAt": "2026-08-01T20:25:00Z",
+  "note": "toleranceMaxBytes = maxBytes x 1.05 — tolerance margin of 5% in accordance with abort protocol 0.8."
+}

@@ -40,8 +40,8 @@ const DAILY_FIELDS = [
 const MINUTELY_FIELDS = ['precipitation', 'rain', 'snowfall'].join(',');
 
 export class OpenMeteoAdapter extends BaseAdapter {
-  readonly id: SourceId = 'open-meteo';
-  readonly meta = SOURCE_REGISTRY['open-meteo'];
+  override readonly id: SourceId = 'open-meteo';
+  override readonly meta = SOURCE_REGISTRY['open-meteo'];
 
   private async query(ctx: AdapterContext): Promise<OMResponse> {
     const params = new URLSearchParams({
@@ -58,7 +58,7 @@ export class OpenMeteoAdapter extends BaseAdapter {
     return safeJson<OMResponse>(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: ctx.signal });
   }
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const r = await this.query(ctx);
     const c = r.current ?? {};
     const h = r.hourly;
@@ -121,7 +121,7 @@ export class OpenMeteoAdapter extends BaseAdapter {
     };
   }
 
-  async fetchForecast(ctx: AdapterContext): Promise<Partial<ForecastLayers>> {
+  override async fetchForecast(ctx: AdapterContext): Promise<Partial<ForecastLayers>> {
     const r = await this.query(ctx);
     const h = r.hourly;
     const d = r.daily;
@@ -187,10 +187,10 @@ export class OpenMeteoAdapter extends BaseAdapter {
 
 // Companion: air-quality sub-endpoint for Open-Meteo (CAMS model).
 export class OpenMeteoAirQualityAdapter extends BaseAdapter {
-  readonly id: SourceId = 'open-meteo';
-  readonly meta = SOURCE_REGISTRY['open-meteo'];
+  override readonly id: SourceId = 'open-meteo';
+  override readonly meta = SOURCE_REGISTRY['open-meteo'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const params = new URLSearchParams({
       latitude: ctx.lat.toFixed(2),
       longitude: ctx.lng.toFixed(2),

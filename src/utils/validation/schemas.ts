@@ -53,7 +53,15 @@ export const UserProfileSchema = z.object({
   display_name: z.string().max(50).optional().nullable(),
   avatar_url: z.string().url({ message: 'Invalid public URL format for avatar' }).optional().nullable(),
   bio: z.string().max(160, { message: 'Bio cannot exceed 160 characters' }).optional().nullable(),
-  preferences: UserPreferencesSchema.default({}),
+  preferences: UserPreferencesSchema.default({
+    theme: 'dark',
+    language: 'ar',
+    sound_enabled: true,
+    vibration_enabled: true,
+    reduced_motion: false,
+    data_saver: false,
+    battery_saver: false,
+  }),
   created_at: IsoDateSchema.optional(),
   updated_at: IsoDateSchema.optional(),
 });
@@ -140,18 +148,18 @@ export function createApiResponseSchema<T extends z.ZodTypeAny>(dataSchema: T) {
     data: dataSchema.nullable(),
     error: ApiResponseErrorSchema.nullable(),
     meta: ApiResponseMetadataSchema,
-    status: z.enum(['success', 'error']),
+    status: z.enum(['success', 'error'] as const),
   });
 }
 
 // Global System Telemetry / Diagnostic Event Schema
 export const TelemetryEventSchema = z.object({
   id: UuidSchema,
-  event_kind: z.enum(['Auth', 'Sync', 'Navigation', 'Performance', 'Exception']),
+  event_kind: z.enum(['Auth', 'Sync', 'Navigation', 'Performance', 'Exception'] as const),
   message: z.string().min(1),
   route: z.string().optional(),
   timestamp: IsoDateSchema,
-  context_map: z.record(z.any()).default({}),
+  context_map: z.record(z.string(), z.any()).default({}),
 });
 
 // ============================================================================

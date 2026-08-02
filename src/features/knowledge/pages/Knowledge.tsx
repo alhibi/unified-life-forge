@@ -571,7 +571,7 @@ function Section({ title, color, children }: SectionProps) {
   );
 }
 
-function Grid2({ data, color }: Grid2Props) {
+function Grid2({ data, color: _color }: Grid2Props) {
   if (!data) return null;
   const entries = Object.entries(data);
   return (
@@ -656,7 +656,7 @@ function ComponentsBlock({ data, color }: ComponentsBlockProps) {
 }
 
 // ─── DETAIL MODAL ──────────────────────────────────────────────────────────────
-function DetailModal({ model, brand, catId, catColor, onClose }: DetailModalProps) {
+function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: DetailModalProps) {
   const [visible, setVisible] = useState(false);
   useEffect(() => { setTimeout(() => setVisible(true), 20); }, []);
   const handleClose = () => { setVisible(false); setTimeout(onClose, 350); };

@@ -7,10 +7,10 @@ import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapte
 interface SGResp { hours?: Array<Record<string, Record<string, number> | number | string>>; }
 
 export class StormGlassAdapter extends BaseAdapter {
-  readonly id: SourceId = 'stormglass';
-  readonly meta = SOURCE_REGISTRY['stormglass'];
+  override readonly id: SourceId = 'stormglass';
+  override readonly meta = SOURCE_REGISTRY['stormglass'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const key = ctx.apiKey ?? readEnv(this.meta.apiKeyEnv);
     if (!key) return {};
     const params = ['waveHeight','wavePeriod','waveDirection','swellHeight','swellPeriod','waterTemperature','visibility'].join(',');

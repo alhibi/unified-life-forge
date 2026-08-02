@@ -7,10 +7,10 @@ import { type AdapterContext,BaseAdapter, readEnv, safeJson } from './BaseAdapte
 interface WBResp { data?: Array<Record<string, number | string>>; }
 
 export class WeatherbitAdapter extends BaseAdapter {
-  readonly id: SourceId = 'weatherbit';
-  readonly meta = SOURCE_REGISTRY['weatherbit'];
+  override readonly id: SourceId = 'weatherbit';
+  override readonly meta = SOURCE_REGISTRY['weatherbit'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const key = ctx.apiKey ?? readEnv(this.meta.apiKeyEnv);
     if (!key) return {};
     const url = `https://api.weatherbit.io/v2.0/current?lat=${ctx.lat.toFixed(2)}&lon=${ctx.lng.toFixed(2)}&key=${key}`;

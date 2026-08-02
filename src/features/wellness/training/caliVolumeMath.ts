@@ -138,7 +138,7 @@ export function caliOneRmEquivalent(
 
 /** Returns the highest step index at which the user has *cleared* the unlock criterion. */
 export function highestClearedStep(
-  skillKey: string,
+  _skillKey: string,
   /** ISO date → cleared step idx for this skill. */
   log: Record<string, number>,
 ): number {

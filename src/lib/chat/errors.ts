@@ -27,7 +27,7 @@ export type ChatErrorCode =
 export class ChatError extends Error {
   readonly code: ChatErrorCode;
   readonly retriable: boolean;
-  readonly cause: unknown;
+  override readonly cause: unknown;
   constructor(code: ChatErrorCode, message: string, opts?: { retriable?: boolean; cause?: unknown }) {
     super(message);
     this.name = 'ChatError';
