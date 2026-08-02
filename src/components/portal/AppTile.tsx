@@ -18,7 +18,7 @@
  *     animates its own transform, no layout thrash.
  */
 import { motion, useReducedMotion } from 'framer-motion';
-import { forwardRef, memo, useCallback, useRef } from 'react';
+import { forwardRef, memo, useCallback, useRef, useState } from 'react';
 
 import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
@@ -46,12 +46,6 @@ export interface AppTileProps {
   registerRef?: (index: number, el: HTMLButtonElement | null) => void;
 }
 
-/**
- * `forwardRef` is required, not optional: `<AnimatePresence mode="popLayout">`
- * clones each child with a ref so it can measure the exiting element. A plain
- * function component there logs "Function components cannot be given refs" and
- * silently loses the exit animation.
- */
 const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImpl(
   { app, index, list, active, pinned, badge, onOpen, onInspect, onFocusApp, registerRef },
   forwardedRef,
@@ -60,6 +54,10 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
   const theme = getTileTheme(app.key, index);
   const longPressTimer = useRef<number | null>(null);
   const longPressFired = useRef(false);
+
+  // Micro-physics 3D hover states
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
 
   const clearLongPress = useCallback(() => {
     if (longPressTimer.current !== null) {
@@ -75,8 +73,6 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       clearLongPress();
       longPressTimer.current = window.setTimeout(() => {
         longPressFired.current = true;
-        // Haptic confirmation where supported — a long-press with no feedback
-        // reads as a dropped tap.
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
           try {
             navigator.vibrate(8);
@@ -98,6 +94,29 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
     onOpen(app);
   }, [app, onOpen]);
 
+  // Micro-physics tilt calculator based on cursor proximity inside card
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    if (reduce) return;
+    const card = e.currentTarget;
+    const box = card.getBoundingClientRect();
+    const x = e.clientX - box.left;
+    const y = e.clientY - box.top;
+    const centerX = box.width / 2;
+    const centerY = box.height / 2;
+
+    // Max tilt angle 4 degrees
+    const rX = ((centerY - y) / centerY) * 4;
+    const rY = ((x - centerX) / centerX) * 4;
+
+    setRotateX(rX);
+    setRotateY(rY);
+  }, [reduce]);
+
+  const handleMouseLeave = useCallback(() => {
+    setRotateX(0);
+    setRotateY(0);
+  }, []);
+
   return (
     <motion.div
       ref={forwardedRef}
@@ -109,17 +128,12 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         reduce
           ? { duration: 0.12, ease: 'linear' }
           : {
-              // The shared spring, so the tile follows the speed and bounce
-              // settings and stops overshooting entirely under the `silk`
-              // easing family. It used to carry its own ζ ≈ 0.81 pair, which
-              // meant every tile on the home grid settled with a small rebound
-              // no preference could reach.
               ...MOTION.spring,
-              // Cap the cascade: item 7 must not wait 240 ms to exist.
               delay: Math.min(index, 6) * 0.035,
             }
       }
       className="relative"
+      style={{ perspective: 600 }}
     >
       <svg className="absolute w-0 h-0" aria-hidden="true">
         <filter id="paper-noise">
@@ -140,11 +154,17 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           event.preventDefault();
           onInspect(app);
         }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         onMouseEnter={() => onFocusApp(app)}
         onFocus={() => onFocusApp(app)}
         aria-label={`${app.label} — ${app.description}`}
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
+        style={{
+          transform: !reduce ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)` : undefined,
+          transformStyle: 'preserve-3d',
+        }}
         className={cn(
           'app-card group relative w-full text-start overflow-hidden font-amiri',
           theme.bg,
@@ -153,11 +173,17 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           'border',
           'transition-[transform,border-color,background-color] duration-normal ease-out-expo',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          'hover:scale-[1.02]',
+          'hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)]',
           active && 'border-primary/70 bg-accent/40',
-          list ? 'flex items-center gap-3 p-4' : 'flex min-h-[140px] flex-col justify-between p-4',
+          list ? 'flex items-center gap-3 p-4' : 'flex min-h-[148px] flex-col justify-between p-4',
         )}
       >
+        {/* Crop Marks (Micro details) */}
+        <span className="absolute top-1 start-1 w-1.5 h-1.5 border-t border-s border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
+        <span className="absolute top-1 end-1 w-1.5 h-1.5 border-t border-e border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
+        <span className="absolute bottom-1 start-1 w-1.5 h-1.5 border-b border-s border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
+        <span className="absolute bottom-1 end-1 w-1.5 h-1.5 border-b border-e border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
+
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <TileBackground appKey={app.key} />
         </div>
@@ -194,7 +220,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
                   <span className="truncate text-title font-bold text-foreground drop-shadow-sm">{app.label}</span>
                   {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
                 </span>
-                <span className="mt-1 block text-mini leading-[1.4] text-muted-foreground/90">
+                <span className="mt-1 block text-mini leading-[1.4] text-muted-foreground/90 font-sans">
                   {app.description}
                 </span>
                 <span className="mt-2 block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/70 font-sans">
@@ -209,6 +235,12 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
                   EST. 2024
                 </span>
               </div>
+            </div>
+
+            {/* Interactive Miniature Digital Wax Seal Seal Badge */}
+            <div className="absolute bottom-1 start-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-normal">
+              <div className="h-3 w-3 rounded-full bg-[hsl(var(--live))] animate-pulse" />
+              <span className="text-[8px] font-mono tracking-wider uppercase text-[hsl(var(--live))]">ACTIVE SEAL</span>
             </div>
 
             <div className="mt-4 flex h-8 w-full items-center justify-between opacity-30 gap-[1px]">
@@ -250,9 +282,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         </div>
       </button>
 
-      {/* Detail affordance — separate button so the tile's primary tap stays
-          "open the app". Positioned in the corner the index number does not
-          occupy so the two never collide. */}
+      {/* Detail affordance */}
       <button
         type="button"
         onClick={(event) => {
