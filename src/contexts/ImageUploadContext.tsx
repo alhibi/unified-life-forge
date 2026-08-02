@@ -124,7 +124,7 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
         metadata: UploadMetadata,
       ) => void)
     | undefined
-  >();
+  >(undefined);
 
   const setOnUploadComplete = useCallback((cb: ImageUploadContextType['onUploadComplete']) => {
     onCompleteRef.current = cb;

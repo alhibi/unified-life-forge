@@ -979,7 +979,7 @@ export default function ChessPage() {
     );
   };
 
-  const getMoveNotation = (board: BoardState, sr: number, sc: number, tr: number, tc: number, piece: { type: PieceType; color: Color }, isCapture: boolean): string => {
+  const getMoveNotation = (_board: BoardState, _sr: number, sc: number, tr: number, tc: number, piece: { type: PieceType; color: Color }, isCapture: boolean): string => {
     if (piece.type === 'K' && Math.abs(tc - sc) === 2) return tc === 6 ? 'O-O' : 'O-O-O';
     const pieceChar = piece.type === 'P' ? '' : piece.type;
     const captureChar = isCapture ? 'x' : '';

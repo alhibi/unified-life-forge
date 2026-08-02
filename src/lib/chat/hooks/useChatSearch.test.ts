@@ -71,7 +71,7 @@ describe('chat search snippet parsing and rendering', () => {
 
   describe('renderSearchSnippet', () => {
     it('renders segments as safe React element trees', () => {
-      const result = renderSearchSnippet('hello <mark>world</mark> test') as React.ReactElement[];
+      const result = renderSearchSnippet('hello <mark>world</mark> test') as any[];
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(3);
 
@@ -86,7 +86,7 @@ describe('chat search snippet parsing and rendering', () => {
     });
 
     it('does not evaluate malicious HTML payloads when rendered', () => {
-      const result = renderSearchSnippet('<script>alert("XSS")</script> <mark>secure</mark>') as React.ReactElement[];
+      const result = renderSearchSnippet('<script>alert("XSS")</script> <mark>secure</mark>') as any[];
       expect(result.length).toBe(2);
 
       // The non-match span has the script tag as literal plain text children,

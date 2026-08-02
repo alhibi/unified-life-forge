@@ -22,8 +22,8 @@ const SHOW_BUTTON_PX = 200;
 const localKey = (chatId: string) => `ulf.chat.scroll.${chatId}`;
 
 export interface UseChatScrollResult {
-  containerRef: React.RefObject<HTMLDivElement>;
-  endRef:       React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  endRef:       React.RefObject<HTMLDivElement | null>;
   /** Whether the user is near the bottom (auto-scroll on new). */
   isNearBottom: boolean;
   /** Whether to show the "scroll to latest" pill / button. */

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Damascus",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "requiredStatusChecks": ["verify", "e2e", "Enforce bundle budget"]
+    },
+    {
+      "matchPackageNames": ["react", "react-dom", "vite", "tailwindcss", "react-router-dom"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false,
+      "description": "معطّل مؤقتاً — هذه المكتبات بيُدار ترقيتها يدوياً بالمراحل 1-3 من docs/modernization-plan.md. أزل هذا الاستثناء بالمرحلة 5 فقط."
+    },
+    {
+      "matchPackageNames": ["@supabase/supabase-js", "@supabase/*"],
+      "matchUpdateTypes": ["minor", "major"],
+      "automerge": false,
+      "description": "طبقة auth/session/RLS-adjacent — أي تغيير غير patch يحتاج مراجعة بشرية دايماً، حتى بعد Phase 5. الـ patch وحدها بتفضل تلقائية بنفس شروط القاعدة الأولى، لأن سلوك auth/session التاريخي بيتغيّر أحياناً حتى بـ patch releases لمكتبات SDK — راقبها، لا تلغي هالاستثناء أبداً."
+    }
+  ]
+}

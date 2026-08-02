@@ -81,7 +81,7 @@ export class ReadingErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error(
       '[Reading/ErrorBoundary] Caught error:',
       error.message,
@@ -117,7 +117,7 @@ export class ReadingErrorBoundary extends Component<Props, State> {
     });
   };
 
-  render() {
+  override render() {
     if (!this.state.hasError) {
       return this.props.children;
     }

@@ -10,10 +10,10 @@ interface VCResp {
 }
 
 export class VisualCrossingAdapter extends BaseAdapter {
-  readonly id: SourceId = 'visual-crossing';
-  readonly meta = SOURCE_REGISTRY['visual-crossing'];
+  override readonly id: SourceId = 'visual-crossing';
+  override readonly meta = SOURCE_REGISTRY['visual-crossing'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const key = ctx.apiKey ?? readEnv(this.meta.apiKeyEnv);
     if (!key) return {};
     // We use the "normals" element which returns long-term averages.

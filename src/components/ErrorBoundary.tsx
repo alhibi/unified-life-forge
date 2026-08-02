@@ -19,13 +19,13 @@ interface State {
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  override state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, info: React.ErrorInfo) {
+  override componentDidCatch(error: Error, info: React.ErrorInfo) {
     // React render failures do not surface as window 'error' events, so
     // without this they reached nothing but the local console — the single
     // most useful class of error was the least observable.
@@ -51,7 +51,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     window.location.href = '/';
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center gap-4 p-8 text-center min-h-[200px]">

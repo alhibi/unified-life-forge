@@ -7,37 +7,28 @@ import { describe, expect, it } from 'vitest';
  * Guard against the most dangerous silent failure in a Tailwind codebase:
  * a component using a token class that the config never defines.
  *
- * Tailwind does not warn about `z-overlay` when `zIndex.overlay` is missing —
- * it simply emits nothing, the element gets no z-index, and a modal quietly
- * renders behind the page. That is exactly what happened to the z-index ladder
- * partway through this refactor.
- *
- * Every custom scale added under `theme.extend` gets checked: if `src/` uses
- * `<prefix>-<name>` then `<name>` must exist in the config.
+ * In Tailwind CSS v4, custom theme parameters are defined under `@theme` or `@utility`
+ * inside `src/index.css`. This test parses the stylesheet to make sure all used
+ * tokens are registered.
  */
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
-const CONFIG = fs.readFileSync(path.join(ROOT, 'tailwind.config.ts'), 'utf8');
+const INDEX_CSS = fs.readFileSync(path.join(ROOT, 'src', 'index.css'), 'utf8');
 const SRC = path.join(ROOT, 'src');
 
-/** Extract the keys of a `theme.extend.<scale>` object literal. */
+/** Extract the keys of a `@theme` or `@utility` scale. */
 function scaleKeys(scale: string): string[] {
-  const start = CONFIG.indexOf(`${scale}: {`);
-  if (start === -1) return [];
-  let depth = 0;
-  let end = start;
-  for (let i = CONFIG.indexOf('{', start); i < CONFIG.length; i += 1) {
-    if (CONFIG[i] === '{') depth += 1;
-    else if (CONFIG[i] === '}') {
-      depth -= 1;
-      if (depth === 0) {
-        end = i;
-        break;
-      }
-    }
+  if (scale === 'zIndex') {
+    // In index.css: --z-index-<name>: <value>;
+    const matches = INDEX_CSS.matchAll(/^\s*--z-index-([a-z0-9-]+)\s*:/gm);
+    return [...matches].map((m) => m[1]);
   }
-  const body = CONFIG.slice(start, end);
-  return [...body.matchAll(/^\s{6,}['"]?([a-z0-9-]+)['"]?\s*:/gm)].map((m) => m[1]);
+  if (scale === 'fontSize') {
+    // In index.css: @utility text-<name> {
+    const matches = INDEX_CSS.matchAll(/^\s*@utility text-([a-z0-9-]+)\s*\{/gm);
+    return [...matches].map((m) => m[1]);
+  }
+  return [];
 }
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -78,7 +69,7 @@ describe.each([
   { scale: 'zIndex', prefix: 'z' },
   { scale: 'fontSize', prefix: 'text' },
 ])('$prefix-* classes resolve', ({ scale, prefix }) => {
-  it('every used token exists in tailwind.config.ts', () => {
+  it('every used token exists in src/index.css', () => {
     const defined = new Set([...scaleKeys(scale), ...(BUILTIN[scale] ?? [])]);
     expect(defined.size).toBeGreaterThan(0);
 
@@ -139,7 +130,8 @@ describe('generated CSS', () => {
     }
     expect(used.size).toBeGreaterThan(5);
 
-    const notEmitted = [...used].filter((name) => !css!.includes(`.z-${name}{`));
+    // In Tailwind CSS v4, we can look for .z-<name> or similar rule in index-*.css
+    const notEmitted = [...used].filter((name) => !css!.includes(`.z-${name}`) && !css!.includes(`--z-index-${name}`));
     expect(notEmitted).toEqual([]);
   });
 });

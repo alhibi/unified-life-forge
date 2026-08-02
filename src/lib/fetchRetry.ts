@@ -21,7 +21,7 @@
  */
 
 export class TransientNetworkError extends Error {
-  constructor(msg: string, readonly cause?: unknown) {
+  constructor(msg: string, override readonly cause?: unknown) {
     super(msg);
     this.name = 'TransientNetworkError';
   }

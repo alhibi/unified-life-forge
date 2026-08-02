@@ -24,10 +24,10 @@ function haversine_km(lat1: number, lng1: number, lat2: number, lng2: number): n
 }
 
 export class WAQIAdapter extends BaseAdapter {
-  readonly id: SourceId = 'waqi';
-  readonly meta = SOURCE_REGISTRY['waqi'];
+  override readonly id: SourceId = 'waqi';
+  override readonly meta = SOURCE_REGISTRY['waqi'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const token = ctx.apiKey ?? readEnv(this.meta.apiKeyEnv);
     if (!token) return {};
     const url = `https://api.waqi.info/feed/geo:${ctx.lat.toFixed(2)};${ctx.lng.toFixed(2)}/?token=${token}`;

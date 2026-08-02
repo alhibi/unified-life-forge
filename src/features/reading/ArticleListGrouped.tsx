@@ -619,9 +619,9 @@ function EmptyState({
   onRefresh: () => void;
   onAddFeeds?: () => void;
 }) {
-  let icon: JSX.Element;
+  let icon: React.ReactNode;
   let label: string;
-  let cta: JSX.Element | null = null;
+  let cta: React.ReactNode = null;
 
   if (filterTab === 'bookmarks') {
     icon = <Bookmark className="h-10 w-10 text-muted-foreground/30" />;

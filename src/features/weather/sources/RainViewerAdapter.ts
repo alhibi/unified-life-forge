@@ -11,10 +11,10 @@ interface RVResp {
 }
 
 export class RainViewerAdapter extends BaseAdapter {
-  readonly id: SourceId = 'rainviewer';
-  readonly meta = SOURCE_REGISTRY['rainviewer'];
+  override readonly id: SourceId = 'rainviewer';
+  override readonly meta = SOURCE_REGISTRY['rainviewer'];
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const r = await safeJson<RVResp>('https://api.rainviewer.com/public/weather-maps.json', { signal: ctx.signal });
     const past = r.radar?.past ?? [];
     const nowcast = r.radar?.nowcast ?? [];

@@ -1171,7 +1171,7 @@ export default function ArchiveReader() {
                         </div>
                         {/* Carousel swipe dot pagination indicators */}
                         <div className="flex justify-center gap-1 mt-1">
-                          {['georgia', 'iowan', 'amiri'].map((group, idx) => (
+                          {['georgia', 'iowan', 'amiri'].map((_group, idx) => (
                             <span
                               key={idx}
                               className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${prefs.font === 'georgia' || prefs.font === 'sf' ? (idx === 0 ? 'bg-primary w-3' : 'bg-muted-foreground/30') : prefs.font === 'iowan' || prefs.font === 'avenir' ? (idx === 1 ? 'bg-primary w-3' : 'bg-muted-foreground/30') : idx === 2 ? 'bg-primary w-3' : 'bg-muted-foreground/30'}`}

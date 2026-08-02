@@ -92,7 +92,7 @@ interface VirtualMessageListProps {
    * (`messagesContainerRef`). The virtualizer reads scrollTop / clientHeight
    * from this element.
    */
-  scrollElementRef: React.RefObject<HTMLElement>;
+  scrollElementRef: React.RefObject<HTMLElement | null>;
   /**
    * Render function for a single message row. Returns the entire JSX
    * that ChatDrawer used to render — including day separator, unread

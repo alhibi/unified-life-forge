@@ -157,7 +157,7 @@ describe('appleEmoji', () => {
       expect(nodes[0]).toBe('Hello ');
 
       // First emoji (😃)
-      const img1 = nodes[1] as React.ReactElement;
+      const img1 = nodes[1] as any;
       expect(React.isValidElement(img1)).toBe(true);
       expect(img1.type).toBe('img');
       expect(img1.key).toBe('prefix-e0');
@@ -167,7 +167,7 @@ describe('appleEmoji', () => {
       expect(nodes[2]).toBe(' and ');
 
       // Second emoji (👍🏻) - multi-codepoint sequence should match first before standard 👍
-      const img2 = nodes[3] as React.ReactElement;
+      const img2 = nodes[3] as any;
       expect(React.isValidElement(img2)).toBe(true);
       expect(img2.type).toBe('img');
       expect(img2.key).toBe('prefix-e1');
@@ -183,7 +183,7 @@ describe('appleEmoji', () => {
 
       const text = '😃';
       const nodes = renderTextWithAppleEmoji(text, 'err');
-      const img = nodes[0] as React.ReactElement;
+      const img = nodes[0] as any;
 
       expect(img.props.onError).toBeDefined();
 

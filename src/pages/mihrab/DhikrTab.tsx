@@ -146,7 +146,7 @@ function DuaDialog({
 
 function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
   const [open, setOpen] = useState(false);
-  const Icon = iconMap[dua.icon] || Star;
+  const Icon = (iconMap[dua.icon] || Star) as React.ComponentType<any>;
 
   return (
     <>
@@ -156,9 +156,7 @@ function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
         className="flex min-h-11 flex-col items-center gap-1.5 rounded-md p-2 transition-colors duration-fast hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-foreground">
-          {/* @ts-expect-error */}
-{/* @ts-expect-error */}
-<Icon className="h-5 w-5" aria-hidden />
+          <Icon className="h-5 w-5" aria-hidden />
         </span>
         <span className="line-clamp-2 w-16 text-center text-micro font-medium leading-tight text-foreground">
           {dua.titleAr}
@@ -289,7 +287,7 @@ export default function DhikrTab() {
           <p className="app-section-label mb-2">أقسام الأدعية</p>
           <div className="space-y-2">
             {duaCategories.map((cat) => {
-              const Icon = iconMap[cat.icon] || Star;
+              const Icon = (iconMap[cat.icon] || Star) as React.ComponentType<any>;
               return (
                 <button
                   key={cat.id}
@@ -298,9 +296,7 @@ export default function DhikrTab() {
                   className="app-card app-card-compact app-card-pressable flex w-full items-center gap-3 text-start"
                 >
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
-                    {/* @ts-expect-error */}
-{/* @ts-expect-error */}
-<Icon className="h-5 w-5" aria-hidden />
+                    <Icon className="h-5 w-5" aria-hidden />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-meta font-semibold text-foreground">{cat.titleAr}</span>

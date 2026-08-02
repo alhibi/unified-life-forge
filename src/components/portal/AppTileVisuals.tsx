@@ -5,7 +5,7 @@ import { memo } from 'react';
  * Returns Tailwind classes for the tile's 3-tone matte background, border highlight,
  * and hover glow based on its grid index.
  */
-export function getTileTheme(key: string, index: number) {
+export function getTileTheme(_key: string, index: number) {
   const tone = index % 3;
   switch (tone) {
     case 0:

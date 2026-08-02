@@ -16,14 +16,14 @@ interface TIResp {
 }
 
 export class TomorrowAdapter extends BaseAdapter {
-  readonly id: SourceId = 'tomorrow';
-  readonly meta = SOURCE_REGISTRY['tomorrow'];
+  override readonly id: SourceId = 'tomorrow';
+  override readonly meta = SOURCE_REGISTRY['tomorrow'];
 
   private apiKey(): string | undefined {
     return readEnv(this.meta.apiKeyEnv);
   }
 
-  async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+  override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
     const key = ctx.apiKey ?? this.apiKey();
     if (!key) return {};
     const params = new URLSearchParams({
@@ -51,7 +51,7 @@ export class TomorrowAdapter extends BaseAdapter {
     };
   }
 
-  async fetchForecast(ctx: AdapterContext): Promise<Partial<ForecastLayers>> {
+  override async fetchForecast(ctx: AdapterContext): Promise<Partial<ForecastLayers>> {
     const key = ctx.apiKey ?? this.apiKey();
     if (!key) return {};
     const params = new URLSearchParams({
