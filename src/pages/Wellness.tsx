@@ -204,7 +204,29 @@ export default function WellnessPage() {
       case 'cali':
         return <CalisthenicsTab onJump={(k) => setTab(k as TabKey)} />;
       case 'activity':
-        return <FitnessFeature />;
+        return (
+          <div className="p-1">
+            <AppCard className="p-6 text-center space-y-4 border-primary/20 bg-primary/5 relative overflow-hidden">
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-2">
+                <Activity className="w-7 h-7" />
+              </div>
+              <div className="space-y-1.5 relative z-10">
+                <h3 className="text-sm font-bold text-foreground">تطبيق اللياقة البدنية المتكامل</h3>
+                <p className="text-[0.6875rem] text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                  لقد تمت ترقية قسم تتبع الأنشطة ليكون تطبيقاً مستقلاً متكاملاً مليئاً بالتفاصيل العميقة وجداول التمارين الأسبوعية، مؤقتات الاستراحة، حاسبات مؤشرات الوزن وحساب حرق السعرات الحرارية الدقيق.
+                </p>
+              </div>
+              <Button
+                onClick={() => navigate('/fitness')}
+                className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold active-tactile relative z-10"
+              >
+                افتح تطبيق اللياقة البدنية المستقل
+                <ChevronRight className="w-3.5 h-3.5 ms-1.5 inline-block rtl:rotate-180" />
+              </Button>
+            </AppCard>
+          </div>
+        );
       case 'diet':
         return (
           <DietTab

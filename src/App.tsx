@@ -146,6 +146,7 @@ const loadNotFound = () => import("./pages/NotFound");
 // switches the route normally — first visit pays a brief skeleton,
 // subsequent visits hit React.lazy's module cache and are instant.
 const loadWellness = () => import("./pages/Wellness");
+const loadFitness = () => import("./pages/Fitness");
 const loadDiwan = () => import("./features/diwan/pages/Diwan");
 // Hubs introduced by the IA reorganisation: `/browse` ("اطلاع")
 // groups Podcasts + Articles, `/mihrab` groups Quran/Dhikr/Sunnah/
@@ -225,6 +226,7 @@ registerRoute('/settings/prayer',   loadPrayer);
 registerRoute('/auth',              loadAuth);
 registerRoute('/duas',              loadDuas);
 registerRoute('/wellness',          loadWellness);
+registerRoute('/fitness',           loadFitness);
 registerRoute('/diwan',             loadDiwan);
 registerRoute('/browse',            loadBrowse);
 registerRoute('/mihrab',            loadMihrab);
@@ -309,6 +311,7 @@ const PodcastLibraryPage = lazy(loadPodcastLibrary);
 const PodcastHistoryPage = lazy(loadPodcastHistory);
 const NotFound = lazy(loadNotFound);
 const WellnessPage = lazy(loadWellness);
+const FitnessPage = lazy(loadFitness);
 const DiwanPage = lazy(loadDiwan);
 const BrowsePage = lazy(loadBrowse);
 const MihrabPage = lazy(loadMihrab);
@@ -348,7 +351,7 @@ function useIdlePrefetch() {
       ((cb) => window.setTimeout(cb, 1500));
     const id = ric(() => {
       loadAppearance(); loadProfile(); loadPrayer(); loadReading();
-      loadWellness(); loadDiwan(); loadQuran(); loadDhikr(); loadSunnah();
+        loadWellness(); loadFitness(); loadDiwan(); loadQuran(); loadDhikr(); loadSunnah();
       // Wave-1 chat surfaces. The groups index is one tap away from the
       // chat tab and the chat settings page is one tap away from there;
       // pre-warming both keeps the first navigation instant.
@@ -644,6 +647,7 @@ function AnimatedRoutes() {
                   <Route path="/dhikr" element={<ErrorBoundary><DhikrPage /></ErrorBoundary>} />
                   <Route path="/sunnah" element={<ErrorBoundary><SunnahPage /></ErrorBoundary>} />
                   <Route path="/wellness" element={<ErrorBoundary><WellnessPage /></ErrorBoundary>} />
+                  <Route path="/fitness" element={<ErrorBoundary><FitnessPage /></ErrorBoundary>} />
                   <Route path="/diwan" element={<ErrorBoundary><DiwanPage /></ErrorBoundary>} />
                   <Route path="/browse" element={<ErrorBoundary><BrowsePage /></ErrorBoundary>} />
                   <Route path="/mihrab" element={<ErrorBoundary><MihrabPage /></ErrorBoundary>} />
