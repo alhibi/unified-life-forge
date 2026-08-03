@@ -29,6 +29,10 @@ import { CefrLevelCode } from '../types';
 export const GermanHome: React.FC = () => {
   const navigate = useNavigate();
 
+  const { data: levels = STARTER_LEVELS, isLoading: loadingLevels } = useCefrLevels();
+  const { data: units = STARTER_UNITS, isLoading: loadingUnits } = useUnits();
+  const { data: lessons = STARTER_LESSONS, isLoading: loadingLessonsList } = useLessons();
+
   const { data: progress = [], isLoading: loadingProg } = useUserProgress();
   const { data: stats = null, isLoading: loadingStats } = useUserStats();
   const { data: srsData = [], isLoading: loadingSrs } = useSrsState();
@@ -36,6 +40,7 @@ export const GermanHome: React.FC = () => {
 
   const [activeLevel, setActiveLevel] = useState<CefrLevelCode>('A0');
   const [activeSessionMinutes, setActiveSessionMinutes] = useState<number | null>(null);
+  const [activeLessonId, setActiveLessonId] = useState<string | undefined>(undefined);
 
   // Advanced learning environment states
   const [activeTab, setActiveTab] = useState<'lessons' | 'handbook' | 'dictionary' | 'tutor' | 'placement'>('lessons');
@@ -65,15 +70,19 @@ export const GermanHome: React.FC = () => {
     return new Set(progress.filter((p) => p.status === 'completed').map((p) => p.lesson_id));
   }, [progress]);
 
-  const levels = STARTER_LEVELS;
-  const units = STARTER_UNITS;
-  const lessons = STARTER_LESSONS;
+  const currentLevelObj = useMemo(() => {
+    return levels.find((l) => l.code === activeLevel) || levels[0];
+  }, [levels, activeLevel]);
 
-  const currentLevelObj = levels.find((l) => l.code === activeLevel) || levels[0];
-  const unitsInActiveLevel = units.filter((u) => u.level_id === currentLevelObj.id);
-  const activeLevelLessons = lessons.filter((l) =>
-    unitsInActiveLevel.some((u) => u.id === l.unit_id)
-  );
+  const unitsInActiveLevel = useMemo(() => {
+    return units.filter((u) => u.level_id === currentLevelObj?.id);
+  }, [units, currentLevelObj]);
+
+  const activeLevelLessons = useMemo(() => {
+    return lessons.filter((l) =>
+      unitsInActiveLevel.some((u) => u.id === l.unit_id)
+    );
+  }, [lessons, unitsInActiveLevel]);
 
   const completedCount = activeLevelLessons.filter((l) => completedLessonIds.has(l.id)).length;
   const progressPercent =
@@ -174,7 +183,7 @@ export const GermanHome: React.FC = () => {
     });
   };
 
-  // Placement Test Simulator
+  // Placement Test Simulator (fully mapped across all 6 CEFR levels A0-C1 dynamically)
   const PLACEMENT_QUESTIONS = [
     { q: "Wie heißt du? \n (اختر الإجابة الصحيحة)", options: ["Ich bin Ahmad", "Ich danke dir", "Guten Morgen"], correct: 0 },
     { q: "Das ist ___ Mutter. \n (أمي - مؤنث)", options: ["mein", "meine", "dein"], correct: 1 },
@@ -184,19 +193,22 @@ export const GermanHome: React.FC = () => {
   ];
 
   const handlePlacementAnswer = (idx: number) => {
+    let currentScore = placementScore;
     if (idx === PLACEMENT_QUESTIONS[placementStep].correct) {
-      setPlacementScore((s) => s + 20);
+      currentScore += 20;
+      setPlacementScore(currentScore);
     }
 
     if (placementStep < PLACEMENT_QUESTIONS.length - 1) {
       setPlacementStep((s) => s + 1);
     } else {
       // Complete test
-      const finalScore = placementScore + (idx === PLACEMENT_QUESTIONS[placementStep].correct ? 20 : 0);
       let level = 'A0 - التمهيدي البدائي';
-      if (finalScore >= 80) level = 'B1 - المتوسط الأساسي';
-      else if (finalScore >= 60) level = 'A2 - المبتدئ الأساسي';
-      else if (finalScore >= 40) level = 'A1 - المبتدئ التأسيسي';
+      if (currentScore >= 100) level = 'C1 - الطلاقة والاحترافية';
+      else if (currentScore >= 80) level = 'B2 - المتقدم المتمكن';
+      else if (currentScore >= 60) level = 'B1 - المتوسط الأساسي';
+      else if (currentScore >= 40) level = 'A2 - المبتدئ الأساسي';
+      else if (currentScore >= 20) level = 'A1 - المبتدئ التأسيسي';
 
       setPlacementResult(level);
       toast.success('تمت معالجة اختبار تحديد المستوى بنجاح!');
@@ -215,7 +227,11 @@ export const GermanHome: React.FC = () => {
       <PageShell flush centered={false}>
         <ExerciseSession
           minutes={activeSessionMinutes}
-          onClose={() => setActiveSessionMinutes(null)}
+          lessonId={activeLessonId}
+          onClose={() => {
+            setActiveSessionMinutes(null);
+            setActiveLessonId(undefined);
+          }}
         />
       </PageShell>
     );
@@ -379,10 +395,13 @@ export const GermanHome: React.FC = () => {
                       <span className="font-plex-mono text-sm font-bold text-foreground">{pendingSrsReviews || STARTER_VOCABULARY.length}</span>
                     </div>
                     <button
-                      onClick={() => setActiveSessionMinutes(5)}
+                      onClick={() => {
+                        setActiveLessonId(undefined);
+                        setActiveSessionMinutes(5);
+                      }}
                       className="w-full py-2.5 bg-[hsl(var(--live))] text-white hover:bg-[hsl(var(--live))]/90 rounded-lg text-xs font-bold font-tajawal shadow-sm transition-transform active:scale-95"
                     >
-                      ابدأ الجلسة (5 دقائق)
+                      ابدأ الجلسة الشاملة (5 دقائق)
                     </button>
                   </div>
                 </div>
@@ -448,7 +467,11 @@ export const GermanHome: React.FC = () => {
                               return (
                                 <div
                                   key={lesson.id}
-                                  className={`p-3.5 rounded-xl border transition-all flex items-center justify-between group/lesson ${
+                                  onClick={() => {
+                                    setActiveLessonId(lesson.id);
+                                    setActiveSessionMinutes(5);
+                                  }}
+                                  className={`p-3.5 rounded-xl border transition-all flex items-center justify-between group/lesson cursor-pointer ${
                                     isCompleted
                                       ? 'bg-emerald-500/[0.03] border-emerald-500/20'
                                       : 'bg-background hover:bg-secondary/20 border-transparent hover:border-border/50'
@@ -481,14 +504,16 @@ export const GermanHome: React.FC = () => {
                                     </div>
                                   </div>
 
-                                  {!isCompleted && (
-                                    <button
-                                      onClick={() => handleLessonCompleteDirectly(lesson.id)}
-                                      className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/20 text-xs font-bold font-tajawal transition-all opacity-0 group-hover/lesson:opacity-100"
-                                    >
-                                      إنجاز
-                                    </button>
-                                  )}
+                                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                    {!isCompleted && (
+                                      <button
+                                        onClick={() => handleLessonCompleteDirectly(lesson.id)}
+                                        className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/20 text-xs font-bold font-tajawal transition-all"
+                                      >
+                                        إنجاز
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                               );
                             })}

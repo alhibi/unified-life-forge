@@ -52,12 +52,14 @@ const SUPABASE_PUBLISHABLE_KEY =
 export const isSupabaseConfigured: boolean =
   Boolean(SUPABASE_URL) && Boolean(SUPABASE_PUBLISHABLE_KEY);
 
+const isBrowser = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
 export const supabase = createClient<Database>(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
-      storage: localStorage,
+      storage: isBrowser ? window.localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
     },

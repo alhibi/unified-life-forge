@@ -41,6 +41,7 @@ const LS_REVIEW_LOG = 'de_learning_review_log';
 // Helper: safe JSON parsing
 function safeGetLocalStorage<T>(key: string, defaultValue: T): T {
   try {
+    if (typeof localStorage === 'undefined') return defaultValue;
     const val = localStorage.getItem(key);
     return val ? JSON.parse(val) : defaultValue;
   } catch {
@@ -50,6 +51,7 @@ function safeGetLocalStorage<T>(key: string, defaultValue: T): T {
 
 function safeSetLocalStorage<T>(key: string, value: T): void {
   try {
+    if (typeof localStorage === 'undefined') return;
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
     console.error('[de-learning] failed to write to local storage:', e);
@@ -62,8 +64,9 @@ async function checkSupabaseAccess(): Promise<boolean> {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return false;
     // Probe a quick select on a public reference table
-    const { error } = await supabase.from('cefr_levels').select('id').limit(1);
-    return !error;
+    const { error, data } = await supabase.from('cefr_levels').select('id').limit(1);
+    // If the table is missing or query fails, fallback.
+    return !error && Array.isArray(data) && data.length > 0;
   } catch {
     return false;
   }
@@ -80,7 +83,7 @@ export async function fetchCefrLevels(): Promise<CefrLevel[]> {
       .from('cefr_levels')
       .select('*')
       .order('sort_order', { ascending: true });
-    if (!error && data) return data as CefrLevel[];
+    if (!error && Array.isArray(data) && data.length > 0) return data as CefrLevel[];
   }
   return STARTER_LEVELS;
 }
@@ -91,7 +94,7 @@ export async function fetchUnits(levelId?: string): Promise<Unit[]> {
     let query = supabase.from('units').select('*').order('sort_order', { ascending: true });
     if (levelId) query = query.eq('level_id', levelId);
     const { data, error } = await query;
-    if (!error && data) return data as Unit[];
+    if (!error && Array.isArray(data) && data.length > 0) return data as Unit[];
   }
   if (levelId) return STARTER_UNITS.filter((u) => u.level_id === levelId);
   return STARTER_UNITS;
@@ -103,7 +106,7 @@ export async function fetchLessons(unitId?: string): Promise<Lesson[]> {
     let query = supabase.from('lessons').select('*').order('sort_order', { ascending: true });
     if (unitId) query = query.eq('unit_id', unitId);
     const { data, error } = await query;
-    if (!error && data) return data as Lesson[];
+    if (!error && Array.isArray(data) && data.length > 0) return data as Lesson[];
   }
   if (unitId) return STARTER_LESSONS.filter((l) => l.unit_id === unitId);
   return STARTER_LESSONS;
@@ -116,7 +119,7 @@ export async function fetchGrammarPoints(lessonId: string): Promise<GrammarPoint
       .from('grammar_points')
       .select('*')
       .eq('lesson_id', lessonId);
-    if (!error && data) return data as GrammarPoint[];
+    if (!error && Array.isArray(data) && data.length > 0) return data as GrammarPoint[];
   }
   return STARTER_GRAMMAR_POINTS.filter((gp) => gp.lesson_id === lessonId);
 }
@@ -127,7 +130,7 @@ export async function fetchVocabularyItems(levelId?: string): Promise<Vocabulary
     let query = supabase.from('vocabulary_items').select('*').eq('status', 'published');
     if (levelId) query = query.eq('level_id', levelId);
     const { data, error } = await query;
-    if (!error && data) return data as VocabularyItem[];
+    if (!error && Array.isArray(data) && data.length > 0) return data as VocabularyItem[];
   }
   if (levelId) return STARTER_VOCABULARY.filter((v) => v.level_id === levelId);
   return STARTER_VOCABULARY;
@@ -139,7 +142,7 @@ export async function fetchExercises(lessonId?: string): Promise<Exercise[]> {
     let query = supabase.from('exercises').select('*').eq('status', 'published');
     if (lessonId) query = query.eq('lesson_id', lessonId);
     const { data, error } = await query;
-    if (!error && data) return data as unknown as Exercise[];
+    if (!error && Array.isArray(data) && data.length > 0) return data as unknown as Exercise[];
   }
   if (lessonId) return STARTER_EXERCISES.filter((ex) => ex.lesson_id === lessonId);
   return STARTER_EXERCISES;
@@ -188,7 +191,7 @@ export async function fetchUserProgress(): Promise<UserProgress[]> {
       .from('user_progress')
       .select('*')
       .eq('user_id', userId);
-    if (!error && data) return data as UserProgress[];
+    if (!error && Array.isArray(data)) return data as UserProgress[];
   }
 
   // Local fallback
@@ -248,7 +251,7 @@ export async function fetchSrsState(): Promise<SrsState[]> {
       .from('srs_state')
       .select('*')
       .eq('user_id', userId);
-    if (!error && data) return data as SrsState[];
+    if (!error && Array.isArray(data)) return data as SrsState[];
   }
 
   // Local fallback
@@ -260,23 +263,21 @@ export async function fetchSrsState(): Promise<SrsState[]> {
 // Interleaved Spaced Repetition Session Builder (§5)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function buildLearningSession(sessionLengthMinutes = 5): Promise<SessionData> {
+export async function buildLearningSession(sessionLengthMinutes = 5, lessonId?: string): Promise<SessionData> {
   const { data: { user } } = await supabase.auth.getUser();
   const userId = user?.id || 'anonymous_user';
 
   // Define total questions count based on minutes target
-  // A standard session targets ~6 questions for 5-8 minutes
   const totalQuestionsTarget = Math.max(5, Math.min(12, sessionLengthMinutes * 1));
 
   // Determine distributions (§5):
-  // 40% New, 40% Due Review, 20% Weak-Point remediation
   const countNew = Math.max(2, Math.round(totalQuestionsTarget * 0.4));
   const countReview = Math.max(2, Math.round(totalQuestionsTarget * 0.4));
   const countWeak = Math.max(1, Math.round(totalQuestionsTarget * 0.2));
 
   // Load active reference lists
   const allVocab = await fetchVocabularyItems();
-  const allExercises = await fetchExercises();
+  const allExercises = await fetchExercises(lessonId);
   const allSrs = await fetchSrsState();
   const progressList = await fetchUserProgress();
 
@@ -284,37 +285,34 @@ export async function buildLearningSession(sessionLengthMinutes = 5): Promise<Se
     progressList.filter((p) => p.status === 'completed').map((p) => p.lesson_id)
   );
 
-  // 1. Gather Due SRS Reviews (stability/difficulty, due_at <= now())
+  // 1. Gather Due SRS Reviews
   const nowStr = new Date().toISOString();
   const dueSrs = allSrs
     .filter((item) => new Date(item.due_at) <= new Date(nowStr))
-    .sort((a, b) => new Date(a.due_at).getTime() - new Date(b.due_at).getTime()); // Most overdue first
+    .sort((a, b) => new Date(a.due_at).getTime() - new Date(b.due_at).getTime());
 
   // 2. Gather Weak Points (lapses >= 2)
   const weakSrs = allSrs.filter((item) => item.lapses >= 2);
 
   // 3. Gather New Content from current lesson position
-  // Sort lessons to trace user's chronological footprint
   const allLessons = await fetchLessons();
   const activeLevelLessons = allLessons;
   const currentUncompletedLesson = activeLevelLessons.find((l) => !completedLessonIds.has(l.id)) || activeLevelLessons[0];
 
-  // Exercises of current uncompleted lesson
+  // Exercises of active target/uncompleted lesson
+  const targetLessonId = lessonId || currentUncompletedLesson?.id;
   const newExercises = allExercises.filter(
-    (ex) => currentUncompletedLesson && ex.lesson_id === currentUncompletedLesson.id
+    (ex) => targetLessonId && ex.lesson_id === targetLessonId
   );
 
-  // Fallback to all exercises if none in the active lesson
   const poolNew = newExercises.length > 0 ? newExercises : allExercises;
-
-  // Let's compose the actual list of SessionItems
   const finalItems: SessionItem[] = [];
 
   // Pick New content
   const pickedNew = poolNew.slice(0, countNew);
   for (const ex of pickedNew) {
-    // Try to find vocabulary items matched to this exercise to enrich context
-    const matchingVocab = allVocab.find((v) => ex.payload && v.lemma_de && ex.payload.toString().includes(v.lemma_de)) || allVocab[0];
+    const payloadStr = JSON.stringify(ex.payload);
+    const matchingVocab = allVocab.find((v) => ex.payload && v.lemma_de && payloadStr.includes(v.lemma_de)) || allVocab[0];
     finalItems.push({
       exercise_id: ex.id,
       type: ex.type,
@@ -326,9 +324,7 @@ export async function buildLearningSession(sessionLengthMinutes = 5): Promise<Se
   // Pick Due Reviews
   const pickedReview = dueSrs.slice(0, countReview);
   for (const srs of pickedReview) {
-    // Find exercise referencing this srs item (vocabulary lemma match or grammar point)
     const matchedEx = allExercises.find((ex) => {
-      // Find matching words inside payload prompt or choices
       const vocabWord = allVocab.find((v) => v.id === srs.item_id);
       return vocabWord && JSON.stringify(ex.payload).includes(vocabWord.lemma_de);
     }) || allExercises[0];
@@ -365,8 +361,26 @@ export async function buildLearningSession(sessionLengthMinutes = 5): Promise<Se
     }
   }
 
-  // Interleave the session composition to prevent block monotony (Requirement §5)
-  // Simple shuffle that mixes index types
+  // BACKFILL GUARANTEE (§5): if user has no due reviews or weak points, fill remaining slots up to target count using allExercises
+  if (finalItems.length < totalQuestionsTarget && allExercises.length > 0) {
+    const currentIds = new Set(finalItems.map((item) => item.exercise_id));
+    const extraExercises = allExercises.filter((ex) => !currentIds.has(ex.id));
+    const backfillCount = totalQuestionsTarget - finalItems.length;
+    const toBackfill = extraExercises.slice(0, backfillCount);
+
+    for (const ex of toBackfill) {
+      const payloadStr = JSON.stringify(ex.payload);
+      const matchingVocab = allVocab.find((v) => ex.payload && v.lemma_de && payloadStr.includes(v.lemma_de)) || allVocab[0];
+      finalItems.push({
+        exercise_id: ex.id,
+        type: ex.type,
+        payload: ex.payload,
+        vocab_item: matchingVocab,
+      });
+    }
+  }
+
+  // Interleave the session composition to prevent block monotony
   const shuffledItems = finalItems.sort(() => Math.random() - 0.5);
 
   return {
