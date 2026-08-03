@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 
 import AuthGuard from '@/components/AuthGuard';
 import SEO from '@/components/SEO';
+import { AppCard } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import {
