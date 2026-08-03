@@ -2,7 +2,7 @@
 // Built according to the specification in GERMAN-MODULE-AGENTS.md.
 // Handles stability, difficulty, and retrievability calculations.
 
-import { SrsRating, SrsState } from '../types';
+import { SrsRating } from '../types';
 
 /**
  * Calculates current retrievability (probability of recall)
@@ -33,8 +33,8 @@ export function updateFsrs(
   elapsedDays: number
 ): FsrsUpdateResult {
   // Ensure we have valid starting parameters
-  let s = Math.max(0.1, currentStability);
-  let d = Math.max(1, Math.min(10, currentDifficulty));
+  const s = Math.max(0.1, currentStability);
+  const d = Math.max(1, Math.min(10, currentDifficulty));
   const t = Math.max(0, elapsedDays);
 
   // 1. Calculate new difficulty (D) clamped between 1 and 10

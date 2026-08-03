@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { calculateRetrievability, updateFsrs, runFsrsMultiDaySimulation } from '../fsrs';
+
+import { calculateRetrievability, runFsrsMultiDaySimulation,updateFsrs } from '../fsrs';
 
 describe('German Learning Spaced Repetition Engine (FSRS)', () => {
   test('correctly calculates retrievability probability', () => {

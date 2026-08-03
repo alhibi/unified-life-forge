@@ -9,9 +9,8 @@ import {
 } from '../validation';
 import {
   createApiResponseSchema,
-  isUserProfile,
   isPKMNote,
-  isFitnessActivity,
+  isUserProfile,
   UserProfileSchema,
 } from '../validation/schemas';
 

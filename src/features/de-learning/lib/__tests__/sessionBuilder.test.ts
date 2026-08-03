@@ -1,18 +1,7 @@
-import { describe, expect, test, vi } from 'vitest';
+// @vitest-environment jsdom
+import { beforeAll,describe, expect, test, vi } from 'vitest';
 
-// Inject localStorage mock for NodeJS environment at load time
-if (typeof global.localStorage === 'undefined') {
-  global.localStorage = {
-    getItem: vi.fn().mockReturnValue(null),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-    key: vi.fn(),
-    length: 0,
-  } as unknown as Storage;
-}
-
-// Mock supabase browser client before any other imports to prevent load errors
+// Must mock supabase BEFORE api import due to top-level evaluation
 vi.mock('@/integrations/supabase/client', () => {
   return {
     supabase: {
@@ -32,6 +21,17 @@ vi.mock('@/integrations/supabase/client', () => {
 import { buildLearningSession } from '../../api';
 
 describe('German Learning Session Builder', () => {
+  beforeAll(() => {
+    global.localStorage = {
+      getItem: vi.fn().mockReturnValue(null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      key: vi.fn(),
+      length: 0,
+    } as unknown as Storage;
+  });
+
   test('successfully builds an interleaved learning session', async () => {
     const session = await buildLearningSession(5);
 

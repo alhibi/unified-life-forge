@@ -1,58 +1,39 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useMemo, useRef,useState } from 'react';
 
 // UI Primitives & Layout
 import { AppCard, PageShell, Section } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
-
+import { FullActivityMap } from '@/features/fitness/FullActivityMap';
+import { RouteThumbnail } from '@/features/fitness/RouteThumbnail';
+// Fitness Feature hooks & components
+import { useActivityTracking } from '@/features/fitness/useActivityTracking';
 // Standard Icons
 import {
   Activity,
-  ArrowRight,
   BarChart3,
   Calendar,
   Check,
-  CheckCircle,
-  ChevronRight,
   Clock,
   Dumbbell,
-  Flame,
   History,
   Info,
-  Layers,
   Library,
-  MapPin,
-  MapPinned,
   Play,
   Plus,
   RotateCcw,
   Scale,
   Search,
-  Settings2,
   Sparkles,
-  Square,
-  Timer,
   Trash2,
-  Trophy,
-  User,
   X,
 } from '@/lib/icons';
-
-// Fitness Feature hooks & components
-import { useActivityTracking } from '@/features/fitness/useActivityTracking';
-import { RouteThumbnail } from '@/features/fitness/RouteThumbnail';
-import { FullActivityMap } from '@/features/fitness/FullActivityMap';
-
 // Custom Fitness App Zustand Store
 import {
-  useFitnessAppStore,
   DayOfWeekKey,
-  WorkoutDay,
-  WorkoutDayExercise,
-  WorkoutSet,
-  WeightLog,
+  useFitnessAppStore,
 } from '@/stores/fitnessAppStore';
 
 // ============================================================================
@@ -660,7 +641,7 @@ function FitnessPageInner({
                       >
                         <span className="text-[0.625rem] font-medium leading-none mb-1">{DAYS_MAP[dayKey].short}</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-80" style={{ display: dayData.isRestDay ? 'none' : 'block' }} />
-                        {dayData.isRestDay && <span className="text-[0.55rem] text-muted-foreground/50 leading-none">راحة</span>}
+                        {dayData.isRestDay && <span className="text-mini text-muted-foreground/50 leading-none">راحة</span>}
                       </button>
                     );
                   })}
@@ -835,7 +816,7 @@ function FitnessPageInner({
                       placeholder="ابحث عن تمرين أو اكتب اسماً مخصصاً..."
                       value={exerciseSearch}
                       onChange={(e) => setExerciseSearch(e.target.value)}
-                      className="w-full h-9 rounded-xl pr-9 pl-3 bg-muted/50 border border-border/40 text-xs focus:border-primary focus:outline-none"
+                      className="w-full h-9 rounded-xl pe-9 ps-3 bg-muted/50 border border-border/40 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -914,7 +895,7 @@ function FitnessPageInner({
                   placeholder="ابحث في مكتبة التمارين المتاحة..."
                   value={librarySearch}
                   onChange={(e) => setLibrarySearch(e.target.value)}
-                  className="w-full h-10 rounded-xl pr-9 pl-4 bg-card border border-border/40 text-xs focus:border-primary focus:outline-none"
+                  className="w-full h-10 rounded-xl pe-9 ps-4 bg-card border border-border/40 text-xs focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -1065,7 +1046,7 @@ function FitnessPageInner({
                   {store.weightLogs.length > 0 ? (
                     <div className="h-full flex flex-col justify-between">
                       {/* Premium Clean Custom SVG Area Graph instead of raw heavy charts */}
-                      <div className="flex-1 flex items-end justify-between h-32 relative mb-2 px-4 pt-4 border-b border-l border-border/60">
+                      <div className="flex-1 flex items-end justify-between h-32 relative mb-2 px-4 pt-4 border-b border-s border-border/60">
                         {/* Target line guide */}
                         <div
                           className="absolute left-0 right-0 border-t border-dashed border-primary/40 z-base"
@@ -1073,7 +1054,7 @@ function FitnessPageInner({
                             bottom: `${Math.min(90, Math.max(10, ((store.weightTargetKg - 60) / (90 - 60)) * 100))}%`
                           }}
                         >
-                          <span className="absolute right-2 -top-4 text-[0.55rem] text-primary/80 bg-card px-1 font-bold">الهدف: {store.weightTargetKg} كغ</span>
+                          <span className="absolute right-2 -top-4 text-mini text-primary/80 bg-card px-1 font-bold">الهدف: {store.weightTargetKg} كغ</span>
                         </div>
 
                         {/* Chart plot vectors scaled */}
@@ -1098,7 +1079,7 @@ function FitnessPageInner({
                                 }}
                               >
                                 {/* Tooltip hover details */}
-                                <div className="absolute bottom-6 bg-foreground text-background text-[0.55rem] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                                <div className="absolute bottom-6 bg-foreground text-background text-mini font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                                   {log.weightKg} كغ ({log.date})
                                 </div>
                                 <div className="w-2.5 h-2.5 rounded-full bg-primary border-2 border-card shadow-sm group-hover:scale-125 transition-transform" />
@@ -1202,7 +1183,7 @@ function FitnessPageInner({
                                 <span className="text-xs font-bold text-foreground">
                                   {act.activity_type === 'running' ? 'تمرين جري سريع 🏃‍♂️' : 'تمرين مشي هوائي 🚶‍♂️'}
                                 </span>
-                                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[0.55rem] font-bold uppercase">
+                                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-mini font-bold uppercase">
                                   {act.source === 'auto' ? 'تلقائي' : 'يدوي'}
                                 </span>
                               </div>

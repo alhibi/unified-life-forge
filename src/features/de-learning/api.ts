@@ -6,30 +6,31 @@
 // This guarantees 100% testability, extreme resilience, and no crashes.
 
 import { supabase } from '@/integrations/supabase/client';
+
+import {
+  STARTER_EXERCISES,
+  STARTER_GRAMMAR_POINTS,
+  STARTER_LESSONS,
+  STARTER_LEVELS,
+  STARTER_UNITS,
+  STARTER_VOCABULARY,
+} from './data/starterCourse';
+import { updateFsrs } from './lib/fsrs';
 import {
   CefrLevel,
-  Unit,
-  Lesson,
-  GrammarPoint,
-  VocabularyItem,
   Exercise,
-  SrsState,
-  SrsReviewLog,
-  UserStats,
+  GrammarPoint,
+  Lesson,
   SessionData,
   SessionItem,
   SrsRating,
+  SrsReviewLog,
+  SrsState,
+  Unit,
   UserProgress,
+  UserStats,
+  VocabularyItem,
 } from './types';
-import {
-  STARTER_LEVELS,
-  STARTER_UNITS,
-  STARTER_LESSONS,
-  STARTER_GRAMMAR_POINTS,
-  STARTER_VOCABULARY,
-  STARTER_EXERCISES,
-} from './data/starterCourse';
-import { updateFsrs } from './lib/fsrs';
 
 // Keys for local storage fallback
 const LS_SRS_STATE = 'de_learning_srs_state';

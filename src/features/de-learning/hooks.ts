@@ -1,16 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  fetchCefrLevels,
-  fetchUnits,
-  fetchLessons,
-  fetchGrammarPoints,
-  fetchVocabularyItems,
+
+import {   buildLearningSession,
   fetchExercises,
-  fetchUserStats,
+  fetchGrammarPoints,
+  fetchLessons,
+fetchSrsState,
+  fetchUnits,
   fetchUserProgress,
-  updateUserProgress,
-  buildLearningSession,
+  fetchUserStats,
+  fetchVocabularyItems,
   submitSrsReview,
+  updateUserProgress,
   updateXpAndStreak,
 } from './api';
 import { SrsRating } from './types';
@@ -130,4 +130,26 @@ export function useUpdateStats() {
       queryClient.invalidateQueries({ queryKey: deLearningKeys.stats() });
     },
   });
+}
+
+export function useSrsState() {
+  return useQuery({
+    queryKey: [...deLearningKeys.all, 'srsState'],
+    queryFn: () => fetchSrsState(),
+  });
+}
+
+export function useMarkLessonCompleted() {
+  const mutation = useUpdateLessonProgress();
+  return async (lessonId: string, score: number) => {
+    return mutation.mutateAsync({ lessonId, status: 'completed', score });
+  };
+}
+
+export function useUserProgress() {
+  return useGermanProgress();
+}
+
+export function useUserStats() {
+  return useGermanStats();
 }

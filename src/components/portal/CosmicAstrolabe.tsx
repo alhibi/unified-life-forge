@@ -88,10 +88,10 @@ export default function CosmicAstrolabe() {
   return (
     <div className="relative overflow-hidden rounded-xl border border-border bg-card/60 p-5 md:p-6 transition-all duration-normal hover:border-border/80">
       {/* Decorative Blueprint Corner Markings */}
-      <span className="absolute top-1 start-1 font-mono text-[8px] opacity-25 text-muted-foreground select-none">LAT.31.2</span>
-      <span className="absolute top-1 end-1 font-mono text-[8px] opacity-25 text-muted-foreground select-none">DEC.23.4</span>
-      <span className="absolute bottom-1 start-1 font-mono text-[8px] opacity-25 text-muted-foreground select-none">ASC.12.8</span>
-      <span className="absolute bottom-1 end-1 font-mono text-[8px] opacity-25 text-muted-foreground select-none">ALM.94</span>
+      <span className="absolute top-1 start-1 font-mono text-mini opacity-25 text-muted-foreground select-none">LAT.31.2</span>
+      <span className="absolute top-1 end-1 font-mono text-mini opacity-25 text-muted-foreground select-none">DEC.23.4</span>
+      <span className="absolute bottom-1 start-1 font-mono text-mini opacity-25 text-muted-foreground select-none">ASC.12.8</span>
+      <span className="absolute bottom-1 end-1 font-mono text-mini opacity-25 text-muted-foreground select-none">ALM.94</span>
 
       {/* Main Astrolabe Responsive Grid */}
       <div className="grid gap-6 md:grid-cols-[160px_1fr] items-center">
@@ -257,7 +257,7 @@ export default function CosmicAstrolabe() {
                       </span>
                       <span className="text-micro text-muted-foreground truncate">{weatherCondition.label}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-plex-mono tabular-nums text-muted-foreground/80" dir="ltr">
+                    <div className="flex items-center gap-2 text-micro font-plex-mono tabular-nums text-muted-foreground/80" dir="ltr">
                       <span>H {hi}° · L {lo}°</span>
                       <span className="inline-flex items-center gap-0.5">
                         <Droplets className="h-3 w-3" />

@@ -27,6 +27,12 @@ const sb: any = supabase;
  *     directly filterable by user.
  */
 export const EXPORT_SOURCES: readonly ExportSource[] = [
+  { table: 'user_progress', label: 'تقدم التعلم', ownerColumn: 'user_id' },
+  { table: 'srs_state', label: 'المراجعة الذكية', ownerColumn: 'user_id' },
+  { table: 'srs_review_log', label: 'سجل المراجعات', ownerColumn: 'user_id' },
+  { table: 'user_stats', label: 'إحصائيات التعلم', ownerColumn: 'user_id' },
+  { table: 'placement_test_results', label: 'نتائج تحديد المستوى', ownerColumn: 'user_id' },
+
   { table: 'profiles', ownerColumn: 'user_id', label: 'الملف الشخصي' },
   { table: 'user_settings', ownerColumn: 'user_id', label: 'الإعدادات' },
   { table: 'journal_entries', ownerColumn: 'user_id', label: 'المذكرات' },

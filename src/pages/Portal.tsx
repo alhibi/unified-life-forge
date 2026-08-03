@@ -5,13 +5,11 @@
  * philosophy: "أفلاك الكون الأربعة" (The Four Celestial Realms) sorting layout, the "Cosmic Day Astrolabe Dashboard"
  * combining prayers and weather dynamically, and the highly polished Editorial Manuscript header.
  */
-import { AnimatePresence } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
 import { findApp, matchesQuery, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
-import AppTile from '@/components/portal/AppTile';
 import CelestialRealmsLayout from '@/components/portal/CelestialRealmsLayout';
 import CosmicAstrolabe from '@/components/portal/CosmicAstrolabe';
 import EditorialManuscript from '@/components/portal/EditorialManuscript';
