@@ -1,17 +1,17 @@
 // @vitest-environment jsdom
-import { beforeAll,describe, expect, test, vi } from 'vitest';
+import { beforeAll, describe, expect, test, mock } from 'bun:test';
 
 // Must mock supabase BEFORE api import due to top-level evaluation
-vi.mock('@/integrations/supabase/client', () => {
+mock.module('@/integrations/supabase/client', () => {
   return {
     supabase: {
       auth: {
-        getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test_user_123' } } }),
-        getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+        getUser: async () => ({ data: { user: { id: 'test_user_123' } } }),
+        getSession: async () => ({ data: { session: null } }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue({ error: new Error('no table') }),
+      from: () => ({
+        select: () => ({
+          limit: async () => ({ error: new Error('no table') }),
         }),
       }),
     },
@@ -23,11 +23,11 @@ import { buildLearningSession } from '../../api';
 describe('German Learning Session Builder', () => {
   beforeAll(() => {
     global.localStorage = {
-      getItem: vi.fn().mockReturnValue(null),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn(),
-      key: vi.fn(),
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      key: () => null,
       length: 0,
     } as unknown as Storage;
   });

@@ -21,14 +21,25 @@ import { PedagogicalBridge } from './PedagogicalBridge';
 
 interface ExerciseSessionProps {
   minutes?: number;
+  lessonId?: string;
   onClose: () => void;
 }
 
+// Clean and normalize answer inputs: stripping extra whitespace, symbols, punctuation
+const cleanString = (str: string): string => {
+  return str
+    .toLowerCase()
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()؟?]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
   minutes = 5,
+  lessonId,
   onClose,
 }) => {
-  const { data: session, isLoading, isError } = useBuildSession(minutes);
+  const { data: session, isLoading, isError } = useBuildSession(minutes, lessonId);
   const submitReview = useSubmitSrsReview();
   const updateStats = useUpdateStats();
   const markLessonComplete = useMarkLessonCompleted();
@@ -79,8 +90,18 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
       toast.success(`اكتسبت ${xpEarned} نقطة خبرة!`, {
         icon: <Award className="h-5 w-5 text-[hsl(var(--live))]" />,
       });
-      if (items.length > 0 && items[0].exercise_id) {
-        await markLessonComplete(items[0].exercise_id, score);
+
+      // Look up currentItem or items[0] for actual lessonId to update user progress
+      const targetLessonId = lessonId || items[0]?.payload && (items[0] as any).lesson_id;
+      if (targetLessonId) {
+        await markLessonComplete(targetLessonId, score);
+      } else if (items.length > 0 && items[0].exercise_id) {
+        // Fallback or search in exercises list
+        const allExercises = await import('../data/starterCourse').then(m => m.STARTER_EXERCISES);
+        const matchEx = allExercises.find(e => e.id === items[0].exercise_id);
+        if (matchEx?.lesson_id) {
+          await markLessonComplete(matchEx.lesson_id, score);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -140,17 +161,19 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
       if (p.correct_option_id === selectedOptionId) correct = true;
     } else if (currentItem.type === 'type_answer') {
       const p = currentItem.payload as TypeAnswerPayload;
-      if (p.accepted_answers.some((a) => a.toLowerCase().trim() === typedAnswer.toLowerCase().trim())) correct = true;
+      const cleanedInput = cleanString(typedAnswer);
+      if (p.accepted_answers.some((a) => cleanString(a) === cleanedInput)) correct = true;
     } else if (currentItem.type === 'sentence_build') {
       const p = currentItem.payload as SentenceBuildPayload;
-      const resultSentence = builtTokens.join(' ').trim();
-      if (resultSentence.toLowerCase() === p.correct_sentence.toLowerCase().trim()) correct = true;
+      const resultSentence = cleanString(builtTokens.join(' '));
+      if (resultSentence === cleanString(p.correct_sentence)) correct = true;
     } else if (currentItem.type === 'fill_blank_grammar') {
       const p = currentItem.payload as FillBlankGrammarPayload;
-      if (selectedOptionId?.toLowerCase() === p.correct_answer.toLowerCase()) correct = true;
+      if (selectedOptionId && cleanString(selectedOptionId) === cleanString(p.correct_answer)) correct = true;
     } else if (currentItem.type === 'error_correction') {
       const p = currentItem.payload as ErrorCorrectionPayload;
-      if (typedAnswer.toLowerCase().trim() === p.correct_sentence.toLowerCase().trim()) correct = true;
+      const cleanedInput = cleanString(typedAnswer);
+      if (cleanedInput === cleanString(p.correct_sentence)) correct = true;
     } else if (currentItem.type === 'compound_word_decomposition') {
       correct = true; // Compound decomposition acts as a study/exploration card with correct checking
     }

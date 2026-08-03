@@ -27,7 +27,7 @@ export const deLearningKeys = {
   exercises: (lessonId?: string) => [...deLearningKeys.all, 'exercises', { lessonId }] as const,
   stats: () => [...deLearningKeys.all, 'stats'] as const,
   progress: () => [...deLearningKeys.all, 'progress'] as const,
-  session: (minutes: number) => [...deLearningKeys.all, 'session', { minutes }] as const,
+  session: (minutes: number, lessonId?: string) => [...deLearningKeys.all, 'session', { minutes, lessonId }] as const,
 };
 
 export function useCefrLevels() {
@@ -93,10 +93,10 @@ export function useGermanProgress() {
   });
 }
 
-export function useBuildSession(minutes = 5) {
+export function useBuildSession(minutes = 5, lessonId?: string) {
   return useQuery({
-    queryKey: deLearningKeys.session(minutes),
-    queryFn: () => buildLearningSession(minutes),
+    queryKey: deLearningKeys.session(minutes, lessonId),
+    queryFn: () => buildLearningSession(minutes, lessonId),
     refetchOnWindowFocus: false,
     gcTime: 0, // Never cache learning session so every trigger creates a fresh list
   });
