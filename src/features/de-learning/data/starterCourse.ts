@@ -744,7 +744,7 @@ export const STARTER_VOCABULARY: VocabularyItem[] = [
   },
 ];
 
-export const STARTER_EXERCISES: Exercise[] = [
+const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a0-1",
     "lesson_id": "les-a0-1",
@@ -1140,3 +1140,8 @@ export const STARTER_EXERCISES: Exercise[] = [
     }
   }
 ];
+
+export const STARTER_EXERCISES: Exercise[] = RAW_STARTER_EXERCISES.map((exercise) => ({
+  ...exercise,
+  status: 'published',
+}));

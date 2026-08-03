@@ -79,7 +79,7 @@ export default function MihrabTabs<K extends string>({
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      let next = activeIndex;
+      let next: number;
       // RTL: ArrowLeft moves to the NEXT tab because the strip runs right→left.
       if (event.key === 'ArrowLeft') next = activeIndex + (rtl ? 1 : -1);
       else if (event.key === 'ArrowRight') next = activeIndex + (rtl ? -1 : 1);

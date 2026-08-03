@@ -515,7 +515,7 @@ export function useActivityTracking() {
       const z = accel.z || 0;
 
       // Filter gravity offset if including gravity
-      let magnitude = 0;
+      let magnitude: number;
       if (e.acceleration) {
         magnitude = Math.sqrt(x * x + y * y + z * z);
       } else {

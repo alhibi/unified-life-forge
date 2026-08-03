@@ -56,7 +56,7 @@ export function updateFsrs(
   const nextDifficulty = Math.max(1, Math.min(10, d + dDelta));
 
   // 2. Calculate new stability (S)
-  let nextStability = s;
+  let nextStability: number;
   if (rating === 'again') {
     // Sharp reduction on lapse
     nextStability = Math.max(0.2, s * 0.15);

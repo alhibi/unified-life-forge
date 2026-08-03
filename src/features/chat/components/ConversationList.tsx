@@ -418,7 +418,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               const showUnpinnedHeader = !pinned && isPrevPinned;
 
               const nameToShow = conv.otherDisplayName || conv.otherUsername || '';
-              let previewBody: React.ReactNode = null;
+              let previewBody: React.ReactNode;
               let previewIcon: React.ReactNode = null;
 
               const otherTyping = !!typingByConv?.[conv.id];

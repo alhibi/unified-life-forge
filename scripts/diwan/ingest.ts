@@ -185,7 +185,6 @@ async function ingestVerses(
   const rows = readJsonl<RawPoem>(file);
   if (rows.length === 0) { console.log('· verses: لا ملفّ poems_full.jsonl، تجاوز'); return; }
 
-  let total = 0;
   const versesBatch: Array<{
     poem_id: string; poet_id: string;
     position: number; hemistich1: string; hemistich2: string | null;
@@ -205,7 +204,7 @@ async function ingestVerses(
       });
     }
   }
-  total = versesBatch.length;
+  const total = versesBatch.length;
   console.log(`✦ verses: ${total}`);
 
   // نحذف أولًا الأبيات القديمة لهذه القصائد لتجنّب تكرار النصّ بعد re-scrape

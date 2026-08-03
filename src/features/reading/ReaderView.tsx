@@ -162,7 +162,7 @@ export function ReaderView({
       // Some browsers (Firefox) require an explicit user gesture, so
       // navigator.clipboard.readText() throws. We just swallow the
       // failure — the manual paste flow is still there.
-      let text = '';
+      let text: string;
       try {
         text = await navigator.clipboard.readText();
       } catch { return; }

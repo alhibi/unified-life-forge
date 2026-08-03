@@ -298,10 +298,10 @@ serve(async (req) => {
   }
 
   // Otherwise, fetch the HTML and try to discover feeds from it.
-  let html = "";
-  let pageTitle = "";
-  let pageDescription = "";
-  let pageImage = "";
+  let html: string;
+  let pageTitle: string;
+  let pageDescription: string;
+  let pageImage: string;
   try {
     const res = await fetchWithRetry(
       normalized,

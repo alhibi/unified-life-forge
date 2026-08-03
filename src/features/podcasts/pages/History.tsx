@@ -137,7 +137,7 @@ export default function HistoryPage() {
     let currentLabel = '';
     let currentItems: HistoryEntry[] = [];
     for (const entry of history) {
-      let label = '';
+      let label: string;
       if (entry.listenedAt >= today)
         label = '\u0627\u0644\u064a\u0648\u0645';
       else if (entry.listenedAt >= yesterday)

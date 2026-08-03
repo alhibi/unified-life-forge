@@ -889,6 +889,7 @@ async function fetchSingleFeed(
   }
   const parsed = parseRSS(text, maxItems, res.url);
   // Free the raw feed buffer before we return.
+  // eslint-disable-next-line no-useless-assignment -- intentional memory release
   text = "";
   const sourceName = nameOverride || parsed.title;
   parsed.items.forEach((it) => {

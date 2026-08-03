@@ -190,7 +190,7 @@ const initialAppState: FitnessAppState = {
 
 export const useFitnessAppStore = create<FitnessAppState & FitnessAppActions>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       ...initialAppState,
 
       // Timetable Actions
