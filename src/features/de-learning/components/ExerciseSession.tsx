@@ -1,10 +1,21 @@
-import React, { useEffect, useMemo,useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { ArrowLeft, Award,Check, Sparkles, Volume2, X } from '@/lib/icons';
+import { ArrowLeft, Award, Check, Sparkles, Volume2, X } from '@/lib/icons';
 
-import { useBuildSession, useMarkLessonCompleted,useSubmitSrsReview, useUpdateStats } from '../hooks';
-import { ListenChoosePayload, MatchingPairsPayload,McqPayload, SessionItem, SrsRating, TypeAnswerPayload } from '../types';
+import { useBuildSession, useMarkLessonCompleted, useSubmitSrsReview, useUpdateStats } from '../hooks';
+import {
+  ListenChoosePayload,
+  MatchingPairsPayload,
+  McqPayload,
+  SessionItem,
+  SrsRating,
+  TypeAnswerPayload,
+  SentenceBuildPayload,
+  FillBlankGrammarPayload,
+  ErrorCorrectionPayload,
+  CompoundWordDecompositionPayload,
+} from '../types';
 import { GermanGenderBadge } from './GermanGenderBadge';
 import { PedagogicalBridge } from './PedagogicalBridge';
 
@@ -29,9 +40,13 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
   const [isCorrect, setIsCorrect] = useState(false);
   const [attempts, setAttempts] = useState(0);
 
+  // Matching pairs states
   const [matchingSelectedLeft, setMatchingSelectedLeft] = useState<string | null>(null);
   const [matchingSelectedRight, setMatchingSelectedRight] = useState<string | null>(null);
   const [matchedPairs, setMatchedPairs] = useState<Set<string>>(new Set());
+
+  // Sentence build states
+  const [builtTokens, setBuiltTokens] = useState<string[]>([]);
 
   const [sessionCompleted, setSessionCompleted] = useState(false);
   const [score, setScore] = useState(0);
@@ -49,6 +64,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
       setMatchingSelectedLeft(null);
       setMatchingSelectedRight(null);
       setMatchedPairs(new Set());
+      setBuiltTokens([]);
       setAttempts(0);
     } else {
       finishSession();
@@ -63,9 +79,8 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
       toast.success(`اكتسبت ${xpEarned} نقطة خبرة!`, {
         icon: <Award className="h-5 w-5 text-[hsl(var(--live))]" />,
       });
-      // Optionally mark lesson if part of session (simplified assumption here for MVP demo)
       if (items.length > 0 && items[0].exercise_id) {
-          await markLessonComplete(items[0].exercise_id, score);
+        await markLessonComplete(items[0].exercise_id, score);
       }
     } catch (e) {
       console.error(e);
@@ -126,6 +141,18 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
     } else if (currentItem.type === 'type_answer') {
       const p = currentItem.payload as TypeAnswerPayload;
       if (p.accepted_answers.some((a) => a.toLowerCase().trim() === typedAnswer.toLowerCase().trim())) correct = true;
+    } else if (currentItem.type === 'sentence_build') {
+      const p = currentItem.payload as SentenceBuildPayload;
+      const resultSentence = builtTokens.join(' ').trim();
+      if (resultSentence.toLowerCase() === p.correct_sentence.toLowerCase().trim()) correct = true;
+    } else if (currentItem.type === 'fill_blank_grammar') {
+      const p = currentItem.payload as FillBlankGrammarPayload;
+      if (selectedOptionId?.toLowerCase() === p.correct_answer.toLowerCase()) correct = true;
+    } else if (currentItem.type === 'error_correction') {
+      const p = currentItem.payload as ErrorCorrectionPayload;
+      if (typedAnswer.toLowerCase().trim() === p.correct_sentence.toLowerCase().trim()) correct = true;
+    } else if (currentItem.type === 'compound_word_decomposition') {
+      correct = true; // Compound decomposition acts as a study/exploration card with correct checking
     }
 
     setIsCorrect(correct);
@@ -291,15 +318,53 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
               اربط الكلمات الألمانية بمعانيها
             </h3>
           )}
+
+          {currentItem?.type === 'sentence_build' && (
+            <div className="space-y-2">
+              <h3 className="font-tajawal text-lg font-bold text-foreground">رتب الكلمات لتكوين جملة صحيحة</h3>
+              <p className="font-tajawal text-xs text-muted-foreground">اضغط على الكلمات بالترتيب المناسب</p>
+            </div>
+          )}
+
+          {currentItem?.type === 'fill_blank_grammar' && (
+            <div className="space-y-4">
+              <h3 className="font-tajawal text-lg font-bold text-foreground">املاً الفراغ بالقاعدة الصحيحة</h3>
+              <div className="p-6 rounded-2xl bg-secondary/20 border border-border/40 font-plex-mono text-xl text-center tracking-wide" dir="ltr">
+                {(currentItem.payload as FillBlankGrammarPayload).sentence_template}
+              </div>
+            </div>
+          )}
+
+          {currentItem?.type === 'error_correction' && (
+            <div className="space-y-4">
+              <h3 className="font-tajawal text-lg font-bold text-foreground">صحح الخطأ النحوي أو الإملائي في الجملة</h3>
+              <div className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/20 text-rose-600 font-plex-mono text-base text-center" dir="ltr">
+                {(currentItem.payload as ErrorCorrectionPayload).incorrect_sentence}
+              </div>
+            </div>
+          )}
+
+          {currentItem?.type === 'compound_word_decomposition' && (
+            <div className="space-y-4">
+              <h3 className="font-tajawal text-lg font-bold text-foreground">تفكيك وتحليل الكلمات المركبة (Komposita)</h3>
+              <div className="p-6 rounded-2xl bg-[hsl(var(--live))]/5 border border-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-plex-mono text-3xl font-bold tracking-widest text-center" dir="ltr">
+                {(currentItem.payload as CompoundWordDecompositionPayload).compound_word}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Input & Options */}
         <div className="space-y-3 pt-4">
 
-          {/* MCQ / Listen Choose */}
-          {(currentItem?.type === 'mcq' || currentItem?.type === 'listen_choose') && (
+          {/* MCQ / Listen Choose / Fill Blank Grammar */}
+          {(currentItem?.type === 'mcq' || currentItem?.type === 'listen_choose' || currentItem?.type === 'fill_blank_grammar') && (
             <div className="grid grid-cols-1 gap-3">
-              {((currentItem.payload as McqPayload).options || (currentItem.payload as ListenChoosePayload).options).map((option) => {
+              {(
+                (currentItem.payload as McqPayload).options ||
+                (currentItem.payload as ListenChoosePayload).options ||
+                (currentItem.payload as FillBlankGrammarPayload).options?.map(opt => ({ id: opt, text: opt })) || []
+              ).map((option) => {
                 const isSelected = selectedOptionId === option.id;
                 let btnClass = 'border-border/40 bg-card hover:bg-secondary/40 text-foreground';
 
@@ -311,6 +376,8 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                   const isOptCorrect =
                     currentItem.type === 'mcq'
                       ? (option as any).is_correct
+                      : currentItem.type === 'fill_blank_grammar'
+                      ? option.id === (currentItem.payload as FillBlankGrammarPayload).correct_answer
                       : option.id === (currentItem.payload as ListenChoosePayload).correct_option_id;
 
                   if (isOptCorrect) {
@@ -340,15 +407,15 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
             </div>
           )}
 
-          {/* Type Answer */}
-          {currentItem?.type === 'type_answer' && (
+          {/* Type Answer / Error Correction */}
+          {(currentItem?.type === 'type_answer' || currentItem?.type === 'error_correction') && (
             <div className="space-y-3">
               <input
                 type="text"
                 disabled={isAnswerChecked}
                 value={typedAnswer}
                 onChange={(e) => setTypedAnswer(e.target.value)}
-                placeholder="اكتب هنا..."
+                placeholder="اكتب الإجابة الصحيحة بالكامل هنا..."
                 className={`w-full p-4.5 rounded-2xl border bg-card focus:outline-none focus:ring-2 focus:ring-[hsl(var(--live))]/50 font-plex-mono text-base tracking-wide text-center transition-all ${
                   isAnswerChecked
                     ? isCorrect
@@ -358,11 +425,80 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                 }`}
                 dir="ltr"
               />
-              {(currentItem.payload as TypeAnswerPayload).hint && !isAnswerChecked && (
+              {currentItem.type === 'type_answer' && (currentItem.payload as TypeAnswerPayload).hint && !isAnswerChecked && (
                 <p className="text-center text-micro text-muted-foreground font-tajawal bg-secondary/30 py-2 rounded-lg border border-border/20">
                   💡 تلميحة: {(currentItem.payload as TypeAnswerPayload).hint}
                 </p>
               )}
+            </div>
+          )}
+
+          {/* Sentence Build */}
+          {currentItem?.type === 'sentence_build' && (
+            <div className="space-y-6">
+              {/* Construction Board */}
+              <div className="min-h-[80px] p-4 rounded-2xl border-2 border-dashed border-border/60 bg-secondary/10 flex flex-wrap gap-2 items-center justify-center">
+                {builtTokens.length === 0 ? (
+                  <span className="font-tajawal text-xs text-muted-foreground">اضغط على الكلمات بالأسفل للترتيب...</span>
+                ) : (
+                  builtTokens.map((token, index) => (
+                    <button
+                      key={index}
+                      disabled={isAnswerChecked}
+                      onClick={() => {
+                        setBuiltTokens((prev) => prev.filter((_, i) => i !== index));
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-plex-mono text-sm transition-transform active:scale-95"
+                    >
+                      {token}
+                    </button>
+                  ))
+                )}
+              </div>
+
+              {/* Shuffled pool */}
+              <div className="flex flex-wrap gap-2 justify-center">
+                {(currentItem.payload as SentenceBuildPayload).shuffled_tokens.map((token) => {
+                  const usedCount = builtTokens.filter((t) => t === token).length;
+                  const totalInSrs = (currentItem.payload as SentenceBuildPayload).shuffled_tokens.filter((t) => t === token).length;
+                  const isUsed = usedCount >= totalInSrs;
+
+                  return (
+                    <button
+                      key={token + Math.random()}
+                      disabled={isUsed || isAnswerChecked}
+                      onClick={() => setBuiltTokens((prev) => [...prev, token])}
+                      className={`px-4 py-2 rounded-xl border font-plex-mono text-sm transition-all ${
+                        isUsed
+                          ? 'bg-secondary/20 border-border/10 text-muted-foreground/35 cursor-not-allowed'
+                          : 'bg-card border-border/40 hover:bg-secondary/40 text-foreground active:scale-95 shadow-sm'
+                      }`}
+                    >
+                      {token}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Compound Word Decomposition */}
+          {currentItem?.type === 'compound_word_decomposition' && (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                {(currentItem.payload as CompoundWordDecompositionPayload).parts.map((part, index) => (
+                  <div key={index} className="p-4 rounded-xl border border-border/40 bg-card space-y-1 text-center">
+                    <span className="block font-plex-mono text-lg font-bold text-foreground" dir="ltr">{part.part}</span>
+                    <span className="block font-tajawal text-xs text-muted-foreground">{part.meaning_ar}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="p-4 rounded-xl border border-[hsl(var(--live))]/20 bg-[hsl(var(--live))]/[0.02] text-center mt-2">
+                <span className="block font-tajawal text-xs text-muted-foreground">المعنى العام المدمج</span>
+                <span className="block font-tajawal text-base font-bold text-[hsl(var(--live))]">
+                  {(currentItem.payload as CompoundWordDecompositionPayload).combined_meaning_ar}
+                </span>
+              </div>
             </div>
           )}
 
@@ -445,6 +581,29 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                 </p>
               )}
 
+              {!isCorrect && currentItem?.type === 'sentence_build' && (
+                <p className="font-plex-mono text-xs text-muted-foreground mt-1" dir="ltr">
+                  الترتيب الصحيح: {(currentItem.payload as SentenceBuildPayload).correct_sentence}
+                </p>
+              )}
+
+              {!isCorrect && currentItem?.type === 'fill_blank_grammar' && (
+                <p className="font-plex-mono text-xs text-muted-foreground mt-1" dir="ltr">
+                  الإجابة الصحيحة: {(currentItem.payload as FillBlankGrammarPayload).correct_answer}
+                </p>
+              )}
+
+              {!isCorrect && currentItem?.type === 'error_correction' && (
+                <div className="space-y-1">
+                  <p className="font-plex-mono text-xs text-emerald-600 mt-1" dir="ltr">
+                    الصواب: {(currentItem.payload as ErrorCorrectionPayload).correct_sentence}
+                  </p>
+                  <p className="font-tajawal text-xs text-muted-foreground">
+                    الشرح: {(currentItem.payload as ErrorCorrectionPayload).explanation_ar}
+                  </p>
+                </div>
+              )}
+
               {currentItem?.vocab_item && (
                 <div className="mt-2 pt-2 border-t border-border/30">
                   <p className="font-plex-mono text-xs font-bold text-foreground" dir="ltr">{currentItem.vocab_item.lemma_de}</p>
@@ -466,7 +625,11 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
         {!isAnswerChecked ? (
           <button
             onClick={handleCheckAnswer}
-            disabled={(currentItem?.type === 'mcq' || currentItem?.type === 'listen_choose') && !selectedOptionId}
+            disabled={
+              ((currentItem?.type === 'mcq' || currentItem?.type === 'listen_choose' || currentItem?.type === 'fill_blank_grammar') && !selectedOptionId) ||
+              (currentItem?.type === 'sentence_build' && builtTokens.length === 0) ||
+              ((currentItem?.type === 'type_answer' || currentItem?.type === 'error_correction') && !typedAnswer.trim())
+            }
             className="w-full py-4 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 disabled:opacity-50 disabled:hover:bg-[hsl(var(--live))] text-white rounded-2xl font-tajawal text-sm font-bold shadow-lg shadow-[hsl(var(--live))]/20 transition-all active:scale-95"
           >
             تحقق
