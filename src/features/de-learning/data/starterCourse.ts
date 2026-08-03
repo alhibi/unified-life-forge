@@ -1407,3 +1407,238 @@ export const STARTER_EXERCISES: Exercise[] = RAW_STARTER_EXERCISES.map((exercise
   ...exercise,
   status: 'published',
 }));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Systematic Expansion Dataset
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { DialogueScenario, VerbConjugation, SuffixGenderRule, PhoneticBridgeItem } from '../types';
+
+export const SYSTEMATIC_DIALOGUE_SCENARIOS: DialogueScenario[] = [
+  {
+    id: 'scen-1',
+    title_ar: 'طلب وجبة في مطعم ألماني تقليدي',
+    title_de: 'Im traditionellen Restaurant',
+    description_ar: 'تعلم كيفية حجز طاولة، الاستفسار عن مكونات الطعام مع ربط المفاهيم بثقافة الضيافة الألمانية والعربية.',
+    category: 'restaurant',
+    level_id: 'lvl-a2',
+    turns: [
+      { speaker: 'Kellner', text_de: 'Guten Abend! Haben Sie eine Reservierung?', text_ar: 'مساء الخير! هل لديكم حجز؟' },
+      { speaker: 'Gast (Du)', text_de: 'Guten Abend! Nein, wir haben keine Reservierung. Haben Sie einen Tisch für zwei?', text_ar: 'مساء الخير! لا، ليس لدينا حجز. هل لديكم طاولة لشخصين؟' },
+      { speaker: 'Kellner', text_de: 'Natürlich, bitte folgen Sie mir. Hier ist Ihre Speisekarte. Was möchten Sie trinken?', text_ar: 'بالتأكيد، تفضلوا بمتابعتي. هذه هي قائمة الطعام. ماذا تودون أن تشربوا؟' }
+    ],
+    branches: [
+      {
+        id: 'opt-1-1',
+        option_ar: 'طلب ماء غازي بارد (المشروب التقليدي المفضل في ألمانيا)',
+        response_de: 'Ich hätte gerne ein Mineralwasser mit Kohlensäure, bitte.',
+        response_ar: 'أريد مياه معدنية غازية من فضلك.',
+        is_correct_action: true,
+        explanation_ar: 'صحيح جداً! المياه الغازية (mit Kohlensäure) هي المشروب الصيفي اليومي المفضّل في ألمانيا وتُطلب دوماً في المطاعم كبديل للمياه العادية.'
+      },
+      {
+        id: 'opt-1-2',
+        option_ar: 'طلب ماء الصنبور مجاناً (عادة غير مقبولة اجتماعياً في المطاعم الفاخرة)',
+        response_de: 'Geben Sie mir einfach kostenloses Leitungswasser, danke.',
+        response_ar: 'أعطني فقط مياه صنبور مجانية، شكراً.',
+        is_correct_action: false,
+        explanation_ar: 'رغم أنه تصرف مقبول في بعض الدول، إلا أن طلب ماء الصنبور المجاني (Leitungswasser) في المطاعم الألمانية التقليدية يُعتبر أمراً غير لائق ويسبّب حرجاً اجتماعياً طفيفاً.'
+      }
+    ]
+  },
+  {
+    id: 'scen-2',
+    title_ar: 'زيارة طبيب الأسرة والشكوى الطبية',
+    title_de: 'Beim Hausarzt',
+    description_ar: 'التخاطب عند عيادة الطبيب مع ربط حروف جر الجر (Dativ) وحالة النصب (Akkusativ) في وصف موضع الألم.',
+    category: 'hospital',
+    level_id: 'lvl-b1',
+    turns: [
+      { speaker: 'Arzt', text_de: 'Guten Tag! Was fehlt Ihnen denn? Wo haben Sie Schmerzen?', text_ar: 'طاب يومك! ما الذي تشكو منه؟ أين تشعر بالألم؟' },
+      { speaker: 'Patient (Du)', text_de: 'Guten Tag, Herr Doktor! Ich habe seit drei Tagen starke Kopfschmerzen und Husten.', text_ar: 'طاب يومك يا دكتور! أعاني منذ ثلاثة أيام من صداع شديد وسعال.' },
+      { speaker: 'Arzt', text_de: 'Lassen Sie mich Ihren Hals untersuchen. Bitte machen Sie den Mund auf und sagen Sie "Ah".', text_ar: 'دعني أفحص حلقك. من فضلك افتح فمك وقل "آه".' }
+    ],
+    branches: [
+      {
+        id: 'opt-2-1',
+        option_ar: 'السؤال عن دواء مناسب مع توضيح حساسية مسبقة معينة',
+        response_de: 'Können Sie mir ein Schmerzmittel verschreiben? Ich bin allergisch gegen Penizillin.',
+        response_ar: 'هل يمكنك أن تصف لي مسكناً للألم؟ لدي حساسية ضد البنسلين.',
+        is_correct_action: true,
+        explanation_ar: 'ممتاز! من الضروري إخبار الطبيب بأي حساسية أدوية فوراً باستخدام أسلوب الشرط اللطيف Können Sie.'
+      },
+      {
+        id: 'opt-2-2',
+        option_ar: 'طلب مضاد حيوي قوي دون تشخيص كامل لتسريع العلاج',
+        response_de: 'Verschreiben Sie mir bitte sofort starke Antibiotika, ich habe keine Zeit.',
+        response_ar: 'يرجى كتابة مضاد حيوي قوي لي فوراً، ليس لدي وقت.',
+        is_correct_action: false,
+        explanation_ar: 'في ألمانيا، الأطباء حريصون جداً ولا يصفون المضادات الحيوية (Antibiotika) إلا عند الضرورة القصوى المثبتة بالتحليل؛ والطلب العاجل المباشر يعتبر خروجاً عن اللياقة الطبية.'
+      }
+    ]
+  }
+];
+
+export const SYSTEMATIC_VERB_CONJUGATIONS: VerbConjugation[] = [
+  {
+    id: 'conj-sein',
+    verb_de: 'sein',
+    translation_ar: 'يكون (فعل الكينونة الشاذ)',
+    level_id: 'lvl-a1',
+    present: {
+      ich: 'bin',
+      du: 'bist',
+      er_sie_es: 'ist',
+      wir: 'sind',
+      ihr: 'seid',
+      sie_Sie: 'sind'
+    },
+    perfekt: {
+      ich: 'gewesen (ist)',
+      du: 'gewesen (bist)',
+      er_sie_es: 'gewesen (ist)',
+      wir: 'gewesen (sind)',
+      ihr: 'gewesen (seid)',
+      sie_Sie: 'gewesen (sind)'
+    },
+    arabic_aspect_note: 'يقابل كان/يكون في اللغة العربية. تذكر أن زمن الماضي التام (Perfekt) لهذا الفعل يستعمل الفعل المساعد sein نفسه بدلاً من haben كعادة معظم الأفعال الأخرى.',
+    german_example_de: 'Ich bin gestern müde gewesen.',
+    german_example_ar: 'لقد كنتُ متعباً بالأمس.'
+  },
+  {
+    id: 'conj-haben',
+    verb_de: 'haben',
+    translation_ar: 'يملك / يقتني',
+    level_id: 'lvl-a1',
+    present: {
+      ich: 'habe',
+      du: 'hast',
+      er_sie_es: 'hat',
+      wir: 'haben',
+      ihr: 'habt',
+      sie_Sie: 'haben'
+    },
+    perfekt: {
+      ich: 'gehabt (habe)',
+      du: 'gehabt (hast)',
+      er_sie_es: 'gehabt (hat)',
+      wir: 'gehabt (haben)',
+      ihr: 'gehabt (habt)',
+      sie_Sie: 'gehabt (haben)'
+    },
+    arabic_aspect_note: 'يقابل لام الملكية في العربية (عندي/لدي). هذا الفعل يمثل حجر الأساس لتركيب زمن الماضي التام للأغلبية الساحقة من الأفعال الألمانية.',
+    german_example_de: 'Wir haben ein neues Auto gehabt.',
+    german_example_ar: 'لقد كان لدينا سيارة جديدة.'
+  },
+  {
+    id: 'conj-werden',
+    verb_de: 'werden',
+    translation_ar: 'يصبح (صانع المبني للمجهول والمستقبل)',
+    level_id: 'lvl-a2',
+    present: {
+      ich: 'werde',
+      du: 'wirst',
+      er_sie_es: 'wird',
+      wir: 'werden',
+      ihr: 'werdet',
+      sie_Sie: 'werden'
+    },
+    perfekt: {
+      ich: 'geworden (bin)',
+      du: 'geworden (bist)',
+      er_sie_es: 'geworden (ist)',
+      wir: 'geworden (sind)',
+      ihr: 'geworden (seid)',
+      sie_Sie: 'geworden (sind)'
+    },
+    arabic_aspect_note: 'يقابل "صار/يصبح" للتعبير عن الصيرورة. يُستخدم وجوباً لبناء صيغة المستقبل البسيط (Futur I) وصيغة المبني للمجهول (Passiv) التي تقابل الأفعال بضم الأول وكسر ما قبل الآخر في العربية.',
+    german_example_de: 'Das Kind wird bald ein Arzt.',
+    german_example_ar: 'سيصبح الطفل طبيباً قريباً.'
+  }
+];
+
+export const SYSTEMATIC_SUFFIX_GENDER_RULES: SuffixGenderRule[] = [
+  {
+    suffix: 'ung',
+    gender: 'die',
+    explanation_ar: 'أي اسم ينتهي باللاحقة (ung) يكون مؤنثاً دائماً بنسبة 100%. وغالباً ما تشتق هذه الأسماء من أفعال لتعبر عن المصدر الصريح للحدث.',
+    example_de: 'die Bedeutung',
+    example_ar: 'المعنى / الأهمية'
+  },
+  {
+    suffix: 'heit / keit',
+    gender: 'die',
+    explanation_ar: 'اللواحق اللفظية (heit / keit) تفيد تحويل الصفات إلى أسماء مجردة، وجميع هذه الأسماء مؤنثة تماماً في اللغة الألمانية وتناظر تاء التأنيث العربية للمصادر.',
+    example_de: 'die Freiheit',
+    example_ar: 'الحرية (مشتقة من frei - حر)'
+  },
+  {
+    suffix: 'er',
+    gender: 'der',
+    explanation_ar: 'اللواحق التي تنتهي بالحرفين (er) للدلالة على الفاعل المذكر من المهن أو الآلات تكون مذكرة في الغالبية العظمى، وتناظر "اسم الفاعل" في الصرف العربي.',
+    example_de: 'der Lehrer',
+    example_ar: 'المعلم (مشتق من lehren - يعلم)'
+  },
+  {
+    suffix: 'chen / lein',
+    gender: 'das',
+    explanation_ar: 'لواحق التصغير الألمانية (chen / lein) تحوّل أي اسم إلى صيغة المصغر، وكل الكلمات المصغرة تُعتبر محايدة نحوياً (das) بغض النظر عن جنسها الأصلي.',
+    example_de: 'das Mädchen',
+    example_ar: 'الفتاة / البنت الصغيرة (تصغير لمفردة قديمة)'
+  },
+  {
+    suffix: 'ismus',
+    gender: 'der',
+    explanation_ar: 'الأسماء التي تعبر عن المذاهب والاتجاهات الفكرية والسياسية وتنتهي بـ (ismus) تكون مذكرة دائماً.',
+    example_de: 'der Realismus',
+    example_ar: 'المذهب الواقعي'
+  }
+];
+
+export const SYSTEMATIC_PHONETIC_BRIDGE_ITEMS: PhoneticBridgeItem[] = [
+  {
+    id: 'ph-ö',
+    sound_de: 'ö / Ö',
+    ipa: 'øː / œ',
+    arabic_equivalent_ar: 'حرف الواو الممالة المرققة المشابهة للفرنسية U',
+    articulation_guide_ar: 'اضبط شفتيك على شكل الحرف "O" (دائري)، ولكن انطق بلسانك الحرف "E" (إي). سيخرج معك صوت "Ö" الدقيق فوراً دون عناء.',
+    example_word_de: 'hören',
+    example_word_ar: 'يسمع'
+  },
+  {
+    id: 'ph-ich-laut',
+    sound_de: 'ch (بعد الحروف المرققة)',
+    ipa: 'ç',
+    arabic_equivalent_ar: 'شين مرققة للغاية قريبة للياء المهموسة',
+    articulation_guide_ar: 'انطق حرف الياء في العربية وأثناء النطق اسمح للهواء بالخروج بقوة من جانبي اللسان ليتحول إلى شين مهيأة. لا تنطقه خاءً أو شيناً عربية غليظة.',
+    example_word_de: 'ich',
+    example_word_ar: 'أنا'
+  },
+  {
+    id: 'ph-ach-laut',
+    sound_de: 'ch (بعد a, o, u)',
+    ipa: 'x',
+    arabic_equivalent_ar: 'الخاء العربية الصافية',
+    articulation_guide_ar: 'إذا جاء التركيب ch بعد حروف العلة الغليظة (a, o, u, au)، فإنه يُنطق خاءً صافية من مخرج الحلق تماماً كما في كلمة "خالد".',
+    example_word_de: 'Buch',
+    example_word_ar: 'كتاب'
+  },
+  {
+    id: 'ph-ig',
+    sound_de: 'ig (في نهاية الكلمة)',
+    ipa: 'ɪç',
+    arabic_equivalent_ar: 'نهاية مهموسة "إيش"',
+    articulation_guide_ar: 'اللاحقة ig في نهاية الصفات والكلمات لا تُنطق "إج" أو "إك" بل تُنطق كصوت الـ ch المرقق (إيش) تماماً بحسب اللهجة القياسية الألمانية (Hochdeutsch).',
+    example_word_de: 'wichtig',
+    example_word_ar: 'هام / ضروري'
+  },
+  {
+    id: 'ph-r',
+    sound_de: 'r (في نهاية المقاطع)',
+    ipa: 'ɐ',
+    arabic_equivalent_ar: 'ألف خفيفة مائلة للفتح',
+    articulation_guide_ar: 'إذا وقع حرف r في نهاية الكلمة أو بعد حرف علة طويل، لا تقم بلفظ الراء اللسانية، بل حولها إلى صوت ألف مرققة ساكنة مائلة للكسر.',
+    example_word_de: 'Vater',
+    example_word_ar: 'أب'
+  }
+];

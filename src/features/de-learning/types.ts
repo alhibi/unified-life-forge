@@ -326,3 +326,74 @@ export interface GermanExpression {
   cultural_equivalent_ar: string;
   literal_meaning_ar?: string;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Advanced Pedagogical Expansion Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface DialogueScenarioTurn {
+  speaker: string;
+  text_de: string;
+  text_ar: string;
+  audio_url?: string;
+}
+
+export interface DialogueScenarioBranch {
+  id: string;
+  option_ar: string;
+  response_de: string;
+  response_ar: string;
+  is_correct_action: boolean;
+  explanation_ar: string;
+}
+
+export interface DialogueScenario {
+  id: string;
+  title_ar: string;
+  title_de: string;
+  description_ar: string;
+  category: 'restaurant' | 'airport' | 'hospital' | 'interview' | 'shopping';
+  level_id: string;
+  turns: DialogueScenarioTurn[];
+  branches: DialogueScenarioBranch[];
+}
+
+export interface VerbConjugationForm {
+  ich: string;
+  du: string;
+  er_sie_es: string;
+  wir: string;
+  ihr: string;
+  sie_Sie: string;
+}
+
+export interface VerbConjugation {
+  id: string;
+  verb_de: string;
+  translation_ar: string;
+  level_id: string;
+  present: VerbConjugationForm;
+  perfekt: VerbConjugationForm;
+  praeteritum?: VerbConjugationForm;
+  arabic_aspect_note: string;
+  german_example_de: string;
+  german_example_ar: string;
+}
+
+export interface SuffixGenderRule {
+  suffix: string;
+  gender: GrammaticalGender;
+  explanation_ar: string;
+  example_de: string;
+  example_ar: string;
+}
+
+export interface PhoneticBridgeItem {
+  id: string;
+  sound_de: string; // e.g., "ö", "ch (ich-Laut)", "sch"
+  ipa: string;
+  arabic_equivalent_ar: string; // e.g. "حرف قريب للشين المرققة"
+  articulation_guide_ar: string; // detailed tip
+  example_word_de: string;
+  example_word_ar: string;
+}
