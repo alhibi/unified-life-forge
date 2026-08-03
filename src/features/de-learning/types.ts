@@ -300,3 +300,29 @@ export interface SessionData {
     weak_point: number;
   };
 }
+
+// Rich Corpus Types for Extended Dictionary & Phrasebook
+export interface GermanSentence {
+  id: string;
+  text_de: string;
+  text_ar: string;
+  level_id: string;
+  grammar_note_ar?: string;
+}
+
+export interface GermanPhrase {
+  id: string;
+  text_de: string;
+  text_ar: string;
+  level_id: string;
+  situation_ar: string;
+}
+
+export interface GermanExpression {
+  id: string;
+  text_de: string;
+  text_ar: string;
+  level_id: string;
+  cultural_equivalent_ar: string;
+  literal_meaning_ar?: string;
+}
