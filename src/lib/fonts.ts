@@ -1,23 +1,9 @@
 /**
  * The typography system — single source of truth.
  *
- * This file used to describe six typefaces and three "sizes". The sizes barely
- * worked: they only set `html { font-size }`, while every type token in
- * tailwind.config.ts was a fixed pixel value, so choosing "كبير" moved almost
- * nothing on screen. Typography is now a real system with four independent
- * dimensions, all of which actually reach the pixels:
- *
- *   • PAIRING   a display face for headings and a separate body face for text.
- *               One typeface doing both jobs is the exception, not the rule.
- *   • SIZE      the base size, in px, that every other size is derived from.
- *   • RATIO     how fast the scale grows from caption to display. A compact
- *               ratio suits dense data screens; an airy one suits reading.
- *   • LEADING   line height, expressed as a multiplier — the single most
- *               important comfort control for Arabic, whose ascenders and
- *               descenders collide long before Latin's do.
- *
- * Every family listed here is actually requested by index.html (or self-hosted
- * through @fontsource). Do not add an entry without loading it.
+ * This file defines the visual typography system of amv.life, which now enforces
+ * "Inter Display" as the sole typeface across the app. Headings and body are
+ * differentiated by weight/size, not by swapping families.
  */
 
 export type FontId = 'ibm-plex' | 'cairo' | 'tajawal' | 'readex' | 'amiri' | 'plex-mono';
@@ -38,91 +24,38 @@ export interface FontOption {
 
 const SANS_FALLBACK = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 
+// Inter Display is the sole typeface.
+// We map all ID selections to this unified stack to guarantee its exclusive application.
+const INTER_DISPLAY_STACK = `'Inter', 'Inter Display', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`;
+
 export const FONT_OPTIONS: readonly FontOption[] = [
   {
     id: 'ibm-plex',
-    label: 'آي بي إم بلكس عربي',
-    family: `'IBM Plex Sans Arabic', ${SANS_FALLBACK}`,
-    note: 'واضح ومحايد — الأفضل للقراءة الطويلة',
+    label: 'إنتر ديسبلاي (الافتراضي)',
+    family: INTER_DISPLAY_STACK,
+    note: 'الخط الموحد للتطبيق بالكامل — يتميز بالوضوح والتناسق الفائق',
     display: true,
-    body: true,
-  },
-  {
-    id: 'cairo',
-    label: 'القاهرة',
-    family: `'Cairo', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`,
-    note: 'حروف عريضة ومريحة على الشاشات الصغيرة',
-    display: true,
-    body: true,
-  },
-  {
-    id: 'tajawal',
-    label: 'تجوال',
-    family: `'Tajawal', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`,
-    note: 'هندسي وحديث — قويّ في العناوين',
-    display: true,
-    body: true,
-  },
-  {
-    id: 'readex',
-    label: 'ريدكس برو',
-    family: `'Readex Pro', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`,
-    note: 'فراغات واسعة تريح العين',
-    display: true,
-    body: true,
-  },
-  {
-    id: 'amiri',
-    label: 'أميري',
-    family: "'Amiri', 'Cormorant Garamond', 'Scheherazade New', serif",
-    note: 'نسخ تقليدي — رائع للعناوين والشعر، ثقيل للمتون الطويلة',
-    display: true,
-    body: true,
-  },
-  {
-    id: 'plex-mono',
-    label: 'بلكس مونو',
-    family: `'IBM Plex Mono', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}, monospace`,
-    note: 'أرقام ثابتة العرض — للأوقات والجداول',
-    display: false,
     body: true,
   },
 ] as const;
 
 export const DEFAULT_FONT_ID: FontId = 'ibm-plex';
-export const DEFAULT_DISPLAY_FONT_ID: FontId = 'amiri';
+export const DEFAULT_DISPLAY_FONT_ID: FontId = 'ibm-plex';
 
-/** Font ids that shipped in earlier builds and must keep resolving. */
-const LEGACY_ALIASES: Record<string, FontId> = {
-  default: 'ibm-plex',
-  inter: 'ibm-plex',
-  noto: 'ibm-plex',
-  'noto-arabic': 'ibm-plex',
-};
-
-/** Coerce any stored value (including retired ids) to a valid font id. */
+/** Coerce any stored value to the unified Inter Display font id. */
 export function resolveFontId(value: string | null | undefined): FontId {
-  if (!value) return DEFAULT_FONT_ID;
-  if (FONT_OPTIONS.some((f) => f.id === value)) return value as FontId;
-  return LEGACY_ALIASES[value] ?? DEFAULT_FONT_ID;
+  return 'ibm-plex';
 }
 
 export function fontStackFor(value: string | null | undefined): string {
-  const id = resolveFontId(value);
-  return (FONT_OPTIONS.find((f) => f.id === id) ?? FONT_OPTIONS[0]).family;
+  return INTER_DISPLAY_STACK;
 }
 
 export function fontOptionFor(value: string | null | undefined): FontOption {
-  const id = resolveFontId(value);
-  return FONT_OPTIONS.find((f) => f.id === id) ?? FONT_OPTIONS[0];
+  return FONT_OPTIONS[0];
 }
 
 // ─── Pairings ───────────────────────────────────────────────
-/**
- * Curated display/body combinations. Choosing two faces well is a design
- * decision most people should not have to make, so the good answers ship —
- * while the two pickers stay available underneath for anyone who wants them.
- */
 export interface FontPairing {
   id: string;
   label: string;
@@ -131,50 +64,22 @@ export interface FontPairing {
   body: FontId;
 }
 
+// One pairing: Inter Display exclusively
 export const FONT_PAIRINGS: readonly FontPairing[] = [
   {
     id: 'unified',
-    label: 'نسق واحد',
-    note: 'خط واحد للعناوين والنصوص — أهدأ خيار',
+    label: 'إنتر ديسبلاي الموحد',
+    note: 'خط موحد للعناوين والنصوص — التزاماً بهوية التطبيق الأنيقة',
     display: 'ibm-plex',
     body: 'ibm-plex',
   },
-  {
-    id: 'editorial',
-    label: 'تحريري',
-    note: 'عناوين بأميري النسخي على متن واضح',
-    display: 'amiri',
-    body: 'ibm-plex',
-  },
-  {
-    id: 'modern',
-    label: 'حديث',
-    note: 'عناوين هندسية حادّة على متن محايد',
-    display: 'tajawal',
-    body: 'ibm-plex',
-  },
-  {
-    id: 'gentle',
-    label: 'هادئ',
-    note: 'عناوين عريضة على متن واسع الفراغات',
-    display: 'cairo',
-    body: 'readex',
-  },
 ] as const;
 
-/** The pairing id matching the current pair, or `null` for a custom pair. */
 export function matchPairing(display: string, body: string): string | null {
-  const d = resolveFontId(display);
-  const b = resolveFontId(body);
-  return FONT_PAIRINGS.find((p) => p.display === d && p.body === b)?.id ?? null;
+  return 'unified';
 }
 
 // ─── Base size ──────────────────────────────────────────────
-/**
- * The base size scales only the canonical type tokens. The document root stays
- * at 16px so rem-based interface geometry does not move with text preferences.
- * `rootSize` remains on each option as a compatibility field.
- */
 export const FONT_SIZE_STEPS = [
   { id: 'small', label: 'صغير', rootSize: '16px', base: 15, multiplier: 15 / 16 },
   { id: 'medium', label: 'متوسط', rootSize: '16px', base: 16, multiplier: 1 },
@@ -221,11 +126,6 @@ export function resolveTypeLeading(value: string | null | undefined): TypeLeadin
 }
 
 // ─── Weight ─────────────────────────────────────────────────
-/**
- * Selectable weights. 300 was removed deliberately: light Arabic strokes at
- * the app's body sizes render too thin to read comfortably, and no requested
- * family ships a 300 Arabic face (the browser was faking it).
- */
 export const FONT_WEIGHTS = [
   { value: 400, label: 'عادي' },
   { value: 500, label: 'متوسط' },
@@ -242,15 +142,6 @@ export function clampFontWeight(value: number): number {
 }
 
 // ─── The scale itself ───────────────────────────────────────
-/**
- * The seven canonical type steps, as exponents of the chosen ratio.
- *
- * These exponents are not invented: they are the app's existing pixel scale
- * (11 · 12 · 13 · 14 · 16 · 18 · 24 at a 16px base) expressed as powers of
- * 1.2. So at the default ratio and base the rendered sizes are *identical* to
- * what shipped before — changing the ratio then compresses or expands the
- * spread around `lead`, which stays anchored at 1× the base.
- */
 const TYPE_STEPS = [
   { name: 'micro', exponent: -2.055 },
   { name: 'mini', exponent: -1.578 },
@@ -263,7 +154,6 @@ const TYPE_STEPS = [
 
 export type TypeStepName = (typeof TYPE_STEPS)[number]['name'];
 
-/** Compute the scale in rem against a fixed 16px document root. */
 export function computeTypeScale(
   ratioId: TypeRatioId,
   baseSize: FontSizeId | number = 16,
@@ -290,18 +180,11 @@ export interface TypographyPrefs {
 }
 
 export interface TypographyApplication {
-  /** CSS custom properties to write on the document root. */
   vars: Record<string, string>;
-  /** Compatibility field. Always 16px so typography cannot resize geometry. */
   rootSize: string;
-  /** `html { font-weight }` — inherited by everything that does not override it. */
   rootWeight: string;
 }
 
-/**
- * Resolve a full set of typography preferences into the tokens that render it.
- * Pure — the DOM write lives in AppContext, so this stays testable.
- */
 export function typographyTokens(prefs: TypographyPrefs): TypographyApplication {
   const sizeStep = fontSizeStepFor(resolveFontSize(prefs.size));
   const scale = computeTypeScale(resolveTypeRatio(prefs.ratio), sizeStep.id);
@@ -309,17 +192,11 @@ export function typographyTokens(prefs: TypographyPrefs): TypographyApplication 
     TYPE_LEADINGS.find((l) => l.id === resolveTypeLeading(prefs.leading))?.leading ?? 1.6;
 
   const vars: Record<string, string> = {
-    '--font-body': fontStackFor(prefs.bodyFont),
-    '--font-display': fontStackFor(prefs.displayFont),
+    '--font-body': INTER_DISPLAY_STACK,
+    '--font-display': INTER_DISPLAY_STACK,
     '--font-weight': String(clampFontWeight(prefs.weight)),
-    // Static rem font declarations emitted by Tailwind are multiplied by this
-    // token at build time. Canonical --fs-* values already include the same
-    // multiplier, so both paths respond identically while layout stays fixed.
     '--type-base-scale': String(Math.round(sizeStep.multiplier * 10000) / 10000),
     '--type-leading': String(leading),
-    // Headings take three quarters of the body leading. At the default 1.6 that
-    // is exactly the 1.2 the type scale shipped with, and it keeps the
-    // relationship intact when the user asks for roomier text.
     '--type-leading-tight': String(Math.round(leading * 0.75 * 1000) / 1000),
     '--text-opacity': String(prefs.opacity),
   };
