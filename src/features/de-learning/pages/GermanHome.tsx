@@ -17,6 +17,10 @@ import {
   EXTENDED_PHRASES_LIST,
   EXTENDED_EXPRESSIONS_LIST,
   STARTER_GRAMMAR_POINTS,
+  SYSTEMATIC_DIALOGUE_SCENARIOS,
+  SYSTEMATIC_VERB_CONJUGATIONS,
+  SYSTEMATIC_SUFFIX_GENDER_RULES,
+  SYSTEMATIC_PHONETIC_BRIDGE_ITEMS,
 } from '../data/starterCourse';
 import {
   useMarkLessonCompleted,
@@ -29,9 +33,9 @@ import { CefrLevelCode } from '../types';
 export const GermanHome: React.FC = () => {
   const navigate = useNavigate();
 
-  const { data: levels = STARTER_LEVELS, isLoading: loadingLevels } = useCefrLevels();
-  const { data: units = STARTER_UNITS, isLoading: loadingUnits } = useUnits();
-  const { data: lessons = STARTER_LESSONS, isLoading: loadingLessonsList } = useLessons();
+  const levels = STARTER_LEVELS;
+  const units = STARTER_UNITS;
+  const lessons = STARTER_LESSONS;
 
   const { data: progress = [], isLoading: loadingProg } = useUserProgress();
   const { data: stats = null, isLoading: loadingStats } = useUserStats();
@@ -43,7 +47,7 @@ export const GermanHome: React.FC = () => {
   const [activeLessonId, setActiveLessonId] = useState<string | undefined>(undefined);
 
   // Advanced learning environment states
-  const [activeTab, setActiveTab] = useState<'lessons' | 'handbook' | 'dictionary' | 'tutor' | 'placement'>('lessons');
+  const [activeTab, setActiveTab] = useState<'lessons' | 'handbook' | 'dictionary' | 'tutor' | 'placement' | 'dialogues' | 'conjugator' | 'gender' | 'phonetics'>('lessons');
 
   // Dictionary Tab States
   const [dictType, setDictType] = useState<'words' | 'sentences' | 'phrases' | 'expressions'>('words');
@@ -65,6 +69,27 @@ export const GermanHome: React.FC = () => {
     words: { word: string; pos: string; analysis: string }[];
     grammarNote: string;
   } | null>(null);
+
+  // Systematic Dialogue States
+  const [selectedDialogueId, setSelectedDialogueId] = useState<string | null>(null);
+  const [dialogueStep, setDialogueStep] = useState<'intro' | 'chat' | 'branch' | 'outcome'>('intro');
+  const [dialogueUserBranchChoice, setDialogueUserBranchChoice] = useState<string | null>(null);
+  const [dialogueShowArTranslation, setDialogueShowArTranslation] = useState<boolean>(false);
+
+  // Systematic Verb Conjugator States
+  const [selectedVerbId, setSelectedVerbId] = useState<string>('conj-sein');
+  const [conjugatorTense, setConjugatorTense] = useState<'present' | 'perfekt'>('present');
+
+  // Suffix-Based Gender States
+  const [genderSuffixQuery, setGenderSuffixQuery] = useState('');
+  const [genderQuizActive, setGenderQuizActive] = useState(false);
+  const [genderQuizIndex, setGenderQuizIndex] = useState(0);
+  const [genderQuizScore, setGenderQuizScore] = useState(0);
+  const [genderQuizSelected, setGenderQuizSelected] = useState<'der' | 'die' | 'das' | null>(null);
+  const [genderQuizFdbk, setGenderQuizFdbk] = useState<{ correct: boolean; msg: string } | null>(null);
+
+  // Phonetic Soundboard States
+  const [selectedPhoneticId, setSelectedPhoneticId] = useState<string | null>(null);
 
   const completedLessonIds = useMemo(() => {
     return new Set(progress.filter((p) => p.status === 'completed').map((p) => p.lesson_id));
@@ -222,6 +247,77 @@ export const GermanHome: React.FC = () => {
     setPlacementResult(null);
   };
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Custom systematic tools logic & handlers
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // 1. Dialogue Sandbox
+  const activeDialogue = useMemo(() => {
+    return SYSTEMATIC_DIALOGUE_SCENARIOS.find((d) => d.id === selectedDialogueId);
+  }, [selectedDialogueId]);
+
+  const handleChooseBranch = (branchId: string) => {
+    setDialogueUserBranchChoice(branchId);
+    setDialogueStep('outcome');
+  };
+
+  // 2. Systematic Verb Conjugator
+  const activeVerb = useMemo(() => {
+    return SYSTEMATIC_VERB_CONJUGATIONS.find((v) => v.id === selectedVerbId) || SYSTEMATIC_VERB_CONJUGATIONS[0];
+  }, [selectedVerbId]);
+
+  // 3. Suffix-Based Gender Quiz
+  const filteredSuffixRules = useMemo(() => {
+    const query = genderSuffixQuery.toLowerCase().trim();
+    return SYSTEMATIC_SUFFIX_GENDER_RULES.filter((rule) =>
+      rule.suffix.toLowerCase().includes(query) || rule.explanation_ar.includes(query)
+    );
+  }, [genderSuffixQuery]);
+
+  const genderQuizItems = useMemo(() => {
+    // Dynamically derive some quiz questions from suffix rules
+    return SYSTEMATIC_SUFFIX_GENDER_RULES.map((rule) => ({
+      word: rule.example_de.split(' ')[1], // get 'Bedeutung' from 'die Bedeutung'
+      correctGender: rule.gender,
+      suffix: rule.suffix,
+      explanation: rule.explanation_ar,
+    }));
+  }, []);
+
+  const currentGenderQuizItem = genderQuizItems[genderQuizIndex];
+
+  const handleGenderQuizAnswer = (selected: 'der' | 'die' | 'das') => {
+    setGenderQuizSelected(selected);
+    const isCorrect = selected === currentGenderQuizItem.correctGender;
+    if (isCorrect) {
+      setGenderQuizScore((s) => s + 20);
+    }
+    setGenderQuizFdbk({
+      correct: isCorrect,
+      msg: isCorrect
+        ? 'أحسنت! الإجابة صحيحة تماماً بناء على لاحقة الاسم النحوية.'
+        : `خيار غير دقيق. التحديد الصائب هو (${currentGenderQuizItem.correctGender}) بسبب انتهاء الكلمة باللاحقة (${currentGenderQuizItem.suffix}).`
+    });
+  };
+
+  const handleNextGenderQuiz = () => {
+    setGenderQuizSelected(null);
+    setGenderQuizFdbk(null);
+    if (genderQuizIndex < genderQuizItems.length - 1) {
+      setGenderQuizIndex((idx) => idx + 1);
+    } else {
+      toast.success(`أكملت مسابقة اللواحق بنجاح! رصيدك: ${genderQuizScore} نقطة.`);
+    }
+  };
+
+  const resetGenderQuiz = () => {
+    setGenderQuizIndex(0);
+    setGenderQuizScore(0);
+    setGenderQuizSelected(null);
+    setGenderQuizFdbk(null);
+    setGenderQuizActive(true);
+  };
+
   if (activeSessionMinutes !== null) {
     return (
       <PageShell flush centered={false}>
@@ -319,20 +415,20 @@ export const GermanHome: React.FC = () => {
           </div>
 
           {/* Top Level Feature Tabs */}
-          <div className="grid grid-cols-5 gap-1.5 p-1 rounded-xl bg-secondary/30 border border-border/40">
+          <div className="grid grid-cols-5 md:grid-cols-5 gap-1.5 p-1 rounded-xl bg-secondary/30 border border-border/40">
             {[
-              { id: 'lessons', text: 'الدروس' },
-              { id: 'handbook', text: 'القواعد' },
-              { id: 'dictionary', text: 'القاموس' },
-              { id: 'tutor', text: 'المحلل' },
-              { id: 'placement', text: 'تحديد المستوى' }
+              { id: 'lessons', text: 'خارطة الدروس' },
+              { id: 'handbook', text: 'دليل القواعد' },
+              { id: 'dictionary', text: 'القاموس والعبارات' },
+              { id: 'tutor', text: 'محلل الجمل الذكي' },
+              { id: 'placement', text: 'اختبار المستوى' }
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`py-2 text-center rounded-lg font-tajawal text-mini font-bold transition-all duration-300 ${
+                  className={`py-2 px-1 text-center rounded-lg font-tajawal text-[10px] md:text-xs font-bold transition-all duration-300 ${
                     isActive
                       ? 'bg-card text-[hsl(var(--live))] shadow-sm border border-border/50'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
@@ -342,6 +438,39 @@ export const GermanHome: React.FC = () => {
                 </button>
               );
             })}
+          </div>
+
+          {/* New Advanced Systematic Tools Tabs Panel */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 justify-end">
+              <span className="h-px flex-1 bg-border/40" />
+              <span className="font-tajawal text-[10px] text-muted-foreground font-bold uppercase tracking-widest bg-secondary/30 px-2 py-0.5 rounded border border-border/35">
+                الأدوات اللغوية المنهجية المتقدمة
+              </span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-secondary/20 border border-border/25">
+              {[
+                { id: 'dialogues', text: 'السيناريوهات الحرة' },
+                { id: 'conjugator', text: 'تصريف الأفعال' },
+                { id: 'gender', text: 'لواحق الجنس النحوي' },
+                { id: 'phonetics', text: 'صوتيات المخارج' }
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`py-2 text-center rounded-lg font-tajawal text-[10px] md:text-mini font-bold transition-all duration-300 ${
+                      isActive
+                        ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border border-[hsl(var(--live))]/30 shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
+                    }`}
+                  >
+                    {tab.text}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Tab 1: Lessons Mapping */}
@@ -789,6 +918,458 @@ export const GermanHome: React.FC = () => {
             </div>
           )}
 
+          {/* Tab 6: Interactive Dialogue Sandbox */}
+          {activeTab === 'dialogues' && (
+            <div className="space-y-6">
+              <div className="text-end space-y-2">
+                <h3 className="font-amiri text-2xl font-bold text-foreground">محاكي المحادثات والسيناريوهات الحرة</h3>
+                <p className="font-tajawal text-xs text-muted-foreground">تفاوض وتكلم في سياقات حقيقية مع ردود فعل وتحليلات ثقافية دقيقة.</p>
+              </div>
+
+              {!selectedDialogueId ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {SYSTEMATIC_DIALOGUE_SCENARIOS.map((scen) => (
+                    <div key={scen.id} className="p-5 rounded-2xl border border-border/40 bg-card space-y-4 text-end">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-0.5 rounded text-micro font-plex-mono bg-secondary text-muted-foreground uppercase">{scen.category}</span>
+                        <h4 className="font-tajawal text-sm font-bold text-foreground">{scen.title_ar}</h4>
+                      </div>
+                      <p className="font-plex-mono text-xs text-muted-foreground/90 italic" dir="ltr">{scen.title_de}</p>
+                      <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">{scen.description_ar}</p>
+                      <button
+                        onClick={() => {
+                          setSelectedDialogueId(scen.id);
+                          setDialogueStep('intro');
+                          setDialogueUserBranchChoice(null);
+                        }}
+                        className="w-full py-2.5 bg-secondary text-foreground hover:bg-secondary/80 rounded-lg text-xs font-bold font-tajawal transition-all"
+                      >
+                        دخول المحاكاة التفاعلية
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-6 animate-in zoom-in-95">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => {
+                        setSelectedDialogueId(null);
+                      }}
+                      className="px-3 py-1 bg-secondary text-foreground rounded text-xs font-tajawal"
+                    >
+                      إنهاء المحاكاة
+                    </button>
+                    <h4 className="font-tajawal text-sm font-bold text-foreground">{activeDialogue?.title_ar}</h4>
+                  </div>
+
+                  {dialogueStep === 'intro' && (
+                    <div className="space-y-5 text-end">
+                      <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+                        {activeDialogue?.description_ar}
+                      </p>
+                      <div className="p-4 bg-secondary/20 rounded-xl space-y-1">
+                        <span className="block font-tajawal text-micro font-bold text-muted-foreground">المشاركون</span>
+                        <span className="block font-tajawal text-xs font-medium text-foreground">العميل والمستلم والمضيف</span>
+                      </div>
+                      <button
+                        onClick={() => setDialogueStep('chat')}
+                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-xs font-bold"
+                      >
+                        ابدأ المحادثة التفاعلية
+                      </button>
+                    </div>
+                  )}
+
+                  {dialogueStep === 'chat' && (
+                    <div className="space-y-5">
+                      {/* Trans Toggle */}
+                      <div className="flex justify-between items-center bg-secondary/30 p-2 rounded-lg">
+                        <button
+                          onClick={() => setDialogueShowArTranslation(!dialogueShowArTranslation)}
+                          className="text-micro font-tajawal text-muted-foreground"
+                        >
+                          {dialogueShowArTranslation ? 'إخفاء الترجمة العربية' : 'إظهار الترجمة العربية'}
+                        </button>
+                        <span className="text-micro font-tajawal text-muted-foreground">سياق المحادثة المبدئي</span>
+                      </div>
+
+                      <div className="space-y-4">
+                        {activeDialogue?.turns.map((turn, index) => (
+                          <div
+                            key={index}
+                            className={`p-3.5 rounded-xl border flex flex-col gap-1.5 ${
+                              turn.speaker.includes('Du')
+                                ? 'bg-[hsl(var(--live))]/5 border-[hsl(var(--live))]/20 items-end text-right'
+                                : 'bg-secondary/40 border-border/30 items-start text-left'
+                            }`}
+                          >
+                            <span className="text-micro font-bold text-muted-foreground uppercase">{turn.speaker}</span>
+                            <p className="font-plex-mono text-sm font-bold text-foreground" dir="ltr">{turn.text_de}</p>
+                            {dialogueShowArTranslation && (
+                              <p className="font-tajawal text-xs text-muted-foreground" dir="rtl">{turn.text_ar}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => setDialogueStep('branch')}
+                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-xs font-bold"
+                      >
+                        متابعة السيناريو واختيار ردك
+                      </button>
+                    </div>
+                  )}
+
+                  {dialogueStep === 'branch' && (
+                    <div className="space-y-5 text-end">
+                      <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">الآن، حان دورك للتكلم! اختر ردك بحذر:</span>
+                      <div className="grid grid-cols-1 gap-3">
+                        {activeDialogue?.branches.map((branch) => (
+                          <button
+                            key={branch.id}
+                            onClick={() => handleChooseBranch(branch.id)}
+                            className="w-full p-4 rounded-xl border border-border/40 hover:border-[hsl(var(--live))] bg-card hover:bg-secondary/40 text-end font-tajawal text-xs transition-all flex items-center justify-between"
+                          >
+                            <span className="h-2 w-2 rounded-full border border-border/40" />
+                            <span>{branch.option_ar}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {dialogueStep === 'outcome' && (
+                    <div className="space-y-6">
+                      {(() => {
+                        const selectedBranch = activeDialogue?.branches.find((b) => b.id === dialogueUserBranchChoice);
+                        if (!selectedBranch) return null;
+                        return (
+                          <div className="space-y-5">
+                            <div className={`p-5 rounded-xl border text-center space-y-3 ${
+                              selectedBranch.is_correct_action
+                                ? 'bg-emerald-500/[0.02] border-emerald-500/20 text-emerald-600'
+                                : 'bg-rose-500/[0.02] border-rose-500/20 text-rose-600'
+                            }`}>
+                              <span className="block font-tajawal text-micro font-bold uppercase">الرد الذي قمت باختياره</span>
+                              <p className="font-plex-mono text-base font-bold text-foreground" dir="ltr">{selectedBranch.response_de}</p>
+                              <p className="font-tajawal text-xs text-muted-foreground" dir="rtl">{selectedBranch.response_ar}</p>
+                            </div>
+
+                            <div className="p-5 rounded-xl bg-secondary/30 space-y-2 text-end">
+                              <span className="block font-tajawal text-xs font-bold text-foreground">التحليل الثقافي والاجتماعي المقارن</span>
+                              <p className="font-amiri text-sm text-foreground/80 leading-relaxed">
+                                {selectedBranch.explanation_ar}
+                              </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => setDialogueStep('branch')}
+                                className="flex-1 py-3 border border-border/40 bg-card text-foreground rounded-xl text-xs font-bold font-tajawal"
+                              >
+                                جرب خياراً آخر
+                              </button>
+                              <button
+                                onClick={() => setSelectedDialogueId(null)}
+                                className="flex-1 py-3 bg-[hsl(var(--live))] text-white rounded-xl text-xs font-bold font-tajawal"
+                              >
+                                إنهاء السيناريو
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 7: Systematic Verb Conjugator */}
+          {activeTab === 'conjugator' && (
+            <div className="space-y-6">
+              <div className="text-end space-y-2">
+                <h3 className="font-amiri text-2xl font-bold text-foreground">المصرف النحوي الرقمي للأفعال</h3>
+                <p className="font-tajawal text-xs text-muted-foreground">صرف وافهم الأفعال الألمانية الهامة مع شرح جسورها الزمنية المقارنة بالعربية.</p>
+              </div>
+
+              {/* Selector */}
+              <div className="flex items-center gap-3">
+                <select
+                  value={selectedVerbId}
+                  onChange={(e) => setSelectedVerbId(e.target.value)}
+                  className="w-full p-3.5 text-end rounded-xl border border-border/40 bg-card text-foreground font-tajawal focus:outline-none"
+                >
+                  {SYSTEMATIC_VERB_CONJUGATIONS.map((v) => (
+                    <option key={v.id} value={v.id}>{v.verb_de} ({v.translation_ar})</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tense switcher */}
+              <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-secondary/30">
+                <button
+                  onClick={() => setConjugatorTense('present')}
+                  className={`py-2 text-center rounded-lg font-tajawal text-xs font-bold transition-all ${
+                    conjugatorTense === 'present' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                  }`}
+                >
+                  الحاضر البسيط (Präsens)
+                </button>
+                <button
+                  onClick={() => setConjugatorTense('perfekt')}
+                  className={`py-2 text-center rounded-lg font-tajawal text-xs font-bold transition-all ${
+                    conjugatorTense === 'perfekt' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                  }`}
+                >
+                  الماضي التام (Perfekt)
+                </button>
+              </div>
+
+              {/* Conjugation Grid */}
+              <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-5">
+                <div className="flex justify-between items-center pb-3 border-b border-border/30">
+                  <span className="font-plex-mono text-xs text-muted-foreground uppercase">Conjugation Forms</span>
+                  <h4 className="font-plex-mono text-xl font-bold text-[hsl(var(--live))]" dir="ltr">{activeVerb.verb_de}</h4>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3.5">
+                  {[
+                    { pr: 'ich (أنا)', form: activeVerb[conjugatorTense].ich },
+                    { pr: 'du (أنت)', form: activeVerb[conjugatorTense].du },
+                    { pr: 'er / sie / es (هو/هي)', form: activeVerb[conjugatorTense].er_sie_es },
+                    { pr: 'wir (نحن)', form: activeVerb[conjugatorTense].wir },
+                    { pr: 'ihr (أنتم)', form: activeVerb[conjugatorTense].ihr },
+                    { pr: 'sie / Sie (هم / حضرتك)', form: activeVerb[conjugatorTense].sie_Sie }
+                  ].map((row, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background border border-border/40 hover:border-[hsl(var(--live))]/20 transition-all">
+                      <span className="font-plex-mono text-base font-bold text-foreground" dir="ltr">{row.form}</span>
+                      <span className="font-tajawal text-xs text-muted-foreground">{row.pr}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Example and Aspect Note */}
+                <div className="border-t border-border/35 pt-4 space-y-4 text-end">
+                  <div className="space-y-1">
+                    <span className="block text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">الجسر النحوي والوجه الدلالي</span>
+                    <p className="font-amiri text-sm text-foreground/90 leading-relaxed">
+                      {activeVerb.arabic_aspect_note}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-[hsl(var(--live))]/5 rounded-xl space-y-1">
+                    <span className="block text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase">مثال تطبيقي مصرف</span>
+                    <p className="font-plex-mono text-sm font-bold text-foreground" dir="ltr">{activeVerb.german_example_de}</p>
+                    <p className="font-tajawal text-xs text-muted-foreground">{activeVerb.german_example_ar}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 8: Suffix-Based Gender Memory & Quiz */}
+          {activeTab === 'gender' && (
+            <div className="space-y-6">
+              <div className="text-end space-y-2">
+                <h3 className="font-amiri text-2xl font-bold text-foreground">مصفوفة لواحق وقواعد الجنس النحوي</h3>
+                <p className="font-tajawal text-xs text-muted-foreground">احفظ لواحق الكلمات الألمانية لمعرفة جنسها (der/die/das) تلقائياً بنسبة 100%.</p>
+              </div>
+
+              {/* Mode Selection */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setGenderQuizActive(false)}
+                  className={`flex-1 py-2.5 rounded-xl border font-tajawal text-xs font-bold transition-all ${
+                    !genderQuizActive
+                      ? 'bg-card text-foreground border-border/50 shadow'
+                      : 'bg-secondary/40 text-muted-foreground border-transparent'
+                  }`}
+                >
+                  استكشاف اللواحق
+                </button>
+                <button
+                  onClick={resetGenderQuiz}
+                  className={`flex-1 py-2.5 rounded-xl border font-tajawal text-xs font-bold transition-all ${
+                    genderQuizActive
+                      ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border-[hsl(var(--live))]/30 shadow'
+                      : 'bg-secondary/40 text-muted-foreground border-transparent'
+                  }`}
+                >
+                  مسابقة اللواحق التفاعلية
+                </button>
+              </div>
+
+              {!genderQuizActive ? (
+                <div className="space-y-4">
+                  {/* Search / Filter rule */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={genderSuffixQuery}
+                      onChange={(e) => setGenderSuffixQuery(e.target.value)}
+                      placeholder="ابحث عن لاحقة معينة (مثال: ung)..."
+                      className="w-full pl-8 pr-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
+                      dir="rtl"
+                    />
+                    <Search className="absolute left-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    {filteredSuffixRules.map((rule, idx) => (
+                      <div key={idx} className="p-5 rounded-2xl border border-border/40 bg-card space-y-3 text-end">
+                        <div className="flex justify-between items-center">
+                          <span className={`px-2.5 py-0.5 rounded text-micro font-plex-mono uppercase font-bold ${
+                            rule.gender === 'der'
+                              ? 'bg-blue-500/10 text-blue-500'
+                              : rule.gender === 'die'
+                              ? 'bg-rose-500/10 text-rose-500'
+                              : 'bg-emerald-500/10 text-emerald-500'
+                          }`}>
+                            {rule.gender}
+                          </span>
+                          <h4 className="font-plex-mono text-base font-bold text-foreground">Suffix: -{rule.suffix}</h4>
+                        </div>
+                        <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+                          {rule.explanation_ar}
+                        </p>
+                        <div className="p-3 bg-secondary/30 rounded-lg flex justify-between items-center" dir="ltr">
+                          <span className="font-plex-mono text-xs text-foreground font-bold">{rule.example_de}</span>
+                          <span className="font-tajawal text-xs text-muted-foreground">{rule.example_ar}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-6 animate-in slide-in-from-bottom-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-plex-mono text-xs font-bold text-[hsl(var(--live))]">النتيجة: {genderQuizScore}/100</span>
+                    <span className="font-tajawal text-xs text-muted-foreground">السؤال {genderQuizIndex + 1} من {genderQuizItems.length}</span>
+                  </div>
+
+                  <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[hsl(var(--live))] transition-all duration-300"
+                      style={{ width: `${((genderQuizIndex + 1) / genderQuizItems.length) * 100}%` }}
+                    />
+                  </div>
+
+                  <div className="p-6 rounded-xl bg-background border border-border/40 text-center space-y-3">
+                    <span className="text-micro font-tajawal text-muted-foreground">ما هي الأداة الصحيحة للاسم الموالي بناءً على لاحقته؟</span>
+                    <p className="font-plex-mono text-3xl font-bold text-foreground tracking-wide">
+                      {currentGenderQuizItem.word}
+                    </p>
+                  </div>
+
+                  {!genderQuizFdbk ? (
+                    <div className="grid grid-cols-3 gap-3">
+                      {(['der', 'die', 'das'] as const).map((genderOption) => (
+                        <button
+                          key={genderOption}
+                          onClick={() => handleGenderQuizAnswer(genderOption)}
+                          className={`py-3 rounded-xl border font-plex-mono text-sm font-bold transition-all ${
+                            genderOption === 'der'
+                              ? 'border-blue-500/30 hover:bg-blue-500/5 text-blue-500'
+                              : genderOption === 'die'
+                              ? 'border-rose-500/30 hover:bg-rose-500/5 text-rose-500'
+                              : 'border-emerald-500/30 hover:bg-emerald-500/5 text-emerald-500'
+                          }`}
+                        >
+                          {genderOption}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className={`p-4 rounded-xl border text-end space-y-1.5 ${
+                        genderQuizFdbk.correct ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600' : 'bg-rose-500/5 border-rose-500/20 text-rose-600'
+                      }`}>
+                        <h5 className="font-tajawal text-xs font-bold">
+                          {genderQuizFdbk.correct ? 'صحيح تماماً!' : 'غير دقيق'}
+                        </h5>
+                        <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+                          {genderQuizFdbk.msg}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleNextGenderQuiz}
+                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl text-xs font-bold font-tajawal"
+                      >
+                        {genderQuizIndex < genderQuizItems.length - 1 ? 'السؤال الموالي' : 'عرض النتيجة النهائية'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 9: Phonetic Soundboard */}
+          {activeTab === 'phonetics' && (
+            <div className="space-y-6">
+              <div className="text-end space-y-2">
+                <h3 className="font-amiri text-2xl font-bold text-foreground">لوحة الصوتيات والمخارج الألمانية المقارنة</h3>
+                <p className="font-tajawal text-xs text-muted-foreground">تدرب على نطق وإخراج الحروف والتركيبات الألمانية الصعبة بمقارنتها مع مخارج الحروف العربية.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {SYSTEMATIC_PHONETIC_BRIDGE_ITEMS.map((item) => {
+                  const isSelected = selectedPhoneticId === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setSelectedPhoneticId(isSelected ? null : item.id)}
+                      className={`p-4 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-2 ${
+                        isSelected
+                          ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/5 shadow'
+                          : 'border-border/40 bg-card hover:bg-secondary/40'
+                      }`}
+                    >
+                      <span className="font-plex-mono text-2xl font-bold text-foreground">{item.sound_de}</span>
+                      <span className="font-plex-mono text-xs text-muted-foreground">IPA: /{item.ipa}/</span>
+                      <span className="font-tajawal text-micro text-muted-foreground max-w-[120px] truncate">{item.arabic_equivalent_ar}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedPhoneticId && (() => {
+                const item = SYSTEMATIC_PHONETIC_BRIDGE_ITEMS.find((ph) => ph.id === selectedPhoneticId);
+                if (!item) return null;
+                return (
+                  <div className="p-5 rounded-2xl border border-[hsl(var(--live))]/20 bg-[hsl(var(--live))]/[0.02] space-y-4 text-end animate-in fade-in duration-300">
+                    <div className="flex justify-between items-center pb-2 border-b border-border/30">
+                      <span className="font-plex-mono text-micro text-muted-foreground uppercase">Phonetic Detail</span>
+                      <h4 className="font-plex-mono text-base font-bold text-[hsl(var(--live))]" dir="ltr">{item.sound_de}</h4>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">مخرج الحرف والتمثيل الصوتي العربي</span>
+                      <p className="font-tajawal text-xs text-foreground font-semibold">{item.arabic_equivalent_ar}</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">دليل النطق وآلية التشكيل الفموي</span>
+                      <p className="font-amiri text-sm text-foreground/80 leading-relaxed">
+                        {item.articulation_guide_ar}
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-secondary/30 rounded-lg flex justify-between items-center" dir="ltr">
+                      <span className="font-plex-mono text-xs text-foreground font-bold">{item.example_word_de}</span>
+                      <span className="font-tajawal text-xs text-muted-foreground">مثال: {item.example_word_ar}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
           {/* Tab 5: Placement Test */}
           {activeTab === 'placement' && (
             <div className="space-y-6">
@@ -881,7 +1462,9 @@ export const GermanHome: React.FC = () => {
               )}
             </div>
           )}
-        </main>
+
+
+                  </main>
       </div>
     </PageShell>
   );
