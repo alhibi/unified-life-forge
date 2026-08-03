@@ -68,6 +68,27 @@ export type Database = {
         }
         Relationships: []
       }
+      cefr_levels: {
+        Row: {
+          code: string
+          id: string
+          name_ar: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          id?: string
+          name_ar: string
+          sort_order: number
+        }
+        Update: {
+          code?: string
+          id?: string
+          name_ar?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       clipboard_items: {
         Row: {
           clipboard_type: string
@@ -106,6 +127,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      content_generation_jobs: {
+        Row: {
+          created_at: string
+          id: string
+          model_used: string | null
+          status: string
+          unit_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          model_used?: string | null
+          status?: string
+          unit_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model_used?: string | null
+          status?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_generation_jobs_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -220,6 +273,71 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_vocab_map: {
+        Row: {
+          exercise_id: string
+          vocab_id: string
+        }
+        Insert: {
+          exercise_id: string
+          vocab_id: string
+        }
+        Update: {
+          exercise_id?: string
+          vocab_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_vocab_map_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_vocab_map_vocab_id_fkey"
+            columns: ["vocab_id"]
+            isOneToOne: false
+            referencedRelation: "vocabulary_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercises: {
+        Row: {
+          difficulty: number
+          id: string
+          lesson_id: string
+          payload: Json
+          status: string
+          type: string
+        }
+        Insert: {
+          difficulty?: number
+          id?: string
+          lesson_id: string
+          payload: Json
+          status?: string
+          type: string
+        }
+        Update: {
+          difficulty?: number
+          id?: string
+          lesson_id?: string
+          payload?: Json
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fitness_activities: {
         Row: {
           activity_type: string
@@ -306,6 +424,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      grammar_points: {
+        Row: {
+          contrastive_note_ar: string | null
+          explanation_ar: string
+          id: string
+          lesson_id: string
+          name: string
+        }
+        Insert: {
+          contrastive_note_ar?: string | null
+          explanation_ar: string
+          id?: string
+          lesson_id: string
+          name: string
+        }
+        Update: {
+          contrastive_note_ar?: string | null
+          explanation_ar?: string
+          id?: string
+          lesson_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grammar_points_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       journal_entries: {
         Row: {
@@ -419,6 +569,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      languages: {
+        Row: {
+          code: string
+          direction: string
+          id: string
+          name_ar: string
+        }
+        Insert: {
+          code: string
+          direction?: string
+          id?: string
+          name_ar: string
+        }
+        Update: {
+          code?: string
+          direction?: string
+          id?: string
+          name_ar?: string
+        }
+        Relationships: []
+      }
+      lessons: {
+        Row: {
+          estimated_minutes: number
+          id: string
+          sort_order: number
+          title_ar: string
+          title_de: string
+          type: string
+          unit_id: string
+        }
+        Insert: {
+          estimated_minutes?: number
+          id?: string
+          sort_order: number
+          title_ar: string
+          title_de?: string
+          type: string
+          unit_id: string
+        }
+        Update: {
+          estimated_minutes?: number
+          id?: string
+          sort_order?: number
+          title_ar?: string
+          title_de?: string
+          type?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_reactions: {
         Row: {
@@ -756,6 +965,38 @@ export type Database = {
           },
         ]
       }
+      placement_test_results: {
+        Row: {
+          id: string
+          placed_level_id: string | null
+          raw_score: number | null
+          taken_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          placed_level_id?: string | null
+          raw_score?: number | null
+          taken_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          placed_level_id?: string | null
+          raw_score?: number | null
+          taken_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "placement_test_results_placed_level_id_fkey"
+            columns: ["placed_level_id"]
+            isOneToOne: false
+            referencedRelation: "cefr_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       places: {
         Row: {
           address: string | null
@@ -1055,6 +1296,66 @@ export type Database = {
         }
         Relationships: []
       }
+      srs_review_log: {
+        Row: {
+          elapsed_days: number | null
+          id: string
+          item_id: string
+          rating: string
+          reviewed_at: string
+          user_id: string
+        }
+        Insert: {
+          elapsed_days?: number | null
+          id?: string
+          item_id: string
+          rating: string
+          reviewed_at?: string
+          user_id: string
+        }
+        Update: {
+          elapsed_days?: number | null
+          id?: string
+          item_id?: string
+          rating?: string
+          reviewed_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      srs_state: {
+        Row: {
+          difficulty: number
+          due_at: string
+          item_id: string
+          item_type: string
+          lapses: number
+          review_count: number
+          stability: number
+          user_id: string
+        }
+        Insert: {
+          difficulty?: number
+          due_at?: string
+          item_id: string
+          item_type: string
+          lapses?: number
+          review_count?: number
+          stability?: number
+          user_id: string
+        }
+        Update: {
+          difficulty?: number
+          due_at?: string
+          item_id?: string
+          item_type?: string
+          lapses?: number
+          review_count?: number
+          stability?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       trip_checklist: {
         Row: {
           category: string
@@ -1197,6 +1498,76 @@ export type Database = {
           },
         ]
       }
+      units: {
+        Row: {
+          icon: string | null
+          id: string
+          level_id: string
+          sort_order: number
+          theme: string | null
+          title_ar: string
+          title_de: string
+        }
+        Insert: {
+          icon?: string | null
+          id?: string
+          level_id: string
+          sort_order: number
+          theme?: string | null
+          title_ar: string
+          title_de: string
+        }
+        Update: {
+          icon?: string | null
+          id?: string
+          level_id?: string
+          sort_order?: number
+          theme?: string | null
+          title_ar?: string
+          title_de?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "cefr_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progress: {
+        Row: {
+          last_practiced_at: string | null
+          lesson_id: string
+          mastery_score: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          last_practiced_at?: string | null
+          lesson_id: string
+          mastery_score?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          last_practiced_at?: string | null
+          lesson_id?: string
+          mastery_score?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_settings: {
         Row: {
           id: string
@@ -1217,6 +1588,86 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_stats: {
+        Row: {
+          last_active_date: string | null
+          league_tier: string
+          streak_days: number
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          last_active_date?: string | null
+          league_tier?: string
+          streak_days?: number
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          last_active_date?: string | null
+          league_tier?: string
+          streak_days?: number
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      vocabulary_items: {
+        Row: {
+          audio_url: string | null
+          example_sentence_ar: string | null
+          example_sentence_de: string | null
+          frequency_rank: number | null
+          gender: string | null
+          id: string
+          image_url: string | null
+          ipa: string | null
+          lemma_de: string
+          level_id: string
+          plural_form: string | null
+          status: string
+          translation_ar: string
+        }
+        Insert: {
+          audio_url?: string | null
+          example_sentence_ar?: string | null
+          example_sentence_de?: string | null
+          frequency_rank?: number | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          ipa?: string | null
+          lemma_de: string
+          level_id: string
+          plural_form?: string | null
+          status?: string
+          translation_ar: string
+        }
+        Update: {
+          audio_url?: string | null
+          example_sentence_ar?: string | null
+          example_sentence_de?: string | null
+          frequency_rank?: number | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          ipa?: string | null
+          lemma_de?: string
+          level_id?: string
+          plural_form?: string | null
+          status?: string
+          translation_ar?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vocabulary_items_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "cefr_levels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wellness_records: {
         Row: {
