@@ -127,7 +127,7 @@ export function OpmlImportDialog({
       setParseError('الملف أكبر من 10MB');
       return;
     }
-    let text = '';
+    let text: string;
     try {
       text = await file.text();
     } catch {

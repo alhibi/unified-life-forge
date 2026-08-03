@@ -140,7 +140,7 @@ export function parseProgression(raw: unknown): ProgressionState {
 
 function load(): ProgressionState {
   if (state) return state;
-  let raw: string | null = null;
+  let raw: string | null;
   try {
     raw = localStorage.getItem(STORAGE_KEY);
   } catch {

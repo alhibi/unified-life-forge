@@ -159,7 +159,7 @@ export default function Portal() {
       const currentIndex = tileRefs.current.findIndex((el) => el === document.activeElement);
       if (currentIndex === -1) return;
       const columns = columnsFor(viewportWidth, list);
-      let nextIndex = currentIndex;
+      let nextIndex: number;
 
       switch (event.key) {
         case 'ArrowLeft':

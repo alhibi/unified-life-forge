@@ -23,7 +23,7 @@ export function useFitnessEngine() {
               store.addCoordinate(coord);
             }
           });
-        } catch (err) { }
+        } catch { /* geolocation watch errors are non-fatal */ }
       }
     };
     setupGeolocation();

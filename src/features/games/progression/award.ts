@@ -200,12 +200,11 @@ export function awardMatch(
   if (streakBonus > 0) lines.push({ label: `تتابع ${streakDays} أيام`, amount: streakBonus });
 
   // Speed bonus: up to +40% of the base for finishing well inside the target.
-  let speedBonus = 0;
   if (result.outcome === 'win' && result.durationMs && result.durationMs > 0) {
     const target = SPEED_TARGET_SECONDS[result.game] * 1000;
     if (result.durationMs < target) {
       const share = 1 - result.durationMs / target;
-      speedBonus = Math.round(outcomeXp * 0.4 * share);
+      const speedBonus = Math.round(outcomeXp * 0.4 * share);
       if (speedBonus > 0) lines.push({ label: 'سرعة الإنجاز', amount: speedBonus });
     }
   }

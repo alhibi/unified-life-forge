@@ -366,7 +366,7 @@ export function parseState(raw: string | null): PracticeState {
 
 function load(): PracticeState {
   if (state) return state;
-  let raw: string | null = null;
+  let raw: string | null;
   try {
     raw = localStorage.getItem(STORAGE_KEY);
   } catch {
