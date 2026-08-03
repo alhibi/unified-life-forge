@@ -142,19 +142,23 @@
   font-size: var(--fs-micro);
   line-height: calc(var(--fs-micro) * var(--type-leading));
   letter-spacing: 0.005em;
+  opacity: 0.65;
 }
 @utility text-mini {
   font-size: var(--fs-mini);
   line-height: calc(var(--fs-mini) * var(--type-leading));
   letter-spacing: 0.003em;
+  opacity: 0.65;
 }
 @utility text-meta {
   font-size: var(--fs-meta);
   line-height: calc(var(--fs-meta) * var(--type-leading));
+  opacity: 0.65;
 }
 @utility text-body {
   font-size: var(--fs-body);
   line-height: calc(var(--fs-body) * var(--type-leading));
+  opacity: 0.88;
 }
 @utility text-lead {
   font-size: var(--fs-lead);
@@ -424,14 +428,14 @@
 
     /* Flat-surface contract: legacy shadow variables resolve to none. */
     --shadow-color: 30 18% 14%;
-    --shadow-sm: none;
-    --shadow-card: none;
-    --shadow-elevated: none;
-    --shadow-intense: none;
+    --shadow-sm: var(--card-shadow);
+    --shadow-card: var(--card-shadow);
+    --shadow-elevated: var(--card-shadow);
+    --shadow-intense: var(--card-shadow);
     --font-display:
-      'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      'Inter', 'Inter Display', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-body:
-      'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      'Inter', 'Inter Display', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-weight: 400;
 
     /* Active/live states — step 300 of the scale, deepened just enough to stay
@@ -619,7 +623,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
-    color: hsl(var(--foreground) / var(--text-opacity, 1));
+    color: hsl(var(--foreground) / var(--text-opacity, 0.88));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
@@ -628,6 +632,7 @@
     /* Fill entire viewport including safe areas */
     min-height: 100dvh;
     padding-top: env(safe-area-inset-top, 0px);
+    --text-opacity: 0.88;
   }
   h1,
   h2,
@@ -637,11 +642,18 @@
   h6 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
+    --text-opacity: 1;
+    color: hsl(var(--foreground) / 1);
+  }
+  h1, h2, h3 {
+    @apply font-semibold;
   }
   small,
   [data-caption],
   .text-caption {
     letter-spacing: 0.05em;
+    --text-opacity: 0.65;
+    color: hsl(var(--foreground) / 0.65);
   }
 
   svg {
@@ -843,9 +855,9 @@
   .premium-card-intense,
   .surface-depth {
     background-color: hsl(var(--card) / var(--ui-material-alpha));
-    border: var(--ui-border-width) solid hsl(var(--border) / var(--ui-border-alpha));
+    border: var(--ui-border-width) solid hsl(var(--border));
     border-radius: var(--r-lg); /* the canonical card radius */
-    box-shadow: none;
+    box-shadow: var(--card-shadow);
     contain: layout style;
   }
 
