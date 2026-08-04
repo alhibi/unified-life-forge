@@ -132,7 +132,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
         </motion.div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           <ActionLink
             to="/diwan/library/search"
             label="البحث المتقدّم"
@@ -152,6 +152,13 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             label="مفضلتي الخاصة"
             sub="المحفوظ من القصائد"
             icon={<Heart className="w-4 h-4 text-[var(--wax)]" />}
+            chev={Chevron}
+          />
+          <ActionLink
+            to="/diwan/bayan"
+            label="البيان الإعرابي والبلاغي"
+            sub="محلل عروضي وصرفي عميق"
+            icon={<Sparkles className="w-4 h-4 text-[var(--wax)]" />}
             chev={Chevron}
           />
         </div>
