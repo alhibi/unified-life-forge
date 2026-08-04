@@ -147,6 +147,7 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/diwan/library/search', label: 'البحث في القصائد', note: 'بحث في 3 ملايين بيت', icon: Search },
       { path: '/diwan/library/poets', label: 'شجرة الشعراء', note: 'الشعراء مرتبون بالعصور', icon: PenLine },
       { path: '/diwan/library/favorites', label: 'المفضلة الخاصة', note: 'قصائدك المحفوظة والفريدة', icon: BookMarked },
+      { path: '/diwan/bayan', label: 'البيان الإعرابي والبلاغي', note: 'محلل عروضي وصرفي عميق', icon: Sparkles },
     ],
   },
   {
