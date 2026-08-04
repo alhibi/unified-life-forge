@@ -16,6 +16,7 @@ import {
   BAYAN_SYNTAX_ROLES,
   BAYAN_RHETORIC_FIGURES
 } from "../data/bayanLinguisticDatabase";
+import { BAYAN_LARGE_VERB_CONJUGATIONS } from "../data/bayanLinguisticDatabaseLarge";
 
 // Auxiliary functions for cleaning Arabic characters
 export function removeDiacritics(text: string): string {
@@ -268,7 +269,38 @@ function analyzeMorphologyToken(token: SyntacticToken): MorphologicalToken {
     return false;
   });
 
-  if (token.partOfSpeech === "particle") {
+  // Search the massive 97,000-line database for exact morphological conjugation matching
+  let matchedParadigmKey = "";
+  let matchedTense = "";
+  let matchedEntry = null;
+
+  for (const [key, paradigm] of Object.entries(BAYAN_LARGE_VERB_CONJUGATIONS)) {
+    // Check past
+    const pastMatch = paradigm.past.find(p => p.conjugation === token.word || p.conjugation === cleanWordValue);
+    if (pastMatch) {
+      matchedParadigmKey = key;
+      matchedTense = "الماضي";
+      matchedEntry = pastMatch;
+      break;
+    }
+    // Check present
+    const presMatch = paradigm.present.find(p => p.conjugation === token.word || p.conjugation === cleanWordValue);
+    if (presMatch) {
+      matchedParadigmKey = key;
+      matchedTense = "المضارع";
+      matchedEntry = presMatch;
+      break;
+    }
+  }
+
+  if (matchedParadigmKey && matchedEntry) {
+    const paradigm = BAYAN_LARGE_VERB_CONJUGATIONS[matchedParadigmKey];
+    root = paradigm.root.split("").join(" ");
+    pattern = paradigm.pattern;
+    wordType = "verb_triliteral";
+    derivationType = `فعل ${matchedTense} مسند إلى الضمير (${matchedEntry.pronoun})`;
+    features.push(`تصريف دقيق من معجم البيان الفائق للجذر [${paradigm.root}]: ${paradigm.meaning}`);
+  } else if (token.partOfSpeech === "particle") {
     wordType = "particle";
     root = "-";
     pattern = "-";
