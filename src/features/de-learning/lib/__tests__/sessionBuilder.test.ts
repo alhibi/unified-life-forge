@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
-import { beforeAll, describe, expect, test, mock } from 'bun:test';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
 
-// Must mock supabase BEFORE api import due to top-level evaluation
-mock.module('@/integrations/supabase/client', () => {
+vi.mock('@/integrations/supabase/client', () => {
   return {
     supabase: {
       auth: {
@@ -11,7 +10,7 @@ mock.module('@/integrations/supabase/client', () => {
       },
       from: () => ({
         select: () => ({
-          limit: async () => ({ error: new Error('no table') }),
+          limit: async () => ({ error: new Error('no table'), data: null }),
         }),
       }),
     },
