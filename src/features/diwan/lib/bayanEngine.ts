@@ -10,6 +10,12 @@ import type {
   BalaghaAnalysis,
   MeterId
 } from "../types/bayan";
+import {
+  BAYAN_POETIC_METERS,
+  BAYAN_MORPHOLOGY_PATTERNS,
+  BAYAN_SYNTAX_ROLES,
+  BAYAN_RHETORIC_FIGURES
+} from "../data/bayanLinguisticDatabase";
 
 // Auxiliary functions for cleaning Arabic characters
 export function removeDiacritics(text: string): string {
@@ -61,7 +67,7 @@ function analyzeSyntacticToken(word: string, index: number, totalWords: number):
   let partOfSpeech: "noun" | "verb" | "particle" | "unknown" = "noun";
   let caseState: "nominative" | "accusative" | "genitive" | "jussive" | "none" = "none";
   let markerType: "original" | "subsidiary" | "estimated" | "local" = "original";
-  let markerDetail = "الظاهرة على آخره";
+  let markerDetail = "الضمة الظاهرة على آخره";
   let syntacticRole = "مضاف إليه مجرور";
   let explanation = "";
 
@@ -100,23 +106,27 @@ function analyzeSyntacticToken(word: string, index: number, totalWords: number):
       if (index === 0) {
         caseState = "nominative";
         syntacticRole = "مبتدأ مرفوع";
+        const rule = BAYAN_SYNTAX_ROLES.find(r => r.role === "مبتدأ مرفوع");
         markerDetail = "الضمة الظاهرة على آخره";
-        explanation = `اسم مرفوع تبدأ به الجملة الاسمية، وهو الركن الأول فيها وعامل الرفع فيه هو الابتداء.`;
+        explanation = rule ? rule.defaultExplanation : `اسم مرفوع تبدأ به الجملة الاسمية، وهو الركن الأول فيها وعامل الرفع فيه هو الابتداء.`;
       } else if (index === 1 && totalWords >= 2) {
         caseState = "nominative";
         syntacticRole = "خبر مرفوع";
+        const rule = BAYAN_SYNTAX_ROLES.find(r => r.role === "خبر مرفوع");
         markerDetail = "الضمة الظاهرة على آخره";
-        explanation = `الركن الثاني في الجملة الاسمية الذي يتمم الفائدة مع المبتدأ ويحصل به معنى تام بالتعاون معه.`;
+        explanation = rule ? rule.defaultExplanation : `الركن الثاني في الجملة الاسمية الذي يتمم الفائدة مع المبتدأ ويحصل به معنى تام بالتعاون معه.`;
       } else if (index === totalWords - 1) {
         caseState = "genitive";
         syntacticRole = "مضاف إليه مجرور";
+        const rule = BAYAN_SYNTAX_ROLES.find(r => r.role === "مضاف إليه مجرور");
         markerDetail = "الكسرة الظاهرة تحت آخره";
-        explanation = `اسم مجرور ينسب إلى اسم قبله لتعريفه أو تخصيصه، مضاف إليه مجرور وعلامة جره الكسرة الظاهرة.`;
+        explanation = rule ? rule.defaultExplanation : `اسم مجرور ينسب إلى اسم قبله لتعريفه أو تخصيصه، مضاف إليه مجرور وعلامة جره الكسرة الظاهرة.`;
       } else {
         caseState = "accusative";
         syntacticRole = "مفعول به منصوب";
+        const rule = BAYAN_SYNTAX_ROLES.find(r => r.role === "مفعول به منصوب");
         markerDetail = "الفتحة الظاهرة على آخرها";
-        explanation = `اسم منصوب يقع عليه فعل الفاعل في الجملة الفعلية بشكل مباشر أو غير مباشر.`;
+        explanation = rule ? rule.defaultExplanation : `اسم منصوب يقع عليه فعل الفاعل في الجملة الفعلية بشكل مباشر أو غير مباشر.`;
       }
     }
   }
@@ -234,7 +244,7 @@ function buildAST(tokens: SyntacticToken[]): SyntacticBranch {
 }
 
 /**
- * Heuristically identifies morphological tokens.
+ * Heuristically identifies morphological tokens using the comprehensive database rules.
  */
 function analyzeMorphologyToken(token: SyntacticToken): MorphologicalToken {
   const cleanWordValue = token.cleanWord;
@@ -244,42 +254,56 @@ function analyzeMorphologyToken(token: SyntacticToken): MorphologicalToken {
   let derivationType: string | undefined = undefined;
   const features: string[] = [];
 
+  // Match pattern from our comprehensive rule database
+  const ruleMatch = BAYAN_MORPHOLOGY_PATTERNS.find(rule => {
+    // check simple matches or root extractions
+    if (rule.type === "verb" && token.partOfSpeech === "verb") {
+      if (rule.pattern === "اسْتَفْعَلَ" && cleanWordValue.startsWith("است")) return true;
+      if (rule.pattern === "تَفَعَّلَ" && cleanWordValue.startsWith("ت") && cleanWordValue.length > 4) return true;
+    }
+    if (rule.type === "derived" && token.partOfSpeech === "noun") {
+      if (rule.pattern === "فَاعِل" && cleanWordValue.charAt(1) === "ا") return true;
+      if (rule.pattern === "مَفْعُول" && cleanWordValue.startsWith("م") && cleanWordValue.charAt(3) === "و") return true;
+    }
+    return false;
+  });
+
   if (token.partOfSpeech === "particle") {
     wordType = "particle";
     root = "-";
     pattern = "-";
-  } else if (token.partOfSpeech === "verb") {
-    wordType = "verb_triliteral";
-    // Deduce root based on simple prefixes
-    let rootCand = cleanWordValue;
-    if (rootCand.startsWith("است")) {
-      rootCand = rootCand.slice(3);
-      pattern = "اسْتَفْعَلَ";
-      features.push("مزيد بثلاثة أحرف (السين والتاء والألف)");
-    } else if (rootCand.startsWith("ت")) {
-      rootCand = rootCand.slice(1);
-      pattern = "تَفَعَّلَ";
-      features.push("مزيد بحرف التاء والتضعيف");
-    } else if (rootCand.startsWith("ي") || rootCand.startsWith("ن") || rootCand.startsWith("أ")) {
-      rootCand = rootCand.slice(1);
-      pattern = "يَفْعُلُ";
-      features.push("حرف مضارعة زائد");
-    }
-    // standard 3 letter format
-    if (rootCand.length >= 3) {
-      root = rootCand.slice(0, 3).split("").join(" ");
+  } else if (ruleMatch) {
+    pattern = ruleMatch.pattern;
+    wordType = ruleMatch.type === "verb" ? "verb_triliteral" : "noun_derived";
+    derivationType = ruleMatch.derivationType;
+    features.push(ruleMatch.meaning);
+
+    // Extract root heuristically based on pattern
+    if (pattern === "اسْتَفْعَلَ") {
+      root = cleanWordValue.slice(3, 6).split("").join(" ");
+    } else if (pattern === "تَفَعَّلَ") {
+      root = cleanWordValue.slice(1, 4).split("").join(" ");
+    } else if (pattern === "فَاعِل") {
+      root = (cleanWordValue.charAt(0) + cleanWordValue.slice(2, 4)).split("").join(" ");
+    } else if (pattern === "مَفْعُول") {
+      root = (cleanWordValue.slice(1, 3) + cleanWordValue.charAt(4)).split("").join(" ");
     } else {
-      root = cleanWordValue.split("").join(" ");
+      root = cleanWordValue.slice(0, 3).split("").join(" ");
     }
   } else {
-    // Nouns
-    if (cleanWordValue.startsWith("م") && cleanWordValue.length >= 4) {
-      wordType = "noun_derived";
-      derivationType = "اسم فاعل / مفعول";
-      pattern = "مُفْعِل / مُفْعَل";
-      const stem = cleanWordValue.slice(1);
-      root = stem.slice(0, 3).split("").join(" ");
-      features.push("ميم الزيادة في المبتدأ للمشتقات");
+    // Fallback standard classification
+    if (token.partOfSpeech === "verb") {
+      wordType = "verb_triliteral";
+      let rootCand = cleanWordValue;
+      if (rootCand.startsWith("ي") || rootCand.startsWith("ن") || rootCand.startsWith("أ")) {
+        rootCand = rootCand.slice(1);
+        pattern = "يَفْعُلُ";
+      }
+      if (rootCand.length >= 3) {
+        root = rootCand.slice(0, 3).split("").join(" ");
+      } else {
+        root = cleanWordValue.split("").join(" ");
+      }
     } else {
       wordType = "noun_solid";
       pattern = "فَعْل";
@@ -428,33 +452,27 @@ function identifyPoeticMeter(text: string): PoeticMeterAnalysis | undefined {
   const firstHem = scanHemistich(hemistiches[0] || "");
   const secondHem = scanHemistich(hemistiches[1] || "");
 
-  // Heuristic meter classification
-  let meterId: MeterId = "taweel";
-  let meterName = "البحر الطويل";
-  let keyPoem = "طويلٌ له دون البحور فضائلُ ... فعولن مفاعيلن فعولن مفاعلن";
-
+  // Heuristic meter classification from the database
   const totalSymbolsLength = firstHem.symbols.replace(/\s/g, "").length;
 
+  let matchedMeter = BAYAN_POETIC_METERS[0]; // default taweel
+  let score = 0.5;
+
   if (totalSymbolsLength >= 12 && totalSymbolsLength <= 15) {
-    meterId = "taweel";
-    meterName = "البحر الطويل";
-    keyPoem = "طويلٌ له دون البحور فضائلُ ... فعولن مفاعيلن فعولن مفاعلن";
+    matchedMeter = BAYAN_POETIC_METERS.find(m => m.id === "taweel") || matchedMeter;
+    score = 0.95;
   } else if (totalSymbolsLength >= 10 && totalSymbolsLength <= 11) {
-    meterId = "baseet";
-    meterName = "البحر البسيط";
-    keyPoem = "إن البسيط لديه يبسط الأملُ ... مستفعلن فاعلن مستفعلن فعلن";
+    matchedMeter = BAYAN_POETIC_METERS.find(m => m.id === "baseet") || matchedMeter;
+    score = 0.92;
   } else if (totalSymbolsLength >= 8 && totalSymbolsLength <= 9) {
-    meterId = "kamel";
-    meterName = "البحر الكامل";
-    keyPoem = "كمل الجمال من البحور الكاملُ ... متفاعلن متفاعلن متفاعلن";
+    matchedMeter = BAYAN_POETIC_METERS.find(m => m.id === "kamel") || matchedMeter;
+    score = 0.88;
   } else if (totalSymbolsLength >= 6 && totalSymbolsLength <= 7) {
-    meterId = "wafer";
-    meterName = "البحر الوافر";
-    keyPoem = "بحور الشعر وافرها جميلُ ... مفاعلتن مفاعلتن فعولن";
+    matchedMeter = BAYAN_POETIC_METERS.find(m => m.id === "wafer") || matchedMeter;
+    score = 0.90;
   } else {
-    meterId = "mutaqarib";
-    meterName = "البحر المتقارب";
-    keyPoem = "عن المتقارب قال الخليل ... فعولن فعولن فعولن فعولن";
+    matchedMeter = BAYAN_POETIC_METERS.find(m => m.id === "mutaqarib") || matchedMeter;
+    score = 0.85;
   }
 
   // Deduce rhyme letter
@@ -462,15 +480,15 @@ function identifyPoeticMeter(text: string): PoeticMeterAnalysis | undefined {
   const lastChar = cleanSecondText.charAt(cleanSecondText.length - 1) || "م";
 
   return {
-    meterId,
-    meterName,
-    keyPoem,
+    meterId: matchedMeter.id as MeterId,
+    meterName: matchedMeter.name,
+    keyPoem: matchedMeter.keyPoem,
     firstHemistich: firstHem,
     secondHemistich: secondHem,
     rhymeLetter: lastChar,
     rhymeType: "مطلقة (متحركة الروي)",
     isPerfectMatch: true,
-    score: 0.92,
+    score,
   };
 }
 
@@ -481,8 +499,24 @@ function analyzeRhetoric(text: string): BalaghaAnalysis {
   const cleanText = cleanString(text);
   const figures: RhetoricalFigure[] = [];
 
-  // 1. Search for stylistic elements / indicators
-  if (text.includes("كأنه") || text.includes("مثل") || text.includes("شبيه") || text.includes("كـ")) {
+  // Scans for exact custom rhetoric definitions inside the database rules
+  BAYAN_RHETORIC_FIGURES.forEach((figRule, index) => {
+    figRule.indicators.forEach(indicator => {
+      if (cleanText.includes(cleanString(indicator))) {
+        figures.push({
+          id: `rh-db-${index}-${indicator}`,
+          type: figRule.type,
+          category: figRule.category,
+          snippet: indicator,
+          description: figRule.description,
+          eloquenceWeight: 8.5,
+        });
+      }
+    });
+  });
+
+  // 1. Search for generic stylistic elements / indicators
+  if (figures.length === 0 && (text.includes("كأنه") || text.includes("مثل") || text.includes("شبيه") || text.includes("كـ"))) {
     figures.push({
       id: "rh-1",
       type: "bayan",
