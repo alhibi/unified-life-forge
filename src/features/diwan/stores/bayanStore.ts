@@ -21,7 +21,7 @@ interface BayanState {
 
 export const useBayanStore = create<BayanState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       history: [],
       activeAnalysis: null,
       bookmarkedAnalyses: {},

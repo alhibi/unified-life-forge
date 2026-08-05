@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
-import { beforeAll, describe, expect, test, mock } from 'bun:test';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+
+const mock = { module: vi.mock } as { module: typeof vi.mock };
 
 // Must mock supabase BEFORE api import due to top-level evaluation
 mock.module('@/integrations/supabase/client', () => {

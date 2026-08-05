@@ -314,7 +314,7 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
 // ─── Token Generation ───────────────────────────────────────
 export function generateThemeTokens(
   preset: ThemePreset,
-  style: ThemeStyle,
+  _style: ThemeStyle,
   isDark: boolean,
   isBlack: boolean,
   _lift: SurfaceLift = 'subtle'

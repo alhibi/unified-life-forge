@@ -43,15 +43,15 @@ export const DEFAULT_FONT_ID: FontId = 'ibm-plex';
 export const DEFAULT_DISPLAY_FONT_ID: FontId = 'ibm-plex';
 
 /** Coerce any stored value to the unified Inter Display font id. */
-export function resolveFontId(value: string | null | undefined): FontId {
+export function resolveFontId(_value: string | null | undefined): FontId {
   return 'ibm-plex';
 }
 
-export function fontStackFor(value: string | null | undefined): string {
+export function fontStackFor(_value: string | null | undefined): string {
   return INTER_DISPLAY_STACK;
 }
 
-export function fontOptionFor(value: string | null | undefined): FontOption {
+export function fontOptionFor(_value: string | null | undefined): FontOption {
   return FONT_OPTIONS[0];
 }
 
@@ -75,7 +75,7 @@ export const FONT_PAIRINGS: readonly FontPairing[] = [
   },
 ] as const;
 
-export function matchPairing(display: string, body: string): string | null {
+export function matchPairing(_display: string, _body: string): string | null {
   return 'unified';
 }
 
