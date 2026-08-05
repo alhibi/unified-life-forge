@@ -148,23 +148,19 @@
   font-size: var(--fs-micro);
   line-height: calc(var(--fs-micro) * var(--type-leading));
   letter-spacing: 0.005em;
-  opacity: 0.65;
 }
 @utility text-mini {
   font-size: var(--fs-mini);
   line-height: calc(var(--fs-mini) * var(--type-leading));
   letter-spacing: 0.003em;
-  opacity: 0.65;
 }
 @utility text-meta {
   font-size: var(--fs-meta);
   line-height: calc(var(--fs-meta) * var(--type-leading));
-  opacity: 0.65;
 }
 @utility text-body {
   font-size: var(--fs-body);
   line-height: calc(var(--fs-body) * var(--type-leading));
-  opacity: 0.88;
 }
 @utility text-lead {
   font-size: var(--fs-lead);
