@@ -87,6 +87,28 @@ function hexToHslString(hex: string): string {
   return hslToString(hexToHsl(hex));
 }
 
+/**
+ * Flatten an "ink over background" translucency into a SOLID hsl triple.
+ *
+ * Tokens like `--border` are consumed downstream as `hsl(var(--border) / 0.72)`,
+ * so they must never carry their own alpha — `hsl(h s% l% / 0.1 / 0.72)` is
+ * invalid CSS and the whole declaration gets dropped (borders, dividers and
+ * modal scrims vanish). We therefore pre-mix the alpha into a solid colour.
+ */
+function mixHsl(fg: Hsl, bg: Hsl, amount: number): Hsl {
+  const fgHex = hslToHex(fg);
+  const bgHex = hslToHex(bg);
+  const chan = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
+  const blend = (i: number) =>
+    Math.round(chan(fgHex, i) * amount + chan(bgHex, i) * (1 - amount));
+  const hex = `#${[0, 1, 2].map((i) => blend(i).toString(16).padStart(2, '0')).join('')}`;
+  return hexToHsl(hex);
+}
+
+function solid(fg: Hsl, bg: Hsl, amount: number): string {
+  return hslToString(mixHsl(fg, bg, amount));
+}
+
 // Convert Hsl array to hex string
 function hslToHex([h, s, l]: Hsl): string {
   const sFrac = s / 100;
