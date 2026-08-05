@@ -458,6 +458,7 @@ function scanHemistich(text: string): { text: string; scansionText: string; symb
   });
 
   return {
+    text,
     scansionText,
     symbols,
     tafilas,
