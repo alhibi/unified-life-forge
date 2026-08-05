@@ -367,7 +367,7 @@ function analyzeMorphologyToken(token: SyntacticToken): MorphologicalToken {
 /**
  * Syllabic Prosody (Arood) Scansion Heuristic Engine
  */
-function scanHemistich(text: string): { scansionText: string; symbols: string; tafilas: TafilaBlock[] } {
+function scanHemistich(text: string): { text: string; scansionText: string; symbols: string; tafilas: TafilaBlock[] } {
   const clean = cleanString(text);
   const words = clean.split(/\s+/);
 
@@ -458,6 +458,7 @@ function scanHemistich(text: string): { scansionText: string; symbols: string; t
   });
 
   return {
+    text,
     scansionText,
     symbols,
     tafilas,

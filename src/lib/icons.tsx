@@ -45,17 +45,17 @@ const STORAGE_KEY = 'app-icon-set';
 const VALID: readonly IconSet[] = ['phosphor', 'lucide', 'tabler', 'hugeicons'];
 
 function readStored(): IconSet {
-  if (typeof window === 'undefined') return 'hugeicons';
+  if (typeof window === 'undefined') return 'phosphor';
   try {
     const v = window.localStorage.getItem(STORAGE_KEY);
-    return (VALID as readonly string[]).includes(v ?? '') ? (v as IconSet) : 'hugeicons';
+    return (VALID as readonly string[]).includes(v ?? '') ? (v as IconSet) : 'phosphor';
   } catch {
-    return 'hugeicons';
+    return 'phosphor';
   }
 }
 
 const CHANGE_EVENT = 'app-icon-set:change';
-const IconSetContext = createContext<IconSet>('hugeicons');
+const IconSetContext = createContext<IconSet>('phosphor');
 
 export function useIconSet(): IconSet {
   return useContext(IconSetContext);
@@ -189,7 +189,19 @@ const TablerLib = TablerMod as unknown as Record<
 
 function pickComponent(set: IconSet, names: Names) {
   if (set === 'hugeicons') {
-    return HugeLib[names.h] ?? LucideLib[names.l] ?? LucideLib[names.p] ?? PhosLib[names.p];
+    // Many icons declare `h: 'SearchIcon'` as a placeholder — a magnifying
+    // glass is wrong for anything that isn't actually a search glyph, so skip
+    // it and fall back to a correct shape from another library.
+    const hugeName =
+      names.h === 'SearchIcon' && names.l !== 'Search' ? undefined : names.h;
+    return (
+      (hugeName ? HugeLib[hugeName] : undefined) ??
+      HugeLib[names.l + 'Icon'] ??
+      HugeLib[names.l] ??
+      LucideLib[names.l] ??
+      LucideLib[names.p] ??
+      PhosLib[names.p]
+    );
   }
 
   if (set === 'lucide') {

@@ -59,6 +59,12 @@ const PRESETS: readonly Preset[] = [
     subtitle: 'مميز',
     personality: 'خطوط حرة ومعبِّرة',
   },
+  {
+    id: 'hugeicons',
+    name: 'هيوج',
+    subtitle: 'عصري',
+    personality: 'متوازن وحديث',
+  },
 ];
 
 /** Small gallery of representative glyphs so the difference is immediate. */

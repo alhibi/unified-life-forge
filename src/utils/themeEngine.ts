@@ -87,6 +87,28 @@ function hexToHslString(hex: string): string {
   return hslToString(hexToHsl(hex));
 }
 
+/**
+ * Flatten an "ink over background" translucency into a SOLID hsl triple.
+ *
+ * Tokens like `--border` are consumed downstream as `hsl(var(--border) / 0.72)`,
+ * so they must never carry their own alpha — `hsl(h s% l% / 0.1 / 0.72)` is
+ * invalid CSS and the whole declaration gets dropped (borders, dividers and
+ * modal scrims vanish). We therefore pre-mix the alpha into a solid colour.
+ */
+function mixHsl(fg: Hsl, bg: Hsl, amount: number): Hsl {
+  const fgHex = hslToHex(fg);
+  const bgHex = hslToHex(bg);
+  const chan = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
+  const blend = (i: number) =>
+    Math.round(chan(fgHex, i) * amount + chan(bgHex, i) * (1 - amount));
+  const hex = `#${[0, 1, 2].map((i) => blend(i).toString(16).padStart(2, '0')).join('')}`;
+  return hexToHsl(hex);
+}
+
+function solid(fg: Hsl, bg: Hsl, amount: number): string {
+  return hslToString(mixHsl(fg, bg, amount));
+}
+
 // Convert Hsl array to hex string
 function hslToHex([h, s, l]: Hsl): string {
   const sFrac = s / 100;
@@ -314,7 +336,7 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
 // ─── Token Generation ───────────────────────────────────────
 export function generateThemeTokens(
   preset: ThemePreset,
-  style: ThemeStyle,
+  _style: ThemeStyle,
   isDark: boolean,
   isBlack: boolean,
   _lift: SurfaceLift = 'subtle'
@@ -337,17 +359,18 @@ export function generateThemeTokens(
   const inkStr = hslToString(inkHsl);
   const accStr = hslToString(accHsl);
 
-  // Derive secondary/tertiary/disabled/hover/pressed states as opacity variants of the 4 roles ONLY.
-  // Using the exact schema specified in §1 and §3.
-  const borderStr = `${hslToString(inkHsl)} / 0.1`;       // ink @ 10% opacity
-  const inputStr = `${hslToString(inkHsl)} / 0.15`;       // ink @ 15% opacity
-  const secondaryStr = `${hslToString(inkHsl)} / 0.1`;   // ink @ 10% opacity (neutral recess/background)
-  const secondaryFgStr = `${hslToString(inkHsl)} / 0.85`; // ink @ 85% opacity
-  const mutedStr = `${hslToString(inkHsl)} / 0.08`;       // ink @ 8% opacity
-  const mutedFgStr = `${hslToString(inkHsl)} / 0.7`;       // ink @ 70% opacity (secondary text)
-  const disabledStr = `${hslToString(inkHsl)} / 0.4`;    // ink @ 40% opacity (disabled state)
+  // Derive secondary/tertiary/disabled/hover/pressed states from the 4 roles ONLY.
+  // Each one is pre-mixed into a SOLID triple so downstream CSS can safely
+  // compose its own alpha, e.g. `hsl(var(--border) / 0.72)`.
+  const borderStr = solid(inkHsl, bgHsl, 0.16);        // ink over bg, subtle line
+  const inputStr = solid(inkHsl, bgHsl, 0.24);         // ink over bg, stronger line
+  const secondaryStr = solid(inkHsl, bgHsl, 0.1);      // neutral recess/background
+  const secondaryFgStr = solid(inkHsl, bgHsl, 0.85);   // near-ink text
+  const mutedStr = solid(inkHsl, bgHsl, 0.08);
+  const mutedFgStr = solid(inkHsl, bgHsl, 0.62);       // secondary text
+  const disabledStr = solid(inkHsl, bgHsl, 0.4);       // disabled state
 
-  const accentHighlightStr = `${hslToString(accHsl)} / 0.12`; // accent @ 12% opacity (subtle highlight)
+  const accentHighlightStr = solid(accHsl, bgHsl, 0.12); // subtle accent wash
 
   // Primary Foreground is ink (high contrast text) in light, and bg in dark mode.
   const primaryFgStr = isDark ? bgStr : inkStr;
@@ -362,7 +385,7 @@ export function generateThemeTokens(
   // Re-generate standard scale mapping for backward compatibility
   const scaleVars: Record<string, string> = {
     '--theme-ink': inkStr,
-    '--scrim': `${hslToString(isDark ? [0, 0, 5] : [0, 0, 15])} / 0.6`,
+    '--scrim': hslToString(isDark ? [0, 0, 5] : [0, 0, 8]),
   };
 
   SCALE_STEPS.forEach((name, i) => {
@@ -412,7 +435,7 @@ export function generateThemeTokens(
     '--sidebar-ring': accStr,
     // Live active states
     '--live': accStr,
-    '--live-soft': `${hslToString(accHsl)} / 0.16`,
+    '--live-soft': solid(accHsl, bgHsl, 0.16),
     '--live-glow': accStr,
     // Extra elements
     '--card-shadow': cardShadow,

@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-animate";
+
+/* Tailwind v4 defaults `dark:` to prefers-color-scheme. The app drives theming
+   by toggling `.dark` on <html>, so restore class-based dark mode. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-display: var(--font-display);
@@ -142,23 +148,19 @@
   font-size: var(--fs-micro);
   line-height: calc(var(--fs-micro) * var(--type-leading));
   letter-spacing: 0.005em;
-  opacity: 0.65;
 }
 @utility text-mini {
   font-size: var(--fs-mini);
   line-height: calc(var(--fs-mini) * var(--type-leading));
   letter-spacing: 0.003em;
-  opacity: 0.65;
 }
 @utility text-meta {
   font-size: var(--fs-meta);
   line-height: calc(var(--fs-meta) * var(--type-leading));
-  opacity: 0.65;
 }
 @utility text-body {
   font-size: var(--fs-body);
   line-height: calc(var(--fs-body) * var(--type-leading));
-  opacity: 0.88;
 }
 @utility text-lead {
   font-size: var(--fs-lead);
@@ -2721,4 +2723,38 @@ input.podcast-seek:active::-moz-range-thumb {
   font-size: var(--fs-micro);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+
+/* ── Core keyframes referenced by the `--animate-*` theme tokens ──────────
+   These were previously declared in tailwind.config.ts (removed during the
+   Tailwind v4 migration). Without them `animate-fade-in`, `animate-slide-up`,
+   `animate-scale-in`, `animate-accordion-*` and `animate-collapse-*`
+   resolved to non-existent animations and nothing moved. */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(calc(12px * var(--motion-amp, 1))); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes accordion-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
+}
+@keyframes collapse-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-collapsible-content-height); opacity: 1; }
+}
+@keyframes collapse-up {
+  from { height: var(--radix-collapsible-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
 }
