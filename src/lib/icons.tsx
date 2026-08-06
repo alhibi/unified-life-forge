@@ -19,9 +19,6 @@
  */
 import * as PhosMod from '@phosphor-icons/react';
 import { type Icon as PhosphorIcon, IconContext, type IconProps } from '@phosphor-icons/react';
-import * as TablerMod from '@tabler/icons-react';
-import * as HugeMod from 'hugeicons-react';
-import * as LucideMod from 'lucide-react';
 import {
   createContext,
   type FC,
