@@ -170,18 +170,54 @@ const TABLER_NAME_FALLBACKS: Partial<Record<string, readonly string[]>> = {
 };
 
 const PhosLib = PhosMod as unknown as Record<string, PhosphorIcon | undefined>;
-const LucideLib = LucideMod as unknown as Record<
-  string,
-  FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined
->;
-const HugeLib = HugeMod as unknown as Record<
-  string,
-  FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined
->;
-const TablerLib = TablerMod as unknown as Record<
-  string,
-  FC<SVGProps<SVGSVGElement> & { stroke?: number }> | undefined
->;
+
+/**
+ * The three alternate libraries used to be static namespace imports. Together
+ * they weigh ~11 MB of JavaScript, and because this module is imported by the
+ * app shell they landed in the ENTRY chunk — every first paint downloaded and
+ * parsed all four icon libraries, which blanked the app on mobile (the tab is
+ * killed before React ever mounts).
+ *
+ * They are now loaded on demand: phosphor (the default, and the fallback for
+ * any missing glyph) stays static, and the selected alternate library is
+ * fetched once, cached here, and announced so mounted icons re-render.
+ */
+type StrokeLib = Record<string, FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined>;
+type TablerLibType = Record<string, FC<SVGProps<SVGSVGElement> & { stroke?: number }> | undefined>;
+
+const EMPTY: StrokeLib = {};
+let LucideLib: StrokeLib = EMPTY;
+let HugeLib: StrokeLib = EMPTY;
+let TablerLib: TablerLibType = EMPTY;
+
+const LOADED_EVENT = 'app-icon-set:loaded';
+const loading = new Set<IconSet>();
+
+/** Fetch the module backing `set` (no-op for phosphor / already loaded). */
+export function loadIconSet(set: IconSet): void {
+  if (set === 'phosphor' || loading.has(set)) return;
+  loading.add(set);
+  const done = () => window.dispatchEvent(new CustomEvent(LOADED_EVENT));
+  if (set === 'lucide') {
+    void import('lucide-react').then((m) => {
+      LucideLib = m as unknown as StrokeLib;
+      done();
+    });
+  } else if (set === 'tabler') {
+    void import('@tabler/icons-react').then((m) => {
+      TablerLib = m as unknown as TablerLibType;
+      done();
+    });
+    // Tabler falls back to lucide names for awkward glyphs.
+    loadIconSet('lucide');
+  } else if (set === 'hugeicons') {
+    void import('hugeicons-react').then((m) => {
+      HugeLib = m as unknown as StrokeLib;
+      done();
+    });
+    loadIconSet('lucide');
+  }
+}
 
 
 function pickComponent(set: IconSet, names: Names) {
