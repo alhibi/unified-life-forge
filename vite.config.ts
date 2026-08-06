@@ -19,6 +19,12 @@ export default defineConfig(({ mode }) => ({
     target: 'es2020',
     cssCodeSplit: true,
     minify: 'esbuild',
+    // The alternate icon libraries are only fetched when the user actually
+    // selects one. Preloading them would download ~8 MB on first paint, which
+    // is exactly what used to blank the app on mobile.
+    modulePreload: {
+      resolveDependencies: (_url, deps) => deps.filter((dep) => !dep.includes('icons-alt')),
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
