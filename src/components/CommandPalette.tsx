@@ -16,7 +16,7 @@ import {
   Sparkles,
   Sun,
   Wifi,
-} from 'lucide-react';
+} from '@/lib/icons';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

@@ -1,4 +1,4 @@
-import { Layout, X } from 'lucide-react';
+import { Layout, X } from '@/lib/icons';
 import type { ReactNode } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
