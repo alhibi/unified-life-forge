@@ -53,6 +53,8 @@ function readStored(): IconSet {
 
 const CHANGE_EVENT = 'app-icon-set:change';
 const IconSetContext = createContext<IconSet>('phosphor');
+/** Bumped whenever a lazily-loaded icon library finishes downloading. */
+const IconLibVersionContext = createContext(0);
 
 export function useIconSet(): IconSet {
   return useContext(IconSetContext);
@@ -278,6 +280,8 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
   ref,
 ) {
   const set = useIconSet();
+  // Subscribing keeps every icon in sync with the on-demand library load.
+  useContext(IconLibVersionContext);
   const Comp = pickComponent(set, names);
   if (!Comp) return null;
 
