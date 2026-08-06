@@ -340,6 +340,19 @@ export function IconProvider({ children }: { children: ReactNode }) {
     interactionStyle === 'lively' ? 'bold' : ICON_WEIGHT;
 
   const [set, setSet] = useState<IconSet>(() => readStored());
+  const [libVersion, setLibVersion] = useState(0);
+
+  // Pull in the selected library after first paint; phosphor renders in the
+  // meantime so nothing is ever missing on screen.
+  useEffect(() => {
+    loadIconSet(set);
+  }, [set]);
+
+  useEffect(() => {
+    const onLoaded = () => setLibVersion((v) => v + 1);
+    window.addEventListener(LOADED_EVENT, onLoaded);
+    return () => window.removeEventListener(LOADED_EVENT, onLoaded);
+  }, []);
 
   useEffect(() => {
     const handler = (event: Event) => {
@@ -361,7 +374,9 @@ export function IconProvider({ children }: { children: ReactNode }) {
 
   return (
     <IconContext.Provider value={{ weight, size: ICON_DEFAULT_SIZE, color: 'currentColor' }}>
-      <IconSetContext.Provider value={set}>{children}</IconSetContext.Provider>
+      <IconLibVersionContext.Provider value={libVersion}>
+        <IconSetContext.Provider value={set}>{children}</IconSetContext.Provider>
+      </IconLibVersionContext.Provider>
     </IconContext.Provider>
   );
 }
