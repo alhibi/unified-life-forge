@@ -19,9 +19,6 @@
  */
 import * as PhosMod from '@phosphor-icons/react';
 import { type Icon as PhosphorIcon, IconContext, type IconProps } from '@phosphor-icons/react';
-import * as TablerMod from '@tabler/icons-react';
-import * as HugeMod from 'hugeicons-react';
-import * as LucideMod from 'lucide-react';
 import {
   createContext,
   type FC,
@@ -56,6 +53,8 @@ function readStored(): IconSet {
 
 const CHANGE_EVENT = 'app-icon-set:change';
 const IconSetContext = createContext<IconSet>('phosphor');
+/** Bumped whenever a lazily-loaded icon library finishes downloading. */
+const IconLibVersionContext = createContext(0);
 
 export function useIconSet(): IconSet {
   return useContext(IconSetContext);
@@ -173,18 +172,54 @@ const TABLER_NAME_FALLBACKS: Partial<Record<string, readonly string[]>> = {
 };
 
 const PhosLib = PhosMod as unknown as Record<string, PhosphorIcon | undefined>;
-const LucideLib = LucideMod as unknown as Record<
-  string,
-  FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined
->;
-const HugeLib = HugeMod as unknown as Record<
-  string,
-  FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined
->;
-const TablerLib = TablerMod as unknown as Record<
-  string,
-  FC<SVGProps<SVGSVGElement> & { stroke?: number }> | undefined
->;
+
+/**
+ * The three alternate libraries used to be static namespace imports. Together
+ * they weigh ~11 MB of JavaScript, and because this module is imported by the
+ * app shell they landed in the ENTRY chunk — every first paint downloaded and
+ * parsed all four icon libraries, which blanked the app on mobile (the tab is
+ * killed before React ever mounts).
+ *
+ * They are now loaded on demand: phosphor (the default, and the fallback for
+ * any missing glyph) stays static, and the selected alternate library is
+ * fetched once, cached here, and announced so mounted icons re-render.
+ */
+type StrokeLib = Record<string, FC<SVGProps<SVGSVGElement> & { strokeWidth?: number }> | undefined>;
+type TablerLibType = Record<string, FC<SVGProps<SVGSVGElement> & { stroke?: number }> | undefined>;
+
+const EMPTY: StrokeLib = {};
+let LucideLib: StrokeLib = EMPTY;
+let HugeLib: StrokeLib = EMPTY;
+let TablerLib: TablerLibType = {};
+
+const LOADED_EVENT = 'app-icon-set:loaded';
+const loading = new Set<IconSet>();
+
+/** Fetch the module backing `set` (no-op for phosphor / already loaded). */
+export function loadIconSet(set: IconSet): void {
+  if (set === 'phosphor' || loading.has(set)) return;
+  loading.add(set);
+  const done = () => window.dispatchEvent(new CustomEvent(LOADED_EVENT));
+  if (set === 'lucide') {
+    void import('lucide-react').then((m) => {
+      LucideLib = m as unknown as StrokeLib;
+      done();
+    });
+  } else if (set === 'tabler') {
+    void import('@tabler/icons-react').then((m) => {
+      TablerLib = m as unknown as TablerLibType;
+      done();
+    });
+    // Tabler falls back to lucide names for awkward glyphs.
+    loadIconSet('lucide');
+  } else if (set === 'hugeicons') {
+    void import('hugeicons-react').then((m) => {
+      HugeLib = m as unknown as StrokeLib;
+      done();
+    });
+    loadIconSet('lucide');
+  }
+}
 
 
 function pickComponent(set: IconSet, names: Names) {
@@ -245,6 +280,8 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
   ref,
 ) {
   const set = useIconSet();
+  // Subscribing keeps every icon in sync with the on-demand library load.
+  useContext(IconLibVersionContext);
   const Comp = pickComponent(set, names);
   if (!Comp) return null;
 
@@ -303,6 +340,19 @@ export function IconProvider({ children }: { children: ReactNode }) {
     interactionStyle === 'lively' ? 'bold' : ICON_WEIGHT;
 
   const [set, setSet] = useState<IconSet>(() => readStored());
+  const [libVersion, setLibVersion] = useState(0);
+
+  // Pull in the selected library after first paint; phosphor renders in the
+  // meantime so nothing is ever missing on screen.
+  useEffect(() => {
+    loadIconSet(set);
+  }, [set]);
+
+  useEffect(() => {
+    const onLoaded = () => setLibVersion((v) => v + 1);
+    window.addEventListener(LOADED_EVENT, onLoaded);
+    return () => window.removeEventListener(LOADED_EVENT, onLoaded);
+  }, []);
 
   useEffect(() => {
     const handler = (event: Event) => {
@@ -324,7 +374,9 @@ export function IconProvider({ children }: { children: ReactNode }) {
 
   return (
     <IconContext.Provider value={{ weight, size: ICON_DEFAULT_SIZE, color: 'currentColor' }}>
-      <IconSetContext.Provider value={set}>{children}</IconSetContext.Provider>
+      <IconLibVersionContext.Provider value={libVersion}>
+        <IconSetContext.Provider value={set}>{children}</IconSetContext.Provider>
+      </IconLibVersionContext.Provider>
     </IconContext.Provider>
   );
 }

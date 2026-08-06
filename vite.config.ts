@@ -19,12 +19,31 @@ export default defineConfig(({ mode }) => ({
     target: 'es2020',
     cssCodeSplit: true,
     minify: 'esbuild',
+    // The alternate icon libraries are only fetched when the user actually
+    // selects one. Preloading them would download ~8 MB on first paint, which
+    // is exactly what used to blank the app on mobile.
+    modulePreload: {
+      resolveDependencies: (_url, deps) => deps.filter((dep) => !dep.includes('icons-alt')),
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react/') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            // Match package roots, not any path that happens to contain
+            // "react/" — `@phosphor-icons/react/...` used to land here and
+            // dragged whole icon libraries into the entry chunk.
+            if (
+              /node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//.test(id)
+            ) {
               return 'vendor';
+            }
+            if (
+              id.includes('lucide-react') ||
+              id.includes('@tabler/icons-react') ||
+              id.includes('hugeicons-react')
+            ) {
+              // One chunk per alternate icon library, loaded on demand.
+              return 'icons-alt';
             }
             if (id.includes('framer-motion')) {
               return 'motion';

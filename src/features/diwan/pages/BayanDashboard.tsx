@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, BookOpen, Layers, Sparkles, Hash, History, Bookmark, BookmarkCheck, Search } from "lucide-react";
+import { ArrowLeft, BookOpen, Layers, Sparkles, Hash, History, Bookmark, BookmarkCheck, Search } from '@/lib/icons';
 import { Link } from "react-router-dom";
 import { useBayanStore } from "../stores/bayanStore";
 import { SyntaxTreeVisualizer } from "../components/bayan/SyntaxTreeVisualizer";

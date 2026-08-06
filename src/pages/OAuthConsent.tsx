@@ -1,4 +1,4 @@
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck } from '@/lib/icons';
 import { useEffect, useState } from "react";
 import { useNavigate,useSearchParams } from "react-router-dom";
 

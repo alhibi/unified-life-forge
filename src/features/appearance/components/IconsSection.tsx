@@ -13,6 +13,7 @@ import {
   type IconComponent,
   type IconSet,
   IconSetOverride,
+  loadIconSet,
   MapPin,
   MessageCircle,
   readIconSet,
@@ -78,6 +79,12 @@ export default function IconsSection() {
 
   useEffect(() => {
     setActive(readIconSet());
+  }, []);
+
+  // The previews render every library at once, so make sure each one is
+  // fetched (they are lazily loaded to keep the app's first paint light).
+  useEffect(() => {
+    PRESETS.forEach((preset) => loadIconSet(preset.id));
   }, []);
 
   const handlePick = (id: IconSet) => {
