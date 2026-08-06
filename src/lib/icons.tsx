@@ -188,7 +188,7 @@ type TablerLibType = Record<string, FC<SVGProps<SVGSVGElement> & { stroke?: numb
 const EMPTY: StrokeLib = {};
 let LucideLib: StrokeLib = EMPTY;
 let HugeLib: StrokeLib = EMPTY;
-let TablerLib: TablerLibType = EMPTY;
+let TablerLib: TablerLibType = {};
 
 const LOADED_EVENT = 'app-icon-set:loaded';
 const loading = new Set<IconSet>();
