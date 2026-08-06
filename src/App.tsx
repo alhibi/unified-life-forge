@@ -206,6 +206,7 @@ const loadOAuthConsent = () => import("./pages/OAuthConsent");
 // app reached from the portal grid.
 const loadNow = () => import("./features/now/pages/Now");
 const loadDeLearning = () => import("./features/de-learning/pages/GermanHome");
+const loadCrypto = () => import("./features/crypto/pages/CryptoWatchlist");
 
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -280,8 +281,10 @@ registerRoute('/now',            loadNow);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
 registerRoute('/de-learning',     loadDeLearning);
+registerRoute('/crypto',          loadCrypto);
 
 const DeLearningPage = lazy(loadDeLearning);
+const CryptoWatchlistPage = lazy(loadCrypto);
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
@@ -720,6 +723,8 @@ function AnimatedRoutes() {
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
                   <Route path="/now"           element={<ErrorBoundary><NowPage /></ErrorBoundary>} />
                   <Route path="/de-learning"   element={<ErrorBoundary><DeLearningPage /></ErrorBoundary>} />
+                  <Route path="/crypto"        element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
+                  <Route path="/crypto/"       element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
                   {/* OAuth consent for external clients (MCP / Agent integrations). */}
                   <Route path="/.lovable/oauth/consent" element={<ErrorBoundary><OAuthConsentPage /></ErrorBoundary>} />
                   <Route path="*" element={<ErrorBoundary><NotFound /></ErrorBoundary>} />

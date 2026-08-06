@@ -309,6 +309,19 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     ],
   },
   {
+    key: 'crypto',
+    path: '/crypto',
+    label: 'مراقب العملات',
+    caption: 'CRYPTO',
+    description: 'متابعة أسعار العملات الرقمية والسيولة والتحليلات الحية من DEX Screener',
+    cat: 'play',
+    icon: Activity,
+    keywords: 'crypto dexscreener coin prices token trading مراقب عملات رقمية أسعار سيولة تداول بيتكوين',
+    links: [
+      { path: '/crypto', label: 'أسعار العملات', note: 'متابعة الأسعار والسيولة الفورية', icon: Activity },
+    ],
+  },
+  {
     key: 'de-learning',
     path: '/de-learning',
     label: 'ديوان الألمانية',
