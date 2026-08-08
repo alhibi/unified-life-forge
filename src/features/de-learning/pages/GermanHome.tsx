@@ -428,7 +428,7 @@ export const GermanHome: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`py-2 px-1 text-center rounded-lg font-tajawal text-[10px] md:text-xs font-bold transition-all duration-300 ${
+                  className={`py-2 px-1 text-center rounded-lg font-tajawal text-[0.625rem] md:text-xs font-bold transition-all duration-300 ${
                     isActive
                       ? 'bg-card text-[hsl(var(--live))] shadow-sm border border-border/50'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
@@ -444,7 +444,7 @@ export const GermanHome: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2 justify-end">
               <span className="h-px flex-1 bg-border/40" />
-              <span className="font-tajawal text-[10px] text-muted-foreground font-bold uppercase tracking-widest bg-secondary/30 px-2 py-0.5 rounded border border-border/35">
+              <span className="font-tajawal text-[0.625rem] text-muted-foreground font-bold uppercase tracking-widest bg-secondary/30 px-2 py-0.5 rounded border border-border/35">
                 الأدوات اللغوية المنهجية المتقدمة
               </span>
             </div>
@@ -460,7 +460,7 @@ export const GermanHome: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`py-2 text-center rounded-lg font-tajawal text-[10px] md:text-mini font-bold transition-all duration-300 ${
+                    className={`py-2 text-center rounded-lg font-tajawal text-[0.625rem] md:text-mini font-bold transition-all duration-300 ${
                       isActive
                         ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border border-[hsl(var(--live))]/30 shadow-sm'
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
@@ -745,7 +745,7 @@ export const GermanHome: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث بالألمانية أو العربية..."
-                    className="w-full pl-8 pr-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
+                    className="w-full ps-8 pe-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
                     dir="rtl"
                   />
                   <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -899,7 +899,7 @@ export const GermanHome: React.FC = () => {
                     <div className="grid grid-cols-1 gap-2">
                       {analyzerResult.words.map((item, index) => (
                         <div key={index} className="p-3 rounded-xl bg-background border border-border/40 flex items-center justify-between">
-                          <span className="font-tajawal text-mini text-muted-foreground max-w-[180px] text-left">{item.analysis}</span>
+                          <span className="font-tajawal text-mini text-muted-foreground max-w-[180px] text-start">{item.analysis}</span>
                           <div className="text-end">
                             <span className="block font-plex-mono text-sm font-bold text-foreground" dir="ltr">{item.word}</span>
                             <span className="block font-tajawal text-mini text-[hsl(var(--live))]/80">{item.pos}</span>
@@ -1000,8 +1000,8 @@ export const GermanHome: React.FC = () => {
                             key={index}
                             className={`p-3.5 rounded-xl border flex flex-col gap-1.5 ${
                               turn.speaker.includes('Du')
-                                ? 'bg-[hsl(var(--live))]/5 border-[hsl(var(--live))]/20 items-end text-right'
-                                : 'bg-secondary/40 border-border/30 items-start text-left'
+                                ? 'bg-[hsl(var(--live))]/5 border-[hsl(var(--live))]/20 items-end text-end'
+                                : 'bg-secondary/40 border-border/30 items-start text-start'
                             }`}
                           >
                             <span className="text-micro font-bold text-muted-foreground uppercase">{turn.speaker}</span>
@@ -1212,7 +1212,7 @@ export const GermanHome: React.FC = () => {
                       value={genderSuffixQuery}
                       onChange={(e) => setGenderSuffixQuery(e.target.value)}
                       placeholder="ابحث عن لاحقة معينة (مثال: ung)..."
-                      className="w-full pl-8 pr-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
+                      className="w-full ps-8 pe-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
                       dir="rtl"
                     />
                     <Search className="absolute left-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
