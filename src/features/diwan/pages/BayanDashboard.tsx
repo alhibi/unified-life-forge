@@ -78,7 +78,7 @@ export default function BayanDashboard() {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider bg-live/15 text-live px-2.5 py-0.5 rounded-full font-bold">
+                <span className="text-[0.625rem] uppercase font-mono tracking-wider bg-live/15 text-live px-2.5 py-0.5 rounded-full font-bold">
                   محرك العلوم العميقة
                 </span>
                 <h1 className="text-2xl md:text-3xl font-bold font-amiri tracking-tight mt-1">
@@ -166,7 +166,7 @@ export default function BayanDashboard() {
                     <button
                       key={past.id}
                       onClick={() => loadPastAnalysis(past)}
-                      className={`w-full p-2.5 rounded-lg border text-right transition-all flex flex-col gap-1 ${
+                      className={`w-full p-2.5 rounded-lg border text-end transition-all flex flex-col gap-1 ${
                         activeAnalysis?.id === past.id
                           ? "bg-live/5 border-live"
                           : "bg-surface hover:bg-background border-border/50"
@@ -175,7 +175,7 @@ export default function BayanDashboard() {
                       <span className="text-xs font-semibold text-foreground font-amiri truncate max-w-full">
                         {past.inputText}
                       </span>
-                      <span className="text-[9px] font-mono text-muted-foreground">
+                      <span className="text-[0.625rem] font-mono text-muted-foreground">
                         {new Date(past.analyzedAt).toLocaleTimeString("ar-EG")}
                       </span>
                     </button>
@@ -263,7 +263,7 @@ export default function BayanDashboard() {
                   {activeTab === "syntax" && (
                     <div className="space-y-6">
                       <div className="p-4 rounded-xl border border-border/40 bg-surface/20">
-                        <span className="text-[10px] text-muted-foreground block font-mono">نوع الجملة الرئيسية</span>
+                        <span className="text-[0.625rem] text-muted-foreground block font-mono">نوع الجملة الرئيسية</span>
                         <span className="text-base font-bold font-amiri text-foreground mt-1 block">
                           {activeAnalysis.syntax.sentenceType === "verbal" ? "جملة فعلية كبرى" : "جملة اسمية كبرى"}
                         </span>
@@ -282,14 +282,14 @@ export default function BayanDashboard() {
                             <div key={idx} className="p-3.5 rounded-xl border border-border bg-surface flex flex-col justify-between">
                               <div className="flex justify-between items-start gap-2 border-b border-border/30 pb-2 mb-2">
                                 <span className="text-base font-bold text-foreground font-amiri">«{token.word}»</span>
-                                <span className="text-[9px] font-mono bg-live/15 text-live px-2 py-0.5 rounded-full font-bold">
+                                <span className="text-[0.625rem] font-mono bg-live/15 text-live px-2 py-0.5 rounded-full font-bold">
                                   {token.syntacticRole}
                                 </span>
                               </div>
                               <p className="text-xs text-muted-foreground font-amiri leading-relaxed">
                                 {token.explanation}
                               </p>
-                              <span className="text-[10px] text-live mt-2 font-mono">
+                              <span className="text-[0.625rem] text-live mt-2 font-mono">
                                 العلامة: {token.markerDetail}
                               </span>
                             </div>
@@ -307,28 +307,28 @@ export default function BayanDashboard() {
                           <div key={idx} className="p-4 rounded-xl border border-border bg-surface space-y-2">
                             <div className="flex justify-between items-center border-b border-border/30 pb-2 mb-2">
                               <span className="text-base font-bold text-foreground font-amiri">{t.word}</span>
-                              <span className="text-[10px] bg-live/10 text-live px-2 py-0.5 rounded-md font-mono">
+                              <span className="text-[0.625rem] bg-live/10 text-live px-2 py-0.5 rounded-md font-mono">
                                 {t.pattern}
                               </span>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               <div>
-                                <span className="text-muted-foreground block text-[9px]">الجذر اللغوي</span>
+                                <span className="text-muted-foreground block text-[0.625rem]">الجذر اللغوي</span>
                                 <span className="font-bold text-foreground font-amiri text-sm">{t.root}</span>
                               </div>
                               <div>
-                                <span className="text-muted-foreground block text-[9px]">النوع الصرفي</span>
+                                <span className="text-muted-foreground block text-[0.625rem]">النوع الصرفي</span>
                                 <span className="font-semibold text-foreground font-amiri">{t.derivationType || "جامد"}</span>
                               </div>
                             </div>
 
                             {t.features.length > 0 && (
                               <div className="pt-2 border-t border-border/30">
-                                <span className="text-[9px] text-muted-foreground block mb-1">العلل والزيادات الصرفية:</span>
+                                <span className="text-[0.625rem] text-muted-foreground block mb-1">العلل والزيادات الصرفية:</span>
                                 <div className="flex flex-wrap gap-1">
                                   {t.features.map((f, fIdx) => (
-                                    <span key={fIdx} className="text-[9px] bg-muted/60 text-foreground px-1.5 py-0.5 rounded">
+                                    <span key={fIdx} className="text-[0.625rem] bg-muted/60 text-foreground px-1.5 py-0.5 rounded">
                                       {f}
                                     </span>
                                   ))}
@@ -383,8 +383,8 @@ export default function BayanDashboard() {
                                     {fig.description}
                                   </p>
                                 </div>
-                                <div className="text-right flex flex-col justify-center">
-                                  <span className="text-[10px] text-muted-foreground block">وزن البلاغة</span>
+                                <div className="text-end flex flex-col justify-center">
+                                  <span className="text-[0.625rem] text-muted-foreground block">وزن البلاغة</span>
                                   <span className="text-lg font-mono font-black text-live">
                                     {fig.eloquenceWeight}/10
                                   </span>

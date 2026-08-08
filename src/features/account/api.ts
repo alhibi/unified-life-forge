@@ -47,6 +47,7 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'trips', ownerColumn: 'user_id', label: 'خطط الرحلات' },
   { table: 'country_stamps', ownerColumn: 'user_id', label: 'الدول المسجّلة' },
   { table: 'game_progress', ownerColumn: 'user_id', label: 'تقدّم الألعاب' },
+  { table: 'crypto_watchlist', ownerColumn: 'user_id', label: 'قائمة متابعة العملات' },
   { table: 'reading_feeds', ownerColumn: 'user_id', label: 'خلاصات القراءة' },
   { table: 'reading_bookmarks', ownerColumn: 'user_id', label: 'العلامات المرجعية' },
   { table: 'reading_prefs', ownerColumn: 'user_id', label: 'تفضيلات القراءة' },

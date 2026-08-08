@@ -1,5 +1,5 @@
 import React from "react";
-import type { PoeticMeterAnalysis, TafilaBlock } from "../../types/bayan";
+import type { PoeticMeterAnalysis } from "../../types/bayan";
 
 interface MetreScansionVisualizerProps {
   prosody: PoeticMeterAnalysis;
@@ -11,7 +11,7 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
       <div className="space-y-4 p-4 rounded-xl border border-border/40 bg-surface/20">
         <div className="flex justify-between items-center border-b border-border/40 pb-2 mb-3">
           <span className="text-xs font-semibold text-muted-foreground">{title}</span>
-          <span className="text-[10px] font-mono bg-live/10 text-live px-2 py-0.5 rounded-full">
+          <span className="text-[0.625rem] font-mono bg-live/10 text-live px-2 py-0.5 rounded-full">
             {data.scansionText.split(" ").length} تفعيلات
           </span>
         </div>
@@ -23,7 +23,7 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
 
         {/* Arood Translit Writing */}
         <div className="text-sm text-live/90 font-amiri bg-surface/50 px-3 py-1.5 rounded-md border border-border/30">
-          <span className="text-[10px] text-muted-foreground block mb-0.5">الكتابة العروضية:</span>
+          <span className="text-[0.625rem] text-muted-foreground block mb-0.5">الكتابة العروضية:</span>
           {data.scansionText}
         </div>
 
@@ -53,7 +53,7 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
               </div>
 
               {/* Syllable details list */}
-              <div className="text-[10px] font-mono text-muted-foreground flex flex-wrap gap-1 justify-center max-w-full">
+              <div className="text-[0.625rem] font-mono text-muted-foreground flex flex-wrap gap-1 justify-center max-w-full">
                 {tafila.syllables.map((s, sIdx) => (
                   <span key={sIdx} className="px-1 py-0.5 bg-surface/50 rounded" title={s.isMoving ? "متحرك" : "ساكن"}>
                     {s.text}
@@ -63,7 +63,7 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
 
               {/* Deviations */}
               {tafila.deviation && (
-                <span className="mt-1.5 text-[9px] bg-yellow-500/10 text-yellow-500 px-1.5 py-0.5 rounded-full font-mono">
+                <span className="mt-1.5 text-[0.625rem] bg-yellow-500/10 text-yellow-500 px-1.5 py-0.5 rounded-full font-mono">
                   {tafila.deviation}
                 </span>
               )}
@@ -89,12 +89,12 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
         </div>
 
         <div className="flex flex-row md:flex-col gap-3 md:gap-1.5 items-end">
-          <div className="text-right">
-            <span className="text-[10px] text-muted-foreground block">الروي</span>
+          <div className="text-end">
+            <span className="text-[0.625rem] text-muted-foreground block">الروي</span>
             <span className="text-base font-bold text-foreground font-amiri">حرف ({prosody.rhymeLetter})</span>
           </div>
-          <div className="text-right">
-            <span className="text-[10px] text-muted-foreground block">القافية</span>
+          <div className="text-end">
+            <span className="text-[0.625rem] text-muted-foreground block">القافية</span>
             <span className="text-xs font-medium text-live font-amiri">{prosody.rhymeType}</span>
           </div>
         </div>

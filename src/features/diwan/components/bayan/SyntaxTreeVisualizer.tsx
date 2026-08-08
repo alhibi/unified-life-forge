@@ -20,7 +20,7 @@ const AstNode: React.FC<AstNodeProps> = ({ branch, tokens, depth }) => {
           borderRight: branch.role === "مسند إليه" ? "3px solid var(--live)" : undefined,
         }}
       >
-        <span className="block text-[10px] text-muted-foreground font-mono uppercase tracking-wide">
+        <span className="block text-[0.625rem] text-muted-foreground font-mono uppercase tracking-wide">
           {branch.role}
         </span>
         <span className="block text-sm font-medium text-foreground font-amiri mt-0.5">

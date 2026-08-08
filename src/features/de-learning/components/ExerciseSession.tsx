@@ -29,7 +29,7 @@ interface ExerciseSessionProps {
 const cleanString = (str: string): string => {
   return str
     .toLowerCase()
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()؟?]/g, '')
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()؟?]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 };
