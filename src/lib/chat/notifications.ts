@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat Notifications Manager
 //
@@ -220,7 +219,10 @@ function _showNativeNotification(payload: ChatNotificationPayload, count: number
         : `${typePrefix}${payload.body}`;
     }
 
-    const notification = new Notification(title, {
+    const notificationOptions: NotificationOptions & {
+      renotify?: boolean;
+      timestamp?: number;
+    } = {
       body,
       icon: payload.avatarUrl || '/icons/icon-192x192.png',
       badge: '/icons/favicon-32x32.png',
@@ -228,7 +230,8 @@ function _showNativeNotification(payload: ChatNotificationPayload, count: number
       renotify: true,
       timestamp: payload.timestamp ?? Date.now(),
       silent: !_prefs.sound,
-    });
+    };
+    const notification = new Notification(title, notificationOptions);
 
     // Auto-close after 5 seconds
     setTimeout(() => notification.close(), 5000);

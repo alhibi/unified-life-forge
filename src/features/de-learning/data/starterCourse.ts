@@ -803,7 +803,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a0-1",
     "lesson_id": "les-a0-1",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 1,
     "payload": {
       "prompt_de": "Wie sagt man 'مرحباً' auf Deutsch?",
@@ -834,7 +834,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a0-2",
     "lesson_id": "les-a0-1",
-    "type": "type_answer" as any,
+    "type": "type_answer",
     "difficulty": 1,
     "payload": {
       "direction": "ar_to_de",
@@ -849,7 +849,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a0-3",
     "lesson_id": "les-a0-2",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 2,
     "payload": {
       "prompt_de": "Wie fragt man höflich (formal): 'كيف حال حضرتك؟'?",
@@ -875,7 +875,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a0-4",
     "lesson_id": "les-a0-1",
-    "type": "matching_pairs" as any,
+    "type": "matching_pairs",
     "difficulty": 1,
     "payload": {
       "pairs": [
@@ -897,7 +897,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a1-1",
     "lesson_id": "les-a1-1",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 1,
     "payload": {
       "prompt_de": "Was bedeutet 'ich' auf Arabisch?",
@@ -923,7 +923,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a1-2",
     "lesson_id": "les-a1-2",
-    "type": "fill_blank_grammar" as any,
+    "type": "fill_blank_grammar",
     "difficulty": 2,
     "payload": {
       "sentence_template": "Ich ___ aus Syrien.",
@@ -938,7 +938,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a1-3",
     "lesson_id": "les-a1-2",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 2,
     "payload": {
       "prompt_de": "Wähle das richtige Verb: 'Ich ___ Ahmad.'",
@@ -964,7 +964,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a1-4",
     "lesson_id": "les-a1-3",
-    "type": "matching_pairs" as any,
+    "type": "matching_pairs",
     "difficulty": 1,
     "payload": {
       "pairs": [
@@ -986,7 +986,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a1-5",
     "lesson_id": "les-a1-4",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 2,
     "payload": {
       "prompt_de": "Das ist ___ Vater. (أبي)",
@@ -1012,7 +1012,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a2-1",
     "lesson_id": "les-a2-1",
-    "type": "matching_pairs" as any,
+    "type": "matching_pairs",
     "difficulty": 2,
     "payload": {
       "pairs": [
@@ -1034,7 +1034,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a2-2",
     "lesson_id": "les-a2-2",
-    "type": "sentence_build" as any,
+    "type": "sentence_build",
     "difficulty": 3,
     "payload": {
       "correct_sentence": "Ich stehe um 7 Uhr auf",
@@ -1050,7 +1050,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-a2-3",
     "lesson_id": "les-a2-4",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 2,
     "payload": {
       "prompt_de": "Ich gehe ___ die Schule. (Akkusativ - حركة)",
@@ -1076,7 +1076,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-b1-1",
     "lesson_id": "les-b1-1",
-    "type": "matching_pairs" as any,
+    "type": "matching_pairs",
     "difficulty": 3,
     "payload": {
       "pairs": [
@@ -1098,7 +1098,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-b1-2",
     "lesson_id": "les-b1-2",
-    "type": "sentence_build" as any,
+    "type": "sentence_build",
     "difficulty": 3,
     "payload": {
       "correct_sentence": "Ich habe einen Apfel gegessen",
@@ -1114,7 +1114,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-b1-3",
     "lesson_id": "les-b1-4",
-    "type": "sentence_build" as any,
+    "type": "sentence_build",
     "difficulty": 4,
     "payload": {
       "correct_sentence": "Ich lerne Deutsch, weil ich in Deutschland lebe",
@@ -1130,7 +1130,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-b2-1",
     "lesson_id": "les-b2-1",
-    "type": "matching_pairs" as any,
+    "type": "matching_pairs",
     "difficulty": 4,
     "payload": {
       "pairs": [
@@ -1156,7 +1156,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-b2-2",
     "lesson_id": "les-b2-2",
-    "type": "mcq" as any,
+    "type": "mcq",
     "difficulty": 4,
     "payload": {
       "prompt_de": "Wähle das richtige Passiv: Das Auto ___ repariert.",
@@ -1182,7 +1182,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-b2-3",
     "lesson_id": "les-b2-4",
-    "type": "type_answer" as any,
+    "type": "type_answer",
     "difficulty": 4,
     "payload": {
       "direction": "de_to_ar",
@@ -1198,7 +1198,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-error-1",
     "lesson_id": "les-b1-4",
-    "type": "error_correction" as any,
+    "type": "error_correction",
     "difficulty": 3,
     "payload": {
       "incorrect_sentence": "Ich lerne Deutsch weil ich in Deutschland leben.",
@@ -1210,7 +1210,7 @@ const RAW_STARTER_EXERCISES: Omit<Exercise, 'status'>[] = [
   {
     "id": "ex-decomp-1",
     "lesson_id": "les-b2-3",
-    "type": "compound_word_decomposition" as any,
+    "type": "compound_word_decomposition",
     "difficulty": 4,
     "payload": {
       "compound_word": "Umweltschutz",

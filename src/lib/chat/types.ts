@@ -1,4 +1,3 @@
-// @ts-nocheck — schema mismatch: code references tables/RPCs not in current generated types
 // ─────────────────────────────────────────────────────────────────────────────
 // Wave-1 chat types.
 //

@@ -83,7 +83,6 @@ export function usePredictivePrefetch() {
             if (path && !prefetchedPaths.current.has(path)) {
               prefetchedPaths.current.add(path);
               prefetchRoute(path);
-              console.debug(`[Predictive Prefetch Engine] Warming up intended route: "${path}"`);
             }
           }
         });
@@ -112,7 +111,6 @@ export function usePredictivePrefetch() {
         if (path && !prefetchedPaths.current.has(path)) {
           prefetchedPaths.current.add(path);
           prefetchRoute(path);
-          console.debug(`[Predictive Touch Engine] Mobile warming: "${path}"`);
         }
       }
     };

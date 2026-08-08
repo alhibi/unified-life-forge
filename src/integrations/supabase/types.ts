@@ -68,6 +68,30 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_users: {
+        Row: {
+          blocker_id: string
+          blocked_id: string
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocker_id: string
+          blocked_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocker_id?: string
+          blocked_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       cefr_levels: {
         Row: {
           code: string
@@ -88,6 +112,249 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      chat_attachments: {
+        Row: {
+          blurhash: string | null
+          caption: string | null
+          chat_id: string
+          created_at: string
+          duration_seconds: string | null
+          height: number | null
+          id: string
+          kind: string
+          message_id: string
+          mime_type: string | null
+          size_bytes: number | null
+          storage_path: string
+          thumb_path: string | null
+          uploaded_by: string
+          width: number | null
+        }
+        Insert: {
+          blurhash?: string | null
+          caption?: string | null
+          chat_id: string
+          created_at?: string
+          duration_seconds?: string | null
+          height?: number | null
+          id?: string
+          kind: string
+          message_id: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path: string
+          thumb_path?: string | null
+          uploaded_by: string
+          width?: number | null
+        }
+        Update: {
+          blurhash?: string | null
+          caption?: string | null
+          chat_id?: string
+          created_at?: string
+          duration_seconds?: string | null
+          height?: number | null
+          id?: string
+          kind?: string
+          message_id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string
+          thumb_path?: string | null
+          uploaded_by?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_attachments_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_members: {
+        Row: {
+          added_by: string | null
+          archived_at: string | null
+          chat_id: string
+          custom_title: string | null
+          draft_text: string | null
+          draft_updated_at: string | null
+          id: string
+          joined_at: string
+          last_read_at: string | null
+          last_read_message_id: string | null
+          muted_until: string | null
+          notifications_enabled: boolean
+          pinned_at: string | null
+          removed_at: string | null
+          removed_by: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          added_by?: string | null
+          archived_at?: string | null
+          chat_id: string
+          custom_title?: string | null
+          draft_text?: string | null
+          draft_updated_at?: string | null
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          last_read_message_id?: string | null
+          muted_until?: string | null
+          notifications_enabled?: boolean
+          pinned_at?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          added_by?: string | null
+          archived_at?: string | null
+          chat_id?: string
+          custom_title?: string | null
+          draft_text?: string | null
+          draft_updated_at?: string | null
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          last_read_message_id?: string | null
+          muted_until?: string | null
+          notifications_enabled?: boolean
+          pinned_at?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_members_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_members_last_read_message_id_fkey"
+            columns: ["last_read_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_public_keys: {
+        Row: {
+          created_at: string
+          public_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          public_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          public_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chats: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          invite_revoked: boolean
+          invite_token: string | null
+          invite_token_created_at: string | null
+          is_public: boolean
+          kind: string
+          legacy_conversation_id: string | null
+          pinned_message_id: string | null
+          self_destruct_seconds: number | null
+          title: string | null
+          updated_at: string
+          who_can_add_members: string
+          who_can_edit_meta: string
+          who_can_send: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          invite_revoked?: boolean
+          invite_token?: string | null
+          invite_token_created_at?: string | null
+          is_public?: boolean
+          kind: string
+          legacy_conversation_id?: string | null
+          pinned_message_id?: string | null
+          self_destruct_seconds?: number | null
+          title?: string | null
+          updated_at?: string
+          who_can_add_members?: string
+          who_can_edit_meta?: string
+          who_can_send?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          invite_revoked?: boolean
+          invite_token?: string | null
+          invite_token_created_at?: string | null
+          is_public?: boolean
+          kind?: string
+          legacy_conversation_id?: string | null
+          pinned_message_id?: string | null
+          self_destruct_seconds?: number | null
+          title?: string | null
+          updated_at?: string
+          who_can_add_members?: string
+          who_can_edit_meta?: string
+          who_can_send?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chats_legacy_conversation_id_fkey"
+            columns: ["legacy_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_pinned_message_id_fkey"
+            columns: ["pinned_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clipboard_items: {
         Row: {
@@ -629,6 +896,35 @@ export type Database = {
           },
         ]
       }
+      message_drafts: {
+        Row: {
+          body: string
+          conversation_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_drafts_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_reactions: {
         Row: {
           created_at: string
@@ -663,6 +959,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          chat_id: string | null
           client_id: string | null
           content: string
           conversation_id: string
@@ -675,7 +972,7 @@ export type Database = {
           file_url: string | null
           forwarded_from_message_id: string | null
           forwarded_from_sender_id: string | null
-          hidden_for: string[]
+          hidden_for: string[] | null | null
           id: string
           message_type: string
           read: boolean
@@ -683,6 +980,7 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          chat_id?: string | null
           client_id?: string | null
           content: string
           conversation_id: string
@@ -703,6 +1001,7 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          chat_id?: string | null
           client_id?: string | null
           content?: string
           conversation_id?: string
@@ -1767,6 +2066,145 @@ export type Database = {
         }[]
       }
       update_last_seen: { Args: never; Returns: undefined }
+      add_chat_member: {
+        Args: { p_chat_id: string; p_user_id: string }
+        Returns: Database["public"]["Tables"]["chat_members"]["Row"]
+      }
+      block_user: {
+        Args: { p_reason?: string | null; p_user_id: string }
+        Returns: undefined
+      }
+      create_group_chat: {
+        Args: {
+          p_avatar_url?: string | null
+          p_description?: string | null
+          p_kind: string
+          p_member_ids?: string[] | null
+          p_title: string
+        }
+        Returns: Database["public"]["Tables"]["chats"]["Row"]
+      }
+      create_or_get_dm: {
+        Args: { p_other_user_id: string }
+        Returns: Database["public"]["Tables"]["chats"]["Row"]
+      }
+      get_messages_paginated: {
+        Args: { p_before_id?: string | null; p_chat_id: string; p_limit?: number }
+        Returns: Database["public"]["Tables"]["messages"]["Row"][]
+      }
+      hide_message_for_self: {
+        Args: { p_message_id: string }
+        Returns: undefined
+      }
+      list_chat_members: {
+        Args: { p_chat_id: string }
+        Returns: {
+          added_by: string
+          avatar_url: string
+          custom_title: string
+          display_name: string
+          joined_at: string
+          last_seen: string
+          role: string
+          user_id: string
+          username: string
+        }[]
+      }
+      list_my_chats: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          chat_id: string
+          created_at: string
+          description: string
+          is_public: boolean
+          kind: string
+          last_message_at: string
+          last_message_deleted: boolean
+          last_message_id: string
+          last_message_kind: string
+          last_message_preview: string
+          last_message_sender: string
+          legacy_conversation_id: string
+          member_archived_at: string
+          member_count: number
+          member_draft_text: string
+          member_last_read_at: string
+          member_muted_until: string
+          member_pinned_at: string
+          member_role: string
+          other_avatar_url: string
+          other_display_name: string
+          other_last_seen: string
+          other_user_id: string
+          other_username: string
+          pinned_message_id: string
+          self_destruct_seconds: number
+          title: string
+          unread_count: number
+          updated_at: string
+          who_can_send: string
+        }[]
+      }
+      mark_chat_read: {
+        Args: { p_chat_id: string; p_message_id?: string | null }
+        Returns: undefined
+      }
+      mark_message_delivered: {
+        Args: { p_message_id: string }
+        Returns: undefined
+      }
+      remove_chat_member: {
+        Args: { p_chat_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      search_chat_messages: {
+        Args: { p_chat_id?: string | null; p_limit?: number; p_query: string }
+        Returns: {
+          chat_id: string
+          content: string
+          conversation_id: string
+          created_at: string
+          message_id: string
+          message_type: string
+          rank: number
+          sender_id: string
+          snippet: string
+        }[]
+      }
+      set_chat_archived: {
+        Args: { p_archived: boolean; p_chat_id: string }
+        Returns: undefined
+      }
+      set_chat_draft: {
+        Args: { p_chat_id: string; p_text?: string | null }
+        Returns: undefined
+      }
+      set_chat_muted: {
+        Args: { p_chat_id: string; p_seconds: number }
+        Returns: undefined
+      }
+      set_chat_pinned: {
+        Args: { p_chat_id: string; p_pinned: boolean }
+        Returns: undefined
+      }
+      unblock_user: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      update_chat_member_role: {
+        Args: { p_chat_id: string; p_new_role: string; p_user_id: string }
+        Returns: undefined
+      }
+      update_chat_metadata: {
+        Args: {
+          p_avatar_url?: string | null
+          p_chat_id: string
+          p_description?: string | null
+          p_title?: string | null
+        }
+        Returns: Database["public"]["Tables"]["chats"]["Row"]
+      }
     }
     Enums: {
       journal_mood: "organic" | "analytical" | "balanced"

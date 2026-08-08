@@ -1,4 +1,3 @@
-// @ts-nocheck — schema mismatch: code references tables/RPCs not in current generated types
 // useChatReactions — load every reaction in a chat in one query, indexed
 // by message_id for O(1) lookup from the message bubble. Realtime keeps
 // the cache in sync.

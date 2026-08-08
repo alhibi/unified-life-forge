@@ -19,14 +19,7 @@ import { isSupabaseConfigured, supabase as typedClient } from '@/integrations/su
 
 const TABLE = 'chat_public_keys';
 
-/**
- * The generated Supabase types are produced from the deployed schema, which does
- * not yet include `chat_public_keys` (it ships in the migration alongside this
- * file). An untyped handle is the honest way to express that, and it is confined
- * to this module: every value that leaves it is validated and typed.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const supabase = typedClient as any;
+const supabase = typedClient;
 
 export interface DirectoryEntry {
   userId: string;

@@ -206,7 +206,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
   const playAudio = (url?: string | null) => {
     if (!url) return;
     const a = new Audio(url);
-    a.play().catch((e) => console.log('Audio play failed', e));
+    a.play().catch(() => {});
   };
 
   if (isLoading) {

@@ -1,4 +1,3 @@
-// @ts-nocheck — schema mismatch: code references tables/RPCs not in current generated types
 // ─────────────────────────────────────────────────────────────────────────────
 // Client-side image compression + thumbnail generation for chat attachments.
 //
@@ -226,7 +225,7 @@ function readImageDimensions(blob: Blob): Promise<{ width: number; height: numbe
     };
     img.onerror = (e) => {
       URL.revokeObjectURL(url);
-      reject(e instanceof Event ? new Error('image load failed') : (e as Error));
+      reject(e instanceof Event ? new Error('image load failed') : new Error(e));
     };
     img.src = url;
   });

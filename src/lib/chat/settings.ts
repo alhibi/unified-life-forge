@@ -1,4 +1,3 @@
-// @ts-nocheck — schema mismatch: code references tables/RPCs not in current generated types
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat-specific user settings that sync via `user_settings.settings.chat`.
 //
@@ -15,6 +14,8 @@
 //
 // `useChatSettings` (in hooks/useChatSettings.ts) wraps these for React.
 // ─────────────────────────────────────────────────────────────────────────────
+
+import type { Json } from '@/integrations/supabase/types';
 
 import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
 
@@ -219,7 +220,7 @@ export async function saveChatSettings(userId: string, settings: ChatSettings): 
   root.chat = settings as unknown as Record<string, unknown>;
   await supabase
     .from('user_settings')
-    .upsert({ user_id: userId, settings: root }, { onConflict: 'user_id' });
+    .upsert({ user_id: userId, settings: root as unknown as Json }, { onConflict: 'user_id' });
 }
 
 // ── Imperative storage cap utility ───────────────────────────────────────────

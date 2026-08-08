@@ -1,4 +1,3 @@
-// @ts-nocheck — schema mismatch: code references tables/RPCs not in current generated types
 import { describe, expect,it } from 'vitest';
 
 import {

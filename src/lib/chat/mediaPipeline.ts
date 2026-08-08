@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ─────────────────────────────────────────────────────────────────────────────
 // Media pipeline orchestrator.
 //
@@ -251,7 +250,7 @@ function readImageDims(blob: Blob): Promise<{ width: number; height: number }> {
     };
     img.onerror = (e) => {
       URL.revokeObjectURL(url);
-      reject(e instanceof Event ? new Error('image load failed') : (e as Error));
+      reject(e instanceof Event ? new Error('image load failed') : new Error(e));
     };
     img.src = url;
   });
