@@ -301,7 +301,8 @@ export function extractDominantColor(img: HTMLImageElement): [number, number, nu
   // Convert RGB to Hsl
   const rN = r / 255, gN = g / 255, bN = b / 255;
   const max = Math.max(rN, gN, bN), min = Math.min(rN, gN, bN);
-  let h = 0, s = 0, l = (max + min) / 2;
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
   if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);

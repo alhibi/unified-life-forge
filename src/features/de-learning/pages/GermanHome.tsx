@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { PageShell } from '@/components/ui/app-shell';
-import { ArrowLeft, Award, BookOpen, CheckCircle, Crown, HelpCircle, RotateCcw, Zap, Compass, Search, Sparkles, BookOpenCheck, Bookmark, HelpCircle as HelpIcon, ArrowRight } from '@/lib/icons';
+import { ArrowLeft, Award, BookOpen, CheckCircle, Crown, HelpCircle, RotateCcw, Zap, Compass, Search } from '@/lib/icons';
 
 import { ExerciseSession } from '../components/ExerciseSession';
 import {
@@ -170,7 +170,7 @@ export const GermanHome: React.FC = () => {
     // Simple deterministic rule-based parser for study sentence feedback
     const tokens = userSentenceInput.split(/\s+/);
     tokens.forEach((token) => {
-      const clean = token.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+      const clean = token.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '');
       const cleanLower = clean.toLowerCase();
 
       if (['ich', 'du', 'er', 'sie', 'es', 'wir', 'ihr', 'sie/sie'].includes(cleanLower)) {

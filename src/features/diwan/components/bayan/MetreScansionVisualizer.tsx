@@ -1,5 +1,5 @@
 import React from "react";
-import type { PoeticMeterAnalysis, TafilaBlock } from "../../types/bayan";
+import type { PoeticMeterAnalysis } from "../../types/bayan";
 
 interface MetreScansionVisualizerProps {
   prosody: PoeticMeterAnalysis;

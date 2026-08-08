@@ -65,12 +65,12 @@ function analyzeSyntacticToken(word: string, index: number, totalWords: number):
   const cleanWordValue = cleanString(word);
   const isParticle = PARTICLES.has(cleanWordValue) || PARTICLES.has(word);
 
-  let partOfSpeech: "noun" | "verb" | "particle" | "unknown" = "noun";
-  let caseState: "nominative" | "accusative" | "genitive" | "jussive" | "none" = "none";
+  let partOfSpeech: "noun" | "verb" | "particle" | "unknown";
+  let caseState: "nominative" | "accusative" | "genitive" | "jussive" | "none";
   let markerType: "original" | "subsidiary" | "estimated" | "local" = "original";
-  let markerDetail = "الضمة الظاهرة على آخره";
-  let syntacticRole = "مضاف إليه مجرور";
-  let explanation = "";
+  let markerDetail: string;
+  let syntacticRole: string;
+  let explanation: string;
 
   if (isParticle) {
     partOfSpeech = "particle";
@@ -88,7 +88,6 @@ function analyzeSyntacticToken(word: string, index: number, totalWords: number):
     if (startsWithVerbPrefix || endsWithVerbSuffix || isCommonVerb) {
       partOfSpeech = "verb";
       caseState = "none";
-      syntacticRole = "فعل";
 
       if (word.startsWith("ي") || word.startsWith("ت") || word.startsWith("أ") || word.startsWith("ن")) {
         caseState = "nominative";
@@ -249,9 +248,9 @@ function buildAST(tokens: SyntacticToken[]): SyntacticBranch {
  */
 function analyzeMorphologyToken(token: SyntacticToken): MorphologicalToken {
   const cleanWordValue = token.cleanWord;
-  let root = "ف ع ل";
+  let root: string;
   let pattern = "فَعَلَ";
-  let wordType: "noun_derived" | "noun_solid" | "verb_triliteral" | "verb_quadriliteral" | "particle" = "noun_solid";
+  let wordType: "noun_derived" | "noun_solid" | "verb_triliteral" | "verb_quadriliteral" | "particle";
   let derivationType: string | undefined = undefined;
   const features: string[] = [];
 
@@ -373,7 +372,7 @@ function scanHemistich(text: string): { text: string; scansionText: string; symb
 
   // Create simulated phonetic representation
   // E.g., solar Lams disappear, Tanween becomes Noon, etc.
-  let scansionText = words.map(w => {
+  const scansionText = words.map(w => {
     let phon = w;
     // Normalize tanween
     if (/[ًٌٍ]/.test(phon)) {
@@ -470,7 +469,7 @@ function scanHemistich(text: string): { text: string; scansionText: string; symb
  */
 function identifyPoeticMeter(text: string): PoeticMeterAnalysis | undefined {
   // Try split by comma, asterisk, or space padding to detect hemistiches (الشطرين)
-  let hemistiches = text.split(/[\*\t،,]/);
+  let hemistiches = text.split(/[*\t،,]/);
   if (hemistiches.length < 2) {
     // Try midpoint splitting
     const words = text.split(/\s+/);
@@ -489,7 +488,7 @@ function identifyPoeticMeter(text: string): PoeticMeterAnalysis | undefined {
   const totalSymbolsLength = firstHem.symbols.replace(/\s/g, "").length;
 
   let matchedMeter = BAYAN_POETIC_METERS[0]; // default taweel
-  let score = 0.5;
+  let score: number;
 
   if (totalSymbolsLength >= 12 && totalSymbolsLength <= 15) {
     matchedMeter = BAYAN_POETIC_METERS.find(m => m.id === "taweel") || matchedMeter;
