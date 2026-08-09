@@ -745,7 +745,7 @@ export const GermanHome: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث بالألمانية أو العربية..."
-                    className="w-full ps-8 pe-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
+                    className="w-full pe-8 ps-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
                     dir="rtl"
                   />
                   <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -1212,7 +1212,7 @@ export const GermanHome: React.FC = () => {
                       value={genderSuffixQuery}
                       onChange={(e) => setGenderSuffixQuery(e.target.value)}
                       placeholder="ابحث عن لاحقة معينة (مثال: ung)..."
-                      className="w-full ps-8 pe-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
+                      className="w-full pe-8 ps-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
                       dir="rtl"
                     />
                     <Search className="absolute left-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
