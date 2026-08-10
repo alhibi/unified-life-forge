@@ -716,16 +716,19 @@ export const GermanHome: React.FC = () => {
             <div className="space-y-6">
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-2xl font-bold text-foreground">القاموس ومستودع المفردات</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">استكشف وجرب حفظ ٢٠٠٠ كلمة، ١٠٠٠ جملة، ١٠٠٠ عبارة، و١٠٠٠ تعبير بالكامل</p>
+                <p className="font-tajawal text-xs text-muted-foreground">
+                  استكشف المستودع الكامل: {corpusTotals.words} كلمة، {corpusTotals.sentences} جملة، {corpusTotals.phrases} عبارة،
+                  و{corpusTotals.expressions} تعبيراً — كلها متاحة للتصفح والبحث.
+                </p>
               </div>
 
               {/* Sub-tabs for corpus types */}
               <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-secondary/20">
                 {[
-                  { id: 'words', text: '٢٠٠٠ كلمة' },
-                  { id: 'sentences', text: '١٠٠٠ جملة' },
-                  { id: 'phrases', text: '١٠٠٠ عبارة' },
-                  { id: 'expressions', text: '١٠٠٠ تعبير' }
+                  { id: 'words', text: 'كلمات', count: corpusTotals.words },
+                  { id: 'sentences', text: 'جمل', count: corpusTotals.sentences },
+                  { id: 'phrases', text: 'عبارات', count: corpusTotals.phrases },
+                  { id: 'expressions', text: 'تعبيرات', count: corpusTotals.expressions }
                 ].map((type) => (
                   <button
                     key={type.id}
@@ -733,13 +736,14 @@ export const GermanHome: React.FC = () => {
                       setDictType(type.id as any);
                       setFlippedCardId(null);
                     }}
-                    className={`py-2 text-center rounded-lg font-tajawal text-micro font-bold transition-all ${
+                    className={`py-2 flex flex-col items-center gap-0.5 rounded-lg font-tajawal text-mini font-bold transition-all ${
                       dictType === type.id
                         ? 'bg-card text-foreground shadow'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    {type.text}
+                    <span>{type.text}</span>
+                    <span className="font-plex-mono text-micro opacity-70">{type.count}</span>
                   </button>
                 ))}
               </div>
@@ -769,7 +773,7 @@ export const GermanHome: React.FC = () => {
                     className="w-full pe-8 ps-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
                     dir="rtl"
                   />
-                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Search className="absolute end-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 </div>
               </div>
 
@@ -789,6 +793,16 @@ export const GermanHome: React.FC = () => {
               </div>
 
               {/* Rendered Corpus Items */}
+              <div className="flex items-center justify-between px-1">
+                <span className="font-tajawal text-micro text-muted-foreground">
+                  {matchedDictItems.length > 0
+                    ? `يُعرض ${filteredDictItems.length} من ${matchedDictItems.length}`
+                    : 'لا نتائج'}
+                </span>
+                <span className="h-px flex-1 mx-3 bg-border/40" />
+                <span className="font-tajawal text-micro font-bold text-muted-foreground">نتائج البحث</span>
+              </div>
+
               <div className="grid grid-cols-1 gap-3">
                 {filteredDictItems.map((item: any) => {
                   const isFlipped = flippedCardId === item.id;
