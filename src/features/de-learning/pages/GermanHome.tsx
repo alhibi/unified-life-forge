@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -55,7 +55,8 @@ export const GermanHome: React.FC = () => {
   const [dictLevelFilter, setDictLevelFilter] = useState<string>('all');
   const [dictFlashcardMode, setDictFlashcardMode] = useState(false);
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
-  const [dictVisibleCount, setDictVisibleCount] = useState(30);
+  // Pagination is keyed by the active filter signature so changing filters resets it without an effect
+  const [dictPage, setDictPage] = useState<{ key: string; count: number }>({ key: '', count: 30 });
 
   // Placement Test States
   const [placementStarted, setPlacementStarted] = useState(false);
@@ -128,11 +129,6 @@ export const GermanHome: React.FC = () => {
   const pendingSrsReviews = srsData.filter(
     (item) => new Date(item.due_at) <= new Date()
   ).length;
-
-  // Reset pagination whenever the corpus view or filters change
-  useEffect(() => {
-    setDictVisibleCount(30);
-  }, [dictType, searchQuery, dictLevelFilter]);
 
   const corpusTotals = useMemo(
     () => ({
