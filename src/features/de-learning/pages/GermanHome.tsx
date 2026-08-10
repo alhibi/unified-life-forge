@@ -436,7 +436,7 @@ export const GermanHome: React.FC = () => {
           </div>
 
           {/* Top Level Feature Tabs */}
-          <div className="grid grid-cols-5 md:grid-cols-5 gap-1.5 p-1 rounded-xl bg-secondary/30 border border-border/40">
+          <div className="flex gap-1.5 overflow-x-auto p-1 rounded-xl bg-secondary/30 border border-border/40 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
               { id: 'lessons', text: 'خارطة الدروس' },
               { id: 'handbook', text: 'دليل القواعد' },
@@ -449,7 +449,7 @@ export const GermanHome: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`py-2 px-1 text-center rounded-lg font-tajawal text-[0.625rem] md:text-xs font-bold transition-all duration-300 ${
+                  className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
                     isActive
                       ? 'bg-card text-[hsl(var(--live))] shadow-sm border border-border/50'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
@@ -469,7 +469,7 @@ export const GermanHome: React.FC = () => {
                 الأدوات اللغوية المنهجية المتقدمة
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-secondary/20 border border-border/25">
+            <div className="flex gap-1.5 overflow-x-auto p-1 rounded-xl bg-secondary/20 border border-border/25 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 { id: 'dialogues', text: 'السيناريوهات الحرة' },
                 { id: 'conjugator', text: 'تصريف الأفعال' },
@@ -481,7 +481,7 @@ export const GermanHome: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`py-2 text-center rounded-lg font-tajawal text-[0.625rem] md:text-mini font-bold transition-all duration-300 ${
+                    className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
                       isActive
                         ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border border-[hsl(var(--live))]/30 shadow-sm'
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
