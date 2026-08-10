@@ -890,6 +890,27 @@ export const GermanHome: React.FC = () => {
                   );
                 })}
               </div>
+
+              {matchedDictItems.length === 0 && (
+                <div className="flex flex-col items-center justify-center gap-3 p-10 text-center rounded-2xl border border-dashed border-border/50 bg-secondary/10" dir="rtl">
+                  <div className="p-3 bg-secondary/30 text-muted-foreground rounded-full">
+                    <Search className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-tajawal text-sm font-bold text-foreground">لا توجد نتائج مطابقة</h4>
+                  <p className="font-tajawal text-xs text-muted-foreground max-w-[260px]">
+                    جرّب كلمة أخرى بالألمانية أو العربية، أو أعد الفلتر إلى «كل المستويات».
+                  </p>
+                </div>
+              )}
+
+              {filteredDictItems.length < matchedDictItems.length && (
+                <button
+                  onClick={() => setDictVisibleCount((c) => c + 30)}
+                  className="w-full py-3 rounded-xl border border-border/50 bg-card font-tajawal text-xs font-bold text-foreground hover:border-[hsl(var(--live))]/40 hover:text-[hsl(var(--live))] transition-all active:scale-[0.99]"
+                >
+                  عرض المزيد ({matchedDictItems.length - filteredDictItems.length} متبقية)
+                </button>
+              )}
             </div>
           )}
 
@@ -1250,7 +1271,14 @@ export const GermanHome: React.FC = () => {
                       className="w-full pe-8 ps-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
                       dir="rtl"
                     />
-                    <Search className="absolute left-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
+                    <Search className="absolute end-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+
+                  <div className="flex items-center gap-3 px-1">
+                    <span className="font-tajawal text-micro text-muted-foreground">
+                      {filteredSuffixRules.length} من {SYSTEMATIC_SUFFIX_GENDER_RULES.length} قاعدة
+                    </span>
+                    <span className="h-px flex-1 bg-border/40" />
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
