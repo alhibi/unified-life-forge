@@ -170,6 +170,9 @@ export const GermanHome: React.FC = () => {
     }
   }, [dictType, searchQuery, dictLevelFilter]);
 
+  const dictFilterKey = `${dictType}|${searchQuery}|${dictLevelFilter}`;
+  const dictVisibleCount = dictPage.key === dictFilterKey ? dictPage.count : 30;
+
   const filteredDictItems = useMemo(
     () => matchedDictItems.slice(0, dictVisibleCount),
     [matchedDictItems, dictVisibleCount],
@@ -903,7 +906,7 @@ export const GermanHome: React.FC = () => {
 
               {filteredDictItems.length < matchedDictItems.length && (
                 <button
-                  onClick={() => setDictVisibleCount((c) => c + 30)}
+                  onClick={() => setDictPage({ key: dictFilterKey, count: dictVisibleCount + 30 })}
                   className="w-full py-3 rounded-xl border border-border/50 bg-card font-tajawal text-xs font-bold text-foreground hover:border-[hsl(var(--live))]/40 hover:text-[hsl(var(--live))] transition-all active:scale-[0.99]"
                 >
                   عرض المزيد ({matchedDictItems.length - filteredDictItems.length} متبقية)
