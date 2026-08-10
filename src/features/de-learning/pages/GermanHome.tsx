@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -55,6 +55,7 @@ export const GermanHome: React.FC = () => {
   const [dictLevelFilter, setDictLevelFilter] = useState<string>('all');
   const [dictFlashcardMode, setDictFlashcardMode] = useState(false);
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
+  const [dictVisibleCount, setDictVisibleCount] = useState(30);
 
   // Placement Test States
   const [placementStarted, setPlacementStarted] = useState(false);
@@ -128,35 +129,55 @@ export const GermanHome: React.FC = () => {
     (item) => new Date(item.due_at) <= new Date()
   ).length;
 
-  // Dictionary filter logic (searches the massive, rich corpus)
-  const filteredDictItems = useMemo(() => {
+  // Reset pagination whenever the corpus view or filters change
+  useEffect(() => {
+    setDictVisibleCount(30);
+  }, [dictType, searchQuery, dictLevelFilter]);
+
+  const corpusTotals = useMemo(
+    () => ({
+      words: EXTENDED_VOCABULARY_LIST.length,
+      sentences: EXTENDED_SENTENCES_LIST.length,
+      phrases: EXTENDED_PHRASES_LIST.length,
+      expressions: EXTENDED_EXPRESSIONS_LIST.length,
+    }),
+    [],
+  );
+
+  // Dictionary filter logic (searches the massive, rich corpus) — full result set
+  const matchedDictItems = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (dictType === 'words') {
       return EXTENDED_VOCABULARY_LIST.filter((item) => {
         const matchesQuery = !query || item.lemma_de.toLowerCase().includes(query) || item.translation_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30); // Paginate to 30 for seamless performance
+      });
     } else if (dictType === 'sentences') {
       return EXTENDED_SENTENCES_LIST.filter((item) => {
         const matchesQuery = !query || item.text_de.toLowerCase().includes(query) || item.text_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30);
+      });
     } else if (dictType === 'phrases') {
       return EXTENDED_PHRASES_LIST.filter((item) => {
         const matchesQuery = !query || item.text_de.toLowerCase().includes(query) || item.text_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30);
+      });
     } else {
       return EXTENDED_EXPRESSIONS_LIST.filter((item) => {
         const matchesQuery = !query || item.text_de.toLowerCase().includes(query) || item.text_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30);
+      });
     }
   }, [dictType, searchQuery, dictLevelFilter]);
+
+  const filteredDictItems = useMemo(
+    () => matchedDictItems.slice(0, dictVisibleCount),
+    [matchedDictItems, dictVisibleCount],
+  );
 
   // AI Language Analyzer simulator (Pure grammatical algorithm)
   const handleAnalyzeSentence = () => {
