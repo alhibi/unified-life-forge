@@ -682,7 +682,9 @@ export const GermanHome: React.FC = () => {
             <div className="space-y-6">
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-2xl font-bold text-foreground">دليل القواعد الألماني الشامل</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">شروحات واضحة مبسطة بروابط وجسور نحوية تقارن مع النحو العربي الأصيل</p>
+                <p className="font-tajawal text-xs text-muted-foreground">
+                  {STARTER_GRAMMAR_POINTS.length} قاعدة نحوية مشروحة بجسور مقارنة مع النحو العربي الأصيل
+                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
