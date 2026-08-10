@@ -55,6 +55,8 @@ export const GermanHome: React.FC = () => {
   const [dictLevelFilter, setDictLevelFilter] = useState<string>('all');
   const [dictFlashcardMode, setDictFlashcardMode] = useState(false);
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
+  // Pagination is keyed by the active filter signature so changing filters resets it without an effect
+  const [dictPage, setDictPage] = useState<{ key: string; count: number }>({ key: '', count: 30 });
 
   // Placement Test States
   const [placementStarted, setPlacementStarted] = useState(false);
@@ -128,35 +130,53 @@ export const GermanHome: React.FC = () => {
     (item) => new Date(item.due_at) <= new Date()
   ).length;
 
-  // Dictionary filter logic (searches the massive, rich corpus)
-  const filteredDictItems = useMemo(() => {
+  const corpusTotals = useMemo(
+    () => ({
+      words: EXTENDED_VOCABULARY_LIST.length,
+      sentences: EXTENDED_SENTENCES_LIST.length,
+      phrases: EXTENDED_PHRASES_LIST.length,
+      expressions: EXTENDED_EXPRESSIONS_LIST.length,
+    }),
+    [],
+  );
+
+  // Dictionary filter logic (searches the massive, rich corpus) — full result set
+  const matchedDictItems = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (dictType === 'words') {
       return EXTENDED_VOCABULARY_LIST.filter((item) => {
         const matchesQuery = !query || item.lemma_de.toLowerCase().includes(query) || item.translation_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30); // Paginate to 30 for seamless performance
+      });
     } else if (dictType === 'sentences') {
       return EXTENDED_SENTENCES_LIST.filter((item) => {
         const matchesQuery = !query || item.text_de.toLowerCase().includes(query) || item.text_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30);
+      });
     } else if (dictType === 'phrases') {
       return EXTENDED_PHRASES_LIST.filter((item) => {
         const matchesQuery = !query || item.text_de.toLowerCase().includes(query) || item.text_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30);
+      });
     } else {
       return EXTENDED_EXPRESSIONS_LIST.filter((item) => {
         const matchesQuery = !query || item.text_de.toLowerCase().includes(query) || item.text_ar.includes(query);
         const matchesLevel = dictLevelFilter === 'all' || item.level_id === dictLevelFilter;
         return matchesQuery && matchesLevel;
-      }).slice(0, 30);
+      });
     }
   }, [dictType, searchQuery, dictLevelFilter]);
+
+  const dictFilterKey = `${dictType}|${searchQuery}|${dictLevelFilter}`;
+  const dictVisibleCount = dictPage.key === dictFilterKey ? dictPage.count : 30;
+
+  const filteredDictItems = useMemo(
+    () => matchedDictItems.slice(0, dictVisibleCount),
+    [matchedDictItems, dictVisibleCount],
+  );
 
   // AI Language Analyzer simulator (Pure grammatical algorithm)
   const handleAnalyzeSentence = () => {
@@ -415,7 +435,7 @@ export const GermanHome: React.FC = () => {
           </div>
 
           {/* Top Level Feature Tabs */}
-          <div className="grid grid-cols-5 md:grid-cols-5 gap-1.5 p-1 rounded-xl bg-secondary/30 border border-border/40">
+          <div className="flex gap-1.5 overflow-x-auto p-1 rounded-xl bg-secondary/30 border border-border/40 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
               { id: 'lessons', text: 'خارطة الدروس' },
               { id: 'handbook', text: 'دليل القواعد' },
@@ -428,7 +448,7 @@ export const GermanHome: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`py-2 px-1 text-center rounded-lg font-tajawal text-[0.625rem] md:text-xs font-bold transition-all duration-300 ${
+                  className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
                     isActive
                       ? 'bg-card text-[hsl(var(--live))] shadow-sm border border-border/50'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
@@ -448,7 +468,7 @@ export const GermanHome: React.FC = () => {
                 الأدوات اللغوية المنهجية المتقدمة
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-secondary/20 border border-border/25">
+            <div className="flex gap-1.5 overflow-x-auto p-1 rounded-xl bg-secondary/20 border border-border/25 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 { id: 'dialogues', text: 'السيناريوهات الحرة' },
                 { id: 'conjugator', text: 'تصريف الأفعال' },
@@ -460,7 +480,7 @@ export const GermanHome: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`py-2 text-center rounded-lg font-tajawal text-[0.625rem] md:text-mini font-bold transition-all duration-300 ${
+                    className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
                       isActive
                         ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border border-[hsl(var(--live))]/30 shadow-sm'
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
@@ -661,7 +681,9 @@ export const GermanHome: React.FC = () => {
             <div className="space-y-6">
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-2xl font-bold text-foreground">دليل القواعد الألماني الشامل</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">شروحات واضحة مبسطة بروابط وجسور نحوية تقارن مع النحو العربي الأصيل</p>
+                <p className="font-tajawal text-xs text-muted-foreground">
+                  {STARTER_GRAMMAR_POINTS.length} قاعدة نحوية مشروحة بجسور مقارنة مع النحو العربي الأصيل
+                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
@@ -695,16 +717,19 @@ export const GermanHome: React.FC = () => {
             <div className="space-y-6">
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-2xl font-bold text-foreground">القاموس ومستودع المفردات</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">استكشف وجرب حفظ ٢٠٠٠ كلمة، ١٠٠٠ جملة، ١٠٠٠ عبارة، و١٠٠٠ تعبير بالكامل</p>
+                <p className="font-tajawal text-xs text-muted-foreground">
+                  استكشف المستودع الكامل: {corpusTotals.words} كلمة، {corpusTotals.sentences} جملة، {corpusTotals.phrases} عبارة،
+                  و{corpusTotals.expressions} تعبيراً — كلها متاحة للتصفح والبحث.
+                </p>
               </div>
 
               {/* Sub-tabs for corpus types */}
               <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-secondary/20">
                 {[
-                  { id: 'words', text: '٢٠٠٠ كلمة' },
-                  { id: 'sentences', text: '١٠٠٠ جملة' },
-                  { id: 'phrases', text: '١٠٠٠ عبارة' },
-                  { id: 'expressions', text: '١٠٠٠ تعبير' }
+                  { id: 'words', text: 'كلمات', count: corpusTotals.words },
+                  { id: 'sentences', text: 'جمل', count: corpusTotals.sentences },
+                  { id: 'phrases', text: 'عبارات', count: corpusTotals.phrases },
+                  { id: 'expressions', text: 'تعبيرات', count: corpusTotals.expressions }
                 ].map((type) => (
                   <button
                     key={type.id}
@@ -712,13 +737,14 @@ export const GermanHome: React.FC = () => {
                       setDictType(type.id as any);
                       setFlippedCardId(null);
                     }}
-                    className={`py-2 text-center rounded-lg font-tajawal text-micro font-bold transition-all ${
+                    className={`py-2 flex flex-col items-center gap-0.5 rounded-lg font-tajawal text-mini font-bold transition-all ${
                       dictType === type.id
                         ? 'bg-card text-foreground shadow'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    {type.text}
+                    <span>{type.text}</span>
+                    <span className="font-plex-mono text-micro opacity-70">{type.count}</span>
                   </button>
                 ))}
               </div>
@@ -748,7 +774,7 @@ export const GermanHome: React.FC = () => {
                     className="w-full pe-8 ps-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
                     dir="rtl"
                   />
-                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Search className="absolute end-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 </div>
               </div>
 
@@ -768,6 +794,16 @@ export const GermanHome: React.FC = () => {
               </div>
 
               {/* Rendered Corpus Items */}
+              <div className="flex items-center justify-between px-1">
+                <span className="font-tajawal text-micro text-muted-foreground">
+                  {matchedDictItems.length > 0
+                    ? `يُعرض ${filteredDictItems.length} من ${matchedDictItems.length}`
+                    : 'لا نتائج'}
+                </span>
+                <span className="h-px flex-1 mx-3 bg-border/40" />
+                <span className="font-tajawal text-micro font-bold text-muted-foreground">نتائج البحث</span>
+              </div>
+
               <div className="grid grid-cols-1 gap-3">
                 {filteredDictItems.map((item: any) => {
                   const isFlipped = flippedCardId === item.id;
@@ -855,6 +891,27 @@ export const GermanHome: React.FC = () => {
                   );
                 })}
               </div>
+
+              {matchedDictItems.length === 0 && (
+                <div className="flex flex-col items-center justify-center gap-3 p-10 text-center rounded-2xl border border-dashed border-border/50 bg-secondary/10" dir="rtl">
+                  <div className="p-3 bg-secondary/30 text-muted-foreground rounded-full">
+                    <Search className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-tajawal text-sm font-bold text-foreground">لا توجد نتائج مطابقة</h4>
+                  <p className="font-tajawal text-xs text-muted-foreground max-w-[260px]">
+                    جرّب كلمة أخرى بالألمانية أو العربية، أو أعد الفلتر إلى «كل المستويات».
+                  </p>
+                </div>
+              )}
+
+              {filteredDictItems.length < matchedDictItems.length && (
+                <button
+                  onClick={() => setDictPage({ key: dictFilterKey, count: dictVisibleCount + 30 })}
+                  className="w-full py-3 rounded-xl border border-border/50 bg-card font-tajawal text-xs font-bold text-foreground hover:border-[hsl(var(--live))]/40 hover:text-[hsl(var(--live))] transition-all active:scale-[0.99]"
+                >
+                  عرض المزيد ({matchedDictItems.length - filteredDictItems.length} متبقية)
+                </button>
+              )}
             </div>
           )}
 
@@ -1215,7 +1272,14 @@ export const GermanHome: React.FC = () => {
                       className="w-full pe-8 ps-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
                       dir="rtl"
                     />
-                    <Search className="absolute left-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
+                    <Search className="absolute end-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+
+                  <div className="flex items-center gap-3 px-1">
+                    <span className="font-tajawal text-micro text-muted-foreground">
+                      {filteredSuffixRules.length} من {SYSTEMATIC_SUFFIX_GENDER_RULES.length} قاعدة
+                    </span>
+                    <span className="h-px flex-1 bg-border/40" />
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
