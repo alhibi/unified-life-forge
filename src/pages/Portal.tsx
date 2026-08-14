@@ -275,7 +275,8 @@ export default function Portal() {
               </div>
             ) : (
               <div onKeyDown={onGridKeyDown} className="relative z-10">
-                <CelestialRealmsLayout
+                <Suspense fallback={<PortalRealmsSkeleton list={list} />}>
+                  <CelestialRealmsLayout
                   visibleApps={visible}
                   query={query}
                   list={list}
@@ -285,7 +286,8 @@ export default function Portal() {
                   onInspect={inspectApp}
                   onFocusApp={focusApp}
                   registerRef={registerRef}
-                />
+                  />
+                </Suspense>
               </div>
             )}
 
