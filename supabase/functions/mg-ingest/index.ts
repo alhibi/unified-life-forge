@@ -65,10 +65,13 @@ serve(async (req) => {
     }
     const items = parseFeed(xml, MAX_ITEMS_PER_SOURCE * 3).slice(0, MAX_ITEMS_PER_SOURCE);
 
-    // Skip URLs already stored so a refresh spends its budget on new pieces.
+    // Skip URLs already ingested so a refresh spends its budget on new
+    // pieces. Failed attempts are deliberately NOT skipped: extraction can
+    // succeed later (site unblocked, snapshot appeared, feed now carries text).
     const { data: known } = await db.from("mg_articles")
       .select("url")
       .eq("user_id", userId)
+      .eq("status", "processed")
       .in("url", items.map((i) => i.url));
     const seen = new Set((known ?? []).map((r: { url: string }) => r.url));
 
@@ -79,6 +82,7 @@ serve(async (req) => {
         title: item.title,
         publishedAt: item.publishedAt,
         author: item.author,
+        fallbackText: item.content,
       });
       results.push({ source: source.name, ...outcome });
       if (outcome.status === "processed") ingested++;

@@ -15,6 +15,10 @@ export interface IngestOutcome {
   reason?: string;
 }
 
+/** Text signatures of bot-challenge interstitials served instead of prose. */
+const CHALLENGE_RE =
+  /(security checkpoint|just a moment|enable javascript and cookies|verifying you are human|attention required)/i;
+
 const SUMMARY_SYSTEM =
   `You analyse long-form essays. Return ONLY JSON:
 {"summary":"3-5 sentence precis of the argument, in the article's own language",
@@ -32,7 +36,7 @@ export async function ingestUrl(
   userId: string,
   url: string,
   sourceId: string | null,
-  meta: { title?: string; publishedAt?: string | null; author?: string } = {},
+  meta: { title?: string; publishedAt?: string | null; author?: string; fallbackText?: string } = {},
 ): Promise<IngestOutcome> {
   if (!isSafeUrl(url)) return { url, status: "error", reason: "unsafe_url" };
 
@@ -62,7 +66,25 @@ export async function ingestUrl(
     const viaReader = await fetchViaReader(url);
     if (viaReader.length > raw.length) raw = viaReader;
   }
-  if (raw.length < 600) {
+  // Last resort: the feed entry's own body. Publishers that block scrapers
+  // usually still syndicate the full text (or a long extract) in the feed,
+  // and that text is perfectly readable by the model.
+  let fromFeedExcerpt = false;
+  if (meta.fallbackText && (raw.length < 400 || CHALLENGE_RE.test(raw))) {
+    const feedText = stripText(meta.fallbackText);
+    // Prefer the teaser over a bot-challenge page even when the challenge
+    // markup happens to produce more characters.
+    if (feedText.length >= 120) {
+      raw = feedText;
+      fromFeedExcerpt = true;
+    }
+  }
+
+  // A feed excerpt is short by nature (often a two-line teaser), but it is
+  // still real prose the model can summarise, tag and connect — far better
+  // than dropping the piece entirely for publishers that wall scrapers.
+  const minChars = fromFeedExcerpt ? 120 : 400;
+  if (raw.length < minChars) {
     await upsertArticle(db, userId, url, sourceId, {
       title: meta.title ?? scraped?.title ?? url,
       author: meta.author ?? null,
@@ -139,7 +161,12 @@ export async function ingestUrl(
       }
     }
     await db.from("mg_articles")
-      .update({ status: "processed", error_message: null })
+      .update({
+        status: "processed",
+        // Transparency: mark pieces where only the feed teaser was readable,
+        // so the archive and the discovery engine know the depth is shallow.
+        error_message: fromFeedExcerpt ? "feed_excerpt_only" : null,
+      })
       .eq("id", articleId);
     return { url, status: "processed", articleId, title: meta.title ?? scraped?.title };
   } catch (e) {

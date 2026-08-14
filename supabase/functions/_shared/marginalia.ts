@@ -252,7 +252,16 @@ export function safeJson<T>(raw: string): T | null {
 }
 
 // ── Feed parsing (RSS + Atom) ───────────────────────────────────────────
-export interface FeedItem { url: string; title: string; publishedAt: string | null; author?: string }
+export interface FeedItem {
+  url: string;
+  title: string;
+  publishedAt: string | null;
+  author?: string;
+  /** Plain text carried by the feed entry itself (`content:encoded`,
+   *  `content` or `description`). Many publishers ship the full essay
+   *  here, which is the only readable copy when the site blocks bots. */
+  content?: string;
+}
 
 function tag(block: string, name: string): string | null {
   const m = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, "i"));
@@ -282,6 +291,8 @@ export function parseFeed(xml: string, limit = 20): FeedItem[] {
       title,
       publishedAt: parsed && !Number.isNaN(parsed.getTime()) ? parsed.toISOString() : null,
       author: tag(block, "dc:creator") || tag(block, "author") || undefined,
+      content: tag(block, "content:encoded") || tag(block, "content") ||
+        tag(block, "summary") || tag(block, "description") || undefined,
     });
     if (items.length >= limit) break;
   }
