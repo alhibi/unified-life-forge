@@ -66,6 +66,12 @@ export async function ingestUrl(
     const viaReader = await fetchViaReader(url);
     if (viaReader.length > raw.length) raw = viaReader;
   }
+  // Publishers that wall live scraping usually still have a public snapshot
+  // in the Wayback Machine, which serves the full prose without challenges.
+  if (raw.length < 600 || CHALLENGE_RE.test(raw)) {
+    const viaArchive = await fetchViaArchive(url);
+    if (viaArchive.length > 600 && !CHALLENGE_RE.test(viaArchive)) raw = viaArchive;
+  }
   // Last resort: the feed entry's own body. Publishers that block scrapers
   // usually still syndicate the full text (or a long extract) in the feed,
   // and that text is perfectly readable by the model.
@@ -207,6 +213,39 @@ async function fetchViaReader(url: string): Promise<string> {
     );
     if (!res.ok) return "";
     const text = await res.text();
+    return text.length > 200_000 ? text.slice(0, 200_000) : text;
+  } catch { return ""; }
+}
+
+/**
+ * Fetches a full-text copy from the Wayback Machine. Blocked publishers are
+ * usually archived there, and archive.org serves plain HTML to any client.
+ */
+async function fetchViaArchive(url: string): Promise<string> {
+  try {
+    const probe = await fetchWithRetry(
+      `https://archive.org/wayback/available?url=${encodeURIComponent(url)}`,
+      { headers: { "Accept": "application/json", "User-Agent": USER_AGENT } },
+      12000,
+      0,
+    );
+    if (!probe.ok) return "";
+    const json = await probe.json().catch(() => null) as
+      | { archived_snapshots?: { closest?: { available?: boolean; url?: string } } }
+      | null;
+    const snapshot = json?.archived_snapshots?.closest;
+    if (!snapshot?.available || !snapshot.url) return "";
+    // `id_` asks for the original response, without the archive's own banner.
+    const rawUrl = snapshot.url.replace(/\/(\d{14})\//, "/$1id_/");
+    const res = await fetchWithRetry(
+      rawUrl.startsWith("http://") ? rawUrl.replace("http://", "https://") : rawUrl,
+      { headers: { "Accept": "text/html", "User-Agent": USER_AGENT } },
+      20000,
+      0,
+    );
+    if (!res.ok) return "";
+    const html = await res.text();
+    const text = stripText(html);
     return text.length > 200_000 ? text.slice(0, 200_000) : text;
   } catch { return ""; }
 }
