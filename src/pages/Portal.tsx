@@ -202,11 +202,11 @@ export default function Portal() {
 
       <PortalHeader unreadCount={unreadCount} />
 
-      <main className="mx-auto w-full max-w-6xl px-4 pt-4 pb-page relative z-10">
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-[max(1rem,env(safe-area-inset-inline-start))] pt-4 pb-page sm:px-6 lg:px-8 2xl:max-w-[88rem]">
         <h1 className="sr-only">amv.life — بوابتك الشخصية</h1>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8">
-          <div className="min-w-0 space-y-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,26vw,21.25rem)] lg:items-start lg:gap-8">
+          <div className="min-w-0 space-y-5 sm:space-y-6">
 
             <PortalGreeting username={username} />
 
@@ -236,7 +236,7 @@ export default function Portal() {
             )}
 
             {/* Sticky under the 56px header so the filter never scrolls away. */}
-            <div className="sticky top-[56px] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md">
+            <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
               <PortalFilterBar
                 query={query}
                 onQueryChange={setQuery}
@@ -282,7 +282,7 @@ export default function Portal() {
               </div>
             )}
 
-            <div className="flex items-center gap-3 pt-4">
+            <div className="flex items-center gap-3 pt-4 pb-[env(safe-area-inset-bottom)]">
               <span className="h-px flex-1 bg-border/40" aria-hidden />
               <span className="text-micro font-semibold tracking-[0.14em] text-muted-foreground/80 font-tajawal">
                 صُنِعَ بحب — عامر وأمولة
@@ -292,7 +292,10 @@ export default function Portal() {
           </div>
 
           {/* Desktop side panel — sticky under the 56px header. */}
-          <aside className="hidden lg:sticky lg:top-[72px] lg:block" aria-label={`اختصارات ${focusedApp.label}`}>
+          <aside
+            className="hidden lg:sticky lg:top-[calc(4.5rem+env(safe-area-inset-top))] lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain"
+            aria-label={`اختصارات ${focusedApp.label}`}
+          >
             <AppDetailPanel
               app={focusedApp}
               pinned={isPinned(focusedApp.key)}
