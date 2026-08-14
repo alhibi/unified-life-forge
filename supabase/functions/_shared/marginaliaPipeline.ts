@@ -65,10 +65,20 @@ export async function ingestUrl(
   // Last resort: the feed entry's own body. Publishers that block scrapers
   // usually still syndicate the full text (or a long extract) in the feed,
   // and that text is perfectly readable by the model.
-  if (meta.fallbackText && meta.fallbackText.length > raw.length) {
-    raw = stripText(meta.fallbackText);
+  let fromFeedExcerpt = false;
+  if (meta.fallbackText) {
+    const feedText = stripText(meta.fallbackText);
+    if (feedText.length > raw.length) {
+      raw = feedText;
+      fromFeedExcerpt = true;
+    }
   }
-  if (raw.length < 400) {
+
+  // A feed excerpt is short by nature (a few hundred characters), but it is
+  // still real prose the model can summarise, tag and connect — far better
+  // than dropping the piece entirely for publishers that wall scrapers.
+  const minChars = fromFeedExcerpt ? 200 : 400;
+  if (raw.length < minChars) {
     await upsertArticle(db, userId, url, sourceId, {
       title: meta.title ?? scraped?.title ?? url,
       author: meta.author ?? null,
