@@ -42,11 +42,13 @@ export async function ingestUrl(
 
   const { data: existing } = await db
     .from("mg_articles")
-    .select("id,status")
+    .select("id,status,error_message")
     .eq("user_id", userId)
     .eq("url", url)
     .maybeSingle();
-  if (existing?.status === "processed") {
+  // Excerpt-only rows are re-attempted: a full-text copy may now be
+  // reachable (fresh archive snapshot, site unblocked).
+  if (existing?.status === "processed" && existing.error_message !== "feed_excerpt_only") {
     return { url, status: "skipped", articleId: existing.id, reason: "already_ingested" };
   }
 

@@ -69,11 +69,17 @@ serve(async (req) => {
     // pieces. Failed attempts are deliberately NOT skipped: extraction can
     // succeed later (site unblocked, snapshot appeared, feed now carries text).
     const { data: known } = await db.from("mg_articles")
-      .select("url")
+      .select("url,error_message")
       .eq("user_id", userId)
       .eq("status", "processed")
       .in("url", items.map((i) => i.url));
-    const seen = new Set((known ?? []).map((r: { url: string }) => r.url));
+    // Excerpt-only pieces stay eligible so a later run can upgrade them to
+    // the full text once an archived copy exists.
+    const seen = new Set(
+      (known ?? [])
+        .filter((r: { error_message: string | null }) => r.error_message !== "feed_excerpt_only")
+        .map((r: { url: string }) => r.url),
+    );
 
     for (const item of items) {
       if (ingested >= MAX_ARTICLES) break;
