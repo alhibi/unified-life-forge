@@ -6,7 +6,6 @@ export interface MgSource {
   id: string;
   name: string;
   feed_url: string;
-  site_url: string | null;
   active: boolean;
   last_fetched_at: string | null;
   last_error: string | null;

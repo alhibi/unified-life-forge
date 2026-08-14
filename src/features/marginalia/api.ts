@@ -45,7 +45,7 @@ export const marginaliaApi = {
   /* ── Sources ─────────────────────────────────────────────────────── */
   async listSources(): Promise<MgSource[]> {
     const { data, error } = await db.from('mg_sources')
-      .select('id,name,feed_url,site_url,active,last_fetched_at,last_error')
+      .select('id,name,feed_url,active,last_fetched_at,last_error')
       .order('created_at', { ascending: true });
     if (error) throw error;
     return (data ?? []) as MgSource[];
@@ -57,7 +57,7 @@ export const marginaliaApi = {
     if (!userId) throw new Error('يجب تسجيل الدخول أولاً');
     const { data, error } = await db.from('mg_sources')
       .insert({ user_id: userId, name: name.trim(), feed_url: feedUrl.trim() })
-      .select('id,name,feed_url,site_url,active,last_fetched_at,last_error')
+      .select('id,name,feed_url,active,last_fetched_at,last_error')
       .single();
     if (error) throw error;
     return data as MgSource;

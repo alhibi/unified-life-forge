@@ -1,7 +1,7 @@
 // Article ingestion pipeline shared by `mg-ingest` (daily/batch) and
 // `mg-add-article` (synchronous, user-pasted URL).
 
-import { isSafeUrl, scrapeArticle, stripText } from "./rss-utils.ts";
+import { fetchWithRetry, isSafeUrl, scrapeArticle, stripText, USER_AGENT } from "./rss-utils.ts";
 import { callOpenRouter, chunkText, embedTexts, safeJson } from "./marginalia.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -47,7 +47,14 @@ export async function ingestUrl(
   }
 
   const scraped = await scrapeArticle(url, 15000);
-  const raw = scraped ? stripText(scraped.html) : "";
+  let raw = scraped ? stripText(scraped.html) : "";
+  // Readability-style container extraction fails on hand-written or
+  // table-based pages (personal essay sites, old blogs). Falling back to
+  // the whole document body still yields clean prose for those.
+  if (raw.length < 600) {
+    const fallback = await fetchPlainText(url);
+    if (fallback.length > raw.length) raw = fallback;
+  }
   if (raw.length < 600) {
     await upsertArticle(db, userId, url, sourceId, {
       title: meta.title ?? scraped?.title ?? url,
@@ -132,6 +139,24 @@ export async function ingestUrl(
       .eq("id", articleId);
     return { url, status: "error", articleId, reason };
   }
+}
+
+/** Last-resort extraction: strip chrome from the full document. */
+async function fetchPlainText(url: string): Promise<string> {
+  try {
+    const res = await fetchWithRetry(
+      url,
+      { headers: { "User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml" }, redirect: "follow" },
+      15000,
+      0,
+    );
+    if (!res.ok) return "";
+    const html = await res.text();
+    const body = html
+      .replace(/<(script|style|noscript|svg|nav|header|footer|form)[\s\S]*?<\/\1>/gi, " ")
+      .replace(/<\/(p|div|br|li|h[1-6]|tr)>/gi, "\n");
+    return stripText(body);
+  } catch { return ""; }
 }
 
 async function upsertArticle(
