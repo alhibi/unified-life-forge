@@ -27,7 +27,7 @@ import {
   subscribeReadingStorage,
 } from './storage';
 import type { FeedItem, FeedSource, FeedStatus } from './types';
-import { sortByPubDateDesc } from './utils';
+import { mergeArticles, sortByPubDateDesc } from './utils';
 
 
 // ─── Constants for stability & memory management ───────────────────────────
@@ -299,8 +299,10 @@ export function useReadingData() {
 
   /** Cap article list to MAX_ARTICLES_IN_MEMORY, keeping newest. */
   const capArticles = useCallback((list: FeedItem[]): FeedItem[] => {
-    if (list.length <= MAX_ARTICLES_IN_MEMORY) return list;
-    return sortByPubDateDesc(list).slice(0, MAX_ARTICLES_IN_MEMORY);
+    const sorted = sortByPubDateDesc(list);
+    return sorted.length <= MAX_ARTICLES_IN_MEMORY
+      ? sorted
+      : sorted.slice(0, MAX_ARTICLES_IN_MEMORY);
   }, []);
 
   /** Compute adaptive refresh interval based on consecutive failures. */
@@ -391,20 +393,13 @@ export function useReadingData() {
     // Clear error on successful load
     if (!onlineFailed) setLastError(null);
 
-    const seen = new Set<string>();
-    const merged: FeedItem[] = [];
-    for (const a of online) {
-      if (a.link && !seen.has(a.link)) {
-        seen.add(a.link);
-        merged.push(a);
-      }
-    }
-    for (const a of offline) {
-      if (a.link && !seen.has(a.link)) {
-        seen.add(a.link);
-        merged.push(a);
-      }
-    }
+    // Merge cached (offline), freshly loaded (online) and whatever is
+    // already on screen for still-enabled sources. Keeping the in-memory
+    // rows means re-enabling a source never wipes the list for a frame,
+    // and dedup + chronological order stay stable across all three.
+    const allowed = new Set(names);
+    const inMemory = articlesRef.current.filter((a) => allowed.has(a.source));
+    const merged = mergeArticles<FeedItem>(inMemory, offline, online);
     setArticles(capArticles(merged));
     setTotalInDB(onlineCount || merged.length);
   }, [capArticles]);
@@ -527,12 +522,9 @@ export function useReadingData() {
                 const r = singleResult[0];
                 if (r && !r.error && r.items.length > 0) {
                   // Merge immediately in real-time!
-                  setArticles((prev) => {
-                    const seen = new Set(prev.map((a) => a.link));
-                    const newOnes = r.items.filter((a) => a.link && !seen.has(a.link));
-                    if (newOnes.length === 0) return prev;
-                    return capArticles(sortByPubDateDesc([...newOnes, ...prev]));
-                  });
+                  setArticles((prev) => capArticles(
+                    mergeArticles<FeedItem>(prev, r.items),
+                  ));
                   allFreshArticles.push(...r.items);
 
                   setSyncProgress((prev) => ({
@@ -1001,12 +993,7 @@ export function useReadingData() {
           }
         }
         if (fresh.length > 0) {
-          setArticles((prev) => {
-            const seen = new Set(prev.map((a) => a.link));
-            const newOnes = fresh.filter((a) => a.link && !seen.has(a.link));
-            if (newOnes.length === 0) return prev;
-            return sortByPubDateDesc([...prev, ...newOnes]);
-          });
+          setArticles((prev) => capArticles(mergeArticles<FeedItem>(prev, fresh)));
           toast.success(
             `تمت إضافة ${fresh.length} مقال من ${feed.name}`,
           );
