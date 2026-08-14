@@ -507,6 +507,7 @@ export default function ReadingPage() {
           readArticles={readArticles}
           cachedLinks={cachedLinks}
           hasFeeds={enabledFeeds.length > 0}
+          serviceError={lastError}
           prefs={listPrefs}
           onOpenArticle={openArticle}
           onToggleBookmark={toggleBookmark}
