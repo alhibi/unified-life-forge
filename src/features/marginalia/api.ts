@@ -95,7 +95,31 @@ export const marginaliaApi = {
   },
 
   ingest(sourceId?: string) {
-    return invoke<{ processed: number; results: unknown[] }>('mg-ingest', { sourceId });
+    return invoke<MgIngestResult>('mg-ingest', { sourceId });
+  },
+
+  /**
+   * Walks every active source. The edge function handles a small page of
+   * feeds per invocation (worker memory budget), so we keep calling with
+   * the returned cursor until the whole list is covered.
+   */
+  async ingestAll(
+    onProgress?: (done: number, total: number, processed: number) => void,
+    maxRounds = 12,
+  ): Promise<{ processed: number; sources: number }> {
+    let offset: number | null = 0;
+    let processed = 0;
+    let total = 0;
+    let covered = 0;
+    for (let round = 0; round < maxRounds && offset !== null; round++) {
+      const res: MgIngestResult = await invoke<MgIngestResult>('mg-ingest', { offset });
+      processed += res.processed ?? 0;
+      total = res.totalSources ?? total;
+      covered = res.coveredSources ?? covered;
+      onProgress?.(covered, total, processed);
+      offset = res.nextOffset ?? null;
+    }
+    return { processed, sources: covered };
   },
 
   /* ── Connections ─────────────────────────────────────────────────── */
