@@ -80,6 +80,7 @@ export default function ReadingPage() {
     statuses,
     totalInDB,
     lastRefresh,
+    lastError,
     sourceCounts,
     refreshFeeds,
     toggleBookmark,
