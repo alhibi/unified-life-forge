@@ -29,6 +29,7 @@ import {
   Languages,
   Layers,
   Library,
+  Link2,
   Luggage,
   MapPinned,
   MessageCircle,
@@ -183,6 +184,19 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     links: [
       { path: '/reading', label: 'موجز القراءة', note: 'أحدث المقالات', icon: Newspaper },
       { path: '/reading/discover', label: 'اكتشاف المصادر', note: 'مكتبة الخلاصات', icon: Compass },
+    ],
+  },
+  {
+    key: 'marginalia',
+    path: '/marginalia',
+    label: 'الهوامش',
+    caption: 'MARGINALIA',
+    description: 'أرشيف قراءة يكشف الروابط الخفية',
+    cat: 'mind',
+    icon: Link2,
+    keywords: 'marginalia هوامش أرشيف روابط قراءة اكتشاف تحليل حوار مقالات',
+    links: [
+      { path: '/marginalia', label: 'موجز الروابط', note: 'روابط غير بديهية بين مقالاتك', icon: Link2 },
     ],
   },
   {
