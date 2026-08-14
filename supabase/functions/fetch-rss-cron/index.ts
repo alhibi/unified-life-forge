@@ -88,28 +88,44 @@ serve(async (req) => {
     return jsonResponse({ refreshed: 0, message: "no feeds known yet" });
   }
 
-  // Forward to fetch-rss with the service role token so we're allowed.
-  const res = await fetch(`${supabaseUrl}/functions/v1/fetch-rss`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${serviceKey}`,
-    },
-    body: JSON.stringify({
-      urls,
-      limit: 50,
-      fetchFullContent: true,
-      store: true,
-      nameMap,
-    }),
-  });
+  // Forward to fetch-rss in small sequential batches. Sending every known
+  // feed in one call made the downstream isolate hold all parsed feeds plus
+  // scraped article bodies in memory at once, which tripped
+  // WORKER_RESOURCE_LIMIT (memory limit exceeded).
+  const BATCH_SIZE = 6;
+  const batchStatuses: { batch: number; httpStatus: number }[] = [];
 
-  let payload: unknown = null;
-  try { payload = await res.json(); } catch { /* tolerate non-JSON */ }
+  for (let i = 0; i < urls.length; i += BATCH_SIZE) {
+    const batch = urls.slice(i, i + BATCH_SIZE);
+    const batchNames: Record<string, string> = {};
+    for (const u of batch) if (nameMap[u]) batchNames[u] = nameMap[u];
+
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/fetch-rss`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({
+          urls: batch,
+          limit: 25,
+          fetchFullContent: true,
+          store: true,
+          nameMap: batchNames,
+        }),
+      });
+      // Drain and discard the body so the response buffer is freed instead
+      // of accumulating across batches.
+      await res.text().catch(() => "");
+      batchStatuses.push({ batch: i / BATCH_SIZE, httpStatus: res.status });
+    } catch (_e) {
+      batchStatuses.push({ batch: i / BATCH_SIZE, httpStatus: 0 });
+    }
+  }
 
   return jsonResponse({
     refreshed: urls.length,
-    httpStatus: res.status,
-    upstream: payload,
+    batches: batchStatuses,
   });
 });
