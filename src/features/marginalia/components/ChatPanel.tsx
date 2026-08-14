@@ -39,7 +39,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
   useEffect(() => { void loadConversations(); }, [loadConversations]);
 
   useEffect(() => {
-    if (!activeId) { setMessages([]); return; }
+    if (!activeId) return;
     let alive = true;
     marginaliaApi.listMessages(activeId)
       .then((m) => { if (alive) setMessages(m); })
@@ -139,7 +139,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
           <button
             key={c.id}
             type="button"
-            onClick={() => setActiveId(c.id)}
+            onClick={() => { setActiveId(c.id); setMessages([]); }}
             className={`shrink-0 max-w-[9rem] truncate text-[0.6875rem] font-bold px-2.5 py-1.5 rounded-lg transition ${
               activeId === c.id ? 'bg-background text-foreground shadow-sm' : 'bg-muted/50 text-muted-foreground'
             }`}
