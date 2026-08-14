@@ -15,6 +15,10 @@ export interface IngestOutcome {
   reason?: string;
 }
 
+/** Text signatures of bot-challenge interstitials served instead of prose. */
+const CHALLENGE_RE =
+  /(security checkpoint|just a moment|enable javascript and cookies|verifying you are human|attention required)/i;
+
 const SUMMARY_SYSTEM =
   `You analyse long-form essays. Return ONLY JSON:
 {"summary":"3-5 sentence precis of the argument, in the article's own language",
@@ -66,9 +70,11 @@ export async function ingestUrl(
   // usually still syndicate the full text (or a long extract) in the feed,
   // and that text is perfectly readable by the model.
   let fromFeedExcerpt = false;
-  if (meta.fallbackText) {
+  if (meta.fallbackText && (raw.length < 400 || CHALLENGE_RE.test(raw))) {
     const feedText = stripText(meta.fallbackText);
-    if (feedText.length > raw.length) {
+    // Prefer the teaser over a bot-challenge page even when the challenge
+    // markup happens to produce more characters.
+    if (feedText.length >= 120) {
       raw = feedText;
       fromFeedExcerpt = true;
     }
