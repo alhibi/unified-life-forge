@@ -64,6 +64,7 @@ export function ArticleListGrouped({
   readArticles,
   cachedLinks,
   hasFeeds,
+  serviceError,
   prefs,
   onOpenArticle,
   onToggleBookmark,
@@ -84,6 +85,8 @@ export function ArticleListGrouped({
   readArticles: string[];
   cachedLinks?: ReadonlySet<string>;
   hasFeeds?: boolean;
+  /** Generic message when the backend/refresh service failed. */
+  serviceError?: string | null;
   prefs: ListPrefs;
   onOpenArticle: (a: FeedItem) => void;
   onToggleBookmark: (link: string) => void;
@@ -499,6 +502,7 @@ export function ArticleListGrouped({
           searchQuery={searchQuery}
           refreshing={refreshing}
           hasFeeds={hasFeeds ?? true}
+          serviceError={serviceError ?? null}
           onRefresh={onRefresh}
           onAddFeeds={onAddFeeds}
         />
@@ -609,6 +613,7 @@ function EmptyState({
   searchQuery,
   refreshing,
   hasFeeds,
+  serviceError,
   onRefresh,
   onAddFeeds,
 }: {
@@ -616,14 +621,35 @@ function EmptyState({
   searchQuery: string;
   refreshing: boolean;
   hasFeeds: boolean;
+  serviceError?: string | null;
   onRefresh: () => void;
   onAddFeeds?: () => void;
 }) {
   let icon: React.ReactNode;
   let label: string;
   let cta: React.ReactNode = null;
+  let hint: string | null = null;
 
-  if (filterTab === 'bookmarks') {
+  if (serviceError && filterTab !== 'bookmarks' && !searchQuery) {
+    icon = <AlertTriangle className="h-10 w-10 text-muted-foreground/40" />;
+    label = 'تعذّر تحديث المقالات مؤقتاً';
+    hint =
+      'الخدمة مشغولة أو غير متاحة الآن. المقالات المحفوظة تبقى متاحة، ويمكنك المحاولة بعد قليل.';
+    cta = (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onRefresh}
+        className="rounded-xl mt-2"
+        disabled={refreshing}
+      >
+        <RefreshCw
+          className={`h-3.5 w-3.5 me-1.5 ${refreshing ? 'animate-spin' : ''}`}
+        />
+        {'إعادة المحاولة'}
+      </Button>
+    );
+  } else if (filterTab === 'bookmarks') {
     icon = <Bookmark className="h-10 w-10 text-muted-foreground/30" />;
     label = 'لا توجد مقالات محفوظة';
   } else if (searchQuery) {
@@ -673,6 +699,11 @@ function EmptyState({
     >
       {icon}
       <p className="text-sm text-muted-foreground">{label}</p>
+      {hint && (
+        <p className="text-xs text-muted-foreground/70 leading-relaxed max-w-xs">
+          {hint}
+        </p>
+      )}
       {cta}
     </motion.div>
   );
