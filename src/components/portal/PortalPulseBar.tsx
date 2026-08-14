@@ -77,7 +77,7 @@ export default function PortalPulseBar() {
       <button
         type="button"
         onClick={() => void requestLocation()}
-        className="app-card flex w-full items-center gap-3 p-3 text-start transition-colors duration-fast hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="app-card-bare flex w-full items-center gap-3 p-3 text-start transition-colors duration-fast hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border text-[hsl(var(--live))]">
           <Crosshair className="h-4 w-4" aria-hidden />
@@ -94,7 +94,7 @@ export default function PortalPulseBar() {
   }
 
   return (
-    <div className="app-card flex flex-wrap items-stretch gap-1 p-1.5" aria-label="نبض اليوم">
+    <div className="app-card-bare flex flex-wrap items-stretch gap-1 p-1.5" aria-label="نبض اليوم">
       <Cell label="لوحة الآن ومواقيت الصلاة" onClick={() => navigate('/now')}>
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-[hsl(var(--live))]">
           <Sun className="h-4 w-4" aria-hidden />
