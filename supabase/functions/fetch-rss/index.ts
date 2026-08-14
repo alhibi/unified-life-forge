@@ -1165,23 +1165,38 @@ serve(async (req) => {
       error: f.error,
     }));
 
+    for (const f of fetched) {
+      if (f.status === "error") {
+        logError("feed_failed", f.error || "unknown", {
+          url: f.url,
+          httpStatus: f.httpStatus,
+        });
+      }
+    }
+    log("request_done", {
+      okFeeds: feeds.length,
+      failedFeeds: fetched.length - feeds.length,
+      items: feeds.reduce((n, f) => n + f.count, 0),
+    });
+
     return new Response(
       JSON.stringify({
+        requestId,
         feeds,
         statuses,
         errors: fetched
           .filter((f) => f.status === "error")
           .map((f) => `${f.url}: ${f.error || "unknown"}`),
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { headers: jsonHeaders },
     );
   } catch (e: unknown) {
-    console.error("Handler error:", e);
+    logError("handler_error", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : String(e) }),
+      JSON.stringify({ requestId, error: e instanceof Error ? e.message : String(e) }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       },
     );
   }
