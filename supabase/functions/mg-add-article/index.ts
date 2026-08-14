@@ -33,7 +33,9 @@ serve(async (req) => {
 
   try {
     const outcome = await ingestUrl(db, userId, url, sourceId);
-    return jsonResponse({ outcome }, outcome.status === "error" ? 422 : 200);
+    // Always 200: a failed extraction is a normal outcome the UI explains,
+    // not a transport error that should blow up the client.
+    return jsonResponse({ outcome }, 200);
   } catch (e) {
     const message = (e as Error).message;
     console.error(JSON.stringify({ event: "add_article_failed", url, error: message }));

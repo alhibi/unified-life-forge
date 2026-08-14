@@ -28,12 +28,22 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
     );
   }, [articles, query]);
 
+  const REASON_TEXT: Record<string, string> = {
+    extraction_blocked: 'الموقع يمنع القراءة الآلية — جرّب رابط النسخة الكاملة أو موقعاً آخر',
+    unsafe_url: 'رابط غير مدعوم',
+  };
+
   const add = async () => {
     const value = url.trim();
     if (!/^https?:\/\//i.test(value)) { toast.error('أدخل رابط مقال صحيحاً'); return; }
     setAdding(true);
     try {
       const { outcome } = await marginaliaApi.addArticle(value);
+      if (outcome.status === 'error') {
+        toast.error(REASON_TEXT[outcome.reason ?? ''] ?? 'تعذّر أرشفة هذا الرابط');
+        onChanged();
+        return;
+      }
       if (outcome.status === 'skipped') toast.success('المقال موجود في الأرشيف مسبقاً');
       else toast.success('أُضيف المقال إلى الأرشيف');
       setUrl('');
