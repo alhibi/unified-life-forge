@@ -171,7 +171,7 @@ export default function Portal() {
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       const currentIndex = tileRefs.current.findIndex((el) => el === document.activeElement);
       if (currentIndex === -1) return;
-      const columns = columnsFor(viewportWidth, list);
+      const columns = measureColumns(tileRefs.current, list);
       let nextIndex: number;
 
       switch (event.key) {
