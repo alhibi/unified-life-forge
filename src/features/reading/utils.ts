@@ -1,6 +1,41 @@
 /** Pure utility helpers — no React, no DOM. */
 
 /**
+ * Parse a feed date into a numeric timestamp, memoised. Feed lists are
+ * sorted and re-sorted on every merge; `new Date(str)` inside a
+ * comparator costs O(n log n) allocations per pass. The cache collapses
+ * that to one parse per distinct date string.
+ */
+const timeCache = new Map<string, number>();
+export function pubTime(dateStr: string | null | undefined): number {
+  if (!dateStr) return 0;
+  const hit = timeCache.get(dateStr);
+  if (hit !== undefined) return hit;
+  const parsed = new Date(dateStr).getTime();
+  const value = Number.isNaN(parsed) ? 0 : parsed;
+  // Bounded cache — feed dates are near-unbounded over a long session.
+  if (timeCache.size > 20_000) timeCache.clear();
+  timeCache.set(dateStr, value);
+  return value;
+}
+
+/**
+ * Sort newest-first without repeated date parsing (Schwartzian
+ * transform + memoised parse). Returns a new array.
+ */
+export function sortByPubDateDesc<T extends { pubDate?: string | null }>(
+  list: ReadonlyArray<T>,
+): T[] {
+  const decorated = list.map((item, index) => ({
+    item,
+    index,
+    ts: pubTime(item.pubDate),
+  }));
+  decorated.sort((a, b) => (b.ts - a.ts) || (a.index - b.index));
+  return decorated.map((entry) => entry.item);
+}
+
+/**
  * Defence-in-depth: only allow http(s) URLs as anchor `href` values.
  * Untrusted RSS feeds could supply `javascript:` or `data:` URLs that
  * would execute in our origin when clicked. Anything else collapses
