@@ -79,6 +79,7 @@ serve(async (req) => {
         title: item.title,
         publishedAt: item.publishedAt,
         author: item.author,
+        fallbackText: item.content,
       });
       results.push({ source: source.name, ...outcome });
       if (outcome.status === "processed") ingested++;

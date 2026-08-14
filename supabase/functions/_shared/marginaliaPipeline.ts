@@ -32,7 +32,7 @@ export async function ingestUrl(
   userId: string,
   url: string,
   sourceId: string | null,
-  meta: { title?: string; publishedAt?: string | null; author?: string } = {},
+  meta: { title?: string; publishedAt?: string | null; author?: string; fallbackText?: string } = {},
 ): Promise<IngestOutcome> {
   if (!isSafeUrl(url)) return { url, status: "error", reason: "unsafe_url" };
 
@@ -62,7 +62,13 @@ export async function ingestUrl(
     const viaReader = await fetchViaReader(url);
     if (viaReader.length > raw.length) raw = viaReader;
   }
-  if (raw.length < 600) {
+  // Last resort: the feed entry's own body. Publishers that block scrapers
+  // usually still syndicate the full text (or a long extract) in the feed,
+  // and that text is perfectly readable by the model.
+  if (meta.fallbackText && meta.fallbackText.length > raw.length) {
+    raw = stripText(meta.fallbackText);
+  }
+  if (raw.length < 400) {
     await upsertArticle(db, userId, url, sourceId, {
       title: meta.title ?? scraped?.title ?? url,
       author: meta.author ?? null,
