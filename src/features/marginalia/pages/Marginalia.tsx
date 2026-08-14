@@ -6,7 +6,7 @@
  * Four surfaces: Discovery feed, Archive, Chat (RAG), Pinboard.
  */
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import BackButton from '@/components/BackButton';
@@ -42,6 +42,22 @@ export default function Marginalia() {
   const [pins, setPins] = useState<MgPin[]>([]);
   const [discovering, setDiscovering] = useState(false);
   const [seed, setSeed] = useState<{ connectionId: string; text: string } | null>(null);
+  // Debounced persistence for pinboard notes — typing shouldn't fire a
+  // write per keystroke, and unmounting shouldn't lose the last edit.
+  const noteTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  useEffect(() => () => {
+    for (const timer of noteTimers.current.values()) clearTimeout(timer);
+  }, []);
+
+  const saveNote = useCallback((pinId: string, value: string) => {
+    const timers = noteTimers.current;
+    const existing = timers.get(pinId);
+    if (existing) clearTimeout(existing);
+    timers.set(pinId, setTimeout(() => {
+      timers.delete(pinId);
+      marginaliaApi.updatePinNote(pinId, value).catch((e) => toast.error((e as Error).message));
+    }, 700));
+  }, []);
 
   const articleMap = useMemo(() => new Map(articles.map((a) => [a.id, a])), [articles]);
   const connectionMap = useMemo(() => new Map(connections.map((c) => [c.id, c])), [connections]);
@@ -198,6 +214,7 @@ export default function Marginalia() {
                   note={pin.user_note}
                   onNoteChange={(value) => {
                     setPins((prev) => prev.map((p) => p.id === pin.id ? { ...p, user_note: value } : p));
+                    saveNote(pin.id, value);
                   }}
                   onDiscuss={(conn) => { setSeed({ connectionId: conn.id, text: conn.connection_text }); setTab('chat'); }}
                   onDismiss={async () => {
