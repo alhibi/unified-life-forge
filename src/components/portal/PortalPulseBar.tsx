@@ -2,10 +2,10 @@
  * PortalPulseBar — the live strip: next prayer, the clock, and the weather.
  *
  * This is the compact successor to the "cosmic astrolabe": a 160px dial with
- * two永 infinite rotations, a sweeping hand, four blueprint corner labels and a
+ * two infinite rotations, a sweeping hand, four blueprint corner labels and a
  * two-column readout, all above the fold. The information people came for was
  * three values; this renders exactly those three, in one row, with no
- *永-running animation.
+ *always-running animation.
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
