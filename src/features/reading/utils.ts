@@ -36,6 +36,81 @@ export function sortByPubDateDesc<T extends { pubDate?: string | null }>(
 }
 
 /**
+ * Canonical identity for an article. Feeds routinely republish the same
+ * URL with tracking parameters, an added/removed trailing slash, or a
+ * protocol change, which used to produce visible duplicates whenever a
+ * source was re-enabled and its cached + fresh rows merged.
+ */
+const TRACKING_PARAM = /^(utm_|fbclid|gclid|mc_cid|mc_eid|ref|ref_src|igshid|spm)/i;
+export function articleKey(link: string | null | undefined): string {
+  if (!link) return '';
+  const raw = link.trim();
+  try {
+    const u = new URL(raw);
+    for (const key of [...u.searchParams.keys()]) {
+      if (TRACKING_PARAM.test(key)) u.searchParams.delete(key);
+    }
+    u.hash = '';
+    const host = u.hostname.replace(/^www\./i, '').toLowerCase();
+    const path = u.pathname.replace(/\/+$/, '');
+    const query = u.searchParams.toString();
+    return `${host}${path}${query ? `?${query}` : ''}`;
+  } catch {
+    return raw.replace(/[#?].*$/, '').replace(/\/+$/, '').toLowerCase();
+  }
+}
+
+/** Richness score — used to decide which duplicate wins a merge. */
+function richness(a: {
+  fullContent?: string | null;
+  description?: string | null;
+  image?: string | null;
+  images?: ReadonlyArray<unknown> | null;
+}): number {
+  let score = 0;
+  if (a.fullContent) score += 4;
+  if (a.image) score += 2;
+  if (a.images && a.images.length > 0) score += 1;
+  score += Math.min(3, Math.floor((a.description?.length ?? 0) / 200));
+  return score;
+}
+
+/**
+ * Merge article batches into one deduplicated, deterministically ordered
+ * (newest-first) list. Earlier arguments are treated as lower priority:
+ * when the same article appears twice, the richer record wins, and ties
+ * go to the later batch (the fresher fetch).
+ */
+export function mergeArticles<
+  T extends {
+    link: string;
+    pubDate?: string | null;
+    fullContent?: string | null;
+    description?: string | null;
+    image?: string | null;
+    images?: ReadonlyArray<unknown> | null;
+  },
+>(...batches: ReadonlyArray<ReadonlyArray<T>>): T[] {
+  const byKey = new Map<string, T>();
+  for (const batch of batches) {
+    for (const item of batch) {
+      const key = articleKey(item.link);
+      if (!key) continue;
+      const existing = byKey.get(key);
+      if (!existing) { byKey.set(key, item); continue; }
+      // Prefer the richer record; on a tie prefer the newer batch, but
+      // never lose an already-extracted full body.
+      if (richness(item) >= richness(existing)) {
+        byKey.set(key, item.fullContent || !existing.fullContent
+          ? item
+          : { ...item, fullContent: existing.fullContent });
+      }
+    }
+  }
+  return sortByPubDateDesc([...byKey.values()]);
+}
+
+/**
  * Defence-in-depth: only allow http(s) URLs as anchor `href` values.
  * Untrusted RSS feeds could supply `javascript:` or `data:` URLs that
  * would execute in our origin when clicked. Anything else collapses
