@@ -1013,7 +1013,7 @@ export function useReadingData() {
         );
       }
     },
-    [],
+    [capArticles],
   );
 
   const refreshFeed = useCallback((url: string) => {
