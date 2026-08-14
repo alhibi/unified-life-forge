@@ -3,29 +3,34 @@
  *
  * Interaction contract:
  *   • Primary tap / Enter  → open the app.
- *   • The trailing "…" affordance (44×44) → open the app's deep-link panel
+ *   • The trailing "…" affordance (32×32) → open the app's deep-link panel
  *     without navigating. It is a real button, not a hover-only secret.
  *   • Long-press / right-click → same as the affordance, for touch users who
  *     expect a launcher to behave like a home screen.
  *
+ * Visual contract:
+ *   Each tile derives every colour from one `--tile` accent token supplied by
+ *   `getTileIdentity`, and carries a single app-specific motif (see
+ *   AppTileVisuals). The previous editorial costume — corner crop marks,
+ *   "Nº 0001 / EST. 2024", the ACTIVE SEAL dot, the fake barcode, a per-tile
+ *   SVG noise filter and a React-state 3D tilt — is gone: it was uniform
+ *   across apps (so it distinguished nothing) and re-rendered on every
+ *   pointer move.
+ *
  * Motion contract (design system §8: transform + opacity only):
- *   • Entrance: spring fade-up, stagger capped at 6 items so a long list is
- *     never punished with a visible cascade.
- *   • Hover / focus: −2px lift on the tile and a 1.06 scale on the icon chip,
- *     both pure transforms driven by CSS transitions (no React state, so
- *     hovering never re-renders the grid).
- *   • Reorder between filters is a FLIP via framer's `layout` — the tile
- *     animates its own transform, no layout thrash.
+ *   • Entrance: spring fade-up, stagger capped at 6 items.
+ *   • Hover / focus: −2px lift plus the motif's own gesture, both pure CSS.
+ *   • Reorder between filters is a FLIP via framer's `layout`.
  */
 import { motion, useReducedMotion } from 'framer-motion';
-import { forwardRef, memo, useCallback, useRef, useState } from 'react';
+import { forwardRef, memo, useCallback, useRef } from 'react';
 
 import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 import type { PortalApp } from './apps';
-import { getTileTheme, TileBackground } from './AppTileVisuals';
+import { getTileIdentity, TileMotif } from './AppTileVisuals';
 
 const LONG_PRESS_MS = 420;
 
@@ -51,13 +56,10 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
   forwardedRef,
 ) {
   const reduce = useReducedMotion();
-  const theme = getTileTheme(app.key, index);
+  const identity = getTileIdentity(app.key);
+  const Icon = app.icon;
   const longPressTimer = useRef<number | null>(null);
   const longPressFired = useRef(false);
-
-  // Micro-physics 3D hover states
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
 
   const clearLongPress = useCallback(() => {
     if (longPressTimer.current !== null) {
@@ -94,54 +96,21 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
     onOpen(app);
   }, [app, onOpen]);
 
-  // Micro-physics tilt calculator based on cursor proximity inside card
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    if (reduce) return;
-    const card = e.currentTarget;
-    const box = card.getBoundingClientRect();
-    const x = e.clientX - box.left;
-    const y = e.clientY - box.top;
-    const centerX = box.width / 2;
-    const centerY = box.height / 2;
-
-    // Max tilt angle 4 degrees
-    const rX = ((centerY - y) / centerY) * 4;
-    const rY = ((x - centerX) / centerX) * 4;
-
-    setRotateX(rX);
-    setRotateY(rY);
-  }, [reduce]);
-
-  const handleMouseLeave = useCallback(() => {
-    setRotateX(0);
-    setRotateY(0);
-  }, []);
-
   return (
     <motion.div
       ref={forwardedRef}
       layout={reduce ? false : 'position'}
-      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.985 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.99 }}
       transition={
         reduce
           ? { duration: 0.12, ease: 'linear' }
-          : {
-              ...MOTION.spring,
-              delay: Math.min(index, 6) * 0.035,
-            }
+          : { ...MOTION.spring, delay: Math.min(index, 6) * 0.03 }
       }
       className="relative"
-      style={{ perspective: 600 }}
+      style={{ '--tile': identity.accent } as React.CSSProperties}
     >
-      <svg className="absolute w-0 h-0" aria-hidden="true">
-        <filter id="paper-noise">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.15 0" in="noise" result="coloredNoise" />
-          <feBlend in="SourceGraphic" in2="coloredNoise" mode="multiply" />
-        </filter>
-      </svg>
       <button
         ref={(el) => registerRef?.(index, el)}
         type="button"
@@ -154,132 +123,85 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           event.preventDefault();
           onInspect(app);
         }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         onMouseEnter={() => onFocusApp(app)}
         onFocus={() => onFocusApp(app)}
         aria-label={`${app.label} — ${app.description}`}
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
-        style={{
-          transform: !reduce ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)` : undefined,
-          transformStyle: 'preserve-3d',
-        }}
         className={cn(
-          'app-card group relative w-full text-start overflow-hidden font-amiri',
-          theme.bg,
-          theme.border,
-          theme.glow,
-          'border',
-          'transition-[transform,border-color,background-color] duration-normal ease-out-expo',
+          'group relative w-full overflow-hidden rounded-card border text-start',
+          'border-[hsl(var(--tile)/0.28)] bg-[hsl(var(--tile)/0.07)] dark:bg-[hsl(var(--tile)/0.12)]',
+          'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
+          'hover:-translate-y-0.5 hover:border-[hsl(var(--tile)/0.5)] hover:shadow-[0_10px_30px_-18px_hsl(var(--tile)/0.7)]',
+          'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          'hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)]',
-          active && 'border-primary/70 bg-accent/40',
-          list ? 'flex items-center gap-3 p-4' : 'flex min-h-[148px] flex-col justify-between p-4',
+          'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+          active && 'border-[hsl(var(--tile)/0.65)] bg-[hsl(var(--tile)/0.14)]',
+          list ? 'flex items-center gap-3 p-3' : 'flex min-h-[132px] flex-col justify-between p-4',
         )}
       >
-        {/* Crop Marks (Micro details) */}
-        <span className="absolute top-1 start-1 w-1.5 h-1.5 border-t border-s border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
-        <span className="absolute top-1 end-1 w-1.5 h-1.5 border-t border-e border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
-        <span className="absolute bottom-1 start-1 w-1.5 h-1.5 border-b border-s border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
-        <span className="absolute bottom-1 end-1 w-1.5 h-1.5 border-b border-e border-current opacity-25 group-hover:opacity-60 transition-opacity pointer-events-none" />
+        <TileMotif motif={identity.motif} />
 
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <TileBackground appKey={app.key} />
-        </div>
+        {/* Accent hairline along the top edge — the app's signature. */}
+        <span
+          className="pointer-events-none absolute start-0 end-0 top-0 h-px bg-[hsl(var(--tile)/0.55)]"
+          aria-hidden
+        />
 
-        {/* Paper texture overlay */}
-        <div className="pointer-events-none absolute inset-0 z-10 mix-blend-multiply opacity-40 dark:opacity-20 [filter:url(#paper-noise)]" aria-hidden="true" />
-
-        {/* Content wrapper with z-20 */}
-        <div className={cn("relative z-20 flex h-full w-full", list ? "items-center" : "flex-col justify-between")}>
-
-        {list ? (
-          <span className="flex w-full items-center gap-4">
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-2">
-                <span className="truncate text-body font-bold text-foreground drop-shadow-sm">
-                  {app.label}
-                </span>
-                {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
-              </span>
-              <span className="mt-0.5 block truncate text-mini text-muted-foreground">
-                {app.description}
-              </span>
-            </span>
-            <span className="flex flex-col items-end gap-1 font-mono text-xs text-muted-foreground/60">
-              <span>Nº {String(index + 1).padStart(4, '0')}</span>
-              <span>EST. 2024</span>
-            </span>
+        <div className={cn('relative z-10 flex w-full', list ? 'items-center gap-3' : 'flex-col gap-3')}>
+          <span
+            className={cn(
+              'flex shrink-0 items-center justify-center rounded-xl',
+              'border border-[hsl(var(--tile)/0.3)] bg-[hsl(var(--tile)/0.16)] text-[hsl(var(--tile))]',
+              'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
+              list ? 'h-10 w-10' : 'h-11 w-11',
+            )}
+          >
+            <Icon className={list ? 'h-5 w-5' : 'h-[1.375rem] w-[1.375rem]'} aria-hidden />
           </span>
-        ) : (
-          <>
-            <div className="flex w-full items-start justify-between">
-              <span className="min-w-0 flex-1 pe-4">
-                <span className="flex items-center gap-2">
-                  <span className="truncate text-title font-bold text-foreground drop-shadow-sm">{app.label}</span>
-                  {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
-                </span>
-                <span className="mt-1 block text-mini leading-[1.4] text-muted-foreground/90 font-sans">
-                  {app.description}
-                </span>
-                <span className="mt-2 block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground/70 font-sans">
-                  {app.caption}
-                </span>
+
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5">
+              <span
+                className={cn(
+                  'truncate font-semibold text-foreground',
+                  list ? 'text-body' : 'text-title font-amiri',
+                )}
+              >
+                {app.label}
               </span>
-              <div className="flex flex-col items-end gap-1 text-end">
-                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground/60">
-                  Nº {String(index + 1).padStart(4, '0')}
-                </span>
-                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground/60">
-                  EST. 2024
-                </span>
-              </div>
-            </div>
+              {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
+            </span>
+            <span className="mt-0.5 block truncate text-mini leading-[1.5] text-muted-foreground">
+              {app.description}
+            </span>
+            {!list && (
+              <span className="mt-1.5 block text-micro font-semibold uppercase tracking-[0.16em] text-[hsl(var(--tile))] opacity-80">
+                {app.caption}
+              </span>
+            )}
+          </span>
 
-            {/* Interactive Miniature Digital Wax Seal Seal Badge */}
-            <div className="absolute bottom-1 start-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-normal">
-              <div className="h-3 w-3 rounded-full bg-[hsl(var(--live))] animate-pulse" />
-              <span className="text-mini font-mono tracking-wider uppercase text-[hsl(var(--live))]">ACTIVE SEAL</span>
-            </div>
-
-            <div className="mt-4 flex h-8 w-full items-center justify-between opacity-30 gap-[1px]">
-              <div className="w-[2px] h-full bg-current" />
-              <div className="w-[1px] h-full bg-current" />
-              <div className="w-[3px] h-full bg-current" />
-              <div className="w-[1px] h-full bg-current" />
-              <div className="w-[4px] h-full bg-current" />
-              <div className="w-[1px] h-full bg-current" />
-              <div className="w-[2px] h-full bg-current" />
-              <div className="w-[1px] h-full bg-current" />
-              <div className="w-[3px] h-full bg-current" />
-              <div className="w-[2px] h-full bg-current" />
-              <div className="w-[1px] h-full bg-current" />
-              <div className="w-[5px] h-full bg-current" />
-            </div>
-          </>
-        )}
+          {list && (
+            <ChevronRight
+              className="ms-auto me-9 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
+              aria-hidden
+            />
+          )}
+        </div>
 
         {typeof badge === 'number' && badge > 0 && (
           <span
             className={cn(
-              'absolute flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5',
-              'bg-primary text-primary-foreground text-xs font-bold tabular-nums',
-              list ? 'end-14 top-1/2 -translate-y-1/2' : 'top-3 start-3',
+              'absolute z-10 flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5',
+              'bg-primary text-xs font-bold tabular-nums text-primary-foreground',
+              list ? 'end-12 top-1/2 -translate-y-1/2' : 'top-3 end-3',
             )}
             aria-label={`${badge} غير مقروء`}
           >
             {badge > 99 ? '٩٩+' : badge}
           </span>
         )}
-
-        {list && (
-          <ChevronRight
-            className="ms-auto h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
-            aria-hidden
-          />
-        )}
-        </div>
       </button>
 
       {/* Detail affordance */}
@@ -291,10 +213,11 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute flex h-8 w-8 items-center justify-center rounded-sm',
-          'text-muted-foreground transition-colors duration-fast hover:bg-muted hover:text-foreground',
+          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-md',
+          'text-muted-foreground opacity-60 transition-[opacity,background-color,color] duration-fast',
+          'hover:bg-muted hover:text-foreground hover:opacity-100',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          list ? 'end-10 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
+          list ? 'end-2 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
         )}
       >
         <MoreHorizontal className="h-4 w-4" aria-hidden />
