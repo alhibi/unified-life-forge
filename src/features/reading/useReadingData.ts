@@ -1004,12 +1004,8 @@ export function useReadingData() {
           setArticles((prev) => {
             const seen = new Set(prev.map((a) => a.link));
             const newOnes = fresh.filter((a) => a.link && !seen.has(a.link));
-            const merged = [...prev, ...newOnes].sort((a, b) => {
-              const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-              const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-              return db - da;
-            });
-            return merged;
+            if (newOnes.length === 0) return prev;
+            return sortByPubDateDesc([...prev, ...newOnes]);
           });
           toast.success(
             `تمت إضافة ${fresh.length} مقال من ${feed.name}`,
@@ -1178,10 +1174,19 @@ export function useReadingData() {
 
   const removeFeed = useCallback(
     (url: string) => {
+      const removed = feedSourcesRef.current.find((f) => f.url === url);
       const next = feedSourcesRef.current.filter((f) => f.url !== url);
       feedSourcesRef.current = next;
       setFeedSources(next);
       storeFeeds(next);
+      // Drop its articles immediately so the list reflects the change
+      // without waiting for a reload.
+      if (removed) {
+        setArticles((prev) => {
+          const pruned = prev.filter((a) => a.source !== removed.name);
+          return pruned.length === prev.length ? prev : pruned;
+        });
+      }
       toast.success('تم الحذف');
     },
     [],
@@ -1189,14 +1194,26 @@ export function useReadingData() {
 
   const toggleFeedEnabled = useCallback(
     (url: string) => {
+      const target = feedSourcesRef.current.find((f) => f.url === url);
       const next = feedSourcesRef.current.map((f) =>
         f.url === url ? { ...f, enabled: !f.enabled } : f,
       );
       feedSourcesRef.current = next;
       setFeedSources(next);
       storeFeeds(next);
+      if (!target) return;
+      const nowEnabled = !target.enabled;
+      if (nowEnabled) {
+        // Newly enabled sources pull their articles in right away.
+        void refreshFeeds(true, [{ ...target, enabled: true }]);
+      } else {
+        setArticles((prev) => {
+          const pruned = prev.filter((a) => a.source !== target.name);
+          return pruned.length === prev.length ? prev : pruned;
+        });
+      }
     },
-    [],
+    [refreshFeeds],
   );
 
   // ─── Offline auto-cache ────────────────────────────────────────────────
@@ -1217,11 +1234,7 @@ export function useReadingData() {
     // Pick the auto-cache window: most recent unread, capped at N.
     const toKeep: FeedItem[] = [];
     if (prefs.autoCacheCount > 0) {
-      const sorted = [...currentArticles].sort((a, b) => {
-        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-        const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-        return db - da;
-      });
+      const sorted = sortByPubDateDesc(currentArticles);
       for (const a of sorted) {
         if (toKeep.length >= prefs.autoCacheCount) break;
         if (a.link && !readSet.has(a.link) && !bookmarkSet.has(a.link)) {
