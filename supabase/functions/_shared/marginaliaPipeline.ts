@@ -61,12 +61,26 @@ export async function ingestUrl(
     const fallback = await fetchPlainText(url);
     if (fallback.length > raw.length) raw = fallback;
   }
+  // Many publishers serve the whole essay to crawlers or on their AMP
+  // page while hiding it from a plain server request. Both are cheap
+  // single fetches and recover the full text on most paywall-lite sites.
+  if (raw.length < 600 || CHALLENGE_RE.test(raw)) {
+    const asCrawler = await fetchPlainText(url, {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    });
+    if (asCrawler.length > raw.length && !CHALLENGE_RE.test(asCrawler)) raw = asCrawler;
+  }
+  if (raw.length < 600 || CHALLENGE_RE.test(raw)) {
+    const viaAmp = await fetchAmp(url);
+    if (viaAmp.length > raw.length && !CHALLENGE_RE.test(viaAmp)) raw = viaAmp;
+  }
   // Some publishers sit behind bot checkpoints (e.g. Vercel/Cloudflare
   // challenges) that return a challenge page instead of the essay. A
   // plain-text reader proxy resolves those without a headless browser.
-  if (raw.length < 600) {
+  if (raw.length < 600 || CHALLENGE_RE.test(raw)) {
     const viaReader = await fetchViaReader(url);
-    if (viaReader.length > raw.length) raw = viaReader;
+    if (viaReader.length > raw.length && !CHALLENGE_RE.test(viaReader)) raw = viaReader;
   }
   // Publishers that wall live scraping usually still have a public snapshot
   // in the Wayback Machine, which serves the full prose without challenges.
@@ -187,11 +201,21 @@ export async function ingestUrl(
 }
 
 /** Last-resort extraction: strip chrome from the full document. */
-async function fetchPlainText(url: string): Promise<string> {
+async function fetchPlainText(
+  url: string,
+  extraHeaders: Record<string, string> = {},
+): Promise<string> {
   try {
     const res = await fetchWithRetry(
       url,
-      { headers: { "User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml" }, redirect: "follow" },
+      {
+        headers: {
+          "User-Agent": USER_AGENT,
+          "Accept": "text/html,application/xhtml+xml",
+          ...extraHeaders,
+        },
+        redirect: "follow",
+      },
       15000,
       0,
     );
@@ -202,6 +226,40 @@ async function fetchPlainText(url: string): Promise<string> {
       .replace(/<\/(p|div|br|li|h[1-6]|tr)>/gi, "\n");
     return stripText(body);
   } catch { return ""; }
+}
+
+/**
+ * AMP variant lookup: `<link rel="amphtml">` when advertised, otherwise the
+ * two conventional AMP paths. AMP documents are static prose by spec.
+ */
+async function fetchAmp(url: string): Promise<string> {
+  const candidates: string[] = [];
+  try {
+    const res = await fetchWithRetry(
+      url,
+      { headers: { "User-Agent": USER_AGENT, "Accept": "text/html" }, redirect: "follow" },
+      12000,
+      0,
+    );
+    if (res.ok) {
+      const head = (await res.text()).slice(0, 200_000);
+      const amp = head.match(/<link[^>]+rel=["']amphtml["'][^>]+href=["']([^"']+)["']/i)?.[1] ??
+        head.match(/<link[^>]+href=["']([^"']+)["'][^>]+rel=["']amphtml["']/i)?.[1];
+      if (amp) candidates.push(new URL(amp, url).toString());
+    }
+  } catch { /* fall through to conventional paths */ }
+  try {
+    const u = new URL(url);
+    candidates.push(`${u.origin}${u.pathname.replace(/\/$/, "")}/amp${u.search}`);
+    candidates.push(`${u.origin}${u.pathname}${u.search ? `${u.search}&` : "?"}amp=1`);
+  } catch { /* unparsable url */ }
+
+  for (const candidate of candidates) {
+    if (!isSafeUrl(candidate)) continue;
+    const text = await fetchPlainText(candidate);
+    if (text.length > 600 && !CHALLENGE_RE.test(text)) return text;
+  }
+  return "";
 }
 
 /** Reader-proxy extraction for bot-walled pages. Returns "" on failure. */
