@@ -77,10 +77,19 @@ async function refreshFeedsInBatches(
     batch.forEach((feed) => { nameMap[feed.url] = feed.name; });
     onProgress?.(completed, batch.length === 1 ? batch[0].name : `تحديث ${batch.length} مصادر…`);
 
+    // Correlate client-side failures with edge-function logs. The same id is
+    // echoed back in the response body / `x-request-id` header, so a
+    // WORKER_RESOURCE_LIMIT kill (no response body at all) is still traceable.
+    const requestId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+      ? crypto.randomUUID()
+      : `rss-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const startedAt = Date.now();
+
     const { data, error } = await dedupe(
       `fetch-rss:${batch.map((feed) => feed.url).sort().join('|')}`,
       () => withRetry(
         () => supabase.functions.invoke('fetch-rss', {
+          headers: { 'x-request-id': requestId },
           body: {
             urls: batch.map((feed) => feed.url),
             limit: 25,
@@ -92,6 +101,20 @@ async function refreshFeedsInBatches(
         { attempts: 2, baseMs: 600 },
       ),
     );
+
+    if (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('[Reading/fetch-rss] request failed', {
+        requestId,
+        serverRequestId: (data as { requestId?: string } | null)?.requestId ?? null,
+        durationMs: Date.now() - startedAt,
+        feeds: batch.length,
+        urls: batch.map((feed) => feed.url),
+        reason: /resource|non-2xx|546/i.test(message)
+          ? `resource_limit_or_server_error: ${message}`
+          : message,
+      });
+    }
 
     const received = !error && Array.isArray(data?.statuses)
       ? data.statuses as FeedStatus[]
