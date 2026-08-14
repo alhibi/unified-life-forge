@@ -144,7 +144,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
 
         {/* Accent hairline along the top edge — the app's signature. */}
         <span
-          className="pointer-events-none absolute inset-inline-0 top-0 h-px bg-[hsl(var(--tile)/0.55)]"
+          className="pointer-events-none absolute start-0 end-0 top-0 h-px bg-[hsl(var(--tile)/0.55)]"
           aria-hidden
         />
 
@@ -183,7 +183,10 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           </span>
 
           {list && (
-            <ChevronRight className="ms-auto h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
+            <ChevronRight
+              className="ms-auto me-9 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
+              aria-hidden
+            />
           )}
         </div>
 
