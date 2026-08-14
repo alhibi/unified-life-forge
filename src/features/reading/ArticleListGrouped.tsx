@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from '@/lib/icons';
+import { AlertTriangle, Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from '@/lib/icons';
 
 import { ArticleCard, HeroArticleCard } from './ArticleCard';
 import type { ListPrefs } from './listPrefs';
