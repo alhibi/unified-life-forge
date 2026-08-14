@@ -1192,12 +1192,12 @@ export function useReadingData() {
       const nowEnabled = !target.enabled;
       if (nowEnabled) {
         // Instant feedback: pull whatever is already stored for this
-        // source into the list right away, then refresh it in the
-        // background so brand-new items arrive without a manual reload.
-        void (async () => {
-          try { await loadFromDB(); } catch { /* offline */ }
-          await refreshFeeds(true, [{ ...target, enabled: true }]);
-        })();
+        // source and fetch fresh items *at the same time* instead of
+        // serially — cached rows appear within a frame or two, and the
+        // network result merges in on top without reordering the list.
+        const enabledTarget = { ...target, enabled: true };
+        void loadFromDB().catch(() => { /* offline */ });
+        void refreshFeeds(true, [enabledTarget]).catch(() => { /* offline */ });
       } else {
         setArticles((prev) => {
           const pruned = prev.filter((a) => a.source !== target.name);
