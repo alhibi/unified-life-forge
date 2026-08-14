@@ -947,7 +947,7 @@ serve(async (req) => {
       nameMap?: Record<string, string>;
       raw?: boolean;
     } = body;
-    const maxItems = Math.min(Math.max(1, Number(limit) || 50), 200);
+    const maxItems = Math.min(Math.max(1, Number(limit) || 30), MAX_ITEMS_HARD_CAP);
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       return new Response(JSON.stringify({ error: "No URLs provided" }), {
@@ -1059,6 +1059,14 @@ serve(async (req) => {
             await scrapeMissingContent(fr.items);
           }
           await storeArticles(sb, fr.items, fr.url, fr.sourceName);
+
+          // Release the scraped bodies as soon as they are persisted — the
+          // response payload never carries full HTML on the `store` path,
+          // and keeping N feeds × M items of HTML alive is what pushes the
+          // isolate past its memory ceiling (WORKER_RESOURCE_LIMIT).
+          fr.items.forEach((it) => {
+            it.fullContent = "";
+          });
 
           // Persist new ETag/Last-Modified from response headers.
           await recordFeedMeta(sb, fr.url, {
