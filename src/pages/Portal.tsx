@@ -7,17 +7,17 @@
  * Each app carries its own accent and motif — see AppTileVisuals — so the grid
  * reads as fourteen distinct places rather than one repeated card.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
 import { findApp, matchesQuery, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
-import CelestialRealmsLayout from '@/components/portal/CelestialRealmsLayout';
 import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
 import PortalHeader from '@/components/portal/PortalHeader';
 import PortalPulseBar from '@/components/portal/PortalPulseBar';
+import { PortalRealmsSkeleton } from '@/components/portal/PortalSkeletons';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
@@ -26,6 +26,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { ChevronLeft } from '@/lib/icons';
 import { prefetchRoute } from '@/lib/routePrefetch';
+
+/**
+ * The realms grid is the heaviest part of the launcher (fourteen tiles, each
+ * with its own motif). Loading it in its own chunk lets the greeting and the
+ * pulse bar paint first, with a geometry-matched skeleton holding its place.
+ */
+const CelestialRealmsLayout = lazy(() => import('@/components/portal/CelestialRealmsLayout'));
 
 /**
  * Columns are decided by container queries in CSS, so arrow-key arithmetic
@@ -268,7 +275,8 @@ export default function Portal() {
               </div>
             ) : (
               <div onKeyDown={onGridKeyDown} className="relative z-10">
-                <CelestialRealmsLayout
+                <Suspense fallback={<PortalRealmsSkeleton list={list} />}>
+                  <CelestialRealmsLayout
                   visibleApps={visible}
                   query={query}
                   list={list}
@@ -278,7 +286,8 @@ export default function Portal() {
                   onInspect={inspectApp}
                   onFocusApp={focusApp}
                   registerRef={registerRef}
-                />
+                  />
+                </Suspense>
               </div>
             )}
 
