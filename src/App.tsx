@@ -129,6 +129,7 @@ const loadMotion = () => import("./pages/MotionSettings");
 const loadPrayer = () => import("./pages/PrayerSettings");
 const loadOccasions = () => import("./features/calendar/pages/AllOccasions");
 const loadReading = () => import("./pages/Reading");
+const loadMarginalia = () => import("./features/marginalia/pages/Marginalia");
 const loadTimed = () => import("./pages/TimedSunnah");
 const loadSunnahDetail = () => import("./pages/SunnahDetail");
 const loadProphetic = () => import("./pages/PropheticDay");
@@ -245,6 +246,7 @@ registerRoute('/travel-atlas/trips', loadTravelTrips);
 registerRoute('/travel-atlas/trips/:tripId', loadTravelTrip);
 registerRoute('/travel-atlas/:countryId', loadTravelMap);
 registerRoute('/reading',           loadReading);
+registerRoute('/marginalia',        loadMarginalia);
 registerRoute('/occasions',         loadOccasions);
 registerRoute('/tafsir',            loadTafsir);
 registerRoute('/podcasts',          loadPodcasts);
@@ -307,6 +309,7 @@ const MotionSettingsPage = lazy(loadMotion);
 const PrayerSettingsPage = lazy(loadPrayer);
 const AllOccasionsPage = lazy(loadOccasions);
 const ReadingPage = lazy(loadReading);
+const MarginaliaPage = lazy(loadMarginalia);
 const TimedSunnahPage = lazy(loadTimed);
 const SunnahDetailPage = lazy(loadSunnahDetail);
 const PropheticDayPage = lazy(loadProphetic);
@@ -685,6 +688,7 @@ function AnimatedRoutes() {
                   <Route path="/games/memory/adventure" element={<ErrorBoundary><MemoryAdventurePage /></ErrorBoundary>} />
                   <Route path="/occasions" element={<ErrorBoundary><AllOccasionsPage /></ErrorBoundary>} />
                   <Route path="/reading" element={<ErrorBoundary><ReadingPage /></ErrorBoundary>} />
+                  <Route path="/marginalia" element={<ErrorBoundary><MarginaliaPage /></ErrorBoundary>} />
                   <Route path="/settings/appearance" element={<ErrorBoundary><AppearanceSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/interface" element={<ErrorBoundary><InterfaceSettingsPage /></ErrorBoundary>} />
                   {/* Retired paths — appearance is now one screen. */}

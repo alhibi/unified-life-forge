@@ -746,6 +746,328 @@ export type Database = {
           },
         ]
       }
+      mg_article_chunks: {
+        Row: {
+          article_id: string
+          chunk_index: number
+          chunk_text: string
+          created_at: string
+          embedding: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          chunk_index: number
+          chunk_text: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          chunk_index?: number
+          chunk_text?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mg_article_chunks_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "mg_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mg_articles: {
+        Row: {
+          author: string | null
+          created_at: string
+          domain_tags: string[]
+          error_message: string | null
+          fetched_at: string
+          id: string
+          published_at: string | null
+          raw_text: string | null
+          source_id: string | null
+          status: string
+          summary: string | null
+          title: string | null
+          updated_at: string
+          url: string
+          user_id: string
+          word_count: number
+        }
+        Insert: {
+          author?: string | null
+          created_at?: string
+          domain_tags?: string[]
+          error_message?: string | null
+          fetched_at?: string
+          id?: string
+          published_at?: string | null
+          raw_text?: string | null
+          source_id?: string | null
+          status?: string
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          url: string
+          user_id: string
+          word_count?: number
+        }
+        Update: {
+          author?: string | null
+          created_at?: string
+          domain_tags?: string[]
+          error_message?: string | null
+          fetched_at?: string
+          id?: string
+          published_at?: string | null
+          raw_text?: string | null
+          source_id?: string | null
+          status?: string
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          url?: string
+          user_id?: string
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mg_articles_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "mg_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mg_connections: {
+        Row: {
+          article_ids: string[]
+          confidence_label: string
+          connection_text: string
+          created_at: string
+          id: string
+          lens: string
+          model_used: string | null
+          novelty_score: number
+          status: string
+          updated_at: string
+          user_id: string
+          why_it_matters: string | null
+        }
+        Insert: {
+          article_ids: string[]
+          confidence_label?: string
+          connection_text: string
+          created_at?: string
+          id?: string
+          lens: string
+          model_used?: string | null
+          novelty_score?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          why_it_matters?: string | null
+        }
+        Update: {
+          article_ids?: string[]
+          confidence_label?: string
+          connection_text?: string
+          created_at?: string
+          id?: string
+          lens?: string
+          model_used?: string | null
+          novelty_score?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          why_it_matters?: string | null
+        }
+        Relationships: []
+      }
+      mg_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          seed_connection_id: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          seed_connection_id?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          seed_connection_id?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mg_conversations_seed_connection_id_fkey"
+            columns: ["seed_connection_id"]
+            isOneToOne: false
+            referencedRelation: "mg_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mg_messages: {
+        Row: {
+          cited_article_ids: string[]
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          model_used: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          cited_article_ids?: string[]
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          model_used?: string | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          cited_article_ids?: string[]
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          model_used?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mg_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "mg_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mg_pinboard: {
+        Row: {
+          connection_id: string
+          id: string
+          pinned_at: string
+          updated_at: string
+          user_id: string
+          user_note: string | null
+        }
+        Insert: {
+          connection_id: string
+          id?: string
+          pinned_at?: string
+          updated_at?: string
+          user_id: string
+          user_note?: string | null
+        }
+        Update: {
+          connection_id?: string
+          id?: string
+          pinned_at?: string
+          updated_at?: string
+          user_id?: string
+          user_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mg_pinboard_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "mg_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mg_settings: {
+        Row: {
+          created_at: string
+          ingestion_hour: number
+          preferred_models: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ingestion_hour?: number
+          preferred_models?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ingestion_hour?: number
+          preferred_models?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mg_sources: {
+        Row: {
+          active: boolean
+          created_at: string
+          domain_tags: string[]
+          feed_url: string
+          id: string
+          last_error: string | null
+          last_fetched_at: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          domain_tags?: string[]
+          feed_url: string
+          id?: string
+          last_error?: string | null
+          last_fetched_at?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          domain_tags?: string[]
+          feed_url?: string
+          id?: string
+          last_error?: string | null
+          last_fetched_at?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pkm_ai_generations: {
         Row: {
           created_at: string
@@ -1714,6 +2036,21 @@ export type Database = {
       mark_messages_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
+      }
+      mg_match_chunks: {
+        Args: {
+          match_count?: number
+          p_user_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          article_id: string
+          article_title: string
+          article_url: string
+          chunk_id: string
+          chunk_text: string
+          similarity: number
+        }[]
       }
       normalize_arabic: { Args: { s: string }; Returns: string }
       reading_cron_status: {
