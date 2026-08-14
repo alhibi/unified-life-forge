@@ -135,35 +135,82 @@ export async function streamOpenRouter(
  * from the platform AI gateway's OpenAI-compatible embeddings route —
  * 1536 dims, matching `mg_article_chunks.embedding`.
  */
-export async function embedTexts(texts: string[]): Promise<number[][]> {
+export type EmbeddingMode = "model" | "lexical";
+
+/**
+ * Embeddings. OpenRouter exposes no embeddings endpoint, so vectors come
+ * from the platform AI gateway's OpenAI-compatible embeddings route —
+ * 1536 dims, matching `mg_article_chunks.embedding`.
+ *
+ * When the gateway is unavailable (missing key, credit limit, outage) we
+ * fall back to a deterministic hashed bag-of-words vector in the same
+ * dimensionality. Ranking is weaker than a real embedding, but ingestion
+ * and retrieval keep working instead of losing the article outright, and
+ * the caller learns which space was used via `mode`.
+ */
+export async function embedTexts(
+  texts: string[],
+): Promise<{ vectors: number[][]; mode: EmbeddingMode }> {
   const key = Deno.env.get("LOVABLE_API_KEY");
-  if (!key) throw new Error("missing_embeddings_key");
-  const out: number[][] = [];
-  const BATCH = 16;
-  for (let i = 0; i < texts.length; i += BATCH) {
-    const slice = texts.slice(i, i + BATCH).map((t) => t.slice(0, 8000));
-    const res = await fetchWithRetry(
-      "https://ai.gateway.lovable.dev/v1/embeddings",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-        body: JSON.stringify({
-          model: "openai/text-embedding-3-small",
-          input: slice,
-          dimensions: EMBEDDING_DIM,
-        }),
-      },
-      60_000,
-      1,
-    );
-    if (!res.ok) {
-      throw new Error(`embeddings_failed: ${res.status} ${(await res.text()).slice(0, 200)}`);
+  if (key) {
+    try {
+      const out: number[][] = [];
+      const BATCH = 16;
+      for (let i = 0; i < texts.length; i += BATCH) {
+        const slice = texts.slice(i, i + BATCH).map((t) => t.slice(0, 8000));
+        const res = await fetchWithRetry(
+          "https://ai.gateway.lovable.dev/v1/embeddings",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+            body: JSON.stringify({
+              model: "openai/text-embedding-3-small",
+              input: slice,
+              dimensions: EMBEDDING_DIM,
+            }),
+          },
+          60_000,
+          1,
+        );
+        if (!res.ok) {
+          throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`);
+        }
+        const data = await res.json();
+        for (const row of data?.data ?? []) out.push(row.embedding as number[]);
+      }
+      if (out.length !== texts.length) throw new Error("count_mismatch");
+      return { vectors: out, mode: "model" };
+    } catch (e) {
+      console.error(JSON.stringify({
+        event: "embeddings_fallback",
+        reason: (e as Error).message.slice(0, 200),
+      }));
     }
-    const data = await res.json();
-    for (const row of data?.data ?? []) out.push(row.embedding as number[]);
   }
-  if (out.length !== texts.length) throw new Error("embeddings_count_mismatch");
-  return out;
+  return { vectors: texts.map(lexicalEmbedding), mode: "lexical" };
+}
+
+/** Deterministic hashed bag-of-words vector, L2-normalised. */
+export function lexicalEmbedding(text: string): number[] {
+  const vec = new Float64Array(EMBEDDING_DIM);
+  const tokens = text
+    .toLowerCase()
+    .replace(/[\u0610-\u061A\u064B-\u065F\u0640]/g, "")
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter((t) => t.length > 2);
+  for (const token of tokens) {
+    let h = 2166136261;
+    for (let i = 0; i < token.length; i++) {
+      h ^= token.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    const idx = Math.abs(h) % EMBEDDING_DIM;
+    vec[idx] += 1;
+  }
+  let norm = 0;
+  for (const v of vec) norm += v * v;
+  norm = Math.sqrt(norm) || 1;
+  return Array.from(vec, (v) => v / norm);
 }
 
 /** Rough token-aware chunker (~500 tokens ≈ 2000 chars) on paragraph edges. */

@@ -114,7 +114,10 @@ export async function ingestUrl(
   try {
     const chunks = chunkText(raw);
     if (chunks.length) {
-      const vectors = await embedTexts(chunks);
+      const { vectors, mode } = await embedTexts(chunks);
+      if (mode === "lexical") {
+        console.warn(JSON.stringify({ event: "lexical_embeddings_used", url }));
+      }
       await db.from("mg_article_chunks").delete().eq("article_id", articleId);
       const rows = chunks.map((chunk_text, i) => ({
         user_id: userId,

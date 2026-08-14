@@ -42,7 +42,7 @@ serve(async (req) => {
   let contextBlock = "";
   let citedIds: string[] = [];
   try {
-    const [embedding] = await embedTexts([question]);
+    const { vectors: [embedding] } = await embedTexts([question]);
     const { data: matches } = await db.rpc("mg_match_chunks", {
       query_embedding: embedding,
       match_count: 8,
