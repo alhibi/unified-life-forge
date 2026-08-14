@@ -307,8 +307,65 @@ export async function fetchFeed(url: string, timeoutMs = 15000): Promise<string 
       timeoutMs,
       1,
     );
+    if (!res.ok) return await fetchFeedViaReader(url, timeoutMs);
+    const body = await res.text();
+    if (looksLikeFeed(body)) return body;
+    // The user pasted a site URL instead of a feed URL: discover the
+    // advertised RSS/Atom document and fetch that instead.
+    const discovered = discoverFeedUrl(body, res.url || url);
+    if (discovered && discovered !== url) {
+      const inner = await fetchWithRetry(
+        discovered,
+        { headers: { "User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/xml, text/xml, */*" } },
+        timeoutMs,
+        0,
+      ).catch(() => null);
+      if (inner?.ok) {
+        const xml = await inner.text();
+        if (looksLikeFeed(xml)) return xml;
+      }
+    }
+    return await fetchFeedViaReader(url, timeoutMs);
+  } catch { return await fetchFeedViaReader(url, timeoutMs); }
+}
+
+function looksLikeFeed(body: string): boolean {
+  return /<(rss|feed|rdf:RDF)[\s>]/i.test(body.slice(0, 4000));
+}
+
+/** `<link rel="alternate" type="application/rss+xml" href="...">` discovery. */
+function discoverFeedUrl(html: string, base: string): string | null {
+  const re = /<link[^>]+>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const tag = m[0];
+    if (!/rel=["']?alternate/i.test(tag)) continue;
+    if (!/type=["'](application\/(rss|atom)\+xml|application\/xml|text\/xml)["']/i.test(tag)) continue;
+    const href = tag.match(/href=["']([^"']+)["']/i)?.[1];
+    if (!href) continue;
+    try { return new URL(href, base).toString(); } catch { /* skip */ }
+  }
+  // Common conventional paths as a last guess.
+  for (const path of ["/feed", "/rss.xml", "/feed.xml", "/atom.xml", "/index.xml"]) {
+    if (new RegExp(`href=["'][^"']*${path.replace(/\//g, "\\/")}["']`, "i").test(html)) {
+      try { return new URL(path, base).toString(); } catch { /* skip */ }
+    }
+  }
+  return null;
+}
+
+/** Feed retrieval through a text proxy for hosts that block server UAs. */
+async function fetchFeedViaReader(url: string, timeoutMs: number): Promise<string | null> {
+  try {
+    const res = await fetchWithRetry(
+      `https://r.jina.ai/${url}`,
+      { headers: { "Accept": "text/plain", "User-Agent": USER_AGENT, "x-respond-with": "text" } },
+      timeoutMs,
+      0,
+    );
     if (!res.ok) return null;
-    return await res.text();
+    const body = await res.text();
+    return looksLikeFeed(body) ? body : null;
   } catch { return null; }
 }
 
