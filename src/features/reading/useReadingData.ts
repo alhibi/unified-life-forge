@@ -83,7 +83,7 @@ async function refreshFeedsInBatches(
         () => supabase.functions.invoke('fetch-rss', {
           body: {
             urls: batch.map((feed) => feed.url),
-            limit: 100,
+            limit: 25,
             fetchFullContent: true,
             store: true,
             nameMap,
