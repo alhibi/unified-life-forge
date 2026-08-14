@@ -80,6 +80,16 @@ export default function CelestialRealmsLayout({
 }: CelestialRealmsLayoutProps) {
   const { isPinned } = usePortalPrefs();
 
+  /**
+   * Grid sizing is driven by the *container* width, not the viewport, so the
+   * same classes work whether the grid sits full-bleed on a phone or next to
+   * the 300–340px desktop side panel. Card look is untouched — only how many
+   * fit per row changes.
+   */
+  const gridClass = list
+    ? 'grid grid-cols-1 gap-2'
+    : 'grid grid-cols-1 gap-3 @[22rem]:grid-cols-2 @[40rem]:grid-cols-3 @[40rem]:gap-4 @[64rem]:grid-cols-4';
+
   // If there's an active query/filter, render flat matching applications for speed and clarity
   const isSearching = query.length > 0;
 
@@ -96,13 +106,9 @@ export default function CelestialRealmsLayout({
 
   if (isSearching) {
     return (
-      <div className="space-y-4">
+      <div className="@container space-y-4">
         <h3 className="app-section-label">نتائج البحث المطابقة</h3>
-        <div
-          className={
-            list ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-3 min-[700px]:grid-cols-3 min-[700px]:gap-4'
-          }
-        >
+        <div className={gridClass}>
           <AnimatePresence initial={false} mode="popLayout">
             {visibleApps.map((app, index) => (
               <AppTile
@@ -127,7 +133,7 @@ export default function CelestialRealmsLayout({
 
   // Grouped Visual Layout when not active searching
   return (
-    <div className="space-y-10">
+    <div className="@container space-y-8 sm:space-y-10">
       {REALMS.map((realm) => {
         const appsInRealm = realmGroups[realm.key] || [];
         if (appsInRealm.length === 0) return null;
@@ -139,26 +145,22 @@ export default function CelestialRealmsLayout({
 
             {/* Philosophical Realm Header */}
             <div className="flex items-center gap-3 border-b border-border/40 pb-2">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/45 ${realm.color}`}>
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/45 ${realm.color}`}>
                 <Icon className="h-4.5 w-4.5" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <h3 className="font-amiri text-title font-extrabold text-foreground">{realm.title}</h3>
-                  <span className="text-micro font-mono uppercase tracking-widest text-muted-foreground opacity-60">
+                  <span className="hidden text-micro font-mono uppercase tracking-widest text-muted-foreground opacity-60 @[26rem]:inline">
                     {realm.subtitle}
                   </span>
                 </div>
-                <p className="text-micro text-muted-foreground leading-normal mt-0.5">{realm.description}</p>
+                <p className="mt-0.5 text-micro leading-normal text-muted-foreground">{realm.description}</p>
               </div>
             </div>
 
             {/* Realm Apps Grid */}
-            <div
-              className={
-                list ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-3 min-[700px]:grid-cols-3 min-[700px]:gap-4'
-              }
-            >
+            <div className={gridClass}>
               <AnimatePresence initial={false} mode="popLayout">
                 {appsInRealm.map((app) => {
                   // Find raw index in the master registry to keep stagger calculations correct

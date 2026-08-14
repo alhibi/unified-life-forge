@@ -27,11 +27,22 @@ import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { ChevronLeft } from '@/lib/icons';
 import { prefetchRoute } from '@/lib/routePrefetch';
 
-/** Grid columns per breakpoint — mirrors the Tailwind classes on the grid. */
-function columnsFor(width: number, list: boolean): number {
+/**
+ * Columns are decided by container queries in CSS, so arrow-key arithmetic
+ * measures the rendered grid instead of guessing from the viewport: count how
+ * many focusable tiles share the first row's offsetTop.
+ */
+function measureColumns(tiles: (HTMLButtonElement | null)[], list: boolean): number {
   if (list) return 1;
-  if (width >= 700) return 3;
-  return 2;
+  const rendered = tiles.filter((el): el is HTMLButtonElement => Boolean(el?.isConnected));
+  if (rendered.length === 0) return 1;
+  const firstTop = rendered[0].getBoundingClientRect().top;
+  let columns = 0;
+  for (const el of rendered) {
+    if (Math.abs(el.getBoundingClientRect().top - firstTop) > 4) break;
+    columns += 1;
+  }
+  return Math.max(1, columns);
 }
 
 export default function Portal() {
@@ -44,30 +55,10 @@ export default function Portal() {
   const [category, setCategory] = useState<PortalCategory | 'all'>('all');
   const [focusedKey, setFocusedKey] = useState<string>(PORTAL_APPS[0].key);
   const [inspectedKey, setInspectedKey] = useState<string | null>(null);
-  const [viewportWidth, setViewportWidth] = useState(() =>
-    typeof window === 'undefined' ? 1024 : window.innerWidth,
-  );
 
   const searchRef = useRef<HTMLInputElement>(null);
   const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const list = view === 'list';
-
-  /* ── viewport width, for arrow-key grid arithmetic ── */
-  useEffect(() => {
-    let frame = 0;
-    const onResize = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        setViewportWidth(window.innerWidth);
-      });
-    };
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
 
   /* ── filtering + pinned-first ordering ── */
   const counts = useMemo(() => {
@@ -160,7 +151,7 @@ export default function Portal() {
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       const currentIndex = tileRefs.current.findIndex((el) => el === document.activeElement);
       if (currentIndex === -1) return;
-      const columns = columnsFor(viewportWidth, list);
+      const columns = measureColumns(tileRefs.current, list);
       let nextIndex: number;
 
       switch (event.key) {
@@ -190,7 +181,7 @@ export default function Portal() {
       event.preventDefault();
       tileRefs.current[nextIndex]?.focus();
     },
-    [list, viewportWidth, visible.length],
+    [list, visible.length],
   );
 
   const recentApps = useMemo(
@@ -211,11 +202,11 @@ export default function Portal() {
 
       <PortalHeader unreadCount={unreadCount} />
 
-      <main className="mx-auto w-full max-w-6xl px-4 pt-4 pb-page relative z-10">
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-[max(1rem,env(safe-area-inset-inline-start))] pt-4 pb-page sm:px-6 lg:px-8 2xl:max-w-[88rem]">
         <h1 className="sr-only">amv.life — بوابتك الشخصية</h1>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8">
-          <div className="min-w-0 space-y-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,26vw,21.25rem)] lg:items-start lg:gap-8">
+          <div className="min-w-0 space-y-5 sm:space-y-6">
 
             <PortalGreeting username={username} />
 
@@ -245,7 +236,7 @@ export default function Portal() {
             )}
 
             {/* Sticky under the 56px header so the filter never scrolls away. */}
-            <div className="sticky top-[56px] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md">
+            <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
               <PortalFilterBar
                 query={query}
                 onQueryChange={setQuery}
@@ -291,7 +282,7 @@ export default function Portal() {
               </div>
             )}
 
-            <div className="flex items-center gap-3 pt-4">
+            <div className="flex items-center gap-3 pt-4 pb-[env(safe-area-inset-bottom)]">
               <span className="h-px flex-1 bg-border/40" aria-hidden />
               <span className="text-micro font-semibold tracking-[0.14em] text-muted-foreground/80 font-tajawal">
                 صُنِعَ بحب — عامر وأمولة
@@ -301,7 +292,10 @@ export default function Portal() {
           </div>
 
           {/* Desktop side panel — sticky under the 56px header. */}
-          <aside className="hidden lg:sticky lg:top-[72px] lg:block" aria-label={`اختصارات ${focusedApp.label}`}>
+          <aside
+            className="hidden lg:sticky lg:top-[calc(4.5rem+env(safe-area-inset-top))] lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain"
+            aria-label={`اختصارات ${focusedApp.label}`}
+          >
             <AppDetailPanel
               app={focusedApp}
               pinned={isPinned(focusedApp.key)}
