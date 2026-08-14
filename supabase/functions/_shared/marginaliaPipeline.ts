@@ -74,10 +74,10 @@ export async function ingestUrl(
     }
   }
 
-  // A feed excerpt is short by nature (a few hundred characters), but it is
+  // A feed excerpt is short by nature (often a two-line teaser), but it is
   // still real prose the model can summarise, tag and connect — far better
   // than dropping the piece entirely for publishers that wall scrapers.
-  const minChars = fromFeedExcerpt ? 200 : 400;
+  const minChars = fromFeedExcerpt ? 120 : 400;
   if (raw.length < minChars) {
     await upsertArticle(db, userId, url, sourceId, {
       title: meta.title ?? scraped?.title ?? url,
@@ -155,7 +155,12 @@ export async function ingestUrl(
       }
     }
     await db.from("mg_articles")
-      .update({ status: "processed", error_message: null })
+      .update({
+        status: "processed",
+        // Transparency: mark pieces where only the feed teaser was readable,
+        // so the archive and the discovery engine know the depth is shallow.
+        error_message: fromFeedExcerpt ? "feed_excerpt_only" : null,
+      })
       .eq("id", articleId);
     return { url, status: "processed", articleId, title: meta.title ?? scraped?.title };
   } catch (e) {
