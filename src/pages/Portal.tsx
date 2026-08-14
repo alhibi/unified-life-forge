@@ -1,9 +1,11 @@
 /**
  * Portal — the first screen of amv.life: the app launcher.
  *
- * This screen has been comprehensively redesigned with the premium "Quiet Luxury / Zen Elite"
- * philosophy: "أفلاك الكون الأربعة" (The Four Celestial Realms) sorting layout, the "Cosmic Day Astrolabe Dashboard"
- * combining prayers and weather dynamically, and the highly polished Editorial Manuscript header.
+ * Reading order, top to bottom: who you are and what day it is (PortalGreeting),
+ * today's three live numbers (PortalPulseBar), what you opened last, then the
+ * apps themselves under a filter bar that sticks to the header while you scroll.
+ * Each app carries its own accent and motif — see AppTileVisuals — so the grid
+ * reads as fourteen distinct places rather than one repeated card.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,11 +13,11 @@ import { useNavigate } from 'react-router-dom';
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
 import { findApp, matchesQuery, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
 import CelestialRealmsLayout from '@/components/portal/CelestialRealmsLayout';
-import CosmicAstrolabe from '@/components/portal/CosmicAstrolabe';
-import EditorialManuscript from '@/components/portal/EditorialManuscript';
 import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
+import PortalGreeting from '@/components/portal/PortalGreeting';
 import PortalHeader from '@/components/portal/PortalHeader';
+import PortalPulseBar from '@/components/portal/PortalPulseBar';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
@@ -215,11 +217,9 @@ export default function Portal() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8">
           <div className="min-w-0 space-y-6">
 
-            {/* Elegant Editorial Manuscript Frame */}
-            <EditorialManuscript username={username} />
+            <PortalGreeting username={username} />
 
-            {/* Cosmic Astrolabe Dashboard */}
-            <CosmicAstrolabe />
+            <PortalPulseBar />
 
             {recentApps.length > 0 && (
               <section aria-label="آخر ما فتحته" className="relative z-10">
@@ -244,16 +244,19 @@ export default function Portal() {
               </section>
             )}
 
-            <PortalFilterBar
-              query={query}
-              onQueryChange={setQuery}
-              category={category}
-              onCategoryChange={setCategory}
-              view={view}
-              onViewChange={setView}
-              counts={counts}
-              searchRef={searchRef}
-            />
+            {/* Sticky under the 56px header so the filter never scrolls away. */}
+            <div className="sticky top-[56px] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md">
+              <PortalFilterBar
+                query={query}
+                onQueryChange={setQuery}
+                category={category}
+                onCategoryChange={setCategory}
+                view={view}
+                onViewChange={setView}
+                counts={counts}
+                searchRef={searchRef}
+              />
+            </div>
 
             {visible.length === 0 ? (
               <div className="empty-state-surface" role="status">
