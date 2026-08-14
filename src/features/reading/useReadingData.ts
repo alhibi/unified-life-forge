@@ -1314,14 +1314,22 @@ export function useReadingData() {
       return;
     }
 
-    const currentArticles = articles;
-    const currentRead = readArticles;
-    const readSet = new Set(currentRead);
+    // Respect metered / data-saver connections: full-article scraping is
+    // the single most expensive network activity in the reader.
+    const conn = (navigator as unknown as {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }).connection;
+    if (conn?.saveData || /(^|-)2g$/.test(conn?.effectiveType ?? '')) {
+      setPrefetchProgress((prev) => ({ ...prev, active: false }));
+      return;
+    }
 
-    // Get top 15 unread articles that need text upgrade
-    const candidates = currentArticles
+    const readSet = new Set(readArticles);
+
+    // Top unread articles that still need a full body.
+    const candidates = articles
       .filter((a) => a.link && !readSet.has(a.link) && needsContentUpgrade(a.fullContent, a.link))
-      .slice(0, 15);
+      .slice(0, 24);
 
     if (candidates.length === 0) {
       setPrefetchProgress((prev) => ({ ...prev, active: false }));
@@ -1337,36 +1345,48 @@ export function useReadingData() {
     });
 
     let queueIndex = 0;
+    let done = 0;
     isPrefetchingRef.current = true;
 
-    const processNext = async () => {
-      if (queueIndex >= candidates.length || !isPrefetchingRef.current) {
-        setPrefetchProgress((prev) => ({ ...prev, active: false }));
-        return;
+    // Two cooperating workers with a short stagger: roughly twice the
+    // throughput of the old serial loop while staying polite to hosts.
+    const PREFETCH_WORKERS = 2;
+    const PREFETCH_GAP_MS = 700;
+
+    const runWorker = async (): Promise<void> => {
+      while (isPrefetchingRef.current && queueIndex < candidates.length) {
+        const item = candidates[queueIndex++];
+        setPrefetchProgress((prev) => ({
+          ...prev,
+          current: done,
+          currentTitle: item.title,
+        }));
+        try {
+          await ensureFullContent(item.link);
+        } catch (e) {
+          console.warn('[Reading] prefetch failed for', item.title, e);
+        }
+        done += 1;
+        setPrefetchProgress((prev) => ({ ...prev, current: done }));
+        if (!isPrefetchingRef.current) return;
+        await new Promise((resolve) => { setTimeout(resolve, PREFETCH_GAP_MS); });
       }
-
-      const item = candidates[queueIndex];
-      setPrefetchProgress((prev) => ({
-        ...prev,
-        current: queueIndex,
-        currentTitle: item.title,
-      }));
-
-      try {
-        // Execute the upgrade via existing helper which handles caching & memory update
-        await ensureFullContent(item.link);
-      } catch (e) {
-        console.warn('[Reading] prefetch failed for', item.title, e);
-      }
-
-      queueIndex++;
-
-      // Snappy but gentle delay (1500ms) between background scrapes to be extremely respectful to servers
-      prefetchTimerRef.current = setTimeout(processNext, 1500);
     };
 
-    // Begin progressive background pre-loading after a snappy idle delay (2000ms)
-    prefetchTimerRef.current = setTimeout(processNext, 2000);
+    const start = () => {
+      void Promise.all(
+        Array.from({ length: Math.min(PREFETCH_WORKERS, candidates.length) }, (_unused, i) =>
+          new Promise<void>((resolve) => {
+            setTimeout(() => { void runWorker().finally(resolve); }, i * 250);
+          }),
+        ),
+      ).finally(() => {
+        setPrefetchProgress((prev) => ({ ...prev, active: false }));
+      });
+    };
+
+    // Begin once the initial paint has settled.
+    prefetchTimerRef.current = setTimeout(start, 1200);
 
     return () => {
       isPrefetchingRef.current = false;
