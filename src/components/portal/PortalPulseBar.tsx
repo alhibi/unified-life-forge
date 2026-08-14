@@ -17,6 +17,7 @@ import { CloudSun, Crosshair, Sun } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import { useNextPrayer } from './useNextPrayer';
+import { PulseBarSkeleton } from './PortalSkeletons';
 
 function Cell({
   label,
@@ -91,6 +92,12 @@ export default function PortalPulseBar() {
         </span>
       </button>
     );
+  }
+
+  /* Location granted but neither prayer times nor weather have landed yet:
+     show the bar's own shape instead of three em-dashes. */
+  if ((loading || !next) && !weather) {
+    return <PulseBarSkeleton />;
   }
 
   return (
