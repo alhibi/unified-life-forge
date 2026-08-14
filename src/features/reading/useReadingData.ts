@@ -1204,8 +1204,13 @@ export function useReadingData() {
       if (!target) return;
       const nowEnabled = !target.enabled;
       if (nowEnabled) {
-        // Newly enabled sources pull their articles in right away.
-        void refreshFeeds(true, [{ ...target, enabled: true }]);
+        // Instant feedback: pull whatever is already stored for this
+        // source into the list right away, then refresh it in the
+        // background so brand-new items arrive without a manual reload.
+        void (async () => {
+          try { await loadFromDB(); } catch { /* offline */ }
+          await refreshFeeds(true, [{ ...target, enabled: true }]);
+        })();
       } else {
         setArticles((prev) => {
           const pruned = prev.filter((a) => a.source !== target.name);
@@ -1213,7 +1218,7 @@ export function useReadingData() {
         });
       }
     },
-    [refreshFeeds],
+    [refreshFeeds, loadFromDB],
   );
 
   // ─── Offline auto-cache ────────────────────────────────────────────────
