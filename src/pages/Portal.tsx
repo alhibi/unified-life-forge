@@ -55,30 +55,10 @@ export default function Portal() {
   const [category, setCategory] = useState<PortalCategory | 'all'>('all');
   const [focusedKey, setFocusedKey] = useState<string>(PORTAL_APPS[0].key);
   const [inspectedKey, setInspectedKey] = useState<string | null>(null);
-  const [viewportWidth, setViewportWidth] = useState(() =>
-    typeof window === 'undefined' ? 1024 : window.innerWidth,
-  );
 
   const searchRef = useRef<HTMLInputElement>(null);
   const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const list = view === 'list';
-
-  /* ── viewport width, for arrow-key grid arithmetic ── */
-  useEffect(() => {
-    let frame = 0;
-    const onResize = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        setViewportWidth(window.innerWidth);
-      });
-    };
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
 
   /* ── filtering + pinned-first ordering ── */
   const counts = useMemo(() => {
@@ -201,7 +181,7 @@ export default function Portal() {
       event.preventDefault();
       tileRefs.current[nextIndex]?.focus();
     },
-    [list, viewportWidth, visible.length],
+    [list, visible.length],
   );
 
   const recentApps = useMemo(
