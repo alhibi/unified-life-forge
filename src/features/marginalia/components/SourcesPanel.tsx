@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { AppCard } from '@/components/ui/app-shell';
 import { Loader2, Plus, RefreshCw, Rss, Trash2 } from '@/lib/icons';
-import { notify } from '@/lib/notify';
+import { toast } from 'sonner';
 
 import { marginaliaApi } from '../api';
 import type { MgSource } from '../types';
@@ -20,15 +20,15 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
 
   const add = async () => {
     const feed = url.trim();
-    if (!/^https?:\/\//i.test(feed)) { notify.error('أدخل رابط تغذية صحيحاً (RSS/Atom)'); return; }
+    if (!/^https?:\/\//i.test(feed)) { toast.error('أدخل رابط تغذية صحيحاً (RSS/Atom)'); return; }
     setBusy('add');
     try {
       await marginaliaApi.addSource(name.trim() || new URL(feed).hostname, feed);
       setName(''); setUrl('');
       onChanged();
-      notify.success('أُضيف المصدر');
+      toast.success('أُضيف المصدر');
     } catch (e) {
-      notify.error((e as Error).message);
+      toast.error((e as Error).message);
     } finally { setBusy(null); }
   };
 
@@ -36,21 +36,21 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
     setBusy(id);
     try {
       const res = await marginaliaApi.ingest(id);
-      notify.success(res.processed ? `تمت معالجة ${res.processed} مقالاً` : 'لا مقالات جديدة');
+      toast.success(res.processed ? `تمت معالجة ${res.processed} مقالاً` : 'لا مقالات جديدة');
       onChanged();
     } catch (e) {
-      notify.error((e as Error).message);
+      toast.error((e as Error).message);
     } finally { setBusy(null); }
   };
 
   const toggle = async (s: MgSource) => {
     try { await marginaliaApi.setSourceActive(s.id, !s.active); onChanged(); }
-    catch (e) { notify.error((e as Error).message); }
+    catch (e) { toast.error((e as Error).message); }
   };
 
   const remove = async (id: string) => {
     try { await marginaliaApi.removeSource(id); onChanged(); }
-    catch (e) { notify.error((e as Error).message); }
+    catch (e) { toast.error((e as Error).message); }
   };
 
   return (

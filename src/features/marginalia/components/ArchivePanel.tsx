@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { AppCard } from '@/components/ui/app-shell';
 import { ExternalLink, Loader2, Plus, Search as SearchIcon, Trash2 } from '@/lib/icons';
-import { notify } from '@/lib/notify';
+import { toast } from 'sonner';
 
 import { marginaliaApi } from '../api';
 import type { MgArticle } from '../types';
@@ -30,16 +30,16 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
 
   const add = async () => {
     const value = url.trim();
-    if (!/^https?:\/\//i.test(value)) { notify.error('أدخل رابط مقال صحيحاً'); return; }
+    if (!/^https?:\/\//i.test(value)) { toast.error('أدخل رابط مقال صحيحاً'); return; }
     setAdding(true);
     try {
       const { outcome } = await marginaliaApi.addArticle(value);
-      if (outcome.status === 'skipped') notify.success('المقال موجود في الأرشيف مسبقاً');
-      else notify.success('أُضيف المقال إلى الأرشيف');
+      if (outcome.status === 'skipped') toast.success('المقال موجود في الأرشيف مسبقاً');
+      else toast.success('أُضيف المقال إلى الأرشيف');
       setUrl('');
       onChanged();
     } catch (e) {
-      notify.error((e as Error).message);
+      toast.error((e as Error).message);
     } finally { setAdding(false); }
   };
 
@@ -101,7 +101,7 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
               aria-label="حذف من الأرشيف"
               onClick={async () => {
                 try { await marginaliaApi.removeArticle(a.id); onChanged(); }
-                catch (e) { notify.error((e as Error).message); }
+                catch (e) { toast.error((e as Error).message); }
               }}
               className="p-2 rounded-lg text-muted-foreground hover:text-destructive transition"
             >
