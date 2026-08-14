@@ -27,6 +27,7 @@ import {
   subscribeReadingStorage,
 } from './storage';
 import type { FeedItem, FeedSource, FeedStatus } from './types';
+import { sortByPubDateDesc } from './utils';
 
 
 // ─── Constants for stability & memory management ───────────────────────────
@@ -299,13 +300,7 @@ export function useReadingData() {
   /** Cap article list to MAX_ARTICLES_IN_MEMORY, keeping newest. */
   const capArticles = useCallback((list: FeedItem[]): FeedItem[] => {
     if (list.length <= MAX_ARTICLES_IN_MEMORY) return list;
-    return list
-      .sort((a, b) => {
-        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-        const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-        return db - da;
-      })
-      .slice(0, MAX_ARTICLES_IN_MEMORY);
+    return sortByPubDateDesc(list).slice(0, MAX_ARTICLES_IN_MEMORY);
   }, []);
 
   /** Compute adaptive refresh interval based on consecutive failures. */
@@ -381,6 +376,12 @@ export function useReadingData() {
       offline = await offlineDb.listArticles();
     } catch (e) {
       console.warn('Reading: IndexedDB read failed during merge', e);
+    }
+    // Keep the in-memory set pure: the offline archive can still hold
+    // articles from sources the user has since disabled or deleted.
+    if (offline.length > 0) {
+      const allowed = new Set(names);
+      offline = offline.filter((a) => allowed.has(a.source));
     }
 
     if (onlineFailed && offline.length === 0 && online.length === 0) {
@@ -529,12 +530,8 @@ export function useReadingData() {
                   setArticles((prev) => {
                     const seen = new Set(prev.map((a) => a.link));
                     const newOnes = r.items.filter((a) => a.link && !seen.has(a.link));
-                    const merged = [...newOnes, ...prev].sort((a, b) => {
-                      const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
-                      const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
-                      return db - da;
-                    });
-                    return capArticles(merged);
+                    if (newOnes.length === 0) return prev;
+                    return capArticles(sortByPubDateDesc([...newOnes, ...prev]));
                   });
                   allFreshArticles.push(...r.items);
 
