@@ -46,7 +46,9 @@ const MAX_REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
 /** Staleness threshold — auto-refresh on mount if older than this. */
 const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
 /** The Edge Function caps one request at 15 feeds; the client batches transparently. */
-const EDGE_BATCH_SIZE = 15;
+// Must stay <= MAX_FEEDS_PER_REQUEST in the fetch-rss edge function (8);
+// larger batches were silently truncated and blew the isolate's memory cap.
+const EDGE_BATCH_SIZE = 6;
 
 type EdgeRefreshData = {
   statuses?: FeedStatus[];
