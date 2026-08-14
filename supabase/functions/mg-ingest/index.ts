@@ -15,8 +15,8 @@ import { ingestUrl } from "../_shared/marginaliaPipeline.ts";
  * batches, with a hard per-invocation article cap.
  */
 const MAX_SOURCES = 4;
-const MAX_ITEMS_PER_SOURCE = 4;
-const MAX_ARTICLES = 10;
+const MAX_ITEMS_PER_SOURCE = 6;
+const MAX_ARTICLES = 12;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -25,7 +25,7 @@ serve(async (req) => {
   const auth = await requireUser(req);
   if (!auth.ok) return jsonResponse({ error: auth.error }, auth.status);
 
-  let body: { userId?: unknown; sourceId?: unknown } = {};
+  let body: { userId?: unknown; sourceId?: unknown; offset?: unknown } = {};
   try { body = await req.json(); } catch { /* empty body is fine */ }
 
   const userId = auth.serviceRole
@@ -33,26 +33,51 @@ serve(async (req) => {
     : auth.userId ?? null;
   if (!userId) return jsonResponse({ error: "user_required" }, 400);
   const onlySource = typeof body.sourceId === "string" ? body.sourceId : null;
+  const offset = typeof body.offset === "number" && body.offset > 0
+    ? Math.min(Math.floor(body.offset), 500)
+    : 0;
 
   const db = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  // Sources are walked in stable pages so the client can keep calling with
+  // the returned `nextOffset` until every feed has been covered — one
+  // invocation stays inside the worker's memory/time budget.
+  let totalSources = 0;
+  if (!onlySource) {
+    const { count } = await db.from("mg_sources")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("active", true);
+    totalSources = count ?? 0;
+  }
+
   let q = db.from("mg_sources")
     .select("id,name,feed_url,active")
     .eq("user_id", userId)
     .eq("active", true)
     .order("last_fetched_at", { ascending: true, nullsFirst: true })
-    .limit(MAX_SOURCES);
+    .order("id", { ascending: true })
+    .range(offset, offset + MAX_SOURCES - 1);
   if (onlySource) q = db.from("mg_sources").select("id,name,feed_url,active").eq("user_id", userId).eq("id", onlySource);
 
   const { data: sources, error } = await q;
   if (error) return jsonResponse({ error: error.message }, 500);
-  if (!sources?.length) return jsonResponse({ processed: 0, results: [], note: "no_active_sources" });
+  if (!sources?.length) {
+    return jsonResponse({
+      processed: 0,
+      results: [],
+      note: offset > 0 ? "no_more_sources" : "no_active_sources",
+      nextOffset: null,
+      totalSources,
+    });
+  }
 
   const results: unknown[] = [];
   let ingested = 0;
+  let coveredSources = 0;
 
   for (const source of sources) {
     const xml = await fetchFeed(source.feed_url);
@@ -98,8 +123,20 @@ serve(async (req) => {
       .update({ last_error: null, last_fetched_at: new Date().toISOString() })
       .eq("id", source.id);
 
+    coveredSources++;
     if (ingested >= MAX_ARTICLES) break;
   }
 
-  return jsonResponse({ processed: ingested, results });
+  // When the article budget cut the page short, resume from the first
+  // source we did not finish; otherwise resume after this page.
+  const consumed = offset + (coveredSources || sources.length);
+  const nextOffset = onlySource || consumed >= totalSources ? null : consumed;
+
+  return jsonResponse({
+    processed: ingested,
+    results,
+    nextOffset,
+    totalSources,
+    coveredSources: consumed,
+  });
 });

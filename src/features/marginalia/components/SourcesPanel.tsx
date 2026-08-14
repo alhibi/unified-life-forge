@@ -7,6 +7,18 @@ import { Loader2, Plus, RefreshCw, Rss, Trash2 } from '@/lib/icons';
 import { marginaliaApi } from '../api';
 import type { MgSource } from '../types';
 
+/** Long-form essay feeds worth archiving — one tap to add. */
+const SUGGESTED: { name: string; url: string }[] = [
+  { name: 'Aeon', url: 'https://aeon.co/feed.rss' },
+  { name: 'Nautilus', url: 'https://nautil.us/feed/' },
+  { name: 'Quanta Magazine', url: 'https://api.quantamagazine.org/feed/' },
+  { name: 'The Marginalian', url: 'https://www.themarginalian.org/feed/' },
+  { name: 'Noema', url: 'https://www.noemamag.com/feed/' },
+  { name: 'MIT Technology Review', url: 'https://www.technologyreview.com/feed/' },
+  { name: 'Stanford Encyclopedia (new)', url: 'https://plato.stanford.edu/rss/sep.xml' },
+  { name: 'Works in Progress', url: 'https://worksinprogress.co/feed/' },
+];
+
 interface Props {
   sources: MgSource[];
   onChanged: () => void;
@@ -17,6 +29,9 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
+  const [progress, setProgress] = useState<string | null>(null);
+
+  const existing = new Set(sources.map((s) => s.feed_url.replace(/\/$/, '')));
 
   const add = async () => {
     const feed = url.trim();
@@ -38,6 +53,35 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
       const res = await marginaliaApi.ingest(id);
       toast.success(res.processed ? `تمت معالجة ${res.processed} مقالاً` : 'لا مقالات جديدة');
       onChanged();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally { setBusy(null); }
+  };
+
+  const refreshAll = async () => {
+    setBusy('all');
+    setProgress('جارٍ الجلب…');
+    try {
+      const res = await marginaliaApi.ingestAll((done, total, processed) => {
+        setProgress(`${done}/${total || '؟'} مصدر · ${processed} مقال`);
+      });
+      toast.success(
+        res.processed
+          ? `تمت معالجة ${res.processed} مقالاً من ${res.sources} مصدراً`
+          : 'لا مقالات جديدة في كل المصادر',
+      );
+      onChanged();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally { setBusy(null); setProgress(null); }
+  };
+
+  const quickAdd = async (s: { name: string; url: string }) => {
+    setBusy(s.url);
+    try {
+      await marginaliaApi.addSource(s.name, s.url);
+      onChanged();
+      toast.success(`أُضيف ${s.name}`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally { setBusy(null); }
@@ -81,6 +125,42 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
           </button>
         </div>
       </AppCard>
+
+      {sources.length > 0 && (
+        <button
+          type="button"
+          onClick={refreshAll}
+          disabled={busy === 'all'}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 text-primary text-sm font-bold active:scale-[0.98] transition disabled:opacity-60"
+        >
+          {busy === 'all'
+            ? <Loader2 className="w-4 h-4 animate-spin" />
+            : <RefreshCw className="w-4 h-4" />}
+          {busy === 'all' ? (progress ?? 'جارٍ الجلب…') : 'جلب من كل المصادر'}
+        </button>
+      )}
+
+      {SUGGESTED.some((s) => !existing.has(s.url.replace(/\/$/, ''))) && (
+        <AppCard compact className="space-y-2">
+          <p className="text-[0.6875rem] font-bold text-muted-foreground">مصادر مقترحة للمقالات الطويلة</p>
+          <div className="flex flex-wrap gap-1.5">
+            {SUGGESTED.filter((s) => !existing.has(s.url.replace(/\/$/, ''))).map((s) => (
+              <button
+                key={s.url}
+                type="button"
+                onClick={() => quickAdd(s)}
+                disabled={busy === s.url}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/50 text-xs font-medium active:scale-95 transition disabled:opacity-50"
+              >
+                {busy === s.url
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : <Plus className="w-3.5 h-3.5" />}
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </AppCard>
+      )}
 
       {sources.length === 0 ? (
         <AppCard className="text-center py-8 space-y-2">
