@@ -917,10 +917,53 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+  // ── Structured request logging ──────────────────────────────────────────
+  // Every log line carries the same request id so a failed invocation
+  // (notably WORKER_RESOURCE_LIMIT, which kills the isolate without a
+  // handler-level throw) can be traced end-to-end in the function logs.
+  const requestId = req.headers.get("x-request-id") ||
+    (globalThis.crypto?.randomUUID?.() ?? String(Date.now()));
+  const startedAt = Date.now();
+  const heapMb = () => {
+    try {
+      const m = (Deno as unknown as { memoryUsage?: () => { heapUsed: number; rss: number } })
+        .memoryUsage?.();
+      return m ? { heapMb: Math.round(m.heapUsed / 1048576), rssMb: Math.round(m.rss / 1048576) } : {};
+    } catch {
+      return {};
+    }
+  };
+  const log = (event: string, data: Record<string, unknown> = {}) => {
+    console.log(JSON.stringify({
+      fn: "fetch-rss",
+      requestId,
+      event,
+      ms: Date.now() - startedAt,
+      ...heapMb(),
+      ...data,
+    }));
+  };
+  const logError = (event: string, reason: unknown, data: Record<string, unknown> = {}) => {
+    console.error(JSON.stringify({
+      fn: "fetch-rss",
+      requestId,
+      event,
+      ms: Date.now() - startedAt,
+      ...heapMb(),
+      reason: reason instanceof Error ? reason.message : String(reason),
+      stack: reason instanceof Error ? reason.stack?.split("\n").slice(0, 4).join(" | ") : undefined,
+      ...data,
+    }));
+  };
+  const jsonHeaders = {
+    ...corsHeaders,
+    "Content-Type": "application/json",
+    "x-request-id": requestId,
+  };
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: jsonHeaders,
     });
   }
   // Auth is optional: anonymous callers can fetch & parse public feeds,
@@ -950,9 +993,10 @@ serve(async (req) => {
     const maxItems = Math.min(Math.max(1, Number(limit) || 30), MAX_ITEMS_HARD_CAP);
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
+      logError("bad_request", "No URLs provided");
       return new Response(JSON.stringify({ error: "No URLs provided" }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     }
     const safeUrls = (urls as unknown[])
@@ -960,16 +1004,29 @@ serve(async (req) => {
       .filter(isSafeUrl)
       .slice(0, MAX_FEEDS_PER_REQUEST);
     if (safeUrls.length === 0) {
+      logError("bad_request", "No valid http(s) URLs after SSRF filtering", {
+        requestedUrls: (urls as unknown[]).length,
+      });
       return new Response(
         JSON.stringify({
           error: "No valid http(s) URLs after SSRF filtering",
         }),
         {
           status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: jsonHeaders,
         },
       );
     }
+
+    log("request_start", {
+      authed,
+      feeds: safeUrls.length,
+      droppedUrls: (urls as unknown[]).length - safeUrls.length,
+      maxItems,
+      fetchFullContent: Boolean(fetchFullContent),
+      store: Boolean(store),
+      raw: Boolean(raw),
+    });
 
     // Secure raw XML proxying mode
     if (raw) {
@@ -982,25 +1039,29 @@ serve(async (req) => {
       try {
         const res = await fetchWithRetry(url, { headers, redirect: "follow" }, FETCH_TIMEOUT_MS);
         if (!res.ok) {
+          logError("raw_http_error", `HTTP ${res.status}`, { url });
           return new Response(JSON.stringify({ error: `HTTP error ${res.status}` }), {
             status: res.status,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            headers: jsonHeaders,
           });
         }
         if (!isSafeUrl(res.url)) {
+          logError("raw_unsafe_redirect", res.url, { url });
           return new Response(JSON.stringify({ error: "Redirect landed on disallowed host" }), {
             status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            headers: jsonHeaders,
           });
         }
         const text = await res.text();
+        log("raw_ok", { url, bytes: text.length });
         return new Response(JSON.stringify({ xml: text }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: jsonHeaders,
         });
       } catch (e: unknown) {
+        logError("raw_failed", e, { url });
         return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
           status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: jsonHeaders,
         });
       }
     }
@@ -1104,23 +1165,38 @@ serve(async (req) => {
       error: f.error,
     }));
 
+    for (const f of fetched) {
+      if (f.status === "error") {
+        logError("feed_failed", f.error || "unknown", {
+          url: f.url,
+          httpStatus: f.httpStatus,
+        });
+      }
+    }
+    log("request_done", {
+      okFeeds: feeds.length,
+      failedFeeds: fetched.length - feeds.length,
+      items: feeds.reduce((n, f) => n + f.count, 0),
+    });
+
     return new Response(
       JSON.stringify({
+        requestId,
         feeds,
         statuses,
         errors: fetched
           .filter((f) => f.status === "error")
           .map((f) => `${f.url}: ${f.error || "unknown"}`),
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { headers: jsonHeaders },
     );
   } catch (e: unknown) {
-    console.error("Handler error:", e);
+    logError("handler_error", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : String(e) }),
+      JSON.stringify({ requestId, error: e instanceof Error ? e.message : String(e) }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       },
     );
   }
