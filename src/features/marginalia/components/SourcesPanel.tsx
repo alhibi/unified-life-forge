@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { AppCard } from '@/components/ui/app-shell';
 import { Loader2, Plus, RefreshCw, Rss, Trash2 } from '@/lib/icons';
-import { toast } from 'sonner';
 
 import { marginaliaApi } from '../api';
 import type { MgSource } from '../types';

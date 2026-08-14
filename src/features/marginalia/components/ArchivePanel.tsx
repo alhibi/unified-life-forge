@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { AppCard } from '@/components/ui/app-shell';
 import { ExternalLink, Loader2, Plus, Search as SearchIcon, Trash2 } from '@/lib/icons';
-import { toast } from 'sonner';
 
 import { marginaliaApi } from '../api';
 import type { MgArticle } from '../types';
