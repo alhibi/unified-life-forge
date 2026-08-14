@@ -16,6 +16,15 @@ import type {
   MgSource,
 } from './types';
 
+export interface MgIngestResult {
+  processed: number;
+  results: unknown[];
+  note?: string;
+  nextOffset?: number | null;
+  totalSources?: number;
+  coveredSources?: number;
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any -- mg_* tables are not in the generated types yet. */
 const db = supabase as any;
 
