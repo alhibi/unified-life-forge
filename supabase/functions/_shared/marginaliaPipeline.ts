@@ -55,6 +55,13 @@ export async function ingestUrl(
     const fallback = await fetchPlainText(url);
     if (fallback.length > raw.length) raw = fallback;
   }
+  // Some publishers sit behind bot checkpoints (e.g. Vercel/Cloudflare
+  // challenges) that return a challenge page instead of the essay. A
+  // plain-text reader proxy resolves those without a headless browser.
+  if (raw.length < 600) {
+    const viaReader = await fetchViaReader(url);
+    if (viaReader.length > raw.length) raw = viaReader;
+  }
   if (raw.length < 600) {
     await upsertArticle(db, userId, url, sourceId, {
       title: meta.title ?? scraped?.title ?? url,
@@ -63,9 +70,9 @@ export async function ingestUrl(
       raw_text: raw || null,
       word_count: raw ? raw.split(/\s+/).length : 0,
       status: "error",
-      error_message: "extraction_too_short",
+      error_message: "extraction_blocked",
     });
-    return { url, status: "error", reason: "extraction_too_short" };
+    return { url, status: "error", reason: "extraction_blocked" };
   }
 
   // ── One LLM call for summary + domain tags ──────────────────────────
@@ -159,6 +166,21 @@ async function fetchPlainText(url: string): Promise<string> {
       .replace(/<(script|style|noscript|svg|nav|header|footer|form)[\s\S]*?<\/\1>/gi, " ")
       .replace(/<\/(p|div|br|li|h[1-6]|tr)>/gi, "\n");
     return stripText(body);
+  } catch { return ""; }
+}
+
+/** Reader-proxy extraction for bot-walled pages. Returns "" on failure. */
+async function fetchViaReader(url: string): Promise<string> {
+  try {
+    const res = await fetchWithRetry(
+      `https://r.jina.ai/${url}`,
+      { headers: { "Accept": "text/plain", "User-Agent": USER_AGENT } },
+      20000,
+      0,
+    );
+    if (!res.ok) return "";
+    const text = await res.text();
+    return text.length > 200_000 ? text.slice(0, 200_000) : text;
   } catch { return ""; }
 }
 
