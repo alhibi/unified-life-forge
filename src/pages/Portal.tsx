@@ -27,11 +27,22 @@ import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { ChevronLeft } from '@/lib/icons';
 import { prefetchRoute } from '@/lib/routePrefetch';
 
-/** Grid columns per breakpoint — mirrors the Tailwind classes on the grid. */
-function columnsFor(width: number, list: boolean): number {
+/**
+ * Columns are decided by container queries in CSS, so arrow-key arithmetic
+ * measures the rendered grid instead of guessing from the viewport: count how
+ * many focusable tiles share the first row's offsetTop.
+ */
+function measureColumns(tiles: (HTMLButtonElement | null)[], list: boolean): number {
   if (list) return 1;
-  if (width >= 700) return 3;
-  return 2;
+  const rendered = tiles.filter((el): el is HTMLButtonElement => Boolean(el?.isConnected));
+  if (rendered.length === 0) return 1;
+  const firstTop = rendered[0].getBoundingClientRect().top;
+  let columns = 0;
+  for (const el of rendered) {
+    if (Math.abs(el.getBoundingClientRect().top - firstTop) > 4) break;
+    columns += 1;
+  }
+  return Math.max(1, columns);
 }
 
 export default function Portal() {
