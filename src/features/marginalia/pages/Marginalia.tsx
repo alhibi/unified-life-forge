@@ -102,7 +102,7 @@ export default function Marginalia() {
   if (!user) {
     return (
       <PageShell>
-        <SEO title="الهوامش" description="أرشيف قراءة شخصي يكشف الروابط الخفية بين ما تقرأ." />
+        <SEO path="/marginalia" title="الهوامش" description="أرشيف قراءة شخصي يكشف الروابط الخفية بين ما تقرأ." />
         <BackButton />
         <AppCard className="text-center py-10">
           <p className="text-sm text-muted-foreground">سجّل الدخول لبناء أرشيفك الشخصي.</p>
@@ -114,6 +114,7 @@ export default function Marginalia() {
   return (
     <PageShell>
       <SEO
+        path="/marginalia"
         title="الهوامش — أرشيف قراءة يكشف الروابط"
         description="أرشيف قراءة شخصي يحلّل المقالات ويقترح روابط غير بديهية بينها، مع حوار مستند إلى أرشيفك."
       />
