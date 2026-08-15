@@ -358,9 +358,12 @@
     --ui-pad-card: 16px;
     --ui-pad-card-compact: 12px;
     --ui-control-h: 44px;
-    --ui-button-sm-h: 40px;
+    /* control(s) = 36 · 44 · 52 — 8px (one grid unit) apart. 44 is the
+       default because it is the smallest safe touch target. */
+    --ui-button-xs-h: 28px;
+    --ui-button-sm-h: 36px;
     --ui-button-h: 44px;
-    --ui-button-lg-h: 48px;
+    --ui-button-lg-h: 52px;
     --ui-tap: 44px;
     --ui-touch-min: 44px;
     --ui-scale: 1;

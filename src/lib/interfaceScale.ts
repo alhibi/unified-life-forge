@@ -760,9 +760,11 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
     '--ui-pad-card': `${g.cardPadding}px`,
     '--ui-pad-card-compact': `${g.cardPaddingCompact}px`,
     '--ui-control-h': `${g.controlHeight}px`,
-    '--ui-button-sm-h': px(40, g.uiScale),
+    // control(s) = 36 · 44 · 52 — one step of 8px, the grid unit, apart.
+    '--ui-button-xs-h': px(28, g.uiScale),
+    '--ui-button-sm-h': px(36, g.uiScale),
     '--ui-button-h': px(44, g.uiScale),
-    '--ui-button-lg-h': px(48, g.uiScale),
+    '--ui-button-lg-h': px(52, g.uiScale),
     '--ui-tap': `${g.tapSize}px`,
     '--ui-touch-min': `${g.tapSize}px`,
     '--ui-stack-gap': `${g.stackGap}px`,
