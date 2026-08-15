@@ -126,6 +126,7 @@
 
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-brand: hsl(var(--accent-brand));
 
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
@@ -274,10 +275,10 @@
        themes). Keep it in sync with generateThemeTokens(copper, 'neutral'). */
     --theme-50: 36 18.5% 94.7%;
     --theme-100: 40 27.3% 97.8%;
-    --theme-200: 33 12.4% 87.5%;
-    --theme-300: 32 21.6% 63.5%;
+    --theme-200: 35 22.1% 84.9%;
+    --theme-300: 32 23.2% 65.3%;
     --theme-400: 32 34.1% 41%;
-    --theme-500: 30 20.6% 27.5%;
+    --theme-500: 31 27% 26.9%;
     --theme-600: 240 0.6% 31.6%;
 
     --background: 36 18.5% 94.7%; /* 50  — the canvas */
@@ -293,13 +294,14 @@
     --muted: 30 6.5% 87.8%;
     --muted-foreground: 240 0.6% 31.6%; /* AA on the canvas */
     --accent: 30 5.4% 85.5%;
-    --accent-foreground: 32 34.1% 41%;
-    --destructive: 0 58% 42%;
+    --accent-foreground: 240 6.1% 9.6%; /* text on the accent surface */
+    --accent-brand: 32 34.1% 41%; /* the brand tone, when explicitly wanted */
+    --destructive: 358 72% 49%;
     --destructive-foreground: 0 0% 100%;
-    --success: 145 42% 34%;
+    --success: 145 50% 32%;
     --success-foreground: 0 0% 100%;
-    --warning: 35 68% 38%;
-    --warning-foreground: 35 80% 10%;
+    --warning: 38 85% 32%;
+    --warning-foreground: 0 0% 100%;
 
     /* Status colors are functional and deliberately restrained. */
     --sev-good: 145 42% 34%;
@@ -308,7 +310,7 @@
     --sev-high: 24 62% 44%;
     --sev-very-high: 0 58% 46%;
     --sev-extreme: 295 32% 42%;
-    --error: 0 58% 42%;
+    --error: 358 72% 49%;
     --error-foreground: 0 0% 100%;
     --border: 30 3.5% 77.6%; /* ink at 20% over the canvas */
     --input: 30 1.2% 67.5%;
@@ -320,7 +322,7 @@
        screen rather than as a surface. Overlays, full-bleed media and the
        OLED canvas use it, so nothing tints the content behind them. */
     --theme-ink: 250 7% 7%;
-    --scrim: 250 7% 7%;
+    --scrim: 36 10% 8%;
     --sidebar-background: 255 15.4% 94.9%;
     --sidebar-foreground: 256.8 20.2% 27%;
     --sidebar-primary: 256.9 19.5% 32.2%;
@@ -470,6 +472,13 @@
        now the canvas and step 100 carries the actions. The theme keeps its
        identity across modes instead of becoming a different colour. */
     color-scheme: dark;
+    --theme-50: 240 7.1% 5.5%;
+    --theme-100: 240 7.1% 11%;
+    --theme-200: 27 13.9% 15.5%;
+    --theme-300: 34 20.4% 35.5%;
+    --theme-400: 34 33.7% 60.2%;
+    --theme-500: 35 31.3% 74.3%;
+    --theme-600: 30 2.6% 69.4%;
     --background: 240 7.1% 5.5%;
     --foreground: 40 14.3% 91.8%;
     --card: 240 7.1% 11%;
@@ -483,20 +492,21 @@
     --muted: 270 2.6% 14.9%;
     --muted-foreground: 30 2.6% 69.4%; /* AA on the canvas */
     --accent: 240 1.1% 17.5%;
-    --accent-foreground: 34 33.7% 60.2%;
-    --destructive: 0 58% 68%;
-    --destructive-foreground: 0 20% 10%;
-    --success: 145 38% 64%;
-    --success-foreground: 145 30% 12%;
-    --warning: 35 65% 68%;
-    --warning-foreground: 35 40% 12%;
-    --error: 0 58% 68%;
-    --error-foreground: 0 20% 10%;
+    --accent-foreground: 40 14.3% 91.8%; /* text on the accent surface */
+    --accent-brand: 34 33.7% 60.2%;
+    --destructive: 358 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 50% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 85% 45%;
+    --warning-foreground: 38 90% 12%;
+    --error: 358 72% 56%;
+    --error-foreground: 0 0% 100%;
     --border: 0 0% 27.8%;
     --input: 0 0.5% 38.2%;
     --ring: 34 33.7% 60.2%;
-    /* Ink again — the overlay colour never changes with the mode either. */
-    --scrim: 250 7% 7%;
+    /* The scrim carries the palette hue so overlays belong to the theme. */
+    --scrim: 240 7.1% 4%;
     --sidebar-background: 240 7.1% 5.5%;
     --sidebar-foreground: 40 8.8% 86.7%;
     --sidebar-primary: 34 33.7% 60.2%;
