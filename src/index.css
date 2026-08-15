@@ -342,7 +342,11 @@
        Every shared utility further down this file reads these — never a raw
        rem literal — so one preference moves the entire app at once. */
 
-    /* Corner ladder: 6 · 10 · 16 · 24 at softness 1.0. */
+    /* Corner ladder: 4 · 6 · 10 · 16 · 24 at softness 1.0.
+       Nesting rule: r_inner = r_outer − padding. A 16px card with 12px
+       padding holds a 4px child; a 24px section with 8px padding holds a
+       16px card. Never nest two equal radii — it reads as a mistake. */
+    --r-xs: 4px;
     --r-sm: 6px;
     --r-md: 10px;
     --r-lg: 16px;
