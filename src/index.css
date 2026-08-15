@@ -1995,11 +1995,64 @@ html.theme-transition *,
 html.theme-transition *::before,
 html.theme-transition *::after {
   transition:
-    background-color calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
-    color calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
-    border-color calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
-    fill calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
-    stroke calc(260ms * var(--motion-duration-scale)) var(--motion-ease-in-out) !important;
+    background-color calc(200ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    color calc(200ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    border-color calc(200ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    fill calc(200ms * var(--motion-duration-scale)) var(--motion-ease-in-out),
+    stroke calc(200ms * var(--motion-duration-scale)) var(--motion-ease-in-out) !important;
+}
+
+/* ─── Light ⇄ dark cross-fade (View Transitions path) ───────────────────────
+   The preferred path. The browser snapshots the outgoing frame, AppContext
+   swaps the tokens, and the compositor dissolves one texture into the other:
+   a single GPU layer regardless of how many nodes are on screen, which is why
+   this never hitches the way a document-wide `*` transition does.
+
+   Only opacity is animated, and the two snapshots are stacked rather than
+   blended out-then-in, so no frame shows the page half-transparent. The
+   `.theme-view-transition` guard keeps route transitions — which use the same
+   pseudo-elements — untouched. */
+html.theme-view-transition::view-transition-group(root) {
+  animation-duration: calc(220ms * var(--motion-duration-scale));
+}
+html.theme-view-transition::view-transition-old(root) {
+  animation: theme-vt-out calc(220ms * var(--motion-duration-scale))
+    var(--motion-ease-in-out) both;
+}
+html.theme-view-transition::view-transition-new(root) {
+  animation: theme-vt-in calc(220ms * var(--motion-duration-scale))
+    var(--motion-ease-in-out) both;
+}
+/* Stacking order: the incoming theme rises over the frozen outgoing one. */
+html.theme-view-transition::view-transition-old(root),
+html.theme-view-transition::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+@keyframes theme-vt-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes theme-vt-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.theme-view-transition::view-transition-old(root),
+  html.theme-view-transition::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+html[data-reduced-motion='true'].theme-view-transition::view-transition-old(root),
+html[data-reduced-motion='true'].theme-view-transition::view-transition-new(root) {
+  animation: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
   html.theme-transition,
