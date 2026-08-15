@@ -23,6 +23,7 @@ import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useAuth } from '@/hooks/useAuth';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { ChevronLeft } from '@/lib/icons';
 import { prefetchRoute } from '@/lib/routePrefetch';
@@ -33,6 +34,13 @@ import { prefetchRoute } from '@/lib/routePrefetch';
  * pulse bar paint first, with a geometry-matched skeleton holding its place.
  */
 const CelestialRealmsLayout = lazy(() => import('@/components/portal/CelestialRealmsLayout'));
+
+/**
+ * The "today" widgets (prayer times, sunnah, weather, qibla compass) moved out
+ * of the retired `/now` app and onto this page. Lazy so the launcher's own
+ * chrome paints first.
+ */
+const PortalTodayWidgets = lazy(() => import('@/components/portal/PortalTodayWidgets'));
 
 /**
  * Columns are decided by container queries in CSS, so arrow-key arithmetic
@@ -57,6 +65,12 @@ export default function Portal() {
   const { username } = useAuth();
   const { unreadCount } = useUnreadMessages();
   const { pinned, recents, view, isPinned, togglePin, recordOpen, setView } = usePortalPrefs();
+
+  /* The widgets below need coordinates; ask once, exactly like /now used to. */
+  const { status: locationStatus, requestLocation } = useDeviceLocation();
+  useEffect(() => {
+    if (locationStatus === 'idle') void requestLocation();
+  }, [locationStatus, requestLocation]);
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<PortalCategory | 'all'>('all');
@@ -218,6 +232,10 @@ export default function Portal() {
             <PortalGreeting username={username} />
 
             <PortalPulseBar />
+
+            <Suspense fallback={null}>
+              <PortalTodayWidgets />
+            </Suspense>
 
             {recentApps.length > 0 && (
               <section aria-label="آخر ما فتحته" className="relative z-10">
