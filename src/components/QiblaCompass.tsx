@@ -401,6 +401,18 @@ export default function QiblaCompass() {
                     </p>
                   )}
 
+                  {tilted && quality === 'absolute' && (
+                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">
+                      {t.tilted}
+                    </p>
+                  )}
+
+                  {quality === 'relative' && (
+                    <p className="text-micro text-muted-foreground text-center max-w-[32ch]">
+                      {t.relative}
+                    </p>
+                  )}
+
                   <div className="w-full rounded-2xl bg-card/60 border border-border/40 p-4 flex items-start gap-3">
                     <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                     <p className="text-mini text-muted-foreground leading-relaxed">
