@@ -109,6 +109,70 @@ function solid(fg: Hsl, bg: Hsl, amount: number): string {
   return hslToString(mixHsl(fg, bg, amount));
 }
 
+// ─── Contrast maths ─────────────────────────────────────────
+// Every derived token is verified against WCAG relative luminance so no
+// palette can ship text or lines that disappear into its own surface.
+
+function relativeLuminance(hsl: Hsl): number {
+  const hex = hslToHex(hsl);
+  const channel = (i: number) => {
+    const v = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2);
+}
+
+export function contrastRatio(a: Hsl, b: Hsl): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Walk a colour's lightness away from its background until it clears `target`.
+ * Hue and saturation are preserved so the palette's character survives the
+ * correction; only the tone moves.
+ */
+function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
+  if (contrastRatio(fg, bg) >= target) return fg;
+  const goDark = relativeLuminance(bg) > 0.18;
+  let best = fg;
+  for (let step = 1; step <= 100; step += 1) {
+    const l = goDark ? fg[2] - step : fg[2] + step;
+    if (l < 0 || l > 100) break;
+    const candidate: Hsl = [fg[0], fg[1], Math.round(l * 10) / 10];
+    best = candidate;
+    if (contrastRatio(candidate, bg) >= target) return candidate;
+  }
+  return best;
+}
+
+/** Accent strength is a real transform: saturation and tone, clamped. */
+const ACCENT_STRENGTH: Record<ThemeStyle | 'rainbow', { sat: number; lift: number }> = {
+  neutral: { sat: 0.72, lift: 0 },
+  tonal: { sat: 0.9, lift: 0 },
+  vibrant: { sat: 1.12, lift: 3 },
+  expressive: { sat: 1.34, lift: 6 },
+  rainbow: { sat: 1.18, lift: 2 },
+};
+
+function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): Hsl {
+  const spec = ACCENT_STRENGTH[style] ?? ACCENT_STRENGTH.tonal;
+  const sat = Math.min(96, Math.max(6, accent[1] * spec.sat));
+  const lift = isDark ? spec.lift : -spec.lift * 0.6;
+  const lightness = Math.min(82, Math.max(18, accent[2] + lift));
+  return [accent[0], Math.round(sat * 10) / 10, Math.round(lightness * 10) / 10];
+}
+
+/** Guarantee cards read as a distinct plane from the page behind them. */
+function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
+  const delta = Math.abs(surface[2] - bg[2]);
+  if (delta >= 3) return surface;
+  const shift = isDark ? 4.5 : -4.5;
+  return [surface[0], surface[1], Math.min(98, Math.max(2, bg[2] + shift))];
+}
+
 // Convert Hsl array to hex string
 function hslToHex([h, s, l]: Hsl): string {
   const sFrac = s / 100;
