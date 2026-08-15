@@ -204,7 +204,7 @@ const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMap
 const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
 // German learning diwan and the crypto watchlist — both heavy standalone apps.
-const loadDeLearning = () => import("./features/de-learning/pages/DeLearningHome");
+const loadDeLearning = () => import("./features/de-learning/pages/GermanHome");
 const loadCrypto = () => import("./features/crypto/pages/CryptoWatchlist");
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
