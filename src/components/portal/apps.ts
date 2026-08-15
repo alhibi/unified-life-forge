@@ -19,6 +19,7 @@ import {
   ChevronRight,
   CloudSun,
   Compass,
+  Clock,
   Crown,
   Dumbbell,
   Gamepad2,
