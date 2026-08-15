@@ -26,9 +26,22 @@ const VIEW_H = 340;
 const PAD_TOP = 18;
 const PAD_BOTTOM = 34;
 
+/** Live refresh cadence + candle bucket width per range (ms / seconds). */
+const RANGE_TIMING: Record<ChartRange, { refreshMs: number; bucketSec: number }> = {
+  '1D': { refreshMs: 30_000, bucketSec: 15 * 60 },
+  '5D': { refreshMs: 120_000, bucketSec: 60 * 60 },
+  '1M': { refreshMs: 300_000, bucketSec: 4 * 60 * 60 },
+  '6M': { refreshMs: 600_000, bucketSec: 24 * 60 * 60 },
+  '1Y': { refreshMs: 600_000, bucketSec: 24 * 60 * 60 },
+};
+
 function formatPrice(value: number): string {
   if (!Number.isFinite(value)) return '—';
   const abs = Math.abs(value);
+  // Micro-cap tokens need significant-digit precision, not fixed decimals.
+  if (abs > 0 && abs < 0.01) {
+    return value.toLocaleString('en-US', { maximumSignificantDigits: 6 });
+  }
   const digits = abs >= 1000 ? 2 : abs >= 1 ? 4 : abs >= 0.01 ? 6 : 8;
   return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: digits });
 }
