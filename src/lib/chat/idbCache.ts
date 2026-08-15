@@ -29,8 +29,8 @@
 //   treat the cache as a hint, never as authoritative state.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { ChatMessage, ChatSummary } from './types';
 import { ensureStorageHeadroom, registerEvictor } from '../storageQuota';
+import type { ChatMessage, ChatSummary } from './types';
 
 const DB_NAME    = 'smarthub-chat';
 const DB_VERSION = 1;
