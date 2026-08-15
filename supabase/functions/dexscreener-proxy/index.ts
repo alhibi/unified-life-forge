@@ -415,6 +415,76 @@ serve(async (req) => {
       }
     }
 
+    // 4.5 Handle OHLCV candle history (GeckoTerminal — real on-chain candles)
+    if (payload.action === "ohlcv") {
+      const cfg = RANGE_CONFIG[payload.range];
+      const network = GECKO_NETWORKS[payload.chainId];
+      const cacheKey = `ohlcv:${network}:${payload.pairAddress.toLowerCase()}:${payload.range}`;
+      const now = Date.now();
+      const cached = MEMORY_CACHE.get(cacheKey);
+
+      if (cached && now < cached.expiresAt) {
+        return new Response(JSON.stringify({ data: cached.data }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const url =
+        `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${encodeURIComponent(payload.pairAddress)}` +
+        `/ohlcv/${cfg.timeframe}?aggregate=${cfg.aggregate}&limit=${cfg.limit}&currency=usd`;
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "User-Agent": "SmartHub/2.0 (amv.life; contact@amv.life)",
+            Accept: "application/json;version=20230302",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`GeckoTerminal returned HTTP ${response.status}`);
+        }
+
+        const validated = GeckoOhlcvSchema.parse(await response.json());
+
+        // Candles arrive newest-first; normalize to ascending time and keep price precision as strings.
+        const candles = validated.data.attributes.ohlcv_list
+          .filter((c) => c.length >= 5 && Number.isFinite(c[0]) && Number.isFinite(c[4]))
+          .map((c) => ({
+            t: c[0],
+            o: String(c[1]),
+            h: String(c[2]),
+            l: String(c[3]),
+            c: String(c[4]),
+            v: String(c[5] ?? 0),
+          }))
+          .sort((a, b) => a.t - b.t);
+
+        const result = { range: payload.range, candles };
+        MEMORY_CACHE.set(cacheKey, { data: result, expiresAt: now + cfg.ttl, timestamp: now });
+
+        return new Response(JSON.stringify({ data: result }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err: any) {
+        console.error("[dexscreener-proxy] OHLCV fetch failed:", err?.message ?? err);
+
+        if (cached) {
+          return new Response(JSON.stringify({ data: cached.data, stale: true }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify({ data: { range: payload.range, candles: [] }, unavailable: true }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // 5. Handle Batch Lookup action
     if (payload.action === "batch") {
       const requestedPairs = payload.pairs;
