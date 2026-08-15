@@ -1,5 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
-import { useCallback, useEffect, useMemo, useRef,useState } from 'react';
+import { lazy, Suspense,useCallback, useEffect, useMemo, useRef,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useApp } from '@/contexts/AppContext';
@@ -11,7 +11,10 @@ import {
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 import { MECCA_FALLBACK,useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
-import { CalendarDays, ChevronDown,ChevronLeft, Sunrise as SunriseIcon } from '@/lib/icons';
+import { CalendarDays, ChevronDown,ChevronLeft, Compass, Sunrise as SunriseIcon } from '@/lib/icons';
+
+/** Qibla compass + world prayer clock, folded inside this card behind a chevron. */
+const UmmahPulse = lazy(() => import('./UmmahPulse'));
 
 /**
  * PrayerTimes — a faithful re-implementation of khushu's Home prayer feature
@@ -472,6 +475,7 @@ export default function PrayerTimes() {
   // times. `handleToggle` is intentionally a no-op so the slab rows stay
   // inert (no persistence to localStorage, no shake, no guide-pulse).
   const handleToggle = useCallback((_name: PrayerKey) => {}, []);
+  const [showQibla, setShowQibla] = useState(false);
   const doneCount = 0;
 
   // ─── Render guards ───────────────────────────────────────────────────────
@@ -529,6 +533,39 @@ export default function PrayerTimes() {
           language={language}
           t={t}
         />
+
+        {/* ── Qibla disclosure: merged compass, collapsed by default ─────── */}
+        <div className="h-px bg-foreground/[0.06]" />
+        <button
+          type="button"
+          onClick={() => setShowQibla((v) => !v)}
+          aria-expanded={showQibla}
+          aria-controls="prayer-qibla-panel"
+          className="flex w-full items-center gap-2 px-[18px] py-2.5 text-start transition-colors duration-fast hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Compass className="h-3.5 w-3.5 text-primary/80" aria-hidden />
+          <span className="text-[0.6875rem] font-semibold text-muted-foreground">بوصلة القبلة</span>
+          <ChevronDown
+            className={`ms-auto h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${showQibla ? 'rotate-180' : ''}`}
+            aria-hidden
+          />
+        </button>
+        <AnimatePresence initial={false}>
+          {showQibla && (
+            <motion.div
+              id="prayer-qibla-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <Suspense fallback={<div className="h-40 animate-pulse bg-muted/30" />}>
+                <UmmahPulse />
+              </Suspense>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
