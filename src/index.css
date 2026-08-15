@@ -126,6 +126,7 @@
 
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-brand: hsl(var(--accent-brand));
 
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
