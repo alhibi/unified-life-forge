@@ -87,6 +87,8 @@ const EXPORT_EXCLUSIONS: Record<string, string> = {
     'reactions are keyed to messages that are themselves exported',
   chat_public_keys:
     'public half of a device encryption key — not authored content, and useless without the private key that never leaves the device; removed with the account by ON DELETE CASCADE',
+  mg_article_chunks:
+    'derived embeddings of mg_articles.raw_text, which is itself exported; re-deriving them is cheaper than shipping megabytes of vectors, and they cascade with the article',
 };
 
 // Note: pkm_note_links, pkm_ai_generations, place_photos and diwan_folder_items
