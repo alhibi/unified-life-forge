@@ -61,6 +61,36 @@ export const NormalizedPairSchema = z.object({
 });
 
 export type NormalizedPair = z.infer<typeof NormalizedPairSchema>;
+
+export const CHART_RANGES = ['1D', '5D', '1M', '6M', '1Y'] as const;
+export type ChartRange = typeof CHART_RANGES[number];
+
+export const CHART_RANGE_LABELS: Record<ChartRange, string> = {
+  '1D': 'يوم واحد',
+  '5D': '5 أيام',
+  '1M': 'شهر واحد',
+  '6M': '6 أشهر',
+  '1Y': 'سنة واحدة',
+};
+
+export const CandleSchema = z.object({
+  t: z.number(),
+  o: z.string(),
+  h: z.string(),
+  l: z.string(),
+  c: z.string(),
+  v: z.string(),
+});
+
+export type Candle = z.infer<typeof CandleSchema>;
+
+export const OhlcvResponseSchema = z.object({
+  range: z.enum(CHART_RANGES),
+  candles: z.array(CandleSchema),
+});
+
+export type OhlcvSeries = z.infer<typeof OhlcvResponseSchema>;
+
 export type ApiResponseEnvelope<T> = {
   data: T;
   error?: string;
