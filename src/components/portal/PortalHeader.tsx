@@ -170,27 +170,47 @@ function PortalHeaderImpl({ unreadCount }: Props) {
             <DropdownMenuSeparator className="mx-2 bg-border/50" />
             {user ? (
               <>
-                <DropdownMenuItem onSelect={() => navigate('/profile')}>
-                  <User className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
+                <DropdownMenuItem
+                  onSelect={() => navigate('/profile')}
+                  onMouseEnter={() => prefetchRoute('/profile')}
+                  className={'group flex h-11 items-center gap-3 rounded-md px-2 text-meta text-foreground focus:bg-foreground/[0.06] focus:text-foreground'}
+                >
+                  <User className={'h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary'} aria-hidden />
                   الملف الشخصي
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate('/settings')}>
-                  <Settings className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
+                <DropdownMenuItem
+                  onSelect={() => navigate('/settings')}
+                  onMouseEnter={() => prefetchRoute('/settings')}
+                  className={'group flex h-11 items-center gap-3 rounded-md px-2 text-meta text-foreground focus:bg-foreground/[0.06] focus:text-foreground'}
+                >
+                  <Settings className={'h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary'} aria-hidden />
                   الإعدادات
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate('/settings/appearance')}>
-                  <Grid3X3 className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
+                <DropdownMenuItem
+                  onSelect={() => navigate('/settings/appearance')}
+                  onMouseEnter={() => prefetchRoute('/settings/appearance')}
+                  className={'group flex h-11 items-center gap-3 rounded-md px-2 text-meta text-foreground focus:bg-foreground/[0.06] focus:text-foreground'}
+                >
+                  <Grid3X3 className={'h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary'} aria-hidden />
                   السمة والألوان
                 </DropdownMenuItem>
               </>
             ) : (
               <>
-                <DropdownMenuItem onSelect={() => navigate('/auth')}>
-                  <LogIn className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
+                <DropdownMenuItem
+                  onSelect={() => navigate('/auth')}
+                  onMouseEnter={() => prefetchRoute('/auth')}
+                  className={'group flex h-11 items-center gap-3 rounded-md px-2 text-meta text-foreground focus:bg-foreground/[0.06] focus:text-foreground'}
+                >
+                  <LogIn className={'h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary'} aria-hidden />
                   تسجيل الدخول
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigate('/settings')}>
-                  <Settings className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
+                <DropdownMenuItem
+                  onSelect={() => navigate('/settings')}
+                  onMouseEnter={() => prefetchRoute('/settings')}
+                  className={'group flex h-11 items-center gap-3 rounded-md px-2 text-meta text-foreground focus:bg-foreground/[0.06] focus:text-foreground'}
+                >
+                  <Settings className={'h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary'} aria-hidden />
                   الإعدادات
                 </DropdownMenuItem>
               </>
