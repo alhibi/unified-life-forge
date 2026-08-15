@@ -78,21 +78,6 @@ export interface PortalApp {
 export const PORTAL_APPS: readonly PortalApp[] = [
   /* ── الروح ── */
   {
-    key: 'now',
-    path: '/now',
-    label: 'الرئيسي',
-    caption: 'NOW',
-    description: 'الصلاة، الطقس، ونبض اليوم',
-    cat: 'spirit',
-    icon: Sparkles,
-    keywords: 'now home صلاة طقس رئيسي الآن نبض مناسبات',
-    links: [
-      { path: '/now', label: 'لوحة الآن', note: 'الصلاة القادمة وسنة الوقت', icon: Sun },
-      { path: '/weather', label: 'الطقس', note: 'الحالة، الأشعة، وجودة الهواء', icon: CloudSun },
-      { path: '/occasions', label: 'المناسبات', note: 'التقويم الهجري والمواسم', icon: Calendar },
-    ],
-  },
-  {
     key: 'quran',
     path: '/quran',
     label: 'القرآن',

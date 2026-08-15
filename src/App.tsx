@@ -203,11 +203,6 @@ const loadTravelTrip = () => import("./features/travel-atlas/pages/TripDetailPag
 const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMapPage");
 const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
-// "Now" (الرئيسي) — the former home page content, now a standalone
-// app reached from the portal grid.
-const loadDeLearning = () => import("./features/de-learning/pages/GermanHome");
-const loadCrypto = () => import("./features/crypto/pages/CryptoWatchlist");
-
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
 // in-app intent surface (BottomNav pointerdown, NavLink hover, smart

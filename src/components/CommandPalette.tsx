@@ -97,7 +97,6 @@ export function CommandPalette() {
   // Warm up the most likely destinations once the palette is visible.
   useEffect(() => {
     if (!open) return;
-    prefetchRoute('/now');
     prefetchRoute('/mihrab');
     prefetchRoute('/settings');
   }, [open]);
