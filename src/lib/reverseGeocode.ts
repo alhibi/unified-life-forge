@@ -3,6 +3,8 @@
 // deduplicates concurrent requests so the homepage can't fire two
 // identical lookups while components mount in parallel.
 
+import { withBreaker } from './circuitBreaker';
+
 export interface ReverseGeo {
   city: string;
   street: string;
