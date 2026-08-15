@@ -1,5 +1,5 @@
 export const ROOT_TOKENS_STORAGE_KEY = 'app-root-tokens-v1';
-export const MAX_ROOT_TOKEN_COUNT = 256;
+export const MAX_ROOT_TOKEN_COUNT = 384;
 export const MAX_ROOT_TOKEN_KEY_LENGTH = 128;
 export const MAX_ROOT_TOKEN_VALUE_LENGTH = 1024;
 

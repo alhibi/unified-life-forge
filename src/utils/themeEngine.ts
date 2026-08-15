@@ -10,7 +10,15 @@ export type ThemeStyle = 'tonal' | 'vibrant' | 'neutral' | 'expressive';
 export type Hsl = [number, number, number];
 export type ThemeScale = [Hsl, Hsl, Hsl, Hsl, Hsl, Hsl, Hsl];
 
-export const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600] as const;
+/**
+ * The published tone ladder. Eleven perceptual steps instead of seven, so a
+ * component can pick a plane (25…200), an accent weight (300…500) or an ink
+ * weight (600…900) without inventing a one-off colour.
+ *
+ * Fixed contract, relied upon across the app and by the integrity tests:
+ *   50  = page background · 100 = card surface · 400 = primary accent
+ */
+export const SCALE_STEPS = [25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
 export type ScaleStep = (typeof SCALE_STEPS)[number];
 
 export interface ThemeColorSet {
@@ -87,6 +95,81 @@ function hexToHslString(hex: string): string {
   return hslToString(hexToHsl(hex));
 }
 
+// ─── Perceptual colour space (OKLab / OKLCH) ─────────────────
+// HSL lightness is not perceptual: `50%` yellow and `50%` blue are nowhere
+// near the same brightness, so an HSL ladder walks unevenly from hue to hue.
+// All tone maths below therefore happens in OKLab and only the final result is
+// converted back to HSL, because every token in the app is consumed as
+// `hsl(var(--token))` and must stay a plain `H S% L%` triple.
+
+type Rgb = [number, number, number]; // 0…1 sRGB
+type Oklab = [number, number, number]; // L 0…1, a, b
+
+function srgbToLinear(c: number): number {
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+function linearToSrgb(c: number): number {
+  return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
+}
+
+function hslToRgb([h, s, l]: Hsl): Rgb {
+  const hex = hslToHex([h, s, l]);
+  return [0, 1, 2].map((i) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255) as Rgb;
+}
+
+function rgbToOklab([r, g, b]: Rgb): Oklab {
+  const lr = srgbToLinear(r);
+  const lg = srgbToLinear(g);
+  const lb = srgbToLinear(b);
+  const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+  const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+  const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ];
+}
+
+function oklabToRgb([L, A, B]: Oklab): Rgb {
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
+  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
+  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+  const lr = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  const lb = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+  return [lr, lg, lb].map((c) =>
+    Math.min(1, Math.max(0, linearToSrgb(c))),
+  ) as Rgb;
+}
+
+function rgbToHsl([r, g, b]: Rgb): Hsl {
+  const hex = `#${[r, g, b]
+    .map((c) => Math.round(Math.min(1, Math.max(0, c)) * 255).toString(16).padStart(2, '0'))
+    .join('')}`;
+  return hexToHsl(hex);
+}
+
+function hslToOklab(hsl: Hsl): Oklab {
+  return rgbToOklab(hslToRgb(hsl));
+}
+
+function oklabToHsl(lab: Oklab): Hsl {
+  return rgbToHsl(oklabToRgb(lab));
+}
+
+/** Perceptual lightness of a colour, 0 (black) → 1 (white). */
+function perceptualL(hsl: Hsl): number {
+  return hslToOklab(hsl)[0];
+}
+
+/** Move a colour to a target perceptual lightness, keeping its hue and chroma. */
+function withPerceptualL(hsl: Hsl, L: number): Hsl {
+  const [, a, b] = hslToOklab(hsl);
+  return oklabToHsl([Math.min(1, Math.max(0, L)), a, b]);
+}
+
 /**
  * Flatten an "ink over background" translucency into a SOLID hsl triple.
  *
@@ -94,15 +177,18 @@ function hexToHslString(hex: string): string {
  * so they must never carry their own alpha — `hsl(h s% l% / 0.1 / 0.72)` is
  * invalid CSS and the whole declaration gets dropped (borders, dividers and
  * modal scrims vanish). We therefore pre-mix the alpha into a solid colour.
+ *
+ * The mix itself is perceptual (OKLab), so a 20% line over a warm page and the
+ * same 20% line over a cool page read as equally strong.
  */
 function mixHsl(fg: Hsl, bg: Hsl, amount: number): Hsl {
-  const fgHex = hslToHex(fg);
-  const bgHex = hslToHex(bg);
-  const chan = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
-  const blend = (i: number) =>
-    Math.round(chan(fgHex, i) * amount + chan(bgHex, i) * (1 - amount));
-  const hex = `#${[0, 1, 2].map((i) => blend(i).toString(16).padStart(2, '0')).join('')}`;
-  return hexToHsl(hex);
+  const a = hslToOklab(fg);
+  const b = hslToOklab(bg);
+  return oklabToHsl([
+    b[0] + (a[0] - b[0]) * amount,
+    b[1] + (a[1] - b[1]) * amount,
+    b[2] + (a[2] - b[2]) * amount,
+  ]);
 }
 
 function solid(fg: Hsl, bg: Hsl, amount: number): string {
@@ -130,22 +216,41 @@ export function contrastRatio(a: Hsl, b: Hsl): number {
 }
 
 /**
- * Walk a colour's lightness away from its background until it clears `target`.
- * Hue and saturation are preserved so the palette's character survives the
- * correction; only the tone moves.
+ * Walk a colour away from its background, in PERCEPTUAL lightness, until it
+ * clears `target`. Hue and chroma are preserved so the palette's character
+ * survives the correction; only the tone moves — and it moves by the same
+ * visual amount whatever the hue, which HSL lightness could not promise.
  */
 function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
   if (contrastRatio(fg, bg) >= target) return fg;
   const goDark = relativeLuminance(bg) > 0.18;
+  const startL = perceptualL(fg);
   let best = fg;
-  for (let step = 1; step <= 100; step += 1) {
-    const l = goDark ? fg[2] - step : fg[2] + step;
-    if (l < 0 || l > 100) break;
-    const candidate: Hsl = [fg[0], fg[1], Math.round(l * 10) / 10];
+  for (let step = 1; step <= 120; step += 1) {
+    const L = goDark ? startL - step * 0.01 : startL + step * 0.01;
+    if (L < 0 || L > 1) break;
+    const candidate = withPerceptualL(fg, L);
     best = candidate;
     if (contrastRatio(candidate, bg) >= target) return candidate;
   }
   return best;
+}
+
+/**
+ * Raise a plane above (light mode: toward white / dark mode: toward light) its
+ * own background by a perceptual amount. This is what makes the elevation
+ * ladder read as depth instead of as four almost-identical greys.
+ */
+function elevate(base: Hsl, isDark: boolean, amount: number): Hsl {
+  const current = perceptualL(base);
+  const delta = isDark ? amount : amount * 0.62;
+  let L = current + delta;
+  // A near-white card in light mode has no headroom left toward white, and a
+  // near-black canvas in OLED mode has none toward black. When the intended
+  // direction is exhausted we step the other way by the same visual amount, so
+  // the plane is still distinguishable instead of collapsing into its parent.
+  if (L > 0.99 || L < 0.015) L = current - delta;
+  return withPerceptualL(base, Math.min(0.995, Math.max(0.008, L)));
 }
 
 /** Accent strength is a real transform: saturation and tone, clamped. */
@@ -165,28 +270,52 @@ function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): H
   return [accent[0], Math.round(sat * 10) / 10, Math.round(lightness * 10) / 10];
 }
 
-/** Guarantee cards read as a distinct plane from the page behind them. */
+/**
+ * Guarantee cards read as a distinct plane from the page behind them, measured
+ * perceptually: a 3% HSL gap is invisible on a dark canvas and glaring on a
+ * pale one, so the gap is expressed in OKLab lightness instead.
+ */
 function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
-  const delta = Math.abs(surface[2] - bg[2]);
-  if (delta >= 3) return surface;
-  const shift = isDark ? 4.5 : -4.5;
-  return [surface[0], surface[1], Math.min(98, Math.max(2, bg[2] + shift))];
+  const ls = perceptualL(surface);
+  const lb = perceptualL(bg);
+  if (Math.abs(ls - lb) >= 0.02) return surface;
+  // Preserve the palette's own intent: if it wanted a card lighter than the
+  // page, the correction stays lighter — it only becomes big enough to see.
+  const direction = ls >= lb ? 1 : -1;
+  let L = lb + direction * (isDark ? 0.05 : 0.042);
+  if (L > 0.995 || L < 0.008) L = lb - direction * (isDark ? 0.05 : 0.042);
+  return withPerceptualL(surface, L);
 }
 
 /**
- * The single source of truth for the published 50 → 600 tone ladder.
+ * The single source of truth for the published 25 → 900 tone ladder.
  * Both the runtime tokens and the settings swatches call this, so a preview is
  * literally the colours the app will paint.
+ *
+ * Three zones, eleven steps:
+ *   planes  25 · 50 · 100 · 200   (recessed → page → card → raised)
+ *   accent  300 · 400 · 500       (wash → accent → deep)
+ *   ink     600 · 700 · 800 · 900 (secondary text → body → strong → maximum)
  */
-function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl): Hsl[] {
+function buildToneLadder(
+  bg: Hsl,
+  surface: Hsl,
+  ink: Hsl,
+  accent: Hsl,
+  isDark: boolean,
+): Hsl[] {
   return [
-    bg,                            // 50  — page
-    surface,                       // 100 — card
-    mixHsl(accent, bg, 0.18),      // 200 — accent wash
-    mixHsl(accent, bg, 0.55),      // 300 — accent soft
-    accent,                        // 400 — accent
-    mixHsl(ink, accent, 0.45),     // 500 — accent deep
-    mixHsl(ink, bg, 0.74),         // 600 — secondary ink
+    elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
+    bg, // 50  — page
+    surface, // 100 — card
+    elevate(surface, isDark, 0.035), // 200 — raised plane (popovers, sheets)
+    mixHsl(accent, bg, 0.2), // 300 — accent wash
+    accent, // 400 — accent
+    mixHsl(ink, accent, 0.4), // 500 — accent deep
+    ensureContrast(mixHsl(ink, bg, 0.7), bg, 4.5), // 600 — secondary ink (AA)
+    ensureContrast(mixHsl(ink, bg, 0.85), bg, 7), // 700 — body ink
+    ink, // 800 — ink
+    ensureContrast(ink, bg, 12), // 900 — maximum ink
   ];
 }
 
@@ -654,12 +783,32 @@ export function generateThemeTokens(
   const primaryFgStr =
     contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgStr : inkStr;
 
-  // Card soft shadow values:
-  // Light mode: 0 1px 3px rgba(63,63,63,0.08)
-  // Dark mode: 0 1px 3px rgba(0,0,0,0.25)
-  const cardShadow = isDark
-    ? '0 1px 3px rgba(0,0,0,0.25)'
-    : '0 1px 3px rgba(63,63,63,0.08)';
+  // ── Elevation ladder ───────────────────────────────────────
+  // Four planes, each one a perceptual step above the last, plus the shadow
+  // that belongs to it. Depth is expressed twice — as tone AND as shadow —
+  // because a dark theme reads elevation from tone and a light theme reads it
+  // from the shadow.
+  const surface2 = elevate(surfHsl, isDark, 0.035);
+  const surface3 = elevate(surfHsl, isDark, 0.07);
+
+  const shadowRgb = isDark ? '0,0,0' : '28,24,20';
+  const shadow1 =
+    isDark
+      ? `0 1px 2px rgba(${shadowRgb},0.36)`
+      : `0 1px 2px rgba(${shadowRgb},0.06)`;
+  const shadow2 =
+    isDark
+      ? `0 2px 6px rgba(${shadowRgb},0.44), 0 1px 2px rgba(${shadowRgb},0.3)`
+      : `0 2px 6px rgba(${shadowRgb},0.08), 0 1px 2px rgba(${shadowRgb},0.05)`;
+  const shadow3 =
+    isDark
+      ? `0 8px 24px rgba(${shadowRgb},0.52), 0 2px 6px rgba(${shadowRgb},0.34)`
+      : `0 8px 24px rgba(${shadowRgb},0.1), 0 2px 6px rgba(${shadowRgb},0.06)`;
+  const shadow4 =
+    isDark
+      ? `0 20px 48px rgba(${shadowRgb},0.6), 0 6px 14px rgba(${shadowRgb},0.4)`
+      : `0 20px 48px rgba(${shadowRgb},0.13), 0 6px 14px rgba(${shadowRgb},0.07)`;
+  const cardShadow = shadow1;
 
   // Published tone ladder (--theme-50 … --theme-600).
   // It is derived from the tones we JUST resolved for this mode, not from
@@ -671,7 +820,7 @@ export function generateThemeTokens(
     '--scrim': hslToString([bgHsl[0], Math.min(bgHsl[1], 10), isDark ? 4 : 8]),
   };
 
-  const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl);
+  const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl, isDark);
   SCALE_STEPS.forEach((name, i) => {
     scaleVars[`--theme-${name}`] = hslToString(ladder[i]);
   });
@@ -724,6 +873,22 @@ export function generateThemeTokens(
     // Extra elements
     '--card-shadow': cardShadow,
     '--accent-highlight': accentHighlightStr,
+    // Planes: 0 is the page, 1 the card, 2 popovers/sheets, 3 anything that
+    // floats above them (dialogs, menus, the command palette).
+    '--surface-0': bgStr,
+    '--surface-1': surfStr,
+    '--surface-2': hslToString(surface2),
+    '--surface-3': hslToString(surface3),
+    // The shadow that belongs to each plane, plus the legacy aliases so old
+    // call sites keep resolving to a real value.
+    '--shadow-1': shadow1,
+    '--shadow-2': shadow2,
+    '--shadow-3': shadow3,
+    '--shadow-4': shadow4,
+    '--shadow-sm': shadow1,
+    '--shadow-card': shadow2,
+    '--shadow-elevated': shadow3,
+    '--shadow-intense': shadow4,
   };
 }
 
@@ -743,7 +908,7 @@ export function getThemeScale(
   const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
   const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
   const accent = ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 3.2);
-  return buildToneLadder(bg, surface, ink, accent);
+  return buildToneLadder(bg, surface, ink, accent, isDark);
 }
 
 export function getThemeScaleColors(
