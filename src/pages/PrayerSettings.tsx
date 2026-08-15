@@ -6,7 +6,9 @@ import SEO from '@/components/SEO';
 import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
+import { usePrayerNotifications } from '@/hooks/usePrayerNotifications';
 import { BookOpen, Check,Info, RotateCcw } from '@/lib/icons';
+import { PRAYER_NAMES, PRAYER_TITLES_AR } from '@/lib/prayerNotifications';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
@@ -71,6 +73,7 @@ export default function PrayerSettings() {
     dstEnabled, setDstEnabled,
     calcMethod, setCalcMethod,
   } = useApp();
+  const notifications = usePrayerNotifications();
 
   const resetDefaults = () => {
     setPrayerMadhab('shafii');
@@ -250,6 +253,89 @@ export default function PrayerSettings() {
         </motion.div>
 
         {/* DST Toggle (boolean — Switch is correct here) */}
+        {/* Prayer reminders. Scheduled by the OS, so they fire offline. */}
+        {notifications.supported && (
+          <motion.div variants={item}>
+            <Section label="تنبيهات الصلاة">
+              <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
+                <div className="px-4 py-3.5 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-meta text-foreground leading-tight">
+                      {'تنبيه عند دخول الوقت'}
+                    </p>
+                    <p className="text-mini text-muted-foreground mt-0.5 leading-snug">
+                      {'يعمل بدون إنترنت، ويصل حتى مع إغلاق التطبيق'}
+                    </p>
+                  </div>
+                  <div dir="ltr" className="shrink-0">
+                    <Switch
+                      checked={notifications.prefs.enabled}
+                      onCheckedChange={notifications.setEnabled}
+                      aria-label="تنبيهات الصلاة"
+                    />
+                  </div>
+                </div>
+
+                {notifications.prefs.enabled &&
+                  PRAYER_NAMES.map((prayer) => (
+                    <div key={prayer} className="px-4 py-3 flex items-center justify-between gap-3">
+                      <p className="font-medium text-meta text-foreground">{PRAYER_TITLES_AR[prayer]}</p>
+                      <div dir="ltr" className="shrink-0">
+                        <Switch
+                          checked={notifications.prefs.prayers[prayer]}
+                          onCheckedChange={(value) => notifications.setPrayer(prayer, value)}
+                          aria-label={`تنبيه ${PRAYER_TITLES_AR[prayer]}`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                {notifications.prefs.enabled && (
+                  <div className="px-4 py-3.5" role="radiogroup" aria-label="التنبيه المسبق">
+                    <p className="font-semibold text-meta text-foreground mb-2.5">{'التنبيه المسبق'}</p>
+                    <div dir="ltr" className="flex gap-2">
+                      {[0, 5, 10, 15, 20].map((minutes) => (
+                        <button
+                          key={minutes}
+                          type="button"
+                          role="radio"
+                          aria-checked={notifications.prefs.leadMinutes === minutes}
+                          onClick={() => notifications.setLeadMinutes(minutes)}
+                          className={`flex-1 py-2 rounded-xl text-mini font-semibold transition-colors ${
+                            notifications.prefs.leadMinutes === minutes
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted/40 text-muted-foreground'
+                          }`}
+                        >
+                          {minutes === 0 ? 'عند الأذان' : `${minutes}د`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </AppCard>
+
+              {/* Honest status: silence here would be indistinguishable from a
+                  working schedule until a prayer is actually missed. */}
+              {notifications.problem === 'no-permission' && (
+                <p className="text-mini text-destructive mt-2 px-1 leading-relaxed">
+                  {'لم يُسمح للتطبيق بإرسال التنبيهات. افتح إعدادات النظام وامنح الإذن لتصل تنبيهات الصلاة.'}
+                </p>
+              )}
+              {notifications.problem === 'error' && (
+                <p className="text-mini text-destructive mt-2 px-1 leading-relaxed">
+                  {'تعذّر جدولة التنبيهات على هذا الجهاز. جرّب إيقاف التنبيهات وتشغيلها من جديد.'}
+                </p>
+              )}
+              {!notifications.problem && notifications.scheduled ? (
+                <p className="text-mini text-muted-foreground mt-2 px-1 leading-relaxed">
+                  {`تم جدولة ${notifications.scheduled} تنبيهاً لأسبوع قادم على الجهاز.`}
+                </p>
+              ) : null}
+            </Section>
+          </motion.div>
+        )}
+
         <motion.div variants={item}>
           <Section label="إعدادات إضافية">
           <AppCard className="p-0 overflow-hidden divide-y divide-border/30">

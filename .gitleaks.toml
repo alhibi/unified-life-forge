@@ -1,0 +1,50 @@
+# Secret-scan configuration for SmartHub.
+#
+# The default gitleaks rule set is kept in full (`useDefault`) and only
+# narrowed by an allowlist, because the two things this repo legitimately
+# commits look exactly like secrets:
+#
+#   1. The Supabase *publishable* (anon) key. It is a JWT with
+#      `"role":"anon"`, is designed to ship to browsers, and is gated by RLS.
+#   2. Generated type files and lockfiles containing long base64 hashes.
+#
+# Everything else — service-role keys, provider API keys, private keys —
+# must fail the build.
+
+title = "SmartHub secret scan"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "supabase-service-role-key"
+description = "Supabase service_role JWT (server-only, must never be committed)"
+# The role claim is base64url-encoded inside the payload, so match the decoded
+# form as well as the literal claim used in .env-style files.
+regex = '''(?i)(service_role["'\s:=]{1,10}ey[A-Za-z0-9_-]{20,}|SUPABASE_SERVICE_ROLE_KEY["'\s:=]{1,10}\S{20,})'''
+keywords = ["service_role", "SUPABASE_SERVICE_ROLE_KEY"]
+
+[[rules]]
+id = "supabase-db-password-url"
+description = "Postgres connection string with an inline password"
+regex = '''postgres(ql)?:\/\/[^:\/\s]+:[^@\s]{6,}@'''
+keywords = ["postgres://", "postgresql://"]
+
+[allowlist]
+description = "Values that are publishable by design, plus generated artefacts"
+paths = [
+  '''bun\.lock''',
+  '''package-lock\.json''',
+  '''src/integrations/supabase/types\.ts''',
+  '''(^|/)docs/''',
+]
+regexes = [
+  # Supabase anon / publishable key: a JWT whose payload declares role "anon".
+  # Base64url of `"role":"anon"` is `InJvbGUiOiJhbm9u`, which is what appears
+  # inside the token itself.
+  '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]*InJvbGUiOiJhbm9u[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+''',
+  # VITE_ variables are compiled into the client bundle by definition; a real
+  # secret must never be named VITE_*, and the ESLint gate plus review cover
+  # that separately.
+  '''VITE_SUPABASE_(URL|PUBLISHABLE_KEY|PROJECT_ID)''',
+]
