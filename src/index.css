@@ -264,39 +264,36 @@
     --spring-exit: var(--ease-in);
     --spring-ios: var(--ease-spring);
     --ease-out-soft: var(--ease-out-expo);
-    /* ── The 7-step tonal scale of the default theme ──────────────
-       50 #f1f0f4 · 100 #bebacd · 200 #a49db8 · 300 #756b92
-       400 #4b4262 · 500 #373049 · 600 #1c1827
-
+    /* ── The 7-step tonal scale of the default theme (Architectural Copper) ──
        These seven tones are the palette. Every semantic token below is a
        sample of the same curve, which is why the app reads as one colour
        system instead of a background colour plus an accent colour.
 
        This block is the pre-hydration fallback only — themeEngine.ts rewrites
        all of it on <html> as soon as the app boots (including for the other 30
-       themes). Keep it in sync with generateThemeTokens(default, 'neutral'). */
-    --theme-50: 255 15.4% 94.9%;
-    --theme-100: 252.6 16% 76.7%;
-    --theme-200: 255.6 16% 66.9%;
-    --theme-300: 255.4 15.4% 49.6%;
-    --theme-400: 256.9 19.5% 32.2%;
-    --theme-500: 256.8 20.7% 23.7%;
-    --theme-600: 256 23.8% 12.4%;
+       themes). Keep it in sync with generateThemeTokens(copper, 'neutral'). */
+    --theme-50: 36 18.5% 94.7%;
+    --theme-100: 40 27.3% 97.8%;
+    --theme-200: 33 12.4% 87.5%;
+    --theme-300: 32 21.6% 63.5%;
+    --theme-400: 32 34.1% 41%;
+    --theme-500: 30 20.6% 27.5%;
+    --theme-600: 240 0.6% 31.6%;
 
-    --background: 255 15.4% 94.9%; /* 50  — the canvas */
-    --foreground: 256 23.8% 12.4%; /* 600 — body text */
-    --card: 255 13.1% 98.6%; /* above 50, lifted toward white */
-    --card-foreground: 256 23.8% 12.4%;
-    --popover: 255 13.1% 98.6%;
-    --popover-foreground: 256 23.8% 12.4%;
-    --primary: 256.9 19.5% 32.2%; /* 400 — actions */
-    --primary-foreground: 255 9.2% 97.5%;
-    --secondary: 254.4 15.5% 90.6%; /* just below 50 — recessed surface */
-    --secondary-foreground: 256.8 20.2% 27%;
-    --muted: 254.4 15.5% 90.6%;
-    --muted-foreground: 256.1 17.4% 41%;
-    --accent: 254.4 15.5% 90.6%;
-    --accent-foreground: 256.8 20.7% 23.7%; /* 500 */
+    --background: 36 18.5% 94.7%; /* 50  — the canvas */
+    --foreground: 240 6.1% 9.6%; /* ink — body text */
+    --card: 40 27.3% 97.8%; /* above 50, lifted toward white */
+    --card-foreground: 240 6.1% 9.6%;
+    --popover: 40 27.3% 97.8%;
+    --popover-foreground: 240 6.1% 9.6%;
+    --primary: 32 34.1% 41%; /* 400 — actions */
+    --primary-foreground: 36 18.5% 94.7%;
+    --secondary: 30 5.4% 85.5%; /* just below 50 — recessed surface */
+    --secondary-foreground: 240 4% 14.7%;
+    --muted: 30 6.5% 87.8%;
+    --muted-foreground: 240 0.6% 31.6%; /* AA on the canvas */
+    --accent: 30 5.4% 85.5%;
+    --accent-foreground: 32 34.1% 41%;
     --destructive: 0 58% 42%;
     --destructive-foreground: 0 0% 100%;
     --success: 145 42% 34%;
@@ -313,9 +310,9 @@
     --sev-extreme: 295 32% 42%;
     --error: 0 58% 42%;
     --error-foreground: 0 0% 100%;
-    --border: 253.5 15.8% 83.5%; /* between 50 and 100 */
-    --input: 252.6 16% 76.7%; /* 100 */
-    --ring: 256.9 19.5% 32.2%;
+    --border: 30 3.5% 77.6%; /* ink at 20% over the canvas */
+    --input: 30 1.2% 67.5%;
+    --ring: 32 34.1% 41%;
 
     /* ── The eighth tone: ink ──────────────────────────────────────
        Identical in all 31 themes and in both modes. A soft matte black
@@ -473,20 +470,20 @@
        now the canvas and step 100 carries the actions. The theme keeps its
        identity across modes instead of becoming a different colour. */
     color-scheme: dark;
-    --background: 256 23.8% 12.4%; /* 600 */
-    --foreground: 254.7 15.5% 93%;
-    --card: 256.3 22.6% 16.8%;
-    --card-foreground: 254.7 15.5% 93%;
-    --popover: 256.3 22.6% 16.8%;
-    --popover-foreground: 254.7 15.5% 93%;
-    --primary: 252.8 16% 76%; /* ≈100 */
-    --primary-foreground: 256 23.8% 12.4%;
-    --secondary: 256.7 21% 22.5%; /* ≈500 */
-    --secondary-foreground: 254.1 15.6% 88%;
-    --muted: 256.7 21% 22.5%;
-    --muted-foreground: 254.2 16% 71.5%;
-    --accent: 256.7 21% 22.5%;
-    --accent-foreground: 253.2 15.9% 81%;
+    --background: 240 7.1% 5.5%;
+    --foreground: 40 14.3% 91.8%;
+    --card: 240 7.1% 11%;
+    --card-foreground: 40 14.3% 91.8%;
+    --popover: 240 7.1% 11%;
+    --popover-foreground: 40 14.3% 91.8%;
+    --primary: 34 33.7% 60.2%; /* copper */
+    --primary-foreground: 240 7.1% 5.5%;
+    --secondary: 240 1.1% 17.5%;
+    --secondary-foreground: 40 8.8% 86.7%;
+    --muted: 270 2.6% 14.9%;
+    --muted-foreground: 30 2.6% 69.4%; /* AA on the canvas */
+    --accent: 240 1.1% 17.5%;
+    --accent-foreground: 34 33.7% 60.2%;
     --destructive: 0 58% 68%;
     --destructive-foreground: 0 20% 10%;
     --success: 145 38% 64%;
@@ -495,23 +492,23 @@
     --warning-foreground: 35 40% 12%;
     --error: 0 58% 68%;
     --error-foreground: 0 20% 10%;
-    --border: 256.9 20% 28.5%;
-    --input: 256.7 18.8% 35%;
-    --ring: 252.8 16% 76%;
+    --border: 0 0% 27.8%;
+    --input: 0 0.5% 38.2%;
+    --ring: 34 33.7% 60.2%;
     /* Ink again — the overlay colour never changes with the mode either. */
     --scrim: 250 7% 7%;
-    --sidebar-background: 256 23.8% 12.4%;
-    --sidebar-foreground: 254.1 15.6% 88%;
-    --sidebar-primary: 252.8 16% 76%;
-    --sidebar-primary-foreground: 256 23.8% 12.4%;
-    --sidebar-accent: 256.7 21% 22.5%;
-    --sidebar-accent-foreground: 253.2 15.9% 81%;
-    --sidebar-border: 256.9 20% 28.5%;
-    --sidebar-ring: 252.8 16% 76%;
-    --shadow-color: 256 24% 2%;
-    --live: 254.7 16% 70%;
-    --live-soft: 255.5 15.7% 58%;
-    --live-glow: 252.8 16% 76%;
+    --sidebar-background: 240 7.1% 5.5%;
+    --sidebar-foreground: 40 8.8% 86.7%;
+    --sidebar-primary: 34 33.7% 60.2%;
+    --sidebar-primary-foreground: 240 7.1% 5.5%;
+    --sidebar-accent: 240 1.1% 17.5%;
+    --sidebar-accent-foreground: 34 33.7% 60.2%;
+    --sidebar-border: 0 0% 27.8%;
+    --sidebar-ring: 34 33.7% 60.2%;
+    --shadow-color: 240 20% 2%;
+    --live: 34 33.7% 60.2%;
+    --live-soft: 33 12% 20%;
+    --live-glow: 34 33.7% 60.2%;
   }
 }
 

@@ -109,6 +109,70 @@ function solid(fg: Hsl, bg: Hsl, amount: number): string {
   return hslToString(mixHsl(fg, bg, amount));
 }
 
+// ─── Contrast maths ─────────────────────────────────────────
+// Every derived token is verified against WCAG relative luminance so no
+// palette can ship text or lines that disappear into its own surface.
+
+function relativeLuminance(hsl: Hsl): number {
+  const hex = hslToHex(hsl);
+  const channel = (i: number) => {
+    const v = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2);
+}
+
+export function contrastRatio(a: Hsl, b: Hsl): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const [hi, lo] = la > lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * Walk a colour's lightness away from its background until it clears `target`.
+ * Hue and saturation are preserved so the palette's character survives the
+ * correction; only the tone moves.
+ */
+function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
+  if (contrastRatio(fg, bg) >= target) return fg;
+  const goDark = relativeLuminance(bg) > 0.18;
+  let best = fg;
+  for (let step = 1; step <= 100; step += 1) {
+    const l = goDark ? fg[2] - step : fg[2] + step;
+    if (l < 0 || l > 100) break;
+    const candidate: Hsl = [fg[0], fg[1], Math.round(l * 10) / 10];
+    best = candidate;
+    if (contrastRatio(candidate, bg) >= target) return candidate;
+  }
+  return best;
+}
+
+/** Accent strength is a real transform: saturation and tone, clamped. */
+const ACCENT_STRENGTH: Record<ThemeStyle | 'rainbow', { sat: number; lift: number }> = {
+  neutral: { sat: 0.72, lift: 0 },
+  tonal: { sat: 0.9, lift: 0 },
+  vibrant: { sat: 1.12, lift: 3 },
+  expressive: { sat: 1.34, lift: 6 },
+  rainbow: { sat: 1.18, lift: 2 },
+};
+
+function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): Hsl {
+  const spec = ACCENT_STRENGTH[style] ?? ACCENT_STRENGTH.tonal;
+  const sat = Math.min(96, Math.max(6, accent[1] * spec.sat));
+  const lift = isDark ? spec.lift : -spec.lift * 0.6;
+  const lightness = Math.min(82, Math.max(18, accent[2] + lift));
+  return [accent[0], Math.round(sat * 10) / 10, Math.round(lightness * 10) / 10];
+}
+
+/** Guarantee cards read as a distinct plane from the page behind them. */
+function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
+  const delta = Math.abs(surface[2] - bg[2]);
+  if (delta >= 3) return surface;
+  const shift = isDark ? 4.5 : -4.5;
+  return [surface[0], surface[1], Math.min(98, Math.max(2, bg[2] + shift))];
+}
+
 // Convert Hsl array to hex string
 function hslToHex([h, s, l]: Hsl): string {
   const sFrac = s / 100;
@@ -270,6 +334,132 @@ export const themePresets: ThemePreset[] = [
     { bg: '#E0F2F1', surface: '#B2DFDB', ink: '#004D40', accent: '#00796B' },
     { bg: '#001211', surface: '#002926', ink: '#E0F2F1', accent: '#26A69A' }
   ),
+  definePreset(
+    'matcha',
+    'ماتشا',
+    'Matcha',
+    { bg: '#F1F4EA', surface: '#E4EBD6', ink: '#26301C', accent: '#6B8E3E' },
+    { bg: '#0E1209', surface: '#1B2213', ink: '#EEF3E4', accent: '#9CBF63' }
+  ),
+  definePreset(
+    'moss',
+    'طحلب',
+    'Moss',
+    { bg: '#EDF1EC', surface: '#DDE6DC', ink: '#1F2A22', accent: '#4A6B52' },
+    { bg: '#0B0F0C', surface: '#161E18', ink: '#E6EDE6', accent: '#7FA98A' }
+  ),
+  definePreset(
+    'clay',
+    'طين',
+    'Clay',
+    { bg: '#F5EFEA', surface: '#EBE0D6', ink: '#33251D', accent: '#A9603F' },
+    { bg: '#130E0B', surface: '#211814', ink: '#F1E7DE', accent: '#CE8A62' }
+  ),
+  definePreset(
+    'sandstone',
+    'حجر رملي',
+    'Sandstone',
+    { bg: '#F6F1E6', surface: '#ECE3CF', ink: '#2E2A1F', accent: '#9C7C3C' },
+    { bg: '#12100A', surface: '#201C12', ink: '#F3EDDD', accent: '#C9A959' }
+  ),
+  definePreset(
+    'mint',
+    'نعناع',
+    'Mint',
+    { bg: '#EAF6F1', surface: '#D6EDE3', ink: '#12312A', accent: '#128069' },
+    { bg: '#08130F', surface: '#0F2119', ink: '#E4F4EE', accent: '#4FC3A1' }
+  ),
+  definePreset(
+    'gold',
+    'ذهب',
+    'Gold',
+    { bg: '#F8F3E6', surface: '#F0E6CE', ink: '#2C2415', accent: '#96731C' },
+    { bg: '#12100A', surface: '#211C10', ink: '#F7F0DC', accent: '#D9B441' }
+  ),
+  definePreset(
+    'cherry',
+    'كرز',
+    'Cherry',
+    { bg: '#FBF0F1', surface: '#F4DDDF', ink: '#3B1418', accent: '#B0203A' },
+    { bg: '#150A0C', surface: '#241014', ink: '#FAE9EB', accent: '#E9566F' }
+  ),
+  definePreset(
+    'volcano',
+    'بركان',
+    'Volcano',
+    { bg: '#F5EEEB', surface: '#EBDCD5', ink: '#2A1712', accent: '#B04A22' },
+    { bg: '#110B09', surface: '#1F1310', ink: '#F3E6E0', accent: '#E4713C' }
+  ),
+  definePreset(
+    'amber',
+    'عنبر',
+    'Amber',
+    { bg: '#FBF4E4', surface: '#F6E8C9', ink: '#31240D', accent: '#9A6C0B' },
+    { bg: '#130F07', surface: '#221A0C', ink: '#F9EFD9', accent: '#E0A82E' }
+  ),
+  definePreset(
+    'terracotta',
+    'فخار',
+    'Terracotta',
+    { bg: '#F7EFE9', surface: '#EEDDD1', ink: '#331F16', accent: '#A75434' },
+    { bg: '#140D09', surface: '#231710', ink: '#F5E7DC', accent: '#D9825C' }
+  ),
+  definePreset(
+    'neon',
+    'نيون',
+    'Neon',
+    { bg: '#EFF1F5', surface: '#E1E5EE', ink: '#14161C', accent: '#0F62FE' },
+    { bg: '#08090C', surface: '#121520', ink: '#EDF0F7', accent: '#4D8BFF' }
+  ),
+  definePreset(
+    'aurora',
+    'شفق قطبي',
+    'Aurora',
+    { bg: '#EBF4F3', surface: '#D8EAE9', ink: '#10262B', accent: '#0E7C86' },
+    { bg: '#07100F', surface: '#0F1F21', ink: '#E4F2F1', accent: '#3FD3C6' }
+  ),
+  definePreset(
+    'sakura',
+    'ساكورا',
+    'Sakura',
+    { bg: '#FCF1F4', surface: '#F7DEE7', ink: '#3A1B27', accent: '#C24C77' },
+    { bg: '#150B0F', surface: '#251319', ink: '#FBEAF0', accent: '#F090B0' }
+  ),
+  definePreset(
+    'arctic',
+    'قطبي',
+    'Arctic',
+    { bg: '#EEF4F9', surface: '#DCE8F2', ink: '#152430', accent: '#1F6C99' },
+    { bg: '#080D12', surface: '#111C24', ink: '#E9F2F9', accent: '#63B3E0' }
+  ),
+  definePreset(
+    'nebula',
+    'سديم',
+    'Nebula',
+    { bg: '#F1EEF8', surface: '#E1DBF1', ink: '#1E1733', accent: '#5B3FD1' },
+    { bg: '#0A0812', surface: '#161125', ink: '#EDE9F8', accent: '#9E86F5' }
+  ),
+  definePreset(
+    'dusk',
+    'شفق',
+    'Dusk',
+    { bg: '#F2EEF0', surface: '#E2DAE0', ink: '#221C26', accent: '#71527A' },
+    { bg: '#0C0A0E', surface: '#191420', ink: '#EEE8F0', accent: '#AE8FBB' }
+  ),
+  definePreset(
+    'storm',
+    'عاصفة',
+    'Storm',
+    { bg: '#EDEFF1', surface: '#DDE1E5', ink: '#181C20', accent: '#41606F' },
+    { bg: '#0A0C0D', surface: '#161A1D', ink: '#E9EDEF', accent: '#7C9EAE' }
+  ),
+  definePreset(
+    'silk',
+    'حرير',
+    'Silk',
+    { bg: '#F7F5F1', surface: '#EFEBE3', ink: '#26231D', accent: '#8C7A5B' },
+    { bg: '#100F0C', surface: '#1D1B16', ink: '#F4F1EA', accent: '#C3AE86' }
+  ),
 ];
 
 // ─── Dynamic theme from image ───────────────────────────────
@@ -344,23 +534,49 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
 // ─── Token Generation ───────────────────────────────────────
 export function generateThemeTokens(
   preset: ThemePreset,
-  _style: ThemeStyle,
+  style: ThemeStyle,
   isDark: boolean,
   isBlack: boolean,
-  _lift: SurfaceLift = 'subtle'
+  lift: SurfaceLift = 'subtle'
 ): Record<string, string> {
   const modeColors = isDark ? preset.dark : preset.light;
-  let bgHex = modeColors.bg;
+  const rawBg = hexToHsl(modeColors.bg);
+  const rawSurface = hexToHsl(modeColors.surface);
 
-  // Handle computed extra-dark background for black mode
-  if (isDark && isBlack) {
-    bgHex = '#080808'; // Pure extra-dark sub-black background for OLED Black Mode
-  }
+  // OLED black mode keeps the palette's hue instead of collapsing to a
+  // neutral #080808 whose card colour no longer belongs to the theme.
+  const bgHsl: Hsl =
+    isDark && isBlack ? [rawBg[0], Math.min(rawBg[1], 12), 2.5] : rawBg;
+  const surfaceBase: Hsl =
+    isDark && isBlack
+      ? [rawSurface[0], Math.min(rawSurface[1], 14), Math.max(7, rawSurface[2] - 3)]
+      : rawSurface;
 
-  const bgHsl = hexToHsl(bgHex);
-  const surfHsl = hexToHsl(modeColors.surface);
-  const inkHsl = hexToHsl(modeColors.ink);
-  const accHsl = hexToHsl(modeColors.accent);
+  // Surface lift is a tone decision: flat sits on the page, lifted floats.
+  const liftDelta = lift === 'flat' ? -1.5 : lift === 'lifted' ? 2.5 : 0;
+  const surfHsl = ensureSurfaceSeparation(
+    [
+      surfaceBase[0],
+      surfaceBase[1],
+      Math.min(99, Math.max(1, surfaceBase[2] + (isDark ? liftDelta : -liftDelta))),
+    ],
+    bgHsl,
+    isDark,
+  );
+
+  // Ink must clear WCAG AA against both the page and the cards on it.
+  const inkHsl = ensureContrast(
+    ensureContrast(hexToHsl(modeColors.ink), bgHsl, 7),
+    surfHsl,
+    5.5,
+  );
+  // Accent obeys the chosen strength, then is corrected until it is legible
+  // as a large-text / iconography colour on the page.
+  const accHsl = ensureContrast(
+    applyAccentStrength(hexToHsl(modeColors.accent), style, isDark),
+    bgHsl,
+    3.2,
+  );
 
   const bgStr = hslToString(bgHsl);
   const surfStr = hslToString(surfHsl);
@@ -370,18 +586,26 @@ export function generateThemeTokens(
   // Derive secondary/tertiary/disabled/hover/pressed states from the 4 roles ONLY.
   // Each one is pre-mixed into a SOLID triple so downstream CSS can safely
   // compose its own alpha, e.g. `hsl(var(--border) / 0.72)`.
-  const borderStr = solid(inkHsl, bgHsl, 0.16);        // ink over bg, subtle line
-  const inputStr = solid(inkHsl, bgHsl, 0.24);         // ink over bg, stronger line
-  const secondaryStr = solid(inkHsl, bgHsl, 0.1);      // neutral recess/background
-  const secondaryFgStr = solid(inkHsl, bgHsl, 0.85);   // near-ink text
-  const mutedStr = solid(inkHsl, bgHsl, 0.08);
-  const mutedFgStr = solid(inkHsl, bgHsl, 0.62);       // secondary text
-  const disabledStr = solid(inkHsl, bgHsl, 0.4);       // disabled state
+  // Dark surfaces need a heavier mix to read at the same perceived strength,
+  // which is why the two modes carry different ladders.
+  const lineBase = isDark ? 0.26 : 0.2;
+  const borderStr = solid(inkHsl, bgHsl, lineBase);            // hairline
+  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.12);      // field outline
+  const secondaryStr = solid(inkHsl, bgHsl, isDark ? 0.14 : 0.11);
+  const secondaryFgStr = solid(inkHsl, bgHsl, 0.94);           // near-ink text
+  const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
+  // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
+  const mutedFgStr = hslToString(
+    ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5),
+  );
+  const disabledStr = solid(inkHsl, bgHsl, 0.46);              // disabled state
 
-  const accentHighlightStr = solid(accHsl, bgHsl, 0.12); // subtle accent wash
+  const accentHighlightStr = solid(accHsl, bgHsl, 0.14); // subtle accent wash
 
-  // Primary Foreground is ink (high contrast text) in light, and bg in dark mode.
-  const primaryFgStr = isDark ? bgStr : inkStr;
+  // Text on the accent is whichever of ink/bg is actually readable on it —
+  // pale accents in dark mode used to place a near-black label on gold.
+  const primaryFgStr =
+    contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgStr : inkStr;
 
   // Card soft shadow values:
   // Light mode: 0 1px 3px rgba(63,63,63,0.08)
@@ -490,25 +714,44 @@ export function generateAuraTokens(
 }
 
 // ─── Helpers for Preview / Swatches ──────────────────────────
-export function getThemeScale(preset: ThemePreset, _style: ThemeStyle = 'neutral'): Hsl[] {
-  // Return the 4 roles' Hsl representations for rendering swatches
-  const light = preset.light;
+/**
+ * The seven published tones (50 → 600) of a preset, in the mode being shown.
+ * These are the same maths the token generator uses, so a swatch is a truthful
+ * preview rather than a decorative approximation.
+ */
+export function getThemeScale(
+  preset: ThemePreset,
+  style: ThemeStyle = 'neutral',
+  isDark = false,
+): Hsl[] {
+  const mode = isDark ? preset.dark : preset.light;
+  const bg = hexToHsl(mode.bg);
+  const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
+  const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
+  const accent = ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 3.2);
   return [
-    hexToHsl(light.bg),
-    hexToHsl(light.surface),
-    hexToHsl(light.accent),
-    hexToHsl(light.ink),
+    bg,                            // 50  — page
+    surface,                       // 100 — card
+    mixHsl(accent, bg, 0.18),      // 200 — accent wash
+    mixHsl(accent, bg, 0.55),      // 300 — accent soft
+    accent,                        // 400 — accent
+    mixHsl(ink, accent, 0.45),     // 500 — accent deep
+    mixHsl(ink, bg, 0.74),         // 600 — secondary ink
   ];
 }
 
-export function getThemeScaleColors(preset: ThemePreset, _style: ThemeStyle = 'neutral'): string[] {
-  const light = preset.light;
-  return [
-    light.bg,
-    light.surface,
-    light.accent,
-    light.ink,
-  ];
+export function getThemeScaleColors(
+  preset: ThemePreset,
+  style: ThemeStyle = 'neutral',
+  isDark = false,
+): string[] {
+  return getThemeScale(preset, style, isDark).map((tone) => hslToHex(tone));
+}
+
+/** The preset's own ink — the eighth band of a swatch. */
+export function getThemeInk(preset: ThemePreset, isDark = false): string {
+  const mode = isDark ? preset.dark : preset.light;
+  return hslToHex(ensureContrast(hexToHsl(mode.ink), hexToHsl(mode.bg), 7));
 }
 
 export function applyThemeTokens(tokens: Record<string, string>) {
