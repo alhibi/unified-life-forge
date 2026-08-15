@@ -84,4 +84,16 @@ describe('icon libraries', () => {
       .map((e) => `${e.p} -> ${e.t}`);
     expect(missing).toEqual([]);
   });
+
+  it('gives every distinct concept its own glyph in phosphor', () => {
+    expect(duplicateGlyphs((e) => e.p)).toEqual([]);
+  });
+
+  it('gives every distinct concept its own glyph in lucide', () => {
+    expect(duplicateGlyphs((e) => e.l)).toEqual([]);
+  });
+
+  it('gives every distinct concept its own glyph in tabler', () => {
+    expect(duplicateGlyphs((e) => e.t)).toEqual([]);
+  });
 });
