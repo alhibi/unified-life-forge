@@ -180,6 +180,13 @@ function definePreset(
 // ─── Theme Presets ──────────────────────────────────────────
 export const themePresets: ThemePreset[] = [
   definePreset(
+    'copper',
+    'نُحاس معماري',
+    'Architectural Copper',
+    { bg: '#F4F2EF', surface: '#FBFAF8', ink: '#17171A', accent: '#9A6B37' },
+    { bg: '#0D0D0F', surface: '#1A1A1E', ink: '#EDEBE7', accent: '#C9A06A' }
+  ),
+  definePreset(
     'default',
     'كلاسيك',
     'Classic',
