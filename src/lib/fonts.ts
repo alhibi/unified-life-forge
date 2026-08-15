@@ -28,6 +28,14 @@ const SANS_FALLBACK = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 // We map all ID selections to this unified stack to guarantee its exclusive application.
 const INTER_DISPLAY_STACK = `'Inter', 'Inter Display', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`;
 
+/**
+ * Headings run on a serif display face: Instrument Serif carries the Latin
+ * glyphs and Amiri covers Arabic (Instrument Serif has no Arabic coverage), so
+ * the "modern magazine" register holds in both scripts without a fallback jump.
+ */
+export const DISPLAY_SERIF_STACK =
+  `'Instrument Serif', 'Amiri', 'IBM Plex Sans Arabic', Georgia, serif`;
+
 export const FONT_OPTIONS: readonly FontOption[] = [
   {
     id: 'ibm-plex',
