@@ -1590,7 +1590,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       root.lang = language;
 
       // Find preset and generate tokens
-      let preset = themePresets.find((p) => p.id === colorTheme);
+      const resolvedThemeId = resolveThemeId(colorTheme);
+      let preset = themePresets.find((p) => p.id === resolvedThemeId);
       if (!preset && colorTheme === 'dynamic') {
         try {
           const saved = localStorage.getItem('app-dynamic-preset');
