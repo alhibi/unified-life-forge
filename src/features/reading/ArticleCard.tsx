@@ -528,13 +528,17 @@ export function HeroArticleCard({
   );
 
   return (
-    <motion.button
-      type="button"
+    // The card is a CONTAINER, not a button. It used to be a <motion.button>
+    // with the bookmark <button> nested inside it — invalid HTML that React
+    // reported as a hydration error and that left the bookmark control
+    // unreachable for keyboard and screen-reader users. The open affordance is
+    // now a full-bleed button layered under the chrome, so both controls are
+    // real siblings.
+    <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      onClick={onOpen}
-      className="relative w-full text-start overflow-hidden rounded-2xl bg-card mx-3 my-2 group"
+      className="relative mx-3 my-2 overflow-hidden rounded-2xl bg-card group"
       style={{ aspectRatio: '16 / 10' }}
     >
       {article.image
@@ -550,37 +554,45 @@ export function HeroArticleCard({
           />
         )
         : (
-          <div
-            className="absolute inset-0"
-            style={{
-              
- }}
- />
- )}
- <div className="absolute inset-0" />
- <div className="absolute top-3 start-3 flex items-center gap-2">
- <SourcePill name={article.source} size="md" />
- <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-black/70 text-white/95">
- {article.source}
- </span>
- </div>
- <button
- type="button"
- onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
- className="absolute top-3 end-3 p-2 rounded-full bg-black/70 hover:bg-black/80 transition-colors"
- aria-label={isBookmarked
- ? ('إلغاء الحفظ')
-          : ('حفظ')}
+          // Imageless fallback: a themed panel rather than a bare card, so the
+          // white title keeps its contrast.
+          <div className="absolute inset-0 bg-gradient-to-br from-muted via-card to-background" />
+        )}
+
+      {/* Scrim. Text sits on media here, so a fixed light foreground over a
+          dark bottom-weighted scrim is the only way to hold 4.5:1 in every
+          theme. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+
+      {/* Full-bleed open affordance, below the chrome in z-order. */}
+      <button
+        type="button"
+        onClick={onOpen}
+        className="absolute inset-0 z-0 app-focus-ring"
+        aria-label={article.title}
+      />
+
+      <div className="pointer-events-none absolute top-3 start-3 z-10 flex items-center gap-2">
+        <SourcePill name={article.source} size="md" />
+        <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-black/70 text-white/95">
+          {article.source}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onToggleBookmark}
+        className="absolute top-3 end-3 z-10 grid place-items-center size-9 rounded-full bg-black/70 hover:bg-black/80 app-focus-ring"
+        aria-label={isBookmarked ? 'إلغاء الحفظ' : 'حفظ'}
+        aria-pressed={isBookmarked}
       >
         {isBookmarked
           ? <BookmarkCheck className="h-4 w-4 text-white" />
           : <Bookmark className="h-4 w-4 text-white/85" />}
       </button>
-      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-12">
-        <h2
-          dir="auto"
-          className="text-white text-lead font-bold leading-tight line-clamp-3 "
-        >
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-12">
+        <h2 dir="auto" className="text-white text-lead font-bold leading-tight line-clamp-3">
           {article.title}
         </h2>
         <div className="flex items-center gap-2 mt-2 text-white/85 text-micro">
@@ -590,6 +602,6 @@ export function HeroArticleCard({
           <span>{`${minutes} د قراءة`}</span>
         </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 }
