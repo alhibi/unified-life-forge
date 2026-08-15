@@ -787,7 +787,7 @@ export function generateThemeTokens(
     '--scrim': hslToString([bgHsl[0], Math.min(bgHsl[1], 10), isDark ? 4 : 8]),
   };
 
-  const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl);
+  const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl, isDark);
   SCALE_STEPS.forEach((name, i) => {
     scaleVars[`--theme-${name}`] = hslToString(ladder[i]);
   });
@@ -859,7 +859,7 @@ export function getThemeScale(
   const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
   const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
   const accent = ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 3.2);
-  return buildToneLadder(bg, surface, ink, accent);
+  return buildToneLadder(bg, surface, ink, accent, isDark);
 }
 
 export function getThemeScaleColors(
