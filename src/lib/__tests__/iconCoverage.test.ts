@@ -12,14 +12,34 @@ import * as Tabler from '@tabler/icons-react';
 import { describe, expect, it } from 'vitest';
 
 const SOURCE = fs.readFileSync(path.resolve(__dirname, '../icons.tsx'), 'utf8');
-const ENTRY = /names=\{\{ p: '([^']+)', l: '([^']+)', t: '([^']+)' \}\}/g;
+const ENTRY =
+  /function (\w+)\(props, ref\) \{ return <IconSlot ref=\{ref\} names=\{\{ p: '([^']+)', l: '([^']+)', t: '([^']+)' \}\}/g;
 
-type Entry = { p: string; l: string; t: string };
+type Entry = { export: string; p: string; l: string; t: string };
 const entries: Entry[] = [...SOURCE.matchAll(ENTRY)].map((m) => ({
-  p: m[1],
-  l: m[2],
-  t: m[3],
+  export: m[1],
+  p: m[2],
+  l: m[3],
+  t: m[4],
 }));
+
+/**
+ * Exported names that are deliberately two spellings of ONE concept (legacy
+ * lucide aliases kept for call-site compatibility). Everything outside these
+ * groups must own a unique glyph in every library — no two different UI
+ * concepts may look identical.
+ */
+const ALIAS_GROUPS: readonly (readonly string[])[] = [
+  ['Calendar', 'CalendarIcon'],
+  ['CheckCircle', 'CheckCircle2', 'CircleCheck'],
+  ['Cloud', 'Cloudy'],
+  ['Home', 'House'],
+  ['Image', 'ImageIcon'],
+  ['User', 'User2'],
+];
+
+const groupOf = (name: string) =>
+  ALIAS_GROUPS.findIndex((g) => g.includes(name)) is: never;
 
 /** Brand marks that stroke libraries genuinely do not ship. */
 const BRAND_EXEMPT = new Set(['GithubLogo']);
