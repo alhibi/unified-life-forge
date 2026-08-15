@@ -64,16 +64,16 @@ export default function CaliProgressionLadder({
       >
         <div className="flex items-start gap-3">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center text-display"
             style={{ background: `${skill.color}30` }}
           >
             {skill.emoji}
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-[1rem] font-bold text-foreground leading-tight">{skill.name[lang]}</h2>
-            <p className="text-[0.6875rem] text-muted-foreground mt-0.5">{skill.tagline[lang]}</p>
+            <h2 className="text-body font-bold text-foreground leading-tight">{skill.name[lang]}</h2>
+            <p className="text-micro text-muted-foreground mt-0.5">{skill.tagline[lang]}</p>
             <div className="flex items-center gap-1 mt-2">
-              <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold me-1">{T.difficulty[lang]}</span>
+              <span className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold me-1">{T.difficulty[lang]}</span>
               {Array.from({ length: 10 }, (_, i) => (
                 <span
                   key={i}
@@ -94,7 +94,7 @@ export default function CaliProgressionLadder({
             </button>
           )}
         </div>
-        <p className="mt-3 text-[0.75rem] text-foreground/85 leading-relaxed">{skill.about[lang]}</p>
+        <p className="mt-3 text-mini text-foreground/85 leading-relaxed">{skill.about[lang]}</p>
       </div>
 
       {/* Ladder */}
@@ -173,7 +173,7 @@ function StepCard({
           onClick={onToggle}
           disabled={isLocked}
           aria-label={isCleared ? T.cleared[lang] : T.current[lang]}
-          className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-[0.8125rem] font-bold tabular-nums transition-colors ${
+          className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-mini font-bold tabular-nums transition-colors ${
             isCleared
               ? 'bg-emerald-500 text-white'
               : isLocked
@@ -187,19 +187,19 @@ function StepCard({
 
         <div className="min-w-0 flex-1 space-y-1.5">
           <div className="flex items-baseline gap-2">
-            <p className={`text-[0.8125rem] font-bold leading-tight ${isCleared ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+            <p className={`text-mini font-bold leading-tight ${isCleared ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
               {step.name[lang]}
             </p>
             {isCurrent && (
               <span
-                className="text-[0.625rem] font-bold uppercase tracking-wider px-1 py-0.5 rounded"
+                className="text-micro font-bold uppercase tracking-wider px-1 py-0.5 rounded"
                 style={{ background: `${accent}20`, color: accent }}
               >
                 {T.current[lang]}
               </span>
             )}
           </div>
-          <p className="text-[0.6875rem] text-muted-foreground tabular-nums">
+          <p className="text-micro text-muted-foreground tabular-nums">
             <Target className="w-3 h-3 inline align-middle me-1" /> {targetText}
             {weeksToNext > 0 && (
               <span className="ms-2 text-muted-foreground/70">~{weeksToNext} {T.weeks[lang]}</span>
@@ -209,20 +209,20 @@ function StepCard({
           {step.cues.length > 0 && (
             <ul className="space-y-0.5">
               {step.cues.map((c, i) => (
-                <li key={i} className="text-[0.6875rem] text-foreground/80 leading-relaxed">• {c[lang]}</li>
+                <li key={i} className="text-micro text-foreground/80 leading-relaxed">• {c[lang]}</li>
               ))}
             </ul>
           )}
 
           {step.unlockCriterion && (
-            <p className="text-[0.625rem]" style={{ color: accent }}>
+            <p className="text-micro" style={{ color: accent }}>
               <ChevronRight className="w-3 h-3 inline align-middle" />
               {T.unlockedAt[lang]}: <span className="font-semibold">{step.unlockCriterion[lang]}</span>
             </p>
           )}
 
           {step.regressions && step.regressions.length > 0 && (
-            <details className="text-[0.6875rem] text-muted-foreground">
+            <details className="text-micro text-muted-foreground">
               <summary className="cursor-pointer font-semibold">{T.regressions[lang]}</summary>
               <ul className="mt-1 space-y-0.5">
                 {step.regressions.map((r, i) => (

@@ -20,14 +20,14 @@ const AstNode: React.FC<AstNodeProps> = ({ branch, tokens, depth }) => {
           borderRight: branch.role === "مسند إليه" ? "3px solid var(--live)" : undefined,
         }}
       >
-        <span className="block text-[0.625rem] text-muted-foreground font-mono uppercase tracking-wide">
+        <span className="block text-micro text-muted-foreground font-mono uppercase tracking-wide">
           {branch.role}
         </span>
-        <span className="block text-sm font-medium text-foreground font-amiri mt-0.5">
+        <span className="block text-meta font-medium text-foreground font-amiri mt-0.5">
           {branch.label}
         </span>
         {branch.value && (
-          <span className="block text-xs text-live font-amiri mt-1 border-t border-border/40 pt-1 font-bold">
+          <span className="block text-mini text-live font-amiri mt-1 border-t border-border/40 pt-1 font-bold">
             «{branch.value}»
           </span>
         )}

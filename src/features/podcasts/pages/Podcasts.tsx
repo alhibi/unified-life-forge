@@ -121,7 +121,7 @@ function CountryDialog({
           className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-            <h2 className="text-base font-bold text-foreground">
+            <h2 className="text-body font-bold text-foreground">
               {'اختيار الدولة'}
             </h2>
             <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60">
@@ -135,7 +135,7 @@ function CountryDialog({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={'ابحث عن دولة'}
-                className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-muted/40 border border-border/40 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-muted/40 border border-border/40 text-meta focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
           </div>
@@ -152,12 +152,12 @@ function CountryDialog({
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
                 >
-                  <span className="text-2xl leading-none" aria-hidden>
+                  <span className="text-display leading-none" aria-hidden>
                     {c.flag}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{localized}</p>
-                    <p className="text-[0.6875rem] text-muted-foreground truncate">
+                    <p className="text-meta font-semibold text-foreground truncate">{localized}</p>
+                    <p className="text-micro text-muted-foreground truncate">
                       {c.name} · {c.code.toUpperCase()} · {c.lang}
                     </p>
                   </div>
@@ -166,7 +166,7 @@ function CountryDialog({
               );
             })}
             {filtered.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8">
+              <p className="text-center text-meta text-muted-foreground py-8">
                 {'لا توجد نتائج'}
               </p>
             )}
@@ -215,7 +215,7 @@ function RegionDialog({
           className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
-            <h2 className="text-base font-bold text-foreground">
+            <h2 className="text-body font-bold text-foreground">
               {'اختيار المنطقة'}
             </h2>
             <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60">
@@ -234,14 +234,14 @@ function RegionDialog({
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
                 >
-                  <span className="text-2xl leading-none" aria-hidden>
+                  <span className="text-display leading-none" aria-hidden>
                     {r.flag ?? '🌐'}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
+                    <p className="text-meta font-semibold text-foreground truncate">
                       {t(r.labelKey)}
                     </p>
-                    <p className="text-[0.6875rem] text-muted-foreground truncate">
+                    <p className="text-micro text-muted-foreground truncate">
                       {r.countries.length} {'دولة'}
                     </p>
                   </div>
@@ -267,7 +267,7 @@ function PoweredByApplePodcasts() {
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-[0.6875rem] font-semibold hover:bg-primary/20 transition-colors"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-micro font-semibold hover:bg-primary/20 transition-colors"
     >
       <Info className="w-3 h-3" />
       <span>{'مدعوم من Apple Podcasts'}</span>
@@ -310,10 +310,10 @@ function PodcastCard({
           />
         ) : null}
       </div>
-      <p className="text-[0.75rem] font-bold text-foreground leading-tight line-clamp-2">
+      <p className="text-mini font-bold text-foreground leading-tight line-clamp-2">
         {podcast.title}
       </p>
-      <p className="text-[0.6875rem] text-muted-foreground leading-tight line-clamp-1">
+      <p className="text-micro text-muted-foreground leading-tight line-clamp-1">
         {podcast.author}
       </p>
     </button>
@@ -569,7 +569,7 @@ export default function PodcastsPage() {
                   : 'تغيير المنطقة'
               }
             >
-              <span className="text-base leading-none" aria-hidden>
+              <span className="text-body leading-none" aria-hidden>
                 {scope === 'country' ? country.flag : (activeRegion?.flag ?? '🌐')}
               </span>
             </button>
@@ -581,7 +581,7 @@ export default function PodcastsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={'ابحث'}
-              className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-meta placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
               aria-label={'بحث عن بودكاست'}
             />
             {search && (
@@ -602,7 +602,7 @@ export default function PodcastsPage() {
           >
             <LibraryBig className="w-4 h-4 text-foreground" />
             {subs.length > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-micro font-bold flex items-center justify-center">
                 {subs.length > 99 ? '99+' : subs.length}
               </span>
             )}
@@ -628,7 +628,7 @@ export default function PodcastsPage() {
                     setGenreKey(g.key);
                     setSearch('');
                   }}
-                  className={`relative px-3 py-2 text-[0.8125rem] whitespace-nowrap transition-colors ${
+                  className={`relative px-3 py-2 text-mini whitespace-nowrap transition-colors ${
                     isActive
                       ? 'text-primary font-semibold'
                       : 'text-muted-foreground hover:text-foreground'
@@ -652,12 +652,12 @@ export default function PodcastsPage() {
       {/* Body */}
       <div className="max-w-lg mx-auto px-4 pt-4">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[0.75rem] text-muted-foreground line-clamp-1">{subtitle}</p>
+          <p className="text-mini text-muted-foreground line-clamp-1">{subtitle}</p>
           {/* Total counter — useful in region mode where dedup makes
               the count non-obvious. We show "shown/total" so it's
               clear the page is paginated. */}
           {!active.isLoading && cappedList.length > 0 && (
-            <span className="text-[0.6875rem] text-muted-foreground tabular-nums shrink-0 ms-3">
+            <span className="text-micro text-muted-foreground tabular-nums shrink-0 ms-3">
               {visibleList.length}/{fullList.length}
             </span>
           )}
@@ -666,7 +666,7 @@ export default function PodcastsPage() {
         {active.isLoading ? (
           <>
             {scope === 'region' && (
-              <p className="text-center text-[0.75rem] text-muted-foreground mb-3">
+              <p className="text-center text-mini text-muted-foreground mb-3">
                 {t('podcasts.aggregating')}
               </p>
             )}
@@ -674,25 +674,25 @@ export default function PodcastsPage() {
           </>
         ) : active.isError ? (
           <div className="py-16 text-center">
-            <p className="text-sm font-semibold text-foreground mb-1">
+            <p className="text-meta font-semibold text-foreground mb-1">
               {'تعذّر تحميل البودكاست'}
             </p>
-            <p className="text-[0.75rem] text-muted-foreground mb-4">
+            <p className="text-mini text-muted-foreground mb-4">
               {'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'}
             </p>
             <button
               onClick={() => active.refetch()}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-meta font-semibold"
             >
               {'إعادة المحاولة'}
             </button>
           </div>
         ) : cappedList.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-sm font-semibold text-foreground mb-1">
+            <p className="text-meta font-semibold text-foreground mb-1">
               {'لا توجد نتائج'}
             </p>
-            <p className="text-[0.75rem] text-muted-foreground mb-5">
+            <p className="text-mini text-muted-foreground mb-5">
               {isSearching
                 ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
                 : 'جرّب فئة أخرى أو غيّر النطاق.'}
@@ -700,7 +700,7 @@ export default function PodcastsPage() {
             {isSearching && (
               <button
                 onClick={() => setSearch('')}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
+                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95"
               >
                 {'مسح البحث'}
               </button>
@@ -722,7 +722,7 @@ export default function PodcastsPage() {
               <button
                 type="button"
                 onClick={() => setVisibleCount((c) => Math.min(c + PAGE_STEP, cappedList.length))}
-                className="w-full mt-6 py-3 rounded-2xl text-[0.8125rem] font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
+                className="w-full mt-6 py-3 rounded-2xl text-mini font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
               >
                 {`تحميل المزيد (${cappedList.length - visibleList.length})`}
               </button>

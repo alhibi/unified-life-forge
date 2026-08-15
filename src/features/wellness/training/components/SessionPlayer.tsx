@@ -270,12 +270,12 @@ export default function SessionPlayer({
  {/* Header */}
  <div className="flex items-start justify-between gap-2">
  <div className="min-w-0 flex-1">
- <p className="text-[0.625rem] font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
+ <p className="text-micro font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
  {T.active[lang]}
  </p>
  {draft.title && (
- <p className="text-[0.9375rem] font-bold text-foreground mt-0.5 truncate">{draft.title}</p>
+ <p className="text-meta font-bold text-foreground mt-0.5 truncate">{draft.title}</p>
  )}
  {/* Type segmented */}
  <div className="mt-2 inline-flex bg-muted/50 rounded-lg p-0.5">
@@ -283,7 +283,7 @@ export default function SessionPlayer({
  <button
  key={t}
  onClick={() => setDraft((d) => ({ ...d, type: t }))}
- className={`px-2.5 py-1 rounded-md text-[0.625rem] font-semibold transition-colors ${
+ className={`px-2.5 py-1 rounded-md text-micro font-semibold transition-colors ${
  draft.type === t ? 'bg-card text-foreground ' : 'text-muted-foreground'
                 }`}
               >
@@ -311,7 +311,7 @@ export default function SessionPlayer({
       {/* Exercises */}
       <div className="space-y-2">
         {draft.exercises.length === 0 ? (
-          <p className="text-[0.75rem] text-center py-6 text-muted-foreground">{T.noEntries[lang]}</p>
+          <p className="text-mini text-center py-6 text-muted-foreground">{T.noEntries[lang]}</p>
         ) : (
           draft.exercises.map((entry, i) => (
             <ExerciseBlock
@@ -337,7 +337,7 @@ export default function SessionPlayer({
 
       <button
         onClick={() => setPickerOpen(true)}
-        className="w-full py-2.5 rounded-xl bg-primary/10 border border-dashed border-primary/30 text-primary text-[0.75rem] font-semibold flex items-center justify-center gap-1 active:scale-[0.98] transition-transform"
+        className="w-full py-2.5 rounded-xl bg-primary/10 border border-dashed border-primary/30 text-primary text-mini font-semibold flex items-center justify-center gap-1 active:scale-[0.98] transition-transform"
       >
         <Plus className="w-4 h-4" /> {T.addExercise[lang]}
       </button>
@@ -345,7 +345,7 @@ export default function SessionPlayer({
       {/* Session RPE */}
       <div className="bg-card rounded-xl p-3 border border-border/40">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[0.6875rem] font-semibold text-foreground">{T.sessionRpe[lang]}</span>
+          <span className="text-micro font-semibold text-foreground">{T.sessionRpe[lang]}</span>
         </div>
         <RpeRirPicker
           value={draft.sessionRpe ?? null}
@@ -361,21 +361,21 @@ export default function SessionPlayer({
         onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))}
         rows={2}
         placeholder={`${T.notes[lang]} (${T.optional[lang]})`}
-        className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/50 resize-none"
+        className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-meta text-foreground outline-none focus:border-primary/50 resize-none"
       />
 
       {/* Actions */}
       <div className="flex gap-2">
         <button
           onClick={handleCancel}
-          className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-sm font-semibold"
+          className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-meta font-semibold"
         >
           {T.cancel[lang]}
         </button>
         <button
           onClick={handleFinish}
           disabled={draft.exercises.length === 0}
-          className="flex-[2] py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold disabled:opacity-50 active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+          className="flex-[2] py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-bold disabled:opacity-50 active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
         >
           <Save className="w-4 h-4" /> {T.finish[lang]}
         </button>
@@ -439,7 +439,7 @@ export default function SessionPlayer({
               </div>
               <div className="px-4 pb-6 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-foreground">{T.plate[lang]}</h3>
+                  <h3 className="text-body font-bold text-foreground">{T.plate[lang]}</h3>
                   <button onClick={() => setPlateOpen(null)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center" aria-label="close">
                     <X className="w-4 h-4" />
                   </button>
@@ -490,12 +490,12 @@ function ExerciseBlock({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <p className="text-[0.8125rem] font-bold text-foreground truncate">{label}</p>
-            {!isCustom && ex.isBigLift && <span className="text-amber-500 text-[0.625rem]">★</span>}
+            <p className="text-mini font-bold text-foreground truncate">{label}</p>
+            {!isCustom && ex.isBigLift && <span className="text-amber-500 text-micro">★</span>}
           </div>
-          {muscle && <p className="text-[0.625rem] text-muted-foreground">{muscle}</p>}
+          {muscle && <p className="text-micro text-muted-foreground">{muscle}</p>}
           {previous && (
-            <p className="text-[0.625rem] text-muted-foreground/70 tabular-nums" dir="ltr">
+            <p className="text-micro text-muted-foreground/70 tabular-nums" dir="ltr">
               {T.prev[lang]}: {previous.weightKg ?? '—'} kg × {previous.reps ?? '—'}
             </p>
           )}
@@ -561,7 +561,7 @@ function ExerciseBlock({
 
       <button
         onClick={onAddSet}
-        className="w-full py-1.5 rounded-lg bg-primary/10 text-primary text-[0.6875rem] font-semibold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
+        className="w-full py-1.5 rounded-lg bg-primary/10 text-primary text-micro font-semibold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
       >
         <Plus className="w-3 h-3" /> {T.addSet[lang]}
       </button>
@@ -571,7 +571,7 @@ function ExerciseBlock({
         value={entry.notes ?? ''}
         onChange={(e) => onUpdate({ ...entry, notes: e.target.value })}
         placeholder={`${T.notes[lang]} (${T.optional[lang]})`}
-        className="w-full bg-muted/30 border border-border/30 rounded-lg px-2.5 py-1.5 text-[0.6875rem] text-foreground outline-none focus:border-primary/40"
+        className="w-full bg-muted/30 border border-border/30 rounded-lg px-2.5 py-1.5 text-micro text-foreground outline-none focus:border-primary/40"
       />
     </div>
   );
@@ -580,8 +580,8 @@ function ExerciseBlock({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card rounded-xl p-2 text-center border border-border/30">
-      <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
-      <p className="text-[0.875rem] font-bold tabular-nums text-foreground" dir="ltr">{value}</p>
+      <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-meta font-bold tabular-nums text-foreground" dir="ltr">{value}</p>
     </div>
   );
 }

@@ -60,7 +60,7 @@ export default function NutritionTab() {
           <button
             key={key}
             onClick={() => setSubTab(key)}
-            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[0.6875rem] font-bold transition-all ${
+            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-all ${
               subTab === key
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'

@@ -224,14 +224,14 @@ export function SuggestedFeedsView({
           <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
         </button>
         <Star className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-bold text-foreground flex-1">
+        <h3 className="text-body font-bold text-foreground flex-1">
           {'مصادر مقترحة'}
         </h3>
         {available.length > 0 && (
           <button
             type="button"
             onClick={selected.size === filtered.length ? clearSelection : selectAllInView}
-            className="text-[0.6875rem] font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10"
+            className="text-micro font-semibold text-primary px-2 py-1 rounded-lg hover:bg-primary/10"
           >
             {selected.size === filtered.length && filtered.length > 0
               ? ('إلغاء التحديد')
@@ -256,7 +256,7 @@ export function SuggestedFeedsView({
               onKeyDown={(e) => { if (e.key === 'Escape') clearQuery(); }}
               placeholder={'ابحث بالاسم أو النطاق أو الفئة…'}
               aria-label={'بحث في المصادر'}
-              className="w-full rounded-xl bg-accent/25 focus:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm ps-9 pe-9 py-2.5 placeholder:text-muted-foreground/70 text-foreground transition-colors"
+              className="w-full rounded-xl bg-accent/25 focus:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 text-meta ps-9 pe-9 py-2.5 placeholder:text-muted-foreground/70 text-foreground transition-colors"
               dir="auto"
             />
             {query.length > 0 && (
@@ -279,7 +279,7 @@ export function SuggestedFeedsView({
                 type="button"
                 onClick={() => setActiveLang(l.id)}
                 aria-pressed={activeLang === l.id}
-                className={`px-3 py-1 rounded-full text-[0.6875rem] font-medium transition-all shrink-0 active:scale-95 ${
+                className={`px-3 py-1 rounded-full text-micro font-medium transition-all shrink-0 active:scale-95 ${
                   activeLang === l.id
                     ? 'bg-foreground/90 text-background'
                     : 'bg-accent/25 text-muted-foreground hover:bg-accent/40'
@@ -301,14 +301,14 @@ export function SuggestedFeedsView({
                   type="button"
                   onClick={() => setActiveCat(id)}
                   aria-pressed={isActive}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-medium transition-all shrink-0 active:scale-95 ${
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
                   }`}
                 >
                   <span>{catLabel(id)}</span>
-                  <span className={`text-[0.625rem] tabular-nums rounded-full px-1.5 py-0.5 ${
+                  <span className={`text-micro tabular-nums rounded-full px-1.5 py-0.5 ${
                     isActive ? 'bg-primary-foreground/15' : 'bg-foreground/10'
                   }`}>{count}</span>
                 </button>
@@ -325,20 +325,20 @@ export function SuggestedFeedsView({
               {available.length === 0 ? (
                 <>
                   <Check className="h-8 w-8 text-primary/40" />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-meta text-muted-foreground">
                     {'تمت إضافة جميع المصادر المقترحة'}
                   </p>
                 </>
               ) : (
                 <>
                   <Search className="h-8 w-8 text-muted-foreground/50" />
-                  <p className="text-sm text-muted-foreground text-center">
+                  <p className="text-meta text-muted-foreground text-center">
                     {'لا نتائج مطابقة للبحث'}
                   </p>
                   <button
                     type="button"
                     onClick={resetFilters}
-                    className="text-[0.75rem] font-semibold text-primary px-3 py-1.5 rounded-lg hover:bg-primary/10"
+                    className="text-mini font-semibold text-primary px-3 py-1.5 rounded-lg hover:bg-primary/10"
                   >
                     {'مسح الفلاتر'}
                   </button>
@@ -367,10 +367,10 @@ export function SuggestedFeedsView({
                   >
                     <SourcePill name={feed.name} size="md" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate" dir="auto">
+                      <p className="text-meta font-semibold text-foreground truncate" dir="auto">
                         {feed.name}
                       </p>
-                      <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
+                      <p className="text-micro text-muted-foreground mt-0.5">
                         {catLabel(feed.category)}
                       </p>
                     </div>
@@ -399,7 +399,7 @@ export function SuggestedFeedsView({
           exit={{ y: 80, opacity: 0 }}
           className="sticky bottom-0 inset-x-0 px-4 py-3 border-t border-border bg-card flex items-center gap-3 z-raised"
         >
-          <span className="text-sm font-semibold flex-1">
+          <span className="text-meta font-semibold flex-1">
             {`تم اختيار ${selected.size} ${selected.size === 1 ? 'مصدر' : 'مصادر'}`}
           </span>
           <Button

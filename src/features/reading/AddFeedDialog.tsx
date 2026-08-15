@@ -196,10 +196,10 @@ export function AddFeedDialog({
               <Plus className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-bold">
+              <h3 className="text-body font-bold">
                 {'إضافة مصدر'}
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-mini text-muted-foreground mt-0.5">
                 {'الصق رابط الموقع — سنبحث عن الخلاصات تلقائياً'}
               </p>
             </div>
@@ -225,7 +225,7 @@ export function AddFeedDialog({
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleDiscover();
                   }}
-                  className="ps-10 h-10 text-sm rounded-xl"
+                  className="ps-10 h-10 text-meta rounded-xl"
                   disabled={stage === 'resolving' || stage === 'probing'}
                 />
               </div>
@@ -242,7 +242,7 @@ export function AddFeedDialog({
 
             {/* Category selector — applies to all picks from this dialog */}
             <div className="flex items-center gap-2 mt-3 overflow-x-auto no-scrollbar">
-              <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
+              <span className="text-micro uppercase tracking-wider text-muted-foreground font-semibold shrink-0">
                 {'المجلد'}
               </span>
               {allFolders.map((c) => (
@@ -250,7 +250,7 @@ export function AddFeedDialog({
                   key={c.id}
                   type="button"
                   onClick={() => setCategory(c.id)}
-                  className={`px-2.5 py-1 rounded-full text-[0.6875rem] font-medium shrink-0 transition-colors ${
+                  className={`px-2.5 py-1 rounded-full text-micro font-medium shrink-0 transition-colors ${
                     category === c.id
                       ? 'bg-primary/15 text-primary border border-primary/30'
                       : 'bg-accent/30 text-muted-foreground hover:bg-accent/50 border border-transparent'
@@ -291,7 +291,7 @@ function EmptyHint() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <Globe className="h-10 w-10 text-muted-foreground/30" />
-      <p className="text-sm text-muted-foreground max-w-xs">
+      <p className="text-meta text-muted-foreground max-w-xs">
         {'مثال: bbc.com — أو الصق رابط RSS مباشرةً'}
       </p>
     </div>
@@ -325,17 +325,17 @@ function ProgressStrip({ stage, }: { stage: Stage; }) {
                 ? <Check className="h-3.5 w-3.5" />
                 : active
                   ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  : <span className="text-[0.6875rem] tabular-nums">{i + 1}</span>}
+                  : <span className="text-micro tabular-nums">{i + 1}</span>}
             </span>
             <span
-              className={`text-[0.75rem] font-medium ${
+              className={`text-mini font-medium ${
                 active ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
               {s.ar}
             </span>
             {active && (
-              <span className="ms-auto text-[0.625rem] text-muted-foreground/70">
+              <span className="ms-auto text-micro text-muted-foreground/70">
                 {'جارٍ...'}
               </span>
             )}
@@ -350,7 +350,7 @@ function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
       <X className="h-8 w-8 text-destructive/60" />
-      <p className="text-sm text-muted-foreground max-w-xs">
+      <p className="text-meta text-muted-foreground max-w-xs">
         {message ||
           ('لم يتم العثور على خلاصات')}
       </p>
@@ -386,7 +386,7 @@ function ResultsList({
   return (
     <div className="space-y-3">
       {response.site && <SiteHeader site={response.site} response={response} />}
-      <p className="text-[0.6875rem] text-muted-foreground font-semibold uppercase tracking-wider">
+      <p className="text-micro text-muted-foreground font-semibold uppercase tracking-wider">
         {`${cands.length} خلاصة متاحة`}
       </p>
       {cands.map((c) => (
@@ -429,14 +429,14 @@ function SiteHeader({
           </div>
         )}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold truncate">{site.title}</p>
+        <p className="text-meta font-semibold truncate">{site.title}</p>
         {site.description && (
-          <p className="text-[0.6875rem] text-muted-foreground line-clamp-1">
+          <p className="text-micro text-muted-foreground line-clamp-1">
             {site.description}
           </p>
         )}
       </div>
-      <span className="text-[0.625rem] uppercase tracking-wider px-2 py-1 rounded-full bg-primary/10 text-primary font-bold shrink-0">
+      <span className="text-micro uppercase tracking-wider px-2 py-1 rounded-full bg-primary/10 text-primary font-bold shrink-0">
         {response.strategy === 'direct'
           ? ('مباشر')
           : response.strategy === 'declared'
@@ -492,38 +492,38 @@ function CandidateCard({
             <SourcePill name={c.title} size="md" />
           )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold truncate">{c.title}</p>
+          <p className="text-meta font-bold truncate">{c.title}</p>
           {c.description && (
-            <p className="text-[0.6875rem] text-muted-foreground line-clamp-2 mt-0.5">
+            <p className="text-micro text-muted-foreground line-clamp-2 mt-0.5">
               {c.description}
             </p>
           )}
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             {cadence && (
-              <span className="text-[0.625rem] text-muted-foreground inline-flex items-center gap-1 bg-foreground/5 rounded-full px-2 py-0.5">
+              <span className="text-micro text-muted-foreground inline-flex items-center gap-1 bg-foreground/5 rounded-full px-2 py-0.5">
                 <Clock className="h-2.5 w-2.5" />
                 {cadence}
               </span>
             )}
             {c.lastPublishedAt && (
-              <span className="text-[0.625rem] text-muted-foreground">
+              <span className="text-micro text-muted-foreground">
                 {'آخر نشر '}
                 {timeAgo(c.lastPublishedAt, language)}
               </span>
             )}
             {c.itemCount > 0 && (
-              <span className="text-[0.625rem] text-muted-foreground tabular-nums">
+              <span className="text-micro text-muted-foreground tabular-nums">
                 · {`${c.itemCount} عنصر`}
               </span>
             )}
           </div>
-          <p className="text-[0.625rem] text-muted-foreground/70 truncate mt-1.5" dir="ltr">
+          <p className="text-micro text-muted-foreground/70 truncate mt-1.5" dir="ltr">
             {c.url}
           </p>
         </div>
         {already
           ? (
-            <span className="px-2.5 py-1.5 rounded-xl bg-foreground/5 text-muted-foreground text-[0.6875rem] font-medium shrink-0 inline-flex items-center gap-1">
+            <span className="px-2.5 py-1.5 rounded-xl bg-foreground/5 text-muted-foreground text-micro font-medium shrink-0 inline-flex items-center gap-1">
               <Check className="h-3 w-3" />
               {'مضافة'}
             </span>
@@ -543,17 +543,17 @@ function CandidateCard({
       </div>
       {c.items.length > 0 && (
         <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
-          <p className="text-[0.625rem] text-muted-foreground uppercase tracking-wider font-semibold mb-1">
+          <p className="text-micro text-muted-foreground uppercase tracking-wider font-semibold mb-1">
             {`آخر ${c.items.length} مقالات`}
           </p>
           {c.items.map((it, i) => (
             <div key={i} className="flex items-baseline gap-2">
-              <span className="text-muted-foreground/60 tabular-nums text-[0.625rem] font-mono shrink-0">
+              <span className="text-muted-foreground/60 tabular-nums text-micro font-mono shrink-0">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <p className="text-[0.75rem] line-clamp-1 flex-1">{it.title}</p>
+              <p className="text-mini line-clamp-1 flex-1">{it.title}</p>
               {it.pubDate && (
-                <span className="text-[0.625rem] text-muted-foreground/70 shrink-0">
+                <span className="text-micro text-muted-foreground/70 shrink-0">
                   {timeAgo(it.pubDate, language)}
                 </span>
               )}

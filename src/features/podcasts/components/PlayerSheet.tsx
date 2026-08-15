@@ -126,7 +126,7 @@ function PlayerSheetSeek({
         }}
         aria-label={ariaLabel}
       />
-      <div className="flex justify-between mt-2 text-[0.6875rem] tabular-nums text-foreground/70 font-semibold">
+      <div className="flex justify-between mt-2 text-micro tabular-nums text-foreground/70 font-semibold">
         <span>{formatTime(position)}</span>
         <span>-{formatTime(Math.max(0, duration - position))}</span>
       </div>
@@ -375,7 +375,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   </button>
                   <div className="flex items-center gap-2">
                     <EqIndicator playing={isActive} />
-                    <span className="text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground font-semibold">
+                    <span className="text-micro uppercase tracking-[0.14em] text-muted-foreground font-semibold">
                       {'يُشغَّل الآن'}
                     </span>
                   </div>
@@ -420,10 +420,10 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   Stays compact (two lines max) so the hero never
                   pushes the transport off-screen on shorter viewports. */}
                 <div className="px-6 text-center">
-                  <h2 className="text-lg font-bold leading-tight line-clamp-2">
+                  <h2 className="text-lead font-bold leading-tight line-clamp-2">
                     {player.current.episode.title}
                   </h2>
-                  <p className="text-sm text-foreground/70 mt-0.5 line-clamp-1 font-medium">
+                  <p className="text-meta text-foreground/70 mt-0.5 line-clamp-1 font-medium">
                     {player.current.podcastTitle}
                   </p>
                   {/* Chapter readout. Its own component so the 4 Hz progress
@@ -464,7 +464,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         onClick={() => setDescOpen((o) => !o)}
                         aria-expanded={descOpen}
                         aria-controls="podcast-show-notes-panel"
-                        className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[0.75rem] font-semibold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                        className="flex items-center gap-1.5 px-3 h-8 rounded-full text-mini font-semibold text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>
@@ -505,7 +505,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                             onTouchMove={(e) => e.stopPropagation()}
                           >
                             <div
-                              className="text-[0.75rem] text-foreground/80 leading-relaxed podcast-html"
+                              className="text-mini text-foreground/80 leading-relaxed podcast-html"
                               dangerouslySetInnerHTML={{ __html: safeDescription }}
                             />
                           </div>
@@ -536,7 +536,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     aria-label={`-${SKIP}s`}
                   >
                     <RotateCcw className="w-9 h-9" strokeWidth={1.5} />
-                    <span className="absolute inset-0 flex items-center justify-center text-[0.625rem] font-bold tabular-nums pointer-events-none">
+                    <span className="absolute inset-0 flex items-center justify-center text-micro font-bold tabular-nums pointer-events-none">
                       {SKIP}
                     </span>
                   </button>
@@ -568,7 +568,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     aria-label={`+${SKIP}s`}
                   >
                     <RotateCw className="w-9 h-9" strokeWidth={1.5} />
-                    <span className="absolute inset-0 flex items-center justify-center text-[0.625rem] font-bold tabular-nums pointer-events-none">
+                    <span className="absolute inset-0 flex items-center justify-center text-micro font-bold tabular-nums pointer-events-none">
                       {SKIP}
                     </span>
                   </button>
@@ -587,7 +587,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                       setSleepOpen(false);
                     }}
                     aria-pressed={player.speed !== 1}
-                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[0.75rem] font-semibold transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-mini font-semibold transition-colors ${
                       player.speed !== 1
                         ? 'text-foreground'
                         : 'text-muted-foreground hover:text-foreground'
@@ -611,7 +611,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                       setSpeedOpen(false);
                     }}
                     aria-pressed={!!player.sleepTimer}
-                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[0.75rem] font-semibold transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-mini font-semibold transition-colors ${
                       player.sleepTimer
                         ? 'text-foreground'
                         : 'text-muted-foreground hover:text-foreground'
@@ -638,7 +638,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     onClick={() => player.setAutoPlayNext(!player.autoPlayNext)}
                     aria-pressed={player.autoPlayNext}
                     title={'تشغيل التالي تلقائياً'}
-                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[0.75rem] font-semibold transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-mini font-semibold transition-colors ${
                       player.autoPlayNext
                         ? 'text-foreground'
                         : 'text-muted-foreground hover:text-foreground'
@@ -662,7 +662,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                       setSpeedOpen(false);
                     }}
                     aria-label={'قائمة التشغيل'}
-                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-[0.75rem] font-semibold transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 h-9 rounded-full text-mini font-semibold transition-colors ${
                       player.queueCount > 0
                         ? 'text-foreground'
                         : 'text-muted-foreground hover:text-foreground'
@@ -687,7 +687,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     type="button"
                     onClick={handleShare}
                     aria-label={'مشاركة'}
-                    className="flex items-center gap-1.5 px-3 h-9 rounded-full text-[0.75rem] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1.5 px-3 h-9 rounded-full text-mini font-semibold text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>
@@ -712,7 +712,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                           background: 'hsl(var(--card))',
                         }}
                       >
-                        <p className="text-[0.6875rem] font-semibold text-muted-foreground px-2 pt-1 pb-2">
+                        <p className="text-micro font-semibold text-muted-foreground px-2 pt-1 pb-2">
                           {'سرعة التشغيل'}
                         </p>
                         <div className="grid grid-cols-3 gap-1">
@@ -727,7 +727,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                   player.setSpeed(s);
                                   setSpeedOpen(false);
                                 }}
-                                className="px-2 py-2 rounded-xl text-[0.75rem] font-semibold tabular-nums transition-colors"
+                                className="px-2 py-2 rounded-xl text-mini font-semibold tabular-nums transition-colors"
                                 style={{
                                   background: active
                                     ? 'var(--podcast-primary, hsl(var(--primary)))'
@@ -759,7 +759,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                           background: 'hsl(var(--card))',
                         }}
                       >
-                        <p className="text-[0.6875rem] font-semibold text-muted-foreground px-2 pt-1 pb-2">
+                        <p className="text-micro font-semibold text-muted-foreground px-2 pt-1 pb-2">
                           {'إيقاف بعد'}
                         </p>
                         <div className="grid grid-cols-1 gap-0.5">
@@ -783,7 +783,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                   player.setSleepTimer(p.value);
                                   setSleepOpen(false);
                                 }}
-                                className={`w-full text-start px-3 py-2 rounded-xl text-[0.8125rem] font-medium transition-colors ${
+                                className={`w-full text-start px-3 py-2 rounded-xl text-mini font-medium transition-colors ${
                                   isActive
                                     ? 'bg-foreground/10 text-foreground'
                                     : 'hover:bg-foreground/5 text-foreground/80'
@@ -800,7 +800,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                                 player.setSleepTimer(null);
                                 setSleepOpen(false);
                               }}
-                              className="w-full text-start px-3 py-2 mt-1 rounded-xl text-[0.8125rem] font-semibold text-destructive hover:bg-destructive/10 transition-colors border-t border-border/40"
+                              className="w-full text-start px-3 py-2 mt-1 rounded-xl text-mini font-semibold text-destructive hover:bg-destructive/10 transition-colors border-t border-border/40"
                             >
                               {'إلغاء المؤقت'}
                             </button>

@@ -161,7 +161,7 @@ export default function NutritionExplorer() {
       {view !== 'home' && (
         <button
           onClick={handleBack}
-          className="flex items-center gap-1.5 text-sm text-primary mb-2 active:scale-95 transition-transform"
+          className="flex items-center gap-1.5 text-meta text-primary mb-2 active:scale-95 transition-transform"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>{T.back[lang]}</span>
@@ -179,7 +179,7 @@ export default function NutritionExplorer() {
             if (e.target.value.trim()) setView('search');
           }}
           placeholder={T.searchPlaceholder[lang]}
-          className="w-full ps-10 pe-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+          className="w-full ps-10 pe-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-meta focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
           dir={'rtl'}
         />
         {query && (
@@ -240,8 +240,8 @@ export default function NutritionExplorer() {
                   <Apple className="w-4 h-4 text-emerald-500" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">{T.title[lang]}</p>
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-mini text-muted-foreground">{T.title[lang]}</p>
+                  <p className="text-meta font-bold text-foreground">
                     {TOTAL_FOOD_COUNT} {T.totalFoods[lang]}
                   </p>
                 </div>
@@ -251,13 +251,13 @@ export default function NutritionExplorer() {
 
             {/* Categories grid */}
             <div>
-              <h3 className="text-sm font-semibold text-foreground mb-3">{T.categories[lang]}</h3>
+              <h3 className="text-meta font-semibold text-foreground mb-3">{T.categories[lang]}</h3>
               <CategoryGrid lang={lang} onSelect={handleCategorySelect} />
             </div>
 
             {/* Smart suggestions */}
             <div>
-              <h3 className="text-sm font-semibold text-foreground mb-3">{T.smart[lang]}</h3>
+              <h3 className="text-meta font-semibold text-foreground mb-3">{T.smart[lang]}</h3>
               <div className="grid grid-cols-2 gap-2">
                 {SMART_SECTIONS.map(({ key, label, icon: Icon, color }) => (
                   <button
@@ -271,7 +271,7 @@ export default function NutritionExplorer() {
                     >
                       <Icon className="w-3.5 h-3.5" style={{ color }} />
                     </div>
-                    <span className="text-[0.6875rem] font-medium text-foreground leading-tight text-start">
+                    <span className="text-micro font-medium text-foreground leading-tight text-start">
                       {label[lang]}
                     </span>
                   </button>
@@ -287,11 +287,11 @@ export default function NutritionExplorer() {
             {selectedCategory && (
               <>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">{CATEGORY_INFO[selectedCategory]?.emoji}</span>
-                  <h3 className="text-base font-bold text-foreground">
+                  <span className="text-title">{CATEGORY_INFO[selectedCategory]?.emoji}</span>
+                  <h3 className="text-body font-bold text-foreground">
                     {CATEGORY_INFO[selectedCategory]?.label[lang]}
                   </h3>
-                  <span className="text-xs text-muted-foreground ms-auto">
+                  <span className="text-mini text-muted-foreground ms-auto">
                     {categoryFoods.length}
                   </span>
                 </div>
@@ -316,11 +316,11 @@ export default function NutritionExplorer() {
             {searchResults.length === 0 ? (
               <div className="text-center py-12">
                 <Search className="w-8 h-8 mx-auto text-muted-foreground/30 mb-2" />
-                <p className="text-sm text-muted-foreground">{T.noResults[lang]}</p>
+                <p className="text-meta text-muted-foreground">{T.noResults[lang]}</p>
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="text-mini text-muted-foreground mb-2">
                   {searchResults.length} {T.totalFoods[lang]}
                 </p>
                 {searchResults.map((food) => (
@@ -342,11 +342,11 @@ export default function NutritionExplorer() {
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div>
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-meta font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Heart className="w-4 h-4 text-red-500" /> {T.favorites[lang]}
               </h3>
               {favFoods.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-6">
+                <p className="text-mini text-muted-foreground text-center py-6">
                   {T.noFavorites[lang]}
                 </p>
               ) : (
@@ -363,11 +363,11 @@ export default function NutritionExplorer() {
               )}
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-meta font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-blue-500" /> {T.recent[lang]}
               </h3>
               {recentFoods.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-6">{T.noRecent[lang]}</p>
+                <p className="text-mini text-muted-foreground text-center py-6">{T.noRecent[lang]}</p>
               ) : (
                 <div className="space-y-2">
                   {recentFoods.slice(0, 10).map((food) => (
@@ -398,8 +398,8 @@ export default function NutritionExplorer() {
                   >
                     <section.icon className="w-4 h-4" style={{ color: section.color }} />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">{section.label[lang]}</h3>
-                  <span className="text-xs text-muted-foreground ms-auto">{smartFoods.length}</span>
+                  <h3 className="text-body font-bold text-foreground">{section.label[lang]}</h3>
+                  <span className="text-mini text-muted-foreground ms-auto">{smartFoods.length}</span>
                 </div>
                 <div className="space-y-2">
                   {smartFoods.map((food) => (
@@ -467,7 +467,7 @@ function QuickPill({
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/40 whitespace-nowrap active:scale-95 transition-all shrink-0"
     >
       <Icon className="w-3 h-3" style={{ color }} />
-      <span className="text-[0.6875rem] font-medium text-foreground">{label}</span>
+      <span className="text-micro font-medium text-foreground">{label}</span>
     </button>
   );
 }

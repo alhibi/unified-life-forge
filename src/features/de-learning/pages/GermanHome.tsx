@@ -371,7 +371,7 @@ export const GermanHome: React.FC = () => {
           <div className="mx-auto flex max-w-lg items-center justify-between">
             <Link to="/"><ArrowLeft className="h-6 w-6 text-muted-foreground" /></Link>
             <div className="flex flex-col items-end text-end">
-              <h1 className="font-amiri text-lg font-bold tracking-wide text-foreground">
+              <h1 className="font-amiri text-lead font-bold tracking-wide text-foreground">
                 المسار الألماني
               </h1>
               <p className="font-tajawal text-micro text-muted-foreground font-medium uppercase tracking-widest">
@@ -393,17 +393,17 @@ export const GermanHome: React.FC = () => {
 
               <div className="flex-1 space-y-4">
                 <div className="space-y-1 text-end">
-                  <h2 className="font-tajawal text-xl font-bold text-foreground">
+                  <h2 className="font-tajawal text-title font-bold text-foreground">
                     مستواك الحالي: {currentLevelObj.name_ar}
                   </h2>
-                  <p className="font-tajawal text-xs text-muted-foreground">
+                  <p className="font-tajawal text-mini text-muted-foreground">
                     مستوى الإتقان والتطور المستمر
                   </p>
                 </div>
 
                 {/* Progress bar */}
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center text-xs font-mono font-medium text-muted-foreground">
+                  <div className="flex justify-between items-center text-mini font-mono font-medium text-muted-foreground">
                     <span>{progressPercent}%</span>
                     <span>التقدم العام</span>
                   </div>
@@ -419,14 +419,14 @@ export const GermanHome: React.FC = () => {
               <div className="flex items-center gap-6 justify-end md:justify-center">
                 <div className="text-center">
                   <span className="block text-micro text-muted-foreground uppercase tracking-widest font-tajawal mb-1">نقاط الخبرة</span>
-                  <span className="font-plex-mono text-xl font-bold text-foreground">{stats?.xp || 0}</span>
+                  <span className="font-plex-mono text-title font-bold text-foreground">{stats?.xp || 0}</span>
                 </div>
                 <div className="w-px h-8 bg-border/50" />
                 <div className="text-center">
                   <span className="block text-micro text-muted-foreground uppercase tracking-widest font-tajawal mb-1">أيام المواظبة</span>
                   <div className="flex items-center gap-1 justify-center">
                     <Zap className="h-3.5 w-3.5 text-[hsl(var(--live))]" />
-                    <span className="font-plex-mono text-xl font-bold text-[hsl(var(--live))]">{stats?.streak_days || 0}</span>
+                    <span className="font-plex-mono text-title font-bold text-[hsl(var(--live))]">{stats?.streak_days || 0}</span>
                   </div>
                 </div>
               </div>
@@ -448,7 +448,7 @@ export const GermanHome: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
+                  className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-mini font-bold transition-all duration-300 ${
                     isActive
                       ? 'bg-card text-[hsl(var(--live))] shadow-sm border border-border/50'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
@@ -464,7 +464,7 @@ export const GermanHome: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2 justify-end">
               <span className="h-px flex-1 bg-border/40" />
-              <span className="font-tajawal text-[0.625rem] text-muted-foreground font-bold uppercase tracking-widest bg-secondary/30 px-2 py-0.5 rounded border border-border/35">
+              <span className="font-tajawal text-micro text-muted-foreground font-bold uppercase tracking-widest bg-secondary/30 px-2 py-0.5 rounded border border-border/35">
                 الأدوات اللغوية المنهجية المتقدمة
               </span>
             </div>
@@ -480,7 +480,7 @@ export const GermanHome: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
+                    className={`shrink-0 whitespace-nowrap py-2 px-3 text-center rounded-lg font-tajawal text-mini font-bold transition-all duration-300 ${
                       isActive
                         ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border border-[hsl(var(--live))]/30 shadow-sm'
                         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
@@ -504,7 +504,7 @@ export const GermanHome: React.FC = () => {
                     <button
                       key={level}
                       onClick={() => setActiveLevel(level)}
-                      className={`relative flex-1 py-2 text-center rounded-lg font-tajawal text-xs font-bold transition-all duration-300 ${
+                      className={`relative flex-1 py-2 text-center rounded-lg font-tajawal text-mini font-bold transition-all duration-300 ${
                         isActive
                           ? 'bg-card text-foreground shadow-sm border border-border/50'
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
@@ -529,10 +529,10 @@ export const GermanHome: React.FC = () => {
                       <RotateCcw className="h-6 w-6" />
                     </div>
                     <div className="space-y-1 text-end">
-                      <h4 className="font-tajawal text-sm font-bold text-foreground">
+                      <h4 className="font-tajawal text-meta font-bold text-foreground">
                         المراجعة الذكية المتباعدة (FSRS)
                       </h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed font-tajawal">
+                      <p className="text-mini text-muted-foreground leading-relaxed font-tajawal">
                         خوارزمية الفواصل الذكية تضمن بقاء الكلمات والتراكيب الألمانية في ذاكرتك طويلة الأجل بكفاءة متناهية.
                       </p>
                     </div>
@@ -541,14 +541,14 @@ export const GermanHome: React.FC = () => {
                   <div className="flex flex-col gap-3 min-w-[140px]">
                     <div className="flex items-center justify-between bg-background/50 px-3 py-2 rounded-lg border border-border/50">
                       <span className="font-tajawal text-micro text-muted-foreground">مستحقة للمراجعة</span>
-                      <span className="font-plex-mono text-sm font-bold text-foreground">{pendingSrsReviews || STARTER_VOCABULARY.length}</span>
+                      <span className="font-plex-mono text-meta font-bold text-foreground">{pendingSrsReviews || STARTER_VOCABULARY.length}</span>
                     </div>
                     <button
                       onClick={() => {
                         setActiveLessonId(undefined);
                         setActiveSessionMinutes(5);
                       }}
-                      className="w-full py-2.5 bg-[hsl(var(--live))] text-white hover:bg-[hsl(var(--live))]/90 rounded-lg text-xs font-bold font-tajawal shadow-sm transition-transform active:scale-95"
+                      className="w-full py-2.5 bg-[hsl(var(--live))] text-white hover:bg-[hsl(var(--live))]/90 rounded-lg text-mini font-bold font-tajawal shadow-sm transition-transform active:scale-95"
                     >
                       ابدأ الجلسة الشاملة (5 دقائق)
                     </button>
@@ -560,7 +560,7 @@ export const GermanHome: React.FC = () => {
               <div className="space-y-5">
                 <div className="flex items-center gap-3 justify-end px-2">
                   <span className="h-px flex-1 bg-border/40" />
-                  <h3 className="font-amiri text-lg font-bold text-foreground">
+                  <h3 className="font-amiri text-lead font-bold text-foreground">
                     خريطة الدروس الرسمية
                   </h3>
                 </div>
@@ -570,8 +570,8 @@ export const GermanHome: React.FC = () => {
                     <div className="p-4 bg-secondary/30 text-muted-foreground rounded-full">
                       <HelpCircle className="h-6 w-6" />
                     </div>
-                    <h4 className="font-tajawal text-sm font-bold text-foreground">المحتوى قيد التطوير</h4>
-                    <p className="font-tajawal text-xs text-muted-foreground max-w-[250px]">
+                    <h4 className="font-tajawal text-meta font-bold text-foreground">المحتوى قيد التطوير</h4>
+                    <p className="font-tajawal text-mini text-muted-foreground max-w-[250px]">
                       هذا المستوى سيتم إضافته قريباً. يرجى التركيز على المستويات السابقة.
                     </p>
                   </div>
@@ -592,7 +592,7 @@ export const GermanHome: React.FC = () => {
                                 <BookOpen className="h-5 w-5" />
                               </div>
                               <div className="text-end">
-                                <h4 className="font-tajawal text-sm font-bold text-foreground">
+                                <h4 className="font-tajawal text-meta font-bold text-foreground">
                                   {unit.title_ar}
                                 </h4>
                                 <p className="font-plex-mono text-micro text-muted-foreground tracking-widest mt-0.5">
@@ -638,7 +638,7 @@ export const GermanHome: React.FC = () => {
                                     )}
 
                                     <div className="space-y-0.5 text-end">
-                                      <h5 className={`font-tajawal text-sm font-bold ${isCompleted ? 'text-foreground' : 'text-foreground/90'}`}>
+                                      <h5 className={`font-tajawal text-meta font-bold ${isCompleted ? 'text-foreground' : 'text-foreground/90'}`}>
                                         {lesson.title_ar}
                                       </h5>
                                       <div className="flex items-center gap-2" dir="ltr">
@@ -657,7 +657,7 @@ export const GermanHome: React.FC = () => {
                                     {!isCompleted && (
                                       <button
                                         onClick={() => handleLessonCompleteDirectly(lesson.id)}
-                                        className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/20 text-xs font-bold font-tajawal transition-all"
+                                        className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/20 text-mini font-bold font-tajawal transition-all"
                                       >
                                         إنجاز
                                       </button>
@@ -680,8 +680,8 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'handbook' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">دليل القواعد الألماني الشامل</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">
+                <h3 className="font-amiri text-display font-bold text-foreground">دليل القواعد الألماني الشامل</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">
                   {STARTER_GRAMMAR_POINTS.length} قاعدة نحوية مشروحة بجسور مقارنة مع النحو العربي الأصيل
                 </p>
               </div>
@@ -691,17 +691,17 @@ export const GermanHome: React.FC = () => {
                   <div key={gp.id} className="p-5 rounded-2xl border border-border/40 bg-card space-y-4">
                     <div className="flex items-center gap-3 justify-end">
                       <span className="text-mini font-plex-mono px-2 py-0.5 bg-secondary text-muted-foreground rounded uppercase">Grammar Node</span>
-                      <h4 className="font-tajawal text-sm font-bold text-foreground">{gp.name}</h4>
+                      <h4 className="font-tajawal text-meta font-bold text-foreground">{gp.name}</h4>
                     </div>
 
-                    <p className="font-tajawal text-xs text-muted-foreground leading-relaxed text-end">
+                    <p className="font-tajawal text-mini text-muted-foreground leading-relaxed text-end">
                       {gp.explanation_ar}
                     </p>
 
                     {gp.contrastive_note_ar && (
                       <div className="p-4 rounded-xl bg-[hsl(var(--live))]/5 border border-[hsl(var(--live))]/20 space-y-2 text-end">
                         <span className="block font-tajawal text-micro font-bold text-[hsl(var(--live))]">الجسر النحوي المقارن مع العربية</span>
-                        <p className="font-amiri text-sm text-foreground/90 leading-relaxed">
+                        <p className="font-amiri text-meta text-foreground/90 leading-relaxed">
                           {gp.contrastive_note_ar}
                         </p>
                       </div>
@@ -716,8 +716,8 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'dictionary' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">القاموس ومستودع المفردات</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">
+                <h3 className="font-amiri text-display font-bold text-foreground">القاموس ومستودع المفردات</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">
                   استكشف المستودع الكامل: {corpusTotals.words} كلمة، {corpusTotals.sentences} جملة، {corpusTotals.phrases} عبارة،
                   و{corpusTotals.expressions} تعبيراً — كلها متاحة للتصفح والبحث.
                 </p>
@@ -754,7 +754,7 @@ export const GermanHome: React.FC = () => {
                 <select
                   value={dictLevelFilter}
                   onChange={(e) => setDictLevelFilter(e.target.value)}
-                  className="p-2 text-xs rounded-xl border border-border/40 bg-card text-foreground font-tajawal focus:outline-none"
+                  className="p-2 text-mini rounded-xl border border-border/40 bg-card text-foreground font-tajawal focus:outline-none"
                 >
                   <option value="all">كل المستويات</option>
                   <option value="lvl-a0">A0</option>
@@ -771,7 +771,7 @@ export const GermanHome: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث بالألمانية أو العربية..."
-                    className="w-full pe-8 ps-4 py-2 text-xs rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
+                    className="w-full pe-8 ps-4 py-2 text-mini rounded-xl border border-border/40 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:border-[hsl(var(--live))]"
                     dir="rtl"
                   />
                   <Search className="absolute end-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -780,10 +780,10 @@ export const GermanHome: React.FC = () => {
 
               {/* Flashcard Toggle */}
               <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/40 bg-card">
-                <span className="font-tajawal text-xs text-muted-foreground">قم بتفعيل مراجعة الفلاش كارد التفاعلية السريعة للحفظ</span>
+                <span className="font-tajawal text-mini text-muted-foreground">قم بتفعيل مراجعة الفلاش كارد التفاعلية السريعة للحفظ</span>
                 <button
                   onClick={() => setDictFlashcardMode(!dictFlashcardMode)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold font-tajawal transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-mini font-bold font-tajawal transition-all ${
                     dictFlashcardMode
                       ? 'bg-[hsl(var(--live))] text-white'
                       : 'bg-secondary text-muted-foreground'
@@ -821,24 +821,24 @@ export const GermanHome: React.FC = () => {
 
                         {!isFlipped ? (
                           <div className="space-y-1">
-                            <h4 className="font-plex-mono text-xl font-bold text-foreground">
+                            <h4 className="font-plex-mono text-title font-bold text-foreground">
                               {item.lemma_de || item.text_de}
                             </h4>
                             <p className="font-tajawal text-micro text-muted-foreground uppercase tracking-widest">اضغط لإظهار المعنى</p>
                           </div>
                         ) : (
                           <div className="space-y-2 animate-in fade-in zoom-in-95">
-                            <h4 className="font-tajawal text-lg font-bold text-[hsl(var(--live))]">
+                            <h4 className="font-tajawal text-lead font-bold text-[hsl(var(--live))]">
                               {item.translation_ar || item.text_ar}
                             </h4>
                             {item.example_sentence_de && (
-                              <p className="font-plex-mono text-xs text-muted-foreground italic" dir="ltr">{item.example_sentence_de}</p>
+                              <p className="font-plex-mono text-mini text-muted-foreground italic" dir="ltr">{item.example_sentence_de}</p>
                             )}
                             {item.situation_ar && (
-                              <p className="font-tajawal text-xs text-muted-foreground">السياق: {item.situation_ar}</p>
+                              <p className="font-tajawal text-mini text-muted-foreground">السياق: {item.situation_ar}</p>
                             )}
                             {item.cultural_equivalent_ar && (
-                              <p className="font-tajawal text-xs text-muted-foreground">المعادل: {item.cultural_equivalent_ar}</p>
+                              <p className="font-tajawal text-mini text-muted-foreground">المعادل: {item.cultural_equivalent_ar}</p>
                             )}
                           </div>
                         )}
@@ -853,10 +853,10 @@ export const GermanHome: React.FC = () => {
                           {item.level_id?.replace('lvl-', '') || 'A0'}
                         </span>
                         <div className="text-end">
-                          <h4 className="font-plex-mono text-base font-bold text-foreground" dir="ltr">
+                          <h4 className="font-plex-mono text-body font-bold text-foreground" dir="ltr">
                             {item.lemma_de || item.text_de}
                           </h4>
-                          <p className="font-tajawal text-xs text-muted-foreground mt-0.5">
+                          <p className="font-tajawal text-mini text-muted-foreground mt-0.5">
                             {item.translation_ar || item.text_ar}
                           </p>
                         </div>
@@ -864,20 +864,20 @@ export const GermanHome: React.FC = () => {
 
                       {item.example_sentence_de && (
                         <div className="border-t border-border/25 pt-2 mt-2 space-y-0.5 text-end">
-                          <p className="font-plex-mono text-xs text-muted-foreground italic" dir="ltr">{item.example_sentence_de}</p>
+                          <p className="font-plex-mono text-mini text-muted-foreground italic" dir="ltr">{item.example_sentence_de}</p>
                           <p className="font-tajawal text-mini text-muted-foreground/80">{item.example_sentence_ar}</p>
                         </div>
                       )}
 
                       {item.situation_ar && (
-                        <p className="font-tajawal text-xs text-muted-foreground text-end">
+                        <p className="font-tajawal text-mini text-muted-foreground text-end">
                           💡 سياق الاستخدام: {item.situation_ar}
                         </p>
                       )}
 
                       {item.cultural_equivalent_ar && (
                         <div className="flex flex-col items-end gap-0.5">
-                          <p className="font-tajawal text-xs text-muted-foreground">
+                          <p className="font-tajawal text-mini text-muted-foreground">
                             المعنى المجازي: <span className="text-foreground font-bold">{item.cultural_equivalent_ar}</span>
                           </p>
                           {item.literal_meaning_ar && (
@@ -897,8 +897,8 @@ export const GermanHome: React.FC = () => {
                   <div className="p-3 bg-secondary/30 text-muted-foreground rounded-full">
                     <Search className="h-5 w-5" />
                   </div>
-                  <h4 className="font-tajawal text-sm font-bold text-foreground">لا توجد نتائج مطابقة</h4>
-                  <p className="font-tajawal text-xs text-muted-foreground max-w-[260px]">
+                  <h4 className="font-tajawal text-meta font-bold text-foreground">لا توجد نتائج مطابقة</h4>
+                  <p className="font-tajawal text-mini text-muted-foreground max-w-[260px]">
                     جرّب كلمة أخرى بالألمانية أو العربية، أو أعد الفلتر إلى «كل المستويات».
                   </p>
                 </div>
@@ -907,7 +907,7 @@ export const GermanHome: React.FC = () => {
               {filteredDictItems.length < matchedDictItems.length && (
                 <button
                   onClick={() => setDictPage({ key: dictFilterKey, count: dictVisibleCount + 30 })}
-                  className="w-full py-3 rounded-xl border border-border/50 bg-card font-tajawal text-xs font-bold text-foreground hover:border-[hsl(var(--live))]/40 hover:text-[hsl(var(--live))] transition-all active:scale-[0.99]"
+                  className="w-full py-3 rounded-xl border border-border/50 bg-card font-tajawal text-mini font-bold text-foreground hover:border-[hsl(var(--live))]/40 hover:text-[hsl(var(--live))] transition-all active:scale-[0.99]"
                 >
                   عرض المزيد ({matchedDictItems.length - filteredDictItems.length} متبقية)
                 </button>
@@ -919,26 +919,26 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'tutor' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">مساعد الذكاء اللغوي</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">اكتب أي جملة ألمانية وسيقوم المحلل بتفكيكها وفهمها إعرابياً بشكل مفصل فوراً</p>
+                <h3 className="font-amiri text-display font-bold text-foreground">مساعد الذكاء اللغوي</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">اكتب أي جملة ألمانية وسيقوم المحلل بتفكيكها وفهمها إعرابياً بشكل مفصل فوراً</p>
               </div>
 
               <div className="p-4 rounded-2xl border border-border/40 bg-card space-y-4">
                 <div className="space-y-1.5 text-end">
-                  <label className="font-tajawal text-xs font-bold text-foreground">الجملة المراد تحليلها</label>
+                  <label className="font-tajawal text-mini font-bold text-foreground">الجملة المراد تحليلها</label>
                   <input
                     type="text"
                     value={userSentenceInput}
                     onChange={(e) => setUserSentenceInput(e.target.value)}
                     placeholder="e.g. Ich lerne Deutsch"
-                    className="w-full p-3.5 rounded-xl border border-border/40 bg-background text-foreground font-plex-mono text-sm tracking-wide text-center focus:outline-none focus:ring-1 focus:ring-[hsl(var(--live))]"
+                    className="w-full p-3.5 rounded-xl border border-border/40 bg-background text-foreground font-plex-mono text-meta tracking-wide text-center focus:outline-none focus:ring-1 focus:ring-[hsl(var(--live))]"
                     dir="ltr"
                   />
                 </div>
 
                 <button
                   onClick={handleAnalyzeSentence}
-                  className="w-full py-3 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 text-white rounded-xl text-xs font-bold font-tajawal transition-all"
+                  className="w-full py-3 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 text-white rounded-xl text-mini font-bold font-tajawal transition-all"
                 >
                   تحليل التركيب النحوي
                 </button>
@@ -948,7 +948,7 @@ export const GermanHome: React.FC = () => {
                 <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-5 animate-in fade-in duration-300">
                   <div className="text-end space-y-1">
                     <span className="text-micro font-plex-mono text-[hsl(var(--live))] font-semibold uppercase tracking-wider">الترجمة الدلالية</span>
-                    <p className="font-tajawal text-base font-bold text-foreground">{analyzerResult.translation}</p>
+                    <p className="font-tajawal text-body font-bold text-foreground">{analyzerResult.translation}</p>
                   </div>
 
                   <div className="border-t border-border/30 pt-4 space-y-3">
@@ -958,7 +958,7 @@ export const GermanHome: React.FC = () => {
                         <div key={index} className="p-3 rounded-xl bg-background border border-border/40 flex items-center justify-between">
                           <span className="font-tajawal text-mini text-muted-foreground max-w-[180px] text-start">{item.analysis}</span>
                           <div className="text-end">
-                            <span className="block font-plex-mono text-sm font-bold text-foreground" dir="ltr">{item.word}</span>
+                            <span className="block font-plex-mono text-meta font-bold text-foreground" dir="ltr">{item.word}</span>
                             <span className="block font-tajawal text-mini text-[hsl(var(--live))]/80">{item.pos}</span>
                           </div>
                         </div>
@@ -968,7 +968,7 @@ export const GermanHome: React.FC = () => {
 
                   <div className="border-t border-border/30 pt-4 text-end space-y-1">
                     <span className="text-micro font-plex-mono text-[hsl(var(--live))] font-semibold uppercase tracking-wider">الشرح الإجمالي</span>
-                    <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">{analyzerResult.grammarNote}</p>
+                    <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">{analyzerResult.grammarNote}</p>
                   </div>
                 </div>
               )}
@@ -979,8 +979,8 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'dialogues' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">محاكي المحادثات والسيناريوهات الحرة</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">تفاوض وتكلم في سياقات حقيقية مع ردود فعل وتحليلات ثقافية دقيقة.</p>
+                <h3 className="font-amiri text-display font-bold text-foreground">محاكي المحادثات والسيناريوهات الحرة</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">تفاوض وتكلم في سياقات حقيقية مع ردود فعل وتحليلات ثقافية دقيقة.</p>
               </div>
 
               {!selectedDialogueId ? (
@@ -989,17 +989,17 @@ export const GermanHome: React.FC = () => {
                     <div key={scen.id} className="p-5 rounded-2xl border border-border/40 bg-card space-y-4 text-end">
                       <div className="flex items-center justify-between">
                         <span className="px-2 py-0.5 rounded text-micro font-plex-mono bg-secondary text-muted-foreground uppercase">{scen.category}</span>
-                        <h4 className="font-tajawal text-sm font-bold text-foreground">{scen.title_ar}</h4>
+                        <h4 className="font-tajawal text-meta font-bold text-foreground">{scen.title_ar}</h4>
                       </div>
-                      <p className="font-plex-mono text-xs text-muted-foreground/90 italic" dir="ltr">{scen.title_de}</p>
-                      <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">{scen.description_ar}</p>
+                      <p className="font-plex-mono text-mini text-muted-foreground/90 italic" dir="ltr">{scen.title_de}</p>
+                      <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">{scen.description_ar}</p>
                       <button
                         onClick={() => {
                           setSelectedDialogueId(scen.id);
                           setDialogueStep('intro');
                           setDialogueUserBranchChoice(null);
                         }}
-                        className="w-full py-2.5 bg-secondary text-foreground hover:bg-secondary/80 rounded-lg text-xs font-bold font-tajawal transition-all"
+                        className="w-full py-2.5 bg-secondary text-foreground hover:bg-secondary/80 rounded-lg text-mini font-bold font-tajawal transition-all"
                       >
                         دخول المحاكاة التفاعلية
                       </button>
@@ -1013,25 +1013,25 @@ export const GermanHome: React.FC = () => {
                       onClick={() => {
                         setSelectedDialogueId(null);
                       }}
-                      className="px-3 py-1 bg-secondary text-foreground rounded text-xs font-tajawal"
+                      className="px-3 py-1 bg-secondary text-foreground rounded text-mini font-tajawal"
                     >
                       إنهاء المحاكاة
                     </button>
-                    <h4 className="font-tajawal text-sm font-bold text-foreground">{activeDialogue?.title_ar}</h4>
+                    <h4 className="font-tajawal text-meta font-bold text-foreground">{activeDialogue?.title_ar}</h4>
                   </div>
 
                   {dialogueStep === 'intro' && (
                     <div className="space-y-5 text-end">
-                      <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+                      <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">
                         {activeDialogue?.description_ar}
                       </p>
                       <div className="p-4 bg-secondary/20 rounded-xl space-y-1">
                         <span className="block font-tajawal text-micro font-bold text-muted-foreground">المشاركون</span>
-                        <span className="block font-tajawal text-xs font-medium text-foreground">العميل والمستلم والمضيف</span>
+                        <span className="block font-tajawal text-mini font-medium text-foreground">العميل والمستلم والمضيف</span>
                       </div>
                       <button
                         onClick={() => setDialogueStep('chat')}
-                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-xs font-bold"
+                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-mini font-bold"
                       >
                         ابدأ المحادثة التفاعلية
                       </button>
@@ -1062,9 +1062,9 @@ export const GermanHome: React.FC = () => {
                             }`}
                           >
                             <span className="text-micro font-bold text-muted-foreground uppercase">{turn.speaker}</span>
-                            <p className="font-plex-mono text-sm font-bold text-foreground" dir="ltr">{turn.text_de}</p>
+                            <p className="font-plex-mono text-meta font-bold text-foreground" dir="ltr">{turn.text_de}</p>
                             {dialogueShowArTranslation && (
-                              <p className="font-tajawal text-xs text-muted-foreground" dir="rtl">{turn.text_ar}</p>
+                              <p className="font-tajawal text-mini text-muted-foreground" dir="rtl">{turn.text_ar}</p>
                             )}
                           </div>
                         ))}
@@ -1072,7 +1072,7 @@ export const GermanHome: React.FC = () => {
 
                       <button
                         onClick={() => setDialogueStep('branch')}
-                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-xs font-bold"
+                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-mini font-bold"
                       >
                         متابعة السيناريو واختيار ردك
                       </button>
@@ -1087,7 +1087,7 @@ export const GermanHome: React.FC = () => {
                           <button
                             key={branch.id}
                             onClick={() => handleChooseBranch(branch.id)}
-                            className="w-full p-4 rounded-xl border border-border/40 hover:border-[hsl(var(--live))] bg-card hover:bg-secondary/40 text-end font-tajawal text-xs transition-all flex items-center justify-between"
+                            className="w-full p-4 rounded-xl border border-border/40 hover:border-[hsl(var(--live))] bg-card hover:bg-secondary/40 text-end font-tajawal text-mini transition-all flex items-center justify-between"
                           >
                             <span className="h-2 w-2 rounded-full border border-border/40" />
                             <span>{branch.option_ar}</span>
@@ -1110,13 +1110,13 @@ export const GermanHome: React.FC = () => {
                                 : 'bg-rose-500/[0.02] border-rose-500/20 text-rose-600'
                             }`}>
                               <span className="block font-tajawal text-micro font-bold uppercase">الرد الذي قمت باختياره</span>
-                              <p className="font-plex-mono text-base font-bold text-foreground" dir="ltr">{selectedBranch.response_de}</p>
-                              <p className="font-tajawal text-xs text-muted-foreground" dir="rtl">{selectedBranch.response_ar}</p>
+                              <p className="font-plex-mono text-body font-bold text-foreground" dir="ltr">{selectedBranch.response_de}</p>
+                              <p className="font-tajawal text-mini text-muted-foreground" dir="rtl">{selectedBranch.response_ar}</p>
                             </div>
 
                             <div className="p-5 rounded-xl bg-secondary/30 space-y-2 text-end">
-                              <span className="block font-tajawal text-xs font-bold text-foreground">التحليل الثقافي والاجتماعي المقارن</span>
-                              <p className="font-amiri text-sm text-foreground/80 leading-relaxed">
+                              <span className="block font-tajawal text-mini font-bold text-foreground">التحليل الثقافي والاجتماعي المقارن</span>
+                              <p className="font-amiri text-meta text-foreground/80 leading-relaxed">
                                 {selectedBranch.explanation_ar}
                               </p>
                             </div>
@@ -1124,13 +1124,13 @@ export const GermanHome: React.FC = () => {
                             <div className="flex gap-3">
                               <button
                                 onClick={() => setDialogueStep('branch')}
-                                className="flex-1 py-3 border border-border/40 bg-card text-foreground rounded-xl text-xs font-bold font-tajawal"
+                                className="flex-1 py-3 border border-border/40 bg-card text-foreground rounded-xl text-mini font-bold font-tajawal"
                               >
                                 جرب خياراً آخر
                               </button>
                               <button
                                 onClick={() => setSelectedDialogueId(null)}
-                                className="flex-1 py-3 bg-[hsl(var(--live))] text-white rounded-xl text-xs font-bold font-tajawal"
+                                className="flex-1 py-3 bg-[hsl(var(--live))] text-white rounded-xl text-mini font-bold font-tajawal"
                               >
                                 إنهاء السيناريو
                               </button>
@@ -1149,8 +1149,8 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'conjugator' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">المصرف النحوي الرقمي للأفعال</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">صرف وافهم الأفعال الألمانية الهامة مع شرح جسورها الزمنية المقارنة بالعربية.</p>
+                <h3 className="font-amiri text-display font-bold text-foreground">المصرف النحوي الرقمي للأفعال</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">صرف وافهم الأفعال الألمانية الهامة مع شرح جسورها الزمنية المقارنة بالعربية.</p>
               </div>
 
               {/* Selector */}
@@ -1170,7 +1170,7 @@ export const GermanHome: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-secondary/30">
                 <button
                   onClick={() => setConjugatorTense('present')}
-                  className={`py-2 text-center rounded-lg font-tajawal text-xs font-bold transition-all ${
+                  className={`py-2 text-center rounded-lg font-tajawal text-mini font-bold transition-all ${
                     conjugatorTense === 'present' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
@@ -1178,7 +1178,7 @@ export const GermanHome: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setConjugatorTense('perfekt')}
-                  className={`py-2 text-center rounded-lg font-tajawal text-xs font-bold transition-all ${
+                  className={`py-2 text-center rounded-lg font-tajawal text-mini font-bold transition-all ${
                     conjugatorTense === 'perfekt' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                   }`}
                 >
@@ -1189,8 +1189,8 @@ export const GermanHome: React.FC = () => {
               {/* Conjugation Grid */}
               <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-5">
                 <div className="flex justify-between items-center pb-3 border-b border-border/30">
-                  <span className="font-plex-mono text-xs text-muted-foreground uppercase">Conjugation Forms</span>
-                  <h4 className="font-plex-mono text-xl font-bold text-[hsl(var(--live))]" dir="ltr">{activeVerb.verb_de}</h4>
+                  <span className="font-plex-mono text-mini text-muted-foreground uppercase">Conjugation Forms</span>
+                  <h4 className="font-plex-mono text-title font-bold text-[hsl(var(--live))]" dir="ltr">{activeVerb.verb_de}</h4>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3.5">
@@ -1203,8 +1203,8 @@ export const GermanHome: React.FC = () => {
                     { pr: 'sie / Sie (هم / حضرتك)', form: activeVerb[conjugatorTense].sie_Sie }
                   ].map((row, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-background border border-border/40 hover:border-[hsl(var(--live))]/20 transition-all">
-                      <span className="font-plex-mono text-base font-bold text-foreground" dir="ltr">{row.form}</span>
-                      <span className="font-tajawal text-xs text-muted-foreground">{row.pr}</span>
+                      <span className="font-plex-mono text-body font-bold text-foreground" dir="ltr">{row.form}</span>
+                      <span className="font-tajawal text-mini text-muted-foreground">{row.pr}</span>
                     </div>
                   ))}
                 </div>
@@ -1213,15 +1213,15 @@ export const GermanHome: React.FC = () => {
                 <div className="border-t border-border/35 pt-4 space-y-4 text-end">
                   <div className="space-y-1">
                     <span className="block text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">الجسر النحوي والوجه الدلالي</span>
-                    <p className="font-amiri text-sm text-foreground/90 leading-relaxed">
+                    <p className="font-amiri text-meta text-foreground/90 leading-relaxed">
                       {activeVerb.arabic_aspect_note}
                     </p>
                   </div>
 
                   <div className="p-4 bg-[hsl(var(--live))]/5 rounded-xl space-y-1">
                     <span className="block text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase">مثال تطبيقي مصرف</span>
-                    <p className="font-plex-mono text-sm font-bold text-foreground" dir="ltr">{activeVerb.german_example_de}</p>
-                    <p className="font-tajawal text-xs text-muted-foreground">{activeVerb.german_example_ar}</p>
+                    <p className="font-plex-mono text-meta font-bold text-foreground" dir="ltr">{activeVerb.german_example_de}</p>
+                    <p className="font-tajawal text-mini text-muted-foreground">{activeVerb.german_example_ar}</p>
                   </div>
                 </div>
               </div>
@@ -1232,15 +1232,15 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'gender' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">مصفوفة لواحق وقواعد الجنس النحوي</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">احفظ لواحق الكلمات الألمانية لمعرفة جنسها (der/die/das) تلقائياً بنسبة 100%.</p>
+                <h3 className="font-amiri text-display font-bold text-foreground">مصفوفة لواحق وقواعد الجنس النحوي</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">احفظ لواحق الكلمات الألمانية لمعرفة جنسها (der/die/das) تلقائياً بنسبة 100%.</p>
               </div>
 
               {/* Mode Selection */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setGenderQuizActive(false)}
-                  className={`flex-1 py-2.5 rounded-xl border font-tajawal text-xs font-bold transition-all ${
+                  className={`flex-1 py-2.5 rounded-xl border font-tajawal text-mini font-bold transition-all ${
                     !genderQuizActive
                       ? 'bg-card text-foreground border-border/50 shadow'
                       : 'bg-secondary/40 text-muted-foreground border-transparent'
@@ -1250,7 +1250,7 @@ export const GermanHome: React.FC = () => {
                 </button>
                 <button
                   onClick={resetGenderQuiz}
-                  className={`flex-1 py-2.5 rounded-xl border font-tajawal text-xs font-bold transition-all ${
+                  className={`flex-1 py-2.5 rounded-xl border font-tajawal text-mini font-bold transition-all ${
                     genderQuizActive
                       ? 'bg-[hsl(var(--live))]/10 text-[hsl(var(--live))] border-[hsl(var(--live))]/30 shadow'
                       : 'bg-secondary/40 text-muted-foreground border-transparent'
@@ -1269,7 +1269,7 @@ export const GermanHome: React.FC = () => {
                       value={genderSuffixQuery}
                       onChange={(e) => setGenderSuffixQuery(e.target.value)}
                       placeholder="ابحث عن لاحقة معينة (مثال: ung)..."
-                      className="w-full pe-8 ps-4 py-3 text-xs rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
+                      className="w-full pe-8 ps-4 py-3 text-mini rounded-xl border border-border/40 bg-card text-foreground focus:outline-none"
                       dir="rtl"
                     />
                     <Search className="absolute end-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
@@ -1295,14 +1295,14 @@ export const GermanHome: React.FC = () => {
                           }`}>
                             {rule.gender}
                           </span>
-                          <h4 className="font-plex-mono text-base font-bold text-foreground">Suffix: -{rule.suffix}</h4>
+                          <h4 className="font-plex-mono text-body font-bold text-foreground">Suffix: -{rule.suffix}</h4>
                         </div>
-                        <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+                        <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">
                           {rule.explanation_ar}
                         </p>
                         <div className="p-3 bg-secondary/30 rounded-lg flex justify-between items-center" dir="ltr">
-                          <span className="font-plex-mono text-xs text-foreground font-bold">{rule.example_de}</span>
-                          <span className="font-tajawal text-xs text-muted-foreground">{rule.example_ar}</span>
+                          <span className="font-plex-mono text-mini text-foreground font-bold">{rule.example_de}</span>
+                          <span className="font-tajawal text-mini text-muted-foreground">{rule.example_ar}</span>
                         </div>
                       </div>
                     ))}
@@ -1311,8 +1311,8 @@ export const GermanHome: React.FC = () => {
               ) : (
                 <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-6 animate-in slide-in-from-bottom-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-plex-mono text-xs font-bold text-[hsl(var(--live))]">النتيجة: {genderQuizScore}/100</span>
-                    <span className="font-tajawal text-xs text-muted-foreground">السؤال {genderQuizIndex + 1} من {genderQuizItems.length}</span>
+                    <span className="font-plex-mono text-mini font-bold text-[hsl(var(--live))]">النتيجة: {genderQuizScore}/100</span>
+                    <span className="font-tajawal text-mini text-muted-foreground">السؤال {genderQuizIndex + 1} من {genderQuizItems.length}</span>
                   </div>
 
                   <div className="h-1 bg-secondary rounded-full overflow-hidden">
@@ -1324,7 +1324,7 @@ export const GermanHome: React.FC = () => {
 
                   <div className="p-6 rounded-xl bg-background border border-border/40 text-center space-y-3">
                     <span className="text-micro font-tajawal text-muted-foreground">ما هي الأداة الصحيحة للاسم الموالي بناءً على لاحقته؟</span>
-                    <p className="font-plex-mono text-3xl font-bold text-foreground tracking-wide">
+                    <p className="font-plex-mono text-hero font-bold text-foreground tracking-wide">
                       {currentGenderQuizItem.word}
                     </p>
                   </div>
@@ -1335,7 +1335,7 @@ export const GermanHome: React.FC = () => {
                         <button
                           key={genderOption}
                           onClick={() => handleGenderQuizAnswer(genderOption)}
-                          className={`py-3 rounded-xl border font-plex-mono text-sm font-bold transition-all ${
+                          className={`py-3 rounded-xl border font-plex-mono text-meta font-bold transition-all ${
                             genderOption === 'der'
                               ? 'border-blue-500/30 hover:bg-blue-500/5 text-blue-500'
                               : genderOption === 'die'
@@ -1352,17 +1352,17 @@ export const GermanHome: React.FC = () => {
                       <div className={`p-4 rounded-xl border text-end space-y-1.5 ${
                         genderQuizFdbk.correct ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600' : 'bg-rose-500/5 border-rose-500/20 text-rose-600'
                       }`}>
-                        <h5 className="font-tajawal text-xs font-bold">
+                        <h5 className="font-tajawal text-mini font-bold">
                           {genderQuizFdbk.correct ? 'صحيح تماماً!' : 'غير دقيق'}
                         </h5>
-                        <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+                        <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">
                           {genderQuizFdbk.msg}
                         </p>
                       </div>
 
                       <button
                         onClick={handleNextGenderQuiz}
-                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl text-xs font-bold font-tajawal"
+                        className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl text-mini font-bold font-tajawal"
                       >
                         {genderQuizIndex < genderQuizItems.length - 1 ? 'السؤال الموالي' : 'عرض النتيجة النهائية'}
                       </button>
@@ -1377,8 +1377,8 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'phonetics' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">لوحة الصوتيات والمخارج الألمانية المقارنة</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">تدرب على نطق وإخراج الحروف والتركيبات الألمانية الصعبة بمقارنتها مع مخارج الحروف العربية.</p>
+                <h3 className="font-amiri text-display font-bold text-foreground">لوحة الصوتيات والمخارج الألمانية المقارنة</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">تدرب على نطق وإخراج الحروف والتركيبات الألمانية الصعبة بمقارنتها مع مخارج الحروف العربية.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -1394,8 +1394,8 @@ export const GermanHome: React.FC = () => {
                           : 'border-border/40 bg-card hover:bg-secondary/40'
                       }`}
                     >
-                      <span className="font-plex-mono text-2xl font-bold text-foreground">{item.sound_de}</span>
-                      <span className="font-plex-mono text-xs text-muted-foreground">IPA: /{item.ipa}/</span>
+                      <span className="font-plex-mono text-display font-bold text-foreground">{item.sound_de}</span>
+                      <span className="font-plex-mono text-mini text-muted-foreground">IPA: /{item.ipa}/</span>
                       <span className="font-tajawal text-micro text-muted-foreground max-w-[120px] truncate">{item.arabic_equivalent_ar}</span>
                     </button>
                   );
@@ -1409,24 +1409,24 @@ export const GermanHome: React.FC = () => {
                   <div className="p-5 rounded-2xl border border-[hsl(var(--live))]/20 bg-[hsl(var(--live))]/[0.02] space-y-4 text-end animate-in fade-in duration-300">
                     <div className="flex justify-between items-center pb-2 border-b border-border/30">
                       <span className="font-plex-mono text-micro text-muted-foreground uppercase">Phonetic Detail</span>
-                      <h4 className="font-plex-mono text-base font-bold text-[hsl(var(--live))]" dir="ltr">{item.sound_de}</h4>
+                      <h4 className="font-plex-mono text-body font-bold text-[hsl(var(--live))]" dir="ltr">{item.sound_de}</h4>
                     </div>
 
                     <div className="space-y-1">
                       <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">مخرج الحرف والتمثيل الصوتي العربي</span>
-                      <p className="font-tajawal text-xs text-foreground font-semibold">{item.arabic_equivalent_ar}</p>
+                      <p className="font-tajawal text-mini text-foreground font-semibold">{item.arabic_equivalent_ar}</p>
                     </div>
 
                     <div className="space-y-1">
                       <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">دليل النطق وآلية التشكيل الفموي</span>
-                      <p className="font-amiri text-sm text-foreground/80 leading-relaxed">
+                      <p className="font-amiri text-meta text-foreground/80 leading-relaxed">
                         {item.articulation_guide_ar}
                       </p>
                     </div>
 
                     <div className="p-3 bg-secondary/30 rounded-lg flex justify-between items-center" dir="ltr">
-                      <span className="font-plex-mono text-xs text-foreground font-bold">{item.example_word_de}</span>
-                      <span className="font-tajawal text-xs text-muted-foreground">مثال: {item.example_word_ar}</span>
+                      <span className="font-plex-mono text-mini text-foreground font-bold">{item.example_word_de}</span>
+                      <span className="font-tajawal text-mini text-muted-foreground">مثال: {item.example_word_ar}</span>
                     </div>
                   </div>
                 );
@@ -1438,8 +1438,8 @@ export const GermanHome: React.FC = () => {
           {activeTab === 'placement' && (
             <div className="space-y-6">
               <div className="text-end space-y-2">
-                <h3 className="font-amiri text-2xl font-bold text-foreground">اختبار تحديد المستوى الذكي</h3>
-                <p className="font-tajawal text-xs text-muted-foreground">أجب عن ٥ أسئلة دقيقة لتقييم مستواك الفعلي ووضعك في المسار المناسب تلقائياً</p>
+                <h3 className="font-amiri text-display font-bold text-foreground">اختبار تحديد المستوى الذكي</h3>
+                <p className="font-tajawal text-mini text-muted-foreground">أجب عن ٥ أسئلة دقيقة لتقييم مستواك الفعلي ووضعك في المسار المناسب تلقائياً</p>
               </div>
 
               {!placementStarted ? (
@@ -1448,12 +1448,12 @@ export const GermanHome: React.FC = () => {
                     <Compass className="h-7 w-7" />
                   </div>
                   <div className="space-y-1">
-                    <h4 className="font-tajawal text-sm font-bold text-foreground">جاهز للتقييم الفوري؟</h4>
-                    <p className="font-tajawal text-xs text-muted-foreground">تتنوع الأسئلة لتقيس استيعابك للقواعد والربط والمفردات.</p>
+                    <h4 className="font-tajawal text-meta font-bold text-foreground">جاهز للتقييم الفوري؟</h4>
+                    <p className="font-tajawal text-mini text-muted-foreground">تتنوع الأسئلة لتقيس استيعابك للقواعد والربط والمفردات.</p>
                   </div>
                   <button
                     onClick={() => setPlacementStarted(true)}
-                    className="w-full py-3 bg-[hsl(var(--live))] text-white hover:bg-[hsl(var(--live))]/90 rounded-xl font-tajawal text-xs font-bold transition-all"
+                    className="w-full py-3 bg-[hsl(var(--live))] text-white hover:bg-[hsl(var(--live))]/90 rounded-xl font-tajawal text-mini font-bold transition-all"
                   >
                     ابدأ الاختبار الفوري
                   </button>
@@ -1465,14 +1465,14 @@ export const GermanHome: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <span className="font-tajawal text-micro font-bold text-emerald-600 uppercase">النتيجة النهائية</span>
-                    <h4 className="font-tajawal text-xl font-bold text-foreground">المستوى المقترح: {placementResult}</h4>
-                    <p className="font-tajawal text-xs text-muted-foreground">حققت درجة {placementScore}% في الاختبار السريع.</p>
+                    <h4 className="font-tajawal text-title font-bold text-foreground">المستوى المقترح: {placementResult}</h4>
+                    <p className="font-tajawal text-mini text-muted-foreground">حققت درجة {placementScore}% في الاختبار السريع.</p>
                   </div>
 
                   <div className="flex gap-3">
                     <button
                       onClick={resetPlacement}
-                      className="flex-1 py-3 border border-border/40 bg-card text-foreground rounded-xl text-xs font-bold font-tajawal transition-all"
+                      className="flex-1 py-3 border border-border/40 bg-card text-foreground rounded-xl text-mini font-bold font-tajawal transition-all"
                     >
                       إعادة المحاولة
                     </button>
@@ -1484,7 +1484,7 @@ export const GermanHome: React.FC = () => {
                         else setActiveLevel('A0');
                         setActiveTab('lessons');
                       }}
-                      className="flex-1 py-3 bg-[hsl(var(--live))] text-white rounded-xl text-xs font-bold font-tajawal transition-all"
+                      className="flex-1 py-3 bg-[hsl(var(--live))] text-white rounded-xl text-mini font-bold font-tajawal transition-all"
                     >
                       اعتماد المستوى
                     </button>
@@ -1493,8 +1493,8 @@ export const GermanHome: React.FC = () => {
               ) : (
                 <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-6 animate-in slide-in-from-bottom-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-plex-mono text-xs font-bold text-[hsl(var(--live))]">درجتك الحالية: {placementScore}%</span>
-                    <span className="font-tajawal text-xs text-muted-foreground">سؤال {placementStep + 1} من {PLACEMENT_QUESTIONS.length}</span>
+                    <span className="font-plex-mono text-mini font-bold text-[hsl(var(--live))]">درجتك الحالية: {placementScore}%</span>
+                    <span className="font-tajawal text-mini text-muted-foreground">سؤال {placementStep + 1} من {PLACEMENT_QUESTIONS.length}</span>
                   </div>
 
                   <div className="h-1 bg-secondary rounded-full overflow-hidden">
@@ -1505,7 +1505,7 @@ export const GermanHome: React.FC = () => {
                   </div>
 
                   <div className="p-4 rounded-xl bg-background border border-border/40 text-center space-y-2">
-                    <p className="font-plex-mono text-base font-bold text-foreground leading-relaxed whitespace-pre-line" dir="ltr">
+                    <p className="font-plex-mono text-body font-bold text-foreground leading-relaxed whitespace-pre-line" dir="ltr">
                       {PLACEMENT_QUESTIONS[placementStep].q}
                     </p>
                   </div>
@@ -1515,7 +1515,7 @@ export const GermanHome: React.FC = () => {
                       <button
                         key={idx}
                         onClick={() => handlePlacementAnswer(idx)}
-                        className="w-full p-4 text-end rounded-xl border border-border/40 hover:border-[hsl(var(--live))] bg-card hover:bg-[hsl(var(--live))]/5 font-tajawal text-sm transition-all shadow-sm flex items-center justify-between"
+                        className="w-full p-4 text-end rounded-xl border border-border/40 hover:border-[hsl(var(--live))] bg-card hover:bg-[hsl(var(--live))]/5 font-tajawal text-meta transition-all shadow-sm flex items-center justify-between"
                       >
                         <span className="h-2 w-2 rounded-full border border-border/60" />
                         <span>{option}</span>

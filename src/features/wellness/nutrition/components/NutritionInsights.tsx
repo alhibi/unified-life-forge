@@ -114,8 +114,8 @@ export default function NutritionInsights() {
       <div className="flex items-center gap-2 rounded-xl p-3 border border-purple-500/20">
         <Sparkles className="w-5 h-5 text-purple-500" />
         <div>
-          <p className="text-[0.6875rem] text-muted-foreground">{T.title[lang]}</p>
-          <p className="text-xs font-bold text-foreground">
+          <p className="text-micro text-muted-foreground">{T.title[lang]}</p>
+          <p className="text-mini font-bold text-foreground">
             {`تحليل ${TOTAL_FOOD_COUNT} عنصر غذائي`}
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function NutritionInsights() {
             >
               <Icon className="w-3 h-3" {...({ style: { color } } as any)} />
             </div>
-            <h3 className="text-xs font-semibold text-foreground">{title[lang]}</h3>
+            <h3 className="text-mini font-semibold text-foreground">{title[lang]}</h3>
           </div>
 
           <div className="space-y-1">
@@ -145,15 +145,15 @@ export default function NutritionInsights() {
                 key={food.id}
                 className="flex items-center gap-2 p-2 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors"
               >
-                <span className="text-[0.625rem] font-bold text-muted-foreground w-4 text-center">
+                <span className="text-micro font-bold text-muted-foreground w-4 text-center">
                   {i + 1}
                 </span>
-                <span className="text-sm">{food.emoji}</span>
-                <span className="text-[0.6875rem] font-medium text-foreground flex-1 truncate">
+                <span className="text-meta">{food.emoji}</span>
+                <span className="text-micro font-medium text-foreground flex-1 truncate">
                   {food.name[lang]}
                 </span>
                 <span
-                  className="text-[0.625rem] font-semibold px-1.5 py-0.5 rounded-md"
+                  className="text-micro font-semibold px-1.5 py-0.5 rounded-md"
                   style={{ backgroundColor: `${color}10`, color }}
                 >
                   {metric(food)}

@@ -73,45 +73,45 @@ export default function OAuthConsent() {
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-primary stroke-[1.8]" />
           </div>
-          <h1 className="text-[1.375rem] font-bold tracking-tight text-foreground">
+          <h1 className="text-display font-bold tracking-tight text-foreground">
             {"منح الوصول"}
           </h1>
         </div>
 
         {loading || (!details && !error) ? (
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+          <div className="flex items-center gap-2 text-muted-foreground text-meta">
             <Loader2 className="w-4 h-4 animate-spin" />
             {"جارٍ التحميل…"}
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-[0.8125rem] text-destructive">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-mini text-destructive">
             {error}
           </div>
         ) : details ? (
           <>
-            <p className="text-[0.875rem] leading-relaxed text-foreground/90">
+            <p className="text-meta leading-relaxed text-foreground/90">
               {<>سيتمكّن <b>{details.client?.name ?? ("التطبيق")}</b> من استخدام أدوات SmartHub نيابةً عنك أثناء تسجيل دخولك.</>}
             </p>
             {details.scope && (
-              <div className="rounded-xl bg-muted/40 p-3 text-[0.75rem] text-muted-foreground font-mono break-all">
+              <div className="rounded-xl bg-muted/40 p-3 text-mini text-muted-foreground font-mono break-all">
                 {details.scope}
               </div>
             )}
-            <p className="text-[0.75rem] text-muted-foreground">
+            <p className="text-mini text-muted-foreground">
               {"لا يتجاوز هذا صلاحيات حسابك أو سياسات الحماية الخلفية."}
             </p>
             <div className="flex gap-3 pt-1">
               <button
                 disabled={busy}
                 onClick={() => decide(true)}
-                className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
+                className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground text-meta font-semibold disabled:opacity-50"
               >
                 {"موافقة"}
               </button>
               <button
                 disabled={busy}
                 onClick={() => decide(false)}
-                className="flex-1 h-11 rounded-2xl border border-border text-sm font-medium disabled:opacity-50"
+                className="flex-1 h-11 rounded-2xl border border-border text-meta font-medium disabled:opacity-50"
               >
                 {"رفض"}
               </button>

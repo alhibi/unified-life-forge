@@ -108,11 +108,11 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                 <BookOpen className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[0.625rem] font-semibold text-muted-foreground tracking-wider uppercase">
+                <p className="text-micro font-semibold text-muted-foreground tracking-wider uppercase">
                   المعجم
                 </p>
                 <h3
-                  className="text-[1.25rem] font-bold text-foreground mt-0.5 leading-tight break-words"
+                  className="text-title font-bold text-foreground mt-0.5 leading-tight break-words"
                   style={{ fontFamily: "'Amiri', serif" }}
                 >
                   {word ?? '—'}
@@ -136,7 +136,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                   <div className="flex items-start gap-2">
                     <Quote className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0 mt-1" aria-hidden="true" />
                     <p
-                      className="text-[0.875rem] text-foreground/85 leading-[2] flex-1"
+                      className="text-meta text-foreground/85 leading-[2] flex-1"
                       style={{ fontFamily: "'Amiri', serif" }}
                     >
                       {versePreview}
@@ -148,10 +148,10 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
               {/* Entries */}
               {entries.length === 0 ? (
                 <div className="text-center py-6">
-                  <p className="text-[0.8125rem] text-muted-foreground">
+                  <p className="text-mini text-muted-foreground">
                     لا يوجد شرح محفوظ لهذه الكلمة.
                   </p>
-                  <p className="text-[0.625rem] text-muted-foreground/70 mt-2 leading-relaxed max-w-xs mx-auto">
+                  <p className="text-micro text-muted-foreground/70 mt-2 leading-relaxed max-w-xs mx-auto">
                     سيُضاف الشرح تدريجياً مع إثراء المعجم. يمكنك تجربة الـ long-press
                     على كلمة أخرى داخل البيت.
                   </p>
@@ -165,18 +165,18 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                     >
                       <div className="flex items-baseline justify-between gap-2 mb-1">
                         <span
-                          className="text-[0.9375rem] font-bold text-primary"
+                          className="text-meta font-bold text-primary"
                           style={{ fontFamily: "'Amiri', serif" }}
                         >
                           {g.word}
                         </span>
                         {g.verse_position !== null && (
-                          <span className="text-[0.625rem] text-muted-foreground/80">
+                          <span className="text-micro text-muted-foreground/80">
                             البيت {g.verse_position + 1}
                           </span>
                         )}
                       </div>
-                      <p className="text-[0.8125rem] text-foreground/85 leading-relaxed">
+                      <p className="text-mini text-foreground/85 leading-relaxed">
                         {g.meaning}
                       </p>
                     </li>

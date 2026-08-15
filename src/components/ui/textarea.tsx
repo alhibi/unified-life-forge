@@ -8,7 +8,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
     return (
       <textarea
-        className={cn('app-control app-control-multiline flex text-base', className)}
+        className={cn('app-control app-control-multiline flex text-body', className)}
         ref={ref}
         {...props}
       />

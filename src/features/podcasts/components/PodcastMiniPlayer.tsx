@@ -208,10 +208,10 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
 
               {/* Title / subtitle / progress */}
               <div className="flex-1 min-w-0 text-start">
-                <p className="text-[0.8125rem] font-bold leading-tight truncate">
+                <p className="text-mini font-bold leading-tight truncate">
                   {player.current?.episode.title}
                 </p>
-                <p className="text-[0.6875rem] opacity-75 leading-tight truncate">
+                <p className="text-micro opacity-75 leading-tight truncate">
                   {player.current?.podcastTitle}
                 </p>
                 <MiniProgressBar />
@@ -220,7 +220,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
               {/* Queue count badge */}
               {player.queueCount > 0 && (
                 <span
-                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[0.625rem] font-bold"
+                  className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-micro font-bold"
                   style={{
                     background: 'var(--podcast-primary-soft, hsl(var(--primary)/0.2))',
                     color: 'var(--podcast-primary, hsl(var(--primary)))',

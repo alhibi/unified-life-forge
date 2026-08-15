@@ -74,10 +74,10 @@ export default function AllOccasions() {
         <div className="flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-end">
-            <h1 className="text-[1.375rem] font-black text-foreground leading-tight">
+            <h1 className="text-display font-black text-foreground leading-tight">
               {'التقويم الهجري'}
             </h1>
-            <p className="text-[0.75rem] text-muted-foreground">
+            <p className="text-mini text-muted-foreground">
               {'تصفح المناسبات حسب الشهر الهجري'}
             </p>
           </div>
@@ -85,10 +85,10 @@ export default function AllOccasions() {
 
         {/* ── Today indicator ────────────────────────────────────── */}
         <div className="rounded-2xl bg-primary/5 border border-primary/15 px-4 py-2.5 flex items-center justify-between">
-          <span className="text-[0.625rem] font-bold uppercase tracking-wider text-primary/70">
+          <span className="text-micro font-bold uppercase tracking-wider text-primary/70">
             {'اليوم'}
           </span>
-          <span className="text-[0.8125rem] font-semibold text-foreground">
+          <span className="text-mini font-semibold text-foreground">
             {today.day} {monthName(today.month)} {today.year}
           </span>
         </div>
@@ -116,21 +116,21 @@ export default function AllOccasions() {
               >
                 <div className="flex items-baseline justify-between mb-0.5">
                   <p
-                    className={`text-[0.75rem] font-bold leading-tight truncate ${
+                    className={`text-mini font-bold leading-tight truncate ${
                       active ? 'text-primary' : 'text-foreground'
                     }`}
                   >
                     {monthName(monthIdx)}
                   </p>
-                  <span className="text-[0.625rem] font-bold text-muted-foreground/60 tabular-nums shrink-0">
+                  <span className="text-micro font-bold text-muted-foreground/60 tabular-nums shrink-0">
                     {monthIdx}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-[0.625rem] text-muted-foreground tabular-nums">
+                  <span className="text-micro text-muted-foreground tabular-nums">
                     {count}
                   </span>
-                  <span className="text-[0.625rem] text-muted-foreground/70">
+                  <span className="text-micro text-muted-foreground/70">
                     {'مناسبة'}
                   </span>
                   {isCurrent && (
@@ -144,10 +144,10 @@ export default function AllOccasions() {
 
         {/* ── Selected month header ─────────────────────────────── */}
         <div className="flex items-baseline justify-between pt-1">
-          <h2 className="text-[1rem] font-black text-foreground">
+          <h2 className="text-body font-black text-foreground">
             {monthName(selectedMonth)}
           </h2>
-          <span className="text-[0.6875rem] font-medium text-muted-foreground/70">
+          <span className="text-micro font-medium text-muted-foreground/70">
             {`${monthEvents.length} مناسبة`}
           </span>
         </div>
@@ -174,7 +174,7 @@ export default function AllOccasions() {
                 }`}
               >
                 <span
-                  className={`text-[0.75rem] tabular-nums ${
+                  className={`text-mini tabular-nums ${
                     isSelected
                       ? 'font-bold text-primary'
                       : hasEvent
@@ -197,7 +197,7 @@ export default function AllOccasions() {
 
         {/* ── Events for selected day ───────────────────────────── */}
         <div className="space-y-2.5 pt-2">
-          <h3 className="text-[0.75rem] font-bold text-muted-foreground/80 uppercase tracking-wider">
+          <h3 className="text-mini font-bold text-muted-foreground/80 uppercase tracking-wider">
             {`مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`}
           </h3>
 
@@ -210,7 +210,7 @@ export default function AllOccasions() {
                 exit={{ opacity: 0 }}
                 className="rounded-xl border border-border/40 bg-card/40 px-4 py-5 text-center"
               >
-                <p className="text-[0.75rem] text-muted-foreground">
+                <p className="text-mini text-muted-foreground">
                   {'لا توجد مناسبات في هذا اليوم'}
                 </p>
               </motion.div>
@@ -267,27 +267,27 @@ function EventListCard({
     >
       <div className="flex items-center justify-between mb-1">
         <span
-          className="text-[0.625rem] font-bold uppercase tracking-wider"
+          className="text-micro font-bold uppercase tracking-wider"
           style={{ color: accent }}
         >
           {monthLabel} {dayLabel}
         </span>
         {event.isMajorHoliday && (
           <span
-            className="text-[0.625rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+            className="text-micro font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: `${accent}26`, color: accent }}
           >
             {'عيد'}
           </span>
         )}
       </div>
-      <h4 className="text-[0.875rem] font-bold text-foreground leading-snug mb-1">
+      <h4 className="text-meta font-bold text-foreground leading-snug mb-1">
         {title}
       </h4>
-      <p className="text-[0.6875rem] text-muted-foreground leading-relaxed line-clamp-2">
+      <p className="text-micro text-muted-foreground leading-relaxed line-clamp-2">
         {description}
       </p>
-      <p className="text-[0.625rem] text-muted-foreground/60 mt-1.5">
+      <p className="text-micro text-muted-foreground/60 mt-1.5">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </motion.button>
@@ -324,7 +324,7 @@ function EventDetailDialog({
             <DetailContent event={event} />
             <button
               onClick={onClose}
-              className="mt-5 w-full rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-[0.8125rem] py-2.5 transition-colors"
+              className="mt-5 w-full rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-mini py-2.5 transition-colors"
             >
               {'إغلاق'}
             </button>
@@ -370,17 +370,17 @@ function DetailContent({
     <div className="space-y-3">
       <div className="flex items-center gap-2 flex-wrap">
         <span
-          className="text-[0.625rem] font-bold uppercase tracking-wider"
+          className="text-micro font-bold uppercase tracking-wider"
           style={{ color: accent }}
         >
           {dayLabel} {monthLabel} {event.hijriYear}
         </span>
-        <span className="text-[0.625rem] font-semibold text-muted-foreground/70 px-2 py-0.5 rounded bg-muted/40">
+        <span className="text-micro font-semibold text-muted-foreground/70 px-2 py-0.5 rounded bg-muted/40">
           {typeLabel}
         </span>
         {event.isMajorHoliday && (
           <span
-            className="text-[0.625rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+            className="text-micro font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
             style={{ background: `${accent}26`, color: accent }}
           >
             {'عيد كبير'}
@@ -388,34 +388,34 @@ function DetailContent({
         )}
       </div>
 
-      <h3 className="text-[1.125rem] font-black text-foreground leading-tight">
+      <h3 className="text-lead font-black text-foreground leading-tight">
         {title}
       </h3>
 
-      <p className="text-[0.8125rem] text-foreground/85 leading-relaxed whitespace-pre-line">
+      <p className="text-mini text-foreground/85 leading-relaxed whitespace-pre-line">
         {description}
       </p>
 
       {notes && (
         <div className="rounded-xl border border-border/50 bg-muted/30 p-3">
-          <p className="text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wide mb-1">
+          <p className="text-micro font-bold text-muted-foreground uppercase tracking-wide mb-1">
             {'ملاحظة'}
           </p>
-          <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
+          <p className="text-mini text-muted-foreground leading-relaxed">
             {notes}
           </p>
         </div>
       )}
 
       {event.yearAh !== undefined && (
-        <p className="text-[0.6875rem] text-muted-foreground/70">
+        <p className="text-micro text-muted-foreground/70">
           {`السنة الهجرية: ${
                 event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)
               }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`}
         </p>
       )}
 
-      <p className="text-[0.6875rem] text-muted-foreground/60 border-t border-border/40 pt-2">
+      <p className="text-micro text-muted-foreground/60 border-t border-border/40 pt-2">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </div>

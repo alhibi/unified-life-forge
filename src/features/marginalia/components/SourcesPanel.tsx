@@ -104,7 +104,7 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="اسم المصدر (اختياري)"
-          className="w-full text-base rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full text-body rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <div className="flex gap-2">
           <input
@@ -112,13 +112,13 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/feed.xml"
             dir="ltr"
-            className="flex-1 text-base rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 text-body rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
             type="button"
             onClick={add}
             disabled={busy === 'add'}
-            className="shrink-0 flex items-center gap-1.5 px-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold active:scale-95 transition disabled:opacity-50"
+            className="shrink-0 flex items-center gap-1.5 px-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold active:scale-95 transition disabled:opacity-50"
           >
             {busy === 'add' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             إضافة
@@ -131,7 +131,7 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
           type="button"
           onClick={refreshAll}
           disabled={busy === 'all'}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 text-primary text-sm font-bold active:scale-[0.98] transition disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 text-primary text-meta font-bold active:scale-[0.98] transition disabled:opacity-60"
         >
           {busy === 'all'
             ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -142,7 +142,7 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
 
       {SUGGESTED.some((s) => !existing.has(s.url.replace(/\/$/, ''))) && (
         <AppCard compact className="space-y-2">
-          <p className="text-[0.6875rem] font-bold text-muted-foreground">مصادر مقترحة للمقالات الطويلة</p>
+          <p className="text-micro font-bold text-muted-foreground">مصادر مقترحة للمقالات الطويلة</p>
           <div className="flex flex-wrap gap-1.5">
             {SUGGESTED.filter((s) => !existing.has(s.url.replace(/\/$/, ''))).map((s) => (
               <button
@@ -150,7 +150,7 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
                 type="button"
                 onClick={() => quickAdd(s)}
                 disabled={busy === s.url}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/50 text-xs font-medium active:scale-95 transition disabled:opacity-50"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/50 text-mini font-medium active:scale-95 transition disabled:opacity-50"
               >
                 {busy === s.url
                   ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -165,21 +165,21 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
       {sources.length === 0 ? (
         <AppCard className="text-center py-8 space-y-2">
           <Rss className="w-8 h-8 mx-auto text-muted-foreground/60" />
-          <p className="text-sm text-muted-foreground">لا مصادر بعد — أضف تغذية لتبدأ الأرشفة.</p>
+          <p className="text-meta text-muted-foreground">لا مصادر بعد — أضف تغذية لتبدأ الأرشفة.</p>
         </AppCard>
       ) : sources.map((s) => (
         <AppCard key={s.id} compact className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold truncate">{s.name}</p>
-            <p className="text-[0.6875rem] text-muted-foreground truncate" dir="ltr">{s.feed_url}</p>
+            <p className="text-meta font-bold truncate">{s.name}</p>
+            <p className="text-micro text-muted-foreground truncate" dir="ltr">{s.feed_url}</p>
             {s.last_error && (
-              <p className="text-[0.6875rem] text-destructive mt-0.5">تعذّر الجلب — تحقّق من الرابط</p>
+              <p className="text-micro text-destructive mt-0.5">تعذّر الجلب — تحقّق من الرابط</p>
             )}
           </div>
           <button
             type="button"
             onClick={() => toggle(s)}
-            className={`text-[0.6875rem] font-bold px-2 py-1 rounded-lg transition ${
+            className={`text-micro font-bold px-2 py-1 rounded-lg transition ${
               s.active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
             }`}
           >

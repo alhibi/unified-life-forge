@@ -54,7 +54,7 @@ export default function QuranVirtues() {
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary" />
-            <h2 className="text-base font-bold text-foreground">فضل سور القرآن</h2>
+            <h2 className="text-body font-bold text-foreground">فضل سور القرآن</h2>
           </div>
 
           {/* Surah chips - 4 columns grid RTL */}
@@ -64,7 +64,7 @@ export default function QuranVirtues() {
                 key={i}
                 
                 onClick={() => handleSurahTap(i)}
-                className="relative px-2 py-2.5 rounded-xl bg-card border border-border/50 text-[0.8125rem] font-semibold text-foreground hover:bg-accent/40 transition-colors text-center overflow-hidden"
+                className="relative px-2 py-2.5 rounded-xl bg-card border border-border/50 text-mini font-semibold text-foreground hover:bg-accent/40 transition-colors text-center overflow-hidden"
               >
                 <AnimatePresence>
                   {tappedSurah === i && (
@@ -72,7 +72,7 @@ export default function QuranVirtues() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-card text-xs text-muted-foreground font-bold"
+                      className="absolute inset-0 flex items-center justify-center bg-card text-mini text-muted-foreground font-bold"
                     >
                       قريباً
                     </motion.span>
@@ -96,7 +96,7 @@ export default function QuranVirtues() {
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="text-base font-bold text-foreground">فضائل القرآن</h2>
+            <h2 className="text-body font-bold text-foreground">فضائل القرآن</h2>
           </div>
 
           <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5">
@@ -108,10 +108,10 @@ export default function QuranVirtues() {
               >
                 {/* Number on the right (first in RTL) */}
                 <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
-                  <span className="text-sm font-bold text-primary">{index + 1}</span>
+                  <span className="text-meta font-bold text-primary">{index + 1}</span>
                 </div>
                 {/* Text */}
-                <p className="flex-1 text-sm font-medium text-foreground text-end leading-relaxed">{virtue}</p>
+                <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{virtue}</p>
               </motion.div>
             ))}
           </motion.div>

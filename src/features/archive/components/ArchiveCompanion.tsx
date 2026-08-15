@@ -102,19 +102,19 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
       <div className="flex rounded-xl bg-muted/60 p-1">
         <button
           onClick={() => setActiveTab('summary')}
-          className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'summary' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+          className={`flex-1 text-center py-1.5 rounded-lg text-mini font-semibold transition-all ${activeTab === 'summary' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
         >
           ملخص وتوجيه
         </button>
         <button
           onClick={() => setActiveTab('insights')}
-          className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'insights' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+          className={`flex-1 text-center py-1.5 rounded-lg text-mini font-semibold transition-all ${activeTab === 'insights' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
         >
           شواهد ومقتبسات
         </button>
         <button
           onClick={() => setActiveTab('qa')}
-          className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'qa' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+          className={`flex-1 text-center py-1.5 rounded-lg text-mini font-semibold transition-all ${activeTab === 'qa' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
         >
           سؤال وبحث دلالي
         </button>
@@ -129,17 +129,17 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="اطرح سؤالاً أو اكتب كلمة للبحث الفوري دلالياً…"
-              className="flex-1 bg-transparent outline-none text-[0.8125rem] placeholder:text-muted-foreground/60"
+              className="flex-1 bg-transparent outline-none text-mini placeholder:text-muted-foreground/60"
             />
           </AppCard>
 
           {searchQuery ? (
             <div className="space-y-2">
-              <h5 className="text-[0.625rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
+              <h5 className="text-micro font-bold text-muted-foreground uppercase tracking-wider px-1">
                 نتائج مطابقة من سياق المونوغراف
               </h5>
               {searchResults.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-6">
+                <p className="text-mini text-muted-foreground text-center py-6">
                   لا توجد جمل مطابقة للبحث داخل هذا الأرشيف. حاول استخدام كلمات أعمّ.
                 </p>
               ) : (
@@ -148,10 +148,10 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                     key={i}
                     className="p-3 rounded-xl bg-primary/[0.01] border border-primary/10"
                   >
-                    <span className="text-[0.625rem] font-bold text-primary block mb-1">
+                    <span className="text-micro font-bold text-primary block mb-1">
                       الموضع: {res.sectionTitle}
                     </span>
-                    <p className="text-[0.75rem] text-foreground leading-relaxed">
+                    <p className="text-mini text-foreground leading-relaxed">
                       ... {res.sentence} ...
                     </p>
                   </div>
@@ -161,7 +161,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
           ) : (
             <div className="text-center py-6">
               <BookOpen className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+              <p className="text-mini text-muted-foreground max-w-xs mx-auto leading-relaxed">
                 اكتب سؤالاً مثل "مفهوم" أو "نشأة" ليستخرج المحرك الذكي الفقرات المعنية مباشرة من
                 الأطروحة المعرفية.
               </p>
@@ -175,11 +175,11 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
           <AppCard compact className="border-primary/20 bg-primary/[0.01] p-4">
             <div className="flex items-center gap-1.5 mb-1.5 text-primary">
               <Sparkles className="w-4 h-4 animate-pulse" />
-              <span className="text-[0.6875rem] font-bold uppercase tracking-wider">
+              <span className="text-micro font-bold uppercase tracking-wider">
                 توجيه الأطروحة الكلية
               </span>
             </div>
-            <p className="text-[0.8125rem] text-foreground leading-relaxed">
+            <p className="text-mini text-foreground leading-relaxed">
               هذا المونوغراف يتناول أطروحة مركزية غنية حول موضوع:{' '}
               <strong className="text-primary">« {document.title} »</strong>. ينصح بالتركيز على
               التقاطعات الدلالية والروابط التفصيلية المتعددة التي يبنيها المحرك الهرمي.
@@ -187,7 +187,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
           </AppCard>
 
           <div className="space-y-2">
-            <h5 className="text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
+            <h5 className="text-micro font-bold text-muted-foreground uppercase tracking-wider px-1">
               المحاور والهيكل المعرفي
             </h5>
             <div className="space-y-2">
@@ -196,13 +196,13 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                   key={sec.id}
                   className="flex gap-3 items-start p-3 rounded-xl bg-muted/20 border border-border/10"
                 >
-                  <span className="w-5 h-5 rounded-lg bg-primary/15 text-primary text-[0.625rem] font-bold flex items-center justify-center shrink-0">
+                  <span className="w-5 h-5 rounded-lg bg-primary/15 text-primary text-micro font-bold flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
                   <div>
-                    <h6 className="text-[0.8125rem] font-bold text-foreground">{sec.title}</h6>
+                    <h6 className="text-mini font-bold text-foreground">{sec.title}</h6>
                     {sec.dimension && (
-                      <span className="text-[0.625rem] font-semibold text-primary block mt-0.5">
+                      <span className="text-micro font-semibold text-primary block mt-0.5">
                         البعد: {sec.dimension}
                       </span>
                     )}
@@ -210,7 +210,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                       {sec.subsections.map((sub) => (
                         <li
                           key={sub.id}
-                          className="text-[0.6875rem] text-muted-foreground flex items-start gap-1"
+                          className="text-micro text-muted-foreground flex items-start gap-1"
                         >
                           <span className="mt-1.5 w-1 h-1 rounded-full bg-muted-foreground/50 shrink-0" />
                           <span>{sub.title}</span>
@@ -227,11 +227,11 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
 
       {activeTab === 'insights' && (
         <div className="space-y-3">
-          <h5 className="text-[0.6875rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
+          <h5 className="text-micro font-bold text-muted-foreground uppercase tracking-wider px-1">
             مستخلصات وبراهين معرفية تلقائية
           </h5>
           {extractedInsights.length === 0 ? (
-            <div className="text-xs text-muted-foreground text-center py-6">
+            <div className="text-mini text-muted-foreground text-center py-6">
               لم نستخلص شواهد لغوية كافية من النص الحالي.
             </div>
           ) : (
@@ -240,9 +240,9 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                 <AppCard key={ins.id} compact className="p-3 bg-muted/20 relative group">
                   <div className="flex items-center gap-1.5 mb-1.5 text-primary/70">
                     <Quote className="w-3.5 h-3.5" />
-                    <span className="text-[0.625rem] font-bold truncate">القسم: {ins.category}</span>
+                    <span className="text-micro font-bold truncate">القسم: {ins.category}</span>
                   </div>
-                  <p className="text-[0.75rem] text-foreground leading-relaxed pe-2 italic">
+                  <p className="text-mini text-foreground leading-relaxed pe-2 italic">
                     « {ins.text} »
                   </p>
                   <button

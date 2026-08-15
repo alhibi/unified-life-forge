@@ -122,11 +122,11 @@ export default function SettingsPage() {
           >
             <div className="flex items-center gap-3">
               <si.icon className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
-              <span className="text-[0.875rem] font-medium text-foreground">{si.title}</span>
+              <span className="text-meta font-medium text-foreground">{si.title}</span>
             </div>
             <div className="flex items-center gap-2">
               {si.value ? (
-                <span className="text-[0.75rem] text-muted-foreground">{si.value}</span>
+                <span className="text-mini text-muted-foreground">{si.value}</span>
               ) : null}
               <ChevronLeft className="w-4 h-4 text-muted-foreground/40 ltr:rotate-180" />
             </div>
@@ -208,15 +208,15 @@ export default function SettingsPage() {
                   onClick={() => navigate('/profile')}
                   className="flex-1 text-start active:opacity-70 transition-opacity min-w-0"
                 >
-                  <h2 className="text-[1.0625rem] font-bold text-foreground truncate">
+                  <h2 className="text-body font-bold text-foreground truncate">
                     {profile?.display_name || username || 'المستخدم'}
                   </h2>
                   {user.email ? (
-                    <p className="text-[0.75rem] text-muted-foreground mt-0.5 truncate">
+                    <p className="text-mini text-muted-foreground mt-0.5 truncate">
                       {user.email}
                     </p>
                   ) : null}
-                  <p className="text-[0.6875rem] text-muted-foreground/70 mt-0.5 truncate">
+                  <p className="text-micro text-muted-foreground/70 mt-0.5 truncate">
                     @{username} · {'تعديل الملف الشخصي'}
                   </p>
                 </button>
@@ -241,8 +241,8 @@ export default function SettingsPage() {
                     <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
                   </div>
                   <div className="flex-1 text-start">
-                    <h2 className="text-[1.0625rem] font-bold text-foreground">{'تسجيل الدخول'}</h2>
-                    <p className="text-[0.75rem] text-muted-foreground mt-0.5">
+                    <h2 className="text-body font-bold text-foreground">{'تسجيل الدخول'}</h2>
+                    <p className="text-mini text-muted-foreground mt-0.5">
                       {'احفظ إعداداتك على جميع الأجهزة'}
                     </p>
                   </div>
@@ -268,7 +268,7 @@ export default function SettingsPage() {
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
-          <p className="text-[0.6875rem] text-muted-foreground/50">
+          <p className="text-micro text-muted-foreground/50">
             {'الإصدار'} {packageJson.version}
           </p>
         </motion.div>
@@ -286,13 +286,13 @@ export default function SettingsPage() {
         <div className="flex gap-3 pt-1">
           <button
             onClick={() => setShowLogoutConfirm(false)}
-            className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
+            className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
           >
             {'إلغاء'}
           </button>
           <button
             onClick={handleSignOut}
-            className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium active:scale-[0.98] transition-transform"
+            className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
           >
             {'تسجيل خروج'}
           </button>

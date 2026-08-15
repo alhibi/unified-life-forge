@@ -25,11 +25,11 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="font-semibold text-[1.125rem] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-lead leading-none text-foreground flex items-center gap-2">
           <Map className="w-5 h-5 text-primary" />
           {'الخريطة الجوية الحية الداكنة'}
         </h2>
-        <span className="text-[0.6875rem] tracking-[0.12em] uppercase text-primary/90 font-bold tabular-nums">
+        <span className="text-micro tracking-[0.12em] uppercase text-primary/90 font-bold tabular-nums">
           OSM ENGINE
         </span>
       </header>
@@ -74,21 +74,21 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
         <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between gap-3 pointer-events-none">
           <div className="flex items-center gap-1.5 bg-background border border-border px-2.5 py-1.5 rounded-xl pointer-events-auto">
             <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="font-bold text-[0.6875rem] text-foreground tabular-nums">
+            <span className="font-bold text-micro text-foreground tabular-nums">
               {lat.toFixed(4)}, {lng.toFixed(4)}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 bg-background border border-border px-2.5 py-1.5 rounded-xl">
             <Compass className="w-3.5 h-3.5 text-primary" />
-            <span className="font-bold text-[0.6875rem] text-foreground tabular-nums">
+            <span className="font-bold text-micro text-foreground tabular-nums">
               {elevationM} m
             </span>
           </div>
         </div>
       </div>
 
-      <div className="mt-3 text-[0.6875rem] text-muted-foreground/90 font-medium leading-relaxed flex items-start gap-1.5">
+      <div className="mt-3 text-micro text-muted-foreground/90 font-medium leading-relaxed flex items-start gap-1.5">
         <Navigation className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
         <span>
           {'تتحرك الخريطة الحية تلقائياً لتطابق إحداثيات مدينتك النشطة، مع استخدام مرشح بصري داكن فاخر لحماية العينين والاستقرار.'}

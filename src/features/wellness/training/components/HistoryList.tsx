@@ -83,7 +83,7 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
     return (
       <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
         <History className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-        <p className="text-[0.75rem] text-muted-foreground">{T.empty[lang]}</p>
+        <p className="text-mini text-muted-foreground">{T.empty[lang]}</p>
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={T.search[lang]}
-            className="w-full bg-card border border-border/40 rounded-xl ps-8 pe-3 py-2 text-[0.75rem] text-foreground outline-none focus:border-primary/50"
+            className="w-full bg-card border border-border/40 rounded-xl ps-8 pe-3 py-2 text-mini text-foreground outline-none focus:border-primary/50"
           />
         </div>
       </div>
@@ -107,7 +107,7 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
           <button
             key={t}
             onClick={() => setTypeFilter(t)}
-            className={`shrink-0 text-[0.625rem] font-semibold px-2 py-1 rounded-full border ${
+            className={`shrink-0 text-micro font-semibold px-2 py-1 rounded-full border ${
               typeFilter === t ? 'bg-foreground text-background border-foreground' : 'bg-card text-muted-foreground border-border/40'
             }`}
           >
@@ -164,15 +164,15 @@ function SessionRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
-            <span className="text-[0.6875rem] text-muted-foreground tabular-nums" dir="ltr">{fmtDate(session.date, lang)}</span>
-            <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+            <span className="text-micro text-muted-foreground tabular-nums" dir="ltr">{fmtDate(session.date, lang)}</span>
+            <span className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
               {(T as Record<string, { ar: string; }>)[session.type]?.[lang] ?? session.type}
             </span>
           </div>
           {session.title && (
-            <p className="text-[0.8125rem] font-bold text-foreground mt-0.5 truncate">{session.title}</p>
+            <p className="text-mini font-bold text-foreground mt-0.5 truncate">{session.title}</p>
           )}
-          <div className="flex items-center gap-3 mt-1 text-[0.625rem] text-muted-foreground" dir="ltr">
+          <div className="flex items-center gap-3 mt-1 text-micro text-muted-foreground" dir="ltr">
             <span className="tabular-nums">{exCount} ex / {setCount} sets</span>
             {vol > 0 && <span className="tabular-nums">{Math.round(vol)} kg</span>}
             {dur > 0 && <span className="tabular-nums">{fmtDuration(dur)}</span>}
@@ -199,8 +199,8 @@ function SessionRow({
                 const label = 'isCustom' in def && def.isCustom ? def.label[lang] : (def as Exercise).label[lang];
                 return (
                   <div key={i} className="bg-muted/30 rounded-lg p-2 space-y-1">
-                    <p className="text-[0.75rem] font-bold text-foreground">{label}</p>
-                    <ul className="text-[0.625rem] text-muted-foreground tabular-nums space-y-0.5" dir="ltr">
+                    <p className="text-mini font-bold text-foreground">{label}</p>
+                    <ul className="text-micro text-muted-foreground tabular-nums space-y-0.5" dir="ltr">
                       {ex.sets.map((s, j) => (
                         <li key={j}>
                           {j + 1}. {s.weightKg ?? '—'} kg × {s.reps ?? '—'} {s.rpe ? ` @ RPE ${s.rpe}` : ''}
@@ -209,12 +209,12 @@ function SessionRow({
                         </li>
                       ))}
                     </ul>
-                    {ex.notes && <p className="text-[0.625rem] text-muted-foreground italic">"{ex.notes}"</p>}
+                    {ex.notes && <p className="text-micro text-muted-foreground italic">"{ex.notes}"</p>}
                   </div>
                 );
               })}
               {session.notes && (
-                <p className="text-[0.6875rem] text-muted-foreground italic bg-muted/30 rounded-lg p-2">
+                <p className="text-micro text-muted-foreground italic bg-muted/30 rounded-lg p-2">
                   "{session.notes}"
                 </p>
               )}
@@ -227,7 +227,7 @@ function SessionRow({
                   });
                   if (ok) await onDelete(session.id);
                 }}
-                className="w-full mt-2 py-2 rounded-lg bg-destructive/10 text-destructive text-[0.6875rem] font-semibold inline-flex items-center justify-center gap-1"
+                className="w-full mt-2 py-2 rounded-lg bg-destructive/10 text-destructive text-micro font-semibold inline-flex items-center justify-center gap-1"
               >
                 <Trash2 className="w-3 h-3" /> {T.delete[lang]}
               </button>

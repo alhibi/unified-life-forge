@@ -559,7 +559,7 @@ export default function ArchiveReader() {
           <BackButton />
         </div>
         <AppCard className="text-center py-10">
-          <p className="text-sm text-muted-foreground">{err || 'المستند غير موجود'}</p>
+          <p className="text-meta text-muted-foreground">{err || 'المستند غير موجود'}</p>
         </AppCard>
       </PageShell>
     );
@@ -634,7 +634,7 @@ export default function ArchiveReader() {
           <div className="flex items-center gap-3">
             <BackButton />
             <span
-              className="font-mono text-[0.625rem] tracking-wider"
+              className="font-mono text-micro tracking-wider"
               style={{ color: accentColor ?? 'hsl(var(--primary) / 0.7)' }}
             >
               № {String(doc.accession_number).padStart(6, '0')}
@@ -678,7 +678,7 @@ export default function ArchiveReader() {
                   className="mx-auto mt-2 mb-1 h-1.5 w-12 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors"
                 />
                 <SheetHeader className="px-5 pt-2 pb-3 flex-row items-center justify-between space-y-0 border-b border-border/40">
-                  <SheetTitle className="text-end text-base font-bold">
+                  <SheetTitle className="text-end text-body font-bold">
                     تثبيت الحفظ والاستذكار النشط
                   </SheetTitle>
                   <button
@@ -720,7 +720,7 @@ export default function ArchiveReader() {
                   className="mx-auto mt-2 mb-1 h-1.5 w-12 rounded-full bg-foreground/25 hover:bg-foreground/40 transition-colors"
                 />
                 <SheetHeader className="px-5 pt-2 pb-3 flex-row items-center justify-between space-y-0 border-b border-border/40">
-                  <SheetTitle className="text-end text-base font-bold">
+                  <SheetTitle className="text-end text-body font-bold">
                     مساعد القراءة والمرافقة الفورية
                   </SheetTitle>
                   <button
@@ -766,14 +766,14 @@ export default function ArchiveReader() {
                   <SheetTitle>الفهرس</SheetTitle>
                 </SheetHeader>
                 {toc.length === 0 ? (
-                  <p className="text-sm text-muted-foreground mt-6">لا توجد عناوين فرعية.</p>
+                  <p className="text-meta text-muted-foreground mt-6">لا توجد عناوين فرعية.</p>
                 ) : (
                   <nav className="mt-4 space-y-1">
                     {toc.map((t: any) => (
                       <button
                         key={`${t.id}-${t.text}`}
                         onClick={() => jumpTo(t.id)}
-                        className={`w-full text-end text-sm rounded-lg px-3 py-2 hover:bg-muted transition-colors ${t.level === 3 ? 'pe-6 text-muted-foreground text-[0.8125rem]' : 'font-medium text-foreground'}`}
+                        className={`w-full text-end text-meta rounded-lg px-3 py-2 hover:bg-muted transition-colors ${t.level === 3 ? 'pe-6 text-muted-foreground text-mini' : 'font-medium text-foreground'}`}
                       >
                         {t.text}
                       </button>
@@ -806,7 +806,7 @@ export default function ArchiveReader() {
                 />
 
                 <SheetHeader className="px-5 pt-1 pb-2 flex-row items-center justify-between space-y-0 border-b border-border/40">
-                  <SheetTitle className="text-end text-sm font-semibold">
+                  <SheetTitle className="text-end text-meta font-semibold">
                     {activeTab === 'reader' ? 'خيارات القراءة' : 'إعدادات متقدمة'}
                   </SheetTitle>
                   <button
@@ -835,7 +835,7 @@ export default function ArchiveReader() {
                           borderColor: borderColor || 'hsl(var(--border) / 0.4)',
                         } as React.CSSProperties}
                       >
-                        <div className="text-[0.625rem] font-medium opacity-65 mb-1 text-center">المعاينة الحية</div>
+                        <div className="text-micro font-medium opacity-65 mb-1 text-center">المعاينة الحية</div>
                         <p
                           style={{
                             fontSize: `${prefs.size}px`,
@@ -851,7 +851,7 @@ export default function ArchiveReader() {
 
                       {/* Theme Selector Section */}
                       <div>
-                        <div className="text-[0.75rem] font-medium text-muted-foreground mb-2 text-start">السمة</div>
+                        <div className="text-mini font-medium text-muted-foreground mb-2 text-start">السمة</div>
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2 flex-1">
                             {[
@@ -895,7 +895,7 @@ export default function ArchiveReader() {
                             >
                               <Waves className="w-5 h-5" />
                             </button>
-                            <span className="text-[0.6875rem] text-muted-foreground mt-1">القارئ الصوتي</span>
+                            <span className="text-micro text-muted-foreground mt-1">القارئ الصوتي</span>
                           </div>
                         </div>
                       </div>
@@ -903,10 +903,10 @@ export default function ArchiveReader() {
                       {/* Custom Palette Builder - Revealed when Custom Theme active */}
                       {prefs.theme === 'custom' && (
                         <div className="p-3 rounded-2xl bg-muted/30 border border-border/30 space-y-3 animate-fade-in text-start">
-                          <div className="text-[0.7rem] font-medium text-muted-foreground">صانع السمة المخصصة</div>
+                          <div className="text-micro font-medium text-muted-foreground">صانع السمة المخصصة</div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="text-[0.625rem] text-muted-foreground block mb-1">لون الخلفية</label>
+                              <label className="text-micro text-muted-foreground block mb-1">لون الخلفية</label>
                               <div className="flex items-center gap-1.5">
                                 <input
                                   type="color"
@@ -914,11 +914,11 @@ export default function ArchiveReader() {
                                   onChange={(e) => setPrefs((p) => ({ ...p, customBg: e.target.value }))}
                                   className="w-7 h-7 rounded-md overflow-hidden border-0 cursor-pointer"
                                 />
-                                <span className="font-mono text-[0.6875rem]">{prefs.customBg}</span>
+                                <span className="font-mono text-micro">{prefs.customBg}</span>
                               </div>
                             </div>
                             <div>
-                              <label className="text-[0.625rem] text-muted-foreground block mb-1">لون النص</label>
+                              <label className="text-micro text-muted-foreground block mb-1">لون النص</label>
                               <div className="flex items-center gap-1.5">
                                 <input
                                   type="color"
@@ -926,7 +926,7 @@ export default function ArchiveReader() {
                                   onChange={(e) => setPrefs((p) => ({ ...p, customFg: e.target.value }))}
                                   className="w-7 h-7 rounded-md overflow-hidden border-0 cursor-pointer"
                                 />
-                                <span className="font-mono text-[0.6875rem]">{prefs.customFg}</span>
+                                <span className="font-mono text-micro">{prefs.customFg}</span>
                               </div>
                             </div>
                           </div>
@@ -937,7 +937,7 @@ export default function ArchiveReader() {
                       {isSpeaking && (
                         <div className="p-3 rounded-2xl bg-primary/5 border border-primary/10 space-y-2 animate-fade-in text-start">
                           <div className="flex items-center justify-between">
-                            <span className="text-[0.7rem] font-semibold text-primary">التحكم بالصوت</span>
+                            <span className="text-micro font-semibold text-primary">التحكم بالصوت</span>
                             <div className="flex items-center gap-1.5">
                               {isPaused ? (
                                 <button onClick={resumeSpeaking} className="p-1.5 bg-primary/10 rounded-md text-primary">
@@ -953,9 +953,9 @@ export default function ArchiveReader() {
                               </button>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-2 text-[0.6875rem]">
+                          <div className="grid grid-cols-2 gap-2 text-micro">
                             <div>
-                              <label className="text-[0.6875rem] text-muted-foreground block mb-0.5">سرعة القراءة</label>
+                              <label className="text-micro text-muted-foreground block mb-0.5">سرعة القراءة</label>
                               <select
                                 value={voiceSpeed}
                                 onChange={(e) => {
@@ -973,7 +973,7 @@ export default function ArchiveReader() {
                               </select>
                             </div>
                             <div>
-                              <label className="text-[0.6875rem] text-muted-foreground block mb-0.5">الصوت</label>
+                              <label className="text-micro text-muted-foreground block mb-0.5">الصوت</label>
                               <select
                                 value={selectedVoiceName}
                                 onChange={(e) => {
@@ -1004,7 +1004,7 @@ export default function ArchiveReader() {
                             placeholder="ابحث عن كلمة أو فقرة بالمتن..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-transparent border-0 outline-none text-xs flex-1 text-start placeholder:text-muted-foreground/60"
+                            className="bg-transparent border-0 outline-none text-mini flex-1 text-start placeholder:text-muted-foreground/60"
                             autoFocus
                           />
                           {searchQuery && (
@@ -1025,8 +1025,8 @@ export default function ArchiveReader() {
                             className="col-span-2 rounded-2xl bg-muted/40 dark:bg-muted/15 p-3 border border-border/40 flex flex-col items-center justify-center gap-1 hover:bg-muted/60 transition active:scale-95 text-center min-h-[5rem]"
                           >
                             <ALargeSmall className="w-5 h-5 text-primary" />
-                            <div className="text-[0.7rem] font-semibold text-foreground">تخصيص النص</div>
-                            <div className="text-[0.6875rem] text-muted-foreground">خيارات متقدمة</div>
+                            <div className="text-micro font-semibold text-foreground">تخصيص النص</div>
+                            <div className="text-micro text-muted-foreground">خيارات متقدمة</div>
                           </button>
 
                           {/* Search Button */}
@@ -1035,7 +1035,7 @@ export default function ArchiveReader() {
                             className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition active:scale-95 ${searchOpen ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
                           >
                             <Search className="w-4 h-4" />
-                            <span className="text-[0.6875rem] mt-0.5">بحث</span>
+                            <span className="text-micro mt-0.5">بحث</span>
                           </button>
 
                           {/* Transitions Button */}
@@ -1049,7 +1049,7 @@ export default function ArchiveReader() {
                             className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition active:scale-95 ${prefs.transitions !== 'none' ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
                           >
                             <ArrowLeftRight className="w-4 h-4" />
-                            <span className="text-[0.6875rem] mt-0.5">تنقل</span>
+                            <span className="text-micro mt-0.5">تنقل</span>
                           </button>
                         </div>
 
@@ -1064,7 +1064,7 @@ export default function ArchiveReader() {
                               onChange={(v) => setPrefs((p) => ({ ...p, size: v }))}
                               icon={<ALargeSmall className="w-4 h-4" />}
                             />
-                            <span className="text-[0.625rem] font-medium text-muted-foreground">حجم الخط</span>
+                            <span className="text-micro font-medium text-muted-foreground">حجم الخط</span>
                           </div>
 
                           {/* Brightness Slider */}
@@ -1076,7 +1076,7 @@ export default function ArchiveReader() {
                               onChange={(v) => setPrefs((p) => ({ ...p, brightness: v }))}
                               icon={<Sun className="w-4 h-4" />}
                             />
-                            <span className="text-[0.625rem] font-medium text-muted-foreground">السطوع</span>
+                            <span className="text-micro font-medium text-muted-foreground">السطوع</span>
                           </div>
                         </div>
                       </div>
@@ -1098,8 +1098,8 @@ export default function ArchiveReader() {
                         >
                           {prefs.offline ? <Wifi className="w-4 h-4 animate-pulse" /> : <WifiOff className="w-4 h-4" />}
                           <div className="text-start">
-                            <div className="text-[0.7rem] font-semibold">قراءة دون اتصال</div>
-                            <div className="text-[0.6875rem] text-muted-foreground">حفظ نسخة مؤقتة</div>
+                            <div className="text-micro font-semibold">قراءة دون اتصال</div>
+                            <div className="text-micro text-muted-foreground">حفظ نسخة مؤقتة</div>
                           </div>
                         </button>
 
@@ -1118,8 +1118,8 @@ export default function ArchiveReader() {
                         >
                           {prefs.lock ? <Lock className="w-4 h-4 text-blue-500" /> : <Unlock className="w-4 h-4" />}
                           <div className="text-start">
-                            <div className="text-[0.7rem] font-semibold">تثبيت الشاشة</div>
-                            <div className="text-[0.6875rem] text-muted-foreground">منع النوم التلقائي</div>
+                            <div className="text-micro font-semibold">تثبيت الشاشة</div>
+                            <div className="text-micro text-muted-foreground">منع النوم التلقائي</div>
                           </div>
                         </button>
                       </div>
@@ -1131,7 +1131,7 @@ export default function ArchiveReader() {
                     <div className="space-y-4 text-start">
                       {/* Sub Preview Block */}
                       <div className="space-y-1">
-                        <div className="text-[0.625rem] font-semibold text-muted-foreground uppercase tracking-wider text-start">المعاينة المتقدمة</div>
+                        <div className="text-micro font-semibold text-muted-foreground uppercase tracking-wider text-start">المعاينة المتقدمة</div>
                         <div
                           className="p-3 rounded-2xl border bg-muted/15"
                           style={{
@@ -1149,7 +1149,7 @@ export default function ArchiveReader() {
 
                       {/* Select Font Carousel */}
                       <div>
-                        <div className="text-[0.75rem] font-semibold text-muted-foreground mb-1.5">اختر الخط</div>
+                        <div className="text-mini font-semibold text-muted-foreground mb-1.5">اختر الخط</div>
                         <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
                           {[
                             { k: 'georgia' as const, label: 'Georgia' },
@@ -1164,8 +1164,8 @@ export default function ArchiveReader() {
                               onClick={() => setPrefs((p) => ({ ...p, font: k }))}
                               className={`flex-none w-24 rounded-2xl border p-3 flex flex-col items-center justify-center gap-1.5 transition-all snap-start ${prefs.font === k ? 'border-primary ring-2 ring-primary/30 bg-primary/5 text-primary scale-105' : 'border-border/60 bg-muted/30 text-foreground/80'}`}
                             >
-                              <span className="text-xl font-semibold" style={{ fontFamily: FONT_STACKS[k] } as React.CSSProperties}>Aa</span>
-                              <span className="text-[0.6875rem] font-medium">{label}</span>
+                              <span className="text-title font-semibold" style={{ fontFamily: FONT_STACKS[k] } as React.CSSProperties}>Aa</span>
+                              <span className="text-micro font-medium">{label}</span>
                             </button>
                           ))}
                         </div>
@@ -1184,8 +1184,8 @@ export default function ArchiveReader() {
                       <div className="space-y-3.5 bg-muted/20 dark:bg-muted/10 p-3.5 rounded-2xl border border-border/40">
                         {/* Line Height slider control */}
                         <div className="flex items-center justify-between">
-                          <span className="text-[0.7rem] font-semibold">تباعد الأسطر</span>
-                          <span className="text-[0.6875rem] font-mono text-muted-foreground">{prefs.lineHeight.toFixed(2)}</span>
+                          <span className="text-micro font-semibold">تباعد الأسطر</span>
+                          <span className="text-micro font-mono text-muted-foreground">{prefs.lineHeight.toFixed(2)}</span>
                         </div>
                         <Slider
                           min={1.4}
@@ -1198,7 +1198,7 @@ export default function ArchiveReader() {
                         {/* Font Weight stepper selector */}
                         <div className="flex items-center justify-between border-t border-border/30 pt-3">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[0.7rem] font-semibold">سمك الخط</span>
+                            <span className="text-micro font-semibold">سمك الخط</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Button
@@ -1210,7 +1210,7 @@ export default function ArchiveReader() {
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </Button>
-                            <span className="text-[0.7rem] font-mono font-medium w-10 text-center">{prefs.weight}</span>
+                            <span className="text-micro font-mono font-medium w-10 text-center">{prefs.weight}</span>
                             <Button
                               variant="outline"
                               size="icon"
@@ -1226,8 +1226,8 @@ export default function ArchiveReader() {
                         {/* Ligatures Toggle */}
                         <div className="flex items-center justify-between border-t border-border/30 pt-3 text-start">
                           <div className="space-y-0.5">
-                            <span className="text-[0.7rem] font-semibold">الروابط المطبعية (Ligatures)</span>
-                            <p className="text-[0.6875rem] text-muted-foreground">تحسين ترابط الحروف العربية واللاتينية تلقائياً</p>
+                            <span className="text-micro font-semibold">الروابط المطبعية (Ligatures)</span>
+                            <p className="text-micro text-muted-foreground">تحسين ترابط الحروف العربية واللاتينية تلقائياً</p>
                           </div>
                           <Switch
                             checked={prefs.ligatures}
@@ -1238,7 +1238,7 @@ export default function ArchiveReader() {
 
                       {/* Text Alignment Choice Section */}
                       <div>
-                        <div className="text-[0.75rem] font-semibold text-muted-foreground mb-2">محاذاة النص</div>
+                        <div className="text-mini font-semibold text-muted-foreground mb-2">محاذاة النص</div>
                         <div className="grid grid-cols-2 gap-3 text-start">
                           {/* Default/Start align */}
                           <button
@@ -1246,12 +1246,12 @@ export default function ArchiveReader() {
                             className={`p-3 rounded-2xl border text-start space-y-1 transition active:scale-[0.98] ${prefs.alignment === 'default' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-[0.7rem] font-semibold text-foreground">طبيعي (Default)</span>
+                              <span className="text-micro font-semibold text-foreground">طبيعي (Default)</span>
                               <div className="h-4 w-4 rounded-full border border-primary flex items-center justify-center">
                                 {prefs.alignment === 'default' && <div className="h-2 w-2 rounded-full bg-primary" />}
                               </div>
                             </div>
-                            <p className="text-[0.6875rem] text-muted-foreground">تحاذى الأسطر لليمين بشكل انسيابي طبيعي.</p>
+                            <p className="text-micro text-muted-foreground">تحاذى الأسطر لليمين بشكل انسيابي طبيعي.</p>
                           </button>
 
                           {/* Justify Align */}
@@ -1260,12 +1260,12 @@ export default function ArchiveReader() {
                             className={`p-3 rounded-2xl border text-start space-y-1 transition active:scale-[0.98] ${prefs.alignment === 'justify' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-[0.7rem] font-semibold text-foreground">ملء السطر (Justify)</span>
+                              <span className="text-micro font-semibold text-foreground">ملء السطر (Justify)</span>
                               <div className="h-4 w-4 rounded-full border border-primary flex items-center justify-center">
                                 {prefs.alignment === 'justify' && <div className="h-2 w-2 rounded-full bg-primary" />}
                               </div>
                             </div>
-                            <p className="text-[0.6875rem] text-muted-foreground">تتمدد الكلمات لتملأ السطر بأكمله بانتظام.</p>
+                            <p className="text-micro text-muted-foreground">تتمدد الكلمات لتملأ السطر بأكمله بانتظام.</p>
                           </button>
                         </div>
                       </div>
@@ -1276,7 +1276,7 @@ export default function ArchiveReader() {
                           variant="outline"
                           size="sm"
                           onClick={() => setActiveTab('reader')}
-                          className="h-9 px-6 rounded-xl flex items-center gap-1.5 text-xs font-semibold"
+                          className="h-9 px-6 rounded-xl flex items-center gap-1.5 text-mini font-semibold"
                         >
                           <span>عد إلى الخيارات</span>
                         </Button>
@@ -1296,7 +1296,7 @@ export default function ArchiveReader() {
             style={{ borderColor: borderColor ?? 'hsl(var(--border) / 0.3)' }}
           >
             <h1
-              className="text-3xl font-bold leading-tight mb-3 tracking-tight"
+              className="text-hero font-bold leading-tight mb-3 tracking-tight"
               style={{ fontFamily, color: 'inherit' }}
             >
               {doc.title}
@@ -1314,7 +1314,7 @@ export default function ArchiveReader() {
               </p>
             )}
             <div
-              className="flex items-center gap-3 text-[0.6875rem] flex-wrap"
+              className="flex items-center gap-3 text-micro flex-wrap"
               style={{ color: mutedColor ?? 'hsl(var(--muted-foreground))' }}
             >
               <span className="flex items-center gap-1">
@@ -1337,7 +1337,7 @@ export default function ArchiveReader() {
                 {doc.tags.map((t: string) => (
                   <span
                     key={t}
-                    className="text-[0.625rem] px-2 py-0.5 rounded-full"
+                    className="text-micro px-2 py-0.5 rounded-full"
                     style={{
                       background: isThemed ? 'rgba(127,127,127,0.15)' : 'hsl(var(--primary) / 0.1)',
                       color: accentColor ?? 'hsl(var(--primary))',
@@ -1434,7 +1434,7 @@ export default function ArchiveReader() {
                 },
                 code: ({ node: _node, ...props }) => (
                   <code
-                    className="px-1 py-0.5 rounded text-[0.9em]"
+                    className="px-1 py-0.5 rounded text-meta"
                     style={{ background: isThemed ? 'rgba(127,127,127,0.2)' : 'hsl(var(--muted))' }}
                     {...props}
                   />

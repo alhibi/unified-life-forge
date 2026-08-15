@@ -113,7 +113,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
           >
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
-          <h2 className="text-[1rem] font-semibold flex-1 truncate">
+          <h2 className="text-body font-semibold flex-1 truncate">
             {chat.kind === 'channel'
               ? ('معلومات القناة')
               : ('معلومات المجموعة')}
@@ -141,7 +141,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                   onChange={e => setDraftTitle(e.target.value.slice(0, MAX_TITLE_LEN))}
                   onBlur={saveTitle}
                   onKeyDown={e => { if (e.key === 'Enter') saveTitle(); }}
-                  className="w-full bg-muted/30 rounded-2xl px-4 h-11 text-[1rem] font-semibold text-center outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full bg-muted/30 rounded-2xl px-4 h-11 text-body font-semibold text-center outline-none focus:ring-2 focus:ring-primary/30"
                   dir="auto"
                 />
               </div>
@@ -155,13 +155,13 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                   canEdit && 'active:opacity-80',
                 )}
               >
-                <h1 className="text-[1.25rem] font-bold text-foreground">
+                <h1 className="text-title font-bold text-foreground">
                   {chat.title || ('بدون اسم')}
                 </h1>
                 {canEdit && <Pencil className="w-3.5 h-3.5 text-muted-foreground" />}
               </button>
             )}
-            <div className="flex items-center gap-2 text-[0.75rem] text-muted-foreground">
+            <div className="flex items-center gap-2 text-mini text-muted-foreground">
               {chat.kind === 'channel'
                 ? <Hash className="w-3 h-3" />
                 : <Users className="w-3 h-3" />}
@@ -182,7 +182,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                 onChange={e => setDraftDesc(e.target.value.slice(0, MAX_DESC_LEN))}
                 onBlur={saveDesc}
                 rows={3}
-                className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-[0.875rem] outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-meta outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 dir="auto"
                 placeholder={'وصف المجموعة'}
               />
@@ -198,10 +198,10 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
               >
                 <MessageSquareText className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[0.6875rem] text-muted-foreground mb-0.5">
+                  <p className="text-micro text-muted-foreground mb-0.5">
                     {'الوصف'}
                   </p>
-                  <p className="text-[0.875rem] text-foreground/90 leading-relaxed" dir="auto">
+                  <p className="text-meta text-foreground/90 leading-relaxed" dir="auto">
                     {chat.description || ('لا يوجد وصف')}
                   </p>
                 </div>
@@ -243,10 +243,10 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
             >
               <Users className="w-4 h-4 text-muted-foreground" />
               <div className="flex-1 min-w-0 text-start">
-                <p className="text-[0.6875rem] text-muted-foreground">
+                <p className="text-micro text-muted-foreground">
                   {'الأعضاء'}
                 </p>
-                <p className="text-[0.875rem] font-semibold text-foreground">
+                <p className="text-meta font-semibold text-foreground">
                   {`عرض كل الأعضاء (${chat.memberCount})`}
                 </p>
               </div>
@@ -266,7 +266,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                   </div>
                 ))}
                 {members.length > 6 && (
-                  <div className="h-8 w-8 rounded-full ring-2 ring-background bg-muted flex items-center justify-center text-[0.625rem] font-medium text-muted-foreground">
+                  <div className="h-8 w-8 rounded-full ring-2 ring-background bg-muted flex items-center justify-center text-micro font-medium text-muted-foreground">
                     +{members.length - 6}
                   </div>
                 )}
@@ -319,7 +319,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                 />
               )}
             </div>
-            <p className="text-[0.625rem] text-muted-foreground/70 px-2 mt-2 leading-relaxed">
+            <p className="text-micro text-muted-foreground/70 px-2 mt-2 leading-relaxed">
               <Shield className="inline w-3 h-3 me-1 -mt-0.5" />
               {'الحذف نهائي ولا يمكن التراجع عنه. الأعضاء سيفقدون كل الرسائل.'}
             </p>
@@ -336,7 +336,7 @@ interface SectionProps { title?: string; children: React.ReactNode }
 function Section({ title, children }: SectionProps) {
   return (
     <div className="px-4 mt-3">
-      {title && <h3 className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
+      {title && <h3 className="text-micro uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
       {children}
     </div>
   );
@@ -351,7 +351,7 @@ function ToggleRow({ icon, label, value, onChange }: ToggleRowProps) {
       className="w-full flex items-center gap-3 px-4 py-3 active:bg-accent/30 text-start"
     >
       <span className="shrink-0">{icon}</span>
-      <span className="flex-1 text-[0.875rem] text-foreground">{label}</span>
+      <span className="flex-1 text-meta text-foreground">{label}</span>
       <span className={cn(
         'w-9 h-5 rounded-full transition-colors relative shrink-0',
         value ? 'bg-primary' : 'bg-muted',
@@ -374,8 +374,8 @@ function PermissionRow({ icon, label, value, onClick }: PermissionRowProps) {
       className="w-full flex items-center gap-3 px-4 py-3 active:bg-accent/30 text-start"
     >
       <span className="shrink-0">{icon}</span>
-      <span className="flex-1 text-[0.875rem] text-foreground">{label}</span>
-      <span className="text-[0.75rem] text-muted-foreground">{value}</span>
+      <span className="flex-1 text-meta text-foreground">{label}</span>
+      <span className="text-mini text-muted-foreground">{value}</span>
     </button>
   );
 }
@@ -389,7 +389,7 @@ function DangerRow({ icon, label, onClick }: DangerRowProps) {
       className="w-full flex items-center gap-3 px-4 py-3 active:bg-destructive/10 text-destructive text-start"
     >
       <span className="shrink-0">{icon}</span>
-      <span className="flex-1 text-[0.875rem] font-medium">{label}</span>
+      <span className="flex-1 text-meta font-medium">{label}</span>
       <Check className="w-3 h-3 opacity-0" /> {/* keeps row height aligned with toggle row */}
     </button>
   );

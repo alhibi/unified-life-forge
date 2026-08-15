@@ -43,9 +43,9 @@ export default function ResponsiveDrawer({
         {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
         <DrawerContent className="px-4 pb-8 max-h-[85dvh]">
           <DrawerHeader className="text-start px-0">
-            <DrawerTitle className="text-lg font-bold text-foreground">{title}</DrawerTitle>
+            <DrawerTitle className="text-lead font-bold text-foreground">{title}</DrawerTitle>
             {description && (
-              <DrawerDescription className="text-sm text-muted-foreground">
+              <DrawerDescription className="text-meta text-muted-foreground">
                 {description}
               </DrawerDescription>
             )}
@@ -61,9 +61,9 @@ export default function ResponsiveDrawer({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-foreground">{title}</DialogTitle>
+          <DialogTitle className="text-lead font-bold text-foreground">{title}</DialogTitle>
           {description && (
-            <DialogDescription className="text-sm text-muted-foreground">
+            <DialogDescription className="text-meta text-muted-foreground">
               {description}
             </DialogDescription>
           )}

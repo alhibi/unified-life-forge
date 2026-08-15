@@ -62,8 +62,8 @@ export default function TimedSunnah() {
                   <cat.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 text-start">
-                  <span className="text-sm font-bold text-foreground">{catLabel}</span>
-                  <span className="text-xs text-muted-foreground mx-2">
+                  <span className="text-meta font-bold text-foreground">{catLabel}</span>
+                  <span className="text-mini text-muted-foreground mx-2">
                     {count} {t('timed.sunnah')}
                   </span>
                 </div>
@@ -96,10 +96,10 @@ export default function TimedSunnah() {
                                 onClick={() => isDetailed ? toggleItem(itemKey) : undefined}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${isDetailed ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
                               >
-                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-[0.6875rem] font-bold shrink-0 bg-primary/15 text-primary">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-micro font-bold shrink-0 bg-primary/15 text-primary">
                                   {i + 1}
                                 </span>
-                                <span className="flex-1 text-sm text-foreground leading-relaxed line-clamp-2">
+                                <span className="flex-1 text-meta text-foreground leading-relaxed line-clamp-2">
                                   {item.title}
                                 </span>
                                 {isDetailed && (
@@ -119,13 +119,13 @@ export default function TimedSunnah() {
                                     className="overflow-hidden"
                                   >
                                     <div className="px-4 pb-3 me-9 ms-9">
-                                      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                                      <p className="text-meta text-muted-foreground leading-relaxed mb-3">
                                         {desc}
                                       </p>
 
                                       <div className="flex items-center gap-1.5 mb-3">
                                         <BookOpen className="w-3.5 h-3.5 shrink-0 text-primary" />
-                                        <span className="text-xs font-medium text-primary">
+                                        <span className="text-mini font-medium text-primary">
                                           {src}
                                         </span>
                                       </div>
@@ -136,7 +136,7 @@ export default function TimedSunnah() {
                                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
                                         >
                                           <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                                          <span className="text-xs text-muted-foreground">{dir === 'rtl' ? 'نسخ' : 'Copy'}</span>
+                                          <span className="text-mini text-muted-foreground">{dir === 'rtl' ? 'نسخ' : 'Copy'}</span>
                                         </button>
                                       </div>
                                     </div>

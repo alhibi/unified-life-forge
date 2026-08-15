@@ -325,8 +325,8 @@ export default function ProfileEditPage() {
           <Icon className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-[0.875rem] font-bold text-foreground leading-tight">{title}</h2>
-          {hint && <p className="text-[0.6875rem] text-muted-foreground/80 mt-0.5">{hint}</p>}
+          <h2 className="text-meta font-bold text-foreground leading-tight">{title}</h2>
+          {hint && <p className="text-micro text-muted-foreground/80 mt-0.5">{hint}</p>}
         </div>
       </header>
       {children}
@@ -366,7 +366,7 @@ export default function ProfileEditPage() {
         {/* Copy link chip */}
         <button
           onClick={copyProfileLink}
-          className="absolute top-4 end-4 z-raised flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 ring-1 ring-white/10 text-[0.6875rem] text-white/90 active:scale-95 transition-transform"
+          className="absolute top-4 end-4 z-raised flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 ring-1 ring-white/10 text-micro text-white/90 active:scale-95 transition-transform"
           aria-label={'نسخ رابط الملف'}
         >
           <Copy className="w-3.5 h-3.5" />
@@ -405,22 +405,22 @@ export default function ProfileEditPage() {
             </div>
           </button>
 
-          <h1 className="mt-4 text-[1.375rem] font-bold text-foreground leading-tight tracking-tight">
+          <h1 className="mt-4 text-display font-bold text-foreground leading-tight tracking-tight">
             {displayName || newUsername || ('المستخدم')}
           </h1>
-          <p className="text-[0.8125rem] text-muted-foreground mt-0.5" dir="ltr">
+          <p className="text-mini text-muted-foreground mt-0.5" dir="ltr">
             @{newUsername || '—'}
           </p>
 
           {bio.trim() && (
-            <p className="mt-3 text-[0.8125rem] leading-relaxed text-foreground/80 max-w-[26rem] italic" dir="auto">
+            <p className="mt-3 text-mini leading-relaxed text-foreground/80 max-w-[26rem] italic" dir="auto">
               "{bio.trim()}"
             </p>
           )}
 
           {/* Presence + member-since chips */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/25 text-[0.6875rem] text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/25 text-micro text-emerald-400">
               <span className="relative flex w-1.5 h-1.5">
                 <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
                 <span className="relative rounded-full bg-emerald-400 w-1.5 h-1.5" />
@@ -428,7 +428,7 @@ export default function ProfileEditPage() {
               {lastSeenLabel}
             </span>
             {memberSince && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/40 ring-1 ring-border/40 text-[0.6875rem] text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/40 ring-1 ring-border/40 text-micro text-muted-foreground">
                 <Sparkles className="w-3 h-3" />
                 {`عضو منذ ${memberSince}`}
               </span>
@@ -460,7 +460,7 @@ export default function ProfileEditPage() {
                       <Check className="w-3 h-3 text-primary-foreground" />
                     </div>
                   )}
-                  <span className="absolute bottom-1.5 start-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[0.625rem] font-medium text-white">
+                  <span className="absolute bottom-1.5 start-2 rounded-md bg-black/70 px-1.5 py-0.5 text-micro font-medium text-white">
                     {t.labelAr}
                   </span>
                 </button>
@@ -489,7 +489,7 @@ export default function ProfileEditPage() {
                   }`}
                 >
                   <img src={getAppleEmojiUrl(animal.emoji) || ''} alt={animal.label} className="w-8 h-8" loading="lazy" />
-                  <span className="text-[0.625rem] text-muted-foreground">{animal.label}</span>
+                  <span className="text-micro text-muted-foreground">{animal.label}</span>
                   {isSelected && (
                     <div className="absolute top-1 end-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                       <Check className="w-2.5 h-2.5 text-primary-foreground" />
@@ -537,11 +537,11 @@ export default function ProfileEditPage() {
           hint={'اسم مستخدم فريد — يظهر في المحادثات والرابط العام'}
         >
           <div className="space-y-2">
-            <label className="text-[0.75rem] font-semibold text-muted-foreground">
+            <label className="text-mini font-semibold text-muted-foreground">
               {'اسم المستخدم'}
             </label>
             <div className="relative">
-              <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+              <span className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground text-meta">@</span>
               <Input
                 value={newUsername}
                 onChange={(e) => {
@@ -560,7 +560,7 @@ export default function ProfileEditPage() {
                   initial={{ opacity: 0, y: -2 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className={`text-[0.6875rem] ${
+                  className={`text-micro ${
                     checkingUsername
                       ? 'text-muted-foreground'
                       : usernameAvailable
@@ -586,7 +586,7 @@ export default function ProfileEditPage() {
           hint={'الاسم الظاهر والنبذة — ما يراه الآخرون'}
         >
           <div className="space-y-2">
-            <label className="text-[0.75rem] font-semibold text-muted-foreground">
+            <label className="text-mini font-semibold text-muted-foreground">
               {'الاسم الظاهر'}
             </label>
             <Input
@@ -598,7 +598,7 @@ export default function ProfileEditPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[0.75rem] font-semibold text-muted-foreground">
+            <label className="text-mini font-semibold text-muted-foreground">
               {'النبذة'}
             </label>
             <textarea
@@ -608,9 +608,9 @@ export default function ProfileEditPage() {
               maxLength={150}
               rows={3}
               dir="auto"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-[0.9375rem] ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-meta ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
             />
-            <p className="text-[0.6875rem] text-muted-foreground text-end">{bio.length}/150</p>
+            <p className="text-micro text-muted-foreground text-end">{bio.length}/150</p>
           </div>
         </Section>
 
@@ -621,17 +621,17 @@ export default function ProfileEditPage() {
               <LogOut className="w-[18px] h-[18px] text-destructive" />
             </div>
             <div>
-              <h2 className="text-[0.875rem] font-bold text-foreground">
+              <h2 className="text-meta font-bold text-foreground">
                 {'تسجيل الخروج'}
               </h2>
-              <p className="text-[0.6875rem] text-muted-foreground/80">
+              <p className="text-micro text-muted-foreground/80">
                 {'إنهاء الجلسة على هذا الجهاز'}
               </p>
             </div>
           </div>
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="w-full py-2.5 rounded-xl bg-destructive/10 text-destructive text-[0.8125rem] font-semibold active:scale-[0.98] transition-transform"
+            className="w-full py-2.5 rounded-xl bg-destructive/10 text-destructive text-mini font-semibold active:scale-[0.98] transition-transform"
           >
             {'تسجيل الخروج'}
           </button>
@@ -650,7 +650,7 @@ export default function ProfileEditPage() {
           >
             <div className="max-w-lg mx-auto pointer-events-auto">
               <div className="surface-depth rounded-2xl px-3 py-2.5 flex items-center gap-3 shadow-2xl ring-1 ring-primary/20">
-                <span className="text-[0.75rem] text-muted-foreground flex-1 truncate">
+                <span className="text-mini text-muted-foreground flex-1 truncate">
                   {'لديك تغييرات غير محفوظة'}
                 </span>
                 <Button
@@ -696,23 +696,23 @@ export default function ProfileEditPage() {
                 <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-destructive" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground">
+                <h3 className="text-lead font-bold text-foreground">
                   {'تسجيل الخروج'}
                 </h3>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-meta text-muted-foreground leading-relaxed">
                 {'سيتم مسح بيانات هذا الجهاز محلياً. يمكنك استعادتها عند تسجيل الدخول مرة أخرى.'}
               </p>
               <div className="flex gap-3 pt-1">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium active:scale-[0.98] transition-transform"
+                  className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
                 >
                   {'إلغاء'}
                 </button>
                 <button
                   onClick={handleSignOut}
-                  className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium active:scale-[0.98] transition-transform"
+                  className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
                 >
                   {'تسجيل الخروج'}
                 </button>

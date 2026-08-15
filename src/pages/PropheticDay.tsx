@@ -120,8 +120,8 @@ export default function PropheticDay() {
 <Icon className={`w-5 h-5 ${section.iconColor}`} />
                 </div>
                 <div className="flex flex-col">
-                  <h2 className="text-[0.9375rem] font-extrabold text-foreground">{section.titleAr}</h2>
-                  <span className="text-[0.6875rem] text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
+                  <h2 className="text-meta font-extrabold text-foreground">{section.titleAr}</h2>
+                  <span className="text-micro text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
                 </div>
               </div>
 
@@ -135,7 +135,7 @@ export default function PropheticDay() {
                     }`}
                   >
                     <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-primary" />
-                    <p className="text-[0.8125rem] leading-relaxed text-foreground font-medium">
+                    <p className="text-mini leading-relaxed text-foreground font-medium">
                       {item.ar}
                     </p>
                   </div>

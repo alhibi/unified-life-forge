@@ -50,7 +50,7 @@ const ROUTES: { path: string; label: string; keywords: string; icon: typeof Comp
 ];
 
 const ITEM_CLASS =
-  'flex items-center justify-between gap-3 px-3 py-2 text-sm text-foreground/80 rounded-md cursor-pointer border border-transparent aria-selected:border-primary/40 aria-selected:bg-accent aria-selected:text-foreground';
+  'flex items-center justify-between gap-3 px-3 py-2 text-meta text-foreground/80 rounded-md cursor-pointer border border-transparent aria-selected:border-primary/40 aria-selected:bg-accent aria-selected:text-foreground';
 
 const PILL_CLASS = 'text-mini px-2 py-0.5 rounded-sm border shrink-0';
 
@@ -124,7 +124,7 @@ export function CommandPalette() {
               value={search}
               onValueChange={setSearch}
               placeholder="ابحث عن صفحة أو إعداد أو إجراء…"
-              className="flex-1 border-none bg-transparent py-1 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="flex-1 border-none bg-transparent py-1 text-meta text-foreground outline-none placeholder:text-muted-foreground"
             />
             <kbd className="hidden h-5 shrink-0 select-none items-center rounded-sm border border-border/50 bg-muted px-1.5 font-mono text-micro font-medium text-muted-foreground sm:inline-flex">
               ESC
@@ -132,7 +132,7 @@ export function CommandPalette() {
           </div>
 
           <Command.List className="flex-1 space-y-1 overflow-y-auto p-2">
-            <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
+            <Command.Empty className="py-6 text-center text-meta text-muted-foreground">
               لا توجد نتائج مطابقة.
             </Command.Empty>
 

@@ -159,7 +159,7 @@ export function CronView({
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Activity className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-bold flex-1">
+        <h3 className="text-body font-bold flex-1">
           {'حالة التحديث'}
         </h3>
         <button
@@ -195,13 +195,13 @@ export function CronView({
 
         {/* Per-feed health */}
         <section>
-          <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1.5">
+          <p className="text-micro uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1.5">
             <Database className="h-3 w-3" />
             {'صحة المصادر'}
           </p>
           <div className="rounded-2xl bg-card border border-border/50 divide-y divide-border/30">
             {healthRows.length === 0 && (
-              <div className="px-4 py-6 text-center text-[0.75rem] text-muted-foreground">
+              <div className="px-4 py-6 text-center text-mini text-muted-foreground">
                 {'لا توجد مصادر'}
               </div>
             )}
@@ -218,7 +218,7 @@ export function CronView({
 
         {/* Recent runs */}
         <section>
-          <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1.5">
+          <p className="text-micro uppercase tracking-wider font-bold text-muted-foreground mb-2 inline-flex items-center gap-1.5">
             <Clock className="h-3 w-3" />
             {'آخر التشغيلات'}
           </p>
@@ -228,7 +228,7 @@ export function CronView({
             </div>
           )}
           {!loading && runs.length === 0 && (
-            <div className="rounded-2xl bg-card border border-border/50 px-4 py-6 text-center text-[0.75rem] text-muted-foreground">
+            <div className="rounded-2xl bg-card border border-border/50 px-4 py-6 text-center text-mini text-muted-foreground">
               {'لا توجد سجلات. تأكد من إعدادات pg_cron.'}
             </div>
           )}
@@ -284,15 +284,15 @@ function JobRow({
               : <Wifi className="h-4 w-4" />}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold truncate">{jobName}</p>
+        <p className="text-meta font-bold truncate">{jobName}</p>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          <span className="text-[0.625rem] text-muted-foreground">
+          <span className="text-micro text-muted-foreground">
             {schedule}
           </span>
           {run && (
             <>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-              <span className="text-[0.625rem] text-muted-foreground">
+              <span className="text-micro text-muted-foreground">
                 {'آخر تشغيل '}
                 {timeAgo(run.start_time, language)}
               </span>
@@ -305,7 +305,7 @@ function JobRow({
         variant="outline"
         onClick={onTrigger}
         disabled={busy}
-        className="shrink-0 h-8 rounded-xl text-[0.6875rem]"
+        className="shrink-0 h-8 rounded-xl text-micro"
       >
         <Play className="h-3 w-3 me-1" />
         {'تشغيل'}
@@ -330,15 +330,15 @@ function FeedHealthRow({
       <SourcePill name={feed.name} size="md" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <p className="text-sm font-semibold truncate">{feed.name}</p>
+          <p className="text-meta font-semibold truncate">{feed.name}</p>
           {!feed.enabled && (
-            <span className="text-[0.625rem] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground">
+            <span className="text-micro uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground">
               {'موقوف'}
             </span>
           )}
           {failing && (
             <span
-              className="text-[0.625rem] uppercase tracking-wider px-1.5 rounded bg-destructive/15 text-destructive font-bold tabular-nums"
+              className="text-micro uppercase tracking-wider px-1.5 rounded bg-destructive/15 text-destructive font-bold tabular-nums"
               title={meta?.last_error || ''}
             >
               {`${meta?.consecutive_failures} فشل`}
@@ -346,7 +346,7 @@ function FeedHealthRow({
           )}
           {cached && !failing && (
             <span
-              className="text-[0.625rem] uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground"
+              className="text-micro uppercase tracking-wider px-1.5 rounded bg-foreground/10 text-muted-foreground"
               title={'مخبأ - بدون تغيير'}
             >
               304
@@ -355,14 +355,14 @@ function FeedHealthRow({
         </div>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
           {meta?.last_fetched_at && (
-            <span className="text-[0.625rem] text-muted-foreground">
+            <span className="text-micro text-muted-foreground">
               {timeAgo(meta.last_fetched_at, language)}
             </span>
           )}
           {meta?.item_count_last !== null && meta?.item_count_last !== undefined && (
             <>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-              <span className="text-[0.625rem] text-muted-foreground tabular-nums">
+              <span className="text-micro text-muted-foreground tabular-nums">
                 {`${meta.item_count_last} مقال`}
               </span>
             </>
@@ -371,7 +371,7 @@ function FeedHealthRow({
             <>
               <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
               <span
-                className={`text-[0.625rem] tabular-nums font-mono ${
+                className={`text-micro tabular-nums font-mono ${
                   failing
                     ? 'text-destructive'
                     : 'text-muted-foreground'
@@ -411,7 +411,7 @@ function RunRow({
         }`}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-[0.75rem] font-medium truncate">
+        <p className="text-mini font-medium truncate">
           {isAlertJob
             ? ('فحص التنبيهات')
             : ('تحديث الخلاصات')}
@@ -420,13 +420,13 @@ function RunRow({
           </span>
         </p>
         {!ok && run.return_message && (
-          <p className="text-[0.625rem] text-destructive line-clamp-1 mt-0.5" dir="ltr">
+          <p className="text-micro text-destructive line-clamp-1 mt-0.5" dir="ltr">
             {run.return_message}
           </p>
         )}
       </div>
       {dur !== null && (
-        <span className="text-[0.625rem] text-muted-foreground/70 tabular-nums shrink-0 font-mono">
+        <span className="text-micro text-muted-foreground/70 tabular-nums shrink-0 font-mono">
           {dur < 1000 ? `${dur} ms` : `${(dur / 1000).toFixed(1)} s`}
         </span>
       )}

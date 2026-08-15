@@ -30,12 +30,12 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 ">
         <div>
           <h3
-            className="font-bold text-[0.9375rem] text-foreground"
+            className="font-bold text-meta text-foreground"
             style={{ fontFamily: "'Amiri', serif" }}
           >
             مسيرة {poetName}
           </h3>
-          <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
+          <p className="text-micro text-muted-foreground mt-0.5">
             {events.length} محطّات في حياته
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
                     <div className="flex items-center gap-2">
                       {/* Year badge */}
                       <span
-                        className="text-[0.625rem] font-bold px-2 py-0.5 rounded-md flex-shrink-0"
+                        className="text-micro font-bold px-2 py-0.5 rounded-md flex-shrink-0"
                         style={{
                           color: config.color,
                           backgroundColor: `${config.color}15`,
@@ -104,15 +104,15 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
                         {event.year}
                       </span>
                       {/* Icon */}
-                      <span className="text-[0.75rem]">{config.icon}</span>
+                      <span className="text-mini">{config.icon}</span>
                       {/* Title */}
-                      <span className="text-[0.8125rem] font-semibold text-foreground truncate">
+                      <span className="text-mini font-semibold text-foreground truncate">
                         {event.title}
                       </span>
                     </div>
 
                     {/* Description - always visible preview */}
-                    <p className={`text-[0.6875rem] text-muted-foreground leading-relaxed mt-1 ${isExpanded ? '' : 'line-clamp-1'}`}>
+                    <p className={`text-micro text-muted-foreground leading-relaxed mt-1 ${isExpanded ? '' : 'line-clamp-1'}`}>
                       {event.description}
                     </p>
                   </div>
@@ -143,12 +143,12 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
                           borderColor: config.color,
                         }}
                       >
-                        <p className="text-[0.75rem] text-foreground/80 leading-[1.8]">
+                        <p className="text-mini text-foreground/80 leading-[1.8]">
                           {event.description}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <span
-                            className="text-[0.625rem] px-2 py-0.5 rounded-full font-medium"
+                            className="text-micro px-2 py-0.5 rounded-full font-medium"
                             style={{
                               color: config.color,
                               backgroundColor: `${config.color}15`,
@@ -180,15 +180,15 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
           <div className="flex items-center gap-3">
             {Array.from(new Set(events.map(e => e.type))).map(type => (
               <span key={type} className="flex items-center gap-1">
-                <span className="text-[0.6875rem]">{eventTypeConfig[type].icon}</span>
-                <span className="text-[0.625rem] text-muted-foreground">
+                <span className="text-micro">{eventTypeConfig[type].icon}</span>
+                <span className="text-micro text-muted-foreground">
                   {events.filter(e => e.type === type).length}
                 </span>
               </span>
             ))}
           </div>
           {events[0]?.year && events[events.length - 1]?.year && (
-            <span className="text-[0.625rem] text-muted-foreground">
+            <span className="text-micro text-muted-foreground">
               {events[0].year} — {events[events.length - 1].year}
             </span>
           )}

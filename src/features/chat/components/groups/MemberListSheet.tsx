@@ -90,13 +90,13 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <div className="flex-1 min-w-0">
-            <h2 className="text-[1rem] font-semibold truncate">
+            <h2 className="text-body font-semibold truncate">
               {view === 'add'
                 ? ('إضافة أعضاء')
                 : ('الأعضاء')}
             </h2>
             {view === 'list' && (
-              <p className="text-[0.6875rem] text-muted-foreground">
+              <p className="text-micro text-muted-foreground">
                 {`${members.length} عضواً`}
               </p>
             )}
@@ -122,7 +122,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
                 <div className="h-10 w-10 rounded-full bg-primary/12 flex items-center justify-center text-primary">
                   <UserPlus className="w-5 h-5" />
                 </div>
-                <span className="text-[0.875rem] font-semibold text-primary">
+                <span className="text-meta font-semibold text-primary">
                   {'إضافة عضو'}
                 </span>
               </button>
@@ -191,14 +191,14 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
                     {confirm.kind === 'remove' ? <AlertTriangle className="w-5 h-5" /> : <Shield className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-[0.9375rem] font-semibold mb-1">
+                    <h3 className="text-meta font-semibold mb-1">
                       {confirm.kind === 'remove'
                         ? ('إزالة العضو؟')
                         : confirm.kind === 'promote'
                           ? ('ترقية إلى مشرف؟')
                           : ('إلغاء صلاحيات الإشراف؟')}
                     </h3>
-                    <p className="text-[0.8125rem] text-muted-foreground">
+                    <p className="text-mini text-muted-foreground">
                       {confirm.member.displayName || confirm.member.username || confirm.member.userId.slice(0, 6)}
                     </p>
                   </div>
@@ -207,7 +207,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
                   <button
                     type="button"
                     onClick={() => setConfirm(null)}
-                    className="flex-1 h-11 rounded-xl bg-muted/30 text-foreground text-[0.875rem] font-medium active:scale-[0.98]"
+                    className="flex-1 h-11 rounded-xl bg-muted/30 text-foreground text-meta font-medium active:scale-[0.98]"
                   >
                     {'إلغاء'}
                   </button>
@@ -220,7 +220,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
                       setConfirm(null);
                     }}
                     className={cn(
-                      'flex-1 h-11 rounded-xl text-[0.875rem] font-semibold active:scale-[0.98]',
+                      'flex-1 h-11 rounded-xl text-meta font-semibold active:scale-[0.98]',
                       confirm.kind === 'remove'
                         ? 'bg-destructive text-destructive-foreground'
                         : 'bg-primary text-primary-foreground',
@@ -281,14 +281,14 @@ function MemberRow({ member, isMe, canManage, callerRole, onPromote, onDemote, o
       </Avatar>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[0.875rem] font-semibold text-foreground truncate">
+          <span className="text-meta font-semibold text-foreground truncate">
             {member.displayName || member.username || member.userId.slice(0, 6)}
-            {isMe && <span className="ms-1 text-[0.6875rem] font-medium text-muted-foreground">{'(أنت)'}</span>}
+            {isMe && <span className="ms-1 text-micro font-medium text-muted-foreground">{'(أنت)'}</span>}
           </span>
           <RoleBadge role={member.role} customTitle={member.customTitle} />
         </div>
         {member.username && member.displayName && member.displayName !== member.username && (
-          <p className="text-[0.6875rem] text-muted-foreground truncate">@{member.username}</p>
+          <p className="text-micro text-muted-foreground truncate">@{member.username}</p>
         )}
       </div>
 
@@ -341,7 +341,7 @@ function RowAction({ icon, label, onClick, danger }: RowActionProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-2 px-3 h-10 text-start text-[0.8125rem] active:bg-accent/40',
+        'w-full flex items-center gap-2 px-3 h-10 text-start text-mini active:bg-accent/40',
         danger ? 'text-destructive' : 'text-foreground',
       )}
     >

@@ -131,7 +131,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
         <button
           type="button"
           onClick={newThread}
-          className="shrink-0 flex items-center gap-1 text-[0.6875rem] font-bold px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary active:scale-95 transition"
+          className="shrink-0 flex items-center gap-1 text-micro font-bold px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary active:scale-95 transition"
         >
           <Plus className="w-3.5 h-3.5" /> نقاش جديد
         </button>
@@ -140,7 +140,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
             key={c.id}
             type="button"
             onClick={() => { setActiveId(c.id); setMessages([]); }}
-            className={`shrink-0 max-w-[9rem] truncate text-[0.6875rem] font-bold px-2.5 py-1.5 rounded-lg transition ${
+            className={`shrink-0 max-w-[9rem] truncate text-micro font-bold px-2.5 py-1.5 rounded-lg transition ${
               activeId === c.id ? 'bg-background text-foreground shadow-sm' : 'bg-muted/50 text-muted-foreground'
             }`}
           >
@@ -153,7 +153,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
         {messages.length === 0 && !streaming && (
           <AppCard className="text-center py-8 space-y-2">
             <MessageSquareText className="w-8 h-8 mx-auto text-muted-foreground/60" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-meta text-muted-foreground">
               اسأل أرشيفك: «ما الذي قرأته عن الحوافز؟» — الجواب يستند إلى مقالاتك فقط.
             </p>
           </AppCard>
@@ -161,7 +161,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+            className={`rounded-2xl px-3.5 py-2.5 text-meta leading-relaxed whitespace-pre-line ${
               m.role === 'user'
                 ? 'bg-primary/10 text-foreground ms-8'
                 : 'bg-card border border-border/40 text-foreground me-2'
@@ -175,7 +175,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
                   if (!a) return null;
                   return (
                     <a key={id} href={a.url} target="_blank" rel="noopener noreferrer"
-                      className="block text-[0.6875rem] text-muted-foreground hover:text-foreground transition truncate">
+                      className="block text-micro text-muted-foreground hover:text-foreground transition truncate">
                       [{i + 1}] {a.title || a.url}
                     </a>
                   );
@@ -185,7 +185,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
           </div>
         ))}
         {streaming && (
-          <div className="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line bg-card border border-border/40 me-2">
+          <div className="rounded-2xl px-3.5 py-2.5 text-meta leading-relaxed whitespace-pre-line bg-card border border-border/40 me-2">
             {streaming}
             <span className="inline-block w-1.5 h-4 align-middle bg-primary/70 animate-pulse ms-0.5" />
           </div>
@@ -202,7 +202,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
           }}
           rows={1}
           placeholder="اسأل أرشيفك…"
-          className="flex-1 text-base rounded-2xl bg-muted/40 border border-border/40 px-3.5 py-2.5 resize-none max-h-32 focus:outline-none focus:ring-2 focus:ring-ring"
+          className="flex-1 text-body rounded-2xl bg-muted/40 border border-border/40 px-3.5 py-2.5 resize-none max-h-32 focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <button
           type="button"

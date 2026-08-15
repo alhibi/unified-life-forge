@@ -65,7 +65,7 @@ export default function ChatSettingsPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-xl font-bold">{'سجّل الدخول'}</h1>
+        <h1 className="text-title font-bold">{'سجّل الدخول'}</h1>
         <Button onClick={() => navigate('/auth')}>{'تسجيل الدخول'}</Button>
       </div>
     );
@@ -347,10 +347,10 @@ export default function ChatSettingsPage() {
               {storageReport && (
                 <div className="px-4 py-3.5 border-b border-border/15">
                   <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-[0.75rem] font-medium text-foreground">
+                    <span className="text-mini font-medium text-foreground">
                       {'الاستخدام الحالي'}
                     </span>
-                    <span className="text-[0.75rem] text-muted-foreground tabular-nums">
+                    <span className="text-mini text-muted-foreground tabular-nums">
                       {storageReport.usageMb.toFixed(1)} {'م.ب'}
                       {storageReport.quotaMb > 0 && (
                         <> / {storageReport.quotaMb.toFixed(0)} {'م.ب'}</>
@@ -430,7 +430,7 @@ export default function ChatSettingsPage() {
               {blockedLoading ? (
                 <SkeletonRow />
               ) : blocked.length === 0 ? (
-                <div className="px-4 py-6 text-center text-[0.8125rem] text-muted-foreground">
+                <div className="px-4 py-6 text-center text-mini text-muted-foreground">
                   {'لا يوجد مستخدمون محظورون'}
                 </div>
               ) : (
@@ -448,17 +448,17 @@ export default function ChatSettingsPage() {
                         <AvatarFallback className="bg-muted" />
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[0.875rem] font-semibold text-foreground truncate">
+                        <p className="text-meta font-semibold text-foreground truncate">
                           {b.displayName || b.username || b.blockedId.slice(0, 6)}
                         </p>
                         {b.username && b.displayName && b.displayName !== b.username && (
-                          <p className="text-[0.6875rem] text-muted-foreground truncate">@{b.username}</p>
+                          <p className="text-micro text-muted-foreground truncate">@{b.username}</p>
                         )}
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-[0.75rem] text-primary hover:bg-primary/10"
+                        className="text-mini text-primary hover:bg-primary/10"
                         onClick={() => muts.unblockUser(b.blockedId)}
                       >
                         {'فك الحظر'}
@@ -510,7 +510,7 @@ export default function ChatSettingsPage() {
             </Section>
           </motion.div>
 
-          <p className="text-[0.625rem] text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
+          <p className="text-micro text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
             <AlertTriangle className="inline w-3 h-3 me-1 -mt-0.5" />
             {'هذه الإعدادات تُحفظ تلقائياً وتُزامَن عبر أجهزتك.'}
           </p>
@@ -549,9 +549,9 @@ function ToggleRow({ icon, label, description, value, onChange, disabled }: Togg
         {icon}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[0.875rem] font-medium text-foreground">{label}</p>
+        <p className="text-meta font-medium text-foreground">{label}</p>
         {description && (
-          <p className="text-[0.6875rem] text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
+          <p className="text-micro text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
         )}
       </div>
       <span
@@ -587,8 +587,8 @@ function SelectRow({ icon, label, value, options, onChange, }: SelectRowProps) {
         <span className="shrink-0 text-primary [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.7]">
           {icon}
         </span>
-        <span className="flex-1 text-[0.875rem] font-medium text-foreground">{label}</span>
-        <span className="text-[0.75rem] text-muted-foreground inline-flex items-center gap-1">
+        <span className="flex-1 text-meta font-medium text-foreground">{label}</span>
+        <span className="text-mini text-muted-foreground inline-flex items-center gap-1">
           {current.labelAr}
           <ChevronDown className="w-3.5 h-3.5" />
         </span>
@@ -622,8 +622,8 @@ function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: N
     <div className="px-4 py-3">
       <div className="flex items-center gap-3 mb-2">
         <span className="shrink-0 text-primary [&>svg]:w-[18px] [&>svg]:h-[18px] [&>svg]:stroke-[1.7]">{icon}</span>
-        <span className="flex-1 text-[0.875rem] font-medium text-foreground">{label}</span>
-        <span className="text-[0.75rem] text-muted-foreground tabular-nums min-w-[2ch] text-end">{value}</span>
+        <span className="flex-1 text-meta font-medium text-foreground">{label}</span>
+        <span className="text-mini text-muted-foreground tabular-nums min-w-[2ch] text-end">{value}</span>
       </div>
       <input
         type="range"
@@ -633,7 +633,7 @@ function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: N
         className="w-full accent-primary"
       />
       {helperAr && (
-        <p className="text-[0.625rem] text-muted-foreground/70 mt-1">
+        <p className="text-micro text-muted-foreground/70 mt-1">
           {helperAr}
         </p>
       )}
@@ -670,13 +670,13 @@ function ActionRow({ icon, label, description, onClick, disabled, danger }: Acti
       </span>
       <div className="flex-1 min-w-0">
         <p className={cn(
-          'text-[0.875rem] font-medium',
+          'text-meta font-medium',
           danger ? 'text-destructive' : 'text-foreground',
         )}>
           {label}
         </p>
         {description && (
-          <p className="text-[0.6875rem] text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
+          <p className="text-micro text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
         )}
       </div>
     </button>
@@ -695,7 +695,7 @@ function QuietHoursRow({ start, end, onChange, disabled }: QuietHoursRowProps) {
     <div className={cn('px-4 py-3', disabled && 'opacity-60')}>
       <div className="flex items-center gap-3 mb-2">
         <span className="shrink-0 text-primary"><BellOff className="w-[18px] h-[18px] stroke-[1.7]" /></span>
-        <span className="flex-1 text-[0.875rem] font-medium text-foreground">
+        <span className="flex-1 text-meta font-medium text-foreground">
           {'وضع الهدوء'}
         </span>
         <button
@@ -738,11 +738,11 @@ function QuietHoursRow({ start, end, onChange, disabled }: QuietHoursRowProps) {
 function HourPicker({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <label className="flex-1 flex items-center gap-2 bg-muted/30 rounded-xl px-3 h-9">
-      <span className="text-[0.6875rem] text-muted-foreground">{label}</span>
+      <span className="text-micro text-muted-foreground">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="bg-transparent text-[0.8125rem] outline-none flex-1"
+        className="bg-transparent text-mini outline-none flex-1"
       >
         {Array.from({ length: 24 }, (_, h) => (
           <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>

@@ -84,7 +84,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
                 key={id}
                 type="button"
                 onClick={() => toggle(id)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 text-primary px-2 py-1 text-[0.75rem] font-medium active:scale-95"
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 text-primary px-2 py-1 text-mini font-medium active:scale-95"
               >
                 <span className="truncate max-w-[110px]">{label}</span>
                 <X className="h-3 w-3 opacity-80" />
@@ -103,7 +103,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder={(placeholderAr ?? 'ابحث عن مستخدم...')}
-            className="flex-1 bg-transparent text-[0.875rem] outline-none ms-2 placeholder:text-muted-foreground/40"
+            className="flex-1 bg-transparent text-meta outline-none ms-2 placeholder:text-muted-foreground/40"
             dir="auto"
             autoComplete="off"
             spellCheck={false}
@@ -126,7 +126,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
         {query.trim().length < 2 && selectedIds.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-2 py-10">
             <Users className="w-9 h-9 opacity-30" />
-            <p className="text-[0.8125rem] text-center px-6">
+            <p className="text-mini text-center px-6">
               {'اكتب اسم مستخدم لإضافته'}
             </p>
           </div>
@@ -147,7 +147,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
         )}
 
         {!search.isLoading && query.trim().length >= 2 && results.length === 0 && (
-          <div className="text-center py-8 text-[0.8125rem] text-muted-foreground/60">
+          <div className="text-center py-8 text-mini text-muted-foreground/60">
             {'لا نتائج'}
           </div>
         )}
@@ -171,11 +171,11 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
                 >
                   {renderAvatar(user.username, user.avatarUrl)}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[0.875rem] font-semibold text-foreground truncate">
+                    <p className="text-meta font-semibold text-foreground truncate">
                       {user.displayName || user.username}
                     </p>
                     {user.displayName && user.displayName !== user.username && (
-                      <p className="text-[0.6875rem] text-muted-foreground truncate">@{user.username}</p>
+                      <p className="text-micro text-muted-foreground truncate">@{user.username}</p>
                     )}
                   </div>
                   <div

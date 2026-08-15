@@ -68,10 +68,10 @@ export default function MemoryAdventurePage() {
       >
         <div className="flex items-center justify-between mb-2">
           <div>
-            <p className="text-[0.625rem] uppercase tracking-wider text-pink-200/80">
+            <p className="text-micro uppercase tracking-wider text-pink-200/80">
               {'التقدم في المغامرة'}
             </p>
-            <p className="text-2xl font-black text-pink-200 tabular-nums">{totalStars} ★</p>
+            <p className="text-display font-black text-pink-200 tabular-nums">{totalStars} ★</p>
           </div>
           <Crown className={`w-9 h-9 ${totalStars >= maxStars ? 'text-amber-400' : 'text-pink-400/40'} stroke-[1.5]`} />
         </div>
@@ -127,22 +127,22 @@ export default function MemoryAdventurePage() {
  }`}>
                 {!unlocked
                   ? <Lock className="w-4 h-4 text-zinc-500" />
-                  : <span className={`text-xs font-black ${stage.isBoss ? 'text-amber-950' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
+                  : <span className={`text-mini font-black ${stage.isBoss ? 'text-amber-950' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
                 }
               </div>
 
               {/* Body */}
               <div className="flex-1 text-start min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className={`text-sm font-bold truncate ${unlocked ? 'text-foreground' : 'text-foreground/40'}`}>
+                  <h3 className={`text-meta font-bold truncate ${unlocked ? 'text-foreground' : 'text-foreground/40'}`}>
                     {stage.ar}
                   </h3>
                   {stage.isBoss && <Flame className="w-3 h-3 text-amber-400 shrink-0" />}
                 </div>
                 {unlocked && (
                   <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[0.625rem]">{twist.emoji}</span>
-                    <span className="text-[0.625rem] text-muted-foreground">
+                    <span className="text-micro">{twist.emoji}</span>
+                    <span className="text-micro text-muted-foreground">
                       {twist.ar} · {stage.pairs} {'زوج'}
                     </span>
                   </div>
@@ -184,24 +184,24 @@ export default function MemoryAdventurePage() {
  }`}
             >
               <div className="flex items-start gap-3 mb-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 ${
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-display shrink-0 ${
  selected.isBoss ? ' ' : 'bg-pink-500/20'
  }`}>
                   {selected.isBoss ? '👑' : selected.id}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[0.625rem] uppercase tracking-wider text-pink-300/80 font-bold">
+                  <p className="text-micro uppercase tracking-wider text-pink-300/80 font-bold">
                     {`المحطة ${selected.id}`}
                     {selected.isBoss && (' · بوس')}
                   </p>
-                  <h3 className="text-base font-black text-foreground">
+                  <h3 className="text-body font-black text-foreground">
                     {selected.ar}
                   </h3>
                 </div>
               </div>
 
               {/* Story */}
-              <p className="text-sm text-foreground/85 leading-relaxed mb-4 italic">
+              <p className="text-meta text-foreground/85 leading-relaxed mb-4 italic">
                 "{selected.storyAr}"
               </p>
 
@@ -215,7 +215,7 @@ export default function MemoryAdventurePage() {
 
               {/* Best record if any */}
               {save.stars[selected.id] && (
-                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 flex items-center justify-between text-xs">
+                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 flex items-center justify-between text-mini">
                   <div className="flex gap-0.5">
                     {[1, 2, 3].map(n => (
                       <Star key={n} className={`w-3.5 h-3.5 ${n <= (save.stars[selected.id] || 0) ? 'text-amber-400 fill-amber-400' : 'text-zinc-700'}`} />
@@ -232,13 +232,13 @@ export default function MemoryAdventurePage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelected(null)}
-                  className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-sm"
+                  className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-meta"
                 >
                   {'إلغاء'}
                 </button>
                 <button
                   onClick={() => startStage(selected)}
-                  className={`flex-1 py-3 rounded-xl font-black text-sm flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-3 rounded-xl font-black text-meta flex items-center justify-center gap-1.5 ${
                     selected.isBoss
                       ? 'text-amber-950'
                       : 'text-pink-950'
@@ -264,8 +264,8 @@ export default function MemoryAdventurePage() {
 function Pill({ emoji, label }: { emoji: string; label: string }) {
   return (
     <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5">
-      <span className="text-sm">{emoji}</span>
-      <span className="text-[0.6875rem] font-medium text-foreground/80 truncate">{label}</span>
+      <span className="text-meta">{emoji}</span>
+      <span className="text-micro font-medium text-foreground/80 truncate">{label}</span>
     </div>
   );
 }

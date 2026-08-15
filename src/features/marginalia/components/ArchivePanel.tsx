@@ -63,13 +63,13 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
             onKeyDown={(e) => { if (e.key === 'Enter') add(); }}
             placeholder="ألصق رابط مقال…"
             dir="ltr"
-            className="flex-1 text-base rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 text-body rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
             type="button"
             onClick={add}
             disabled={adding}
-            className="shrink-0 flex items-center gap-1.5 px-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold active:scale-95 transition disabled:opacity-50"
+            className="shrink-0 flex items-center gap-1.5 px-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold active:scale-95 transition disabled:opacity-50"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             {adding ? 'يُحلّل…' : 'أرشِف'}
@@ -81,14 +81,14 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث في الأرشيف…"
-            className="w-full text-base rounded-xl bg-muted/40 border border-border/40 ps-3 pe-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full text-body rounded-xl bg-muted/40 border border-border/40 ps-3 pe-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
       </AppCard>
 
       {filtered.length === 0 ? (
         <AppCard className="text-center py-8">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-meta text-muted-foreground">
             {articles.length ? 'لا نتائج مطابقة' : 'الأرشيف فارغ — أضف مقالاً أو مصدراً.'}
           </p>
         </AppCard>
@@ -96,8 +96,8 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
         <AppCard key={a.id} className="space-y-2">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold leading-snug line-clamp-2">{a.title || a.url}</p>
-              <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
+              <p className="text-meta font-bold leading-snug line-clamp-2">{a.title || a.url}</p>
+              <p className="text-micro text-muted-foreground mt-0.5">
                 {a.author ? `${a.author} · ` : ''}{a.word_count.toLocaleString('en-US')} كلمة
                 {a.status === 'error' ? ' · تعذّر التحليل' : a.status === 'queued' ? ' · قيد المعالجة' : ''}
               </p>
@@ -119,14 +119,14 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
             </button>
           </div>
           {a.summary && (
-            <p className="text-[0.8125rem] leading-relaxed text-muted-foreground whitespace-pre-line line-clamp-4">
+            <p className="text-mini leading-relaxed text-muted-foreground whitespace-pre-line line-clamp-4">
               {a.summary}
             </p>
           )}
           {a.domain_tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {a.domain_tags.map((t) => (
-                <span key={t} dir="ltr" className="text-[0.625rem] font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <span key={t} dir="ltr" className="text-micro font-bold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                   {t}
                 </span>
               ))}

@@ -19,7 +19,7 @@ import type { Supplement } from './wellnessDb';
 
 function FoodChip({ foodKey, label }: { foodKey: string; label: string }) {
   return (
-    <span className="text-[0.6875rem] ps-1 pe-2 py-0.5 rounded-full bg-muted/60 text-foreground/80 inline-flex items-center gap-1">
+    <span className="text-micro ps-1 pe-2 py-0.5 rounded-full bg-muted/60 text-foreground/80 inline-flex items-center gap-1">
       <FoodIcon foodKey={foodKey} size={16} shape="rounded-full" />
       {label}
     </span>
@@ -99,11 +99,11 @@ export default function StackAdvisor({ supplements }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[0.9375rem] font-bold text-foreground flex items-center gap-1.5">
+          <h3 className="text-meta font-bold text-foreground flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-primary" />
             {'مستشار التركيبات'}
           </h3>
-          <p className="text-[0.6875rem] text-muted-foreground mt-0.5">
+          <p className="text-micro text-muted-foreground mt-0.5">
             {'اختر عناصرك واكتشف الفوائد المثبتة عند دمجها.'}
           </p>
         </div>
@@ -112,14 +112,14 @@ export default function StackAdvisor({ supplements }: Props) {
       {/* Selected nutrients chip row */}
       <div className="bg-card border border-border/40 rounded-2xl p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+          <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider">
             {'تركيبتك'} ({selected.length})
           </p>
           <div className="flex gap-2">
             {activeNutrients.length > 0 && (
               <button
                 onClick={seedFromActive}
-                className="text-[0.6875rem] font-semibold text-primary active:scale-95 transition-transform"
+                className="text-micro font-semibold text-primary active:scale-95 transition-transform"
               >
                 {'من مكملاتي'}
               </button>
@@ -127,7 +127,7 @@ export default function StackAdvisor({ supplements }: Props) {
             {selected.length > 0 && (
               <button
                 onClick={clear}
-                className="text-[0.6875rem] font-semibold text-muted-foreground active:scale-95 transition-transform"
+                className="text-micro font-semibold text-muted-foreground active:scale-95 transition-transform"
               >
                 {'مسح'}
               </button>
@@ -136,7 +136,7 @@ export default function StackAdvisor({ supplements }: Props) {
         </div>
 
         {selected.length === 0 ? (
-          <p className="text-[0.75rem] text-muted-foreground/70 py-2">
+          <p className="text-mini text-muted-foreground/70 py-2">
             {'لم تختر شيئاً بعد.'}
           </p>
         ) : (
@@ -145,7 +145,7 @@ export default function StackAdvisor({ supplements }: Props) {
               <button
                 key={k}
                 onClick={() => toggle(k)}
-                className="text-[0.6875rem] px-2 py-1 rounded-full bg-primary/15 border border-primary/40 text-primary flex items-center gap-1"
+                className="text-micro px-2 py-1 rounded-full bg-primary/15 border border-primary/40 text-primary flex items-center gap-1"
               >
                 {NUTRIENTS[k]?.label[lang] ?? k}
                 <span className="opacity-60">×</span>
@@ -156,7 +156,7 @@ export default function StackAdvisor({ supplements }: Props) {
 
         <button
           onClick={() => setPickerOpen((v) => !v)}
-          className="w-full mt-1 py-2 rounded-xl bg-muted/40 text-[0.75rem] font-semibold text-foreground flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
+          className="w-full mt-1 py-2 rounded-xl bg-muted/40 text-mini font-semibold text-foreground flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
         >
           {'إضافة عنصر'}
           <ChevronDown
@@ -180,7 +180,7 @@ export default function StackAdvisor({ supplements }: Props) {
                     <button
                       key={n.key}
                       onClick={() => toggle(n.key)}
-                      className={`text-[0.6875rem] px-2 py-1 rounded-full border transition-colors ${
+                      className={`text-micro px-2 py-1 rounded-full border transition-colors ${
                         sel
                           ? 'bg-primary/15 border-primary/40 text-primary'
                           : 'bg-muted/40 border-border/40 text-muted-foreground'
@@ -199,12 +199,12 @@ export default function StackAdvisor({ supplements }: Props) {
       {/* Warnings */}
       {warnings.length > 0 && (
         <div className="bg-destructive/5 border border-destructive/30 rounded-2xl p-3 space-y-1.5">
-          <p className="text-[0.6875rem] font-bold text-destructive uppercase tracking-wider flex items-center gap-1">
+          <p className="text-micro font-bold text-destructive uppercase tracking-wider flex items-center gap-1">
             <AlertTriangle className="w-3.5 h-3.5" />
             {'تحذيرات تركيبة'}
           </p>
           {warnings.map((w) => (
-            <p key={w.id} className="text-[0.75rem] text-foreground/90 leading-relaxed">
+            <p key={w.id} className="text-mini text-foreground/90 leading-relaxed">
               {w.message[lang]}
             </p>
           ))}
@@ -215,7 +215,7 @@ export default function StackAdvisor({ supplements }: Props) {
       {selected.length >= 2 && matches.length === 0 && (
         <div className="bg-card border border-dashed border-border/50 rounded-2xl p-5 text-center">
           <FlaskConical className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-          <p className="text-[0.75rem] text-muted-foreground">
+          <p className="text-mini text-muted-foreground">
             {'لا توجد تركيبة معروفة بهذا المزيج بعد. جرّب إضافة فيتامين د، سي، أو مغنيسيوم.'}
           </p>
         </div>
@@ -240,22 +240,22 @@ export default function StackAdvisor({ supplements }: Props) {
                 onClick={() => setExpandedId(isOpen ? null : syn.id)}
                 className="w-full p-3.5 text-start flex items-start gap-3 active:bg-muted/30 transition-colors"
               >
-                <div className="w-9 h-9 rounded-xl bg-card border border-border/40 flex items-center justify-center shrink-0 text-base">
+                <div className="w-9 h-9 rounded-xl bg-card border border-border/40 flex items-center justify-center shrink-0 text-body">
                   {domain.icon}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <h4 className="text-[0.8125rem] font-bold text-foreground">
+                    <h4 className="text-mini font-bold text-foreground">
                       {syn.title[lang]}
                     </h4>
                     {isFull && (
-                      <span className="text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
+                      <span className="text-micro font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
                         <Check className="w-2.5 h-2.5" />
                         {'مكتمل'}
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5 mt-1 text-[0.625rem] text-muted-foreground">
+                  <div className="flex items-center gap-1.5 mt-1 text-micro text-muted-foreground">
                     <span className="px-1.5 py-0.5 rounded-full bg-muted/60">
                       {domain.label[lang]}
                     </span>
@@ -288,7 +288,7 @@ export default function StackAdvisor({ supplements }: Props) {
                     <div className="px-3.5 pb-3.5 space-y-3 border-t border-border/30 pt-3">
                       {/* Benefits */}
                       <div>
-                        <p className="text-[0.625rem] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                        <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                           <Zap className="w-3 h-3" />
                           {'الفوائد'}
                         </p>
@@ -296,7 +296,7 @@ export default function StackAdvisor({ supplements }: Props) {
                           {syn.benefits[lang].map((b, i) => (
                             <li
                               key={i}
-                              className="text-[0.75rem] text-foreground/90 leading-relaxed flex gap-2"
+                              className="text-mini text-foreground/90 leading-relaxed flex gap-2"
                             >
                               <span className="text-primary mt-1 shrink-0">●</span>
                               <span>{b}</span>
@@ -307,10 +307,10 @@ export default function StackAdvisor({ supplements }: Props) {
 
                       {/* How-to */}
                       <div className="bg-muted/30 rounded-xl p-2.5">
-                        <p className="text-[0.625rem] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1">
+                        <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-1">
                           {'الطريقة'}
                         </p>
-                        <p className="text-[0.75rem] text-foreground/90 leading-relaxed">
+                        <p className="text-mini text-foreground/90 leading-relaxed">
                           {syn.howTo[lang]}
                         </p>
                       </div>
@@ -318,7 +318,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {/* Missing nutrients to complete */}
                       {!isFull && (
                         <div>
-                          <p className="text-[0.625rem] font-bold text-warning uppercase tracking-wider mb-1.5">
+                          <p className="text-micro font-bold text-warning uppercase tracking-wider mb-1.5">
                             {'لإكمال التركيبة أضف'}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
@@ -326,7 +326,7 @@ export default function StackAdvisor({ supplements }: Props) {
                               <button
                                 key={k}
                                 onClick={() => toggle(k)}
-                                className="text-[0.6875rem] px-2 py-1 rounded-full bg-warning/10 border border-warning/40 text-warning font-semibold"
+                                className="text-micro px-2 py-1 rounded-full bg-warning/10 border border-warning/40 text-warning font-semibold"
                               >
                                 + {NUTRIENTS[k]?.label[lang] ?? k}
                               </button>
@@ -338,7 +338,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {/* Food boosters */}
                       {syn.foodBoosters && syn.foodBoosters.length > 0 && (
                         <div>
-                          <p className="text-[0.625rem] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                          <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                             <Utensils className="w-3 h-3" />
                             {'أطعمة تعزز'}
                           </p>
@@ -365,7 +365,7 @@ export default function StackAdvisor({ supplements }: Props) {
       {/* Recommended foods across all full matches */}
       {recommendedFoods.length > 0 && (
         <div className="bg-card border border-border/40 rounded-2xl p-3.5">
-          <p className="text-[0.6875rem] font-bold text-muted-foreground/70 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-2 flex items-center gap-1">
             <Utensils className="w-3 h-3" />
             {'أضف هذه إلى يومك'}
           </p>

@@ -76,7 +76,7 @@ function LiveSessionPanelImpl({
       className="rounded-section border-2 border-[hsl(var(--fitness-primary)/0.4)] bg-card/40 p-4 space-y-4"
     >
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6875rem] font-bold bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))]">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-micro font-bold bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))]">
           <Zap
             className={`w-3.5 h-3.5 ${isPaused ? '' : 'animate-pulse'} text-[hsl(var(--fitness-primary))]`}
           />
@@ -89,7 +89,7 @@ function LiveSessionPanelImpl({
               : 'تتبع المشي نشط'}
           {trackingSource === 'auto' && ' (تلقائي)'}
         </span>
-        <span className="text-[0.6875rem] font-semibold text-muted-foreground tabular-nums">
+        <span className="text-micro font-semibold text-muted-foreground tabular-nums">
           {formatDuration(durationSeconds)}
         </span>
       </div>
@@ -107,39 +107,39 @@ function LiveSessionPanelImpl({
           label={`الإيقاع الحالي ${formatPace(paced)} لكل كيلومتر`}
         >
           <span className="flex flex-col items-center leading-none">
-            <span className="text-[0.8125rem] font-extrabold tabular-nums text-foreground">
+            <span className="text-mini font-extrabold tabular-nums text-foreground">
               {formatPace(paced)}
             </span>
-            <span className="text-[0.5rem] text-muted-foreground mt-0.5">د/كم</span>
+            <span className="text-micro text-muted-foreground mt-0.5">د/كم</span>
           </span>
         </ProgressRing>
 
         <div className="grid grid-cols-3 gap-2 flex-1 text-center">
           <div>
-            <p className="text-[0.5625rem] text-muted-foreground">المسافة</p>
-            <p className="text-[0.9375rem] font-bold tabular-nums text-foreground">
+            <p className="text-micro text-muted-foreground">المسافة</p>
+            <p className="text-meta font-bold tabular-nums text-foreground">
               {(distanceMeters / 1000).toFixed(2)}
-              <span className="text-[0.625rem] text-muted-foreground ms-1">كم</span>
+              <span className="text-micro text-muted-foreground ms-1">كم</span>
             </p>
           </div>
           <div>
-            <p className="text-[0.5625rem] text-muted-foreground">متوسط الإيقاع</p>
-            <p className="text-[0.9375rem] font-bold tabular-nums text-foreground">
+            <p className="text-micro text-muted-foreground">متوسط الإيقاع</p>
+            <p className="text-meta font-bold tabular-nums text-foreground">
               {formatPace(avgPaceSecPerKm)}
             </p>
           </div>
           <div>
-            <p className="text-[0.5625rem] text-muted-foreground">السعرات</p>
-            <p className="text-[0.9375rem] font-bold tabular-nums text-foreground">
+            <p className="text-micro text-muted-foreground">السعرات</p>
+            <p className="text-meta font-bold tabular-nums text-foreground">
               {Math.round(calories)}
-              <span className="text-[0.625rem] text-muted-foreground ms-1">ك</span>
+              <span className="text-micro text-muted-foreground ms-1">ك</span>
             </p>
           </div>
         </div>
       </div>
 
       {/* Signal + elevation strip */}
-      <div className="flex items-center justify-between text-[0.5625rem] text-muted-foreground border-y border-border/20 py-2">
+      <div className="flex items-center justify-between text-micro text-muted-foreground border-y border-border/20 py-2">
         <span className="inline-flex items-center gap-1.5">
           <span
             className={`w-1.5 h-1.5 rounded-full ${
@@ -172,7 +172,7 @@ function LiveSessionPanelImpl({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <p className="text-[0.5625rem] text-muted-foreground mb-1.5">سبليتات كل كيلومتر</p>
+            <p className="text-micro text-muted-foreground mb-1.5">سبليتات كل كيلومتر</p>
             <div className="space-y-1 max-h-32 overflow-y-auto pe-1">
               {splits.map((split) => {
                 const best = Math.min(
@@ -184,7 +184,7 @@ function LiveSessionPanelImpl({
                     : 0;
                 return (
                   <div key={split.index} className="flex items-center gap-2">
-                    <span className="w-4 text-[0.5625rem] tabular-nums text-muted-foreground">
+                    <span className="w-4 text-micro tabular-nums text-muted-foreground">
                       {split.index}
                     </span>
                     <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
@@ -193,7 +193,7 @@ function LiveSessionPanelImpl({
                         style={{ width: `${Math.round(ratio * 100)}%` }}
                       />
                     </div>
-                    <span className="text-[0.5625rem] tabular-nums text-foreground font-bold">
+                    <span className="text-micro tabular-nums text-foreground font-bold">
                       {formatPace(split.paceSecPerKm)}
                       {split.partial && (
                         <span className="text-muted-foreground font-normal ms-1">
@@ -212,14 +212,14 @@ function LiveSessionPanelImpl({
       <div className="flex gap-2">
         <button
           onClick={onTogglePause}
-          className="flex-1 h-10 rounded-button border border-border/40 hover:bg-muted/10 text-foreground text-[0.6875rem] font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
+          className="flex-1 h-10 rounded-button border border-border/40 hover:bg-muted/10 text-foreground text-micro font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
         >
           {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
           {isPaused ? 'استئناف' : 'إيقاف مؤقت'}
         </button>
         <button
           onClick={onStop}
-          className="flex-[1.4] h-10 rounded-button bg-destructive text-destructive-foreground text-[0.6875rem] font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
+          className="flex-[1.4] h-10 rounded-button bg-destructive text-destructive-foreground text-micro font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
         >
           <Square className="w-3.5 h-3.5" />
           إنهاء وحفظ

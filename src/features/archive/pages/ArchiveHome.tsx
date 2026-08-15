@@ -92,17 +92,17 @@ export default function ArchiveHome() {
       />
       <div className="flex items-center gap-3 mb-2">
         <BackButton />
-        <h1 className="text-xl font-bold text-foreground flex-1">الأرشيف المعرفي</h1>
+        <h1 className="text-title font-bold text-foreground flex-1">الأرشيف المعرفي</h1>
         <button
           onClick={() => navigate('/archive/new')}
-          className="flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold active:scale-95 transition-transform"
+          className="flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-meta font-semibold active:scale-95 transition-transform"
         >
           <Plus className="w-4 h-4" />
           توليد جديد
         </button>
       </div>
 
-      <p className="text-[0.8125rem] text-muted-foreground leading-relaxed mb-1">
+      <p className="text-mini text-muted-foreground leading-relaxed mb-1">
         اقترح موضوعاً ومستوى عمق، وسيبني المحرك مخطّطاً هرمياً ثم يكتب كل قسم فرعي على حدة، ثم يحفظه
         هنا برقم أرشيفي متسلسل.
       </p>
@@ -112,14 +112,14 @@ export default function ArchiveHome() {
         <div className="flex rounded-xl bg-muted/40 p-1 mb-2">
           <button
             onClick={() => setActiveTab('list')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all ${activeTab === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-all ${activeTab === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
           >
             <Grid3X3 className="w-3.5 h-3.5" />
             <span>الفهرس الأرشيفي</span>
           </button>
           <button
             onClick={() => setActiveTab('graph')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all ${activeTab === 'graph' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-all ${activeTab === 'graph' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
           >
             <Network className="w-3.5 h-3.5" />
             <span>الشبكة الدلالية</span>
@@ -130,10 +130,10 @@ export default function ArchiveHome() {
       {!user ? (
         <AppCard className="text-center py-10">
           <BookOpen className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground mb-3">سجّل الدخول لتبدأ أرشيفك المعرفي.</p>
+          <p className="text-meta text-muted-foreground mb-3">سجّل الدخول لتبدأ أرشيفك المعرفي.</p>
           <button
             onClick={() => navigate('/auth')}
-            className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold"
+            className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-meta font-semibold"
           >
             تسجيل الدخول
           </button>
@@ -153,7 +153,7 @@ export default function ArchiveHome() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ابحث في العنوان، الملخص، أو الوسوم…"
-              className="flex-1 bg-transparent outline-none text-[0.9375rem] placeholder:text-muted-foreground/60"
+              className="flex-1 bg-transparent outline-none text-meta placeholder:text-muted-foreground/60"
               style={{ fontSize: 16 }}
             />
           </AppCard>
@@ -161,13 +161,13 @@ export default function ArchiveHome() {
           {filtered.length === 0 ? (
             <AppCard className="text-center py-12">
               <BookOpen className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-meta text-muted-foreground mb-4">
                 {items && items.length === 0 ? 'الأرشيف فارغ. ابدأ ببحث جديد.' : 'لا نتائج مطابقة.'}
               </p>
               {items && items.length === 0 && (
                 <button
                   onClick={() => navigate('/archive/new')}
-                  className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold"
+                  className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-meta font-semibold"
                 >
                   توليد أول مستند
                 </button>
@@ -192,13 +192,13 @@ export default function ArchiveHome() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-mono text-[0.625rem] text-primary/70 tracking-wider">
+                            <span className="font-mono text-micro text-primary/70 tracking-wider">
                               № {String(d.accession_number).padStart(6, '0')}
                             </span>
-                            <span className="text-[0.625rem] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/50">
+                            <span className="text-micro text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/50">
                               {DEPTH_LABEL[d.depth] || d.depth}
                             </span>
-                            <span className="text-[0.625rem] text-muted-foreground">
+                            <span className="text-micro text-muted-foreground">
                               {readingTime(d.word_count)} د · {d.word_count.toLocaleString('ar-EG')}{' '}
                               كلمة
                             </span>
@@ -207,7 +207,7 @@ export default function ArchiveHome() {
                             {d.title}
                           </h3>
                           {d.abstract && (
-                            <p className="text-[0.8125rem] text-muted-foreground leading-relaxed line-clamp-2 mb-2">
+                            <p className="text-mini text-muted-foreground leading-relaxed line-clamp-2 mb-2">
                               {d.abstract}
                             </p>
                           )}
@@ -216,7 +216,7 @@ export default function ArchiveHome() {
                               {d.tags.slice(0, 4).map((t) => (
                                 <span
                                   key={t}
-                                  className="text-[0.625rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary"
+                                  className="text-micro px-2 py-0.5 rounded-full bg-primary/10 text-primary"
                                 >
                                   {t}
                                 </span>

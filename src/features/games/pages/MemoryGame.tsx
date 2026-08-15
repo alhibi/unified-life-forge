@@ -770,10 +770,10 @@ export default function MemoryGame() {
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1.5">
             <Trophy className="w-3.5 h-3.5 text-pink-300" />
-            <span className="text-[0.6875rem] font-bold text-pink-200">Lv.{stats.level}</span>
-            <span className="text-[0.625rem] text-zinc-500">{xp.current}/{xp.need} XP</span>
+            <span className="text-micro font-bold text-pink-200">Lv.{stats.level}</span>
+            <span className="text-micro text-zinc-500">{xp.current}/{xp.need} XP</span>
           </div>
-          <div className="flex items-center gap-1 text-[0.625rem] text-zinc-400">
+          <div className="flex items-center gap-1 text-micro text-zinc-400">
             <Award className="w-3 h-3 text-amber-400" />
             <span>{stats.unlocked.length}/{ACHIEVEMENTS.length}</span>
           </div>
@@ -794,13 +794,13 @@ export default function MemoryGame() {
         >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-base shrink-0">{adventureStage.isBoss ? '👑' : `#${adventureStage.id}`}</span>
-              <p className="text-xs font-bold text-pink-200 truncate">
+              <span className="text-body shrink-0">{adventureStage.isBoss ? '👑' : `#${adventureStage.id}`}</span>
+              <p className="text-mini font-bold text-pink-200 truncate">
                 {adventureStage.ar}
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <span className={`text-[0.625rem] font-mono ${
+              <span className={`text-micro font-mono ${
                 adventureMistakes > adventureStage.starMistakeBudget ? 'text-rose-400' : 'text-pink-300'
               }`}>
                 {adventureMistakes}/{adventureStage.starMistakeBudget} {'خطأ'}
@@ -842,7 +842,7 @@ export default function MemoryGame() {
       <AnimatePresence>
         {versusFlash && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="text-center text-pink-200 text-xs font-bold mb-2">{versusFlash}</motion.div>
+            className="text-center text-pink-200 text-mini font-bold mb-2">{versusFlash}</motion.div>
         )}
       </AnimatePresence>
 
@@ -862,13 +862,13 @@ export default function MemoryGame() {
                     style={{ backfaceVisibility: 'hidden',
                       background: bombArmed ? '#f59e0b30' : 'rgba(236,72,153,0.18)',
                       borderColor: bombArmed ? '#f59e0b66' : 'rgba(236,72,153,0.25)' }}>
-                    <div className="text-pink-300/40 text-2xl">?</div>
+                    <div className="text-pink-300/40 text-display">?</div>
                   </div>
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center border"
                     style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden',
                       background: isMatched ? 'rgba(236,72,153,0.18)' : 'rgba(255,255,255,0.04)',
                       borderColor: isMatched ? 'rgba(236,72,153,0.4)' : 'rgba(255,255,255,0.06)' }}>
-                    <span className={cols >= 6 ? 'text-2xl' : 'text-3xl'}>{icon}</span>
+                    <span className={cols >= 6 ? 'text-display' : 'text-hero'}>{icon}</span>
                   </div>
                 </motion.div>
               </button>
@@ -894,8 +894,8 @@ export default function MemoryGame() {
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
             className="max-w-[400px] mx-auto mt-5 text-center p-5 rounded-2xl border border-pink-500/30 bg-pink-500/5"
           >
-            <p className="text-4xl mb-1">{adventureStage.isBoss ? '👑' : '🎊'}</p>
-            <p className="text-xl font-black text-pink-300 mb-2">
+            <p className="text-hero mb-1">{adventureStage.isBoss ? '👑' : '🎊'}</p>
+            <p className="text-title font-black text-pink-300 mb-2">
               {'نجحت في المحطة!'}
             </p>
             {/* Star reveal */}
@@ -906,7 +906,7 @@ export default function MemoryGame() {
                   initial={{ scale: 0, rotate: -90 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.2 + n * 0.2, type: 'spring', stiffness: 220 }}
-                  className="text-3xl"
+                  className="text-hero"
                 >
                   {n <= adventureResult.stars ? '⭐' : '☆'}
                 </motion.span>
@@ -919,14 +919,14 @@ export default function MemoryGame() {
             <div className="flex gap-2">
               <button
                 onClick={() => navigate('/games/memory/adventure')}
-                className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-sm"
+                className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-meta"
               >
                 {'الخريطة'}
               </button>
               {adventureStage.id < STAGES.length && (
                 <button
                   onClick={() => navigate(`/games/memory?adventure=${adventureStage.id + 1}`)}
-                  className="flex-1 py-2.5 rounded-xl font-black text-pink-950 text-sm"
+                  className="flex-1 py-2.5 rounded-xl font-black text-pink-950 text-meta"
                   style={{ }}
                 >
                   {'التالية ←'}
@@ -935,7 +935,7 @@ export default function MemoryGame() {
               {adventureStage.id === STAGES.length && (
                 <button
                   onClick={() => navigate('/games/memory/adventure')}
-                  className="flex-1 py-2.5 rounded-xl font-black text-amber-950 text-sm"
+                  className="flex-1 py-2.5 rounded-xl font-black text-amber-950 text-meta"
                   style={{ }}
                 >
                   {'🏆 إنهاء'}
@@ -947,12 +947,12 @@ export default function MemoryGame() {
         {solved && mode !== 'adventure' && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
             className="max-w-[400px] mx-auto mt-5 text-center p-5 rounded-2xl border border-pink-500/30 bg-pink-500/5">
-            <p className="text-4xl mb-1">
+            <p className="text-hero mb-1">
               {mode === 'versus'
                 ? versusScores.player > versusScores.ai ? '🏆' : versusScores.player === versusScores.ai ? '🤝' : '😞'
                 : mode === 'timeattack' ? '⏱️' : '🎊'}
             </p>
-            <p className="text-2xl font-black text-pink-300 mb-1">
+            <p className="text-display font-black text-pink-300 mb-1">
               {mode === 'versus'
                 ? versusScores.player > versusScores.ai ? ('فوز!') : versusScores.player === versusScores.ai ? ('تعادل') : ('حظ أوفر')
                 : mode === 'timeattack' ? ('انتهى الوقت')
@@ -988,7 +988,7 @@ export default function MemoryGame() {
 
       {/* Achievements list */}
       <div className="max-w-[400px] mx-auto mt-6">
-        <p className="text-[0.6875rem] font-bold text-zinc-400 mb-2 px-1">
+        <p className="text-micro font-bold text-zinc-400 mb-2 px-1">
           {'الإنجازات'} · {stats.unlocked.length}/{ACHIEVEMENTS.length}
         </p>
         <div className="grid grid-cols-5 gap-2">
@@ -1002,8 +1002,8 @@ export default function MemoryGame() {
                   borderColor: unlocked ? 'rgba(236,72,153,0.35)' : 'rgba(255,255,255,0.05)',
  opacity: unlocked ? 1 : 0.45,
  }}>
- <span className="text-lg leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
- <span className="text-[0.625rem] font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
+ <span className="text-lead leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-zinc-500" />}</span>
+ <span className="text-micro font-semibold text-zinc-300 leading-tight line-clamp-2">{def.ar}</span>
  </div>
  );
  })}
@@ -1015,10 +1015,10 @@ export default function MemoryGame() {
  {achievementToast && (
  <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
  className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer rounded-2xl px-4 py-3 border border-pink-500/40 bg-card flex items-center gap-3">
- <span className="text-2xl">{achievementToast.icon}</span>
+ <span className="text-display">{achievementToast.icon}</span>
  <div>
- <p className="text-[0.625rem] text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>
-              <p className="text-sm font-black text-white">{achievementToast.ar}</p>
+ <p className="text-micro text-pink-200 font-semibold uppercase tracking-wider">{'إنجاز جديد'}</p>
+              <p className="text-meta font-black text-white">{achievementToast.ar}</p>
             </div>
           </motion.div>
         )}
@@ -1042,7 +1042,7 @@ function ModeHud({
 }) {
   if (mode === 'endless') {
     return (
-      <div className="flex items-center justify-between px-1 mb-2 text-xs">
+      <div className="flex items-center justify-between px-1 mb-2 text-mini">
         <span className="text-pink-200 font-bold">{'مستوى'} {endlessLevel}</span>
         <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
         <span className="text-zinc-400">{moves} {'حركة'}</span>
@@ -1053,7 +1053,7 @@ function ModeHud({
   if (mode === 'timeattack') {
     const danger = timeAttackLeft <= 10;
     return (
-      <div className="flex items-center justify-between px-1 mb-2 text-xs">
+      <div className="flex items-center justify-between px-1 mb-2 text-mini">
         <motion.span animate={danger ? { scale: [1, 1.1, 1] } : {}} transition={{ duration: 0.6, repeat: danger ? Infinity : 0 }}
           className={`font-black tabular-nums ${danger ? 'text-rose-400' : 'text-amber-300'}`}>{timeAttackLeft}s</motion.span>
         <span className="text-pink-200 font-bold">{timeAttackPairs} {'زوج'}</span>
@@ -1063,12 +1063,12 @@ function ModeHud({
   }
   if (mode === 'versus') {
     return (
-      <div className="flex items-center justify-between px-3 mb-2 text-xs">
+      <div className="flex items-center justify-between px-3 mb-2 text-mini">
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'player' ? 'bg-pink-500/20 text-pink-200' : 'bg-white/5 text-zinc-500'}`}>
           <span className="font-black">{'أنت'}</span>
           <span className="font-mono">{versusScores.player}</span>
         </div>
-        <span className="text-zinc-400 text-[0.625rem]">{fmt(timer)}</span>
+        <span className="text-zinc-400 text-micro">{fmt(timer)}</span>
         <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-rose-500/20 text-rose-200' : 'bg-white/5 text-zinc-500'}`}>
           <span className="font-mono">{versusScores.ai}</span>
           <span className="font-black">{'الذكاء'}</span>
@@ -1078,19 +1078,19 @@ function ModeHud({
   }
   if (mode === 'daily') {
     return (
-      <div className="flex items-center justify-between px-1 mb-2 text-xs">
+      <div className="flex items-center justify-between px-1 mb-2 text-mini">
         <span className="text-pink-200 font-bold flex items-center gap-1">
           <Calendar className="w-3 h-3" /> {todayKey()}
         </span>
         <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
         <span className="text-zinc-400">{moves} {'حركة'}</span>
-        {dailyDoneToday && <span className="text-emerald-400 font-bold text-[0.625rem]">✓</span>}
+        {dailyDoneToday && <span className="text-emerald-400 font-bold text-micro">✓</span>}
       </div>
     );
   }
   // classic
   return (
-    <div className="flex items-center justify-between px-1 mb-2 text-xs">
+    <div className="flex items-center justify-between px-1 mb-2 text-mini">
       <span className="text-pink-200 font-bold">{score}</span>
       <span className="text-zinc-400 tabular-nums">{fmt(timer)}</span>
       <span className="text-zinc-400">{moves} {'حركة'}</span>
@@ -1102,8 +1102,8 @@ function ModeHud({
 function StatCard({ value, label }: { value: string | number; label: string }) {
   return (
     <div className="text-center p-2 rounded-xl bg-white/4 border border-white/5">
-      <div className="text-base font-bold text-white tabular-nums">{value}</div>
-      <div className="text-[0.625rem] text-zinc-500">{label}</div>
+      <div className="text-body font-bold text-white tabular-nums">{value}</div>
+      <div className="text-micro text-zinc-500">{label}</div>
     </div>
   );
 }
@@ -1120,7 +1120,7 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (
-        <span className="absolute -bottom-1 -end-1 text-[0.625rem] font-black px-1 rounded-full"
+        <span className="absolute -bottom-1 -end-1 text-micro font-black px-1 rounded-full"
           style={{ background: color, color: '#fff' }}>{count}</span>
       )}
     </button>

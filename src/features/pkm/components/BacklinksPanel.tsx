@@ -16,7 +16,7 @@ export default function BacklinksPanel({
   if (links.length === 0) return null;
   return (
     <div className="pt-3 mt-2 border-t border-border/40">
-      <div className="text-[0.625rem] font-bold uppercase tracking-wider text-muted-foreground/70 mb-1.5">
+      <div className="text-micro font-bold uppercase tracking-wider text-muted-foreground/70 mb-1.5">
         {'روابط واردة'} · {links.length}
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -24,7 +24,7 @@ export default function BacklinksPanel({
           <button
             key={l.id}
             onClick={() => onOpen(l.id)}
-            className="text-xs px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 active:scale-95 transition"
+            className="text-mini px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 active:scale-95 transition"
           >
             {l.title || ('بدون عنوان')}
           </button>

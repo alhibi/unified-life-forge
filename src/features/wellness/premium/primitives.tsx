@@ -167,12 +167,12 @@ export function ScoreGauge({ value, zone, label, size = 160, caption }: ScoreGau
         gradient
       >
         <div className="text-center" dir="ltr">
-          <div className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</div>
-          <div className="text-[2.5rem] font-bold tabular-nums leading-none mt-0.5" style={{ color }}>
+          <div className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</div>
+          <div className="text-hero font-bold tabular-nums leading-none mt-0.5" style={{ color }}>
             {display}
           </div>
           {caption && (
-            <div className="text-[0.625rem] text-muted-foreground/80 mt-0.5">{caption}</div>
+            <div className="text-micro text-muted-foreground/80 mt-0.5">{caption}</div>
           )}
         </div>
       </ProgressRing>
@@ -236,11 +236,11 @@ export function StatTile({
           >
             <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
           </div>
-          <span className="text-[0.6875rem] font-semibold text-muted-foreground truncate">{label}</span>
+          <span className="text-micro font-semibold text-muted-foreground truncate">{label}</span>
         </div>
         {delta != null && (
           <div
-            className="text-[0.625rem] font-bold tabular-nums shrink-0 flex items-center gap-0.5"
+            className="text-micro font-bold tabular-nums shrink-0 flex items-center gap-0.5"
             style={{ color: trendColor }}
           >
             <span>{arrow}</span>
@@ -249,8 +249,8 @@ export function StatTile({
         )}
       </div>
       <div className="relative flex items-baseline gap-1 mt-1.5" dir="ltr">
-        <span className="text-[1.375rem] font-bold text-foreground tabular-nums leading-none">{value}</span>
-        {unit && <span className="text-[0.625rem] text-muted-foreground">{unit}</span>}
+        <span className="text-display font-bold text-foreground tabular-nums leading-none">{value}</span>
+        {unit && <span className="text-micro text-muted-foreground">{unit}</span>}
       </div>
       {progress != null && (
         <div className="relative h-1 mt-2 rounded-full bg-muted/50 overflow-hidden">
@@ -387,13 +387,13 @@ export function FastingRing({ elapsedSec, targetHours, size = 200, active, proto
       gradient
     >
       <div className="text-center" dir="ltr">
-        <div className="text-[0.625rem] uppercase tracking-wider font-semibold text-muted-foreground">
+        <div className="text-micro uppercase tracking-wider font-semibold text-muted-foreground">
           {protocol ?? '16:8'}
         </div>
-        <div className="text-[1.5rem] font-bold tabular-nums leading-tight mt-0.5" style={{ color }}>
+        <div className="text-display font-bold tabular-nums leading-tight mt-0.5" style={{ color }}>
           {active ? fmt(elapsedSec) : '00:00:00'}
         </div>
-        <div className="text-[0.625rem] text-muted-foreground mt-0.5">
+        <div className="text-micro text-muted-foreground mt-0.5">
           {completed
             ? 'مكتمل ✓'
             : active
@@ -454,7 +454,7 @@ export function SegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(s.value)}
             className={`relative ${fullWidth ? 'flex-1' : ''} ${
-              size === 'sm' ? 'text-[0.6875rem] px-2.5 py-1' : 'text-[0.75rem] px-3 py-1.5'
+              size === 'sm' ? 'text-micro px-2.5 py-1' : 'text-mini px-3 py-1.5'
             } font-semibold rounded-full flex items-center justify-center gap-1 transition-colors ${
               active ? 'text-background' : 'text-muted-foreground'
             }`}
@@ -492,10 +492,10 @@ export function SectionHeader({ title, subtitle, icon: Icon, action }: SectionHe
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
           {Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground/70" />}
-          <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider">{title}</p>
+          <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider">{title}</p>
         </div>
         {subtitle && (
-          <p className="text-[0.6875rem] text-muted-foreground/60 mt-0.5 leading-snug">{subtitle}</p>
+          <p className="text-micro text-muted-foreground/60 mt-0.5 leading-snug">{subtitle}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -518,8 +518,8 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
       <div className="w-12 h-12 rounded-2xl bg-muted/40 flex items-center justify-center mx-auto">
         <Icon className="w-6 h-6 text-muted-foreground/50" />
       </div>
-      <p className="text-sm font-semibold text-foreground">{title}</p>
-      {description && <p className="text-[0.75rem] text-muted-foreground leading-relaxed">{description}</p>}
+      <p className="text-meta font-semibold text-foreground">{title}</p>
+      {description && <p className="text-mini text-muted-foreground leading-relaxed">{description}</p>}
       {action && <div className="pt-1">{action}</div>}
     </div>
   );

@@ -53,7 +53,7 @@ export default function TokenDetailDrawer({
       <div className="space-y-4 px-1 pb-4">
         {delisted && (
           <div className="p-4 rounded-md border border-destructive/20 bg-destructive/5 text-center">
-            <p className="text-xs text-destructive font-semibold">
+            <p className="text-mini text-destructive font-semibold">
               هذه العملة قد تكون ملغاة أو غير نشطة حالياً على منصات التداول.
             </p>
           </div>
@@ -70,29 +70,29 @@ export default function TokenDetailDrawer({
         {/* High Density Metric Cards */}
         <div className="grid grid-cols-2 gap-3">
           <AppCard compact className="bg-muted/10 border border-border/5">
-            <span className="text-[0.625rem] text-muted-foreground font-semibold">القيمة السوقية</span>
-            <p className="text-sm font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <span className="text-micro text-muted-foreground font-semibold">القيمة السوقية</span>
+            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.marketCap ? formatCompact(pair.marketCap) : '-'}
             </p>
           </AppCard>
 
           <AppCard compact className="bg-muted/10 border border-border/5">
-            <span className="text-[0.625rem] text-muted-foreground font-semibold">التقييم المخفف بالكامل (FDV)</span>
-            <p className="text-sm font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <span className="text-micro text-muted-foreground font-semibold">التقييم المخفف بالكامل (FDV)</span>
+            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.fdv ? formatCompact(pair.fdv) : '-'}
             </p>
           </AppCard>
 
           <AppCard compact className="bg-muted/10 border border-border/5">
-            <span className="text-[0.625rem] text-muted-foreground font-semibold">السيولة</span>
-            <p className="text-sm font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <span className="text-micro text-muted-foreground font-semibold">السيولة</span>
+            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.liquidityUsd ? formatCompact(pair.liquidityUsd) : '-'}
             </p>
           </AppCard>
 
           <AppCard compact className="bg-muted/10 border border-border/5">
-            <span className="text-[0.625rem] text-muted-foreground font-semibold">حجم التداول (24 ساعة)</span>
-            <p className="text-sm font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
+            <span className="text-micro text-muted-foreground font-semibold">حجم التداول (24 ساعة)</span>
+            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.volume24h ? formatCompact(pair.volume24h) : '-'}
             </p>
           </AppCard>
@@ -100,7 +100,7 @@ export default function TokenDetailDrawer({
 
         {/* Buy/Sell Volume Split */}
         <div className="space-y-1.5 bg-muted/10 border border-border/5 rounded-md p-3">
-          <div className="flex items-center justify-between text-[0.625rem] text-muted-foreground font-semibold">
+          <div className="flex items-center justify-between text-micro text-muted-foreground font-semibold">
             <span>نسبة عمليات الشراء ({ratio.buysPct}%)</span>
             <span>نسبة عمليات البيع ({ratio.sellsPct}%)</span>
           </div>
@@ -110,14 +110,14 @@ export default function TokenDetailDrawer({
               style={{ width: `${ratio.buysPct}%` }}
             />
           </div>
-          <div className="flex justify-between text-[0.6875rem] font-plex-mono tracking-tight tabular-nums font-bold mt-1">
+          <div className="flex justify-between text-micro font-plex-mono tracking-tight tabular-nums font-bold mt-1">
             <span className="text-emerald-500">▲ {pair.txns24h.buys} شراء</span>
             <span className="text-rose-500">▼ {pair.txns24h.sells} بيع</span>
           </div>
         </div>
 
         {/* Token Details list */}
-        <div className="space-y-2 text-xs">
+        <div className="space-y-2 text-mini">
           <div className="flex justify-between py-1.5 border-b border-border/10">
             <span className="text-muted-foreground">الشبكة</span>
             <span className="font-bold text-foreground capitalize">
@@ -126,13 +126,13 @@ export default function TokenDetailDrawer({
           </div>
           <div className="flex justify-between py-1.5 border-b border-border/10">
             <span className="text-muted-foreground">عنوان الزوج</span>
-            <span className="font-bold font-plex-mono text-foreground select-all tabular-nums text-[0.625rem]">
+            <span className="font-bold font-plex-mono text-foreground select-all tabular-nums text-micro">
               {pair.pairAddress}
             </span>
           </div>
           <div className="flex justify-between py-1.5 border-b border-border/10">
             <span className="text-muted-foreground">العملة الأساسية</span>
-            <span className="font-bold font-plex-mono text-foreground select-all tabular-nums text-[0.625rem]">
+            <span className="font-bold font-plex-mono text-foreground select-all tabular-nums text-micro">
               {pair.baseTokenAddress}
             </span>
           </div>
@@ -141,7 +141,7 @@ export default function TokenDetailDrawer({
         {/* External links */}
         {(pair.websites.length > 0 || pair.socials.length > 0) && (
           <div className="space-y-2">
-            <span className="text-[0.625rem] text-muted-foreground font-bold tracking-wider uppercase block">
+            <span className="text-micro text-muted-foreground font-bold tracking-wider uppercase block">
               الروابط والمجتمعات
             </span>
             <div className="flex flex-wrap gap-2">
@@ -151,7 +151,7 @@ export default function TokenDetailDrawer({
                   href={w.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-8 items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 text-xs font-semibold text-foreground hover:bg-muted/40 transition-colors"
+                  className="flex h-8 items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 text-mini font-semibold text-foreground hover:bg-muted/40 transition-colors"
                 >
                   🌐 {w.label || 'الموقع الرسمي'}
                 </a>
@@ -162,7 +162,7 @@ export default function TokenDetailDrawer({
                   href={s.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-8 items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 text-xs font-semibold text-foreground hover:bg-muted/40 transition-colors"
+                  className="flex h-8 items-center gap-1.5 rounded-md border border-border/40 bg-muted/20 px-3 text-mini font-semibold text-foreground hover:bg-muted/40 transition-colors"
                 >
                   💬 {s.platform}
                 </a>
@@ -176,7 +176,7 @@ export default function TokenDetailDrawer({
             href={`https://dexscreener.com/${pair.chainId}/${pair.pairAddress}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-muted/60 border border-border/40 hover:bg-muted text-xs font-bold text-foreground transition-all duration-normal active:scale-95"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-muted/60 border border-border/40 hover:bg-muted text-mini font-bold text-foreground transition-all duration-normal active:scale-95"
           >
             📊 فتح الصفحة الكاملة على DEX Screener
           </a>

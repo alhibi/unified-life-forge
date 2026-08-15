@@ -18,7 +18,7 @@ const buttonVariants = cva(
       },
       size: {
         default: 'h-[var(--ui-button-h)] px-4 py-2',
-        xs: 'h-7 rounded-md px-2 text-xs',
+        xs: 'h-7 rounded-md px-2 text-mini',
         sm: 'h-[var(--ui-button-sm-h)] rounded-md px-3',
         lg: 'h-[var(--ui-button-lg-h)] rounded-md px-6',
         icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] min-w-[var(--ui-touch-min)]',

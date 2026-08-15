@@ -24,8 +24,8 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({ role, size = 'sm', customTitle })
   const wrapperCls = cn(
     'inline-flex items-center gap-0.5 rounded-full font-medium leading-none',
     size === 'sm'
-      ? 'text-[0.625rem] h-[15px] px-1.5'
-      : 'text-[0.6875rem] h-[19px] px-2',
+      ? 'text-micro h-[15px] px-1.5'
+      : 'text-micro h-[19px] px-2',
     role === 'owner'
       ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25'
       : role === 'admin'

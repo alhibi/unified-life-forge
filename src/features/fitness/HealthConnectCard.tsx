@@ -105,10 +105,10 @@ export function HealthConnectCard({ onSynced }: Props) {
             <Heart className="w-4.5 h-4.5 text-[hsl(var(--fitness-primary))]" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-[0.875rem] font-bold text-foreground truncate">
+            <h3 className="text-meta font-bold text-foreground truncate">
               {platform === 'ios' ? 'Apple Health' : 'Health Connect'}
             </h3>
-            <p className="text-[0.6875rem] text-muted-foreground/80">
+            <p className="text-micro text-muted-foreground/80">
               خطوات · مسافة · سعرات · نبض · نوم · تمارين
             </p>
           </div>
@@ -125,19 +125,19 @@ export function HealthConnectCard({ onSynced }: Props) {
       </div>
 
       {phase === 'checking' && (
-        <p className="text-[0.75rem] text-muted-foreground">…جارٍ التحقق</p>
+        <p className="text-mini text-muted-foreground">…جارٍ التحقق</p>
       )}
 
       {phase === 'unavailable' && (
         <div className="space-y-2">
-          <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
+          <p className="text-mini text-muted-foreground leading-relaxed">
             هذا الجهاز لا يدعم Health Connect. ثبّته من متجر Play للاستفادة من مزامنة بيانات الصحة.
           </p>
           <a
             href={HEALTH_CONNECT_INSTALL_URL}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.75rem] font-semibold bg-[hsl(var(--fitness-primary))] text-white"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-white"
           >
             <Zap className="w-3.5 h-3.5" />
             تثبيت من Play
@@ -147,19 +147,19 @@ export function HealthConnectCard({ onSynced }: Props) {
 
       {phase === 'needs-permission' && (
         <div className="space-y-2">
-          <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
+          <p className="text-mini text-muted-foreground leading-relaxed">
             نحتاج إذن قراءة لبياناتك الصحية لعرض ملخصات يومية وتمارين تلقائياً. لن نُعدّل بياناتك.
           </p>
           <div className="flex gap-2">
             <button
               onClick={handleGrant}
-              className="px-3 py-1.5 rounded-full text-[0.75rem] font-semibold bg-[hsl(var(--fitness-primary))] text-white active-tactile"
+              className="px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-white active-tactile"
             >
               منح الأذونات
             </button>
             <button
               onClick={() => openHealthConnectSettings().catch(() => {})}
-              className="px-3 py-1.5 rounded-full text-[0.75rem] font-semibold border border-border/40 text-muted-foreground active-tactile"
+              className="px-3 py-1.5 rounded-full text-mini font-semibold border border-border/40 text-muted-foreground active-tactile"
             >
               الإعدادات
             </button>
@@ -169,7 +169,7 @@ export function HealthConnectCard({ onSynced }: Props) {
 
       {(phase === 'ready' || phase === 'syncing') && (
         <div className="flex items-center justify-between gap-3">
-          <div className="text-[0.6875rem] text-muted-foreground min-w-0">
+          <div className="text-micro text-muted-foreground min-w-0">
             {lastSync ? (
               <span className="truncate block">آخر مزامنة: {lastSync}</span>
             ) : (
@@ -179,7 +179,7 @@ export function HealthConnectCard({ onSynced }: Props) {
           <button
             onClick={handleSync}
             disabled={phase === 'syncing'}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.75rem] font-semibold bg-[hsl(var(--fitness-primary))] text-white disabled:opacity-50 active-tactile"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-white disabled:opacity-50 active-tactile"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${phase === 'syncing' ? 'animate-spin' : ''}`} />
             {phase === 'syncing' ? '…مزامنة' : 'مزامنة الآن'}
@@ -188,7 +188,7 @@ export function HealthConnectCard({ onSynced }: Props) {
       )}
 
       {message && phase === 'unavailable' && (
-        <p className="text-[0.625rem] text-muted-foreground/60 pt-1 border-t border-border/20 font-mono truncate">
+        <p className="text-micro text-muted-foreground/60 pt-1 border-t border-border/20 font-mono truncate">
           {message}
         </p>
       )}

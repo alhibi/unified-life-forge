@@ -36,7 +36,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
           type="button"
           className={cn(
             'inline-flex items-center gap-2 bg-muted/60 border border-border/40 rounded-lg px-3 py-1.5',
-            'text-sm font-medium text-foreground outline-none transition-all',
+            'text-meta font-medium text-foreground outline-none transition-all',
             'hover:bg-muted active:scale-[0.97] duration-150',
             'focus-visible:ring-2 focus-visible:ring-primary/40',
  className,
@@ -70,7 +70,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             months: 'flex flex-col',
             month: 'space-y-3',
             caption: 'flex justify-center pt-1 relative items-center',
-            caption_label: 'text-sm font-semibold text-foreground',
+            caption_label: 'text-meta font-semibold text-foreground',
             nav: 'space-x-1 flex items-center',
             nav_button:
               'h-7 w-7 rounded-full bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150 flex items-center justify-center text-foreground',
@@ -79,11 +79,11 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             table: 'w-full border-collapse',
             head_row: 'grid grid-cols-7',
             head_cell:
-              'text-muted-foreground/70 font-medium text-[0.625rem] uppercase tracking-wider py-1.5 text-center',
+              'text-muted-foreground/70 font-medium text-micro uppercase tracking-wider py-1.5 text-center',
             row: 'grid grid-cols-7 mt-0.5',
             cell: 'relative p-0.5 text-center',
             day: cn(
-              'h-9 w-9 mx-auto rounded-lg text-[0.8125rem] font-medium text-foreground',
+              'h-9 w-9 mx-auto rounded-lg text-mini font-medium text-foreground',
               'hover:bg-secondary transition-colors duration-200 active:scale-90',
               'aria-selected:opacity-100 tabular-nums',
             ),

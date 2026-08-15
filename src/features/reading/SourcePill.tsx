@@ -15,9 +15,9 @@ export function SourcePill({
 }) {
   const hue = hashHue(name);
   const ch = sourceInitial(name);
-  const sz = size === 'sm' ? 'w-5 h-5 text-[0.625rem]'
-    : size === 'lg' ? 'w-8 h-8 text-[0.8125rem]'
-    : 'w-6 h-6 text-[0.625rem]';
+  const sz = size === 'sm' ? 'w-5 h-5 text-micro'
+    : size === 'lg' ? 'w-8 h-8 text-mini'
+    : 'w-6 h-6 text-micro';
   return (
     <span
       className={`${sz} rounded-full inline-flex items-center justify-center font-bold shrink-0 select-none`}

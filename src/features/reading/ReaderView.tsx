@@ -371,7 +371,7 @@ export function ReaderView({
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Type className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-bold flex-1">
+        <h3 className="text-body font-bold flex-1">
           {'قراءة رابط'}
         </h3>
         {article && (
@@ -421,10 +421,10 @@ export function ReaderView({
                 <Clipboard className="h-4 w-4" />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[0.75rem] font-bold text-primary mb-0.5">
+                <p className="text-mini font-bold text-primary mb-0.5">
                   {'رابط في الحافظة'}
                 </p>
-                <p className="text-[0.6875rem] text-muted-foreground truncate" dir="ltr">
+                <p className="text-micro text-muted-foreground truncate" dir="ltr">
                   {clipboardSuggestion}
                 </p>
               </div>
@@ -453,7 +453,7 @@ export function ReaderView({
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleExtract();
             }}
-            className="flex-1 h-10 text-sm rounded-xl"
+            className="flex-1 h-10 text-meta rounded-xl"
             disabled={loading}
           />
           <Button
@@ -472,13 +472,13 @@ export function ReaderView({
         {loading && <ArticleDetailSkeleton />}
         {!loading && error && (
           <div className="flex flex-col items-center justify-center text-center py-20 gap-3 px-6">
-            <p className="text-sm text-muted-foreground">{error}</p>
+            <p className="text-meta text-muted-foreground">{error}</p>
           </div>
         )}
         {!loading && !error && !article && history.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center py-24 gap-3 px-6">
             <Type className="h-10 w-10 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground max-w-xs">
+            <p className="text-meta text-muted-foreground max-w-xs">
               {'الصق رابط أي مقال — سنعرضه بدون إعلانات بنفس وضع القراءة'}
             </p>
           </div>
@@ -505,14 +505,14 @@ export function ReaderView({
           <article className="px-5 pt-5 pb-16 max-w-prose mx-auto">
             <h2
               dir="auto"
-              className="text-xl font-bold leading-snug mb-3"
+              className="text-title font-bold leading-snug mb-3"
               style={{
                 fontFamily: prefs.fontFamily === 'serif' ? 'Georgia, serif' : undefined,
               }}
             >
               {article.title}
             </h2>
-            <div className="flex items-center gap-2 mb-5 flex-wrap text-xs opacity-70" dir="auto">
+            <div className="flex items-center gap-2 mb-5 flex-wrap text-mini opacity-70" dir="auto">
               {article.siteName && <span>{article.siteName}</span>}
               {article.siteName && minutes > 0 && (
                 <span className="w-1 h-1 rounded-full bg-current opacity-30" />
@@ -577,14 +577,14 @@ function ReaderHistoryList({
   return (
     <div className="px-4 py-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
+        <p className="text-micro uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
           <History className="h-3 w-3" />
           {'قراءات حديثة'}
         </p>
         <button
           type="button"
           onClick={onClear}
-          className="text-[0.625rem] text-muted-foreground hover:text-foreground transition-colors"
+          className="text-micro text-muted-foreground hover:text-foreground transition-colors"
         >
           {'مسح الكل'}
         </button>
@@ -618,16 +618,16 @@ function ReaderHistoryList({
                   </span>
                 )}
               <div className="flex-1 min-w-0">
-                <p className="text-[0.8125rem] font-semibold line-clamp-2 leading-snug">
+                <p className="text-mini font-semibold line-clamp-2 leading-snug">
                   {entry.title}
                 </p>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {entry.siteName && (
-                    <span className="text-[0.6875rem] text-muted-foreground truncate max-w-[140px]">
+                    <span className="text-micro text-muted-foreground truncate max-w-[140px]">
                       {entry.siteName}
                     </span>
                   )}
-                  <span className="text-[0.625rem] text-muted-foreground/70">
+                  <span className="text-micro text-muted-foreground/70">
                     {timeAgo(new Date(entry.at).toISOString(), language)}
                   </span>
                 </div>

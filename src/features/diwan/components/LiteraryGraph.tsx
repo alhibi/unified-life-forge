@@ -358,7 +358,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 {conns > 2 && (
                   <g transform={`translate(${radius * 0.7}, ${-radius * 0.7})`}>
                     <circle r="8" fill={node.color} opacity="0.9" />
-                    <text textAnchor="middle" y="3.5" className="fill-white text-[0.625rem] font-bold pointer-events-none">{conns}</text>
+                    <text textAnchor="middle" y="3.5" className="fill-white text-micro font-bold pointer-events-none">{conns}</text>
                   </g>
                 )}
 
@@ -366,7 +366,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 <text
                   y={radius + 14}
                   textAnchor="middle"
-                  className="fill-foreground text-[0.6875rem] font-bold pointer-events-none select-none"
+                  className="fill-foreground text-micro font-bold pointer-events-none select-none"
                   style={{ fontFamily: "'Amiri', serif" }}
                 >
                   {node.name}
@@ -376,7 +376,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 <text
                   y={radius + 26}
                   textAnchor="middle"
-                  className="fill-muted-foreground text-[0.625rem] pointer-events-none select-none"
+                  className="fill-muted-foreground text-micro pointer-events-none select-none"
                 >
                   {node.eraAr}
                 </text>
@@ -414,7 +414,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
             className="ui-panel absolute top-[200px] start-4 bg-card border border-border rounded-2xl p-3.5 z-raised w-[170px]"
           >
-            <p className="text-[0.6875rem] font-bold text-foreground mb-2.5">نوع العلاقة</p>
+            <p className="text-micro font-bold text-foreground mb-2.5">نوع العلاقة</p>
             <div className="space-y-1">
               {(Object.entries(relationLabels) as [RelationType, string][]).map(([type, label]) => {
                 const isActive = filters.size === 0 || filters.has(type);
@@ -428,7 +428,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                         return next;
                       });
                     }}
-                    className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-[0.6875rem] font-medium transition-all ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground'}`}
+                    className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-micro font-medium transition-all ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground'}`}
                   >
                     <span className="w-3 h-3 rounded-full ring-1 ring-black/5" style={{ backgroundColor: relationColors[type], opacity: isActive ? 1 : 0.3 }} />
                     {label}
@@ -437,7 +437,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
               })}
             </div>
             {filters.size > 0 && (
-              <button onClick={() => setFilters(new Set())} className="mt-3 w-full text-[0.625rem] text-primary font-bold hover:underline">
+              <button onClick={() => setFilters(new Set())} className="mt-3 w-full text-micro text-primary font-bold hover:underline">
                 عرض الكل
               </button>
             )}
@@ -462,13 +462,13 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   <div className="w-5 h-5 rounded-full" style={{ backgroundColor: selected.color }} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[1rem] text-foreground leading-tight" style={{ fontFamily: "'Amiri', serif" }}>
+                  <h3 className="font-bold text-body text-foreground leading-tight" style={{ fontFamily: "'Amiri', serif" }}>
                     {selected.name}
                   </h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    {selected.title && <span className="text-[0.625rem] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">{selected.title}</span>}
-                    <span className="text-[0.625rem] text-muted-foreground">{selected.eraAr}</span>
-                    {selected.birth && <span className="text-[0.625rem] text-muted-foreground">· {selected.birth}{selected.death && ` – ${selected.death}`}</span>}
+                    {selected.title && <span className="text-micro font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">{selected.title}</span>}
+                    <span className="text-micro text-muted-foreground">{selected.eraAr}</span>
+                    {selected.birth && <span className="text-micro text-muted-foreground">· {selected.birth}{selected.death && ` – ${selected.death}`}</span>}
                   </div>
                 </div>
               </div>
@@ -480,7 +480,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             {/* Relations */}
             {selectedLinks.length > 0 && (
               <div>
-                <p className="text-[0.6875rem] font-bold text-muted-foreground mb-2">علاقاته الأدبية · {selectedLinks.length}</p>
+                <p className="text-micro font-bold text-muted-foreground mb-2">علاقاته الأدبية · {selectedLinks.length}</p>
                 <div className="space-y-1.5">
                   {selectedLinks.map((l, i) => {
                     const other = l.source.id === selected.id ? l.target : l.source;
@@ -495,10 +495,10 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[0.8125rem] font-bold text-foreground" style={{ fontFamily: "'Amiri', serif" }}>{other.name}</span>
-                            <span className="text-[0.625rem] px-2 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">{relationLabels[l.relation.type]}</span>
+                            <span className="text-mini font-bold text-foreground" style={{ fontFamily: "'Amiri', serif" }}>{other.name}</span>
+                            <span className="text-micro px-2 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">{relationLabels[l.relation.type]}</span>
                           </div>
-                          <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{l.relation.description}</p>
+                          <p className="text-micro text-muted-foreground leading-relaxed">{l.relation.description}</p>
                         </div>
                       </button>
                     );
@@ -511,7 +511,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             {onSelectPoet && (
               <button
                 onClick={() => onSelectPoet(selected.id)}
-                className="mt-4 w-full py-3 rounded-2xl bg-primary/10 hover:bg-primary/15 text-primary text-[0.8125rem] font-bold active:scale-[0.98] transition-all border border-primary/20"
+                className="mt-4 w-full py-3 rounded-2xl bg-primary/10 hover:bg-primary/15 text-primary text-mini font-bold active:scale-[0.98] transition-all border border-primary/20"
               >
                 عرض قصائد {selected.name}
               </button>
@@ -543,14 +543,14 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   className={`flex-1 flex flex-col items-center gap-1 py-1 px-1 rounded-xl transition-all ${isHighlighted ? 'opacity-100' : 'opacity-40'} hover:opacity-100 active:scale-95`}
                 >
                   <div className="w-full h-1.5 rounded-full transition-all" style={{ backgroundColor: color, opacity: isHighlighted ? 0.9 : 0.3 }} />
-                  <span className="text-[0.625rem] font-medium text-muted-foreground leading-none">{label}</span>
+                  <span className="text-micro font-medium text-muted-foreground leading-none">{label}</span>
                 </button>
               );
             })}
           </div>
           {/* Hint text */}
           {!selected && (
-            <p className="text-[0.625rem] text-muted-foreground/60 text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
+            <p className="text-micro text-muted-foreground/60 text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
           )}
         </div>
       </div>

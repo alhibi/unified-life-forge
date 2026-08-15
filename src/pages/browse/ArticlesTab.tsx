@@ -79,8 +79,8 @@ export default function ArticlesTab() {
             <primary.icon className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">{primary.title}</p>
-            <p className="text-[0.6875rem] text-muted-foreground leading-snug mt-0.5">{primary.desc}</p>
+            <p className="text-meta font-bold text-foreground">{primary.title}</p>
+            <p className="text-micro text-muted-foreground leading-snug mt-0.5">{primary.desc}</p>
           </div>
           <Arrow className="w-4 h-4 text-primary shrink-0" />
         </div>
@@ -89,7 +89,7 @@ export default function ArticlesTab() {
       {/* Section divider */}
       <motion.div variants={item} className="flex items-center gap-2 px-1 pt-1">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-[0.6875rem] font-semibold text-muted-foreground/70 tracking-wide">
+        <span className="text-micro font-semibold text-muted-foreground/70 tracking-wide">
           {'المزيد'}
         </span>
         <div className="h-px flex-1 bg-border" />
@@ -107,8 +107,8 @@ export default function ArticlesTab() {
             <c.icon className="w-[18px] h-[18px] text-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[0.8125rem] font-bold text-foreground">{c.title}</p>
-            <p className="text-[0.6875rem] text-muted-foreground leading-snug">{c.desc}</p>
+            <p className="text-mini font-bold text-foreground">{c.title}</p>
+            <p className="text-micro text-muted-foreground leading-snug">{c.desc}</p>
           </div>
           <Arrow className="w-4 h-4 text-muted-foreground shrink-0" />
         </motion.button>

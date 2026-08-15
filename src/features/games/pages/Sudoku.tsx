@@ -626,11 +626,11 @@ export default function SudokuPage() {
       <button onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform">
         {isPaused ? <Play className="w-3.5 h-3.5 text-zinc-400" /> : <Pause className="w-3.5 h-3.5 text-zinc-400" />}
       </button>
-      <div className="flex items-center gap-1 text-xs text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+      <div className="flex items-center gap-1 text-mini text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
         <Clock className="w-3 h-3" />{formatTimer(timer)}
       </div>
       {errorCount > 0 && (
-        <div className="flex items-center gap-1 text-xs text-rose-400 bg-rose-500/10 px-2 py-1 rounded-full">
+        <div className="flex items-center gap-1 text-mini text-rose-400 bg-rose-500/10 px-2 py-1 rounded-full">
           <X className="w-3 h-3" />{errorCount}
         </div>
       )}
@@ -651,15 +651,15 @@ export default function SudokuPage() {
       {variant === 'x' && !solved && (
         <div className="text-center py-1.5 mb-2 rounded-2xl bg-purple-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-purple-300" />
-          <span className="text-purple-200 font-bold text-[0.6875rem]">X-Sudoku</span>
-          <span className="text-purple-200/60 text-[0.625rem]">{'القطران 1-9 أيضاً'}</span>
+          <span className="text-purple-200 font-bold text-micro">X-Sudoku</span>
+          <span className="text-purple-200/60 text-micro">{'القطران 1-9 أيضاً'}</span>
         </div>
       )}
       {isDaily && !solved && (
         <div className="text-center py-2 mb-2 rounded-2xl bg-amber-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Calendar className="w-4 h-4 text-amber-300" />
-          <span className="text-amber-200 font-bold text-xs">{'تحدّي اليوم'}</span>
-          <span className="text-amber-200/60 text-xs tabular-nums">{todayKey()}</span>
+          <span className="text-amber-200 font-bold text-mini">{'تحدّي اليوم'}</span>
+          <span className="text-amber-200/60 text-mini tabular-nums">{todayKey()}</span>
         </div>
       )}
 
@@ -668,8 +668,8 @@ export default function SudokuPage() {
           className="text-center py-3 mb-3 rounded-2xl bg-primary/12 max-w-[360px] mx-auto flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-primary stroke-[1.8]" />
           <span className="text-primary font-bold">{t('sudoku.solved')}</span>
-          <span className="text-primary/70 text-sm font-medium">{formatTimer(timer)}</span>
-          {hintsUsed === 0 && errorCount === 0 && <span className="text-amber-400 text-xs">★ {'إتقان'}</span>}
+          <span className="text-primary/70 text-meta font-medium">{formatTimer(timer)}</span>
+          {hintsUsed === 0 && errorCount === 0 && <span className="text-amber-400 text-mini">★ {'إتقان'}</span>}
         </motion.div>
       )}
 
@@ -684,7 +684,7 @@ export default function SudokuPage() {
             >
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
-                <span className="text-muted-foreground font-medium text-sm">
+                <span className="text-muted-foreground font-medium text-meta">
                   {!gameStarted ? ('اضغط للبدء') : ('اضغط للمتابعة')}
                 </span>
               </div>
@@ -716,13 +716,13 @@ export default function SudokuPage() {
                     ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}`}
                 >
                   {cell !== null ? (
-                    <span className={`text-[0.9375rem] font-semibold select-none ${
+                    <span className={`text-meta font-semibold select-none ${
                       isOrig ? 'text-foreground' : hasError ? 'text-destructive' : 'text-primary'
                     }`}>
                       {cell}
                     </span>
                   ) : cellNotes.size > 0 ? (
-                    <div className="grid grid-cols-3 gap-0 text-[0.625rem] text-muted-foreground/70 leading-none w-full h-full p-[2px]">
+                    <div className="grid grid-cols-3 gap-0 text-micro text-muted-foreground/70 leading-none w-full h-full p-[2px]">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                         <span key={n} className="flex items-center justify-center font-medium">
                           {cellNotes.has(n.toString()) ? n : ''}
@@ -753,8 +753,8 @@ export default function SudokuPage() {
                       ? 'bg-primary/20 text-primary'
                       : 'text-foreground hover:bg-secondary'
                 }`}>
-                <span className="text-[1.125rem] font-bold leading-none">{n}</span>
-                <span className={`text-[0.625rem] mt-0.5 leading-none font-medium ${
+                <span className="text-lead font-bold leading-none">{n}</span>
+                <span className={`text-micro mt-0.5 leading-none font-medium ${
                   isComplete ? 'text-muted-foreground/30' : 'text-muted-foreground/60'
                 }`}>
                   {remaining}
@@ -776,7 +776,7 @@ export default function SudokuPage() {
             className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-20 active:scale-90">
             <Lightbulb className="w-5 h-5 text-foreground stroke-[1.8]" />
             {hintsUsed < maxHints && (
-              <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-[0.625rem] font-bold flex items-center justify-center">
+              <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-primary/15 text-primary text-micro font-bold flex items-center justify-center">
                 {maxHints - hintsUsed}
               </span>
             )}
@@ -829,10 +829,10 @@ export default function SudokuPage() {
                   <Brain className="w-5 h-5 text-purple-300" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-[0.625rem] uppercase tracking-wider text-purple-300/80 font-bold">
+                  <p className="text-micro uppercase tracking-wider text-purple-300/80 font-bold">
                     {'تقنية الحل'}
                   </p>
-                  <h3 className="text-base font-black text-foreground">
+                  <h3 className="text-body font-black text-foreground">
                     {TECHNIQUE_LABELS[smartHint.technique].ar}
                   </h3>
                   <div className="flex items-center gap-1 mt-0.5">
@@ -846,13 +846,13 @@ export default function SudokuPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-foreground/90 leading-relaxed mb-4">
+              <p className="text-meta text-foreground/90 leading-relaxed mb-4">
                 {smartHint.explanationAr}
               </p>
 
               {/* Effect summary */}
               {smartHint.placements.length > 0 && (
-                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 text-[0.6875rem]">
+                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 text-micro">
                   <p className="font-bold text-emerald-300 mb-0.5">
                     {'سيضع الرقم:'}
                   </p>
@@ -864,7 +864,7 @@ export default function SudokuPage() {
                 </div>
               )}
               {smartHint.eliminations.length > 0 && (
-                <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-2.5 mb-3 text-[0.6875rem]">
+                <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-2.5 mb-3 text-micro">
                   <p className="font-bold text-rose-300 mb-0.5">
                     {`سيلغي ${smartHint.eliminations.length} مرشحاً`}
                   </p>
@@ -874,14 +874,14 @@ export default function SudokuPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSmartHint(null)}
-                  className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-sm"
+                  className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-meta"
                 >
                   {'فهمت'}
                 </button>
                 {(smartHint.placements.length > 0 || smartHint.eliminations.length > 0) && (
                   <button
                     onClick={applySmartHint}
-                    className="flex-1 py-2.5 rounded-xl font-black text-purple-950 text-sm"
+                    className="flex-1 py-2.5 rounded-xl font-black text-purple-950 text-meta"
                     style={{ }}
                   >
                     {'طبّقها'}

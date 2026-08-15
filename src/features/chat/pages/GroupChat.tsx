@@ -169,7 +169,7 @@ export default function GroupChatPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-xl font-bold">{'سجّل الدخول للوصول'}</h1>
+        <h1 className="text-title font-bold">{'سجّل الدخول للوصول'}</h1>
         <Button onClick={() => navigate('/auth')}>{t('auth.signIn')}</Button>
       </div>
     );
@@ -178,8 +178,8 @@ export default function GroupChatPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
         <MessageCircle className="w-12 h-12 text-muted-foreground/40" />
-        <h1 className="text-lg font-semibold">{'المحادثة غير موجودة'}</h1>
-        <p className="text-sm text-muted-foreground max-w-sm">
+        <h1 className="text-lead font-semibold">{'المحادثة غير موجودة'}</h1>
+        <p className="text-meta text-muted-foreground max-w-sm">
           {'ربما تم حذفها أو لم تعد عضواً فيها.'}
         </p>
         <Button onClick={goBack} variant="outline">{'رجوع'}</Button>
@@ -252,8 +252,8 @@ export default function GroupChatPage() {
           >
             <GroupAvatar chat={chat} className="h-9 w-9" />
             <div className="flex-1 min-w-0">
-              <p className="text-[0.875rem] font-semibold truncate">{chat.title || ('بدون اسم')}</p>
-              <p className="text-[0.6875rem] text-muted-foreground truncate">
+              <p className="text-meta font-semibold truncate">{chat.title || ('بدون اسم')}</p>
+              <p className="text-micro text-muted-foreground truncate">
                 {typing.anyOtherTyping ? (
                   <span className="inline-flex items-center gap-1 text-primary">
                     <TypingDots size={3} />
@@ -309,7 +309,7 @@ export default function GroupChatPage() {
                 type="button"
                 onClick={() => void messagesQ.loadOlder()}
                 disabled={messagesQ.isFetchingOlder}
-                className="text-[0.6875rem] font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
+                className="text-micro font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
               >
                 {messagesQ.isFetchingOlder
                   ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -322,7 +322,7 @@ export default function GroupChatPage() {
           {messagesQ.messages.length === 0 && !messagesQ.isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-3 py-12">
               <MessageCircle className="w-10 h-10 opacity-30" />
-              <p className="text-[0.8125rem]">
+              <p className="text-mini">
                 {'لا رسائل بعد. ابدأ المحادثة.'}
               </p>
             </div>
@@ -332,7 +332,7 @@ export default function GroupChatPage() {
             if (item.kind === 'date') {
               return (
                 <div key={item.key} className="flex justify-center py-2">
-                  <span className="text-[0.625rem] uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
+                  <span className="text-micro uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
                     {item.label}
                   </span>
                 </div>
@@ -381,7 +381,7 @@ export default function GroupChatPage() {
             >
               <ArrowLeft className="w-4 h-4 text-foreground rotate-90" />
               {(chat.unreadCount ?? 0) > 0 && (
-                <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold flex items-center justify-center px-1">
+                <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-micro font-bold flex items-center justify-center px-1">
                   {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
                 </span>
               )}
@@ -492,7 +492,7 @@ function ActionMenuOverlay({ state, onClose, isMine, onReply, onEdit, onCopy, on
               key={emoji}
               type="button"
               onClick={() => { onReact(msg, emoji); onClose(); }}
-              className="text-[1.375rem] w-10 h-10 rounded-full active:scale-90 transition-transform"
+              className="text-display w-10 h-10 rounded-full active:scale-90 transition-transform"
             >
               {emoji}
             </button>
@@ -554,7 +554,7 @@ function ActionRow({ icon, label, onClick, disabled, danger }: ActionRowProps) {
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full flex items-center gap-3 px-4 h-11 text-start text-[0.875rem] active:bg-accent/40 transition-colors',
+        'w-full flex items-center gap-3 px-4 h-11 text-start text-meta active:bg-accent/40 transition-colors',
         danger ? 'text-destructive' : 'text-foreground',
         disabled && 'opacity-50',
       )}

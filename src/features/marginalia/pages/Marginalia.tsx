@@ -105,7 +105,7 @@ export default function Marginalia() {
         <SEO path="/marginalia" title="الهوامش" description="أرشيف قراءة شخصي يكشف الروابط الخفية بين ما تقرأ." />
         <BackButton />
         <AppCard className="text-center py-10">
-          <p className="text-sm text-muted-foreground">سجّل الدخول لبناء أرشيفك الشخصي.</p>
+          <p className="text-meta text-muted-foreground">سجّل الدخول لبناء أرشيفك الشخصي.</p>
         </AppCard>
       </PageShell>
     );
@@ -121,8 +121,8 @@ export default function Marginalia() {
       <BackButton />
 
       <header className="space-y-1 pt-1">
-        <h1 className="text-xl font-black">الهوامش</h1>
-        <p className="text-xs text-muted-foreground">
+        <h1 className="text-title font-black">الهوامش</h1>
+        <p className="text-mini text-muted-foreground">
           {articles.length.toLocaleString('en-US')} مقالاً · {connections.length.toLocaleString('en-US')} رابطاً
         </p>
       </header>
@@ -133,7 +133,7 @@ export default function Marginalia() {
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[0.6875rem] font-bold transition-all ${
+            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-all ${
               tab === key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -163,7 +163,7 @@ export default function Marginalia() {
                   type="button"
                   onClick={runDiscovery}
                   disabled={discovering}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-bold active:scale-[0.98] transition disabled:opacity-60"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-meta font-bold active:scale-[0.98] transition disabled:opacity-60"
                 >
                   {discovering
                     ? <><Loader2 className="w-4 h-4 animate-spin" /> يقرأ أرشيفك…</>
@@ -171,7 +171,7 @@ export default function Marginalia() {
                 </button>
                 {fresh.length === 0 ? (
                   <AppCard className="text-center py-8">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-meta text-muted-foreground">
                       لا روابط معلّقة — أضف مقالات ثم شغّل المحرّك.
                     </p>
                   </AppCard>
@@ -204,7 +204,7 @@ export default function Marginalia() {
             {tab === 'pinboard' && (
               pinnedConnections.length === 0 ? (
                 <AppCard className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">لا شيء مثبّت بعد.</p>
+                  <p className="text-meta text-muted-foreground">لا شيء مثبّت بعد.</p>
                 </AppCard>
               ) : pinnedConnections.map(({ pin, connection }) => (
                 <ConnectionCard
