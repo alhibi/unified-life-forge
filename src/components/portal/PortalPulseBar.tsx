@@ -102,7 +102,7 @@ export default function PortalPulseBar() {
 
   return (
     <div className="app-card-bare flex flex-wrap items-stretch gap-1 p-1.5" aria-label="نبض اليوم">
-      <Cell label="لوحة الآن ومواقيت الصلاة" onClick={() => navigate('/now')}>
+      <Cell label="مواقيت الصلاة" onClick={() => navigate('/settings/prayer')}>
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-[hsl(var(--live))]">
           <Sun className="h-4 w-4" aria-hidden />
         </span>

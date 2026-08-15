@@ -203,12 +203,9 @@ const loadTravelTrip = () => import("./features/travel-atlas/pages/TripDetailPag
 const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMapPage");
 const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
-// "Now" (الرئيسي) — the former home page content, now a standalone
-// app reached from the portal grid.
-const loadNow = () => import("./features/now/pages/Now");
+// German learning diwan and the crypto watchlist — both heavy standalone apps.
 const loadDeLearning = () => import("./features/de-learning/pages/GermanHome");
 const loadCrypto = () => import("./features/crypto/pages/CryptoWatchlist");
-
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
 // in-app intent surface (BottomNav pointerdown, NavLink hover, smart
@@ -279,7 +276,6 @@ registerRoute('/archive/new',    loadArchiveNew);
 registerRoute('/archive/:id',    loadArchiveReader);
 registerRoute('/pkm',            loadPKM);
 registerRoute('/pkm/mind',       loadMind);
-registerRoute('/now',            loadNow);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
 registerRoute('/de-learning',     loadDeLearning);
@@ -350,7 +346,6 @@ const ArchiveReaderPage = lazy(loadArchiveReader);
 const PKMPage           = lazy(loadPKM);
 const MindPage          = lazy(loadMind);
 const OAuthConsentPage  = lazy(loadOAuthConsent);
-const NowPage           = lazy(loadNow);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -725,7 +720,8 @@ function AnimatedRoutes() {
                   {/* PKM — personal knowledge base (local-first MVP). */}
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
-                  <Route path="/now"           element={<ErrorBoundary><NowPage /></ErrorBoundary>} />
+                  {/* «الرئيسي» is no longer a standalone app — its widgets live on the portal. */}
+                  <Route path="/now"           element={<Navigate to="/" replace />} />
                   <Route path="/de-learning"   element={<ErrorBoundary><DeLearningPage /></ErrorBoundary>} />
                   <Route path="/crypto"        element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
                   <Route path="/crypto/"       element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
