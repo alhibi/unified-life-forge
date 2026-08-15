@@ -202,8 +202,11 @@ export async function fetchPrayerTimings(
       const data = await withBreaker(
         'aladhan:timings',
         async () => {
+          // A hung request must not leave the prayer card empty: bail out after
+          // 8 s and let the local computation answer instead.
           const res = await fetch(
             `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${resolvedMethod}&school=${school}&latitudeAdjustmentMethod=${latAdj}`,
+            { signal: AbortSignal.timeout(8000) },
           );
           if (!res.ok) throw Object.assign(new Error('aladhan http error'), { status: res.status });
           return (await res.json()) as { code?: number; data?: { timings?: Record<string, string> } };
