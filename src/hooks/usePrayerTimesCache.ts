@@ -8,6 +8,7 @@
 //      computation using equivalent parameters — guaranteeing we
 //      always return valid timings worldwide, even offline.
 
+import { withBreaker } from '@/lib/circuitBreaker';
 import { type AladhanMethod,computeLocalTimings, pickMethodForLocation } from '@/lib/prayerCalculationMethod';
 
 interface CachedPrayer {
