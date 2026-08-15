@@ -582,6 +582,7 @@ function Hero({
   currentPrayer,
   nextPrayer,
   locationLabel,
+  t,
 }: {
   currentPrayer?: PrayerTime;
   nextPrayer?: PrayerTime;
