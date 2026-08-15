@@ -471,6 +471,13 @@
        now the canvas and step 100 carries the actions. The theme keeps its
        identity across modes instead of becoming a different colour. */
     color-scheme: dark;
+    --theme-50: 240 7.1% 5.5%;
+    --theme-100: 240 7.1% 11%;
+    --theme-200: 27 13.9% 15.5%;
+    --theme-300: 34 20.4% 35.5%;
+    --theme-400: 34 33.7% 60.2%;
+    --theme-500: 35 31.3% 74.3%;
+    --theme-600: 30 2.6% 69.4%;
     --background: 240 7.1% 5.5%;
     --foreground: 40 14.3% 91.8%;
     --card: 240 7.1% 11%;
@@ -484,20 +491,21 @@
     --muted: 270 2.6% 14.9%;
     --muted-foreground: 30 2.6% 69.4%; /* AA on the canvas */
     --accent: 240 1.1% 17.5%;
-    --accent-foreground: 34 33.7% 60.2%;
-    --destructive: 0 58% 68%;
-    --destructive-foreground: 0 20% 10%;
-    --success: 145 38% 64%;
-    --success-foreground: 145 30% 12%;
-    --warning: 35 65% 68%;
-    --warning-foreground: 35 40% 12%;
-    --error: 0 58% 68%;
-    --error-foreground: 0 20% 10%;
+    --accent-foreground: 40 14.3% 91.8%; /* text on the accent surface */
+    --accent-brand: 34 33.7% 60.2%;
+    --destructive: 358 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 50% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 85% 45%;
+    --warning-foreground: 38 90% 12%;
+    --error: 358 72% 56%;
+    --error-foreground: 0 0% 100%;
     --border: 0 0% 27.8%;
     --input: 0 0.5% 38.2%;
     --ring: 34 33.7% 60.2%;
-    /* Ink again — the overlay colour never changes with the mode either. */
-    --scrim: 250 7% 7%;
+    /* The scrim carries the palette hue so overlays belong to the theme. */
+    --scrim: 240 7.1% 4%;
     --sidebar-background: 240 7.1% 5.5%;
     --sidebar-foreground: 40 8.8% 86.7%;
     --sidebar-primary: 34 33.7% 60.2%;
