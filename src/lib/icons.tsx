@@ -218,39 +218,38 @@ export function loadIconSet(set: IconSet): void {
       TablerLib = m as unknown as TablerLibType;
       done();
     });
-    // Tabler falls back to lucide names for awkward glyphs.
-    loadIconSet('lucide');
   }
 }
 
 
+/**
+ * Every alias in this file is name-verified against all three libraries by
+ * `src/lib/__tests__/iconCoverage.test.ts`, so a lookup is a single hit in the
+ * selected library. The only fallback left is phosphor, and it exists purely
+ * for brand marks that a stroke library does not ship at all (e.g. GitHub) —
+ * never for ordinary UI glyphs, which is what used to make one set silently
+ * render a mix of two families.
+ */
+const resolveCache = new Map<string, unknown>();
+
 function pickComponent(set: IconSet, names: Names) {
-  if (set === 'lucide') {
-    return LucideLib[names.l] ?? LucideLib[names.p] ?? PhosLib[names.p];
-  }
-  if (set === 'tabler') {
-    // Tabler often reorders words (CheckCircle → CircleCheck, BellOff → BellOff,
-    // ArrowDownWideNarrow → SortDescending2, etc.). Try the direct alias, the
-    // Icon+lucideName form, a word-swap variant, then fall back to lucide and
-    // finally phosphor so no glyph disappears.
-    const swapped = names.l.replace(
-      /^([A-Z][a-z0-9]+)([A-Z][a-zA-Z0-9]+)$/,
-      (_m, a: string, b: string) => `Icon${b}${a}`,
-    );
-    return (
-      TablerLib[names.t] ??
-      TABLER_NAME_FALLBACKS[names.l]
-        ?.map((name) => TablerLib[name])
-        .find(Boolean) ??
-      TablerLib['Icon' + names.l] ??
-      TablerLib[swapped] ??
-      TablerLib['Icon' + names.p] ??
-      LucideLib[names.l] ??
-      LucideLib[names.p] ??
-      PhosLib[names.p]
-    );
-  }
-  return PhosLib[names.p];
+  const key = `${set}:${names.p}`;
+  const cached = resolveCache.get(key);
+  if (cached !== undefined) return cached as PhosphorIcon | undefined;
+
+  const found =
+    set === 'lucide' ? (LucideLib[names.l] ?? PhosLib[names.p])
+    : set === 'tabler' ? (TablerLib[names.t] ?? PhosLib[names.p])
+    : PhosLib[names.p];
+
+  // Only memoize once the chosen library is actually in memory, otherwise the
+  // phosphor placeholder would be cached forever.
+  const libReady =
+    set === 'phosphor' ||
+    (set === 'lucide' && LucideLib !== EMPTY) ||
+    (set === 'tabler' && Object.keys(TablerLib).length > 0);
+  if (libReady && found) resolveCache.set(key, found);
+  return found as PhosphorIcon | undefined;
 }
 
 /* ------------------------------------------------------------------------- */
