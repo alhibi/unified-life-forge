@@ -614,16 +614,19 @@ export function generateThemeTokens(
     ? '0 1px 3px rgba(0,0,0,0.25)'
     : '0 1px 3px rgba(63,63,63,0.08)';
 
-  // Re-generate standard scale mapping for backward compatibility
+  // Published tone ladder (--theme-50 … --theme-600).
+  // It is derived from the tones we JUST resolved for this mode, not from
+  // `preset.scale` (which is a light-mode-only legacy artefact). Otherwise
+  // every component reading --theme-* keeps light colours in dark mode.
   const scaleVars: Record<string, string> = {
     '--theme-ink': inkStr,
-    '--scrim': hslToString(isDark ? [0, 0, 5] : [0, 0, 8]),
+    // The scrim carries the palette's hue so overlays belong to the theme.
+    '--scrim': hslToString([bgHsl[0], Math.min(bgHsl[1], 10), isDark ? 4 : 8]),
   };
 
+  const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl);
   SCALE_STEPS.forEach((name, i) => {
-    // Legacy mapping to satisfy components requesting --theme-50, etc.
-    const stepHsl = preset.scale[i];
-    scaleVars[`--theme-${name}`] = hslToString(stepHsl);
+    scaleVars[`--theme-${name}`] = hslToString(ladder[i]);
   });
 
   return {
@@ -638,20 +641,22 @@ export function generateThemeTokens(
     '--secondary-foreground': secondaryFgStr,
     '--muted': mutedStr,
     '--muted-foreground': mutedFgStr,
+    // shadcn contract: `accent` is a subtle interactive surface and
+    // `accent-foreground` is the TEXT drawn on it — so it must be ink, not the
+    // brand colour (copper-on-grey used to fail AA in hovered menu rows).
     '--accent': secondaryStr,
-    '--accent-foreground': accStr,
+    '--accent-foreground': hslToString(
+      ensureContrast(inkHsl, mixHsl(inkHsl, bgHsl, isDark ? 0.14 : 0.11), 4.5),
+    ),
+    // Kept for call sites that genuinely want the brand tone on that surface.
+    '--accent-brand': accStr,
     '--primary': accStr,
     '--primary-foreground': primaryFgStr,
     '--disabled': disabledStr,
-    // Status colors - functional and verified
-    '--destructive': '358 72% 50%',
-    '--destructive-foreground': '0 0% 100%',
-    '--success': '145 50% 36%',
-    '--success-foreground': '0 0% 100%',
-    '--warning': '38 85% 45%',
-    '--warning-foreground': '38 90% 10%',
-    '--error': '358 72% 50%',
-    '--error-foreground': '0 0% 100%',
+    // Status colours keep their fixed semantic hue but their TONE is resolved
+    // against the active background, so they never sink into a very light or
+    // very dark palette.
+    ...statusTokens(bgHsl),
     // Lines
     '--border': borderStr,
     '--input': inputStr,
@@ -675,44 +680,6 @@ export function generateThemeTokens(
   };
 }
 
-// ─── Legacy Compat Token Generators ─────────────────────────
-export function generateLegacyThemeTokens(
-  preset: ThemePreset,
-  style: ThemeStyle,
-  isDark: boolean,
-  isBlack: boolean
-): Record<string, string> {
-  return generateThemeTokens(preset, style, isDark, isBlack);
-}
-
-export function generateMD3Tokens(isDark: boolean, isBlack: boolean): Record<string, string> {
-  return generateThemeTokens(themePresets[0], 'neutral', isDark, isBlack);
-}
-
-export function generateMD3TonalTokens(
-  preset: ThemePreset,
-  isDark: boolean,
-  isBlack: boolean
-): Record<string, string> {
-  return generateThemeTokens(preset, 'neutral', isDark, isBlack);
-}
-
-export function generateiOSTokens(
-  preset: ThemePreset,
-  isDark: boolean,
-  isBlack: boolean
-): Record<string, string> {
-  return generateThemeTokens(preset, 'neutral', isDark, isBlack);
-}
-
-export function generateAuraTokens(
-  preset: ThemePreset,
-  isDark: boolean,
-  isBlack: boolean
-): Record<string, string> {
-  return generateThemeTokens(preset, 'neutral', isDark, isBlack);
-}
-
 // ─── Helpers for Preview / Swatches ──────────────────────────
 /**
  * The seven published tones (50 → 600) of a preset, in the mode being shown.
@@ -729,15 +696,7 @@ export function getThemeScale(
   const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
   const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
   const accent = ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 3.2);
-  return [
-    bg,                            // 50  — page
-    surface,                       // 100 — card
-    mixHsl(accent, bg, 0.18),      // 200 — accent wash
-    mixHsl(accent, bg, 0.55),      // 300 — accent soft
-    accent,                        // 400 — accent
-    mixHsl(ink, accent, 0.45),     // 500 — accent deep
-    mixHsl(ink, bg, 0.74),         // 600 — secondary ink
-  ];
+  return buildToneLadder(bg, surface, ink, accent);
 }
 
 export function getThemeScaleColors(
