@@ -46,25 +46,19 @@ const PRESETS: readonly Preset[] = [
     id: 'phosphor',
     name: 'فُسفور',
     subtitle: 'الافتراضي',
-    personality: 'أنيق ومنحني وهادئ',
+    personality: 'منحنيات ناعمة وحضور مزدوج الطبقة',
   },
   {
     id: 'lucide',
     name: 'لوسيد',
     subtitle: 'هندسي',
-    personality: 'نظيف وتقني وواضح',
+    personality: 'خطوط مستقيمة دقيقة وواضحة',
   },
   {
     id: 'tabler',
     name: 'تابلر',
-    subtitle: 'مميز',
-    personality: 'خطوط حرة ومعبِّرة',
-  },
-  {
-    id: 'hugeicons',
-    name: 'هيوج',
-    subtitle: 'عصري',
-    personality: 'متوازن وحديث',
+    subtitle: 'خفيف',
+    personality: 'خطوط رقيقة ومساحات متنفّسة',
   },
 ];
 
