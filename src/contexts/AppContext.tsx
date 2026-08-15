@@ -1560,49 +1560,107 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const t = useCallback((key: string): string => translate(language, key), [language]);
   const dir = 'rtl';
 
-  // `theme-transition` cross-fades the token swap. It must NOT run on the
-  // first paint — doing so made the whole app visibly "melt in" on every
-  // cold boot, and fought the entrance animations.
+  // The token swap must never look like a stutter.
+  //
+  // Two strategies, in order of preference:
+  //
+  //   1. View Transitions — the browser snapshots the old frame, we mutate the
+  //      tokens, and the compositor cross-fades two textures. One GPU layer,
+  //      zero per-element style work, so a 3000-node screen costs the same as
+  //      an empty one. This is what removes the hitch.
+  //   2. `.theme-transition` — the legacy per-element colour transition, used
+  //      only where View Transitions are unavailable.
+  //
+  // Either way it must NOT run on the first paint — doing so made the whole
+  // app visibly "melt in" on every cold boot, and fought the entrance
+  // animations.
   const themeReadyRef = useRef(false);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (themeReadyRef.current) root.classList.add('theme-transition');
-    else themeReadyRef.current = true;
+    const isFirstPaint = !themeReadyRef.current;
+    themeReadyRef.current = true;
 
-    const isDark = theme === 'dark';
-    root.classList.toggle('dark', isDark);
-    root.dir = dir;
-    root.lang = language;
+    const applyTheme = () => {
+      const isDark = theme === 'dark';
+      root.classList.toggle('dark', isDark);
+      root.dir = dir;
+      root.lang = language;
 
-    // Find preset and generate tokens
-    let preset = themePresets.find((p) => p.id === colorTheme);
-    if (!preset && colorTheme === 'dynamic') {
-      try {
-        const saved = localStorage.getItem('app-dynamic-preset');
-        if (saved) preset = JSON.parse(saved);
-      } catch {
-        /* malformed preset - fall through to the first built-in */
+      // Find preset and generate tokens
+      let preset = themePresets.find((p) => p.id === colorTheme);
+      if (!preset && colorTheme === 'dynamic') {
+        try {
+          const saved = localStorage.getItem('app-dynamic-preset');
+          if (saved) preset = JSON.parse(saved);
+        } catch {
+          /* malformed preset - fall through to the first built-in */
+        }
       }
+      if (!preset) preset = themePresets[0];
+
+      // Enforce the single unified Zen Elite design style
+      root.removeAttribute('data-md3');
+      root.setAttribute('data-design-mode', 'classic');
+      const tokens = generateThemeTokens(
+        preset,
+        paletteStyle as ThemeStyle,
+        isDark,
+        isDark && blackMode,
+        surfaceLift,
+      );
+      applyThemeTokens(tokens);
+    };
+
+    if (isFirstPaint) {
+      applyTheme();
+      return;
     }
-    if (!preset) preset = themePresets[0];
 
-    // Enforce the single unified Zen Elite design style
-    root.removeAttribute('data-md3');
-    root.setAttribute('data-design-mode', 'classic');
-    const tokens = generateThemeTokens(
-      preset,
-      paletteStyle as ThemeStyle,
-      isDark,
-      isDark && blackMode,
-      surfaceLift,
-    );
-    applyThemeTokens(tokens);
+    const reduced =
+      root.dataset.reducedMotion === 'true' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Keep in sync with the 260ms transition declared in index.css.
-    const timeout = setTimeout(() => root.classList.remove('theme-transition'), 300);
+    if (reduced) {
+      applyTheme();
+      return;
+    }
 
-    return () => clearTimeout(timeout);
+    type VTDocument = Document & {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+    const startViewTransition = (document as VTDocument).startViewTransition;
+
+    if (typeof startViewTransition === 'function') {
+      // The class is what scopes the cross-fade keyframes in index.css, so it
+      // has to be on the element BEFORE the snapshot is taken, and can only
+      // come off once the transition has actually finished.
+      root.classList.add('theme-view-transition');
+      let cancelled = false;
+      const transition = startViewTransition.call(document, applyTheme);
+      void transition.finished
+        .catch(() => {
+          /* a superseding transition skipped this one — nothing to clean up */
+        })
+        .finally(() => {
+          if (!cancelled) root.classList.remove('theme-view-transition');
+        });
+      return () => {
+        cancelled = true;
+        root.classList.remove('theme-view-transition');
+      };
+    }
+
+    root.classList.add('theme-transition');
+    applyTheme();
+
+    // Keep in sync with the 200ms transition declared in index.css.
+    const timeout = setTimeout(() => root.classList.remove('theme-transition'), 240);
+
+    return () => {
+      clearTimeout(timeout);
+      root.classList.remove('theme-transition');
+    };
   }, [theme, dir, language, paletteStyle, blackMode, colorTheme, surfaceLift]);
 
   // Apply typography. All resolution and scale maths live in src/lib/fonts.ts
