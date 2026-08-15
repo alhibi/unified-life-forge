@@ -7,7 +7,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
     return (
       <input
         type={type}
-        className={cn('app-control flex text-body md:text-body', className)}
+        className={cn('app-control flex text-body', className)}
         ref={ref}
         {...props}
       />
