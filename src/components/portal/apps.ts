@@ -17,7 +17,6 @@ import {
   Brain,
   Calendar,
   ChevronRight,
-  CloudSun,
   Compass,
   Crown,
   Dumbbell,
