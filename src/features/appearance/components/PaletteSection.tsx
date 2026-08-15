@@ -9,6 +9,7 @@ import {
   extractDominantColor,
   getThemeInk,
   getThemeScaleColors,
+  resolveThemeId,
   SCALE_STEPS,
   themePresets,
   type ThemeStyle,
@@ -76,38 +77,19 @@ const THEME_CATEGORIES: ThemeCategory[] = [
     id: 'classic',
     nameAr: 'الكلاسيكية والرصينة',
     nameEn: 'Classic & Ink',
-    presets: ['default', 'paper', 'mono', 'coffee', 'fog', 'obsidian'],
+    presets: ['copper', 'paper', 'mono', 'obsidian'],
   },
   {
     id: 'nature',
     nameAr: 'الأرض والطبيعة',
     nameEn: 'Nature & Earth',
-    presets: ['emerald', 'matcha', 'moss', 'clay', 'sandstone', 'mint'],
-  },
-  {
-    id: 'warm',
-    nameAr: 'الدافئة والمشرقة',
-    nameEn: 'Warm & Bright',
-    presets: ['sunset', 'gold', 'cherry', 'volcano', 'copper', 'amber', 'terracotta'],
+    presets: ['clay', 'gold', 'moss', 'ocean'],
   },
   {
     id: 'cosmic',
     nameAr: 'العميقة والكونية',
     nameEn: 'Cosmic & Deep',
-    presets: [
-      'midnight',
-      'rose',
-      'lavender',
-      'ocean',
-      'neon',
-      'aurora',
-      'sakura',
-      'arctic',
-      'nebula',
-      'silk',
-      'dusk',
-      'storm',
-    ],
+    presets: ['arctic', 'midnight', 'nebula', 'rose'],
   },
 ];
 
@@ -388,11 +370,11 @@ export default function PaletteSection() {
 
       <SettingsSection
         title="لوحة الألوان"
-        subtitle="واحد وثلاثون ثيماً، كل منها سلّم إدراكي من إحدى عشرة درجة"
+        subtitle="اثنا عشر ثيماً منتقىً، كل منها سلّم إدراكي من إحدى عشرة درجة"
         icon={<Palette className="h-4 w-4" aria-hidden />}
       >
         <ThemePresetsCategorized
-          colorTheme={colorTheme}
+          colorTheme={resolveThemeId(colorTheme)}
           paletteStyle={paletteStyle as ThemeStyle}
           setColorTheme={setColorTheme as (t: string) => void}
           isDark={isDark}

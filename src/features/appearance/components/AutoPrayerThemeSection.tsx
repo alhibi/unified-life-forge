@@ -12,7 +12,12 @@ import {
 } from '@/hooks/useAutoPrayerTheme';
 import { Check, ChevronDown, Clock, Moon, Sun } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
-import { generateThemeTokens, themePresets, type ThemeStyle } from '@/utils/themeEngine';
+import {
+  generateThemeTokens,
+  resolveThemeId,
+  themePresets,
+  type ThemeStyle,
+} from '@/utils/themeEngine';
 
 import { SettingsSection } from './AppearancePrimitives';
 
@@ -96,7 +101,8 @@ export default function AutoPrayerThemeSection() {
               {prayerSlots.map((slot) => {
                 const cur = prayerMap[slot.id];
                 const preset =
-                  themePresets.find((p) => p.id === cur?.colorTheme) || themePresets[0];
+                  themePresets.find((p) => p.id === resolveThemeId(cur?.colorTheme)) ||
+                  themePresets[0];
                 const previewColor = getPreviewColor(preset, cur?.mode ?? 'light');
                 const isExpanded = expandedSlot === slot.id;
                 const Icon = slot.icon;
@@ -165,37 +171,32 @@ export default function AutoPrayerThemeSection() {
                               ))}
                             </div>
                             <div className="grid grid-cols-6 gap-2">
-                              {themePresets
-                                .filter((p) => p.id !== 'dynamic')
-                                .slice(0, 18)
-                                .map((p) => {
-                                  const swatch = getPreviewColor(p, cur?.mode || 'light');
-                                  const isSel = cur?.colorTheme === p.id;
-                                  return (
-                                    <button
-                                      key={p.id}
-                                      type="button"
-                                      onClick={() =>
-                                        updateSlot(slot.id, p.id, cur?.mode || 'light')
-                                      }
-                                      aria-label={p.name}
-                                      aria-pressed={isSel}
-                                      className={`relative aspect-square w-full rounded-full border-2 transition-all ${
-                                        isSel ? 'scale-110 border-primary' : 'border-border'
-                                      }`}
-                                      style={{ backgroundColor: swatch }}
-                                    >
-                                      {isSel && (
-                                        <span className="absolute inset-0 m-auto flex h-4 w-4 items-center justify-center rounded-full bg-card">
-                                          <Check
-                                            className="h-3 w-3 stroke-[2.5] text-foreground"
-                                            aria-hidden
-                                          />
-                                        </span>
-                                      )}
-                                    </button>
-                                  );
-                                })}
+                              {themePresets.map((p) => {
+                                const swatch = getPreviewColor(p, cur?.mode || 'light');
+                                const isSel = resolveThemeId(cur?.colorTheme) === p.id;
+                                return (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    onClick={() => updateSlot(slot.id, p.id, cur?.mode || 'light')}
+                                    aria-label={p.name}
+                                    aria-pressed={isSel}
+                                    className={`relative aspect-square w-full rounded-full border-2 transition-all ${
+                                      isSel ? 'scale-110 border-primary' : 'border-border'
+                                    }`}
+                                    style={{ backgroundColor: swatch }}
+                                  >
+                                    {isSel && (
+                                      <span className="absolute inset-0 m-auto flex h-4 w-4 items-center justify-center rounded-full bg-card">
+                                        <Check
+                                          className="h-3 w-3 stroke-[2.5] text-foreground"
+                                          aria-hidden
+                                        />
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
                         </motion.div>
