@@ -242,8 +242,15 @@ function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
  * ladder read as depth instead of as four almost-identical greys.
  */
 function elevate(base: Hsl, isDark: boolean, amount: number): Hsl {
-  const L = perceptualL(base) + (isDark ? amount : amount * 0.55);
-  return withPerceptualL(base, Math.min(0.985, Math.max(0.015, L)));
+  const current = perceptualL(base);
+  const delta = isDark ? amount : amount * 0.62;
+  let L = current + delta;
+  // A near-white card in light mode has no headroom left toward white, and a
+  // near-black canvas in OLED mode has none toward black. When the intended
+  // direction is exhausted we step the other way by the same visual amount, so
+  // the plane is still distinguishable instead of collapsing into its parent.
+  if (L > 0.965 || L < 0.02) L = current - delta;
+  return withPerceptualL(base, Math.min(0.99, Math.max(0.012, L)));
 }
 
 /** Accent strength is a real transform: saturation and tone, clamped. */
