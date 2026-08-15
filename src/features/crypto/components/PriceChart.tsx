@@ -214,12 +214,7 @@ export default function PriceChart({
     <section className="relative overflow-hidden rounded-3xl border border-border/10 bg-gradient-to-b from-muted/10 to-transparent">
       {/* Header — identity, live price and delta */}
       <header className="px-4 pt-4 text-end" dir="rtl">
-        <p className="text-[0.6875rem] font-semibold tracking-wide text-muted-foreground">
-          {symbol} / {quoteSymbol}
-        </p>
-        <p className="mt-0.5 text-xs text-muted-foreground/70">{name}</p>
-
-        <div className="mt-2 flex items-baseline justify-end gap-1 font-plex-mono tabular-nums" dir="ltr">
+        <div className="flex items-baseline justify-end gap-1 font-plex-mono tabular-nums" dir="ltr">
           <span className="text-[2.25rem] font-semibold leading-none tracking-tight text-foreground">{head}</span>
           <span className="text-lg font-medium leading-none text-muted-foreground">{tail}</span>
         </div>
@@ -246,7 +241,7 @@ export default function PriceChart({
       </header>
 
       {/* Plot */}
-      <div className="relative mt-3 h-56 w-full">
+      <div className="relative mt-3 h-56 w-full" dir="ltr">
         {state === 'loading' && !series && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="h-28 w-full animate-pulse rounded-2xl bg-muted/20" />
@@ -264,7 +259,7 @@ export default function PriceChart({
         {series && (
           <>
             {/* Price scale */}
-            <div className="pointer-events-none absolute inset-y-0 start-0 z-10 w-16">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[4.25rem]">
               {priceTicks.map((tick) => (
                 <span
                   key={tick.y}
@@ -280,7 +275,7 @@ export default function PriceChart({
               ref={svgRef}
               viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
               preserveAspectRatio="none"
-              className="h-full w-full touch-pan-y ps-16"
+              className="h-full w-full touch-pan-y pl-[4.25rem]"
               onPointerMove={handlePointer}
               onPointerDown={handlePointer}
               onPointerLeave={() => setHoverIndex(null)}
@@ -363,7 +358,7 @@ export default function PriceChart({
             </svg>
 
             {/* Time axis */}
-            <div className="pointer-events-none absolute bottom-0 start-16 end-0 h-5">
+            <div className="pointer-events-none absolute bottom-0 left-[4.25rem] right-0 h-5">
               {axisTicks.map((tick) => (
                 <span
                   key={`label-${tick.x}`}
@@ -377,7 +372,7 @@ export default function PriceChart({
 
             {/* Hover readout */}
             {hoverIndex !== null && activePoint && (
-              <div className="pointer-events-none absolute inset-y-0 start-16 end-0 z-20">
+              <div className="pointer-events-none absolute inset-y-0 left-[4.25rem] right-0 z-20">
                 <div
                   className="absolute top-1 -translate-x-1/2 rounded-xl border border-border/20 bg-background/90 px-2.5 py-1.5 text-center shadow-lg backdrop-blur"
                   style={{
