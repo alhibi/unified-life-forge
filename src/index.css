@@ -470,20 +470,20 @@
        now the canvas and step 100 carries the actions. The theme keeps its
        identity across modes instead of becoming a different colour. */
     color-scheme: dark;
-    --background: 256 23.8% 12.4%; /* 600 */
-    --foreground: 254.7 15.5% 93%;
-    --card: 256.3 22.6% 16.8%;
-    --card-foreground: 254.7 15.5% 93%;
-    --popover: 256.3 22.6% 16.8%;
-    --popover-foreground: 254.7 15.5% 93%;
-    --primary: 252.8 16% 76%; /* ≈100 */
-    --primary-foreground: 256 23.8% 12.4%;
-    --secondary: 256.7 21% 22.5%; /* ≈500 */
-    --secondary-foreground: 254.1 15.6% 88%;
-    --muted: 256.7 21% 22.5%;
-    --muted-foreground: 254.2 16% 71.5%;
-    --accent: 256.7 21% 22.5%;
-    --accent-foreground: 253.2 15.9% 81%;
+    --background: 240 7.1% 5.5%;
+    --foreground: 40 14.3% 91.8%;
+    --card: 240 7.1% 11%;
+    --card-foreground: 40 14.3% 91.8%;
+    --popover: 240 7.1% 11%;
+    --popover-foreground: 40 14.3% 91.8%;
+    --primary: 34 33.7% 60.2%; /* copper */
+    --primary-foreground: 240 7.1% 5.5%;
+    --secondary: 240 1.1% 17.5%;
+    --secondary-foreground: 40 8.8% 86.7%;
+    --muted: 270 2.6% 14.9%;
+    --muted-foreground: 30 2.6% 69.4%; /* AA on the canvas */
+    --accent: 240 1.1% 17.5%;
+    --accent-foreground: 34 33.7% 60.2%;
     --destructive: 0 58% 68%;
     --destructive-foreground: 0 20% 10%;
     --success: 145 38% 64%;
@@ -492,23 +492,23 @@
     --warning-foreground: 35 40% 12%;
     --error: 0 58% 68%;
     --error-foreground: 0 20% 10%;
-    --border: 256.9 20% 28.5%;
-    --input: 256.7 18.8% 35%;
-    --ring: 252.8 16% 76%;
+    --border: 0 0% 27.8%;
+    --input: 0 0.5% 38.2%;
+    --ring: 34 33.7% 60.2%;
     /* Ink again — the overlay colour never changes with the mode either. */
     --scrim: 250 7% 7%;
-    --sidebar-background: 256 23.8% 12.4%;
-    --sidebar-foreground: 254.1 15.6% 88%;
-    --sidebar-primary: 252.8 16% 76%;
-    --sidebar-primary-foreground: 256 23.8% 12.4%;
-    --sidebar-accent: 256.7 21% 22.5%;
-    --sidebar-accent-foreground: 253.2 15.9% 81%;
-    --sidebar-border: 256.9 20% 28.5%;
-    --sidebar-ring: 252.8 16% 76%;
-    --shadow-color: 256 24% 2%;
-    --live: 254.7 16% 70%;
-    --live-soft: 255.5 15.7% 58%;
-    --live-glow: 252.8 16% 76%;
+    --sidebar-background: 240 7.1% 5.5%;
+    --sidebar-foreground: 40 8.8% 86.7%;
+    --sidebar-primary: 34 33.7% 60.2%;
+    --sidebar-primary-foreground: 240 7.1% 5.5%;
+    --sidebar-accent: 240 1.1% 17.5%;
+    --sidebar-accent-foreground: 34 33.7% 60.2%;
+    --sidebar-border: 0 0% 27.8%;
+    --sidebar-ring: 34 33.7% 60.2%;
+    --shadow-color: 240 20% 2%;
+    --live: 34 33.7% 60.2%;
+    --live-soft: 33 12% 20%;
+    --live-glow: 34 33.7% 60.2%;
   }
 }
 
