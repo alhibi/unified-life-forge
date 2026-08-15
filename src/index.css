@@ -1019,6 +1019,14 @@
     color: hsl(var(--destructive));
   }
 
+  /* ── The one focus ring ──────────────────────────────────────────
+     Width and offset come from the accessibility preferences, so the
+     "clearer focus" switch reaches every control at once. */
+  .app-focus-ring:focus-visible {
+    outline: var(--ui-focus-width) solid hsl(var(--ring));
+    outline-offset: var(--ui-focus-offset);
+  }
+
   /* ── The one press feedback ──────────────────────────────────────
      Every interactive element in the app expresses a press the same way:
      scale + vertical offset, both resolved from the user's interaction
