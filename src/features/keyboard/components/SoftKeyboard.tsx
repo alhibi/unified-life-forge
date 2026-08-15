@@ -333,8 +333,8 @@ export default function SoftKeyboard({
           >
             <Keyboard className="h-5 w-5" aria-hidden="true" />
           </Key>
-          <Key tone="accent" span={1.8} ariaLabel={enterLabel} onPress={onEnter}>
-            <span className="flex items-center gap-1.5 text-mini">
+          <Key tone="accent" span={2} ariaLabel={enterLabel} onPress={onEnter}>
+            <span className="flex items-center gap-1.5 whitespace-nowrap text-mini">
               <CornerDownLeft className="h-4 w-4" aria-hidden="true" />
               {enterLabel}
             </span>
