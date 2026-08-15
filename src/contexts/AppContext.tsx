@@ -84,6 +84,7 @@ import { applyScrollProfile } from '@/lib/scrollRuntime';
 import {
   applyThemeTokens,
   generateThemeTokens,
+  resolveThemeId,
   type SurfaceLift,
   themePresets,
   type ThemeStyle,

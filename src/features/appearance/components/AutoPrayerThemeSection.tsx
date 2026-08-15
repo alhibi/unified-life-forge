@@ -12,7 +12,12 @@ import {
 } from '@/hooks/useAutoPrayerTheme';
 import { Check, ChevronDown, Clock, Moon, Sun } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
-import { generateThemeTokens, themePresets, type ThemeStyle } from '@/utils/themeEngine';
+import {
+  generateThemeTokens,
+  resolveThemeId,
+  themePresets,
+  type ThemeStyle,
+} from '@/utils/themeEngine';
 
 import { SettingsSection } from './AppearancePrimitives';
 
@@ -96,7 +101,8 @@ export default function AutoPrayerThemeSection() {
               {prayerSlots.map((slot) => {
                 const cur = prayerMap[slot.id];
                 const preset =
-                  themePresets.find((p) => p.id === cur?.colorTheme) || themePresets[0];
+                  themePresets.find((p) => p.id === resolveThemeId(cur?.colorTheme)) ||
+                  themePresets[0];
                 const previewColor = getPreviewColor(preset, cur?.mode ?? 'light');
                 const isExpanded = expandedSlot === slot.id;
                 const Icon = slot.icon;
@@ -165,10 +171,7 @@ export default function AutoPrayerThemeSection() {
                               ))}
                             </div>
                             <div className="grid grid-cols-6 gap-2">
-                              {themePresets
-                                .filter((p) => p.id !== 'dynamic')
-                                .slice(0, 18)
-                                .map((p) => {
+                              {themePresets.map((p) => {
                                   const swatch = getPreviewColor(p, cur?.mode || 'light');
                                   const isSel = cur?.colorTheme === p.id;
                                   return (
