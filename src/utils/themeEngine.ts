@@ -312,8 +312,8 @@ function buildToneLadder(
     mixHsl(accent, bg, 0.2), // 300 — accent wash
     accent, // 400 — accent
     mixHsl(ink, accent, 0.4), // 500 — accent deep
-    mixHsl(ink, bg, 0.7), // 600 — secondary ink
-    mixHsl(ink, bg, 0.85), // 700 — body ink
+    ensureContrast(mixHsl(ink, bg, 0.7), bg, 4.5), // 600 — secondary ink (AA)
+    ensureContrast(mixHsl(ink, bg, 0.85), bg, 7), // 700 — body ink
     ink, // 800 — ink
     ensureContrast(ink, bg, 12), // 900 — maximum ink
   ];

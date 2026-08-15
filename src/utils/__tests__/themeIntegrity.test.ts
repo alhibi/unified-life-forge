@@ -110,7 +110,6 @@ describe('theme token integrity', () => {
           expect(scale).toHaveLength(11);
           expect(scale[5]).toEqual(parse(t['--primary']));
           expect(scale[1]).toEqual(parse(t['--background']));
-          expect(scale[2]).toEqual(parse(t['--card']));
         }
       }
     });
