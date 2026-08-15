@@ -714,25 +714,44 @@ export function generateAuraTokens(
 }
 
 // ─── Helpers for Preview / Swatches ──────────────────────────
-export function getThemeScale(preset: ThemePreset, _style: ThemeStyle = 'neutral'): Hsl[] {
-  // Return the 4 roles' Hsl representations for rendering swatches
-  const light = preset.light;
+/**
+ * The seven published tones (50 → 600) of a preset, in the mode being shown.
+ * These are the same maths the token generator uses, so a swatch is a truthful
+ * preview rather than a decorative approximation.
+ */
+export function getThemeScale(
+  preset: ThemePreset,
+  style: ThemeStyle = 'neutral',
+  isDark = false,
+): Hsl[] {
+  const mode = isDark ? preset.dark : preset.light;
+  const bg = hexToHsl(mode.bg);
+  const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
+  const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
+  const accent = ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 3.2);
   return [
-    hexToHsl(light.bg),
-    hexToHsl(light.surface),
-    hexToHsl(light.accent),
-    hexToHsl(light.ink),
+    bg,                            // 50  — page
+    surface,                       // 100 — card
+    mixHsl(accent, bg, 0.18),      // 200 — accent wash
+    mixHsl(accent, bg, 0.55),      // 300 — accent soft
+    accent,                        // 400 — accent
+    mixHsl(ink, accent, 0.45),     // 500 — accent deep
+    mixHsl(ink, bg, 0.74),         // 600 — secondary ink
   ];
 }
 
-export function getThemeScaleColors(preset: ThemePreset, _style: ThemeStyle = 'neutral'): string[] {
-  const light = preset.light;
-  return [
-    light.bg,
-    light.surface,
-    light.accent,
-    light.ink,
-  ];
+export function getThemeScaleColors(
+  preset: ThemePreset,
+  style: ThemeStyle = 'neutral',
+  isDark = false,
+): string[] {
+  return getThemeScale(preset, style, isDark).map((tone) => hslToHex(tone));
+}
+
+/** The preset's own ink — the eighth band of a swatch. */
+export function getThemeInk(preset: ThemePreset, isDark = false): string {
+  const mode = isDark ? preset.dark : preset.light;
+  return hslToHex(ensureContrast(hexToHsl(mode.ink), hexToHsl(mode.bg), 7));
 }
 
 export function applyThemeTokens(tokens: Record<string, string>) {
