@@ -273,6 +273,36 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_watchlist: {
+        Row: {
+          chain_id: string
+          created_at: string
+          id: string
+          label: string | null
+          pair_address: string
+          token_symbol: string
+          user_id: string
+        }
+        Insert: {
+          chain_id: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          pair_address: string
+          token_symbol: string
+          user_id: string
+        }
+        Update: {
+          chain_id?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          pair_address?: string
+          token_symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       exercise_vocab_map: {
         Row: {
           exercise_id: string
