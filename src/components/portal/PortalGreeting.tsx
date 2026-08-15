@@ -44,15 +44,20 @@ export default function PortalGreeting({ username }: { username: string | null }
   const slot = slotFor(hour);
 
   return (
-    <header className="space-y-1.5">
-      <p className="text-micro font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+    <header className="space-y-2">
+      <span className="arch-rule" aria-hidden />
+      <p className="arch-eyebrow">
         {WEEKDAY_FORMAT.format(now)} · {DATE_FORMAT.format(now)} · {formatHijriDate(hijri)}
       </p>
-      <h2 className="font-amiri text-display font-bold leading-tight text-foreground">
+      <h2 className="text-hero font-normal leading-[1.15] tracking-[-0.01em] text-foreground">
         {greetingFor(hour)}
-        {username && <span className="text-title font-medium text-muted-foreground">، {username}</span>}
+        {username && (
+          <span className="text-title font-normal text-muted-foreground">، {username}</span>
+        )}
       </h2>
-      <p className="font-amiri text-body leading-relaxed text-muted-foreground">{VERSES[slot]}</p>
+      <p className="max-w-[38ch] border-s border-primary/40 ps-3 font-amiri text-body leading-relaxed text-muted-foreground">
+        {VERSES[slot]}
+      </p>
     </header>
   );
 }

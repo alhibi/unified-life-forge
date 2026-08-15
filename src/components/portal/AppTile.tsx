@@ -129,22 +129,23 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
         className={cn(
-          'group relative w-full overflow-hidden rounded-card border text-start',
-          'border-[hsl(var(--tile)/0.28)] bg-[hsl(var(--tile)/0.07)] dark:bg-[hsl(var(--tile)/0.12)]',
+          'arch-plate group relative w-full overflow-hidden rounded-card text-start',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5 hover:border-[hsl(var(--tile)/0.5)] hover:shadow-[0_10px_30px_-18px_hsl(var(--tile)/0.7)]',
+          'hover:-translate-y-0.5 hover:border-[hsl(var(--tile)/0.45)]',
           'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-          active && 'border-[hsl(var(--tile)/0.65)] bg-[hsl(var(--tile)/0.14)]',
+          active && 'border-[hsl(var(--tile)/0.6)]',
           list ? 'flex items-center gap-3 p-3' : 'flex min-h-[132px] flex-col justify-between p-4',
         )}
       >
         <TileMotif motif={identity.motif} />
 
-        {/* Accent hairline along the top edge — the app's signature. */}
+        {/* Accent hairline along the top edge — the app's signature. It fades
+            out toward the trailing edge so the grid reads as drafted lines
+            rather than as fourteen coloured bars. */}
         <span
-          className="pointer-events-none absolute start-0 end-0 top-0 h-px bg-[hsl(var(--tile)/0.55)]"
+          className="pointer-events-none absolute start-0 end-0 top-0 h-px bg-gradient-to-r from-[hsl(var(--tile)/0.7)] to-transparent"
           aria-hidden
         />
 
@@ -152,7 +153,8 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           <span
             className={cn(
               'flex shrink-0 items-center justify-center rounded-xl',
-              'border border-[hsl(var(--tile)/0.3)] bg-[hsl(var(--tile)/0.16)] text-[hsl(var(--tile))]',
+              'border border-[hsl(var(--tile)/0.26)] bg-[hsl(var(--tile)/0.1)] text-[hsl(var(--tile))]',
+              'shadow-[inset_0_1px_0_0_hsl(var(--tile)/0.22)]',
               'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
               list ? 'h-10 w-10' : 'h-11 w-11',
             )}
@@ -165,7 +167,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               <span
                 className={cn(
                   'truncate font-semibold text-foreground',
-                  list ? 'text-body' : 'text-title font-amiri',
+                  list ? 'text-body' : 'text-title [font-family:var(--font-display)]',
                 )}
               >
                 {app.label}
@@ -176,7 +178,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               {app.description}
             </span>
             {!list && (
-              <span className="mt-1.5 block text-micro font-semibold uppercase tracking-[0.16em] text-[hsl(var(--tile))] opacity-80">
+              <span className="mt-1.5 block text-micro font-semibold uppercase tracking-[0.2em] text-[hsl(var(--tile))] opacity-75">
                 {app.caption}
               </span>
             )}

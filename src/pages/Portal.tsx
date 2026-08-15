@@ -236,7 +236,7 @@ export default function Portal() {
 
             {recentApps.length > 0 && (
               <section aria-label="آخر ما فتحته" className="relative z-10">
-                <p className="app-section-label mb-2">الأخيرة</p>
+                <p className="arch-eyebrow mb-2">الأخيرة</p>
                 <div className="flex flex-wrap gap-2">
                   {recentApps.map((app) => {
                     const Icon = app.icon;
@@ -246,7 +246,7 @@ export default function Portal() {
                         type="button"
                         onClick={() => openApp(app)}
                         onMouseEnter={() => prefetchRoute(app.path)}
-                        className="flex h-11 items-center gap-2 rounded-md border border-border px-3 text-meta font-medium text-foreground bg-card/40 backdrop-blur-sm transition-[transform,background-color] duration-normal ease-out-expo hover:-translate-y-0.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="arch-plate flex h-11 items-center gap-2 rounded-md px-3 text-meta font-medium text-foreground transition-[transform,border-color] duration-normal ease-out-expo hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <Icon className="h-4 w-4 text-muted-foreground" aria-hidden />
                         {app.label}

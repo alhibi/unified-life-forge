@@ -98,7 +98,7 @@ function PortalFilterBarImpl({
       <div
         role="tablist"
         aria-label="تصنيفات التطبيقات"
-        className="flex w-full items-center gap-1 rounded-md border border-border p-1"
+        className="flex w-full items-end gap-1 border-b border-border/60"
       >
         {PORTAL_CATEGORIES.map((c) => {
           const active = c.key === category;
@@ -113,19 +113,20 @@ function PortalFilterBarImpl({
               disabled={empty && !active}
               onClick={() => onCategoryChange(c.key)}
               className={cn(
-                'relative isolate min-w-0 flex-1 rounded-sm px-2 py-2 text-center text-mini font-semibold',
+                'relative isolate min-w-0 flex-1 px-2 pb-2.5 pt-1.5 text-center text-mini font-semibold',
                 'transition-colors duration-normal ease-out-expo sm:text-meta',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+                active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 empty && !active && 'opacity-40',
               )}
             >
               {active && (
                 <motion.span
                   layoutId="portal-category-indicator"
-                  // Painted before the label in DOM order, so the label sits on
-                  // top without introducing an ad-hoc z-index.
-                  className="absolute inset-0 rounded-sm bg-primary"
+                  // A copper underline instead of a filled pill: the tab rail
+                  // now reads as a drafted baseline, and the moving element is
+                  // 2px tall so it never fights the label for contrast.
+                  className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-primary"
                   transition={reduce ? { duration: 0 } : MOTION.spring}
                   aria-hidden
                 />

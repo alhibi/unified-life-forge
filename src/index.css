@@ -456,7 +456,7 @@
     --shadow-elevated: var(--card-shadow);
     --shadow-intense: var(--card-shadow);
     --font-display:
-      'Inter', 'Inter Display', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+      'Instrument Serif', 'Amiri', 'IBM Plex Sans Arabic', Georgia, serif;
     --font-body:
       'Inter', 'Inter Display', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-weight: 400;
@@ -2864,4 +2864,57 @@ input.podcast-seek:active::-moz-range-thumb {
 @keyframes collapse-up {
   from { height: var(--radix-collapsible-content-height); opacity: 1; }
   to { height: 0; opacity: 0; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Architectural Copper — detail layer.
+
+   Three primitives only, so the language stays legible: a true hairline
+   (0.5px where the device can render it), a copper eyebrow for over-lines,
+   and an engraved plate for tiles/cards. Every value is a token; nothing
+   here hardcodes a colour.
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .arch-hairline {
+    border-block-start: 1px solid hsl(var(--border) / 0.6);
+  }
+  @supports (border-width: 0.5px) {
+    .arch-hairline {
+      border-block-start-width: 0.5px;
+    }
+  }
+
+  /* A short copper rule that sits above a heading. */
+  .arch-rule {
+    display: block;
+    inline-size: 2.25rem;
+    block-size: 1px;
+    background: linear-gradient(
+      to inline-end,
+      hsl(var(--primary) / 0.95),
+      hsl(var(--primary) / 0)
+    );
+  }
+
+  .arch-eyebrow {
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: hsl(var(--primary) / 0.9);
+  }
+
+  /* Engraved plate: a card that reads as milled metal rather than as a
+     floating web panel — one hairline, one inner light edge, no drop shadow. */
+  .arch-plate {
+    background:
+      linear-gradient(hsl(var(--card) / 0.72), hsl(var(--card) / 0.52));
+    border: 1px solid hsl(var(--border) / 0.55);
+    box-shadow: inset 0 1px 0 0 hsl(var(--foreground) / 0.045);
+    backdrop-filter: blur(10px) saturate(115%);
+  }
+  @supports (border-width: 0.5px) {
+    .arch-plate {
+      border-width: 0.5px;
+    }
+  }
 }
