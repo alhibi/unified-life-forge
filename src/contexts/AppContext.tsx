@@ -363,7 +363,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('ar');
   const [theme, setThemeState] = useState<Theme>(() => {
     const raw = localStorage.getItem('app-theme');
-    return raw === 'dark' ? 'dark' : 'light';
+    // Architectural Copper is a nocturnal system: dark is the shipped default,
+    // light is an explicit opt-in.
+    return raw === 'light' ? 'light' : 'dark';
   });
   const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(
     () => (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral',
@@ -373,8 +375,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(
     () =>
-      // 'default' is the shipped 7-tone palette (#f1f0f4 → #1c1827).
-      (localStorage.getItem('app-color-theme') as ColorTheme) || 'default',
+      // 'copper' is the shipped Architectural Copper palette (#0D0D0F → #C9A06A).
+      (localStorage.getItem('app-color-theme') as ColorTheme) || 'copper',
   );
 
   const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
@@ -555,16 +557,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Re-seed default values + state.
     setLanguageState('ar');
     localStorage.setItem('app-language', 'ar');
-    setThemeState('light');
-    localStorage.setItem('app-theme', 'light');
+    setThemeState('dark');
+    localStorage.setItem('app-theme', 'dark');
     // Must match the initial-state default above ('neutral'). Using a
     // different value here made sign-out change the app's look.
     setPaletteStyleState('neutral');
     localStorage.setItem('app-palette-style', 'neutral');
     setBlackModeState(false);
     localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('default');
-    localStorage.setItem('app-color-theme', 'default');
+    setColorThemeState('copper');
+    localStorage.setItem('app-color-theme', 'copper');
 
     setSurfaceLiftState(DEFAULT_SURFACE_LIFT);
     localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);
