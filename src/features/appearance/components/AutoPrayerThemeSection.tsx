@@ -173,7 +173,7 @@ export default function AutoPrayerThemeSection() {
                             <div className="grid grid-cols-6 gap-2">
                               {themePresets.map((p) => {
                                   const swatch = getPreviewColor(p, cur?.mode || 'light');
-                                  const isSel = cur?.colorTheme === p.id;
+                                  const isSel = resolveThemeId(cur?.colorTheme) === p.id;
                                   return (
                                     <button
                                       key={p.id}
