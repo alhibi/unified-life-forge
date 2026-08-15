@@ -340,6 +340,14 @@ serve(async (req) => {
 
     // 4. Handle Search action
     if (payload.action === "search") {
+      // DexScreener rejects very short queries; treat them as "no results" instead of an error.
+      if (payload.query.trim().length < 2) {
+        return new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const escapedQuery = encodeURIComponent(payload.query);
       const url = `https://api.dexscreener.com/latest/dex/search?q=${escapedQuery}`;
       const cacheKey = `search:${payload.query.toLowerCase()}`;
@@ -357,8 +365,10 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (err: any) {
-        return new Response(JSON.stringify({ error: err.message || "Failed to search DexScreener" }), {
-          status: 502,
+        // Search is a soft path: never break the UI, return an empty result set with a flag.
+        console.error("[dexscreener-proxy] Search unavailable:", err?.message ?? err);
+        return new Response(JSON.stringify({ data: [], unavailable: true }), {
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
