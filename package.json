@@ -21,8 +21,13 @@
     "lint:budget": "node scripts/lint-budget.mjs"
   },
   "dependencies": {
+    "@capacitor/app": "^8",
     "@capacitor/core": "^8.5.0",
     "@capacitor/geolocation": "^8.2.0",
+    "@capacitor/haptics": "^8",
+    "@capacitor/keyboard": "^8",
+    "@capacitor/splash-screen": "^8",
+    "@capacitor/status-bar": "^8",
     "@capgo/capacitor-health": "^8.10.0",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",

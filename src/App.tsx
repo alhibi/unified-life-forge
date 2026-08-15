@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { CommandPalette } from "@/components/CommandPalette";
 import EdgeSwipeBack from "@/components/EdgeSwipeBack";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import NativeShell from "@/components/NativeShell";
 import PageTransition, { NavModeContext } from "@/components/PageTransition";
 import PortalBackButton from "@/components/portal/PortalBackButton";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -776,6 +777,7 @@ const App = () => (
                 <AutoPrayerThemeRunner />
                 <PresenceRunner />
                 <NetworkConnectivityListener />
+                <NativeShell />
                 <EdgeSwipeBack />
                 <AnimatedRoutes />
                 <PortalBackButton />
