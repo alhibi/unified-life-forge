@@ -628,13 +628,13 @@ export function ArticleReader({
                 className="prose prose-sm dark:prose-invert max-w-none
                   [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_img]:max-h-[460px] [&_img]:object-cover [&_img]:shadow-md
                   [&_a]:text-primary [&_a]:no-underline [&_a]:font-bold [&_a:hover]:underline
-                  [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-8 [&_h1,&_h2,&_h3]:mb-3
+                  [&_h1]:text-display [&_h2]:text-title [&_h3]:text-lead [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-8 [&_h1,&_h2,&_h3]:mb-3
                   [&_p]:mb-5 [&_p]:leading-relaxed
                   [&_blockquote]:border-s-4 [&_blockquote]:border-primary/50 [&_blockquote]:ps-5 [&_blockquote]:italic [&_blockquote]:opacity-90 [&_blockquote]:my-6 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-e-xl
                   [&_ul,&_ol]:my-4 [&_ul,&_ol]:ps-6 [&_li]:mb-2
-                  [&_figure]:my-6 [&_figcaption]:text-xs [&_figcaption]:opacity-65 [&_figcaption]:mt-2
-                  [&_pre]:bg-current/5 [&_pre]:p-4 [&_pre]:rounded-2xl [&_pre]:overflow-x-auto [&_pre]:text-xs
-                  [&_code]:bg-current/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs"
+                  [&_figure]:my-6 [&_figcaption]:text-mini [&_figcaption]:opacity-65 [&_figcaption]:mt-2
+                  [&_pre]:bg-current/5 [&_pre]:p-4 [&_pre]:rounded-2xl [&_pre]:overflow-x-auto [&_pre]:text-mini
+                  [&_code]:bg-current/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-mini"
                 style={{
                   fontSize: sizeMap[prefs.fontSize],
                   lineHeight: heightMap[prefs.lineHeight],
