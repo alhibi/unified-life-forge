@@ -216,22 +216,34 @@ export function contrastRatio(a: Hsl, b: Hsl): number {
 }
 
 /**
- * Walk a colour's lightness away from its background until it clears `target`.
- * Hue and saturation are preserved so the palette's character survives the
- * correction; only the tone moves.
+ * Walk a colour away from its background, in PERCEPTUAL lightness, until it
+ * clears `target`. Hue and chroma are preserved so the palette's character
+ * survives the correction; only the tone moves — and it moves by the same
+ * visual amount whatever the hue, which HSL lightness could not promise.
  */
 function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
   if (contrastRatio(fg, bg) >= target) return fg;
   const goDark = relativeLuminance(bg) > 0.18;
+  const startL = perceptualL(fg);
   let best = fg;
-  for (let step = 1; step <= 100; step += 1) {
-    const l = goDark ? fg[2] - step : fg[2] + step;
-    if (l < 0 || l > 100) break;
-    const candidate: Hsl = [fg[0], fg[1], Math.round(l * 10) / 10];
+  for (let step = 1; step <= 120; step += 1) {
+    const L = goDark ? startL - step * 0.01 : startL + step * 0.01;
+    if (L < 0 || L > 1) break;
+    const candidate = withPerceptualL(fg, L);
     best = candidate;
     if (contrastRatio(candidate, bg) >= target) return candidate;
   }
   return best;
+}
+
+/**
+ * Raise a plane above (light mode: toward white / dark mode: toward light) its
+ * own background by a perceptual amount. This is what makes the elevation
+ * ladder read as depth instead of as four almost-identical greys.
+ */
+function elevate(base: Hsl, isDark: boolean, amount: number): Hsl {
+  const L = perceptualL(base) + (isDark ? amount : amount * 0.55);
+  return withPerceptualL(base, Math.min(0.985, Math.max(0.015, L)));
 }
 
 /** Accent strength is a real transform: saturation and tone, clamped. */
@@ -251,12 +263,15 @@ function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): H
   return [accent[0], Math.round(sat * 10) / 10, Math.round(lightness * 10) / 10];
 }
 
-/** Guarantee cards read as a distinct plane from the page behind them. */
+/**
+ * Guarantee cards read as a distinct plane from the page behind them, measured
+ * perceptually: a 3% HSL gap is invisible on a dark canvas and glaring on a
+ * pale one, so the gap is expressed in OKLab lightness instead.
+ */
 function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
-  const delta = Math.abs(surface[2] - bg[2]);
-  if (delta >= 3) return surface;
-  const shift = isDark ? 4.5 : -4.5;
-  return [surface[0], surface[1], Math.min(98, Math.max(2, bg[2] + shift))];
+  const delta = Math.abs(perceptualL(surface) - perceptualL(bg));
+  if (delta >= 0.028) return surface;
+  return elevate(bg, isDark, isDark ? 0.05 : 0.06);
 }
 
 /**
