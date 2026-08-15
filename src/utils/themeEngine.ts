@@ -276,9 +276,15 @@ function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): H
  * pale one, so the gap is expressed in OKLab lightness instead.
  */
 function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
-  const delta = Math.abs(perceptualL(surface) - perceptualL(bg));
-  if (delta >= 0.028) return surface;
-  return elevate(bg, isDark, isDark ? 0.05 : 0.06);
+  const ls = perceptualL(surface);
+  const lb = perceptualL(bg);
+  if (Math.abs(ls - lb) >= 0.02) return surface;
+  // Preserve the palette's own intent: if it wanted a card lighter than the
+  // page, the correction stays lighter — it only becomes big enough to see.
+  const direction = ls >= lb ? 1 : -1;
+  let L = lb + direction * (isDark ? 0.05 : 0.042);
+  if (L > 0.995 || L < 0.008) L = lb - direction * (isDark ? 0.05 : 0.042);
+  return withPerceptualL(surface, L);
 }
 
 /**
