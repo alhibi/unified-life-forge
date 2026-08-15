@@ -15,8 +15,6 @@ interface PriceChartProps {
   chainId: ChainId;
   pairAddress: string;
   symbol: string;
-  quoteSymbol: string;
-  name: string;
   /** Live price coming from the watchlist feed, used as the trailing point. */
   livePriceUsd?: string;
 }

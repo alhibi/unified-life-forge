@@ -64,8 +64,6 @@ export default function TokenDetailDrawer({
           chainId={pair.chainId as ChainId}
           pairAddress={pair.pairAddress}
           symbol={pair.symbol}
-          quoteSymbol={pair.quoteTokenSymbol}
-          name={pair.name}
           livePriceUsd={pair.priceUsd}
         />
 
