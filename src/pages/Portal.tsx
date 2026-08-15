@@ -143,26 +143,6 @@ export default function Portal() {
     tileRefs.current[index] = el;
   }, []);
 
-  /* ── global keyboard shortcuts ── */
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const typing =
-        target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable === true;
-      if (event.key === '/' && !typing && !event.metaKey && !event.ctrlKey) {
-        event.preventDefault();
-        searchRef.current?.focus();
-        searchRef.current?.select();
-      }
-      if (event.key === 'Escape' && typing && searchRef.current === target) {
-        setQuery('');
-        searchRef.current?.blur();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
-
   /* Arrow-key navigation across the grid, mirrored for RTL. */
   const onGridKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -201,11 +181,6 @@ export default function Portal() {
     [list, visible.length],
   );
 
-  const recentApps = useMemo(
-    () => recents.map((key) => findApp(key)).filter((app): app is PortalApp => Boolean(app)),
-    [recents],
-  );
-
   return (
     <PageShell centered={false} flush className="min-h-[100dvh] bg-background pb-page relative">
       <SEO
@@ -231,40 +206,14 @@ export default function Portal() {
               <PortalTodayWidgets />
             </Suspense>
 
-            {recentApps.length > 0 && (
-              <section aria-label="آخر ما فتحته" className="relative z-10">
-                <p className="arch-eyebrow mb-2">الأخيرة</p>
-                <div className="flex flex-wrap gap-2">
-                  {recentApps.map((app) => {
-                    const Icon = app.icon;
-                    return (
-                      <button
-                        key={app.key}
-                        type="button"
-                        onClick={() => openApp(app)}
-                        onMouseEnter={() => prefetchRoute(app.path)}
-                        className="arch-plate flex h-11 items-center gap-2 rounded-md px-3 text-meta font-medium text-foreground transition-[transform,border-color] duration-normal ease-out-expo hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <Icon className="h-4 w-4 text-muted-foreground" aria-hidden />
-                        {app.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
-            {/* Sticky under the 56px header so the filter never scrolls away. */}
+            {/* Sticky under the 56px header so the category rail never scrolls away. */}
             <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
               <PortalFilterBar
-                query={query}
-                onQueryChange={setQuery}
                 category={category}
                 onCategoryChange={setCategory}
                 view={view}
                 onViewChange={setView}
                 counts={counts}
-                searchRef={searchRef}
               />
             </div>
 
@@ -272,14 +221,11 @@ export default function Portal() {
               <div className="empty-state-surface" role="status">
                 <strong>لا نتائج</strong>
                 <span className="text-mini text-muted-foreground">
-                  لا يوجد تطبيق يطابق «{query}». جرّب كلمة أخرى أو أعد ضبط التصنيف.
+                  لا يوجد تطبيق في هذا التصنيف. أعد الضبط لعرض الكل.
                 </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    setQuery('');
-                    setCategory('all');
-                  }}
+                  onClick={() => setCategory('all')}
                   className="mt-3 h-11 rounded-button border border-border px-4 text-meta font-semibold text-foreground transition-colors duration-fast hover:bg-muted"
                 >
                   إعادة الضبط
@@ -290,7 +236,7 @@ export default function Portal() {
                 <Suspense fallback={<PortalRealmsSkeleton list={list} />}>
                   <CelestialRealmsLayout
                   visibleApps={visible}
-                  query={query}
+                  query=""
                   list={list}
                   focusedKey={focusedApp.key}
                   unreadCount={unreadCount}
