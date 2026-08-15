@@ -381,6 +381,10 @@
 
     /* Extra bottom clearance the user can add on top of the device inset. */
     --ui-safe-extra: 0px;
+    /* Soft-keyboard height, published by <NativeShell/> from the Capacitor
+       Keyboard plugin. 0 on the web and whenever the keyboard is closed, so
+       any layout can read it unconditionally. */
+    --kb-inset: 0px;
 
     /* Hairline volume. With no shadows anywhere, the border IS the edge. */
     --ui-border-width: 1px;
