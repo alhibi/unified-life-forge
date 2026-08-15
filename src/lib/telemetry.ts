@@ -195,6 +195,23 @@ export function initTelemetry(): void {
     captureError(event.reason, 'UnhandledRejection');
   });
 
+  // A breaker tripping is the earliest machine-readable signal that an upstream
+  // is down. Without this the record only shows the *symptom* — a wave of
+  // fallback reads — with no way to tell which endpoint caused it.
+  onCircuitChange((key, state) => {
+    if (state === 'open') {
+      captureTelemetry('CircuitBreaker', `Circuit opened: ${key}`, undefined, {
+        endpoint: key,
+        state,
+      });
+    } else if (state === 'closed') {
+      captureTelemetry('CircuitBreaker', `Circuit recovered: ${key}`, undefined, {
+        endpoint: key,
+        state,
+      });
+    }
+  });
+
   // Expose the buffer for support and local debugging. Read-only accessor so
   // nothing can be injected into the record.
   try {
