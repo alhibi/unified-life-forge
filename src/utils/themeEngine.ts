@@ -779,23 +779,22 @@ export function generateThemeTokens(
   const surface3 = elevate(surfHsl, isDark, 0.07);
 
   const shadowRgb = isDark ? '0,0,0' : '28,24,20';
-  const shadow = (spec: string) => spec;
-  const shadow1 = shadow(
+  const shadow1 = (
     isDark
       ? `0 1px 2px rgba(${shadowRgb},0.36)`
       : `0 1px 2px rgba(${shadowRgb},0.06)`,
   );
-  const shadow2 = shadow(
+  const shadow2 = (
     isDark
       ? `0 2px 6px rgba(${shadowRgb},0.44), 0 1px 2px rgba(${shadowRgb},0.3)`
       : `0 2px 6px rgba(${shadowRgb},0.08), 0 1px 2px rgba(${shadowRgb},0.05)`,
   );
-  const shadow3 = shadow(
+  const shadow3 = (
     isDark
       ? `0 8px 24px rgba(${shadowRgb},0.52), 0 2px 6px rgba(${shadowRgb},0.34)`
       : `0 8px 24px rgba(${shadowRgb},0.1), 0 2px 6px rgba(${shadowRgb},0.06)`,
   );
-  const shadow4 = shadow(
+  const shadow4 = (
     isDark
       ? `0 20px 48px rgba(${shadowRgb},0.6), 0 6px 14px rgba(${shadowRgb},0.4)`
       : `0 20px 48px rgba(${shadowRgb},0.13), 0 6px 14px rgba(${shadowRgb},0.07)`,
