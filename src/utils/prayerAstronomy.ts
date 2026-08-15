@@ -189,17 +189,26 @@ export function computePrayerTimes(
  // Dhuhr (solar noon, UTC hours)
  const dhuhr = 12 - eqt / 60 - lng / 15;
 
- // Sunrise / sunset at standard refraction-adjusted horizon
- const tSunrise = timeForAngle(0.833, lat, decl);
- const sunrise = dhuhr - tSunrise;
- const sunset = dhuhr + tSunrise;
+  // Sunrise / sunset at standard refraction-adjusted horizon.
+  //
+  // Above the polar circles the sun may never cross the horizon (midnight sun
+  // or polar night). In that case every angle-based rule degenerates, so we
+  // apply *Aqrab al-Bilad* ("nearest locality"): the timetable of the nearest
+  // latitude where a normal day still exists (48°, the classical fiqh limit).
+  // Longitude/declination stay untouched, so Dhuhr remains exact.
+  const hasRealDay = !isNaN(timeForAngle(0.833, lat, decl));
+  const geoLat = hasRealDay ? lat : Math.sign(lat || 1) * 48;
 
- // Asr
- const tAsr = asrTime(asrShadowFactor, lat, decl);
+  const tSunrise = timeForAngle(0.833, geoLat, decl);
+  const sunrise = dhuhr - tSunrise;
+  const sunset = dhuhr + tSunrise;
+
+  // Asr
+  const tAsr = asrTime(asrShadowFactor, geoLat, decl);
  const asr = dhuhr + (isNaN(tAsr) ? 3 : tAsr);
 
  // Fajr (angle-based with high-latitude fallback)
- const tFajr = timeForAngle(params.fajrAngle, lat, decl);
+  const tFajr = timeForAngle(params.fajrAngle, geoLat, decl);
  let fajr: number;
  if (!isNaN(tFajr)) {
  fajr = dhuhr - tFajr;
@@ -210,8 +219,8 @@ export function computePrayerTimes(
 
  // Maghrib (majority: at sunset; Shia: after 4°–4.5° depression)
  let maghrib = sunset;
- if (params.maghribAngle !== undefined) {
- const tM = timeForAngle(params.maghribAngle, lat, decl);
+  if (params.maghribAngle !== undefined) {
+    const tM = timeForAngle(params.maghribAngle, geoLat, decl);
  if (!isNaN(tM)) maghrib = dhuhr + tM;
  }
 
@@ -219,8 +228,8 @@ export function computePrayerTimes(
  let isha: number;
  if (params.ishaMinutesAfterMaghrib !== undefined) {
  isha = maghrib + params.ishaMinutesAfterMaghrib / 60;
- } else if (params.ishaAngle !== undefined) {
- const tIsha = timeForAngle(params.ishaAngle, lat, decl);
+  } else if (params.ishaAngle !== undefined) {
+    const tIsha = timeForAngle(params.ishaAngle, geoLat, decl);
  if (!isNaN(tIsha)) {
  isha = dhuhr + tIsha;
  } else {
