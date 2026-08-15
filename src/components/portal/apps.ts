@@ -121,6 +121,28 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/section/prophetic-day', label: 'اليوم النبوي', note: 'ثمانية أطوار', icon: Sun },
     ],
   },
+  {
+    key: 'duas',
+    path: '/duas',
+    label: 'الأدعية',
+    caption: 'DUAS',
+    description: 'أدعية مأثورة مرتبة بالمواضيع',
+    cat: 'spirit',
+    icon: Sparkles,
+    keywords: 'duas prayer أدعية دعاء مأثور قنوت رقائق',
+    links: [{ path: '/duas', label: 'مجالس الأدعية', note: 'أدعية مرتبة حسب الحال', icon: Sparkles }],
+  },
+  {
+    key: 'occasions',
+    path: '/occasions',
+    label: 'المناسبات',
+    caption: 'OCCASIONS',
+    description: 'المناسبات الإسلامية والعدّ التنازلي',
+    cat: 'spirit',
+    icon: Calendar,
+    keywords: 'occasions hijri calendar مناسبات إسلامية تقويم هجري رمضان عيد عاشوراء',
+    links: [{ path: '/occasions', label: 'كل المناسبات', note: 'تقويم هجري وعدّ تنازلي', icon: Calendar }],
+  },
 
   /* ── الجسد ── */
   {
@@ -140,6 +162,42 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/journal', label: 'مذكرتي', note: 'تدوين الحال والعادات', icon: PenLine },
     ],
   },
+  {
+    key: 'fitness',
+    path: '/fitness',
+    label: 'اللياقة',
+    caption: 'FITNESS',
+    description: 'تتبع النشاط والتمارين ومؤشرات الجسم',
+    cat: 'body',
+    icon: Activity,
+    keywords: 'fitness activity gps لياقة نشاط تمارين مشي جري خطوات وزن مؤشرات جسم',
+    links: [
+      { path: '/fitness', label: 'لوحة اللياقة', note: 'تتبع حي وجداول التمارين', icon: Activity },
+      { path: '/fitness', label: 'مؤشرات الجسم', note: 'الوزن ونسبة الدهون', icon: Scale },
+    ],
+  },
+  {
+    key: 'journal',
+    path: '/journal',
+    label: 'المذكرة',
+    caption: 'JOURNAL',
+    description: 'تدوين يومي للحال والعادات',
+    cat: 'body',
+    icon: PenLine,
+    keywords: 'journal diary مذكرة يوميات تدوين حال عادات مزاج',
+    links: [{ path: '/journal', label: 'مذكرتي', note: 'تدوين الحال والعادات', icon: PenLine }],
+  },
+  {
+    key: 'weather',
+    path: '/weather',
+    label: 'الطقس',
+    caption: 'WEATHER',
+    description: 'توقعات مفصلة وجودة الهواء',
+    cat: 'mind',
+    icon: CloudSun,
+    keywords: 'weather forecast air quality طقس حالة الجو توقعات جودة الهواء حبوب لقاح مطر حرارة',
+    links: [{ path: '/weather', label: 'لوحة الطقس', note: 'سبعة أيام وجودة الهواء', icon: CloudSun }],
+  },
 
   /* ── العقل ── */
   {
@@ -156,6 +214,20 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/archive', label: 'الأرشيف المعرفي', note: 'المونوغرافات والمحفوظات', icon: Archive },
       { path: '/archive/new', label: 'توليد مونوغراف', note: 'بحث جديد لموضوع تختاره', icon: Sparkles },
       { path: '/pkm', label: 'الذاكرة الرقمية', note: 'الملاحظات والوسوم والبحث الفوري', icon: Brain },
+    ],
+  },
+  {
+    key: 'pkm',
+    path: '/pkm',
+    label: 'الذاكرة الرقمية',
+    caption: 'PKM',
+    description: 'ملاحظاتك ووسومها وخريطة أفكارك',
+    cat: 'mind',
+    icon: Brain,
+    keywords: 'pkm notes mind map ذاكرة رقمية ملاحظات وسوم خريطة ذهنية بحث',
+    links: [
+      { path: '/pkm', label: 'الملاحظات', note: 'الوسوم والبحث الفوري', icon: Brain },
+      { path: '/pkm/mind', label: 'الخريطة الذهنية', note: 'روابط الأفكار بصريًا', icon: Layers },
     ],
   },
   {
