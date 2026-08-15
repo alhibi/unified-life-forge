@@ -85,6 +85,13 @@ describe('prayer timings never produce an unusable value', () => {
   });
 
   it('keeps the daytime prayers in order', () => {
+    // Wall-clock times wrap past midnight when the runtime zone differs from
+    // the location's own (a far-west longitude evaluated in UTC), so ordering
+    // is checked on the circle rather than on the number line.
+    const ordered = (a: string, b: string) => {
+      const delta = (minutes(b) - minutes(a) + 1440) % 1440;
+      return delta > 0 && delta < 720;
+    };
     for (const place of PLACES) {
       const { method } = pickMethodForLocation(place.lat, place.lng);
       const { timings } = computeLocalTimingsDetailed(
@@ -95,9 +102,12 @@ describe('prayer timings never produce an unusable value', () => {
         3,
         new Date('2026-06-21T12:00:00'),
       );
-      expect(minutes(timings.Fajr), place.name).toBeLessThan(minutes(timings.Sunrise));
-      expect(minutes(timings.Dhuhr), place.name).toBeLessThan(minutes(timings.Asr));
-      expect(minutes(timings.Imsak), place.name).toBeLessThanOrEqual(minutes(timings.Fajr));
+      expect(ordered(timings.Fajr, timings.Sunrise), `${place.name} Fajr→Sunrise`).toBe(true);
+      expect(ordered(timings.Sunrise, timings.Dhuhr), `${place.name} Sunrise→Dhuhr`).toBe(true);
+      expect(ordered(timings.Dhuhr, timings.Asr), `${place.name} Dhuhr→Asr`).toBe(true);
+      expect(ordered(timings.Asr, timings.Maghrib), `${place.name} Asr→Maghrib`).toBe(true);
+      expect(ordered(timings.Maghrib, timings.Isha), `${place.name} Maghrib→Isha`).toBe(true);
+      expect(ordered(timings.Imsak, timings.Fajr), `${place.name} Imsak→Fajr`).toBe(true);
     }
   });
 
