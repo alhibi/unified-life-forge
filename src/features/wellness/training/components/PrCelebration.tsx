@@ -68,11 +68,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
             exit={{ scale: 0.85, opacity: 0, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-sm rounded-3xl overflow-hidden"
-            style={{
-              
-              
-            }}
+            className="relative w-full max-w-sm rounded-3xl overflow-hidden border border-border bg-card shadow-lg"
           >
             <button
               onClick={onClose}

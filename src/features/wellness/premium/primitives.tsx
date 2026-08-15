@@ -255,10 +255,7 @@ export function StatTile({
       {progress != null && (
         <div className="relative h-1 mt-2 rounded-full bg-muted/50 overflow-hidden">
           <motion.div
-            className="h-full rounded-full"
-            style={{
-              
-            }}
+            className="h-full rounded-full bg-primary"
             initial={{ width: 0 }}
             animate={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
