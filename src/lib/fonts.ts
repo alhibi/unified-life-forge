@@ -101,15 +101,15 @@ export function fontSizeStepFor(value: string | null | undefined) {
 
 // ─── Scale ratio ────────────────────────────────────────────
 export const TYPE_RATIOS = [
-  { id: 'compact', label: 'مضغوط', ratio: 1.125, note: 'فروق صغيرة — أكثر معلومات في الشاشة' },
-  { id: 'balanced', label: 'متوازن', ratio: 1.2, note: 'المقياس المعتمد في التطبيق' },
+  { id: 'compact', label: 'مضغوط', ratio: 1.125, note: 'المقياس المعتمد — فروق دقيقة ومتناسقة' },
+  { id: 'balanced', label: 'متوازن', ratio: 1.2, note: 'تفاوت متوسط بين الدرجات' },
   { id: 'airy', label: 'واضح', ratio: 1.28, note: 'تفاوت أوسع — عناوين أبرز' },
 ] as const;
 
 export type TypeRatioId = (typeof TYPE_RATIOS)[number]['id'];
 
 export function resolveTypeRatio(value: string | null | undefined): TypeRatioId {
-  return TYPE_RATIOS.some((r) => r.id === value) ? (value as TypeRatioId) : 'balanced';
+  return TYPE_RATIOS.some((r) => r.id === value) ? (value as TypeRatioId) : 'compact';
 }
 
 // ─── Leading ────────────────────────────────────────────────
