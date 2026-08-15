@@ -418,6 +418,8 @@ function definePreset(
 }
 
 // ─── Theme Presets ──────────────────────────────────────────
+// Twelve curated families, one per visual territory. Anything retired maps
+// through LEGACY_THEME_ALIASES so a saved preference never breaks.
 export const themePresets: ThemePreset[] = [
   definePreset(
     'copper',
@@ -425,13 +427,6 @@ export const themePresets: ThemePreset[] = [
     'Architectural Copper',
     { bg: '#F4F2EF', surface: '#FBFAF8', ink: '#17171A', accent: '#9A6B37' },
     { bg: '#0D0D0F', surface: '#1A1A1E', ink: '#EDEBE7', accent: '#C9A06A' }
-  ),
-  definePreset(
-    'default',
-    'كلاسيك',
-    'Classic',
-    { bg: '#E4DFDB', surface: '#E3D7CD', ink: '#3F3F3F', accent: '#E45B60' },
-    { bg: '#1A1A1A', surface: '#3F3F3F', ink: '#E4DFDB', accent: '#E45B60' }
   ),
   definePreset(
     'paper',
@@ -448,81 +443,11 @@ export const themePresets: ThemePreset[] = [
     { bg: '#121212', surface: '#1E1E1E', ink: '#F5F5F5', accent: '#FFFFFF' }
   ),
   definePreset(
-    'coffee',
-    'قهوة',
-    'Coffee',
-    { bg: '#F3EFE9', surface: '#EAE3D8', ink: '#3E2723', accent: '#8D6E63' },
-    { bg: '#1E1410', surface: '#2D1E18', ink: '#EFEBE9', accent: '#A1887F' }
-  ),
-  definePreset(
-    'fog',
-    'ضباب',
-    'Fog',
-    { bg: '#EAF0F6', surface: '#DCE5ED', ink: '#2B3842', accent: '#4F708C' },
-    { bg: '#151B22', surface: '#242C35', ink: '#EAF0F6', accent: '#7295B3' }
-  ),
-  definePreset(
     'obsidian',
     'سبج',
     'Obsidian',
     { bg: '#E6E4E2', surface: '#F0EDE9', ink: '#1A1917', accent: '#B8860B' },
     { bg: '#0A0A0B', surface: '#151517', ink: '#F5F2EB', accent: '#D4AF37' }
-  ),
-  definePreset(
-    'midnight',
-    'منتصف الليل',
-    'Midnight',
-    { bg: '#E6E9F0', surface: '#D2D7E5', ink: '#121E31', accent: '#2A52BE' },
-    { bg: '#080E1A', surface: '#162235', ink: '#E6E9F0', accent: '#5381E6' }
-  ),
-  definePreset(
-    'rose',
-    'روز جولد',
-    'Rose Gold',
-    { bg: '#F9F1F2', surface: '#F2DFE2', ink: '#4A2A2E', accent: '#C87D88' },
-    { bg: '#1A0E10', surface: '#2E181C', ink: '#F9F1F2', accent: '#E2A9B1' }
-  ),
-  definePreset(
-    'emerald',
-    'زمرد',
-    'Emerald',
-    { bg: '#E8F5E9', surface: '#C8E6C9', ink: '#1B5E20', accent: '#2E7D32' },
-    { bg: '#0A110C', surface: '#122216', ink: '#E8F5E9', accent: '#4CAF50' }
-  ),
-  definePreset(
-    'lavender',
-    'لافندر',
-    'Lavender',
-    { bg: '#F3EBF5', surface: '#E6D7E8', ink: '#3E2445', accent: '#8E44AD' },
-    { bg: '#160E1A', surface: '#271733', ink: '#F3EBF5', accent: '#BB8FCE' }
-  ),
-  definePreset(
-    'sunset',
-    'غروب',
-    'Sunset',
-    { bg: '#FDF5E6', surface: '#FAEBD7', ink: '#5C2E2B', accent: '#FF7F50' },
-    { bg: '#140C0A', surface: '#22120F', ink: '#FFF5EE', accent: '#FF7F50' }
-  ),
-  definePreset(
-    'ocean',
-    'محيط',
-    'Ocean',
-    { bg: '#E0F2F1', surface: '#B2DFDB', ink: '#004D40', accent: '#00796B' },
-    { bg: '#001211', surface: '#002926', ink: '#E0F2F1', accent: '#26A69A' }
-  ),
-  definePreset(
-    'matcha',
-    'ماتشا',
-    'Matcha',
-    { bg: '#F1F4EA', surface: '#E4EBD6', ink: '#26301C', accent: '#6B8E3E' },
-    { bg: '#0E1209', surface: '#1B2213', ink: '#EEF3E4', accent: '#9CBF63' }
-  ),
-  definePreset(
-    'moss',
-    'طحلب',
-    'Moss',
-    { bg: '#EDF1EC', surface: '#DDE6DC', ink: '#1F2A22', accent: '#4A6B52' },
-    { bg: '#0B0F0C', surface: '#161E18', ink: '#E6EDE6', accent: '#7FA98A' }
   ),
   definePreset(
     'clay',
@@ -532,20 +457,6 @@ export const themePresets: ThemePreset[] = [
     { bg: '#130E0B', surface: '#211814', ink: '#F1E7DE', accent: '#CE8A62' }
   ),
   definePreset(
-    'sandstone',
-    'حجر رملي',
-    'Sandstone',
-    { bg: '#F6F1E6', surface: '#ECE3CF', ink: '#2E2A1F', accent: '#9C7C3C' },
-    { bg: '#12100A', surface: '#201C12', ink: '#F3EDDD', accent: '#C9A959' }
-  ),
-  definePreset(
-    'mint',
-    'نعناع',
-    'Mint',
-    { bg: '#EAF6F1', surface: '#D6EDE3', ink: '#12312A', accent: '#128069' },
-    { bg: '#08130F', surface: '#0F2119', ink: '#E4F4EE', accent: '#4FC3A1' }
-  ),
-  definePreset(
     'gold',
     'ذهب',
     'Gold',
@@ -553,53 +464,18 @@ export const themePresets: ThemePreset[] = [
     { bg: '#12100A', surface: '#211C10', ink: '#F7F0DC', accent: '#D9B441' }
   ),
   definePreset(
-    'cherry',
-    'كرز',
-    'Cherry',
-    { bg: '#FBF0F1', surface: '#F4DDDF', ink: '#3B1418', accent: '#B0203A' },
-    { bg: '#150A0C', surface: '#241014', ink: '#FAE9EB', accent: '#E9566F' }
+    'moss',
+    'طحلب',
+    'Moss',
+    { bg: '#EDF1EC', surface: '#DDE6DC', ink: '#1F2A22', accent: '#4A6B52' },
+    { bg: '#0B0F0C', surface: '#161E18', ink: '#E6EDE6', accent: '#7FA98A' }
   ),
   definePreset(
-    'volcano',
-    'بركان',
-    'Volcano',
-    { bg: '#F5EEEB', surface: '#EBDCD5', ink: '#2A1712', accent: '#B04A22' },
-    { bg: '#110B09', surface: '#1F1310', ink: '#F3E6E0', accent: '#E4713C' }
-  ),
-  definePreset(
-    'amber',
-    'عنبر',
-    'Amber',
-    { bg: '#FBF4E4', surface: '#F6E8C9', ink: '#31240D', accent: '#9A6C0B' },
-    { bg: '#130F07', surface: '#221A0C', ink: '#F9EFD9', accent: '#E0A82E' }
-  ),
-  definePreset(
-    'terracotta',
-    'فخار',
-    'Terracotta',
-    { bg: '#F7EFE9', surface: '#EEDDD1', ink: '#331F16', accent: '#A75434' },
-    { bg: '#140D09', surface: '#231710', ink: '#F5E7DC', accent: '#D9825C' }
-  ),
-  definePreset(
-    'neon',
-    'نيون',
-    'Neon',
-    { bg: '#EFF1F5', surface: '#E1E5EE', ink: '#14161C', accent: '#0F62FE' },
-    { bg: '#08090C', surface: '#121520', ink: '#EDF0F7', accent: '#4D8BFF' }
-  ),
-  definePreset(
-    'aurora',
-    'شفق قطبي',
-    'Aurora',
-    { bg: '#EBF4F3', surface: '#D8EAE9', ink: '#10262B', accent: '#0E7C86' },
-    { bg: '#07100F', surface: '#0F1F21', ink: '#E4F2F1', accent: '#3FD3C6' }
-  ),
-  definePreset(
-    'sakura',
-    'ساكورا',
-    'Sakura',
-    { bg: '#FCF1F4', surface: '#F7DEE7', ink: '#3A1B27', accent: '#C24C77' },
-    { bg: '#150B0F', surface: '#251319', ink: '#FBEAF0', accent: '#F090B0' }
+    'ocean',
+    'محيط',
+    'Ocean',
+    { bg: '#E0F2F1', surface: '#B2DFDB', ink: '#004D40', accent: '#00796B' },
+    { bg: '#001211', surface: '#002926', ink: '#E0F2F1', accent: '#26A69A' }
   ),
   definePreset(
     'arctic',
@@ -609,6 +485,13 @@ export const themePresets: ThemePreset[] = [
     { bg: '#080D12', surface: '#111C24', ink: '#E9F2F9', accent: '#63B3E0' }
   ),
   definePreset(
+    'midnight',
+    'منتصف الليل',
+    'Midnight',
+    { bg: '#E6E9F0', surface: '#D2D7E5', ink: '#121E31', accent: '#2A52BE' },
+    { bg: '#080E1A', surface: '#162235', ink: '#E6E9F0', accent: '#5381E6' }
+  ),
+  definePreset(
     'nebula',
     'سديم',
     'Nebula',
@@ -616,27 +499,47 @@ export const themePresets: ThemePreset[] = [
     { bg: '#0A0812', surface: '#161125', ink: '#EDE9F8', accent: '#9E86F5' }
   ),
   definePreset(
-    'dusk',
-    'شفق',
-    'Dusk',
-    { bg: '#F2EEF0', surface: '#E2DAE0', ink: '#221C26', accent: '#71527A' },
-    { bg: '#0C0A0E', surface: '#191420', ink: '#EEE8F0', accent: '#AE8FBB' }
-  ),
-  definePreset(
-    'storm',
-    'عاصفة',
-    'Storm',
-    { bg: '#EDEFF1', surface: '#DDE1E5', ink: '#181C20', accent: '#41606F' },
-    { bg: '#0A0C0D', surface: '#161A1D', ink: '#E9EDEF', accent: '#7C9EAE' }
-  ),
-  definePreset(
-    'silk',
-    'حرير',
-    'Silk',
-    { bg: '#F7F5F1', surface: '#EFEBE3', ink: '#26231D', accent: '#8C7A5B' },
-    { bg: '#100F0C', surface: '#1D1B16', ink: '#F4F1EA', accent: '#C3AE86' }
+    'rose',
+    'روز جولد',
+    'Rose Gold',
+    { bg: '#F9F1F2', surface: '#F2DFE2', ink: '#4A2A2E', accent: '#C87D88' },
+    { bg: '#1A0E10', surface: '#2E181C', ink: '#F9F1F2', accent: '#E2A9B1' }
   ),
 ];
+
+/**
+ * Retired presets fold into the family that carried them best, so a stored
+ * `colorTheme` from an older build still resolves to a real palette.
+ */
+export const LEGACY_THEME_ALIASES: Readonly<Record<string, string>> = {
+  default: 'copper',
+  silk: 'paper',
+  coffee: 'clay',
+  sunset: 'clay',
+  terracotta: 'clay',
+  volcano: 'clay',
+  sandstone: 'gold',
+  amber: 'gold',
+  emerald: 'moss',
+  matcha: 'moss',
+  mint: 'ocean',
+  aurora: 'ocean',
+  fog: 'arctic',
+  storm: 'arctic',
+  neon: 'midnight',
+  lavender: 'nebula',
+  dusk: 'nebula',
+  cherry: 'rose',
+  sakura: 'rose',
+};
+
+/** Resolves any stored theme id — current, retired, or unknown — to a live one. */
+export function resolveThemeId(id?: string | null): string {
+  if (!id) return themePresets[0].id;
+  if (id === 'dynamic') return id;
+  if (themePresets.some((preset) => preset.id === id)) return id;
+  return LEGACY_THEME_ALIASES[id] ?? themePresets[0].id;
+}
 
 // ─── Dynamic theme from image ───────────────────────────────
 export function extractDominantColor(img: HTMLImageElement): [number, number, number] {
