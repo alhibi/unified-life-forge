@@ -92,8 +92,6 @@ export default function PriceChart({
   chainId,
   pairAddress,
   symbol,
-  quoteSymbol,
-  name,
   livePriceUsd,
 }: PriceChartProps) {
   const [range, setRange] = useState<ChartRange>('1D');
