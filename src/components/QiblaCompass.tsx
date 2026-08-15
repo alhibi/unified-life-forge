@@ -197,8 +197,15 @@ export default function QiblaCompass() {
   const { language } = useApp();
   const { location } = useDeviceLocation();
   const [expanded, setExpanded] = useState(false);
-  const { heading, supported, permission, request, accuracy } = useStableDeviceHeading();
+  const {
+    heading: rawHeading, quality, supported, permission, request, accuracy, tilted,
+  } = useStableDeviceHeading();
   const alignedRef = useRef(false);
+
+  // Only an Earth-referenced reading may rotate the needle. With a relative
+  // gyro feed we keep the dial north-up and say so, rather than pointing the
+  // user at a direction the sensor cannot actually know.
+  const heading = quality === 'absolute' ? rawHeading : null;
 
   const lat = location?.lat ?? MAKKAH.lat;
   const lng = location?.lng ?? MAKKAH.lng;
@@ -244,6 +251,8 @@ export default function QiblaCompass() {
     info: 'يُحسب اتجاه القبلة على دائرة عظمى من موقعك إلى مكة المكرمة. للحصول على دقّة أفضل، ابتعد عن المعادن والشاشات وحرّك الجهاز على شكل ٨ لمعايرة البوصلة.',
     locationFallback: 'فعّل الموقع لحساب القبلة من مكانك بدقة.',
     calibrate: 'دقّة البوصلة منخفضة — حرّك الجهاز على شكل ٨ للمعايرة',
+    relative: 'مستشعر هذا الجهاز لا يعرف الشمال الحقيقي — استعن باتجاه الدرجات أعلاه.',
+    tilted: 'أفقِ الجهاز (ضعه مستويًا) لقراءة أدقّ للبوصلة',
   };
 
   const fmtKm = (n: number) =>
