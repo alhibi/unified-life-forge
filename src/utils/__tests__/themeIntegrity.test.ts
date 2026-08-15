@@ -63,6 +63,42 @@ describe('theme token integrity', () => {
           expect(t['--theme-100']).toBe(t['--card']);
           expect(t['--theme-400']).toBe(t['--primary']);
         });
+
+        it(`${label}: elevation planes are visibly distinct`, () => {
+          const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
+          const planes = [
+            parse(t['--surface-0']),
+            parse(t['--surface-1']),
+            parse(t['--surface-2']),
+            parse(t['--surface-3']),
+          ];
+          expect(planes[0]).toEqual(parse(t['--background']));
+          expect(planes[1]).toEqual(parse(t['--card']));
+          for (let i = 1; i < planes.length; i += 1) {
+            expect(Math.abs(planes[i][2] - planes[i - 1][2])).toBeGreaterThanOrEqual(1.4);
+          }
+          // Ink stays readable on the highest plane too.
+          expect(contrastRatio(parse(t['--foreground']), planes[3])).toBeGreaterThanOrEqual(4.5);
+        });
+
+        it(`${label}: every plane carries its own shadow`, () => {
+          const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
+          const shadows = [t['--shadow-1'], t['--shadow-2'], t['--shadow-3'], t['--shadow-4']];
+          expect(new Set(shadows).size).toBe(4);
+          expect(t['--card-shadow']).toBe(t['--shadow-1']);
+        });
+
+        it(`${label}: the ink zone climbs in contrast`, () => {
+          const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
+          const bg = parse(t['--background']);
+          const inkZone = [600, 700, 800, 900].map((step) =>
+            contrastRatio(parse(t[`--theme-${step}`]), bg),
+          );
+          for (let i = 1; i < inkZone.length; i += 1) {
+            expect(inkZone[i]).toBeGreaterThanOrEqual(inkZone[i - 1] - 0.01);
+          }
+          expect(inkZone[0]).toBeGreaterThanOrEqual(4.4);
+        });
       }
     }
 
@@ -71,8 +107,10 @@ describe('theme token integrity', () => {
         for (const isDark of [false, true]) {
           const t = generateThemeTokens(preset, style, isDark, false);
           const scale = getThemeScale(preset, style, isDark);
-          expect(scale[4]).toEqual(parse(t['--primary']));
-          expect(scale[0]).toEqual(parse(t['--background']));
+          expect(scale).toHaveLength(11);
+          expect(scale[5]).toEqual(parse(t['--primary']));
+          expect(scale[1]).toEqual(parse(t['--background']));
+          expect(scale[2]).toEqual(parse(t['--card']));
         }
       }
     });
