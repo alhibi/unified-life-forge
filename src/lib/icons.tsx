@@ -32,20 +32,28 @@ import {
 
 import { useApp } from '@/contexts/AppContext';
 
-export type IconSet = 'phosphor' | 'lucide' | 'tabler' | 'hugeicons';
+export type IconSet = 'phosphor' | 'lucide' | 'tabler';
 
 /* ------------------------------------------------------------------------- */
 /*  Context + persistence                                                     */
 /* ------------------------------------------------------------------------- */
 
 const STORAGE_KEY = 'app-icon-set';
-const VALID: readonly IconSet[] = ['phosphor', 'lucide', 'tabler', 'hugeicons'];
+const VALID: readonly IconSet[] = ['phosphor', 'lucide', 'tabler'];
+
+/** Retired sets keep working: map them onto the closest surviving family. */
+const ICON_SET_ALIASES: Record<string, IconSet> = { hugeicons: 'tabler' };
+
+function normalizeSet(value: string | null | undefined): IconSet | null {
+  if (!value) return null;
+  if ((VALID as readonly string[]).includes(value)) return value as IconSet;
+  return ICON_SET_ALIASES[value] ?? null;
+}
 
 function readStored(): IconSet {
   if (typeof window === 'undefined') return 'phosphor';
   try {
-    const v = window.localStorage.getItem(STORAGE_KEY);
-    return (VALID as readonly string[]).includes(v ?? '') ? (v as IconSet) : 'phosphor';
+    return normalizeSet(window.localStorage.getItem(STORAGE_KEY)) ?? 'phosphor';
   } catch {
     return 'phosphor';
   }
@@ -68,8 +76,9 @@ export const IconSetOverride = IconSetContext.Provider;
  * DOM event so every mounted `IconProvider` re-renders immediately without
  * plumbing setters through half a dozen contexts.
  */
-export function setIconSet(next: IconSet): void {
-  if (!(VALID as readonly string[]).includes(next)) return;
+export function setIconSet(input: IconSet): void {
+  const next = normalizeSet(input);
+  if (!next) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, next);
   } catch {
@@ -98,7 +107,7 @@ export type IconComponentProps = Omit<IconProps, 'weight'> & {
   absoluteStrokeWidth?: boolean;
 };
 
-type Names = { p: string; l: string; t: string; h: string };
+type Names = { p: string; l: string; t: string };
 
 /**
  * Tabler intentionally uses a more opinionated naming system than Lucide.
@@ -189,7 +198,6 @@ type TablerLibType = Record<string, FC<SVGProps<SVGSVGElement> & { stroke?: numb
 
 const EMPTY: StrokeLib = {};
 let LucideLib: StrokeLib = EMPTY;
-let HugeLib: StrokeLib = EMPTY;
 let TablerLib: TablerLibType = {};
 
 const LOADED_EVENT = 'app-icon-set:loaded';
@@ -212,33 +220,11 @@ export function loadIconSet(set: IconSet): void {
     });
     // Tabler falls back to lucide names for awkward glyphs.
     loadIconSet('lucide');
-  } else if (set === 'hugeicons') {
-    void import('hugeicons-react').then((m) => {
-      HugeLib = m as unknown as StrokeLib;
-      done();
-    });
-    loadIconSet('lucide');
   }
 }
 
 
 function pickComponent(set: IconSet, names: Names) {
-  if (set === 'hugeicons') {
-    // Many icons declare `h: 'SearchIcon'` as a placeholder — a magnifying
-    // glass is wrong for anything that isn't actually a search glyph, so skip
-    // it and fall back to a correct shape from another library.
-    const hugeName =
-      names.h === 'SearchIcon' && names.l !== 'Search' ? undefined : names.h;
-    return (
-      (hugeName ? HugeLib[hugeName] : undefined) ??
-      HugeLib[names.l + 'Icon'] ??
-      HugeLib[names.l] ??
-      LucideLib[names.l] ??
-      LucideLib[names.p] ??
-      PhosLib[names.p]
-    );
-  }
-
   if (set === 'lucide') {
     return LucideLib[names.l] ?? LucideLib[names.p] ?? PhosLib[names.p];
   }
@@ -319,9 +305,6 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
   if (set === 'tabler') {
     // Airy, hand-drawn feel that reads as *tabler* at a glance.
     extra.stroke = strokeNum ?? 1.25;
-  } else if (set === 'hugeicons') {
-    // Hugeicons - balanced modern look
-    extra.strokeWidth = strokeNum ?? 1.5;
   } else {
     // Lucide — geometric and technical.
     extra.strokeWidth = strokeNum ?? 2;
@@ -356,8 +339,8 @@ export function IconProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handler = (event: Event) => {
-      const detail = (event as CustomEvent<IconSet>).detail;
-      if (detail && (VALID as readonly string[]).includes(detail)) setSet(detail);
+      const detail = normalizeSet((event as CustomEvent<IconSet>).detail);
+      if (detail) setSet(detail);
       else setSet(readStored());
     };
     window.addEventListener(CHANGE_EVENT, handler);
