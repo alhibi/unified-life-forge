@@ -28,11 +28,14 @@
  */
 
 import { scrubVerboseDetails } from '@/lib/scrub';
+import { onCircuitChange } from '@/lib/circuitBreaker';
 
 export type TelemetryKind =
   | 'UncaughtError'
   | 'UnhandledRejection'
   | 'ReactRenderError'
+  /** An external endpoint's breaker opened or recovered. */
+  | 'CircuitBreaker'
   | 'Manual';
 
 export interface TelemetryEvent {
