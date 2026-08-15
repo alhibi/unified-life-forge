@@ -421,13 +421,17 @@
        by --type-base-scale during PostCSS compilation. The document root stays
        16px, so typography and interface geometry remain independent. Defaults
        reproduce the original 11 · 12 · 13 · 14 · 16 · 18 · 24 scale. */
-    --fs-micro: 0.6875rem;
-    --fs-mini: 0.75rem;
-    --fs-meta: 0.8125rem;
-    --fs-body: 0.8751rem;
-    --fs-lead: 1rem;
-    --fs-title: 1.1249rem;
-    --fs-display: 1.5rem;
+    /* size(n) = 16px × 1.125^n  →  11.24 · 12.64 · 14.22 · 16 · 18 · 20.25
+       · 22.78 · 25.63 (px). Kept in rem so the browser's own text-size
+       preference still applies. Owned by src/lib/fonts.ts. */
+    --fs-micro: 0.7025rem;
+    --fs-mini: 0.7901rem;
+    --fs-meta: 0.8889rem;
+    --fs-body: 1rem;
+    --fs-lead: 1.125rem;
+    --fs-title: 1.2656rem;
+    --fs-display: 1.4238rem;
+    --fs-hero: 1.6018rem;
     --type-base-scale: 1;
     --type-leading: 1.6;
     --type-leading-tight: 1.2;
