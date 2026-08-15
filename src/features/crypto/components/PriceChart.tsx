@@ -265,6 +265,22 @@ export default function PriceChart({
     <section className="relative overflow-hidden rounded-3xl border border-border/10 bg-gradient-to-b from-muted/10 to-transparent">
       {/* Header — identity, live price and delta */}
       <header className="px-4 pt-4 text-end" dir="rtl">
+        <div className="mb-1 flex items-center justify-end gap-1.5 text-[0.625rem] text-muted-foreground">
+          {updatedAt && (
+            <span className="font-plex-mono tabular-nums" dir="ltr">
+              {new Date(updatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          )}
+          <span>{isStale ? 'بيانات مؤقتة' : 'مباشر'}</span>
+          <span
+            className={cn(
+              'size-1.5 rounded-full',
+              isStale ? 'bg-amber-500' : 'animate-pulse bg-emerald-500'
+            )}
+            aria-hidden
+          />
+        </div>
+
         <div className="flex items-baseline justify-end gap-1 font-plex-mono tabular-nums" dir="ltr">
           <span className="text-[2.25rem] font-semibold leading-none tracking-tight text-foreground">{head}</span>
           <span className="text-lg font-medium leading-none text-muted-foreground">{tail}</span>
