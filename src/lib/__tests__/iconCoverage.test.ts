@@ -12,14 +12,49 @@ import * as Tabler from '@tabler/icons-react';
 import { describe, expect, it } from 'vitest';
 
 const SOURCE = fs.readFileSync(path.resolve(__dirname, '../icons.tsx'), 'utf8');
-const ENTRY = /names=\{\{ p: '([^']+)', l: '([^']+)', t: '([^']+)' \}\}/g;
+const ENTRY =
+  /function (\w+)\(props, ref\) \{ return <IconSlot ref=\{ref\} names=\{\{ p: '([^']+)', l: '([^']+)', t: '([^']+)' \}\}/g;
 
-type Entry = { p: string; l: string; t: string };
+type Entry = { export: string; p: string; l: string; t: string };
 const entries: Entry[] = [...SOURCE.matchAll(ENTRY)].map((m) => ({
-  p: m[1],
-  l: m[2],
-  t: m[3],
+  export: m[1],
+  p: m[2],
+  l: m[3],
+  t: m[4],
 }));
+
+/**
+ * Exported names that are deliberately two spellings of ONE concept (legacy
+ * lucide aliases kept for call-site compatibility). Everything outside these
+ * groups must own a unique glyph in every library — no two different UI
+ * concepts may look identical.
+ */
+const ALIAS_GROUPS: readonly (readonly string[])[] = [
+  ['Calendar', 'CalendarIcon'],
+  ['CheckCircle', 'CheckCircle2', 'CircleCheck'],
+  ['Cloud', 'Cloudy'],
+  ['Home', 'House'],
+  ['Image', 'ImageIcon'],
+  ['User', 'User2'],
+];
+
+/** Alias group index, or the export name itself when it stands alone. */
+const conceptOf = (name: string): string => {
+  const idx = ALIAS_GROUPS.findIndex((g) => g.includes(name));
+  return idx === -1 ? name : `group:${String(idx)}`;
+};
+
+function duplicateGlyphs(pick: (e: Entry) => string): string[] {
+  const byGlyph = new Map<string, Set<string>>();
+  for (const e of entries) {
+    const set = byGlyph.get(pick(e)) ?? new Set<string>();
+    set.add(conceptOf(e.export));
+    byGlyph.set(pick(e), set);
+  }
+  return [...byGlyph.entries()]
+    .filter(([, concepts]) => concepts.size > 1)
+    .map(([glyph, concepts]) => `${glyph}: ${[...concepts].join(', ')}`);
+}
 
 /** Brand marks that stroke libraries genuinely do not ship. */
 const BRAND_EXEMPT = new Set(['GithubLogo']);
@@ -48,5 +83,17 @@ describe('icon libraries', () => {
       .filter((e) => !BRAND_EXEMPT.has(e.p) && !has(Tabler, e.t))
       .map((e) => `${e.p} -> ${e.t}`);
     expect(missing).toEqual([]);
+  });
+
+  it('gives every distinct concept its own glyph in phosphor', () => {
+    expect(duplicateGlyphs((e) => e.p)).toEqual([]);
+  });
+
+  it('gives every distinct concept its own glyph in lucide', () => {
+    expect(duplicateGlyphs((e) => e.l)).toEqual([]);
+  });
+
+  it('gives every distinct concept its own glyph in tabler', () => {
+    expect(duplicateGlyphs((e) => e.t)).toEqual([]);
   });
 });
