@@ -24,23 +24,6 @@ function PulseCellSkeleton() {
   );
 }
 
-/** Stands in for PortalPulseBar while prayer times and weather resolve. */
-export function PulseBarSkeleton() {
-  return (
-    <div
-      className="app-card-bare flex flex-wrap items-stretch gap-1 p-1.5"
-      role="status"
-      aria-label="جارٍ تحميل نبض اليوم"
-    >
-      <PulseCellSkeleton />
-      <span className="hidden w-px self-stretch bg-border sm:block" aria-hidden />
-      <PulseCellSkeleton />
-      <span className="sr-only">جارٍ التحميل…</span>
-    </div>
-  );
-}
-
-/** Stands in for a single AppTile — grid or list presentation. */
 export function AppTileSkeleton({ list = false }: { list?: boolean }) {
   return (
     <div

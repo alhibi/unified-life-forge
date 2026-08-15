@@ -2,7 +2,7 @@
  * Portal — the first screen of amv.life: the app launcher.
  *
  * Reading order, top to bottom: who you are and what day it is (PortalGreeting),
- * today's three live numbers (PortalPulseBar), what you opened last, then the
+ * today's live widgets, what you opened last, then the
  * apps themselves under a filter bar that sticks to the header while you scroll.
  * Each app carries its own accent and motif — see AppTileVisuals — so the grid
  * reads as fourteen distinct places rather than one repeated card.
@@ -16,7 +16,6 @@ import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
 import PortalHeader from '@/components/portal/PortalHeader';
-import PortalPulseBar from '@/components/portal/PortalPulseBar';
 import { PortalRealmsSkeleton } from '@/components/portal/PortalSkeletons';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
@@ -230,8 +229,6 @@ export default function Portal() {
           <div className="min-w-0 space-y-5 sm:space-y-6">
 
             <PortalGreeting username={username} />
-
-            <PortalPulseBar />
 
             <Suspense fallback={null}>
               <PortalTodayWidgets />
