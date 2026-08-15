@@ -271,7 +271,7 @@ export default function Portal() {
             />
             <p className="mt-3 flex items-center gap-1.5 text-micro text-muted-foreground">
               <ChevronLeft className="h-3 w-3 rtl:rotate-180" aria-hidden />
-              اضغط <kbd className="rounded-sm border border-border px-1">/</kbd> للبحث، والأسهم للتنقل
+              استخدم الأسهم للتنقل بين التطبيقات
             </p>
           </aside>
         </div>
