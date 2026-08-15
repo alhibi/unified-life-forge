@@ -367,6 +367,9 @@ export const Beef = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
 export const Bell = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function Bell(props, ref) { return <IconSlot ref={ref} names={{ p: 'Bell', l: 'Bell', t: 'IconBell' }} {...props} />; },
 ) as unknown as PhosphorIcon;
+export const Backspace = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Backspace(props, ref) { return <IconSlot ref={ref} names={{ p: 'Backspace', l: 'Delete', t: 'IconBackspace' }} {...props} />; },
+) as unknown as PhosphorIcon;
 export const BellOff = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function BellOff(props, ref) { return <IconSlot ref={ref} names={{ p: 'BellSlash', l: 'BellOff', t: 'IconBellOff' }} {...props} />; },
 ) as unknown as PhosphorIcon;
@@ -645,6 +648,9 @@ export const Info = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
 ) as unknown as PhosphorIcon;
 export const Key = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function Key(props, ref) { return <IconSlot ref={ref} names={{ p: 'Key', l: 'Key', t: 'IconKey' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Keyboard = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Keyboard(props, ref) { return <IconSlot ref={ref} names={{ p: 'Keyboard', l: 'Keyboard', t: 'IconKeyboard' }} {...props} />; },
 ) as unknown as PhosphorIcon;
 export const Landmark = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function Landmark(props, ref) { return <IconSlot ref={ref} names={{ p: 'Bank', l: 'Landmark', t: 'IconBuildingBank' }} {...props} />; },

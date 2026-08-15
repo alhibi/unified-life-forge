@@ -20,6 +20,7 @@ import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
 import { SystemEngineProvider, useSystemEngine } from "@/contexts/SystemEngineContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
 import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
+import { KeyboardProvider } from "@/features/keyboard";
 import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
@@ -782,6 +783,7 @@ const App = () => (
                 <AnimatedRoutes />
                 <PortalBackButton />
                 <PodcastMiniPlayer />
+                <KeyboardProvider />
               </BrowserRouter>
             </ErrorBoundary>
           </TooltipProvider>
