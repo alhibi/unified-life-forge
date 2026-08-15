@@ -169,9 +169,149 @@ function adhanParamsFor(method: AladhanMethod) {
 }
 
 /**
+ * How a set of timings was reached. Surfaced so the UI can be honest about a
+ * result that is a jurisprudential approximation rather than a direct
+ * calculation.
+ */
+export type LatitudeFallback =
+  /** Direct calculation — the sun actually crossed every required angle. */
+  | 'none'
+  /** Twilight could not be found; night was divided into sevenths. */
+  | 'seventh-of-night'
+  /**
+   * Polar day or polar night: the sun never crossed the horizon at all, so
+   * there is no local sunset to anchor Maghrib to. Timings are computed for
+   * the nearest latitude at which the day still resolves — the classical
+   * *Aqrab al-Bilad* ("nearest locality") position — keeping the caller's
+   * longitude so the clock stays local.
+   */
+  | 'nearest-latitude';
+
+export interface LocalTimingsResult {
+  timings: Record<string, string>;
+  fallback: LatitudeFallback;
+  /** Latitude the timings were actually computed at (differs under Aqrab al-Bilad). */
+  effectiveLatitude: number;
+}
+
+/**
+ * Latitude the *Aqrab al-Bilad* fallback clamps to.
+ *
+ * 48.5° is the highest latitude at which astronomical twilight still resolves
+ * on every day of the year, which is what makes it the conventional choice:
+ * below it a real Fajr and Isha always exist.
+ */
+const NEAREST_LATITUDE = 48.5;
+
+function isValidTime(d: Date | null | undefined): d is Date {
+  return d instanceof Date && !Number.isNaN(d.getTime());
+}
+
+/**
  * Compute prayer timings locally with adhan.js — used as a hybrid fallback
- * when the Aladhan API is unreachable. Returns the same `HH:MM` string map
- * shape as the API for drop-in compatibility.
+ * when the Aladhan API is unreachable, and the sole source offline.
+ *
+ * Above roughly 65° latitude the sun does not cross the horizon for weeks at a
+ * time, and adhan.js correctly reports `Invalid Date` for prayers that have no
+ * astronomical event to anchor them. Formatting that straight to `HH:MM`
+ * produced literal `NaN:NaN` on screen in Tromsø and Utqiaġvik, so this walks
+ * an explicit fallback chain — sevenths of the night, then *Aqrab al-Bilad* —
+ * and reports which rung it landed on.
+ */
+export function computeLocalTimingsDetailed(
+  lat: number,
+  lng: number,
+  method: AladhanMethod,
+  school: 0 | 1,
+  latAdj: 1 | 2 | 3,
+  date: Date = new Date(),
+): LocalTimingsResult {
+  const attempt = (
+    atLat: number,
+    rule: 1 | 2 | 3,
+  ): { timings: Record<string, string>; complete: boolean } => {
+    const coords = new Coordinates(atLat, lng);
+    const params = adhanParamsFor(method);
+    params.madhab = school === 1 ? Madhab.Hanafi : Madhab.Shafi;
+    params.highLatitudeRule =
+      rule === 1 ? HighLatitudeRule.MiddleOfTheNight
+      : rule === 2 ? HighLatitudeRule.SeventhOfTheNight
+      : HighLatitudeRule.TwilightAngle;
+
+    const pt = new AdhanPrayerTimes(coords, date, params);
+    const sn = new SunnahTimes(pt);
+
+    // Every value the UI reads. `complete` is false if any single one is
+    // missing, because a screen showing four prayers and one NaN is worse than
+    // a screen showing five approximated prayers.
+    const required: Array<[string, Date]> = [
+      ['Fajr', pt.fajr],
+      ['Sunrise', pt.sunrise],
+      ['Dhuhr', pt.dhuhr],
+      ['Asr', pt.asr],
+      ['Maghrib', pt.maghrib],
+      ['Isha', pt.isha],
+    ];
+    const complete =
+      required.every(([, d]) => isValidTime(d)) &&
+      isValidTime(sn.middleOfTheNight) &&
+      isValidTime(sn.lastThirdOfTheNight);
+
+    const fmt = (d: Date) => {
+      if (!isValidTime(d)) return '';
+      const h = d.getHours().toString().padStart(2, '0');
+      const m = d.getMinutes().toString().padStart(2, '0');
+      return `${h}:${m}`;
+    };
+
+    return {
+      complete,
+      timings: {
+        Fajr: fmt(pt.fajr),
+        Sunrise: fmt(pt.sunrise),
+        Dhuhr: fmt(pt.dhuhr),
+        Asr: fmt(pt.asr),
+        Sunset: fmt(pt.maghrib),
+        Maghrib: fmt(pt.maghrib),
+        Isha: fmt(pt.isha),
+        Imsak: isValidTime(pt.fajr) ? fmt(new Date(pt.fajr.getTime() - 10 * 60_000)) : '',
+        Midnight: fmt(sn.middleOfTheNight),
+        Firstthird: fmt(sn.middleOfTheNight),
+        Lastthird: fmt(sn.lastThirdOfTheNight),
+      },
+    };
+  };
+
+  const direct = attempt(lat, latAdj);
+  if (direct.complete) {
+    return { timings: direct.timings, fallback: 'none', effectiveLatitude: lat };
+  }
+
+  // Rung 2: divide the night into sevenths. Resolves the shoulder latitudes
+  // (~55–65°) where only twilight is missing but sunset still happens.
+  if (latAdj !== 2) {
+    const seventh = attempt(lat, 2);
+    if (seventh.complete) {
+      return { timings: seventh.timings, fallback: 'seventh-of-night', effectiveLatitude: lat };
+    }
+  }
+
+  // Rung 3: polar day/night — there is no local sunset at all. Compute at the
+  // nearest latitude where the day resolves, keeping longitude so the clock
+  // remains the user's own.
+  const clamped = Math.sign(lat || 1) * NEAREST_LATITUDE;
+  const nearest = attempt(clamped, 2);
+  return {
+    timings: nearest.timings,
+    fallback: 'nearest-latitude',
+    effectiveLatitude: clamped,
+  };
+}
+
+/**
+ * Back-compatible wrapper returning just the `HH:MM` map, matching the Aladhan
+ * API response shape. Prefer `computeLocalTimingsDetailed` where the UI can
+ * disclose that a latitude fallback was applied.
  */
 export function computeLocalTimings(
   lat: number,
@@ -181,34 +321,5 @@ export function computeLocalTimings(
   latAdj: 1 | 2 | 3,
   date: Date = new Date(),
 ): Record<string, string> {
-  const coords = new Coordinates(lat, lng);
-  const params = adhanParamsFor(method);
-  params.madhab = school === 1 ? Madhab.Hanafi : Madhab.Shafi;
-  params.highLatitudeRule =
-    latAdj === 1 ? HighLatitudeRule.MiddleOfTheNight
-    : latAdj === 2 ? HighLatitudeRule.SeventhOfTheNight
-    : HighLatitudeRule.TwilightAngle;
-
-  const pt = new AdhanPrayerTimes(coords, date, params);
-  const sn = new SunnahTimes(pt);
-
-  const fmt = (d: Date) => {
-    const h = d.getHours().toString().padStart(2, '0');
-    const m = d.getMinutes().toString().padStart(2, '0');
-    return `${h}:${m}`;
-  };
-
-  return {
-    Fajr:       fmt(pt.fajr),
-    Sunrise:    fmt(pt.sunrise),
-    Dhuhr:      fmt(pt.dhuhr),
-    Asr:        fmt(pt.asr),
-    Sunset:     fmt(pt.maghrib),
-    Maghrib:    fmt(pt.maghrib),
-    Isha:       fmt(pt.isha),
-    Imsak:      fmt(new Date(pt.fajr.getTime() - 10 * 60_000)),
-    Midnight:   fmt(sn.middleOfTheNight),
-    Firstthird: fmt(sn.middleOfTheNight),
-    Lastthird:  fmt(sn.lastThirdOfTheNight),
-  };
+  return computeLocalTimingsDetailed(lat, lng, method, school, latAdj, date).timings;
 }
