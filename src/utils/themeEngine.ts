@@ -534,23 +534,49 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
 // ─── Token Generation ───────────────────────────────────────
 export function generateThemeTokens(
   preset: ThemePreset,
-  _style: ThemeStyle,
+  style: ThemeStyle,
   isDark: boolean,
   isBlack: boolean,
-  _lift: SurfaceLift = 'subtle'
+  lift: SurfaceLift = 'subtle'
 ): Record<string, string> {
   const modeColors = isDark ? preset.dark : preset.light;
-  let bgHex = modeColors.bg;
+  const rawBg = hexToHsl(modeColors.bg);
+  const rawSurface = hexToHsl(modeColors.surface);
 
-  // Handle computed extra-dark background for black mode
-  if (isDark && isBlack) {
-    bgHex = '#080808'; // Pure extra-dark sub-black background for OLED Black Mode
-  }
+  // OLED black mode keeps the palette's hue instead of collapsing to a
+  // neutral #080808 whose card colour no longer belongs to the theme.
+  const bgHsl: Hsl =
+    isDark && isBlack ? [rawBg[0], Math.min(rawBg[1], 12), 2.5] : rawBg;
+  const surfaceBase: Hsl =
+    isDark && isBlack
+      ? [rawSurface[0], Math.min(rawSurface[1], 14), Math.max(7, rawSurface[2] - 3)]
+      : rawSurface;
 
-  const bgHsl = hexToHsl(bgHex);
-  const surfHsl = hexToHsl(modeColors.surface);
-  const inkHsl = hexToHsl(modeColors.ink);
-  const accHsl = hexToHsl(modeColors.accent);
+  // Surface lift is a tone decision: flat sits on the page, lifted floats.
+  const liftDelta = lift === 'flat' ? -1.5 : lift === 'lifted' ? 2.5 : 0;
+  const surfHsl = ensureSurfaceSeparation(
+    [
+      surfaceBase[0],
+      surfaceBase[1],
+      Math.min(99, Math.max(1, surfaceBase[2] + (isDark ? liftDelta : -liftDelta))),
+    ],
+    bgHsl,
+    isDark,
+  );
+
+  // Ink must clear WCAG AA against both the page and the cards on it.
+  const inkHsl = ensureContrast(
+    ensureContrast(hexToHsl(modeColors.ink), bgHsl, 7),
+    surfHsl,
+    5.5,
+  );
+  // Accent obeys the chosen strength, then is corrected until it is legible
+  // as a large-text / iconography colour on the page.
+  const accHsl = ensureContrast(
+    applyAccentStrength(hexToHsl(modeColors.accent), style, isDark),
+    bgHsl,
+    3.2,
+  );
 
   const bgStr = hslToString(bgHsl);
   const surfStr = hslToString(surfHsl);
@@ -560,18 +586,26 @@ export function generateThemeTokens(
   // Derive secondary/tertiary/disabled/hover/pressed states from the 4 roles ONLY.
   // Each one is pre-mixed into a SOLID triple so downstream CSS can safely
   // compose its own alpha, e.g. `hsl(var(--border) / 0.72)`.
-  const borderStr = solid(inkHsl, bgHsl, 0.16);        // ink over bg, subtle line
-  const inputStr = solid(inkHsl, bgHsl, 0.24);         // ink over bg, stronger line
-  const secondaryStr = solid(inkHsl, bgHsl, 0.1);      // neutral recess/background
-  const secondaryFgStr = solid(inkHsl, bgHsl, 0.85);   // near-ink text
-  const mutedStr = solid(inkHsl, bgHsl, 0.08);
-  const mutedFgStr = solid(inkHsl, bgHsl, 0.62);       // secondary text
-  const disabledStr = solid(inkHsl, bgHsl, 0.4);       // disabled state
+  // Dark surfaces need a heavier mix to read at the same perceived strength,
+  // which is why the two modes carry different ladders.
+  const lineBase = isDark ? 0.26 : 0.2;
+  const borderStr = solid(inkHsl, bgHsl, lineBase);            // hairline
+  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.12);      // field outline
+  const secondaryStr = solid(inkHsl, bgHsl, isDark ? 0.14 : 0.11);
+  const secondaryFgStr = solid(inkHsl, bgHsl, 0.94);           // near-ink text
+  const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
+  // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
+  const mutedFgStr = hslToString(
+    ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5),
+  );
+  const disabledStr = solid(inkHsl, bgHsl, 0.46);              // disabled state
 
-  const accentHighlightStr = solid(accHsl, bgHsl, 0.12); // subtle accent wash
+  const accentHighlightStr = solid(accHsl, bgHsl, 0.14); // subtle accent wash
 
-  // Primary Foreground is ink (high contrast text) in light, and bg in dark mode.
-  const primaryFgStr = isDark ? bgStr : inkStr;
+  // Text on the accent is whichever of ink/bg is actually readable on it —
+  // pale accents in dark mode used to place a near-black label on gold.
+  const primaryFgStr =
+    contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgStr : inkStr;
 
   // Card soft shadow values:
   // Light mode: 0 1px 3px rgba(63,63,63,0.08)
