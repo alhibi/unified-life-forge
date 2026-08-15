@@ -7,8 +7,8 @@ import { MOTION, pageItem as item } from '@/lib/motion';
 import {
   createDynamicPreset,
   extractDominantColor,
+  getThemeInk,
   getThemeScaleColors,
-  INK_CSS,
   SCALE_STEPS,
   themePresets,
   type ThemeStyle,
@@ -111,9 +111,13 @@ const THEME_CATEGORIES: ThemeCategory[] = [
   },
 ];
 
-/** The 8 bands of a swatch: the theme's seven tones, then the shared ink. */
-function swatchBands(preset: (typeof themePresets)[number], style: ThemeStyle): string[] {
-  return [...getThemeScaleColors(preset, style), INK_CSS];
+/** The 8 bands of a swatch: the theme's seven tones, then its own ink. */
+function swatchBands(
+  preset: (typeof themePresets)[number],
+  style: ThemeStyle,
+  isDark: boolean,
+): string[] {
+  return [...getThemeScaleColors(preset, style, isDark), getThemeInk(preset, isDark)];
 }
 
 /** The labels under the tone strip — 50…600, then ink. */
@@ -123,10 +127,12 @@ function ThemePresetsCategorized({
   colorTheme,
   paletteStyle,
   setColorTheme,
+  isDark,
 }: {
   colorTheme: string;
   paletteStyle: ThemeStyle;
   setColorTheme: (theme: string) => void;
+  isDark: boolean;
 }) {
   const initialCategory =
     THEME_CATEGORIES.find((cat) => cat.presets.includes(colorTheme))?.id || 'classic';
@@ -156,7 +162,8 @@ function ThemePresetsCategorized({
   return (
     <div className="space-y-4">
       <p className="text-mini text-muted-foreground">
-        كل ثيم ثماني درجات متناسقة (50 ← 600 ثم الحبر) تُوزَّع على التطبيق بالكامل
+        كل ثيم ثماني درجات متناسقة (50 ← 600 ثم الحبر)، محسوبة على الوضع الحالي
+        {isDark ? ' (داكن)' : ' (فاتح)'} ومُتحقَّق من تباينها آلياً
       </p>
 
       {/* Segmented category tabs */}
@@ -199,7 +206,7 @@ function ThemePresetsCategorized({
         <AnimatePresence mode="popLayout">
           {currentCategoryPresets.map((preset) => {
             const isActive = colorTheme === preset.id;
-            const bands = swatchBands(preset, paletteStyle);
+            const bands = swatchBands(preset, paletteStyle, isDark);
             return (
               <motion.button
                 key={preset.id}
@@ -261,7 +268,7 @@ function ThemePresetsCategorized({
             <span className="text-micro text-muted-foreground">{activePreset.name}</span>
           </div>
           <div className="flex gap-1">
-            {swatchBands(activePreset, paletteStyle).map((color, i) => (
+            {swatchBands(activePreset, paletteStyle, isDark).map((color, i) => (
               <div key={TONE_LABELS[i]} className="flex-1 space-y-1">
                 <div
                   className="h-7 w-full rounded-sm border border-border"
@@ -274,7 +281,7 @@ function ThemePresetsCategorized({
             ))}
           </div>
           <p className="text-micro text-muted-foreground">
-            الحبر هو الدرجة الثامنة، وهي واحدة في كل الثيمات بلا استثناء
+            الحبر هو الدرجة الثامنة، ويُرفع تباينه تلقائياً حتى ٧:١ على الخلفية
           </p>
         </div>
       )}
@@ -304,7 +311,8 @@ function ThemePresetsCategorized({
 }
 
 export default function PaletteSection() {
-  const { colorTheme, setColorTheme, paletteStyle, setPaletteStyle } = useApp();
+  const { colorTheme, setColorTheme, paletteStyle, setPaletteStyle, theme } = useApp();
+  const isDark = theme === 'dark';
 
   const handleDynamicImage = () => {
     const input = document.createElement('input');
@@ -385,6 +393,7 @@ export default function PaletteSection() {
           colorTheme={colorTheme}
           paletteStyle={paletteStyle as ThemeStyle}
           setColorTheme={setColorTheme as (t: string) => void}
+          isDark={isDark}
         />
       </SettingsSection>
 
