@@ -8,6 +8,7 @@
 //      computation using equivalent parameters — guaranteeing we
 //      always return valid timings worldwide, even offline.
 
+import { withBreaker } from '@/lib/circuitBreaker';
 import { type AladhanMethod,computeLocalTimings, pickMethodForLocation } from '@/lib/prayerCalculationMethod';
 
 interface CachedPrayer {
@@ -87,12 +88,23 @@ export async function fetchPrayerTimings(
       const dd = today.getDate();
       const mm = today.getMonth() + 1;
       const yyyy = today.getFullYear();
-      const res = await fetch(
-        `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${resolvedMethod}&school=${school}&latitudeAdjustmentMethod=${latAdj}`
+      // Breaker-guarded: when Aladhan is down we stop dialling it and fall
+      // straight to the local astronomical computation, which is exact enough
+      // to pray by. Without this, every mounted prayer surface re-dialled a
+      // dead endpoint on every render pass.
+      const data = await withBreaker(
+        'aladhan:timings',
+        async () => {
+          const res = await fetch(
+            `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${resolvedMethod}&school=${school}&latitudeAdjustmentMethod=${latAdj}`,
+          );
+          if (!res.ok) throw Object.assign(new Error('aladhan http error'), { status: res.status });
+          return (await res.json()) as { code?: number; data?: { timings?: Record<string, string> } };
+        },
+        { fallback: () => ({ code: 0 }) },
       );
-      const data = await res.json();
       if (data.code === 200) {
-        const timings = data.data.timings as Record<string, string>;
+        const timings = data.data?.timings as Record<string, string>;
         // Save to cache
         try {
           localStorage.setItem(CACHE_KEY, JSON.stringify({

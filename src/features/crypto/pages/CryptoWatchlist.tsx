@@ -271,8 +271,8 @@ export default function CryptoWatchlist() {
                   </div>
                 </div>
                 <div className="space-y-1.5 text-end">
-                  <div className="h-4 w-20 bg-muted/40 rounded ml-auto" />
-                  <div className="h-3 w-12 bg-muted/40 rounded ml-auto" />
+                  <div className="h-4 w-20 bg-muted/40 rounded ms-auto" />
+                  <div className="h-3 w-12 bg-muted/40 rounded ms-auto" />
                 </div>
               </div>
             ))}
@@ -416,8 +416,8 @@ export default function CryptoWatchlist() {
                           </div>
                         ) : (
                           <div className="text-end animate-pulse space-y-1">
-                            <div className="h-4 w-16 bg-muted/40 rounded ml-auto" />
-                            <div className="h-3 w-10 bg-muted/40 rounded ml-auto" />
+                            <div className="h-4 w-16 bg-muted/40 rounded ms-auto" />
+                            <div className="h-3 w-10 bg-muted/40 rounded ms-auto" />
                           </div>
                         )}
 

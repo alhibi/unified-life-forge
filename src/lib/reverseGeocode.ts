@@ -3,6 +3,8 @@
 // deduplicates concurrent requests so the homepage can't fire two
 // identical lookups while components mount in parallel.
 
+import { withBreaker } from './circuitBreaker';
+
 export interface ReverseGeo {
   city: string;
   street: string;
@@ -48,11 +50,24 @@ export async function reverseGeocode(
 
   const promise = (async (): Promise<ReverseGeo | null> => {
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${lang}`,
+      // Nominatim is a donated public service that rate-limits hard and
+      // answers 403/503 when it is unhappy. The breaker keeps a location-heavy
+      // screen from turning that into a request flood, and a null result is
+      // already a supported outcome for every caller (they show coordinates).
+      const data = await withBreaker(
+        'nominatim:reverse',
+        async () => {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${lang}`,
+          );
+          if (!res.ok) {
+            throw Object.assign(new Error('nominatim http error'), { status: res.status });
+          }
+          return (await res.json()) as { address?: Record<string, string>; display_name?: string };
+        },
+        { fallback: () => null },
       );
-      if (!res.ok) return null;
-      const data = await res.json();
+      if (!data) return null;
       const addr = data.address || {};
       const value: ReverseGeo = {
         city: addr.city || addr.town || addr.village || addr.suburb || addr.county || '',

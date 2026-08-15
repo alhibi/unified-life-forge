@@ -118,7 +118,43 @@ export default tseslint.config(
         },
       ],
       "@typescript-eslint/ban-ts-comment": "warn",
+
+      // ─────────────────────────────────────────────────────────────────
+      // Bidirectional layout gate. HARD ERROR — this one is not budgeted.
+      //
+      // The app is RTL-first. A physical directional utility (`ml-2`,
+      // `pr-4`, `text-left`, `border-l`) is correct in exactly one writing
+      // direction, and the failure mode is silent: the layout still renders,
+      // just mirrored wrongly. `src/test/designSystem.test.ts` ratchets the
+      // historical count in .tsx files; this rule is what stops a NEW one
+      // from being written, in any file type, by a human or an agent.
+      //
+      // Use: ms-*/me-*, ps-*/pe-*, start-*/end-*, text-start/text-end,
+      // border-s/border-e, rounded-s-*/rounded-e-*.
+      // ─────────────────────────────────────────────────────────────────
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "Literal[value=/(?:^|\\s)-?(?:ml|mr|pl|pr)-(?:\\d|px|\\[|auto)|(?:^|\\s)text-(?:left|right)(?:$|\\s)|(?:^|\\s)border-[lr](?:-|$|\\s)/]",
+          message:
+            "Physical directional utility. This app is RTL-first: use the logical equivalent (ms/me, ps/pe, text-start/text-end, border-s/border-e).",
+        },
+        {
+          selector:
+            "TemplateElement[value.raw=/(?:^|\\s)-?(?:ml|mr|pl|pr)-(?:\\d|px|\\[|auto)|(?:^|\\s)text-(?:left|right)(?:$|\\s)|(?:^|\\s)border-[lr](?:-|$|\\s)/]",
+          message:
+            "Physical directional utility. This app is RTL-first: use the logical equivalent (ms/me, ps/pe, text-start/text-end, border-s/border-e).",
+        },
+      ],
     },
+  },
+  // The gate above targets Tailwind class strings in app code. Config files,
+  // build scripts and edge functions contain no markup, and the CSS files
+  // that legitimately define the logical utilities are not linted by ESLint.
+  {
+    files: ["*.config.{js,ts,cjs,mjs}", "scripts/**/*.mjs", "supabase/functions/**/*.ts", "build/**/*.ts"],
+    rules: { "no-restricted-syntax": "off" },
   },
   // Ensure prettier config disables formatting conflicts
   eslintConfigPrettier,
