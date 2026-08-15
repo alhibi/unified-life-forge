@@ -162,7 +162,7 @@ function ThemePresetsCategorized({
   return (
     <div className="space-y-4">
       <p className="text-mini text-muted-foreground">
-        كل ثيم ثماني درجات متناسقة (50 ← 600 ثم الحبر)، محسوبة على الوضع الحالي
+        كل ثيم اثنتا عشرة درجة متناسقة (25 ← 900 ثم الحبر)، محسوبة إدراكياً على الوضع الحالي
         {isDark ? ' (داكن)' : ' (فاتح)'} ومُتحقَّق من تباينها آلياً
       </p>
 
@@ -264,12 +264,14 @@ function ThemePresetsCategorized({
       {activePreset && (
         <div className="space-y-2 border-t border-border pt-3">
           <div className="flex items-center justify-between">
-            <span className="text-micro font-bold text-muted-foreground">درجات الثيم</span>
+            <span className="text-micro font-bold text-muted-foreground">
+              درجات الثيم · أسطح ثم إبراز ثم حبر
+            </span>
             <span className="text-micro text-muted-foreground">{activePreset.name}</span>
           </div>
-          <div className="flex gap-1">
+          <div className="grid grid-cols-6 gap-1">
             {swatchBands(activePreset, paletteStyle, isDark).map((color, i) => (
-              <div key={TONE_LABELS[i]} className="flex-1 space-y-1">
+              <div key={TONE_LABELS[i]} className="space-y-1">
                 <div
                   className="h-7 w-full rounded-sm border border-border"
                   style={{ backgroundColor: color }}
@@ -281,7 +283,7 @@ function ThemePresetsCategorized({
             ))}
           </div>
           <p className="text-micro text-muted-foreground">
-            الحبر هو الدرجة الثامنة، ويُرفع تباينه تلقائياً حتى ٧:١ على الخلفية
+            الحبر هو الدرجة الأخيرة، ويُرفع تباينه تلقائياً حتى ٧:١ على الخلفية
           </p>
         </div>
       )}
@@ -386,7 +388,7 @@ export default function PaletteSection() {
 
       <SettingsSection
         title="لوحة الألوان"
-        subtitle="واحد وثلاثون ثيماً، كل منها ثماني درجات"
+        subtitle="واحد وثلاثون ثيماً، كل منها سلّم إدراكي من إحدى عشرة درجة"
         icon={<Palette className="h-4 w-4" aria-hidden />}
       >
         <ThemePresetsCategorized
