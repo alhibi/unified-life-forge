@@ -109,77 +109,6 @@ export type IconComponentProps = Omit<IconProps, 'weight'> & {
 
 type Names = { p: string; l: string; t: string };
 
-/**
- * Tabler intentionally uses a more opinionated naming system than Lucide.
- * These explicit alternates keep every app icon genuinely rendered by Tabler
- * instead of silently falling back to Lucide/Phosphor for the awkward names.
- */
-const TABLER_NAME_FALLBACKS: Partial<Record<string, readonly string[]>> = {
-  ALargeSmall: ['IconTextSize'],
-  BookMarked: ['IconBookmarkFilled'],
-  BookOpen: ['IconBook'],
-  BookmarkCheck: ['IconBookmarkPlus'],
-  CalendarDays: ['IconCalendarDot'],
-  CheckCircle2: ['IconCircleCheck'],
-  Citrus: ['IconLemon2'],
-  CloudLightning: ['IconCloudBolt'],
-  CloudSun: ['IconCloud'],
-  Dices: ['IconDice5'],
-  DoorOpen: ['IconDoorEnter'],
-  Forward: ['IconArrowForward'],
-  Gamepad2: ['IconDeviceGamepad2'],
-  Grid3X3: ['IconGrid3x3'],
-  HandHeart: ['IconHeartHandshake'],
-  HardDrive: ['IconDeviceSdCard'],
-  House: ['IconHome2'],
-  Image: ['IconPhoto'],
-  ImageIcon: ['IconPhoto'],
-  ImageOff: ['IconPhotoOff'],
-  Info: ['IconInfoCircle'],
-  Landmark: ['IconBuildingBank'],
-  Languages: ['IconLanguage'],
-  Lightbulb: ['IconBulb'],
-  LogIn: ['IconLogin'],
-  LogOut: ['IconLogout'],
-  Maximize2: ['IconArrowsMaximize'],
-  MessageSquareText: ['IconMessage2'],
-  MoreHorizontal: ['IconDots'],
-  MoreVertical: ['IconDotsVertical'],
-  Newspaper: ['IconNews'],
-  Paintbrush: ['IconBrush'],
-  Pause: ['IconPlayerPause'],
-  PenLine: ['IconPencil'],
-  PiggyBank: ['IconPigMoney'],
-  PinOff: ['IconPinnedOff'],
-  Play: ['IconPlayerPlay'],
-  RefreshCcw: ['IconRefresh'],
-  RefreshCw: ['IconRefresh'],
-  Reply: ['IconArrowBackUp'],
-  RotateCcw: ['IconRotate'],
-  RotateCw: ['IconRotateClockwise'],
-  Rows3: ['IconLayoutRows'],
-  Save: ['IconDeviceFloppy'],
-  ScrollText: ['IconFileText'],
-  ShieldAlert: ['IconShieldExclamation'],
-  Shuffle: ['IconArrowsShuffle'],
-  SlidersHorizontal: ['IconAdjustmentsHorizontal'],
-  Smile: ['IconMoodSmile'],
-  Store: ['IconBuildingStore'],
-  SunDim: ['IconSunLow'],
-  Timer: ['IconStopwatch'],
-  TimerOff: ['IconClockOff'],
-  Trash2: ['IconTrash'],
-  Type: ['IconTypography'],
-  Undo2: ['IconArrowBackUp'],
-  Utensils: ['IconToolsKitchen2'],
-  UtensilsCrossed: ['IconToolsKitchen2'],
-  Vibrate: ['IconDeviceMobileVibration'],
-  VolumeX: ['IconVolumeOff'],
-  Waves: ['IconRipple'],
-  Wrench: ['IconTool'],
-  Zap: ['IconBolt'],
-};
-
 const PhosLib = PhosMod as unknown as Record<string, PhosphorIcon | undefined>;
 
 /**
@@ -230,12 +159,12 @@ export function loadIconSet(set: IconSet): void {
  * never for ordinary UI glyphs, which is what used to make one set silently
  * render a mix of two families.
  */
-const resolveCache = new Map<string, unknown>();
+const resolveCache: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
 
 function pickComponent(set: IconSet, names: Names) {
   const key = `${set}:${names.p}`;
-  const cached = resolveCache.get(key);
-  if (cached !== undefined) return cached as PhosphorIcon | undefined;
+  const cached = resolveCache[key];
+  if (cached !== undefined) return cached as PhosphorIcon;
 
   const found =
     set === 'lucide' ? (LucideLib[names.l] ?? PhosLib[names.p])
@@ -248,7 +177,7 @@ function pickComponent(set: IconSet, names: Names) {
     set === 'phosphor' ||
     (set === 'lucide' && LucideLib !== EMPTY) ||
     (set === 'tabler' && Object.keys(TablerLib).length > 0);
-  if (libReady && found) resolveCache.set(key, found);
+  if (libReady && found) resolveCache[key] = found;
   return found as PhosphorIcon | undefined;
 }
 
