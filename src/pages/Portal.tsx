@@ -16,7 +16,6 @@ import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
 import PortalHeader from '@/components/portal/PortalHeader';
-import PortalPulseBar from '@/components/portal/PortalPulseBar';
 import { PortalRealmsSkeleton } from '@/components/portal/PortalSkeletons';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
@@ -230,8 +229,6 @@ export default function Portal() {
           <div className="min-w-0 space-y-5 sm:space-y-6">
 
             <PortalGreeting username={username} />
-
-            <PortalPulseBar />
 
             <Suspense fallback={null}>
               <PortalTodayWidgets />
