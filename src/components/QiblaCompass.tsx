@@ -48,16 +48,37 @@ function angleDelta(a: number, b: number) {
   return d;
 }
 
+/**
+ * Quality of the heading currently being reported.
+ *
+ *  - `absolute`  — the reading is referenced to the Earth (iOS true heading, or
+ *                  an `deviceorientationabsolute` / `event.absolute === true`
+ *                  feed). This is the only rung the needle may be trusted on.
+ *  - `relative`  — the browser only exposes a *relative* gyroscope frame whose
+ *                  zero point is wherever the device happened to be when the
+ *                  page loaded. It drifts, and pointing a Qibla needle with it
+ *                  would be inventing a direction, so we surface it as
+ *                  untrusted instead of silently drawing it.
+ *  - `none`      — no usable reading yet.
+ */
+type HeadingQuality = 'absolute' | 'relative' | 'none';
+
 function useStableDeviceHeading() {
   const [heading, setHeading] = useState<number | null>(null);
+  const [quality, setQuality] = useState<HeadingQuality>('none');
   const [supported, setSupported] = useState(false);
   const [permission, setPermission] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const [accuracy, setAccuracy] = useState<number | null>(null); // ° (lower = better)
+  /** True while the device is held too steeply for the magnetometer to level. */
+  const [tilted, setTilted] = useState(false);
   // Smoothing state — kept outside of React so we don't trigger re-renders
   // for every sensor sample.
   const smoothedRef = useRef<number | null>(null);
   const pendingRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
+  /** Set once an Earth-referenced feed is seen; relative samples are then ignored. */
+  const hasAbsoluteRef = useRef(false);
+  const attachRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -65,30 +86,42 @@ function useStableDeviceHeading() {
     setSupported(hasAPI);
     if (!hasAPI) return;
 
-    const Ctor: any = (window as any).DeviceOrientationEvent;
+    const Ctor = (window as unknown as {
+      DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
+    }).DeviceOrientationEvent;
     const needsPerm = typeof Ctor?.requestPermission === 'function';
 
     const getScreenAngle = (): number => {
-      const so = (window.screen as any)?.orientation;
+      const so = window.screen?.orientation;
       if (so && typeof so.angle === 'number') return so.angle;
-      if (typeof (window as any).orientation === 'number') return (window as any).orientation;
+      const legacy = (window as unknown as { orientation?: number }).orientation;
+      if (typeof legacy === 'number') return legacy;
       return 0;
     };
 
-    const pushSample = (raw: number, acc?: number) => {
-      // Apply screen orientation correction so the needle remains correct
-      // when the device is held in landscape.
-      const screenAngle = getScreenAngle();
-      const corrected = (raw + screenAngle + 360) % 360;
-      // Circular EMA: move smoothed value towards the corrected angle by
-      // a fraction of the shortest signed delta. Alpha ≈ 0.18 gives a
-      // settled needle without feeling laggy.
-      const ALPHA = 0.18;
+    const pushSample = (raw: number, absolute: boolean, acc?: number) => {
+      if (absolute) hasAbsoluteRef.current = true;
+      // Once a trustworthy Earth-referenced feed exists, never mix relative
+      // samples into it — that is what made the needle wander.
+      else if (hasAbsoluteRef.current) return;
+
+      setQuality(absolute ? 'absolute' : 'relative');
+
+      // Screen-orientation correction keeps the dial correct in landscape and
+      // upside-down portrait.
+      const corrected = (raw + getScreenAngle() + 360) % 360;
       const prev = smoothedRef.current;
-      const next =
-        prev == null ? corrected : (prev + ALPHA * angleDelta(corrected, prev) + 360) % 360;
-      smoothedRef.current = next;
-      pendingRef.current = next;
+      if (prev == null) {
+        smoothedRef.current = corrected;
+      } else {
+        // Adaptive circular EMA: follow a real turn immediately (large delta →
+        // high gain) but hold rock-still when the user is only trembling.
+        const d = angleDelta(corrected, prev);
+        const mag = Math.abs(d);
+        const alpha = mag > 40 ? 0.6 : mag > 12 ? 0.3 : 0.12;
+        smoothedRef.current = (prev + alpha * d + 360) % 360;
+      }
+      pendingRef.current = smoothedRef.current;
       if (typeof acc === 'number') setAccuracy(acc);
       if (rafRef.current == null) {
         rafRef.current = requestAnimationFrame(() => {
@@ -99,24 +132,33 @@ function useStableDeviceHeading() {
     };
 
     const handler = (e: DeviceOrientationEvent) => {
-      // iOS: webkitCompassHeading is true-north, clockwise.
-      const wk = (e as any).webkitCompassHeading;
+      // Held near-vertical (portrait "selfie" tilt) the magnetometer's level
+      // projection collapses; tell the user to lay the phone flat instead of
+      // showing them a confident wrong bearing.
+      if (typeof e.beta === 'number' && typeof e.gamma === 'number') {
+        setTilted(Math.abs(e.beta) > 60 || Math.abs(e.gamma) > 60);
+      }
+
+      // iOS: webkitCompassHeading is a true-north heading, already corrected
+      // for magnetic declination by the OS.
+      const wk = (e as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading;
       if (typeof wk === 'number' && !Number.isNaN(wk)) {
-        const acc = (e as any).webkitCompassAccuracy;
-        pushSample(wk, typeof acc === 'number' && acc >= 0 ? acc : undefined);
+        const acc = (e as DeviceOrientationEvent & { webkitCompassAccuracy?: number }).webkitCompassAccuracy;
+        pushSample(wk, true, typeof acc === 'number' && acc >= 0 ? acc : undefined);
         return;
       }
-      // Standard: alpha is rotation around z, counter-clockwise from device
-      // north. Compass heading = (360 - alpha).
+      // Standard: alpha is rotation around z, counter-clockwise from north.
       if (typeof e.alpha === 'number' && !Number.isNaN(e.alpha)) {
-        pushSample((360 - e.alpha + 360) % 360);
+        const absolute = e.absolute === true || e.type === 'deviceorientationabsolute';
+        pushSample((360 - e.alpha + 360) % 360, absolute);
       }
     };
 
     const attach = () => {
-      window.addEventListener('deviceorientationabsolute', handler as any, true);
-      window.addEventListener('deviceorientation', handler as any, true);
+      window.addEventListener('deviceorientationabsolute', handler, true);
+      window.addEventListener('deviceorientation', handler, true);
     };
+    attachRef.current = attach;
 
     if (!needsPerm) {
       attach();
@@ -124,49 +166,46 @@ function useStableDeviceHeading() {
     }
 
     return () => {
-      window.removeEventListener('deviceorientationabsolute', handler as any, true);
-      window.removeEventListener('deviceorientation', handler as any, true);
+      window.removeEventListener('deviceorientationabsolute', handler, true);
+      window.removeEventListener('deviceorientation', handler, true);
+      attachRef.current = null;
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
   const request = async () => {
-    const Ctor: any = (window as any).DeviceOrientationEvent;
+    const Ctor = (window as unknown as {
+      DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
+    }).DeviceOrientationEvent;
     if (Ctor && typeof Ctor.requestPermission === 'function') {
       try {
         const res = await Ctor.requestPermission();
         setPermission(res === 'granted' ? 'granted' : 'denied');
-        if (res === 'granted') {
-          // The effect's attach() only ran for non-iOS; attach now.
-          // The effect's handler closure is gone — easiest path is to reload
-          // the listener via a forced re-mount. Instead, attach inline:
-          const h = (e: DeviceOrientationEvent) => {
-            const wk = (e as any).webkitCompassHeading;
-            if (typeof wk === 'number' && !Number.isNaN(wk)) {
-              const acc = (e as any).webkitCompassAccuracy;
-              if (typeof acc === 'number' && acc >= 0) setAccuracy(acc);
-              setHeading(wk);
-            } else if (typeof e.alpha === 'number') {
-              setHeading((360 - e.alpha + 360) % 360);
-            }
-          };
-          window.addEventListener('deviceorientation', h as any, true);
-        }
+        // Re-use the effect's own handler (with its smoothing, tilt guard and
+        // absolute-source gating) instead of attaching a second, dumber one.
+        if (res === 'granted') attachRef.current?.();
       } catch {
         setPermission('denied');
       }
     }
   };
 
-  return { heading, supported, permission, request, accuracy };
+  return { heading, quality, supported, permission, request, accuracy, tilted };
 }
 
 export default function QiblaCompass() {
   const { language } = useApp();
   const { location } = useDeviceLocation();
   const [expanded, setExpanded] = useState(false);
-  const { heading, supported, permission, request, accuracy } = useStableDeviceHeading();
+  const {
+    heading: rawHeading, quality, supported, permission, request, accuracy, tilted,
+  } = useStableDeviceHeading();
   const alignedRef = useRef(false);
+
+  // Only an Earth-referenced reading may rotate the needle. With a relative
+  // gyro feed we keep the dial north-up and say so, rather than pointing the
+  // user at a direction the sensor cannot actually know.
+  const heading = quality === 'absolute' ? rawHeading : null;
 
   const lat = location?.lat ?? MAKKAH.lat;
   const lng = location?.lng ?? MAKKAH.lng;
@@ -212,6 +251,8 @@ export default function QiblaCompass() {
     info: 'يُحسب اتجاه القبلة على دائرة عظمى من موقعك إلى مكة المكرمة. للحصول على دقّة أفضل، ابتعد عن المعادن والشاشات وحرّك الجهاز على شكل ٨ لمعايرة البوصلة.',
     locationFallback: 'فعّل الموقع لحساب القبلة من مكانك بدقة.',
     calibrate: 'دقّة البوصلة منخفضة — حرّك الجهاز على شكل ٨ للمعايرة',
+    relative: 'مستشعر هذا الجهاز لا يعرف الشمال الحقيقي — استعن باتجاه الدرجات أعلاه.',
+    tilted: 'أفقِ الجهاز (ضعه مستويًا) لقراءة أدقّ للبوصلة',
   };
 
   const fmtKm = (n: number) =>
@@ -357,6 +398,18 @@ export default function QiblaCompass() {
                   {accuracy != null && accuracy > 25 && (
                     <p className="text-micro text-amber-500 text-center max-w-[30ch]">
                       {t.calibrate}
+                    </p>
+                  )}
+
+                  {tilted && quality === 'absolute' && (
+                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">
+                      {t.tilted}
+                    </p>
+                  )}
+
+                  {quality === 'relative' && (
+                    <p className="text-micro text-muted-foreground text-center max-w-[32ch]">
+                      {t.relative}
                     </p>
                   )}
 
