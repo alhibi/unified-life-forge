@@ -43,7 +43,7 @@ export default function TokenSearchDrawer({
 
   // Trigger search on debounced query changes
   useEffect(() => {
-    if (!debouncedQuery.trim()) {
+    if (debouncedQuery.trim().length < 2) {
       setResults([]);
       setError(null);
       return;
