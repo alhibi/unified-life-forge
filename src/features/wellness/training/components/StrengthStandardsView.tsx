@@ -96,7 +96,7 @@ export default function StrengthStandardsView({
  return (
  <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
  <Award className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
- <p className="text-[0.75rem] text-muted-foreground">{T.noProfile[lang]}</p>
+ <p className="text-mini text-muted-foreground">{T.noProfile[lang]}</p>
  </div>
  );
  }
@@ -112,22 +112,22 @@ export default function StrengthStandardsView({
  >
  <div className="flex items-baseline justify-between mb-2">
  <div>
- <p className="text-[0.625rem] uppercase tracking-wider text-amber-600 font-semibold">{T.total[lang]}</p>
- <p className="text-[1.5rem] font-bold tabular-nums text-foreground" dir="ltr">{total.total} kg</p>
+ <p className="text-micro uppercase tracking-wider text-amber-600 font-semibold">{T.total[lang]}</p>
+ <p className="text-display font-bold tabular-nums text-foreground" dir="ltr">{total.total} kg</p>
  </div>
  <div className="text-end">
- <p className="text-[0.625rem] uppercase tracking-wider text-amber-600 font-semibold">{T.wilks[lang]}</p>
- <p className="text-[1.125rem] font-bold tabular-nums text-foreground" dir="ltr">{total.wilks ?? '—'}</p>
+ <p className="text-micro uppercase tracking-wider text-amber-600 font-semibold">{T.wilks[lang]}</p>
+ <p className="text-lead font-bold tabular-nums text-foreground" dir="ltr">{total.wilks ?? '—'}</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-1.5 mt-2">
             {total.perLift.map((p) => (
               <div key={p.exerciseKey} className="bg-white/60 dark:bg-white/5 rounded-lg p-1.5 text-center">
-                <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/80 font-semibold">
+                <p className="text-micro uppercase tracking-wider text-muted-foreground/80 font-semibold">
                   {p.exerciseKey === 'squat' ? ('سكوات') : p.exerciseKey === 'bench' ? ('بنش') : ('ديدليفت')}
                 </p>
-                <p className="text-[0.875rem] font-bold tabular-nums text-foreground" dir="ltr">{p.oneRm}</p>
-                <p className="text-[0.625rem] font-bold uppercase" style={{ color: LEVEL_COLORS[p.level] }}>
+                <p className="text-meta font-bold tabular-nums text-foreground" dir="ltr">{p.oneRm}</p>
+                <p className="text-micro font-bold uppercase" style={{ color: LEVEL_COLORS[p.level] }}>
                   {LEVEL_LABELS[p.level][lang]}
                 </p>
               </div>
@@ -140,7 +140,7 @@ export default function StrengthStandardsView({
       {rows.length === 0 ? (
         <div className="bg-card border border-border/40 rounded-2xl p-6 text-center">
           <Trophy className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-          <p className="text-[0.75rem] text-muted-foreground">{T.noData[lang]}</p>
+          <p className="text-mini text-muted-foreground">{T.noData[lang]}</p>
         </div>
       ) : (
         rows.map((r, i) => (
@@ -181,12 +181,12 @@ function LiftRow({
     >
       <div className="flex items-baseline justify-between gap-2">
         <div>
-          <p className="text-[0.75rem] font-bold text-foreground">{row.def?.label[lang]}</p>
-          <p className="text-[0.625rem] text-muted-foreground tabular-nums" dir="ltr">{T.ratio[lang]}: ×{row.ratio}</p>
+          <p className="text-mini font-bold text-foreground">{row.def?.label[lang]}</p>
+          <p className="text-micro text-muted-foreground tabular-nums" dir="ltr">{T.ratio[lang]}: ×{row.ratio}</p>
         </div>
         <div className="text-end">
-          <p className="text-[1.125rem] font-bold tabular-nums text-foreground" dir="ltr">{row.e1rm} kg</p>
-          <p className="text-[0.625rem] font-bold uppercase" style={{ color }}>
+          <p className="text-lead font-bold tabular-nums text-foreground" dir="ltr">{row.e1rm} kg</p>
+          <p className="text-micro font-bold uppercase" style={{ color }}>
             {LEVEL_LABELS[row.level][lang]}
           </p>
         </div>
@@ -211,7 +211,7 @@ function LiftRow({
       </div>
 
       {row.nextTargetKg && row.nextLevel && (
-        <p className="text-[0.625rem] text-muted-foreground inline-flex items-center gap-1" dir="ltr">
+        <p className="text-micro text-muted-foreground inline-flex items-center gap-1" dir="ltr">
           <ChevronRight className="w-3 h-3" />
           {T.next[lang]}: <span className="font-bold tabular-nums text-foreground">{row.nextTargetKg} kg</span>
           <span style={{ color: LEVEL_COLORS[row.nextLevel] }}>{LEVEL_LABELS[row.nextLevel][lang]}</span>

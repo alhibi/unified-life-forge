@@ -81,7 +81,7 @@ export function ArticleTranslator({
 
   return (
     <div className="flex items-center justify-between gap-2 p-3 bg-card border border-border/50 rounded-2xl shadow-sm">
-      <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+      <div className="flex items-center gap-2 text-mini font-semibold text-muted-foreground">
         <Languages className="h-4 w-4 text-primary" />
         <span>{'ترجمة المقال'}</span>
       </div>
@@ -92,7 +92,7 @@ export function ArticleTranslator({
             <select
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value as 'ar' | 'en' | 'de')}
-              className="text-xs h-8 rounded-xl border border-border/50 bg-background px-2 text-foreground focus:outline-none"
+              className="text-mini h-8 rounded-xl border border-border/50 bg-background px-2 text-foreground focus:outline-none"
               disabled={translating}
             >
               <option value="ar">العربية</option>
@@ -103,7 +103,7 @@ export function ArticleTranslator({
               type="button"
               onClick={handleTranslate}
               disabled={translating}
-              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
             >
               {translating ? (
                 <>
@@ -122,7 +122,7 @@ export function ArticleTranslator({
           <button
             type="button"
             onClick={handleReset}
-            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-xs font-bold active:scale-95 transition-all"
+            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-mini font-bold active:scale-95 transition-all"
           >
             {'عرض النص الأصلي'}
           </button>

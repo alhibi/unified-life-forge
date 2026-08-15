@@ -287,7 +287,7 @@ export default function AuthPage() {
                       setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 32))
                     }
                     placeholder={'أدخل اسم المستخدم'}
-                    className="app-control ps-9 pe-4 text-base"
+                    className="app-control ps-9 pe-4 text-body"
                     autoComplete="username"
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -317,7 +317,7 @@ export default function AuthPage() {
                     onKeyDown={handleKey}
                     onKeyUp={handleKey}
                     placeholder={'••••••••'}
-                    className="app-control ps-9 pe-11 text-base"
+                    className="app-control ps-9 pe-11 text-body"
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                     dir="ltr"
                     disabled={loading || success}
@@ -369,7 +369,7 @@ export default function AuthPage() {
                           />
                         ))}
                         <span
-                          className="text-[0.625rem] font-medium min-w-[54px] text-end"
+                          className="text-micro font-medium min-w-[54px] text-end"
                           style={{ color: strengthColors[strength] }}
                         >
                           {strengthLabels[strength]['ar']}

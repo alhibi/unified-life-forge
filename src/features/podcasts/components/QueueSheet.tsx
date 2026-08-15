@@ -71,11 +71,11 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
             <div className="flex items-center gap-2">
               <ListMusic className="w-5 h-5 text-foreground" />
-              <h2 className="text-base font-bold text-foreground">
+              <h2 className="text-body font-bold text-foreground">
                 {'قائمة التشغيل'}
               </h2>
               {items.length > 0 && (
-                <span className="text-[0.6875rem] text-muted-foreground tabular-nums">
+                <span className="text-micro text-muted-foreground tabular-nums">
                   {items.length}
                 </span>
               )}
@@ -84,7 +84,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
               {items.length > 0 && (
                 <button
                   onClick={handleClear}
-                  className="flex items-center gap-1 px-2.5 h-8 rounded-full text-[0.75rem] font-semibold text-destructive hover:bg-destructive/10 transition-colors"
+                  className="flex items-center gap-1 px-2.5 h-8 rounded-full text-mini font-semibold text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">
@@ -109,15 +109,15 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                 <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mb-4">
                   <Music className="w-7 h-7 text-primary" />
                 </div>
-                <p className="text-sm font-semibold text-foreground mb-1">
+                <p className="text-meta font-semibold text-foreground mb-1">
                   {'قائمة التشغيل فارغة'}
                 </p>
-                <p className="text-[0.75rem] text-muted-foreground mb-1 max-w-xs">
+                <p className="text-mini text-muted-foreground mb-1 max-w-xs">
                   {'أضف حلقات إلى قائمة التشغيل لتستمع إليها بالترتيب.'}
                 </p>
                 <button
                   onClick={onClose}
-                  className="mt-3 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+                  className="mt-3 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-meta font-semibold"
                 >
                   {'تصفح البودكاست'}
                 </button>
@@ -127,7 +127,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                 {/* Now playing indicator */}
                 {player.current && (
                   <div className="px-4 py-3 mb-1">
-                    <p className="text-[0.6875rem] uppercase tracking-[0.12em] text-muted-foreground font-semibold">
+                    <p className="text-micro uppercase tracking-[0.12em] text-muted-foreground font-semibold">
                       {'يُشغّل الآن'}
                     </p>
                   </div>
@@ -165,7 +165,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                       </div>
 
                       {/* Index */}
-                      <span className="text-[0.6875rem] text-muted-foreground tabular-nums w-5 text-center shrink-0">
+                      <span className="text-micro text-muted-foreground tabular-nums w-5 text-center shrink-0">
                         {index + 1}
                       </span>
 
@@ -182,17 +182,17 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
 
                       {/* Title + podcast name */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-[0.8125rem] font-semibold text-foreground leading-tight truncate">
+                        <p className="text-mini font-semibold text-foreground leading-tight truncate">
                           {item.episode.title}
                         </p>
-                        <p className="text-[0.6875rem] text-muted-foreground leading-tight truncate">
+                        <p className="text-micro text-muted-foreground leading-tight truncate">
                           {item.podcastTitle}
                         </p>
                       </div>
 
                       {/* Duration */}
                       {item.episode.duration > 0 && (
-                        <span className="text-[0.6875rem] text-muted-foreground tabular-nums shrink-0">
+                        <span className="text-micro text-muted-foreground tabular-nums shrink-0">
                           {formatDurationShort(item.episode.duration)}
                         </span>
                       )}

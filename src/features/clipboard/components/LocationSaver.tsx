@@ -121,7 +121,7 @@ export default function LocationSaver() {
         <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
           <MapPin className="w-5 h-5 text-primary stroke-[1.8]" />
         </div>
-        <h3 className="font-semibold text-[0.9375rem] text-foreground flex-1">{t('location.title')}</h3>
+        <h3 className="font-semibold text-meta text-foreground flex-1">{t('location.title')}</h3>
       </div>
 
       {/* Save button */}
@@ -149,7 +149,7 @@ export default function LocationSaver() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-2.5 mb-4 p-4 bg-secondary/60 rounded-2xl"
         >
-          <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+          <div className="flex items-center gap-2 text-mini text-muted-foreground font-medium">
             <MapPin className="w-3 h-3 text-primary" />
             <span className="truncate">{pendingGeo.city}{pendingGeo.street ? ` · ${pendingGeo.street}` : ''}</span>
           </div>
@@ -157,21 +157,21 @@ export default function LocationSaver() {
             value={label}
             onChange={e => setLabel(e.target.value)}
             placeholder={t('location.label')}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-meta text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
           />
           <input
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder={t('location.description')}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-background border border-border text-meta text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all"
           />
           <div className="flex gap-2">
-            <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-[0.98] transition-transform">
+            <button onClick={confirmSave} className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-medium active:scale-[0.98] transition-transform">
               <Plus className="w-4 h-4 inline-block me-1" />{t('location.save')}
             </button>
             <button
               onClick={() => { setShowForm(false); setPendingCoords(null); setPendingGeo(null); }}
-              className="w-11 py-2.5 rounded-xl bg-muted text-muted-foreground text-sm flex items-center justify-center"
+              className="w-11 py-2.5 rounded-xl bg-muted text-muted-foreground text-meta flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>
@@ -182,7 +182,7 @@ export default function LocationSaver() {
       {/* Location Cards */}
       <div className="space-y-2.5 max-h-80 overflow-y-auto">
         {locations.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">{t('location.empty')}</p>
+          <p className="text-meta text-muted-foreground text-center py-6">{t('location.empty')}</p>
         ) : (
           locations.map(loc => {
             const isExpanded = expandedId === loc.id;
@@ -201,17 +201,17 @@ export default function LocationSaver() {
                     <MapPin className="w-4 h-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-foreground truncate">{loc.label}</div>
+                    <div className="font-medium text-meta text-foreground truncate">{loc.label}</div>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       {loc.city && (
-                        <span className="text-[0.6875rem] text-muted-foreground">{loc.city}</span>
+                        <span className="text-micro text-muted-foreground">{loc.city}</span>
                       )}
-                      {loc.street && loc.city && <span className="text-[0.6875rem] text-muted-foreground">·</span>}
+                      {loc.street && loc.city && <span className="text-micro text-muted-foreground">·</span>}
                       {loc.street && (
-                        <span className="text-[0.6875rem] text-muted-foreground truncate">{loc.street}</span>
+                        <span className="text-micro text-muted-foreground truncate">{loc.street}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 mt-1 text-[0.625rem] text-muted-foreground/70">
+                    <div className="flex items-center gap-1 mt-1 text-micro text-muted-foreground/70">
                       <Clock className="w-2.5 h-2.5" />
                       {formatDate(loc.timestamp)}
                     </div>
@@ -233,10 +233,10 @@ export default function LocationSaver() {
                     >
                       <div className="px-3.5 pb-3.5 space-y-2.5">
                         {loc.description && (
-                          <p className="text-xs text-muted-foreground bg-background/50 px-3 py-2 rounded-lg">{loc.description}</p>
+                          <p className="text-mini text-muted-foreground bg-background/50 px-3 py-2 rounded-lg">{loc.description}</p>
                         )}
                         {loc.address && (
-                          <p className="text-[0.6875rem] text-muted-foreground/80 leading-relaxed">{loc.address}</p>
+                          <p className="text-micro text-muted-foreground/80 leading-relaxed">{loc.address}</p>
                         )}
                         {/* Mini Map */}
                         <div className="rounded-xl overflow-hidden border border-border/30 h-36">
@@ -254,13 +254,13 @@ export default function LocationSaver() {
                             href={`https://www.openstreetmap.org/?mlat=${loc.lat}&mlon=${loc.lng}#map=16/${loc.lat}/${loc.lng}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary text-secondary-foreground text-xs font-medium"
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-secondary text-secondary-foreground text-mini font-medium"
                           >
                             <ExternalLink className="w-3 h-3" />{t('location.openMap')}
                           </a>
                           <button
                             onClick={() => deleteLocation(loc.id)}
-                            className="px-4 py-2 rounded-xl bg-destructive/10 text-destructive text-xs font-medium hover:bg-destructive/20 transition-colors"
+                            className="px-4 py-2 rounded-xl bg-destructive/10 text-destructive text-mini font-medium hover:bg-destructive/20 transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

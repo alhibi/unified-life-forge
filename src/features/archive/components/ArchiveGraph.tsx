@@ -405,7 +405,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="ابحث في فروع شبكة المعرفة دلالياً…"
-          className="flex-1 bg-transparent outline-none text-[0.8125rem] placeholder:text-muted-foreground/60"
+          className="flex-1 bg-transparent outline-none text-mini placeholder:text-muted-foreground/60"
         />
         {searchQuery && (
           <button onClick={() => setSearchQuery('')} aria-label="مسح">
@@ -420,11 +420,11 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         className="relative w-full rounded-2xl border border-border bg-card overflow-hidden h-[340px] md:h-[400px] cursor-grab active:cursor-grabbing"
       >
         <div className="absolute top-3 end-3 z-raised flex flex-col gap-1 pointer-events-none">
-          <div className="flex items-center gap-1.5 text-[0.625rem] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-micro text-muted-foreground">
             <span className="w-2 h-2 rounded-full bg-primary" />
             <span>وسوم وتصنيفات</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[0.625rem] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-micro text-muted-foreground">
             <span className="w-2 h-2 rounded-full bg-[#7EB8C9]" />
             <span>مونوغرافات معرفية</span>
           </div>
@@ -464,14 +464,14 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
                 <div>
                   <div className="flex items-center gap-1.5 mb-1 text-primary">
                     <Hash className="w-4 h-4" />
-                    <span className="text-[0.625rem] font-bold uppercase tracking-wider">
+                    <span className="text-micro font-bold uppercase tracking-wider">
                       تصنيف معرفي
                     </span>
                   </div>
-                  <h4 className="text-[1rem] font-bold text-foreground">
+                  <h4 className="text-body font-bold text-foreground">
                     الوسم: #{selectedNode.label}
                   </h4>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-mini text-muted-foreground mt-1">
                     مرتبط بـ {selectedNode.count} مونوغرافات في الأرشيف المعرفي الخاص بك.
                   </p>
                 </div>
@@ -479,10 +479,10 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
                 docSummary && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[0.625rem] text-primary/70">
+                      <span className="font-mono text-micro text-primary/70">
                         № {String(docSummary.accession_number).padStart(6, '0')}
                       </span>
-                      <span className="text-[0.625rem] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/60">
+                      <span className="text-micro text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/60">
                         {docSummary.depth === 'standard'
                           ? 'قياسي'
                           : docSummary.depth === 'deep'
@@ -491,12 +491,12 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
                       </span>
                     </div>
 
-                    <h4 className="text-[0.9375rem] font-bold text-foreground leading-snug line-clamp-2">
+                    <h4 className="text-meta font-bold text-foreground leading-snug line-clamp-2">
                       {docSummary.title}
                     </h4>
 
                     {docSummary.abstract && (
-                      <p className="text-[0.75rem] text-muted-foreground leading-relaxed line-clamp-3">
+                      <p className="text-mini text-muted-foreground leading-relaxed line-clamp-3">
                         {docSummary.abstract}
                       </p>
                     )}
@@ -506,7 +506,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
                         {docSummary.tags.map((t) => (
                           <span
                             key={t}
-                            className="text-[0.625rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary"
+                            className="text-micro px-2 py-0.5 rounded-full bg-primary/10 text-primary"
                           >
                             #{t}
                           </span>
@@ -515,7 +515,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
 
                       <button
                         onClick={() => onOpenDoc(docSummary.id)}
-                        className="flex items-center gap-1 text-[0.6875rem] font-bold text-primary active:scale-95 transition-transform"
+                        className="flex items-center gap-1 text-micro font-bold text-primary active:scale-95 transition-transform"
                       >
                         <span>قراءة</span>
                         <ArrowUpSquare className="w-3.5 h-3.5 rotate-90" />

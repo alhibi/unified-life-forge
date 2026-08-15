@@ -238,7 +238,7 @@ function renderToken(t: RichToken, key: number | string): React.ReactNode {
       return React.createElement('span', { key, className: 'line-through opacity-70' }, children);
     }
     case 'code':
-      return React.createElement('code', { key, className: 'px-1 py-[1px] rounded-md bg-muted/40 font-mono text-[0.92em]' }, t.value);
+      return React.createElement('code', { key, className: 'px-1 py-[1px] rounded-md bg-muted/40 font-mono text-meta' }, t.value);
     case 'link':
       return React.createElement('a', { key, href: t.href, target: '_blank', rel: 'noopener noreferrer', className: 'underline underline-offset-2 text-primary break-all', onClick: (e: React.MouseEvent) => e.stopPropagation() }, t.value);
     default:

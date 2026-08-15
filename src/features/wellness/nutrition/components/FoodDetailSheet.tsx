@@ -174,14 +174,14 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center text-display"
                 style={{ backgroundColor: `${food.color}15` }}
               >
                 {food.emoji}
               </div>
               <div>
-                <h2 className="text-base font-bold text-foreground">{food.name[lang]}</h2>
-                <p className="text-[0.6875rem] text-muted-foreground">{T.per100g[lang]}</p>
+                <h2 className="text-body font-bold text-foreground">{food.name[lang]}</h2>
+                <p className="text-micro text-muted-foreground">{T.per100g[lang]}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -206,7 +206,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
         <div className="px-5 py-4 space-y-5">
           {/* ─── Macro Summary Ring ─── */}
           <div className="bg-muted/30 rounded-2xl p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-3">{T.macros[lang]}</h3>
+            <h3 className="text-mini font-semibold text-muted-foreground mb-3">{T.macros[lang]}</h3>
             <div className="grid grid-cols-5 gap-2 text-center">
               <MacroItem label={T.kcal[lang]} value={n.kcal} unit="" color="#f97316" />
               <MacroItem label={T.protein[lang]} value={n.protein} unit="g" color="#ef4444" />
@@ -215,7 +215,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
               <MacroItem label={T.fiber[lang]} value={n.fiber} unit="g" color="#22c55e" />
             </div>
             {/* Extended macros */}
-            <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/30 text-[0.625rem]">
+            <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/30 text-micro">
               {n.sugar != null && (
                 <div className="text-center">
                   <span className="text-muted-foreground">{T.sugar[lang]}</span>
@@ -241,10 +241,10 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           <div className="flex items-center gap-3 p-3 rounded-xl border border-amber-500/20">
             <Sparkles className="w-5 h-5 text-amber-500" />
             <div className="flex-1">
-              <p className="text-[0.6875rem] text-muted-foreground">{T.density[lang]}</p>
+              <p className="text-micro text-muted-foreground">{T.density[lang]}</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-foreground">{densityScore}</span>
-                <span className="text-[0.625rem] text-muted-foreground">/100</span>
+                <span className="text-lead font-bold text-foreground">{densityScore}</span>
+                <span className="text-micro text-muted-foreground">/100</span>
               </div>
             </div>
             <div className="w-16 h-2 rounded-full bg-muted overflow-hidden">
@@ -276,11 +276,11 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
                 }`}
               />
               <div className="flex-1">
-                <p className="text-[0.6875rem] text-muted-foreground">{T.gi[lang]}</p>
-                <p className="text-sm font-bold text-foreground">{food.glycemicIndex}</p>
+                <p className="text-micro text-muted-foreground">{T.gi[lang]}</p>
+                <p className="text-meta font-bold text-foreground">{food.glycemicIndex}</p>
               </div>
               <span
-                className={`text-[0.625rem] font-semibold px-2 py-0.5 rounded-full ${
+                className={`text-micro font-semibold px-2 py-0.5 rounded-full ${
                   food.glycemicIndex <= 35
                     ? 'bg-emerald-500/10 text-emerald-600'
                     : food.glycemicIndex <= 55
@@ -300,7 +300,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           {/* ─── Vitamins ─── */}
           {vitaminEntries.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-foreground mb-2">{T.vitamins[lang]}</h3>
+              <h3 className="text-mini font-semibold text-foreground mb-2">{T.vitamins[lang]}</h3>
               <div className="space-y-1.5">
                 {displayedVitamins.map(({ key, value, meta, rdaPct }) => (
                   <NutrientBar
@@ -316,7 +316,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
               {vitaminEntries.length > 5 && (
                 <button
                   onClick={() => setShowAllVitamins(!showAllVitamins)}
-                  className="flex items-center gap-1 mt-2 text-[0.6875rem] text-primary"
+                  className="flex items-center gap-1 mt-2 text-micro text-primary"
                 >
                   {showAllVitamins ? (
                     <ChevronUp className="w-3 h-3" />
@@ -332,7 +332,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           {/* ─── Minerals ─── */}
           {mineralEntries.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-foreground mb-2">{T.minerals[lang]}</h3>
+              <h3 className="text-mini font-semibold text-foreground mb-2">{T.minerals[lang]}</h3>
               <div className="space-y-1.5">
                 {displayedMinerals.map(({ key, value, meta, rdaPct }) => (
                   <NutrientBar
@@ -348,7 +348,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
               {mineralEntries.length > 5 && (
                 <button
                   onClick={() => setShowAllMinerals(!showAllMinerals)}
-                  className="flex items-center gap-1 mt-2 text-[0.6875rem] text-primary"
+                  className="flex items-center gap-1 mt-2 text-micro text-primary"
                 >
                   {showAllMinerals ? (
                     <ChevronUp className="w-3 h-3" />
@@ -364,12 +364,12 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           {/* ─── Benefits ─── */}
           {food.benefits[lang].length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-foreground mb-2">{T.benefits[lang]}</h3>
+              <h3 className="text-mini font-semibold text-foreground mb-2">{T.benefits[lang]}</h3>
               <div className="space-y-1.5">
                 {food.benefits[lang].map((benefit, i) => (
-                  <div key={i} className="flex items-start gap-2 text-[0.6875rem]">
+                  <div key={i} className="flex items-start gap-2 text-micro">
                     <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-emerald-500 text-[0.625rem] font-bold">{i + 1}</span>
+                      <span className="text-emerald-500 text-micro font-bold">{i + 1}</span>
                     </div>
                     <p className="text-foreground/80 leading-relaxed">{benefit}</p>
                   </div>
@@ -381,12 +381,12 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           {/* ─── Tags ─── */}
           {food.tags.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-foreground mb-2">{T.tags[lang]}</h3>
+              <h3 className="text-mini font-semibold text-foreground mb-2">{T.tags[lang]}</h3>
               <div className="flex flex-wrap gap-1.5">
                 {food.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[0.625rem] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
+                    className="text-micro px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
                   >
                     {TAG_LABELS[tag]?.[lang] || tag}
                   </span>
@@ -400,20 +400,20 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
             <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/5 border border-red-500/20">
               <Shield className="w-4 h-4 text-red-500" />
               <div>
-                <p className="text-[0.6875rem] font-semibold text-red-600">{T.allergens[lang]}</p>
-                <p className="text-[0.625rem] text-red-500/80">{food.allergens.join(', ')}</p>
+                <p className="text-micro font-semibold text-red-600">{T.allergens[lang]}</p>
+                <p className="text-micro text-red-500/80">{food.allergens.join(', ')}</p>
               </div>
             </div>
           )}
 
           {/* ─── Serving Sizes ─── */}
           <div>
-            <h3 className="text-xs font-semibold text-foreground mb-2">{T.serving[lang]}</h3>
+            <h3 className="text-mini font-semibold text-foreground mb-2">{T.serving[lang]}</h3>
             <div className="space-y-1.5">
               {food.servings.map((s, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30 text-[0.6875rem]"
+                  className="flex items-center justify-between p-2 rounded-lg bg-muted/30 text-micro"
                 >
                   <span className="text-foreground">{s.description[lang]}</span>
                   <span className="font-semibold text-muted-foreground">{s.grams}g</span>
@@ -426,7 +426,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           {food.storageTip && (
             <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
               <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-              <p className="text-[0.6875rem] text-foreground/80">{food.storageTip[lang]}</p>
+              <p className="text-micro text-foreground/80">{food.storageTip[lang]}</p>
             </div>
           )}
         </div>
@@ -460,12 +460,12 @@ function MacroItem({
         className="w-9 h-9 rounded-full flex items-center justify-center mb-1"
         style={{ backgroundColor: `${color}15` }}
       >
-        <span className="text-[0.6875rem] font-bold" style={{ color }}>
+        <span className="text-micro font-bold" style={{ color }}>
           {value}
           {unit}
         </span>
       </div>
-      <span className="text-[0.625rem] text-muted-foreground leading-tight text-center">{label}</span>
+      <span className="text-micro text-muted-foreground leading-tight text-center">{label}</span>
     </div>
   );
 }
@@ -485,18 +485,18 @@ function NutrientBar({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[0.625rem] text-foreground/70 w-20 truncate">{label}</span>
+      <span className="text-micro text-foreground/70 w-20 truncate">{label}</span>
       <div className="flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${Math.min(100, rdaPct)}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-[0.625rem] font-semibold text-foreground w-12 text-end" dir="ltr">
+      <span className="text-micro font-semibold text-foreground w-12 text-end" dir="ltr">
         {value}
         {unit}
       </span>
-      <span className="text-[0.625rem] text-muted-foreground w-8 text-end">{rdaPct}%</span>
+      <span className="text-micro text-muted-foreground w-8 text-end">{rdaPct}%</span>
     </div>
   );
 }

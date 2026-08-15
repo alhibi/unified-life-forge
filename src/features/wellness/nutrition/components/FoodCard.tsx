@@ -31,7 +31,7 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
     >
       {/* Emoji icon */}
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg"
+        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lead"
         style={{ backgroundColor: `${food.color}15` }}
       >
         {food.emoji}
@@ -39,9 +39,9 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
 
       {/* Name & category */}
       <div className="flex-1 min-w-0">
-        <p className="text-[0.8125rem] font-semibold text-foreground truncate">{food.name[lang]}</p>
+        <p className="text-mini font-semibold text-foreground truncate">{food.name[lang]}</p>
         {!compact && (
-          <div className="flex items-center gap-3 mt-1 text-[0.625rem] text-muted-foreground" dir="ltr">
+          <div className="flex items-center gap-3 mt-1 text-micro text-muted-foreground" dir="ltr">
             <span className="inline-flex items-center gap-0.5">
               <Flame className="w-2.5 h-2.5 text-orange-500" />
               <span className="font-semibold text-foreground">{n.kcal}</span>
@@ -60,7 +60,7 @@ export default function FoodCard({ food, lang, onClick, compact }: Props) {
       {/* GI badge */}
       {food.glycemicIndex != null && food.glycemicIndex > 0 && !compact && (
         <div
-          className={`shrink-0 text-[0.625rem] font-bold px-1.5 py-0.5 rounded-md ${
+          className={`shrink-0 text-micro font-bold px-1.5 py-0.5 rounded-md ${
             food.glycemicIndex <= 35
               ? 'bg-emerald-500/10 text-emerald-600'
               : food.glycemicIndex <= 55

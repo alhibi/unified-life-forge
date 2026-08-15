@@ -231,15 +231,15 @@ export default function QiblaCompass() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <Compass className="w-3.5 h-3.5 text-[hsl(var(--live))]" />
-            <span className="text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
+            <span className="text-micro uppercase tracking-[0.18em] text-muted-foreground font-semibold">
               {t.title}
             </span>
           </div>
-          <div className="text-xl font-bold text-foreground leading-tight tabular-nums">
+          <div className="text-title font-bold text-foreground leading-tight tabular-nums">
             {Math.round(bearing)}°{' '}
-            <span className="text-sm font-medium text-muted-foreground">{compassLabel}</span>
+            <span className="text-meta font-medium text-muted-foreground">{compassLabel}</span>
           </div>
-          <div className="text-[0.6875rem] text-muted-foreground mt-0.5">
+          <div className="text-micro text-muted-foreground mt-0.5">
             {fmtKm(distanceKm)} {t.km} · {location ? t.subtitle : t.locationFallback}
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function QiblaCompass() {
                 <div className="flex items-center justify-between px-5 py-3 border-b border-border/30">
                   <div className="flex items-center gap-2">
                     <Compass className="w-4 h-4 text-[hsl(var(--live))]" />
-                    <h2 className="text-base font-bold text-foreground">{t.title}</h2>
+                    <h2 className="text-body font-bold text-foreground">{t.title}</h2>
                   </div>
                   <button
                     onClick={() => setExpanded(false)}
@@ -296,7 +296,7 @@ export default function QiblaCompass() {
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="px-4 py-1.5 rounded-full bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] text-sm font-semibold flex items-center gap-2"
+                        className="px-4 py-1.5 rounded-full bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] text-meta font-semibold flex items-center gap-2"
                       >
                         <Crosshair className="w-4 h-4" />
                         {t.aligned}
@@ -307,7 +307,7 @@ export default function QiblaCompass() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="text-xs text-muted-foreground text-center max-w-[24ch]"
+                        className="text-mini text-muted-foreground text-center max-w-[24ch]"
                       >
                         {t.rotate}
                       </motion.p>
@@ -317,7 +317,7 @@ export default function QiblaCompass() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="text-xs text-muted-foreground text-center"
+                        className="text-mini text-muted-foreground text-center"
                       >
                         {t.noHeading}
                       </motion.p>
@@ -348,21 +348,21 @@ export default function QiblaCompass() {
                   {supported && permission !== 'granted' && (
                     <button
                       onClick={request}
-                      className="px-4 py-2 rounded-full bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] text-sm font-semibold border border-[hsl(var(--live))]/30"
+                      className="px-4 py-2 rounded-full bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] text-meta font-semibold border border-[hsl(var(--live))]/30"
                     >
                       {t.permission}
                     </button>
                   )}
 
                   {accuracy != null && accuracy > 25 && (
-                    <p className="text-[0.6875rem] text-amber-500 text-center max-w-[30ch]">
+                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">
                       {t.calibrate}
                     </p>
                   )}
 
                   <div className="w-full rounded-2xl bg-card/60 border border-border/40 p-4 flex items-start gap-3">
                     <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-mini text-muted-foreground leading-relaxed">
                       {t.info}
                       {!location && <> {t.locationFallback}</>}
                       {supported && permission !== 'granted' && <> {t.permissionHint}</>}
@@ -392,12 +392,12 @@ function Stat({
 }) {
   return (
     <div className="rounded-2xl bg-card/60 border border-border/40 p-3 flex flex-col gap-1">
-      <div className="flex items-center gap-1.5 text-muted-foreground text-[0.625rem] uppercase tracking-wider font-semibold">
+      <div className="flex items-center gap-1.5 text-muted-foreground text-micro uppercase tracking-wider font-semibold">
         {icon}
         <span>{label}</span>
       </div>
-      <div className="text-lg font-bold text-foreground tabular-nums leading-none">{value}</div>
-      {hint && <div className="text-[0.625rem] text-muted-foreground">{hint}</div>}
+      <div className="text-lead font-bold text-foreground tabular-nums leading-none">{value}</div>
+      {hint && <div className="text-micro text-muted-foreground">{hint}</div>}
     </div>
   );
 }

@@ -182,10 +182,10 @@ export function ListHeader({
               <Newspaper className="h-4 w-4 text-primary" />
             </span>
             <div className="flex flex-col leading-tight min-w-0">
-              <h3 className="text-[1.0625rem] font-bold truncate">
+              <h3 className="text-body font-bold truncate">
                 {'إطلاع'}
               </h3>
-              <span className="text-[0.625rem] text-muted-foreground/80 tabular-nums truncate">
+              <span className="text-micro text-muted-foreground/80 tabular-nums truncate">
                 {`${articleCount} مقالة · ${unreadCount} غير مقروء`}
               </span>
             </div>
@@ -235,7 +235,7 @@ export function ListHeader({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="w-56 rounded-2xl">
-              <DropdownMenuLabel className="text-[0.6875rem] text-muted-foreground font-normal">
+              <DropdownMenuLabel className="text-micro text-muted-foreground font-normal">
                 {'إجراءات'}
               </DropdownMenuLabel>
               {unreadCount > 0 && (
@@ -252,7 +252,7 @@ export function ListHeader({
                 <Bell className="h-4 w-4 text-muted-foreground" />
                 <span className="flex-1">{'تنبيهات الكلمات'}</span>
                 {unseenAlerts > 0 && (
-                  <span className="text-[0.625rem] font-semibold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground tabular-nums">
+                  <span className="text-micro font-semibold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground tabular-nums">
                     {unseenAlerts}
                   </span>
                 )}
@@ -284,7 +284,7 @@ export function ListHeader({
               placeholder={'بحث في المقالات...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-10 h-11 text-[0.9375rem] rounded-2xl bg-background/60 border-border/50"
+              className="ps-10 h-11 text-meta rounded-2xl bg-background/60 border-border/50"
             />
             {searchQuery && (
               <button
@@ -310,7 +310,7 @@ export function ListHeader({
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="mb-3 px-3.5 py-2.5 rounded-2xl bg-muted/60 border border-border/50 shadow-sm overflow-hidden"
           >
-            <div className="flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1.5">
+            <div className="flex items-center justify-between text-mini font-semibold text-amber-600 dark:text-amber-400 mb-1.5">
               <span className="flex items-center gap-1.5">
                 <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 <span className="truncate max-w-[200px] animate-pulse">
@@ -344,7 +344,7 @@ export function ListHeader({
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="mb-3 px-3.5 py-2 rounded-2xl bg-primary/10 border border-primary/20 shadow-sm overflow-hidden"
           >
-            <div className="flex items-center justify-between text-[0.6875rem] font-bold text-primary mb-1">
+            <div className="flex items-center justify-between text-micro font-bold text-primary mb-1">
               <span className="flex items-center gap-1.5">
                 <Sparkle className="h-3.5 w-3.5 animate-pulse text-amber-500 fill-amber-500" />
                 <span>
@@ -356,7 +356,7 @@ export function ListHeader({
               </span>
             </div>
             {prefetchProgress.currentTitle && (
-              <p className="text-[0.625rem] text-muted-foreground truncate mb-1.5 opacity-80" dir="auto">
+              <p className="text-micro text-muted-foreground truncate mb-1.5 opacity-80" dir="auto">
                 {prefetchProgress.currentTitle}
               </p>
             )}
@@ -414,7 +414,7 @@ export function ListHeader({
             <button
               type="button"
               onClick={() => setShowFolderInput(!showFolderInput)}
-              className="px-2.5 py-1 rounded-full text-[0.6875rem] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
+              className="px-2.5 py-1 rounded-full text-micro font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
             >
               <Plus className="h-3 w-3" />
               <span>{'مجلد جديد'}</span>
@@ -433,7 +433,7 @@ export function ListHeader({
                   placeholder={'اسم المجلد الجديد...'}
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
-                  className="h-9 text-xs rounded-xl"
+                  className="h-9 text-mini rounded-xl"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleAddFolder();
                   }}
@@ -441,7 +441,7 @@ export function ListHeader({
                 <button
                   type="button"
                   onClick={handleAddFolder}
-                  className="px-3 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
+                  className="px-3 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 transition-opacity shrink-0"
                 >
                   {'إضافة'}
                 </button>
@@ -545,7 +545,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ring-1 ${
+      className={`px-3 py-1.5 rounded-full text-mini font-medium transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ring-1 ${
         active
           ? 'bg-primary text-primary-foreground ring-primary/30 shadow-sm shadow-primary/20'
           : 'bg-accent/25 text-muted-foreground ring-border/30 hover:bg-accent/50 hover:text-foreground'
@@ -578,7 +578,7 @@ function CategoryChip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
+      className={`px-3 py-1.5 rounded-full text-micro font-semibold transition-all shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
         active
           ? 'bg-foreground text-background shadow-sm'
           : 'bg-transparent text-muted-foreground hover:bg-accent/40 border border-border/50'

@@ -71,7 +71,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
           <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors">
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
-          <h2 className="text-[1rem] font-semibold">
+          <h2 className="text-body font-semibold">
             {`إعادة توجيه ${messages.length > 1 ? `(${messages.length})` : ''}`}
           </h2>
         </div>
@@ -79,10 +79,10 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
         {/* Message preview */}
         {firstMsg && (
           <div className="px-4 py-2.5 border-b border-border/10 bg-muted/10">
-            <p className="text-[0.6875rem] text-muted-foreground mb-0.5">
+            <p className="text-micro text-muted-foreground mb-0.5">
               {'رسالة محوّلة:'}
             </p>
-            <p className="text-[0.8125rem] text-foreground/80 line-clamp-2" dir="auto">
+            <p className="text-mini text-foreground/80 line-clamp-2" dir="auto">
               {stripMarkers(getMessagePreview(firstMsg))}
               {messages.length > 1 && (
                 <span className="text-muted-foreground ms-1">
@@ -102,7 +102,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder={'ابحث عن محادثة...'}
-              className="flex-1 bg-transparent text-[0.875rem] outline-none ms-2 placeholder:text-muted-foreground/40"
+              className="flex-1 bg-transparent text-meta outline-none ms-2 placeholder:text-muted-foreground/40"
               dir="auto"
               autoFocus
             />
@@ -119,7 +119,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/60 gap-2">
               <Search className="w-8 h-8 opacity-30" />
-              <p className="text-[0.8125rem]">{'لا نتائج'}</p>
+              <p className="text-mini">{'لا نتائج'}</p>
             </div>
           ) : (
             <div className="divide-y divide-border/10">
@@ -133,11 +133,11 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
                 >
                   {renderAvatar(conv.otherUsername, conv.otherAvatarUrl)}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[0.875rem] font-semibold text-foreground truncate">
+                    <p className="text-meta font-semibold text-foreground truncate">
                       {conv.otherDisplayName || conv.otherUsername}
                     </p>
                     {conv.otherDisplayName && conv.otherDisplayName !== conv.otherUsername && (
-                      <p className="text-[0.6875rem] text-muted-foreground truncate">@{conv.otherUsername}</p>
+                      <p className="text-micro text-muted-foreground truncate">@{conv.otherUsername}</p>
                     )}
                   </div>
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">

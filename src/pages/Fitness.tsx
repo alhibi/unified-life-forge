@@ -231,8 +231,8 @@ function FitnessPageInner({
             <Dumbbell className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold font-cormorant-garamond tracking-wide leading-tight text-foreground">اللياقة النخبوية</h1>
-            <p className="text-[0.625rem] text-muted-foreground font-medium uppercase tracking-wider">PREMIUM LEICA WORKOUT SUITE</p>
+            <h1 className="text-title font-bold font-cormorant-garamond tracking-wide leading-tight text-foreground">اللياقة النخبوية</h1>
+            <p className="text-micro text-muted-foreground font-medium uppercase tracking-wider">PREMIUM LEICA WORKOUT SUITE</p>
           </div>
         </div>
 
@@ -266,7 +266,7 @@ function FitnessPageInner({
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all active-tactile ${
+              className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 transition-all active-tactile ${
                 active ? 'text-white' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -300,14 +300,14 @@ function FitnessPageInner({
                 <Clock className="w-5 h-5 text-primary absolute" />
               </div>
               <div>
-                <p className="text-[0.625rem] text-primary font-bold uppercase tracking-wider">مؤقت الاستراحة والاستشفاء</p>
-                <p className="text-xl font-mono font-bold tabular-nums text-foreground">
+                <p className="text-micro text-primary font-bold uppercase tracking-wider">مؤقت الاستراحة والاستشفاء</p>
+                <p className="text-title font-mono font-bold tabular-nums text-foreground">
                   {Math.floor(restDuration / 60)}:{(restDuration % 60).toString().padStart(2, '0')}
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => startRestTimer(restDuration + 30)} className="h-8 px-2.5 text-xs">
+              <Button size="sm" variant="outline" onClick={() => startRestTimer(restDuration + 30)} className="h-8 px-2.5 text-mini">
                 +30ث
               </Button>
               <Button size="sm" variant="destructive" onClick={cancelRestTimer} className="h-8 w-8 p-0 flex items-center justify-center">
@@ -335,8 +335,8 @@ function FitnessPageInner({
                 <AppCard className="p-4 relative overflow-hidden flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[0.6875rem] text-muted-foreground font-bold uppercase tracking-wide">شرب الماء اليومي</span>
-                      <span className="text-xs text-blue-500 font-mono font-bold">
+                      <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">شرب الماء اليومي</span>
+                      <span className="text-mini text-blue-500 font-mono font-bold">
                         {(store.waterLogs[new Date().toISOString().split('T')[0]] || 0)} / {store.dailyWaterTargetMl} مل
                       </span>
                     </div>
@@ -359,7 +359,7 @@ function FitnessPageInner({
                         variant="outline"
                         size="sm"
                         onClick={() => store.addWater(new Date().toISOString().split('T')[0], ml)}
-                        className="flex-1 text-[0.6875rem] h-8 font-mono font-bold hover:bg-blue-500/10 hover:text-blue-500"
+                        className="flex-1 text-micro h-8 font-mono font-bold hover:bg-blue-500/10 hover:text-blue-500"
                       >
                         +{ml}ml
                       </Button>
@@ -378,24 +378,24 @@ function FitnessPageInner({
                 {/* 2. Steps Metric (DeviceMotion based fallback) */}
                 <AppCard className="p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[0.6875rem] text-muted-foreground font-bold uppercase tracking-wide">النشاط الحركي اليومي</span>
-                    <span className="text-[0.625rem] text-primary font-bold">نشط</span>
+                    <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">النشاط الحركي اليومي</span>
+                    <span className="text-micro text-primary font-bold">نشط</span>
                   </div>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-3xl font-bold font-mono text-foreground tracking-tighter tabular-nums">
+                    <span className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums">
                       {tracker.autoDetectEnabled ? 'مفعّل' : 'معطّل'}
                     </span>
-                    <span className="text-xs text-muted-foreground">التتبع التلقائي</span>
+                    <span className="text-mini text-muted-foreground">التتبع التلقائي</span>
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border/40">
-                    <span className="text-[0.625rem] text-muted-foreground">التسارع الحالي</span>
-                    <span className="text-xs font-mono font-bold tabular-nums text-foreground">{tracker.accelMagnitude} m/s²</span>
+                    <span className="text-micro text-muted-foreground">التسارع الحالي</span>
+                    <span className="text-mini font-mono font-bold tabular-nums text-foreground">{tracker.accelMagnitude} m/s²</span>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => tracker.toggleAutoDetect(!tracker.autoDetectEnabled)}
-                    className="mt-3 text-[0.6875rem] h-7 w-full border border-border/50 text-muted-foreground hover:text-foreground"
+                    className="mt-3 text-micro h-7 w-full border border-border/50 text-muted-foreground hover:text-foreground"
                   >
                     {tracker.autoDetectEnabled ? 'إيقاف تتبع الحركة' : 'تفعيل تتبع الحركة التلقائي'}
                   </Button>
@@ -404,15 +404,15 @@ function FitnessPageInner({
                 {/* 3. Calories Metric (Historical totals + live tracked) */}
                 <AppCard className="p-4 flex flex-col justify-between">
                   <div>
-                    <span className="text-[0.6875rem] text-muted-foreground font-bold uppercase tracking-wide">السعرات المحروقة اليوم</span>
+                    <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات المحروقة اليوم</span>
                     <div className="flex items-baseline gap-1 mt-1 mb-2">
-                      <span className="text-3xl font-bold font-mono text-[hsl(100,40%,45%)] tracking-tighter tabular-nums">
+                      <span className="text-hero font-bold font-mono text-[hsl(100,40%,45%)] tracking-tighter tabular-nums">
                         {Math.floor(tracker.calories)}
                       </span>
-                      <span className="text-xs text-muted-foreground">سعرة حرارية</span>
+                      <span className="text-mini text-muted-foreground">سعرة حرارية</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between text-[0.625rem] text-muted-foreground pt-2 border-t border-border/40">
+                  <div className="flex items-center justify-between text-micro text-muted-foreground pt-2 border-t border-border/40">
                     <span>معدل الحركة اليوم</span>
                     <span className="font-mono font-bold text-foreground">
                       {tracker.motionState === 'running' ? 'جري 🏃‍♂️' : tracker.motionState === 'walking' ? 'مشي 🚶‍♂️' : 'استراحة 🛌'}
@@ -431,7 +431,7 @@ function FitnessPageInner({
                       <div className="w-full space-y-6">
                         {/* Live activity pulsing badge */}
                         <div className="flex justify-center">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-[0.6875rem] font-bold animate-pulse">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-micro font-bold animate-pulse">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                             جاري تتبع النشاط: {tracker.activityType === 'running' ? 'جري' : 'مشي'}
                           </span>
@@ -440,27 +440,27 @@ function FitnessPageInner({
                         {/* Large real-time telemetry metrics */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
                           <div className="text-center">
-                            <p className="text-[0.625rem] text-muted-foreground font-bold uppercase tracking-wide">المسافة</p>
-                            <p className="text-3xl font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
-                              {(tracker.distanceMeters / 1000).toFixed(2)} <span className="text-xs text-muted-foreground">كم</span>
+                            <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">المسافة</p>
+                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                              {(tracker.distanceMeters / 1000).toFixed(2)} <span className="text-mini text-muted-foreground">كم</span>
                             </p>
                           </div>
                           <div className="text-center">
-                            <p className="text-[0.625rem] text-muted-foreground font-bold uppercase tracking-wide">الوقت المنقضي</p>
-                            <p className="text-3xl font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                            <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">الوقت المنقضي</p>
+                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
                               {Math.floor(tracker.durationSeconds / 60)}:{(tracker.durationSeconds % 60).toString().padStart(2, '0')}
                             </p>
                           </div>
                           <div className="text-center">
-                            <p className="text-[0.625rem] text-muted-foreground font-bold uppercase tracking-wide">السرعة الحالية</p>
-                            <p className="text-3xl font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
-                              {tracker.currentSpeedMps.toFixed(1)} <span className="text-xs text-muted-foreground">م/ث</span>
+                            <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السرعة الحالية</p>
+                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                              {tracker.currentSpeedMps.toFixed(1)} <span className="text-mini text-muted-foreground">م/ث</span>
                             </p>
                           </div>
                           <div className="text-center">
-                            <p className="text-[0.625rem] text-muted-foreground font-bold uppercase tracking-wide">السعرات التقديرية</p>
-                            <p className="text-3xl font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
-                              {Math.floor(tracker.calories)} <span className="text-xs text-muted-foreground">Kcal</span>
+                            <p className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات التقديرية</p>
+                            <p className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums mt-1">
+                              {Math.floor(tracker.calories)} <span className="text-mini text-muted-foreground">Kcal</span>
                             </p>
                           </div>
                         </div>
@@ -497,8 +497,8 @@ function FitnessPageInner({
                         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto">
                           <Play className="w-8 h-8 ms-1" />
                         </div>
-                        <h3 className="text-lg font-bold">جاهز لبدء تمرين هوائي؟</h3>
-                        <p className="text-muted-foreground text-xs max-w-sm mx-auto leading-relaxed">
+                        <h3 className="text-lead font-bold">جاهز لبدء تمرين هوائي؟</h3>
+                        <p className="text-muted-foreground text-mini max-w-sm mx-auto leading-relaxed">
                           قم بتسجيل وتتبع مساراتك عبر النظام الجغرافي الدقيق للـ GPS، وحلل سرعتك وأوقات الاستجابة مع حماية مدمجة ضد انقطاعات التتبع.
                         </p>
 
@@ -527,17 +527,17 @@ function FitnessPageInner({
                 <AppCard className="p-4 border border-border/60 bg-muted/5 space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                      <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <p className="text-mini font-bold text-foreground flex items-center gap-1.5">
                         <Sparkles className="w-4 h-4 text-amber-500" /> وضع المحاكاة والاختبار
                       </p>
-                      <p className="text-[0.625rem] text-muted-foreground">مخصص لمحاكاة أنشطة اللياقة البدنية والسرعة والمسار مباشرة بدون الخروج بالهاتف.</p>
+                      <p className="text-micro text-muted-foreground">مخصص لمحاكاة أنشطة اللياقة البدنية والسرعة والمسار مباشرة بدون الخروج بالهاتف.</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
                         variant={tracker.isSimulated ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => tracker.setIsSimulated(!tracker.isSimulated)}
-                        className="text-[0.6875rem] font-bold h-8"
+                        className="text-micro font-bold h-8"
                       >
                         {tracker.isSimulated ? 'المحاكاة مفعّلة' : 'تفعيل المحاكاة'}
                       </Button>
@@ -547,7 +547,7 @@ function FitnessPageInner({
                   {tracker.isSimulated && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-border/40">
                       <div>
-                        <p className="text-[0.625rem] text-muted-foreground font-bold uppercase mb-2">1. سرعة المحاكاة</p>
+                        <p className="text-micro text-muted-foreground font-bold uppercase mb-2">1. سرعة المحاكاة</p>
                         <div className="flex gap-1.5">
                           {[1, 5, 10].map((x) => (
                             <Button
@@ -555,7 +555,7 @@ function FitnessPageInner({
                               variant={tracker.simulatedSpeedMultiplier === x ? 'default' : 'outline'}
                               size="xs"
                               onClick={() => tracker.setSimulatedSpeedMultiplier(x)}
-                              className="font-mono text-xs flex-1 h-7"
+                              className="font-mono text-mini flex-1 h-7"
                             >
                               {x}x
                             </Button>
@@ -564,7 +564,7 @@ function FitnessPageInner({
                       </div>
 
                       <div>
-                        <p className="text-[0.625rem] text-muted-foreground font-bold uppercase mb-2">2. تزييف الحالة الحركية</p>
+                        <p className="text-micro text-muted-foreground font-bold uppercase mb-2">2. تزييف الحالة الحركية</p>
                         <div className="flex gap-1.5">
                           {[
                             { state: 'resting', ar: 'استراحة' },
@@ -576,7 +576,7 @@ function FitnessPageInner({
                               variant={tracker.motionState === m.state ? 'secondary' : 'outline'}
                               size="xs"
                               onClick={() => tracker.simulateMotion(m.state as any)}
-                              className="text-[0.6875rem] flex-1 h-7"
+                              className="text-micro flex-1 h-7"
                             >
                               {m.ar}
                             </Button>
@@ -585,13 +585,13 @@ function FitnessPageInner({
                       </div>
 
                       <div>
-                        <p className="text-[0.625rem] text-muted-foreground font-bold uppercase mb-2">3. حقن وقت (تخطي تتبع)</p>
+                        <p className="text-micro text-muted-foreground font-bold uppercase mb-2">3. حقن وقت (تخطي تتبع)</p>
                         <div className="flex gap-1.5">
                           <Button
                             variant="outline"
                             size="xs"
                             onClick={() => tracker.triggerSimulatedTick(30)}
-                            className="font-mono text-xs flex-1 h-7"
+                            className="font-mono text-mini flex-1 h-7"
                           >
                             +30ث حركة
                           </Button>
@@ -599,7 +599,7 @@ function FitnessPageInner({
                             variant="outline"
                             size="xs"
                             onClick={() => tracker.triggerSimulatedTick(120)}
-                            className="font-mono text-xs flex-1 h-7"
+                            className="font-mono text-mini flex-1 h-7"
                           >
                             +120ث حركة
                           </Button>
@@ -622,7 +622,7 @@ function FitnessPageInner({
             >
               {/* Daily Workout Timetable Schedule */}
               <div>
-                <span className="text-[0.6875rem] text-muted-foreground font-bold uppercase tracking-wide block mb-3">جدول التمارين الأسبوعي</span>
+                <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide block mb-3">جدول التمارين الأسبوعي</span>
 
                 {/* Horizontal Days Selector */}
                 <div className="flex gap-1 overflow-x-auto scrollbar-none pb-1 mb-4">
@@ -639,7 +639,7 @@ function FitnessPageInner({
                             : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
                         }`}
                       >
-                        <span className="text-[0.625rem] font-medium leading-none mb-1">{DAYS_MAP[dayKey].short}</span>
+                        <span className="text-micro font-medium leading-none mb-1">{DAYS_MAP[dayKey].short}</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-80" style={{ display: dayData.isRestDay ? 'none' : 'block' }} />
                         {dayData.isRestDay && <span className="text-mini text-muted-foreground/50 leading-none">راحة</span>}
                       </button>
@@ -654,22 +654,22 @@ function FitnessPageInner({
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/40">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h2 className="text-base font-bold text-foreground">جدول يوم {DAYS_MAP[selectedDay].ar}</h2>
+                          <h2 className="text-body font-bold text-foreground">جدول يوم {DAYS_MAP[selectedDay].ar}</h2>
                           {store.timetable[selectedDay].isRestDay && (
-                            <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[0.625rem] font-bold">راحة</span>
+                            <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-micro font-bold">راحة</span>
                           )}
                         </div>
                         <input
                           type="text"
                           value={store.timetable[selectedDay].name}
                           onChange={(e) => store.updateWorkoutDayMeta(selectedDay, e.target.value, store.timetable[selectedDay].isRestDay)}
-                          className="mt-1 text-xs text-muted-foreground font-medium bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none pb-0.5 w-full max-w-xs"
+                          className="mt-1 text-mini text-muted-foreground font-medium bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none pb-0.5 w-full max-w-xs"
                           placeholder="مثال: تمارين الجزء العلوي"
                         />
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-muted-foreground select-none">
+                        <label className="flex items-center gap-2 cursor-pointer text-mini font-semibold text-muted-foreground select-none">
                           <input
                             type="checkbox"
                             checked={store.timetable[selectedDay].isRestDay}
@@ -687,11 +687,11 @@ function FitnessPageInner({
                         {store.timetable[selectedDay].exercises.length === 0 ? (
                           <div className="text-center py-8 text-muted-foreground space-y-3">
                             <Dumbbell className="w-8 h-8 mx-auto text-muted-foreground/30 animate-pulse" />
-                            <p className="text-xs">لا توجد تمارين مضافة لليوم بعد.</p>
+                            <p className="text-mini">لا توجد تمارين مضافة لليوم بعد.</p>
                             <Button
                               size="sm"
                               onClick={() => setAddExerciseOpen(true)}
-                              className="text-xs rounded-lg bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
+                              className="text-mini rounded-lg bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
                             >
                               إضافة تمرين من المكتبة
                             </Button>
@@ -701,7 +701,7 @@ function FitnessPageInner({
                             {store.timetable[selectedDay].exercises.map((exercise) => (
                               <div key={exercise.id} className="p-4 rounded-xl border border-border/40 bg-muted/5 space-y-3">
                                 <div className="flex items-center justify-between gap-2">
-                                  <span className="text-xs font-bold text-foreground">{exercise.name}</span>
+                                  <span className="text-mini font-bold text-foreground">{exercise.name}</span>
                                   <button
                                     onClick={() => store.removeExerciseFromDay(selectedDay, exercise.id)}
                                     className="text-muted-foreground hover:text-red-500 p-1 rounded transition-colors"
@@ -712,7 +712,7 @@ function FitnessPageInner({
 
                                 {/* Exercise Sets Grid */}
                                 <div className="space-y-1.5">
-                                  <div className="grid grid-cols-4 gap-2 text-[0.625rem] font-bold text-muted-foreground/80 px-1 text-center">
+                                  <div className="grid grid-cols-4 gap-2 text-micro font-bold text-muted-foreground/80 px-1 text-center">
                                     <span>الجلسة</span>
                                     <span>الوزن (كغ)</span>
                                     <span>التكرارات</span>
@@ -721,13 +721,13 @@ function FitnessPageInner({
 
                                   {exercise.sets.map((set, setIdx) => (
                                     <div key={set.id} className="grid grid-cols-4 gap-2 items-center text-center">
-                                      <span className="text-xs font-mono font-bold text-muted-foreground/70">{setIdx + 1}</span>
+                                      <span className="text-mini font-mono font-bold text-muted-foreground/70">{setIdx + 1}</span>
 
                                       <input
                                         type="number"
                                         value={set.weightKg || ''}
                                         onChange={(e) => store.updateSetValues(selectedDay, exercise.id, setIdx, Number(e.target.value), set.reps)}
-                                        className="h-8 rounded bg-card border border-border/40 text-xs font-mono text-center focus:border-primary focus:outline-none w-full"
+                                        className="h-8 rounded bg-card border border-border/40 text-mini font-mono text-center focus:border-primary focus:outline-none w-full"
                                         placeholder="0"
                                       />
 
@@ -735,7 +735,7 @@ function FitnessPageInner({
                                         type="number"
                                         value={set.reps || ''}
                                         onChange={(e) => store.updateSetValues(selectedDay, exercise.id, setIdx, set.weightKg, Number(e.target.value))}
-                                        className="h-8 rounded bg-card border border-border/40 text-xs font-mono text-center focus:border-primary focus:outline-none w-full"
+                                        className="h-8 rounded bg-card border border-border/40 text-mini font-mono text-center focus:border-primary focus:outline-none w-full"
                                         placeholder="0"
                                       />
 
@@ -766,7 +766,7 @@ function FitnessPageInner({
                                     variant="outline"
                                     onClick={() => store.removeSetFromExercise(selectedDay, exercise.id, exercise.sets.length - 1)}
                                     disabled={exercise.sets.length <= 1}
-                                    className="h-7 text-[0.625rem] font-semibold px-2.5"
+                                    className="h-7 text-micro font-semibold px-2.5"
                                   >
                                     حذف جلسة
                                   </Button>
@@ -774,7 +774,7 @@ function FitnessPageInner({
                                     size="sm"
                                     variant="outline"
                                     onClick={() => store.addSetToExercise(selectedDay, exercise.id)}
-                                    className="h-7 text-[0.625rem] font-semibold px-2.5 hover:text-primary"
+                                    className="h-7 text-micro font-semibold px-2.5 hover:text-primary"
                                   >
                                     إضافة جلسة
                                   </Button>
@@ -784,7 +784,7 @@ function FitnessPageInner({
 
                             <Button
                               variant="outline"
-                              className="w-full h-10 border-dashed rounded-xl text-xs font-bold text-muted-foreground hover:text-primary flex items-center justify-center gap-1.5"
+                              className="w-full h-10 border-dashed rounded-xl text-mini font-bold text-muted-foreground hover:text-primary flex items-center justify-center gap-1.5"
                               onClick={() => setAddExerciseOpen(true)}
                             >
                               <Plus className="w-4 h-4" /> إضافة تمرين جديد لليوم
@@ -795,8 +795,8 @@ function FitnessPageInner({
                     ) : (
                       <div className="text-center py-10 text-muted-foreground">
                         <Sparkles className="w-8 h-8 text-amber-500/60 mx-auto mb-3 animate-spin" style={{ animationDuration: '3s' }} />
-                        <h4 className="text-sm font-bold text-foreground">يوم استراحة واستشفاء</h4>
-                        <p className="text-[0.6875rem] max-w-xs mx-auto mt-1 leading-relaxed">
+                        <h4 className="text-meta font-bold text-foreground">يوم استراحة واستشفاء</h4>
+                        <p className="text-micro max-w-xs mx-auto mt-1 leading-relaxed">
                           الراحة جزء لا يتجزأ من بناء اللياقة. استغل هذا اليوم للنوم الكافي، وشرب المياه، والاستشفاء العضلي الفعال.
                         </p>
                       </div>
@@ -816,13 +816,13 @@ function FitnessPageInner({
                       placeholder="ابحث عن تمرين أو اكتب اسماً مخصصاً..."
                       value={exerciseSearch}
                       onChange={(e) => setExerciseSearch(e.target.value)}
-                      className="w-full h-9 rounded-xl pe-9 ps-3 bg-muted/50 border border-border/40 text-xs focus:border-primary focus:outline-none"
+                      className="w-full h-9 rounded-xl pe-9 ps-3 bg-muted/50 border border-border/40 text-mini focus:border-primary focus:outline-none"
                     />
                   </div>
 
                   {exerciseSearch.trim().length > 0 && (
                     <Button
-                      className="w-full text-xs font-semibold h-8 rounded-lg bg-primary text-white"
+                      className="w-full text-mini font-semibold h-8 rounded-lg bg-primary text-white"
                       onClick={() => {
                         store.addExerciseToDay(selectedDay!, exerciseSearch.trim());
                         setExerciseSearch('');
@@ -834,7 +834,7 @@ function FitnessPageInner({
                   )}
 
                   <div className="space-y-2">
-                    <p className="text-[0.625rem] font-bold text-muted-foreground uppercase">مكتبة التمارين المتاحة</p>
+                    <p className="text-micro font-bold text-muted-foreground uppercase">مكتبة التمارين المتاحة</p>
                     {STATIC_EXERCISES.map((ex) => (
                       <button
                         key={ex.key}
@@ -842,11 +842,11 @@ function FitnessPageInner({
                           store.addExerciseToDay(selectedDay!, ex.name);
                           setAddExerciseOpen(false);
                         }}
-                        className="w-full p-3 rounded-lg border border-border/20 text-start bg-card hover:bg-muted/30 transition-colors flex justify-between items-center text-xs font-medium"
+                        className="w-full p-3 rounded-lg border border-border/20 text-start bg-card hover:bg-muted/30 transition-colors flex justify-between items-center text-mini font-medium"
                       >
                         <div>
                           <p className="text-foreground">{ex.name}</p>
-                          <p className="text-[0.625rem] text-muted-foreground mt-0.5">
+                          <p className="text-micro text-muted-foreground mt-0.5">
                             العضلة: {MUSCLE_GROUPS_AR[ex.muscle]} | المعدات: {ex.equipment}
                           </p>
                         </div>
@@ -869,13 +869,13 @@ function FitnessPageInner({
             >
               {/* Muscle Filters chips */}
               <div>
-                <span className="text-[0.6875rem] text-muted-foreground font-bold uppercase tracking-wide block mb-3">فلترة حسب المجموعة العضلية</span>
+                <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide block mb-3">فلترة حسب المجموعة العضلية</span>
                 <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-1">
                   {(Object.keys(MUSCLE_GROUPS_AR) as Array<keyof typeof MUSCLE_GROUPS_AR>).map((group) => (
                     <button
                       key={group}
                       onClick={() => setLibraryFilter(group)}
-                      className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all active-tactile ${
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-mini font-semibold border transition-all active-tactile ${
                         libraryFilter === group
                           ? 'bg-primary border-primary text-white'
                           : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
@@ -895,7 +895,7 @@ function FitnessPageInner({
                   placeholder="ابحث في مكتبة التمارين المتاحة..."
                   value={librarySearch}
                   onChange={(e) => setLibrarySearch(e.target.value)}
-                  className="w-full h-10 rounded-xl pe-9 ps-4 bg-card border border-border/40 text-xs focus:border-primary focus:outline-none"
+                  className="w-full h-10 rounded-xl pe-9 ps-4 bg-card border border-border/40 text-mini focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -905,15 +905,15 @@ function FitnessPageInner({
                   <AppCard key={ex.key} className="p-4 flex flex-col justify-between hover:border-primary/30 transition-all">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="px-2 py-0.5 rounded-full bg-[hsl(100,40%,45%)]/10 text-[hsl(100,40%,45%)] text-[0.625rem] font-bold">
+                        <span className="px-2 py-0.5 rounded-full bg-[hsl(100,40%,45%)]/10 text-[hsl(100,40%,45%)] text-micro font-bold">
                           {MUSCLE_GROUPS_AR[ex.muscle]}
                         </span>
-                        <span className="text-[0.625rem] text-muted-foreground font-bold uppercase">{ex.difficulty}</span>
+                        <span className="text-micro text-muted-foreground font-bold uppercase">{ex.difficulty}</span>
                       </div>
-                      <h3 className="text-xs font-bold text-foreground mb-1.5">{ex.name}</h3>
-                      <p className="text-[0.6875rem] text-muted-foreground leading-relaxed mb-3">{ex.desc}</p>
+                      <h3 className="text-mini font-bold text-foreground mb-1.5">{ex.name}</h3>
+                      <p className="text-micro text-muted-foreground leading-relaxed mb-3">{ex.desc}</p>
                     </div>
-                    <div className="pt-2 border-t border-border/40 text-[0.625rem] text-muted-foreground space-y-1">
+                    <div className="pt-2 border-t border-border/40 text-micro text-muted-foreground space-y-1">
                       <div>المعدات اللازمة: <span className="font-semibold text-foreground">{ex.equipment}</span></div>
                       <div>حرق تقديري: <span className="font-semibold text-foreground">{ex.estimatedCaloriesPerMin} سعرة/دقيقة</span></div>
                     </div>
@@ -923,7 +923,7 @@ function FitnessPageInner({
                 {filteredExercises.length === 0 && (
                   <div className="text-center py-10 col-span-full text-muted-foreground">
                     <Info className="w-8 h-8 mx-auto text-muted-foreground/30 mb-2" />
-                    <p className="text-xs">لا توجد تمارين تطابق فلتر البحث الحالي.</p>
+                    <p className="text-mini">لا توجد تمارين تطابق فلتر البحث الحالي.</p>
                   </div>
                 )}
               </div>
@@ -941,40 +941,40 @@ function FitnessPageInner({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Metrics Entry Form */}
                 <AppCard className="p-5 space-y-4">
-                  <h3 className="text-sm font-bold text-foreground pb-2 border-b border-border/40">تسجيل مؤشرات الجسم اليومية</h3>
+                  <h3 className="text-meta font-bold text-foreground pb-2 border-b border-border/40">تسجيل مؤشرات الجسم اليومية</h3>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[0.625rem] font-bold text-muted-foreground uppercase">الوزن (كغ)</label>
+                      <label className="text-micro font-bold text-muted-foreground uppercase">الوزن (كغ)</label>
                       <input
                         type="number"
                         step="0.1"
                         placeholder="75.0"
                         value={logWeightKg}
                         onChange={(e) => setLogWeightKg(e.target.value)}
-                        className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-xs font-mono px-3 focus:border-primary focus:outline-none"
+                        className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[0.625rem] font-bold text-muted-foreground uppercase">نسبة الدهون % (اختياري)</label>
+                      <label className="text-micro font-bold text-muted-foreground uppercase">نسبة الدهون % (اختياري)</label>
                       <input
                         type="number"
                         step="0.1"
                         placeholder="15.0"
                         value={logBodyFat}
                         onChange={(e) => setLogBodyFat(e.target.value)}
-                        className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-xs font-mono px-3 focus:border-primary focus:outline-none"
+                        className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[0.625rem] font-bold text-muted-foreground uppercase">تاريخ القياس</label>
+                    <label className="text-micro font-bold text-muted-foreground uppercase">تاريخ القياس</label>
                     <input
                       type="date"
                       value={logDate}
                       onChange={(e) => setLogDate(e.target.value)}
-                      className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-xs font-mono px-3 focus:border-primary focus:outline-none"
+                      className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -989,7 +989,7 @@ function FitnessPageInner({
                       setLogBodyFat('');
                       alert('تم تسجيل القياس بنجاح.');
                     }}
-                    className="w-full text-xs font-bold h-9 rounded-lg bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
+                    className="w-full text-mini font-bold h-9 rounded-lg bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
                   >
                     حفظ القياس
                   </Button>
@@ -998,24 +998,24 @@ function FitnessPageInner({
                 {/* Target Milestones */}
                 <AppCard className="p-5 space-y-4 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-foreground pb-2 border-b border-border/40">الهدف العضلي والوزني</h3>
-                    <p className="text-[0.6875rem] text-muted-foreground mt-2 leading-relaxed">حدد هدفك الأخير للوزن لمقارنته مع التقدم الحالي.</p>
+                    <h3 className="text-meta font-bold text-foreground pb-2 border-b border-border/40">الهدف العضلي والوزني</h3>
+                    <p className="text-micro text-muted-foreground mt-2 leading-relaxed">حدد هدفك الأخير للوزن لمقارنته مع التقدم الحالي.</p>
 
                     <div className="space-y-3 mt-4">
                       <div className="space-y-1">
-                        <label className="text-[0.625rem] font-bold text-muted-foreground uppercase">الوزن المستهدف (كغ)</label>
+                        <label className="text-micro font-bold text-muted-foreground uppercase">الوزن المستهدف (كغ)</label>
                         <div className="flex gap-2">
                           <input
                             type="number"
                             step="0.1"
                             value={store.weightTargetKg}
                             onChange={(e) => store.setWeightTarget(Number(e.target.value))}
-                            className="flex-1 h-9 rounded-lg bg-muted/40 border border-border/40 text-xs font-mono px-3 focus:border-primary focus:outline-none"
+                            className="flex-1 h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
                           />
                         </div>
                       </div>
 
-                      <div className="p-3 bg-muted/10 rounded-lg border border-border/20 text-[0.6875rem] text-muted-foreground space-y-1.5">
+                      <div className="p-3 bg-muted/10 rounded-lg border border-border/20 text-micro text-muted-foreground space-y-1.5">
                         <div className="flex justify-between">
                           <span>الوزن الأخير:</span>
                           <span className="font-semibold text-foreground">
@@ -1089,7 +1089,7 @@ function FitnessPageInner({
                         })()}
                       </div>
 
-                      <div className="flex justify-between text-[0.625rem] text-muted-foreground px-2">
+                      <div className="flex justify-between text-micro text-muted-foreground px-2">
                         {store.weightLogs.map((log) => (
                           <span key={log.id} className="font-mono">{log.date.slice(5)}</span>
                         ))}
@@ -1098,7 +1098,7 @@ function FitnessPageInner({
                   ) : (
                     <div className="h-full flex items-center justify-center text-muted-foreground flex-col gap-2">
                       <BarChart3 className="w-8 h-8 text-muted-foreground/30 animate-pulse" />
-                      <p className="text-xs">لا توجد قياسات مسجلة كافية لعرض رسم بياني.</p>
+                      <p className="text-mini">لا توجد قياسات مسجلة كافية لعرض رسم بياني.</p>
                     </div>
                   )}
                 </AppCard>
@@ -1108,9 +1108,9 @@ function FitnessPageInner({
               <Section label="جدول القياسات السابقة">
                 <AppCard className="p-4 overflow-hidden">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-start text-xs border-collapse">
+                    <table className="w-full text-start text-mini border-collapse">
                       <thead>
-                        <tr className="border-b border-border/40 text-muted-foreground text-[0.6875rem] font-bold">
+                        <tr className="border-b border-border/40 text-muted-foreground text-micro font-bold">
                           <th className="py-2 text-start">التاريخ</th>
                           <th className="py-2 text-center">الوزن (كغ)</th>
                           <th className="py-2 text-center">نسبة الدهون %</th>
@@ -1136,7 +1136,7 @@ function FitnessPageInner({
 
                         {store.weightLogs.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="py-6 text-center text-muted-foreground text-xs">لا توجد سجلات قياسات مخزنة بعد.</td>
+                            <td colSpan={4} className="py-6 text-center text-muted-foreground text-mini">لا توجد سجلات قياسات مخزنة بعد.</td>
                           </tr>
                         )}
                       </tbody>
@@ -1161,8 +1161,8 @@ function FitnessPageInner({
                   {tracker.activities.length === 0 ? (
                     <AppCard className="p-8 text-center text-muted-foreground space-y-2">
                       <History className="w-8 h-8 mx-auto text-muted-foreground/30 animate-pulse" />
-                      <p className="text-xs font-semibold">لا توجد مسارات GPS مسجلة بعد.</p>
-                      <p className="text-[0.625rem]">ابدأ تتبع نشاط جديد من تبويب الرئيسية لترى مساراتك وإحصائياتك التفصيلية هنا.</p>
+                      <p className="text-mini font-semibold">لا توجد مسارات GPS مسجلة بعد.</p>
+                      <p className="text-micro">ابدأ تتبع نشاط جديد من تبويب الرئيسية لترى مساراتك وإحصائياتك التفصيلية هنا.</p>
                     </AppCard>
                   ) : (
                     tracker.activities.map((act) => {
@@ -1180,21 +1180,21 @@ function FitnessPageInner({
                           <div className="flex justify-between items-start gap-3">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-foreground">
+                                <span className="text-mini font-bold text-foreground">
                                   {act.activity_type === 'running' ? 'تمرين جري سريع 🏃‍♂️' : 'تمرين مشي هوائي 🚶‍♂️'}
                                 </span>
                                 <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-mini font-bold uppercase">
                                   {act.source === 'auto' ? 'تلقائي' : 'يدوي'}
                                 </span>
                               </div>
-                              <p className="text-[0.625rem] text-muted-foreground mt-0.5">{dateFormatted}</p>
+                              <p className="text-micro text-muted-foreground mt-0.5">{dateFormatted}</p>
                             </div>
 
                             <div className="text-end">
-                              <p className="text-xs font-bold text-foreground">
+                              <p className="text-mini font-bold text-foreground">
                                 {((act.distance_meters || 0) / 1000).toFixed(2)} كم
                               </p>
-                              <p className="text-[0.625rem] text-muted-foreground">
+                              <p className="text-micro text-muted-foreground">
                                 {Math.floor((act.duration_seconds || 0) / 60)}د {Math.floor((act.duration_seconds || 0) % 60)}ث
                               </p>
                             </div>
@@ -1208,7 +1208,7 @@ function FitnessPageInner({
                                 size="xs"
                                 variant="secondary"
                                 onClick={() => setSelectedMapActivity(act)}
-                                className="absolute bottom-2 left-2 text-[0.625rem] h-6 px-2 shadow-sm"
+                                className="absolute bottom-2 left-2 text-micro h-6 px-2 shadow-sm"
                               >
                                 عرض الخريطة التفاعلية
                               </Button>
@@ -1216,7 +1216,7 @@ function FitnessPageInner({
                           )}
 
                           {/* Detailed Kilometric splits metrics */}
-                          <div className="pt-3 border-t border-border/40 grid grid-cols-2 gap-3 text-[0.6875rem] text-muted-foreground leading-relaxed">
+                          <div className="pt-3 border-t border-border/40 grid grid-cols-2 gap-3 text-micro text-muted-foreground leading-relaxed">
                             <div>السعرات المحروقة: <span className="font-semibold text-foreground">{act.calories ? Math.floor(act.calories) : '—'} Kcal</span></div>
                             <div>السرعة المتوسطة: <span className="font-semibold text-foreground">
                               {act.duration_seconds && act.distance_meters
@@ -1246,12 +1246,12 @@ function FitnessPageInner({
                     {/* Telemetry info card */}
                     <div className="p-3.5 rounded-xl border border-border/40 bg-muted/5 flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-bold text-foreground">التفاصيل العامة للنشاط</p>
-                        <p className="text-[0.625rem] text-muted-foreground mt-0.5">خطوات المسار: {selectedMapActivity.route?.length || 0} إحداثية مصفاة</p>
+                        <p className="text-mini font-bold text-foreground">التفاصيل العامة للنشاط</p>
+                        <p className="text-micro text-muted-foreground mt-0.5">خطوات المسار: {selectedMapActivity.route?.length || 0} إحداثية مصفاة</p>
                       </div>
                       <div className="text-end">
-                        <p className="text-xs font-bold text-primary">المسافة: {((selectedMapActivity.distance_meters || 0) / 1000).toFixed(2)} كم</p>
-                        <p className="text-[0.625rem] text-muted-foreground">الوقت: {Math.floor((selectedMapActivity.duration_seconds || 0) / 60)} دقيقة</p>
+                        <p className="text-mini font-bold text-primary">المسافة: {((selectedMapActivity.distance_meters || 0) / 1000).toFixed(2)} كم</p>
+                        <p className="text-micro text-muted-foreground">الوقت: {Math.floor((selectedMapActivity.duration_seconds || 0) / 60)} دقيقة</p>
                       </div>
                     </div>
                   </div>

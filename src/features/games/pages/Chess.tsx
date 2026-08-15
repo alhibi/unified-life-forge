@@ -1368,13 +1368,13 @@ export default function ChessPage() {
           `}
         >
           {showRank && (
-            <span className={`absolute top-0.5 left-0.5 text-[0.625rem] font-medium leading-none pointer-events-none select-none
+            <span className={`absolute top-0.5 left-0.5 text-micro font-medium leading-none pointer-events-none select-none
               ${isDark ? 'text-white/50' : 'text-black/35'}`}>
               {RANKS[ri]}
             </span>
           )}
           {showFile && (
-            <span className={`absolute bottom-0.5 right-1 text-[0.625rem] font-medium leading-none pointer-events-none select-none
+            <span className={`absolute bottom-0.5 right-1 text-micro font-medium leading-none pointer-events-none select-none
               ${isDark ? 'text-white/50' : 'text-black/35'}`}>
               {FILES[ci]}
             </span>
@@ -1518,7 +1518,7 @@ export default function ChessPage() {
   ];
 
   const timerDisplay = (
-    <div className="flex items-center gap-1 text-xs text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+    <div className="flex items-center gap-1 text-mini text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
       <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
     </div>
   );
@@ -1541,7 +1541,7 @@ export default function ChessPage() {
             className="fixed inset-0 z-drawer bg-black/50 flex items-center justify-center">
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
               className="bg-card rounded-2xl p-4">
-              <p className="text-sm font-semibold text-foreground text-center mb-3">
+              <p className="text-meta font-semibold text-foreground text-center mb-3">
                 {'اختر قطعة الترقية'}
               </p>
               <div className="flex gap-3">
@@ -1563,18 +1563,18 @@ export default function ChessPage() {
       {(activeBot || openingName) && (
         <div className="max-w-[340px] mx-auto px-4 mb-2 flex items-center justify-between gap-2">
           {activeBot ? (
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-base">{activeBot.emoji}</span>
+            <div className="flex items-center gap-1.5 text-mini">
+              <span className="text-body">{activeBot.emoji}</span>
               <div className="leading-tight">
-                <p className="font-bold text-foreground text-[0.6875rem]">{activeBot.ar}</p>
-                <p className="text-[0.625rem] text-muted-foreground">Elo {activeBot.elo}</p>
+                <p className="font-bold text-foreground text-micro">{activeBot.ar}</p>
+                <p className="text-micro text-muted-foreground">Elo {activeBot.elo}</p>
               </div>
             </div>
           ) : <div />}
           {openingName && (
             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/12 border border-amber-500/25">
-              <span className="text-[0.625rem] font-mono text-amber-300/80">{openingName.eco}</span>
-              <span className="text-[0.625rem] font-bold text-amber-200">{openingName.ar}</span>
+              <span className="text-micro font-mono text-amber-300/80">{openingName.eco}</span>
+              <span className="text-micro font-bold text-amber-200">{openingName.ar}</span>
             </div>
           )}
         </div>
@@ -1585,21 +1585,21 @@ export default function ChessPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-white' : 'bg-gray-900'}`}>
-              <span className={`text-[0.625rem] font-bold ${flipped ? 'text-gray-900' : 'text-white'}`}>{flipped ? 'W' : 'B'}</span>
+              <span className={`text-micro font-bold ${flipped ? 'text-gray-900' : 'text-white'}`}>{flipped ? 'W' : 'B'}</span>
             </div>
-            <span className="text-xs font-medium text-foreground">
+            <span className="text-mini font-medium text-foreground">
               {flipped
                 ? ('أبيض')
                 : ('أسود')}
             </span>
-            {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-[0.625rem] text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
+            {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-micro text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-0.5 min-h-[18px]">
-              {game.captured[flipped ? 'w' : 'b'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+              {game.captured[flipped ? 'w' : 'b'].map((p, i) => <span key={i} className="text-mini opacity-60">{p}</span>)}
             </div>
             {timeControl !== 'none' && (
-              <div className={`text-[0.6875rem] font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'w' : 'b') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
+              <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'w' : 'b') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
                 {formatTimer(flipped ? clockW : clockB)}
               </div>
             )}
@@ -1613,7 +1613,7 @@ export default function ChessPage() {
           <div className="h-full bg-white transition-all duration-300" style={{ width: `${evalPct}%` }} />
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-500/60" />
         </div>
-        <div className="flex justify-between text-[0.625rem] text-muted-foreground mt-0.5 tabular-nums">
+        <div className="flex justify-between text-micro text-muted-foreground mt-0.5 tabular-nums">
           <span>{evalScore > 0 ? `+${evalScore.toFixed(1)}` : evalScore.toFixed(1)}</span>
           <span>{'تقييم'}</span>
         </div>
@@ -1628,7 +1628,7 @@ export default function ChessPage() {
               onClick={() => { setGameStarted(true); setIsRunning(true); }}>
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
-                <span className="text-muted-foreground font-medium text-sm">
+                <span className="text-muted-foreground font-medium text-meta">
                   {'اضغط للبدء'}
                 </span>
               </div>
@@ -1649,21 +1649,21 @@ export default function ChessPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-gray-900' : 'bg-white'}`}>
-              <span className={`text-[0.625rem] font-bold ${flipped ? 'text-white' : 'text-gray-900'}`}>{flipped ? 'B' : 'W'}</span>
+              <span className={`text-micro font-bold ${flipped ? 'text-white' : 'text-gray-900'}`}>{flipped ? 'B' : 'W'}</span>
             </div>
-            <span className="text-xs font-medium text-foreground">
+            <span className="text-mini font-medium text-foreground">
               {flipped
                 ? ('أسود')
                 : ('أبيض')}
             </span>
-            {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-[0.625rem] text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
+            {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-micro text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-0.5 min-h-[18px]">
-              {game.captured[flipped ? 'b' : 'w'].map((p, i) => <span key={i} className="text-xs opacity-60">{p}</span>)}
+              {game.captured[flipped ? 'b' : 'w'].map((p, i) => <span key={i} className="text-mini opacity-60">{p}</span>)}
             </div>
             {timeControl !== 'none' && (
-              <div className={`text-[0.6875rem] font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'b' : 'w') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
+              <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'b' : 'w') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
                 {formatTimer(flipped ? clockB : clockW)}
               </div>
             )}
@@ -1675,12 +1675,12 @@ export default function ChessPage() {
       <div className="max-w-sm mx-auto px-4 mt-4">
         <div className="flex items-center justify-center gap-3">
           <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-gray-900'}`} />
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-meta font-medium text-foreground">
             {game.turn === 'w'
               ? ('دور الأبيض')
               : ('دور الأسود')}
           </span>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
+          <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
           </div>
         </div>
@@ -1688,7 +1688,7 @@ export default function ChessPage() {
         {status && (
           <motion.div initial={{ y: -5, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             className="text-center mt-2">
-            <span className={`text-sm font-semibold ${gameOver ? 'text-primary' : 'text-destructive'}`}>
+            <span className={`text-meta font-semibold ${gameOver ? 'text-primary' : 'text-destructive'}`}>
               {status}
             </span>
           </motion.div>
@@ -1704,7 +1704,7 @@ export default function ChessPage() {
               const moveNum = Math.floor(actualIndex / 2) + 1;
               const isWhite = actualIndex % 2 === 0;
               return (
-                <span key={i} className="text-[0.6875rem] text-muted-foreground tabular-nums">
+                <span key={i} className="text-micro text-muted-foreground tabular-nums">
                   {isWhite && <span className="text-foreground/40">{moveNum}.</span>}
                   <span className="font-medium text-foreground/70">{m}</span>
                 </span>
@@ -1719,34 +1719,34 @@ export default function ChessPage() {
         <button onClick={undo} disabled={history.length === 0 || gameOver || aiThinking}
           className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground disabled:opacity-25 active:scale-90 transition-all">
           <Undo2 className="w-5 h-5" />
-          <span className="text-[0.625rem] font-medium">{'تراجع'}</span>
+          <span className="text-micro font-medium">{'تراجع'}</span>
         </button>
 
         <button onClick={() => setFlipped(!flipped)}
           className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
-          <span className="text-[0.625rem] font-medium">{'قلب'}</span>
+          <span className="text-micro font-medium">{'قلب'}</span>
         </button>
 
         <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted}
           className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 transition-all disabled:opacity-25">
           <Lightbulb className="w-5 h-5" />
-          <span className="text-[0.625rem] font-medium">{'تلميح'}</span>
-          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-[0.625rem] bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
+          <span className="text-micro font-medium">{'تلميح'}</span>
+          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-micro bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
         </button>
 
         {!gameOver && (
           <button onClick={resign} disabled={aiThinking}
             className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-destructive/10 text-destructive active:scale-90 transition-all disabled:opacity-25">
             <Flag className="w-5 h-5" />
-            <span className="text-[0.625rem] font-medium">{'استسلام'}</span>
+            <span className="text-micro font-medium">{'استسلام'}</span>
           </button>
         )}
 
         <button onClick={() => resetGame()}
           className="flex flex-col items-center gap-1 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
-          <span className="text-[0.625rem] font-medium">{t('chess.newGame')}</span>
+          <span className="text-micro font-medium">{t('chess.newGame')}</span>
         </button>
       </div>
       <MatchReportDialog report={matchReport} onClose={() => setMatchReport(null)} day={dayKey()} />

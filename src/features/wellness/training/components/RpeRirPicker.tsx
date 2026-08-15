@@ -96,9 +96,9 @@ export default function RpeRirPicker({
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="flex items-center gap-2 text-[0.75rem]"
+          className="flex items-center gap-2 text-mini"
         >
-          <span className="text-base">{desc.emoji}</span>
+          <span className="text-body">{desc.emoji}</span>
           <span className="font-semibold" style={{ color: desc.color }}>
             RPE {display} — {desc[lang]}
           </span>

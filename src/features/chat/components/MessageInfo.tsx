@@ -54,7 +54,7 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) =
  <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={'إغلاق'}>
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
-              <h2 id="message-info-title" className="text-[1rem] font-semibold">{'معلومات الرسالة'}</h2>
+              <h2 id="message-info-title" className="text-body font-semibold">{'معلومات الرسالة'}</h2>
               <div className="flex-1" />
               <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40">
                 <X className="w-4 h-4 text-muted-foreground" />
@@ -64,7 +64,7 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) =
             <div className="p-4 overflow-y-auto space-y-3">
               {/* Quick preview of the message body */}
               <div className="rounded-2xl bg-muted/20 border border-border/15 px-3 py-2.5">
-                <p className="text-[0.8125rem] text-foreground/80 line-clamp-3" dir="auto">
+                <p className="text-mini text-foreground/80 line-clamp-3" dir="auto">
                   {message.deleted
                     ? ('🚫 رسالة محذوفة')
                     : message.message_type === 'image'
@@ -128,8 +128,8 @@ function Row({ icon, label, value, iconClass }: RowProps) {
     <div className="flex items-center gap-3 px-3.5 py-3">
       <span className={cn('shrink-0', iconClass)}>{icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-[0.6875rem] text-muted-foreground">{label}</p>
-        <p className="text-[0.8125rem] text-foreground font-medium truncate">{value}</p>
+        <p className="text-micro text-muted-foreground">{label}</p>
+        <p className="text-mini text-foreground font-medium truncate">{value}</p>
       </div>
     </div>
   );

@@ -225,7 +225,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
           <X className="h-8 w-8" />
         </div>
         <p className="font-tajawal text-foreground">تعذر بناء الجلسة.</p>
-        <button onClick={onClose} className="px-6 py-2.5 rounded-xl bg-secondary text-foreground text-sm font-bold font-tajawal hover:bg-secondary/80">
+        <button onClick={onClose} className="px-6 py-2.5 rounded-xl bg-secondary text-foreground text-meta font-bold font-tajawal hover:bg-secondary/80">
           العودة
         </button>
       </div>
@@ -244,24 +244,24 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
             <Award className="h-12 w-12" />
           </div>
           <div className="space-y-2">
-            <h2 className="font-amiri text-3xl font-bold text-foreground">جلسة ممتازة!</h2>
+            <h2 className="font-amiri text-hero font-bold text-foreground">جلسة ممتازة!</h2>
             <p className="font-tajawal text-muted-foreground">أتممت التدريبات وراجعت الكلمات بنجاح.</p>
           </div>
 
           <div className="w-full grid grid-cols-2 gap-4">
             <div className="p-4 rounded-2xl bg-card border border-border/40 space-y-1">
               <span className="block font-tajawal text-micro text-muted-foreground uppercase tracking-wider">الإجابات الصحيحة</span>
-              <span className="block font-plex-mono text-2xl font-bold text-foreground">{score}</span>
+              <span className="block font-plex-mono text-display font-bold text-foreground">{score}</span>
             </div>
             <div className="p-4 rounded-2xl bg-card border border-border/40 space-y-1">
               <span className="block font-tajawal text-micro text-muted-foreground uppercase tracking-wider">المفردات المراجعة</span>
-              <span className="block font-plex-mono text-2xl font-bold text-[hsl(var(--live))]">{items.length}</span>
+              <span className="block font-plex-mono text-display font-bold text-[hsl(var(--live))]">{items.length}</span>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="mt-4 w-full py-4 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 text-white rounded-xl font-tajawal text-sm font-bold shadow-md transition-transform active:scale-95"
+            className="mt-4 w-full py-4 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 text-white rounded-xl font-tajawal text-meta font-bold shadow-md transition-transform active:scale-95"
           >
             العودة للرئيسية
           </button>
@@ -288,7 +288,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
             />
           </div>
 
-          <div className="flex items-center gap-1.5 font-plex-mono text-xs font-bold text-muted-foreground min-w-[3rem] justify-end">
+          <div className="flex items-center gap-1.5 font-plex-mono text-mini font-bold text-muted-foreground min-w-[3rem] justify-end">
             <span className="text-foreground">{currentIndex + 1}</span>
             <span className="opacity-50">/</span>
             <span className="opacity-50">{items.length}</span>
@@ -307,7 +307,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
           )}
 
           {currentItem?.type === 'mcq' && (
-            <h2 className="font-tajawal text-xl md:text-2xl font-bold text-foreground leading-relaxed px-4">
+            <h2 className="font-tajawal text-title md:text-display font-bold text-foreground leading-relaxed px-4">
               {(currentItem.payload as McqPayload).prompt_de}
             </h2>
           )}
@@ -318,7 +318,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-[hsl(var(--live))]" />
                 <span className="font-tajawal text-micro text-muted-foreground uppercase tracking-widest">ترجمة حرة</span>
               </div>
-              <h2 className="font-tajawal text-xl font-bold text-foreground">
+              <h2 className="font-tajawal text-title font-bold text-foreground">
                 {(currentItem.payload as TypeAnswerPayload).prompt}
               </h2>
             </div>
@@ -332,27 +332,27 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
               >
                 <Volume2 className="h-7 w-7" />
               </button>
-              <p className="font-tajawal text-xs text-muted-foreground tracking-wide">اضغط للاستماع للنطق</p>
+              <p className="font-tajawal text-mini text-muted-foreground tracking-wide">اضغط للاستماع للنطق</p>
             </div>
           )}
 
           {currentItem?.type === 'matching_pairs' && (
-            <h3 className="font-tajawal text-lg font-bold text-foreground">
+            <h3 className="font-tajawal text-lead font-bold text-foreground">
               اربط الكلمات الألمانية بمعانيها
             </h3>
           )}
 
           {currentItem?.type === 'sentence_build' && (
             <div className="space-y-2">
-              <h3 className="font-tajawal text-lg font-bold text-foreground">رتب الكلمات لتكوين جملة صحيحة</h3>
-              <p className="font-tajawal text-xs text-muted-foreground">اضغط على الكلمات بالترتيب المناسب</p>
+              <h3 className="font-tajawal text-lead font-bold text-foreground">رتب الكلمات لتكوين جملة صحيحة</h3>
+              <p className="font-tajawal text-mini text-muted-foreground">اضغط على الكلمات بالترتيب المناسب</p>
             </div>
           )}
 
           {currentItem?.type === 'fill_blank_grammar' && (
             <div className="space-y-4">
-              <h3 className="font-tajawal text-lg font-bold text-foreground">املاً الفراغ بالقاعدة الصحيحة</h3>
-              <div className="p-6 rounded-2xl bg-secondary/20 border border-border/40 font-plex-mono text-xl text-center tracking-wide" dir="ltr">
+              <h3 className="font-tajawal text-lead font-bold text-foreground">املاً الفراغ بالقاعدة الصحيحة</h3>
+              <div className="p-6 rounded-2xl bg-secondary/20 border border-border/40 font-plex-mono text-title text-center tracking-wide" dir="ltr">
                 {(currentItem.payload as FillBlankGrammarPayload).sentence_template}
               </div>
             </div>
@@ -360,8 +360,8 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
 
           {currentItem?.type === 'error_correction' && (
             <div className="space-y-4">
-              <h3 className="font-tajawal text-lg font-bold text-foreground">صحح الخطأ النحوي أو الإملائي في الجملة</h3>
-              <div className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/20 text-rose-600 font-plex-mono text-base text-center" dir="ltr">
+              <h3 className="font-tajawal text-lead font-bold text-foreground">صحح الخطأ النحوي أو الإملائي في الجملة</h3>
+              <div className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/20 text-rose-600 font-plex-mono text-body text-center" dir="ltr">
                 {(currentItem.payload as ErrorCorrectionPayload).incorrect_sentence}
               </div>
             </div>
@@ -369,8 +369,8 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
 
           {currentItem?.type === 'compound_word_decomposition' && (
             <div className="space-y-4">
-              <h3 className="font-tajawal text-lg font-bold text-foreground">تفكيك وتحليل الكلمات المركبة (Komposita)</h3>
-              <div className="p-6 rounded-2xl bg-[hsl(var(--live))]/5 border border-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-plex-mono text-3xl font-bold tracking-widest text-center" dir="ltr">
+              <h3 className="font-tajawal text-lead font-bold text-foreground">تفكيك وتحليل الكلمات المركبة (Komposita)</h3>
+              <div className="p-6 rounded-2xl bg-[hsl(var(--live))]/5 border border-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-plex-mono text-hero font-bold tracking-widest text-center" dir="ltr">
                 {(currentItem.payload as CompoundWordDecompositionPayload).compound_word}
               </div>
             </div>
@@ -417,10 +417,10 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                     key={option.id}
                     disabled={isAnswerChecked}
                     onClick={() => setSelectedOptionId(option.id)}
-                    className={`w-full p-4.5 text-end rounded-2xl border text-sm font-tajawal transition-all flex items-center justify-between shadow-sm ${btnClass}`}
+                    className={`w-full p-4.5 text-end rounded-2xl border text-meta font-tajawal transition-all flex items-center justify-between shadow-sm ${btnClass}`}
                     dir="ltr"
                   >
-                    <span className="text-base">{option.text}</span>
+                    <span className="text-body">{option.text}</span>
                     {isSelected && !isAnswerChecked && <div className="h-2.5 w-2.5 rounded-full bg-[hsl(var(--live))]" />}
                     {isAnswerChecked && btnClass.includes('emerald') && <Check className="h-5 w-5 text-emerald-500" />}
                     {isAnswerChecked && btnClass.includes('rose') && <X className="h-5 w-5 text-rose-500" />}
@@ -439,7 +439,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                 value={typedAnswer}
                 onChange={(e) => setTypedAnswer(e.target.value)}
                 placeholder="اكتب الإجابة الصحيحة بالكامل هنا..."
-                className={`w-full p-4.5 rounded-2xl border bg-card focus:outline-none focus:ring-2 focus:ring-[hsl(var(--live))]/50 font-plex-mono text-base tracking-wide text-center transition-all ${
+                className={`w-full p-4.5 rounded-2xl border bg-card focus:outline-none focus:ring-2 focus:ring-[hsl(var(--live))]/50 font-plex-mono text-body tracking-wide text-center transition-all ${
                   isAnswerChecked
                     ? isCorrect
                       ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
@@ -462,7 +462,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
               {/* Construction Board */}
               <div className="min-h-[80px] p-4 rounded-2xl border-2 border-dashed border-border/60 bg-secondary/10 flex flex-wrap gap-2 items-center justify-center">
                 {builtTokens.length === 0 ? (
-                  <span className="font-tajawal text-xs text-muted-foreground">اضغط على الكلمات بالأسفل للترتيب...</span>
+                  <span className="font-tajawal text-mini text-muted-foreground">اضغط على الكلمات بالأسفل للترتيب...</span>
                 ) : (
                   builtTokens.map((token, index) => (
                     <button
@@ -471,7 +471,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                       onClick={() => {
                         setBuiltTokens((prev) => prev.filter((_, i) => i !== index));
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-plex-mono text-sm transition-transform active:scale-95"
+                      className="px-3 py-1.5 rounded-lg bg-[hsl(var(--live))]/10 border border-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-plex-mono text-meta transition-transform active:scale-95"
                     >
                       {token}
                     </button>
@@ -491,7 +491,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                       key={token + Math.random()}
                       disabled={isUsed || isAnswerChecked}
                       onClick={() => setBuiltTokens((prev) => [...prev, token])}
-                      className={`px-4 py-2 rounded-xl border font-plex-mono text-sm transition-all ${
+                      className={`px-4 py-2 rounded-xl border font-plex-mono text-meta transition-all ${
                         isUsed
                           ? 'bg-secondary/20 border-border/10 text-muted-foreground/35 cursor-not-allowed'
                           : 'bg-card border-border/40 hover:bg-secondary/40 text-foreground active:scale-95 shadow-sm'
@@ -511,14 +511,14 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 {(currentItem.payload as CompoundWordDecompositionPayload).parts.map((part, index) => (
                   <div key={index} className="p-4 rounded-xl border border-border/40 bg-card space-y-1 text-center">
-                    <span className="block font-plex-mono text-lg font-bold text-foreground" dir="ltr">{part.part}</span>
-                    <span className="block font-tajawal text-xs text-muted-foreground">{part.meaning_ar}</span>
+                    <span className="block font-plex-mono text-lead font-bold text-foreground" dir="ltr">{part.part}</span>
+                    <span className="block font-tajawal text-mini text-muted-foreground">{part.meaning_ar}</span>
                   </div>
                 ))}
               </div>
               <div className="p-4 rounded-xl border border-[hsl(var(--live))]/20 bg-[hsl(var(--live))]/[0.02] text-center mt-2">
-                <span className="block font-tajawal text-xs text-muted-foreground">المعنى العام المدمج</span>
-                <span className="block font-tajawal text-base font-bold text-[hsl(var(--live))]">
+                <span className="block font-tajawal text-mini text-muted-foreground">المعنى العام المدمج</span>
+                <span className="block font-tajawal text-body font-bold text-[hsl(var(--live))]">
                   {(currentItem.payload as CompoundWordDecompositionPayload).combined_meaning_ar}
                 </span>
               </div>
@@ -538,7 +538,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                       key={pair.left}
                       disabled={isMatched || isAnswerChecked}
                       onClick={() => handlePairClick('left', pair.left)}
-                      className={`w-full p-3.5 text-center rounded-xl border text-sm font-plex-mono transition-all ${
+                      className={`w-full p-3.5 text-center rounded-xl border text-meta font-plex-mono transition-all ${
                         isMatched
                           ? 'bg-secondary/20 border-border/20 text-muted-foreground/50 line-through'
                           : isSelected
@@ -564,7 +564,7 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
                       key={pair.right}
                       disabled={isMatched || isAnswerChecked}
                       onClick={() => handlePairClick('right', pair.right)}
-                      className={`w-full p-3.5 text-center rounded-xl border text-sm font-tajawal transition-all ${
+                      className={`w-full p-3.5 text-center rounded-xl border text-meta font-tajawal transition-all ${
                         isMatched
                           ? 'bg-secondary/20 border-border/20 text-muted-foreground/50 line-through'
                           : isSelected
@@ -594,34 +594,34 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
               {isCorrect ? <Check className="h-4.5 w-4.5" /> : <X className="h-4.5 w-4.5" />}
             </div>
             <div className="space-y-1.5 text-end flex-1 pt-1">
-              <h4 className={`font-tajawal text-sm font-bold ${isCorrect ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+              <h4 className={`font-tajawal text-meta font-bold ${isCorrect ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                 {isCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة'}
               </h4>
 
               {!isCorrect && currentItem?.type === 'type_answer' && (
-                <p className="font-plex-mono text-xs text-muted-foreground mt-1" dir="ltr">
+                <p className="font-plex-mono text-mini text-muted-foreground mt-1" dir="ltr">
                   الإجابة المعتمدة: {(currentItem.payload as TypeAnswerPayload).accepted_answers[0]}
                 </p>
               )}
 
               {!isCorrect && currentItem?.type === 'sentence_build' && (
-                <p className="font-plex-mono text-xs text-muted-foreground mt-1" dir="ltr">
+                <p className="font-plex-mono text-mini text-muted-foreground mt-1" dir="ltr">
                   الترتيب الصحيح: {(currentItem.payload as SentenceBuildPayload).correct_sentence}
                 </p>
               )}
 
               {!isCorrect && currentItem?.type === 'fill_blank_grammar' && (
-                <p className="font-plex-mono text-xs text-muted-foreground mt-1" dir="ltr">
+                <p className="font-plex-mono text-mini text-muted-foreground mt-1" dir="ltr">
                   الإجابة الصحيحة: {(currentItem.payload as FillBlankGrammarPayload).correct_answer}
                 </p>
               )}
 
               {!isCorrect && currentItem?.type === 'error_correction' && (
                 <div className="space-y-1">
-                  <p className="font-plex-mono text-xs text-emerald-600 mt-1" dir="ltr">
+                  <p className="font-plex-mono text-mini text-emerald-600 mt-1" dir="ltr">
                     الصواب: {(currentItem.payload as ErrorCorrectionPayload).correct_sentence}
                   </p>
-                  <p className="font-tajawal text-xs text-muted-foreground">
+                  <p className="font-tajawal text-mini text-muted-foreground">
                     الشرح: {(currentItem.payload as ErrorCorrectionPayload).explanation_ar}
                   </p>
                 </div>
@@ -629,8 +629,8 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
 
               {currentItem?.vocab_item && (
                 <div className="mt-2 pt-2 border-t border-border/30">
-                  <p className="font-plex-mono text-xs font-bold text-foreground" dir="ltr">{currentItem.vocab_item.lemma_de}</p>
-                  <p className="font-tajawal text-xs text-muted-foreground">{currentItem.vocab_item.translation_ar}</p>
+                  <p className="font-plex-mono text-mini font-bold text-foreground" dir="ltr">{currentItem.vocab_item.lemma_de}</p>
+                  <p className="font-tajawal text-mini text-muted-foreground">{currentItem.vocab_item.translation_ar}</p>
                 </div>
               )}
             </div>
@@ -653,14 +653,14 @@ export const ExerciseSession: React.FC<ExerciseSessionProps> = ({
               (currentItem?.type === 'sentence_build' && builtTokens.length === 0) ||
               ((currentItem?.type === 'type_answer' || currentItem?.type === 'error_correction') && !typedAnswer.trim())
             }
-            className="w-full py-4 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 disabled:opacity-50 disabled:hover:bg-[hsl(var(--live))] text-white rounded-2xl font-tajawal text-sm font-bold shadow-lg shadow-[hsl(var(--live))]/20 transition-all active:scale-95"
+            className="w-full py-4 bg-[hsl(var(--live))] hover:bg-[hsl(var(--live))]/90 disabled:opacity-50 disabled:hover:bg-[hsl(var(--live))] text-white rounded-2xl font-tajawal text-meta font-bold shadow-lg shadow-[hsl(var(--live))]/20 transition-all active:scale-95"
           >
             تحقق
           </button>
         ) : (
           <button
             onClick={handleNext}
-            className={`w-full py-4 text-white rounded-2xl font-tajawal text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+            className={`w-full py-4 text-white rounded-2xl font-tajawal text-meta font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
               isCorrect ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20' : 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/20'
             }`}
           >

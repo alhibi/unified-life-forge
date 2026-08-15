@@ -131,8 +131,8 @@ export default function MealTracker() {
       {/* Daily totals header */}
       <div className=" rounded-2xl p-4 border border-primary/20">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-semibold text-muted-foreground">{T.totalToday[lang]}</h3>
-          <div className="flex items-center gap-1 text-[0.625rem] text-muted-foreground">
+          <h3 className="text-mini font-semibold text-muted-foreground">{T.totalToday[lang]}</h3>
+          <div className="flex items-center gap-1 text-micro text-muted-foreground">
             <Calendar className="w-3 h-3" />
             {T.today[lang]}
           </div>
@@ -159,7 +159,7 @@ export default function MealTracker() {
       {entries.length === 0 ? (
         <div className="text-center py-10">
           <UtensilsCrossed className="w-8 h-8 mx-auto text-muted-foreground/30 mb-2" />
-          <p className="text-sm text-muted-foreground">{T.empty[lang]}</p>
+          <p className="text-meta text-muted-foreground">{T.empty[lang]}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -170,8 +170,8 @@ export default function MealTracker() {
               <div key={type} className="rounded-xl border border-border/30 overflow-hidden">
                 <div className="flex items-center gap-2 px-3 py-2 bg-muted/30">
                   <Icon className="w-3.5 h-3.5" style={{ color }} />
-                  <span className="text-[0.6875rem] font-semibold text-foreground">{label[lang]}</span>
-                  <span className="text-[0.625rem] text-muted-foreground ms-auto">{items.length}</span>
+                  <span className="text-micro font-semibold text-foreground">{label[lang]}</span>
+                  <span className="text-micro text-muted-foreground ms-auto">{items.length}</span>
                 </div>
                 <div className="divide-y divide-border/20">
                   {items.map((entry) => {
@@ -180,12 +180,12 @@ export default function MealTracker() {
                     const n = calculateServing(food, entry.servingIndex, entry.quantity);
                     return (
                       <div key={entry.id} className="flex items-center gap-2 px-3 py-2">
-                        <span className="text-sm">{food.emoji}</span>
+                        <span className="text-meta">{food.emoji}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[0.6875rem] font-medium text-foreground truncate">
+                          <p className="text-micro font-medium text-foreground truncate">
                             {food.name[lang]}
                           </p>
-                          <p className="text-[0.625rem] text-muted-foreground" dir="ltr">
+                          <p className="text-micro text-muted-foreground" dir="ltr">
                             {n.kcal} kcal · {n.protein}g P · {n.carbs}g C · {n.fat}g F
                           </p>
                         </div>
@@ -211,7 +211,7 @@ export default function MealTracker() {
         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary active:scale-98 transition-all"
       >
         <Plus className="w-4 h-4" />
-        <span className="text-sm font-medium">{T.addMeal[lang]}</span>
+        <span className="text-meta font-medium">{T.addMeal[lang]}</span>
       </button>
 
       {/* Add meal form */}
@@ -277,8 +277,8 @@ function AddMealForm({
           {step === 'search' ? (
             <>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold">{T.addMeal[lang]}</h3>
-                <button onClick={onClose} className="text-[0.6875rem] text-primary">
+                <h3 className="text-meta font-bold">{T.addMeal[lang]}</h3>
+                <button onClick={onClose} className="text-micro text-primary">
                   {T.cancel[lang]}
                 </button>
               </div>
@@ -287,7 +287,7 @@ function AddMealForm({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={T.search[lang]}
-                className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-meta mb-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 autoFocus
                 dir={'rtl'}
               />
@@ -298,10 +298,10 @@ function AddMealForm({
                     onClick={() => handleSelectFood(food)}
                     className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 active:scale-98 transition-all text-start"
                   >
-                    <span className="text-lg">{food.emoji}</span>
+                    <span className="text-lead">{food.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[0.75rem] font-medium truncate">{food.name[lang]}</p>
-                      <p className="text-[0.625rem] text-muted-foreground" dir="ltr">
+                      <p className="text-mini font-medium truncate">{food.name[lang]}</p>
+                      <p className="text-micro text-muted-foreground" dir="ltr">
                         {food.nutrition.kcal} kcal · P:{food.nutrition.protein}g
                       </p>
                     </div>
@@ -313,23 +313,23 @@ function AddMealForm({
           ) : selectedFood ? (
             <>
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">{selectedFood.emoji}</span>
+                <span className="text-display">{selectedFood.emoji}</span>
                 <div>
-                  <h3 className="text-sm font-bold">{selectedFood.name[lang]}</h3>
-                  <p className="text-[0.625rem] text-muted-foreground" dir="ltr">
+                  <h3 className="text-meta font-bold">{selectedFood.name[lang]}</h3>
+                  <p className="text-micro text-muted-foreground" dir="ltr">
                     {selectedFood.nutrition.kcal} kcal/100g
                   </p>
                 </div>
               </div>
 
               {/* Meal type */}
-              <p className="text-[0.6875rem] font-semibold mb-2">{T.selectMeal[lang]}</p>
+              <p className="text-micro font-semibold mb-2">{T.selectMeal[lang]}</p>
               <div className="grid grid-cols-3 gap-1.5 mb-4">
                 {MEAL_TYPES.map(({ type, icon: Icon, label }) => (
                   <button
                     key={type}
                     onClick={() => setMealType(type)}
-                    className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[0.625rem] font-medium transition-all ${
+                    className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-micro font-medium transition-all ${
                       mealType === type
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted/50 text-foreground/70'
@@ -342,13 +342,13 @@ function AddMealForm({
               </div>
 
               {/* Serving size */}
-              <p className="text-[0.6875rem] font-semibold mb-2">{T.serving[lang]}</p>
+              <p className="text-micro font-semibold mb-2">{T.serving[lang]}</p>
               <div className="space-y-1 mb-4">
                 {selectedFood.servings.map((s, i) => (
                   <button
                     key={i}
                     onClick={() => setServingIdx(i)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-[0.6875rem] transition-all ${
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-micro transition-all ${
                       servingIdx === i ? 'bg-primary/10 border border-primary/30' : 'bg-muted/30'
                     }`}
                   >
@@ -360,18 +360,18 @@ function AddMealForm({
 
               {/* Quantity */}
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-[0.6875rem] font-semibold">{T.qty[lang]}</span>
+                <span className="text-micro font-semibold">{T.qty[lang]}</span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setQty(Math.max(0.5, qty - 0.5))}
-                    className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-lg"
+                    className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-lead"
                   >
                     -
                   </button>
-                  <span className="text-sm font-bold w-8 text-center">{qty}</span>
+                  <span className="text-meta font-bold w-8 text-center">{qty}</span>
                   <button
                     onClick={() => setQty(qty + 0.5)}
-                    className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-lg"
+                    className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-lead"
                   >
                     +
                   </button>
@@ -382,13 +382,13 @@ function AddMealForm({
               <div className="flex gap-2">
                 <button
                   onClick={() => setStep('search')}
-                  className="flex-1 py-2.5 rounded-xl bg-muted text-sm font-medium"
+                  className="flex-1 py-2.5 rounded-xl bg-muted text-meta font-medium"
                 >
                   {T.cancel[lang]}
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium active:scale-95 transition-transform"
+                  className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-medium active:scale-95 transition-transform"
                 >
                   {T.add[lang]}
                 </button>
@@ -424,11 +424,11 @@ function TotalStat({
       >
         {Icon && <Icon className="w-3.5 h-3.5" style={{ color }} />}
       </div>
-      <p className="text-sm font-bold text-foreground">
+      <p className="text-meta font-bold text-foreground">
         {value}
         {suffix}
       </p>
-      <p className="text-[0.625rem] text-muted-foreground">{label}</p>
+      <p className="text-micro text-muted-foreground">{label}</p>
     </div>
   );
 }

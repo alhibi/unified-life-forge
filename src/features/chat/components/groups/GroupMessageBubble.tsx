@@ -78,7 +78,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
   if (message.deleted) {
     return (
       <div className={cn('flex w-full', isMine ? 'justify-end' : 'justify-start')}>
-        <div className="rounded-2xl bg-muted/30 text-muted-foreground italic text-[0.8125rem] px-3 py-1.5 max-w-[78%]">
+        <div className="rounded-2xl bg-muted/30 text-muted-foreground italic text-mini px-3 py-1.5 max-w-[78%]">
           {'🚫 رسالة محذوفة'}
         </div>
       </div>
@@ -101,12 +101,12 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
                   : <img src={getDefaultAvatarForUser(sender.username ?? sender.userId)} alt="" className="w-full h-full object-cover" />}
               <AvatarFallback className="bg-muted" />
             </Avatar>
-            <span className="text-[0.6875rem] font-semibold text-primary truncate max-w-[150px]">
+            <span className="text-micro font-semibold text-primary truncate max-w-[150px]">
               {sender.displayName || sender.username || sender.userId.slice(0, 6)}
             </span>
             {sender.role !== 'member' && (
               <span className={cn(
-                'text-[0.625rem] px-1 py-px rounded-full font-medium',
+                'text-micro px-1 py-px rounded-full font-medium',
                 sender.role === 'owner'
                   ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                   : 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
@@ -144,7 +144,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
               )}
             >
               <p className={cn(
-                'text-[0.625rem] font-semibold truncate',
+                'text-micro font-semibold truncate',
                 isMine ? 'text-primary-foreground/85' : 'text-primary',
               )}>
                 {replyTarget?.senderId === myUserId
@@ -152,7 +152,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
                   : ('↵ رد')}
               </p>
               <p className={cn(
-                'text-[0.75rem] truncate',
+                'text-mini truncate',
                 isMine ? 'text-primary-foreground/75' : 'text-muted-foreground',
               )} dir="auto">
                 {replyTarget
@@ -165,7 +165,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
           )}
 
           <p
-            className="text-[0.875rem] leading-relaxed whitespace-pre-wrap break-words"
+            className="text-meta leading-relaxed whitespace-pre-wrap break-words"
             dir="auto"
           >
             {renderRichText(message.content)}
@@ -173,7 +173,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
 
           <div className={cn(
             'flex items-center gap-1 justify-end mt-0.5',
-            'text-[0.625rem]',
+            'text-micro',
             isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/70',
           )}>
             {message.editedAt && (
@@ -211,7 +211,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
 
         {/* Failed-send hint (sender side) */}
         {failed && isMine && (
-          <p className="text-[0.625rem] text-destructive text-end pe-1 mt-0.5">
+          <p className="text-micro text-destructive text-end pe-1 mt-0.5">
             {'تعذّر الإرسال — اضغط للمحاولة'}
           </p>
         )}

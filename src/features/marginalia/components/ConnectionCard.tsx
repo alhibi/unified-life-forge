@@ -27,7 +27,7 @@ const ConnectionCard: React.FC<Props> = ({
   return (
     <motion.div layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }}>
       <AppCard className="space-y-3">
-        <div className="flex items-center gap-2 text-[0.6875rem] font-bold">
+        <div className="flex items-center gap-2 text-micro font-bold">
           <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary">
             {LENS_LABEL[connection.lens] ?? connection.lens}
           </span>
@@ -39,12 +39,12 @@ const ConnectionCard: React.FC<Props> = ({
           </span>
         </div>
 
-        <p className="text-sm leading-relaxed text-foreground whitespace-pre-line">
+        <p className="text-meta leading-relaxed text-foreground whitespace-pre-line">
           {connection.connection_text}
         </p>
 
         {connection.why_it_matters && (
-          <p className="text-[0.8125rem] leading-relaxed text-muted-foreground border-s-2 border-primary/30 ps-3">
+          <p className="text-mini leading-relaxed text-muted-foreground border-s-2 border-primary/30 ps-3">
             {connection.why_it_matters}
           </p>
         )}
@@ -56,7 +56,7 @@ const ConnectionCard: React.FC<Props> = ({
               href={a.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-start gap-2 text-mini text-muted-foreground hover:text-foreground transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5 mt-0.5 shrink-0" />
               <span className="line-clamp-2">{a.title || a.url}</span>
@@ -70,7 +70,7 @@ const ConnectionCard: React.FC<Props> = ({
             onChange={(e) => onNoteChange(e.target.value)}
             placeholder="ملاحظتك على هذا الرابط…"
             rows={2}
-            className="w-full text-base rounded-xl bg-muted/40 border border-border/40 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full text-body rounded-xl bg-muted/40 border border-border/40 p-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-ring"
           />
         )}
 
@@ -79,7 +79,7 @@ const ConnectionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => onDiscuss(connection)}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-primary/10 text-primary active:scale-95 transition"
+              className="flex items-center gap-1.5 text-mini font-bold px-3 py-1.5 rounded-lg bg-primary/10 text-primary active:scale-95 transition"
             >
               <MessageSquareText className="w-3.5 h-3.5" />
               ناقشه
@@ -89,7 +89,7 @@ const ConnectionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => onPin(connection)}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-foreground active:scale-95 transition"
+              className="flex items-center gap-1.5 text-mini font-bold px-3 py-1.5 rounded-lg bg-muted text-foreground active:scale-95 transition"
             >
               <Pin className="w-3.5 h-3.5" />
               ثبّت
@@ -100,7 +100,7 @@ const ConnectionCard: React.FC<Props> = ({
               type="button"
               onClick={() => onDismiss(connection)}
               aria-label="إخفاء الرابط"
-              className="ms-auto flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1.5 rounded-lg hover:text-foreground active:scale-95 transition"
+              className="ms-auto flex items-center gap-1.5 text-mini text-muted-foreground px-2 py-1.5 rounded-lg hover:text-foreground active:scale-95 transition"
             >
               <X className="w-3.5 h-3.5" />
             </button>

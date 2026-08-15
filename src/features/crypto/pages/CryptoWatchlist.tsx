@@ -220,8 +220,8 @@ export default function CryptoWatchlist() {
         <div className="flex items-center gap-3 min-w-0">
           <BackButton />
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-foreground tracking-tight">قائمة العملات</h1>
-            <p className="flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground font-medium mt-0.5">
+            <h1 className="text-title font-bold text-foreground tracking-tight">قائمة العملات</h1>
+            <p className="flex items-center gap-1.5 text-micro text-muted-foreground font-medium mt-0.5">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inset-0 rounded-full bg-emerald-500/60 animate-ping" />
                 <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -248,7 +248,7 @@ export default function CryptoWatchlist() {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-all text-xs"
+            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-all text-mini"
           >
             <Plus className="h-4 w-4" />
             إضافة عملة
@@ -279,12 +279,12 @@ export default function CryptoWatchlist() {
           </div>
         ) : error && watchlist.length === 0 ? (
           <div className="p-6 rounded-xl border border-destructive/20 bg-destructive/5 text-center">
-            <p className="text-sm font-semibold text-destructive mb-2">تعذر جلب البيانات</p>
-            <p className="text-xs text-muted-foreground mb-4">{error}</p>
+            <p className="text-meta font-semibold text-destructive mb-2">تعذر جلب البيانات</p>
+            <p className="text-mini text-muted-foreground mb-4">{error}</p>
             <button
               type="button"
               onClick={() => loadData(true)}
-              className="px-4 py-2 text-xs font-bold rounded-md bg-primary text-primary-foreground"
+              className="px-4 py-2 text-mini font-bold rounded-md bg-primary text-primary-foreground"
             >
               إعادة المحاولة
             </button>
@@ -295,14 +295,14 @@ export default function CryptoWatchlist() {
             <div className="relative w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Activity className="h-6 w-6 text-primary" />
             </div>
-            <p className="text-sm font-bold text-foreground mb-1">قائمة المراقبة فارغة</p>
-            <p className="text-xs text-muted-foreground max-w-[280px] leading-relaxed mb-6">
+            <p className="text-meta font-bold text-foreground mb-1">قائمة المراقبة فارغة</p>
+            <p className="text-mini text-muted-foreground max-w-[280px] leading-relaxed mb-6">
               لم تقم بإضافة أي عملة مشفرة حتى الآن. ابدأ بالبحث وإضافة أزواج التداول الحية لمتابعتها في مكان واحد.
             </p>
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-all text-xs"
+              className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-all text-mini"
             >
               <Plus className="h-4 w-4" />
               ابحث عن عملة الآن
@@ -362,7 +362,7 @@ export default function CryptoWatchlist() {
                               }}
                             />
                           ) : (
-                            <span className="text-[0.625rem] font-bold text-muted-foreground uppercase">
+                            <span className="text-micro font-bold text-muted-foreground uppercase">
                               {item.token_symbol.slice(0, 3)}
                             </span>
                           )}
@@ -371,14 +371,14 @@ export default function CryptoWatchlist() {
                         {/* Symbolic identifiers */}
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[0.9375rem] font-bold text-foreground tracking-tight truncate">
+                            <span className="text-meta font-bold text-foreground tracking-tight truncate">
                               {item.token_symbol}
                             </span>
-                            <span className="text-[0.5625rem] uppercase tracking-[0.08em] font-bold text-muted-foreground/80 border border-border/25 px-1.5 py-[1px] rounded-full">
+                            <span className="text-micro uppercase tracking-[0.08em] font-bold text-muted-foreground/80 border border-border/25 px-1.5 py-[1px] rounded-full">
                               {CHAIN_LABELS[item.chain_id as ChainId] || item.chain_id}
                             </span>
                           </div>
-                          <p className="text-[0.6875rem] text-muted-foreground truncate max-w-[130px] md:max-w-[200px] mt-0.5">
+                          <p className="text-micro text-muted-foreground truncate max-w-[130px] md:max-w-[200px] mt-0.5">
                             {item.label || (pair ? pair.name : 'جاري التحميل...')}
                           </p>
                         </div>
@@ -389,17 +389,17 @@ export default function CryptoWatchlist() {
                         {pair ? (
                           <div className="text-end">
                             {/* Monospaced, tabular numerals for prices */}
-                            <p className="text-[0.9375rem] font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
                               {formatPrice(pair.priceUsd)}
                             </p>
 
                             <div className="flex items-center justify-end gap-1.5 mt-1">
-                              <span className="text-[0.625rem] text-muted-foreground/80 font-plex-mono tabular-nums">
+                              <span className="text-micro text-muted-foreground/80 font-plex-mono tabular-nums">
                                 {formatCompact(pair.volume24h)}
                               </span>
                               {/* Non-color-only indications: Icon represents trend direction */}
                               <span
-                                className={`text-[0.625rem] font-bold font-plex-mono tabular-nums flex items-center gap-0.5 rounded-full px-1.5 py-[2px] ${
+                                className={`text-micro font-bold font-plex-mono tabular-nums flex items-center gap-0.5 rounded-full px-1.5 py-[2px] ${
                                   isUp
                                     ? 'text-emerald-500 bg-emerald-500/10'
                                     : 'text-rose-500 bg-rose-500/10'

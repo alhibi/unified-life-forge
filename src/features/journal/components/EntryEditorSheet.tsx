@@ -61,8 +61,8 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
 
         <div className="mx-auto w-full max-w-lg px-5 pb-8 pt-5 space-y-5 overflow-y-auto">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg text-foreground">{entry ? 'تعديل مدخلة' : 'مدخلة جديدة'}</h2>
-            <span className="text-[0.6875rem] text-muted-foreground tracking-wider">{words} كلمة</span>
+            <h2 className="text-lead text-foreground">{entry ? 'تعديل مدخلة' : 'مدخلة جديدة'}</h2>
+            <span className="text-micro text-muted-foreground tracking-wider">{words} كلمة</span>
           </div>
 
           <input
@@ -71,7 +71,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             onChange={(e) => setTitle(e.target.value)}
             placeholder="عنوان (اختياري)"
             maxLength={120}
-            className="w-full bg-transparent border-0 border-b border-border/60 pb-2 text-[1.0625rem] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/60 transition-colors"
+            className="w-full bg-transparent border-0 border-b border-border/60 pb-2 text-body text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/60 transition-colors"
           />
 
           <textarea
@@ -79,11 +79,11 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب ما يدور في ذهنك…"
             rows={9}
-            className="w-full bg-card/40 border border-border rounded-2xl px-4 py-3 text-[1rem] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 resize-none transition-colors"
+            className="w-full bg-card/40 border border-border rounded-2xl px-4 py-3 text-body leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 resize-none transition-colors"
           />
 
           <div>
-            <div className="text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground mb-2">
+            <div className="text-micro uppercase tracking-[0.18em] text-muted-foreground mb-2">
               الطابع
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -104,8 +104,8 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
                       className="mx-auto mb-2 h-2 w-2 rounded-full"
                       style={{ background: m.accent, opacity: active ? 1 : 0.5 }}
                     />
-                    <div className="text-sm text-foreground">{m.label}</div>
-                    <div className="text-[0.625rem] text-muted-foreground mt-1">{m.hint}</div>
+                    <div className="text-meta text-foreground">{m.label}</div>
+                    <div className="text-micro text-muted-foreground mt-1">{m.hint}</div>
                   </button>
                 );
               })}
@@ -113,7 +113,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
           </div>
 
           <div>
-            <div className="text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground mb-2">
+            <div className="text-micro uppercase tracking-[0.18em] text-muted-foreground mb-2">
               وسوم
             </div>
             <input
@@ -121,7 +121,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="مثلاً: تأمل، عمل، عائلة"
-              className="w-full bg-card/40 border border-border rounded-xl px-4 py-2.5 text-[0.9375rem] text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full bg-card/40 border border-border rounded-xl px-4 py-2.5 text-meta text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 

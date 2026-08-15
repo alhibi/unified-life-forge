@@ -18,7 +18,7 @@ export default function SimilarPoems({ slug }: Props) {
 
   return (
     <section className="mt-6">
-      <h2 className="flex items-center gap-1.5 text-[0.75rem] font-bold text-muted-foreground mb-2 px-1">
+      <h2 className="flex items-center gap-1.5 text-mini font-bold text-muted-foreground mb-2 px-1">
         <Sparkles className="w-3.5 h-3.5 text-primary" />
         قصائد مشابهة
       </h2>
@@ -34,8 +34,8 @@ export default function SimilarPoems({ slug }: Props) {
             <div className="flex items-start gap-2">
               <ScrollText className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <h3 className="text-[0.8125rem] font-semibold text-foreground truncate">{p.title}</h3>
-                <p className="text-[0.625rem] text-muted-foreground mt-0.5">
+                <h3 className="text-mini font-semibold text-foreground truncate">{p.title}</h3>
+                <p className="text-micro text-muted-foreground mt-0.5">
                   <span className="text-primary font-medium">{p.poet_name}</span>
                   {p.meter && <> · {p.meter}</>}
                   {p.kind && <> · {p.kind}</>}

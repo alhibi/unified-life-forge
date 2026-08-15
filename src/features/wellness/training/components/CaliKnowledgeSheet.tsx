@@ -60,10 +60,10 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
             <div className="px-4 pb-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {skill && <span className="text-2xl">{skill.emoji}</span>}
+                  {skill && <span className="text-display">{skill.emoji}</span>}
                   <div>
-                    <h2 className="text-base font-bold text-foreground">{skill?.name[lang]}</h2>
-                    {skill && <p className="text-[0.625rem] text-muted-foreground">{skill.tagline[lang]}</p>}
+                    <h2 className="text-body font-bold text-foreground">{skill?.name[lang]}</h2>
+                    {skill && <p className="text-micro text-muted-foreground">{skill.tagline[lang]}</p>}
                   </div>
                 </div>
                 <button onClick={onClose} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center" aria-label="close">
@@ -72,7 +72,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
               </div>
 
               {!card ? (
-                <p className="text-[0.75rem] text-muted-foreground text-center py-8">
+                <p className="text-mini text-muted-foreground text-center py-8">
                   {'لا توجد معلومات بعد.'}
                 </p>
               ) : (
@@ -81,7 +81,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                   <Section
                     icon={<Lightbulb className="w-3.5 h-3.5 text-amber-500" />}
                     title={T.why[lang]}
-                    body={<p className="text-[0.75rem] text-foreground/90 leading-relaxed">{card.whyTrainIt[lang]}</p>}
+                    body={<p className="text-mini text-foreground/90 leading-relaxed">{card.whyTrainIt[lang]}</p>}
                   />
 
                   {/* Frequency */}
@@ -104,7 +104,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     body={
                       <ul className="space-y-1">
                         {card.mobilityPrereqs.map((s, i) => (
-                          <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-[0.75rem] text-foreground/90">
+                          <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90">
                             • {s[lang]}
                           </li>
                         ))}
@@ -119,8 +119,8 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     body={
                       <ol className="space-y-1">
                         {card.warmupSequence.map((s, i) => (
-                          <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-[0.75rem] text-foreground/90 flex items-start gap-2">
-                            <span className="w-5 h-5 rounded-md bg-orange-500/20 text-orange-500 flex items-center justify-center shrink-0 text-[0.625rem] font-bold">
+                          <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90 flex items-start gap-2">
+                            <span className="w-5 h-5 rounded-md bg-orange-500/20 text-orange-500 flex items-center justify-center shrink-0 text-micro font-bold">
                               {i + 1}
                             </span>
                             <span>{s[lang]}</span>
@@ -138,8 +138,8 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                       <ul className="space-y-1.5">
                         {card.topMistakes.map((m, i) => (
                           <li key={i} className="bg-card border border-rose-500/30 rounded-lg p-2 space-y-1">
-                            <p className="text-[0.75rem] font-semibold text-rose-500">⚠ {m.mistake[lang]}</p>
-                            <p className="text-[0.6875rem] text-foreground/85">
+                            <p className="text-mini font-semibold text-rose-500">⚠ {m.mistake[lang]}</p>
+                            <p className="text-micro text-foreground/85">
                               <span className="font-semibold text-emerald-500">✓ {T.fix[lang]}: </span>
                               {m.fix[lang]}
                             </p>
@@ -155,8 +155,8 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     title={T.programming[lang]}
                     body={
                       <div className="space-y-1.5">
-                        <p className="text-[0.75rem] text-foreground/90 leading-relaxed">{card.programmingStyle[lang]}</p>
-                        <p className="text-[0.6875rem] text-muted-foreground italic">{card.recoveryNotes[lang]}</p>
+                        <p className="text-mini text-foreground/90 leading-relaxed">{card.programmingStyle[lang]}</p>
+                        <p className="text-micro text-muted-foreground italic">{card.recoveryNotes[lang]}</p>
                       </div>
                     }
                   />
@@ -168,7 +168,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                       body={
                         <ul className="space-y-1">
                           {card.helpfulEquipment.map((s, i) => (
-                            <li key={i} className="text-[0.6875rem] text-foreground/85">• {s[lang]}</li>
+                            <li key={i} className="text-micro text-foreground/85">• {s[lang]}</li>
                           ))}
                         </ul>
                       }
@@ -182,7 +182,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     body={
                       <ul className="space-y-1">
                         {card.milestones.map((s, i) => (
-                          <li key={i} className="bg-amber-500/8 border border-amber-500/30 rounded-lg p-2 text-[0.75rem] text-foreground/90">
+                          <li key={i} className="bg-amber-500/8 border border-amber-500/30 rounded-lg p-2 text-mini text-foreground/90">
                             🏆 {s[lang]}
                           </li>
                         ))}
@@ -202,7 +202,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 function Section({ icon, title, body }: { icon?: React.ReactNode; title: string; body: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-[0.6875rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+      <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
         {icon} {title}
       </h4>
       {body}
@@ -213,8 +213,8 @@ function Section({ icon, title, body }: { icon?: React.ReactNode; title: string;
 function Mini({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div className={`rounded-lg p-1.5 text-center ${highlight ? 'bg-primary/15 border border-primary/30' : 'bg-muted/30'}`}>
-      <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
-      <p className={`text-[0.875rem] font-bold tabular-nums ${highlight ? 'text-primary' : 'text-foreground'}`}>{value}</p>
+      <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className={`text-meta font-bold tabular-nums ${highlight ? 'text-primary' : 'text-foreground'}`}>{value}</p>
     </div>
   );
 }

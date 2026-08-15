@@ -70,7 +70,7 @@ export default function SearchBar({
         }}
         onFocus={() => setFocused(true)}
         placeholder={placeholder}
-        className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-all font-tajawal text-[0.9375rem]"
+        className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-all font-tajawal text-meta"
         style={{
           border: 'none',
           borderBottom: focused ? '1px solid var(--wax)' : '1px solid var(--hairline-strong)',
@@ -116,7 +116,7 @@ export default function SearchBar({
                         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: 'hsl(var(--primary))' }}
                       >
-                        <span className="font-amiri font-bold text-[0.8125rem] text-[#F5DFC9] leading-none select-none">
+                        <span className="font-amiri font-bold text-mini text-[#F5DFC9] leading-none select-none">
                           {it.label.trim().charAt(0)}
                         </span>
                       </div>
@@ -127,7 +127,7 @@ export default function SearchBar({
                     )}
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-[0.875rem] font-semibold text-[#F2E9D8] truncate"
+                        className="text-meta font-semibold text-[#F2E9D8] truncate"
                         style={{
                           fontFamily:
                             it.kind === 'poet' ? "'Amiri', serif" : "'Tajawal', sans-serif",
@@ -136,10 +136,10 @@ export default function SearchBar({
                         {it.label}
                       </p>
                       {it.sub && (
-                        <p className="text-[0.6875rem] text-[#B8AA8E] truncate mt-0.5">{it.sub}</p>
+                        <p className="text-micro text-[#B8AA8E] truncate mt-0.5">{it.sub}</p>
                       )}
                     </div>
-                    <span className="text-[0.625rem] text-[#7E7259] px-2 py-0.5 rounded-[5px] bg-[rgba(242,233,216,0.05)] border border-[var(--hairline)] shrink-0 font-tajawal">
+                    <span className="text-micro text-[#7E7259] px-2 py-0.5 rounded-[5px] bg-[rgba(242,233,216,0.05)] border border-[var(--hairline)] shrink-0 font-tajawal">
                       {it.kind === 'poet' ? 'شاعر' : 'قصيدة'}
                     </span>
                   </Link>

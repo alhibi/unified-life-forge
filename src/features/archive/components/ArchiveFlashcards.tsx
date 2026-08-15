@@ -107,9 +107,9 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-primary">
           <Sparkles className="w-4 h-4" />
-          <span className="text-[0.8125rem] font-bold">التكرار المتباعد وتثبيت المادة</span>
+          <span className="text-mini font-bold">التكرار المتباعد وتثبيت المادة</span>
         </div>
-        <span className="text-[0.6875rem] text-muted-foreground font-mono">
+        <span className="text-micro text-muted-foreground font-mono">
           {currentIndex + 1} / {cards.length} بطاقة
         </span>
       </div>
@@ -124,8 +124,8 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 border border-primary/20">
             <Trophy className="w-8 h-8 text-primary" />
           </div>
-          <h4 className="text-[1rem] font-bold text-foreground">تمت مراجعة كامل الأرشيف!</h4>
-          <p className="text-xs text-muted-foreground mt-2 max-w-xs mx-auto leading-relaxed">
+          <h4 className="text-body font-bold text-foreground">تمت مراجعة كامل الأرشيف!</h4>
+          <p className="text-mini text-muted-foreground mt-2 max-w-xs mx-auto leading-relaxed">
             لقد تفاعلت مع جميع النقاط الهيكلية في المونوغراف. نسبة التمكين المعرفي المقدرة هي:
           </p>
 
@@ -148,29 +148,29 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 strokeDashoffset={2 * Math.PI * 34 * (1 - stats.scorePct / 100)}
               />
             </svg>
-            <span className="absolute text-sm font-bold text-primary font-mono">
+            <span className="absolute text-meta font-bold text-primary font-mono">
               {stats.scorePct}%
             </span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mb-6">
             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-2">
-              <div className="text-[0.625rem] text-muted-foreground">متمكن</div>
-              <div className="text-sm font-bold text-emerald-500">{stats.easyCount}</div>
+              <div className="text-micro text-muted-foreground">متمكن</div>
+              <div className="text-meta font-bold text-emerald-500">{stats.easyCount}</div>
             </div>
             <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-2">
-              <div className="text-[0.625rem] text-muted-foreground">متوسط</div>
-              <div className="text-sm font-bold text-amber-500">{stats.medCount}</div>
+              <div className="text-micro text-muted-foreground">متوسط</div>
+              <div className="text-meta font-bold text-amber-500">{stats.medCount}</div>
             </div>
             <div className="bg-rose-500/5 border border-rose-500/20 rounded-xl p-2">
-              <div className="text-[0.625rem] text-muted-foreground">صعب</div>
-              <div className="text-sm font-bold text-rose-500">{stats.hardCount}</div>
+              <div className="text-micro text-muted-foreground">صعب</div>
+              <div className="text-meta font-bold text-rose-500">{stats.hardCount}</div>
             </div>
           </div>
 
           <button
             onClick={handleRestart}
-            className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-full text-xs font-semibold mx-auto active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-full text-mini font-semibold mx-auto active:scale-95 transition-transform"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>إعادة المراجعة من جديد</span>
@@ -191,14 +191,14 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 className="absolute inset-0 backface-hidden w-full h-full flex flex-col justify-between border-primary/20 bg-primary/[0.01] p-5 shadow-lg select-none"
               >
                 <div>
-                  <div className="text-[0.625rem] uppercase font-bold text-primary tracking-wider mb-2">
+                  <div className="text-micro uppercase font-bold text-primary tracking-wider mb-2">
                     {activeCard?.sectionTitle}
                   </div>
-                  <p className="text-[0.875rem] md:text-[0.9375rem] font-bold text-foreground leading-relaxed">
+                  <p className="text-meta md:text-meta font-bold text-foreground leading-relaxed">
                     {activeCard?.question}
                   </p>
                 </div>
-                <div className="text-center text-[0.6875rem] text-muted-foreground/60 font-medium">
+                <div className="text-center text-micro text-muted-foreground/60 font-medium">
                   انقر لقلب البطاقة ومعرفة الجواب 💡
                 </div>
               </AppCard>
@@ -210,14 +210,14 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 className="absolute inset-0 backface-hidden w-full h-full flex flex-col justify-between border-primary/25 bg-card p-5 shadow-lg overflow-y-auto"
               >
                 <div>
-                  <div className="text-[0.625rem] uppercase font-bold text-muted-foreground tracking-wider mb-2">
+                  <div className="text-micro uppercase font-bold text-muted-foreground tracking-wider mb-2">
                     الإجابة المعرفية النموذجية
                   </div>
-                  <p className="text-[0.8125rem] text-foreground leading-loose whitespace-pre-wrap">
+                  <p className="text-mini text-foreground leading-loose whitespace-pre-wrap">
                     {activeCard?.answer}
                   </p>
                 </div>
-                <div className="text-center text-[0.625rem] text-primary/70 font-semibold pt-3 border-t border-border/10">
+                <div className="text-center text-micro text-primary/70 font-semibold pt-3 border-t border-border/10">
                   انقر مجدداً للعودة للسؤال 🔄
                 </div>
               </AppCard>
@@ -233,7 +233,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 exit={{ opacity: 0, y: 10 }}
                 className="space-y-2.5 pt-2"
               >
-                <div className="text-center text-[0.6875rem] text-muted-foreground">
+                <div className="text-center text-micro text-muted-foreground">
                   قيم مستوى تمكنك من المعلومة:
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -242,21 +242,21 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                     className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 transition-colors"
                   >
                     <AlertCircle className="w-4 h-4" />
-                    <span className="text-[0.6875rem] font-bold">صعب / لم أذكر</span>
+                    <span className="text-micro font-bold">صعب / لم أذكر</span>
                   </button>
                   <button
                     onClick={() => handleScore('medium')}
                     className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-500 transition-colors"
                   >
                     <Activity className="w-4 h-4" />
-                    <span className="text-[0.6875rem] font-bold">متوسط التذكر</span>
+                    <span className="text-micro font-bold">متوسط التذكر</span>
                   </button>
                   <button
                     onClick={() => handleScore('easy')}
                     className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-500 transition-colors"
                   >
                     <Smile className="w-4 h-4" />
-                    <span className="text-[0.6875rem] font-bold">سهل / تذكرته</span>
+                    <span className="text-micro font-bold">سهل / تذكرته</span>
                   </button>
                 </div>
               </motion.div>
@@ -271,12 +271,12 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 setCurrentIndex((p) => p - 1);
                 setIsFlipped(false);
               }}
-              className="flex items-center gap-1 text-[0.6875rem] text-muted-foreground disabled:opacity-30 active:scale-95 transition-transform"
+              className="flex items-center gap-1 text-micro text-muted-foreground disabled:opacity-30 active:scale-95 transition-transform"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>السابق</span>
             </button>
-            <span className="text-[0.625rem] text-muted-foreground font-mono">
+            <span className="text-micro text-muted-foreground font-mono">
               البطاقة {currentIndex + 1} من {cards.length}
             </span>
             <button
@@ -285,7 +285,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 setCurrentIndex((p) => p + 1);
                 setIsFlipped(false);
               }}
-              className="flex items-center gap-1 text-[0.6875rem] text-muted-foreground disabled:opacity-30 active:scale-95 transition-transform"
+              className="flex items-center gap-1 text-micro text-muted-foreground disabled:opacity-30 active:scale-95 transition-transform"
             >
               <span>التالي</span>
               <ArrowRight className="w-3.5 h-3.5" />

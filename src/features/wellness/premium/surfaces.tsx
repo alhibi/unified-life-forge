@@ -690,10 +690,10 @@ export function MetricBadge({
           {icon}
         </span>
       )}
-      <span className="text-[0.6875rem] font-bold tabular-nums" style={{ color }}>
+      <span className="text-micro font-bold tabular-nums" style={{ color }}>
         {value}
       </span>
-      <span className="text-[0.625rem] font-medium text-muted-foreground/70">{label}</span>
+      <span className="text-micro font-medium text-muted-foreground/70">{label}</span>
     </div>
   );
 }

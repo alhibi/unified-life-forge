@@ -145,9 +145,9 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
               transition={{ delay: i * 0.05 }}
               className="shrink-0 w-[200px] p-2.5 rounded-xl border border-border/40"
             >
-              <div className="text-base mb-1">{p.emoji}</div>
-              <h4 className="text-[0.6875rem] font-semibold mb-1 text-foreground">{p.title[lang]}</h4>
-              <p className="text-[0.625rem] text-muted-foreground leading-relaxed line-clamp-3">
+              <div className="text-body mb-1">{p.emoji}</div>
+              <h4 className="text-micro font-semibold mb-1 text-foreground">{p.title[lang]}</h4>
+              <p className="text-micro text-muted-foreground leading-relaxed line-clamp-3">
                 {p.body[lang]}
               </p>
             </motion.div>
@@ -163,7 +163,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
             <button
               key={cat}
               onClick={() => setFilterCat(cat)}
-              className={`shrink-0 h-6 px-2 rounded-full text-[0.625rem] font-medium transition-all ${
+              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-all ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -179,7 +179,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
       <div className="space-y-2">
         <AnimatePresence>
           {filtered.length === 0 ? (
-            <div className="text-center py-8 text-[0.6875rem] text-muted-foreground">{T.noResults[lang]}</div>
+            <div className="text-center py-8 text-micro text-muted-foreground">{T.noResults[lang]}</div>
           ) : (
             filtered.map((skill) => (
               <SkillCard
@@ -215,18 +215,18 @@ function SkillCard({
         className="w-full p-3 flex items-center gap-3 active:bg-muted/30 transition-colors"
       >
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
           style={{ backgroundColor: `${skill.color}20`, border: `1px solid ${skill.color}40` }}
         >
           {skill.emoji}
         </div>
         <div className="flex-1 min-w-0 text-start">
-          <h3 className="text-[0.75rem] font-semibold text-foreground truncate">
+          <h3 className="text-mini font-semibold text-foreground truncate">
             {skill.name[lang]}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
             <DifficultyDots level={skill.difficulty} color={skill.color} />
-            <span className="text-[0.625rem] text-muted-foreground">
+            <span className="text-micro text-muted-foreground">
               {skill.estimatedMonths} {T.months[lang]}
             </span>
           </div>
@@ -252,7 +252,7 @@ function SkillCard({
           >
             <div className="px-3 pb-3 space-y-3 border-t border-border/30 pt-3">
               {/* Description */}
-              <p className="text-[0.625rem] text-foreground/80 leading-relaxed">
+              <p className="text-micro text-foreground/80 leading-relaxed">
                 {skill.description[lang]}
               </p>
 
@@ -267,7 +267,7 @@ function SkillCard({
                 <Section icon={Target} title={T.prerequisites[lang]} color={skill.color}>
                   <div className="space-y-1">
                     {skill.prerequisites.map((p, i) => (
-                      <div key={i} className="flex items-center gap-1.5 text-[0.625rem]">
+                      <div key={i} className="flex items-center gap-1.5 text-micro">
                         <div className="w-1 h-1 rounded-full bg-muted-foreground/50" />
                         <span className="text-foreground/80">{p.min[lang]}</span>
                       </div>
@@ -286,23 +286,23 @@ function SkillCard({
                     >
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <span
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-[0.625rem] font-bold text-white shrink-0"
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-micro font-bold text-white shrink-0"
                           style={{ backgroundColor: skill.color }}
                         >
                           {i + 1}
                         </span>
-                        <span className="text-[0.6875rem] font-semibold text-foreground">
+                        <span className="text-micro font-semibold text-foreground">
                           {lvl.name[lang]}
                         </span>
                       </div>
-                      <p className="text-[0.625rem] text-muted-foreground leading-relaxed mb-1">
+                      <p className="text-micro text-muted-foreground leading-relaxed mb-1">
                         {lvl.description[lang]}
                       </p>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[0.625rem] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                        <span className="text-micro px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
                           {lvl.prescription[lang]}
                         </span>
-                        <span className="text-[0.625rem] text-muted-foreground/70">
+                        <span className="text-micro text-muted-foreground/70">
                           → {lvl.progressCriteria[lang]}
                         </span>
                       </div>
@@ -315,7 +315,7 @@ function SkillCard({
               <Section icon={Lightbulb} title={T.cues[lang]} color="#10b981">
                 <ul className="space-y-1">
                   {skill.cues[lang].map((cue, i) => (
-                    <li key={i} className="flex items-start gap-1.5 text-[0.625rem]">
+                    <li key={i} className="flex items-start gap-1.5 text-micro">
                       <div className="w-1 h-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                       <span className="text-foreground/85 leading-relaxed">{cue}</span>
                     </li>
@@ -327,7 +327,7 @@ function SkillCard({
               <Section icon={AlertCircle} title={T.mistakes[lang]} color="#dc2626">
                 <ul className="space-y-1">
                   {skill.mistakes[lang].map((m, i) => (
-                    <li key={i} className="flex items-start gap-1.5 text-[0.625rem]">
+                    <li key={i} className="flex items-start gap-1.5 text-micro">
                       <X className="w-2.5 h-2.5 text-rose-500 mt-0.5 shrink-0" />
                       <span className="text-foreground/85 leading-relaxed">{m}</span>
                     </li>
@@ -342,9 +342,9 @@ function SkillCard({
               >
                 <div className="flex items-center gap-1.5 mb-1">
                   <Sparkles className="w-3 h-3 text-amber-500" />
-                  <h5 className="text-[0.625rem] font-semibold text-amber-600 dark:text-amber-400">{T.proTip[lang]}</h5>
+                  <h5 className="text-micro font-semibold text-amber-600 dark:text-amber-400">{T.proTip[lang]}</h5>
                 </div>
-                <p className="text-[0.625rem] text-foreground/85 leading-relaxed">
+                <p className="text-micro text-foreground/85 leading-relaxed">
                   {skill.proTip[lang]}
                 </p>
               </div>
@@ -394,7 +394,7 @@ function FoodSection({ lang, query }: { lang: 'ar'; query: string }) {
             <button
               key={g}
               onClick={() => setFilterGroup(g)}
-              className={`shrink-0 h-6 px-2 rounded-full text-[0.625rem] font-medium transition-all whitespace-nowrap ${
+              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-all whitespace-nowrap ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -410,7 +410,7 @@ function FoodSection({ lang, query }: { lang: 'ar'; query: string }) {
       <div className="space-y-2">
         <AnimatePresence>
           {filtered.length === 0 ? (
-            <div className="text-center py-8 text-[0.6875rem] text-muted-foreground">{T.noResults[lang]}</div>
+            <div className="text-center py-8 text-micro text-muted-foreground">{T.noResults[lang]}</div>
           ) : (
             filtered.map((food) => (
               <FoodCard
@@ -453,28 +453,28 @@ function FoodCard({
         className="w-full p-3 flex items-center gap-3 active:bg-muted/30 transition-colors"
       >
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
           style={{ backgroundColor: `${food.color}25`, border: `1px solid ${food.color}40` }}
         >
           {food.emoji}
         </div>
         <div className="flex-1 min-w-0 text-start">
-          <h3 className="text-[0.75rem] font-semibold text-foreground truncate">
+          <h3 className="text-mini font-semibold text-foreground truncate">
             {food.name[lang]}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[0.625rem] text-muted-foreground">
+            <span className="text-micro text-muted-foreground">
               {food.per100g.kcal} {T.kcal[lang]}
             </span>
-            <span className="text-[0.625rem] text-muted-foreground">·</span>
-            <span className="text-[0.625rem] text-muted-foreground">
+            <span className="text-micro text-muted-foreground">·</span>
+            <span className="text-micro text-muted-foreground">
               P {food.per100g.protein}g
             </span>
             {food.glycemicIndex != null && (
               <>
-                <span className="text-[0.625rem] text-muted-foreground">·</span>
+                <span className="text-micro text-muted-foreground">·</span>
                 <span
-                  className="text-[0.625rem] font-semibold px-1 py-0.5 rounded"
+                  className="text-micro font-semibold px-1 py-0.5 rounded"
                   style={{ backgroundColor: `${giColor}20`, color: giColor }}
                 >
                   GI {food.glycemicIndex}
@@ -513,7 +513,7 @@ function FoodCard({
                 {food.optimalTimes.map((t, i) => (
                   <span
                     key={i}
-                    className="text-[0.625rem] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-medium"
+                    className="text-micro px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-medium"
                   >
                     {MEAL_TIME_LABELS[t][lang]}
                   </span>
@@ -524,7 +524,7 @@ function FoodCard({
               <Section icon={Heart} title={T.benefits[lang]} color={food.color}>
                 <ul className="space-y-1">
                   {food.benefits[lang].map((b, i) => (
-                    <li key={i} className="flex items-start gap-1.5 text-[0.625rem]">
+                    <li key={i} className="flex items-start gap-1.5 text-micro">
                       <div
                         className="w-1 h-1 rounded-full mt-1.5 shrink-0"
                         style={{ backgroundColor: food.color }}
@@ -539,13 +539,13 @@ function FoodCard({
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <Zap className="w-3 h-3" style={{ color: food.color }} />
-                  <h5 className="text-[0.625rem] font-semibold text-foreground">{T.keyNutrients[lang]}</h5>
+                  <h5 className="text-micro font-semibold text-foreground">{T.keyNutrients[lang]}</h5>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {food.keyNutrients[lang].map((n, i) => (
                     <span
                       key={i}
-                      className="text-[0.625rem] px-1.5 py-0.5 rounded-md font-medium"
+                      className="text-micro px-1.5 py-0.5 rounded-md font-medium"
                       style={{
                         backgroundColor: `${food.color}15`,
                         color: food.color,
@@ -561,27 +561,27 @@ function FoodCard({
               <div className="rounded-lg p-2.5 bg-emerald-500/5 border-s-2 border-emerald-500">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <Sparkles className="w-3 h-3 text-emerald-500" />
-                  <h5 className="text-[0.625rem] font-semibold text-emerald-700 dark:text-emerald-400">{T.pairing[lang]}</h5>
+                  <h5 className="text-micro font-semibold text-emerald-700 dark:text-emerald-400">{T.pairing[lang]}</h5>
                 </div>
-                <p className="text-[0.625rem] text-foreground/85">{food.pairing[lang]}</p>
+                <p className="text-micro text-foreground/85">{food.pairing[lang]}</p>
               </div>
 
               {/* Pitfall */}
               <div className="rounded-lg p-2.5 bg-rose-500/5 border-s-2 border-rose-500">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <AlertCircle className="w-3 h-3 text-rose-500" />
-                  <h5 className="text-[0.625rem] font-semibold text-rose-700 dark:text-rose-400">{T.pitfall[lang]}</h5>
+                  <h5 className="text-micro font-semibold text-rose-700 dark:text-rose-400">{T.pitfall[lang]}</h5>
                 </div>
-                <p className="text-[0.625rem] text-foreground/85">{food.pitfall[lang]}</p>
+                <p className="text-micro text-foreground/85">{food.pitfall[lang]}</p>
               </div>
 
               {/* Athlete tip */}
               <div className="rounded-lg p-2.5 bg-amber-500/5 border-s-2 border-amber-500">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <Trophy className="w-3 h-3 text-amber-500" />
-                  <h5 className="text-[0.625rem] font-semibold text-amber-700 dark:text-amber-400">{T.athleteTip[lang]}</h5>
+                  <h5 className="text-micro font-semibold text-amber-700 dark:text-amber-400">{T.athleteTip[lang]}</h5>
                 </div>
-                <p className="text-[0.625rem] text-foreground/85">{food.athleteTip[lang]}</p>
+                <p className="text-micro text-foreground/85">{food.athleteTip[lang]}</p>
               </div>
             </div>
           </motion.div>
@@ -637,7 +637,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
             <button
               key={c}
               onClick={() => setFilterCat(c)}
-              className={`shrink-0 h-6 px-2 rounded-full text-[0.625rem] font-medium transition-all flex items-center gap-1 ${
+              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-all flex items-center gap-1 ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -654,7 +654,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
       <div className="space-y-2">
         <AnimatePresence>
           {filtered.length === 0 ? (
-            <div className="text-center py-8 text-[0.6875rem] text-muted-foreground">{T.noResults[lang]}</div>
+            <div className="text-center py-8 text-micro text-muted-foreground">{T.noResults[lang]}</div>
           ) : (
             filtered.map((chapter) => {
               const isOpen = expanded === chapter.category;
@@ -671,16 +671,16 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                     className="w-full p-3 flex items-center gap-3 active:bg-muted/30 transition-colors"
                   >
                     <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
                       style={{ backgroundColor: `${chapter.color}25`, border: `1px solid ${chapter.color}40` }}
                     >
                       {chapter.emoji}
                     </div>
                     <div className="flex-1 min-w-0 text-start">
-                      <h3 className="text-[0.75rem] font-semibold text-foreground truncate">
+                      <h3 className="text-mini font-semibold text-foreground truncate">
                         {chapter.title[lang]}
                       </h3>
-                      <p className="text-[0.625rem] text-muted-foreground line-clamp-1 mt-0.5">
+                      <p className="text-micro text-muted-foreground line-clamp-1 mt-0.5">
                         {chapter.facts.length} {'حقيقة'}
                       </p>
                     </div>
@@ -698,7 +698,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                         className="overflow-hidden"
                       >
                         <div className="px-3 pb-3 space-y-2 border-t border-border/30 pt-3">
-                          <p className="text-[0.625rem] text-foreground/80 leading-relaxed mb-2">
+                          <p className="text-micro text-foreground/80 leading-relaxed mb-2">
                             {chapter.description[lang]}
                           </p>
                           {chapter.facts.map((fact, i) => (
@@ -708,18 +708,18 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                             >
                               <div className="flex items-start gap-2">
                                 <div
-                                  className="w-5 h-5 rounded-md flex items-center justify-center text-[0.625rem] font-bold text-white shrink-0 mt-0.5"
+                                  className="w-5 h-5 rounded-md flex items-center justify-center text-micro font-bold text-white shrink-0 mt-0.5"
                                   style={{ backgroundColor: chapter.color }}
                                 >
                                   {i + 1}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="text-[0.6875rem] font-semibold text-foreground leading-snug">
+                                  <h4 className="text-micro font-semibold text-foreground leading-snug">
                                     {fact.title[lang]}
                                   </h4>
                                 </div>
                                 <span
-                                  className="text-[0.625rem] font-bold px-1.5 py-0.5 rounded shrink-0"
+                                  className="text-micro font-bold px-1.5 py-0.5 rounded shrink-0"
                                   style={{
                                     backgroundColor: `${chapter.color}15`,
                                     color: chapter.color,
@@ -728,12 +728,12 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                                   {fact.impact[lang]}
                                 </span>
                               </div>
-                              <p className="text-[0.625rem] text-foreground/85 leading-relaxed">
+                              <p className="text-micro text-foreground/85 leading-relaxed">
                                 {fact.body[lang]}
                               </p>
                               <div className="flex items-start gap-1.5 pt-1 border-t border-border/30">
                                 <Lightbulb className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
-                                <span className="text-[0.625rem] text-foreground/85 leading-relaxed">
+                                <span className="text-micro text-foreground/85 leading-relaxed">
                                   <span className="font-semibold text-amber-600 dark:text-amber-400">
                                     {T.action[lang]}:
                                   </span>{' '}
@@ -743,7 +743,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                               {fact.myth && (
                                 <div className="flex items-start gap-1.5 pt-1 border-t border-border/30">
                                   <X className="w-3 h-3 text-rose-500 mt-0.5 shrink-0" />
-                                  <span className="text-[0.625rem] text-foreground/85 leading-relaxed">
+                                  <span className="text-micro text-foreground/85 leading-relaxed">
                                     <span className="font-semibold text-rose-600 dark:text-rose-400">
                                       {T.myth[lang]}:
                                     </span>{' '}
@@ -778,7 +778,7 @@ function Section({
     <div>
       <div className="flex items-center gap-1.5 mb-1.5">
         <Icon className="w-3 h-3" style={{ color }} />
-        <h5 className="text-[0.625rem] font-semibold text-foreground">{title}</h5>
+        <h5 className="text-micro font-semibold text-foreground">{title}</h5>
       </div>
       {children}
     </div>
@@ -792,11 +792,11 @@ function StatBox({
     <div className="rounded-lg p-2 bg-muted/20 border border-border/30">
       <div className="flex items-center gap-1 mb-0.5">
         <Icon className="w-2.5 h-2.5" style={{ color }} />
-        <span className="text-[0.625rem] text-muted-foreground font-medium uppercase tracking-wide">
+        <span className="text-micro text-muted-foreground font-medium uppercase tracking-wide">
           {label}
         </span>
       </div>
-      <span className="text-[0.625rem] font-semibold text-foreground line-clamp-1">{value}</span>
+      <span className="text-micro font-semibold text-foreground line-clamp-1">{value}</span>
     </div>
   );
 }
@@ -812,10 +812,10 @@ function MacroBox({
         borderColor: `${color}30`,
       }}
     >
-      <div className="text-[0.625rem] font-bold" style={{ color }}>
+      <div className="text-micro font-bold" style={{ color }}>
         {value}{unit}
       </div>
-      <div className="text-[0.625rem] text-muted-foreground uppercase tracking-wide">
+      <div className="text-micro text-muted-foreground uppercase tracking-wide">
         {label}
       </div>
     </div>
@@ -861,7 +861,7 @@ export default function EncyclopediaTab() {
               )}
               <span className="relative flex items-center gap-1.5">
                 <Icon className="w-3 h-3" />
-                <span className="text-[0.625rem] font-semibold">{T[t.key][lang]}</span>
+                <span className="text-micro font-semibold">{T[t.key][lang]}</span>
               </span>
             </button>
           );
@@ -876,7 +876,7 @@ export default function EncyclopediaTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={T.search[lang]}
-          className="w-full h-8 ps-8 pe-7 rounded-lg bg-card border border-border/40 text-[0.6875rem] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/40 transition-colors"
+          className="w-full h-8 ps-8 pe-7 rounded-lg bg-card border border-border/40 text-micro text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/40 transition-colors"
         />
         {query && (
           <button

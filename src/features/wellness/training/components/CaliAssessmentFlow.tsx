@@ -97,8 +97,8 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-bold text-foreground">{T.title[lang]}</h2>
-                  <p className="text-[0.625rem] text-muted-foreground">{T.subtitle[lang]}</p>
+                  <h2 className="text-body font-bold text-foreground">{T.title[lang]}</h2>
+                  <p className="text-micro text-muted-foreground">{T.subtitle[lang]}</p>
                 </div>
                 <button
                   onClick={onClose}
@@ -113,7 +113,7 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
                 <>
                   {/* Progress bar */}
                   <div className="space-y-1">
-                    <p className="text-[0.625rem] text-muted-foreground tabular-nums" dir="ltr">
+                    <p className="text-micro text-muted-foreground tabular-nums" dir="ltr">
                       {T.question[lang]} {step + 1} {T.of[lang]} {total}
                     </p>
                     <div className="h-1 rounded-full bg-muted overflow-hidden">
@@ -135,7 +135,7 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
                     transition={{ duration: 0.2 }}
                     className="space-y-3"
                   >
-                    <h3 className="text-[0.9375rem] font-bold text-foreground leading-snug">{q.question[lang]}</h3>
+                    <h3 className="text-meta font-bold text-foreground leading-snug">{q.question[lang]}</h3>
 
                     <div className="space-y-1.5">
                       {q.options.map((opt, i) => {
@@ -150,7 +150,7 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
                                 : 'bg-card border-border/40 text-foreground'
                             }`}
                           >
-                            <span className="text-[0.75rem] leading-snug">{opt.label[lang]}</span>
+                            <span className="text-mini leading-snug">{opt.label[lang]}</span>
                             {selected && (
                               <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
                                 <Check className="w-3 h-3" />
@@ -167,14 +167,14 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
                     <button
                       onClick={handlePrev}
                       disabled={step === 0}
-                      className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-sm font-semibold disabled:opacity-40 inline-flex items-center justify-center gap-1"
+                      className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-meta font-semibold disabled:opacity-40 inline-flex items-center justify-center gap-1"
                     >
                       <ChevronLeft className="w-4 h-4" /> {T.prev[lang]}
                     </button>
                     <button
                       onClick={handleNext}
                       disabled={answers[q.key] == null}
-                      className="flex-[2] py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold disabled:opacity-40 inline-flex items-center justify-center gap-1"
+                      className="flex-[2] py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-bold disabled:opacity-40 inline-flex items-center justify-center gap-1"
                     >
                       {step === total - 1 ? T.finish[lang] : T.next[lang]} <ChevronRight className="w-4 h-4" />
                     </button>
@@ -203,21 +203,21 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
         <div className="w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-2">
           <Award className="w-7 h-7 text-primary" />
         </div>
-        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
           {T.yourTier[lang]}
         </p>
-        <p className="text-[1.25rem] font-bold text-foreground">
+        <p className="text-title font-bold text-foreground">
           {CALI_EXP_LABELS[result.tier][lang]}
         </p>
       </div>
 
-      <p className="text-[0.75rem] text-foreground/85 leading-relaxed bg-card border border-border/40 rounded-xl p-3">
+      <p className="text-mini text-foreground/85 leading-relaxed bg-card border border-border/40 rounded-xl p-3">
         {TIER_RECOMMENDATION[result.tier][lang]}
       </p>
 
       {/* Suggested programs */}
       <div className="space-y-1.5">
-        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
           {T.recommendedPrograms[lang]}
         </p>
         {result.suggestedPrograms.slice(0, 3).map((key) => {
@@ -225,8 +225,8 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
           if (!p) return null;
           return (
             <div key={key} className="rounded-xl bg-card border border-border/40 p-3">
-              <p className="text-[0.75rem] font-bold text-foreground">{p.name[lang]}</p>
-              <p className="text-[0.625rem] text-muted-foreground line-clamp-2 mt-0.5">{p.description[lang]}</p>
+              <p className="text-mini font-bold text-foreground">{p.name[lang]}</p>
+              <p className="text-micro text-muted-foreground line-clamp-2 mt-0.5">{p.description[lang]}</p>
             </div>
           );
         })}
@@ -234,7 +234,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
 
       {/* Per-skill placement */}
       <div className="space-y-1.5">
-        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
           {T.yourSkills[lang]}
         </p>
         <div className="grid grid-cols-2 gap-1.5">
@@ -244,8 +244,8 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
             const stepName = idx >= 0 ? skill.steps[Math.min(idx, skill.steps.length - 1)]?.name[lang] : T.noStarted[lang];
             return (
               <div key={key} className="bg-card border border-border/40 rounded-lg p-2">
-                <p className="text-[0.625rem] text-muted-foreground">{skill.name[lang]}</p>
-                <p className="text-[0.6875rem] font-bold text-foreground line-clamp-1">{stepName}</p>
+                <p className="text-micro text-muted-foreground">{skill.name[lang]}</p>
+                <p className="text-micro font-bold text-foreground line-clamp-1">{stepName}</p>
               </div>
             );
           })}
@@ -254,7 +254,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
 
       <button
         onClick={onApply}
-        className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
+        className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
       >
         {T.applyResults[lang]} <ChevronRight className="w-4 h-4" />
       </button>

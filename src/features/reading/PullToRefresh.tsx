@@ -242,7 +242,7 @@ export function PullToRefresh({
             transition: 'opacity 0.15s',
           }}
         >
-          <span className="text-[0.625rem] font-medium text-primary/80">
+          <span className="text-micro font-medium text-primary/80">
             {isOnline
               ? (typeof document !== 'undefined' && document.documentElement.lang === 'ar'
                   ? 'اترك للتحديث'

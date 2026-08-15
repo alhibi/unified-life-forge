@@ -223,17 +223,17 @@ function ErrorFallback({
       {iconMap[errorKind]}
 
       <div className="space-y-2 max-w-sm">
-        <h2 className="text-lg font-bold">
+        <h2 className="text-lead font-bold">
           {titleMap[errorKind].ar}
         </h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-meta text-muted-foreground leading-relaxed">
           {descMap[errorKind].ar}
         </p>
       </div>
 
       {/* Error details (collapsed by default) */}
       {error && (
-        <details className="text-[0.6875rem] text-muted-foreground/60 max-w-sm w-full">
+        <details className="text-micro text-muted-foreground/60 max-w-sm w-full">
           <summary className="cursor-pointer hover:text-muted-foreground transition-colors">
             {'تفاصيل الخطأ'}
           </summary>
@@ -255,7 +255,7 @@ function ErrorFallback({
           <RefreshCw className="h-3.5 w-3.5 me-1.5" />
           {'إعادة المحاولة'}
           {retryCount > 0 && (
-            <span className="ms-1 text-[0.625rem] opacity-70">({retryCount}/3)</span>
+            <span className="ms-1 text-micro opacity-70">({retryCount}/3)</span>
           )}
         </Button>
 
@@ -301,10 +301,10 @@ function FatalErrorFallback({
       <AlertTriangle className="h-14 w-14 text-destructive/60" />
 
       <div className="space-y-2 max-w-sm">
-        <h2 className="text-lg font-bold">
+        <h2 className="text-lead font-bold">
           {'خطأ متكرر'}
         </h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-meta text-muted-foreground leading-relaxed">
           {'تكرر الخطأ عدة مرات. جرّب مسح الذاكرة المؤقتة بالكامل أو إعادة تحميل الصفحة.'}
         </p>
       </div>
@@ -312,7 +312,7 @@ function FatalErrorFallback({
       {error && (
         <pre
           dir="ltr"
-          className="text-[0.625rem] text-muted-foreground/50 max-w-xs overflow-x-auto whitespace-pre-wrap break-all font-mono p-2 rounded-lg bg-muted/20"
+          className="text-micro text-muted-foreground/50 max-w-xs overflow-x-auto whitespace-pre-wrap break-all font-mono p-2 rounded-lg bg-muted/20"
         >
           {error.message}
         </pre>
@@ -336,7 +336,7 @@ function FatalErrorFallback({
         <Button
           onClick={() => window.location.reload()}
           variant="ghost"
-          className="rounded-xl text-xs"
+          className="rounded-xl text-mini"
           size="sm"
         >
           {'إعادة تحميل الصفحة'}

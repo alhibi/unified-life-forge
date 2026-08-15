@@ -16,15 +16,15 @@ function OccasionCard({ occasion, t }: { occasion: IslamicOccasion; t: (key: str
     >
       {/* Date badge */}
       <div className="flex flex-col items-center justify-center min-w-[52px] rounded-lg bg-muted/60 py-2 px-2">
-        <span className="text-2xl font-bold text-primary leading-none">{occasion.hijriDay}</span>
-        <span className="text-[0.625rem] text-muted-foreground mt-0.5 leading-tight">{occasion.hijriMonth}</span>
+        <span className="text-display font-bold text-primary leading-none">{occasion.hijriDay}</span>
+        <span className="text-micro text-muted-foreground mt-0.5 leading-tight">{occasion.hijriMonth}</span>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-bold text-foreground leading-snug">{occasion.name}</h3>
-        <p className="text-[0.6875rem] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{occasion.description}</p>
-        <p className="text-[0.625rem] text-muted-foreground mt-1">
+        <h3 className="text-meta font-bold text-foreground leading-snug">{occasion.name}</h3>
+        <p className="text-micro text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{occasion.description}</p>
+        <p className="text-micro text-muted-foreground mt-1">
           {formatGregorianDate(occasion.gregorianDate)}
           {' · '}
           {isToday ? (
@@ -54,11 +54,11 @@ export default function ReligiousOccasions() {
           <div className="p-1.5 rounded-lg bg-primary/10">
             <CalendarDays className="w-4 h-4 text-primary" />
           </div>
-          <h2 className="text-[0.9375rem] font-bold text-foreground">{t('occasions.title')}</h2>
+          <h2 className="text-meta font-bold text-foreground">{t('occasions.title')}</h2>
         </div>
         <button
           onClick={() => navigate('/occasions')}
-          className="flex items-center gap-1 text-[0.75rem] text-primary font-medium hover:underline"
+          className="flex items-center gap-1 text-mini text-primary font-medium hover:underline"
         >
           {t('occasions.showAll')}
           <Arrow className="w-3.5 h-3.5" />

@@ -137,7 +137,7 @@ export default function DhikrCounter() {
               initial={reduce ? false : { scale: 0.88 }}
               animate={{ scale: 1 }}
               transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 620, damping: 26 }}
-              className="text-[4.25rem] font-semibold leading-none tabular-nums text-foreground"
+              className="text-hero font-semibold leading-none tabular-nums text-foreground"
               dir="ltr"
             >
               {count}

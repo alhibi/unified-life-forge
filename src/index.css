@@ -38,6 +38,7 @@
 
   --border-width-hairline: var(--ui-border-width);
 
+  --radius-xs: var(--r-xs);
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
@@ -175,6 +176,11 @@
   font-size: var(--fs-display);
   line-height: calc(var(--fs-display) * var(--type-leading-tight));
   letter-spacing: -0.015em;
+}
+@utility text-hero {
+  font-size: var(--fs-hero);
+  line-height: calc(var(--fs-hero) * var(--type-leading-tight));
+  letter-spacing: -0.02em;
 }
 
 @layer base {
@@ -337,7 +343,11 @@
        Every shared utility further down this file reads these — never a raw
        rem literal — so one preference moves the entire app at once. */
 
-    /* Corner ladder: 6 · 10 · 16 · 24 at softness 1.0. */
+    /* Corner ladder: 4 · 6 · 10 · 16 · 24 at softness 1.0.
+       Nesting rule: r_inner = r_outer − padding. A 16px card with 12px
+       padding holds a 4px child; a 24px section with 8px padding holds a
+       16px card. Never nest two equal radii — it reads as a mistake. */
+    --r-xs: 4px;
     --r-sm: 6px;
     --r-md: 10px;
     --r-lg: 16px;
@@ -348,9 +358,12 @@
     --ui-pad-card: 16px;
     --ui-pad-card-compact: 12px;
     --ui-control-h: 44px;
-    --ui-button-sm-h: 40px;
+    /* control(s) = 36 · 44 · 52 — 8px (one grid unit) apart. 44 is the
+       default because it is the smallest safe touch target. */
+    --ui-button-xs-h: 28px;
+    --ui-button-sm-h: 36px;
     --ui-button-h: 44px;
-    --ui-button-lg-h: 48px;
+    --ui-button-lg-h: 52px;
     --ui-tap: 44px;
     --ui-touch-min: 44px;
     --ui-scale: 1;
@@ -416,13 +429,17 @@
        by --type-base-scale during PostCSS compilation. The document root stays
        16px, so typography and interface geometry remain independent. Defaults
        reproduce the original 11 · 12 · 13 · 14 · 16 · 18 · 24 scale. */
-    --fs-micro: 0.6875rem;
-    --fs-mini: 0.75rem;
-    --fs-meta: 0.8125rem;
-    --fs-body: 0.8751rem;
-    --fs-lead: 1rem;
-    --fs-title: 1.1249rem;
-    --fs-display: 1.5rem;
+    /* size(n) = 16px × 1.125^n  →  11.24 · 12.64 · 14.22 · 16 · 18 · 20.25
+       · 22.78 · 25.63 (px). Kept in rem so the browser's own text-size
+       preference still applies. Owned by src/lib/fonts.ts. */
+    --fs-micro: 0.7025rem;
+    --fs-mini: 0.7901rem;
+    --fs-meta: 0.8889rem;
+    --fs-body: 1rem;
+    --fs-lead: 1.125rem;
+    --fs-title: 1.2656rem;
+    --fs-display: 1.4238rem;
+    --fs-hero: 1.6018rem;
     --type-base-scale: 1;
     --type-leading: 1.6;
     --type-leading-tight: 1.2;
@@ -1000,6 +1017,39 @@
   .row-icon-danger {
     background-color: hsl(var(--destructive) / 0.12);
     color: hsl(var(--destructive));
+  }
+
+  /* ── The one focus ring ──────────────────────────────────────────
+     Width and offset come from the accessibility preferences, so the
+     "clearer focus" switch reaches every control at once. */
+  .app-focus-ring:focus-visible {
+    outline: var(--ui-focus-width) solid hsl(var(--ring));
+    outline-offset: var(--ui-focus-offset);
+  }
+
+  /* ── The one press feedback ──────────────────────────────────────
+     Every interactive element in the app expresses a press the same way:
+     scale + vertical offset, both resolved from the user's interaction
+     preference (`--ui-interaction-*`) multiplied by their motion strength
+     (`--motion-press-strength`). Nothing hardcodes `active:scale-[…]`. */
+  .app-pressable {
+    transition:
+      transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press),
+      background-color var(--duration-fast) var(--motion-ease-enter),
+      border-color var(--duration-fast) var(--motion-ease-enter),
+      color var(--duration-fast) var(--motion-ease-enter);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-pressable:active:not(:disabled):not([aria-disabled='true']) {
+    transform: scale(var(--ui-press-scale)) translateY(var(--ui-press-offset));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .app-pressable:active {
+      transform: none;
+    }
+  }
+  html[data-reduced-motion='true'] .app-pressable:active {
+    transform: none;
   }
 
   /* ── Shared control chrome ───────────────────────────────────────

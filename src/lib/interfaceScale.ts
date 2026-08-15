@@ -47,18 +47,18 @@ export { applyRootTokens } from './rootTokens';
  * The four steps of the radius ladder. The shipped values live in
  * `RADIUS_PROFILE_LADDERS.graded` below — 6 / 10 / 16 / 24 at softness 1.0.
  */
-export type RadiusStep = 'sm' | 'md' | 'lg' | 'xl';
+export type RadiusStep = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * A radius profile is a per-step multiplier on the shipped ladder. `graded` is
  * identity, so the default rendering is byte-for-byte what shipped before.
  */
 const RADIUS_PROFILE_LADDERS: Record<RadiusProfile, Record<RadiusStep, number>> = {
-  graded: { sm: 6, md: 10, lg: 16, xl: 24 },
+  graded: { xs: 4, sm: 6, md: 10, lg: 16, xl: 24 },
   // One meaning for "rounded": every surface shares the mid radius.
-  uniform: { sm: 12, md: 12, lg: 12, xl: 12 },
+  uniform: { xs: 12, sm: 12, md: 12, lg: 12, xl: 12 },
   // Crisp small controls, markedly softer large surfaces.
-  expressive: { sm: 4, md: 9, lg: 20, xl: 34 },
+  expressive: { xs: 3, sm: 4, md: 9, lg: 20, xl: 34 },
 };
 
 export const RADIUS_PROFILE_OPTIONS = [
@@ -688,6 +688,7 @@ export function resolveInterfaceGeometry(prefs: InterfacePrefs): ResolvedInterfa
     uiScale,
     spacingScale,
     radius: {
+      xs: round(ladder.xs * softness * uiScale),
       sm: round(ladder.sm * softness * uiScale),
       md: round(ladder.md * softness * uiScale),
       lg: round(ladder.lg * softness * uiScale),
@@ -747,6 +748,7 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
     '--ui-scale': String(g.uiScale),
     '--ui-spacing-scale': String(g.spacingScale),
 
+    '--r-xs': `${g.radius.xs}px`,
     '--r-sm': `${g.radius.sm}px`,
     '--r-md': `${g.radius.md}px`,
     '--r-lg': `${g.radius.lg}px`,
@@ -758,9 +760,11 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
     '--ui-pad-card': `${g.cardPadding}px`,
     '--ui-pad-card-compact': `${g.cardPaddingCompact}px`,
     '--ui-control-h': `${g.controlHeight}px`,
-    '--ui-button-sm-h': px(40, g.uiScale),
+    // control(s) = 36 · 44 · 52 — one step of 8px, the grid unit, apart.
+    '--ui-button-xs-h': px(28, g.uiScale),
+    '--ui-button-sm-h': px(36, g.uiScale),
     '--ui-button-h': px(44, g.uiScale),
-    '--ui-button-lg-h': px(48, g.uiScale),
+    '--ui-button-lg-h': px(52, g.uiScale),
     '--ui-tap': `${g.tapSize}px`,
     '--ui-touch-min': `${g.tapSize}px`,
     '--ui-stack-gap': `${g.stackGap}px`,

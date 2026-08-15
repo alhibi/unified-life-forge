@@ -32,7 +32,7 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
       }}
     >
       {/* علامة معينة صغيرة (◆) فوق الحافة العلوية اليمنى */}
-      <div className="absolute -top-[7px] end-[24px] z-raised w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-[0.625rem] text-[var(--wax)] leading-none select-none font-bold">
+      <div className="absolute -top-[7px] end-[24px] z-raised w-[14px] h-[14px] bg-[#16130F] flex items-center justify-center text-micro text-[var(--wax)] leading-none select-none font-bold">
         ◆
       </div>
 
@@ -40,17 +40,17 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
         {/* Event Title */}
         <div className="flex items-center gap-2 mb-2.5">
           <MapPin className="w-3.5 h-3.5 text-[var(--wax)] flex-shrink-0" />
-          <p className="text-[0.75rem] font-bold text-[#F2E9D8] font-tajawal">{ctx.event}</p>
+          <p className="text-mini font-bold text-[#F2E9D8] font-tajawal">{ctx.event}</p>
         </div>
 
         {/* Context description */}
-        <p className="text-[0.75rem] text-[#B8AA8E] leading-[1.85] font-tajawal ps-1">{ctx.context}</p>
+        <p className="text-mini text-[#B8AA8E] leading-[1.85] font-tajawal ps-1">{ctx.context}</p>
 
         {/* Year badge */}
         {ctx.year && (
           <div className="flex items-center gap-1.5 mt-3 ps-1">
             <Calendar className="w-3.5 h-3.5 text-[#7E7259]" />
-            <span className="text-[0.625rem] font-semibold text-[#7E7259] bg-[rgba(242,233,216,0.04)] border border-[var(--hairline)] px-2.5 py-0.5 rounded-[5px] font-sans">
+            <span className="text-micro font-semibold text-[#7E7259] bg-[rgba(242,233,216,0.04)] border border-[var(--hairline)] px-2.5 py-0.5 rounded-[5px] font-sans">
               {ctx.year}
             </span>
           </div>

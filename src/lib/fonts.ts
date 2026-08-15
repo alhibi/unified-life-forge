@@ -101,15 +101,15 @@ export function fontSizeStepFor(value: string | null | undefined) {
 
 // ─── Scale ratio ────────────────────────────────────────────
 export const TYPE_RATIOS = [
-  { id: 'compact', label: 'مضغوط', ratio: 1.125, note: 'فروق صغيرة — أكثر معلومات في الشاشة' },
-  { id: 'balanced', label: 'متوازن', ratio: 1.2, note: 'المقياس المعتمد في التطبيق' },
+  { id: 'compact', label: 'مضغوط', ratio: 1.125, note: 'المقياس المعتمد — فروق دقيقة ومتناسقة' },
+  { id: 'balanced', label: 'متوازن', ratio: 1.2, note: 'تفاوت متوسط بين الدرجات' },
   { id: 'airy', label: 'واضح', ratio: 1.28, note: 'تفاوت أوسع — عناوين أبرز' },
 ] as const;
 
 export type TypeRatioId = (typeof TYPE_RATIOS)[number]['id'];
 
 export function resolveTypeRatio(value: string | null | undefined): TypeRatioId {
-  return TYPE_RATIOS.some((r) => r.id === value) ? (value as TypeRatioId) : 'balanced';
+  return TYPE_RATIOS.some((r) => r.id === value) ? (value as TypeRatioId) : 'compact';
 }
 
 // ─── Leading ────────────────────────────────────────────────
@@ -141,16 +141,35 @@ export function clampFontWeight(value: number): number {
   return Math.min(MAX_FONT_WEIGHT, Math.max(MIN_FONT_WEIGHT, Math.round(value / 100) * 100));
 }
 
-// ─── The scale itself ───────────────────────────────────────
+/* ─── The scale itself ───────────────────────────────────────
+ * A true modular scale. Every step is one whole power of the ratio away
+ * from its neighbour, anchored on `body` (exponent 0 = the base size):
+ *
+ *     size(n) = base × ratio ^ n
+ *
+ * At the default base 16px and ratio 1.125 this resolves to
+ *   11.24 · 12.64 · 14.22 · 16 · 18 · 20.25 · 22.78 · 25.63
+ * i.e. micro · mini · meta · body · lead · title · display · hero.
+ *
+ * Fractional exponents are forbidden here: the point of the ladder is that
+ * no size in the app can be "almost" another size. Legibility bounds are
+ * applied afterwards (see FS_MIN / FS_MAX) so a wide ratio cannot push the
+ * smallest step below a readable size.
+ */
 const TYPE_STEPS = [
-  { name: 'micro', exponent: -2.055 },
-  { name: 'mini', exponent: -1.578 },
-  { name: 'meta', exponent: -1.139 },
-  { name: 'body', exponent: -0.732 },
-  { name: 'lead', exponent: 0 },
-  { name: 'title', exponent: 0.646 },
-  { name: 'display', exponent: 2.224 },
+  { name: 'micro', exponent: -3 },
+  { name: 'mini', exponent: -2 },
+  { name: 'meta', exponent: -1 },
+  { name: 'body', exponent: 0 },
+  { name: 'lead', exponent: 1 },
+  { name: 'title', exponent: 2 },
+  { name: 'display', exponent: 3 },
+  { name: 'hero', exponent: 4 },
 ] as const;
+
+/** Absolute legibility floor / ceiling in px, applied after the equation. */
+const FS_MIN_PX = 11;
+const FS_MAX_PX = 34;
 
 export type TypeStepName = (typeof TYPE_STEPS)[number]['name'];
 
@@ -158,12 +177,13 @@ export function computeTypeScale(
   ratioId: TypeRatioId,
   baseSize: FontSizeId | number = 16,
 ): Record<TypeStepName, string> {
-  const ratio = TYPE_RATIOS.find((r) => r.id === resolveTypeRatio(ratioId))?.ratio ?? 1.2;
+  const ratio = TYPE_RATIOS.find((r) => r.id === resolveTypeRatio(ratioId))?.ratio ?? 1.125;
   const requestedBase = typeof baseSize === 'number' ? baseSize : fontSizeStepFor(baseSize).base;
-  const multiplier = Number.isFinite(requestedBase) ? requestedBase / 16 : 1;
+  const base = Number.isFinite(requestedBase) ? requestedBase : 16;
   const out = {} as Record<TypeStepName, string>;
   for (const step of TYPE_STEPS) {
-    const rem = Math.round(ratio ** step.exponent * multiplier * 10000) / 10000;
+    const px = Math.min(FS_MAX_PX, Math.max(FS_MIN_PX, base * ratio ** step.exponent));
+    const rem = Math.round((px / 16) * 10000) / 10000;
     out[step.name] = `${rem}rem`;
   }
   return out;

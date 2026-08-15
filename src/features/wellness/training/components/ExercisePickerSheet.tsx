@@ -118,7 +118,7 @@ export default function ExercisePickerSheet({
 
             <div className="px-4 pb-6 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-foreground">{T.add[lang]}</h3>
+                <h3 className="text-body font-bold text-foreground">{T.add[lang]}</h3>
                 <button
                   onClick={handleClose}
                   className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
@@ -135,7 +135,7 @@ export default function ExercisePickerSheet({
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder={T.search[lang]}
-                  className="w-full bg-card border border-border/40 rounded-xl ps-9 pe-3 py-2.5 text-base text-foreground outline-none focus:border-primary/50"
+                  className="w-full bg-card border border-border/40 rounded-xl ps-9 pe-3 py-2.5 text-body text-foreground outline-none focus:border-primary/50"
                   autoFocus
                 />
               </div>
@@ -144,7 +144,7 @@ export default function ExercisePickerSheet({
               <div className="flex gap-1.5">
                 <button
                   onClick={() => setBigOnly((b) => !b)}
-                  className={`shrink-0 inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+                  className={`shrink-0 inline-flex items-center gap-1 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                     bigOnly
                       ? 'bg-amber-500 text-white border-amber-500'
                       : 'bg-card text-muted-foreground border-border/40'
@@ -155,7 +155,7 @@ export default function ExercisePickerSheet({
                 </button>
                 <button
                   onClick={() => setShowSilhouette((s) => !s)}
-                  className={`shrink-0 text-[0.6875rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+                  className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                     showSilhouette
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-card text-muted-foreground border-border/40'
@@ -188,7 +188,7 @@ export default function ExercisePickerSheet({
                     <button
                       key={m}
                       onClick={() => setMuscle(m)}
-                      className={`shrink-0 text-[0.6875rem] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+                      className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                         active
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'bg-card text-muted-foreground border-border/40'
@@ -208,7 +208,7 @@ export default function ExercisePickerSheet({
                     <button
                       key={t}
                       onClick={() => setType(t)}
-                      className={`shrink-0 text-[0.625rem] font-semibold px-2 py-1 rounded-full border transition-colors ${
+                      className={`shrink-0 text-micro font-semibold px-2 py-1 rounded-full border transition-colors ${
                         active
                           ? 'bg-foreground text-background border-foreground'
                           : 'bg-card text-muted-foreground/80 border-border/40'
@@ -223,13 +223,13 @@ export default function ExercisePickerSheet({
               {/* Recent */}
               {recentExercises.length > 0 && q.trim() === '' && muscle === 'all' && type === 'all' && (
                 <div className="space-y-1.5">
-                  <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.recent[lang]}</p>
+                  <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.recent[lang]}</p>
                   <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 scrollbar-none">
                     {recentExercises.map((e) => (
                       <button
                         key={`r-${e.key}`}
                         onClick={() => { onPick(e.key); handleClose(); }}
-                        className="shrink-0 px-3 py-2 rounded-xl bg-primary/10 text-primary text-[0.6875rem] font-semibold border border-primary/30"
+                        className="shrink-0 px-3 py-2 rounded-xl bg-primary/10 text-primary text-micro font-semibold border border-primary/30"
                       >
                         {e.label[lang]}
                       </button>
@@ -241,7 +241,7 @@ export default function ExercisePickerSheet({
               {/* Results */}
               <div className="space-y-1">
                 {filtered.length === 0 && q.trim() === '' && (
-                  <p className="text-[0.75rem] text-muted-foreground text-center py-8">{T.noResults[lang]}</p>
+                  <p className="text-mini text-muted-foreground text-center py-8">{T.noResults[lang]}</p>
                 )}
                 {filtered.map((e) => (
                   <ExerciseRow key={e.key} exercise={e} lang={lang} onPick={() => { onPick(e.key); handleClose(); }} />
@@ -249,7 +249,7 @@ export default function ExercisePickerSheet({
                 {allowCustom && q.trim() && filtered.length === 0 && (
                   <button
                     onClick={() => { onPick(`custom:${q.trim()}`); handleClose(); }}
-                    className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 text-primary text-[0.75rem] font-semibold"
+                    className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 text-primary text-mini font-semibold"
                   >
                     + {T.custom[lang]}: "{q.trim()}"
                   </button>
@@ -271,8 +271,8 @@ function ExerciseRow({ exercise, lang, onPick }: { exercise: Exercise; lang: 'ar
       className="w-full text-start rounded-xl bg-card border border-border/40 p-3 flex items-center justify-between gap-2 active:scale-[0.99] transition-transform"
     >
       <div className="min-w-0 flex-1">
-        <p className="text-[0.8125rem] font-bold text-foreground truncate">{e.label[lang]}</p>
-        <p className="text-[0.625rem] text-muted-foreground mt-0.5">
+        <p className="text-mini font-bold text-foreground truncate">{e.label[lang]}</p>
+        <p className="text-micro text-muted-foreground mt-0.5">
           {MUSCLE_LABELS[e.primary][lang]}
           {e.secondary && e.secondary.length > 0 && (
             <span className="opacity-60"> · {e.secondary.map(m => MUSCLE_LABELS[m][lang]).join(', ')}</span>

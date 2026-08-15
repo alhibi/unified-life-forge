@@ -53,11 +53,11 @@ export default function MeteorologyConsole() {
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4">
-        <h2 className="font-semibold text-[1.25rem] leading-none text-foreground flex items-center gap-2">
+        <h2 className="font-semibold text-title leading-none text-foreground flex items-center gap-2">
           <Sliders className="w-5 h-5 text-primary" />
           {'مختبر المحاكاة والرياضيات المترولوجية'}
         </h2>
-        <p className="text-xs text-muted-foreground mt-1.5">
+        <p className="text-mini text-muted-foreground mt-1.5">
           {'عدل القيم الجوية الافتراضية وشاهد كيف تتصرف فيزياء الغلاف الجوي والراحة البشرية لحظياً'}
         </p>
       </header>
@@ -65,7 +65,7 @@ export default function MeteorologyConsole() {
       {/* Control Sliders */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
-          <div className="flex justify-between text-xs font-semibold">
+          <div className="flex justify-between text-mini font-semibold">
             <span className="text-foreground flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-primary" /> {'الحرارة المحاكية'}</span>
             <span className="text-foreground font-bold tabular-nums">{simTemp}°C</span>
           </div>
@@ -81,7 +81,7 @@ export default function MeteorologyConsole() {
         </div>
 
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
-          <div className="flex justify-between text-xs font-semibold">
+          <div className="flex justify-between text-mini font-semibold">
             <span className="text-foreground flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-primary" /> {'الرطوبة النسبية'}</span>
             <span className="text-foreground font-bold tabular-nums">{simRH}%</span>
           </div>
@@ -97,7 +97,7 @@ export default function MeteorologyConsole() {
         </div>
 
         <div className="space-y-1.5 bg-background/30 border border-border/40 p-3 rounded-xl">
-          <div className="flex justify-between text-xs font-semibold">
+          <div className="flex justify-between text-mini font-semibold">
             <span className="text-foreground flex items-center gap-1">💨 {'سرعة الرياح'}</span>
             <span className="text-foreground font-bold tabular-nums">{simWind} km/h</span>
           </div>
@@ -124,19 +124,19 @@ export default function MeteorologyConsole() {
           { label: 'مؤشر الضيق', value: `${di.toFixed(1)}`, hint: (di > 24 ? 'ضيق ملحوظ' : 'مريح') },
         ].map((item, idx) => (
           <div key={idx} className="rounded-xl border border-border/40 bg-secondary/20 p-3 text-center flex flex-col justify-between">
-            <span className="text-[0.6875rem] tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
-            <div className="my-2 flex items-baseline justify-center gap-0.5 text-[1.5rem] leading-none text-foreground font-bold tabular-nums">
+            <span className="text-micro tracking-wider uppercase text-foreground font-semibold">{item.label}</span>
+            <div className="my-2 flex items-baseline justify-center gap-0.5 text-display leading-none text-foreground font-bold tabular-nums">
               <span>{item.value}</span>
-              {item.unit && <span className="text-xs text-primary/90 ms-0.5 font-semibold">{item.unit}</span>}
+              {item.unit && <span className="text-mini text-primary/90 ms-0.5 font-semibold">{item.unit}</span>}
             </div>
-            <span className="text-[0.625rem] text-primary/90 font-semibold">{item.hint}</span>
+            <span className="text-micro text-primary/90 font-semibold">{item.hint}</span>
           </div>
         ))}
       </div>
 
       {/* Physics Formulas Accordion / Box */}
       <div className="rounded-xl border border-border/40 bg-background/50 p-3">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-3">
+        <div className="flex items-center gap-1.5 text-mini font-semibold text-foreground mb-3">
           <BookOpen className="w-4 h-4 text-primary" />
           <span>{'المرجع العلمي والمعادلات المستخدمة'}</span>
         </div>
@@ -144,14 +144,14 @@ export default function MeteorologyConsole() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {equations.map((eq, i) => (
             <div key={i} className="space-y-1 border-t border-border/30 pt-3 sm:border-t-0 sm:pt-0">
-              <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <h3 className="text-mini font-bold text-foreground flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-primary" />
                 {eq.title}
               </h3>
-              <p className="text-[0.625rem] leading-relaxed text-muted-foreground">
+              <p className="text-micro leading-relaxed text-muted-foreground">
                 {eq.desc}
               </p>
-              <div className="mt-1 bg-secondary/40 border border-border/20 px-2 py-1 rounded text-[0.625rem] font-mono text-primary select-all" dir="ltr">
+              <div className="mt-1 bg-secondary/40 border border-border/20 px-2 py-1 rounded text-micro font-mono text-primary select-all" dir="ltr">
                 {eq.eq}
               </div>
             </div>

@@ -189,7 +189,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
               key={s.key}
               onClick={() => setSection(s.key)}
               aria-pressed={active}
-              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-[0.6875rem] font-semibold transition-colors ${
+              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-micro font-semibold transition-colors ${
                 active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -235,7 +235,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                 <>
                   <button
                     onClick={() => setShowPlayer(true)}
-                    className="w-full py-4 rounded-2xl bg-primary text-primary-foreground text-sm font-bold inline-flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+                    className="w-full py-4 rounded-2xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
                   >
                     <Play className="w-5 h-5" /> {T.startSession[lang]}
                   </button>
@@ -243,12 +243,12 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                   {activeProgramDef && (
                     <div className="rounded-2xl bg-primary/8 border border-primary/30 p-3 flex items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-[0.625rem] uppercase tracking-wider text-primary font-semibold">{T.programActive[lang]}</p>
-                        <p className="text-[0.8125rem] font-bold text-foreground truncate">{activeProgramDef.name[lang]}</p>
+                        <p className="text-micro uppercase tracking-wider text-primary font-semibold">{T.programActive[lang]}</p>
+                        <p className="text-mini font-bold text-foreground truncate">{activeProgramDef.name[lang]}</p>
                       </div>
                       <button
                         onClick={() => setSection('programs')}
-                        className="text-[0.6875rem] font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
+                        className="text-micro font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
                       >
                         {T.changeProgram[lang]}
                       </button>
@@ -270,8 +270,8 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                       <Dumbbell className="w-5 h-5 text-blue-500" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-[0.75rem] font-bold text-foreground">{T.toolPlate[lang]}</p>
-                      <p className="text-[0.625rem] text-muted-foreground">
+                      <p className="text-mini font-bold text-foreground">{T.toolPlate[lang]}</p>
+                      <p className="text-micro text-muted-foreground">
                         {'احسب الأقراص لكل وزن — مرئي.'}
                       </p>
                     </div>
@@ -303,7 +303,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                       <button
                         key={k}
                         onClick={() => setPickedLift(k)}
-                        className={`shrink-0 text-[0.6875rem] font-semibold px-3 py-1.5 rounded-full border ${
+                        className={`shrink-0 text-micro font-semibold px-3 py-1.5 rounded-full border ${
                           pickedLift === k
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'bg-card text-muted-foreground border-border/40'
@@ -323,7 +323,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
             <>
               <VolumeBars workouts={workouts} windowDays={7} lang={lang} />
               <div className="bg-card border border-border/40 rounded-xl p-3 space-y-1.5">
-                <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
                   {'مفتاح المناطق'}
                 </p>
                 <VolumeZoneLegend lang={lang} />
@@ -368,7 +368,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                 <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
               </div>
               <div className="px-4 pb-6 space-y-3">
-                <h3 className="text-base font-bold text-foreground">{T.toolPlate[lang]}</h3>
+                <h3 className="text-body font-bold text-foreground">{T.toolPlate[lang]}</h3>
                 <PlateCalculator initialKg={60} lang={lang} />
               </div>
             </motion.div>
@@ -406,8 +406,8 @@ function BubbleStat({ icon, value, label, color }: { icon: React.ReactNode; valu
       <div className="flex items-center justify-center" style={{ color }}>
         {icon}
       </div>
-      <div className="text-[0.875rem] font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
-      <div className="text-[0.625rem] text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
+      <div className="text-meta font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
+      <div className="text-micro text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
     </div>
   );
 }
@@ -416,8 +416,8 @@ function EmptyState({ lang }: { lang: 'ar' }) {
   return (
     <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center space-y-2">
       <Dumbbell className="w-7 h-7 text-muted-foreground mx-auto" />
-      <p className="text-[0.75rem] font-semibold text-foreground">{T.emptyState[lang]}</p>
-      <p className="text-[0.625rem] text-muted-foreground">{T.emptyAfter[lang]}</p>
+      <p className="text-mini font-semibold text-foreground">{T.emptyState[lang]}</p>
+      <p className="text-micro text-muted-foreground">{T.emptyAfter[lang]}</p>
     </div>
   );
 }
@@ -428,11 +428,11 @@ function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.lastSession[lang]}</p>
-        <span className="text-[0.625rem] text-muted-foreground tabular-nums" dir="ltr">{session.date}</span>
+        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.lastSession[lang]}</p>
+        <span className="text-micro text-muted-foreground tabular-nums" dir="ltr">{session.date}</span>
       </div>
-      {session.title && <p className="text-[0.8125rem] font-bold text-foreground">{session.title}</p>}
-      <div className="flex items-center gap-2 text-[0.625rem] tabular-nums text-muted-foreground" dir="ltr">
+      {session.title && <p className="text-mini font-bold text-foreground">{session.title}</p>}
+      <div className="flex items-center gap-2 text-micro tabular-nums text-muted-foreground" dir="ltr">
         {vol > 0 && <span>{Math.round(vol)} kg</span>}
         <span>·</span>
         <span>{Math.round(dur / 60_000)} min</span>
@@ -449,7 +449,7 @@ function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang
   if (top.length === 0) return null;
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
-      <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+      <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
         <Activity className="w-3 h-3" /> {T.topMuscles[lang]}
       </p>
       <div className="space-y-1.5">
@@ -458,8 +458,8 @@ function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang
           const e1rm = bestE1RMFromSets(workouts.flatMap((w) => w.exercises.find((e) => e.exerciseKey === t.exerciseKey)?.sets ?? []));
           return (
             <div key={t.exerciseKey} className="flex items-baseline justify-between gap-2">
-              <span className="text-[0.6875rem] font-semibold text-foreground truncate">{def?.label[lang] ?? t.exerciseKey}</span>
-              <span className="text-[0.625rem] tabular-nums text-muted-foreground" dir="ltr">
+              <span className="text-micro font-semibold text-foreground truncate">{def?.label[lang] ?? t.exerciseKey}</span>
+              <span className="text-micro tabular-nums text-muted-foreground" dir="ltr">
                 {t.sessions} sessions
                 {e1rm != null && <span className="ms-1.5 text-amber-500">· {e1rm} kg</span>}
               </span>

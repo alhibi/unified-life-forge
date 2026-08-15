@@ -159,7 +159,7 @@ export function FullActivityMap({
         className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/40 bg-muted/5 text-muted-foreground ${className}`}
       >
         <MapPin className="w-8 h-8 text-muted-foreground/40 mb-2 animate-bounce" />
-        <span className="text-xs font-medium">لا توجد بيانات مسار لعرضها</span>
+        <span className="text-mini font-medium">لا توجد بيانات مسار لعرضها</span>
       </div>
     );
   }
@@ -181,7 +181,7 @@ export function FullActivityMap({
       {/* Floating coordinates badge */}
       <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md border border-border/40 px-2.5 py-1 rounded-xl pointer-events-none z-10 flex items-center gap-1.5 shadow-sm">
         <MapPin className="w-3.5 h-3.5 text-primary" />
-        <span className="font-bold text-[0.625rem] text-foreground Montserrat tabular-nums">
+        <span className="font-bold text-micro text-foreground Montserrat tabular-nums">
           {pts[0].lat.toFixed(4)}, {pts[0].lng.toFixed(4)}
         </span>
       </div>

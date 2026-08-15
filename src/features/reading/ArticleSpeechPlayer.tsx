@@ -168,7 +168,7 @@ export function ArticleSpeechPlayer({
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-2 text-mini font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <Volume2 className="h-4 w-4 text-primary" />
           <span>{'الاستماع للمقال'}</span>
@@ -203,7 +203,7 @@ export function ArticleSpeechPlayer({
           <button
             type="button"
             onClick={handleSpeedChange}
-            className="px-2.5 py-1.5 rounded-xl border border-border/60 hover:bg-accent/40 text-xs font-bold tabular-nums"
+            className="px-2.5 py-1.5 rounded-xl border border-border/60 hover:bg-accent/40 text-mini font-bold tabular-nums"
             title={'سرعة النطق'}
           >
             {ttsSpeed}x
@@ -213,7 +213,7 @@ export function ArticleSpeechPlayer({
 
       {expanded && voices.length > 0 && (
         <div className="pt-2 border-t border-border/30 flex flex-col gap-1.5">
-          <label className="text-[0.625rem] text-muted-foreground uppercase tracking-wider font-semibold">
+          <label className="text-micro text-muted-foreground uppercase tracking-wider font-semibold">
             {'اختر الصوت'}
           </label>
           <select
@@ -223,7 +223,7 @@ export function ArticleSpeechPlayer({
               // Stop to apply new voice immediately on next play
               handleStop();
             }}
-            className="w-full text-xs h-8 rounded-lg border border-border/50 bg-background/50 px-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full text-mini h-8 rounded-lg border border-border/50 bg-background/50 px-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             {voices.map((v) => (
               <option key={v.name} value={v.name}>

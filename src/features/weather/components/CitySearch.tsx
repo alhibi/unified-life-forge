@@ -122,7 +122,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={'البحث عن مدينة أو قرية...'}
-          className="w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all shadow-sm"
+          className="w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-meta outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all shadow-sm"
         />
         {query && (
           <button
@@ -144,7 +144,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
             className="absolute start-0 end-0 mt-2 p-3 bg-card border border-border rounded-2xl shadow-xl overflow-hidden max-h-[360px] overflow-y-auto no-scrollbar"
           >
             {loading && (
-              <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-2 py-6 text-meta text-muted-foreground">
                 <Loader className="w-4 h-4 animate-spin text-primary" />
                 <span>{'جاري البحث في الأرجاء...'}</span>
               </div>
@@ -152,7 +152,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
 
             {!loading && results.length > 0 && (
               <div className="space-y-1">
-                <div className="text-[0.625rem] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30">
+                <div className="text-micro tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30">
                   {'نتائج البحث'}
                 </div>
                 {results.map((city) => {
@@ -166,18 +166,18 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
                       <div className="flex items-center gap-3 min-w-0">
                         <MapPin className="w-4 h-4 text-primary shrink-0" />
                         <div className="min-w-0">
-                          <div className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                          <div className="text-meta font-bold text-foreground truncate flex items-center gap-1.5">
                             <span>{city.name}</span>
                             {city.country_code && (
-                              <span className="text-base" title={city.country}>
+                              <span className="text-body" title={city.country}>
                                 {getFlagEmoji(city.country_code)}
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
+                          <div className="text-mini text-foreground/80 font-semibold truncate tabular-nums">
                             {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                             {city.elevation !== undefined && (
-                              <span className="ms-1.5 text-primary text-[0.625rem] font-bold">
+                              <span className="ms-1.5 text-primary text-micro font-bold">
                                 ({Math.round(city.elevation)}m)
                               </span>
                             )}
@@ -200,7 +200,7 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
               <div className="space-y-4">
                 {favorites.length > 0 && (
                   <div className="space-y-1">
-                    <div className="text-[0.625rem] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
+                    <div className="text-micro tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
                       <span>{'المدن المفضلة'}</span>
                       <Star className="w-3.5 h-3.5 text-primary fill-primary" />
                     </div>
@@ -213,18 +213,18 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
                         <div className="flex items-center gap-3 min-w-0">
                           <MapPin className="w-4 h-4 text-primary shrink-0" />
                           <div className="min-w-0">
-                            <div className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                            <div className="text-meta font-bold text-foreground truncate flex items-center gap-1.5">
                               <span>{city.name}</span>
                               {city.country_code && (
-                                <span className="text-base" title={city.country}>
+                                <span className="text-body" title={city.country}>
                                   {getFlagEmoji(city.country_code)}
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
+                            <div className="text-mini text-foreground/80 font-semibold truncate tabular-nums">
                               {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                               {city.elevation !== undefined && (
-                                <span className="ms-1.5 text-primary text-[0.625rem] font-bold">
+                                <span className="ms-1.5 text-primary text-micro font-bold">
                                   ({Math.round(city.elevation)}m)
                                 </span>
                               )}
@@ -244,11 +244,11 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
 
                 {history.length > 0 && (
                   <div className="space-y-1">
-                    <div className="text-[0.625rem] tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
+                    <div className="text-micro tracking-[0.15em] uppercase text-muted-foreground px-2 pb-1.5 border-b border-border/30 flex items-center justify-between">
                       <span>{'عمليات البحث الأخيرة'}</span>
                       <button
                         onClick={clearHistory}
-                        className="text-[0.625rem] lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-micro lowercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {'مسح السجل'}
                       </button>
@@ -264,18 +264,18 @@ export default function CitySearch({ onSelectCity, }: CitySearchProps) {
                           <div className="flex items-center gap-3 min-w-0">
                             <History className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                             <div className="min-w-0">
-                              <div className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                              <div className="text-meta font-bold text-foreground truncate flex items-center gap-1.5">
                                 <span>{city.name}</span>
                                 {city.country_code && (
-                                  <span className="text-base" title={city.country}>
+                                  <span className="text-body" title={city.country}>
                                     {getFlagEmoji(city.country_code)}
                                   </span>
                                 )}
                               </div>
-                              <div className="text-xs text-foreground/80 font-semibold truncate tabular-nums">
+                              <div className="text-mini text-foreground/80 font-semibold truncate tabular-nums">
                                 {city.admin1 ? `${city.admin1}, ` : ''}{city.country}
                                 {city.elevation !== undefined && (
-                                  <span className="ms-1.5 text-primary text-[0.625rem] font-bold">
+                                  <span className="ms-1.5 text-primary text-micro font-bold">
                                     ({Math.round(city.elevation)}m)
                                   </span>
                                 )}

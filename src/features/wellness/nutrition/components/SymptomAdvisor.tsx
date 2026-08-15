@@ -145,14 +145,14 @@ export default function SymptomAdvisor({ lang }: Props) {
       <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">
           <Sparkles className="w-5 h-5 text-primary" />
-          <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
+          <h3 className="text-meta font-bold text-foreground">{T.title[lang]}</h3>
         </div>
-        <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
+        <p className="text-micro text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
       </div>
 
       {/* Selector pills */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground">{T.selectSymptom[lang]}</p>
+        <p className="text-mini font-semibold text-muted-foreground">{T.selectSymptom[lang]}</p>
         <div className="flex flex-wrap gap-1.5">
           {SYMPTOMS.map((s) => {
             const active = selectedSymptoms.includes(s.key);
@@ -160,7 +160,7 @@ export default function SymptomAdvisor({ lang }: Props) {
               <button
                 key={s.key}
                 onClick={() => handleToggleSymptom(s.key)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[0.6875rem] font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-micro font-semibold transition-all ${
                   active
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card text-muted-foreground border-border/40 hover:border-primary/30'
@@ -183,7 +183,7 @@ export default function SymptomAdvisor({ lang }: Props) {
             exit={{ opacity: 0, y: -8 }}
             className="space-y-3"
           >
-            <p className="text-xs font-semibold text-muted-foreground">
+            <p className="text-mini font-semibold text-muted-foreground">
               {T.potentialDeficiencies[lang]}
             </p>
             {advisorResults.map((def, idx) => {
@@ -197,22 +197,22 @@ export default function SymptomAdvisor({ lang }: Props) {
                     <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
                       <Info className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <h4 className="text-[0.75rem] font-bold text-foreground">
+                    <h4 className="text-mini font-bold text-foreground">
                       {def.nutrientName[lang]}
                     </h4>
                   </div>
-                  <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">
+                  <p className="text-micro text-muted-foreground leading-relaxed">
                     {def.cause[lang]}
                   </p>
                   <div className="space-y-1.5 pt-1.5 border-t border-border/30">
-                    <p className="text-[0.625rem] font-bold text-muted-foreground uppercase tracking-wider">
+                    <p className="text-micro font-bold text-muted-foreground uppercase tracking-wider">
                       {T.richFoods[lang]}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {matchedFoods.map((food) => (
                         <div
                           key={food.id}
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/20 border border-border/20 text-[0.6875rem]"
+                          className="flex items-center justify-between p-2 rounded-lg bg-muted/20 border border-border/20 text-micro"
                         >
                           <div className="flex items-center gap-2">
                             <span>{food.emoji}</span>
@@ -220,7 +220,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                           </div>
                           <button
                             onClick={() => handleQuickLog(food)}
-                            className="flex items-center gap-1 text-[0.625rem] bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
+                            className="flex items-center gap-1 text-micro bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
                           >
                             <Plus className="w-3 h-3" />
                             {T.quickAdd[lang]}
@@ -236,7 +236,7 @@ export default function SymptomAdvisor({ lang }: Props) {
         ) : (
           <div className="text-center py-10 border border-dashed border-border/40 rounded-2xl bg-card">
             <HelpCircle className="w-8 h-8 text-muted-foreground/30 mx-auto mb-1.5" />
-            <p className="text-xs text-muted-foreground">{T.subtitle[lang]}</p>
+            <p className="text-mini text-muted-foreground">{T.subtitle[lang]}</p>
           </div>
         )}
       </AnimatePresence>

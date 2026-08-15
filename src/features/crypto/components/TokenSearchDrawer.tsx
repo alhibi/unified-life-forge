@@ -121,7 +121,7 @@ export default function TokenSearchDrawer({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="اسم العملة، الرمز، أو عقد الزوج..."
-            className="w-full h-11 bg-muted/40 border border-border/40 rounded-md pe-10 ps-4 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
+            className="w-full h-11 bg-muted/40 border border-border/40 rounded-md pe-10 ps-4 text-meta text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
             style={{ fontSize: 16 }}
             maxLength={100}
             autoFocus
@@ -136,14 +136,14 @@ export default function TokenSearchDrawer({
         <div className="space-y-2.5 max-h-[48dvh] overflow-y-auto pe-0.5 scrollbar-thin">
           {error && (
             <div className="p-4 rounded-md border border-destructive/20 bg-destructive/5 text-center">
-              <p className="text-xs text-destructive">{error}</p>
+              <p className="text-mini text-destructive">{error}</p>
             </div>
           )}
 
           {!loading && results.length === 0 && debouncedQuery.trim() && (
             <div className="py-8 text-center" role="status">
-              <p className="text-sm font-semibold text-foreground/80 mb-1">لا توجد نتائج</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-meta font-semibold text-foreground/80 mb-1">لا توجد نتائج</p>
+              <p className="text-mini text-muted-foreground">
                 لم نجد أي أسواق مطابقة لـ «{debouncedQuery}». جرّب رمزاً آخر.
               </p>
             </div>
@@ -173,7 +173,7 @@ export default function TokenSearchDrawer({
                         }}
                       />
                     ) : (
-                      <span className="text-[0.625rem] font-bold text-muted-foreground">
+                      <span className="text-micro font-bold text-muted-foreground">
                         {pair.symbol.slice(0, 3)}
                       </span>
                     )}
@@ -181,14 +181,14 @@ export default function TokenSearchDrawer({
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-foreground tracking-tight truncate">
+                      <span className="text-meta font-bold text-foreground tracking-tight truncate">
                         {pair.symbol}
                       </span>
-                      <span className="text-[0.625rem] uppercase tracking-wider font-semibold text-muted-foreground/80 bg-muted/40 px-1.5 py-0.5 rounded-sm shrink-0">
+                      <span className="text-micro uppercase tracking-wider font-semibold text-muted-foreground/80 bg-muted/40 px-1.5 py-0.5 rounded-sm shrink-0">
                         {CHAIN_LABELS[pair.chainId as ChainId] || pair.chainId}
                       </span>
                     </div>
-                    <p className="text-[0.6875rem] text-muted-foreground truncate max-w-[160px] md:max-w-[200px]">
+                    <p className="text-micro text-muted-foreground truncate max-w-[160px] md:max-w-[200px]">
                       {pair.name} • {pair.dexId}
                     </p>
                   </div>
@@ -196,12 +196,12 @@ export default function TokenSearchDrawer({
 
                 <div className="flex items-center gap-2 shrink-0">
                   {/* Current formatted price */}
-                  <span className="text-xs font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                  <span className="text-mini font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
                     ${parseFloat(pair.priceUsd) < 0.01 ? pair.priceUsd : parseFloat(pair.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                   </span>
 
                   {added ? (
-                    <div className="flex h-8 items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2.5 text-[0.625rem] font-bold text-emerald-500">
+                    <div className="flex h-8 items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2.5 text-micro font-bold text-emerald-500">
                       <Check className="h-3 w-3 shrink-0" />
                       مضاف
                     </div>
@@ -226,7 +226,7 @@ export default function TokenSearchDrawer({
           })}
 
           {results.length > MAX_VISIBLE_RESULTS && (
-            <p className="text-[0.625rem] text-muted-foreground/75 text-center mt-2">
+            <p className="text-micro text-muted-foreground/75 text-center mt-2">
               تم إظهار أول {MAX_VISIBLE_RESULTS} من أصل {results.length} نتيجة بحث مطابقة.
             </p>
           )}

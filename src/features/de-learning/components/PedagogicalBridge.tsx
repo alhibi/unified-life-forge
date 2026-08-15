@@ -27,7 +27,7 @@ export const PedagogicalBridge: React.FC<PedagogicalBridgeProps> = ({
           <Compass className="h-4.5 w-4.5" />
         </div>
         <div>
-          <h4 className="font-tajawal text-sm font-bold text-foreground">الجسر اللغوي العربي-الألماني</h4>
+          <h4 className="font-tajawal text-meta font-bold text-foreground">الجسر اللغوي العربي-الألماني</h4>
           <span className="text-mini font-plex-mono uppercase tracking-widest text-[hsl(var(--live))] font-semibold">
             Pedagogical Bridge
           </span>
@@ -35,8 +35,8 @@ export const PedagogicalBridge: React.FC<PedagogicalBridgeProps> = ({
       </div>
 
       <div className="space-y-1.5 relative z-10">
-        <h5 className="font-tajawal text-xs font-bold text-foreground">{title}</h5>
-        <p className="font-tajawal text-xs text-muted-foreground leading-relaxed">
+        <h5 className="font-tajawal text-mini font-bold text-foreground">{title}</h5>
+        <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">
           {explanationAr}
         </p>
       </div>
@@ -51,7 +51,7 @@ export const PedagogicalBridge: React.FC<PedagogicalBridgeProps> = ({
               <span className="font-tajawal text-micro font-bold text-[hsl(var(--live))] uppercase tracking-wider">
                 مقارنة مع النحو العربي
               </span>
-              <p className="font-amiri text-sm text-foreground/90 leading-relaxed antialiased">
+              <p className="font-amiri text-meta text-foreground/90 leading-relaxed antialiased">
                 {contrastiveNoteAr}
               </p>
             </div>

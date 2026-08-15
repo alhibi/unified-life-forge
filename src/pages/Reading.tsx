@@ -519,7 +519,7 @@ export default function ReadingPage() {
         />
       </PullToRefresh>
 
-      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-[0.6875rem] text-muted-foreground">
+      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-micro text-muted-foreground">
         <button
           type="button"
           onClick={() => setView('storage')}
@@ -570,7 +570,7 @@ export default function ReadingPage() {
 
       {/* Connection recovery banner */}
       {!isOnline && view === 'list' && (
-        <div className="px-4 py-2 bg-warning/10 border-b border-warning/20 flex items-center gap-2 text-xs text-warning">
+        <div className="px-4 py-2 bg-warning/10 border-b border-warning/20 flex items-center gap-2 text-mini text-warning">
           <WifiOff className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
             {'لا يوجد اتصال — يتم عرض المحتوى المحفوظ'}
@@ -580,7 +580,7 @@ export default function ReadingPage() {
 
       {/* Consecutive failure warning */}
       {data.consecutiveFailures >= 3 && isOnline && view === 'list' && (
-        <div className="px-4 py-2 bg-destructive/5 border-b border-destructive/10 flex items-center gap-2 text-xs text-destructive/80">
+        <div className="px-4 py-2 bg-destructive/5 border-b border-destructive/10 flex items-center gap-2 text-mini text-destructive/80">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
             {'تعذّر التحديث عدة مرات — سيُعاد المحاولة تلقائياً'}

@@ -204,26 +204,26 @@ export default function ArchiveNew() {
       />
       <div className="flex items-center gap-3 mb-2">
         <BackButton />
-        <h1 className="text-xl font-bold text-foreground">توليد جديد</h1>
+        <h1 className="text-title font-bold text-foreground">توليد جديد</h1>
       </div>
 
       <AppCard>
-        <label className="block text-[0.8125rem] font-semibold text-foreground mb-2">الموضوع</label>
+        <label className="block text-mini font-semibold text-foreground mb-2">الموضوع</label>
         <textarea
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           disabled={running}
           placeholder="مثال: فلسفة العطور الشرقية، تاريخ الخط الكوفي، الوعي عند ابن سينا…"
           rows={3}
-          className="w-full bg-muted/40 border border-border/40 rounded-xl p-3 text-[0.9375rem] outline-none focus:border-primary/50 resize-none"
+          className="w-full bg-muted/40 border border-border/40 rounded-xl p-3 text-meta outline-none focus:border-primary/50 resize-none"
           style={{ fontSize: 16 }}
           maxLength={500}
         />
-        <div className="text-[0.6875rem] text-muted-foreground mt-1 text-end">{topic.length}/500</div>
+        <div className="text-micro text-muted-foreground mt-1 text-end">{topic.length}/500</div>
       </AppCard>
 
       <AppCard>
-        <label className="block text-[0.8125rem] font-semibold text-foreground mb-3">مستوى العمق المعرفي</label>
+        <label className="block text-mini font-semibold text-foreground mb-3">مستوى العمق المعرفي</label>
         <div className="flex flex-col gap-2">
           {DEPTHS.map((d) => (
             <button
@@ -238,9 +238,9 @@ export default function ArchiveNew() {
             >
               <div className="flex items-center justify-between mb-0.5">
                 <span className="font-bold text-foreground">{d.title}</span>
-                <span className="text-[0.6875rem] text-muted-foreground font-mono">{d.est}</span>
+                <span className="text-micro text-muted-foreground font-mono">{d.est}</span>
               </div>
-              <div className="text-[0.75rem] text-muted-foreground leading-relaxed">{d.subtitle}</div>
+              <div className="text-mini text-muted-foreground leading-relaxed">{d.subtitle}</div>
             </button>
           ))}
         </div>
@@ -250,7 +250,7 @@ export default function ArchiveNew() {
         <button
           onClick={() => setShowModels(!showModels)}
           disabled={running}
-          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-[0.8125rem] font-semibold text-foreground hover:bg-muted/40 transition-all"
+          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-mini font-semibold text-foreground hover:bg-muted/40 transition-all"
         >
           <span>⚙️ إعدادات النماذج والذكاء الاصطناعي</span>
           <ChevronDown
@@ -262,7 +262,7 @@ export default function ArchiveNew() {
           <div className="mt-3 space-y-3 pt-3 border-t border-border/20">
             {(['outline', 'expansion', 'synthesis'] as const).map((stage) => (
               <div key={stage}>
-                <label className="block text-[0.75rem] font-semibold text-foreground mb-2 capitalize">
+                <label className="block text-mini font-semibold text-foreground mb-2 capitalize">
                   {stage === 'outline' && '📋 نموذج الهيكل والبحث'}
                   {stage === 'expansion' && '✍️ نموذج التوسيع والكتابة'}
                   {stage === 'synthesis' && '🏷️ نموذج التلخيص والوسوم'}
@@ -271,7 +271,7 @@ export default function ArchiveNew() {
                   value={models[stage] || ''}
                   onChange={(e) => setModels({ ...models, [stage]: e.target.value })}
                   disabled={running}
-                  className="w-full bg-muted/40 border border-border/40 rounded-lg p-2 text-[0.75rem] outline-none focus:border-primary/50"
+                  className="w-full bg-muted/40 border border-border/40 rounded-lg p-2 text-mini outline-none focus:border-primary/50"
                 >
                   <option value="">تلقائي — {DEPTH_AUTO_MODELS[depth][stage]}</option>
                   {AVAILABLE_MODELS.map((m) => (
@@ -286,7 +286,7 @@ export default function ArchiveNew() {
             <button
               onClick={() => setModels(DEFAULT_MODELS)}
               disabled={running}
-              className="w-full text-[0.75rem] text-muted-foreground hover:text-foreground transition-colors py-2 border-t border-border/20 mt-2 pt-2"
+              className="w-full text-mini text-muted-foreground hover:text-foreground transition-colors py-2 border-t border-border/20 mt-2 pt-2"
             >
               إعادة تعيين للإعدادات الافتراضية
             </button>
@@ -298,7 +298,7 @@ export default function ArchiveNew() {
         <button
           onClick={start}
           disabled={topic.trim().length < 3}
-          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-[0.9375rem] font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
+          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
         >
           <Sparkles className="w-4 h-4" />
           ابدأ التوليد فائق السرعة
@@ -411,27 +411,27 @@ function GenerationOverlay({
               >
                 <AlertCircle className="w-11 h-11 text-destructive" strokeWidth={2} />
               </motion.div>
-              <h2 className="text-center text-lg font-bold text-foreground mb-2 tracking-tight">
+              <h2 className="text-center text-lead font-bold text-foreground mb-2 tracking-tight">
                 تعذّر إتمام التوليد
               </h2>
-              <div className="max-w-sm text-center text-[0.75rem] text-muted-foreground mb-2 line-clamp-2 px-4">
+              <div className="max-w-sm text-center text-mini text-muted-foreground mb-2 line-clamp-2 px-4">
                 « {topic} »
               </div>
               <div className="w-full rounded-xl border border-destructive/30 bg-destructive/5 p-3 mb-5">
-                <p className="text-[0.75rem] text-foreground/85 leading-relaxed text-center">
+                <p className="text-mini text-foreground/85 leading-relaxed text-center">
                   {error || 'حدث خطأ غير متوقع أثناء الاتصال بالخادم.'}
                 </p>
               </div>
               <div className="w-full flex flex-col gap-2">
                 <button
                   onClick={onRetry}
-                  className="w-full rounded-full bg-primary text-primary-foreground py-3 text-[0.875rem] font-bold active:scale-95 transition-transform"
+                  className="w-full rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold active:scale-95 transition-transform"
                 >
                   إعادة المحاولة
                 </button>
                 <button
                   onClick={onDismiss}
-                  className="w-full rounded-full bg-muted/60 text-foreground py-3 text-[0.8125rem] font-semibold active:scale-95 transition-transform"
+                  className="w-full rounded-full bg-muted/60 text-foreground py-3 text-mini font-semibold active:scale-95 transition-transform"
                 >
                   إغلاق
                 </button>
@@ -501,14 +501,14 @@ function GenerationOverlay({
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -12, opacity: 0 }}
                   transition={{ duration: 0.4 }}
-                  className="text-center text-lg font-bold text-foreground mb-1.5 tracking-tight"
+                  className="text-center text-lead font-bold text-foreground mb-1.5 tracking-tight"
                 >
                   {STAGE_HEADLINE[pipelineStage] ?? '...'}
                 </motion.h2>
               </AnimatePresence>
 
               {/* Topic chip */}
-              <div className="max-w-sm text-center text-[0.75rem] text-muted-foreground mb-6 line-clamp-2 px-4">
+              <div className="max-w-sm text-center text-mini text-muted-foreground mb-6 line-clamp-2 px-4">
                 « {topic} »
               </div>
 
@@ -529,7 +529,7 @@ function GenerationOverlay({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center justify-between text-[0.75rem] text-muted-foreground mb-5"
+                    className="flex items-center justify-between text-mini text-muted-foreground mb-5"
                   >
                     <span className="truncate flex-1">{message}</span>
                     {progress.total > 0 && (
@@ -564,7 +564,7 @@ function GenerationOverlay({
                           )}
                         </div>
                         <span
-                          className={`text-[0.625rem] ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/60'}`}
+                          className={`text-micro ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/60'}`}
                         >
                           {STAGE_LABEL[s]}
                         </span>

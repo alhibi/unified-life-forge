@@ -56,7 +56,7 @@ export default function OptimizerPanel({
       <div className="w-full lg:max-w-2xl bg-card rounded-t-3xl lg:rounded-3xl border border-border/60 shadow-2xl max-h-[90vh] flex flex-col">
         <header className="flex items-center gap-2 p-4 border-b border-border/40">
           <Sparkles className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-bold flex-1">
+          <h2 className="text-meta font-bold flex-1">
             {'محسِّن النص'}
           </h2>
           <button
@@ -76,7 +76,7 @@ export default function OptimizerPanel({
                 onClick={() => setMode(m)}
                 disabled={busy}
                 className={cn(
-                  'flex-1 h-10 rounded-xl border text-xs font-semibold text-start px-3',
+                  'flex-1 h-10 rounded-xl border text-mini font-semibold text-start px-3',
                   mode === m ? 'bg-primary/10 border-primary/40 text-primary' : 'bg-background border-border/60',
                 )}
               >
@@ -91,7 +91,7 @@ export default function OptimizerPanel({
             <button
               onClick={start}
               disabled={busy || !body.trim()}
-              className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95 transition-transform disabled:opacity-50"
+              className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95 transition-transform disabled:opacity-50"
             >
               {busy
                 ? ('جارٍ التوليد…')
@@ -100,7 +100,7 @@ export default function OptimizerPanel({
             {busy && (
               <button
                 onClick={cancel}
-                className="h-10 px-4 rounded-xl bg-background border border-border/60 text-sm"
+                className="h-10 px-4 rounded-xl bg-background border border-border/60 text-meta"
               >
                 {'إلغاء'}
               </button>
@@ -108,14 +108,14 @@ export default function OptimizerPanel({
           </div>
 
           {statusMsg() && (
-            <div className="text-xs text-destructive px-1">{statusMsg()}</div>
+            <div className="text-mini text-destructive px-1">{statusMsg()}</div>
           )}
 
           <div className="flex-1 min-h-0 overflow-auto rounded-xl bg-background/50 border border-border/40 p-3">
             {output ? (
               <DiffViewer original={body} optimized={output} />
             ) : (
-              <div className="text-xs text-muted-foreground text-center pt-10">
+              <div className="text-mini text-muted-foreground text-center pt-10">
                 {'اختر الوضع ثم اضغط "ابدأ" لتوليد نسخة مُنظَّمة من ملاحظتك.'}
               </div>
             )}
@@ -125,14 +125,14 @@ export default function OptimizerPanel({
             <button
               onClick={() => { reset(); }}
               disabled={!output || busy}
-              className="h-10 px-4 rounded-xl bg-background border border-border/60 text-sm disabled:opacity-50"
+              className="h-10 px-4 rounded-xl bg-background border border-border/60 text-meta disabled:opacity-50"
             >
               {'تراجع'}
             </button>
             <button
               onClick={() => { onAccept(output); reset(); onClose(); }}
               disabled={!canAccept}
-              className="flex-1 h-10 rounded-xl bg-emerald-600 text-white text-sm font-semibold active:scale-95 transition-transform disabled:opacity-50"
+              className="flex-1 h-10 rounded-xl bg-emerald-600 text-white text-meta font-semibold active:scale-95 transition-transform disabled:opacity-50"
             >
               {'قبول واستبدال'}
             </button>

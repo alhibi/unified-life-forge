@@ -45,7 +45,7 @@ export default function AuthGuard({
     return (
       <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center p-6 gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-xs text-muted-foreground/60 animate-pulse font-mono uppercase tracking-widest">
+        <p className="text-mini text-muted-foreground/60 animate-pulse font-mono uppercase tracking-widest">
           {'تحقق من الأمان…'}
         </p>
       </div>
@@ -74,17 +74,17 @@ export default function AuthGuard({
           </div>
 
           <div className="space-y-1.5">
-            <h1 className="text-lg font-bold text-foreground">
+            <h1 className="text-lead font-bold text-foreground">
               {fallbackTitleAr}
             </h1>
-            <p className="text-[0.8125rem] text-muted-foreground leading-relaxed">
+            <p className="text-mini text-muted-foreground leading-relaxed">
               {fallbackDescAr}
             </p>
           </div>
 
           <button
             onClick={() => navigate(`/auth?next=${encodeURIComponent(window.location.pathname)}`)}
-            className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/15"
+            className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-meta flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/15"
           >
             {'تسجيل الدخول'}
             <ArrowRight className="w-4 h-4" />

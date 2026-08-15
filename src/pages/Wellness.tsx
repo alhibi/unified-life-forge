@@ -213,14 +213,14 @@ export default function WellnessPage() {
                 <Activity className="w-7 h-7" />
               </div>
               <div className="space-y-1.5 relative z-10">
-                <h3 className="text-sm font-bold text-foreground">تطبيق اللياقة البدنية المتكامل</h3>
-                <p className="text-[0.6875rem] text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-meta font-bold text-foreground">تطبيق اللياقة البدنية المتكامل</h3>
+                <p className="text-micro text-muted-foreground max-w-xs mx-auto leading-relaxed">
                   لقد تمت ترقية قسم تتبع الأنشطة ليكون تطبيقاً مستقلاً متكاملاً مليئاً بالتفاصيل العميقة وجداول التمارين الأسبوعية، مؤقتات الاستراحة، حاسبات مؤشرات الوزن وحساب حرق السعرات الحرارية الدقيق.
                 </p>
               </div>
               <Button
                 onClick={() => navigate('/fitness')}
-                className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold active-tactile relative z-10"
+                className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-mini font-bold active-tactile relative z-10"
               >
                 افتح تطبيق اللياقة البدنية المستقل
                 <ChevronRight className="w-3.5 h-3.5 ms-1.5 inline-block rtl:rotate-180" />
@@ -278,7 +278,7 @@ export default function WellnessPage() {
             them to wherever they happened to come from. The privacy
             shortcut stays on the right. */}
         <header className="flex items-center justify-between mb-3">
-          <h1 className="text-[1.0625rem] font-medium tracking-tight text-foreground">
+          <h1 className="text-body font-medium tracking-tight text-foreground">
             {T.title[language]}
           </h1>
           <div className="flex items-center gap-1">
@@ -331,7 +331,7 @@ export default function WellnessPage() {
                     <span className="relative inline-flex items-center gap-1.5">
                       <Icon className="w-4 h-4 shrink-0" strokeWidth={active ? 2.4 : 2} />
                       <span
-                        className={`text-[0.75rem] font-semibold whitespace-nowrap leading-none ${
+                        className={`text-mini font-semibold whitespace-nowrap leading-none ${
                           active ? '' : 'tracking-tight'
                         }`}
                       >
@@ -392,26 +392,26 @@ export default function WellnessPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <h3 className="text-[0.8125rem] font-medium text-foreground">{T.privacyTitle[language]}</h3>
+                  <h3 className="text-mini font-medium text-foreground">{T.privacyTitle[language]}</h3>
                 </div>
                 <button onClick={() => setShowPrivacy(false)} className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center">
                   <X className="w-3 h-3 text-muted-foreground" />
                 </button>
               </div>
 
-              <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{T.privacyBody[language]}</p>
+              <p className="text-micro text-muted-foreground leading-relaxed">{T.privacyBody[language]}</p>
 
               <div className="space-y-1.5">
                 <button
                   onClick={handleExport}
-                  className="w-full py-2 rounded-xl bg-primary/10 text-primary text-[0.6875rem] font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
+                  className="w-full py-2 rounded-xl bg-primary/10 text-primary text-micro font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
                 >
                   <Download className="w-3 h-3" />
                   {T.exportData[language]}
                 </button>
                 <button
                   onClick={handleWipe}
-                  className="w-full py-2 rounded-xl bg-destructive/8 text-destructive text-[0.6875rem] font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
+                  className="w-full py-2 rounded-xl bg-destructive/8 text-destructive text-micro font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
                 >
                   <Trash2 className="w-3 h-3" />
                   {T.wipe[language]}
@@ -460,11 +460,11 @@ export default function WellnessPage() {
               <div className="text-center space-y-1">
                 <h2
                   id="wellness-welcome-title"
-                  className="text-[0.9375rem] font-medium text-foreground"
+                  className="text-meta font-medium text-foreground"
                 >
                   {T.welcomeTitle[language]}
                 </h2>
-                <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">
+                <p className="text-micro text-muted-foreground leading-relaxed">
                   {T.welcomeBody[language]}
                 </p>
               </div>
@@ -475,7 +475,7 @@ export default function WellnessPage() {
                     const icons = [Dumbbell, Dumbbell, Utensils, Library];
                     const Icon = icons[i];
                     return (
-                      <li key={i} className="flex items-center gap-2 text-[0.625rem] text-foreground/80">
+                      <li key={i} className="flex items-center gap-2 text-micro text-foreground/80">
                         <Icon className="w-3 h-3 text-muted-foreground shrink-0" />
                         <span className="font-medium">{txt}</span>
                       </li>
@@ -487,13 +487,13 @@ export default function WellnessPage() {
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={() => dismissOnboarding(false)}
-                  className="flex-1 py-2 rounded-xl bg-muted/50 text-muted-foreground text-[0.6875rem] font-medium hover:bg-muted/70 transition-colors"
+                  className="flex-1 py-2 rounded-xl bg-muted/50 text-muted-foreground text-micro font-medium hover:bg-muted/70 transition-colors"
                 >
                   {T.later[language]}
                 </button>
                 <button
                   onClick={() => dismissOnboarding(true)}
-                  className="flex-[2] py-2 rounded-xl bg-primary text-primary-foreground text-[0.6875rem] font-medium active:scale-[0.98] transition-transform"
+                  className="flex-[2] py-2 rounded-xl bg-primary text-primary-foreground text-micro font-medium active:scale-[0.98] transition-transform"
                 >
                   {T.setupCta[language]}
                   <ChevronRight className="w-3 h-3 inline-block ms-0.5" />

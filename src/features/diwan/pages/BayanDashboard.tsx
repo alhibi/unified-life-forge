@@ -78,13 +78,13 @@ export default function BayanDashboard() {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <span className="text-[0.625rem] uppercase font-mono tracking-wider bg-live/15 text-live px-2.5 py-0.5 rounded-full font-bold">
+                <span className="text-micro uppercase font-mono tracking-wider bg-live/15 text-live px-2.5 py-0.5 rounded-full font-bold">
                   محرك العلوم العميقة
                 </span>
-                <h1 className="text-2xl md:text-3xl font-bold font-amiri tracking-tight mt-1">
+                <h1 className="text-display md:text-hero font-bold font-amiri tracking-tight mt-1">
                   البيَانُ — التَّحْلِيلُ اللُّغَوِيُّ العَمِيقُ
                 </h1>
-                <p className="text-xs text-muted-foreground mt-0.5 font-amiri">
+                <p className="text-mini text-muted-foreground mt-0.5 font-amiri">
                   إعراب فوري، ميزان صرفي، فحص عروضي كامل، وكشف الجمال البلاغي
                 </p>
               </div>
@@ -94,7 +94,7 @@ export default function BayanDashboard() {
               {activeAnalysis && (
                 <button
                   onClick={handleToggleBookmark}
-                  className="px-3.5 py-2 rounded-lg border border-border bg-surface hover:border-live text-xs font-semibold flex items-center gap-2 transition-all active-tactile"
+                  className="px-3.5 py-2 rounded-lg border border-border bg-surface hover:border-live text-mini font-semibold flex items-center gap-2 transition-all active-tactile"
                 >
                   {isBookmarked ? (
                     <>
@@ -119,14 +119,14 @@ export default function BayanDashboard() {
           {/* Left panel / Input Form */}
           <div className="lg:col-span-4 space-y-6">
             <div className="p-5 rounded-2xl border border-border bg-surface shadow-sm">
-              <h2 className="text-sm font-bold border-b border-border/50 pb-3 mb-4 flex items-center gap-2">
+              <h2 className="text-meta font-bold border-b border-border/50 pb-3 mb-4 flex items-center gap-2">
                 <Search className="w-4 h-4 text-live" />
                 <span>التحليل الفوري الفائق</span>
               </h2>
 
               <form onSubmit={handleAnalyze} className="space-y-4">
                 <div>
-                  <label htmlFor="bayan-text-input" className="block text-xs text-muted-foreground mb-2">
+                  <label htmlFor="bayan-text-input" className="block text-mini text-muted-foreground mb-2">
                     أدخل بيتاً شعرياً أو جملة عربية فصحى:
                   </label>
                   <textarea
@@ -135,14 +135,14 @@ export default function BayanDashboard() {
                     onChange={(e) => setInputText(e.target.value)}
                     rows={4}
                     placeholder="مثال: قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ ... بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ"
-                    className="w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground/60 font-amiri leading-relaxed focus:outline-none focus:border-live"
+                    className="w-full rounded-lg border border-border bg-background p-3 text-meta text-foreground placeholder:text-muted-foreground/60 font-amiri leading-relaxed focus:outline-none focus:border-live"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 rounded-lg bg-live text-white font-bold text-sm transition-all shadow-md active-tactile disabled:opacity-50 hover:bg-live/90 flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-lg bg-live text-white font-bold text-meta transition-all shadow-md active-tactile disabled:opacity-50 hover:bg-live/90 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -157,7 +157,7 @@ export default function BayanDashboard() {
             {/* Analysis History */}
             {history.length > 0 && (
               <div className="p-5 rounded-2xl border border-border bg-surface shadow-sm">
-                <h3 className="text-xs font-mono font-bold text-muted-foreground tracking-wider uppercase border-b border-border/50 pb-3 mb-3 flex items-center gap-2">
+                <h3 className="text-mini font-mono font-bold text-muted-foreground tracking-wider uppercase border-b border-border/50 pb-3 mb-3 flex items-center gap-2">
                   <History className="w-4 h-4 text-live" />
                   <span>السجل الفوري الفني</span>
                 </h3>
@@ -172,10 +172,10 @@ export default function BayanDashboard() {
                           : "bg-surface hover:bg-background border-border/50"
                       }`}
                     >
-                      <span className="text-xs font-semibold text-foreground font-amiri truncate max-w-full">
+                      <span className="text-mini font-semibold text-foreground font-amiri truncate max-w-full">
                         {past.inputText}
                       </span>
-                      <span className="text-[0.625rem] font-mono text-muted-foreground">
+                      <span className="text-micro font-mono text-muted-foreground">
                         {new Date(past.analyzedAt).toLocaleTimeString("ar-EG")}
                       </span>
                     </button>
@@ -190,8 +190,8 @@ export default function BayanDashboard() {
             {!activeAnalysis ? (
               <div className="p-12 text-center border border-dashed border-border/85 rounded-2xl bg-surface/20">
                 <BookOpen className="w-12 h-12 mx-auto text-muted-foreground/35 mb-4" />
-                <h3 className="text-base font-bold font-amiri text-foreground">في انتظار إدخال البيانات</h3>
-                <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto font-amiri">
+                <h3 className="text-body font-bold font-amiri text-foreground">في انتظار إدخال البيانات</h3>
+                <p className="text-mini text-muted-foreground mt-1 max-w-sm mx-auto font-amiri">
                   أدخل جملة أو بيتاً فصيحاً لنقوم بتشريحها إعرابياً وبلاغياً وصرفياً بدقة فائقة.
                 </p>
               </div>
@@ -203,7 +203,7 @@ export default function BayanDashboard() {
                   {activeAnalysis.prosody && (
                     <button
                       onClick={() => setActiveTab("prosody")}
-                      className={`px-4 py-2 text-xs font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                      className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
                         activeTab === "prosody"
                           ? "border-live text-live"
                           : "border-transparent text-muted-foreground hover:text-foreground"
@@ -216,7 +216,7 @@ export default function BayanDashboard() {
 
                   <button
                     onClick={() => setActiveTab("syntax")}
-                    className={`px-4 py-2 text-xs font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                    className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
                       activeTab === "syntax"
                         ? "border-live text-live"
                         : "border-transparent text-muted-foreground hover:text-foreground"
@@ -228,7 +228,7 @@ export default function BayanDashboard() {
 
                   <button
                     onClick={() => setActiveTab("morphology")}
-                    className={`px-4 py-2 text-xs font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                    className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
                       activeTab === "morphology"
                         ? "border-live text-live"
                         : "border-transparent text-muted-foreground hover:text-foreground"
@@ -240,7 +240,7 @@ export default function BayanDashboard() {
 
                   <button
                     onClick={() => setActiveTab("rhetoric")}
-                    className={`px-4 py-2 text-xs font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                    className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
                       activeTab === "rhetoric"
                         ? "border-live text-live"
                         : "border-transparent text-muted-foreground hover:text-foreground"
@@ -263,8 +263,8 @@ export default function BayanDashboard() {
                   {activeTab === "syntax" && (
                     <div className="space-y-6">
                       <div className="p-4 rounded-xl border border-border/40 bg-surface/20">
-                        <span className="text-[0.625rem] text-muted-foreground block font-mono">نوع الجملة الرئيسية</span>
-                        <span className="text-base font-bold font-amiri text-foreground mt-1 block">
+                        <span className="text-micro text-muted-foreground block font-mono">نوع الجملة الرئيسية</span>
+                        <span className="text-body font-bold font-amiri text-foreground mt-1 block">
                           {activeAnalysis.syntax.sentenceType === "verbal" ? "جملة فعلية كبرى" : "جملة اسمية كبرى"}
                         </span>
                       </div>
@@ -276,20 +276,20 @@ export default function BayanDashboard() {
 
                       {/* Detailed Tokens Grid */}
                       <div className="space-y-3">
-                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">تشريح الإعراب التفصيلي</h4>
+                        <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider">تشريح الإعراب التفصيلي</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {activeAnalysis.syntax.tokens.map((token, idx) => (
                             <div key={idx} className="p-3.5 rounded-xl border border-border bg-surface flex flex-col justify-between">
                               <div className="flex justify-between items-start gap-2 border-b border-border/30 pb-2 mb-2">
-                                <span className="text-base font-bold text-foreground font-amiri">«{token.word}»</span>
-                                <span className="text-[0.625rem] font-mono bg-live/15 text-live px-2 py-0.5 rounded-full font-bold">
+                                <span className="text-body font-bold text-foreground font-amiri">«{token.word}»</span>
+                                <span className="text-micro font-mono bg-live/15 text-live px-2 py-0.5 rounded-full font-bold">
                                   {token.syntacticRole}
                                 </span>
                               </div>
-                              <p className="text-xs text-muted-foreground font-amiri leading-relaxed">
+                              <p className="text-mini text-muted-foreground font-amiri leading-relaxed">
                                 {token.explanation}
                               </p>
-                              <span className="text-[0.625rem] text-live mt-2 font-mono">
+                              <span className="text-micro text-live mt-2 font-mono">
                                 العلامة: {token.markerDetail}
                               </span>
                             </div>
@@ -306,29 +306,29 @@ export default function BayanDashboard() {
                         {activeAnalysis.morphology.tokens.map((t, idx) => (
                           <div key={idx} className="p-4 rounded-xl border border-border bg-surface space-y-2">
                             <div className="flex justify-between items-center border-b border-border/30 pb-2 mb-2">
-                              <span className="text-base font-bold text-foreground font-amiri">{t.word}</span>
-                              <span className="text-[0.625rem] bg-live/10 text-live px-2 py-0.5 rounded-md font-mono">
+                              <span className="text-body font-bold text-foreground font-amiri">{t.word}</span>
+                              <span className="text-micro bg-live/10 text-live px-2 py-0.5 rounded-md font-mono">
                                 {t.pattern}
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="grid grid-cols-2 gap-2 text-mini">
                               <div>
-                                <span className="text-muted-foreground block text-[0.625rem]">الجذر اللغوي</span>
-                                <span className="font-bold text-foreground font-amiri text-sm">{t.root}</span>
+                                <span className="text-muted-foreground block text-micro">الجذر اللغوي</span>
+                                <span className="font-bold text-foreground font-amiri text-meta">{t.root}</span>
                               </div>
                               <div>
-                                <span className="text-muted-foreground block text-[0.625rem]">النوع الصرفي</span>
+                                <span className="text-muted-foreground block text-micro">النوع الصرفي</span>
                                 <span className="font-semibold text-foreground font-amiri">{t.derivationType || "جامد"}</span>
                               </div>
                             </div>
 
                             {t.features.length > 0 && (
                               <div className="pt-2 border-t border-border/30">
-                                <span className="text-[0.625rem] text-muted-foreground block mb-1">العلل والزيادات الصرفية:</span>
+                                <span className="text-micro text-muted-foreground block mb-1">العلل والزيادات الصرفية:</span>
                                 <div className="flex flex-wrap gap-1">
                                   {t.features.map((f, fIdx) => (
-                                    <span key={fIdx} className="text-[0.625rem] bg-muted/60 text-foreground px-1.5 py-0.5 rounded">
+                                    <span key={fIdx} className="text-micro bg-muted/60 text-foreground px-1.5 py-0.5 rounded">
                                       {f}
                                     </span>
                                   ))}
@@ -347,25 +347,25 @@ export default function BayanDashboard() {
                       {/* Overall Eloquence Score Meter */}
                       <div className="p-5 rounded-xl border border-border bg-surface flex items-center justify-between gap-6">
                         <div className="space-y-1">
-                          <span className="text-xs text-muted-foreground block">مؤشر البلاغة التراكمي</span>
-                          <span className="text-3xl font-black text-foreground font-mono">
+                          <span className="text-mini text-muted-foreground block">مؤشر البلاغة التراكمي</span>
+                          <span className="text-hero font-black text-foreground font-mono">
                             {activeAnalysis.rhetoric.eloquenceIndex}%
                           </span>
-                          <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
+                          <p className="text-mini text-muted-foreground max-w-sm leading-relaxed">
                             {activeAnalysis.rhetoric.styleCohesionSummary}
                           </p>
                         </div>
 
-                        <div className="w-16 h-16 rounded-full border-4 border-live/10 border-t-live flex items-center justify-center font-mono font-bold text-sm">
+                        <div className="w-16 h-16 rounded-full border-4 border-live/10 border-t-live flex items-center justify-center font-mono font-bold text-meta">
                           {activeAnalysis.rhetoric.sentenceStyle === "expressive" ? "إنشائي" : activeAnalysis.rhetoric.sentenceStyle === "informative" ? "خبري" : "مزيج"}
                         </div>
                       </div>
 
                       {/* Detected Figures of speech list */}
                       <div className="space-y-3">
-                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">الجماليات والمحسنات البيانية واللفظية</h4>
+                        <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider">الجماليات والمحسنات البيانية واللفظية</h4>
                         {activeAnalysis.rhetoric.rhetoricalFigures.length === 0 ? (
-                          <p className="text-xs text-muted-foreground font-amiri text-center py-6">
+                          <p className="text-mini text-muted-foreground font-amiri text-center py-6">
                             خلو نسبي من المحسنات اللفظية الكبرى المباشرة؛ يغلب عليه الأسلوب التقريري الواضح.
                           </p>
                         ) : (
@@ -373,19 +373,19 @@ export default function BayanDashboard() {
                             {activeAnalysis.rhetoric.rhetoricalFigures.map((fig) => (
                               <div key={fig.id} className="p-4 rounded-xl border border-border bg-surface flex justify-between gap-4">
                                 <div className="space-y-1">
-                                  <span className="text-xs bg-live/10 text-live px-2 py-0.5 rounded-full font-mono font-bold">
+                                  <span className="text-mini bg-live/10 text-live px-2 py-0.5 rounded-full font-mono font-bold">
                                     {fig.category}
                                   </span>
-                                  <h5 className="text-sm font-bold text-foreground font-amiri mt-1">
+                                  <h5 className="text-meta font-bold text-foreground font-amiri mt-1">
                                     المقتطف: «{fig.snippet}»
                                   </h5>
-                                  <p className="text-xs text-muted-foreground font-amiri">
+                                  <p className="text-mini text-muted-foreground font-amiri">
                                     {fig.description}
                                   </p>
                                 </div>
                                 <div className="text-end flex flex-col justify-center">
-                                  <span className="text-[0.625rem] text-muted-foreground block">وزن البلاغة</span>
-                                  <span className="text-lg font-mono font-black text-live">
+                                  <span className="text-micro text-muted-foreground block">وزن البلاغة</span>
+                                  <span className="text-lead font-mono font-black text-live">
                                     {fig.eloquenceWeight}/10
                                   </span>
                                 </div>

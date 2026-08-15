@@ -46,15 +46,15 @@ export default function WeatherWidget() {
 
         <span className="flex min-w-0 items-baseline gap-2">
           <span
-            className="text-[1.625rem] font-extralight leading-none tracking-tight text-foreground tabular-nums"
+            className="text-hero font-extralight leading-none tracking-tight text-foreground tabular-nums"
             dir="ltr"
           >
             {temp}°
           </span>
-          <span className="truncate text-[0.75rem] text-muted-foreground">{cond}</span>
+          <span className="truncate text-mini text-muted-foreground">{cond}</span>
         </span>
 
-        <span className="ms-auto flex shrink-0 items-center gap-2.5 text-[0.6875rem] text-muted-foreground tabular-nums">
+        <span className="ms-auto flex shrink-0 items-center gap-2.5 text-micro text-muted-foreground tabular-nums">
           <span className="flex items-center gap-1" dir="ltr">
             <Droplets className="h-3 w-3 text-primary" />
             {Math.round(current.humidity)}%

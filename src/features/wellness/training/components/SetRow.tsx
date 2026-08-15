@@ -55,7 +55,7 @@ export default function SetRow({
       }`}
     >
       <div className="flex items-center gap-2" dir="ltr">
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[0.75rem] font-bold tabular-nums ${
+        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-mini font-bold tabular-nums ${
           isCompleted ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'
         }`}>
           {index + 1}
@@ -70,7 +70,7 @@ export default function SetRow({
               onChange={(e) => onChange({ durationSec: Math.max(0, parseInt(e.target.value, 10) || 0) * 60 })}
               placeholder={'دقيقة'}
               aria-label={T.duration[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[0.9375rem] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
             />
             <input
               type="number"
@@ -80,7 +80,7 @@ export default function SetRow({
               onChange={(e) => onChange({ distanceKm: parseFloat(e.target.value) || 0 })}
               placeholder="km"
               aria-label={T.distance[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[0.9375rem] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
             />
           </>
         ) : (
@@ -93,9 +93,9 @@ export default function SetRow({
               onChange={(e) => onChange({ weightKg: parseFloat(e.target.value) || 0 })}
               placeholder={suggestion?.weightKg != null ? `${suggestion.weightKg}` : 'kg'}
               aria-label={T.weight[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[0.9375rem] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
             />
-            <span className="text-[0.75rem] text-muted-foreground">×</span>
+            <span className="text-mini text-muted-foreground">×</span>
             <input
               type="number"
               inputMode="numeric"
@@ -103,7 +103,7 @@ export default function SetRow({
               onChange={(e) => onChange({ reps: parseInt(e.target.value, 10) || 0 })}
               placeholder={suggestion?.reps != null ? `${suggestion.reps}` : T.reps[lang]}
               aria-label={T.reps[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-[0.9375rem] tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
             />
           </>
         )}

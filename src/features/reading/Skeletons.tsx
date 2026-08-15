@@ -65,10 +65,7 @@ export function ShimmerBar({
       transition={{ delay: delay / 1000 }}
     >
       <motion.div
-        className="absolute inset-0"
-        style={{
-          
-        }}
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
         animate={{ x: ['-100%', '100%'] }}
         transition={{
           duration: 1.4,

@@ -265,7 +265,7 @@ export default function PriceChart({
     <section className="relative overflow-hidden rounded-3xl border border-border/10 bg-gradient-to-b from-muted/10 to-transparent">
       {/* Header — identity, live price and delta */}
       <header className="px-4 pt-4 text-end" dir="rtl">
-        <div className="mb-1 flex items-center justify-end gap-1.5 text-[0.625rem] text-muted-foreground">
+        <div className="mb-1 flex items-center justify-end gap-1.5 text-micro text-muted-foreground">
           {updatedAt && (
             <span className="font-plex-mono tabular-nums" dir="ltr">
               {new Date(updatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -282,14 +282,14 @@ export default function PriceChart({
         </div>
 
         <div className="flex items-baseline justify-end gap-1 font-plex-mono tabular-nums" dir="ltr">
-          <span className="text-[2.25rem] font-semibold leading-none tracking-tight text-foreground">{head}</span>
-          <span className="text-lg font-medium leading-none text-muted-foreground">{tail}</span>
+          <span className="text-hero font-semibold leading-none tracking-tight text-foreground">{head}</span>
+          <span className="text-lead font-medium leading-none text-muted-foreground">{tail}</span>
         </div>
 
         <div className="mt-2 flex items-center justify-end gap-2">
-          <span className="text-[0.6875rem] text-muted-foreground">{CHART_RANGE_LABELS[range]}</span>
+          <span className="text-micro text-muted-foreground">{CHART_RANGE_LABELS[range]}</span>
           <span
-            className="font-plex-mono text-[0.6875rem] tabular-nums text-muted-foreground"
+            className="font-plex-mono text-micro tabular-nums text-muted-foreground"
             dir="ltr"
           >
             ({deltaUp ? '+' : ''}
@@ -297,7 +297,7 @@ export default function PriceChart({
           </span>
           <span
             className={cn(
-              'flex items-center gap-1 rounded-full px-2 py-0.5 font-plex-mono text-[0.6875rem] font-bold tabular-nums',
+              'flex items-center gap-1 rounded-full px-2 py-0.5 font-plex-mono text-micro font-bold tabular-nums',
               deltaUp ? 'bg-emerald-500/12 text-emerald-500' : 'bg-rose-500/12 text-rose-500'
             )}
             dir="ltr"
@@ -317,7 +317,7 @@ export default function PriceChart({
 
         {state === 'error' && !series && (
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-mini text-muted-foreground">
               لا تتوفر بيانات رسم بياني لهذا الزوج حالياً.
             </p>
           </div>
@@ -330,7 +330,7 @@ export default function PriceChart({
               {priceTicks.map((tick) => (
                 <span
                   key={tick.y}
-                  className="absolute -translate-y-1/2 font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground/60"
+                  className="absolute -translate-y-1/2 font-plex-mono text-micro tabular-nums text-muted-foreground/60"
                   style={{ top: `${(tick.y / VIEW_H) * 100}%`, left: 0 }}
                 >
                   {formatPrice(tick.value)}
@@ -342,7 +342,7 @@ export default function PriceChart({
               ref={svgRef}
               viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
               preserveAspectRatio="none"
-              className="h-full w-full touch-pan-y pl-[4.25rem]"
+              className="h-full w-full touch-pan-y ps-[4.25rem]"
               onPointerMove={handlePointer}
               onPointerDown={handlePointer}
               onPointerLeave={() => setHoverIndex(null)}
@@ -433,7 +433,7 @@ export default function PriceChart({
                   <span
                     key={`label-${tick.x}`}
                     className={cn(
-                      'absolute font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground/60',
+                      'absolute font-plex-mono text-micro tabular-nums text-muted-foreground/60',
                       !isFirst && !isLast && '-translate-x-1/2',
                       isLast && '-translate-x-full'
                     )}
@@ -454,10 +454,10 @@ export default function PriceChart({
                     left: `${Math.min(Math.max((activePoint.x / VIEW_W) * 100, 12), 88)}%`,
                   }}
                 >
-                  <p className="font-plex-mono text-[0.6875rem] font-bold tabular-nums text-foreground" dir="ltr">
+                  <p className="font-plex-mono text-micro font-bold tabular-nums text-foreground" dir="ltr">
                     ${formatPrice(activePoint.value)}
                   </p>
-                  <p className="font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground" dir="ltr">
+                  <p className="font-plex-mono text-micro tabular-nums text-muted-foreground" dir="ltr">
                     {formatTooltipTime(activePoint.t, range)}
                   </p>
                 </div>
@@ -478,7 +478,7 @@ export default function PriceChart({
               setRange(option);
             }}
             className={cn(
-              'flex-1 rounded-full px-2 py-1.5 text-[0.6875rem] font-semibold transition-colors duration-normal active:scale-95',
+              'flex-1 rounded-full px-2 py-1.5 text-micro font-semibold transition-colors duration-normal active:scale-95',
               range === option
                 ? isUp
                   ? 'bg-emerald-500/12 text-emerald-500'

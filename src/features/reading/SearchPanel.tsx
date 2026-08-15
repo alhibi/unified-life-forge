@@ -261,7 +261,7 @@ export function SearchPanel({
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
         </button>
         <Search className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-bold flex-1">
+        <h3 className="text-body font-bold flex-1">
           {'بحث الأرشيف'}
         </h3>
       </div>
@@ -274,7 +274,7 @@ export function SearchPanel({
             placeholder={'ابحث في كل المقالات المؤرشفة...'}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="ps-10 h-11 text-sm rounded-xl"
+            className="ps-10 h-11 text-meta rounded-xl"
           />
           {q && (
             <button
@@ -302,7 +302,7 @@ export function SearchPanel({
               key={r.id}
               type="button"
               onClick={() => setRange(r.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors shrink-0 ${
+              className={`px-3 py-1.5 rounded-full text-mini font-medium transition-colors shrink-0 ${
                 range === r.id
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'
@@ -312,7 +312,7 @@ export function SearchPanel({
             </button>
           ))}
           {restrictTo && restrictTo.length > 0 && (
-            <span className="ms-auto shrink-0 text-[0.625rem] text-muted-foreground/70">
+            <span className="ms-auto shrink-0 text-micro text-muted-foreground/70">
               {`${restrictTo.length} مصدر مفعّل`}
             </span>
           )}
@@ -340,7 +340,7 @@ export function SearchPanel({
         {q.length > 0 && (
           <div className="px-4 py-2.5 border-b border-border/20 flex items-center gap-2">
             {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
-            <span className="text-[0.6875rem] text-muted-foreground tabular-nums">
+            <span className="text-micro text-muted-foreground tabular-nums">
               {headline}
             </span>
           </div>
@@ -352,17 +352,17 @@ export function SearchPanel({
               <Search className="h-5 w-5 text-destructive" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-meta font-medium text-foreground">
                 {'تعذّر إكمال البحث'}
               </p>
-              <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+              <p className="text-mini text-muted-foreground max-w-xs leading-relaxed">
                 {error}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setRetryNonce((n) => n + 1)}
-              className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium transition-colors active:scale-95"
+              className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-mini font-medium transition-colors active:scale-95"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               {'إعادة المحاولة'}
@@ -372,7 +372,7 @@ export function SearchPanel({
 
         {!loading && !error && q.length > 0 && debounced.length < 2 && (
           <div className="flex flex-col items-center justify-center py-20 gap-2 text-center px-6">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-meta text-muted-foreground">
               {'اكتب حرفين على الأقل'}
             </p>
           </div>
@@ -400,23 +400,23 @@ export function SearchPanel({
               className="w-full text-start p-4 hover:bg-accent/20 active:bg-accent/30 transition-colors flex gap-3 border-b border-border/15"
             >
               <div className="flex-1 min-w-0">
-                <h4 className="text-[0.875rem] font-semibold leading-snug line-clamp-2">
+                <h4 className="text-meta font-semibold leading-snug line-clamp-2">
                   {highlightText(hit.title, debounced)}
                 </h4>
                 {hit.description && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                  <p className="text-mini text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                     {highlightText(hit.description, debounced)}
                   </p>
                 )}
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <SourcePill name={hit.source_name} size="sm" />
-                  <span className="text-[0.6875rem] text-foreground/70 font-medium">
+                  <span className="text-micro text-foreground/70 font-medium">
                     {hit.source_name}
                   </span>
                   {hit.pub_date && (
                     <>
                       <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                      <span className="text-[0.6875rem] text-muted-foreground/70">
+                      <span className="text-micro text-muted-foreground/70">
                         {timeAgo(hit.pub_date, language)}
                       </span>
                     </>
@@ -459,7 +459,7 @@ function RecentSearches({
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-center px-6">
         <Search className="h-8 w-8 text-muted-foreground/30" />
-        <p className="text-sm text-muted-foreground max-w-xs">
+        <p className="text-meta text-muted-foreground max-w-xs">
           {'اكتب كلمتين أو أكثر للبحث في كامل الأرشيف'}
         </p>
       </div>
@@ -468,14 +468,14 @@ function RecentSearches({
   return (
     <div className="px-4 py-3">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
+        <p className="text-micro uppercase tracking-wider font-bold text-muted-foreground inline-flex items-center gap-1.5">
           <Clock className="h-3 w-3" />
           {'عمليات البحث الأخيرة'}
         </p>
         <button
           type="button"
           onClick={onClear}
-          className="text-[0.625rem] text-muted-foreground hover:text-foreground transition-colors"
+          className="text-micro text-muted-foreground hover:text-foreground transition-colors"
         >
           {'مسح الكل'}
         </button>
@@ -492,9 +492,9 @@ function RecentSearches({
               className="flex-1 text-start flex items-center gap-3 py-2 ps-3 min-w-0"
             >
               <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-              <span className="text-sm truncate flex-1">{entry.q}</span>
+              <span className="text-meta truncate flex-1">{entry.q}</span>
               {typeof entry.hits === 'number' && entry.hits > 0 && (
-                <span className="text-[0.625rem] text-muted-foreground/60 inline-flex items-center gap-1 shrink-0">
+                <span className="text-micro text-muted-foreground/60 inline-flex items-center gap-1 shrink-0">
                   <TrendingUp className="h-2.5 w-2.5" />
                   {entry.hits}
                 </span>

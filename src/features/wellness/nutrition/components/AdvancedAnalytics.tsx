@@ -60,14 +60,14 @@ export default function AdvancedAnalytics({ lang }: Props) {
       <div className="rounded-2xl p-4 bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-1.5">
           <BarChart3 className="w-5 h-5 text-primary" />
-          <h3 className="text-sm font-bold text-foreground">{T.title[lang]}</h3>
+          <h3 className="text-meta font-bold text-foreground">{T.title[lang]}</h3>
         </div>
-        <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
+        <p className="text-micro text-muted-foreground leading-relaxed">{T.subtitle[lang]}</p>
       </div>
 
       {/* Energy split - custom chart elements */}
       <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
-        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+        <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <TrendingUp className="w-3.5 h-3.5 text-primary" />
           {T.ratios[lang]}
         </h4>
@@ -85,7 +85,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
             style={{ width: `${fPct || 34}%` }}
           />
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center text-[0.625rem]">
+        <div className="grid grid-cols-3 gap-2 text-center text-micro">
           <div>
             <span className="inline-block w-2 h-2 rounded-full bg-red-500 me-1" />
             <span className="text-muted-foreground">{T.protein[lang]}</span>
@@ -106,7 +106,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
 
       {/* RDA Index */}
       <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
-        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+        <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <Award className="w-3.5 h-3.5 text-primary" />
           {T.scorecard[lang]}
         </h4>
@@ -134,9 +134,9 @@ export default function AdvancedAnalytics({ lang }: Props) {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="absolute text-sm font-bold text-foreground tabular-nums">75%</span>
+            <span className="absolute text-meta font-bold text-foreground tabular-nums">75%</span>
           </div>
-          <div className="space-y-1.5 text-[0.6875rem] text-muted-foreground leading-relaxed">
+          <div className="space-y-1.5 text-micro text-muted-foreground leading-relaxed">
             <p className="font-bold text-foreground">{T.biomedicalTips[lang]}</p>
             <p>{T.densityTip[lang]}</p>
           </div>

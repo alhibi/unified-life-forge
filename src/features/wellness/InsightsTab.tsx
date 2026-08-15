@@ -79,10 +79,10 @@ export default function InsightsTab({
           <div className="flex items-start gap-3">
             <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div>
-              <h3 className="text-sm font-bold text-foreground">
+              <h3 className="text-meta font-bold text-foreground">
                 {'خصوصيتك محفوظة'}
               </h3>
-              <p className="text-[0.75rem] text-muted-foreground mt-0.5 leading-relaxed">
+              <p className="text-mini text-muted-foreground mt-0.5 leading-relaxed">
                 {'كل البيانات محفوظة على جهازك فقط. لا شيء يُرسل لأي خادم.'}
               </p>
             </div>
@@ -96,7 +96,7 @@ export default function InsightsTab({
           <SoftSurface variant="flat" className="p-8 border-dashed">
             <div className="text-center">
               <Info className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-meta text-muted-foreground">
                 {'لا توجد ملاحظات بعد. أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً.'}
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function InsightsTab({
             animate="show"
             className="space-y-1"
           >
-            <p className="text-[0.6875rem] font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
+            <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
               <Icon className="w-3.5 h-3.5" />
               {KIND_LABEL[kind][lang]}
             </p>
@@ -139,10 +139,10 @@ export default function InsightsTab({
                         {isWarn ? <AlertTriangle className="w-4 h-4" /> : <Info className="w-4 h-4" />}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-[0.8125rem] font-bold text-foreground">
+                        <h4 className="text-mini font-bold text-foreground">
                           {ins.title[lang]}
                         </h4>
-                        <p className="text-[0.75rem] text-muted-foreground leading-relaxed mt-0.5">
+                        <p className="text-mini text-muted-foreground leading-relaxed mt-0.5">
                           {ins.message[lang]}
                         </p>
                       </div>
@@ -158,7 +158,7 @@ export default function InsightsTab({
       {/* Disclaimer */}
       <motion.div variants={item} initial="hidden" animate="show">
         <SoftSurface variant="flat" className="p-3.5">
-          <p className="text-[0.6875rem] text-muted-foreground leading-relaxed">
+          <p className="text-micro text-muted-foreground leading-relaxed">
             <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-muted-foreground/60" />
             {DISCLAIMER[lang]}
           </p>

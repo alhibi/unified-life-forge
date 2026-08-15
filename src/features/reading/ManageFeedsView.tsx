@@ -108,7 +108,7 @@ export function ManageFeedsView({
           <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
         </button>
         <Settings2 className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-bold text-foreground flex-1">
+        <h3 className="text-body font-bold text-foreground flex-1">
           {'إدارة المصادر'}
         </h3>
         <button
@@ -147,7 +147,7 @@ export function ManageFeedsView({
           className="w-full h-12 rounded-2xl border-dashed border-2 hover:bg-accent/30 hover:border-primary/40 transition-all group"
         >
           <Plus className="h-4 w-4 me-2 text-primary group-hover:scale-110 transition-transform" />
-          <span className="text-sm">
+          <span className="text-meta">
             {'إضافة مصدر بالاكتشاف الذكي'}
           </span>
         </Button>
@@ -166,7 +166,7 @@ export function ManageFeedsView({
             placeholder={'رابط RSS أو الموقع...'}
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
-            className="flex-1 text-sm h-10 rounded-xl"
+            className="flex-1 text-meta h-10 rounded-xl"
             dir="ltr"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && newUrl.trim()) handleAdd();
@@ -192,12 +192,12 @@ export function ManageFeedsView({
               placeholder={'اسم المصدر (اختياري)'}
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="flex-1 text-sm h-10 rounded-xl"
+              className="flex-1 text-meta h-10 rounded-xl"
             />
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              className="h-10 rounded-xl border border-input bg-background px-3 text-sm text-foreground max-w-[120px]"
+              className="h-10 rounded-xl border border-input bg-background px-3 text-meta text-foreground max-w-[120px]"
             >
               {allFolders.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -215,7 +215,7 @@ export function ManageFeedsView({
           ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Rss className="h-8 w-8 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-meta text-muted-foreground">
                 {'لا توجد مصادر'}
               </p>
               <Button
@@ -248,7 +248,7 @@ export function ManageFeedsView({
                     <SourcePill name={feed.name} size="md" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium text-foreground truncate">
+                        <p className="text-meta font-medium text-foreground truncate">
                           {feed.name}
                         </p>
                         {failed && (
@@ -258,18 +258,18 @@ export function ManageFeedsView({
                         )}
                         {cached && !failed && (
                           <span
-                            className="text-[0.625rem] px-1.5 rounded bg-foreground/10 text-muted-foreground"
+                            className="text-micro px-1.5 rounded bg-foreground/10 text-muted-foreground"
                             title={'مخبأ'}
                           >
                             304
                           </span>
                         )}
                       </div>
-                      <p className="text-[0.625rem] text-muted-foreground truncate" dir="ltr">
+                      <p className="text-micro text-muted-foreground truncate" dir="ltr">
                         {feed.url}
                       </p>
                     </div>
-                    <span className="text-[0.6875rem] px-2 py-1 rounded-lg bg-primary/10 text-primary font-bold shrink-0 tabular-nums">
+                    <span className="text-micro px-2 py-1 rounded-lg bg-primary/10 text-primary font-bold shrink-0 tabular-nums">
                       {sourceCounts[feed.name] || 0}
                     </span>
                     <button
@@ -313,7 +313,7 @@ export function ManageFeedsView({
           )}
       </div>
 
-      <div className="px-4 py-3 border-t border-border/30 flex items-center justify-between text-[0.6875rem] text-muted-foreground">
+      <div className="px-4 py-3 border-t border-border/30 flex items-center justify-between text-micro text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Database className="h-3 w-3" />
           {`${totalInDB} مقال في الأرشيف`}
@@ -321,7 +321,7 @@ export function ManageFeedsView({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 text-xs rounded-xl"
+          className="h-8 text-mini rounded-xl"
           onClick={onSuggested}
         >
           <Star className="h-3 w-3 me-1" />

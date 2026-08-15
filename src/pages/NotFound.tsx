@@ -43,20 +43,20 @@ const NotFound = () => {
             <Compass className="w-7 h-7 text-muted-foreground" strokeWidth={1.6} />
           </div>
 
-          <h1 className="text-[1.75rem] font-black tracking-tight text-foreground mb-2">
+          <h1 className="text-hero font-black tracking-tight text-foreground mb-2">
             404
           </h1>
-          <p className="text-[0.9375rem] text-muted-foreground mb-1.5 max-w-sm">
+          <p className="text-meta text-muted-foreground mb-1.5 max-w-sm">
             {'تعذّر إيجاد هذه الصفحة.'}
           </p>
-          <code className="text-[0.6875rem] text-muted-foreground/70 font-mono mb-6 break-all px-2">
+          <code className="text-micro text-muted-foreground/70 font-mono mb-6 break-all px-2">
             {location.pathname}
           </code>
 
           <Link
             to="/"
             replace
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
           >
             <Home className="w-4 h-4" />
             {'العودة إلى الرئيسية'}

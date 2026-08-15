@@ -75,7 +75,7 @@ export class MessageRowErrorBoundary extends Component<Props, State> {
       <div className={cn('flex w-full mt-1', isMine ? 'justify-end' : 'justify-start')}>
         <div
           className={cn(
-            'inline-flex items-center gap-2 px-3 py-2 rounded-2xl border text-[0.75rem]',
+            'inline-flex items-center gap-2 px-3 py-2 rounded-2xl border text-mini',
             'bg-destructive/8 border-destructive/30 text-destructive max-w-[80%]',
           )}
           role="alert"

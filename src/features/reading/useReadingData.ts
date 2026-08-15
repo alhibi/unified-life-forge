@@ -5,11 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
 
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
-import {
-  extractArticleBody,
-  needsContentUpgrade,
-  plainTextLength,
-} from './extractArticle';
+import { extractArticleBody, needsContentUpgrade, plainTextLength } from './extractArticle';
 import { offlineDb } from './offlineDb';
 import {
   deleteBookmark,
@@ -22,13 +18,9 @@ import {
   storeFeeds,
   storeReadArticles,
 } from './storage';
-import {
-  hydrateReadingFromCloud,
-  subscribeReadingStorage,
-} from './storage';
+import { hydrateReadingFromCloud, subscribeReadingStorage } from './storage';
 import type { FeedItem, FeedSource, FeedStatus } from './types';
 import { mergeArticles, sortByPubDateDesc } from './utils';
-
 
 // ─── Constants for stability & memory management ───────────────────────────
 /** Max articles held in memory at once. Effectively unlimited for normal
@@ -75,51 +67,68 @@ async function refreshFeedsInBatches(
 
   for (const batch of batches) {
     const nameMap: Record<string, string> = {};
-    batch.forEach((feed) => { nameMap[feed.url] = feed.name; });
+    batch.forEach((feed) => {
+      nameMap[feed.url] = feed.name;
+    });
     onProgress?.(completed, batch.length === 1 ? batch[0].name : `تحديث ${batch.length} مصادر…`);
 
     // Correlate client-side failures with edge-function logs. The same id is
     // echoed back in the response body / `x-request-id` header, so a
     // WORKER_RESOURCE_LIMIT kill (no response body at all) is still traceable.
-    const requestId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
-      ? crypto.randomUUID()
-      : `rss-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const requestId =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `rss-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const startedAt = Date.now();
 
     const { data, error } = await dedupe(
-      `fetch-rss:${batch.map((feed) => feed.url).sort().join('|')}`,
-      () => withRetry(
-        () => supabase.functions.invoke('fetch-rss', {
-          headers: { 'x-request-id': requestId },
-          body: {
-            urls: batch.map((feed) => feed.url),
-            limit: 25,
-            fetchFullContent: true,
-            store: true,
-            nameMap,
-          },
-        }),
-        { attempts: 2, baseMs: 600 },
-      ),
+      `fetch-rss:${batch
+        .map((feed) => feed.url)
+        .sort()
+        .join('|')}`,
+      () =>
+        withRetry(
+          () =>
+            supabase.functions.invoke('fetch-rss', {
+              headers: { 'x-request-id': requestId },
+              body: {
+                urls: batch.map((feed) => feed.url),
+                limit: 25,
+                fetchFullContent: true,
+                store: true,
+                nameMap,
+              },
+            }),
+          { attempts: 2, baseMs: 600 },
+        ),
     );
 
     if (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error('[Reading/fetch-rss] request failed', {
-        requestId,
-        serverRequestId: (data as { requestId?: string } | null)?.requestId ?? null,
-        durationMs: Date.now() - startedAt,
-        feeds: batch.length,
-        urls: batch.map((feed) => feed.url),
-        reason: /resource|non-2xx|546/i.test(message)
-          ? `resource_limit_or_server_error: ${message}`
-          : message,
-      });
+      // Leaving the reader mid-flight aborts the in-flight invoke. That is
+      // normal navigation, not a failure, so it must not surface as an error in
+      // the console (or in telemetry) — otherwise every route change away from
+      // /reading looks like a broken fetch.
+      const aborted =
+        (error instanceof Error && error.name === 'AbortError') ||
+        /abort|signal is aborted|cancell?ed|Failed to fetch/i.test(message);
+      if (aborted) {
+        console.info('[Reading/fetch-rss] request aborted', { requestId, feeds: batch.length });
+      } else {
+        console.error('[Reading/fetch-rss] request failed', {
+          requestId,
+          serverRequestId: (data as { requestId?: string } | null)?.requestId ?? null,
+          durationMs: Date.now() - startedAt,
+          feeds: batch.length,
+          urls: batch.map((feed) => feed.url),
+          reason: /resource|non-2xx|546/i.test(message)
+            ? `resource_limit_or_server_error: ${message}`
+            : message,
+        });
+      }
     }
 
-    const received = !error && Array.isArray(data?.statuses)
-      ? data.statuses as FeedStatus[]
-      : [];
+    const received = !error && Array.isArray(data?.statuses) ? (data.statuses as FeedStatus[]) : [];
     const receivedByUrl = new Map(received.map((status) => [status.url, status]));
     for (const feed of batch) {
       const status = receivedByUrl.get(feed.url);
@@ -131,17 +140,21 @@ async function refreshFeedsInBatches(
           url: feed.url,
           status: 'error',
           itemCount: 0,
-          error: error instanceof Error
-            ? error.message
-            : error
-              ? 'تعذّر الاتصال بخدمة التحديث'
-              : 'لم تُرجع الخدمة حالة المصدر',
+          error:
+            error instanceof Error
+              ? error.message
+              : error
+                ? 'تعذّر الاتصال بخدمة التحديث'
+                : 'لم تُرجع الخدمة حالة المصدر',
         });
         failedUrls.add(feed.url);
       }
     }
     completed += batch.length;
-    onProgress?.(completed, completed === feeds.length ? 'جاري تحميل المقالات…' : 'الانتقال إلى الدفعة التالية…');
+    onProgress?.(
+      completed,
+      completed === feeds.length ? 'جاري تحميل المقالات…' : 'الانتقال إلى الدفعة التالية…',
+    );
   }
 
   return {
@@ -157,7 +170,6 @@ function normalizeFeedUrl(input: string): string {
   // parameters, which some legitimate feeds require for language or edition.
   return url.toString();
 }
-
 
 /**
  * Centralised data layer for the reading feature.
@@ -177,7 +189,6 @@ function normalizeFeedUrl(input: string): string {
  * on every state change.
  */
 export function useReadingData() {
-
   const [feedSources, setFeedSources] = useState<FeedSource[]>(getStoredFeeds);
   const [articles, setArticles] = useState<FeedItem[]>([]);
   const [bookmarks, setBookmarks] = useState<string[]>(getBookmarks);
@@ -210,9 +221,7 @@ export function useReadingData() {
   });
   const [statuses, setStatuses] = useState<FeedStatus[]>([]);
   const [totalInDB, setTotalInDB] = useState(0);
-  const [cachedLinks, setCachedLinks] = useState<ReadonlySet<string>>(
-    () => new Set<string>(),
-  );
+  const [cachedLinks, setCachedLinks] = useState<ReadonlySet<string>>(() => new Set<string>());
   const [lastRefresh, setLastRefresh] = useState<string | null>(
     typeof window !== 'undefined' ? localStorage.getItem(LAST_REFRESH_KEY) : null,
   );
@@ -227,10 +236,18 @@ export function useReadingData() {
   const bookmarksRef = useRef(bookmarks);
   const readArticlesRef = useRef(readArticles);
   const articlesRef = useRef(articles);
-  useEffect(() => { feedSourcesRef.current = feedSources; }, [feedSources]);
-  useEffect(() => { bookmarksRef.current = bookmarks; }, [bookmarks]);
-  useEffect(() => { readArticlesRef.current = readArticles; }, [readArticles]);
-  useEffect(() => { articlesRef.current = articles; }, [articles]);
+  useEffect(() => {
+    feedSourcesRef.current = feedSources;
+  }, [feedSources]);
+  useEffect(() => {
+    bookmarksRef.current = bookmarks;
+  }, [bookmarks]);
+  useEffect(() => {
+    readArticlesRef.current = readArticles;
+  }, [readArticles]);
+  useEffect(() => {
+    articlesRef.current = articles;
+  }, [articles]);
 
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoCacheTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -275,19 +292,18 @@ export function useReadingData() {
       setBookmarks(getBookmarks());
       setReadArticles(getReadArticles());
     };
-    void hydrateReadingFromCloud().then(applyFromMirror).catch(() => {});
+    void hydrateReadingFromCloud()
+      .then(applyFromMirror)
+      .catch(() => {});
     const unsub = subscribeReadingStorage(applyFromMirror);
-    return () => { mounted = false; unsub(); };
+    return () => {
+      mounted = false;
+      unsub();
+    };
   }, []);
 
-  const enabledFeeds = useMemo(
-    () => feedSources.filter((f) => f.enabled),
-    [feedSources],
-  );
-  const enabledNames = useMemo(
-    () => enabledFeeds.map((f) => f.name),
-    [enabledFeeds],
-  );
+  const enabledFeeds = useMemo(() => feedSources.filter((f) => f.enabled), [feedSources]);
+  const enabledNames = useMemo(() => enabledFeeds.map((f) => f.name), [enabledFeeds]);
 
   const sourceCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -334,7 +350,11 @@ export function useReadingData() {
     let onlineCount = 0;
     let onlineFailed = false;
     try {
-      const { data, count, error: queryError } = await supabase
+      const {
+        data,
+        count,
+        error: queryError,
+      } = await supabase
         .from('rss_articles')
         // List rows only — omit `full_content` (can be tens of KB per
         // row of HTML). ArticleReader lazily fetches / extracts the
@@ -367,9 +387,7 @@ export function useReadingData() {
       console.error('Reading: DB load failed', e);
       onlineFailed = true;
       // Set last error for UI feedback but don't crash
-      setLastError(
-        e instanceof Error ? e.message : 'Database load failed',
-      );
+      setLastError(e instanceof Error ? e.message : 'Database load failed');
     }
 
     // Always merge in offline archive so we have content even offline
@@ -457,9 +475,10 @@ export function useReadingData() {
                 current: feeds.length - failedFeeds.length,
                 successCount: successfulCount,
                 errorCount: failedFeeds.length,
-                currentFeed: failedFeeds.length > 0
-                  ? 'جاري تجربة المصادر المتعذّرة مباشرة…'
-                  : 'جاري تحميل المقالات…',
+                currentFeed:
+                  failedFeeds.length > 0
+                    ? 'جاري تجربة المصادر المتعذّرة مباشرة…'
+                    : 'جاري تحميل المقالات…',
               });
 
               if (successfulCount > 0) {
@@ -472,7 +491,9 @@ export function useReadingData() {
               }
 
               if (failedFeeds.length > 0 && !silent) {
-                toast.warning(`تعذّر تحديث ${failedFeeds.length} مصدر من الخادم، نجرب اتصالاً مباشراً`);
+                toast.warning(
+                  `تعذّر تحديث ${failedFeeds.length} مصدر من الخادم، نجرب اتصالاً مباشراً`,
+                );
               }
             }
           } catch (e) {
@@ -522,9 +543,7 @@ export function useReadingData() {
                 const r = singleResult[0];
                 if (r && !r.error && r.items.length > 0) {
                   // Merge immediately in real-time!
-                  setArticles((prev) => capArticles(
-                    mergeArticles<FeedItem>(prev, r.items),
-                  ));
+                  setArticles((prev) => capArticles(mergeArticles<FeedItem>(prev, r.items)));
                   allFreshArticles.push(...r.items);
 
                   setSyncProgress((prev) => ({
@@ -573,7 +592,11 @@ export function useReadingData() {
         if (succeeded) {
           const now = new Date().toISOString();
           setLastRefresh(now);
-          try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota or private mode */ }
+          try {
+            localStorage.setItem(LAST_REFRESH_KEY, now);
+          } catch {
+            /* quota or private mode */
+          }
           if (!silent) toast.success('تم التحديث بنجاح');
           // Reset consecutive failures on success
           consecutiveFailuresRef.current = 0;
@@ -621,8 +644,7 @@ export function useReadingData() {
       // When becoming visible after being hidden, do a staleness check
       if (!document.hidden) {
         const last = localStorage.getItem(LAST_REFRESH_KEY);
-        const stale = !last ||
-          Date.now() - new Date(last).getTime() > STALE_THRESHOLD;
+        const stale = !last || Date.now() - new Date(last).getTime() > STALE_THRESHOLD;
         if (stale) void refreshFeeds(true);
       }
     };
@@ -632,8 +654,7 @@ export function useReadingData() {
     // user always sees fresh content after a connectivity gap.
     const onOnline = () => {
       const last = localStorage.getItem(LAST_REFRESH_KEY);
-      const stale = !last ||
-        Date.now() - new Date(last).getTime() > MIN_REFRESH_INTERVAL;
+      const stale = !last || Date.now() - new Date(last).getTime() > MIN_REFRESH_INTERVAL;
       if (stale) void refreshFeeds(true);
     };
     window.addEventListener('online', onOnline);
@@ -653,15 +674,16 @@ export function useReadingData() {
       // immediately; the refresh fires in the background a moment
       // later. Skip entirely when the last refresh was very recent.
       const last = localStorage.getItem(LAST_REFRESH_KEY);
-      const recent = last &&
-        Date.now() - new Date(last).getTime() < MIN_REFRESH_INTERVAL;
+      const recent = last && Date.now() - new Date(last).getTime() < MIN_REFRESH_INTERVAL;
       if (!recent) {
         const schedule: (cb: () => void) => void =
-          typeof window !== 'undefined' &&
-          'requestIdleCallback' in window
-            ? (cb) => (window as unknown as {
-                requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void;
-              }).requestIdleCallback(cb, { timeout: 1500 })
+          typeof window !== 'undefined' && 'requestIdleCallback' in window
+            ? (cb) =>
+                (
+                  window as unknown as {
+                    requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void;
+                  }
+                ).requestIdleCallback(cb, { timeout: 1500 })
             : (cb) => setTimeout(cb, 400);
         schedule(() => {
           if (!cancelled) void refreshFeeds(true);
@@ -737,12 +759,13 @@ export function useReadingData() {
         const ok = await offlineDb.hasQuota(50 * 1024);
         if (!ok) {
           lowQuotaWarnedRef.current = true;
-          toast.warning(
-            'مساحة التخزين منخفضة — قد لا تُحفظ مقالات جديدة دون اتصال',
-            { duration: 7000 },
-          );
+          toast.warning('مساحة التخزين منخفضة — قد لا تُحفظ مقالات جديدة دون اتصال', {
+            duration: 7000,
+          });
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
   }, []);
 
@@ -772,13 +795,13 @@ export function useReadingData() {
           fullContent,
           description: cur.description?.length
             ? cur.description
-            : fullContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400),
+            : fullContent
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, 400),
           image: cur.image || image || null,
-          images: cur.images && cur.images.length > 0
-            ? cur.images
-            : image
-              ? [image]
-              : [],
+          images: cur.images && cur.images.length > 0 ? cur.images : image ? [image] : [],
         };
         next[idx] = merged;
         upgraded = merged;
@@ -853,52 +876,58 @@ export function useReadingData() {
   }, []);
 
   // ─── Bookmark / read mutations ────────────────────────────────────────
-  const toggleBookmark = useCallback((link: string) => {
-    let nowBookmarked = false;
-    setBookmarks((prev) => {
-      const exists = prev.includes(link);
-      nowBookmarked = !exists;
-      const next = exists ? prev.filter((b) => b !== link) : [...prev, link];
-      if (exists) {
-        deleteBookmark(link);
-      } else {
-        const article = articlesRef.current.find((a) => a.link === link);
-        if (article) {
-          setBookmarkArticle(article);
+  const toggleBookmark = useCallback(
+    (link: string) => {
+      let nowBookmarked = false;
+      setBookmarks((prev) => {
+        const exists = prev.includes(link);
+        nowBookmarked = !exists;
+        const next = exists ? prev.filter((b) => b !== link) : [...prev, link];
+        if (exists) {
+          deleteBookmark(link);
+        } else {
+          const article = articlesRef.current.find((a) => a.link === link);
+          if (article) {
+            setBookmarkArticle(article);
+          }
         }
+        return next;
+      });
+      // After *adding* a bookmark we immediately persist the article body
+      // so the bookmark survives going offline a moment later. The
+      // debounced auto-cache reconciliation (~600 ms) wouldn't — there's
+      // a window during which a brand-new bookmark exists in localStorage
+      // but not in IDB. Skip on un-bookmark — the article may still be
+      // wanted by the rolling auto-cache window.
+      if (nowBookmarked) {
+        void persistOpenedArticle(link);
+        // If the bookmarked article only has a teaser, also kick off a
+        // best-effort full-content fetch in the background so when the
+        // user comes back to it offline, they actually have something
+        // to read.
+        void ensureFullContent(link);
       }
-      return next;
-    });
-    // After *adding* a bookmark we immediately persist the article body
-    // so the bookmark survives going offline a moment later. The
-    // debounced auto-cache reconciliation (~600 ms) wouldn't — there's
-    // a window during which a brand-new bookmark exists in localStorage
-    // but not in IDB. Skip on un-bookmark — the article may still be
-    // wanted by the rolling auto-cache window.
-    if (nowBookmarked) {
-      void persistOpenedArticle(link);
-      // If the bookmarked article only has a teaser, also kick off a
-      // best-effort full-content fetch in the background so when the
-      // user comes back to it offline, they actually have something
-      // to read.
-      void ensureFullContent(link);
-    }
-  }, [persistOpenedArticle, ensureFullContent]);
+    },
+    [persistOpenedArticle, ensureFullContent],
+  );
 
-  const markAsRead = useCallback((link: string) => {
-    setReadArticles((prev) => {
-      if (prev.includes(link)) return prev;
-      const next = [...prev, link];
-      storeReadArticles(next);
-      return next;
-    });
-    // Persist on open (markAsRead is called from the click-
-    // handler in Reading.tsx). This guarantees that any article the
-    // user actually engages with has an offline copy by the time
-    // the next render commits — no debounce window where they could
-    // lose it by going offline.
-    void persistOpenedArticle(link);
-  }, [persistOpenedArticle]);
+  const markAsRead = useCallback(
+    (link: string) => {
+      setReadArticles((prev) => {
+        if (prev.includes(link)) return prev;
+        const next = [...prev, link];
+        storeReadArticles(next);
+        return next;
+      });
+      // Persist on open (markAsRead is called from the click-
+      // handler in Reading.tsx). This guarantees that any article the
+      // user actually engages with has an offline copy by the time
+      // the next render commits — no debounce window where they could
+      // lose it by going offline.
+      void persistOpenedArticle(link);
+    },
+    [persistOpenedArticle],
+  );
 
   const markAllRead = useCallback(() => {
     setReadArticles((prev) => {
@@ -944,9 +973,7 @@ export function useReadingData() {
       storeReadArticles(next);
       return next;
     });
-    toast.success(
-      `تم تحديد ${links.length} مقالة كمقروءة`,
-    );
+    toast.success(`تم تحديد ${links.length} مقالة كمقروءة`);
   }, []);
 
   // ─── Feed CRUD ─────────────────────────────────────────────────────────
@@ -966,7 +993,7 @@ export function useReadingData() {
         if (error) throw error;
         const responseData = typeof data === 'string' ? JSON.parse(data) : data;
         const latestStatuses: FeedStatus[] = Array.isArray(responseData?.statuses)
-          ? responseData.statuses as FeedStatus[]
+          ? (responseData.statuses as FeedStatus[])
           : [];
         if (latestStatuses.length > 0) {
           setStatuses((previous) => {
@@ -994,33 +1021,34 @@ export function useReadingData() {
         }
         if (fresh.length > 0) {
           setArticles((prev) => capArticles(mergeArticles<FeedItem>(prev, fresh)));
-          toast.success(
-            `تمت إضافة ${fresh.length} مقال من ${feed.name}`,
-          );
+          toast.success(`تمت إضافة ${fresh.length} مقال من ${feed.name}`);
         } else {
-          toast.info(
-            `لا توجد مقالات من ${feed.name}`,
-          );
+          toast.info(`لا توجد مقالات من ${feed.name}`);
         }
         const now = new Date().toISOString();
         setLastRefresh(now);
-        try { localStorage.setItem(LAST_REFRESH_KEY, now); } catch { /* quota or private mode */ }
+        try {
+          localStorage.setItem(LAST_REFRESH_KEY, now);
+        } catch {
+          /* quota or private mode */
+        }
         setLastError(null);
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : '';
-        toast.error(
-          `فشل جلب ${feed.name}: ${msg}`,
-        );
+        toast.error(`فشل جلب ${feed.name}: ${msg}`);
       }
     },
     [capArticles],
   );
 
-  const refreshFeed = useCallback((url: string) => {
-    const feed = feedSourcesRef.current.find((source) => source.url === url);
-    if (!feed) return;
-    void refreshFeeds(false, [feed]);
-  }, [refreshFeeds]);
+  const refreshFeed = useCallback(
+    (url: string) => {
+      const feed = feedSourcesRef.current.find((source) => source.url === url);
+      if (!feed) return;
+      void refreshFeeds(false, [feed]);
+    },
+    [refreshFeeds],
+  );
 
   const addFeed = useCallback(
     (url: string, name: string, category: string) => {
@@ -1040,15 +1068,19 @@ export function useReadingData() {
         return false;
       }
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-        toast.error(
-          'يجب أن يبدأ الرابط بـ http:// أو https://',
-        );
+        toast.error('يجب أن يبدأ الرابط بـ http:// أو https://');
         return false;
       }
       const current = feedSourcesRef.current;
-      if (current.some((f) => {
-        try { return normalizeFeedUrl(f.url) === normalizedUrl; } catch { return f.url === normalizedUrl; }
-      })) {
+      if (
+        current.some((f) => {
+          try {
+            return normalizeFeedUrl(f.url) === normalizedUrl;
+          } catch {
+            return f.url === normalizedUrl;
+          }
+        })
+      ) {
         toast.error('هذا المصدر موجود');
         return false;
       }
@@ -1104,7 +1136,11 @@ export function useReadingData() {
       const current = feedSourcesRef.current;
       const existingByUrl = new Map(
         current.map((feed) => {
-          try { return [normalizeFeedUrl(feed.url), feed] as const; } catch { return [feed.url, feed] as const; }
+          try {
+            return [normalizeFeedUrl(feed.url), feed] as const;
+          } catch {
+            return [feed.url, feed] as const;
+          }
         }),
       );
       const fresh: FeedSource[] = [];
@@ -1159,25 +1195,22 @@ export function useReadingData() {
     [refreshFeeds],
   );
 
-  const removeFeed = useCallback(
-    (url: string) => {
-      const removed = feedSourcesRef.current.find((f) => f.url === url);
-      const next = feedSourcesRef.current.filter((f) => f.url !== url);
-      feedSourcesRef.current = next;
-      setFeedSources(next);
-      storeFeeds(next);
-      // Drop its articles immediately so the list reflects the change
-      // without waiting for a reload.
-      if (removed) {
-        setArticles((prev) => {
-          const pruned = prev.filter((a) => a.source !== removed.name);
-          return pruned.length === prev.length ? prev : pruned;
-        });
-      }
-      toast.success('تم الحذف');
-    },
-    [],
-  );
+  const removeFeed = useCallback((url: string) => {
+    const removed = feedSourcesRef.current.find((f) => f.url === url);
+    const next = feedSourcesRef.current.filter((f) => f.url !== url);
+    feedSourcesRef.current = next;
+    setFeedSources(next);
+    storeFeeds(next);
+    // Drop its articles immediately so the list reflects the change
+    // without waiting for a reload.
+    if (removed) {
+      setArticles((prev) => {
+        const pruned = prev.filter((a) => a.source !== removed.name);
+        return pruned.length === prev.length ? prev : pruned;
+      });
+    }
+    toast.success('تم الحذف');
+  }, []);
 
   const toggleFeedEnabled = useCallback(
     (url: string) => {
@@ -1196,8 +1229,12 @@ export function useReadingData() {
         // serially — cached rows appear within a frame or two, and the
         // network result merges in on top without reordering the list.
         const enabledTarget = { ...target, enabled: true };
-        void loadFromDB().catch(() => { /* offline */ });
-        void refreshFeeds(true, [enabledTarget]).catch(() => { /* offline */ });
+        void loadFromDB().catch(() => {
+          /* offline */
+        });
+        void refreshFeeds(true, [enabledTarget]).catch(() => {
+          /* offline */
+        });
       } else {
         setArticles((prev) => {
           const pruned = prev.filter((a) => a.source !== target.name);
@@ -1242,10 +1279,7 @@ export function useReadingData() {
       .filter((a): a is FeedItem => !!a);
 
     try {
-      await offlineDb.syncArticles(
-        [...toKeep, ...bookmarkedItems],
-        currentBookmarks,
-      );
+      await offlineDb.syncArticles([...toKeep, ...bookmarkedItems], currentBookmarks);
     } catch (e) {
       console.warn('Reading: offline sync failed', e);
     }
@@ -1263,7 +1297,9 @@ export function useReadingData() {
         try {
           const reg = await navigator.serviceWorker?.ready;
           reg?.active?.postMessage({ type: 'reading:precache', urls });
-        } catch { /* SW unavailable, ignore */ }
+        } catch {
+          /* SW unavailable, ignore */
+        }
       }
     }
 
@@ -1271,7 +1307,9 @@ export function useReadingData() {
     try {
       const list = await offlineDb.listArticles();
       setCachedLinks(new Set(list.map((a) => a.link)));
-    } catch { /* */ }
+    } catch {
+      /* */
+    }
   }, []);
 
   // Debounce auto-cache so frequent state updates don't write-storm IDB.
@@ -1308,9 +1346,11 @@ export function useReadingData() {
 
     // Respect metered / data-saver connections: full-article scraping is
     // the single most expensive network activity in the reader.
-    const conn = (navigator as unknown as {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }).connection;
+    const conn = (
+      navigator as unknown as {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
     if (conn?.saveData || /(^|-)2g$/.test(conn?.effectiveType ?? '')) {
       setPrefetchProgress((prev) => ({ ...prev, active: false }));
       return;
@@ -1361,16 +1401,22 @@ export function useReadingData() {
         done += 1;
         setPrefetchProgress((prev) => ({ ...prev, current: done }));
         if (!isPrefetchingRef.current) return;
-        await new Promise((resolve) => { setTimeout(resolve, PREFETCH_GAP_MS); });
+        await new Promise((resolve) => {
+          setTimeout(resolve, PREFETCH_GAP_MS);
+        });
       }
     };
 
     const start = () => {
       void Promise.all(
-        Array.from({ length: Math.min(PREFETCH_WORKERS, candidates.length) }, (_unused, i) =>
-          new Promise<void>((resolve) => {
-            setTimeout(() => { void runWorker().finally(resolve); }, i * 250);
-          }),
+        Array.from(
+          { length: Math.min(PREFETCH_WORKERS, candidates.length) },
+          (_unused, i) =>
+            new Promise<void>((resolve) => {
+              setTimeout(() => {
+                void runWorker().finally(resolve);
+              }, i * 250);
+            }),
         ),
       ).finally(() => {
         setPrefetchProgress((prev) => ({ ...prev, active: false }));
@@ -1394,12 +1440,15 @@ export function useReadingData() {
   useEffect(() => {
     if (!offlineDb.available()) return;
     let cancelled = false;
-    offlineDb.listArticles()
+    offlineDb
+      .listArticles()
       .then((list) => {
         if (!cancelled) setCachedLinks(new Set(list.map((a) => a.link)));
       })
       .catch(() => undefined);
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return {

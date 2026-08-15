@@ -467,7 +467,7 @@ export function ArticleReader({
         </button>
         <SourcePill name={article.source} size="sm" />
         <span
-          className="text-xs font-semibold truncate flex-1 opacity-90"
+          className="text-mini font-semibold truncate flex-1 opacity-90"
           dir="auto"
         >
           {article.source}
@@ -597,7 +597,7 @@ export function ArticleReader({
           </div>
 
           <h2
-            className="text-2xl font-bold leading-snug mb-4"
+            className="text-display font-bold leading-snug mb-4"
             dir={dirAttr}
             style={fontStyle}
           >
@@ -605,17 +605,17 @@ export function ArticleReader({
           </h2>
           <div className="flex items-center gap-2 mb-5 flex-wrap" dir="auto">
             <Clock className="h-3.5 w-3.5 opacity-60" />
-            <span className="text-xs opacity-70">
+            <span className="text-mini opacity-70">
               {formatDate(article.pubDate, language)}
             </span>
             <span className="w-1 h-1 rounded-full bg-current opacity-30" />
-            <span className="text-xs opacity-70">
+            <span className="text-mini opacity-70">
               {`${minutes} دقيقة قراءة`}
             </span>
             {article.author && (
               <>
                 <span className="w-1 h-1 rounded-full bg-current opacity-30" />
-                <span className="text-xs opacity-70" dir="auto">{article.author}</span>
+                <span className="text-mini opacity-70" dir="auto">{article.author}</span>
               </>
             )}
           </div>
@@ -628,13 +628,13 @@ export function ArticleReader({
                 className="prose prose-sm dark:prose-invert max-w-none
                   [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_img]:max-h-[460px] [&_img]:object-cover [&_img]:shadow-md
                   [&_a]:text-primary [&_a]:no-underline [&_a]:font-bold [&_a:hover]:underline
-                  [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-8 [&_h1,&_h2,&_h3]:mb-3
+                  [&_h1]:text-display [&_h2]:text-title [&_h3]:text-lead [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-8 [&_h1,&_h2,&_h3]:mb-3
                   [&_p]:mb-5 [&_p]:leading-relaxed
                   [&_blockquote]:border-s-4 [&_blockquote]:border-primary/50 [&_blockquote]:ps-5 [&_blockquote]:italic [&_blockquote]:opacity-90 [&_blockquote]:my-6 [&_blockquote]:bg-primary/5 [&_blockquote]:py-1 [&_blockquote]:rounded-e-xl
                   [&_ul,&_ol]:my-4 [&_ul,&_ol]:ps-6 [&_li]:mb-2
-                  [&_figure]:my-6 [&_figcaption]:text-xs [&_figcaption]:opacity-65 [&_figcaption]:mt-2
-                  [&_pre]:bg-current/5 [&_pre]:p-4 [&_pre]:rounded-2xl [&_pre]:overflow-x-auto [&_pre]:text-xs
-                  [&_code]:bg-current/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs"
+                  [&_figure]:my-6 [&_figcaption]:text-mini [&_figcaption]:opacity-65 [&_figcaption]:mt-2
+                  [&_pre]:bg-current/5 [&_pre]:p-4 [&_pre]:rounded-2xl [&_pre]:overflow-x-auto [&_pre]:text-mini
+                  [&_code]:bg-current/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-mini"
                 style={{
                   fontSize: sizeMap[prefs.fontSize],
                   lineHeight: heightMap[prefs.lineHeight],
@@ -678,7 +678,7 @@ export function ArticleReader({
             >
               {upgradeStatus === 'loading'
                 ? (
-                  <div className="flex items-center gap-2 text-sm opacity-80">
+                  <div className="flex items-center gap-2 text-meta opacity-80">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>
                       {'يتم جلب المقال الكامل من الموقع الأصلي…'}
@@ -690,16 +690,16 @@ export function ArticleReader({
                     <div className="flex items-start gap-3">
                       <FileText className="h-4 w-4 mt-0.5 opacity-60 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium mb-0.5">
+                        <p className="text-meta font-medium mb-0.5">
                           {'يحتوي هذا المصدر على ملخص فقط'}
                         </p>
-                        <p className="text-xs opacity-70 mb-2.5">
+                        <p className="text-mini opacity-70 mb-2.5">
                           {'يمكن محاولة جلب النص الكامل من الموقع الأصلي.'}
                         </p>
                         <button
                           type="button"
                           onClick={onManualUpgrade}
-                          className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
+                          className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-semibold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
                         >
                           <FileText className="h-3.5 w-3.5" />
                           {'جلب المقال الكامل'}
@@ -712,7 +712,7 @@ export function ArticleReader({
                       <button
                         type="button"
                         onClick={onManualUpgrade}
-                        className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium opacity-75 hover:opacity-100 transition-opacity"
+                        className="w-full inline-flex items-center justify-center gap-2 text-meta font-medium opacity-75 hover:opacity-100 transition-opacity"
                       >
                         <FileText className="h-3.5 w-3.5" />
                         {'جلب المقال الكامل'}
@@ -726,7 +726,7 @@ export function ArticleReader({
             href={safeHref(article.link)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-8 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 active:scale-[0.98] transition-all"
+            className="inline-flex items-center gap-2 mt-8 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-meta font-semibold hover:bg-primary/20 active:scale-[0.98] transition-all"
           >
             {'المصدر الأصلي'}
             <ExternalLink className="h-3.5 w-3.5" />

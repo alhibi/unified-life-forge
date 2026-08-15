@@ -93,10 +93,7 @@ const GroupAvatar: React.FC<GroupAvatarProps> = ({
           />
         ) : (
           <AvatarFallback
-            className="text-primary-foreground font-semibold tracking-wider"
-            style={{
-              
-            }}
+            className="bg-primary text-primary-foreground font-semibold tracking-wider"
           >
             {init}
           </AvatarFallback>

@@ -194,7 +194,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           <span
             className={cn(
               'absolute z-10 flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5',
-              'bg-primary text-xs font-bold tabular-nums text-primary-foreground',
+              'bg-primary text-mini font-bold tabular-nums text-primary-foreground',
               list ? 'end-12 top-1/2 -translate-y-1/2' : 'top-3 end-3',
             )}
             aria-label={`${badge} غير مقروء`}

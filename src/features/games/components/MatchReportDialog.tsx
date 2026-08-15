@@ -53,7 +53,7 @@ function MatchReportDialogImpl({ report, onClose, day }: Props) {
             initial={reduce ? false : { scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={reduce ? { duration: 0.1 } : { type: 'spring', stiffness: 420, damping: 26 }}
-            className="text-[4.25rem] font-semibold leading-none tabular-nums text-foreground"
+            className="text-hero font-semibold leading-none tabular-nums text-foreground"
             dir="ltr"
           >
             {report.xpAwarded}

@@ -56,10 +56,10 @@ export default function ChatPage() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-4" style={{ paddingBottom: '120px' }}>
-        <h1 className="text-xl font-bold text-foreground">
+        <h1 className="text-title font-bold text-foreground">
           {'سجّل الدخول للوصول إلى الدردشة'}
         </h1>
-        <p className="text-sm text-muted-foreground max-w-sm">
+        <p className="text-meta text-muted-foreground max-w-sm">
           {'الدردشة تتطلب حساباً لحفظ محادثاتك وإخطاراتك عبر الأجهزة.'}
         </p>
         <Button onClick={() => navigate('/auth')} className="rounded-xl">

@@ -33,7 +33,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
             <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors">
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
-            <h2 className="text-[1rem] font-semibold">{'خلفية المحادثة'}</h2>
+            <h2 className="text-body font-semibold">{'خلفية المحادثة'}</h2>
           </div>
           <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40">
             <X className="w-4 h-4 text-muted-foreground" />
@@ -56,10 +56,10 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
                 >
                   {/* Fake message bubbles preview */}
                   <div className="absolute inset-0 p-2 flex flex-col justify-end gap-1.5">
-                    <div className={cn('self-start rounded-2xl rounded-es-sm px-2 py-1 text-[0.625rem] max-w-[70%]', wp.isDark ? 'bg-white/15 text-white/90' : 'bg-white/90 text-foreground')}>
+                    <div className={cn('self-start rounded-2xl rounded-es-sm px-2 py-1 text-micro max-w-[70%]', wp.isDark ? 'bg-white/15 text-white/90' : 'bg-white/90 text-foreground')}>
                       {'مرحبا'}
                     </div>
-                    <div className="self-end rounded-2xl rounded-ee-sm px-2 py-1 text-[0.625rem] bg-primary/80 text-primary-foreground max-w-[70%]">
+                    <div className="self-end rounded-2xl rounded-ee-sm px-2 py-1 text-micro bg-primary/80 text-primary-foreground max-w-[70%]">
                       {'أهلاً بك'}
                     </div>
                   </div>
@@ -69,7 +69,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
                     </div>
                   )}
                   <div className={cn(
-                    'absolute inset-x-0 bottom-0 py-1 text-[0.625rem] font-medium text-center',
+                    'absolute inset-x-0 bottom-0 py-1 text-micro font-medium text-center',
                     wp.isDark ? 'bg-black/40 text-white/90' : 'bg-white/80 text-foreground/80'
                   )}>
                     {wp.labelAr}

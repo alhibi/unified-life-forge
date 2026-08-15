@@ -49,8 +49,8 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
           <div className="text-center">
-            <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
-            <p className="text-xs text-muted-foreground">{currentIndex + 1} / {total}</p>
+            <h1 className="text-lead font-bold text-foreground">{data.label}</h1>
+            <p className="text-mini text-muted-foreground">{currentIndex + 1} / {total}</p>
           </div>
           <div className="w-10" />
         </div>
@@ -64,7 +64,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
           <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full max-w-lg rounded-xl bg-card border border-border overflow-hidden">
             <div className="h-1.5 bg-primary" />
             <div className="px-6 pt-6 pb-3">
-              <h2 className="text-xl font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
+              <h2 className="text-title font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
             </div>
             <div className="flex items-center justify-center gap-3 pb-3">
               <button onClick={handleCopy} className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center"><Copy className="w-4 h-4 text-muted-foreground" /></button>
@@ -78,7 +78,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
             </div>
             <div className="mx-6 mb-4">
               <div className="flex items-center justify-end gap-2 px-4 py-3 rounded-xl bg-primary/10">
-                <span className="text-sm font-semibold text-primary">{item.source}</span>
+                <span className="text-meta font-semibold text-primary">{item.source}</span>
                 <BookOpen className="w-4 h-4 text-primary" />
               </div>
             </div>
@@ -88,8 +88,8 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
                   <ChevronLeft className={`w-5 h-5 ${canGoBack ? 'text-primary' : 'text-muted-foreground'}`} />
                 </button>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setFontSize(s => Math.max(14, s - 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-sm">أ-</button>
-                  <button onClick={() => setFontSize(s => Math.min(28, s + 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-sm">+أ</button>
+                  <button onClick={() => setFontSize(s => Math.max(14, s - 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-meta">أ-</button>
+                  <button onClick={() => setFontSize(s => Math.min(28, s + 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-meta">+أ</button>
                 </div>
                 <button onClick={dir === 'rtl' ? goPrev : goNext} disabled={!canGoForward} className={`w-11 h-11 rounded-xl flex items-center justify-center disabled:opacity-20 ${canGoForward ? 'bg-primary/15' : 'bg-muted/40'}`}>
                   <ChevronRight className={`w-5 h-5 ${canGoForward ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -115,14 +115,14 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
       <div className="z-raised app-sticky-header border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <BackButton />
-          <h1 className="text-lg font-bold text-foreground">{data.label}</h1>
+          <h1 className="text-lead font-bold text-foreground">{data.label}</h1>
           <div className="w-10" />
         </div>
       </div>
       <div className="flex items-center justify-end gap-3 px-6 py-5">
         <div className="text-end">
-          <h2 className="text-base font-bold text-foreground">السنن</h2>
-          <p className="text-sm text-muted-foreground">{data.items.length} سنة</p>
+          <h2 className="text-body font-bold text-foreground">السنن</h2>
+          <p className="text-meta text-muted-foreground">{data.items.length} سنة</p>
         </div>
         <div className="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10">
           <BookOpen className="w-6 h-6 text-primary" />
@@ -135,9 +135,9 @@ function SimpleListView({ data }: { data: { label: string; accent: string; items
               <ChevronLeft className="w-4 h-4 text-muted-foreground/40" />
               <Heart className="w-4 h-4 text-muted-foreground/40" />
             </div>
-            <p className="flex-1 text-sm font-medium text-foreground text-end leading-relaxed">{sunnah.title}</p>
+            <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{sunnah.title}</p>
             <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
-              <span className="text-xs font-bold text-primary">{index + 1}</span>
+              <span className="text-mini font-bold text-primary">{index + 1}</span>
             </div>
           </motion.div>
         ))}

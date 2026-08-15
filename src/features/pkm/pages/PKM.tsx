@@ -184,7 +184,7 @@ export default function PKM() {
       />
       <div className="flex items-center gap-2">
         <BackButton />
-        <h1 className="text-lg font-bold flex-1 truncate">
+        <h1 className="text-lead font-bold flex-1 truncate">
           {'مذكّرتي'}
         </h1>
         <Link
@@ -197,14 +197,14 @@ export default function PKM() {
         </Link>
         <button
           onClick={() => setListOpen((v) => !v)}
-          className="lg:hidden h-9 px-3 rounded-full bg-card border border-border/60 text-xs font-medium active:scale-95 transition-transform"
+          className="lg:hidden h-9 px-3 rounded-full bg-card border border-border/60 text-mini font-medium active:scale-95 transition-transform"
           aria-label={'القائمة'}
         >
           {listOpen ? ('المحرر') : ('القائمة')}
         </button>
         <button
           onClick={handleCreate}
-          className="h-9 px-3 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1 active:scale-95 transition-transform"
+          className="h-9 px-3 rounded-full bg-primary text-primary-foreground text-mini font-semibold flex items-center gap-1 active:scale-95 transition-transform"
         >
           <Plus className="w-3.5 h-3.5" />
           {'جديد'}
@@ -226,7 +226,7 @@ export default function PKM() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={'ابحث في ملاحظاتك…'}
-              className="w-full h-10 rounded-xl bg-card border border-border/60 ps-9 pe-3 text-sm outline-none focus:border-primary/60"
+              className="w-full h-10 rounded-xl bg-card border border-border/60 ps-9 pe-3 text-meta outline-none focus:border-primary/60"
               style={{ fontSize: 16 }}
             />
           </label>
@@ -238,7 +238,7 @@ export default function PKM() {
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={cn(
-                  'relative h-9 px-4 rounded-full text-xs font-semibold border transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[\'\']',
+                  'relative h-9 px-4 rounded-full text-mini font-semibold border transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[\'\']',
                   statusFilter === s
                     ? 'bg-primary/15 border-primary/40 text-primary'
                     : 'bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border/80',
@@ -252,13 +252,13 @@ export default function PKM() {
           {/* tag tree */}
           {tagTree.length > 0 && (
             <div className="rounded-xl bg-card border border-border/50 p-2">
-              <div className="px-2 py-1.5 text-[0.625rem] font-bold uppercase tracking-wider text-muted-foreground/70">
+              <div className="px-2 py-1.5 text-micro font-bold uppercase tracking-wider text-muted-foreground/70">
                 {'الوسوم'}
               </div>
               <button
                 onClick={() => setTagFilter(null)}
                 className={cn(
-                  'w-full text-start px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
+                  'w-full text-start px-2 py-2.5 rounded-lg text-mini font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
                   !tagFilter ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent/40',
                 )}
                 title={'عرض كل الوسوم'}
@@ -277,11 +277,11 @@ export default function PKM() {
           {/* notes list */}
           <div className="flex flex-col gap-2">
             {loading ? (
-              <div className="text-xs text-muted-foreground p-4 text-center">
+              <div className="text-mini text-muted-foreground p-4 text-center">
                 {'جارٍ التحميل…'}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="text-xs text-muted-foreground p-6 text-center rounded-xl bg-card/50 border border-dashed border-border/50">
+              <div className="text-mini text-muted-foreground p-6 text-center rounded-xl bg-card/50 border border-dashed border-border/50">
                 {'لا توجد ملاحظات هنا بعد.'}
               </div>
             ) : (
@@ -301,15 +301,15 @@ export default function PKM() {
                     title={title}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div className="text-sm font-bold truncate flex-1 leading-snug">
+                      <div className="text-meta font-bold truncate flex-1 leading-snug">
                         {title}
                       </div>
-                      <span className="text-[0.625rem] text-muted-foreground/70 shrink-0 mt-0.5">
+                      <span className="text-micro text-muted-foreground/70 shrink-0 mt-0.5">
                         {new Date(n.updatedAt).toLocaleDateString('ar')}
                       </span>
                     </div>
                     {excerpt && (
-                      <div className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed" title={excerpt}>
+                      <div className="text-mini text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed" title={excerpt}>
                         {excerpt}
                       </div>
                     )}
@@ -350,12 +350,12 @@ export default function PKM() {
           ) : (
             <AppCard className="p-10 text-center flex flex-col items-center gap-3 border-dashed">
               <FileText className="w-10 h-10 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-meta text-muted-foreground">
                 {'اختر ملاحظة أو أنشئ واحدة جديدة.'}
               </p>
               <button
                 onClick={handleCreate}
-                className="mt-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center gap-2"
+                className="mt-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-meta font-semibold flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 {'ملاحظة جديدة'}
@@ -429,14 +429,14 @@ function TagRow({
         <button
           onClick={() => onSelect(node.path)}
           className={cn(
-            'flex-1 text-start py-1.5 text-xs font-semibold truncate transition-colors focus-visible:ring-1 focus-visible:ring-primary rounded focus:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
+            'flex-1 text-start py-1.5 text-mini font-semibold truncate transition-colors focus-visible:ring-1 focus-visible:ring-primary rounded focus:outline-none relative before:absolute before:-inset-y-1 before:inset-x-0 before:content-[\'\']',
             isActive ? 'text-primary' : 'text-foreground/80 hover:text-foreground',
           )}
           title={node.name}
         >
           {node.name}
         </button>
-        <span className="text-[0.625rem] text-muted-foreground/60 px-1 shrink-0">{node.count}</span>
+        <span className="text-micro text-muted-foreground/60 px-1 shrink-0">{node.count}</span>
       </div>
       {hasChildren && open && (
         <TagTree nodes={node.children} active={active} onSelect={onSelect} depth={depth + 1} />
@@ -619,7 +619,7 @@ function Editor({
   }, [body]);
 
   const toolbarBtn =
-    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-xs font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-all flex items-center justify-center';
+    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-mini font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-all flex items-center justify-center';
 
   return (
     <AppCard className="flex flex-col gap-3 min-h-[60vh]">
@@ -628,7 +628,7 @@ function Editor({
         <select
           value={note.status}
           onChange={(e) => onChange({ status: e.target.value as NoteStatus })}
-          className="h-8 rounded-full bg-background border border-border/60 px-2 text-xs"
+          className="h-8 rounded-full bg-background border border-border/60 px-2 text-mini"
         >
           <option value="draft">{'مسودة'}</option>
           <option value="active">{'نشِطة'}</option>
@@ -637,7 +637,7 @@ function Editor({
         <div className="flex-1" />
         <button
           onClick={onTogglePreview}
-          className="h-8 px-3 rounded-full bg-background border border-border/60 text-xs font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
+          className="h-8 px-3 rounded-full bg-background border border-border/60 text-mini font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
           aria-label={preview ? ('تحرير') : ('معاينة')}
         >
           {preview ? <Pencil className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -645,7 +645,7 @@ function Editor({
         </button>
         <button
           onClick={onOptimize}
-          className="h-8 px-3 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
+          className="h-8 px-3 rounded-full bg-primary/10 border border-primary/30 text-primary text-mini font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
           aria-label={'محسِّن النص'}
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -664,7 +664,7 @@ function Editor({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder={'عنوان الملاحظة…'}
-        className="w-full bg-transparent outline-none text-xl font-bold placeholder:text-muted-foreground/40"
+        className="w-full bg-transparent outline-none text-title font-bold placeholder:text-muted-foreground/40"
         style={{ fontSize: 22 }}
       />
 
@@ -702,7 +702,7 @@ function Editor({
           {body.trim() ? (
             <ReactMarkdown>{DOMPurify.sanitize(body)}</ReactMarkdown>
           ) : (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-meta">
               {'لا يوجد محتوى للمعاينة.'}
             </p>
           )}
@@ -714,14 +714,14 @@ function Editor({
           onChange={(e) => setBody(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={'ابدأ الكتابة… يمكنك استخدام Markdown و#وسوم/متداخلة.'}
-          className="w-full flex-1 min-h-[40vh] bg-transparent outline-none text-sm leading-relaxed resize-none placeholder:text-muted-foreground/40 font-mono"
+          className="w-full flex-1 min-h-[40vh] bg-transparent outline-none text-meta leading-relaxed resize-none placeholder:text-muted-foreground/40 font-mono"
           style={{ fontSize: 16 }}
           spellCheck={false}
         />
       )}
 
       {/* stats + tags footer */}
-      <div className="flex items-center gap-3 text-[0.625rem] uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
+      <div className="flex items-center gap-3 text-micro uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
         <span>{stats.words} {'كلمة'}</span>
         <span className="opacity-50">•</span>
         <span>{stats.chars} {'حرف'}</span>
@@ -744,13 +744,13 @@ function TagsFooter({ body, }: { body: string; }) {
   if (tags.length === 0) return null;
   return (
     <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/40">
-      <span className="text-[0.625rem] uppercase tracking-wider text-muted-foreground/60">
+      <span className="text-micro uppercase tracking-wider text-muted-foreground/60">
         {'الوسوم'}
       </span>
       {tags.map((t) => (
         <span
           key={t}
-          className="text-[0.6875rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
+          className="text-micro px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
         >
           #{t}
         </span>

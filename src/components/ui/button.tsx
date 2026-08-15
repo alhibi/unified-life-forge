@@ -5,7 +5,11 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex min-h-[var(--ui-touch-min)] items-center justify-center gap-2 whitespace-nowrap rounded-md text-body font-medium antialiased transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 active:scale-[0.98] shadow-sm',
+  // One chrome for every button: the shared press feedback (`.app-pressable`),
+  // the shared focus ring, and the control radius rung (`--r-md`). A size only
+  // changes height, inline padding, icon size and the type rung — never the
+  // shape language.
+  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium antialiased app-focus-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -13,15 +17,16 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground shadow-none',
-        link: 'text-primary underline-offset-4 hover:underline shadow-none',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-[var(--ui-button-h)] px-4 py-2',
-        xs: 'h-7 rounded-md px-2 text-xs',
-        sm: 'h-[var(--ui-button-sm-h)] rounded-md px-3',
-        lg: 'h-[var(--ui-button-lg-h)] rounded-md px-6',
-        icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] min-w-[var(--ui-touch-min)]',
+        default: 'h-[var(--ui-button-h)] px-4 text-body [&_svg]:size-5',
+        xs: 'h-[var(--ui-button-xs-h)] rounded-sm px-2 text-mini [&_svg]:size-4',
+        sm: 'h-[var(--ui-button-sm-h)] px-3 text-meta [&_svg]:size-4',
+        lg: 'h-[var(--ui-button-lg-h)] px-6 text-lead [&_svg]:size-5',
+        icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] [&_svg]:size-5',
+        'icon-sm': 'h-[var(--ui-button-sm-h)] w-[var(--ui-button-sm-h)] rounded-sm [&_svg]:size-4',
       },
     },
     defaultVariants: {
@@ -102,7 +107,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ) : (
             <>
               <svg
-                className="animate-spin h-5 w-5"
+                className="animate-spin size-5"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"

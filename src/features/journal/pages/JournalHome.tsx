@@ -85,7 +85,7 @@ export default function JournalHome() {
       <div className="z-sticky app-sticky-header border-b border-border/60">
         <div className="mx-auto max-w-lg px-5 py-3 flex items-center justify-between">
           <BackButton fallback="/" />
-          <h1 className="text-[0.9375rem] tracking-[0.24em] text-muted-foreground uppercase">
+          <h1 className="text-meta tracking-[0.24em] text-muted-foreground uppercase">
             مذكرتي
           </h1>
           <button
@@ -114,10 +114,10 @@ export default function JournalHome() {
               </div>
               {/* Overlay caption */}
               <div className="absolute inset-x-0 bottom-0 px-5 py-3 bg-background/85">
-                <div className="text-[0.6875rem] tracking-[0.24em] uppercase text-white/70">
+                <div className="text-micro tracking-[0.24em] uppercase text-white/70">
                   ذهنك اليوم
                 </div>
-                <div className="text-white/95 text-sm mt-0.5">
+                <div className="text-white/95 text-meta mt-0.5">
                   {balance.total === 0
                     ? 'ابدأ أول مدخلة لترى كيف يتشكّل.'
                     : `${balance.total} مدخلة · ${organicPct}٪ عاطفي · ${analyticalPct}٪ تحليلي`}
@@ -139,15 +139,15 @@ export default function JournalHome() {
         {/* Timeline */}
         <div className="space-y-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-foreground text-[1.0625rem]">التسلسل</h2>
-            <span className="text-[0.6875rem] tracking-wider text-muted-foreground uppercase">
+            <h2 className="text-foreground text-body">التسلسل</h2>
+            <span className="text-micro tracking-wider text-muted-foreground uppercase">
               الأحدث أولاً
             </span>
           </div>
 
           {isLoading && entries.length === 0 && (
             <AppCard>
-              <div className="text-muted-foreground text-sm text-center py-6">
+              <div className="text-muted-foreground text-meta text-center py-6">
                 جارٍ التحميل…
               </div>
             </AppCard>
@@ -156,16 +156,16 @@ export default function JournalHome() {
           {!isLoading && entries.length === 0 && (
             <AppCard>
               <div className="text-center py-8 space-y-3">
-                <div className="text-foreground text-[0.9375rem]">
+                <div className="text-foreground text-meta">
                   مذكرتك فارغة — بعدُ.
                 </div>
-                <div className="text-muted-foreground text-[0.8125rem] leading-relaxed">
+                <div className="text-muted-foreground text-mini leading-relaxed">
                   كل مدخلة تُغذّي أحد نصفَي الذهن أعلاه. اكتب فكرة، مشاعر، أو ملاحظة.
                 </div>
                 <button
                   type="button"
                   onClick={openNew}
-                  className="inline-flex items-center gap-2 mt-2 rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm"
+                  className="inline-flex items-center gap-2 mt-2 rounded-xl bg-primary text-primary-foreground px-4 py-2 text-meta"
                 >
                   <Plus className="h-4 w-4" />
                   ابدأ الآن
@@ -194,17 +194,17 @@ export default function JournalHome() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <div className="text-[0.9375rem] text-foreground truncate">
+                          <div className="text-meta text-foreground truncate">
                             {e.title?.trim() || 'مدخلة بلا عنوان'}
                           </div>
-                          <div className="text-[0.625rem] tracking-wider uppercase text-muted-foreground shrink-0">
+                          <div className="text-micro tracking-wider uppercase text-muted-foreground shrink-0">
                             {meta.label}
                           </div>
                         </div>
-                        <div className="text-[0.6875rem] text-muted-foreground mt-1">
+                        <div className="text-micro text-muted-foreground mt-1">
                           {formatDate(e.createdAt)} · {e.wordCount} كلمة
                         </div>
-                        <p className="text-[0.8125rem] leading-[1.85] text-foreground/85 mt-2 whitespace-pre-line">
+                        <p className="text-mini leading-[1.85] text-foreground/85 mt-2 whitespace-pre-line">
                           {excerpt(e.content)}
                         </p>
                         {e.tags.length > 0 && (
@@ -212,7 +212,7 @@ export default function JournalHome() {
                             {e.tags.map((t) => (
                               <span
                                 key={t}
-                                className="text-[0.625rem] px-2 py-0.5 rounded-full bg-card border border-border text-muted-foreground"
+                                className="text-micro px-2 py-0.5 rounded-full bg-card border border-border text-muted-foreground"
                               >
                                 #{t}
                               </span>
@@ -265,8 +265,8 @@ function StatCell({ label, value, accent }: { label: string; value: string; acce
         className="mx-auto mb-2 h-1.5 w-6 rounded-full"
         style={{ background: accent, opacity: 0.8 }}
       />
-      <div className="text-[1.125rem] text-foreground tabular-nums">{value}</div>
-      <div className="text-[0.625rem] tracking-[0.16em] uppercase text-muted-foreground mt-1">
+      <div className="text-lead text-foreground tabular-nums">{value}</div>
+      <div className="text-micro tracking-[0.16em] uppercase text-muted-foreground mt-1">
         {label}
       </div>
     </div>

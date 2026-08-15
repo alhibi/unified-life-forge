@@ -19,7 +19,7 @@ export default function DiffViewer({
   const segments = useMemo(() => wordDiff(original, optimized), [original, optimized]);
   return (
     <div
-      className="whitespace-pre-wrap break-words text-sm leading-relaxed font-mono"
+      className="whitespace-pre-wrap break-words text-meta leading-relaxed font-mono"
       dir="auto"
     >
       {segments.map((s, i) => (

@@ -219,10 +219,10 @@ export function OpmlImportDialog({
               <Upload className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-bold">
+              <h3 className="text-body font-bold">
                 {'استيراد OPML'}
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-mini text-muted-foreground mt-0.5">
                 {stage === 'drop'
                   ? ('انقل ملف OPML من Feedly أو Inoreader')
                   : stage === 'preview'
@@ -282,16 +282,16 @@ export function OpmlImportDialog({
                   <FolderOpen className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold mb-1">
+                  <p className="text-meta font-bold mb-1">
                     {dragActive
                       ? ('أفلت الملف هنا')
                       : ('اسحب ملف OPML')}
                   </p>
-                  <p className="text-[0.6875rem] text-muted-foreground">
+                  <p className="text-micro text-muted-foreground">
                     {'أو انقر لاختيار الملف من جهازك'}
                   </p>
                 </div>
-                <p className="text-[0.625rem] text-muted-foreground/70">
+                <p className="text-micro text-muted-foreground/70">
                   .opml · .xml · ≤ 10 MB
                 </p>
                 <input
@@ -307,11 +307,11 @@ export function OpmlImportDialog({
                 />
               </div>
               {parseError && (
-                <p className="text-[0.75rem] text-destructive text-center mt-4">
+                <p className="text-mini text-destructive text-center mt-4">
                   {parseError}
                 </p>
               )}
-              <p className="text-[0.6875rem] text-muted-foreground text-center mt-5 max-w-prose mx-auto">
+              <p className="text-micro text-muted-foreground text-center mt-5 max-w-prose mx-auto">
                 {'متوافق مع OPML 2.0 — يدعم تصدير Feedly، Inoreader، NetNewsWire، The Old Reader، وغيرها.'}
               </p>
             </div>
@@ -343,11 +343,11 @@ export function OpmlImportDialog({
                     transition={{ duration: 0.25 }}
                   />
                 </div>
-                <p className="text-[0.6875rem] text-muted-foreground text-center tabular-nums">
+                <p className="text-micro text-muted-foreground text-center tabular-nums">
                   {progress}% — {'لا تُغلق النافذة'}
                 </p>
               </div>
-              <p className="text-[0.75rem] text-muted-foreground text-center max-w-xs">
+              <p className="text-mini text-muted-foreground text-center max-w-xs">
                 {'يجلب آخر مقالات كل خلاصة جديدة دفعة واحدة، بدون إثقال الخادم.'}
               </p>
             </div>
@@ -360,11 +360,11 @@ export function OpmlImportDialog({
                 <Check className="h-7 w-7" />
               </div>
               <div className="text-center">
-                <p className="text-base font-bold">
+                <p className="text-body font-bold">
                   {`أُضيف ${result.added} مصدر`}
                 </p>
                 {result.skipped > 0 && (
-                  <p className="text-[0.75rem] text-muted-foreground mt-1">
+                  <p className="text-mini text-muted-foreground mt-1">
                     {`تم تخطّي ${result.skipped} (مكرّر)`}
                   </p>
                 )}
@@ -378,7 +378,7 @@ export function OpmlImportDialog({
           {/* Sticky footer for stage 2 */}
           {stage === 'preview' && (
             <div className="border-t border-border/40 px-5 py-3.5 flex items-center gap-3">
-              <p className="flex-1 text-[0.6875rem] text-muted-foreground tabular-nums">
+              <p className="flex-1 text-micro text-muted-foreground tabular-nums">
                 {`${newCount} جديدة · ${dupCount} مكرّرة${unselectedCount > 0 ? ` · ${unselectedCount} غير محدّدة` : ''}`}
               </p>
               <Button
@@ -434,13 +434,13 @@ function PreviewStage({
   return (
     <div className="flex-1 overflow-y-auto px-5 py-3">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-bold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground font-bold">
           {'اختر الخلاصات'}
         </p>
         <button
           type="button"
           onClick={() => onSelectAll(!allSelected)}
-          className="text-[0.6875rem] text-primary font-semibold"
+          className="text-micro text-primary font-semibold"
         >
           {allSelected
             ? ('إلغاء التحديد')
@@ -452,7 +452,7 @@ function PreviewStage({
           const catLabel = CATEGORIES.find((c) => c.id === cat);
           return (
             <div key={cat}>
-              <p className="text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 ps-1">
+              <p className="text-micro uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 ps-1">
                 {catLabel ? (catLabel.ar) : cat}
               </p>
               <div className="rounded-2xl border border-border/40 divide-y divide-border/30 overflow-hidden">
@@ -494,14 +494,14 @@ function PreviewRowItem({
       />
       <SourcePill name={row.name} size="sm" />
       <div className="flex-1 min-w-0">
-        <p className="text-[0.8125rem] font-semibold truncate">{row.name}</p>
-        <p className="text-[0.625rem] text-muted-foreground truncate" dir="ltr">
+        <p className="text-mini font-semibold truncate">{row.name}</p>
+        <p className="text-micro text-muted-foreground truncate" dir="ltr">
           {row.url}
         </p>
       </div>
       {row.duplicate
         ? (
-          <span className="px-2 py-1 rounded-lg bg-foreground/8 text-[0.625rem] uppercase tracking-wider text-muted-foreground font-semibold shrink-0 inline-flex items-center gap-1">
+          <span className="px-2 py-1 rounded-lg bg-foreground/8 text-micro uppercase tracking-wider text-muted-foreground font-semibold shrink-0 inline-flex items-center gap-1">
             <Check className="h-3 w-3" />
             {'مضافة'}
           </span>
@@ -511,7 +511,7 @@ function PreviewRowItem({
             <button
               type="button"
               onClick={() => setCatOpen((v) => !v)}
-              className="px-2.5 py-1 rounded-full text-[0.625rem] font-medium bg-accent/30 text-muted-foreground hover:bg-accent/50 inline-flex items-center gap-1"
+              className="px-2.5 py-1 rounded-full text-micro font-medium bg-accent/30 text-muted-foreground hover:bg-accent/50 inline-flex items-center gap-1"
             >
               {catLabel ? (catLabel.ar) : row.category}
               <ChevronDown className="h-3 w-3" />
@@ -531,7 +531,7 @@ function PreviewRowItem({
                         onPatch(row.url, { category: c.id });
                         setCatOpen(false);
                       }}
-                      className={`w-full text-start text-[0.75rem] px-3 py-1.5 hover:bg-accent/30 transition-colors ${
+                      className={`w-full text-start text-mini px-3 py-1.5 hover:bg-accent/30 transition-colors ${
                         c.id === row.category ? 'text-primary font-bold' : ''
                       }`}
                     >

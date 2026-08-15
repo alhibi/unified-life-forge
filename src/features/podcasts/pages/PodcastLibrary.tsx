@@ -89,10 +89,10 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
   return (
     <section className="mb-6">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-bold text-foreground">
+        <h2 className="text-meta font-bold text-foreground">
           {'تابع الاستماع'}
         </h2>
-        <span className="text-[0.6875rem] text-muted-foreground">{items.length}</span>
+        <span className="text-micro text-muted-foreground">{items.length}</span>
       </div>
       <div
         className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none"
@@ -129,10 +129,10 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
                   </span>
                 </div>
                 <div className="p-2.5">
-                  <p className="text-[0.75rem] font-bold leading-tight line-clamp-2 text-foreground">
+                  <p className="text-mini font-bold leading-tight line-clamp-2 text-foreground">
                     {rec.episode.title}
                   </p>
-                  <p className="text-[0.6875rem] text-muted-foreground line-clamp-1 mt-0.5">
+                  <p className="text-micro text-muted-foreground line-clamp-1 mt-0.5">
                     {rec.podcastTitle}
                   </p>
                 </div>
@@ -189,7 +189,7 @@ function SubscriptionTile({
           {/* Subtle glowing unplayed new episode badge on subscription card */}
           {hasNewEpisode && (
             <span
-              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-[0.625rem] font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
+              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-micro font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
               style={{
                 background: 'hsl(var(--live))',
                 color: '#fff',
@@ -199,10 +199,10 @@ function SubscriptionTile({
             </span>
           )}
         </div>
-        <p className="text-[0.75rem] font-bold text-foreground leading-tight line-clamp-2">
+        <p className="text-mini font-bold text-foreground leading-tight line-clamp-2">
           {podcast.title}
         </p>
-        <p className="text-[0.6875rem] text-muted-foreground leading-tight line-clamp-1">
+        <p className="text-micro text-muted-foreground leading-tight line-clamp-1">
           {podcast.author}
         </p>
       </button>
@@ -250,8 +250,8 @@ function SubscriptionTile({
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[0.8125rem] font-bold truncate">{podcast.title}</p>
-                  <p className="text-[0.6875rem] text-muted-foreground truncate">{podcast.author}</p>
+                  <p className="text-mini font-bold truncate">{podcast.title}</p>
+                  <p className="text-micro text-muted-foreground truncate">{podcast.author}</p>
                 </div>
               </div>
               <button
@@ -263,14 +263,14 @@ function SubscriptionTile({
                 className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-destructive hover:bg-destructive/10 active:scale-95 transition"
               >
                 <Trash2 className="w-4 h-4" />
-                <span className="text-[0.8125rem] font-semibold">
+                <span className="text-mini font-semibold">
                   {'إلغاء الاشتراك'}
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="w-full mt-1 px-3 py-3 rounded-2xl text-foreground hover:bg-muted/60 text-[0.8125rem] font-medium"
+                className="w-full mt-1 px-3 py-3 rounded-2xl text-foreground hover:bg-muted/60 text-mini font-medium"
               >
                 {'إلغاء'}
               </button>
@@ -385,7 +385,7 @@ export default function PodcastLibrary() {
       <div className="z-header app-sticky-header border-b border-border/40">
         <div className="max-w-lg mx-auto px-4 pt-3 pb-3 flex items-center gap-2">
           <BackButton />
-          <h1 className="flex-1 text-base font-bold text-foreground">
+          <h1 className="flex-1 text-body font-bold text-foreground">
             {'مكتبتي'}
           </h1>
           <button
@@ -399,7 +399,7 @@ export default function PodcastLibrary() {
               className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`}
             />
           </button>
-          <span className="text-[0.6875rem] text-muted-foreground">{subs.length}</span>
+          <span className="text-micro text-muted-foreground">{subs.length}</span>
         </div>
       </div>
 
@@ -412,15 +412,15 @@ export default function PodcastLibrary() {
             <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mb-4">
               <LibraryBig className="w-7 h-7 text-primary" />
             </div>
-            <p className="text-sm font-semibold text-foreground mb-1">
+            <p className="text-meta font-semibold text-foreground mb-1">
               {'لا اشتراكات بعد'}
             </p>
-            <p className="text-[0.75rem] text-muted-foreground mb-5 max-w-xs">
+            <p className="text-mini text-muted-foreground mb-5 max-w-xs">
               {'اكتشف البودكاست واشترك بها لتظهر هنا.'}
             </p>
             <button
               onClick={() => navigate('/podcasts')}
-              className="px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold active:scale-95"
+              className="px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95"
             >
               {'استكشاف البودكاست'}
             </button>
@@ -431,7 +431,7 @@ export default function PodcastLibrary() {
                 (recent vs. alphabetical) instead of a dropdown — the
                 set is small and a toggle is one tap instead of two. */}
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-foreground">
+              <h2 className="text-meta font-bold text-foreground">
                 {'اشتراكاتي'}
               </h2>
               <div className="inline-flex items-center bg-muted/40 rounded-full p-0.5 border border-border/40">
@@ -439,7 +439,7 @@ export default function PodcastLibrary() {
                   type="button"
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
-                  className={`px-2.5 h-7 rounded-full text-[0.6875rem] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-micro font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >
@@ -450,7 +450,7 @@ export default function PodcastLibrary() {
                   type="button"
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
-                  className={`px-2.5 h-7 rounded-full text-[0.6875rem] font-semibold inline-flex items-center gap-1 transition-colors ${
+                  className={`px-2.5 h-7 rounded-full text-micro font-semibold inline-flex items-center gap-1 transition-colors ${
                     sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
                   }`}
                 >

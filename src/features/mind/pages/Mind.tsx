@@ -62,10 +62,10 @@ export default function MindPage() {
           <BackIcon className="w-4 h-4 text-[color:#F2E7C9]/80" />
         </button>
         <div className="text-center pointer-events-none">
-          <div className="text-[0.625rem] tracking-[0.35em] uppercase text-[color:#F2E7C9]/40" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+          <div className="text-micro tracking-[0.35em] uppercase text-[color:#F2E7C9]/40" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
             {'العقل الحيّ'}
           </div>
-          <div className="text-[0.625rem] text-[color:#F2E7C9]/50 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+          <div className="text-micro text-[color:#F2E7C9]/50 mt-0.5" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
             {stat}
           </div>
         </div>
@@ -76,7 +76,7 @@ export default function MindPage() {
       <div className="absolute inset-0 flex" style={{ paddingTop: 60, paddingBottom: 24 }}>
         <div className="flex-1 min-w-0 relative">
           {mind.loading ? (
-            <div className="absolute inset-0 flex items-center justify-center text-[color:#F2E7C9]/50 text-xs" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
+            <div className="absolute inset-0 flex items-center justify-center text-[color:#F2E7C9]/50 text-mini" style={{ fontFamily: '"IBM Plex Mono", monospace' }}>
               {'...يستيقظ'}
             </div>
           ) : useFallback ? (
@@ -90,7 +90,7 @@ export default function MindPage() {
           {/* Empty-state whisper */}
           {!mind.loading && mind.notes.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-8">
-              <p className="text-center text-[color:#F2E7C9]/60 text-sm max-w-xs leading-relaxed" style={{ fontFamily: '"Cormorant Garamond", serif' }}>
+              <p className="text-center text-[color:#F2E7C9]/60 text-meta max-w-xs leading-relaxed" style={{ fontFamily: '"Cormorant Garamond", serif' }}>
                 {'اكتب ملاحظتك الأولى. سيبدأ هذا العقل في الوجود.'}
               </p>
             </div>
