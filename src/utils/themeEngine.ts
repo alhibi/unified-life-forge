@@ -22,10 +22,10 @@ export const SCALE_STEPS = [25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]
 export type ScaleStep = (typeof SCALE_STEPS)[number];
 
 export interface ThemeColorSet {
-  bg: string;      // hex string e.g. '#E4DFDB'
+  bg: string; // hex string e.g. '#E4DFDB'
   surface: string; // hex string e.g. '#E3D7CD'
-  ink: string;     // hex string e.g. '#3F3F3F'
-  accent: string;  // hex string e.g. '#E45B60'
+  ink: string; // hex string e.g. '#3F3F3F'
+  accent: string; // hex string e.g. '#E45B60'
 }
 
 export interface ThemePreset {
@@ -78,11 +78,7 @@ export function hexToHsl(hex: string): Hsl {
     h /= 6;
   }
 
-  return [
-    Math.round(h * 360),
-    Math.round(s * 100 * 10) / 10,
-    Math.round(l * 100 * 10) / 10,
-  ];
+  return [Math.round(h * 360), Math.round(s * 100 * 10) / 10, Math.round(l * 100 * 10) / 10];
 }
 
 // Convert Hsl array to css string e.g. "27 14.3% 87.6%"
@@ -139,14 +135,16 @@ function oklabToRgb([L, A, B]: Oklab): Rgb {
   const lr = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
   const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
   const lb = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-  return [lr, lg, lb].map((c) =>
-    Math.min(1, Math.max(0, linearToSrgb(c))),
-  ) as Rgb;
+  return [lr, lg, lb].map((c) => Math.min(1, Math.max(0, linearToSrgb(c)))) as Rgb;
 }
 
 function rgbToHsl([r, g, b]: Rgb): Hsl {
   const hex = `#${[r, g, b]
-    .map((c) => Math.round(Math.min(1, Math.max(0, c)) * 255).toString(16).padStart(2, '0'))
+    .map((c) =>
+      Math.round(Math.min(1, Math.max(0, c)) * 255)
+        .toString(16)
+        .padStart(2, '0'),
+    )
     .join('')}`;
   return hexToHsl(hex);
 }
@@ -297,13 +295,7 @@ function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
  *   accent  300 · 400 · 500       (wash → accent → deep)
  *   ink     600 · 700 · 800 · 900 (secondary text → body → strong → maximum)
  */
-function buildToneLadder(
-  bg: Hsl,
-  surface: Hsl,
-  ink: Hsl,
-  accent: Hsl,
-  isDark: boolean,
-): Hsl[] {
+function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl, isDark: boolean): Hsl[] {
   return [
     elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
     bg, // 50  — page
@@ -356,25 +348,45 @@ function hslToHex([h, s, l]: Hsl): string {
   const c = (1 - Math.abs(2 * lFrac - 1)) * sFrac;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = lFrac - c / 2;
-  let r = 0, g = 0, b = 0;
+  let r = 0,
+    g = 0,
+    b = 0;
 
   if (h >= 0 && h < 60) {
-    r = c; g = x; b = 0;
+    r = c;
+    g = x;
+    b = 0;
   } else if (h >= 60 && h < 120) {
-    r = x; g = c; b = 0;
+    r = x;
+    g = c;
+    b = 0;
   } else if (h >= 120 && h < 180) {
-    r = 0; g = c; b = x;
+    r = 0;
+    g = c;
+    b = x;
   } else if (h >= 180 && h < 240) {
-    r = 0; g = x; b = c;
+    r = 0;
+    g = x;
+    b = c;
   } else if (h >= 240 && h < 300) {
-    r = x; g = 0; b = c;
+    r = x;
+    g = 0;
+    b = c;
   } else if (h >= 300 && h < 360) {
-    r = c; g = 0; b = x;
+    r = c;
+    g = 0;
+    b = x;
   }
 
-  const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
-  const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
-  const bHex = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+  const rHex = Math.round((r + m) * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const gHex = Math.round((g + m) * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const bHex = Math.round((b + m) * 255)
+    .toString(16)
+    .padStart(2, '0');
 
   return `#${rHex}${gHex}${bHex}`.toUpperCase();
 }
@@ -384,7 +396,7 @@ function definePreset(
   name: string,
   nameEn: string,
   light: ThemeColorSet,
-  dark: ThemeColorSet
+  dark: ThemeColorSet,
 ): ThemePreset {
   const lightBgHsl = hexToHsl(light.bg);
   const lightSurfHsl = hexToHsl(light.surface);
@@ -426,84 +438,84 @@ export const themePresets: ThemePreset[] = [
     'نُحاس معماري',
     'Architectural Copper',
     { bg: '#F4F2EF', surface: '#FBFAF8', ink: '#17171A', accent: '#9A6B37' },
-    { bg: '#0D0D0F', surface: '#1A1A1E', ink: '#EDEBE7', accent: '#C9A06A' }
+    { bg: '#0D0D0F', surface: '#1A1A1E', ink: '#EDEBE7', accent: '#C9A06A' },
   ),
   definePreset(
     'paper',
     'ورق وحبر',
     'Paper & Ink',
     { bg: '#F5F0E8', surface: '#FBF8F3', ink: '#1A1A1F', accent: '#8A5B3D' },
-    { bg: '#12110F', surface: '#1A1916', ink: '#F2E9D8', accent: '#B8492E' }
+    { bg: '#12110F', surface: '#1A1916', ink: '#F2E9D8', accent: '#B8492E' },
   ),
   definePreset(
     'mono',
     'مونوكروم',
     'Mono',
     { bg: '#F5F5F5', surface: '#FFFFFF', ink: '#1A1A1A', accent: '#1A1A1A' },
-    { bg: '#121212', surface: '#1E1E1E', ink: '#F5F5F5', accent: '#FFFFFF' }
+    { bg: '#121212', surface: '#1E1E1E', ink: '#F5F5F5', accent: '#FFFFFF' },
   ),
   definePreset(
     'obsidian',
     'سبج',
     'Obsidian',
     { bg: '#E6E4E2', surface: '#F0EDE9', ink: '#1A1917', accent: '#B8860B' },
-    { bg: '#0A0A0B', surface: '#151517', ink: '#F5F2EB', accent: '#D4AF37' }
+    { bg: '#0A0A0B', surface: '#151517', ink: '#F5F2EB', accent: '#D4AF37' },
   ),
   definePreset(
     'clay',
     'طين',
     'Clay',
     { bg: '#F5EFEA', surface: '#EBE0D6', ink: '#33251D', accent: '#A9603F' },
-    { bg: '#130E0B', surface: '#211814', ink: '#F1E7DE', accent: '#CE8A62' }
+    { bg: '#130E0B', surface: '#211814', ink: '#F1E7DE', accent: '#CE8A62' },
   ),
   definePreset(
     'gold',
     'ذهب',
     'Gold',
     { bg: '#F8F3E6', surface: '#F0E6CE', ink: '#2C2415', accent: '#96731C' },
-    { bg: '#12100A', surface: '#211C10', ink: '#F7F0DC', accent: '#D9B441' }
+    { bg: '#12100A', surface: '#211C10', ink: '#F7F0DC', accent: '#D9B441' },
   ),
   definePreset(
     'moss',
     'طحلب',
     'Moss',
     { bg: '#EDF1EC', surface: '#DDE6DC', ink: '#1F2A22', accent: '#4A6B52' },
-    { bg: '#0B0F0C', surface: '#161E18', ink: '#E6EDE6', accent: '#7FA98A' }
+    { bg: '#0B0F0C', surface: '#161E18', ink: '#E6EDE6', accent: '#7FA98A' },
   ),
   definePreset(
     'ocean',
     'محيط',
     'Ocean',
     { bg: '#E0F2F1', surface: '#B2DFDB', ink: '#004D40', accent: '#00796B' },
-    { bg: '#001211', surface: '#002926', ink: '#E0F2F1', accent: '#26A69A' }
+    { bg: '#001211', surface: '#002926', ink: '#E0F2F1', accent: '#26A69A' },
   ),
   definePreset(
     'arctic',
     'قطبي',
     'Arctic',
     { bg: '#EEF4F9', surface: '#DCE8F2', ink: '#152430', accent: '#1F6C99' },
-    { bg: '#080D12', surface: '#111C24', ink: '#E9F2F9', accent: '#63B3E0' }
+    { bg: '#080D12', surface: '#111C24', ink: '#E9F2F9', accent: '#63B3E0' },
   ),
   definePreset(
     'midnight',
     'منتصف الليل',
     'Midnight',
     { bg: '#E6E9F0', surface: '#D2D7E5', ink: '#121E31', accent: '#2A52BE' },
-    { bg: '#080E1A', surface: '#162235', ink: '#E6E9F0', accent: '#5381E6' }
+    { bg: '#080E1A', surface: '#162235', ink: '#E6E9F0', accent: '#5381E6' },
   ),
   definePreset(
     'nebula',
     'سديم',
     'Nebula',
     { bg: '#F1EEF8', surface: '#E1DBF1', ink: '#1E1733', accent: '#5B3FD1' },
-    { bg: '#0A0812', surface: '#161125', ink: '#EDE9F8', accent: '#9E86F5' }
+    { bg: '#0A0812', surface: '#161125', ink: '#EDE9F8', accent: '#9E86F5' },
   ),
   definePreset(
     'rose',
     'روز جولد',
     'Rose Gold',
     { bg: '#F9F1F2', surface: '#F2DFE2', ink: '#4A2A2E', accent: '#C87D88' },
-    { bg: '#1A0E10', surface: '#2E181C', ink: '#F9F1F2', accent: '#E2A9B1' }
+    { bg: '#1A0E10', surface: '#2E181C', ink: '#F9F1F2', accent: '#E2A9B1' },
   ),
 ];
 
@@ -575,9 +587,13 @@ export function extractDominantColor(img: HTMLImageElement): [number, number, nu
     b = bTotal / count;
 
   // Convert RGB to Hsl
-  const rN = r / 255, gN = g / 255, bN = b / 255;
-  const max = Math.max(rN, gN, bN), min = Math.min(rN, gN, bN);
-  let h = 0, s = 0;
+  const rN = r / 255,
+    gN = g / 255,
+    bN = b / 255;
+  const max = Math.max(rN, gN, bN),
+    min = Math.min(rN, gN, bN);
+  let h = 0,
+    s = 0;
   const l = (max + min) / 2;
   if (max !== min) {
     const d = max - min;
@@ -606,7 +622,7 @@ export function createDynamicPreset(baseHsl: [number, number, number]): ThemePre
     'ديناميكي',
     'Dynamic',
     { bg: lightBgHex, surface: lightSurfHex, ink: lightInkHex, accent: lightAccHex },
-    { bg: darkBgHex, surface: darkSurfHex, ink: darkInkHex, accent: darkAccHex }
+    { bg: darkBgHex, surface: darkSurfHex, ink: darkInkHex, accent: darkAccHex },
   );
 }
 
@@ -616,7 +632,7 @@ export function generateThemeTokens(
   style: ThemeStyle,
   isDark: boolean,
   isBlack: boolean,
-  lift: SurfaceLift = 'subtle'
+  lift: SurfaceLift = 'subtle',
 ): Record<string, string> {
   const modeColors = isDark ? preset.dark : preset.light;
   const rawBg = hexToHsl(modeColors.bg);
@@ -624,8 +640,7 @@ export function generateThemeTokens(
 
   // OLED black mode keeps the palette's hue instead of collapsing to a
   // neutral #080808 whose card colour no longer belongs to the theme.
-  const bgHsl: Hsl =
-    isDark && isBlack ? [rawBg[0], Math.min(rawBg[1], 12), 2.5] : rawBg;
+  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], Math.min(rawBg[1], 12), 2.5] : rawBg;
   const surfaceBase: Hsl =
     isDark && isBlack
       ? [rawSurface[0], Math.min(rawSurface[1], 14), Math.max(7, rawSurface[2] - 3)]
@@ -644,11 +659,7 @@ export function generateThemeTokens(
   );
 
   // Ink must clear WCAG AA against both the page and the cards on it.
-  const inkHsl = ensureContrast(
-    ensureContrast(hexToHsl(modeColors.ink), bgHsl, 7),
-    surfHsl,
-    5.5,
-  );
+  const inkHsl = ensureContrast(ensureContrast(hexToHsl(modeColors.ink), bgHsl, 7), surfHsl, 5.5);
   // Accent obeys the chosen strength, then is corrected until it is legible
   // as a large-text / iconography colour on the page.
   const accHsl = ensureContrast(
@@ -668,16 +679,14 @@ export function generateThemeTokens(
   // Dark surfaces need a heavier mix to read at the same perceived strength,
   // which is why the two modes carry different ladders.
   const lineBase = isDark ? 0.26 : 0.2;
-  const borderStr = solid(inkHsl, bgHsl, lineBase);            // hairline
-  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.12);      // field outline
+  const borderStr = solid(inkHsl, bgHsl, lineBase); // hairline
+  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.12); // field outline
   const secondaryStr = solid(inkHsl, bgHsl, isDark ? 0.14 : 0.11);
-  const secondaryFgStr = solid(inkHsl, bgHsl, 0.94);           // near-ink text
+  const secondaryFgStr = solid(inkHsl, bgHsl, 0.94); // near-ink text
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
-  const mutedFgStr = hslToString(
-    ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5),
-  );
-  const disabledStr = solid(inkHsl, bgHsl, 0.46);              // disabled state
+  const mutedFgStr = hslToString(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5));
+  const disabledStr = solid(inkHsl, bgHsl, 0.46); // disabled state
 
   const accentHighlightStr = solid(accHsl, bgHsl, 0.14); // subtle accent wash
 
@@ -695,22 +704,18 @@ export function generateThemeTokens(
   const surface3 = elevate(surfHsl, isDark, 0.07);
 
   const shadowRgb = isDark ? '0,0,0' : '28,24,20';
-  const shadow1 =
-    isDark
-      ? `0 1px 2px rgba(${shadowRgb},0.36)`
-      : `0 1px 2px rgba(${shadowRgb},0.06)`;
-  const shadow2 =
-    isDark
-      ? `0 2px 6px rgba(${shadowRgb},0.44), 0 1px 2px rgba(${shadowRgb},0.3)`
-      : `0 2px 6px rgba(${shadowRgb},0.08), 0 1px 2px rgba(${shadowRgb},0.05)`;
-  const shadow3 =
-    isDark
-      ? `0 8px 24px rgba(${shadowRgb},0.52), 0 2px 6px rgba(${shadowRgb},0.34)`
-      : `0 8px 24px rgba(${shadowRgb},0.1), 0 2px 6px rgba(${shadowRgb},0.06)`;
-  const shadow4 =
-    isDark
-      ? `0 20px 48px rgba(${shadowRgb},0.6), 0 6px 14px rgba(${shadowRgb},0.4)`
-      : `0 20px 48px rgba(${shadowRgb},0.13), 0 6px 14px rgba(${shadowRgb},0.07)`;
+  const shadow1 = isDark
+    ? `0 1px 2px rgba(${shadowRgb},0.36)`
+    : `0 1px 2px rgba(${shadowRgb},0.06)`;
+  const shadow2 = isDark
+    ? `0 2px 6px rgba(${shadowRgb},0.44), 0 1px 2px rgba(${shadowRgb},0.3)`
+    : `0 2px 6px rgba(${shadowRgb},0.08), 0 1px 2px rgba(${shadowRgb},0.05)`;
+  const shadow3 = isDark
+    ? `0 8px 24px rgba(${shadowRgb},0.52), 0 2px 6px rgba(${shadowRgb},0.34)`
+    : `0 8px 24px rgba(${shadowRgb},0.1), 0 2px 6px rgba(${shadowRgb},0.06)`;
+  const shadow4 = isDark
+    ? `0 20px 48px rgba(${shadowRgb},0.6), 0 6px 14px rgba(${shadowRgb},0.4)`
+    : `0 20px 48px rgba(${shadowRgb},0.13), 0 6px 14px rgba(${shadowRgb},0.07)`;
   const cardShadow = shadow1;
 
   // Published tone ladder (--theme-50 … --theme-600).

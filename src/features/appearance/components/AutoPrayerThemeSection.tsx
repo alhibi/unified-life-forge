@@ -172,33 +172,31 @@ export default function AutoPrayerThemeSection() {
                             </div>
                             <div className="grid grid-cols-6 gap-2">
                               {themePresets.map((p) => {
-                                  const swatch = getPreviewColor(p, cur?.mode || 'light');
-                                  const isSel = resolveThemeId(cur?.colorTheme) === p.id;
-                                  return (
-                                    <button
-                                      key={p.id}
-                                      type="button"
-                                      onClick={() =>
-                                        updateSlot(slot.id, p.id, cur?.mode || 'light')
-                                      }
-                                      aria-label={p.name}
-                                      aria-pressed={isSel}
-                                      className={`relative aspect-square w-full rounded-full border-2 transition-all ${
-                                        isSel ? 'scale-110 border-primary' : 'border-border'
-                                      }`}
-                                      style={{ backgroundColor: swatch }}
-                                    >
-                                      {isSel && (
-                                        <span className="absolute inset-0 m-auto flex h-4 w-4 items-center justify-center rounded-full bg-card">
-                                          <Check
-                                            className="h-3 w-3 stroke-[2.5] text-foreground"
-                                            aria-hidden
-                                          />
-                                        </span>
-                                      )}
-                                    </button>
-                                  );
-                                })}
+                                const swatch = getPreviewColor(p, cur?.mode || 'light');
+                                const isSel = resolveThemeId(cur?.colorTheme) === p.id;
+                                return (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    onClick={() => updateSlot(slot.id, p.id, cur?.mode || 'light')}
+                                    aria-label={p.name}
+                                    aria-pressed={isSel}
+                                    className={`relative aspect-square w-full rounded-full border-2 transition-all ${
+                                      isSel ? 'scale-110 border-primary' : 'border-border'
+                                    }`}
+                                    style={{ backgroundColor: swatch }}
+                                  >
+                                    {isSel && (
+                                      <span className="absolute inset-0 m-auto flex h-4 w-4 items-center justify-center rounded-full bg-card">
+                                        <Check
+                                          className="h-3 w-3 stroke-[2.5] text-foreground"
+                                          aria-hidden
+                                        />
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
                         </motion.div>
