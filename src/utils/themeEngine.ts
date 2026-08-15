@@ -173,6 +173,53 @@ function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
   return [surface[0], surface[1], Math.min(98, Math.max(2, bg[2] + shift))];
 }
 
+/**
+ * The single source of truth for the published 50 → 600 tone ladder.
+ * Both the runtime tokens and the settings swatches call this, so a preview is
+ * literally the colours the app will paint.
+ */
+function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl): Hsl[] {
+  return [
+    bg,                            // 50  — page
+    surface,                       // 100 — card
+    mixHsl(accent, bg, 0.18),      // 200 — accent wash
+    mixHsl(accent, bg, 0.55),      // 300 — accent soft
+    accent,                        // 400 — accent
+    mixHsl(ink, accent, 0.45),     // 500 — accent deep
+    mixHsl(ink, bg, 0.74),         // 600 — secondary ink
+  ];
+}
+
+/**
+ * Status colours: the hue is semantic and fixed (red = destructive), but the
+ * tone is resolved against the live background so it always clears AA, and the
+ * label on top is whichever of white/near-black is actually readable.
+ */
+function statusTokens(bg: Hsl): Record<string, string> {
+  const WHITE: Hsl = [0, 0, 100];
+  const resolve = (hue: Hsl) => {
+    const tone = ensureContrast(hue, bg, 4.5);
+    const dark: Hsl = [hue[0], Math.min(90, hue[1] + 10), 12];
+    const fg = contrastRatio(WHITE, tone) >= contrastRatio(dark, tone) ? WHITE : dark;
+    return { tone: hslToString(tone), fg: hslToString(fg) };
+  };
+
+  const danger = resolve([358, 72, 50]);
+  const success = resolve([145, 50, 36]);
+  const warning = resolve([38, 85, 45]);
+
+  return {
+    '--destructive': danger.tone,
+    '--destructive-foreground': danger.fg,
+    '--success': success.tone,
+    '--success-foreground': success.fg,
+    '--warning': warning.tone,
+    '--warning-foreground': warning.fg,
+    '--error': danger.tone,
+    '--error-foreground': danger.fg,
+  };
+}
+
 // Convert Hsl array to hex string
 function hslToHex([h, s, l]: Hsl): string {
   const sFrac = s / 100;
