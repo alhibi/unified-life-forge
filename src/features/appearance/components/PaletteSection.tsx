@@ -86,7 +86,7 @@ const THEME_CATEGORIES: ThemeCategory[] = [
     presets: ['clay', 'gold', 'moss', 'ocean'],
   },
   {
-    id: 'warm',
+    id: 'cosmic',
     nameAr: 'العميقة والكونية',
     nameEn: 'Cosmic & Deep',
     presets: ['arctic', 'midnight', 'nebula', 'rose'],
@@ -370,11 +370,11 @@ export default function PaletteSection() {
 
       <SettingsSection
         title="لوحة الألوان"
-        subtitle="واحد وثلاثون ثيماً، كل منها سلّم إدراكي من إحدى عشرة درجة"
+        subtitle="اثنا عشر ثيماً منتقىً، كل منها سلّم إدراكي من إحدى عشرة درجة"
         icon={<Palette className="h-4 w-4" aria-hidden />}
       >
         <ThemePresetsCategorized
-          colorTheme={colorTheme}
+          colorTheme={resolveThemeId(colorTheme)}
           paletteStyle={paletteStyle as ThemeStyle}
           setColorTheme={setColorTheme as (t: string) => void}
           isDark={isDark}
