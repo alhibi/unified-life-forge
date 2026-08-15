@@ -109,6 +109,8 @@ export default function PriceChart({
   const [candles, setCandles] = useState<Candle[]>([]);
   const [state, setState] = useState<LoadState>('idle');
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isStale, setIsStale] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const cacheRef = useRef<Map<ChartRange, Candle[]>>(new Map());
 
@@ -118,6 +120,7 @@ export default function PriceChart({
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const cached = cacheRef.current.get(range);
     if (cached) {
@@ -127,30 +130,69 @@ export default function PriceChart({
       setState('loading');
     }
 
-    (async () => {
+    const load = async () => {
       try {
         const series = await cryptoApi.getCandles(chainId, pairAddress, range);
         if (cancelled) return;
-        cacheRef.current.set(range, series.candles);
-        setCandles(series.candles);
-        setState(series.candles.length > 0 ? 'success' : 'error');
+        if (series.candles.length > 0) {
+          cacheRef.current.set(range, series.candles);
+          setCandles(series.candles);
+          setUpdatedAt(series.fetchedAt);
+          setIsStale(series.stale);
+          setState('success');
+        } else {
+          setState(cacheRef.current.get(range) ? 'success' : 'error');
+        }
       } catch {
-        if (!cancelled) setState(cached ? 'success' : 'error');
+        if (!cancelled) {
+          setIsStale(true);
+          setState(cacheRef.current.get(range) ? 'success' : 'error');
+        }
+      } finally {
+        if (!cancelled) {
+          timer = setTimeout(load, RANGE_TIMING[range].refreshMs);
+        }
       }
-    })();
+    };
+
+    void load();
+
+    // Refresh immediately whenever the user returns to the app.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && !cancelled) {
+        if (timer) clearTimeout(timer);
+        void load();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
 
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [chainId, pairAddress, range]);
 
   const series = useMemo(() => {
-    const values = candles.map((c) => Number.parseFloat(c.c)).filter((v) => Number.isFinite(v));
-    if (values.length === 0) return null;
+    const usable = candles.filter((c) => Number.isFinite(Number.parseFloat(c.c)));
+    if (usable.length === 0) return null;
 
-    // Blend the live price into the trailing point so header and chart never disagree.
+    const values = usable.map((c) => Number.parseFloat(c.c));
+    const times = usable.map((c) => c.t);
+
+    // Blend the live price in so header and chart never disagree; open a new
+    // trailing point once the newest candle bucket has already closed.
     const live = livePriceUsd ? Number.parseFloat(livePriceUsd) : NaN;
-    if (Number.isFinite(live) && live > 0) values[values.length - 1] = live;
+    if (Number.isFinite(live) && live > 0) {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const lastT = times[times.length - 1];
+      if (nowSec - lastT > RANGE_TIMING[range].bucketSec) {
+        values.push(live);
+        times.push(nowSec);
+      } else {
+        values[values.length - 1] = live;
+      }
+    }
 
     const baseline = values[0];
     const min = Math.min(...values, baseline);
@@ -161,7 +203,7 @@ export default function PriceChart({
     const toY = (value: number) => PAD_TOP + (1 - (value - min) / span) * usableH;
     const stepX = values.length > 1 ? VIEW_W / (values.length - 1) : 0;
 
-    const points = values.map((value, i) => ({ x: i * stepX, y: toY(value), value, t: candles[i].t }));
+    const points = values.map((value, i) => ({ x: i * stepX, y: toY(value), value, t: times[i] }));
 
     return {
       points,
@@ -173,7 +215,7 @@ export default function PriceChart({
       linePath: buildSmoothPath(points),
       areaPath: `${buildSmoothPath(points)} L${VIEW_W} ${VIEW_H - PAD_BOTTOM} L0 ${VIEW_H - PAD_BOTTOM} Z`,
     };
-  }, [candles, livePriceUsd]);
+  }, [candles, livePriceUsd, range]);
 
   const isUp = series ? series.last >= series.baseline : true;
   const trendColor = isUp ? 'hsl(160 84% 42%)' : 'hsl(350 80% 58%)';
