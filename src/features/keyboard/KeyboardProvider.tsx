@@ -1,0 +1,179 @@
+import { AnimatePresence } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import SoftKeyboard from './components/SoftKeyboard';
+import {
+  backspace,
+  backspaceWord,
+  type EditableField,
+  insertText,
+  isSoftKeyboardTarget,
+  moveCaret,
+  pressEnter,
+} from './lib/edit';
+import {
+  readSoftKeyboardPreference,
+  type SoftKeyboardPreference,
+  supportsSoftKeyboard,
+  writeSoftKeyboardPreference,
+} from './lib/preference';
+
+/**
+ * Mounts the app keyboard globally.
+ *
+ * Every text field in the product gets it for free: we listen at the document
+ * level, suppress the OS keyboard on the focused field with `inputmode="none"`,
+ * and drive the field through native value setters so React state stays the
+ * single source of truth. Fields opt out with `data-soft-keyboard="off"`
+ * (individually, or on any ancestor).
+ */
+export default function KeyboardProvider() {
+  const [preference, setPreference] = useState<SoftKeyboardPreference>(() =>
+    readSoftKeyboardPreference(),
+  );
+  const [target, setTarget] = useState<EditableField | null>(null);
+  const targetRef = useRef<EditableField | null>(null);
+  /** inputMode we borrowed from the field, restored on release. */
+  const restoreRef = useRef<string | null>(null);
+  const [available] = useState(() => supportsSoftKeyboard());
+
+  useEffect(() => {
+    const onChange = (event: Event) => {
+      setPreference((event as CustomEvent<SoftKeyboardPreference>).detail);
+    };
+    window.addEventListener('soft-keyboard-preference', onChange);
+    return () => window.removeEventListener('soft-keyboard-preference', onChange);
+  }, []);
+
+  const release = useCallback(() => {
+    const el = targetRef.current;
+    if (el) {
+      if (restoreRef.current === null) el.removeAttribute('inputmode');
+      else el.setAttribute('inputmode', restoreRef.current);
+    }
+    restoreRef.current = null;
+    targetRef.current = null;
+    setTarget(null);
+    document.documentElement.style.setProperty('--soft-keyboard-height', '0px');
+    document.documentElement.removeAttribute('data-soft-keyboard-open');
+  }, []);
+
+  const capture = useCallback((el: EditableField) => {
+    if (targetRef.current === el) return;
+    restoreRef.current = el.getAttribute('inputmode');
+    // The OS keyboard must never appear alongside ours.
+    el.setAttribute('inputmode', 'none');
+    targetRef.current = el;
+    setTarget(el);
+    document.documentElement.setAttribute('data-soft-keyboard-open', 'true');
+  }, []);
+
+  const active = available && preference === 'app';
+
+  useEffect(() => {
+    if (!active) return;
+
+    // pointerdown fires before focus, which is the only reliable moment to stop
+    // Android from animating its own keyboard in.
+    const onPointerDown = (event: PointerEvent) => {
+      const node = event.target;
+      if (isSoftKeyboardTarget(node)) capture(node);
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      const node = event.target;
+      if (isSoftKeyboardTarget(node)) capture(node);
+      else if (!(node as HTMLElement | null)?.closest?.('[data-soft-keyboard-panel]')) release();
+    };
+    const onFocusOut = (event: FocusEvent) => {
+      if (event.target === targetRef.current) {
+        // Give the panel a frame: tapping a key never really moves focus.
+        window.setTimeout(() => {
+          if (document.activeElement !== targetRef.current) release();
+        }, 80);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && targetRef.current) targetRef.current.blur();
+    };
+
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [active, capture, release]);
+
+  // Keep the caret visible above the panel.
+  const onHeightChange = useCallback((height: number) => {
+    document.documentElement.style.setProperty('--soft-keyboard-height', `${String(Math.round(height))}px`);
+    const el = targetRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const limit = window.innerHeight - height - 12;
+    if (rect.bottom > limit) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    if (target) onHeightChange(Number.parseFloat(
+      document.documentElement.style.getPropertyValue('--soft-keyboard-height') || '0',
+    ));
+  }, [target, onHeightChange]);
+
+  /** Run a mutation against whichever field currently holds the caret. */
+  const run = useCallback((fn: (el: EditableField) => void) => {
+    const el = targetRef.current;
+    if (!el) return;
+    fn(el);
+  }, []);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      data-soft-keyboard-panel=""
+      data-vaul-no-drag=""
+      // Drawers, sheets and popovers dismiss on any pointer event they see at
+      // the document level. The keyboard lives in a body portal, so without
+      // this every keypress would read as "tapped outside" and close the sheet
+      // the user is typing into.
+      onPointerDown={(event) => event.stopPropagation()}
+      onMouseDown={(event) => event.stopPropagation()}
+      onTouchStart={(event) => event.stopPropagation()}
+      onFocusCapture={(event) => event.stopPropagation()}
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[95]"
+      aria-hidden={!(active && target)}
+    >
+      <AnimatePresence>
+        {active && target && (
+          <SoftKeyboard
+            enterLabel={target instanceof HTMLTextAreaElement ? 'سطر' : 'تم'}
+            onInsert={(text) => run((el) => insertText(el, text))}
+            onBackspace={() => run(backspace)}
+            onBackspaceWord={() => run(backspaceWord)}
+            onEnter={() => run(pressEnter)}
+            onMoveCaret={(delta) => run((el) => moveCaret(el, delta))}
+            onDone={() => {
+              targetRef.current?.blur();
+              release();
+            }}
+            onUseSystemKeyboard={() => {
+              const el = targetRef.current;
+              writeSoftKeyboardPreference('system');
+              release();
+              // Re-focus so the OS keyboard opens immediately for this field.
+              window.setTimeout(() => el?.focus(), 0);
+            }}
+            onHeightChange={onHeightChange}
+          />
+        )}
+      </AnimatePresence>
+    </div>,
+    document.body,
+  );
+}

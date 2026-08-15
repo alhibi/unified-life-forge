@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { InterfaceSection } from '@/features/appearance';
+import { KeyboardSetting } from '@/features/keyboard';
 import { SlidersHorizontal } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
@@ -40,6 +41,9 @@ export default function InterfaceSettingsPage() {
         className="mx-auto max-w-lg space-y-6 px-4 pb-page pt-4"
       >
         <InterfaceSection />
+        <motion.div variants={item}>
+          <KeyboardSetting />
+        </motion.div>
         <motion.p variants={item} className="text-center text-micro text-muted-foreground">
           إعداد واحد يترجم إلى رموز جذرية ثابتة ويصل إلى كل واجهات التطبيق فوراً
         </motion.p>
