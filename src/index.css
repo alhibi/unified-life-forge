@@ -176,6 +176,11 @@
   line-height: calc(var(--fs-display) * var(--type-leading-tight));
   letter-spacing: -0.015em;
 }
+@utility text-hero {
+  font-size: var(--fs-hero);
+  line-height: calc(var(--fs-hero) * var(--type-leading-tight));
+  letter-spacing: -0.02em;
+}
 
 @layer base {
   /* Base defaults — overridden dynamically by themeEngine */
