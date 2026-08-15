@@ -516,6 +516,7 @@ export default function PrayerTimes() {
           currentPrayer={currentPrayer}
           nextPrayer={nextPrayer}
           locationLabel={locationName || t('prayer.locationFallback')}
+          t={t}
         />
         {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
         <div className="h-px bg-foreground/[0.06]" />
@@ -585,8 +586,13 @@ function Hero({
   currentPrayer?: PrayerTime;
   nextPrayer?: PrayerTime;
   locationLabel: string;
+  t: (key: string) => string;
 }) {
-  const nameOf = (p?: PrayerTime) => (p ? p.name : '—');
+  // The card used to print the raw API keys ("Fajr", "Isha") and the English
+  // strings "NEXT PRAYER" / "API" / "LOCATION" inside an Arabic-only UI. Every
+  // label now resolves through the dictionary, and the prayer name uses the
+  // same `prayer.<key>` entries the arc labels already use.
+  const nameOf = (p?: PrayerTime) => (p ? t(`prayer.${p.name.toLowerCase()}`) : '—');
 
   return (
     <div className="grid grid-cols-2 divide-x divide-foreground/[0.08]">
@@ -594,9 +600,11 @@ function Hero({
       <div className="bg-card px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
           <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
-            {(locationLabel || 'LOCATION').toUpperCase()}
+            {locationLabel}
           </span>
-          <span className="text-micro font-bold uppercase text-primary/75 shrink-0">API</span>
+          <span className="text-micro font-semibold text-primary/75 shrink-0">
+            {t('prayer.local')}
+          </span>
         </div>
         <div className="flex items-end justify-between gap-2">
           <span className="truncate text-title font-semibold leading-none">
@@ -615,7 +623,7 @@ function Hero({
       <div className="bg-muted/[0.08] px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center">
           <span className="text-micro font-semibold uppercase tracking-[0.09em] text-muted-foreground/80">
-            NEXT PRAYER
+            {t('prayer.next')}
           </span>
         </div>
         <div className="flex items-end justify-between gap-2">
@@ -852,7 +860,7 @@ function ArcStrip({
           <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
           <div className="flex flex-col leading-none">
             <span className="text-micro font-medium leading-none text-muted-foreground/70">
-              Sunrise
+              {t('prayer.makruh.sunrise')}
             </span>
             <span
               className="mt-0.5 text-micro font-medium tabular-nums leading-none text-foreground"
@@ -867,7 +875,7 @@ function ArcStrip({
         <div className="absolute bottom-2 end-[18px] flex items-center gap-1 pointer-events-none">
           <div className="flex flex-col items-end leading-none">
             <span className="text-micro font-medium leading-none text-muted-foreground/70">
-              Sunset
+              {t('prayer.makruh.sunset')}
             </span>
             <span
               className="mt-0.5 text-micro font-medium tabular-nums leading-none text-foreground"
