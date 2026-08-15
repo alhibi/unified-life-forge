@@ -377,18 +377,20 @@ export default function PriceChart({
 
             {/* Hover readout */}
             {hoverIndex !== null && activePoint && (
-              <div
-                className="pointer-events-none absolute top-1 z-20 -translate-x-1/2 rounded-xl border border-border/20 bg-background/90 px-2.5 py-1.5 text-center shadow-lg backdrop-blur"
-                style={{
-                  left: `calc(4rem + ${(activePoint.x / VIEW_W) * 100}% * (1 - 4rem / 100%))`,
-                }}
-              >
-                <p className="font-plex-mono text-[0.6875rem] font-bold tabular-nums text-foreground" dir="ltr">
-                  ${formatPrice(activePoint.value)}
-                </p>
-                <p className="font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground" dir="ltr">
-                  {formatTooltipTime(activePoint.t, range)}
-                </p>
+              <div className="pointer-events-none absolute inset-y-0 start-16 end-0 z-20">
+                <div
+                  className="absolute top-1 -translate-x-1/2 rounded-xl border border-border/20 bg-background/90 px-2.5 py-1.5 text-center shadow-lg backdrop-blur"
+                  style={{
+                    left: `${Math.min(Math.max((activePoint.x / VIEW_W) * 100, 12), 88)}%`,
+                  }}
+                >
+                  <p className="font-plex-mono text-[0.6875rem] font-bold tabular-nums text-foreground" dir="ltr">
+                    ${formatPrice(activePoint.value)}
+                  </p>
+                  <p className="font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground" dir="ltr">
+                    {formatTooltipTime(activePoint.t, range)}
+                  </p>
+                </div>
               </div>
             )}
           </>

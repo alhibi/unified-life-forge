@@ -2,6 +2,7 @@ import React from 'react';
 
 import { AppCard } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import PriceChart from './PriceChart';
 import { type ChainId, CHAIN_LABELS, type NormalizedPair } from '../types';
 
 interface TokenDetailDrawerProps {
@@ -42,13 +43,6 @@ export default function TokenDetailDrawer({
 
   const ratio = buySellRatio();
 
-  // Create DexScreener embed widget URL
-  const getEmbedUrl = () => {
-    return `https://dexscreener.com/${pair.chainId}/${pair.pairAddress}?embed=1&theme=dark&trades=0&info=0`;
-  };
-
-  const isUp = parseFloat(pair.priceChange24h) >= 0;
-
   return (
     <ResponsiveDrawer
       open={open}
@@ -65,15 +59,15 @@ export default function TokenDetailDrawer({
           </div>
         )}
 
-        {/* Embedded Chart / Link out */}
-        <div className="overflow-hidden rounded-md border border-border/10 bg-black aspect-video w-full relative">
-          <iframe
-            src={getEmbedUrl()}
-            title={`DexScreener chart for ${pair.symbol}`}
-            className="w-full h-full border-0 absolute inset-0"
-            allow="fullscreen"
-          />
-        </div>
+        {/* Native price chart backed by real on-chain candles */}
+        <PriceChart
+          chainId={pair.chainId as ChainId}
+          pairAddress={pair.pairAddress}
+          symbol={pair.symbol}
+          quoteSymbol={pair.quoteTokenSymbol}
+          name={pair.name}
+          livePriceUsd={pair.priceUsd}
+        />
 
         {/* High Density Metric Cards */}
         <div className="grid grid-cols-2 gap-3">
