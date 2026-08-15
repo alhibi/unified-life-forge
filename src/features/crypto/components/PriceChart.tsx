@@ -342,7 +342,7 @@ export default function PriceChart({
               ref={svgRef}
               viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
               preserveAspectRatio="none"
-              className="h-full w-full touch-pan-y pl-[4.25rem]"
+              className="h-full w-full touch-pan-y ps-[4.25rem]"
               onPointerMove={handlePointer}
               onPointerDown={handlePointer}
               onPointerLeave={() => setHoverIndex(null)}
