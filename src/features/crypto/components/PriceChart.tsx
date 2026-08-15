@@ -354,16 +354,24 @@ export default function PriceChart({
             </svg>
 
             {/* Time axis */}
-            <div className="pointer-events-none absolute bottom-0 left-[4.25rem] right-0 h-5">
-              {axisTicks.map((tick) => (
-                <span
-                  key={`label-${tick.x}`}
-                  className="absolute -translate-x-1/2 font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground/60"
-                  style={{ left: `${(tick.x / VIEW_W) * 100}%` }}
-                >
-                  {tick.label}
-                </span>
-              ))}
+            <div className="pointer-events-none absolute bottom-0 left-[4.25rem] right-1 h-5">
+              {axisTicks.map((tick, i) => {
+                const isFirst = i === 0;
+                const isLast = i === axisTicks.length - 1;
+                return (
+                  <span
+                    key={`label-${tick.x}`}
+                    className={cn(
+                      'absolute font-plex-mono text-[0.5625rem] tabular-nums text-muted-foreground/60',
+                      !isFirst && !isLast && '-translate-x-1/2',
+                      isLast && '-translate-x-full'
+                    )}
+                    style={{ left: `${(tick.x / VIEW_W) * 100}%` }}
+                  >
+                    {tick.label}
+                  </span>
+                );
+              })}
             </div>
 
             {/* Hover readout */}
