@@ -152,7 +152,7 @@ export default function KeyboardProvider() {
       <AnimatePresence>
         {active && target && (
           <SoftKeyboard
-            enterLabel={target instanceof HTMLTextAreaElement ? 'سطر جديد' : 'تم'}
+            enterLabel={target instanceof HTMLTextAreaElement ? 'سطر' : 'تم'}
             onInsert={(text) => run((el) => insertText(el, text))}
             onBackspace={() => run(backspace)}
             onBackspaceWord={() => run(backspaceWord)}
