@@ -119,6 +119,7 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/section/timed-sunnah', label: 'السنن المؤقتة', note: 'المرتبطة بالأوقات', icon: BookMarked },
       { path: '/section/untimed-sunnah', label: 'السنن غير المؤقتة', note: 'يومية عامة', icon: ScrollText },
       { path: '/section/prophetic-day', label: 'اليوم النبوي', note: 'ثمانية أطوار', icon: Sun },
+      { path: '/occasions', label: 'المناسبات الإسلامية', note: 'تقويم هجري وعدّ تنازلي', icon: Calendar },
     ],
   },
 
