@@ -275,19 +275,34 @@ function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
 }
 
 /**
- * The single source of truth for the published 50 → 600 tone ladder.
+ * The single source of truth for the published 25 → 900 tone ladder.
  * Both the runtime tokens and the settings swatches call this, so a preview is
  * literally the colours the app will paint.
+ *
+ * Three zones, eleven steps:
+ *   planes  25 · 50 · 100 · 200   (recessed → page → card → raised)
+ *   accent  300 · 400 · 500       (wash → accent → deep)
+ *   ink     600 · 700 · 800 · 900 (secondary text → body → strong → maximum)
  */
-function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl): Hsl[] {
+function buildToneLadder(
+  bg: Hsl,
+  surface: Hsl,
+  ink: Hsl,
+  accent: Hsl,
+  isDark: boolean,
+): Hsl[] {
   return [
-    bg,                            // 50  — page
-    surface,                       // 100 — card
-    mixHsl(accent, bg, 0.18),      // 200 — accent wash
-    mixHsl(accent, bg, 0.55),      // 300 — accent soft
-    accent,                        // 400 — accent
-    mixHsl(ink, accent, 0.45),     // 500 — accent deep
-    mixHsl(ink, bg, 0.74),         // 600 — secondary ink
+    elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
+    bg, // 50  — page
+    surface, // 100 — card
+    elevate(surface, isDark, 0.035), // 200 — raised plane (popovers, sheets)
+    mixHsl(accent, bg, 0.2), // 300 — accent wash
+    accent, // 400 — accent
+    mixHsl(ink, accent, 0.4), // 500 — accent deep
+    mixHsl(ink, bg, 0.7), // 600 — secondary ink
+    mixHsl(ink, bg, 0.85), // 700 — body ink
+    ink, // 800 — ink
+    ensureContrast(ink, bg, 12), // 900 — maximum ink
   ];
 }
 
