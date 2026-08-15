@@ -171,26 +171,26 @@ function PortalHeaderImpl({ unreadCount }: Props) {
             {user ? (
               <>
                 <DropdownMenuItem onSelect={() => navigate('/profile')}>
-                  <User className="h-4 w-4" aria-hidden />
+                  <User className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
                   الملف الشخصي
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate('/settings')}>
-                  <Settings className="h-4 w-4" aria-hidden />
+                  <Settings className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
                   الإعدادات
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate('/settings/appearance')}>
-                  <Grid3X3 className="h-4 w-4" aria-hidden />
+                  <Grid3X3 className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
                   السمة والألوان
                 </DropdownMenuItem>
               </>
             ) : (
               <>
                 <DropdownMenuItem onSelect={() => navigate('/auth')}>
-                  <LogIn className="h-4 w-4" aria-hidden />
+                  <LogIn className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
                   تسجيل الدخول
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate('/settings')}>
-                  <Settings className="h-4 w-4" aria-hidden />
+                  <Settings className={"h-[1.05rem] w-[1.05rem] text-muted-foreground transition-colors group-focus:text-primary"} aria-hidden />
                   الإعدادات
                 </DropdownMenuItem>
               </>
