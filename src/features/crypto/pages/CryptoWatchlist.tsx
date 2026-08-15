@@ -216,12 +216,18 @@ export default function CryptoWatchlist() {
       />
 
       {/* Header bar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3 min-w-0">
           <BackButton />
-          <div>
-            <h1 className="text-xl font-bold text-foreground">قائمة العملات</h1>
-            <p className="text-[0.625rem] text-muted-foreground font-semibold">تحديث حي • DEX Screener</p>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-foreground tracking-tight">قائمة العملات</h1>
+            <p className="flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground font-medium mt-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inset-0 rounded-full bg-emerald-500/60 animate-ping" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </span>
+              تحديث حي • DEX Screener
+            </p>
           </div>
         </div>
 
@@ -231,8 +237,9 @@ export default function CryptoWatchlist() {
             type="button"
             disabled={refreshing || loading}
             onClick={() => loadData(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-border/40 bg-card/40 backdrop-blur-sm text-foreground active:scale-95 disabled:opacity-50 transition-all"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm text-muted-foreground hover:text-foreground active:scale-95 disabled:opacity-50 transition-all"
             title="تحديث الأسعار"
+            aria-label="تحديث الأسعار"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
           </button>
@@ -241,7 +248,7 @@ export default function CryptoWatchlist() {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 active:scale-95 transition-all text-xs"
+            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-all text-xs"
           >
             <Plus className="h-4 w-4" />
             إضافة عملة
