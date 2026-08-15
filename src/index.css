@@ -456,7 +456,7 @@
     --shadow-elevated: var(--card-shadow);
     --shadow-intense: var(--card-shadow);
     --font-display:
-      'Inter', 'Inter Display', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+      'Instrument Serif', 'Amiri', 'IBM Plex Sans Arabic', Georgia, serif;
     --font-body:
       'Inter', 'Inter Display', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-weight: 400;
