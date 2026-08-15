@@ -38,8 +38,23 @@ const ALIAS_GROUPS: readonly (readonly string[])[] = [
   ['User', 'User2'],
 ];
 
-const groupOf = (name: string) =>
-  ALIAS_GROUPS.findIndex((g) => g.includes(name)) is: never;
+/** Alias group index, or the export name itself when it stands alone. */
+const conceptOf = (name: string): string => {
+  const idx = ALIAS_GROUPS.findIndex((g) => g.includes(name));
+  return idx === -1 ? name : `group:${String(idx)}`;
+};
+
+function duplicateGlyphs(pick: (e: Entry) => string): string[] {
+  const byGlyph = new Map<string, Set<string>>();
+  for (const e of entries) {
+    const set = byGlyph.get(pick(e)) ?? new Set<string>();
+    set.add(conceptOf(e.export));
+    byGlyph.set(pick(e), set);
+  }
+  return [...byGlyph.entries()]
+    .filter(([, concepts]) => concepts.size > 1)
+    .map(([glyph, concepts]) => `${glyph}: ${[...concepts].join(', ')}`);
+}
 
 /** Brand marks that stroke libraries genuinely do not ship. */
 const BRAND_EXEMPT = new Set(['GithubLogo']);
