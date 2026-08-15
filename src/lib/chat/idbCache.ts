@@ -30,6 +30,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { ChatMessage, ChatSummary } from './types';
+import { ensureStorageHeadroom, registerEvictor } from '../storageQuota';
 
 const DB_NAME    = 'smarthub-chat';
 const DB_VERSION = 1;
@@ -446,6 +447,9 @@ export interface CachedThumb { path: string; thumb: Blob; width: number; height:
 
 export async function cacheThumb(path: string, thumb: Blob, width: number, height: number): Promise<void> {
   try {
+    // Thumbnails are the single largest and cheapest-to-refetch thing this
+    // cache writes, so the quota check lives on this path specifically.
+    void ensureStorageHeadroom();
     await tx(STORE_ATTACHMENTS, 'readwrite', s => s.put({
       path, thumb, width, height, cachedAt: Date.now(),
     } satisfies CachedThumb));
@@ -497,3 +501,55 @@ export async function clearAll(): Promise<void> {
 }
 
 export const _internal = { DB_NAME, DB_VERSION, STORE_MESSAGES, STORE_CHATS, STORE_OUTBOX };
+
+// ── Quota eviction ───────────────────────────────────────────────────────────
+
+/**
+ * Drops cached thumbnails oldest-first until roughly `targetBytes` is freed.
+ * Uses each blob's own `size`, so the number returned is the real figure and
+ * the quota guard does not have to guess.
+ */
+async function evictOldestThumbs(targetBytes: number): Promise<number> {
+  let freed = 0;
+  try {
+    await tx<void>(STORE_ATTACHMENTS, 'readwrite', store => {
+      // No index on cachedAt in v1 of the schema, so walk the store and drop
+      // by age as we go. The store is small (thumbnails only) and this runs
+      // at most once a minute under pressure.
+      const cursor = store.openCursor();
+      cursor.onsuccess = () => {
+        const c = cursor.result;
+        if (!c) return;
+        if (freed < targetBytes) {
+          const v = c.value as CachedThumb;
+          freed += v.thumb?.size ?? 0;
+          c.delete();
+          c.continue();
+        }
+      };
+      return cursor as unknown as IDBRequest<void>;
+    });
+  } catch {
+    /* ignore */
+  }
+  return freed;
+}
+
+// Registered at import time: the chat cache is always a candidate for
+// eviction, whether or not a chat screen is currently mounted.
+registerEvictor({
+  id: 'chat:thumbnails',
+  value: 1, // regenerated from the original image on next view
+  evict: evictOldestThumbs,
+});
+
+registerEvictor({
+  id: 'chat:expired-messages',
+  value: 2, // self-destruct messages already past their expiry
+  evict: async () => {
+    const removed = await evictExpiredMessages();
+    // ~1 KB per text row is a deliberate under-estimate: reporting less than
+    // we freed makes the guard evict a little more, never a little less.
+    return removed * 1024;
+  },
+});
