@@ -38,6 +38,7 @@
 
   --border-width-hairline: var(--ui-border-width);
 
+  --radius-xs: var(--r-xs);
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
