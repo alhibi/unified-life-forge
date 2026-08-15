@@ -216,12 +216,18 @@ export default function CryptoWatchlist() {
       />
 
       {/* Header bar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3 min-w-0">
           <BackButton />
-          <div>
-            <h1 className="text-xl font-bold text-foreground">قائمة العملات</h1>
-            <p className="text-[0.625rem] text-muted-foreground font-semibold">تحديث حي • DEX Screener</p>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-foreground tracking-tight">قائمة العملات</h1>
+            <p className="flex items-center gap-1.5 text-[0.6875rem] text-muted-foreground font-medium mt-0.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inset-0 rounded-full bg-emerald-500/60 animate-ping" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </span>
+              تحديث حي • DEX Screener
+            </p>
           </div>
         </div>
 
@@ -231,8 +237,9 @@ export default function CryptoWatchlist() {
             type="button"
             disabled={refreshing || loading}
             onClick={() => loadData(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-border/40 bg-card/40 backdrop-blur-sm text-foreground active:scale-95 disabled:opacity-50 transition-all"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm text-muted-foreground hover:text-foreground active:scale-95 disabled:opacity-50 transition-all"
             title="تحديث الأسعار"
+            aria-label="تحديث الأسعار"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
           </button>
@@ -241,7 +248,7 @@ export default function CryptoWatchlist() {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 active:scale-95 transition-all text-xs"
+            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-all text-xs"
           >
             <Plus className="h-4 w-4" />
             إضافة عملة
@@ -326,7 +333,7 @@ export default function CryptoWatchlist() {
                     <AppCard
                       pressable
                       onClick={() => pair && handleOpenDetail(pair)}
-                      className={`flex items-center justify-between border border-border/10 bg-card/25 backdrop-blur-sm p-3 hover:bg-card/40 transition-all relative overflow-hidden ${
+                      className={`group flex items-center justify-between gap-3 rounded-2xl border border-border/10 bg-card/30 backdrop-blur-sm p-3.5 hover:bg-card/50 hover:border-border/25 transition-all relative overflow-hidden ${
                         pulseState === 'up'
                           ? 'ring-1 ring-emerald-500/30 bg-emerald-500/5'
                           : pulseState === 'down'
@@ -334,9 +341,17 @@ export default function CryptoWatchlist() {
                           : ''
                       }`}
                     >
+                      {/* Trend hairline on the leading edge */}
+                      <span
+                        aria-hidden
+                        className={`absolute inset-y-2 start-0 w-[2px] rounded-full ${
+                          isUp ? 'bg-emerald-500/50' : 'bg-rose-500/50'
+                        }`}
+                      />
+
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Fallback image */}
-                        <div className="relative h-10 w-10 rounded-full bg-muted/40 border border-border/10 flex items-center justify-center overflow-hidden shrink-0">
+                        <div className="relative h-10 w-10 rounded-full bg-muted/30 border border-border/20 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                           {pair?.imageUrl ? (
                             <img
                               src={pair.imageUrl}
@@ -356,33 +371,38 @@ export default function CryptoWatchlist() {
                         {/* Symbolic identifiers */}
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-sm font-bold text-foreground tracking-tight truncate">
+                            <span className="text-[0.9375rem] font-bold text-foreground tracking-tight truncate">
                               {item.token_symbol}
                             </span>
-                            <span className="text-[0.625rem] uppercase tracking-wider font-bold text-muted-foreground bg-muted/30 px-1 py-0.5 rounded-sm">
+                            <span className="text-[0.5625rem] uppercase tracking-[0.08em] font-bold text-muted-foreground/80 border border-border/25 px-1.5 py-[1px] rounded-full">
                               {CHAIN_LABELS[item.chain_id as ChainId] || item.chain_id}
                             </span>
                           </div>
-                          <p className="text-[0.625rem] text-muted-foreground truncate max-w-[150px] md:max-w-[200px] mt-0.5">
+                          <p className="text-[0.6875rem] text-muted-foreground truncate max-w-[130px] md:max-w-[200px] mt-0.5">
                             {item.label || (pair ? pair.name : 'جاري التحميل...')}
                           </p>
                         </div>
                       </div>
 
                       {/* Financial parameters */}
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2.5 shrink-0">
                         {pair ? (
                           <div className="text-end">
                             {/* Monospaced, tabular numerals for prices */}
-                            <p className="text-sm font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                            <p className="text-[0.9375rem] font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
                               {formatPrice(pair.priceUsd)}
                             </p>
 
-                            <div className="flex items-center justify-end gap-1.5 mt-0.5">
+                            <div className="flex items-center justify-end gap-1.5 mt-1">
+                              <span className="text-[0.625rem] text-muted-foreground/80 font-plex-mono tabular-nums">
+                                {formatCompact(pair.volume24h)}
+                              </span>
                               {/* Non-color-only indications: Icon represents trend direction */}
                               <span
-                                className={`text-[0.625rem] font-bold font-plex-mono tracking-tight tabular-nums flex items-center gap-0.5 ${
-                                  isUp ? 'text-emerald-500' : 'text-rose-500'
+                                className={`text-[0.625rem] font-bold font-plex-mono tabular-nums flex items-center gap-0.5 rounded-full px-1.5 py-[2px] ${
+                                  isUp
+                                    ? 'text-emerald-500 bg-emerald-500/10'
+                                    : 'text-rose-500 bg-rose-500/10'
                                 }`}
                               >
                                 {isUp ? (
@@ -390,10 +410,7 @@ export default function CryptoWatchlist() {
                                 ) : (
                                   <TrendingDown className="h-3 w-3 shrink-0" />
                                 )}
-                                {isUp ? '▲' : '▼'}{Math.abs(priceChg).toFixed(2)}%
-                              </span>
-                              <span className="text-[0.625rem] text-muted-foreground">
-                                {formatCompact(pair.volume24h)}
+                                {Math.abs(priceChg).toFixed(2)}%
                               </span>
                             </div>
                           </div>
@@ -411,8 +428,9 @@ export default function CryptoWatchlist() {
                             e.stopPropagation(); // prevent opening detail
                             handleRemove(item.id, item.token_symbol, item.chain_id, item.pair_address);
                           }}
-                          className="flex h-9 w-9 items-center justify-center rounded-md border border-border/10 hover:border-rose-500/20 hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 transition-colors"
+                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground/50 opacity-70 group-hover:opacity-100 hover:border-rose-500/25 hover:bg-rose-500/10 hover:text-rose-500 transition-all"
                           title="إزالة من القائمة"
+                          aria-label={`إزالة ${item.token_symbol} من القائمة`}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
