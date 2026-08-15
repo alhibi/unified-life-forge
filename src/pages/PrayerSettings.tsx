@@ -6,7 +6,9 @@ import SEO from '@/components/SEO';
 import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
+import { usePrayerNotifications } from '@/hooks/usePrayerNotifications';
 import { BookOpen, Check,Info, RotateCcw } from '@/lib/icons';
+import { PRAYER_NAMES, PRAYER_TITLES_AR } from '@/lib/prayerNotifications';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
@@ -71,6 +73,7 @@ export default function PrayerSettings() {
     dstEnabled, setDstEnabled,
     calcMethod, setCalcMethod,
   } = useApp();
+  const notifications = usePrayerNotifications();
 
   const resetDefaults = () => {
     setPrayerMadhab('shafii');
