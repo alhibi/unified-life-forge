@@ -2,7 +2,7 @@
  * Portal — the first screen of amv.life: the app launcher.
  *
  * Reading order, top to bottom: who you are and what day it is (PortalGreeting),
- * today's three live numbers (PortalPulseBar), what you opened last, then the
+ * today's live widgets, what you opened last, then the
  * apps themselves under a filter bar that sticks to the header while you scroll.
  * Each app carries its own accent and motif — see AppTileVisuals — so the grid
  * reads as fourteen distinct places rather than one repeated card.
