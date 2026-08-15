@@ -770,12 +770,37 @@ export function generateThemeTokens(
   const primaryFgStr =
     contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgStr : inkStr;
 
-  // Card soft shadow values:
-  // Light mode: 0 1px 3px rgba(63,63,63,0.08)
-  // Dark mode: 0 1px 3px rgba(0,0,0,0.25)
-  const cardShadow = isDark
-    ? '0 1px 3px rgba(0,0,0,0.25)'
-    : '0 1px 3px rgba(63,63,63,0.08)';
+  // ── Elevation ladder ───────────────────────────────────────
+  // Four planes, each one a perceptual step above the last, plus the shadow
+  // that belongs to it. Depth is expressed twice — as tone AND as shadow —
+  // because a dark theme reads elevation from tone and a light theme reads it
+  // from the shadow.
+  const surface2 = elevate(surfHsl, isDark, 0.035);
+  const surface3 = elevate(surfHsl, isDark, 0.07);
+
+  const shadowRgb = isDark ? '0,0,0' : '28,24,20';
+  const shadow = (spec: string) => spec;
+  const shadow1 = shadow(
+    isDark
+      ? `0 1px 2px rgba(${shadowRgb},0.36)`
+      : `0 1px 2px rgba(${shadowRgb},0.06)`,
+  );
+  const shadow2 = shadow(
+    isDark
+      ? `0 2px 6px rgba(${shadowRgb},0.44), 0 1px 2px rgba(${shadowRgb},0.3)`
+      : `0 2px 6px rgba(${shadowRgb},0.08), 0 1px 2px rgba(${shadowRgb},0.05)`,
+  );
+  const shadow3 = shadow(
+    isDark
+      ? `0 8px 24px rgba(${shadowRgb},0.52), 0 2px 6px rgba(${shadowRgb},0.34)`
+      : `0 8px 24px rgba(${shadowRgb},0.1), 0 2px 6px rgba(${shadowRgb},0.06)`,
+  );
+  const shadow4 = shadow(
+    isDark
+      ? `0 20px 48px rgba(${shadowRgb},0.6), 0 6px 14px rgba(${shadowRgb},0.4)`
+      : `0 20px 48px rgba(${shadowRgb},0.13), 0 6px 14px rgba(${shadowRgb},0.07)`,
+  );
+  const cardShadow = shadow1;
 
   // Published tone ladder (--theme-50 … --theme-600).
   // It is derived from the tones we JUST resolved for this mode, not from
@@ -840,6 +865,22 @@ export function generateThemeTokens(
     // Extra elements
     '--card-shadow': cardShadow,
     '--accent-highlight': accentHighlightStr,
+    // Planes: 0 is the page, 1 the card, 2 popovers/sheets, 3 anything that
+    // floats above them (dialogs, menus, the command palette).
+    '--surface-0': bgStr,
+    '--surface-1': surfStr,
+    '--surface-2': hslToString(surface2),
+    '--surface-3': hslToString(surface3),
+    // The shadow that belongs to each plane, plus the legacy aliases so old
+    // call sites keep resolving to a real value.
+    '--shadow-1': shadow1,
+    '--shadow-2': shadow2,
+    '--shadow-3': shadow3,
+    '--shadow-4': shadow4,
+    '--shadow-sm': shadow1,
+    '--shadow-card': shadow2,
+    '--shadow-elevated': shadow3,
+    '--shadow-intense': shadow4,
   };
 }
 
