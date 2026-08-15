@@ -88,6 +88,7 @@
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
+  --color-theme-25: hsl(var(--theme-25));
   --color-theme-50: hsl(var(--theme-50));
   --color-theme-100: hsl(var(--theme-100));
   --color-theme-200: hsl(var(--theme-200));
@@ -95,6 +96,15 @@
   --color-theme-400: hsl(var(--theme-400));
   --color-theme-500: hsl(var(--theme-500));
   --color-theme-600: hsl(var(--theme-600));
+  --color-theme-700: hsl(var(--theme-700));
+  --color-theme-800: hsl(var(--theme-800));
+  --color-theme-900: hsl(var(--theme-900));
+
+  /* Elevation planes: 0 page · 1 card · 2 popover/sheet · 3 dialog/menu. */
+  --color-surface-0: hsl(var(--surface-0));
+  --color-surface-1: hsl(var(--surface-1));
+  --color-surface-2: hsl(var(--surface-2));
+  --color-surface-3: hsl(var(--surface-3));
 
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
@@ -273,13 +283,22 @@
        This block is the pre-hydration fallback only — themeEngine.ts rewrites
        all of it on <html> as soon as the app boots (including for the other 30
        themes). Keep it in sync with generateThemeTokens(copper, 'neutral'). */
+    --theme-25: 36 12.8% 92.4%;
     --theme-50: 36 18.5% 94.7%;
     --theme-100: 40 27.3% 97.8%;
-    --theme-200: 35 22.1% 84.9%;
-    --theme-300: 32 23.2% 65.3%;
+    --theme-200: 40 12% 95.1%;
+    --theme-300: 33 23.8% 83.5%;
     --theme-400: 32 34.1% 41%;
-    --theme-500: 31 27% 26.9%;
-    --theme-600: 240 0.6% 31.6%;
+    --theme-500: 30 26.8% 27.8%;
+    --theme-600: 270 1.2% 31.8%;
+    --theme-700: 240 2.9% 20.2%;
+    --theme-800: 240 6.1% 9.6%;
+    --theme-900: 240 6.1% 9.6%;
+
+    --surface-0: 36 18.5% 94.7%;
+    --surface-1: 40 27.3% 97.8%;
+    --surface-2: 40 12% 95.1%;
+    --surface-3: 40 7.7% 92.4%;
 
     --background: 36 18.5% 94.7%; /* 50  — the canvas */
     --foreground: 240 6.1% 9.6%; /* ink — body text */
@@ -289,18 +308,18 @@
     --popover-foreground: 240 6.1% 9.6%;
     --primary: 32 34.1% 41%; /* 400 — actions */
     --primary-foreground: 36 18.5% 94.7%;
-    --secondary: 30 5.4% 85.5%; /* just below 50 — recessed surface */
-    --secondary-foreground: 240 4% 14.7%;
-    --muted: 30 6.5% 87.8%;
-    --muted-foreground: 240 0.6% 31.6%; /* AA on the canvas */
-    --accent: 30 5.4% 85.5%;
+    --secondary: 45 4.9% 83.9%; /* just below 50 — recessed surface */
+    --secondary-foreground: 240 2.9% 13.7%;
+    --muted: 30 6.1% 87.1%;
+    --muted-foreground: 240 1.4% 28.6%; /* AA on the canvas */
+    --accent: 45 4.9% 83.9%;
     --accent-foreground: 240 6.1% 9.6%; /* text on the accent surface */
     --accent-brand: 32 34.1% 41%; /* the brand tone, when explicitly wanted */
-    --destructive: 358 72% 49%;
+    --destructive: 357 74.8% 48.2%;
     --destructive-foreground: 0 0% 100%;
-    --success: 145 50% 32%;
+    --success: 147 61.5% 30.6%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 85% 32%;
+    --warning: 35 100% 31.4%;
     --warning-foreground: 0 0% 100%;
 
     /* Status colors are functional and deliberately restrained. */
@@ -310,10 +329,10 @@
     --sev-high: 24 62% 44%;
     --sev-very-high: 0 58% 46%;
     --sev-extreme: 295 32% 42%;
-    --error: 358 72% 49%;
+    --error: 357 74.8% 48.2%;
     --error-foreground: 0 0% 100%;
-    --border: 30 3.5% 77.6%; /* ink at 20% over the canvas */
-    --input: 30 1.2% 67.5%;
+    --border: 40 2.4% 75.5%; /* ink at 20% over the canvas */
+    --input: 0 0.6% 64.5%;
     --ring: 32 34.1% 41%;
 
     /* ── The eighth tone: ink ──────────────────────────────────────
