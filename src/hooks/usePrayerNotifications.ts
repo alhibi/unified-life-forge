@@ -16,7 +16,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useApp } from '@/contexts/AppContext';
-import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { MECCA_FALLBACK, useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { isNative } from '@/lib/native';
 import {
   DEFAULT_PRAYER_NOTIFICATION_PREFS,
@@ -27,9 +27,6 @@ import {
 } from '@/lib/prayerNotifications';
 
 const STORAGE_KEY = 'prayerNotificationPrefs';
-
-/** Mecca — the same fallback the prayer widget uses before permission lands. */
-const MECCA = { lat: 21.4225, lng: 39.8262 };
 
 function readPrefs(): PrayerNotificationPrefs {
   try {
@@ -77,7 +74,10 @@ export function usePrayerNotifications(): UsePrayerNotifications {
     : (3 as const);
 
   const coords = useMemo(
-    () => ({ lat: location?.lat ?? MECCA.lat, lng: location?.lng ?? MECCA.lng }),
+    () => ({
+      lat: location?.lat ?? MECCA_FALLBACK.lat,
+      lng: location?.lng ?? MECCA_FALLBACK.lng,
+    }),
     [location?.lat, location?.lng],
   );
 
