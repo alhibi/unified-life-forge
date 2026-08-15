@@ -102,6 +102,7 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     keywords: 'dhikr duas أذكار أدعية ذكر صباح مساء تسبيح سبحة',
     links: [
       { path: '/dhikr', label: 'الذكر والأذكار', note: 'المسبحة الإلكترونية وأذكار اليوم', icon: HandHeart },
+      { path: '/duas', label: 'مجالس الأدعية', note: 'أدعية مأثورة مرتبة حسب الحال', icon: Sparkles },
     ],
   },
   {
@@ -119,28 +120,6 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/section/untimed-sunnah', label: 'السنن غير المؤقتة', note: 'يومية عامة', icon: ScrollText },
       { path: '/section/prophetic-day', label: 'اليوم النبوي', note: 'ثمانية أطوار', icon: Sun },
     ],
-  },
-  {
-    key: 'duas',
-    path: '/duas',
-    label: 'الأدعية',
-    caption: 'DUAS',
-    description: 'أدعية مأثورة مرتبة بالمواضيع',
-    cat: 'spirit',
-    icon: Sparkles,
-    keywords: 'duas prayer أدعية دعاء مأثور قنوت رقائق',
-    links: [{ path: '/duas', label: 'مجالس الأدعية', note: 'أدعية مرتبة حسب الحال', icon: Sparkles }],
-  },
-  {
-    key: 'occasions',
-    path: '/occasions',
-    label: 'المناسبات',
-    caption: 'OCCASIONS',
-    description: 'المناسبات الإسلامية والعدّ التنازلي',
-    cat: 'spirit',
-    icon: Calendar,
-    keywords: 'occasions hijri calendar مناسبات إسلامية تقويم هجري رمضان عيد عاشوراء',
-    links: [{ path: '/occasions', label: 'كل المناسبات', note: 'تقويم هجري وعدّ تنازلي', icon: Calendar }],
   },
 
   /* ── الجسد ── */
@@ -185,17 +164,6 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     icon: PenLine,
     keywords: 'journal diary مذكرة يوميات تدوين حال عادات مزاج',
     links: [{ path: '/journal', label: 'مذكرتي', note: 'تدوين الحال والعادات', icon: PenLine }],
-  },
-  {
-    key: 'weather',
-    path: '/weather',
-    label: 'الطقس',
-    caption: 'WEATHER',
-    description: 'توقعات مفصلة وجودة الهواء',
-    cat: 'mind',
-    icon: CloudSun,
-    keywords: 'weather forecast air quality طقس حالة الجو توقعات جودة الهواء حبوب لقاح مطر حرارة',
-    links: [{ path: '/weather', label: 'لوحة الطقس', note: 'سبعة أيام وجودة الهواء', icon: CloudSun }],
   },
 
   /* ── العقل ── */
