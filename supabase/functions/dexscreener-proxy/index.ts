@@ -28,7 +28,48 @@ const BatchRequestSchema = z.object({
   ).max(30),
 });
 
-const ProxyRequestSchema = z.discriminatedUnion("action", [SearchRequestSchema, BatchRequestSchema]);
+const OHLCV_RANGES = ["1D", "5D", "1M", "6M", "1Y"] as const;
+type OhlcvRange = typeof OHLCV_RANGES[number];
+
+const OhlcvRequestSchema = z.object({
+  action: z.literal("ohlcv"),
+  chainId: z.enum(SUPPORTED_CHAINS),
+  pairAddress: z.string().min(8).max(66).trim().regex(/^[a-zA-Z0-9_-]+$/),
+  range: z.enum(OHLCV_RANGES),
+});
+
+const ProxyRequestSchema = z.discriminatedUnion("action", [
+  SearchRequestSchema,
+  BatchRequestSchema,
+  OhlcvRequestSchema,
+]);
+
+/** GeckoTerminal network identifiers keyed by our internal chain ids. */
+const GECKO_NETWORKS: Record<ChainId, string> = {
+  solana: "solana",
+  ethereum: "eth",
+  bsc: "bsc",
+  base: "base",
+  arbitrum: "arbitrum",
+  polygon: "polygon_pos",
+};
+
+/** Candle resolution per visual range: [timeframe, aggregate, limit, cacheTtlMs] */
+const RANGE_CONFIG: Record<OhlcvRange, { timeframe: string; aggregate: number; limit: number; ttl: number }> = {
+  "1D": { timeframe: "minute", aggregate: 15, limit: 96, ttl: 60_000 },
+  "5D": { timeframe: "hour", aggregate: 1, limit: 120, ttl: 300_000 },
+  "1M": { timeframe: "hour", aggregate: 4, limit: 180, ttl: 600_000 },
+  "6M": { timeframe: "day", aggregate: 1, limit: 180, ttl: 1_800_000 },
+  "1Y": { timeframe: "day", aggregate: 1, limit: 365, ttl: 1_800_000 },
+};
+
+const GeckoOhlcvSchema = z.object({
+  data: z.object({
+    attributes: z.object({
+      ohlcv_list: z.array(z.array(z.number())),
+    }),
+  }),
+});
 
 // DexScreener Response Schema for Validation
 const BaseTokenSchema = z.object({
