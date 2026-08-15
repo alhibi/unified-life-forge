@@ -274,10 +274,10 @@
        themes). Keep it in sync with generateThemeTokens(copper, 'neutral'). */
     --theme-50: 36 18.5% 94.7%;
     --theme-100: 40 27.3% 97.8%;
-    --theme-200: 33 12.4% 87.5%;
-    --theme-300: 32 21.6% 63.5%;
+    --theme-200: 35 22.1% 84.9%;
+    --theme-300: 32 23.2% 65.3%;
     --theme-400: 32 34.1% 41%;
-    --theme-500: 30 20.6% 27.5%;
+    --theme-500: 31 27% 26.9%;
     --theme-600: 240 0.6% 31.6%;
 
     --background: 36 18.5% 94.7%; /* 50  — the canvas */
@@ -293,13 +293,14 @@
     --muted: 30 6.5% 87.8%;
     --muted-foreground: 240 0.6% 31.6%; /* AA on the canvas */
     --accent: 30 5.4% 85.5%;
-    --accent-foreground: 32 34.1% 41%;
-    --destructive: 0 58% 42%;
+    --accent-foreground: 240 6.1% 9.6%; /* text on the accent surface */
+    --accent-brand: 32 34.1% 41%; /* the brand tone, when explicitly wanted */
+    --destructive: 358 72% 49%;
     --destructive-foreground: 0 0% 100%;
-    --success: 145 42% 34%;
+    --success: 145 50% 32%;
     --success-foreground: 0 0% 100%;
-    --warning: 35 68% 38%;
-    --warning-foreground: 35 80% 10%;
+    --warning: 38 85% 32%;
+    --warning-foreground: 0 0% 100%;
 
     /* Status colors are functional and deliberately restrained. */
     --sev-good: 145 42% 34%;
@@ -308,7 +309,7 @@
     --sev-high: 24 62% 44%;
     --sev-very-high: 0 58% 46%;
     --sev-extreme: 295 32% 42%;
-    --error: 0 58% 42%;
+    --error: 358 72% 49%;
     --error-foreground: 0 0% 100%;
     --border: 30 3.5% 77.6%; /* ink at 20% over the canvas */
     --input: 30 1.2% 67.5%;
@@ -320,7 +321,7 @@
        screen rather than as a surface. Overlays, full-bleed media and the
        OLED canvas use it, so nothing tints the content behind them. */
     --theme-ink: 250 7% 7%;
-    --scrim: 250 7% 7%;
+    --scrim: 36 10% 8%;
     --sidebar-background: 255 15.4% 94.9%;
     --sidebar-foreground: 256.8 20.2% 27%;
     --sidebar-primary: 256.9 19.5% 32.2%;
