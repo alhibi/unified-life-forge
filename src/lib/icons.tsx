@@ -232,7 +232,7 @@ const IconSlot = forwardRef<SVGSVGElement, SlotProps>(function IconSlot(
   };
   if (set === 'tabler') {
     // Airy, hand-drawn feel that reads as *tabler* at a glance.
-    extra.stroke = strokeNum ?? 1.25;
+    extra.stroke = strokeNum ?? 1.5;
   } else {
     // Lucide — geometric and technical.
     extra.strokeWidth = strokeNum ?? 2;
