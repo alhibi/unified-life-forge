@@ -2,8 +2,10 @@
  * Portal — the first screen of amv.life: the app launcher.
  *
  * Reading order, top to bottom: who you are and what day it is (PortalGreeting),
- * today's live widgets, what you opened last, then the
- * apps themselves under a filter bar that sticks to the header while you scroll.
+ * today's live widgets, then the apps themselves under a category rail that
+ * sticks to the header while you scroll. There is no search field and no
+ * "recently opened" row: fourteen tiles are scannable, and both surfaces added
+ * chrome without shortening the path to any app.
  * Each app carries its own accent and motif — see AppTileVisuals — so the grid
  * reads as fourteen distinct places rather than one repeated card.
  */
@@ -11,7 +13,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
-import { findApp, matchesQuery, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
+import { findApp, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
 import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
@@ -63,7 +65,7 @@ export default function Portal() {
   const navigate = useNavigate();
   const { username } = useAuth();
   const { unreadCount } = useUnreadMessages();
-  const { pinned, recents, view, isPinned, togglePin, recordOpen, setView } = usePortalPrefs();
+  const { pinned, view, isPinned, togglePin, recordOpen, setView } = usePortalPrefs();
 
   /* The widgets below need coordinates; ask once, exactly like /now used to. */
   const { status: locationStatus, requestLocation } = useDeviceLocation();
@@ -71,12 +73,10 @@ export default function Portal() {
     if (locationStatus === 'idle') void requestLocation();
   }, [locationStatus, requestLocation]);
 
-  const [query, setQuery] = useState('');
   const [category, setCategory] = useState<PortalCategory | 'all'>('all');
   const [focusedKey, setFocusedKey] = useState<string>(PORTAL_APPS[0].key);
   const [inspectedKey, setInspectedKey] = useState<string | null>(null);
 
-  const searchRef = useRef<HTMLInputElement>(null);
   const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const list = view === 'list';
 
@@ -84,17 +84,14 @@ export default function Portal() {
   const counts = useMemo(() => {
     const byCat: Record<string, number> = { all: 0, spirit: 0, body: 0, mind: 0, play: 0 };
     for (const app of PORTAL_APPS) {
-      if (!matchesQuery(app, query)) continue;
       byCat.all += 1;
       byCat[app.cat] += 1;
     }
     return byCat;
-  }, [query]);
+  }, []);
 
   const visible = useMemo(() => {
-    const filtered = PORTAL_APPS.filter(
-      (app) => (category === 'all' || app.cat === category) && matchesQuery(app, query),
-    );
+    const filtered = PORTAL_APPS.filter((app) => category === 'all' || app.cat === category);
     const pinnedRank = (key: string) => {
       const i = pinned.indexOf(key);
       return i === -1 ? Number.POSITIVE_INFINITY : i;
@@ -105,7 +102,7 @@ export default function Portal() {
       if (ra !== rb) return ra - rb;
       return PORTAL_APPS.indexOf(a) - PORTAL_APPS.indexOf(b);
     });
-  }, [category, query, pinned]);
+  }, [category, pinned]);
 
   const focusedApp = useMemo(() => {
     const inView = visible.find((app) => app.key === focusedKey);
