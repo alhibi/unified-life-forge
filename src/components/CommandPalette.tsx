@@ -34,7 +34,6 @@ export function openCommandPalette() {
 
 const ROUTES: { path: string; label: string; keywords: string; icon: typeof Compass }[] = [
   { path: '/', label: 'البوابة الرئيسية', keywords: 'home portal start بوابة رئيسية', icon: Compass },
-  { path: '/now', label: 'الآن — الصلاة والطقس', keywords: 'now prayer weather الآن صلاة طقس', icon: Sparkles },
   { path: '/mihrab', label: 'المحراب — القرآن والأذكار', keywords: 'mihrab quran dhikr محراب قرآن أذكار', icon: BookOpen },
   { path: '/wellness', label: 'العافية — التدريب والتغذية', keywords: 'wellness fitness nutrition عافية تدريب تغذية', icon: Dumbbell },
   { path: '/chat', label: 'المحادثات والرسائل', keywords: 'chat messages محادثات رسائل', icon: MessageSquare },
