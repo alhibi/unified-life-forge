@@ -2,8 +2,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 import {
   type ChainId,
+  type ChartRange,
   type NormalizedPair,
   NormalizedPairSchema,
+  type OhlcvSeries,
+  OhlcvResponseSchema,
   type WatchlistItem,
   WatchlistItemSchema,
 } from './types';
@@ -145,5 +148,27 @@ export const cryptoApi = {
 
     // Parse and validate results
     return resultPairs.map((pair: any) => NormalizedPairSchema.parse(pair));
+  },
+
+  /** Fetches real on-chain candle history for a pair through our edge function */
+  async getCandles(chainId: ChainId, pairAddress: string, range: ChartRange): Promise<OhlcvSeries> {
+    const token = await getAuthToken();
+
+    const response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action: 'ohlcv', chainId, pairAddress, range }),
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      throw new Error(errJson.error || `خطأ في جلب بيانات الرسم البياني (${response.status})`);
+    }
+
+    const json = await response.json();
+    return OhlcvResponseSchema.parse(json.data);
   },
 };

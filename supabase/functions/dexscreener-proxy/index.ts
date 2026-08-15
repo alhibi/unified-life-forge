@@ -28,7 +28,48 @@ const BatchRequestSchema = z.object({
   ).max(30),
 });
 
-const ProxyRequestSchema = z.discriminatedUnion("action", [SearchRequestSchema, BatchRequestSchema]);
+const OHLCV_RANGES = ["1D", "5D", "1M", "6M", "1Y"] as const;
+type OhlcvRange = typeof OHLCV_RANGES[number];
+
+const OhlcvRequestSchema = z.object({
+  action: z.literal("ohlcv"),
+  chainId: z.enum(SUPPORTED_CHAINS),
+  pairAddress: z.string().min(8).max(66).trim().regex(/^[a-zA-Z0-9_-]+$/),
+  range: z.enum(OHLCV_RANGES),
+});
+
+const ProxyRequestSchema = z.discriminatedUnion("action", [
+  SearchRequestSchema,
+  BatchRequestSchema,
+  OhlcvRequestSchema,
+]);
+
+/** GeckoTerminal network identifiers keyed by our internal chain ids. */
+const GECKO_NETWORKS: Record<ChainId, string> = {
+  solana: "solana",
+  ethereum: "eth",
+  bsc: "bsc",
+  base: "base",
+  arbitrum: "arbitrum",
+  polygon: "polygon_pos",
+};
+
+/** Candle resolution per visual range: [timeframe, aggregate, limit, cacheTtlMs] */
+const RANGE_CONFIG: Record<OhlcvRange, { timeframe: string; aggregate: number; limit: number; ttl: number }> = {
+  "1D": { timeframe: "minute", aggregate: 15, limit: 96, ttl: 60_000 },
+  "5D": { timeframe: "hour", aggregate: 1, limit: 120, ttl: 300_000 },
+  "1M": { timeframe: "hour", aggregate: 4, limit: 180, ttl: 600_000 },
+  "6M": { timeframe: "day", aggregate: 1, limit: 180, ttl: 1_800_000 },
+  "1Y": { timeframe: "day", aggregate: 1, limit: 365, ttl: 1_800_000 },
+};
+
+const GeckoOhlcvSchema = z.object({
+  data: z.object({
+    attributes: z.object({
+      ohlcv_list: z.array(z.array(z.number())),
+    }),
+  }),
+});
 
 // DexScreener Response Schema for Validation
 const BaseTokenSchema = z.object({
@@ -368,6 +409,76 @@ serve(async (req) => {
         // Search is a soft path: never break the UI, return an empty result set with a flag.
         console.error("[dexscreener-proxy] Search unavailable:", err?.message ?? err);
         return new Response(JSON.stringify({ data: [], unavailable: true }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // 4.5 Handle OHLCV candle history (GeckoTerminal — real on-chain candles)
+    if (payload.action === "ohlcv") {
+      const cfg = RANGE_CONFIG[payload.range];
+      const network = GECKO_NETWORKS[payload.chainId];
+      const cacheKey = `ohlcv:${network}:${payload.pairAddress.toLowerCase()}:${payload.range}`;
+      const now = Date.now();
+      const cached = MEMORY_CACHE.get(cacheKey);
+
+      if (cached && now < cached.expiresAt) {
+        return new Response(JSON.stringify({ data: cached.data }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const url =
+        `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${encodeURIComponent(payload.pairAddress)}` +
+        `/ohlcv/${cfg.timeframe}?aggregate=${cfg.aggregate}&limit=${cfg.limit}&currency=usd`;
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "User-Agent": "SmartHub/2.0 (amv.life; contact@amv.life)",
+            Accept: "application/json;version=20230302",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`GeckoTerminal returned HTTP ${response.status}`);
+        }
+
+        const validated = GeckoOhlcvSchema.parse(await response.json());
+
+        // Candles arrive newest-first; normalize to ascending time and keep price precision as strings.
+        const candles = validated.data.attributes.ohlcv_list
+          .filter((c) => c.length >= 5 && Number.isFinite(c[0]) && Number.isFinite(c[4]))
+          .map((c) => ({
+            t: c[0],
+            o: String(c[1]),
+            h: String(c[2]),
+            l: String(c[3]),
+            c: String(c[4]),
+            v: String(c[5] ?? 0),
+          }))
+          .sort((a, b) => a.t - b.t);
+
+        const result = { range: payload.range, candles };
+        MEMORY_CACHE.set(cacheKey, { data: result, expiresAt: now + cfg.ttl, timestamp: now });
+
+        return new Response(JSON.stringify({ data: result }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err: any) {
+        console.error("[dexscreener-proxy] OHLCV fetch failed:", err?.message ?? err);
+
+        if (cached) {
+          return new Response(JSON.stringify({ data: cached.data, stale: true }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify({ data: { range: payload.range, candles: [] }, unavailable: true }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
