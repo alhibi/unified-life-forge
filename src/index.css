@@ -1019,6 +1019,31 @@
     color: hsl(var(--destructive));
   }
 
+  /* ── The one press feedback ──────────────────────────────────────
+     Every interactive element in the app expresses a press the same way:
+     scale + vertical offset, both resolved from the user's interaction
+     preference (`--ui-interaction-*`) multiplied by their motion strength
+     (`--motion-press-strength`). Nothing hardcodes `active:scale-[…]`. */
+  .app-pressable {
+    transition:
+      transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press),
+      background-color var(--duration-fast) var(--motion-ease-enter),
+      border-color var(--duration-fast) var(--motion-ease-enter),
+      color var(--duration-fast) var(--motion-ease-enter);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-pressable:active:not(:disabled):not([aria-disabled='true']) {
+    transform: scale(var(--ui-press-scale)) translateY(var(--ui-press-offset));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .app-pressable:active {
+      transform: none;
+    }
+  }
+  html[data-reduced-motion='true'] .app-pressable:active {
+    transform: none;
+  }
+
   /* ── Shared control chrome ───────────────────────────────────────
      Inputs, textareas and selects use one geometry and focus treatment.
      Component files only add behaviour-specific layout around this class. */
