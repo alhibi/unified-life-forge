@@ -314,7 +314,7 @@ export const Archive = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProp
   function Archive(props, ref) { return <IconSlot ref={ref} names={{ p: 'Archive', l: 'Archive', t: 'IconArchive' }} {...props} />; },
 ) as unknown as PhosphorIcon;
 export const ArchiveRestore = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
-  function ArchiveRestore(props, ref) { return <IconSlot ref={ref} names={{ p: 'Archive', l: 'ArchiveRestore', t: 'IconArchiveOff' }} {...props} />; },
+  function ArchiveRestore(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowUUpLeft', l: 'ArchiveRestore', t: 'IconArchiveOff' }} {...props} />; },
 ) as unknown as PhosphorIcon;
 export const ArrowDown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function ArrowDown(props, ref) { return <IconSlot ref={ref} names={{ p: 'ArrowDown', l: 'ArrowDown', t: 'IconArrowDown' }} {...props} />; },
