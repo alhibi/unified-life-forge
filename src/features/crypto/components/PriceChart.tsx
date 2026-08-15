@@ -26,9 +26,22 @@ const VIEW_H = 340;
 const PAD_TOP = 18;
 const PAD_BOTTOM = 34;
 
+/** Live refresh cadence + candle bucket width per range (ms / seconds). */
+const RANGE_TIMING: Record<ChartRange, { refreshMs: number; bucketSec: number }> = {
+  '1D': { refreshMs: 30_000, bucketSec: 15 * 60 },
+  '5D': { refreshMs: 120_000, bucketSec: 60 * 60 },
+  '1M': { refreshMs: 300_000, bucketSec: 4 * 60 * 60 },
+  '6M': { refreshMs: 600_000, bucketSec: 24 * 60 * 60 },
+  '1Y': { refreshMs: 600_000, bucketSec: 24 * 60 * 60 },
+};
+
 function formatPrice(value: number): string {
   if (!Number.isFinite(value)) return '—';
   const abs = Math.abs(value);
+  // Micro-cap tokens need significant-digit precision, not fixed decimals.
+  if (abs > 0 && abs < 0.01) {
+    return value.toLocaleString('en-US', { maximumSignificantDigits: 6 });
+  }
   const digits = abs >= 1000 ? 2 : abs >= 1 ? 4 : abs >= 0.01 ? 6 : 8;
   return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: digits });
 }
@@ -96,6 +109,8 @@ export default function PriceChart({
   const [candles, setCandles] = useState<Candle[]>([]);
   const [state, setState] = useState<LoadState>('idle');
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isStale, setIsStale] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const cacheRef = useRef<Map<ChartRange, Candle[]>>(new Map());
 
@@ -105,6 +120,7 @@ export default function PriceChart({
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const cached = cacheRef.current.get(range);
     if (cached) {
@@ -114,30 +130,69 @@ export default function PriceChart({
       setState('loading');
     }
 
-    (async () => {
+    const load = async () => {
       try {
         const series = await cryptoApi.getCandles(chainId, pairAddress, range);
         if (cancelled) return;
-        cacheRef.current.set(range, series.candles);
-        setCandles(series.candles);
-        setState(series.candles.length > 0 ? 'success' : 'error');
+        if (series.candles.length > 0) {
+          cacheRef.current.set(range, series.candles);
+          setCandles(series.candles);
+          setUpdatedAt(series.fetchedAt);
+          setIsStale(series.stale);
+          setState('success');
+        } else {
+          setState(cacheRef.current.get(range) ? 'success' : 'error');
+        }
       } catch {
-        if (!cancelled) setState(cached ? 'success' : 'error');
+        if (!cancelled) {
+          setIsStale(true);
+          setState(cacheRef.current.get(range) ? 'success' : 'error');
+        }
+      } finally {
+        if (!cancelled) {
+          timer = setTimeout(load, RANGE_TIMING[range].refreshMs);
+        }
       }
-    })();
+    };
+
+    void load();
+
+    // Refresh immediately whenever the user returns to the app.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && !cancelled) {
+        if (timer) clearTimeout(timer);
+        void load();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
 
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [chainId, pairAddress, range]);
 
   const series = useMemo(() => {
-    const values = candles.map((c) => Number.parseFloat(c.c)).filter((v) => Number.isFinite(v));
-    if (values.length === 0) return null;
+    const usable = candles.filter((c) => Number.isFinite(Number.parseFloat(c.c)));
+    if (usable.length === 0) return null;
 
-    // Blend the live price into the trailing point so header and chart never disagree.
+    const values = usable.map((c) => Number.parseFloat(c.c));
+    const times = usable.map((c) => c.t);
+
+    // Blend the live price in so header and chart never disagree; open a new
+    // trailing point once the newest candle bucket has already closed.
     const live = livePriceUsd ? Number.parseFloat(livePriceUsd) : NaN;
-    if (Number.isFinite(live) && live > 0) values[values.length - 1] = live;
+    if (Number.isFinite(live) && live > 0) {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const lastT = times[times.length - 1];
+      if (nowSec - lastT > RANGE_TIMING[range].bucketSec) {
+        values.push(live);
+        times.push(nowSec);
+      } else {
+        values[values.length - 1] = live;
+      }
+    }
 
     const baseline = values[0];
     const min = Math.min(...values, baseline);
@@ -148,7 +203,7 @@ export default function PriceChart({
     const toY = (value: number) => PAD_TOP + (1 - (value - min) / span) * usableH;
     const stepX = values.length > 1 ? VIEW_W / (values.length - 1) : 0;
 
-    const points = values.map((value, i) => ({ x: i * stepX, y: toY(value), value, t: candles[i].t }));
+    const points = values.map((value, i) => ({ x: i * stepX, y: toY(value), value, t: times[i] }));
 
     return {
       points,
@@ -160,7 +215,7 @@ export default function PriceChart({
       linePath: buildSmoothPath(points),
       areaPath: `${buildSmoothPath(points)} L${VIEW_W} ${VIEW_H - PAD_BOTTOM} L0 ${VIEW_H - PAD_BOTTOM} Z`,
     };
-  }, [candles, livePriceUsd]);
+  }, [candles, livePriceUsd, range]);
 
   const isUp = series ? series.last >= series.baseline : true;
   const trendColor = isUp ? 'hsl(160 84% 42%)' : 'hsl(350 80% 58%)';
@@ -210,6 +265,22 @@ export default function PriceChart({
     <section className="relative overflow-hidden rounded-3xl border border-border/10 bg-gradient-to-b from-muted/10 to-transparent">
       {/* Header — identity, live price and delta */}
       <header className="px-4 pt-4 text-end" dir="rtl">
+        <div className="mb-1 flex items-center justify-end gap-1.5 text-[0.625rem] text-muted-foreground">
+          {updatedAt && (
+            <span className="font-plex-mono tabular-nums" dir="ltr">
+              {new Date(updatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          )}
+          <span>{isStale ? 'بيانات مؤقتة' : 'مباشر'}</span>
+          <span
+            className={cn(
+              'size-1.5 rounded-full',
+              isStale ? 'bg-amber-500' : 'animate-pulse bg-emerald-500'
+            )}
+            aria-hidden
+          />
+        </div>
+
         <div className="flex items-baseline justify-end gap-1 font-plex-mono tabular-nums" dir="ltr">
           <span className="text-[2.25rem] font-semibold leading-none tracking-tight text-foreground">{head}</span>
           <span className="text-lg font-medium leading-none text-muted-foreground">{tail}</span>

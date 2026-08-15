@@ -151,7 +151,11 @@ export const cryptoApi = {
   },
 
   /** Fetches real on-chain candle history for a pair through our edge function */
-  async getCandles(chainId: ChainId, pairAddress: string, range: ChartRange): Promise<OhlcvSeries> {
+  async getCandles(
+    chainId: ChainId,
+    pairAddress: string,
+    range: ChartRange
+  ): Promise<OhlcvSeries & { stale: boolean; fetchedAt: number }> {
     const token = await getAuthToken();
 
     const response = await fetch(PROXY_URL, {
@@ -169,6 +173,7 @@ export const cryptoApi = {
     }
 
     const json = await response.json();
-    return OhlcvResponseSchema.parse(json.data);
+    const series = OhlcvResponseSchema.parse(json.data);
+    return { ...series, stale: Boolean(json.stale), fetchedAt: Date.now() };
   },
 };
