@@ -221,7 +221,7 @@ export function typographyTokens(prefs: TypographyPrefs): TypographyApplication 
 
   const vars: Record<string, string> = {
     '--font-body': INTER_DISPLAY_STACK,
-    '--font-display': INTER_DISPLAY_STACK,
+    '--font-display': DISPLAY_SERIF_STACK,
     '--font-weight': String(clampFontWeight(prefs.weight)),
     '--type-base-scale': String(Math.round(sizeStep.multiplier * 10000) / 10000),
     '--type-leading': String(leading),
