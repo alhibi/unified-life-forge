@@ -10,7 +10,15 @@ export type ThemeStyle = 'tonal' | 'vibrant' | 'neutral' | 'expressive';
 export type Hsl = [number, number, number];
 export type ThemeScale = [Hsl, Hsl, Hsl, Hsl, Hsl, Hsl, Hsl];
 
-export const SCALE_STEPS = [50, 100, 200, 300, 400, 500, 600] as const;
+/**
+ * The published tone ladder. Eleven perceptual steps instead of seven, so a
+ * component can pick a plane (25…200), an accent weight (300…500) or an ink
+ * weight (600…900) without inventing a one-off colour.
+ *
+ * Fixed contract, relied upon across the app and by the integrity tests:
+ *   50  = page background · 100 = card surface · 400 = primary accent
+ */
+export const SCALE_STEPS = [25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
 export type ScaleStep = (typeof SCALE_STEPS)[number];
 
 export interface ThemeColorSet {
