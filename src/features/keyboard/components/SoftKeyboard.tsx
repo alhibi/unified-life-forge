@@ -15,6 +15,8 @@ import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
 import {
+  ALEF_VARIANTS,
+  caretDelta,
   HARAKAT,
   isRtlLayout,
   type KeyDef,
@@ -155,6 +157,9 @@ export default function SoftKeyboard({
   };
 
   const letters = layout === 'ar' || layout === 'en';
+  const rtl = isRtlLayout(layout);
+  /** The Arabic hamza/alef family is one long press away, but a visible strip is faster. */
+  const quickStrip: readonly string[] = layout === 'ar' ? ALEF_VARIANTS : QUICK_PUNCTUATION;
 
   return (
     <motion.div
@@ -163,7 +168,7 @@ export default function SoftKeyboard({
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', stiffness: 520, damping: 42, mass: 0.7 }}
-      dir={isRtlLayout(layout) ? 'rtl' : 'ltr'}
+      dir={rtl ? 'rtl' : 'ltr'}
       role="group"
       aria-label="لوحة مفاتيح التطبيق"
       style={
@@ -179,9 +184,9 @@ export default function SoftKeyboard({
       )}
     >
       {/* Utility strip: punctuation within thumb reach, plus caret nudges. */}
-      <div className="mb-1.5 flex items-center gap-1" dir="rtl">
+      <div className="mb-1.5 flex items-center gap-1" dir={rtl ? 'rtl' : 'ltr'}>
         <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none]">
-          {QUICK_PUNCTUATION.map((ch) => (
+          {quickStrip.map((ch) => (
             <button
               key={ch}
               type="button"
@@ -190,7 +195,7 @@ export default function SoftKeyboard({
                 onInsert(ch);
                 haptics('selection');
               }}
-              className="h-8 min-w-8 shrink-0 rounded-[var(--r-sm)] px-2 text-meta text-muted-foreground active:scale-[0.94] active:text-foreground"
+              className="h-8 min-w-8 shrink-0 rounded-[var(--r-sm)] px-2 text-[0.9375rem] leading-none text-muted-foreground active:scale-[0.94] active:text-foreground"
             >
               {ch}
             </button>
@@ -198,10 +203,10 @@ export default function SoftKeyboard({
         </div>
         <button
           type="button"
-          aria-label="تحريك المؤشر لليمين"
+          aria-label={rtl ? 'تحريك المؤشر للخلف' : 'تحريك المؤشر للأمام'}
           onPointerDown={(e) => {
             e.preventDefault();
-            onMoveCaret(1);
+            onMoveCaret(caretDelta(layout, 'right'));
           }}
           className="app-icon-btn h-8 w-8 text-muted-foreground"
         >
@@ -209,10 +214,10 @@ export default function SoftKeyboard({
         </button>
         <button
           type="button"
-          aria-label="تحريك المؤشر لليسار"
+          aria-label={rtl ? 'تحريك المؤشر للأمام' : 'تحريك المؤشر للخلف'}
           onPointerDown={(e) => {
             e.preventDefault();
-            onMoveCaret(-1);
+            onMoveCaret(caretDelta(layout, 'left'));
           }}
           className="app-icon-btn h-8 w-8 text-muted-foreground"
         >
@@ -262,8 +267,12 @@ export default function SoftKeyboard({
                 key={key.ch}
                 label={(shift || caps ? key.alt : undefined) ?? key.label ?? key.ch}
                 ariaLabel={key.ch}
+                className={cn(
+                  layout === 'ar' && 'font-arabic text-[1.25rem]',
+                  layout === 'harakat' && 'font-arabic text-[1.375rem]',
+                )}
                 onPress={() => emit(key)}
-                onHold={key.alt ? () => onInsert(key.alt as string) : undefined}
+                onHold={key.alt && key.alt !== key.ch ? () => onInsert(key.alt as string) : undefined}
               />
             ))}
             {letters && index === rows.length - 1 && (
