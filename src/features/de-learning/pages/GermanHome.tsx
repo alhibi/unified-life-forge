@@ -1,12 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 import { PageShell } from '@/components/ui/app-shell';
-import { ArrowLeft, Award, BookOpen, CheckCircle, Crown, HelpCircle, RotateCcw, Zap, Compass, Search } from '@/lib/icons';
+import { ArrowLeft, Award, BookOpen, CheckCircle, Crown, HelpCircle, RotateCcw, Zap, Compass, Search, Sparkles } from '@/lib/icons';
 
 import { ExerciseSession } from '../components/ExerciseSession';
+import { SituationalShelves } from '../components/SituationalShelves';
+import { VipSubscriptionBanner } from '../components/VipSubscriptionBanner';
+
 import {
   STARTER_LESSONS,
   STARTER_LEVELS,
@@ -37,17 +41,22 @@ export const GermanHome: React.FC = () => {
   const units = STARTER_UNITS;
   const lessons = STARTER_LESSONS;
 
-  const { data: progress = [], isLoading: loadingProg } = useUserProgress();
-  const { data: stats = null, isLoading: loadingStats } = useUserStats();
-  const { data: srsData = [], isLoading: loadingSrs } = useSrsState();
+  const { data: progress = [] } = useUserProgress();
+  const { data: stats = null } = useUserStats();
+  const { data: srsData = [] } = useSrsState();
   const markLessonComplete = useMarkLessonCompleted();
 
   const [activeLevel, setActiveLevel] = useState<CefrLevelCode>('A0');
   const [activeSessionMinutes, setActiveSessionMinutes] = useState<number | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | undefined>(undefined);
 
-  // Advanced learning environment states
-  const [activeTab, setActiveTab] = useState<'lessons' | 'handbook' | 'dictionary' | 'tutor' | 'placement' | 'dialogues' | 'conjugator' | 'gender' | 'phonetics'>('lessons');
+  // VIP Subscription state (€1000/mo elite mode enabled by default)
+  const [isVipActive, setIsVipActive] = useState<boolean>(true);
+
+  // Advanced learning environment states (Default: 'shelves' for the Gen Z situational experience)
+  const [activeTab, setActiveTab] = useState<
+    'shelves' | 'lessons' | 'handbook' | 'dictionary' | 'tutor' | 'dialogues' | 'conjugator' | 'gender' | 'phonetics' | 'placement'
+  >('shelves');
 
   // Dictionary Tab States
   const [dictType, setDictType] = useState<'words' | 'sentences' | 'phrases' | 'expressions'>('words');
@@ -55,7 +64,6 @@ export const GermanHome: React.FC = () => {
   const [dictLevelFilter, setDictLevelFilter] = useState<string>('all');
   const [dictFlashcardMode, setDictFlashcardMode] = useState(false);
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
-  // Pagination is keyed by the active filter signature so changing filters resets it without an effect
   const [dictPage, setDictPage] = useState<{ key: string; count: number }>({ key: '', count: 30 });
 
   // Placement Test States
@@ -140,7 +148,7 @@ export const GermanHome: React.FC = () => {
     [],
   );
 
-  // Dictionary filter logic (searches the massive, rich corpus) — full result set
+  // Dictionary filter logic
   const matchedDictItems = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     if (dictType === 'words') {
@@ -178,7 +186,7 @@ export const GermanHome: React.FC = () => {
     [matchedDictItems, dictVisibleCount],
   );
 
-  // AI Language Analyzer simulator (Pure grammatical algorithm)
+  // AI Language Analyzer simulator
   const handleAnalyzeSentence = () => {
     if (!userSentenceInput.trim()) return;
 
@@ -187,7 +195,6 @@ export const GermanHome: React.FC = () => {
     let grammarNote = 'تتكون الجملة من تركيب لغوي قياسي.';
     const wordAnalyses: { word: string; pos: string; analysis: string }[] = [];
 
-    // Simple deterministic rule-based parser for study sentence feedback
     const tokens = userSentenceInput.split(/\s+/);
     tokens.forEach((token) => {
       const clean = token.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '');
@@ -228,7 +235,7 @@ export const GermanHome: React.FC = () => {
     });
   };
 
-  // Placement Test Simulator (fully mapped across all 6 CEFR levels A0-C1 dynamically)
+  // Placement Test Simulator
   const PLACEMENT_QUESTIONS = [
     { q: "Wie heißt du? \n (اختر الإجابة الصحيحة)", options: ["Ich bin Ahmad", "Ich danke dir", "Guten Morgen"], correct: 0 },
     { q: "Das ist ___ Mutter. \n (أمي - مؤنث)", options: ["mein", "meine", "dein"], correct: 1 },
@@ -247,7 +254,6 @@ export const GermanHome: React.FC = () => {
     if (placementStep < PLACEMENT_QUESTIONS.length - 1) {
       setPlacementStep((s) => s + 1);
     } else {
-      // Complete test
       let level = 'A0 - التمهيدي البدائي';
       if (currentScore >= 100) level = 'C1 - الطلاقة والاحترافية';
       else if (currentScore >= 80) level = 'B2 - المتقدم المتمكن';
@@ -267,11 +273,7 @@ export const GermanHome: React.FC = () => {
     setPlacementResult(null);
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Custom systematic tools logic & handlers
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  // 1. Dialogue Sandbox
+  // Dialogue Sandbox
   const activeDialogue = useMemo(() => {
     return SYSTEMATIC_DIALOGUE_SCENARIOS.find((d) => d.id === selectedDialogueId);
   }, [selectedDialogueId]);
@@ -281,12 +283,12 @@ export const GermanHome: React.FC = () => {
     setDialogueStep('outcome');
   };
 
-  // 2. Systematic Verb Conjugator
+  // Verb Conjugator
   const activeVerb = useMemo(() => {
     return SYSTEMATIC_VERB_CONJUGATIONS.find((v) => v.id === selectedVerbId) || SYSTEMATIC_VERB_CONJUGATIONS[0];
   }, [selectedVerbId]);
 
-  // 3. Suffix-Based Gender Quiz
+  // Suffix Rules
   const filteredSuffixRules = useMemo(() => {
     const query = genderSuffixQuery.toLowerCase().trim();
     return SYSTEMATIC_SUFFIX_GENDER_RULES.filter((rule) =>
@@ -295,9 +297,8 @@ export const GermanHome: React.FC = () => {
   }, [genderSuffixQuery]);
 
   const genderQuizItems = useMemo(() => {
-    // Dynamically derive some quiz questions from suffix rules
     return SYSTEMATIC_SUFFIX_GENDER_RULES.map((rule) => ({
-      word: rule.example_de.split(' ')[1], // get 'Bedeutung' from 'die Bedeutung'
+      word: rule.example_de.split(' ')[1],
       correctGender: rule.gender,
       suffix: rule.suffix,
       explanation: rule.explanation_ar,
@@ -356,13 +357,13 @@ export const GermanHome: React.FC = () => {
   return (
     <PageShell flush centered={false}>
       <Helmet>
-        <title>تعلم الألمانية | Zen Elite</title>
+        <title>تعلم الألمانية | Zen Elite VIP</title>
         <meta name="theme-color" content="#080808" />
       </Helmet>
 
-      {/* Ambient background glow to match Zen Elite system */}
+      {/* Ambient background glow */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-teal-500/5 blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-amber-500/5 blur-[120px] rounded-full mix-blend-screen" />
       </div>
 
       <div className="relative z-10 flex min-h-dvh flex-col pb-page">
@@ -371,38 +372,48 @@ export const GermanHome: React.FC = () => {
           <div className="mx-auto flex max-w-lg items-center justify-between">
             <Link to="/"><ArrowLeft className="h-6 w-6 text-muted-foreground" /></Link>
             <div className="flex flex-col items-end text-end">
-              <h1 className="font-amiri text-lead font-bold tracking-wide text-foreground">
-                المسار الألماني
-              </h1>
+              <div className="flex items-center gap-1.5 justify-end">
+                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-plex-mono text-micro font-bold uppercase">
+                  VIP PASS
+                </span>
+                <h1 className="font-amiri text-lead font-bold tracking-wide text-foreground">
+                  ديوان الألمانية الحديثة
+                </h1>
+              </div>
               <p className="font-tajawal text-micro text-muted-foreground font-medium uppercase tracking-widest">
-                Deutsch Lernen
+                Deutsch Masterclass
               </p>
             </div>
           </div>
         </div>
 
-        <main className="mx-auto w-full max-w-lg flex-1 p-4 space-y-8 mt-2">
+        <main className="mx-auto w-full max-w-lg flex-1 p-4 space-y-6 mt-2">
 
-          {/* User Metrics / Profile Block */}
-          <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card p-6 shadow-sm">
+          {/* Heavy-weight VIP Subscription Banner */}
+          <VipSubscriptionBanner
+            isVipActive={isVipActive}
+            onToggleVip={(active) => setIsVipActive(active)}
+          />
+
+          {/* User Metrics & Progress Card */}
+          <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card p-5 shadow-sm">
             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-              <Crown className="w-32 h-32" />
+              <Crown className="w-28 h-28" />
             </div>
 
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-
-              <div className="flex-1 space-y-4">
-                <div className="space-y-1 text-end">
-                  <h2 className="font-tajawal text-title font-bold text-foreground">
-                    مستواك الحالي: {currentLevelObj.name_ar}
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="flex-1 space-y-3">
+                <div className="space-y-0.5 text-end">
+                  <h2 className="font-tajawal text-meta font-bold text-foreground">
+                    المستوى النشط: {currentLevelObj.name_ar}
                   </h2>
                   <p className="font-tajawal text-mini text-muted-foreground">
-                    مستوى الإتقان والتطور المستمر
+                    إتقان مستمر وتراكمي للغة الألمانية
                   </p>
                 </div>
 
                 {/* Progress bar */}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <div className="flex justify-between items-center text-mini font-mono font-medium text-muted-foreground">
                     <span>{progressPercent}%</span>
                     <span>التقدم العام</span>
@@ -416,32 +427,31 @@ export const GermanHome: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 justify-end md:justify-center">
+              <div className="flex items-center gap-5 justify-end md:justify-center">
                 <div className="text-center">
-                  <span className="block text-micro text-muted-foreground uppercase tracking-widest font-tajawal mb-1">نقاط الخبرة</span>
-                  <span className="font-plex-mono text-title font-bold text-foreground">{stats?.xp || 0}</span>
+                  <span className="block text-micro text-muted-foreground uppercase tracking-widest font-tajawal mb-0.5">نقاط الخبرة</span>
+                  <span className="font-plex-mono text-lead font-bold text-foreground">{stats?.xp || 0}</span>
                 </div>
                 <div className="w-px h-8 bg-border/50" />
                 <div className="text-center">
-                  <span className="block text-micro text-muted-foreground uppercase tracking-widest font-tajawal mb-1">أيام المواظبة</span>
+                  <span className="block text-micro text-muted-foreground uppercase tracking-widest font-tajawal mb-0.5">أيام المواظبة</span>
                   <div className="flex items-center gap-1 justify-center">
                     <Zap className="h-3.5 w-3.5 text-[hsl(var(--live))]" />
-                    <span className="font-plex-mono text-title font-bold text-[hsl(var(--live))]">{stats?.streak_days || 0}</span>
+                    <span className="font-plex-mono text-lead font-bold text-[hsl(var(--live))]">{stats?.streak_days || 0}</span>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
 
-          {/* Top Level Feature Tabs */}
+          {/* Primary Section Tabs */}
           <div className="flex gap-1.5 overflow-x-auto p-1 rounded-xl bg-secondary/30 border border-border/40 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
-              { id: 'lessons', text: 'خارطة الدروس' },
-              { id: 'handbook', text: 'دليل القواعد' },
-              { id: 'dictionary', text: 'القاموس والعبارات' },
-              { id: 'tutor', text: 'محلل الجمل الذكي' },
-              { id: 'placement', text: 'اختبار المستوى' }
+              { id: 'shelves', text: '🔥 رفوف المواقف والظروف', highlight: true },
+              { id: 'lessons', text: '📚 خارطة الدروس' },
+              { id: 'handbook', text: '📖 القواعد النحوية' },
+              { id: 'dictionary', text: '🔍 القاموس الشامل' },
+              { id: 'tutor', text: '🤖 محلل الجمل' },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -460,20 +470,21 @@ export const GermanHome: React.FC = () => {
             })}
           </div>
 
-          {/* New Advanced Systematic Tools Tabs Panel */}
-          <div className="space-y-3">
+          {/* Secondary Advanced Interactive Tools Panel */}
+          <div className="space-y-2">
             <div className="flex items-center gap-2 justify-end">
-              <span className="h-px flex-1 bg-border/40" />
-              <span className="font-tajawal text-micro text-muted-foreground font-bold uppercase tracking-widest bg-secondary/30 px-2 py-0.5 rounded border border-border/35">
-                الأدوات اللغوية المنهجية المتقدمة
+              <span className="h-px flex-1 bg-border/30" />
+              <span className="font-tajawal text-micro text-muted-foreground font-bold uppercase tracking-widest bg-secondary/20 px-2 py-0.5 rounded border border-border/30">
+                أدوات التفاعل والمحاكاة المتقدمة
               </span>
             </div>
             <div className="flex gap-1.5 overflow-x-auto p-1 rounded-xl bg-secondary/20 border border-border/25 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
-                { id: 'dialogues', text: 'السيناريوهات الحرة' },
-                { id: 'conjugator', text: 'تصريف الأفعال' },
-                { id: 'gender', text: 'لواحق الجنس النحوي' },
-                { id: 'phonetics', text: 'صوتيات المخارج' }
+                { id: 'dialogues', text: '💬 السيناريوهات الحرة' },
+                { id: 'conjugator', text: '⚡ تصريف الأفعال' },
+                { id: 'gender', text: '🏷️ جنس الأسماء' },
+                { id: 'phonetics', text: '🔊 صوتيات المخارج' },
+                { id: 'placement', text: '🧭 اختبار المستوى' },
               ].map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -493,9 +504,32 @@ export const GermanHome: React.FC = () => {
             </div>
           </div>
 
+          {/* Tab 0: Situational Shelves (FEATURED PRIMARY EXPERIENCE FOR GEN Z) */}
+          {activeTab === 'shelves' && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <SituationalShelves
+                isVipUnlocked={isVipActive}
+                onSelectPracticeItem={(item) => {
+                  toast.success(`تمت إضافة "${item.german_text}" للتمارين والمراجعة الذكية`);
+                  setActiveLessonId(undefined);
+                  setActiveSessionMinutes(5);
+                }}
+              />
+            </motion.div>
+          )}
+
           {/* Tab 1: Lessons Mapping */}
           {activeTab === 'lessons' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               {/* Level Switcher (Tabs) */}
               <div className="relative w-full rounded-xl bg-secondary/30 p-1 flex items-center gap-1 border border-border/40 backdrop-blur-sm">
                 {(['A0', 'A1', 'A2', 'B1', 'B2', 'C1'] as const).map((level) => {
@@ -556,7 +590,7 @@ export const GermanHome: React.FC = () => {
                 </div>
               </div>
 
-              {/* CEFR Level Map: Units and Lessons list */}
+              {/* CEFR Level Map */}
               <div className="space-y-5">
                 <div className="flex items-center gap-3 justify-end px-2">
                   <span className="h-px flex-1 bg-border/40" />
@@ -595,7 +629,7 @@ export const GermanHome: React.FC = () => {
                                 <h4 className="font-tajawal text-meta font-bold text-foreground">
                                   {unit.title_ar}
                                 </h4>
-                                <p className="font-plex-mono text-micro text-muted-foreground tracking-widest mt-0.5">
+                                <p className="font-plex-mono text-micro font-extrabold text-foreground/80 tracking-wide mt-0.5" dir="ltr">
                                   {unit.title_de}
                                 </p>
                               </div>
@@ -642,7 +676,7 @@ export const GermanHome: React.FC = () => {
                                         {lesson.title_ar}
                                       </h5>
                                       <div className="flex items-center gap-2" dir="ltr">
-                                        <span className="font-plex-mono text-micro text-muted-foreground">
+                                        <span className="font-plex-mono text-micro font-bold text-foreground">
                                           {lesson.title_de}
                                         </span>
                                         <span className="w-1 h-1 rounded-full bg-border" />
@@ -673,12 +707,17 @@ export const GermanHome: React.FC = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 2: Grammar Handbook */}
           {activeTab === 'handbook' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">دليل القواعد الألماني الشامل</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">
@@ -709,17 +748,22 @@ export const GermanHome: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 3: Dictionary & Flashcard Explorer */}
           {activeTab === 'dictionary' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">القاموس ومستودع المفردات</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">
                   استكشف المستودع الكامل: {corpusTotals.words} كلمة، {corpusTotals.sentences} جملة، {corpusTotals.phrases} عبارة،
-                  و{corpusTotals.expressions} تعبيراً — كلها متاحة للتصفح والبحث.
+                  و{corpusTotals.expressions} تعبيراً.
                 </p>
               </div>
 
@@ -821,24 +865,18 @@ export const GermanHome: React.FC = () => {
 
                         {!isFlipped ? (
                           <div className="space-y-1">
-                            <h4 className="font-plex-mono text-title font-bold text-foreground">
+                            <h4 className="font-plex-mono text-title font-extrabold text-foreground">
                               {item.lemma_de || item.text_de}
                             </h4>
                             <p className="font-tajawal text-micro text-muted-foreground uppercase tracking-widest">اضغط لإظهار المعنى</p>
                           </div>
                         ) : (
                           <div className="space-y-2 animate-in fade-in zoom-in-95">
-                            <h4 className="font-tajawal text-lead font-bold text-[hsl(var(--live))]">
+                            <h4 className="font-tajawal text-mini text-muted-foreground font-semibold">
                               {item.translation_ar || item.text_ar}
                             </h4>
                             {item.example_sentence_de && (
-                              <p className="font-plex-mono text-mini text-muted-foreground italic" dir="ltr">{item.example_sentence_de}</p>
-                            )}
-                            {item.situation_ar && (
-                              <p className="font-tajawal text-mini text-muted-foreground">السياق: {item.situation_ar}</p>
-                            )}
-                            {item.cultural_equivalent_ar && (
-                              <p className="font-tajawal text-mini text-muted-foreground">المعادل: {item.cultural_equivalent_ar}</p>
+                              <p className="font-plex-mono text-mini font-bold text-foreground italic" dir="ltr">{item.example_sentence_de}</p>
                             )}
                           </div>
                         )}
@@ -853,10 +891,10 @@ export const GermanHome: React.FC = () => {
                           {item.level_id?.replace('lvl-', '') || 'A0'}
                         </span>
                         <div className="text-end">
-                          <h4 className="font-plex-mono text-body font-bold text-foreground" dir="ltr">
+                          <h4 className="font-plex-mono text-body font-extrabold text-foreground tracking-wide" dir="ltr">
                             {item.lemma_de || item.text_de}
                           </h4>
-                          <p className="font-tajawal text-mini text-muted-foreground mt-0.5">
+                          <p className="font-tajawal text-mini text-muted-foreground mt-0.5 font-medium">
                             {item.translation_ar || item.text_ar}
                           </p>
                         </div>
@@ -864,27 +902,8 @@ export const GermanHome: React.FC = () => {
 
                       {item.example_sentence_de && (
                         <div className="border-t border-border/25 pt-2 mt-2 space-y-0.5 text-end">
-                          <p className="font-plex-mono text-mini text-muted-foreground italic" dir="ltr">{item.example_sentence_de}</p>
-                          <p className="font-tajawal text-mini text-muted-foreground/80">{item.example_sentence_ar}</p>
-                        </div>
-                      )}
-
-                      {item.situation_ar && (
-                        <p className="font-tajawal text-mini text-muted-foreground text-end">
-                          💡 سياق الاستخدام: {item.situation_ar}
-                        </p>
-                      )}
-
-                      {item.cultural_equivalent_ar && (
-                        <div className="flex flex-col items-end gap-0.5">
-                          <p className="font-tajawal text-mini text-muted-foreground">
-                            المعنى المجازي: <span className="text-foreground font-bold">{item.cultural_equivalent_ar}</span>
-                          </p>
-                          {item.literal_meaning_ar && (
-                            <p className="font-tajawal text-mini text-muted-foreground/75">
-                              المعنى الحرفي: {item.literal_meaning_ar}
-                            </p>
-                          )}
+                          <p className="font-plex-mono text-mini font-bold text-foreground" dir="ltr">{item.example_sentence_de}</p>
+                          <p className="font-tajawal text-mini text-muted-foreground">{item.example_sentence_ar}</p>
                         </div>
                       )}
                     </div>
@@ -899,7 +918,7 @@ export const GermanHome: React.FC = () => {
                   </div>
                   <h4 className="font-tajawal text-meta font-bold text-foreground">لا توجد نتائج مطابقة</h4>
                   <p className="font-tajawal text-mini text-muted-foreground max-w-[260px]">
-                    جرّب كلمة أخرى بالألمانية أو العربية، أو أعد الفلتر إلى «كل المستويات».
+                    جرّب كلمة أخرى بالألمانية أو العربية.
                   </p>
                 </div>
               )}
@@ -912,12 +931,17 @@ export const GermanHome: React.FC = () => {
                   عرض المزيد ({matchedDictItems.length - filteredDictItems.length} متبقية)
                 </button>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 4: AI Grammatical Tutor */}
           {activeTab === 'tutor' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">مساعد الذكاء اللغوي</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">اكتب أي جملة ألمانية وسيقوم المحلل بتفكيكها وفهمها إعرابياً بشكل مفصل فوراً</p>
@@ -931,7 +955,7 @@ export const GermanHome: React.FC = () => {
                     value={userSentenceInput}
                     onChange={(e) => setUserSentenceInput(e.target.value)}
                     placeholder="e.g. Ich lerne Deutsch"
-                    className="w-full p-3.5 rounded-xl border border-border/40 bg-background text-foreground font-plex-mono text-meta tracking-wide text-center focus:outline-none focus:ring-1 focus:ring-[hsl(var(--live))]"
+                    className="w-full p-3.5 rounded-xl border border-border/40 bg-background text-foreground font-plex-mono font-bold text-meta tracking-wide text-center focus:outline-none focus:ring-1 focus:ring-[hsl(var(--live))]"
                     dir="ltr"
                   />
                 </div>
@@ -948,7 +972,7 @@ export const GermanHome: React.FC = () => {
                 <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-5 animate-in fade-in duration-300">
                   <div className="text-end space-y-1">
                     <span className="text-micro font-plex-mono text-[hsl(var(--live))] font-semibold uppercase tracking-wider">الترجمة الدلالية</span>
-                    <p className="font-tajawal text-body font-bold text-foreground">{analyzerResult.translation}</p>
+                    <p className="font-tajawal text-mini text-muted-foreground font-semibold">{analyzerResult.translation}</p>
                   </div>
 
                   <div className="border-t border-border/30 pt-4 space-y-3">
@@ -972,12 +996,17 @@ export const GermanHome: React.FC = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 6: Interactive Dialogue Sandbox */}
           {activeTab === 'dialogues' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">محاكي المحادثات والسيناريوهات الحرة</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">تفاوض وتكلم في سياقات حقيقية مع ردود فعل وتحليلات ثقافية دقيقة.</p>
@@ -991,7 +1020,7 @@ export const GermanHome: React.FC = () => {
                         <span className="px-2 py-0.5 rounded text-micro font-plex-mono bg-secondary text-muted-foreground uppercase">{scen.category}</span>
                         <h4 className="font-tajawal text-meta font-bold text-foreground">{scen.title_ar}</h4>
                       </div>
-                      <p className="font-plex-mono text-mini text-muted-foreground/90 italic" dir="ltr">{scen.title_de}</p>
+                      <p className="font-plex-mono text-mini font-bold text-foreground/90 italic" dir="ltr">{scen.title_de}</p>
                       <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">{scen.description_ar}</p>
                       <button
                         onClick={() => {
@@ -1025,10 +1054,6 @@ export const GermanHome: React.FC = () => {
                       <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">
                         {activeDialogue?.description_ar}
                       </p>
-                      <div className="p-4 bg-secondary/20 rounded-xl space-y-1">
-                        <span className="block font-tajawal text-micro font-bold text-muted-foreground">المشاركون</span>
-                        <span className="block font-tajawal text-mini font-medium text-foreground">العميل والمستلم والمضيف</span>
-                      </div>
                       <button
                         onClick={() => setDialogueStep('chat')}
                         className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl font-tajawal text-mini font-bold"
@@ -1040,7 +1065,6 @@ export const GermanHome: React.FC = () => {
 
                   {dialogueStep === 'chat' && (
                     <div className="space-y-5">
-                      {/* Trans Toggle */}
                       <div className="flex justify-between items-center bg-secondary/30 p-2 rounded-lg">
                         <button
                           onClick={() => setDialogueShowArTranslation(!dialogueShowArTranslation)}
@@ -1114,13 +1138,6 @@ export const GermanHome: React.FC = () => {
                               <p className="font-tajawal text-mini text-muted-foreground" dir="rtl">{selectedBranch.response_ar}</p>
                             </div>
 
-                            <div className="p-5 rounded-xl bg-secondary/30 space-y-2 text-end">
-                              <span className="block font-tajawal text-mini font-bold text-foreground">التحليل الثقافي والاجتماعي المقارن</span>
-                              <p className="font-amiri text-meta text-foreground/80 leading-relaxed">
-                                {selectedBranch.explanation_ar}
-                              </p>
-                            </div>
-
                             <div className="flex gap-3">
                               <button
                                 onClick={() => setDialogueStep('branch')}
@@ -1142,18 +1159,22 @@ export const GermanHome: React.FC = () => {
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 7: Systematic Verb Conjugator */}
           {activeTab === 'conjugator' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">المصرف النحوي الرقمي للأفعال</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">صرف وافهم الأفعال الألمانية الهامة مع شرح جسورها الزمنية المقارنة بالعربية.</p>
               </div>
 
-              {/* Selector */}
               <div className="flex items-center gap-3">
                 <select
                   value={selectedVerbId}
@@ -1166,7 +1187,6 @@ export const GermanHome: React.FC = () => {
                 </select>
               </div>
 
-              {/* Tense switcher */}
               <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-secondary/30">
                 <button
                   onClick={() => setConjugatorTense('present')}
@@ -1186,7 +1206,6 @@ export const GermanHome: React.FC = () => {
                 </button>
               </div>
 
-              {/* Conjugation Grid */}
               <div className="p-6 rounded-2xl border border-border/50 bg-card space-y-5">
                 <div className="flex justify-between items-center pb-3 border-b border-border/30">
                   <span className="font-plex-mono text-mini text-muted-foreground uppercase">Conjugation Forms</span>
@@ -1209,15 +1228,7 @@ export const GermanHome: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Example and Aspect Note */}
                 <div className="border-t border-border/35 pt-4 space-y-4 text-end">
-                  <div className="space-y-1">
-                    <span className="block text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">الجسر النحوي والوجه الدلالي</span>
-                    <p className="font-amiri text-meta text-foreground/90 leading-relaxed">
-                      {activeVerb.arabic_aspect_note}
-                    </p>
-                  </div>
-
                   <div className="p-4 bg-[hsl(var(--live))]/5 rounded-xl space-y-1">
                     <span className="block text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase">مثال تطبيقي مصرف</span>
                     <p className="font-plex-mono text-meta font-bold text-foreground" dir="ltr">{activeVerb.german_example_de}</p>
@@ -1225,18 +1236,22 @@ export const GermanHome: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 8: Suffix-Based Gender Memory & Quiz */}
           {activeTab === 'gender' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">مصفوفة لواحق وقواعد الجنس النحوي</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">احفظ لواحق الكلمات الألمانية لمعرفة جنسها (der/die/das) تلقائياً بنسبة 100%.</p>
               </div>
 
-              {/* Mode Selection */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setGenderQuizActive(false)}
@@ -1262,7 +1277,6 @@ export const GermanHome: React.FC = () => {
 
               {!genderQuizActive ? (
                 <div className="space-y-4">
-                  {/* Search / Filter rule */}
                   <div className="relative">
                     <input
                       type="text"
@@ -1273,13 +1287,6 @@ export const GermanHome: React.FC = () => {
                       dir="rtl"
                     />
                     <Search className="absolute end-2.5 top-3 h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-
-                  <div className="flex items-center gap-3 px-1">
-                    <span className="font-tajawal text-micro text-muted-foreground">
-                      {filteredSuffixRules.length} من {SYSTEMATIC_SUFFIX_GENDER_RULES.length} قاعدة
-                    </span>
-                    <span className="h-px flex-1 bg-border/40" />
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
@@ -1315,13 +1322,6 @@ export const GermanHome: React.FC = () => {
                     <span className="font-tajawal text-mini text-muted-foreground">السؤال {genderQuizIndex + 1} من {genderQuizItems.length}</span>
                   </div>
 
-                  <div className="h-1 bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[hsl(var(--live))] transition-all duration-300"
-                      style={{ width: `${((genderQuizIndex + 1) / genderQuizItems.length) * 100}%` }}
-                    />
-                  </div>
-
                   <div className="p-6 rounded-xl bg-background border border-border/40 text-center space-y-3">
                     <span className="text-micro font-tajawal text-muted-foreground">ما هي الأداة الصحيحة للاسم الموالي بناءً على لاحقته؟</span>
                     <p className="font-plex-mono text-hero font-bold text-foreground tracking-wide">
@@ -1335,13 +1335,7 @@ export const GermanHome: React.FC = () => {
                         <button
                           key={genderOption}
                           onClick={() => handleGenderQuizAnswer(genderOption)}
-                          className={`py-3 rounded-xl border font-plex-mono text-meta font-bold transition-all ${
-                            genderOption === 'der'
-                              ? 'border-blue-500/30 hover:bg-blue-500/5 text-blue-500'
-                              : genderOption === 'die'
-                              ? 'border-rose-500/30 hover:bg-rose-500/5 text-rose-500'
-                              : 'border-emerald-500/30 hover:bg-emerald-500/5 text-emerald-500'
-                          }`}
+                          className="py-3 rounded-xl border border-border/40 font-plex-mono text-meta font-bold hover:bg-secondary/30 transition-all"
                         >
                           {genderOption}
                         </button>
@@ -1349,17 +1343,6 @@ export const GermanHome: React.FC = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <div className={`p-4 rounded-xl border text-end space-y-1.5 ${
-                        genderQuizFdbk.correct ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-600' : 'bg-rose-500/5 border-rose-500/20 text-rose-600'
-                      }`}>
-                        <h5 className="font-tajawal text-mini font-bold">
-                          {genderQuizFdbk.correct ? 'صحيح تماماً!' : 'غير دقيق'}
-                        </h5>
-                        <p className="font-tajawal text-mini text-muted-foreground leading-relaxed">
-                          {genderQuizFdbk.msg}
-                        </p>
-                      </div>
-
                       <button
                         onClick={handleNextGenderQuiz}
                         className="w-full py-3 bg-[hsl(var(--live))] text-white rounded-xl text-mini font-bold font-tajawal"
@@ -1370,12 +1353,17 @@ export const GermanHome: React.FC = () => {
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 9: Phonetic Soundboard */}
           {activeTab === 'phonetics' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">لوحة الصوتيات والمخارج الألمانية المقارنة</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">تدرب على نطق وإخراج الحروف والتركيبات الألمانية الصعبة بمقارنتها مع مخارج الحروف العربية.</p>
@@ -1401,42 +1389,17 @@ export const GermanHome: React.FC = () => {
                   );
                 })}
               </div>
-
-              {selectedPhoneticId && (() => {
-                const item = SYSTEMATIC_PHONETIC_BRIDGE_ITEMS.find((ph) => ph.id === selectedPhoneticId);
-                if (!item) return null;
-                return (
-                  <div className="p-5 rounded-2xl border border-[hsl(var(--live))]/20 bg-[hsl(var(--live))]/[0.02] space-y-4 text-end animate-in fade-in duration-300">
-                    <div className="flex justify-between items-center pb-2 border-b border-border/30">
-                      <span className="font-plex-mono text-micro text-muted-foreground uppercase">Phonetic Detail</span>
-                      <h4 className="font-plex-mono text-body font-bold text-[hsl(var(--live))]" dir="ltr">{item.sound_de}</h4>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">مخرج الحرف والتمثيل الصوتي العربي</span>
-                      <p className="font-tajawal text-mini text-foreground font-semibold">{item.arabic_equivalent_ar}</p>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-micro font-tajawal text-[hsl(var(--live))] font-bold uppercase tracking-wider">دليل النطق وآلية التشكيل الفموي</span>
-                      <p className="font-amiri text-meta text-foreground/80 leading-relaxed">
-                        {item.articulation_guide_ar}
-                      </p>
-                    </div>
-
-                    <div className="p-3 bg-secondary/30 rounded-lg flex justify-between items-center" dir="ltr">
-                      <span className="font-plex-mono text-mini text-foreground font-bold">{item.example_word_de}</span>
-                      <span className="font-tajawal text-mini text-muted-foreground">مثال: {item.example_word_ar}</span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
+            </motion.div>
           )}
 
           {/* Tab 5: Placement Test */}
           {activeTab === 'placement' && (
-            <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
               <div className="text-end space-y-2">
                 <h3 className="font-amiri text-display font-bold text-foreground">اختبار تحديد المستوى الذكي</h3>
                 <p className="font-tajawal text-mini text-muted-foreground">أجب عن ٥ أسئلة دقيقة لتقييم مستواك الفعلي ووضعك في المسار المناسب تلقائياً</p>
@@ -1497,13 +1460,6 @@ export const GermanHome: React.FC = () => {
                     <span className="font-tajawal text-mini text-muted-foreground">سؤال {placementStep + 1} من {PLACEMENT_QUESTIONS.length}</span>
                   </div>
 
-                  <div className="h-1 bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-[hsl(var(--live))] transition-all duration-300"
-                      style={{ width: `${((placementStep + 1) / PLACEMENT_QUESTIONS.length) * 100}%` }}
-                    />
-                  </div>
-
                   <div className="p-4 rounded-xl bg-background border border-border/40 text-center space-y-2">
                     <p className="font-plex-mono text-body font-bold text-foreground leading-relaxed whitespace-pre-line" dir="ltr">
                       {PLACEMENT_QUESTIONS[placementStep].q}
@@ -1524,11 +1480,10 @@ export const GermanHome: React.FC = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
 
-
-                  </main>
+        </main>
       </div>
     </PageShell>
   );
