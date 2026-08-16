@@ -25,12 +25,22 @@ const row = (chars: string, alts?: string): KeyDef[] => {
   return list.map((ch, i) => ({ ch, alt: altList[i] }));
 };
 
-/** Arabic — the Gboard/standard ordering Arabic typists already know. */
+/**
+ * Arabic — the standard (Windows/Gboard) ordering Arabic typists already know,
+ * three balanced rows of 11/11/11. Long press (or shift) gives the linguistic
+ * variant of the same letter: hamza forms on alef, ta marbuta on ha, alef
+ * maqsura on ya, lam-alef ligatures on lam-alef. No Unicode presentation forms
+ * are used — every key inserts the canonical character (لا is لـ+ا), so search,
+ * Zod validation and database comparisons keep working on normal text.
+ */
 export const AR_ROWS: KeyDef[][] = [
-  row('ض ص ث ق ف غ ع ه خ ح ج', 'َ ً ُ ٌ إ أ آ ـ ْ ّ د'),
-  row('ش س ي ب ل ا ت ن م ك ط', 'ِ ٍ ى ﻻ لا آ ة » « ٓ ذ'),
-  row('ئ ء ؤ ر ﻻ ى ة و ز ظ', 'ژ گ چ پ ﻷ ﻵ ﻹ ٱ ژ ـ'),
+  row('ض ص ث ق ف غ ع ه خ ح ج د', 'ض ص ث ق ف غ ع ة خ ح ج ذ'),
+  row('ش س ي ب ل ا ت ن م ك ط', 'ش س ى ب ل أ ت ن م ك ظ'),
+  row('ذ ئ ء ؤ ر لا ى ة و ز ظ', 'ذ ئ ء ؤ ر لآ آ ة و ز ظ'),
 ];
+
+/** Hamza / alef family, exposed as its own quick strip page. */
+export const ALEF_VARIANTS: readonly string[] = ['ا', 'أ', 'إ', 'آ', 'ء', 'ٱ', 'ى', 'ة', 'لا', 'لأ', 'لإ', 'لآ'];
 
 /** Latin — QWERTY, so English/German words and URLs stay typable. */
 export const EN_ROWS: KeyDef[][] = [
@@ -78,6 +88,16 @@ export const LAYOUT_ROWS: Record<Exclude<LayoutId, 'harakat'>, KeyDef[][]> = {
 };
 
 /** Quick-insert strip: the punctuation used constantly while writing Arabic. */
-export const QUICK_PUNCTUATION: readonly string[] = ['\u060C', '.', '\u061F', '!', ':', '\u061B', '"', '\u2026', '-', '@'];
+export const QUICK_PUNCTUATION: readonly string[] = ['\u060C', '.', '\u061F', '!', ':', '\u061B', '\u00AB', '\u00BB', '\u2026', '-'];
 
 export const isRtlLayout = (id: LayoutId): boolean => id === 'ar' || id === 'harakat';
+
+/**
+ * Caret nudges are visual, not logical: in RTL text the key that points right
+ * must walk the string backwards. Callers pass a visual direction and get the
+ * logical offset for the active layout.
+ */
+export const caretDelta = (layout: LayoutId, visual: 'left' | 'right'): number => {
+  const forward = isRtlLayout(layout) ? visual === 'left' : visual === 'right';
+  return forward ? 1 : -1;
+};
