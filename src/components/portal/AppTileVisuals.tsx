@@ -57,7 +57,6 @@ const IDENTITY: Record<string, TileIdentity> = {
   reading: { accent: '210 28% 52%', motif: 'columns' },
   podcasts: { accent: '198 44% 50%', motif: 'waveform' },
   diwan: { accent: '348 38% 54%', motif: 'meter' },
-  'de-learning': { accent: '18 52% 54%', motif: 'glyph' },
   atlas: { accent: '192 42% 48%', motif: 'contour' },
   chat: { accent: '232 36% 60%', motif: 'bubbles' },
   games: { accent: '300 28% 56%', motif: 'board' },

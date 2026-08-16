@@ -145,7 +145,7 @@ export const ClipboardPanel = memo(function ClipboardPanel({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="بحث في الحافظة..."
-            className="w-full rounded-xl border border-border/40 bg-[hsl(var(--surface-2))]/60 py-1.5 pr-8 pl-3 text-micro text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--live))]"
+            className="w-full rounded-xl border border-border/40 bg-[hsl(var(--surface-2))]/60 py-1.5 pe-8 ps-3 text-micro text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-[hsl(var(--live))]"
           />
         </div>
       )}

@@ -208,7 +208,7 @@ export default function SoftKeyboard({
   const rows: KeyDef[][] =
     layout === 'harakat'
       ? [HARAKAT.slice(0, 6), HARAKAT.slice(6, 12)]
-      : LAYOUT_ROWS[layout] ?? LAYOUT_ROWS.ar;
+      : LAYOUT_ROWS[layout as keyof typeof LAYOUT_ROWS] ?? LAYOUT_ROWS.ar;
 
   const emit = (key: KeyDef) => {
     const upper = shift || caps;
