@@ -235,7 +235,9 @@ export default function SoftKeyboard({
       ? '2.4rem'
       : settings.keyHeight === 'tall'
         ? '3.2rem'
-        : '2.85rem';
+        : settings.keyHeight === 'extra-tall'
+          ? '3.6rem'
+          : '2.85rem';
 
   return (
     <motion.div
@@ -260,6 +262,8 @@ export default function SoftKeyboard({
         settings.theme === 'gboard-light' && 'bg-neutral-100 text-neutral-900',
         settings.theme === 'sand' && 'bg-[#e2d8ce] text-[#2c221e]',
         settings.theme === 'luxury-gold' && 'bg-[#181512] text-[#f0e6d2]',
+        settings.theme === 'emerald' && 'bg-[#0f241d] text-[#d1fae5]',
+        settings.theme === 'sapphire' && 'bg-[#0f172a] text-[#e2e8f0]',
         oneHandedMode === 'right' && 'ms-auto w-[85%]',
         oneHandedMode === 'left' && 'me-auto w-[85%]',
       )}

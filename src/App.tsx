@@ -125,6 +125,7 @@ const loadChatSettings  = () => import("@/features/chat/pages/ChatSettings");
 // they redirect, since both paths are in the wild (deep links, the portal menu).
 const loadAppearance = () => import("./pages/AppearanceSettings");
 const loadInterface = () => import("./pages/InterfaceSettings");
+const loadKeyboardSettings = () => import("./pages/KeyboardSettings");
 const loadAuth = () => import("./pages/Auth");
 const loadProfile = () => import("./pages/ProfileEdit");
 const loadMotion = () => import("./pages/MotionSettings");
@@ -222,6 +223,7 @@ registerRoute('/dhikr',             loadDhikr);
 registerRoute('/sunnah',            loadSunnah);
 registerRoute('/settings/appearance', loadAppearance);
 registerRoute('/settings/interface', loadInterface);
+registerRoute('/settings/keyboard', loadKeyboardSettings);
 registerRoute('/settings/profile',  loadProfile);
 registerRoute('/profile',           loadProfile);
 registerRoute('/settings/motion',   loadMotion);
@@ -301,6 +303,7 @@ const GroupChatPage     = lazy(loadGroupChat);
 const ChatSettingsPage  = lazy(loadChatSettings);
 const AppearanceSettingsPage = lazy(loadAppearance);
 const InterfaceSettingsPage = lazy(loadInterface);
+const KeyboardSettingsPage = lazy(loadKeyboardSettings);
 const AuthPage = lazy(loadAuth);
 const ProfileEditPage = lazy(loadProfile);
 const MotionSettingsPage = lazy(loadMotion);
@@ -693,6 +696,7 @@ function AnimatedRoutes() {
                   <Route path="/auth" element={<ErrorBoundary><AuthPage /></ErrorBoundary>} />
                   <Route path="/settings/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
                   <Route path="/profile" element={<ErrorBoundary><ProfileEditPage /></ErrorBoundary>} />
+                  <Route path="/settings/keyboard" element={<ErrorBoundary><KeyboardSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/font" element={<Navigate to="/settings/appearance" replace />} />
                   <Route path="/settings/motion" element={<ErrorBoundary><MotionSettingsPage /></ErrorBoundary>} />
                   <Route path="/settings/prayer" element={<ErrorBoundary><PrayerSettingsPage /></ErrorBoundary>} />

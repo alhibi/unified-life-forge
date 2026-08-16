@@ -17,6 +17,7 @@ import {
   BookOpen,
   ChevronLeft,
   Gauge,
+  Keyboard,
   LogOut,
   Palette,
   SlidersHorizontal,
@@ -80,6 +81,13 @@ export default function SettingsPage() {
       title: 'الواجهة والأبعاد',
       value: '',
       onClick: () => navigate('/settings/interface'),
+    },
+    {
+      key: 'keyboard',
+      icon: Keyboard,
+      title: 'لوحة المفاتيح والإدخال',
+      value: '',
+      onClick: () => navigate('/settings/keyboard'),
     },
     {
       key: 'motion',
