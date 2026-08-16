@@ -1,9 +1,9 @@
 /**
- * Key maps for the in-app soft keyboard.
+ * Key maps and geometric utilities for the in-app soft keyboard.
  *
- * Rows are plain character arrays: the visual layout (widths, gaps) is derived
- * geometrically from the row length in the renderer. `alt` is the shifted / long-press character.
- * Popups provide expandable multi-character selection menus on long-press (like Gboard).
+ * Rows are key arrays ordered strictly from LEFT to RIGHT as seen on standard physical
+ * and Gboard keyboards. `alt` is the shifted / long-press character. Popups provide
+ * expandable multi-character selection menus on long-press (Gboard style).
  */
 
 export type LayoutId = 'ar' | 'en' | 'num' | 'sym' | 'harakat' | 'islamic' | 'math';
@@ -28,8 +28,8 @@ const row = (chars: string, alts?: string): KeyDef[] => {
 };
 
 /**
- * Arabic — standard 3 balanced rows matching physical/Gboard Arabic keyboards.
- * Visual ordering from left-to-right:
+ * Arabic — standard balanced 3 rows matching physical & Gboard Arabic keyboards.
+ * Visual ordering from LEFT to RIGHT:
  * Row 1: ض ص ث ق ف غ ع ه خ ح ج د
  * Row 2: ش س ي ب ل ا ت ن م ك ط
  * Row 3: ئ ء ؤ ر لا ى ة و ز ظ
@@ -76,13 +76,13 @@ export const AR_ROWS: KeyDef[][] = [
   ],
 ];
 
-/** Dedicated Western Number Row */
+/** Dedicated Western Number Row (1 2 3 4 5 6 7 8 9 0) */
 export const WESTERN_NUMBER_ROW: KeyDef[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num, i) => ({
   ch: num,
   alt: ['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'][i],
 }));
 
-/** Dedicated Eastern Arabic Number Row */
+/** Dedicated Eastern Arabic Number Row (١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٠) */
 export const EASTERN_NUMBER_ROW: KeyDef[] = ['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].map((num, i) => ({
   ch: num,
   alt: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][i],
@@ -179,8 +179,17 @@ export const isRtlLayout = (id: LayoutId): boolean => id === 'ar' || id === 'har
 
 /**
  * Caret nudges offset calculation.
- * Moving left moves towards caret decrement or increment depending on text flow direction.
+ * In RTL text:
+ * - Visually moving 'right' moves towards index 0 (start of string, delta = -1).
+ * - Visually moving 'left' moves towards string end (delta = +1).
+ * In LTR text:
+ * - Visually moving 'right' moves towards string end (delta = +1).
+ * - Visually moving 'left' moves towards start of string (delta = -1).
  */
 export const caretDelta = (layout: LayoutId, visual: 'left' | 'right'): number => {
-  return visual === 'right' ? 1 : -1;
+  const rtl = isRtlLayout(layout);
+  if (visual === 'right') {
+    return rtl ? -1 : 1;
+  }
+  return rtl ? 1 : -1;
 };
