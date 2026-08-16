@@ -268,8 +268,8 @@ export default function SoftKeyboard({
                 label={(shift || caps ? key.alt : undefined) ?? key.label ?? key.ch}
                 ariaLabel={key.ch}
                 className={cn(
-                  layout === 'ar' && 'font-arabic text-[1.25rem]',
-                  layout === 'harakat' && 'font-arabic text-[1.375rem]',
+                  layout === 'ar' && 'text-[1.25rem]',
+                  layout === 'harakat' && 'text-[1.375rem]',
                 )}
                 onPress={() => emit(key)}
                 onHold={key.alt && key.alt !== key.ch ? () => onInsert(key.alt as string) : undefined}
