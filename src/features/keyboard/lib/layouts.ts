@@ -34,7 +34,7 @@ const row = (chars: string, alts?: string): KeyDef[] => {
  * Zod validation and database comparisons keep working on normal text.
  */
 export const AR_ROWS: KeyDef[][] = [
-  row('ض ص ث ق ف غ ع ه خ ح ج د', '\u0651 \u064B \u064C \u064D ف غ ع ة خ ح ج ذ'),
+  row('ض ص ث ق ف غ ع ه خ ح ج د', 'ض ص ث ق ف غ ع ة خ ح ج ذ'),
   row('ش س ي ب ل ا ت ن م ك ط', 'ش س ى ب ل أ ت ن م ك ظ'),
   row('ذ ئ ء ؤ ر لا ى ة و ز ظ', 'ذ ئ ء ؤ ر لآ آ ة و ز ظ'),
 ];
