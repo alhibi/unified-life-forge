@@ -271,15 +271,15 @@ export const PORTAL_APPS: readonly PortalApp[] = [
   },
   {
     key: 'de-learning',
-    path: '/de-learning',
-    label: 'ديوان الألمانية',
-    caption: 'DE-LEARNING',
-    description: 'قاموس ودروس ألمانية بمنهج مرتبط بالعربية',
+    path: '/deutsch',
+    label: 'الألمانية لجيل زد',
+    caption: 'DEUTSCH VIP',
+    description: 'رفوف المواقف، لغة الشارع المعاصرة والمحاكاة لجيل الشباب',
     cat: 'mind',
     icon: Languages,
-    keywords: 'de-learning german lingo language study ألماني ألمانية لغة دراسة قاموس قواعد',
+    keywords: 'de-learning deutsch german lingo language study ألماني ألمانية لغة دراسة قاموس قواعد',
     links: [
-      { path: '/de-learning', label: 'ديوان الألمانية', note: 'اللوحة الرئيسية للوحدات والدروس', icon: Languages },
+      { path: '/deutsch', label: 'الألمانية لجيل زد VIP', note: 'رفوف الشارع، المواقف والمحاكاة', icon: Languages },
     ],
   },
   {

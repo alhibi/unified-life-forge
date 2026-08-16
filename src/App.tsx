@@ -283,6 +283,7 @@ registerRoute('/pkm/mind',       loadMind);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
 registerRoute('/de-learning',     loadDeLearning);
+registerRoute('/deutsch',         loadDeLearning);
 registerRoute('/crypto',          loadCrypto);
 
 const DeLearningPage = lazy(loadDeLearning);
@@ -729,6 +730,7 @@ function AnimatedRoutes() {
                   {/* «الرئيسي» is no longer a standalone app — its widgets live on the portal. */}
                   <Route path="/now"           element={<Navigate to="/" replace />} />
                   <Route path="/de-learning"   element={<ErrorBoundary><DeLearningPage /></ErrorBoundary>} />
+                  <Route path="/deutsch"       element={<ErrorBoundary><DeLearningPage /></ErrorBoundary>} />
                   <Route path="/crypto"        element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
                   <Route path="/crypto/"       element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
                   {/* OAuth consent for external clients (MCP / Agent integrations). */}
