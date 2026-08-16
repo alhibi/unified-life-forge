@@ -6,7 +6,7 @@
  * Popups provide expandable multi-character selection menus on long-press (like Gboard).
  */
 
-export type LayoutId = 'ar' | 'en' | 'num' | 'sym' | 'harakat' | 'islamic';
+export type LayoutId = 'ar' | 'en' | 'num' | 'sym' | 'harakat' | 'islamic' | 'math';
 
 export interface KeyDef {
   /** Character inserted on tap. */
@@ -28,39 +28,41 @@ const row = (chars: string, alts?: string): KeyDef[] => {
 };
 
 /**
- * Arabic — standard 3 balanced rows (11/11/11).
- * Enhanced with comprehensive long-press popup menus for Arabic character variants.
+ * Arabic — standard 3 balanced rows matching physical/Gboard Arabic keyboards.
+ * Visual ordering from left-to-right:
+ * Row 1: ض ص ث ق ف غ ع ه خ ح ج د
+ * Row 2: ش س ي ب ل ا ت ن م ك ط
+ * Row 3: ئ ء ؤ ر لا ى ة و ز ظ
  */
 export const AR_ROWS: KeyDef[][] = [
   [
-    { ch: 'ض', alt: 'ض' },
-    { ch: 'ص', alt: 'ص' },
-    { ch: 'ث', alt: 'ث' },
-    { ch: 'ق', alt: 'ق' },
-    { ch: 'ف', alt: 'ف' },
-    { ch: 'غ', alt: 'غ' },
-    { ch: 'ع', alt: 'ع' },
-    { ch: 'ه', alt: 'ة', popups: ['ه', 'ة', 'هـ', 'ـه'] },
-    { ch: 'خ', alt: 'خ' },
-    { ch: 'ح', alt: 'ح' },
-    { ch: 'ج', alt: 'ج' },
+    { ch: 'ض', alt: '1', popups: ['ض', '1'] },
+    { ch: 'ص', alt: '2', popups: ['ص', '2'] },
+    { ch: 'ث', alt: '3', popups: ['ث', '3'] },
+    { ch: 'ق', alt: '4', popups: ['ق', '4'] },
+    { ch: 'ف', alt: '5', popups: ['ف', '5'] },
+    { ch: 'غ', alt: '6', popups: ['غ', '6'] },
+    { ch: 'ع', alt: '7', popups: ['ع', '7'] },
+    { ch: 'ه', alt: '8', popups: ['ه', 'ة', 'هـ', 'ـه', '8'] },
+    { ch: 'خ', alt: '9', popups: ['خ', '9'] },
+    { ch: 'ح', alt: '0', popups: ['ح', '0'] },
+    { ch: 'ج', alt: 'ج', popups: ['ج', 'چ'] },
     { ch: 'د', alt: 'ذ', popups: ['د', 'ذ'] },
   ],
   [
     { ch: 'ش', alt: 'ش' },
     { ch: 'س', alt: 'س' },
     { ch: 'ي', alt: 'ى', popups: ['ي', 'ى', 'ئ', 'يـ'] },
-    { ch: 'ب', alt: 'ب' },
+    { ch: 'ب', alt: 'ب', popups: ['ب', 'پ'] },
     { ch: 'ل', alt: 'ل', popups: ['ل', 'لا', 'لأ', 'لإ', 'لآ'] },
     { ch: 'ا', alt: 'أ', popups: ['ا', 'أ', 'إ', 'آ', 'ٱ', 'ء'] },
     { ch: 'ت', alt: 'ت', popups: ['ت', 'ة', 'ـة'] },
     { ch: 'ن', alt: 'ن' },
     { ch: 'م', alt: 'م' },
-    { ch: 'ك', alt: 'ك' },
+    { ch: 'ك', alt: 'ك', popups: ['ك', 'گ'] },
     { ch: 'ط', alt: 'ظ', popups: ['ط', 'ظ'] },
   ],
   [
-    { ch: 'ذ', alt: 'ذ' },
     { ch: 'ئ', alt: 'ئ' },
     { ch: 'ء', alt: 'ء', popups: ['ء', 'أ', 'إ', 'ؤ', 'ئ'] },
     { ch: 'ؤ', alt: 'ؤ' },
@@ -69,40 +71,53 @@ export const AR_ROWS: KeyDef[][] = [
     { ch: 'ى', alt: 'آ', popups: ['ى', 'ي', 'ئ'] },
     { ch: 'ة', alt: 'ة', popups: ['ة', 'ت', 'ه'] },
     { ch: 'و', alt: 'ؤ', popups: ['و', 'ؤ'] },
-    { ch: 'ز', alt: 'ز' },
+    { ch: 'ز', alt: 'ز', popups: ['ز', 'ژ'] },
     { ch: 'ظ', alt: 'ظ' },
   ],
 ];
 
-/** Dedicated Arabic/Western Top Number Row */
+/** Dedicated Western Number Row */
 export const WESTERN_NUMBER_ROW: KeyDef[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num, i) => ({
   ch: num,
   alt: ['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'][i],
 }));
 
+/** Dedicated Eastern Arabic Number Row */
 export const EASTERN_NUMBER_ROW: KeyDef[] = ['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠'].map((num, i) => ({
   ch: num,
   alt: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][i],
 }));
 
-/** Hamza / alef family quick strip page. */
+/** Quick Alef & Hamza family bar */
 export const ALEF_VARIANTS: readonly string[] = ['ا', 'أ', 'إ', 'آ', 'ء', 'ٱ', 'ى', 'ة', 'لا', 'لأ', 'لإ', 'لآ', 'ـ'];
 
 /** Quick Tashkeel / Harakat strip for inline insertion */
 export const HARAKAT_STRIP: readonly string[] = ['\u064E', '\u064F', '\u0650', '\u0652', '\u0651', '\u064B', '\u064C', '\u064D', '\u0640'];
 
-/** Islamic and Quranic symbols page */
+/** Comprehensive Islamic and Quranic symbols page */
 export const ISLAMIC_SYMBOLS: KeyDef[] = [
-  { ch: 'ﷺ', label: 'ﷺ' },
-  { ch: 'ﷻ', label: 'ﷻ' },
-  { ch: 'ﷲ', label: 'ﷲ' },
-  { ch: '﷽', label: '﷽' },
+  { ch: 'ﷺ', label: 'ﷺ (صلى الله عليه وسلم)' },
+  { ch: 'ﷻ', label: 'ﷻ (جل جلاله)' },
+  { ch: 'ﷲ', label: 'ﷲ (الله)' },
+  { ch: '﷽', label: '﷽ (البسملة)' },
   { ch: 'رضي الله عنه', label: 'رضي الله عنه' },
   { ch: 'رضي الله عنها', label: 'رضي الله عنها' },
+  { ch: 'رضي الله عنهم', label: 'رضي الله عنهم' },
   { ch: 'رحمه الله', label: 'رحمه الله' },
   { ch: 'عليها السلام', label: 'عليها السلام' },
   { ch: 'عليه السلام', label: 'عليه السلام' },
   { ch: 'جزاك الله خيراً', label: 'جزاك الله خيراً' },
+  { ch: 'السلام عليكم ورحمة الله وبركاته', label: 'السلام عليكم ورحمة الله وبركاته' },
+  { ch: 'وعليكم السلام ورحمة الله وبركاته', label: 'وعليكم السلام ورحمة الله وبركاته' },
+  { ch: 'إن شاء الله', label: 'إن شاء الله' },
+  { ch: 'الحمد لله', label: 'الحمد لله' },
+  { ch: 'سبحان الله', label: 'سبحان الله' },
+  { ch: 'الله أكبر', label: 'الله أكبر' },
+  { ch: 'لا إله إلا الله', label: 'لا إله إلا الله' },
+  { ch: 'أستغفر الله', label: 'أستغفر الله' },
+  { ch: 'لا حول ولا قوة إلا بالله', label: 'لا حول ولا قوة إلا بالله' },
+  { ch: 'صلى الله عليه وسلم', label: 'صلى الله عليه وسلم' },
+  { ch: 'بارك الله فيك', label: 'بارك الله فيك' },
 ];
 
 /** Latin — QWERTY */
@@ -126,6 +141,13 @@ export const SYM_ROWS: KeyDef[][] = [
   row('\u00AB \u00BB \u201C \u201D \u2022 \u00B7 \u2026 \u2013'),
 ];
 
+/** Math & Currency Symbols page */
+export const MATH_ROWS: KeyDef[][] = [
+  row('+ - \u00D7 \u00F7 = \u2260 \u00B1 < > \u221E'),
+  row('\u221A % \u2030 \u00B0 \u03C0 \u2211 \u220F \u222B \u2206 \u2248'),
+  row('\uFDFC \u0024 \u20AC \u00A3 \u00A5 \u20B9 \u20BD \u20BA \u20A1 \u20B1'),
+];
+
 /** Harakat (combining marks) grid */
 export const HARAKAT: KeyDef[] = [
   '\u064E', // fatha
@@ -138,6 +160,8 @@ export const HARAKAT: KeyDef[] = [
   '\u0651', // shadda
   '\u0640', // tatweel
   '\u0653', // madda
+  '\u0670', // dagger alef
+  '\u0654', // hamza above
 ].map((ch) => ({ ch, label: ch === '\u0640' ? 'ـ (تطويل)' : `\u25CC${ch}` }));
 
 export const LAYOUT_ROWS: Record<Exclude<LayoutId, 'harakat' | 'islamic'>, KeyDef[][]> = {
@@ -145,6 +169,7 @@ export const LAYOUT_ROWS: Record<Exclude<LayoutId, 'harakat' | 'islamic'>, KeyDe
   en: EN_ROWS,
   num: NUM_ROWS,
   sym: SYM_ROWS,
+  math: MATH_ROWS,
 };
 
 /** Quick-insert strip: punctuation used constantly while writing Arabic */
@@ -154,8 +179,8 @@ export const isRtlLayout = (id: LayoutId): boolean => id === 'ar' || id === 'har
 
 /**
  * Caret nudges offset calculation.
+ * Moving left moves towards caret decrement or increment depending on text flow direction.
  */
 export const caretDelta = (layout: LayoutId, visual: 'left' | 'right'): number => {
-  const forward = isRtlLayout(layout) ? visual === 'left' : visual === 'right';
-  return forward ? 1 : -1;
+  return visual === 'right' ? 1 : -1;
 };

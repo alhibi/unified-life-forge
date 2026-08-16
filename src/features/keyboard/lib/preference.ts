@@ -6,71 +6,94 @@
  */
 
 export type SoftKeyboardPreference = 'app' | 'system';
-export type KeyboardTheme = 'gboard-dark' | 'gboard-light' | 'oled' | 'luxury-gold' | 'sand';
+export type KeyboardTheme =
+  | 'gboard-dark'
+  | 'gboard-light'
+  | 'oled'
+  | 'luxury-gold'
+  | 'sand'
+  | 'emerald'
+  | 'sapphire';
 export type KeyboardHeight = 'compact' | 'normal' | 'tall' | 'extra-tall';
 export type HapticIntensity = 'off' | 'light' | 'medium' | 'heavy';
 export type DigitType = 'western' | 'eastern'; // '123' vs '١٢٣'
 export type OneHandedMode = 'off' | 'left' | 'right';
+export type SoundTone = 'default' | 'click' | 'mechanical' | 'soft';
+export type ClipboardRetention = 'unlimited' | '1day' | '7days' | '30days' | 'session';
 
 export interface KeyboardSettings {
   preference: SoftKeyboardPreference;
   theme: KeyboardTheme;
   keyHeight: KeyboardHeight;
   showNumberRow: boolean;
+  digitType: DigitType;
   showKeyPressPopup: boolean;
+  holdDelayMs: number;
   soundEnabled: boolean;
   soundVolume: number;
+  soundTone: SoundTone;
   hapticIntensity: HapticIntensity;
-  digitType: DigitType;
+  vibrateOnKeyPress: boolean;
   autoPeriod: boolean;
   autoTashkeel: boolean;
   oneHandedMode: OneHandedMode;
   clipboardEnabled: boolean;
+  clipboardRetention: ClipboardRetention;
   keyBorders: boolean;
-  vibrateOnKeyPress: boolean;
 }
 
 const STORAGE_KEY = 'smarthub:soft-keyboard-settings-v2';
+
+let memorySettings: KeyboardSettings | null = null;
 
 export const DEFAULT_KEYBOARD_SETTINGS: KeyboardSettings = {
   preference: 'app',
   theme: 'gboard-dark',
   keyHeight: 'normal',
-  showNumberRow: false,
+  showNumberRow: true,
+  digitType: 'western',
   showKeyPressPopup: true,
+  holdDelayMs: 280,
   soundEnabled: false,
   soundVolume: 0.5,
+  soundTone: 'default',
   hapticIntensity: 'light',
-  digitType: 'western',
+  vibrateOnKeyPress: true,
   autoPeriod: true,
   autoTashkeel: true,
   oneHandedMode: 'off',
   clipboardEnabled: true,
+  clipboardRetention: 'unlimited',
   keyBorders: true,
-  vibrateOnKeyPress: true,
 };
 
 export function readKeyboardSettings(): KeyboardSettings {
-  if (typeof window === 'undefined') return DEFAULT_KEYBOARD_SETTINGS;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_KEYBOARD_SETTINGS;
-    const parsed = JSON.parse(raw);
-    return { ...DEFAULT_KEYBOARD_SETTINGS, ...parsed };
-  } catch {
-    return DEFAULT_KEYBOARD_SETTINGS;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return { ...DEFAULT_KEYBOARD_SETTINGS, ...JSON.parse(raw) };
+    } catch {
+      /* fallback */
+    }
   }
+  return memorySettings ?? DEFAULT_KEYBOARD_SETTINGS;
 }
 
 export function writeKeyboardSettings(settings: Partial<KeyboardSettings>): KeyboardSettings {
   const current = readKeyboardSettings();
   const next = { ...current, ...settings };
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    /* private browsing fallback */
+  memorySettings = next;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* private browsing fallback */
+    }
   }
-  window.dispatchEvent(new CustomEvent('soft-keyboard-settings-changed', { detail: next }));
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('soft-keyboard-settings-changed', { detail: next }));
+    window.dispatchEvent(new CustomEvent('soft-keyboard-preference', { detail: next.preference }));
+  }
   return next;
 }
 
@@ -90,5 +113,5 @@ export function supportsSoftKeyboard(): boolean {
   if (typeof window === 'undefined') return false;
   const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
   const touch = (navigator.maxTouchPoints ?? 0) > 0;
-  return coarse && touch;
+  return coarse || touch;
 }
