@@ -1,35 +1,90 @@
 /**
- * Whether the app's own keyboard replaces the OS one.
+ * Advanced preferences & configuration store for the Soft Keyboard.
  *
- * Persisted, because a typist who prefers the system keyboard (swipe input,
- * dictation, their own dictionary) must not have to opt out on every field.
+ * Provides persistent settings inspired by Google Keyboard (Gboard), tuned for high-fidelity
+ * Arabic typing experience with themes, haptics, key height, number row, popups, and layout modes.
  */
 
-const KEY = 'smarthub:soft-keyboard';
-
 export type SoftKeyboardPreference = 'app' | 'system';
+export type KeyboardTheme = 'gboard-dark' | 'gboard-light' | 'oled' | 'luxury-gold' | 'sand';
+export type KeyboardHeight = 'compact' | 'normal' | 'tall' | 'extra-tall';
+export type HapticIntensity = 'off' | 'light' | 'medium' | 'heavy';
+export type DigitType = 'western' | 'eastern'; // '123' vs '١٢٣'
+export type OneHandedMode = 'off' | 'left' | 'right';
 
-export function readSoftKeyboardPreference(): SoftKeyboardPreference {
-  if (typeof window === 'undefined') return 'system';
+export interface KeyboardSettings {
+  preference: SoftKeyboardPreference;
+  theme: KeyboardTheme;
+  keyHeight: KeyboardHeight;
+  showNumberRow: boolean;
+  showKeyPressPopup: boolean;
+  soundEnabled: boolean;
+  soundVolume: number;
+  hapticIntensity: HapticIntensity;
+  digitType: DigitType;
+  autoPeriod: boolean;
+  autoTashkeel: boolean;
+  oneHandedMode: OneHandedMode;
+  clipboardEnabled: boolean;
+  keyBorders: boolean;
+  vibrateOnKeyPress: boolean;
+}
+
+const STORAGE_KEY = 'smarthub:soft-keyboard-settings-v2';
+
+export const DEFAULT_KEYBOARD_SETTINGS: KeyboardSettings = {
+  preference: 'app',
+  theme: 'gboard-dark',
+  keyHeight: 'normal',
+  showNumberRow: false,
+  showKeyPressPopup: true,
+  soundEnabled: false,
+  soundVolume: 0.5,
+  hapticIntensity: 'light',
+  digitType: 'western',
+  autoPeriod: true,
+  autoTashkeel: true,
+  oneHandedMode: 'off',
+  clipboardEnabled: true,
+  keyBorders: true,
+  vibrateOnKeyPress: true,
+};
+
+export function readKeyboardSettings(): KeyboardSettings {
+  if (typeof window === 'undefined') return DEFAULT_KEYBOARD_SETTINGS;
   try {
-    return window.localStorage.getItem(KEY) === 'system' ? 'system' : 'app';
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return DEFAULT_KEYBOARD_SETTINGS;
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_KEYBOARD_SETTINGS, ...parsed };
   } catch {
-    return 'app';
+    return DEFAULT_KEYBOARD_SETTINGS;
   }
+}
+
+export function writeKeyboardSettings(settings: Partial<KeyboardSettings>): KeyboardSettings {
+  const current = readKeyboardSettings();
+  const next = { ...current, ...settings };
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    /* private browsing fallback */
+  }
+  window.dispatchEvent(new CustomEvent('soft-keyboard-settings-changed', { detail: next }));
+  return next;
+}
+
+/** Legacy support wrappers for backward compatibility */
+export function readSoftKeyboardPreference(): SoftKeyboardPreference {
+  return readKeyboardSettings().preference;
 }
 
 export function writeSoftKeyboardPreference(value: SoftKeyboardPreference): void {
-  try {
-    window.localStorage.setItem(KEY, value);
-  } catch {
-    /* private mode — the session default still applies */
-  }
-  window.dispatchEvent(new CustomEvent('soft-keyboard-preference', { detail: value }));
+  writeKeyboardSettings({ preference: value });
 }
 
 /**
- * The app keyboard is a touch surface. On a device with a real keyboard the OS
- * input path is strictly better, so we never take it over there.
+ * Checks if device supports touch soft keyboard.
  */
 export function supportsSoftKeyboard(): boolean {
   if (typeof window === 'undefined') return false;
