@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { BookOpen, CheckCircle, Crown, Lock, ShieldAlert, Sparkles } from '@/lib/icons';
+import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS } from '../types';
 import { ShelfCard } from '../components/ShelfCard';
@@ -12,16 +12,13 @@ export const GermanClubHome: React.FC = () => {
   const navigate = useNavigate();
   const {
     shelves,
-    isEntitled,
     isLoadingShelves,
     fetchShelves,
-    checkEntitlement,
   } = useGermanClubStore();
 
   useEffect(() => {
     fetchShelves();
-    checkEntitlement();
-  }, [fetchShelves, checkEntitlement]);
+  }, [fetchShelves]);
 
   return (
     <PageShell centered={false} flush>
@@ -75,7 +72,7 @@ export const GermanClubHome: React.FC = () => {
           <div className="max-w-4xl mx-auto text-center space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>مكتبة القراءة الخاصة بالألمانية</span>
+              <span>مكتبة القراءة المجانية والمتاحة للجميع</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-extrabold text-[#17181C] tracking-tight leading-tight">
@@ -86,21 +83,6 @@ export const GermanClubHome: React.FC = () => {
               رفوف مرتبة بالحالات اليومية — من طلب القهوة إلى مواقف العمل والقطارات.
               مع توضيح أجناس الأسماء بالألوان وتفكيك الأفعال المنفصلة حركةً.
             </p>
-
-            {/* Membership Status Badge */}
-            <div className="pt-2 flex justify-center">
-              {isEntitled ? (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-emerald-900/10 text-emerald-900 border border-emerald-800/30 text-xs font-semibold">
-                  <CheckCircle className="w-4 h-4 text-emerald-600" />
-                  <span>عضوية النادي مفعلة بالكامل</span>
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-950/10 text-amber-950 border border-amber-800/30 text-xs font-semibold">
-                  <Lock className="w-4 h-4 text-amber-700" />
-                  <span>وضع المعاينة المجانية (1–2 عناصر مفتوحة لكل رف)</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
