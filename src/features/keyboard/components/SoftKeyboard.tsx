@@ -86,6 +86,8 @@ const Key = memo(function Key({
   const timers = useRef<{ start?: number; repeat?: number }>({});
   const [isPressed, setIsPressed] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [hoverVariant, setHoverVariant] = useState<string | null>(null);
+  const popupOpenRef = useRef(false);
 
   const clear = useCallback(() => {
     if (timers.current.start) window.clearTimeout(timers.current.start);
@@ -93,9 +95,18 @@ const Key = memo(function Key({
     timers.current = {};
     setIsPressed(false);
     setShowPopup(false);
+    setHoverVariant(null);
+    popupOpenRef.current = false;
   }, []);
 
   useEffect(() => clear, [clear]);
+
+  /** Variant under the given viewport point, if the finger is over the popup. */
+  const variantAt = useCallback((x: number, y: number) => {
+    const node = document.elementFromPoint(x, y);
+    const hit = (node as HTMLElement | null)?.closest?.('[data-kb-variant]');
+    return hit?.getAttribute('data-kb-variant') ?? null;
+  }, []);
 
   return (
     <div className="relative flex min-w-0" style={{ flexGrow: span, flexBasis: 0 }}>
@@ -104,6 +115,7 @@ const Key = memo(function Key({
         <KeyPopup
           label={label ?? ''}
           popups={showPopup ? popups : undefined}
+          activeVariant={hoverVariant}
           onSelectPopup={(ch) => {
             if (onPopupSelect) onPopupSelect(ch);
             else onPress();
@@ -124,6 +136,7 @@ const Key = memo(function Key({
 
           timers.current.start = window.setTimeout(() => {
             if (popups && popups.length > 0) {
+              popupOpenRef.current = true;
               setShowPopup(true);
             } else if (onHold) {
               onHold();
@@ -131,8 +144,26 @@ const Key = memo(function Key({
             }
           }, HOLD_START_MS);
         }}
-        onPointerUp={clear}
-        onPointerLeave={clear}
+        onPointerMove={(event) => {
+          if (!popupOpenRef.current) return;
+          setHoverVariant(variantAt(event.clientX, event.clientY));
+        }}
+        onPointerUp={(event) => {
+          // The pointer stays captured by this key, so the popup buttons never
+          // receive their own pointerdown: resolve the selection by hit-test.
+          if (popupOpenRef.current) {
+            const variant = variantAt(event.clientX, event.clientY);
+            if (variant) {
+              if (onPopupSelect) onPopupSelect(variant);
+              if (vibrate) haptics('selection');
+            }
+          }
+          clear();
+        }}
+        onPointerLeave={() => {
+          // Sliding up toward the popup must not cancel the interaction.
+          if (!popupOpenRef.current) clear();
+        }}
         onPointerCancel={clear}
         onContextMenu={(event) => event.preventDefault()}
         className={cn(
@@ -486,7 +517,11 @@ export default function SoftKeyboard({
                     layout === 'harakat' && 'text-[1.375rem]',
                   )}
                   onPress={() => emit(key)}
-                  onPopupSelect={(ch) => onInsert(ch)}
+                  onPopupSelect={(ch) => {
+                    // The base character was inserted on press: swap it out.
+                    onBackspace();
+                    onInsert(ch);
+                  }}
                   onHold={key.alt && key.alt !== key.ch ? () => onInsert(key.alt as string) : undefined}
                 />
               ))}
