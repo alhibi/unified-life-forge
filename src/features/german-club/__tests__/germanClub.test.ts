@@ -1,7 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { GENDER_COLORS, GERMAN_CLUB_TOKENS, GermanEntrySchema, GermanGender } from '../types';
+import { GENDER_COLORS, GERMAN_CLUB_TOKENS, GermanEntrySchema } from '../types';
+import { useGermanClubStore } from '../useGermanClubStore';
 
 describe('German Club Feature Unit Tests', () => {
+  describe('Situational Taxonomy & Store Initial Fallbacks', () => {
+    it('should have a rich fallback taxonomy with at least 25 shelves', () => {
+      const state = useGermanClubStore.getState();
+      expect(state.shelves.length).toBeGreaterThanOrEqual(25);
+    });
+
+    it('should include core macro-domain shelves like burgeramt-anmeldung and coffee-bakery', () => {
+      const state = useGermanClubStore.getState();
+      const slugs = state.shelves.map((s) => s.slug);
+      expect(slugs).toContain('coffee-bakery');
+      expect(slugs).toContain('burgeramt-anmeldung');
+      expect(slugs).toContain('public-transport');
+      expect(slugs).toContain('denglisch-loanwords');
+    });
+
+    it('should include full Elite Grammar Corner topics in fallback state', () => {
+      const state = useGermanClubStore.getState();
+      expect(state.grammarNotes.length).toBeGreaterThanOrEqual(7);
+      const titles = state.grammarNotes.map((g) => g.title_ar);
+      expect(titles.some((t) => t.includes('أدوات التلطيف'))).toBe(true);
+      expect(titles.some((t) => t.includes('Sie و Du'))).toBe(true);
+      expect(titles.some((t) => t.includes('الأصدقاء المزيفون'))).toBe(true);
+    });
+  });
+
   describe('Gender Color Tokens', () => {
     it('should map der/die/das to the exact signature color tokens', () => {
       expect(GENDER_COLORS.der).toBe(GERMAN_CLUB_TOKENS.derBlue);

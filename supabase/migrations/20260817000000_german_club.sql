@@ -133,13 +133,71 @@ CREATE INDEX IF NOT EXISTS idx_german_entries_review ON public.german_club_entri
 CREATE INDEX IF NOT EXISTS idx_german_grammar_review ON public.german_club_grammar_notes(review_status);
 
 -- Seed Data: Initial Reviewed Shelves
+-- Seed Data: Complete Situational Taxonomy Shelves (~38 Shelves across 11 Life Domains)
 INSERT INTO public.german_club_shelves (slug, title_ar, title_de, description_ar, situation_tags, icon, sort_order, is_premium) VALUES
-('cafe-and-bakery', 'في المقهى والمخبز', 'Im Café & in der Bäckerei', 'طلب القهوة، السؤال عن الفاتورة، والمفردات اليومية في المقاهي الألمانية', ARRAY['coffee', 'bakery', 'ordering'], 'Coffee', 1, false),
-('trains-and-transport', 'القطارات والمواصلات', 'Zug & Nahverkehr', 'التعامل مع تأخير القطارات (Deutsche Bahn) والتنقّل اليومي', ARRAY['train', 'db', 'transport'], 'Train', 2, false),
-('roommates-and-housing', 'السكن والزملاء (WG)', 'Wohnung & WG-Leben', 'المحادثات والنقاشات اليومية مع الشركاء في السكن', ARRAY['housing', 'wg', 'roommate'], 'Home', 3, true),
-('flirting-and-dating', 'التودد والتعارف', 'Flirten & Smalltalk', 'عبارات التعارف والحديث العفوي الأنيق', ARRAY['social', 'chat', 'dating'], 'Heart', 4, true),
-('bureaucracy-and-office', 'الدوائر الرسمية والأوراق', 'Amt & Bürokratie', 'عبارات المعاملات الرسمية والمواعيد الألمانية', ARRAY['office', 'forms', 'official'], 'FileText', 5, true)
-ON CONFLICT (slug) DO NOTHING;
+-- أ. الأساسيات اليومية (Daily-Life Basics)
+('coffee-bakery', 'في المقهى والمخبز', 'Bäckerei & Café', 'طلب القهوة والخبز الصباحي والحديث مع العامل', ARRAY['coffee', 'bakery', 'cafe', 'breakfast'], 'Coffee', 1, false),
+('weather-smalltalk', 'حديث الطقس الدائم', 'Wetter & Smalltalk', 'الطقس كموضوع حديث افتتاحي لا غنى عنه مع الألمان', ARRAY['weather', 'smalltalk', 'daily'], 'Sun', 2, false),
+('numbers-time', 'الأرقام والوقت والمواعيد', 'Zahlen & Uhrzeit', 'التعبير عن الوقت والتأريخ وتحديد المواعيد', ARRAY['time', 'numbers', 'appointments'], 'Clock', 3, false),
+('public-transport', 'المواصلات والقطارات', 'ÖPNV & Deutsche Bahn', 'التنقل اليومي وطرفات تأخير قطارات DB القومية', ARRAY['train', 'bus', 'transit', 'db'], 'Train', 4, false),
+('groceries-supermarket', 'التسوق ونظام الـ Pfand', 'Supermarkt & Pfand System', 'شراء المواد الغذائية، تدوير القوارير، وثقافة السوبرماركت', ARRAY['groceries', 'recycling', 'pfand', 'shopping'], 'ShoppingBag', 5, false),
+('texting-abbreviations', 'اختصارات الرسائل والدردشة', 'SMS-Kürzel & Texting', 'اختصارات الكتابة السريعة مثل LG, VG, WG, mfg', ARRAY['chat', 'slang', 'texting'], 'MessageSquare', 6, false),
+
+-- ب. البيروقراطية (German Bureaucracy)
+('burgeramt-anmeldung', 'تسجيل العنوان (Anmeldung)', 'Bürgeramt & Anmeldung', 'كابوس حجز الموعد وتأكيد العنوان في الدائرة الحكومية', ARRAY['anmeldung', 'bureaucracy', 'cityhall'], 'FileCheck', 7, true),
+('bank-insurance', 'البنك والتأمين الصحي', 'Bank & Krankenkasse', 'فتح حساب بنكي واختيار التأمين الصحي المناسب', ARRAY['bank', 'insurance', 'finance'], 'CreditCard', 8, true),
+('post-parcels', 'البريد والطرود', 'Post & Pakete', 'استلام الطرود والتعامل مع مكتب البريد DHL', ARRAY['post', 'packages', 'dhl'], 'Package', 9, true),
+('taxes-basics', 'أساسيات الضرائب', 'Steuererklärung Basics', 'مصطلحات إقرار الضريبة والإعفاءات المالية', ARRAY['taxes', 'finance', 'official'], 'Receipt', 10, true),
+
+-- ج. السكن ورفقاء السكن (Housing & WG Life)
+('apartment-hunting', 'البحث عن سكن', 'Wohnungssuche', 'قراءة الإعلانات ومراسلة أصحاب العقارات', ARRAY['housing', 'rent', 'flat'], 'Home', 11, true),
+('wg-casting', 'مقابلة السكن المشترك (WG-Casting)', 'WG-Casting & Interview', 'التألق في مقابلة الانضمام لشقة مشتركة للشباب', ARRAY['wg', 'flatshare', 'social'], 'Users', 12, true),
+('roommate-conflict', 'خلافات السكن والمهام', 'Putzplan & WG-Miteinander', 'تقسيم التنظيف والتعامل الودي مع خلافات الرفقاء', ARRAY['roommates', 'cleaning', 'conflict'], 'ShieldAlert', 13, true),
+('landlord-rent', 'صاحب البيت والـ Nebenkosten', 'Vermieter & Nebenkosten', 'فهم تكاليف التدفئة والخدمات والتواصل مع المؤجر', ARRAY['landlord', 'rent', 'utilities'], 'Key', 14, true),
+
+-- د. الجامعة والشغل (University & Work)
+('job-application', 'التقديم على وظيفة', 'Bewerbung & Vorstellungsgespräch', 'صياغة عبارات السيرة الذاتية والمقابلة', ARRAY['job', 'career', 'interview'], 'Briefcase', 15, true),
+('office-email-etiquette', 'إتيكيت الإيميل الرسمي', 'E-Mail Knigge & Sie/Du', 'الاحترافية في الرسائل والتحول بين Sie و Du', ARRAY['email', 'office', 'formal'], 'Mail', 16, true),
+('university-exams', 'الجامعة والامتحانات', 'Uni, Studium & Ausbildung', 'مصطلحات المحاضرات والمقاعد الدراسية والتدريب', ARRAY['university', 'study', 'exams'], 'GraduationCap', 17, true),
+('sick-leave', 'الإجازة المرضية (Krankschreibung)', 'Krankmeldung & Attest', 'الإبلاغ عن المرض عند رب العمل والحصول على التقرير', ARRAY['sickleave', 'doctor', 'work'], 'Stethoscope', 18, true),
+
+-- هـ. الطعام والمطاعم (Food Beyond Basics)
+('restaurant-etiquette', 'إتيكيت المطاعم والبقشيش', 'Restaurant & Trinkgeld', 'طلب الوجبات وثقافة البقشيش (Trinkgeld) الألمانية', ARRAY['food', 'restaurant', 'tipping'], 'Utensils', 19, true),
+('food-delivery-apps', 'تطبيقات توصيل الطعام', 'Lieferdienste & Apps', 'الطلب عبر التطبيقات والملاحظات للسائق', ARRAY['delivery', 'takeaway', 'apps'], 'Truck', 20, true),
+('dietary-needs', 'القيود الغذائية (حلال والنباتي)', 'Halal, Vegan & Allergien', 'التعبير بدقة عن الطعام الحلال، الحساسية، والحمية', ARRAY['halal', 'vegan', 'allergies'], 'Leaf', 21, true),
+
+-- و. الخروج والحياة الليلية (Going Out)
+('bar-club-phrases', 'عبارات الخروج والمقاهي', 'Bar & Ausgehen', 'طلب المشروبات والتحدث في الأماكن الاجتماعية', ARRAY['bar', 'nightlife', 'social'], 'GlassWater', 22, true),
+('spati-latenight', 'ثقافة الـ Späti السريعة', 'Späti-Kultur', 'الشراء السريع ليلاً من دكان المتجر المحلي', ARRAY['spati', 'latenight', 'berlin'], 'Store', 23, true),
+('catching-last-train', 'اللحاق بآخر قطار (Nachtbus)', 'Nachtbus & Letzte Bahn', 'العبارات الطارئة عند فوات القطار الأخير', ARRAY['nightbus', 'transport', 'late'], 'Moon', 24, true),
+
+-- ز. العلاقات (Relationships)
+('flirting-basics', 'التودد والتعارف العفوي', 'Flirten & Charmante Worte', 'عبارات التعارف الأنيقة بأسلوب محترم وعصري', ARRAY['flirting', 'dating', 'social'], 'Heart', 25, true),
+('dating-apps', 'مصطلحات تطبيقات التعارف', 'Dating-Apps & Chat', 'مفردات المحادثات الرقمية الحديثة', ARRAY['dating', 'chat', 'modern'], 'Smartphone', 26, true),
+('arguing-partner', 'نقاش الخلافات بودّ', 'Meinungsverschiedenheiten', 'التعبير عن وجهة النظر بحكمة عند الخلاف', ARRAY['relationship', 'discussion', 'empathy'], 'MessageCircle', 27, true),
+('meeting-family', 'لقاء عائلة الشريك', 'Familie kennenlernen', 'عبارات الاحترام والمجاملة عند زيارة العائلة', ARRAY['family', 'etiquette', 'respect'], 'Smile', 28, true),
+
+-- ح. الصحة والطوارئ (Health & Emergencies)
+('doctor-visit', 'زيارة الطبيب ووصف الأعراض', 'Arztbesuch & Symptome', 'شرح الآلام والأعراض بوضوح للدكتور', ARRAY['doctor', 'health', 'symptoms'], 'Activity', 29, true),
+('pharmacy', 'في الصيدلية', 'Apotheke & Medikamente', 'طلب الأدوية بدون وصفة وشرح التعليمات', ARRAY['pharmacy', 'medicine', 'health'], 'Pill', 30, true),
+('emergency-calls', 'طوارئ 112 والإسعاف', 'Notruf 112 & Erste Hilfe', 'ماذا تقول بالضبط للأسعاف والإطفاء في الطوارئ', ARRAY['emergency', '112', 'firstaid'], 'AlertTriangle', 31, true),
+
+-- ط. مزاج جيل زد (Gen-Z Mood & Internet Culture)
+('denglisch-loanwords', 'الإنجليزية المدمجة (Denglisch)', 'Denglisch & Modewörter', 'كلمات مثل chillen, Date, cringe, Location', ARRAY['denglisch', 'genz', 'slang'], 'Sparkles', 32, true),
+('internet-slang-memes', 'عامية الإنترنت والميمز', 'Internet-Slang & Memes', 'التعبير بلغة منصات التواصل والميمز الألمانية', ARRAY['internet', 'memes', 'slang'], 'Globe', 33, true),
+('venting-frustration', 'التعبير عن الانزعاج اليومي', 'Frust & Alltagssprüche', 'عبارات التذمر اليومي الخفيفة (موسومة بـ Slang)', ARRAY['frustration', 'slang', 'emotions'], 'Frown', 34, true),
+('sarcasm-dry-humor', 'السخرية والفكاهة الجافة', 'Sarkasmus & Trockener Humor', 'فهم الفكاهة الألمانية الجافة الذكية', ARRAY['humor', 'sarcasm', 'culture'], 'Laugh', 35, true),
+
+-- ي. الثقافة والمناسبات (Culture & Seasonal)
+('holidays-traditions', 'الأعياد والتقاليد', 'Feste & Traditionen', 'مصطلحات أسواق الميلاد والاحتفالات التقليدية', ARRAY['holidays', 'traditions', 'festivals'], 'Gift', 36, true),
+('regional-awareness', 'اللهجات والفروق الإقليمية', 'Dialekte & Regionen', 'نظرة سريعة على اللهجة البافارية والنمساوية والسويسرية', ARRAY['dialects', 'regional', 'accents'], 'MapPin', 37, true)
+ON CONFLICT (slug) DO UPDATE SET
+  title_ar = EXCLUDED.title_ar,
+  title_de = EXCLUDED.title_de,
+  description_ar = EXCLUDED.description_ar,
+  situation_tags = EXCLUDED.situation_tags,
+  icon = EXCLUDED.icon,
+  sort_order = EXCLUDED.sort_order;
 
 -- Seed Data: Initial Reviewed Entries
 DO $$
@@ -193,6 +251,7 @@ BEGIN
 END $$;
 
 -- Seed Data: Initial Grammar Notes (زاوية القواعد)
+-- Seed Data: Elite Grammar Corner Topics (زاوية القواعد النخبوية)
 INSERT INTO public.german_club_grammar_notes (title_ar, title_de, body_md, difficulty_level, review_status, sort_order) VALUES
 ('أدوات التعريف الثلاث (Der, Die, Das)', 'Die bestimmten Artikel', 'في اللغة الألمانية توجد ثلاثة أجناس للأسماء عكس العربية التي فيها جنسين فقط:
 
@@ -200,11 +259,50 @@ INSERT INTO public.german_club_grammar_notes (title_ar, title_de, body_md, diffi
 2. **Die** (المؤنث - الوردي الناعم): مثل *die Rechnung* (الفاتورة)، *die Fahrkarte* (التذكرة).
 3. **Das** (المحايد - الرمادي الدافيء): مثل *das Wasser* (الماء).
 
-تذكر دائماً أن تحفظ الاسم مع أداته ولونه المخصص!', 'A1', 'verified', 1),
+تذكر دائماً أن تحفظ الاسم مع أداته ولونه المخصص في النادي!', 'A1', 'verified', 1),
+
 ('الأفعال المنفصلة (Trennbare Verben)', 'Trennbare Verben im Satz', 'تتميز العديد من الأفعال الألمانية بوجود بادئة (Prefix) تنفصل عن الفعل الرئيسي في الجملة البسيطة وتذهب إلى نهاية الجملة تماماً!
 
 مثال مع الفعل **aufstehen** (يستيقظ - البادئة `auf`):
 - *Ich **stehe** um sieben Uhr **auf**.* (أنا أستيقظ الساعة السابعة).
 
-لاحظ كيف يحل الجزء الأساسي (*stehe*) في الموقع الثاني للجملة، بينما تقفز البادئة (*auf*) إلى نهاية الجملة.', 'A1', 'verified', 2)
+لاحظ كيف يحل الجزء الأساسي (*stehe*) في الموقع الثاني للجملة، بينما تقفز البادئة (*auf*) إلى نهاية الجملة.', 'A1', 'verified', 2),
+
+('أدوات التلطيف السحرية (Modalpartikeln)', 'Abtönungspartikeln (doch, mal, halt, eben, ja, denn)', 'كلمات التلطيف والنبرة السحرية التي تجعلك تبدو كمتحدث أصلي:
+- **doch**: للتأكيد أو التلطيف (*Komm doch rein!* — تفضل بالدخول!).
+- **mal**: للطف والأمر الخفيف (*Guck mal!* — انظر لحظة!).
+- **halt / eben**: للتعبير عن أمر واقع لا مفر منه (*Es ist halt so.* — الواقع هكذا!).
+- **ja**: للتعجب أو حقيقة معروفة للجميع (*Das ist ja super!*).
+- **denn**: في الأسئلة لإظهار الاهتمام (*Was machst du denn?*).', 'B1', 'verified', 3),
+
+('قواعد Sie و Du والإتيكيت الاجتماعي', 'Sie vs. Du & Das Du anbieten', 'الفرق الاجتماعي الدقيق بين الرسمية والودية:
+- **Sie**: تستخدم مع الغرباء، كبار السن، والمسؤولين في الدوائر والعمل.
+- **Du**: تستخدم مع الأصدقاء، زملاء الدراسة، والأطفال.
+- **الانتقال (Das Du anbieten)**: يحدث عادة عندما يعرض الشخص الأكبر سنًا أو الأقدم مقامًا في العمل استخدام "Du" عبر عبارة: *Wir können uns gerne duzen.*', 'A2', 'verified', 4),
+
+('الأصدقاء المزيفون بين الألمانية والإنجليزية', 'Falsche Freunde (English & German)', 'كلمات تتشابه نطقاً مع الإنجليزية لكن معناها مختلف تماماً:
+- **Gift**: تعني **سُم** في الألمانية وليس هدية!
+- **Rat**: تعني **نصيحة** وليس جرذاً!
+- **Chef**: تعني **مدير العمل** وليس طباخاً!
+- **bekommen**: تعني **يحصل على** وليس يصبح (*become*)!', 'A2', 'verified', 5),
+
+('الحالات الإعرابية الأربع (Cases Quick-Reference)', 'Kasus: Nominativ, Akkusativ, Dativ, Genitiv', 'ملخص الحالات الإعرابية البسيط:
+1. **Nominativ (الرفع)**: الفاعل الأصلي (*Der Hund bellt*).
+2. **Akkusativ (النصب)**: المفعول به المباشر (*Ich sehe den Hund*).
+3. **Dativ (الجر)**: المفعول به غير المباشر أو بعد حروف جر معينة (*Ich gebe dem Hund das Essen*).
+4. **Genitiv (الإضافة)**: الملكية والإضافة (*Das Halsband des Hundes*).', 'B1', 'verified', 6),
+
+('مصايد النطق والأصوات الخاصة', 'Aussprache & Vokale (ü, ö, ä, ch, ß)', 'مفاتيح النطق الألماني الصحيح:
+- **ü / ö / ä**: حروف الإمالة الصوتية (Umlaut).
+- **ch**: ينطق كالشين الخفيفة بعد e/i (*ich*) وكالخاء بعد a/o/u (*auch*).
+- **ß**: ينطق كسين مشددة صريحة (ss).
+- **تسكين أواخر الحروف**: الحرف b في نهاية الكلمة ينطق كـ p القريبة (*ab* -> *ap*).', 'A1', 'verified', 7),
+
+('ترتيب الكلمات في الجملة (Word Order Rules)', 'Satzbau: Verb an Position 2', 'القاعدة الذهبية للجملة الألمانية:
+- **الفعل المصرف يقع دائماً في الموقع الثاني (Position 2)** في الجملة الرئيسية (*Heute **gehe** ich zum Arzt*).
+- **في الجمل الفرعية (weil, dass, wenn)**: يقفز الفعل المصرف إلى نهاية الجملة تماماً (*... weil ich krank **bin**.*).', 'A2', 'verified', 8),
+
+('منطق الكلمات المركبة العجيبة', 'Komposita Logik (Handschuh & Kummerspeck)', 'مرونة اللغة الألمانية في دمج الكلمات لخلق معاني جديدة دقيقة:
+- **Handschuh** = Hand (يد) + Schuh (حذاء) = **قفاز**!
+- **Kummerspeck** = Kummer (حزن) + Speck (دهن) = **الوزن الزائد من الأكل بسبب الحزن**!', 'B1', 'verified', 9)
 ON CONFLICT DO NOTHING;
