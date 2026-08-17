@@ -517,7 +517,11 @@ export default function SoftKeyboard({
                     layout === 'harakat' && 'text-[1.375rem]',
                   )}
                   onPress={() => emit(key)}
-                  onPopupSelect={(ch) => onInsert(ch)}
+                  onPopupSelect={(ch) => {
+                    // The base character was inserted on press: swap it out.
+                    onBackspace();
+                    onInsert(ch);
+                  }}
                   onHold={key.alt && key.alt !== key.ch ? () => onInsert(key.alt as string) : undefined}
                 />
               ))}
