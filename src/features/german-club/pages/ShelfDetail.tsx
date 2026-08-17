@@ -4,14 +4,21 @@ import { PageShell } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { BookOpen, Sparkles } from '@/lib/icons';
+import { useAdmin } from '@/hooks/useAdmin';
+import { supabase } from '@/integrations/supabase/client';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { EntryCard } from '../components/EntryCard';
+import { GenerationModal } from '../components/GenerationModal';
 
 export const ShelfDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [filterRegister, setFilterRegister] = useState<GermanRegister | 'all'>('all');
+  const [isGenerationModalOpen, setIsGenerationModalOpen] = useState<boolean>(false);
+  const [activeJobStatus, setActiveJobStatus] = useState<string | null>(null);
+
+  const { isAdmin } = useAdmin();
 
   const {
     currentShelf,
@@ -26,6 +33,48 @@ export const ShelfDetail: React.FC = () => {
       fetchShelfEntries(slug);
     }
   }, [slug, fetchShelfEntries]);
+
+  // Check if there is an active job running for this shelf
+  useEffect(() => {
+    if (!isAdmin || !currentShelf?.id) return;
+
+    const checkRunningJob = async () => {
+      const { data } = await supabase
+        .from('content_generation_jobs')
+        .select('status')
+        .eq('shelf_id', currentShelf.id)
+        .in('status', ['queued', 'running'])
+        .maybeSingle();
+
+      if (data) {
+        setActiveJobStatus(data.status);
+      } else {
+        setActiveJobStatus(null);
+      }
+    };
+
+    void checkRunningJob();
+
+    const channel = supabase
+      .channel(`shelf_jobs_${currentShelf.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'content_generation_jobs',
+          filter: `shelf_id=eq.${currentShelf.id}`,
+        },
+        () => {
+          void checkRunningJob();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [isAdmin, currentShelf?.id]);
 
   const filteredEntries = entries.filter((e) => {
     if (filterRegister === 'all') return true;
@@ -64,27 +113,55 @@ export const ShelfDetail: React.FC = () => {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate('/german-club/grammar')}
-            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
-          >
-            <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
-            زاوية القواعد
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Admin-only Burning Ember "D" Button */}
+            {isAdmin && currentShelf && (
+              <button
+                type="button"
+                onClick={() => setIsGenerationModalOpen(true)}
+                title="تأليث وتزويد الرف بالذكاء الاصطناعي (أداة المشرف)"
+                className="w-8 h-8 rounded-full border border-[#C9703B]/40 bg-[#C9703B]/10 hover:bg-[#C9703B]/20 transition-colors flex items-center justify-center relative group"
+              >
+                <span className="font-bold text-sm text-[#C9703B] motion-safe:animate-pulse">
+                  D
+                </span>
+                {activeJobStatus && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-stone-100 animate-ping" />
+                )}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => navigate('/german-club/grammar')}
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
+              زاوية القواعد
+            </button>
+          </div>
         </div>
 
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
           {/* Header Info Block */}
           {currentShelf && (
             <div className="space-y-2 border-b border-stone-300/60 pb-5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#17324D] bg-[#17324D]/10 px-2.5 py-1 rounded-md">
-                  مواقف حية
-                </span>
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
-                  محتوى متاح للجميع
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-[#17324D] bg-[#17324D]/10 px-2.5 py-1 rounded-md">
+                    مواقف حية
+                  </span>
+                  <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
+                    محتوى متاح للجميع
+                  </span>
+                </div>
+
+                {activeJobStatus && (
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#C9703B] bg-[#C9703B]/10 px-2.5 py-1 rounded-md border border-[#C9703B]/20">
+                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                    <span>توليد قيد التشغيل...</span>
+                  </div>
+                )}
               </div>
               <p className="text-sm text-stone-600 leading-relaxed">
                 {currentShelf.description_ar}
@@ -141,6 +218,17 @@ export const ShelfDetail: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* In-App Admin Generation Modal */}
+        {currentShelf && (
+          <GenerationModal
+            shelfId={currentShelf.id}
+            shelfTitleAr={currentShelf.title_ar}
+            shelfTitleDe={currentShelf.title_de}
+            isOpen={isGenerationModalOpen}
+            onClose={() => setIsGenerationModalOpen(false)}
+          />
+        )}
       </div>
     </PageShell>
   );
