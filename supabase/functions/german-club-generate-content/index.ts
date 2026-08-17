@@ -30,6 +30,7 @@ serve(async (req) => {
 
   let body: {
     shelf_slug?: string;
+    content_type?: "entry" | "grammar_note";
     situation_brief?: string;
     count?: number;
     difficulty_level?: string;
@@ -40,39 +41,56 @@ serve(async (req) => {
     return jsonResponse({ error: "Invalid JSON body" }, 400);
   }
 
+  const contentType = body.content_type === "grammar_note" ? "grammar_note" : "entry";
   const shelfSlug = typeof body.shelf_slug === "string" ? body.shelf_slug.trim() : "";
   const situationBrief = typeof body.situation_brief === "string" ? body.situation_brief.trim() : "";
   const count = Math.min(Math.max(typeof body.count === "number" ? body.count : 5, 1), 20);
   const difficultyLevel = typeof body.difficulty_level === "string" ? body.difficulty_level.trim() : "A1";
 
-  if (!shelfSlug) return jsonResponse({ error: "shelf_slug_required" }, 400);
+  if (contentType === "entry" && !shelfSlug) return jsonResponse({ error: "shelf_slug_required" }, 400);
 
   const db = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Look up shelf
-  const { data: shelf, error: shelfErr } = await db
-    .from("german_club_shelves")
-    .select("id, title_ar, title_de")
-    .eq("slug", shelfSlug)
-    .maybeSingle();
+  let shelf: { id: string; title_ar: string; title_de: string | null } | null = null;
+  if (shelfSlug) {
+    const { data: shelfData, error: shelfErr } = await db
+      .from("german_club_shelves")
+      .select("id, title_ar, title_de")
+      .eq("slug", shelfSlug)
+      .maybeSingle();
 
-  if (shelfErr || !shelf) {
-    return jsonResponse({ error: "shelf_not_found" }, 404);
+    if (shelfErr || !shelfData) {
+      if (contentType === "entry") return jsonResponse({ error: "shelf_not_found" }, 404);
+    } else {
+      shelf = shelfData;
+    }
   }
 
-  const promptMessages = [
+  const systemPrompt = contentType === "grammar_note"
+    ? `You are generating etymology, cultural trivia, and grammar notes for "النادي الألماني," a premium German-learning section inside an Arabic-first app. Your output is reviewed by a human before it ever reaches a real user — your job is accuracy and authenticity.
+
+Output MUST be strict JSON with a "notes" key containing an array of objects matching this exact shape:
+{
+  "notes": [
     {
-      role: "system" as const,
-      content: `You are generating vocabulary content for "النادي الألماني," a premium German-learning section inside an Arabic-first app. Your output is reviewed by a human before it ever reaches a real user — your job is accuracy and authenticity, not speed.
+      "title_ar": "string",
+      "title_de": "string or null",
+      "body_md": "string in Markdown detailing etymology, linguistic trivia, or grammar explanations",
+      "difficulty_level": "${difficultyLevel}",
+      "confidence": number
+    }
+  ]
+}`
+    : `You are generating vocabulary content for "النادي الألماني," a premium German-learning section inside an Arabic-first app. Your output is reviewed by a human before it ever reaches a real user — your job is accuracy and authenticity, not speed.
 
 Editorial Guardrails (strict enforcement):
 1. Accuracy over volume: Only include German you are confident is genuinely used by native speakers in this situation — do not pad the count with textbook-stiff phrases nobody actually says. If you are not confident, set confidence low (< 0.7) and skip embellishing it.
 2. Zero hallucinated gender: Get grammatical gender right every single time ("der", "die", "das", "plural", or "n_a"). If uncertain, set confidence below 0.7 rather than guessing.
 3. Register tagging is mandatory: Tag register honestly as "formal", "neutral", "informal", or "slang".
-4. Swearing/profanity policy: Mild venting/frustration expressions (daily-life annoyance) are acceptable ONLY with register "slang" and high accuracy; do NOT generate strong profanity or vulgarity.
+4. Swearing/profanity policy: Tag severity honestly as mild/medium/strong. Do not soften real usage, but do not generate slurs targeting race, religion, sexuality, or disability under any framing.
 5. Mixed entry types: Mix entry types — include a realistic balance of "word", "phrase", "sentence", and "idiom".
 6. Separable verbs: For separable verbs (is_separable_verb: true), specify separable_prefix and ensure the example sentence demonstrates proper V2/end-of-clause separation (e.g., "Ich stehe um sieben Uhr auf.").
 7. Real-life example sentences: Every example sentence must be a sentence a real native speaker would say, translated into natural, polished Arabic for mobile display.
@@ -95,11 +113,19 @@ Output MUST be strict JSON with an "entries" key containing an array of objects 
       "confidence": number
     }
   ]
-}`,
+}`;
+
+  const promptMessages = [
+    {
+      role: "system" as const,
+      content: systemPrompt,
     },
     {
       role: "user" as const,
-      content: `Generate ${count} entries at difficulty level ${difficultyLevel} for shelf: "${shelf.title_ar}" (${shelf.title_de ?? shelfSlug}).
+      content: contentType === "grammar_note"
+        ? `Generate ${count} etymology/trivia/grammar notes at difficulty level ${difficultyLevel}.
+Brief context: ${situationBrief || "Etymology, loanwords, or linguistic stories in German"}.`
+        : `Generate ${count} entries at difficulty level ${difficultyLevel} for shelf: "${shelf?.title_ar}" (${shelf?.title_de ?? shelfSlug}).
 Situation Context Brief: ${situationBrief || "Realistic daily-life German situations for this shelf"}.`,
     },
   ];
@@ -111,57 +137,97 @@ Situation Context Brief: ${situationBrief || "Realistic daily-life German situat
       maxTokens: 2500,
     });
 
-    const parsed = safeJson<{ entries: GeneratedEntry[] }>(aiResult.text);
-    if (!parsed || !Array.isArray(parsed.entries) || parsed.entries.length === 0) {
-      return jsonResponse({ error: "Failed to parse generated JSON", raw: aiResult.text }, 500);
-    }
-
-    const rowsToInsert = parsed.entries.map((item, idx) => {
-      const confidence = typeof item.confidence === "number" ? item.confidence : 0.8;
-      if (confidence < 0.85) {
-        console.warn(
-          JSON.stringify({
-            event: "german_club_low_confidence_entry",
-            text: item.german_text,
-            confidence,
-            shelfSlug,
-          })
-        );
+    if (contentType === "grammar_note") {
+      interface GeneratedGrammarNote {
+        title_ar: string;
+        title_de?: string;
+        body_md: string;
+        difficulty_level?: string;
+        confidence: number;
+      }
+      const parsed = safeJson<{ notes: GeneratedGrammarNote[] }>(aiResult.text);
+      if (!parsed || !Array.isArray(parsed.notes) || parsed.notes.length === 0) {
+        return jsonResponse({ error: "Failed to parse generated notes JSON", raw: aiResult.text }, 500);
       }
 
-      return {
-        shelf_id: shelf.id,
-        entry_type: item.entry_type || "word",
-        german_text: item.german_text,
-        gender: item.gender || "n_a",
-        ipa: item.ipa || null,
-        arabic_translation: item.arabic_translation,
-        register: item.register || "neutral",
-        is_separable_verb: Boolean(item.is_separable_verb),
-        separable_prefix: item.separable_prefix || null,
-        example_sentence_de: item.example_sentence_de || null,
-        example_sentence_ar: item.example_sentence_ar || null,
+      const rowsToInsert = parsed.notes.map((item, idx) => ({
+        title_ar: item.title_ar,
+        title_de: item.title_de || null,
+        body_md: item.body_md,
+        related_shelf_ids: shelf ? [shelf.id] : [],
         difficulty_level: item.difficulty_level || difficultyLevel,
-        review_status: "ai_generated", // Always insert as draft
+        review_status: "ai_generated",
         sort_order: 100 + idx,
-      };
-    });
+      }));
 
-    const { data: inserted, error: insertErr } = await db
-      .from("german_club_entries")
-      .insert(rowsToInsert)
-      .select("id, german_text, arabic_translation, review_status");
+      const { data: inserted, error: insertErr } = await db
+        .from("german_club_grammar_notes")
+        .insert(rowsToInsert)
+        .select("id, title_ar, title_de, review_status");
 
-    if (insertErr) {
-      return jsonResponse({ error: insertErr.message }, 500);
+      if (insertErr) {
+        return jsonResponse({ error: insertErr.message }, 500);
+      }
+
+      return jsonResponse({
+        success: true,
+        content_type: "grammar_note",
+        inserted_count: inserted.length,
+        notes: inserted,
+      });
+    } else {
+      const parsed = safeJson<{ entries: GeneratedEntry[] }>(aiResult.text);
+      if (!parsed || !Array.isArray(parsed.entries) || parsed.entries.length === 0) {
+        return jsonResponse({ error: "Failed to parse generated JSON", raw: aiResult.text }, 500);
+      }
+
+      const rowsToInsert = parsed.entries.map((item, idx) => {
+        const confidence = typeof item.confidence === "number" ? item.confidence : 0.8;
+        if (confidence < 0.85) {
+          console.warn(
+            JSON.stringify({
+              event: "german_club_low_confidence_entry",
+              text: item.german_text,
+              confidence,
+              shelfSlug,
+            })
+          );
+        }
+
+        return {
+          shelf_id: shelf!.id,
+          entry_type: item.entry_type || "word",
+          german_text: item.german_text,
+          gender: item.gender || "n_a",
+          ipa: item.ipa || null,
+          arabic_translation: item.arabic_translation,
+          register: item.register || "neutral",
+          is_separable_verb: Boolean(item.is_separable_verb),
+          separable_prefix: item.separable_prefix || null,
+          example_sentence_de: item.example_sentence_de || null,
+          example_sentence_ar: item.example_sentence_ar || null,
+          difficulty_level: item.difficulty_level || difficultyLevel,
+          review_status: "ai_generated", // Always insert as draft
+          sort_order: 100 + idx,
+        };
+      });
+
+      const { data: inserted, error: insertErr } = await db
+        .from("german_club_entries")
+        .insert(rowsToInsert)
+        .select("id, german_text, arabic_translation, review_status");
+
+      if (insertErr) {
+        return jsonResponse({ error: insertErr.message }, 500);
+      }
+
+      return jsonResponse({
+        success: true,
+        shelf_slug: shelfSlug,
+        inserted_count: inserted.length,
+        entries: inserted,
+      });
     }
-
-    return jsonResponse({
-      success: true,
-      shelf_slug: shelfSlug,
-      inserted_count: inserted.length,
-      entries: inserted,
-    });
   } catch (err) {
     return jsonResponse({ error: (err as Error).message }, 500);
   }
