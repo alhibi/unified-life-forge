@@ -23,7 +23,6 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, onToggleMastered })
   };
 
   const handleCardClick = () => {
-    if (entry.locked) return;
     if (entry.is_separable_verb) {
       setIsSplitting(true);
       setShowExample(true);
@@ -32,30 +31,6 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, onToggleMastered })
       setShowExample((prev) => !prev);
     }
   };
-
-  if (entry.locked) {
-    return (
-      <div
-        className="relative overflow-hidden rounded-2xl border p-5 backdrop-blur-md transition-all"
-        style={{
-          backgroundColor: `${GERMAN_CLUB_TOKENS.paper}cc`,
-          borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
-        }}
-      >
-        <div className="filter blur-xs select-none pointer-events-none opacity-40">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-xl font-bold font-mono tracking-tight">🔒 Das Geheimnis</span>
-          </div>
-          <p className="text-xs text-stone-600">هذه العبارة حصرية لأعضاء النادي الألماني المميزين.</p>
-        </div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-stone-900/10 backdrop-blur-[2px]">
-          <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-950/80 text-amber-200 border border-amber-800/40 shadow-sm">
-            محتوى أعضاء النادي 🔒
-          </span>
-        </div>
-      </div>
-    );
-  }
 
   // Separable Verb split calculation
   let baseVerb = entry.german_text;

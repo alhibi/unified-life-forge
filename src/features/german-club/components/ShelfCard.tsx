@@ -1,6 +1,6 @@
 import React from 'react';
 import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
-import { Lock, Sparkles } from '@/lib/icons';
+import { Sparkles } from '@/lib/icons';
 
 interface ShelfCardProps {
   shelf: GermanShelf;
@@ -22,7 +22,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({ shelf, itemCount, onClick 
       {/* Background paper texture feel */}
       <div className="absolute inset-0 bg-gradient-to-br from-stone-100/40 via-transparent to-stone-200/20 pointer-events-none" />
 
-      {/* Header: Title AR + Premium Badge */}
+      {/* Header: Title AR */}
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex flex-col min-w-0">
           <h3 className="text-lg sm:text-xl font-bold text-[#17181C] tracking-tight group-hover:text-[#17324D] transition-colors">
@@ -39,16 +39,9 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({ shelf, itemCount, onClick 
           )}
         </div>
 
-        {shelf.is_premium ? (
-          <span className="shrink-0 flex items-center gap-1 text-[0.6875rem] font-bold px-2.5 py-1 rounded-full bg-amber-950/10 text-amber-900 border border-amber-800/20">
-            <Lock className="w-3 h-3" />
-            حصري
-          </span>
-        ) : (
-          <span className="shrink-0 text-[0.6875rem] font-medium px-2.5 py-1 rounded-full bg-emerald-950/10 text-emerald-800 border border-emerald-800/20">
-            مفتوح
-          </span>
-        )}
+        <span className="shrink-0 text-[0.6875rem] font-medium px-2.5 py-1 rounded-full bg-emerald-950/10 text-emerald-800 border border-emerald-800/20">
+          مفتوح
+        </span>
       </div>
 
       {/* Description */}

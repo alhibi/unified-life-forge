@@ -7,6 +7,15 @@ describe('German Club Feature Unit Tests', () => {
     it('should have a rich fallback taxonomy with at least 64 shelves across Vol. 1 & Vol. 2', () => {
       const state = useGermanClubStore.getState();
       expect(state.shelves.length).toBeGreaterThanOrEqual(64);
+      expect(state.shelves.every((s) => !s.is_premium)).toBe(true);
+    });
+
+    it('should load entries without paywall locking for any shelf', async () => {
+      const store = useGermanClubStore.getState();
+      await store.fetchShelfEntries('coffee-bakery');
+      const state = useGermanClubStore.getState();
+      expect(state.entries.length).toBeGreaterThan(0);
+      expect(state.entries.every((e) => !e.locked)).toBe(true);
     });
 
     it('should include core macro-domain shelves like burgeramt-anmeldung and coffee-bakery', () => {

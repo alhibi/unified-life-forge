@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PageShell } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { BookOpen, Lock, Sparkles } from '@/lib/icons';
+import { BookOpen, Sparkles } from '@/lib/icons';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { EntryCard } from '../components/EntryCard';
@@ -16,7 +16,6 @@ export const ShelfDetail: React.FC = () => {
   const {
     currentShelf,
     entries,
-    isEntitled,
     isLoadingEntries,
     fetchShelfEntries,
     toggleEntryMastered,
@@ -83,12 +82,9 @@ export const ShelfDetail: React.FC = () => {
                 <span className="text-xs font-bold text-[#17324D] bg-[#17324D]/10 px-2.5 py-1 rounded-md">
                   مواقف حية
                 </span>
-                {currentShelf.is_premium && !isEntitled && (
-                  <span className="text-xs font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-md flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    معاينة مجانية
-                  </span>
-                )}
+                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
+                  محتوى متاح للجميع
+                </span>
               </div>
               <p className="text-sm text-stone-600 leading-relaxed">
                 {currentShelf.description_ar}
@@ -142,37 +138,6 @@ export const ShelfDetail: React.FC = () => {
                   onToggleMastered={toggleEntryMastered}
                 />
               ))}
-            </div>
-          )}
-
-          {/* Paywall Callout Banner for Non-Members */}
-          {currentShelf?.is_premium && !isEntitled && (
-            <div
-              className="mt-8 rounded-2xl p-6 border text-center space-y-3"
-              style={{
-                backgroundColor: 'rgba(23, 50, 77, 0.05)',
-                borderColor: 'rgba(23, 50, 77, 0.2)',
-              }}
-            >
-              <div className="w-10 h-10 rounded-full bg-[#17324D] text-white flex items-center justify-center mx-auto shadow-sm">
-                <Lock className="w-5 h-5" />
-              </div>
-
-              <h4 className="text-base font-bold text-[#17181C]">
-                فتح بقية مفردات رف {currentShelf.title_ar}
-              </h4>
-
-              <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
-                انضم إلى عضوية النادي الألماني الحصرية للحصول على الوصول الكامل لجميع العبارات والأمثلة التفاعلية والتحليلات الصوتية.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => alert('اشتراكات النادي الألماني ستكون متاحة قريباً!')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#17324D] text-white text-xs font-bold shadow-md hover:bg-[#12273d] transition-colors"
-              >
-                <span>الانضمام إلى النادي الألماني</span>
-              </button>
             </div>
           )}
         </div>

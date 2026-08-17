@@ -1,10 +1,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { corsHeaders, jsonResponse, requireUser } from "../_shared/rss-utils.ts";
-
-const PRODUCT_SLUG = "german_club_premium";
-const FREE_PREVIEW_LIMIT = 2;
+import { corsHeaders, jsonResponse } from "../_shared/rss-utils.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -45,10 +42,6 @@ serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Authenticate user optionally
-  const auth = await requireUser(req);
-  const userId = auth.ok ? auth.userId : null;
-
   // 1. Fetch shelf details
   let shelfQuery = db.from("german_club_shelves").select("*");
   if (shelfId) {
@@ -63,27 +56,7 @@ serve(async (req) => {
     return jsonResponse({ error: "shelf_not_found" }, 404);
   }
 
-  // 2. Check entitlement
-  let isEntitled = false;
-
-  if (!shelf.is_premium) {
-    isEntitled = true;
-  } else if (userId) {
-    const { data: ent } = await db
-      .from("premium_entitlements")
-      .select("is_active, expires_at")
-      .eq("user_id", userId)
-      .eq("product_slug", PRODUCT_SLUG)
-      .maybeSingle();
-
-    if (ent && ent.is_active) {
-      if (!ent.expires_at || new Date(ent.expires_at) > new Date()) {
-        isEntitled = true;
-      }
-    }
-  }
-
-  // 3. Fetch reviewed/verified entries
+  // 2. Fetch reviewed/verified entries
   const fromOffset = (page - 1) * pageSize;
   const toOffset = fromOffset + pageSize - 1;
 
@@ -99,40 +72,21 @@ serve(async (req) => {
     return jsonResponse({ error: entriesErr.message }, 500);
   }
 
-  // 4. Apply paywall preview locking if not entitled
   const totalEntries = count ?? 0;
-  const processedEntries = (entries ?? []).map((entry, index) => {
-    const globalIndex = fromOffset + index;
-    const isLocked = !isEntitled && globalIndex >= FREE_PREVIEW_LIMIT;
-
-    if (isLocked) {
-      return {
-        id: entry.id,
-        shelf_id: entry.shelf_id,
-        entry_type: entry.entry_type,
-        gender: entry.gender,
-        german_text: "🔒 " + entry.german_text.slice(0, 3) + "•••",
-        arabic_translation: "محتوى حصري لأعضاء النادي الألماني",
-        register: entry.register,
-        is_separable_verb: entry.is_separable_verb,
-        difficulty_level: entry.difficulty_level,
-        locked: true,
-      };
-    }
-
-    return {
-      ...entry,
-      locked: false,
-    };
-  });
+  const processedEntries = (entries ?? []).map((entry) => ({
+    ...entry,
+    locked: false,
+  }));
 
   return jsonResponse({
-    shelf,
-    is_entitled: isEntitled,
+    shelf: {
+      ...shelf,
+      is_premium: false,
+    },
+    is_entitled: true,
     page,
     page_size: pageSize,
     total_entries: totalEntries,
-    free_preview_limit: FREE_PREVIEW_LIMIT,
     entries: processedEntries,
   });
 });
