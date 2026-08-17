@@ -8,6 +8,8 @@ interface KeyPopupProps {
   onSelectPopup?: (ch: string) => void;
   onClose?: () => void;
   positionStyle?: React.CSSProperties;
+  /** Variant currently under the finger while sliding from the held key. */
+  activeVariant?: string | null;
 }
 
 /**
@@ -18,6 +20,7 @@ export const KeyPopup = memo(function KeyPopup({
   popups,
   onSelectPopup,
   positionStyle,
+  activeVariant,
 }: KeyPopupProps) {
   return (
     <div
@@ -31,13 +34,19 @@ export const KeyPopup = memo(function KeyPopup({
             <button
               key={variant}
               type="button"
+              data-kb-variant={variant}
               onPointerDown={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (onSelectPopup) onSelectPopup(variant);
                 haptics('selection');
               }}
-              className="flex h-10 min-w-10 items-center justify-center rounded-lg bg-[hsl(var(--surface-2))] text-lg font-medium text-foreground transition-all active:scale-110 active:bg-[hsl(var(--live))] active:text-white"
+              className={
+                'flex h-10 min-w-10 items-center justify-center rounded-lg text-lg font-medium transition-all active:scale-110 ' +
+                (activeVariant === variant
+                  ? 'scale-110 bg-[hsl(var(--live))] text-white'
+                  : 'bg-[hsl(var(--surface-2))] text-foreground')
+              }
             >
               {variant}
             </button>
