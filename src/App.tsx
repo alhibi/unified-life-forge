@@ -206,8 +206,6 @@ const loadTravelTrip = () => import("./features/travel-atlas/pages/TripDetailPag
 const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMapPage");
 const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
-// German learning diwan and the crypto watchlist — both heavy standalone apps.
-const loadDeLearning = () => import("./features/de-learning/pages/GermanHome");
 const loadCrypto = () => import("./features/crypto/pages/CryptoWatchlist");
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
@@ -282,10 +280,8 @@ registerRoute('/pkm',            loadPKM);
 registerRoute('/pkm/mind',       loadMind);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
-registerRoute('/de-learning',     loadDeLearning);
 registerRoute('/crypto',          loadCrypto);
 
-const DeLearningPage = lazy(loadDeLearning);
 const CryptoWatchlistPage = lazy(loadCrypto);
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
@@ -383,7 +379,6 @@ function useIdlePrefetch() {
       // Knowledge hub is a bottom-nav tab too — prefetch it so the
       // first tap doesn't pay the chunk download in the foreground.
       loadKnowledge();
-      loadDeLearning();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -728,7 +723,6 @@ function AnimatedRoutes() {
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
                   {/* «الرئيسي» is no longer a standalone app — its widgets live on the portal. */}
                   <Route path="/now"           element={<Navigate to="/" replace />} />
-                  <Route path="/de-learning"   element={<ErrorBoundary><DeLearningPage /></ErrorBoundary>} />
                   <Route path="/crypto"        element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
                   <Route path="/crypto/"       element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
                   {/* OAuth consent for external clients (MCP / Agent integrations). */}

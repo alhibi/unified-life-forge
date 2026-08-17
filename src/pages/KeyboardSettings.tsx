@@ -142,7 +142,7 @@ export default function KeyboardSettingsPage() {
                       }`}
                     >
                       {isSelected && (
-                        <div className="absolute top-2 left-2 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px]">
+                        <div className="absolute top-2 left-2 w-4 h-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[0.625rem]">
                           <Check className="w-3 h-3 stroke-[3]" />
                         </div>
                       )}

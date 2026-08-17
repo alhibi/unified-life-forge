@@ -32,7 +32,6 @@ import {
   Heart,
   History,
   type IconComponent,
-  Languages,
   Layers,
   Library,
   Lightbulb,
@@ -267,19 +266,6 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/diwan/library/poets', label: 'شجرة الشعراء', note: 'الشعراء مرتبون بالعصور', icon: Feather },
       { path: '/diwan/library/favorites', label: 'المفضلة الخاصة', note: 'قصائدك المحفوظة', icon: Heart },
       { path: '/diwan/bayan', label: 'البيان الإعرابي والبلاغي', note: 'محلل عروضي وصرفي عميق', icon: Quote },
-    ],
-  },
-  {
-    key: 'de-learning',
-    path: '/de-learning',
-    label: 'ديوان الألمانية',
-    caption: 'DE-LEARNING',
-    description: 'قاموس ودروس ألمانية بمنهج مرتبط بالعربية',
-    cat: 'mind',
-    icon: Languages,
-    keywords: 'de-learning german lingo language study ألماني ألمانية لغة دراسة قاموس قواعد',
-    links: [
-      { path: '/de-learning', label: 'ديوان الألمانية', note: 'اللوحة الرئيسية للوحدات والدروس', icon: Languages },
     ],
   },
   {
