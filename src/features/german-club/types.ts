@@ -4,6 +4,8 @@ export type GermanEntryType = "word" | "phrase" | "sentence" | "idiom";
 export type GermanGender = "der" | "die" | "das" | "plural" | "n_a";
 export type GermanRegister = "formal" | "neutral" | "informal" | "slang";
 export type ContentReviewStatus = "ai_generated" | "reviewed" | "verified";
+export type StrictnessLevel = "balanced" | "strict" | "very_strict";
+export type GenerationJobStatus = "queued" | "running" | "completed" | "failed";
 
 export interface GermanShelf {
   id: string;
@@ -16,6 +18,7 @@ export interface GermanShelf {
   sort_order: number;
   is_premium: boolean;
   created_at: string;
+  target_entry_count?: number; // Target capacity (e.g., 25 or 35-40 for flagship)
 }
 
 export interface GermanEntry {
@@ -37,6 +40,7 @@ export interface GermanEntry {
   sort_order: number;
   created_at: string;
   locked?: boolean;
+  generation_job_id?: string | null;
 }
 
 export interface GermanGrammarNote {
@@ -51,28 +55,66 @@ export interface GermanGrammarNote {
   created_at: string;
 }
 
-export interface GermanProgress {
-  user_id: string;
-  entry_id: string;
-  is_mastered: boolean;
-  last_seen_at: string;
+export interface ModelPerformanceInfo {
+  shelf_acceptance_rate?: number;
+  shelf_total_generated?: number;
+  overall_acceptance_rate?: number;
+  overall_total_generated?: number;
+  badge_text?: string;
 }
 
-export interface PremiumEntitlement {
+export interface OpenRouterModelItem {
   id: string;
-  user_id: string;
-  product_slug: string;
-  is_active: boolean;
-  expires_at: string | null;
+  name: string;
+  context_length: number;
+  pricing: {
+    prompt: number; // USD per 1M tokens
+    completion: number; // USD per 1M tokens
+  };
+  performance?: ModelPerformanceInfo | null;
+}
+
+export interface GenerationJob {
+  id: string;
+  shelf_id: string;
+  model_id: string;
+  mode: "model_capacity" | "fixed_count";
+  target_count: number | null;
+  strictness: StrictnessLevel;
+  register_targets: GermanRegister[];
+  status: GenerationJobStatus;
+  entries_generated: number;
+  entries_skipped_duplicate: number;
+  entries_discarded_low_quality: number;
+  estimated_cost_usd: number;
+  error_message: string | null;
+  started_at?: string;
+  completed_at?: string | null;
+}
+
+export interface GenerationJobRejection {
+  id: string;
+  job_id: string;
+  candidate_text: string;
+  reason: "duplicate" | "gender_uncertain" | "register_mismatch" | "shelf_mismatch" | "low_confidence";
   created_at: string;
 }
 
-// Color tokens for German Club
+export const REJECTION_REASON_LABELS_AR: Record<GenerationJobRejection["reason"], string> = {
+  duplicate: "مكرر في الرف",
+  gender_uncertain: "جنس غير دقيق (Gender)",
+  register_mismatch: "خارج السجل المحدد",
+  shelf_mismatch: "غير متوافق مع الموقف",
+  low_confidence: "ثقة/جودة منخفضة",
+};
+
+// Color tokens for German Club & Furnace Console v2
 export const GERMAN_CLUB_TOKENS = {
   paper: "#EFEEE7",
   ink: "#17181C",
   prussian: "#17324D",
   oak: "#8B7E68",
+  ember: "#C9703B",
   derBlue: "#3E6E9E",
   dieRose: "#A15A6B",
   dasStone: "#6B6558",
@@ -121,4 +163,5 @@ export const GermanEntrySchema = z.object({
   sort_order: z.number().default(0),
   created_at: z.string(),
   locked: z.boolean().optional(),
+  generation_job_id: z.string().uuid().nullable().optional(),
 });

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { EntryCard } from '../components/EntryCard';
+import { FurnaceButton } from '../components/FurnaceButton';
 import { GenerationModal } from '../components/GenerationModal';
 
 export const ShelfDetail: React.FC = () => {
@@ -114,21 +115,14 @@ export const ShelfDetail: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Admin-only Burning Ember "D" Button */}
+            {/* Admin-only Burning Ember "D" Furnace Button */}
             {isAdmin && currentShelf && (
-              <button
-                type="button"
+              <FurnaceButton
+                currentCount={entries.length}
+                targetCount={currentShelf.target_entry_count || 25}
+                isJobRunning={Boolean(activeJobStatus)}
                 onClick={() => setIsGenerationModalOpen(true)}
-                title="تأليث وتزويد الرف بالذكاء الاصطناعي (أداة المشرف)"
-                className="w-8 h-8 rounded-full border border-[#C9703B]/40 bg-[#C9703B]/10 hover:bg-[#C9703B]/20 transition-colors flex items-center justify-center relative group"
-              >
-                <span className="font-bold text-sm text-[#C9703B] motion-safe:animate-pulse">
-                  D
-                </span>
-                {activeJobStatus && (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-stone-100 animate-ping" />
-                )}
-              </button>
+              />
             )}
 
             <button
@@ -159,7 +153,7 @@ export const ShelfDetail: React.FC = () => {
                 {activeJobStatus && (
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[#C9703B] bg-[#C9703B]/10 px-2.5 py-1 rounded-md border border-[#C9703B]/20">
                     <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                    <span>توليد قيد التشغيل...</span>
+                    <span>الفرن يعمل في الخلفية...</span>
                   </div>
                 )}
               </div>
@@ -219,12 +213,14 @@ export const ShelfDetail: React.FC = () => {
           )}
         </div>
 
-        {/* In-App Admin Generation Modal */}
+        {/* Furnace Generation Console v2 Modal */}
         {currentShelf && (
           <GenerationModal
             shelfId={currentShelf.id}
             shelfTitleAr={currentShelf.title_ar}
             shelfTitleDe={currentShelf.title_de}
+            currentEntryCount={entries.length}
+            targetCount={currentShelf.target_entry_count || 25}
             isOpen={isGenerationModalOpen}
             onClose={() => setIsGenerationModalOpen(false)}
           />

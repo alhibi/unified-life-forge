@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 import { corsHeaders, jsonResponse, requireUser } from "../_shared/rss-utils.ts";
-import { callOpenRouter, safeJson } from "../_shared/marginalia.ts";
+import { OPENROUTER_URL, requireOpenRouterKey, safeJson } from "../_shared/marginalia.ts";
 
 // Supabase EdgeRuntime declaration for background task execution
 declare const EdgeRuntime: {
@@ -40,6 +40,8 @@ serve(async (req) => {
     model_id?: string;
     mode?: "model_capacity" | "fixed_count";
     target_count?: number;
+    strictness?: "balanced" | "strict" | "very_strict";
+    register_targets?: string[];
     content_type?: "entry" | "grammar_note";
     situation_brief?: string;
     count?: number;
@@ -61,9 +63,11 @@ serve(async (req) => {
     ? body.model_id.trim()
     : "google/gemini-2.5-flash";
   const mode = body.mode === "fixed_count" ? "fixed_count" : "model_capacity";
-  // Enforce max ceiling of 500 for fixed_count
   const rawTarget = typeof body.target_count === "number" ? body.target_count : (typeof body.count === "number" ? body.count : 10);
   const targetCount = Math.min(Math.max(rawTarget, 1), 500);
+
+  const strictness = body.strictness || "balanced";
+  const registerTargets = Array.isArray(body.register_targets) ? body.register_targets : [];
 
   const contentType = body.content_type === "grammar_note" ? "grammar_note" : "entry";
   const shelfSlug = typeof body.shelf_slug === "string" ? body.shelf_slug.trim() : "";
@@ -91,7 +95,12 @@ serve(async (req) => {
     // 1. Immediately mark job as running
     await db
       .from("content_generation_jobs")
-      .update({ status: "running", started_at: new Date().toISOString() })
+      .update({
+        status: "running",
+        started_at: new Date().toISOString(),
+        strictness,
+        register_targets: registerTargets,
+      })
       .eq("id", jobId);
 
     // 2. Schedule the background task
@@ -102,6 +111,8 @@ serve(async (req) => {
       modelId,
       mode,
       targetCount,
+      strictness,
+      registerTargets,
       difficultyLevel,
       situationBrief,
     });
@@ -109,7 +120,6 @@ serve(async (req) => {
     if (typeof EdgeRuntime !== "undefined" && EdgeRuntime.waitUntil) {
       EdgeRuntime.waitUntil(bgTask);
     } else {
-      // Fallback: run async without awaiting
       bgTask.catch((err) => console.error("Background job unhandled error:", err));
     }
 
@@ -121,15 +131,18 @@ serve(async (req) => {
     });
   }
 
-  // Legacy synchronous path (when no job_id is supplied)
+  // Synchronous path
   try {
     const result = await generateBatch({
       db,
+      jobId: null,
       shelf,
       modelId,
       contentType,
       difficultyLevel,
       situationBrief,
+      strictness,
+      registerTargets,
       batchCount: Math.min(targetCount, 20),
       existingGermanTexts: new Set<string>(),
     });
@@ -150,14 +163,18 @@ async function processGenerationJob(opts: {
   modelId: string;
   mode: "model_capacity" | "fixed_count";
   targetCount: number;
+  strictness: "balanced" | "strict" | "very_strict";
+  registerTargets: string[];
   difficultyLevel: string;
   situationBrief: string;
 }) {
-  const { db, jobId, shelf, modelId, mode, targetCount, difficultyLevel, situationBrief } = opts;
+  const { db, jobId, shelf, modelId, mode, targetCount, strictness, registerTargets, difficultyLevel, situationBrief } = opts;
 
   let totalGenerated = 0;
   let totalSkippedDuplicate = 0;
   let totalDiscardedLowQuality = 0;
+  let accumulatedCostUsd = 0;
+  let totalRawCandidatesCount = 0;
 
   try {
     // Inventory Step 1: Fetch existing German entries for anti-duplication
@@ -174,13 +191,12 @@ async function processGenerationJob(opts: {
     }
 
     let iterations = 0;
-    const maxIterations = mode === "fixed_count" ? Math.ceil(targetCount / 10) + 3 : 10;
+    const maxIterations = mode === "fixed_count" ? Math.ceil(targetCount / 10) + 4 : 10;
     let consecutiveZeroNewEntries = 0;
 
     while (iterations < maxIterations) {
       iterations++;
 
-      // Determine batch size for this step
       let batchSize = 12;
       if (mode === "fixed_count") {
         const remaining = targetCount - totalGenerated;
@@ -190,11 +206,14 @@ async function processGenerationJob(opts: {
 
       const batchResult = await generateBatch({
         db,
+        jobId,
         shelf,
         modelId,
         contentType: "entry",
         difficultyLevel,
         situationBrief,
+        strictness,
+        registerTargets,
         batchCount: batchSize,
         existingGermanTexts,
       });
@@ -202,14 +221,17 @@ async function processGenerationJob(opts: {
       totalGenerated += batchResult.accepted;
       totalSkippedDuplicate += batchResult.duplicates;
       totalDiscardedLowQuality += batchResult.lowQuality;
+      accumulatedCostUsd += batchResult.batchCostUsd;
+      totalRawCandidatesCount += batchResult.totalCandidatesCount;
 
-      // Update counters in database row after each batch for live UI progress
+      // Update progress counters & running cost on job row
       await db
         .from("content_generation_jobs")
         .update({
           entries_generated: totalGenerated,
           entries_skipped_duplicate: totalSkippedDuplicate,
           entries_discarded_low_quality: totalDiscardedLowQuality,
+          estimated_cost_usd: Math.round(accumulatedCostUsd * 100000) / 100000,
         })
         .eq("id", jobId);
 
@@ -219,7 +241,6 @@ async function processGenerationJob(opts: {
         consecutiveZeroNewEntries = 0;
       }
 
-      // Stop condition for model_capacity mode: if model produces 2 consecutive batches with 0 new/authentic entries
       if (mode === "model_capacity" && consecutiveZeroNewEntries >= 2) {
         console.log(`Model capacity reached for shelf ${shelf.slug} after ${iterations} iterations.`);
         break;
@@ -238,9 +259,32 @@ async function processGenerationJob(opts: {
         entries_generated: totalGenerated,
         entries_skipped_duplicate: totalSkippedDuplicate,
         entries_discarded_low_quality: totalDiscardedLowQuality,
+        estimated_cost_usd: Math.round(accumulatedCostUsd * 100000) / 100000,
         completed_at: new Date().toISOString(),
       })
       .eq("id", jobId);
+
+    // Upsert model_performance_stats for (model_id, shelf_id)
+    const { data: existingStats } = await db
+      .from("model_performance_stats")
+      .select("total_generated, total_accepted, runs_count")
+      .eq("model_id", modelId)
+      .eq("shelf_id", shelf.id)
+      .maybeSingle();
+
+    const prevGenerated = existingStats?.total_generated || 0;
+    const prevAccepted = existingStats?.total_accepted || 0;
+    const prevRuns = existingStats?.runs_count || 0;
+
+    await db.from("model_performance_stats").upsert({
+      model_id: modelId,
+      shelf_id: shelf.id,
+      total_generated: prevGenerated + totalRawCandidatesCount,
+      total_accepted: prevAccepted + totalGenerated,
+      runs_count: prevRuns + 1,
+      last_used_at: new Date().toISOString(),
+    });
+
   } catch (err: any) {
     console.error(`Generation job ${jobId} failed:`, err);
     await db
@@ -259,11 +303,14 @@ async function processGenerationJob(opts: {
  */
 async function generateBatch(opts: {
   db: any;
+  jobId: string | null;
   shelf: { id: string; title_ar: string; title_de: string | null; slug: string } | null;
   modelId: string;
   contentType: "entry" | "grammar_note";
   difficultyLevel: string;
   situationBrief: string;
+  strictness: "balanced" | "strict" | "very_strict";
+  registerTargets: string[];
   batchCount: number;
   existingGermanTexts: Set<string>;
 }): Promise<{
@@ -271,10 +318,25 @@ async function generateBatch(opts: {
   accepted: number;
   duplicates: number;
   lowQuality: number;
+  batchCostUsd: number;
+  totalCandidatesCount: number;
   entries?: any[];
   notes?: any[];
 }> {
-  const { db, shelf, modelId, contentType, difficultyLevel, situationBrief, batchCount, existingGermanTexts } = opts;
+  const { db, jobId, shelf, modelId, contentType, difficultyLevel, situationBrief, strictness, registerTargets, batchCount, existingGermanTexts } = opts;
+
+  // Strictness confidence thresholds
+  const minConfidenceMap = {
+    balanced: 0.75,
+    strict: 0.85,
+    very_strict: 0.92,
+  };
+  const confidenceThreshold = minConfidenceMap[strictness] || 0.75;
+
+  let registerPromptConstraint = "";
+  if (registerTargets.length > 0) {
+    registerPromptConstraint = `\nREGISTRATION MANDATE: Actively prioritize and steer generation toward these specific register tags: [${registerTargets.join(", ")}]. Set register strictly to one of these if applicable.`;
+  }
 
   const systemPrompt = contentType === "grammar_note"
     ? `You are generating etymology, cultural trivia, and grammar notes for "النادي الألماني," a premium German-learning section inside an Arabic-first app. Your output is reviewed by a human before it ever reaches a real user — your job is accuracy and authenticity.
@@ -294,12 +356,12 @@ Output MUST be strict JSON with a "notes" key containing an array of objects mat
     : `You are generating vocabulary content for "النادي الألماني," a premium German-learning section inside an Arabic-first app. Your output is reviewed by a human before it ever reaches a real user — your job is accuracy and authenticity, not speed.
 
 Editorial Guardrails (strict enforcement):
-1. Accuracy over volume: Only include German you are confident is genuinely used by native speakers in this situation — do not pad with textbook-stiff phrases nobody actually says. If not confident, set confidence low (< 0.75).
-2. Zero hallucinated gender: Get grammatical gender right every single time ("der", "die", "das", "plural", or "n_a"). If uncertain, set confidence below 0.75.
-3. Register tagging is mandatory: Tag register honestly as "formal", "neutral", "informal", or "slang".
+1. Accuracy over volume: Only include German you are confident is genuinely used by native speakers in this situation — do not pad with textbook-stiff phrases nobody actually says.
+2. Zero hallucinated gender: Get grammatical gender right every single time ("der", "die", "das", "plural", or "n_a").
+3. Register tagging is mandatory: Tag register honestly as "formal", "neutral", "informal", or "slang".${registerPromptConstraint}
 4. Swearing/profanity policy: Tag severity honestly as mild/medium/strong. Do not soften real usage, but do not generate slurs targeting race, religion, sexuality, or disability under any framing.
 5. Mixed entry types: Mix entry types — include a realistic balance of "word", "phrase", "sentence", and "idiom".
-6. Separable verbs: For separable verbs (is_separable_verb: true), specify separable_prefix and ensure the example sentence demonstrates proper V2/end-of-clause separation (e.g., "Ich stehe um sieben Uhr auf.").
+6. Separable verbs: For separable verbs (is_separable_verb: true), specify separable_prefix and ensure the example sentence demonstrates proper V2/end-of-clause separation.
 7. Real-life example sentences: Every example sentence must be a sentence a real native speaker would say, translated into natural, polished Arabic.
 
 Output MUST be strict JSON with an "entries" key containing an array of objects matching this exact shape:
@@ -334,21 +396,48 @@ Important: Do NOT include any of these existing entries: [${Array.from(existingG
     },
   ];
 
-  const aiResult = await callOpenRouter(promptMessages, {
-    models: [modelId, "google/gemini-2.5-flash", "openai/gpt-4.1-mini"],
-    json: true,
-    temperature: 0.4,
-    maxTokens: 3000,
+  // Direct call to OpenRouter with usage parsing for cost calculation
+  const apiKey = requireOpenRouterKey();
+  const openRouterRes = await fetch(OPENROUTER_URL, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://smarthub.app",
+      "X-Title": "Furnace Generation",
+    },
+    body: JSON.stringify({
+      model: modelId,
+      messages: promptMessages,
+      temperature: 0.4,
+      max_tokens: 3000,
+      response_format: { type: "json_object" },
+    }),
   });
 
+  if (!openRouterRes.ok) {
+    const errText = await openRouterRes.text();
+    throw new Error(`OpenRouter generation failed: ${openRouterRes.status} ${errText.slice(0, 200)}`);
+  }
+
+  const aiData = await openRouterRes.json();
+  const rawText: string = aiData?.choices?.[0]?.message?.content ?? "";
+  const usage = aiData?.usage || {};
+  const promptTokens = usage.prompt_tokens || 1000;
+  const completionTokens = usage.completion_tokens || 500;
+
+  // Approximate USD pricing per token (fallback standard rates)
+  // Default estimate: $0.50 / 1M prompt, $1.50 / 1M completion if model unknown
+  const batchCostUsd = (promptTokens * 0.0000005) + (completionTokens * 0.0000015);
+
   if (contentType === "grammar_note") {
-    const parsed = safeJson<{ notes: any[] }>(aiResult.text);
+    const parsed = safeJson<{ notes: any[] }>(rawText);
     if (!parsed || !Array.isArray(parsed.notes)) {
       throw new Error("Failed to parse generated notes JSON");
     }
 
     const rowsToInsert = parsed.notes
-      .filter((n) => (n.confidence ?? 0.8) >= 0.7)
+      .filter((n) => (n.confidence ?? 0.8) >= confidenceThreshold)
       .map((item, idx) => ({
         title_ar: item.title_ar,
         title_de: item.title_de || null,
@@ -368,10 +457,12 @@ Important: Do NOT include any of these existing entries: [${Array.from(existingG
       accepted: rowsToInsert.length,
       duplicates: 0,
       lowQuality: parsed.notes.length - rowsToInsert.length,
+      batchCostUsd,
+      totalCandidatesCount: parsed.notes.length,
       notes: rowsToInsert,
     };
   } else {
-    const parsed = safeJson<{ entries: GeneratedEntry[] }>(aiResult.text);
+    const parsed = safeJson<{ entries: GeneratedEntry[] }>(rawText);
     if (!parsed || !Array.isArray(parsed.entries)) {
       throw new Error("Failed to parse generated entries JSON");
     }
@@ -380,20 +471,57 @@ Important: Do NOT include any of these existing entries: [${Array.from(existingG
     let duplicateCount = 0;
     let lowQualityCount = 0;
     const rowsToInsert: any[] = [];
+    const rejectionRows: { job_id: string | null; candidate_text: string; reason: string }[] = [];
 
     for (const item of parsed.entries) {
       const confidence = typeof item.confidence === "number" ? item.confidence : 0.8;
       const normalizedText = (item.german_text || "").trim().toLowerCase();
+      const candidateText = item.german_text || "unnamed_candidate";
 
-      // Quality Self-Audit check: discard low confidence
-      if (confidence < 0.75 || !item.german_text || !item.arabic_translation) {
+      // Rejection check 1: Low Confidence or missing essential fields
+      if (confidence < confidenceThreshold || !item.german_text || !item.arabic_translation) {
         lowQualityCount++;
+        rejectionRows.push({
+          job_id: jobId,
+          candidate_text: candidateText,
+          reason: "low_confidence",
+        });
         continue;
       }
 
-      // Anti-Duplication check
+      // Rejection check 2: Gender uncertainty for noun entry types
+      if (item.entry_type === "word" && (!item.gender || item.gender === "n_a") && !candidateText.includes(" ")) {
+        // If word looks like a noun (capitalized) but gender is n_a
+        if (/^[A-ZÄÖÜ]/.test(candidateText.trim())) {
+          lowQualityCount++;
+          rejectionRows.push({
+            job_id: jobId,
+            candidate_text: candidateText,
+            reason: "gender_uncertain",
+          });
+          continue;
+        }
+      }
+
+      // Rejection check 3: Register mismatch if register_targets specified
+      if (registerTargets.length > 0 && item.register && !registerTargets.includes(item.register)) {
+        lowQualityCount++;
+        rejectionRows.push({
+          job_id: jobId,
+          candidate_text: candidateText,
+          reason: "register_mismatch",
+        });
+        continue;
+      }
+
+      // Rejection check 4: Anti-Duplication
       if (existingGermanTexts.has(normalizedText)) {
         duplicateCount++;
+        rejectionRows.push({
+          job_id: jobId,
+          candidate_text: candidateText,
+          reason: "duplicate",
+        });
         continue;
       }
 
@@ -413,9 +541,15 @@ Important: Do NOT include any of these existing entries: [${Array.from(existingG
         example_sentence_de: item.example_sentence_de || null,
         example_sentence_ar: item.example_sentence_ar || null,
         difficulty_level: item.difficulty_level || difficultyLevel,
-        review_status: "ai_generated", // Enforce draft status requiring human review
+        review_status: "ai_generated",
         sort_order: 100 + rowsToInsert.length,
+        generation_job_id: jobId, // Tag entry with generation job ID
       });
+    }
+
+    // Insert rejections into generation_job_rejections table if jobId is present
+    if (jobId && rejectionRows.length > 0) {
+      await db.from("generation_job_rejections").insert(rejectionRows);
     }
 
     if (rowsToInsert.length > 0) {
@@ -428,6 +562,8 @@ Important: Do NOT include any of these existing entries: [${Array.from(existingG
       accepted: acceptedCount,
       duplicates: duplicateCount,
       lowQuality: lowQualityCount,
+      batchCostUsd,
+      totalCandidatesCount: parsed.entries.length,
       entries: rowsToInsert,
     };
   }
