@@ -4,9 +4,9 @@ import { useGermanClubStore } from '../useGermanClubStore';
 
 describe('German Club Feature Unit Tests', () => {
   describe('Situational Taxonomy & Store Initial Fallbacks', () => {
-    it('should have a rich fallback taxonomy with at least 25 shelves', () => {
+    it('should have a rich fallback taxonomy with at least 64 shelves across Vol. 1 & Vol. 2', () => {
       const state = useGermanClubStore.getState();
-      expect(state.shelves.length).toBeGreaterThanOrEqual(25);
+      expect(state.shelves.length).toBeGreaterThanOrEqual(64);
     });
 
     it('should include core macro-domain shelves like burgeramt-anmeldung and coffee-bakery', () => {
@@ -18,13 +18,77 @@ describe('German Club Feature Unit Tests', () => {
       expect(slugs).toContain('denglisch-loanwords');
     });
 
-    it('should include full Elite Grammar Corner topics in fallback state', () => {
+    it('should include all 11 new Vol. 2 domain shelves in fallback state', () => {
       const state = useGermanClubStore.getState();
-      expect(state.grammarNotes.length).toBeGreaterThanOrEqual(7);
+      const slugs = state.shelves.map((s) => s.slug);
+
+      // ك. الأمثال
+      expect(slugs).toContain('animal-idioms');
+      expect(slugs).toContain('weather-idioms');
+      expect(slugs).toContain('food-idioms');
+      expect(slugs).toContain('body-idioms');
+
+      // ل. اللهجات
+      expect(slugs).toContain('bavarian-signature');
+      expect(slugs).toContain('swabian-signature');
+      expect(slugs).toContain('kolsch-cologne');
+      expect(slugs).toContain('austrian-swiss-basics');
+
+      // م. الشتائم والتذمر
+      expect(slugs).toContain('swearing-insults');
+      expect(slugs).toContain('venting-expressions');
+
+      // ن. الرومانسية
+      expect(slugs).toContain('flirting-deep');
+      expect(slugs).toContain('relationship-milestones');
+      expect(slugs).toContain('breakup-language');
+      expect(slugs).toContain('pet-names-affection');
+
+      // س. الثقافات الفرعية
+      expect(slugs).toContain('techno-club-culture');
+      expect(slugs).toContain('football-fan-culture');
+      expect(slugs).toContain('gaming-culture');
+      expect(slugs).toContain('festival-culture');
+
+      // ع. الخصوصية والديجيتال
+      expect(slugs).toContain('privacy-datenschutz');
+      expect(slugs).toContain('online-banking');
+      expect(slugs).toContain('tech-support-calls');
+
+      // ف. البيئة والفرز
+      expect(slugs).toContain('mulltrennung-full-system');
+      expect(slugs).toContain('ruhezeit-quiet-hours');
+
+      // ص. الرياضة
+      expect(slugs).toContain('gym-culture');
+      expect(slugs).toContain('cycling-culture');
+      expect(slugs).toContain('running-culture');
+
+      // ق. السفر الداخلي
+      expect(slugs).toContain('deutschlandticket-travel');
+      expect(slugs).toContain('hostel-culture');
+
+      // ر. المهرجانات
+      expect(slugs).toContain('oktoberfest-full');
+      expect(slugs).toContain('karneval-full');
+      expect(slugs).toContain('christmas-markets');
+
+      // ت. الحيوانات والبيت
+      expect(slugs).toContain('pet-culture');
+      expect(slugs).toContain('putzplan-chores');
+    });
+
+    it('should include full Elite Grammar Corner and Etymology/Trivia notes in fallback state', () => {
+      const state = useGermanClubStore.getState();
+      expect(state.grammarNotes.length).toBeGreaterThanOrEqual(10);
       const titles = state.grammarNotes.map((g) => g.title_ar);
       expect(titles.some((t) => t.includes('أدوات التلطيف'))).toBe(true);
       expect(titles.some((t) => t.includes('Sie و Du'))).toBe(true);
       expect(titles.some((t) => t.includes('الأصدقاء المزيفون'))).toBe(true);
+      // Vol. 2 Etymology/Trivia domain (ش)
+      expect(titles.some((t) => t.includes('أصول الكلمات الألمانية في الإنجليزية'))).toBe(true);
+      expect(titles.some((t) => t.includes('حلقة الـ Denglisch'))).toBe(true);
+      expect(titles.some((t) => t.includes('عبقرية الكلمات المركبة'))).toBe(true);
     });
   });
 
