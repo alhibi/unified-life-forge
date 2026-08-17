@@ -59,6 +59,8 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'podcast_episode_state', ownerColumn: 'user_id', label: 'حالة الحلقات' },
   { table: 'podcast_prefs', ownerColumn: 'user_id', label: 'تفضيلات البودكاست' },
   { table: 'diwan_folders', ownerColumn: 'user_id', label: 'مجلدات الديوان' },
+  { table: 'german_club_progress', ownerColumn: 'user_id', label: 'تقدم النادي الألماني' },
+  { table: 'premium_entitlements', ownerColumn: 'user_id', label: 'استحقاقات العضوية' },
 
   { table: 'mg_sources', ownerColumn: 'user_id', label: 'مصادر الهوامش' },
   { table: 'mg_articles', ownerColumn: 'user_id', label: 'مقالات الهوامش' },

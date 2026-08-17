@@ -169,6 +169,11 @@ const loadWeather = () => import("./features/weather/pages/Weather");
 // data set should not weigh on the cold home paint; it's prefetched on
 // idle so the first tap from the bottom nav renders instantly.
 const loadKnowledge = () => import("./features/knowledge/pages/Knowledge");
+// German Club ("النادي الألماني") module — situational shelves, separable verbs, gender dots
+const loadGermanClubHome = () => import("./features/german-club/pages/GermanClubHome");
+const loadGermanShelfDetail = () => import("./features/german-club/pages/ShelfDetail");
+const loadGermanGrammar = () => import("./features/german-club/pages/GrammarCorner");
+const loadGermanReview = () => import("./features/german-club/pages/ContentReviewAdmin");
 // Long-form SEO guide to Islamic prayer (Salah). Lightweight static
 // page reachable from /mihrab — kept lazy because it's only loaded
 // when a user (or a crawler) drills in from the Mihrab hub.
@@ -236,6 +241,9 @@ registerRoute('/mihrab',            loadMihrab);
 registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
 registerRoute('/weather',           loadWeather);
 registerRoute('/knowledge',         loadKnowledge);
+registerRoute('/german-club',       loadGermanClubHome);
+registerRoute('/german-club/grammar', loadGermanGrammar);
+registerRoute('/german-club/review',  loadGermanReview);
 registerRoute('/journal',           loadJournal);
 registerRoute('/travel-atlas',      loadTravelAtlas);
 registerRoute('/travel-atlas/explore', loadTravelExplore);
@@ -283,6 +291,10 @@ registerRoute('/chat',            loadChatTab);
 registerRoute('/crypto',          loadCrypto);
 
 const CryptoWatchlistPage = lazy(loadCrypto);
+const GermanClubHomePage = lazy(loadGermanClubHome);
+const ShelfDetailPage = lazy(loadGermanShelfDetail);
+const GrammarCornerPage = lazy(loadGermanGrammar);
+const ContentReviewAdminPage = lazy(loadGermanReview);
 const SudokuPage = lazy(loadSudoku);
 const ChessPage = lazy(loadChess);
 const MemoryGame = lazy(loadMemory);
@@ -379,6 +391,7 @@ function useIdlePrefetch() {
       // Knowledge hub is a bottom-nav tab too — prefetch it so the
       // first tap doesn't pay the chunk download in the foreground.
       loadKnowledge();
+      loadGermanClubHome();
     });
     return () => {
       const cic = (window as any).cancelIdleCallback;
@@ -663,6 +676,11 @@ function AnimatedRoutes() {
                   <Route path="/mihrab/prayer-guide" element={<ErrorBoundary><PrayerGuidePage /></ErrorBoundary>} />
                   <Route path="/weather" element={<ErrorBoundary><WeatherPage /></ErrorBoundary>} />
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
+                  {/* German Club Routes */}
+                  <Route path="/german-club" element={<ErrorBoundary><GermanClubHomePage /></ErrorBoundary>} />
+                  <Route path="/german-club/shelf/:slug" element={<ErrorBoundary><ShelfDetailPage /></ErrorBoundary>} />
+                  <Route path="/german-club/grammar" element={<ErrorBoundary><GrammarCornerPage /></ErrorBoundary>} />
+                  <Route path="/german-club/review" element={<ErrorBoundary><ContentReviewAdminPage /></ErrorBoundary>} />
                   <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
                   {/* Travel Atlas. Order matters: every literal segment
                       (`explore`, `countries`, `place`, `trips`) must be matched
