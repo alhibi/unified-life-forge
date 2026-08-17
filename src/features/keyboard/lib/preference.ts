@@ -43,6 +43,8 @@ export interface KeyboardSettings {
 }
 
 const STORAGE_KEY = 'smarthub:soft-keyboard-settings-v2';
+/** Pre-v2 key: stored the raw 'app' | 'system' choice. Migrated on first read. */
+const LEGACY_PREFERENCE_KEY = 'smarthub:soft-keyboard';
 
 let memorySettings: KeyboardSettings | null = null;
 
@@ -72,6 +74,11 @@ export function readKeyboardSettings(): KeyboardSettings {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return { ...DEFAULT_KEYBOARD_SETTINGS, ...JSON.parse(raw) };
+      // Honour the legacy opt-out so users who chose the OS keyboard keep it.
+      const legacy = localStorage.getItem(LEGACY_PREFERENCE_KEY);
+      if (legacy === 'system' || legacy === 'app') {
+        return { ...DEFAULT_KEYBOARD_SETTINGS, preference: legacy };
+      }
     } catch {
       /* fallback */
     }
@@ -113,5 +120,7 @@ export function supportsSoftKeyboard(): boolean {
   if (typeof window === 'undefined') return false;
   const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
   const touch = (navigator.maxTouchPoints ?? 0) > 0;
-  return coarse || touch;
+  // Both signals are required: a laptop with a touchscreen still types on its
+  // physical keyboard and must keep the OS input behaviour.
+  return coarse && touch;
 }
