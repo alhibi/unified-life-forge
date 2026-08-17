@@ -11,6 +11,8 @@ import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { EntryCard } from '../components/EntryCard';
 import { FurnaceButton } from '../components/FurnaceButton';
 import { GenerationModal } from '../components/GenerationModal';
+import { SessionMomentumLine } from '../components/SessionMomentumLine';
+import { BewaehrungsprobeStamp } from '../components/BewaehrungsprobeStamp';
 
 export const ShelfDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -18,6 +20,7 @@ export const ShelfDetail: React.FC = () => {
   const [filterRegister, setFilterRegister] = useState<GermanRegister | 'all'>('all');
   const [isGenerationModalOpen, setIsGenerationModalOpen] = useState<boolean>(false);
   const [activeJobStatus, setActiveJobStatus] = useState<string | null>(null);
+  const [stampStatus, setStampStatus] = useState<'passed' | null>(null);
 
   const { isAdmin } = useAdmin();
 
@@ -84,6 +87,7 @@ export const ShelfDetail: React.FC = () => {
 
   return (
     <PageShell centered={false} flush>
+      <SessionMomentumLine />
       <SEO
         title={`${currentShelf?.title_ar || 'تفاصيل الرف'} — النادي الألماني`}
         description={currentShelf?.description_ar || 'عبارات ومفردات الرف الألمانية'}
@@ -124,6 +128,15 @@ export const ShelfDetail: React.FC = () => {
                 onClick={() => setIsGenerationModalOpen(true)}
               />
             )}
+
+            <button
+              type="button"
+              onClick={() => setStampStatus('passed')}
+              className="text-xs font-bold px-3 py-1.5 rounded-xl bg-[#17324D] text-white hover:bg-[#12273d] transition-colors flex items-center gap-1 shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              اختبار Bewährungsprobe
+            </button>
 
             <button
               type="button"
@@ -225,6 +238,13 @@ export const ShelfDetail: React.FC = () => {
             onClose={() => setIsGenerationModalOpen(false)}
           />
         )}
+
+        {/* Bewährungsprobe Surge Stamp Moment */}
+        <BewaehrungsprobeStamp
+          status={stampStatus}
+          shelfTitleAr={currentShelf?.title_ar}
+          onComplete={() => setStampStatus(null)}
+        />
       </div>
     </PageShell>
   );

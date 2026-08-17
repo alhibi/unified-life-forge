@@ -7,6 +7,7 @@ import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS } from '../types';
 import { ShelfCard } from '../components/ShelfCard';
+import { SessionMomentumLine } from '../components/SessionMomentumLine';
 
 export const GermanClubHome: React.FC = () => {
   const navigate = useNavigate();
@@ -14,14 +15,20 @@ export const GermanClubHome: React.FC = () => {
     shelves,
     isLoadingShelves,
     fetchShelves,
+    masteredShelfIds,
+    animatedMasteryIds,
+    markShelfAnimated,
+    checkShelfMastery,
   } = useGermanClubStore();
 
   useEffect(() => {
     fetchShelves();
-  }, [fetchShelves]);
+    checkShelfMastery();
+  }, [fetchShelves, checkShelfMastery]);
 
   return (
     <PageShell centered={false} flush>
+      <SessionMomentumLine />
       <SEO
         title="النادي الألماني (Der Club) — مكتبة المواقف الواقعية"
         description="مساحة القراءة الخاصة باللغة الألمانية مرتبة حسب المواقف اليومية بألوان الأجناس ونظام القواعد الذكي."
@@ -130,6 +137,9 @@ export const GermanClubHome: React.FC = () => {
                 <ShelfCard
                   key={shelf.id}
                   shelf={shelf}
+                  isMastered={masteredShelfIds.has(shelf.id)}
+                  hasBeenAnimated={animatedMasteryIds.has(shelf.id)}
+                  onMasteryAnimationComplete={markShelfAnimated}
                   onClick={() => navigate(`/german-club/shelf/${shelf.slug}`)}
                 />
               ))}
