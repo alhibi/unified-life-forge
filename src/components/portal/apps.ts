@@ -32,6 +32,7 @@ import {
   Heart,
   History,
   type IconComponent,
+  Languages,
   Layers,
   Library,
   Lightbulb,
@@ -179,6 +180,20 @@ export const PORTAL_APPS: readonly PortalApp[] = [
   },
 
   /* ── العقل ── */
+  {
+    key: 'german-club',
+    path: '/german-club',
+    label: 'النادي الألماني',
+    caption: 'DER CLUB',
+    description: 'مكتبة المواقف الحية لتعلم الألمانية',
+    cat: 'mind',
+    icon: Languages,
+    keywords: 'german club deutsch ألماني لغة ألمانية دراسة مواقف قواعد مقهى قطار',
+    links: [
+      { path: '/german-club', label: 'المواقف اليومية', note: 'رفوف العبارات والمفردات', icon: Languages },
+      { path: '/german-club/grammar', label: 'زاوية القواعد', note: 'الشرح المبسط والتطبيقات', icon: BookOpen },
+    ],
+  },
   {
     key: 'knowledge',
     path: '/knowledge',

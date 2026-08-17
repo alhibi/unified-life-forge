@@ -1,0 +1,184 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { PageShell } from '@/components/ui/app-shell';
+import BackButton from '@/components/BackButton';
+import SEO from '@/components/SEO';
+import { BookOpen, Lock, Sparkles } from '@/lib/icons';
+import { useGermanClubStore } from '../useGermanClubStore';
+import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
+import { EntryCard } from '../components/EntryCard';
+
+export const ShelfDetail: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const [filterRegister, setFilterRegister] = useState<GermanRegister | 'all'>('all');
+
+  const {
+    currentShelf,
+    entries,
+    isEntitled,
+    isLoadingEntries,
+    fetchShelfEntries,
+    toggleEntryMastered,
+  } = useGermanClubStore();
+
+  useEffect(() => {
+    if (slug) {
+      fetchShelfEntries(slug);
+    }
+  }, [slug, fetchShelfEntries]);
+
+  const filteredEntries = entries.filter((e) => {
+    if (filterRegister === 'all') return true;
+    return e.register === filterRegister;
+  });
+
+  return (
+    <PageShell centered={false} flush>
+      <SEO
+        title={`${currentShelf?.title_ar || 'تفاصيل الرف'} — النادي الألماني`}
+        description={currentShelf?.description_ar || 'عبارات ومفردات الرف الألمانية'}
+        path={`/german-club/shelf/${slug || ''}`}
+      />
+
+      <div
+        className="min-h-screen pb-20 transition-colors"
+        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
+      >
+        {/* Sticky App Bar */}
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60">
+          <div className="flex items-center gap-3">
+            <BackButton />
+            <div className="min-w-0">
+              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none truncate">
+                {currentShelf?.title_ar || 'مواقف الرف'}
+              </h1>
+              {currentShelf?.title_de && (
+                <span
+                  className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-wider uppercase block truncate"
+                  dir="ltr"
+                  style={{ unicodeBidi: 'isolate' }}
+                >
+                  {currentShelf.title_de}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate('/german-club/grammar')}
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
+            زاوية القواعد
+          </button>
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+          {/* Header Info Block */}
+          {currentShelf && (
+            <div className="space-y-2 border-b border-stone-300/60 pb-5">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#17324D] bg-[#17324D]/10 px-2.5 py-1 rounded-md">
+                  مواقف حية
+                </span>
+                {currentShelf.is_premium && !isEntitled && (
+                  <span className="text-xs font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-md flex items-center gap-1">
+                    <Lock className="w-3 h-3" />
+                    معاينة مجانية
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-stone-600 leading-relaxed">
+                {currentShelf.description_ar}
+              </p>
+            </div>
+          )}
+
+          {/* Filter Bar (Registers) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+            <span className="font-bold text-stone-500 shrink-0">السجل اللغوي:</span>
+            {[
+              { id: 'all', label: 'الكل' },
+              { id: 'neutral', label: 'محايد' },
+              { id: 'informal', label: 'غير رسمي' },
+              { id: 'formal', label: 'رسمي' },
+              { id: 'slang', label: 'عامي / slang' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFilterRegister(tab.id as GermanRegister | 'all')}
+                className={`px-3 py-1.5 rounded-xl transition-all shrink-0 font-medium ${
+                  filterRegister === tab.id
+                    ? 'bg-[#17324D] text-white shadow-xs'
+                    : 'bg-stone-200/60 text-stone-700 hover:bg-stone-300/60'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Entries Feed */}
+          {isLoadingEntries ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-28 rounded-2xl bg-stone-200/60 animate-pulse" />
+              ))}
+            </div>
+          ) : filteredEntries.length === 0 ? (
+            <div className="text-center py-12 text-stone-500 space-y-2">
+              <Sparkles className="w-8 h-8 mx-auto text-stone-400 opacity-60" />
+              <p className="text-sm">لا توجد عناصر في هذا الرف تنطبق عليها تصفية السجل المحدد.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredEntries.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  entry={entry}
+                  onToggleMastered={toggleEntryMastered}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Paywall Callout Banner for Non-Members */}
+          {currentShelf?.is_premium && !isEntitled && (
+            <div
+              className="mt-8 rounded-2xl p-6 border text-center space-y-3"
+              style={{
+                backgroundColor: 'rgba(23, 50, 77, 0.05)',
+                borderColor: 'rgba(23, 50, 77, 0.2)',
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-[#17324D] text-white flex items-center justify-center mx-auto shadow-sm">
+                <Lock className="w-5 h-5" />
+              </div>
+
+              <h4 className="text-base font-bold text-[#17181C]">
+                فتح بقية مفردات رف {currentShelf.title_ar}
+              </h4>
+
+              <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
+                انضم إلى عضوية النادي الألماني الحصرية للحصول على الوصول الكامل لجميع العبارات والأمثلة التفاعلية والتحليلات الصوتية.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => alert('اشتراكات النادي الألماني ستكون متاحة قريباً!')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#17324D] text-white text-xs font-bold shadow-md hover:bg-[#12273d] transition-colors"
+              >
+                <span>الانضمام إلى النادي الألماني</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </PageShell>
+  );
+};
+
+export default ShelfDetail;
