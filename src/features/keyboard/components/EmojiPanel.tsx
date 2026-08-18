@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 
-import { Search, X } from '@/lib/icons';
+import { X } from '@/lib/icons';
 import { haptics } from '@/lib/native';
 
 interface EmojiPanelProps {

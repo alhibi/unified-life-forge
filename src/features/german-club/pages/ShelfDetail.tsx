@@ -5,7 +5,7 @@ import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { BookOpen, Sparkles } from '@/lib/icons';
 import { useAdmin } from '@/hooks/useAdmin';
-import { supabase } from '@/integrations/supabase/client';
+import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { EntryCard } from '../components/EntryCard';

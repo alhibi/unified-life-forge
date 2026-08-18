@@ -1,7 +1,6 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach,describe, expect, it } from 'vitest';
 
 import {
-  DEFAULT_KEYBOARD_SETTINGS,
   readKeyboardSettings,
   writeKeyboardSettings,
 } from '../lib/preference';

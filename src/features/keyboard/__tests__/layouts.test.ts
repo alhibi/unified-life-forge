@@ -4,7 +4,6 @@ import {
   AR_ROWS,
   caretDelta,
   EASTERN_NUMBER_ROW,
-  EN_ROWS,
   HARAKAT,
   isRtlLayout,
   WESTERN_NUMBER_ROW,

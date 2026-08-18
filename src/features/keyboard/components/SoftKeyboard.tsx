@@ -14,29 +14,30 @@ import {
 import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
-import { ClipboardPanel } from './ClipboardPanel';
-import { EmojiPanel } from './EmojiPanel';
-import { KeyboardSettingsModal } from './KeyboardSetting';
-import { KeyPopup } from './KeyPopup';
-import { ToolBar } from './ToolBar';
 import {
   ALEF_VARIANTS,
   caretDelta,
   EASTERN_NUMBER_ROW,
   HARAKAT,
-  isRtlLayout,
   ISLAMIC_SYMBOLS,
+  isRtlLayout,
   type KeyDef,
   LAYOUT_ROWS,
   type LayoutId,
   QUICK_PUNCTUATION,
   WESTERN_NUMBER_ROW,
 } from '../lib/layouts';
-import {
-  readKeyboardSettings,
-  type KeyboardSettings,
-} from '../lib/preference';
 import { getWordSuggestions, learnWord } from '../lib/prediction';
+import {
+  type KeyboardSettings,
+  readKeyboardSettings,
+} from '../lib/preference';
+import { keyboardPaletteVars } from '../lib/theme';
+import { ClipboardPanel } from './ClipboardPanel';
+import { EmojiPanel } from './EmojiPanel';
+import { KeyboardSettingsModal } from './KeyboardSetting';
+import { KeyPopup } from './KeyPopup';
+import { ToolBar } from './ToolBar';
 
 export interface SoftKeyboardProps {
   onInsert: (text: string) => void;
@@ -50,8 +51,9 @@ export interface SoftKeyboardProps {
   onHeightChange?: (height: number) => void;
 }
 
-const HOLD_START_MS = 280;
-const HOLD_REPEAT_MS = 50;
+const HOLD_REPEAT_MS = 70;
+/** Slop, in px, a finger may travel on a key before the tap is treated as a drag. */
+const DRAG_SLOP = 12;
 
 /** Individual Keyboard Key with Gboard styling, press feedback, key borders, and long-press popups */
 const Key = memo(function Key({
@@ -63,6 +65,8 @@ const Key = memo(function Key({
   showPopupPreview = true,
   vibrate = true,
   keyBorders = false,
+  holdDelayMs = 280,
+  pressOnRelease = false,
   className,
   ariaLabel,
   span = 1,
@@ -77,6 +81,14 @@ const Key = memo(function Key({
   showPopupPreview?: boolean;
   vibrate?: boolean;
   keyBorders?: boolean;
+  /** Long-press threshold, driven by user preference. */
+  holdDelayMs?: number;
+  /**
+   * Emit on pointerup instead of pointerdown. The spacebar needs this: it
+   * doubles as a caret trackpad, and firing on press inserted a space on every
+   * drag.
+   */
+  pressOnRelease?: boolean;
   className?: string;
   ariaLabel?: string;
   span?: number;
@@ -88,6 +100,8 @@ const Key = memo(function Key({
   const [showPopup, setShowPopup] = useState(false);
   const [hoverVariant, setHoverVariant] = useState<string | null>(null);
   const popupOpenRef = useRef(false);
+  /** A hold already produced output, so the release must not emit a tap too. */
+  const consumedRef = useRef(false);
 
   const clear = useCallback(() => {
     if (timers.current.start) window.clearTimeout(timers.current.start);
@@ -97,6 +111,7 @@ const Key = memo(function Key({
     setShowPopup(false);
     setHoverVariant(null);
     popupOpenRef.current = false;
+    consumedRef.current = false;
   }, []);
 
   useEffect(() => clear, [clear]);
@@ -130,8 +145,15 @@ const Key = memo(function Key({
         aria-label={ariaLabel ?? label}
         onPointerDown={(event) => {
           event.preventDefault();
+          // Keep every subsequent move/up on this key even if the finger slides
+          // off it, which is what makes hold-and-slide variant picking reliable.
+          try {
+            event.currentTarget.setPointerCapture(event.pointerId);
+          } catch {
+            /* capture is best-effort */
+          }
           setIsPressed(true);
-          onPress();
+          if (!pressOnRelease) onPress();
           if (vibrate) haptics('selection');
 
           timers.current.start = window.setTimeout(() => {
@@ -139,10 +161,11 @@ const Key = memo(function Key({
               popupOpenRef.current = true;
               setShowPopup(true);
             } else if (onHold) {
+              consumedRef.current = true;
               onHold();
               timers.current.repeat = window.setInterval(onHold, HOLD_REPEAT_MS);
             }
-          }, HOLD_START_MS);
+          }, holdDelayMs);
         }}
         onPointerMove={(event) => {
           if (!popupOpenRef.current) return;
@@ -157,6 +180,8 @@ const Key = memo(function Key({
               if (onPopupSelect) onPopupSelect(variant);
               if (vibrate) haptics('selection');
             }
+          } else if (pressOnRelease && !consumedRef.current) {
+            onPress();
           }
           clear();
         }}
@@ -168,15 +193,16 @@ const Key = memo(function Key({
         onContextMenu={(event) => event.preventDefault()}
         className={cn(
           'relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
-          'text-[1.125rem] font-medium leading-none text-foreground transition-all duration-75',
+          'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-75',
           'active:scale-[0.93] touch-none',
           tone === 'letter' &&
-            'bg-[hsl(var(--surface-2))] border border-white/10 shadow-[0_1px_2px_rgba(0,0,0,0.12)] hover:bg-[hsl(var(--surface-2))]/90',
+            'bg-[hsl(var(--kb-key))] text-[hsl(var(--kb-fg))] shadow-[0_1px_2px_rgba(0,0,0,0.14)]',
           tone === 'modifier' &&
-            'bg-[hsl(var(--surface-1))] text-muted-foreground border border-white/10 shadow-[0_1px_1px_rgba(0,0,0,0.08)] hover:text-foreground',
+            'bg-[hsl(var(--kb-key-mod))] text-[hsl(var(--kb-fg-muted))] shadow-[0_1px_1px_rgba(0,0,0,0.1)]',
           tone === 'accent' &&
-            'bg-[hsl(var(--live))] text-white font-semibold shadow-[0_2px_4px_rgba(0,0,0,0.2)] hover:brightness-110',
-          keyBorders && 'ring-1 ring-border/60',
+            'bg-[hsl(var(--kb-accent))] text-[hsl(var(--kb-accent-fg))] font-semibold shadow-[0_2px_4px_rgba(0,0,0,0.2)]',
+          isPressed && 'brightness-[1.18]',
+          keyBorders && 'ring-1 ring-[hsl(var(--kb-edge))]',
           className,
         )}
       >
@@ -208,21 +234,37 @@ export default function SoftKeyboard({
   const [caps, setCaps] = useState(false);
   const [activePanel, setActivePanel] = useState<'none' | 'clipboard' | 'emoji' | 'islamic'>('none');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [oneHandedMode, setOneHandedMode] = useState<'off' | 'left' | 'right'>('off');
+  const [oneHandedMode, setOneHandedMode] = useState<'off' | 'left' | 'right'>(
+    () => readKeyboardSettings().oneHandedMode,
+  );
   const [typedBuffer, setTypedBuffer] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>(() => getWordSuggestions(''));
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const spaceDragRef = useRef<{ startX: number } | null>(null);
+  const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
   const lastSpaceTapRef = useRef<number>(0);
 
   // Listen for settings changes
   useEffect(() => {
     const handler = (e: Event) => {
-      setSettings((e as CustomEvent<KeyboardSettings>).detail);
+      const next = (e as CustomEvent<KeyboardSettings>).detail;
+      setSettings(next);
+      setOneHandedMode(next.oneHandedMode);
     };
     window.addEventListener('soft-keyboard-settings-changed', handler);
     return () => window.removeEventListener('soft-keyboard-settings-changed', handler);
+  }, []);
+
+  /**
+   * Switching layout ends the current word and any pending shift latch: keeping
+   * them alive leaked English suggestions into Arabic typing and vice versa.
+   */
+  const switchLayout = useCallback((next: LayoutId) => {
+    setLayout(next);
+    setShift(false);
+    setCaps(false);
+    setTypedBuffer('');
+    setSuggestions(getWordSuggestions(''));
   }, []);
 
   // Height publishing
@@ -247,8 +289,10 @@ export default function SoftKeyboard({
     onInsert(textToInsert);
     if (shift && !caps) setShift(false);
 
-    // Update dynamic word suggestions
-    const newBuffer = typedBuffer + textToInsert;
+    // Only letters continue a word. Digits, punctuation and combining marks end
+    // it, so the prediction buffer never accumulates junk that can't be matched.
+    const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
+    const newBuffer = isWordChar ? typedBuffer + textToInsert : '';
     setTypedBuffer(newBuffer);
     setSuggestions(getWordSuggestions(newBuffer));
   };
@@ -273,6 +317,14 @@ export default function SoftKeyboard({
     }
     setTypedBuffer('');
     setSuggestions(getWordSuggestions(''));
+  };
+
+  /** Props every key shares, so behaviour stays identical across rows. */
+  const keyChrome = {
+    showPopupPreview: settings.showKeyPressPopup,
+    vibrate: settings.vibrateOnKeyPress,
+    keyBorders: settings.keyBorders,
+    holdDelayMs: settings.holdDelayMs,
   };
 
   const letters = layout === 'ar' || layout === 'en';
@@ -303,17 +355,13 @@ export default function SoftKeyboard({
         {
           '--kb-key-h': keyHeightVar,
           paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)',
+          ...keyboardPaletteVars(settings.theme),
         } as React.CSSProperties
       }
       className={cn(
-        'pointer-events-auto w-full border-t border-border/50 bg-[hsl(var(--surface-0))]/98 backdrop-blur-2xl transition-all',
-        'px-1.5 pt-1.5 shadow-2xl select-none',
-        settings.theme === 'oled' && 'bg-black border-neutral-800',
-        settings.theme === 'gboard-light' && 'bg-neutral-100 text-neutral-900',
-        settings.theme === 'sand' && 'bg-[#e2d8ce] text-[#2c221e]',
-        settings.theme === 'luxury-gold' && 'bg-[#181512] text-[#f0e6d2]',
-        settings.theme === 'emerald' && 'bg-[#0f241d] text-[#d1fae5]',
-        settings.theme === 'sapphire' && 'bg-[#0f172a] text-[#e2e8f0]',
+        'pointer-events-auto w-full select-none border-t border-[hsl(var(--kb-edge))]',
+        'bg-[hsl(var(--kb-bg))] text-[hsl(var(--kb-fg))] shadow-2xl backdrop-blur-2xl',
+        'px-1.5 pt-1.5',
         oneHandedMode === 'right' && 'ms-auto w-[85%]',
         oneHandedMode === 'left' && 'me-auto w-[85%]',
       )}
@@ -405,7 +453,7 @@ export default function SoftKeyboard({
                   onInsert(ch);
                   if (settings.vibrateOnKeyPress) haptics('selection');
                 }}
-                className="h-8 min-w-8 shrink-0 rounded-lg bg-[hsl(var(--surface-2))]/60 px-2 text-[0.9375rem] font-medium leading-none text-muted-foreground transition-all active:scale-90 active:bg-[hsl(var(--live))] active:text-white"
+                className="h-8 min-w-8 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:scale-90 active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
               >
                 {ch}
               </button>
@@ -421,7 +469,7 @@ export default function SoftKeyboard({
                 onMoveCaret(caretDelta(layout, 'right'));
                 if (settings.vibrateOnKeyPress) haptics('selection');
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-[hsl(var(--surface-2))]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -434,7 +482,7 @@ export default function SoftKeyboard({
                 onMoveCaret(caretDelta(layout, 'left'));
                 if (settings.vibrateOnKeyPress) haptics('selection');
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-[hsl(var(--surface-2))]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -446,7 +494,7 @@ export default function SoftKeyboard({
                 e.preventDefault();
                 onDone();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-[hsl(var(--surface-2))]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ChevronDown className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -458,17 +506,15 @@ export default function SoftKeyboard({
       {activePanel === 'none' && (
         <div className="space-y-1.5">
           {/* Optional Top Number Row */}
-          {settings.showNumberRow && layout === 'ar' && (
+          {settings.showNumberRow && letters && (
             <div className="flex gap-1">
-              {(settings.digitType === 'eastern' ? EASTERN_NUMBER_ROW : WESTERN_NUMBER_ROW).map((key) => (
+              {(settings.digitType === 'eastern' && layout === 'ar' ? EASTERN_NUMBER_ROW : WESTERN_NUMBER_ROW).map((key) => (
                 <Key
                   key={key.ch}
                   label={key.ch}
                   ariaLabel={key.ch}
-                  showPopupPreview={settings.showKeyPressPopup}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
-                  className="h-8 text-mini bg-[hsl(var(--surface-1))]"
+                  {...keyChrome}
+                  className="h-8 text-mini"
                   onPress={() => onInsert(key.ch)}
                 />
               ))}
@@ -482,9 +528,8 @@ export default function SoftKeyboard({
                 <Key
                   tone="modifier"
                   span={1.5}
+                  {...keyChrome}
                   showPopupPreview={false}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
                   ariaLabel={caps ? 'إلغاء التثبيت' : 'أحرف بديلة'}
                   onPress={() => {
                     if (caps) {
@@ -497,7 +542,7 @@ export default function SoftKeyboard({
                       setShift(true);
                     }
                   }}
-                  className={cn((shift || caps) && 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] border-[hsl(var(--live))]/40')}
+                  className={cn((shift || caps) && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))] ring-1 ring-[hsl(var(--kb-accent))]/50')}
                 >
                   <ArrowUp className={cn('h-5 w-5', caps && 'stroke-[2.5]')} aria-hidden="true" />
                 </Key>
@@ -509,9 +554,7 @@ export default function SoftKeyboard({
                   label={(shift || caps ? key.alt : undefined) ?? key.label ?? key.ch}
                   popups={key.popups}
                   ariaLabel={key.ch}
-                  showPopupPreview={settings.showKeyPressPopup}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
+                  {...keyChrome}
                   className={cn(
                     layout === 'ar' && 'text-[1.25rem]',
                     layout === 'harakat' && 'text-[1.375rem]',
@@ -531,9 +574,8 @@ export default function SoftKeyboard({
                 <Key
                   tone="modifier"
                   span={1.5}
+                  {...keyChrome}
                   showPopupPreview={false}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
                   ariaLabel="حذف"
                   onPress={handleBackspace}
                   onHold={onBackspaceWord}
@@ -549,35 +591,32 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.4}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               label={layout === 'num' || layout === 'sym' ? 'أ ب' : '?123'}
               ariaLabel="تبديل الأرقام والرموز"
-              onPress={() => setLayout(layout === 'num' || layout === 'sym' ? 'ar' : 'num')}
+              onPress={() => switchLayout(layout === 'num' || layout === 'sym' ? 'ar' : 'num')}
             />
 
             {(layout === 'num' || layout === 'sym') && (
               <Key
                 tone="modifier"
                 span={1.2}
+                {...keyChrome}
                 showPopupPreview={false}
-                vibrate={settings.vibrateOnKeyPress}
-                keyBorders={settings.keyBorders}
                 label={layout === 'num' ? '=\\<' : '123'}
                 ariaLabel="رموز إضافية"
-                onPress={() => setLayout(layout === 'num' ? 'sym' : 'num')}
+                onPress={() => switchLayout(layout === 'num' ? 'sym' : 'num')}
               />
             )}
 
             <Key
               tone="modifier"
               span={1.2}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               ariaLabel="تبديل اللغة"
-              onPress={() => setLayout(layout === 'ar' ? 'en' : 'ar')}
+              onPress={() => switchLayout(layout === 'ar' ? 'en' : 'ar')}
             >
               <span className="flex items-center gap-1 text-mini font-semibold">
                 <Languages className="h-4 w-4" aria-hidden="true" />
@@ -588,32 +627,34 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.1}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               label={'\u25CC\u064E'}
               ariaLabel="التشكيل"
-              onPress={() => setLayout(layout === 'harakat' ? 'ar' : 'harakat')}
-              className={cn(layout === 'harakat' && 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]')}
+              onPress={() => switchLayout(layout === 'harakat' ? 'ar' : 'harakat')}
+              className={cn(layout === 'harakat' && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]')}
             />
 
             {/* Spacebar with Caret Drag Support */}
             <div
               className="relative flex flex-[4] items-center"
               onPointerDown={(e) => {
-                spaceDragRef.current = { startX: e.clientX };
+                spaceDragRef.current = { startX: e.clientX, moved: false };
               }}
               onPointerMove={(e) => {
                 if (!spaceDragRef.current) return;
                 const diff = e.clientX - spaceDragRef.current.startX;
-                if (Math.abs(diff) > 18) {
+                if (Math.abs(diff) > DRAG_SLOP) {
                   // Dragging right moves caret visually right, dragging left moves caret visually left
                   onMoveCaret(caretDelta(layout, diff > 0 ? 'right' : 'left'));
-                  spaceDragRef.current = { startX: e.clientX };
+                  spaceDragRef.current = { startX: e.clientX, moved: true };
                   if (settings.vibrateOnKeyPress) haptics('selection');
                 }
               }}
               onPointerUp={() => {
+                spaceDragRef.current = null;
+              }}
+              onPointerCancel={() => {
                 spaceDragRef.current = null;
               }}
             >
@@ -621,15 +662,19 @@ export default function SoftKeyboard({
                 span={1}
                 label=""
                 ariaLabel="مسافة"
+                {...keyChrome}
                 showPopupPreview={false}
-                vibrate={settings.vibrateOnKeyPress}
-                keyBorders={settings.keyBorders}
-                onPress={handleSpacePress}
-                onHold={() => onInsert(' ')}
+                // Space commits on release so sliding it as a caret trackpad
+                // never leaves a stray space behind.
+                pressOnRelease
+                onPress={() => {
+                  if (spaceDragRef.current?.moved) return;
+                  handleSpacePress();
+                }}
                 className="w-full"
               >
-                <div className="flex items-center gap-2 text-micro text-muted-foreground/60">
-                  <span className="h-1 w-12 rounded-full bg-muted-foreground/40" />
+                <div className="flex items-center gap-2 text-micro">
+                  <span className="h-1 w-12 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
                 </div>
               </Key>
             </div>
@@ -638,9 +683,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               label={layout === 'ar' ? '،' : '.'}
               ariaLabel="علامة ترقيم"
               onPress={() => onInsert(layout === 'ar' ? '،' : '.')}
@@ -651,9 +695,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.1}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               ariaLabel="لوحة مفاتيح النظام"
               onPress={onUseSystemKeyboard}
             >
@@ -664,9 +707,8 @@ export default function SoftKeyboard({
             <Key
               tone="accent"
               span={2}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               ariaLabel={enterLabel}
               onPress={onEnter}
             >

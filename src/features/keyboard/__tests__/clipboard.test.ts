@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   clearUnpinnedClipboard,
   deleteClipboardItem,
-  getClipboardHistory,
   saveToClipboardHistory,
   togglePinClipboardItem,
 } from '../lib/clipboard';

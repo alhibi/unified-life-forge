@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Check, ChevronDown, ChevronUp, Loader2, Search, Sparkles, X } from '@/lib/icons';
-import { supabase } from '@/integrations/supabase/client';
+import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import {
   GENDER_COLORS,
   GERMAN_CLUB_TOKENS,
