@@ -15,6 +15,18 @@ interface GermanClubState {
   isLoadingUnreviewed: boolean;
   error: string | null;
 
+  // Ephemeral, client-side session momentum (0 to 100)
+  sessionMomentum: number;
+  incrementMomentum: (amount?: number) => void;
+  coolMomentum: (decayAmount?: number) => void;
+  resetMomentum: () => void;
+
+  // Mastered shelf IDs state & animated mastery tracking
+  masteredShelfIds: Set<string>;
+  animatedMasteryIds: Set<string>;
+  markShelfAnimated: (shelfId: string) => void;
+  checkShelfMastery: () => Promise<void>;
+
   fetchShelves: () => Promise<void>;
   fetchShelfEntries: (shelfSlug: string) => Promise<void>;
   fetchGrammarNotes: () => Promise<void>;
@@ -13074,6 +13086,87 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
   isLoadingUnreviewed: false,
   error: null,
 
+  sessionMomentum: 0,
+  incrementMomentum: (amount = 25) => {
+    set((state) => ({
+      sessionMomentum: Math.min(100, state.sessionMomentum + amount),
+    }));
+  },
+  coolMomentum: (decayAmount = 15) => {
+    set((state) => ({
+      sessionMomentum: Math.max(0, state.sessionMomentum - decayAmount),
+    }));
+  },
+  resetMomentum: () => {
+    set({ sessionMomentum: 0 });
+  },
+
+  masteredShelfIds: new Set<string>(),
+  animatedMasteryIds: new Set<string>(),
+  markShelfAnimated: (shelfId: string) => {
+    set((state) => {
+      const next = new Set(state.animatedMasteryIds);
+      next.add(shelfId);
+      return { animatedMasteryIds: next };
+    });
+  },
+  checkShelfMastery: async () => {
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes?.user) return;
+
+      const { data: progressData } = await supabase
+        .from('german_club_progress')
+        .select('entry_id, is_mastered')
+        .eq('user_id', userRes.user.id)
+        .eq('is_mastered', true);
+
+      if (!progressData || progressData.length === 0) return;
+
+      const masteredEntryIds = new Set(progressData.map((row) => row.entry_id));
+
+      // Query entries mapping across all shelves
+      const { data: allEntriesData } = await supabase
+        .from('german_club_entries')
+        .select('id, shelf_id');
+
+      const { shelves } = get();
+      const masteredShelves = new Set<string>();
+
+      if (allEntriesData && allEntriesData.length > 0) {
+        const shelfEntriesMap = new Map<string, string[]>();
+        for (const entry of allEntriesData) {
+          if (!shelfEntriesMap.has(entry.shelf_id)) {
+            shelfEntriesMap.set(entry.shelf_id, []);
+          }
+          shelfEntriesMap.get(entry.shelf_id)!.push(entry.id);
+        }
+
+        for (const shelf of shelves) {
+          const entryIds = shelfEntriesMap.get(shelf.id) || [];
+          if (entryIds.length > 0 && entryIds.every((id) => masteredEntryIds.has(id))) {
+            masteredShelves.add(shelf.id);
+          }
+        }
+      } else {
+        // Fallback for offline local entries map
+        for (const shelf of shelves) {
+          const localEntries = LOCAL_ENTRIES_FALLBACK[shelf.slug] || [];
+          if (
+            localEntries.length > 0 &&
+            localEntries.every((e) => masteredEntryIds.has(e.id))
+          ) {
+            masteredShelves.add(shelf.id);
+          }
+        }
+      }
+
+      set({ masteredShelfIds: masteredShelves });
+    } catch {
+      /* ignore offline progress errors */
+    }
+  },
+
   fetchShelves: async () => {
     set({ isLoadingShelves: true, error: null });
     try {
@@ -13205,6 +13298,12 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
   },
 
   toggleEntryMastered: async (entryId: string, mastered: boolean) => {
+    if (mastered) {
+      get().incrementMomentum(25);
+    } else {
+      get().coolMomentum(20);
+    }
+
     try {
       const { data: userRes } = await supabase.auth.getUser();
       if (!userRes?.user) return;

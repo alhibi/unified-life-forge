@@ -120,6 +120,11 @@ export const GERMAN_CLUB_TOKENS = {
   dasStone: "#6B6558",
 } as const;
 
+export const SURGE_TOKENS = {
+  surgeCobalt: "#2D6FF2",
+  surgeEmberHot: "#FF7A29",
+} as const;
+
 export const GENDER_COLORS: Record<GermanGender, string | null> = {
   der: GERMAN_CLUB_TOKENS.derBlue,
   die: GERMAN_CLUB_TOKENS.dieRose,
