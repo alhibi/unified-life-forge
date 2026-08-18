@@ -45,6 +45,7 @@ describe('Soft Keyboard Preferences Store', () => {
   });
 
   it('gracefully handles corrupted JSON in localStorage', () => {
+    writeKeyboardSettings({ theme: 'gboard-dark' });
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem('smarthub:soft-keyboard-settings-v2', 'invalid json {{{');
     }

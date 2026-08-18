@@ -82,10 +82,17 @@ export default function KeyboardProvider() {
   useEffect(() => {
     if (!active) return;
 
-    // pointerdown fires before focus, which is the only reliable moment to stop
-    // Android from animating its own keyboard in.
+    // Check if the document already has an active editable target upon mounting
+    if (typeof document !== 'undefined' && document.activeElement && isSoftKeyboardTarget(document.activeElement)) {
+      capture(document.activeElement);
+    }
+
     const onPointerDown = (event: PointerEvent) => {
-      // Re-enable soft keyboard if user explicitly interacts via touch or pointer tap
+      physicalKeyboardRef.current = false;
+      const node = event.target;
+      if (isSoftKeyboardTarget(node)) capture(node);
+    };
+    const onMouseDown = (event: MouseEvent) => {
       physicalKeyboardRef.current = false;
       const node = event.target;
       if (isSoftKeyboardTarget(node)) capture(node);
@@ -109,11 +116,11 @@ export default function KeyboardProvider() {
         targetRef.current.blur();
         return;
       }
-      // If keydown event is trusted and does not originate from within the soft keyboard panel,
+      // If keydown event is trusted, character-producing, and does not originate from within the soft keyboard panel,
       // it means input is coming from an external physical / Bluetooth keyboard.
       const targetNode = event.target as HTMLElement | null;
       const isFromSoftKbPanel = targetNode?.closest?.('[data-soft-keyboard-panel]');
-      if (event.isTrusted && !isFromSoftKbPanel && targetRef.current) {
+      if (event.isTrusted && !isFromSoftKbPanel && targetRef.current && event.key.length === 1) {
         physicalKeyboardRef.current = true;
         // Suppress soft keyboard so physical keyboard and soft keyboard don't overlap
         release();
@@ -121,11 +128,13 @@ export default function KeyboardProvider() {
     };
 
     document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('mousedown', onMouseDown, true);
     document.addEventListener('focusin', onFocusIn);
     document.addEventListener('focusout', onFocusOut);
     document.addEventListener('keydown', onKeyDown, true);
     return () => {
       document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('mousedown', onMouseDown, true);
       document.removeEventListener('focusin', onFocusIn);
       document.removeEventListener('focusout', onFocusOut);
       document.removeEventListener('keydown', onKeyDown, true);
