@@ -170,3 +170,120 @@ export const GermanEntrySchema = z.object({
   locked: z.boolean().optional(),
   generation_job_id: z.string().uuid().nullable().optional(),
 });
+
+// Dictionary Domain Types
+export type CEFRLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+
+export type DictionaryWordType =
+  | "noun"
+  | "verb"
+  | "adjective"
+  | "adverb"
+  | "preposition"
+  | "conjunction"
+  | "pronoun"
+  | "expression"
+  | "idiom";
+
+export type GrammaticalCase = "nominative" | "accusative" | "dative" | "genitive" | "two_way";
+
+export interface DictionaryVerbForms {
+  present_3sg?: string; // e.g. "sieht"
+  past_simple?: string; // Präteritum e.g. "sah"
+  perfect?: string;     // Partizip II e.g. "gesehen" (ist/hat gesehen)
+  auxiliary?: "haben" | "sein" | "both";
+  is_reflexive?: boolean;
+}
+
+export interface DictionaryNounForms {
+  plural_form?: string;  // e.g. "die Häuser"
+  genitive_singular?: string; // e.g. "des Hauses"
+}
+
+export interface DictionaryExample {
+  de: string;
+  ar: string;
+  context?: string;
+}
+
+export interface DictionaryEntry {
+  id: string;
+  german: string;
+  arabic: string;
+  word_type: DictionaryWordType;
+  cefr: CEFRLevel;
+  gender?: GermanGender;
+  ipa?: string;
+  category: string;
+  noun_forms?: DictionaryNounForms;
+  verb_forms?: DictionaryVerbForms;
+  is_separable?: boolean;
+  separable_prefix?: string;
+  preposition_case?: GrammaticalCase;
+  preposition_governed?: string; // e.g. "warten auf (+ Akk)"
+  antonyms?: string[];
+  synonyms?: string[];
+  examples: DictionaryExample[];
+  cultural_note_ar?: string;
+  grammatical_note_ar?: string;
+  plural_de?: string;
+  tags?: string[];
+}
+
+export const DictionaryWordTypeLabels: Record<DictionaryWordType, string> = {
+  noun: "اسم (Nomen)",
+  verb: "فعل (Verb)",
+  adjective: "صفة (Adjektiv)",
+  adverb: "ظرف (Adverb)",
+  preposition: "حرف جر (Präposition)",
+  conjunction: "حرف عطف (Konjunktion)",
+  pronoun: "ضمير (Pronomen)",
+  expression: "تعبير (Ausdruck)",
+  idiom: "مصطلح (Redewendung)",
+};
+
+export const CEFRLevelLabels: Record<CEFRLevel, { label_ar: string; badge_color: string }> = {
+  A1: { label_ar: "A1 — مبتدئ", badge_color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
+  A2: { label_ar: "A2 — أساسي", badge_color: "bg-teal-100 text-teal-800 border-teal-300" },
+  B1: { label_ar: "B1 — متوسط", badge_color: "bg-sky-100 text-sky-800 border-sky-300" },
+  B2: { label_ar: "B2 — فوق المتوسط", badge_color: "bg-indigo-100 text-indigo-800 border-indigo-300" },
+  C1: { label_ar: "C1 — متقدم", badge_color: "bg-amber-100 text-amber-800 border-amber-300" },
+  C2: { label_ar: "C2 — طليق/متقن", badge_color: "bg-rose-100 text-rose-800 border-rose-300" },
+};
+
+export const DictionaryEntrySchema = z.object({
+  id: z.string(),
+  german: z.string().min(1),
+  arabic: z.string().min(1),
+  word_type: z.enum(["noun", "verb", "adjective", "adverb", "preposition", "conjunction", "pronoun", "expression", "idiom"]),
+  cefr: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]),
+  gender: z.enum(["der", "die", "das", "plural", "n_a"]).optional(),
+  ipa: z.string().optional(),
+  category: z.string(),
+  noun_forms: z.object({
+    plural_form: z.string().optional(),
+    genitive_singular: z.string().optional(),
+  }).optional(),
+  verb_forms: z.object({
+    present_3sg: z.string().optional(),
+    past_simple: z.string().optional(),
+    perfect: z.string().optional(),
+    auxiliary: z.enum(["haben", "sein", "both"]).optional(),
+    is_reflexive: z.boolean().optional(),
+  }).optional(),
+  is_separable: z.boolean().optional(),
+  separable_prefix: z.string().optional(),
+  preposition_case: z.enum(["nominative", "accusative", "dative", "genitive", "two_way"]).optional(),
+  preposition_governed: z.string().optional(),
+  antonyms: z.array(z.string()).optional(),
+  synonyms: z.array(z.string()).optional(),
+  examples: z.array(z.object({
+    de: z.string(),
+    ar: z.string(),
+    context: z.string().optional(),
+  })),
+  cultural_note_ar: z.string().optional(),
+  grammatical_note_ar: z.string().optional(),
+  plural_de: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
