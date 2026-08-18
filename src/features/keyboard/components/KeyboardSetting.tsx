@@ -94,6 +94,17 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
         <div className="space-y-3 pt-2 border-t border-border/30">
           <div className="flex items-center justify-between">
             <div>
+              <p className="text-mini font-medium text-foreground">التصحيح التلقائي الخفيف</p>
+              <p className="text-micro text-muted-foreground">استبدال الأخطاء الشائعة تلقائياً مع إمكانية التراجع بـ Backspace</p>
+            </div>
+            <Switch
+              checked={settings.autoCorrectionEnabled}
+              onCheckedChange={(checked) => update({ autoCorrectionEnabled: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
               <p className="text-mini font-medium text-foreground">سطر الأرقام العلوي</p>
               <p className="text-micro text-muted-foreground">عرض سطر الأرقام دائماً أعلى الحروف</p>
             </div>
@@ -111,6 +122,17 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
             <Switch
               checked={settings.showKeyPressPopup}
               onCheckedChange={(checked) => update({ showKeyPressPopup: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">صوت الضغط على المفاتيح</p>
+              <p className="text-micro text-muted-foreground">تفعيل صوت نقر خفيف عند الكتابة</p>
+            </div>
+            <Switch
+              checked={settings.soundOnClick}
+              onCheckedChange={(checked) => update({ soundOnClick: checked, soundEnabled: checked })}
             />
           </div>
 

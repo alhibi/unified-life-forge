@@ -10,9 +10,12 @@ import {
   type EditableField,
   insertText,
   isSensitiveField,
+  getAdaptiveEnterLabel,
   isSoftKeyboardTarget,
   moveCaret,
   pressEnter,
+  replaceLastWord,
+  shouldAutoCapitalizeSentence,
 } from './lib/edit';
 import {
   readSoftKeyboardPreference,
@@ -35,6 +38,7 @@ export default function KeyboardProvider() {
     readSoftKeyboardPreference(),
   );
   const [target, setTarget] = useState<EditableField | null>(null);
+  const [inputTick, setInputTick] = useState(0);
   const targetRef = useRef<EditableField | null>(null);
   /** inputMode we borrowed from the field, restored on release. */
   const restoreRef = useRef<string | null>(null);
@@ -132,6 +136,7 @@ export default function KeyboardProvider() {
     const el = targetRef.current;
     if (!el) return;
     fn(el);
+    setInputTick((t) => t + 1);
   }, []);
 
   if (typeof document === 'undefined') return null;
@@ -162,11 +167,19 @@ export default function KeyboardProvider() {
         <AnimatePresence>
           {active && target && (
             <SoftKeyboard
-              enterLabel={target instanceof HTMLTextAreaElement ? 'سطر' : 'تم'}
+              enterLabel={getAdaptiveEnterLabel(target)}
               isSensitive={isSensitiveField(target)}
+              shouldAutoCap={shouldAutoCapitalizeSentence(target)}
               onInsert={(text) => run((el) => insertText(el, text))}
               onBackspace={() => run(backspace)}
               onBackspaceWord={() => run(backspaceWord)}
+              onReplaceLastWord={(original, replacement) => {
+                let success = false;
+                run((el) => {
+                  success = replaceLastWord(el, original, replacement);
+                });
+                return success;
+              }}
               onEnter={() => run(pressEnter)}
               onMoveCaret={(delta) => run((el) => moveCaret(el, delta))}
               onDone={() => {

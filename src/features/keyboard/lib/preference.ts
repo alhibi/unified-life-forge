@@ -30,10 +30,13 @@ export interface KeyboardSettings {
   showKeyPressPopup: boolean;
   holdDelayMs: number;
   soundEnabled: boolean;
+  soundOnClick: boolean;
   soundVolume: number;
   soundTone: SoundTone;
   hapticIntensity: HapticIntensity;
   vibrateOnKeyPress: boolean;
+  autoCapitalization: boolean;
+  autoCorrectionEnabled: boolean;
   autoPeriod: boolean;
   autoTashkeel: boolean;
   oneHandedMode: OneHandedMode;
@@ -57,10 +60,13 @@ export const DEFAULT_KEYBOARD_SETTINGS: KeyboardSettings = {
   showKeyPressPopup: true,
   holdDelayMs: 280,
   soundEnabled: false,
+  soundOnClick: false,
   soundVolume: 0.5,
   soundTone: 'default',
   hapticIntensity: 'light',
   vibrateOnKeyPress: true,
+  autoCapitalization: true,
+  autoCorrectionEnabled: true,
   autoPeriod: true,
   autoTashkeel: true,
   oneHandedMode: 'off',

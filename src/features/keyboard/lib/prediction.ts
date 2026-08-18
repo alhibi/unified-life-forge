@@ -26,6 +26,46 @@ const COMMON_ARABIC_WORDS: Record<string, string[]> = {
   'رض': ['رضي الله عنه', 'رضي الله عنها', 'رضوان'],
 };
 
+/** Common known typos dictionary (Arabic & English) */
+const COMMON_TYPO_MAP: Record<string, string> = {
+  // Arabic common typos
+  'شكرا': 'شكراً',
+  'اهلاً': 'أهلاً',
+  'اهل': 'أهل',
+  'انشاءالله': 'إن شاء الله',
+  'كيفك': 'كيف حالك',
+  'مبروك': 'مبارك',
+  'هذاه': 'هذه',
+  'ذالك': 'ذلك',
+  // English common typos
+  'teh': 'the',
+  'taht': 'that',
+  'recieve': 'receive',
+  'seperate': 'separate',
+  'definately': 'definitely',
+  'thru': 'through',
+  'becuase': 'because',
+  'im': "I'm",
+  'dont': "don't",
+  'cant': "can't",
+};
+
+/**
+ * Checks if a token is a known typo and returns its mild auto-correction, or null if none.
+ */
+export function getAutoCorrection(word: string): string | null {
+  if (!word) return null;
+  const clean = word.trim();
+  if (COMMON_TYPO_MAP[clean]) {
+    return COMMON_TYPO_MAP[clean];
+  }
+  const lower = clean.toLowerCase();
+  if (COMMON_TYPO_MAP[lower]) {
+    return COMMON_TYPO_MAP[lower];
+  }
+  return null;
+}
+
 /** Common Arabic root frequency dictionary for word completion */
 const DICTIONARY_WORDS = [
   'السلام', 'عليكم', 'ورحمة', 'الله', 'وبركاته', 'شكراً', 'جزيلاً', 'مرحباً', 'كيف',
