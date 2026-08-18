@@ -56,6 +56,15 @@ export const GermanClubHome: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={() => navigate('/german-club/dictionary')}
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[#17324D]/30 bg-[#17324D] text-white hover:bg-[#17324D]/90 transition-colors flex items-center gap-1.5 shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              القاموس الشامل
+            </button>
+
+            <button
+              type="button"
               onClick={() => navigate('/german-club/grammar')}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
             >

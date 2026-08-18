@@ -171,6 +171,7 @@ const loadWeather = () => import("./features/weather/pages/Weather");
 const loadKnowledge = () => import("./features/knowledge/pages/Knowledge");
 // German Club ("النادي الألماني") module — situational shelves, separable verbs, gender dots
 const loadGermanClubHome = () => import("./features/german-club/pages/GermanClubHome");
+const loadGermanDictionary = () => import("./features/german-club/pages/GermanDictionary");
 const loadGermanShelfDetail = () => import("./features/german-club/pages/ShelfDetail");
 const loadGermanGrammar = () => import("./features/german-club/pages/GrammarCorner");
 const loadGermanReview = () => import("./features/german-club/pages/ContentReviewAdmin");
@@ -241,9 +242,10 @@ registerRoute('/mihrab',            loadMihrab);
 registerRoute('/mihrab/prayer-guide', loadPrayerGuide);
 registerRoute('/weather',           loadWeather);
 registerRoute('/knowledge',         loadKnowledge);
-registerRoute('/german-club',       loadGermanClubHome);
-registerRoute('/german-club/grammar', loadGermanGrammar);
-registerRoute('/german-club/review',  loadGermanReview);
+registerRoute('/german-club',            loadGermanClubHome);
+registerRoute('/german-club/dictionary', loadGermanDictionary);
+registerRoute('/german-club/grammar',    loadGermanGrammar);
+registerRoute('/german-club/review',     loadGermanReview);
 registerRoute('/journal',           loadJournal);
 registerRoute('/travel-atlas',      loadTravelAtlas);
 registerRoute('/travel-atlas/explore', loadTravelExplore);
@@ -292,6 +294,7 @@ registerRoute('/crypto',          loadCrypto);
 
 const CryptoWatchlistPage = lazy(loadCrypto);
 const GermanClubHomePage = lazy(loadGermanClubHome);
+const GermanDictionaryPage = lazy(loadGermanDictionary);
 const ShelfDetailPage = lazy(loadGermanShelfDetail);
 const GrammarCornerPage = lazy(loadGermanGrammar);
 const ContentReviewAdminPage = lazy(loadGermanReview);
@@ -678,6 +681,7 @@ function AnimatedRoutes() {
                   <Route path="/knowledge" element={<ErrorBoundary><KnowledgePage /></ErrorBoundary>} />
                   {/* German Club Routes */}
                   <Route path="/german-club" element={<ErrorBoundary><GermanClubHomePage /></ErrorBoundary>} />
+                  <Route path="/german-club/dictionary" element={<ErrorBoundary><GermanDictionaryPage /></ErrorBoundary>} />
                   <Route path="/german-club/shelf/:slug" element={<ErrorBoundary><ShelfDetailPage /></ErrorBoundary>} />
                   <Route path="/german-club/grammar" element={<ErrorBoundary><GrammarCornerPage /></ErrorBoundary>} />
                   <Route path="/german-club/review" element={<ErrorBoundary><ContentReviewAdminPage /></ErrorBoundary>} />
