@@ -450,7 +450,7 @@ export default function SoftKeyboard({
                   onInsert(ch);
                   if (settings.vibrateOnKeyPress) haptics('selection');
                 }}
-                className="h-8 min-w-8 shrink-0 rounded-lg bg-[hsl(var(--surface-2))]/60 px-2 text-[0.9375rem] font-medium leading-none text-muted-foreground transition-all active:scale-90 active:bg-[hsl(var(--live))] active:text-white"
+                className="h-8 min-w-8 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:scale-90 active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
               >
                 {ch}
               </button>
@@ -466,7 +466,7 @@ export default function SoftKeyboard({
                 onMoveCaret(caretDelta(layout, 'right'));
                 if (settings.vibrateOnKeyPress) haptics('selection');
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-[hsl(var(--surface-2))]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -479,7 +479,7 @@ export default function SoftKeyboard({
                 onMoveCaret(caretDelta(layout, 'left'));
                 if (settings.vibrateOnKeyPress) haptics('selection');
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-[hsl(var(--surface-2))]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -491,7 +491,7 @@ export default function SoftKeyboard({
                 e.preventDefault();
                 onDone();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-[hsl(var(--surface-2))]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ChevronDown className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -503,15 +503,15 @@ export default function SoftKeyboard({
       {activePanel === 'none' && (
         <div className="space-y-1.5">
           {/* Optional Top Number Row */}
-          {settings.showNumberRow && layout === 'ar' && (
+          {settings.showNumberRow && letters && (
             <div className="flex gap-1">
-              {(settings.digitType === 'eastern' ? EASTERN_NUMBER_ROW : WESTERN_NUMBER_ROW).map((key) => (
+              {(settings.digitType === 'eastern' && layout === 'ar' ? EASTERN_NUMBER_ROW : WESTERN_NUMBER_ROW).map((key) => (
                 <Key
                   key={key.ch}
                   label={key.ch}
                   ariaLabel={key.ch}
                   {...keyChrome}
-                  className="h-8 text-mini bg-[hsl(var(--surface-1))]"
+                  className="h-8 text-mini"
                   onPress={() => onInsert(key.ch)}
                 />
               ))}
@@ -539,7 +539,7 @@ export default function SoftKeyboard({
                       setShift(true);
                     }
                   }}
-                  className={cn((shift || caps) && 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] border-[hsl(var(--live))]/40')}
+                  className={cn((shift || caps) && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))] ring-1 ring-[hsl(var(--kb-accent))]/50')}
                 >
                   <ArrowUp className={cn('h-5 w-5', caps && 'stroke-[2.5]')} aria-hidden="true" />
                 </Key>
@@ -629,7 +629,7 @@ export default function SoftKeyboard({
               label={'\u25CC\u064E'}
               ariaLabel="التشكيل"
               onPress={() => setLayout(layout === 'harakat' ? 'ar' : 'harakat')}
-              className={cn(layout === 'harakat' && 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]')}
+              className={cn(layout === 'harakat' && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]')}
             />
 
             {/* Spacebar with Caret Drag Support */}
@@ -661,7 +661,6 @@ export default function SoftKeyboard({
                 ariaLabel="مسافة"
                 {...keyChrome}
                 showPopupPreview={false}
-                holdDelayMs={settings.holdDelayMs}
                 // Space commits on release so sliding it as a caret trackpad
                 // never leaves a stray space behind.
                 pressOnRelease
@@ -671,7 +670,7 @@ export default function SoftKeyboard({
                 }}
                 className="w-full"
               >
-                <div className="flex items-center gap-2 text-micro text-muted-foreground/60">
+                <div className="flex items-center gap-2 text-micro">
                   <span className="h-1 w-12 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
                 </div>
               </Key>
