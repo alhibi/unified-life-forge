@@ -510,9 +510,7 @@ export default function SoftKeyboard({
                   key={key.ch}
                   label={key.ch}
                   ariaLabel={key.ch}
-                  showPopupPreview={settings.showKeyPressPopup}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
+                  {...keyChrome}
                   className="h-8 text-mini bg-[hsl(var(--surface-1))]"
                   onPress={() => onInsert(key.ch)}
                 />
@@ -527,9 +525,8 @@ export default function SoftKeyboard({
                 <Key
                   tone="modifier"
                   span={1.5}
+                  {...keyChrome}
                   showPopupPreview={false}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
                   ariaLabel={caps ? 'إلغاء التثبيت' : 'أحرف بديلة'}
                   onPress={() => {
                     if (caps) {
@@ -554,9 +551,7 @@ export default function SoftKeyboard({
                   label={(shift || caps ? key.alt : undefined) ?? key.label ?? key.ch}
                   popups={key.popups}
                   ariaLabel={key.ch}
-                  showPopupPreview={settings.showKeyPressPopup}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
+                  {...keyChrome}
                   className={cn(
                     layout === 'ar' && 'text-[1.25rem]',
                     layout === 'harakat' && 'text-[1.375rem]',
@@ -576,9 +571,8 @@ export default function SoftKeyboard({
                 <Key
                   tone="modifier"
                   span={1.5}
+                  {...keyChrome}
                   showPopupPreview={false}
-                  vibrate={settings.vibrateOnKeyPress}
-                  keyBorders={settings.keyBorders}
                   ariaLabel="حذف"
                   onPress={handleBackspace}
                   onHold={onBackspaceWord}
@@ -594,9 +588,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.4}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               label={layout === 'num' || layout === 'sym' ? 'أ ب' : '?123'}
               ariaLabel="تبديل الأرقام والرموز"
               onPress={() => setLayout(layout === 'num' || layout === 'sym' ? 'ar' : 'num')}
@@ -606,9 +599,8 @@ export default function SoftKeyboard({
               <Key
                 tone="modifier"
                 span={1.2}
+                {...keyChrome}
                 showPopupPreview={false}
-                vibrate={settings.vibrateOnKeyPress}
-                keyBorders={settings.keyBorders}
                 label={layout === 'num' ? '=\\<' : '123'}
                 ariaLabel="رموز إضافية"
                 onPress={() => setLayout(layout === 'num' ? 'sym' : 'num')}
@@ -618,9 +610,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.2}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               ariaLabel="تبديل اللغة"
               onPress={() => setLayout(layout === 'ar' ? 'en' : 'ar')}
             >
@@ -633,9 +624,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.1}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               label={'\u25CC\u064E'}
               ariaLabel="التشكيل"
               onPress={() => setLayout(layout === 'harakat' ? 'ar' : 'harakat')}
@@ -669,9 +659,8 @@ export default function SoftKeyboard({
                 span={1}
                 label=""
                 ariaLabel="مسافة"
+                {...keyChrome}
                 showPopupPreview={false}
-                vibrate={settings.vibrateOnKeyPress}
-                keyBorders={settings.keyBorders}
                 holdDelayMs={settings.holdDelayMs}
                 // Space commits on release so sliding it as a caret trackpad
                 // never leaves a stray space behind.
@@ -692,9 +681,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               label={layout === 'ar' ? '،' : '.'}
               ariaLabel="علامة ترقيم"
               onPress={() => onInsert(layout === 'ar' ? '،' : '.')}
@@ -705,9 +693,8 @@ export default function SoftKeyboard({
             <Key
               tone="modifier"
               span={1.1}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               ariaLabel="لوحة مفاتيح النظام"
               onPress={onUseSystemKeyboard}
             >
@@ -718,9 +705,8 @@ export default function SoftKeyboard({
             <Key
               tone="accent"
               span={2}
+              {...keyChrome}
               showPopupPreview={false}
-              vibrate={settings.vibrateOnKeyPress}
-              keyBorders={settings.keyBorders}
               ariaLabel={enterLabel}
               onPress={onEnter}
             >
