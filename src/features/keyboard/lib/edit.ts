@@ -112,6 +112,17 @@ export function pressEnter(el: EditableField): void {
 }
 
 /** True when the field should get the app keyboard rather than the OS one. */
+/** True when the field contains sensitive data like passwords, PINs, or private notes where prediction/learning should be disabled. */
+export function isSensitiveField(node: EventTarget | null): boolean {
+  if (!(node instanceof HTMLInputElement) && !(node instanceof HTMLTextAreaElement)) return false;
+  if (node.type === 'password') return true;
+  if (node.dataset.sensitive === 'true') return true;
+  if (node.getAttribute('autocomplete')?.includes('password')) return true;
+  if (node.getAttribute('autocomplete')?.includes('one-time-code')) return true;
+  if (node.closest('[data-sensitive="true"]')) return true;
+  return false;
+}
+
 export function isSoftKeyboardTarget(node: EventTarget | null): node is EditableField {
   if (!(node instanceof HTMLInputElement) && !(node instanceof HTMLTextAreaElement)) return false;
   if (node.readOnly || node.disabled) return false;

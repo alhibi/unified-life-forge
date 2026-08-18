@@ -2,12 +2,14 @@ import { AnimatePresence } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { KeyboardErrorBoundary } from './components/KeyboardErrorBoundary';
 import SoftKeyboard from './components/SoftKeyboard';
 import {
   backspace,
   backspaceWord,
   type EditableField,
   insertText,
+  isSensitiveField,
   isSoftKeyboardTarget,
   moveCaret,
   pressEnter,
@@ -134,6 +136,13 @@ export default function KeyboardProvider() {
 
   if (typeof document === 'undefined') return null;
 
+  const handleUseSystemKeyboard = useCallback(() => {
+    const el = targetRef.current;
+    writeSoftKeyboardPreference('system');
+    release();
+    window.setTimeout(() => el?.focus(), 0);
+  }, [release]);
+
   return createPortal(
     <div
       data-soft-keyboard-panel=""
@@ -149,30 +158,27 @@ export default function KeyboardProvider() {
       className="pointer-events-none fixed inset-x-0 bottom-0 z-[95]"
       aria-hidden={!(active && target)}
     >
-      <AnimatePresence>
-        {active && target && (
-          <SoftKeyboard
-            enterLabel={target instanceof HTMLTextAreaElement ? 'سطر' : 'تم'}
-            onInsert={(text) => run((el) => insertText(el, text))}
-            onBackspace={() => run(backspace)}
-            onBackspaceWord={() => run(backspaceWord)}
-            onEnter={() => run(pressEnter)}
-            onMoveCaret={(delta) => run((el) => moveCaret(el, delta))}
-            onDone={() => {
-              targetRef.current?.blur();
-              release();
-            }}
-            onUseSystemKeyboard={() => {
-              const el = targetRef.current;
-              writeSoftKeyboardPreference('system');
-              release();
-              // Re-focus so the OS keyboard opens immediately for this field.
-              window.setTimeout(() => el?.focus(), 0);
-            }}
-            onHeightChange={onHeightChange}
-          />
-        )}
-      </AnimatePresence>
+      <KeyboardErrorBoundary onUseSystemKeyboard={handleUseSystemKeyboard}>
+        <AnimatePresence>
+          {active && target && (
+            <SoftKeyboard
+              enterLabel={target instanceof HTMLTextAreaElement ? 'سطر' : 'تم'}
+              isSensitive={isSensitiveField(target)}
+              onInsert={(text) => run((el) => insertText(el, text))}
+              onBackspace={() => run(backspace)}
+              onBackspaceWord={() => run(backspaceWord)}
+              onEnter={() => run(pressEnter)}
+              onMoveCaret={(delta) => run((el) => moveCaret(el, delta))}
+              onDone={() => {
+                targetRef.current?.blur();
+                release();
+              }}
+              onUseSystemKeyboard={handleUseSystemKeyboard}
+              onHeightChange={onHeightChange}
+            />
+          )}
+        </AnimatePresence>
+      </KeyboardErrorBoundary>
     </div>,
     document.body,
   );
