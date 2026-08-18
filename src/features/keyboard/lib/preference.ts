@@ -129,9 +129,7 @@ export function writeSoftKeyboardPreference(value: SoftKeyboardPreference): void
  */
 export function supportsSoftKeyboard(): boolean {
   if (typeof window === 'undefined') return false;
-  const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
-  const touch = (navigator.maxTouchPoints ?? 0) > 0;
-  // Both signals are required: a laptop with a touchscreen still types on its
-  // physical keyboard and must keep the OS input behaviour.
-  return coarse && touch;
+  // Available in all browser environments so users can opt into or out of
+  // the in-app custom keyboard via preference settings ('app' vs 'system').
+  return true;
 }
