@@ -48,6 +48,34 @@ export function insertText(el: EditableField, text: string): void {
   commit(el, next, start + text.length);
 }
 
+/**
+ * Replaces the last word before caret with a corrected version.
+ */
+export function replaceLastWord(el: EditableField, originalWord: string, correctedWord: string): boolean {
+  const [start] = selection(el);
+  const before = el.value.slice(0, start);
+  if (!before.endsWith(originalWord)) return false;
+
+  const newBefore = before.slice(0, before.length - originalWord.length) + correctedWord;
+  const next = newBefore + el.value.slice(start);
+  commit(el, next, newBefore.length);
+  return true;
+}
+
+/**
+ * Inspects field text prior to current caret position to determine if the next typed
+ * English letter should be auto-capitalized (at field start or after sentence punctuation [.!?] followed by whitespace).
+ */
+export function shouldAutoCapitalizeSentence(el: EditableField | null): boolean {
+  if (!el) return true;
+  const [start] = selection(el);
+  if (start === 0) return true;
+  const before = el.value.slice(0, start);
+  if (/^\s*$/.test(before)) return true;
+  // Check if preceded by punctuation [.!?] and space
+  return /[.!?]\s+$/.test(before);
+}
+
 export function backspace(el: EditableField): void {
   const [start, end] = selection(el);
   if (start !== end) {
@@ -130,4 +158,35 @@ export function isSoftKeyboardTarget(node: EventTarget | null): node is Editable
   if (node.dataset.softKeyboard === 'off') return false;
   if (node instanceof HTMLTextAreaElement) return true;
   return ['text', 'search', 'url', 'email', ''].includes(node.type);
+}
+
+/**
+ * Resolves the adaptive Enter button label based on field type, enterkeyhint attribute, or dataset.
+ */
+export function getAdaptiveEnterLabel(node: EditableField | null): string {
+  if (!node) return 'تم';
+  if (typeof HTMLTextAreaElement !== 'undefined' && node instanceof HTMLTextAreaElement) {
+    if (node.dataset.softKeyboardEnterSends === 'true') {
+      return 'إرسال';
+    }
+    return 'سطر';
+  }
+  if (node.tagName?.toLowerCase() === 'textarea') {
+    if (node.dataset?.softKeyboardEnterSends === 'true') {
+      return 'إرسال';
+    }
+    return 'سطر';
+  }
+
+  const hint = node.getAttribute?.('enterkeyhint')?.toLowerCase();
+  if (hint === 'search') return 'بحث';
+  if (hint === 'send') return 'إرسال';
+  if (hint === 'go') return 'انتقال';
+  if (hint === 'next') return 'التالي';
+  if (hint === 'done') return 'تم';
+
+  if (node.type === 'search') return 'بحث';
+  if (node.type === 'email' || node.type === 'url') return 'انتقال';
+
+  return 'تم';
 }

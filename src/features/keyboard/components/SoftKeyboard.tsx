@@ -27,11 +27,13 @@ import {
   QUICK_PUNCTUATION,
   WESTERN_NUMBER_ROW,
 } from '../lib/layouts';
-import { getWordSuggestions, learnWord } from '../lib/prediction';
+import { replaceLastWord } from '../lib/edit';
+import { getAutoCorrection, getWordSuggestions, learnWord } from '../lib/prediction';
 import {
   type KeyboardSettings,
   readKeyboardSettings,
 } from '../lib/preference';
+import { playKeyClickSound } from '../lib/sound';
 import { keyboardPaletteVars } from '../lib/theme';
 import { ClipboardPanel } from './ClipboardPanel';
 import { EmojiPanel } from './EmojiPanel';
@@ -43,6 +45,7 @@ export interface SoftKeyboardProps {
   onInsert: (text: string) => void;
   onBackspace: () => void;
   onBackspaceWord: () => void;
+  onReplaceLastWord: (original: string, replacement: string) => boolean;
   onEnter: () => void;
   onMoveCaret: (delta: number) => void;
   onDone: () => void;
@@ -50,6 +53,7 @@ export interface SoftKeyboardProps {
   enterLabel?: string;
   onHeightChange?: (height: number) => void;
   isSensitive?: boolean;
+  shouldAutoCap?: boolean;
 }
 
 const HOLD_REPEAT_MS = 70;
@@ -65,6 +69,8 @@ const Key = memo(function Key({
   popups,
   showPopupPreview = true,
   vibrate = true,
+  soundOnClick = false,
+  soundVolume = 0.5,
   keyBorders = false,
   holdDelayMs = 280,
   pressOnRelease = false,
@@ -81,6 +87,8 @@ const Key = memo(function Key({
   popups?: string[];
   showPopupPreview?: boolean;
   vibrate?: boolean;
+  soundOnClick?: boolean;
+  soundVolume?: number;
   keyBorders?: boolean;
   /** Long-press threshold, driven by user preference. */
   holdDelayMs?: number;
@@ -163,6 +171,7 @@ const Key = memo(function Key({
           setIsPressed(true);
           if (!pressOnRelease) onPress();
           if (vibrate) haptics('selection');
+          if (soundOnClick) playKeyClickSound(tone, soundVolume);
 
           timers.current.start = window.setTimeout(() => {
             if (popups && popups.length > 0) {
@@ -229,6 +238,7 @@ export default function SoftKeyboard({
   onInsert,
   onBackspace,
   onBackspaceWord,
+  onReplaceLastWord,
   onEnter,
   onMoveCaret,
   onDone,
@@ -236,17 +246,29 @@ export default function SoftKeyboard({
   enterLabel = 'تم',
   onHeightChange,
   isSensitive = false,
+  shouldAutoCap = true,
 }: SoftKeyboardProps) {
   const [settings, setSettings] = useState<KeyboardSettings>(() => readKeyboardSettings());
   const [layout, setLayout] = useState<LayoutId>('ar');
   const [shift, setShift] = useState(false);
   const [caps, setCaps] = useState(false);
+
+  // Sync auto-capitalization on English layout
+  useEffect(() => {
+    if (layout === 'en' && settings.autoCapitalization && shouldAutoCap && !caps) {
+      setShift(true);
+    }
+  }, [layout, settings.autoCapitalization, shouldAutoCap, caps]);
   const [activePanel, setActivePanel] = useState<'none' | 'clipboard' | 'emoji' | 'islamic'>('none');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [oneHandedMode, setOneHandedMode] = useState<'off' | 'left' | 'right'>(
     () => readKeyboardSettings().oneHandedMode,
   );
   const [typedBuffer, setTypedBuffer] = useState('');
+  const [lastCorrection, setLastCorrection] = useState<{
+    original: string;
+    corrected: string;
+  } | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>(() =>
     isSensitive ? [] : getWordSuggestions(''),
   );
@@ -348,6 +370,9 @@ export default function SoftKeyboard({
       onInsert(textToInsert);
       if (shift && !caps) setShift(false);
 
+      // Clear last auto-correction undo token when typing non-backspace
+      setLastCorrection(null);
+
       // Only letters continue a word. Digits, punctuation and combining marks end
       // it, so the prediction buffer never accumulates junk that can't be matched.
       const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
@@ -359,14 +384,47 @@ export default function SoftKeyboard({
   );
 
   const handleBackspace = useCallback(() => {
+    if (lastCorrection) {
+      // Undo single auto-correction on immediate backspace tap
+      const restored = onReplaceLastWord(lastCorrection.corrected + ' ', lastCorrection.original);
+      if (restored) {
+        setTypedBuffer(lastCorrection.original);
+        setLastCorrection(null);
+        return;
+      }
+    }
     onBackspace();
     const newBuffer = typedBuffer.slice(0, -1);
     setTypedBuffer(newBuffer);
     updateSuggestions(newBuffer, isSensitive);
-  }, [onBackspace, typedBuffer, updateSuggestions, isSensitive]);
+  }, [
+    lastCorrection,
+    onBackspace,
+    onReplaceLastWord,
+    typedBuffer,
+    updateSuggestions,
+    isSensitive,
+  ]);
 
   const handleSpacePress = useCallback(() => {
     const now = Date.now();
+
+    // Check mild auto-correction on word boundary space
+    if (settings.autoCorrectionEnabled && typedBuffer && !isSensitive) {
+      const correction = getAutoCorrection(typedBuffer);
+      if (correction) {
+        const replaced = onReplaceLastWord(typedBuffer, correction + ' ');
+        if (replaced) {
+          setLastCorrection({ original: typedBuffer, corrected: correction });
+          setTypedBuffer('');
+          updateSuggestions('', isSensitive);
+          return;
+        }
+      }
+    }
+
+    setLastCorrection(null);
+
     if (settings.autoPeriod && now - lastSpaceTapRef.current < 320) {
       // Auto-period shortcut: convert previous space/tap to ". "
       onBackspace();
@@ -378,32 +436,51 @@ export default function SoftKeyboard({
     }
     setTypedBuffer('');
     updateSuggestions('', isSensitive);
-  }, [settings.autoPeriod, onBackspace, onInsert, updateSuggestions, isSensitive]);
+  }, [
+    settings.autoCorrectionEnabled,
+    settings.autoPeriod,
+    typedBuffer,
+    isSensitive,
+    onBackspace,
+    onInsert,
+    onReplaceLastWord,
+    updateSuggestions,
+  ]);
 
   /** Props every key shares, memoized to prevent unnecessary re-renders across rows. */
   const keyChrome = useMemo(
     () => ({
       showPopupPreview: settings.showKeyPressPopup,
       vibrate: settings.vibrateOnKeyPress,
+      soundOnClick: settings.soundOnClick || settings.soundEnabled,
+      soundVolume: settings.soundVolume,
       keyBorders: settings.keyBorders,
       holdDelayMs: settings.holdDelayMs,
     }),
-    [settings.showKeyPressPopup, settings.vibrateOnKeyPress, settings.keyBorders, settings.holdDelayMs],
+    [
+      settings.showKeyPressPopup,
+      settings.vibrateOnKeyPress,
+      settings.soundOnClick,
+      settings.soundEnabled,
+      settings.soundVolume,
+      settings.keyBorders,
+      settings.holdDelayMs,
+    ],
   );
 
   const letters = layout === 'ar' || layout === 'en';
   const rtl = isRtlLayout(layout);
   const quickStrip: readonly string[] = layout === 'ar' ? ALEF_VARIANTS : QUICK_PUNCTUATION;
 
-  // Height dynamic variable mapping
+  // Height dynamic variable mapping with landscape adaptability
   const keyHeightVar =
     settings.keyHeight === 'compact'
-      ? '2.4rem'
+      ? '2.2rem'
       : settings.keyHeight === 'tall'
-        ? '3.2rem'
+        ? '3.1rem'
         : settings.keyHeight === 'extra-tall'
-          ? '3.6rem'
-          : '2.85rem';
+          ? '3.5rem'
+          : '2.75rem';
 
   return (
     <motion.div
@@ -425,7 +502,8 @@ export default function SoftKeyboard({
       className={cn(
         'pointer-events-auto w-full select-none border-t border-[hsl(var(--kb-edge))]',
         'bg-[hsl(var(--kb-bg))] text-[hsl(var(--kb-fg))] shadow-2xl backdrop-blur-2xl',
-        'px-1.5 pt-1.5',
+        'px-1.5 pt-1.5 landscape:px-8 landscape:pt-1 landscape:pb-1 landscape:max-h-[50vh] landscape:overflow-y-auto',
+        '[&]:landscape:[--kb-key-h:2rem]',
         oneHandedMode === 'right' && 'ms-auto w-[85%]',
         oneHandedMode === 'left' && 'me-auto w-[85%]',
       )}
@@ -701,7 +779,7 @@ export default function SoftKeyboard({
               className={cn(layout === 'harakat' && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]')}
             />
 
-            {/* Spacebar with Caret Drag Support */}
+            {/* Spacebar with Caret Drag & Long-Press Language Switch Support */}
             <div
               className="relative flex flex-[4] items-center"
               onPointerDown={(e) => {
@@ -737,10 +815,20 @@ export default function SoftKeyboard({
                   if (spaceDragRef.current?.moved) return;
                   handleSpacePress();
                 }}
+                onHold={() => {
+                  if (spaceDragRef.current?.moved) return;
+                  // Long-press spacebar triggers fast language switch between 'ar' and 'en'
+                  switchLayout(layout === 'ar' ? 'en' : 'ar');
+                  if (settings.vibrateOnKeyPress) haptics('selection');
+                }}
                 className="w-full"
               >
-                <div className="flex items-center gap-2 text-micro">
-                  <span className="h-1 w-12 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
+                <div className="flex items-center justify-center gap-1.5 text-micro text-[hsl(var(--kb-fg-muted))] opacity-75">
+                  <span className="h-1 w-10 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
+                  <span className="text-[0.6875rem] font-semibold uppercase tracking-wider">
+                    {layout === 'ar' ? 'العربية' : 'English'}
+                  </span>
+                  <span className="h-1 w-10 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
                 </div>
               </Key>
             </div>
