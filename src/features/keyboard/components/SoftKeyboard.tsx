@@ -36,6 +36,7 @@ import {
   readKeyboardSettings,
   type KeyboardSettings,
 } from '../lib/preference';
+import { keyboardPaletteVars } from '../lib/theme';
 import { getWordSuggestions, learnWord } from '../lib/prediction';
 
 export interface SoftKeyboardProps {
@@ -50,8 +51,9 @@ export interface SoftKeyboardProps {
   onHeightChange?: (height: number) => void;
 }
 
-const HOLD_START_MS = 280;
-const HOLD_REPEAT_MS = 50;
+const HOLD_REPEAT_MS = 70;
+/** Slop, in px, a finger may travel on a key before the tap is treated as a drag. */
+const DRAG_SLOP = 12;
 
 /** Individual Keyboard Key with Gboard styling, press feedback, key borders, and long-press popups */
 const Key = memo(function Key({
@@ -63,6 +65,8 @@ const Key = memo(function Key({
   showPopupPreview = true,
   vibrate = true,
   keyBorders = false,
+  holdDelayMs = 280,
+  pressOnRelease = false,
   className,
   ariaLabel,
   span = 1,
@@ -77,6 +81,14 @@ const Key = memo(function Key({
   showPopupPreview?: boolean;
   vibrate?: boolean;
   keyBorders?: boolean;
+  /** Long-press threshold, driven by user preference. */
+  holdDelayMs?: number;
+  /**
+   * Emit on pointerup instead of pointerdown. The spacebar needs this: it
+   * doubles as a caret trackpad, and firing on press inserted a space on every
+   * drag.
+   */
+  pressOnRelease?: boolean;
   className?: string;
   ariaLabel?: string;
   span?: number;
@@ -88,6 +100,8 @@ const Key = memo(function Key({
   const [showPopup, setShowPopup] = useState(false);
   const [hoverVariant, setHoverVariant] = useState<string | null>(null);
   const popupOpenRef = useRef(false);
+  /** A hold already produced output, so the release must not emit a tap too. */
+  const consumedRef = useRef(false);
 
   const clear = useCallback(() => {
     if (timers.current.start) window.clearTimeout(timers.current.start);
@@ -97,6 +111,7 @@ const Key = memo(function Key({
     setShowPopup(false);
     setHoverVariant(null);
     popupOpenRef.current = false;
+    consumedRef.current = false;
   }, []);
 
   useEffect(() => clear, [clear]);
@@ -130,8 +145,15 @@ const Key = memo(function Key({
         aria-label={ariaLabel ?? label}
         onPointerDown={(event) => {
           event.preventDefault();
+          // Keep every subsequent move/up on this key even if the finger slides
+          // off it, which is what makes hold-and-slide variant picking reliable.
+          try {
+            event.currentTarget.setPointerCapture(event.pointerId);
+          } catch {
+            /* capture is best-effort */
+          }
           setIsPressed(true);
-          onPress();
+          if (!pressOnRelease) onPress();
           if (vibrate) haptics('selection');
 
           timers.current.start = window.setTimeout(() => {
@@ -139,10 +161,11 @@ const Key = memo(function Key({
               popupOpenRef.current = true;
               setShowPopup(true);
             } else if (onHold) {
+              consumedRef.current = true;
               onHold();
               timers.current.repeat = window.setInterval(onHold, HOLD_REPEAT_MS);
             }
-          }, HOLD_START_MS);
+          }, holdDelayMs);
         }}
         onPointerMove={(event) => {
           if (!popupOpenRef.current) return;
@@ -157,6 +180,8 @@ const Key = memo(function Key({
               if (onPopupSelect) onPopupSelect(variant);
               if (vibrate) haptics('selection');
             }
+          } else if (pressOnRelease && !consumedRef.current) {
+            onPress();
           }
           clear();
         }}
@@ -168,15 +193,16 @@ const Key = memo(function Key({
         onContextMenu={(event) => event.preventDefault()}
         className={cn(
           'relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
-          'text-[1.125rem] font-medium leading-none text-foreground transition-all duration-75',
+          'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-75',
           'active:scale-[0.93] touch-none',
           tone === 'letter' &&
-            'bg-[hsl(var(--surface-2))] border border-white/10 shadow-[0_1px_2px_rgba(0,0,0,0.12)] hover:bg-[hsl(var(--surface-2))]/90',
+            'bg-[hsl(var(--kb-key))] text-[hsl(var(--kb-fg))] shadow-[0_1px_2px_rgba(0,0,0,0.14)]',
           tone === 'modifier' &&
-            'bg-[hsl(var(--surface-1))] text-muted-foreground border border-white/10 shadow-[0_1px_1px_rgba(0,0,0,0.08)] hover:text-foreground',
+            'bg-[hsl(var(--kb-key-mod))] text-[hsl(var(--kb-fg-muted))] shadow-[0_1px_1px_rgba(0,0,0,0.1)]',
           tone === 'accent' &&
-            'bg-[hsl(var(--live))] text-white font-semibold shadow-[0_2px_4px_rgba(0,0,0,0.2)] hover:brightness-110',
-          keyBorders && 'ring-1 ring-border/60',
+            'bg-[hsl(var(--kb-accent))] text-[hsl(var(--kb-accent-fg))] font-semibold shadow-[0_2px_4px_rgba(0,0,0,0.2)]',
+          isPressed && 'brightness-[1.18]',
+          keyBorders && 'ring-1 ring-[hsl(var(--kb-edge))]',
           className,
         )}
       >
