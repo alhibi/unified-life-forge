@@ -1,3 +1,5 @@
+import type { Variants } from 'framer-motion';
+
 import { SURGE_TOKENS, GERMAN_CLUB_TOKENS } from '../types';
 
 /**
@@ -22,7 +24,7 @@ export const SURGE_GRADIENTS = {
 /**
  * Framer-motion variants for the Bewährungsprobe Stamp surge moment
  */
-export const STAMP_SURGE_VARIANTS = {
+export const STAMP_SURGE_VARIANTS: Variants = {
   initial: {
     scale: 0.85,
     opacity: 0,
@@ -60,7 +62,7 @@ export const STAMP_SURGE_VARIANTS = {
 /**
  * Framer-motion variants for the Background Surge Wash in Bewährungsprobe
  */
-export const WASH_SURGE_VARIANTS = {
+export const WASH_SURGE_VARIANTS: Variants = {
   initial: {
     opacity: 0,
     scaleX: 0,
@@ -71,7 +73,7 @@ export const WASH_SURGE_VARIANTS = {
     transition: {
       duration: 1.1,
       times: [0, 0.15, 0.5, 1],
-      ease: 'easeInOut',
+      ease: 'easeInOut' as const,
     },
   },
 };
@@ -79,7 +81,7 @@ export const WASH_SURGE_VARIANTS = {
 /**
  * Reduced-motion variant helper
  */
-export const REDUCED_SURGE_VARIANTS = {
+export const REDUCED_SURGE_VARIANTS: Variants = {
   initial: { opacity: 0 },
   animate: {
     opacity: [0, 1, 1, 0],
