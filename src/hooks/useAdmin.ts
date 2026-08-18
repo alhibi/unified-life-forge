@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 
 export function useAdmin(): { isAdmin: boolean; isLoading: boolean } {
   const { user, loading: authLoading } = useAuth();
