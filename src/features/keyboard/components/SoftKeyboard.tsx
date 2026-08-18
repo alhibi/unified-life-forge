@@ -234,22 +234,35 @@ export default function SoftKeyboard({
   const [caps, setCaps] = useState(false);
   const [activePanel, setActivePanel] = useState<'none' | 'clipboard' | 'emoji' | 'islamic'>('none');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
-  const [oneHandedMode, setOneHandedMode] = useState<'off' | 'left' | 'right'>('off');
+  const [oneHandedMode, setOneHandedMode] = useState<'off' | 'left' | 'right'>(
+    () => readKeyboardSettings().oneHandedMode,
+  );
   const [typedBuffer, setTypedBuffer] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>(() => getWordSuggestions(''));
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const spaceDragRef = useRef<{ startX: number } | null>(null);
+  const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
   const lastSpaceTapRef = useRef<number>(0);
 
   // Listen for settings changes
   useEffect(() => {
     const handler = (e: Event) => {
-      setSettings((e as CustomEvent<KeyboardSettings>).detail);
+      const next = (e as CustomEvent<KeyboardSettings>).detail;
+      setSettings(next);
+      setOneHandedMode(next.oneHandedMode);
     };
     window.addEventListener('soft-keyboard-settings-changed', handler);
     return () => window.removeEventListener('soft-keyboard-settings-changed', handler);
   }, []);
+
+  // A layout switch ends the current word and any pending shift latch: keeping
+  // them alive leaked English suggestions into Arabic typing and vice versa.
+  useEffect(() => {
+    setShift(false);
+    setCaps(false);
+    setTypedBuffer('');
+    setSuggestions(getWordSuggestions(''));
+  }, [layout]);
 
   // Height publishing
   useEffect(() => {
@@ -273,8 +286,10 @@ export default function SoftKeyboard({
     onInsert(textToInsert);
     if (shift && !caps) setShift(false);
 
-    // Update dynamic word suggestions
-    const newBuffer = typedBuffer + textToInsert;
+    // Only letters continue a word. Digits, punctuation and combining marks end
+    // it, so the prediction buffer never accumulates junk that can't be matched.
+    const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
+    const newBuffer = isWordChar ? typedBuffer + textToInsert : '';
     setTypedBuffer(newBuffer);
     setSuggestions(getWordSuggestions(newBuffer));
   };
@@ -299,6 +314,14 @@ export default function SoftKeyboard({
     }
     setTypedBuffer('');
     setSuggestions(getWordSuggestions(''));
+  };
+
+  /** Props every key shares, so behaviour stays identical across rows. */
+  const keyChrome = {
+    showPopupPreview: settings.showKeyPressPopup,
+    vibrate: settings.vibrateOnKeyPress,
+    keyBorders: settings.keyBorders,
+    holdDelayMs: settings.holdDelayMs,
   };
 
   const letters = layout === 'ar' || layout === 'en';
@@ -329,17 +352,13 @@ export default function SoftKeyboard({
         {
           '--kb-key-h': keyHeightVar,
           paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)',
+          ...keyboardPaletteVars(settings.theme),
         } as React.CSSProperties
       }
       className={cn(
-        'pointer-events-auto w-full border-t border-border/50 bg-[hsl(var(--surface-0))]/98 backdrop-blur-2xl transition-all',
-        'px-1.5 pt-1.5 shadow-2xl select-none',
-        settings.theme === 'oled' && 'bg-black border-neutral-800',
-        settings.theme === 'gboard-light' && 'bg-neutral-100 text-neutral-900',
-        settings.theme === 'sand' && 'bg-[#e2d8ce] text-[#2c221e]',
-        settings.theme === 'luxury-gold' && 'bg-[#181512] text-[#f0e6d2]',
-        settings.theme === 'emerald' && 'bg-[#0f241d] text-[#d1fae5]',
-        settings.theme === 'sapphire' && 'bg-[#0f172a] text-[#e2e8f0]',
+        'pointer-events-auto w-full select-none border-t border-[hsl(var(--kb-edge))]',
+        'bg-[hsl(var(--kb-bg))] text-[hsl(var(--kb-fg))] shadow-2xl backdrop-blur-2xl',
+        'px-1.5 pt-1.5',
         oneHandedMode === 'right' && 'ms-auto w-[85%]',
         oneHandedMode === 'left' && 'me-auto w-[85%]',
       )}
