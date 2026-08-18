@@ -1,10 +1,15 @@
 import { memo } from 'react';
 
 import {
+  CheckSquare,
   Clipboard,
   Columns,
+  Copy,
+  CopyCheck,
+  CornerUpLeft,
   Heart,
   Palette,
+  Scissors,
   Smile,
   Sparkles,
   Wand2,
@@ -20,6 +25,13 @@ export interface ToolBarProps {
   oneHandedMode: 'off' | 'left' | 'right';
   setOneHandedMode: (mode: 'off' | 'left' | 'right') => void;
   onTashkeelToggle?: () => void;
+  hasSelection?: boolean;
+  onCut?: () => void;
+  onCopy?: () => void;
+  onPaste?: () => void;
+  onSelectAll?: () => void;
+  canUndo?: boolean;
+  onUndo?: () => void;
 }
 
 /**
@@ -32,32 +44,119 @@ export const ToolBar = memo(function ToolBar({
   setActivePanel,
   oneHandedMode,
   setOneHandedMode,
+  hasSelection = false,
+  onCut,
+  onCopy,
+  onPaste,
+  onSelectAll,
+  canUndo = false,
+  onUndo,
 }: ToolBarProps) {
   return (
     <div className="mb-1.5 flex h-9 items-center gap-1 border-b border-border/30 px-1 text-muted-foreground">
-      {/* Smart Prediction Suggestions Bar */}
+      {/* Selection Toolbar OR Smart Suggestions Bar */}
       <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto no-scrollbar">
-        {suggestions.length > 0 ? (
-          suggestions.map((word, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onPointerDown={(e) => {
-                e.preventDefault();
-                onSelectSuggestion(word);
-                haptics('selection');
-              }}
-              className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-all active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
-            >
-              <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
-              <span>{word}</span>
-            </button>
-          ))
-        ) : (
-          <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground/70">
-            <Wand2 className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>لوحة المفاتيح الذكية جاهزة...</span>
+        {hasSelection ? (
+          <div className="flex items-center gap-1" dir="rtl">
+            {onCut && (
+              <button
+                type="button"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onCut();
+                  haptics('selection');
+                }}
+                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-medium text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
+              >
+                <Scissors className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>قص</span>
+              </button>
+            )}
+            {onCopy && (
+              <button
+                type="button"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onCopy();
+                  haptics('selection');
+                }}
+                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+              >
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>نسخ</span>
+              </button>
+            )}
+            {onPaste && (
+              <button
+                type="button"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onPaste();
+                  haptics('selection');
+                }}
+                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+              >
+                <CopyCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>لصق</span>
+              </button>
+            )}
+            {onSelectAll && (
+              <button
+                type="button"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onSelectAll();
+                  haptics('selection');
+                }}
+                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+              >
+                <CheckSquare className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>تحديد الكل</span>
+              </button>
+            )}
           </div>
+        ) : (
+          <>
+            {canUndo && onUndo && (
+              <button
+                type="button"
+                title="تراجع"
+                aria-label="تراجع عن آخر إدخال"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onUndo();
+                  haptics('selection');
+                }}
+                className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-semibold text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
+              >
+                <CornerUpLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>تراجع</span>
+              </button>
+            )}
+
+            {suggestions.length > 0 ? (
+              suggestions.map((word, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onSelectSuggestion(word);
+                    haptics('selection');
+                  }}
+                  className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-all active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
+                >
+                  <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
+                  <span>{word}</span>
+                </button>
+              ))
+            ) : (
+              <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground/70">
+                <Wand2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>لوحة المفاتيح الذكية جاهزة...</span>
+              </div>
+            )}
+          </>
         )}
       </div>
 

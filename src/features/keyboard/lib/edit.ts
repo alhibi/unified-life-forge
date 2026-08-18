@@ -41,7 +41,70 @@ function fits(el: EditableField, next: string): boolean {
   return !(max > 0 && next.length > max);
 }
 
+export interface SelectionState {
+  hasSelection: boolean;
+  selectedText: string;
+  start: number;
+  end: number;
+}
+
+export function getSelectionState(el: EditableField | null): SelectionState {
+  if (!el) return { hasSelection: false, selectedText: '', start: 0, end: 0 };
+  const [start, end] = selection(el);
+  const selectedText = el.value.slice(start, end);
+  return {
+    hasSelection: start !== end && selectedText.length > 0,
+    selectedText,
+    start,
+    end,
+  };
+}
+
+export function selectAll(el: EditableField): void {
+  try {
+    el.setSelectionRange(0, el.value.length);
+  } catch {
+    /* input types without selection support */
+  }
+  el.focus();
+}
+
+export interface UndoSnapshot {
+  value: string;
+  start: number;
+  end: number;
+}
+
+const undoMap = new WeakMap<EditableField, UndoSnapshot>();
+
+export function saveUndoSnapshot(el: EditableField): void {
+  const [start, end] = selection(el);
+  undoMap.set(el, { value: el.value, start, end });
+}
+
+export function canUndo(el: EditableField | null): boolean {
+  if (!el) return false;
+  return undoMap.has(el);
+}
+
+export function performUndo(el: EditableField): boolean {
+  const snapshot = undoMap.get(el);
+  if (!snapshot) return false;
+
+  undoMap.delete(el);
+  nativeSetValue(el, snapshot.value);
+  try {
+    el.setSelectionRange(snapshot.start, snapshot.end);
+  } catch {
+    /* ignore */
+  }
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  el.focus();
+  return true;
+}
+
 export function insertText(el: EditableField, text: string): void {
+  saveUndoSnapshot(el);
   const [start, end] = selection(el);
   const next = el.value.slice(0, start) + text + el.value.slice(end);
   if (!fits(el, next)) return;
@@ -56,6 +119,7 @@ export function replaceLastWord(el: EditableField, originalWord: string, correct
   const before = el.value.slice(0, start);
   if (!before.endsWith(originalWord)) return false;
 
+  saveUndoSnapshot(el);
   const newBefore = before.slice(0, before.length - originalWord.length) + correctedWord;
   const next = newBefore + el.value.slice(start);
   commit(el, next, newBefore.length);
@@ -79,10 +143,12 @@ export function shouldAutoCapitalizeSentence(el: EditableField | null): boolean 
 export function backspace(el: EditableField): void {
   const [start, end] = selection(el);
   if (start !== end) {
+    saveUndoSnapshot(el);
     commit(el, el.value.slice(0, start) + el.value.slice(end), start);
     return;
   }
   if (start === 0) return;
+  saveUndoSnapshot(el);
   // Delete a whole grapheme: an Arabic letter plus its diacritics, or a
   // surrogate pair, must never be cut in half.
   let from = start - 1;
@@ -99,6 +165,7 @@ export function backspaceWord(el: EditableField): void {
     return;
   }
   if (start === 0) return;
+  saveUndoSnapshot(el);
   let from = start;
   while (from > 0 && /\s/.test(el.value[from - 1])) from -= 1;
   while (from > 0 && !/\s/.test(el.value[from - 1])) from -= 1;
@@ -158,6 +225,23 @@ export function isSoftKeyboardTarget(node: EventTarget | null): node is Editable
   if (node.dataset.softKeyboard === 'off') return false;
   if (node instanceof HTMLTextAreaElement) return true;
   return ['text', 'search', 'url', 'email', ''].includes(node.type);
+}
+
+/**
+ * Returns the preferred initial layout based on element dataset attributes or current route.
+ * Input fields inside German Club (/german-club) automatically default to German ('de').
+ */
+export function getPreferredInitialLayout(node: EventTarget | null): 'ar' | 'en' | 'de' {
+  if (node instanceof HTMLElement) {
+    const customLayout = node.dataset.keyboardLayout || node.closest('[data-keyboard-layout]')?.getAttribute('data-keyboard-layout');
+    if (customLayout === 'de' || customLayout === 'en' || customLayout === 'ar') {
+      return customLayout;
+    }
+  }
+  if (typeof window !== 'undefined' && window.location?.pathname?.startsWith('/german-club')) {
+    return 'de';
+  }
+  return 'ar';
 }
 
 /**

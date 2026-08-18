@@ -27,7 +27,9 @@ import {
   QUICK_PUNCTUATION,
   WESTERN_NUMBER_ROW,
 } from '../lib/layouts';
-import { replaceLastWord } from '../lib/edit';
+import { canUndo, getSelectionState, performUndo, replaceLastWord, selectAll } from '../lib/edit';
+import { copyToSystemClipboard, getClipboardHistory } from '../lib/clipboard';
+import { getPreferredInitialLayout } from '../lib/edit';
 import { getAutoCorrection, getWordSuggestions, learnWord } from '../lib/prediction';
 import {
   type KeyboardSettings,
@@ -54,6 +56,8 @@ export interface SoftKeyboardProps {
   onHeightChange?: (height: number) => void;
   isSensitive?: boolean;
   shouldAutoCap?: boolean;
+  target?: HTMLElement | null;
+  inputTick?: number;
 }
 
 const HOLD_REPEAT_MS = 70;
@@ -247,9 +251,19 @@ export default function SoftKeyboard({
   onHeightChange,
   isSensitive = false,
   shouldAutoCap = true,
+  target = null,
+  inputTick = 0,
 }: SoftKeyboardProps) {
   const [settings, setSettings] = useState<KeyboardSettings>(() => readKeyboardSettings());
-  const [layout, setLayout] = useState<LayoutId>('ar');
+  const [layout, setLayout] = useState<LayoutId>(() => getPreferredInitialLayout(target));
+
+  // Sync initial layout when target changes
+  useEffect(() => {
+    if (target) {
+      const preferred = getPreferredInitialLayout(target);
+      setLayout(preferred);
+    }
+  }, [target]);
   const [shift, setShift] = useState(false);
   const [caps, setCaps] = useState(false);
 
@@ -272,6 +286,22 @@ export default function SoftKeyboard({
   const [suggestions, setSuggestions] = useState<string[]>(() =>
     isSensitive ? [] : getWordSuggestions(''),
   );
+
+  const editableTarget = (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) ? target : null;
+
+  const [selectionState, setSelectionState] = useState(() => getSelectionState(editableTarget));
+  const [undoAvailable, setUndoAvailable] = useState(() => canUndo(editableTarget));
+
+  // Sync selection state and undo availability on target/inputTick changes or selectionchange
+  useEffect(() => {
+    const updateState = () => {
+      setSelectionState(getSelectionState(editableTarget));
+      setUndoAvailable(canUndo(editableTarget));
+    };
+    updateState();
+    document.addEventListener('selectionchange', updateState);
+    return () => document.removeEventListener('selectionchange', updateState);
+  }, [editableTarget, inputTick]);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
@@ -536,6 +566,45 @@ export default function SoftKeyboard({
         }, [])}
         oneHandedMode={oneHandedMode}
         setOneHandedMode={setOneHandedMode}
+        hasSelection={selectionState.hasSelection}
+        onCut={useCallback(() => {
+          if (!editableTarget || !selectionState.hasSelection) return;
+          copyToSystemClipboard(selectionState.selectedText);
+          onInsert('');
+        }, [editableTarget, selectionState, onInsert])}
+        onCopy={useCallback(() => {
+          if (!selectionState.hasSelection) return;
+          copyToSystemClipboard(selectionState.selectedText);
+        }, [selectionState])}
+        onPaste={useCallback(async () => {
+          if (!editableTarget) return;
+          try {
+            if (typeof navigator !== 'undefined' && navigator.clipboard?.readText) {
+              const text = await navigator.clipboard.readText();
+              if (text) {
+                onInsert(text);
+                return;
+              }
+            }
+          } catch {
+            /* ignore permission denial */
+          }
+          const history = getClipboardHistory();
+          if (history.length > 0) {
+            onInsert(history[0].text);
+          }
+        }, [editableTarget, onInsert])}
+        onSelectAll={useCallback(() => {
+          if (editableTarget) selectAll(editableTarget);
+        }, [editableTarget])}
+        canUndo={undoAvailable}
+        onUndo={useCallback(() => {
+          if (editableTarget) {
+            performUndo(editableTarget);
+            setUndoAvailable(canUndo(editableTarget));
+            setSelectionState(getSelectionState(editableTarget));
+          }
+        }, [editableTarget])}
       />
 
       {/* Sub-Panels (Clipboard / Emoji / Islamic Symbols) */}
@@ -759,12 +828,22 @@ export default function SoftKeyboard({
               span={1.2}
               {...keyChrome}
               showPopupPreview={false}
+              popups={['ar', 'en', 'de']}
               ariaLabel="تبديل اللغة"
-              onPress={() => switchLayout(layout === 'ar' ? 'en' : 'ar')}
+              onPress={() => {
+                // 3-way language cycle: ar -> en -> de -> ar
+                const nextLayout = layout === 'ar' ? 'en' : layout === 'en' ? 'de' : 'ar';
+                switchLayout(nextLayout);
+              }}
+              onPopupSelect={(selected) => {
+                if (selected === 'ar' || selected === 'en' || selected === 'de') {
+                  switchLayout(selected);
+                }
+              }}
             >
               <span className="flex items-center gap-1 text-mini font-semibold">
                 <Languages className="h-4 w-4" aria-hidden="true" />
-                {layout === 'ar' ? 'EN' : 'ع'}
+                {layout === 'ar' ? 'EN' : layout === 'en' ? 'DE' : 'ع'}
               </span>
             </Key>
 
@@ -779,7 +858,7 @@ export default function SoftKeyboard({
               className={cn(layout === 'harakat' && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]')}
             />
 
-            {/* Spacebar with Caret Drag & Long-Press Language Switch Support */}
+            {/* Spacebar with Caret Drag & Long-Press 3-Way Language Switch Support */}
             <div
               className="relative flex flex-[4] items-center"
               onPointerDown={(e) => {
@@ -817,18 +896,19 @@ export default function SoftKeyboard({
                 }}
                 onHold={() => {
                   if (spaceDragRef.current?.moved) return;
-                  // Long-press spacebar triggers fast language switch between 'ar' and 'en'
-                  switchLayout(layout === 'ar' ? 'en' : 'ar');
+                  // Long-press spacebar triggers 3-way language cycle (ar -> en -> de -> ar)
+                  const nextLayout = layout === 'ar' ? 'en' : layout === 'en' ? 'de' : 'ar';
+                  switchLayout(nextLayout);
                   if (settings.vibrateOnKeyPress) haptics('selection');
                 }}
                 className="w-full"
               >
                 <div className="flex items-center justify-center gap-1.5 text-micro text-[hsl(var(--kb-fg-muted))] opacity-75">
-                  <span className="h-1 w-10 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
+                  <span className="h-1 w-8 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
                   <span className="text-[0.6875rem] font-semibold uppercase tracking-wider">
-                    {layout === 'ar' ? 'العربية' : 'English'}
+                    {layout === 'ar' ? 'العربية' : layout === 'de' ? 'Deutsch' : 'English'}
                   </span>
-                  <span className="h-1 w-10 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
+                  <span className="h-1 w-8 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
                 </div>
               </Key>
             </div>

@@ -6,7 +6,7 @@
  * expandable multi-character selection menus on long-press (Gboard style).
  */
 
-export type LayoutId = 'ar' | 'en' | 'num' | 'sym' | 'harakat' | 'islamic' | 'math';
+export type LayoutId = 'ar' | 'en' | 'de' | 'num' | 'sym' | 'harakat' | 'islamic' | 'math';
 
 export interface KeyDef {
   /** Character inserted on tap. */
@@ -127,6 +127,46 @@ export const EN_ROWS: KeyDef[][] = [
   row('z x c v b n m', '! " \' : ; / ?'),
 ];
 
+/** German — QWERTZ layout with German special characters ä ö ü ß and long-press popups */
+export const DE_ROWS: KeyDef[][] = [
+  [
+    { ch: 'q', alt: '1', popups: ['q', '1'] },
+    { ch: 'w', alt: '2', popups: ['w', '2'] },
+    { ch: 'e', alt: '3', popups: ['e', '3', 'é', 'è', 'ê', '€'] },
+    { ch: 'r', alt: '4', popups: ['r', '4'] },
+    { ch: 't', alt: '5', popups: ['t', '5'] },
+    { ch: 'z', alt: '6', popups: ['z', '6'] },
+    { ch: 'u', alt: '7', popups: ['u', '7', 'ü', 'Ü', 'ú', 'ù'] },
+    { ch: 'i', alt: '8', popups: ['i', '8', 'í', 'ì', 'î'] },
+    { ch: 'o', alt: '9', popups: ['o', '9', 'ö', 'Ö', 'ó', 'ò'] },
+    { ch: 'p', alt: '0', popups: ['p', '0'] },
+    { ch: 'ü', alt: 'ü', popups: ['ü', 'Ü'] },
+  ],
+  [
+    { ch: 'a', alt: '@', popups: ['a', 'ä', 'Ä', 'á', 'à', 'â', '@'] },
+    { ch: 's', alt: '#', popups: ['s', 'ß', 'SS', '#'] },
+    { ch: 'd', alt: '$', popups: ['d', '$'] },
+    { ch: 'f', alt: '&', popups: ['f', '&'] },
+    { ch: 'g', alt: '*', popups: ['g', '*'] },
+    { ch: 'h', alt: '(', popups: ['h', '('] },
+    { ch: 'j', alt: ')', popups: ['j', ')'] },
+    { ch: 'k', alt: '-', popups: ['k', '-'] },
+    { ch: 'l', alt: '+', popups: ['l', '+'] },
+    { ch: 'ö', alt: 'ö', popups: ['ö', 'Ö'] },
+    { ch: 'ä', alt: 'ä', popups: ['ä', 'Ä'] },
+  ],
+  [
+    { ch: 'y', alt: '!', popups: ['y', '!'] },
+    { ch: 'x', alt: '"', popups: ['x', '"'] },
+    { ch: 'c', alt: "'", popups: ['c', "'"] },
+    { ch: 'v', alt: ':', popups: ['v', ':'] },
+    { ch: 'b', alt: ';', popups: ['b', ';'] },
+    { ch: 'n', alt: '/', popups: ['n', '/'] },
+    { ch: 'm', alt: '?', popups: ['m', '?'] },
+    { ch: 'ß', alt: 'ß', popups: ['ß', 'SS'] },
+  ],
+];
+
 /** Western / Eastern Numbers and Arabic Punctuation */
 export const NUM_ROWS: KeyDef[][] = [
   row('1 2 3 4 5 6 7 8 9 0', '١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٠'),
@@ -167,6 +207,7 @@ export const HARAKAT: KeyDef[] = [
 export const LAYOUT_ROWS: Record<Exclude<LayoutId, 'harakat' | 'islamic'>, KeyDef[][]> = {
   ar: AR_ROWS,
   en: EN_ROWS,
+  de: DE_ROWS,
   num: NUM_ROWS,
   sym: SYM_ROWS,
   math: MATH_ROWS,

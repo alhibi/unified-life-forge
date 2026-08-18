@@ -77,16 +77,21 @@ export default function KeyboardProvider() {
 
   const active = available && preference === 'app';
 
+  const physicalKeyboardRef = useRef(false);
+
   useEffect(() => {
     if (!active) return;
 
     // pointerdown fires before focus, which is the only reliable moment to stop
     // Android from animating its own keyboard in.
     const onPointerDown = (event: PointerEvent) => {
+      // Re-enable soft keyboard if user explicitly interacts via touch or pointer tap
+      physicalKeyboardRef.current = false;
       const node = event.target;
       if (isSoftKeyboardTarget(node)) capture(node);
     };
     const onFocusIn = (event: FocusEvent) => {
+      if (physicalKeyboardRef.current) return;
       const node = event.target;
       if (isSoftKeyboardTarget(node)) capture(node);
       else if (!(node as HTMLElement | null)?.closest?.('[data-soft-keyboard-panel]')) release();
@@ -100,18 +105,30 @@ export default function KeyboardProvider() {
       }
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && targetRef.current) targetRef.current.blur();
+      if (event.key === 'Escape' && targetRef.current) {
+        targetRef.current.blur();
+        return;
+      }
+      // If keydown event is trusted and does not originate from within the soft keyboard panel,
+      // it means input is coming from an external physical / Bluetooth keyboard.
+      const targetNode = event.target as HTMLElement | null;
+      const isFromSoftKbPanel = targetNode?.closest?.('[data-soft-keyboard-panel]');
+      if (event.isTrusted && !isFromSoftKbPanel && targetRef.current) {
+        physicalKeyboardRef.current = true;
+        // Suppress soft keyboard so physical keyboard and soft keyboard don't overlap
+        release();
+      }
     };
 
     document.addEventListener('pointerdown', onPointerDown, true);
     document.addEventListener('focusin', onFocusIn);
     document.addEventListener('focusout', onFocusOut);
-    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keydown', onKeyDown, true);
     return () => {
       document.removeEventListener('pointerdown', onPointerDown, true);
       document.removeEventListener('focusin', onFocusIn);
       document.removeEventListener('focusout', onFocusOut);
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keydown', onKeyDown, true);
     };
   }, [active, capture, release]);
 
@@ -167,6 +184,8 @@ export default function KeyboardProvider() {
         <AnimatePresence>
           {active && target && (
             <SoftKeyboard
+              target={target}
+              inputTick={inputTick}
               enterLabel={getAdaptiveEnterLabel(target)}
               isSensitive={isSensitiveField(target)}
               shouldAutoCap={shouldAutoCapitalizeSentence(target)}
