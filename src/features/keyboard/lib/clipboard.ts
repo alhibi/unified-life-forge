@@ -3,7 +3,7 @@
  * Supports system clipboard sync, pinned items, retention policies, manual items, and search.
  */
 
-import { readKeyboardSettings, type ClipboardRetention } from './preference';
+import { type ClipboardRetention,readKeyboardSettings } from './preference';
 
 export interface ClipboardItem {
   id: string;
@@ -72,7 +72,7 @@ export function saveToClipboardHistory(text: string): ClipboardItem[] {
 
   const current = getClipboardHistory();
   const existingIdx = current.findIndex((item) => item.text.trim() === text.trim());
-  let updated = [...current];
+  const updated = [...current];
 
   if (existingIdx >= 0) {
     const item = updated[existingIdx];

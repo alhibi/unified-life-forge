@@ -5,7 +5,6 @@ import {
   Columns,
   Heart,
   Palette,
-  Settings,
   Smile,
   Sparkles,
   Wand2,

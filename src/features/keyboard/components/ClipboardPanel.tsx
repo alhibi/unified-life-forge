@@ -1,16 +1,16 @@
 import { memo, useEffect, useState } from 'react';
 
-import { Check, Clipboard, Plus, RefreshCw, Search, Pin, Trash2, X } from '@/lib/icons';
+import { Clipboard, Pin, Plus, RefreshCw, Search, Trash2, X } from '@/lib/icons';
 import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
 import {
   clearUnpinnedClipboard,
+  type ClipboardItem,
   deleteClipboardItem,
   getClipboardHistory,
   saveToClipboardHistory,
   syncSystemClipboard,
-  type ClipboardItem,
   togglePinClipboardItem,
 } from '../lib/clipboard';
 

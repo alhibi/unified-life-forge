@@ -14,30 +14,30 @@ import {
 import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
-import { ClipboardPanel } from './ClipboardPanel';
-import { EmojiPanel } from './EmojiPanel';
-import { KeyboardSettingsModal } from './KeyboardSetting';
-import { KeyPopup } from './KeyPopup';
-import { ToolBar } from './ToolBar';
 import {
   ALEF_VARIANTS,
   caretDelta,
   EASTERN_NUMBER_ROW,
   HARAKAT,
-  isRtlLayout,
   ISLAMIC_SYMBOLS,
+  isRtlLayout,
   type KeyDef,
   LAYOUT_ROWS,
   type LayoutId,
   QUICK_PUNCTUATION,
   WESTERN_NUMBER_ROW,
 } from '../lib/layouts';
+import { getWordSuggestions, learnWord } from '../lib/prediction';
 import {
-  readKeyboardSettings,
   type KeyboardSettings,
+  readKeyboardSettings,
 } from '../lib/preference';
 import { keyboardPaletteVars } from '../lib/theme';
-import { getWordSuggestions, learnWord } from '../lib/prediction';
+import { ClipboardPanel } from './ClipboardPanel';
+import { EmojiPanel } from './EmojiPanel';
+import { KeyboardSettingsModal } from './KeyboardSetting';
+import { KeyPopup } from './KeyPopup';
+import { ToolBar } from './ToolBar';
 
 export interface SoftKeyboardProps {
   onInsert: (text: string) => void;
@@ -255,14 +255,17 @@ export default function SoftKeyboard({
     return () => window.removeEventListener('soft-keyboard-settings-changed', handler);
   }, []);
 
-  // A layout switch ends the current word and any pending shift latch: keeping
-  // them alive leaked English suggestions into Arabic typing and vice versa.
-  useEffect(() => {
+  /**
+   * Switching layout ends the current word and any pending shift latch: keeping
+   * them alive leaked English suggestions into Arabic typing and vice versa.
+   */
+  const switchLayout = useCallback((next: LayoutId) => {
+    setLayout(next);
     setShift(false);
     setCaps(false);
     setTypedBuffer('');
     setSuggestions(getWordSuggestions(''));
-  }, [layout]);
+  }, []);
 
   // Height publishing
   useEffect(() => {
@@ -592,7 +595,7 @@ export default function SoftKeyboard({
               showPopupPreview={false}
               label={layout === 'num' || layout === 'sym' ? 'أ ب' : '?123'}
               ariaLabel="تبديل الأرقام والرموز"
-              onPress={() => setLayout(layout === 'num' || layout === 'sym' ? 'ar' : 'num')}
+              onPress={() => switchLayout(layout === 'num' || layout === 'sym' ? 'ar' : 'num')}
             />
 
             {(layout === 'num' || layout === 'sym') && (
@@ -603,7 +606,7 @@ export default function SoftKeyboard({
                 showPopupPreview={false}
                 label={layout === 'num' ? '=\\<' : '123'}
                 ariaLabel="رموز إضافية"
-                onPress={() => setLayout(layout === 'num' ? 'sym' : 'num')}
+                onPress={() => switchLayout(layout === 'num' ? 'sym' : 'num')}
               />
             )}
 
@@ -613,7 +616,7 @@ export default function SoftKeyboard({
               {...keyChrome}
               showPopupPreview={false}
               ariaLabel="تبديل اللغة"
-              onPress={() => setLayout(layout === 'ar' ? 'en' : 'ar')}
+              onPress={() => switchLayout(layout === 'ar' ? 'en' : 'ar')}
             >
               <span className="flex items-center gap-1 text-mini font-semibold">
                 <Languages className="h-4 w-4" aria-hidden="true" />
@@ -628,7 +631,7 @@ export default function SoftKeyboard({
               showPopupPreview={false}
               label={'\u25CC\u064E'}
               ariaLabel="التشكيل"
-              onPress={() => setLayout(layout === 'harakat' ? 'ar' : 'harakat')}
+              onPress={() => switchLayout(layout === 'harakat' ? 'ar' : 'harakat')}
               className={cn(layout === 'harakat' && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]')}
             />
 

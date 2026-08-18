@@ -2,13 +2,13 @@ import { useState } from 'react';
 
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { Switch } from '@/components/ui/switch';
-import { Keyboard, Palette, Sparkles, Volume2, Wand2 } from '@/lib/icons';
+import { Keyboard, Palette } from '@/lib/icons';
 
 import {
+  type KeyboardSettings,
   readKeyboardSettings,
   supportsSoftKeyboard,
   writeKeyboardSettings,
-  type KeyboardSettings,
 } from '../lib/preference';
 
 interface KeyboardSettingsModalProps {
