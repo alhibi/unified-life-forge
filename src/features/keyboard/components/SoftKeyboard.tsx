@@ -646,19 +646,22 @@ export default function SoftKeyboard({
             <div
               className="relative flex flex-[4] items-center"
               onPointerDown={(e) => {
-                spaceDragRef.current = { startX: e.clientX };
+                spaceDragRef.current = { startX: e.clientX, moved: false };
               }}
               onPointerMove={(e) => {
                 if (!spaceDragRef.current) return;
                 const diff = e.clientX - spaceDragRef.current.startX;
-                if (Math.abs(diff) > 18) {
+                if (Math.abs(diff) > DRAG_SLOP) {
                   // Dragging right moves caret visually right, dragging left moves caret visually left
                   onMoveCaret(caretDelta(layout, diff > 0 ? 'right' : 'left'));
-                  spaceDragRef.current = { startX: e.clientX };
+                  spaceDragRef.current = { startX: e.clientX, moved: true };
                   if (settings.vibrateOnKeyPress) haptics('selection');
                 }
               }}
               onPointerUp={() => {
+                spaceDragRef.current = null;
+              }}
+              onPointerCancel={() => {
                 spaceDragRef.current = null;
               }}
             >
@@ -669,12 +672,18 @@ export default function SoftKeyboard({
                 showPopupPreview={false}
                 vibrate={settings.vibrateOnKeyPress}
                 keyBorders={settings.keyBorders}
-                onPress={handleSpacePress}
-                onHold={() => onInsert(' ')}
+                holdDelayMs={settings.holdDelayMs}
+                // Space commits on release so sliding it as a caret trackpad
+                // never leaves a stray space behind.
+                pressOnRelease
+                onPress={() => {
+                  if (spaceDragRef.current?.moved) return;
+                  handleSpacePress();
+                }}
                 className="w-full"
               >
                 <div className="flex items-center gap-2 text-micro text-muted-foreground/60">
-                  <span className="h-1 w-12 rounded-full bg-muted-foreground/40" />
+                  <span className="h-1 w-12 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
                 </div>
               </Key>
             </div>
