@@ -10,12 +10,18 @@ describe('German Dictionary Engine & Store Suite', () => {
   });
 
   describe('Dictionary Dataset & Schema Integrity', () => {
-    it('contains valid dictionary entries satisfying the Zod schema', () => {
-      expect(GERMAN_DICTIONARY_DATA.length).toBeGreaterThan(10);
+    it('contains over 5,000 unique dictionary entries satisfying the Zod schema', () => {
+      expect(GERMAN_DICTIONARY_DATA.length).toBeGreaterThanOrEqual(5000);
+
+      const termsSet = new Set<string>();
       GERMAN_DICTIONARY_DATA.forEach((entry) => {
         const result = DictionaryEntrySchema.safeParse(entry);
         expect(result.success).toBe(true);
+        termsSet.add(entry.german.toLowerCase());
       });
+
+      // Ensure no duplicates
+      expect(termsSet.size).toBe(GERMAN_DICTIONARY_DATA.length);
     });
 
     it('returns a deterministic Wort des Tages', () => {
