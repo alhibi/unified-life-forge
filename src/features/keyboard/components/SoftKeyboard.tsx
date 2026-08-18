@@ -49,6 +49,7 @@ export interface SoftKeyboardProps {
   onUseSystemKeyboard: () => void;
   enterLabel?: string;
   onHeightChange?: (height: number) => void;
+  isSensitive?: boolean;
 }
 
 const HOLD_REPEAT_MS = 70;
@@ -114,7 +115,14 @@ const Key = memo(function Key({
     consumedRef.current = false;
   }, []);
 
-  useEffect(() => clear, [clear]);
+  useEffect(() => {
+    const handleBlur = () => clear();
+    window.addEventListener('blur', handleBlur);
+    return () => {
+      clear();
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [clear]);
 
   /** Variant under the given viewport point, if the finger is over the popup. */
   const variantAt = useCallback((x: number, y: number) => {
@@ -227,6 +235,7 @@ export default function SoftKeyboard({
   onUseSystemKeyboard,
   enterLabel = 'تم',
   onHeightChange,
+  isSensitive = false,
 }: SoftKeyboardProps) {
   const [settings, setSettings] = useState<KeyboardSettings>(() => readKeyboardSettings());
   const [layout, setLayout] = useState<LayoutId>('ar');
@@ -238,11 +247,14 @@ export default function SoftKeyboard({
     () => readKeyboardSettings().oneHandedMode,
   );
   const [typedBuffer, setTypedBuffer] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>(() => getWordSuggestions(''));
+  const [suggestions, setSuggestions] = useState<string[]>(() =>
+    isSensitive ? [] : getWordSuggestions(''),
+  );
 
   const rootRef = useRef<HTMLDivElement>(null);
   const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
   const lastSpaceTapRef = useRef<number>(0);
+  const pendingPredictionRef = useRef<{ idleId?: number; timeoutId?: number } | null>(null);
 
   // Listen for settings changes
   useEffect(() => {
@@ -256,16 +268,62 @@ export default function SoftKeyboard({
   }, []);
 
   /**
+   * Non-blocking prediction pipeline with requestIdleCallback or immediate timeout fallback.
+   * Cancels any pending prediction job on rapid consecutive keystrokes.
+   */
+  const updateSuggestions = useCallback((buffer: string, sensitive: boolean) => {
+    if (pendingPredictionRef.current?.idleId && typeof cancelIdleCallback !== 'undefined') {
+      cancelIdleCallback(pendingPredictionRef.current.idleId);
+    }
+    if (pendingPredictionRef.current?.timeoutId) {
+      clearTimeout(pendingPredictionRef.current.timeoutId);
+    }
+    pendingPredictionRef.current = null;
+
+    if (sensitive) {
+      setSuggestions([]);
+      return;
+    }
+
+    const compute = () => {
+      setSuggestions(getWordSuggestions(buffer));
+    };
+
+    if (typeof requestIdleCallback !== 'undefined') {
+      const idleId = requestIdleCallback(() => compute(), { timeout: 50 });
+      pendingPredictionRef.current = { idleId };
+    } else {
+      const timeoutId = window.setTimeout(compute, 0);
+      pendingPredictionRef.current = { timeoutId };
+    }
+  }, []);
+
+  // Cleanup pending prediction jobs on unmount
+  useEffect(() => {
+    return () => {
+      if (pendingPredictionRef.current?.idleId && typeof cancelIdleCallback !== 'undefined') {
+        cancelIdleCallback(pendingPredictionRef.current.idleId);
+      }
+      if (pendingPredictionRef.current?.timeoutId) {
+        clearTimeout(pendingPredictionRef.current.timeoutId);
+      }
+    };
+  }, []);
+
+  /**
    * Switching layout ends the current word and any pending shift latch: keeping
    * them alive leaked English suggestions into Arabic typing and vice versa.
    */
-  const switchLayout = useCallback((next: LayoutId) => {
-    setLayout(next);
-    setShift(false);
-    setCaps(false);
-    setTypedBuffer('');
-    setSuggestions(getWordSuggestions(''));
-  }, []);
+  const switchLayout = useCallback(
+    (next: LayoutId) => {
+      setLayout(next);
+      setShift(false);
+      setCaps(false);
+      setTypedBuffer('');
+      updateSuggestions('', isSensitive);
+    },
+    [isSensitive, updateSuggestions],
+  );
 
   // Height publishing
   useEffect(() => {
@@ -283,28 +341,31 @@ export default function SoftKeyboard({
       ? [HARAKAT.slice(0, 6), HARAKAT.slice(6, 12)]
       : LAYOUT_ROWS[layout as keyof typeof LAYOUT_ROWS] ?? LAYOUT_ROWS.ar;
 
-  const emit = (key: KeyDef) => {
-    const upper = shift || caps;
-    const textToInsert = upper && key.alt ? key.alt : key.ch;
-    onInsert(textToInsert);
-    if (shift && !caps) setShift(false);
+  const emit = useCallback(
+    (key: KeyDef) => {
+      const upper = shift || caps;
+      const textToInsert = upper && key.alt ? key.alt : key.ch;
+      onInsert(textToInsert);
+      if (shift && !caps) setShift(false);
 
-    // Only letters continue a word. Digits, punctuation and combining marks end
-    // it, so the prediction buffer never accumulates junk that can't be matched.
-    const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
-    const newBuffer = isWordChar ? typedBuffer + textToInsert : '';
-    setTypedBuffer(newBuffer);
-    setSuggestions(getWordSuggestions(newBuffer));
-  };
+      // Only letters continue a word. Digits, punctuation and combining marks end
+      // it, so the prediction buffer never accumulates junk that can't be matched.
+      const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
+      const newBuffer = isWordChar ? typedBuffer + textToInsert : '';
+      setTypedBuffer(newBuffer);
+      updateSuggestions(newBuffer, isSensitive);
+    },
+    [shift, caps, onInsert, typedBuffer, updateSuggestions, isSensitive],
+  );
 
-  const handleBackspace = () => {
+  const handleBackspace = useCallback(() => {
     onBackspace();
     const newBuffer = typedBuffer.slice(0, -1);
     setTypedBuffer(newBuffer);
-    setSuggestions(getWordSuggestions(newBuffer));
-  };
+    updateSuggestions(newBuffer, isSensitive);
+  }, [onBackspace, typedBuffer, updateSuggestions, isSensitive]);
 
-  const handleSpacePress = () => {
+  const handleSpacePress = useCallback(() => {
     const now = Date.now();
     if (settings.autoPeriod && now - lastSpaceTapRef.current < 320) {
       // Auto-period shortcut: convert previous space/tap to ". "
@@ -316,16 +377,19 @@ export default function SoftKeyboard({
       lastSpaceTapRef.current = now;
     }
     setTypedBuffer('');
-    setSuggestions(getWordSuggestions(''));
-  };
+    updateSuggestions('', isSensitive);
+  }, [settings.autoPeriod, onBackspace, onInsert, updateSuggestions, isSensitive]);
 
-  /** Props every key shares, so behaviour stays identical across rows. */
-  const keyChrome = {
-    showPopupPreview: settings.showKeyPressPopup,
-    vibrate: settings.vibrateOnKeyPress,
-    keyBorders: settings.keyBorders,
-    holdDelayMs: settings.holdDelayMs,
-  };
+  /** Props every key shares, memoized to prevent unnecessary re-renders across rows. */
+  const keyChrome = useMemo(
+    () => ({
+      showPopupPreview: settings.showKeyPressPopup,
+      vibrate: settings.vibrateOnKeyPress,
+      keyBorders: settings.keyBorders,
+      holdDelayMs: settings.holdDelayMs,
+    }),
+    [settings.showKeyPressPopup, settings.vibrateOnKeyPress, settings.keyBorders, settings.holdDelayMs],
+  );
 
   const letters = layout === 'ar' || layout === 'en';
   const rtl = isRtlLayout(layout);
@@ -374,22 +438,24 @@ export default function SoftKeyboard({
 
       {/* Top Action & Suggestion Bar */}
       <ToolBar
-        suggestions={suggestions}
+        suggestions={isSensitive ? [] : suggestions}
         onSelectSuggestion={(word) => {
           onInsert(word + ' ');
-          learnWord(word);
+          if (!isSensitive) {
+            learnWord(word);
+          }
           setTypedBuffer('');
-          setSuggestions(getWordSuggestions(''));
+          updateSuggestions('', isSensitive);
           if (settings.vibrateOnKeyPress) haptics('selection');
         }}
         activePanel={activePanel}
-        setActivePanel={(panel) => {
+        setActivePanel={useCallback((panel) => {
           if (panel === 'settings') {
             setSettingsModalOpen(true);
           } else {
             setActivePanel(panel);
           }
-        }}
+        }, [])}
         oneHandedMode={oneHandedMode}
         setOneHandedMode={setOneHandedMode}
       />

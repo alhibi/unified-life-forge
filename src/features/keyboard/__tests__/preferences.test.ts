@@ -43,4 +43,21 @@ describe('Soft Keyboard Preferences Store', () => {
     expect(updated.showNumberRow).toBe(true);
     expect(updated.vibrateOnKeyPress).toBe(false);
   });
+
+  it('gracefully handles corrupted JSON in localStorage', () => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('smarthub:soft-keyboard-settings-v2', 'invalid json {{{');
+    }
+    const settings = readKeyboardSettings();
+    expect(settings.preference).toBe('app');
+    expect(settings.theme).toBe('gboard-dark');
+  });
+
+  it('gracefully handles non-object JSON primitives in localStorage', () => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('smarthub:soft-keyboard-settings-v2', '"string-value"');
+    }
+    const settings = readKeyboardSettings();
+    expect(settings.preference).toBe('app');
+  });
 });

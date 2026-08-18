@@ -73,14 +73,19 @@ export function readKeyboardSettings(): KeyboardSettings {
   if (typeof localStorage !== 'undefined') {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return { ...DEFAULT_KEYBOARD_SETTINGS, ...JSON.parse(raw) };
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          return { ...DEFAULT_KEYBOARD_SETTINGS, ...parsed };
+        }
+      }
       // Honour the legacy opt-out so users who chose the OS keyboard keep it.
       const legacy = localStorage.getItem(LEGACY_PREFERENCE_KEY);
       if (legacy === 'system' || legacy === 'app') {
         return { ...DEFAULT_KEYBOARD_SETTINGS, preference: legacy };
       }
     } catch {
-      /* fallback */
+      return DEFAULT_KEYBOARD_SETTINGS;
     }
   }
   return memorySettings ?? DEFAULT_KEYBOARD_SETTINGS;
