@@ -160,17 +160,22 @@ export const GermanDictionary: React.FC = () => {
                   <div className="flex items-center justify-center gap-3">
                     <button
                       type="button"
-                      onClick={() => setVisibleCount((prev) => prev + 40)}
+                      onClick={() => { setVisibleCount((prev) => prev + 40); }}
                       className="px-6 py-2.5 rounded-2xl bg-[#17324D] text-white text-xs font-bold shadow-xs hover:bg-[#17324D]/90 transition-all active:scale-95"
                     >
                       عرض المزيد (+40)
                     </button>
                     <button
                       type="button"
-                      onClick={() => setVisibleCount(displayedEntries.length)}
+                      // Mounting 5,000+ cards in one commit freezes (and on
+                      // low-memory phones kills) the tab, so the jump is capped
+                      // at a chunk the renderer can absorb.
+                      onClick={() => {
+                        setVisibleCount((prev) => Math.min(prev + 400, displayedEntries.length));
+                      }}
                       className="px-4 py-2.5 rounded-2xl bg-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-300 transition-all"
                     >
-                      عرض الكل ({displayedEntries.length.toLocaleString('en-US')})
+                      دفعة كبيرة (+400)
                     </button>
                   </div>
                 </div>
