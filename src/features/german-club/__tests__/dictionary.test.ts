@@ -68,6 +68,30 @@ describe('German Dictionary Engine & Store Suite', () => {
       expect(dieResults.length).toBeGreaterThan(0);
       expect(dieResults.every((r) => r.gender === 'die')).toBe(true);
     });
+
+    it('sorts entries alphabetically ascending and descending', () => {
+      const ascResults = searchDictionary('', { selectedSort: 'alphabetical_asc' });
+      const descResults = searchDictionary('', { selectedSort: 'alphabetical_desc' });
+
+      expect(ascResults[0].german.localeCompare(ascResults[1].german, 'de')).toBeLessThanOrEqual(0);
+      expect(descResults[0].german.localeCompare(descResults[1].german, 'de')).toBeGreaterThanOrEqual(0);
+    });
+
+    it('sorts entries by CEFR level ascending (A1 -> C2)', () => {
+      const cefrAsc = searchDictionary('', { selectedSort: 'cefr_asc' });
+      expect(cefrAsc[0].cefr).toBe('A1');
+    });
+
+    it('sorts entries by word length', () => {
+      const byLength = searchDictionary('', { selectedSort: 'word_length' });
+      expect(byLength[0].german.length).toBeGreaterThanOrEqual(byLength[byLength.length - 1].german.length);
+    });
+
+    it('filters separable verbs correctly', () => {
+      const sepVerbs = searchDictionary('', { onlySeparableVerbs: true });
+      expect(sepVerbs.length).toBeGreaterThan(0);
+      expect(sepVerbs.every((r) => r.is_separable === true)).toBe(true);
+    });
   });
 
   describe('Dictionary Zustand Store', () => {
