@@ -13,6 +13,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 import App from "./App.tsx";
 import { bootMotion } from "./lib/bootMotion";
+import { installChunkRecovery } from "./lib/chunkRecovery";
 import { registerServiceWorker } from "./lib/registerServiceWorker";
 import { initTelemetry } from "./lib/telemetry";
 import { instrumentWebVitals } from "./utils/vitals";
@@ -23,6 +24,10 @@ import { instrumentWebVitals } from "./utils/vitals";
 // window.__telemetry(). Installed first so failures during the rest of boot
 // are captured too. See src/lib/telemetry.ts.
 initTelemetry();
+
+// Blank-screen guard: a stale shell cache asking for rotated chunk filenames
+// paints nothing at all. Purge and reload once instead of stranding the user.
+installChunkRecovery();
 
 // Native-feel motion setup: honor prefers-reduced-motion globally,
 // promote <body> to a GPU layer, and pre-warm the compositor before
