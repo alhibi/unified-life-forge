@@ -372,33 +372,48 @@ function useIdlePrefetch() {
     const ric: (cb: () => void) => number =
       (window as any).requestIdleCallback ||
       ((cb) => window.setTimeout(cb, 1500));
-    const id = ric(() => {
-      loadAppearance(); loadProfile(); loadPrayer(); loadReading();
-        loadWellness(); loadFitness(); loadDiwan(); loadQuran(); loadDhikr(); loadSunnah();
-      // Wave-1 chat surfaces. The groups index is one tap away from the
-      // chat tab and the chat settings page is one tap away from there;
-      // pre-warming both keeps the first navigation instant.
-      loadGroupsIndex(); loadChatSettings();
-      // The Games and Chat tabs are lazy now (see the top of this file), so
-      // warm them here — the first tap must not wait on a network round trip.
-      loadGames(); loadChatTab();
-      // The new IA hubs are the most likely first taps on every cold
-      // session, so warm them up alongside the existing tabs. Settings
-      // is now reached from the home avatar shortcut, so prefetch it
-      // too — the user is one tap away.
-      loadBrowse(); loadMihrab(); loadSettings();
-      // Weather hub is in the bottom nav alongside Browse/Mihrab; warm
-      // it up on idle so the first tap renders instantly.
-      loadWeather();
-      loadBayan();
-      // Knowledge hub is a bottom-nav tab too — prefetch it so the
-      // first tap doesn't pay the chunk download in the foreground.
-      loadKnowledge();
-      loadGermanClubHome();
-    });
+    // Ordered by how likely the first tap is, and pumped ONE chunk at a time:
+    // firing twenty dynamic imports inside a single idle callback spikes memory
+    // hard enough on low-end phones for the tab to be discarded, which the user
+    // only ever sees as a permanently blank screen.
+    const queue: Array<() => Promise<unknown>> = [
+      loadBrowse, loadMihrab, loadSettings, loadWeather,
+      loadPrayer, loadReading, loadProfile, loadAppearance,
+      loadChatTab, loadGames, loadQuran, loadDhikr, loadSunnah,
+      loadKnowledge, loadBayan,
+      loadWellness, loadFitness, loadDiwan,
+      loadGroupsIndex, loadChatSettings,
+      // Heaviest chunk in the app (bundled German corpora), hence last.
+      loadGermanClubHome,
+    ];
+
+    const nav = navigator as Navigator & {
+      deviceMemory?: number;
+      connection?: { saveData?: boolean; effectiveType?: string };
+    };
+    const saveData = nav.connection?.saveData === true;
+    const slowNetwork = /2g$/.test(nav.connection?.effectiveType ?? '');
+    const lowMemory = (nav.deviceMemory ?? 8) <= 2 || (nav.hardwareConcurrency ?? 8) <= 2;
+    // On constrained devices the prefetch costs more than it buys: skip it and
+    // let each route pay for itself on tap.
+    if (saveData || slowNetwork || lowMemory) return;
+
+    let cancelled = false;
+    let handle: number | undefined;
+    const pump = (index: number) => {
+      if (cancelled || index >= queue.length) return;
+      handle = ric(() => {
+        if (cancelled) return;
+        void queue[index]().catch(() => undefined).then(() => { pump(index + 1); });
+      });
+    };
+    pump(0);
+
     return () => {
+      cancelled = true;
+      if (handle === undefined) return;
       const cic = (window as any).cancelIdleCallback;
-      if (cic) cic(id); else clearTimeout(id);
+      if (cic) cic(handle); else clearTimeout(handle);
     };
   }, []);
 }
