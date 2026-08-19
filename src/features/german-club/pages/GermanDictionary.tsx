@@ -155,7 +155,7 @@ export const GermanDictionary: React.FC = () => {
               {visibleCount < displayedEntries.length && (
                 <div className="pt-4 text-center space-y-2">
                   <p className="text-xs text-stone-500 font-mono">
-                    عرض {paginatedEntries.length} من أصل {displayedEntries.length.toLocaleString('ar-EG')} مفردة
+                    عرض {paginatedEntries.length} من أصل {displayedEntries.length.toLocaleString('en-US')} مفردة
                   </p>
                   <div className="flex items-center justify-center gap-3">
                     <button
@@ -170,7 +170,7 @@ export const GermanDictionary: React.FC = () => {
                       onClick={() => setVisibleCount(displayedEntries.length)}
                       className="px-4 py-2.5 rounded-2xl bg-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-300 transition-all"
                     >
-                      عرض الكل ({displayedEntries.length.toLocaleString('ar-EG')})
+                      عرض الكل ({displayedEntries.length.toLocaleString('en-US')})
                     </button>
                   </div>
                 </div>
