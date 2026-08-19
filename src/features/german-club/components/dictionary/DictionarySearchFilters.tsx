@@ -39,7 +39,7 @@ export const DictionarySearchFilters: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ابحث عن كلمة ألمانية أو معنى بالعربية أو IPA..."
-          className="w-full pr-12 pl-10 py-3.5 rounded-2xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#17324D]/30 focus:border-[#17324D] text-sm font-medium shadow-xs"
+          className="w-full pe-12 ps-10 py-3.5 rounded-2xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#17324D]/30 focus:border-[#17324D] text-sm font-medium shadow-xs"
         />
         {searchQuery && (
           <button
