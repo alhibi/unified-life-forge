@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { BookOpen, Sparkles, BookmarkCheck, SearchX } from '@/lib/icons';
+import { BookOpen, Sparkles, BookmarkCheck, SearchX, Layers } from '@/lib/icons';
 import { GERMAN_CLUB_TOKENS, DictionaryEntry } from '../types';
 import { useDictionaryStore } from '../useDictionaryStore';
 import { WortDesTagesCard } from '../components/dictionary/WortDesTagesCard';
@@ -81,9 +81,16 @@ export const GermanDictionary: React.FC = () => {
         {/* Hero Section */}
         <div className="relative overflow-hidden border-b border-stone-300/80 px-4 py-8 bg-gradient-to-b from-stone-200/80 via-stone-100 to-transparent">
           <div className="max-w-4xl mx-auto space-y-3 text-center sm:text-start">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-200 text-stone-700 border border-stone-300 text-xs font-bold">
+                <Layers className="w-3.5 h-3.5 text-[#17324D]" />
+                <span>تصنيف أكاديمي ومعجمي مستقل عن المواقف اليومية</span>
+              </div>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-black text-[#17181C] tracking-tight leading-tight">
@@ -91,8 +98,9 @@ export const GermanDictionary: React.FC = () => {
             </h2>
 
             <p className="text-xs sm:text-base text-stone-600 max-w-2xl leading-relaxed">
-              ابحث في آلاف الكلمات والمصطلحات الموثقة بدقة عالية، مع توضيح أجناس الأسماء بالألوان،
-              وتصاريف الأفعال، والنطق الصوتي، وأمثلة واستخدامات من واقع الحياة في ألمانيا.
+              معجم لغوي منظم أ أبجدياً وبحسب المجالات المعجمية المستقلة (وليس حسب السيناريوهات).
+              يتيح الفرز بالترتيب الأبجدي، والمستوى التعليمي (A1-C2)، وطول الكلمة، والتجميع النحوي
+              مع تصفية أفعال الانفصال وحالات حروف الجر.
             </p>
           </div>
         </div>
