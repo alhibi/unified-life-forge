@@ -24,6 +24,7 @@ import { KeyboardProvider } from "@/features/keyboard";
 import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
+import { VisitTrackerRunner } from "@/hooks/useVisitTracker";
 import { useNavDirection } from "@/hooks/useNavDirection";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 import { usePresence } from "@/hooks/usePresence";
@@ -813,6 +814,7 @@ const App = () => (
                 <AutoPrayerThemeRunner />
                 <PresenceRunner />
                 <NetworkConnectivityListener />
+                <VisitTrackerRunner />
                 <NativeShell />
                 <EdgeSwipeBack />
                 <AnimatedRoutes />
