@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -41,6 +41,26 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
   const isEmojiAvatar = avatarUrl && isEmojiAvatarValue(avatarUrl);
 
   const profileUrl = `${window.location.origin}/u/${(username || 'user').toLowerCase()}`;
+
+  // Generate 8x8 SVG matrix to represent a crisp vector QR code
+  const qrMatrix = useMemo(() => {
+    const seed = (username || 'user').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const grid = [];
+    for (let row = 0; row < 8; row++) {
+      const rowArr = [];
+      for (let col = 0; col < 8; col++) {
+        // Always place corners for standard QR pattern
+        const isCorner =
+          (row < 2 && col < 2) ||
+          (row < 2 && col > 5) ||
+          (row > 5 && col < 2);
+        const fill = isCorner || ((row * 8 + col + seed) % 3 === 0);
+        rowArr.push(fill);
+      }
+      grid.push(rowArr);
+    }
+    return grid;
+  }, [username]);
 
   const handleCopyLink = async () => {
     try {
@@ -126,7 +146,7 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
               </div>
             </div>
 
-            {/* Simulated QR Code & Barcode Ticket Edge */}
+            {/* Simulated Dynamic Vector QR Code & Barcode Ticket Edge */}
             <div className="p-3 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between gap-3">
               <div className="space-y-1">
                 <span className="block text-micro font-mono text-muted-foreground">SCAN OR SHARE LINK</span>
@@ -136,8 +156,17 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
                 <span className="block text-micro text-muted-foreground">عضوية صالحة مدى الحياة</span>
               </div>
 
+              {/* Vector QR Matrix SVG */}
               <div className="w-12 h-12 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center shadow-md">
-                <QrCode className="w-10 h-10 text-black" />
+                <svg viewBox="0 0 8 8" className="w-10 h-10 text-black fill-current">
+                  {qrMatrix.map((row, rIdx) =>
+                    row.map((filled, cIdx) =>
+                      filled ? (
+                        <rect key={`${rIdx}-${cIdx}`} x={cIdx} y={rIdx} width="1" height="1" />
+                      ) : null
+                    )
+                  )}
+                </svg>
               </div>
             </div>
           </div>
