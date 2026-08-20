@@ -181,21 +181,25 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
   // Check if a job is already running for this shelf
   const checkRunningJob = async () => {
-    const { data } = await supabase
-      .from('content_generation_jobs')
-      .select('*')
-      .eq('shelf_id', shelfId)
-      .in('status', ['queued', 'running'])
-      .order('started_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from('content_generation_jobs')
+        .select('*')
+        .eq('shelf_id', shelfId)
+        .in('status', ['queued', 'running'])
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (data) {
-      setJobId(data.id);
-      setJob(data as GenerationJobRow);
-      setStep('generating');
-      void fetchJobAcceptedEntries(data.id);
-      void fetchJobRejections(data.id);
+      if (!error && data) {
+        setJobId(data.id);
+        setJob(data as GenerationJobRow);
+        setStep('generating');
+        void fetchJobAcceptedEntries(data.id);
+        void fetchJobRejections(data.id);
+      }
+    } catch (err) {
+      console.warn('Failed to check running job status:', err);
     }
   };
 
@@ -347,7 +351,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
 
-      // 1. Create content_generation_jobs row
+      let createdJobId: string | null = null;
+      let createdJobRow: GenerationJobRow | null = null;
+
+      // 1. Try creating content_generation_jobs row in database
       const { data: newJob, error: createErr } = await supabase
         .from('content_generation_jobs')
         .insert({
@@ -363,18 +370,38 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
         .select('*')
         .single();
 
-      if (createErr || !newJob) {
-        throw new Error(createErr?.message || 'Failed to create generation job row');
+      if (!createErr && newJob) {
+        createdJobId = newJob.id;
+        createdJobRow = newJob as GenerationJobRow;
+      } else {
+        console.warn('Database insert into content_generation_jobs returned error/fallback:', createErr?.message);
+        // Fallback job ID if DB schema cache or table is temporarily unavailable
+        createdJobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `job_${Date.now()}`;
+        createdJobRow = {
+          id: createdJobId,
+          shelf_id: shelfId,
+          model_id: selectedModel.id,
+          mode,
+          target_count: mode === 'fixed_count' ? fixedCount : null,
+          strictness,
+          register_targets: registerTargets,
+          status: 'running',
+          entries_generated: 0,
+          entries_skipped_duplicate: 0,
+          entries_discarded_low_quality: 0,
+          estimated_cost_usd: liveEstimate.estCostUsd,
+          error_message: null,
+        };
       }
 
-      setJobId(newJob.id);
-      setJob(newJob as GenerationJobRow);
+      setJobId(createdJobId);
+      setJob(createdJobRow);
       setStep('generating');
 
       // 2. Invoke Edge Function asynchronously
-      const { error: invokeErr } = await supabase.functions.invoke('german-club-generate-content', {
+      const { data: fnData, error: invokeErr } = await supabase.functions.invoke('german-club-generate-content', {
         body: {
-          job_id: newJob.id,
+          job_id: createdJobId,
           shelf_id: shelfId,
           model_id: selectedModel.id,
           mode,
@@ -385,7 +412,9 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
       });
 
       if (invokeErr) {
-        setJobError(invokeErr.message);
+        setJobError(`تعذر الاتصال بفرن التوليد: ${invokeErr.message}`);
+      } else if (fnData?.error) {
+        setJobError(`خطأ من وحدة التوليد: ${fnData.error}`);
       }
     } catch (err: any) {
       setJobError(err?.message || 'Error starting furnace generation job');

@@ -41,16 +41,21 @@ export const ShelfDetail: React.FC = () => {
     if (!currentShelf?.id) return;
 
     const checkRunningJob = async () => {
-      const { data } = await supabase
-        .from('content_generation_jobs')
-        .select('status')
-        .eq('shelf_id', currentShelf.id)
-        .in('status', ['queued', 'running'])
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from('content_generation_jobs')
+          .select('status')
+          .eq('shelf_id', currentShelf.id)
+          .in('status', ['queued', 'running'])
+          .maybeSingle();
 
-      if (data) {
-        setActiveJobStatus(data.status);
-      } else {
+        if (!error && data) {
+          setActiveJobStatus(data.status);
+        } else {
+          setActiveJobStatus(null);
+        }
+      } catch (err) {
+        console.warn('Failed to check running job status:', err);
         setActiveJobStatus(null);
       }
     };

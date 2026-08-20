@@ -130,32 +130,148 @@ export type Database = {
       }
       content_generation_jobs: {
         Row: {
+          completed_at: string | null
           created_at: string
+          entries_discarded_low_quality: number
+          entries_generated: number
+          entries_skipped_duplicate: number
+          error_message: string | null
+          estimated_cost_usd: number
           id: string
+          mode: string
+          model_id: string | null
           model_used: string | null
+          register_targets: string[]
+          shelf_id: string | null
+          started_at: string | null
           status: string
-          unit_id: string
+          strictness: string
+          target_count: number | null
+          triggered_by: string | null
+          unit_id: string | null
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
+          entries_discarded_low_quality?: number
+          entries_generated?: number
+          entries_skipped_duplicate?: number
+          error_message?: string | null
+          estimated_cost_usd?: number
           id?: string
+          mode?: string
+          model_id?: string | null
           model_used?: string | null
+          register_targets?: string[]
+          shelf_id?: string | null
+          started_at?: string | null
           status?: string
-          unit_id: string
+          strictness?: string
+          target_count?: number | null
+          triggered_by?: string | null
+          unit_id?: string | null
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
+          entries_discarded_low_quality?: number
+          entries_generated?: number
+          entries_skipped_duplicate?: number
+          error_message?: string | null
+          estimated_cost_usd?: number
           id?: string
+          mode?: string
+          model_id?: string | null
           model_used?: string | null
+          register_targets?: string[]
+          shelf_id?: string | null
+          started_at?: string | null
           status?: string
-          unit_id?: string
+          strictness?: string
+          target_count?: number | null
+          triggered_by?: string | null
+          unit_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "content_generation_jobs_shelf_id_fkey"
+            columns: ["shelf_id"]
+            isOneToOne: false
+            referencedRelation: "german_club_shelves"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "content_generation_jobs_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generation_job_rejections: {
+        Row: {
+          candidate_text: string
+          created_at: string
+          id: string
+          job_id: string | null
+          reason: string
+        }
+        Insert: {
+          candidate_text: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          reason: string
+        }
+        Update: {
+          candidate_text?: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_job_rejections_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "content_generation_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      model_performance_stats: {
+        Row: {
+          last_used_at: string | null
+          model_id: string
+          runs_count: number
+          shelf_id: string
+          total_accepted: number
+          total_generated: number
+        }
+        Insert: {
+          last_used_at?: string | null
+          model_id: string
+          runs_count?: number
+          shelf_id: string
+          total_accepted?: number
+          total_generated?: number
+        }
+        Update: {
+          last_used_at?: string | null
+          model_id?: string
+          runs_count?: number
+          shelf_id?: string
+          total_accepted?: number
+          total_generated?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_performance_stats_shelf_id_fkey"
+            columns: ["shelf_id"]
+            isOneToOne: false
+            referencedRelation: "german_club_shelves"
             referencedColumns: ["id"]
           },
         ]
