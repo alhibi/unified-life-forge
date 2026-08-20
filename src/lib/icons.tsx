@@ -601,6 +601,15 @@ export const Gauge = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>
 export const Github = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function Github(props, ref) { return <IconSlot ref={ref} names={{ p: 'GithubLogo', l: 'Github', t: 'IconBrandGithub' }} {...props} />; },
 ) as unknown as PhosphorIcon;
+export const Twitter = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Twitter(props, ref) { return <IconSlot ref={ref} names={{ p: 'TwitterLogo', l: 'Twitter', t: 'IconBrandTwitter' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Linkedin = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Linkedin(props, ref) { return <IconSlot ref={ref} names={{ p: 'LinkedinLogo', l: 'Linkedin', t: 'IconBrandLinkedin' }} {...props} />; },
+) as unknown as PhosphorIcon;
+export const Instagram = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Instagram(props, ref) { return <IconSlot ref={ref} names={{ p: 'InstagramLogo', l: 'Instagram', t: 'IconBrandInstagram' }} {...props} />; },
+) as unknown as PhosphorIcon;
 export const Globe = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
   function Globe(props, ref) { return <IconSlot ref={ref} names={{ p: 'Globe', l: 'Globe', t: 'IconGlobe' }} {...props} />; },
 ) as unknown as PhosphorIcon;
