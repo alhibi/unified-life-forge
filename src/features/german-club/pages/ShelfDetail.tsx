@@ -30,6 +30,7 @@ export const ShelfDetail: React.FC = () => {
     isLoadingEntries,
     fetchShelfEntries,
     toggleEntryMastered,
+    masteredEntryIds,
   } = useGermanClubStore();
 
   useEffect(() => {
@@ -219,6 +220,7 @@ export const ShelfDetail: React.FC = () => {
                 <EntryCard
                   key={entry.id}
                   entry={entry}
+                  initialMastered={masteredEntryIds.has(entry.id)}
                   onToggleMastered={toggleEntryMastered}
                 />
               ))}

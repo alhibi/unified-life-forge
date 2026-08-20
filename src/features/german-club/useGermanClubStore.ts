@@ -23,7 +23,9 @@ interface GermanClubState {
 
   // Mastered shelf IDs state & animated mastery tracking
   masteredShelfIds: Set<string>;
+  masteredEntryIds: Set<string>;
   animatedMasteryIds: Set<string>;
+  fetchMasteredEntries: () => Promise<void>;
   markShelfAnimated: (shelfId: string) => void;
   checkShelfMastery: () => Promise<void>;
 
@@ -13102,7 +13104,24 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
   },
 
   masteredShelfIds: new Set<string>(),
+  masteredEntryIds: new Set<string>(),
   animatedMasteryIds: new Set<string>(),
+  fetchMasteredEntries: async () => {
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes?.user) return;
+
+      const { data } = await supabase
+        .from('german_club_progress')
+        .select('entry_id')
+        .eq('user_id', userRes.user.id)
+        .eq('is_mastered', true);
+
+      set({ masteredEntryIds: new Set<string>((data ?? []).map((row) => row.entry_id as string)) });
+    } catch {
+      /* ignore offline progress errors */
+    }
+  },
   markShelfAnimated: (shelfId: string) => {
     set((state) => {
       const next = new Set(state.animatedMasteryIds);
@@ -13190,6 +13209,8 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
     set({ isLoadingEntries: true, error: null });
     const { shelves } = get();
     const activeShelf = shelves.find((s) => s.slug === shelfSlug) || null;
+
+    void get().fetchMasteredEntries();
 
     try {
       const isEntitled = await get().checkEntitlement();
@@ -13298,6 +13319,13 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
   },
 
   toggleEntryMastered: async (entryId: string, mastered: boolean) => {
+    set((state) => {
+      const next = new Set(state.masteredEntryIds);
+      if (mastered) next.add(entryId);
+      else next.delete(entryId);
+      return { masteredEntryIds: next };
+    });
+
     if (mastered) {
       get().incrementMomentum(25);
     } else {

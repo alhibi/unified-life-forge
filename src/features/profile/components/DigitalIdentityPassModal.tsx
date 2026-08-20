@@ -31,8 +31,8 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
   displayName,
   avatarUrl,
   title = 'عضو نخبة الهدوء',
-  location,
-  memberSinceDate = '2026',
+  location: _location,
+  memberSinceDate: _memberSinceDate = '2026',
 }) => {
   if (!isOpen) return null;
 
