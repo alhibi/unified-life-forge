@@ -49,19 +49,42 @@ export async function updateProfileAndAuth(
   userId: string,
   profileData: {
     username: string;
-    display_name: string | null;
-    avatar_url: string | null;
-    bio: string | null;
+    display_name?: string | null;
+    avatar_url?: string | null;
+    bio?: string | null;
+    title?: string | null;
+    location?: string | null;
+    website_url?: string | null;
+    social_links?: Record<string, string | null>;
+    status_text?: string | null;
+    status_emoji?: string | null;
+    featured_badges?: string[];
+    profile_theme?: string;
+    is_public?: boolean;
+    privacy_settings?: Record<string, boolean>;
   }
 ): Promise<void> {
+  const payload: Record<string, any> = {
+    username: profileData.username.toLowerCase().trim(),
+  };
+
+  if (profileData.display_name !== undefined) payload.display_name = profileData.display_name?.trim() || null;
+  if (profileData.avatar_url !== undefined) payload.avatar_url = profileData.avatar_url;
+  if (profileData.bio !== undefined) payload.bio = profileData.bio?.trim() || null;
+  if (profileData.title !== undefined) payload.title = profileData.title?.trim() || null;
+  if (profileData.location !== undefined) payload.location = profileData.location?.trim() || null;
+  if (profileData.website_url !== undefined) payload.website_url = profileData.website_url?.trim() || null;
+  if (profileData.social_links !== undefined) payload.social_links = profileData.social_links;
+  if (profileData.status_text !== undefined) payload.status_text = profileData.status_text?.trim() || null;
+  if (profileData.status_emoji !== undefined) payload.status_emoji = profileData.status_emoji || '✨';
+  if (profileData.featured_badges !== undefined) payload.featured_badges = profileData.featured_badges;
+  if (profileData.profile_theme !== undefined) payload.profile_theme = profileData.profile_theme;
+  if (profileData.is_public !== undefined) payload.is_public = profileData.is_public;
+  if (profileData.privacy_settings !== undefined) payload.privacy_settings = profileData.privacy_settings;
+
   const { error } = await supabase
     .from('profiles')
-    .update({
-      username: profileData.username.toLowerCase().trim(),
-      display_name: profileData.display_name?.trim() || null,
-      avatar_url: profileData.avatar_url,
-      bio: profileData.bio?.trim() || null,
-    } as any)
+    .update(payload as any)
     .eq('user_id', userId);
 
   if (error) {

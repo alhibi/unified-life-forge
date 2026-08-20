@@ -44,6 +44,20 @@ export const UserPreferencesSchema = z.object({
   battery_saver: z.boolean().default(false),
 });
 
+export const SocialLinksSchema = z.object({
+  github: z.string().max(100).optional().nullable(),
+  twitter: z.string().max(100).optional().nullable(),
+  telegram: z.string().max(100).optional().nullable(),
+  linkedin: z.string().max(100).optional().nullable(),
+  instagram: z.string().max(100).optional().nullable(),
+}).default({});
+
+export const PrivacySettingsSchema = z.object({
+  hide_activity: z.boolean().default(false),
+  hide_location: z.boolean().default(false),
+  hide_online_status: z.boolean().default(false),
+}).default({ hide_activity: false, hide_location: false, hide_online_status: false });
+
 // Full User Profile Model
 export const UserProfileSchema = z.object({
   id: UuidSchema,
@@ -51,8 +65,18 @@ export const UserProfileSchema = z.object({
   username: UsernameSchema.optional(),
   full_name: z.string().min(2, { message: 'Full name must have at least 2 characters' }).max(100).optional(),
   display_name: z.string().max(50).optional().nullable(),
-  avatar_url: z.string().url({ message: 'Invalid public URL format for avatar' }).optional().nullable(),
-  bio: z.string().max(160, { message: 'Bio cannot exceed 160 characters' }).optional().nullable(),
+  avatar_url: z.string().max(500).optional().nullable(),
+  bio: z.string().max(200, { message: 'Bio cannot exceed 200 characters' }).optional().nullable(),
+  title: z.string().max(100).optional().nullable(),
+  location: z.string().max(100).optional().nullable(),
+  website_url: z.string().max(200).optional().nullable(),
+  status_text: z.string().max(100).optional().nullable(),
+  status_emoji: z.string().max(10).optional().nullable().default('✨'),
+  social_links: SocialLinksSchema,
+  featured_badges: z.array(z.string()).default([]),
+  profile_theme: z.string().default('obsidian'),
+  is_public: z.boolean().default(true),
+  privacy_settings: PrivacySettingsSchema,
   preferences: UserPreferencesSchema.default({
     theme: 'dark',
     language: 'ar',
