@@ -54,6 +54,11 @@ export interface ProfileActivitySummary {
   // Quran / Dhikr
   totalDhikrCount: number;
   dhikrStreakDays: number;
+
+  // Real Site & App Visits
+  totalAppVisits: number;
+  visitStreakDays: number;
+  lastVisitDateIso: string | null;
 }
 
 export interface ProfileCompletionItem {
@@ -70,4 +75,57 @@ export interface ProfileCompletionMetrics {
   completedCount: number;
   totalCount: number;
   items: ProfileCompletionItem[];
+}
+
+export type ActivityCategory =
+  | 'all'
+  | 'visits'
+  | 'fitness'
+  | 'german'
+  | 'diwan'
+  | 'pkm'
+  | 'atlas'
+  | 'spiritual';
+
+export interface AppVisitLog {
+  id: string;
+  timestamp: number;
+  dateISO: string; // YYYY-MM-DD
+  route: string;
+  sessionDurationSecs?: number;
+  userAgent?: string;
+}
+
+export interface DailyContribution {
+  dateISO: string; // YYYY-MM-DD
+  dateFormattedAr: string; // e.g. "12 مارس 2025"
+  count: number;
+  intensity: 0 | 1 | 2 | 3 | 4;
+  dayOfWeek: number; // 0 (Sun) - 6 (Sat)
+  weekIndex: number; // 0 to 51/52
+  monthIndex: number; // 0 to 11
+  breakdown: Partial<Record<ActivityCategory, number>>;
+}
+
+export interface ContributionActivityEvent {
+  id: string;
+  dateISO: string; // YYYY-MM-DD
+  timestamp: number;
+  category: ActivityCategory;
+  titleAr: string;
+  subtitleAr?: string;
+  detailsAr?: string;
+  count?: number;
+  route?: string;
+}
+
+export interface YearlyContributionSummary {
+  year: number;
+  totalContributions: number;
+  currentStreakDays: number;
+  longestStreakDays: number;
+  averageDaily: number;
+  activeDaysCount: number;
+  dailyContributions: DailyContribution[];
+  activityEvents: ContributionActivityEvent[];
 }
