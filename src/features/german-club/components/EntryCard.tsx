@@ -6,14 +6,19 @@ import { GERMAN_CLUB_TOKENS, GermanEntry, REGISTER_LABELS_AR } from '../types';
 
 interface EntryCardProps {
   entry: GermanEntry;
+  initialMastered?: boolean;
   onToggleMastered?: (id: string, mastered: boolean) => void;
 }
 
-export const EntryCard: React.FC<EntryCardProps> = ({ entry, onToggleMastered }) => {
+export const EntryCard: React.FC<EntryCardProps> = ({ entry, initialMastered = false, onToggleMastered }) => {
   const [showExample, setShowExample] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
-  const [isMastered, setIsMastered] = useState(false);
+  const [isMastered, setIsMastered] = useState(initialMastered);
   const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    setIsMastered(initialMastered);
+  }, [initialMastered, entry.id]);
 
   const handleMastered = (e: React.MouseEvent) => {
     e.stopPropagation();
