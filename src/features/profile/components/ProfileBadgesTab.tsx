@@ -7,6 +7,7 @@ import { APP_BADGES } from '../data/badges';
 import { BadgeCategory, ProfileBadge } from '../types';
 
 export interface ProfileBadgesTabProps {
+  badges?: ProfileBadge[];
   featuredBadges?: string[];
   onToggleFeaturedBadge: (badgeId: string) => void;
 }
@@ -29,17 +30,18 @@ const RARITY_COLORS: Record<string, { bg: string; text: string; border: string; 
 };
 
 export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
+  badges = APP_BADGES,
   featuredBadges = [],
   onToggleFeaturedBadge,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<BadgeCategory>('all');
 
-  const filteredBadges = APP_BADGES.filter((badge) => {
+  const filteredBadges = badges.filter((badge) => {
     if (selectedCategory === 'all') return true;
     return badge.category === selectedCategory;
   });
 
-  const unlockedCount = APP_BADGES.filter((b) => b.progressPercent >= 100).length;
+  const unlockedCount = badges.filter((b) => b.progressPercent >= 100).length;
 
   return (
     <div className="space-y-5" dir="rtl">
@@ -49,7 +51,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
           <div className="flex items-center gap-2">
             <h2 className="text-lead font-bold text-foreground">خزانة الأوسمة والإنجازات</h2>
             <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-extrabold">
-              {unlockedCount} / {APP_BADGES.length} مكتسب
+              {unlockedCount} / {badges.length} مكتسب
             </span>
           </div>
           <p className="text-micro text-muted-foreground mt-0.5">

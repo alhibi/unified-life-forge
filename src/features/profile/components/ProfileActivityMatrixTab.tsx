@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from '@/lib/icons';
 
+import { calculateProfileActivitySummary } from '../lib/activityAggregator';
 import { ProfileActivitySummary } from '../types';
 
 export interface ProfileActivityMatrixTabProps {
@@ -21,23 +22,12 @@ export interface ProfileActivityMatrixTabProps {
 }
 
 export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> = ({
-  summary = {
-    totalDistanceKm: 38.4,
-    totalWorkouts: 14,
-    totalCalories: 2850,
-    masteredWords: 84,
-    shelfMasteryPercent: 78,
-    surgeStreakDays: 6,
-    savedPoemsCount: 18,
-    readingHours: 12.5,
-    activeNotesCount: 22,
-    journalEntriesCount: 9,
-    visitedCountriesCount: 4,
-    travelStampsCount: 7,
-    totalDhikrCount: 1420,
-    dhikrStreakDays: 12,
-  },
+  summary: propSummary,
 }) => {
+  const summary = useMemo(() => {
+    return propSummary || calculateProfileActivitySummary();
+  }, [propSummary]);
+
   // Generate 30-day activity intensity map (0-4 intensity scale)
   const heatmapDays = useMemo(() => {
     const days = [];
@@ -48,6 +38,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
       // Deterministic pseudo-random seed based on day offset for natural activity visualization
       const seed = (i * 17 + 5) % 10;
       const intensity = seed > 7 ? 4 : seed > 4 ? 3 : seed > 2 ? 2 : seed > 0 ? 1 : 0;
+
       days.push({
         dateStr: d.toLocaleDateString('ar', { month: 'short', day: 'numeric' }),
         intensity,
@@ -57,24 +48,24 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
   }, []);
 
   const intensityClasses = [
-    'bg-muted/30 border border-border/20',
-    'bg-primary/20 border border-primary/30',
-    'bg-primary/40 border border-primary/50',
-    'bg-primary/70 border border-primary/80',
-    'bg-primary shadow-sm shadow-primary/30',
+    'bg-muted/40 border border-border/30 hover:border-primary/50',
+    'bg-primary/20 border border-primary/30 hover:border-primary',
+    'bg-primary/40 border border-primary/50 hover:border-primary',
+    'bg-primary/70 border border-primary/80 hover:border-primary',
+    'bg-primary border border-primary shadow-sm hover:scale-105',
   ];
 
   return (
     <div className="space-y-5" dir="rtl">
-      {/* 1. 30-Day Activity Heatmap Grid */}
-      <section className="surface-depth rounded-2xl p-5 space-y-3">
+      {/* 1. 30-Day Activity Heatmap Matrix */}
+      <section className="surface-depth rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-              <TrendingUp className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-meta font-bold text-foreground">سجل النشاط والتركيز اليومي</h2>
+              <h2 className="text-lead font-bold text-foreground">مصفوفة النشاط والمواظبة</h2>
               <p className="text-micro text-muted-foreground">التفاعل التراكمي خلال الـ 30 يوماً الماضية</p>
             </div>
           </div>
@@ -83,7 +74,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           </span>
         </div>
 
-        {/* Heatmap Grid (5x6 matrix) */}
+        {/* Heatmap Grid (30 days) */}
         <div className="grid grid-cols-10 gap-1.5 pt-2">
           {heatmapDays.map((day, idx) => (
             <div
@@ -126,15 +117,15 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           <div className="grid grid-cols-3 gap-2 text-center pt-1">
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.totalDistanceKm || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.totalDistanceKm}</span>
               <span className="block text-micro text-muted-foreground">كم مسافة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.totalWorkouts || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.totalWorkouts}</span>
               <span className="block text-micro text-muted-foreground">أنشطة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-primary">{summary?.totalCalories || 0}</span>
+              <span className="text-lead font-extrabold text-primary">{summary.totalCalories}</span>
               <span className="block text-micro text-muted-foreground">سعرة</span>
             </div>
           </div>
@@ -154,15 +145,15 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           <div className="grid grid-cols-3 gap-2 text-center pt-1">
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.masteredWords || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.masteredWords}</span>
               <span className="block text-micro text-muted-foreground">مفردة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.shelfMasteryPercent || 0}%</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.shelfMasteryPercent}%</span>
               <span className="block text-micro text-muted-foreground">إتقان الأرفف</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-amber-400">{summary?.surgeStreakDays || 0}d</span>
+              <span className="text-lead font-extrabold text-amber-400">{summary.surgeStreakDays}d</span>
               <span className="block text-micro text-muted-foreground">سلسلة الاندفاع</span>
             </div>
           </div>
@@ -182,11 +173,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           <div className="grid grid-cols-2 gap-2 text-center pt-1">
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.savedPoemsCount || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.savedPoemsCount}</span>
               <span className="block text-micro text-muted-foreground">قصائد محفوظة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-indigo-400">{summary?.readingHours || 0}س</span>
+              <span className="text-lead font-extrabold text-indigo-400">{summary.readingHours}س</span>
               <span className="block text-micro text-muted-foreground">ساعات القراءة</span>
             </div>
           </div>
@@ -206,11 +197,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           <div className="grid grid-cols-2 gap-2 text-center pt-1">
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.activeNotesCount || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.activeNotesCount}</span>
               <span className="block text-micro text-muted-foreground">ملاحظات نشطة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-cyan-400">{summary?.journalEntriesCount || 0}</span>
+              <span className="text-lead font-extrabold text-cyan-400">{summary.journalEntriesCount}</span>
               <span className="block text-micro text-muted-foreground">تدوينات اليوميات</span>
             </div>
           </div>
@@ -230,11 +221,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           <div className="grid grid-cols-2 gap-2 text-center pt-1">
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.visitedCountriesCount || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.visitedCountriesCount}</span>
               <span className="block text-micro text-muted-foreground">بلدان مستكشفة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-amber-500">{summary?.travelStampsCount || 0}</span>
+              <span className="text-lead font-extrabold text-amber-500">{summary.travelStampsCount}</span>
               <span className="block text-micro text-muted-foreground">أختام سفر</span>
             </div>
           </div>
@@ -254,11 +245,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           <div className="grid grid-cols-2 gap-2 text-center pt-1">
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary?.totalDhikrCount || 0}</span>
+              <span className="text-lead font-extrabold text-foreground">{summary.totalDhikrCount}</span>
               <span className="block text-micro text-muted-foreground">تسبيحة ومودّة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-emerald-400">{summary?.dhikrStreakDays || 0}d</span>
+              <span className="text-lead font-extrabold text-emerald-400">{summary.dhikrStreakDays}d</span>
               <span className="block text-micro text-muted-foreground">سلسلة المواظبة</span>
             </div>
           </div>

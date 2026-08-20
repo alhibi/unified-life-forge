@@ -14,6 +14,8 @@ import { ProfileHeaderHero } from '@/features/profile/components/ProfileHeaderHe
 import { ProfileOverviewTab } from '@/features/profile/components/ProfileOverviewTab';
 import { COVER_THEME_OPTIONS, ProfilePrivacySettingsTab } from '@/features/profile/components/ProfilePrivacySettingsTab';
 import { APP_BADGES } from '@/features/profile/data/badges';
+import { calculateProfileActivitySummary } from '@/features/profile/lib/activityAggregator';
+import { evaluateProfileBadges } from '@/features/profile/lib/badgeEvaluator';
 import { PrivacySettings, ProfileCompletionMetrics, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -42,8 +44,6 @@ import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { EMOJI_AVATARS, getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 type ProfileTab = 'overview' | 'activity' | 'edit' | 'badges' | 'privacy';
-
-const coverKey = (uid?: string) => `profile_cover_theme:${uid || 'anon'}`;
 
 export default function ProfileEditPage() {
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
@@ -250,6 +250,39 @@ export default function ProfileEditPage() {
     initial,
   ]);
 
+  // Real cross-module activity summary and dynamic badge evaluation
+  const activitySummary = useMemo(() => {
+    return calculateProfileActivitySummary();
+  }, []);
+
+  // Compute profile strength metrics
+  const completionMetrics = useMemo<ProfileCompletionMetrics>(() => {
+    const items = [
+      { id: '1', labelAr: 'اختيار اسم مستخدم مميز', isCompleted: Boolean(newUsername.trim()), weight: 15, actionTab: 'edit', fieldKey: 'username' },
+      { id: '2', labelAr: 'تعيين الاسم الظاهر', isCompleted: Boolean(displayName.trim()), weight: 15, actionTab: 'edit', fieldKey: 'displayName' },
+      { id: '3', labelAr: 'تخصيص صورة الملف الشخصي', isCompleted: Boolean(selectedAvatar), weight: 15, actionTab: 'edit', fieldKey: 'avatar' },
+      { id: '4', labelAr: 'كتابة نبذة عن الشغف والتخصص', isCompleted: Boolean(bio.trim()), weight: 15, actionTab: 'edit', fieldKey: 'bio' },
+      { id: '5', labelAr: 'إضافة المسمى الوظيفي والمدينة', isCompleted: Boolean(title.trim() || location.trim()), weight: 10, actionTab: 'edit', fieldKey: 'title' },
+      { id: '6', labelAr: 'تحديث الحالة والرمز التعبيري', isCompleted: Boolean(statusText.trim()), weight: 10, actionTab: 'edit', fieldKey: 'status' },
+      { id: '7', labelAr: 'ربط حساب تواصل أو موقع شخصي', isCompleted: Boolean(websiteUrl.trim() || Object.values(socialLinks).some(Boolean)), weight: 10, actionTab: 'edit', fieldKey: 'social' },
+      { id: '8', labelAr: 'تثبيت الأوسمة المميزة', isCompleted: featuredBadges.length > 0, weight: 10, actionTab: 'badges', fieldKey: 'badges' },
+    ];
+
+    const completed = items.filter((i) => i.isCompleted);
+    const percentage = completed.reduce((acc, curr) => acc + curr.weight, 0);
+
+    return {
+      percentage: Math.min(100, percentage),
+      completedCount: completed.length,
+      totalCount: items.length,
+      items,
+    };
+  }, [newUsername, displayName, selectedAvatar, bio, title, location, statusText, websiteUrl, socialLinks, featuredBadges]);
+
+  const evaluatedBadges = useMemo(() => {
+    return evaluateProfileBadges(activitySummary, completionMetrics.percentage);
+  }, [activitySummary, completionMetrics.percentage]);
+
   // Persist draft to localStorage when dirty
   useEffect(() => {
     if (!user || loading) return;
@@ -298,30 +331,6 @@ export default function ProfileEditPage() {
     loading,
     draftKey,
   ]);
-
-  // Compute profile strength metrics
-  const completionMetrics = useMemo<ProfileCompletionMetrics>(() => {
-    const items = [
-      { id: '1', labelAr: 'اختيار اسم مستخدم مميز', isCompleted: Boolean(newUsername.trim()), weight: 15, actionTab: 'edit', fieldKey: 'username' },
-      { id: '2', labelAr: 'تعيين الاسم الظاهر', isCompleted: Boolean(displayName.trim()), weight: 15, actionTab: 'edit', fieldKey: 'displayName' },
-      { id: '3', labelAr: 'تخصيص صورة الملف الشخصي', isCompleted: Boolean(selectedAvatar), weight: 15, actionTab: 'edit', fieldKey: 'avatar' },
-      { id: '4', labelAr: 'كتابة نبذة عن الشغف والتخصص', isCompleted: Boolean(bio.trim()), weight: 15, actionTab: 'edit', fieldKey: 'bio' },
-      { id: '5', labelAr: 'إضافة المسمى الوظيفي والمدينة', isCompleted: Boolean(title.trim() || location.trim()), weight: 10, actionTab: 'edit', fieldKey: 'title' },
-      { id: '6', labelAr: 'تحديث الحالة والرمز التعبيري', isCompleted: Boolean(statusText.trim()), weight: 10, actionTab: 'edit', fieldKey: 'status' },
-      { id: '7', labelAr: 'ربط حساب تواصل أو موقع شخصي', isCompleted: Boolean(websiteUrl.trim() || Object.values(socialLinks).some(Boolean)), weight: 10, actionTab: 'edit', fieldKey: 'social' },
-      { id: '8', labelAr: 'تثبيت الأوسمة المميزة', isCompleted: featuredBadges.length > 0, weight: 10, actionTab: 'badges', fieldKey: 'badges' },
-    ];
-
-    const completed = items.filter((i) => i.isCompleted);
-    const percentage = completed.reduce((acc, curr) => acc + curr.weight, 0);
-
-    return {
-      percentage: Math.min(100, percentage),
-      completedCount: completed.length,
-      totalCount: items.length,
-      items,
-    };
-  }, [newUsername, displayName, selectedAvatar, bio, title, location, statusText, websiteUrl, socialLinks, featuredBadges]);
 
   // Real-time username availability checker
   const checkUsername = useCallback(
@@ -606,11 +615,12 @@ export default function ProfileEditPage() {
           )}
 
           {activeTab === 'activity' && (
-            <ProfileActivityMatrixTab />
+            <ProfileActivityMatrixTab summary={activitySummary} />
           )}
 
           {activeTab === 'badges' && (
             <ProfileBadgesTab
+              badges={evaluatedBadges}
               featuredBadges={featuredBadges}
               onToggleFeaturedBadge={handleToggleFeaturedBadge}
             />
