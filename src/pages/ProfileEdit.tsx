@@ -405,7 +405,7 @@ export default function ProfileEditPage() {
         title: title.trim() || null,
         location: location.trim() || null,
         website_url: websiteUrl.trim() || null,
-        social_links: socialLinks,
+        social_links: socialLinks as unknown as Record<string, string | null>,
         status_text: statusText.trim() || null,
         status_emoji: statusEmoji || '✨',
         featured_badges: featuredBadges,
