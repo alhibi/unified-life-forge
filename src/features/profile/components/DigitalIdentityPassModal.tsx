@@ -129,11 +129,11 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
             {/* Simulated QR Code & Barcode Ticket Edge */}
             <div className="p-3 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between gap-3">
               <div className="space-y-1">
-                <span className="block text-[10px] font-mono text-muted-foreground">SCAN OR SHARE LINK</span>
+                <span className="block text-micro font-mono text-muted-foreground">SCAN OR SHARE LINK</span>
                 <span className="block text-micro font-bold text-white/90 truncate max-w-[160px]" dir="ltr">
                   {profileUrl}
                 </span>
-                <span className="block text-[10px] text-muted-foreground">عضوية صالحة مدى الحياة</span>
+                <span className="block text-micro text-muted-foreground">عضوية صالحة مدى الحياة</span>
               </div>
 
               <div className="w-12 h-12 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center shadow-md">
