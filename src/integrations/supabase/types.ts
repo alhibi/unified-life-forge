@@ -1441,30 +1441,63 @@ export type Database = {
           bio: string | null
           created_at: string
           display_name: string | null
+          featured_badges: string[]
           id: string
+          is_public: boolean
           last_seen: string | null
+          location: string | null
+          privacy_settings: Json
+          profile_theme: string
+          social_links: Json
+          status_emoji: string | null
+          status_text: string | null
+          title: string | null
+          updated_at: string
           user_id: string
           username: string
+          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          featured_badges?: string[]
           id?: string
+          is_public?: boolean
           last_seen?: string | null
+          location?: string | null
+          privacy_settings?: Json
+          profile_theme?: string
+          social_links?: Json
+          status_emoji?: string | null
+          status_text?: string | null
+          title?: string | null
+          updated_at?: string
           user_id: string
           username: string
+          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          featured_badges?: string[]
           id?: string
+          is_public?: boolean
           last_seen?: string | null
+          location?: string | null
+          privacy_settings?: Json
+          profile_theme?: string
+          social_links?: Json
+          status_emoji?: string | null
+          status_text?: string | null
+          title?: string | null
+          updated_at?: string
           user_id?: string
           username?: string
+          website_url?: string | null
         }
         Relationships: []
       }
