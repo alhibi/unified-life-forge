@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { GERMAN_CLUB_TOKENS, SURGE_TOKENS, GermanShelf } from '../types';
 import { Check, Sparkles } from '@/lib/icons';
 import { FurnaceButton } from './FurnaceButton';
-import { useAdmin } from '@/hooks/useAdmin';
 
 interface ShelfCardProps {
   shelf: GermanShelf;
@@ -26,7 +25,6 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
 }) => {
   const shouldReduceMotion = useReducedMotion();
   const [shouldAnimateEmber, setShouldAnimateEmber] = useState(false);
-  const { isAdmin } = useAdmin();
 
   useEffect(() => {
     // Only trigger traveling ember once per mastery event
@@ -99,8 +97,8 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* Admin Flaming Ember Furnace 'D' Button on Card */}
-          {isAdmin && onOpenFurnace && (
+          {/* Flaming Ember Furnace 'D' Button on Card for All Users */}
+          {onOpenFurnace && (
             <FurnaceButton
               size="sm"
               currentCount={itemCount ?? 0}
