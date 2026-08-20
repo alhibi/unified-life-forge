@@ -4,7 +4,6 @@ import { PageShell } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { BookOpen, Sparkles } from '@/lib/icons';
-import { useAdmin } from '@/hooks/useAdmin';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import { useGermanClubStore } from '../useGermanClubStore';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
@@ -21,8 +20,6 @@ export const ShelfDetail: React.FC = () => {
   const [isGenerationModalOpen, setIsGenerationModalOpen] = useState<boolean>(false);
   const [activeJobStatus, setActiveJobStatus] = useState<string | null>(null);
   const [stampStatus, setStampStatus] = useState<'passed' | null>(null);
-
-  const { isAdmin } = useAdmin();
 
   const {
     currentShelf,
@@ -41,7 +38,7 @@ export const ShelfDetail: React.FC = () => {
 
   // Check if there is an active job running for this shelf
   useEffect(() => {
-    if (!isAdmin || !currentShelf?.id) return;
+    if (!currentShelf?.id) return;
 
     const checkRunningJob = async () => {
       const { data } = await supabase
@@ -79,7 +76,7 @@ export const ShelfDetail: React.FC = () => {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [isAdmin, currentShelf?.id]);
+  }, [currentShelf?.id]);
 
   const filteredEntries = entries.filter((e) => {
     if (filterRegister === 'all') return true;
@@ -120,8 +117,8 @@ export const ShelfDetail: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Admin-only Burning Ember "D" Furnace Button */}
-            {isAdmin && currentShelf && (
+            {/* Burning Ember "D" Furnace Button for All Users */}
+            {currentShelf && (
               <FurnaceButton
                 currentCount={entries.length}
                 targetCount={currentShelf.target_entry_count || 25}
