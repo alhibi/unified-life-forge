@@ -9,6 +9,16 @@ describe('useAuthStore Zustand Engine', () => {
     email: 'jules@zen.co',
     username: 'jules_verne',
     full_name: 'Jules Verne',
+    status_emoji: '✨',
+    profile_theme: 'obsidian',
+    is_public: true,
+    social_links: {},
+    featured_badges: [],
+    privacy_settings: {
+      hide_online_status: false,
+      hide_location: false,
+      hide_activity: false,
+    },
     preferences: {
       theme: 'obsidian',
       language: 'en',

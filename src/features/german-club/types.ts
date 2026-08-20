@@ -230,6 +230,23 @@ export interface DictionaryEntry {
   tags?: string[];
 }
 
+export type DictionarySortOption =
+  | "alphabetical_asc"
+  | "alphabetical_desc"
+  | "cefr_asc"
+  | "cefr_desc"
+  | "word_length"
+  | "type_grouped";
+
+export const DictionarySortOptionLabels: Record<DictionarySortOption, string> = {
+  alphabetical_asc: "أبجدي أ-ي (A-Z)",
+  alphabetical_desc: "أبجدي ي-أ (Z-A)",
+  cefr_asc: "المستوى: من المبتدئ إلى المتقدم",
+  cefr_desc: "المستوى: من المتقدم إلى المبتدئ",
+  word_length: "حسب طول الكلمة",
+  type_grouped: "مصنفة حسب نوع الكلمة",
+};
+
 export const DictionaryWordTypeLabels: Record<DictionaryWordType, string> = {
   noun: "اسم (Nomen)",
   verb: "فعل (Verb)",

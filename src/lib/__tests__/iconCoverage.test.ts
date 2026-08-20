@@ -57,7 +57,7 @@ function duplicateGlyphs(pick: (e: Entry) => string): string[] {
 }
 
 /** Brand marks that stroke libraries genuinely do not ship. */
-const BRAND_EXEMPT = new Set(['GithubLogo']);
+const BRAND_EXEMPT = new Set(['GithubLogo', 'TwitterLogo', 'LinkedinLogo', 'InstagramLogo']);
 
 const has = (lib: object, name: string) => name in lib;
 

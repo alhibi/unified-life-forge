@@ -133,7 +133,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                     <div className="flex items-center gap-2">
                       <h3 className="text-meta font-bold text-foreground">{badge.titleAr}</h3>
                       <span
-                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border ${rarity.bg} ${rarity.text} ${rarity.border}`}
+                        className={`text-micro font-extrabold px-2 py-0.5 rounded-md border ${rarity.bg} ${rarity.text} ${rarity.border}`}
                       >
                         {rarity.label}
                       </span>

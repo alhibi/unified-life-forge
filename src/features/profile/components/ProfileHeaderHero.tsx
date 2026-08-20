@@ -179,7 +179,7 @@ export const ProfileHeaderHero: React.FC<ProfileHeaderHeroProps> = ({
           </div>
 
           {/* Completion Badge Pill */}
-          <div className="absolute -bottom-2 start-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-card ring-1 ring-border text-[10px] font-extrabold text-primary shadow-sm">
+          <div className="absolute -bottom-2 start-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-card ring-1 ring-border text-micro font-extrabold text-primary shadow-sm">
             {completionPercentage}%
           </div>
         </div>
