@@ -1441,60 +1441,30 @@ export type Database = {
           bio: string | null
           created_at: string
           display_name: string | null
-          featured_badges: string[] | null
           id: string
-          is_public: boolean | null
           last_seen: string | null
-          location: string | null
-          privacy_settings: Json | null
-          profile_theme: string | null
-          social_links: Json | null
-          status_emoji: string | null
-          status_text: string | null
-          title: string | null
           user_id: string
           username: string
-          website_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
-          featured_badges?: string[] | null
           id?: string
-          is_public?: boolean | null
           last_seen?: string | null
-          location?: string | null
-          privacy_settings?: Json | null
-          profile_theme?: string | null
-          social_links?: Json | null
-          status_emoji?: string | null
-          status_text?: string | null
-          title?: string | null
           user_id: string
           username: string
-          website_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
-          featured_badges?: string[] | null
           id?: string
-          is_public?: boolean | null
           last_seen?: string | null
-          location?: string | null
-          privacy_settings?: Json | null
-          profile_theme?: string | null
-          social_links?: Json | null
-          status_emoji?: string | null
-          status_text?: string | null
-          title?: string | null
           user_id?: string
           username?: string
-          website_url?: string | null
         }
         Relationships: []
       }
