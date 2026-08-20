@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageShell } from '@/components/ui/app-shell';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
 import { useGermanClubStore } from '../useGermanClubStore';
-import { GERMAN_CLUB_TOKENS } from '../types';
+import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
 import { ShelfCard } from '../components/ShelfCard';
 import { SessionMomentumLine } from '../components/SessionMomentumLine';
+import { GenerationModal } from '../components/GenerationModal';
 
 export const GermanClubHome: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ export const GermanClubHome: React.FC = () => {
     markShelfAnimated,
     checkShelfMastery,
   } = useGermanClubStore();
+
+  const [selectedFurnaceShelf, setSelectedFurnaceShelf] = useState<GermanShelf | null>(null);
 
   useEffect(() => {
     fetchShelves();
@@ -149,12 +152,29 @@ export const GermanClubHome: React.FC = () => {
                   isMastered={masteredShelfIds.has(shelf.id)}
                   hasBeenAnimated={animatedMasteryIds.has(shelf.id)}
                   onMasteryAnimationComplete={markShelfAnimated}
+                  onOpenFurnace={(s, e) => {
+                    e.stopPropagation();
+                    setSelectedFurnaceShelf(s);
+                  }}
                   onClick={() => navigate(`/german-club/shelf/${shelf.slug}`)}
                 />
               ))}
             </div>
           )}
         </div>
+
+        {/* Furnace Generation Modal when triggered from home shelf cards */}
+        {selectedFurnaceShelf && (
+          <GenerationModal
+            shelfId={selectedFurnaceShelf.id}
+            shelfTitleAr={selectedFurnaceShelf.title_ar}
+            shelfTitleDe={selectedFurnaceShelf.title_de}
+            currentEntryCount={0}
+            targetCount={selectedFurnaceShelf.target_entry_count || 25}
+            isOpen={Boolean(selectedFurnaceShelf)}
+            onClose={() => setSelectedFurnaceShelf(null)}
+          />
+        )}
       </div>
     </PageShell>
   );

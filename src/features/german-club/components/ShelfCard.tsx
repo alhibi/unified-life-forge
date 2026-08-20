@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { GERMAN_CLUB_TOKENS, SURGE_TOKENS, GermanShelf } from '../types';
 import { Check, Sparkles } from '@/lib/icons';
+import { FurnaceButton } from './FurnaceButton';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface ShelfCardProps {
   shelf: GermanShelf;
@@ -9,6 +11,7 @@ interface ShelfCardProps {
   isMastered?: boolean;
   hasBeenAnimated?: boolean;
   onMasteryAnimationComplete?: (shelfId: string) => void;
+  onOpenFurnace?: (shelf: GermanShelf, e: React.MouseEvent) => void;
   onClick: () => void;
 }
 
@@ -18,10 +21,12 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
   isMastered = false,
   hasBeenAnimated = false,
   onMasteryAnimationComplete,
+  onOpenFurnace,
   onClick,
 }) => {
   const shouldReduceMotion = useReducedMotion();
   const [shouldAnimateEmber, setShouldAnimateEmber] = useState(false);
+  const { isAdmin } = useAdmin();
 
   useEffect(() => {
     // Only trigger traveling ember once per mastery event
@@ -93,16 +98,28 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
           )}
         </div>
 
-        {isMastered ? (
-          <span className="shrink-0 text-[0.6875rem] font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-900 border border-amber-600/30 flex items-center gap-1">
-            <Check className="w-3 h-3 text-amber-600" />
-            مُتقَن
-          </span>
-        ) : (
-          <span className="shrink-0 text-[0.6875rem] font-medium px-2.5 py-1 rounded-full bg-emerald-950/10 text-emerald-800 border border-emerald-800/20">
-            مفتوح
-          </span>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Admin Flaming Ember Furnace 'D' Button on Card */}
+          {isAdmin && onOpenFurnace && (
+            <FurnaceButton
+              size="sm"
+              currentCount={itemCount ?? 0}
+              targetCount={shelf.target_entry_count || 25}
+              onClick={(e) => onOpenFurnace(shelf, e!)}
+            />
+          )}
+
+          {isMastered ? (
+            <span className="shrink-0 text-[0.6875rem] font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-900 border border-amber-600/30 flex items-center gap-1">
+              <Check className="w-3 h-3 text-amber-600" />
+              مُتقَن
+            </span>
+          ) : (
+            <span className="shrink-0 text-[0.6875rem] font-medium px-2.5 py-1 rounded-full bg-emerald-950/10 text-emerald-800 border border-emerald-800/20">
+              مفتوح
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Description */}

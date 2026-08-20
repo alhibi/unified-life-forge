@@ -1,6 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Check, ChevronDown, ChevronUp, Loader2, Search, Sparkles, X } from '@/lib/icons';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Cpu,
+  Database,
+  Flame,
+  Layers,
+  Loader2,
+  RefreshCw,
+  Search,
+  Sparkles,
+  X,
+} from '@/lib/icons';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import {
   GENDER_COLORS,
@@ -53,6 +68,8 @@ interface GenerationModalProps {
   onClose: () => void;
 }
 
+type WizardStep = 'model_selection' | 'generation_options' | 'generating' | 'summary';
+
 export const GenerationModal: React.FC<GenerationModalProps> = ({
   shelfId,
   shelfTitleAr,
@@ -64,10 +81,14 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  // Wizard active step state
+  const [step, setStep] = useState<WizardStep>('model_selection');
+
   // Model selection state
   const [models, setModels] = useState<OpenRouterModelItem[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState<boolean>(false);
   const [modelSearch, setModelSearch] = useState<string>('');
+  const [vendorFilter, setVendorFilter] = useState<string>('all');
   const [selectedModel, setSelectedModel] = useState<OpenRouterModelItem | null>(null);
 
   // Control levers state
@@ -87,14 +108,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
   const [rejections, setRejections] = useState<JobRejectionRow[]>([]);
   const [isRejectionsExpanded, setIsRejectionsExpanded] = useState<boolean>(false);
 
-  // Fetch models with performance history on open
+  // Reset state on modal open
   useEffect(() => {
     if (isOpen) {
-      void fetchModels(modelSearch);
+      setStep('model_selection');
+      void fetchModels('');
       void checkRunningJob();
     }
   }, [isOpen, shelfId]);
 
+  // Fetch OpenRouter models with performance stats
   const fetchModels = async (query = '') => {
     setIsLoadingModels(true);
     try {
@@ -102,11 +125,52 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
         body: { query, shelf_id: shelfId },
       });
 
-      if (!error && data?.models) {
+      if (!error && data?.models && Array.isArray(data.models) && data.models.length > 0) {
         setModels(data.models);
-        if (!selectedModel && data.models.length > 0) {
+        if (!selectedModel) {
           setSelectedModel(data.models[0]);
         }
+      } else {
+        // Fallback curated model suite if edge function fails or API key unavailable locally
+        const fallbackModels: OpenRouterModelItem[] = [
+          {
+            id: 'google/gemini-2.5-flash',
+            name: 'Google: Gemini 2.5 Flash',
+            context_length: 1048576,
+            pricing: { prompt: 0.075, completion: 0.3 },
+            performance: { badge_text: 'الأعلى كفاءة وسرعة' },
+          },
+          {
+            id: 'deepseek/deepseek-chat',
+            name: 'DeepSeek: DeepSeek V3',
+            context_length: 64000,
+            pricing: { prompt: 0.14, completion: 0.28 },
+            performance: { badge_text: 'أداء لغوي دقيق جدًا' },
+          },
+          {
+            id: 'anthropic/claude-3.5-sonnet',
+            name: 'Anthropic: Claude 3.5 Sonnet',
+            context_length: 200000,
+            pricing: { prompt: 3.0, completion: 15.0 },
+            performance: { badge_text: 'فائقة الجودة اللغوية' },
+          },
+          {
+            id: 'openai/gpt-4o-mini',
+            name: 'OpenAI: GPT-4o Mini',
+            context_length: 128000,
+            pricing: { prompt: 0.15, completion: 0.6 },
+            performance: { badge_text: 'اقتصادي ومتزن' },
+          },
+          {
+            id: 'qwen/qwen-2.5-72b-instruct',
+            name: 'Qwen: Qwen 2.5 72B Instruct',
+            context_length: 131072,
+            pricing: { prompt: 0.35, completion: 0.4 },
+            performance: { badge_text: 'ممتاز في اللغات' },
+          },
+        ];
+        setModels(fallbackModels);
+        if (!selectedModel) setSelectedModel(fallbackModels[0]);
       }
     } catch (err) {
       console.error('Failed to list OpenRouter models:', err);
@@ -129,6 +193,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     if (data) {
       setJobId(data.id);
       setJob(data as GenerationJobRow);
+      setStep('generating');
       void fetchJobAcceptedEntries(data.id);
       void fetchJobRejections(data.id);
     }
@@ -177,6 +242,9 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
         (payload) => {
           const updated = payload.new as GenerationJobRow;
           setJob(updated);
+          if (updated.status === 'completed' || updated.status === 'failed') {
+            setStep('summary');
+          }
         }
       )
       .on(
@@ -212,26 +280,51 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     };
   }, [jobId]);
 
+  // Vendor options for filtering models
+  const vendors = [
+    { id: 'all', label: 'جميع الشركات' },
+    { id: 'google', label: 'Google' },
+    { id: 'deepseek', label: 'DeepSeek' },
+    { id: 'anthropic', label: 'Anthropic' },
+    { id: 'openai', label: 'OpenAI' },
+    { id: 'qwen', label: 'Qwen' },
+  ];
+
+  // Filter models by vendor and search query
+  const filteredModels = useMemo(() => {
+    return models.filter((m) => {
+      if (vendorFilter !== 'all' && !m.id.toLowerCase().includes(vendorFilter)) {
+        return false;
+      }
+      if (
+        modelSearch &&
+        !m.id.toLowerCase().includes(modelSearch.toLowerCase()) &&
+        !m.name.toLowerCase().includes(modelSearch.toLowerCase())
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [models, vendorFilter, modelSearch]);
+
   // Pre-start live estimate calculation
   const liveEstimate = useMemo(() => {
     if (!selectedModel) return { estCount: 0, estCostUsd: 0 };
 
-    const estimatedEntries = mode === 'fixed_count'
-      ? fixedCount
-      : Math.max(targetCount - currentEntryCount, 15);
+    const estimatedEntries =
+      mode === 'fixed_count' ? fixedCount : Math.max(targetCount - currentEntryCount, 15);
 
-    // Rough token cost estimate: ~100 prompt tokens + ~120 completion tokens per candidate
-    const candidatesCount = Math.ceil(estimatedEntries * 1.3);
+    const candidatesCount = Math.ceil(estimatedEntries * 1.35);
     const estPromptTokens = candidatesCount * 120;
     const estCompletionTokens = candidatesCount * 140;
 
-    const promptCost = (estPromptTokens / 1000000) * selectedModel.pricing.prompt;
-    const completionCost = (estCompletionTokens / 1000000) * selectedModel.pricing.completion;
+    const promptCost = (estPromptTokens / 1000000) * (selectedModel.pricing?.prompt || 0.1);
+    const completionCost = (estCompletionTokens / 1000000) * (selectedModel.pricing?.completion || 0.3);
     const totalCost = promptCost + completionCost;
 
     return {
       estCount: estimatedEntries,
-      estCostUsd: Math.max(totalCost, 0.001),
+      estCostUsd: Math.max(totalCost, 0.0005),
     };
   }, [selectedModel, mode, fixedCount, targetCount, currentEntryCount]);
 
@@ -241,11 +334,6 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
       prev.includes(reg) ? prev.filter((r) => r !== reg) : [...prev, reg]
     );
   };
-
-  if (!isOpen) return null;
-
-  const isJobActive = job && (job.status === 'queued' || job.status === 'running');
-  const isJobFinished = job && (job.status === 'completed' || job.status === 'failed');
 
   const handleStartGeneration = async () => {
     if (!selectedModel) return;
@@ -281,6 +369,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
       setJobId(newJob.id);
       setJob(newJob as GenerationJobRow);
+      setStep('generating');
 
       // 2. Invoke Edge Function asynchronously
       const { error: invokeErr } = await supabase.functions.invoke('german-club-generate-content', {
@@ -305,29 +394,34 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     }
   };
 
-  const fillStatusText = currentEntryCount >= targetCount
-    ? `${currentEntryCount} من ${targetCount} — الرف مكتمل`
-    : `${currentEntryCount} من ${targetCount} — لسا محتاج`;
+  if (!isOpen) return null;
+
+  const isJobActive = job && (job.status === 'queued' || job.status === 'running');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs transition-all">
       <div
-        className="w-full max-w-xl rounded-3xl border border-stone-300 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all"
+        className="w-full max-w-2xl rounded-3xl border border-stone-300 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all relative"
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Panel Header */}
-        <div className="px-5 py-3.5 border-b border-stone-300/80 flex items-center justify-between bg-stone-200/50 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#C9703B]/15 border border-[#C9703B]/40 flex items-center justify-center shadow-xs">
-              <span className="font-bold text-sm text-[#C9703B]">الفرن</span>
+        <div className="px-5 py-4 border-b border-stone-300/80 flex items-center justify-between bg-stone-200/60 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2A170F] to-[#0D0704] border border-[#FF7A29]/60 flex items-center justify-center shadow-md shrink-0">
+              <span className="font-black font-mono text-base text-[#FF9E4A] drop-shadow-xs">D</span>
             </div>
             <div>
-              <h2 className="text-sm font-bold text-stone-900 leading-tight">
-                وحدة التحكم بالتوليد — الفرن v2
-              </h2>
-              <p className="text-[0.6875rem] text-stone-600 font-medium">
-                {shelfTitleAr} {shelfTitleDe ? `(${shelfTitleDe})` : ''} •{' '}
-                <span className="font-bold text-[#17324D]">{fillStatusText}</span>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-extrabold text-stone-900 leading-tight">
+                  الفرن — وحدة التوليد بالذكاء الاصطناعي v2
+                </h2>
+                <span className="text-[0.625rem] font-mono font-bold bg-[#FF7A29]/15 text-[#C9703B] px-2 py-0.5 rounded-full border border-[#FF7A29]/30">
+                  OpenRouter API
+                </span>
+              </div>
+              <p className="text-xs text-stone-600 font-medium mt-0.5">
+                الرف: <span className="font-bold text-[#17324D]">{shelfTitleAr}</span>{' '}
+                {shelfTitleDe ? `(${shelfTitleDe})` : ''} • ({currentEntryCount}/{targetCount} عنصر)
               </p>
             </div>
           </div>
@@ -335,69 +429,139 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-stone-300/60 transition-colors text-stone-600"
+            className="p-2 rounded-full hover:bg-stone-300/60 transition-colors text-stone-600 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Panel Body (One Single View, Controls & Live Updates) */}
+        {/* Wizard Progress Bar Stepper Header */}
+        {!isJobActive && step !== 'summary' && (
+          <div className="px-5 py-2.5 border-b border-stone-200 bg-stone-100/70 flex items-center justify-between text-xs shrink-0">
+            <button
+              type="button"
+              onClick={() => setStep('model_selection')}
+              className={`flex items-center gap-2 font-bold transition-all ${
+                step === 'model_selection' ? 'text-[#C9703B]' : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
+                step === 'model_selection' ? 'bg-[#C9703B] text-white' : 'bg-stone-300 text-stone-700'
+              }`}>
+                1
+              </span>
+              <span>1. اختيار النموذج المقبول</span>
+            </button>
+
+            <span className="text-stone-400">←</span>
+
+            <button
+              type="button"
+              disabled={!selectedModel}
+              onClick={() => selectedModel && setStep('generation_options')}
+              className={`flex items-center gap-2 font-bold transition-all ${
+                step === 'generation_options' ? 'text-[#C9703B]' : 'text-stone-500 hover:text-stone-800'
+              } ${!selectedModel ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
+                step === 'generation_options' ? 'bg-[#C9703B] text-white' : 'bg-stone-300 text-stone-700'
+              }`}>
+                2
+              </span>
+              <span>2. نمط وضوابط التوليد</span>
+            </button>
+          </div>
+        )}
+
+        {/* Panel Body */}
         <div className="p-5 overflow-y-auto flex-1 space-y-5 text-sm">
-          {!isJobActive && !isJobFinished && (
-            <>
-              {/* SECTION 1: MODEL SELECTION */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="font-bold text-xs text-stone-900 block">
-                    1. اختيار النموذج المقبول (OpenRouter):
-                  </label>
-                  <span className="text-[0.6875rem] font-mono bg-stone-200 px-2 py-0.5 rounded text-stone-700">
-                    {models.length} نموذج
-                  </span>
+          {/* STEP 1: MODEL SELECTION STAGE */}
+          {step === 'model_selection' && !isJobActive && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-extrabold text-sm text-stone-900 flex items-center gap-2">
+                    <Cpu className="w-4 h-4 text-[#C9703B]" />
+                    <span>اختر نموذج الذكاء الاصطناعي المناسب لرفك من OpenRouter:</span>
+                  </h3>
+                  <p className="text-xs text-stone-600 mt-0.5">
+                    يتم استدعاء النماذج مباشرةً بواسطة مفتاح OpenRouter مع مراقبة الأداء والتكلفة لكل 1M توكن.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => fetchModels(modelSearch)}
+                  className="p-1.5 rounded-lg border border-stone-300 hover:bg-stone-200 text-stone-600 transition-colors"
+                  title="تحديث قائمة النماذج"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingModels ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
 
-                {/* Model Search Input */}
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute inset-s-3 top-2.5 text-stone-400" />
-                  <input
-                    type="text"
-                    placeholder="ابحث باسم النموذج (مثل gpt, gemini, claude, qwen)..."
-                    value={modelSearch}
-                    onChange={(e) => {
-                      setModelSearch(e.target.value);
-                      void fetchModels(e.target.value);
-                    }}
-                    className="w-full ps-8 pe-3 py-1.5 text-xs rounded-xl border border-stone-300 bg-white/80 focus:outline-none focus:ring-2 focus:ring-[#C9703B]"
-                  />
+              {/* Vendor Category Filter Chips */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+                {vendors.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setVendorFilter(v.id)}
+                    className={`px-3 py-1 rounded-full font-bold transition-all border shrink-0 ${
+                      vendorFilter === v.id
+                        ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
+                        : 'bg-white/80 text-stone-700 border-stone-300 hover:bg-stone-200'
+                    }`}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Model Search Input */}
+              <div className="relative">
+                <Search className="w-4 h-4 absolute inset-s-3 top-2.5 text-stone-400" />
+                <input
+                  type="text"
+                  placeholder="ابحث باسم الموديل أو المعرف (gpt-4o, gemini, claude, deepseek, qwen)..."
+                  value={modelSearch}
+                  onChange={(e) => {
+                    setModelSearch(e.target.value);
+                  }}
+                  className="w-full ps-9 pe-3 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9703B]"
+                />
+              </div>
+
+              {/* Models List Container */}
+              {isLoadingModels ? (
+                <div className="space-y-2 py-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-16 rounded-2xl bg-stone-200/60 animate-pulse" />
+                  ))}
                 </div>
-
-                {/* Models List */}
-                {isLoadingModels ? (
-                  <div className="space-y-2 py-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-12 rounded-xl bg-stone-200/60 animate-pulse" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-1.5 max-h-44 overflow-y-auto pe-1">
-                    {models.map((m) => {
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto pe-1">
+                  {filteredModels.length === 0 ? (
+                    <div className="text-center py-8 text-stone-500 text-xs">
+                      لا توجد نماذج تطابق بحثك الحالي.
+                    </div>
+                  ) : (
+                    filteredModels.map((m) => {
                       const isSelected = selectedModel?.id === m.id;
                       return (
                         <button
                           key={m.id}
                           type="button"
                           onClick={() => setSelectedModel(m)}
-                          className={`w-full text-start p-2.5 rounded-xl border transition-all flex items-center justify-between ${
+                          className={`w-full text-start p-3 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${
                             isSelected
-                              ? 'bg-[#C9703B]/10 border-[#C9703B] shadow-xs'
-                              : 'bg-white/60 border-stone-200 hover:border-stone-400'
+                              ? 'bg-[#C9703B]/10 border-[#C9703B] ring-2 ring-[#C9703B]/30 shadow-xs'
+                              : 'bg-white border-stone-200 hover:border-stone-400'
                           }`}
                         >
-                          <div className="min-w-0 pe-2">
-                            <div className="flex items-center gap-1.5">
-                              <p className="font-bold text-xs text-stone-900 truncate">{m.name}</p>
+                          <div className="min-w-0 pe-3 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-extrabold text-xs text-stone-900 truncate">{m.name}</p>
                               {m.performance?.badge_text && (
-                                <span className="text-[0.625rem] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-medium shrink-0">
+                                <span className="text-[0.625rem] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold shrink-0 border border-amber-300">
                                   {m.performance.badge_text}
                                 </span>
                               )}
@@ -407,220 +571,310 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                             </p>
                           </div>
 
-                          <div className="text-end shrink-0 ps-2">
-                            <span className="text-[0.625rem] font-mono block text-stone-600">
-                              {(m.context_length / 1024).toFixed(0)}k ctx
+                          <div className="text-end shrink-0 ps-2 space-y-0.5">
+                            <span className="text-[0.625rem] font-mono bg-stone-100 px-2 py-0.5 rounded text-stone-700 block font-bold">
+                              {(m.context_length / 1024).toFixed(0)}k سياق
                             </span>
-                            <span className="text-[0.625rem] font-mono text-emerald-800 block font-bold">
-                              ${m.pricing.prompt}/1M
+                            <span className="text-[0.6875rem] font-mono text-emerald-800 block font-black">
+                              ${m.pricing?.prompt ?? 0}/1M
                             </span>
                           </div>
                         </button>
                       );
-                    })}
+                    })
+                  )}
+                </div>
+              )}
+
+              {/* Model Selection Action Bar */}
+              <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
+                <div className="text-xs">
+                  <span className="text-stone-600 block">الموديل المحدد:</span>
+                  <span className="font-bold text-stone-900 font-mono text-xs truncate max-w-xs block">
+                    {selectedModel?.name || 'لم يتم الاختيار'}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={!selectedModel}
+                  onClick={() => setStep('generation_options')}
+                  className="px-5 py-2.5 rounded-xl bg-[#17324D] text-white font-bold text-xs hover:bg-[#12273d] transition-colors shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <span>التالي: تحديد نمط التوليد</span>
+                  <ArrowRight className="w-4 h-4 rotate-180" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: GENERATION SETUP & LEVERS STAGE */}
+          {step === 'generation_options' && !isJobActive && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+                <div>
+                  <h3 className="font-extrabold text-sm text-stone-900 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#C9703B]" />
+                    <span>خيارات النمط والصرامة وضوابط الإبداع:</span>
+                  </h3>
+                  <p className="text-xs text-stone-600 mt-0.5">
+                    اختر بين التوليد حسب قدرة النموذج أو تحديد عدد ثابت صارم.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setStep('model_selection')}
+                  className="text-xs text-[#17324D] font-bold hover:underline"
+                >
+                  تغيير الموديل ←
+                </button>
+              </div>
+
+              {/* 2 DISTINCT GENERATION MODES (USER REQUEST CORE REQUIREMENT) */}
+              <div className="space-y-2">
+                <label className="font-extrabold text-xs text-stone-900 block">
+                  أ) نمط التوليد المستهدف:
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Option 1: Model Capacity Mode */}
+                  <button
+                    type="button"
+                    onClick={() => setMode('model_capacity')}
+                    className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer relative ${
+                      mode === 'model_capacity'
+                        ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
+                        : 'bg-white text-stone-800 border-stone-300 hover:border-stone-400'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-extrabold text-xs">1. حسب قدرة النموذج</span>
+                      <Flame className={`w-4 h-4 ${mode === 'model_capacity' ? 'text-amber-400' : 'text-stone-400'}`} />
+                    </div>
+                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'model_capacity' ? 'text-stone-200' : 'text-stone-600'}`}>
+                      يولد الموديل أقصى حصيلة ممكنة من العبارات الأصيلة وغير المكررة حتى يستنفذ أفكاره ذات الثقة العالية وتتوقف الحلقة تلقائيًا.
+                    </p>
+                  </button>
+
+                  {/* Option 2: Fixed Count Mode */}
+                  <button
+                    type="button"
+                    onClick={() => setMode('fixed_count')}
+                    className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer relative ${
+                      mode === 'fixed_count'
+                        ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
+                        : 'bg-white text-stone-800 border-stone-300 hover:border-stone-400'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-extrabold text-xs">2. حسب العدد الذي اختاره انا</span>
+                      <Layers className={`w-4 h-4 ${mode === 'fixed_count' ? 'text-amber-400' : 'text-stone-400'}`} />
+                    </div>
+                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'fixed_count' ? 'text-stone-200' : 'text-stone-600'}`}>
+                      تحديد عدد دقيق ومحدد مسبقًا للمفردات المراد إضافتها إلى هذا الرف دون زيادة أو نقصان.
+                    </p>
+                  </button>
+                </div>
+
+                {/* Numeric Stepper for Fixed Count Mode */}
+                {mode === 'fixed_count' && (
+                  <div className="p-3 bg-white rounded-2xl border border-stone-300 text-xs flex items-center justify-between shadow-2xs mt-2">
+                    <label className="font-bold text-stone-800">حدد عدد العناصر المطلوبة:</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFixedCount((prev) => Math.max(prev - 5, 5))}
+                        className="w-7 h-7 rounded-lg bg-stone-200 hover:bg-stone-300 font-bold text-stone-800 flex items-center justify-center cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        max={500}
+                        value={fixedCount}
+                        onChange={(e) =>
+                          setFixedCount(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 500))
+                        }
+                        className="w-16 px-2 py-1 rounded-lg border border-stone-300 font-mono text-center font-extrabold text-stone-900"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFixedCount((prev) => Math.min(prev + 5, 500))}
+                        className="w-7 h-7 rounded-lg bg-stone-200 hover:bg-stone-300 font-bold text-stone-800 flex items-center justify-center cursor-pointer"
+                      >
+                        +
+                      </button>
+                      <span className="text-[0.6875rem] text-stone-500 font-mono font-medium">عنصر</span>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* SECTION 2: CONTROLS & LEVERS (REVEALED IN-PLACE) */}
-              {selectedModel && (
-                <div className="space-y-4 pt-3 border-t border-stone-300/80">
-                  <h3 className="font-bold text-xs text-stone-900">2. خيارات وضوابط الإبداع والانضباط:</h3>
-
-                  {/* Mode Picker with Inline Stepper */}
-                  <div className="space-y-2">
-                    <span className="text-[0.6875rem] font-bold text-stone-600 block">نمط التكليف:</span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <button
-                        type="button"
-                        onClick={() => setMode('model_capacity')}
-                        className={`p-2.5 rounded-xl border text-start transition-all ${
-                          mode === 'model_capacity'
-                            ? 'bg-[#17324D] text-white border-[#17324D] font-bold'
-                            : 'bg-white/70 text-stone-800 border-stone-300'
-                        }`}
-                      >
-                        <span className="block font-bold">قدرة الموديل</span>
-                        <span className="text-[0.625rem] opacity-80 block mt-0.5">يتوقف تلقائياً عند نضوب الأفكار الأصيلة</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setMode('fixed_count')}
-                        className={`p-2.5 rounded-xl border text-start transition-all ${
-                          mode === 'fixed_count'
-                            ? 'bg-[#17324D] text-white border-[#17324D] font-bold'
-                            : 'bg-white/70 text-stone-800 border-stone-300'
-                        }`}
-                      >
-                        <span className="block font-bold">رقم أحدده</span>
-                        <span className="text-[0.625rem] opacity-80 block mt-0.5">توليد عدد محدد بدقة</span>
-                      </button>
-                    </div>
-
-                    {mode === 'fixed_count' && (
-                      <div className="flex items-center gap-3 p-2 bg-white/80 rounded-xl border border-stone-300 text-xs">
-                        <label className="font-bold text-stone-800">العدد المستهدف:</label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={500}
-                          value={fixedCount}
-                          onChange={(e) => setFixedCount(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 500))}
-                          className="w-20 px-2 py-1 rounded border border-stone-300 font-mono text-center font-bold"
-                        />
-                        <span className="text-[0.625rem] text-stone-500">عنصر (أقصى حد 500)</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 3-Way Strictness Toggle */}
-                  <div className="space-y-1.5">
-                    <span className="text-[0.6875rem] font-bold text-stone-600 block">مستوى التدقيق والصرامة:</span>
-                    <div className="grid grid-cols-3 gap-1.5 text-xs bg-stone-200/80 p-1 rounded-xl">
-                      {[
-                        { id: 'balanced', label: 'متوازن (75%)' },
-                        { id: 'strict', label: 'صارم (85%)' },
-                        { id: 'very_strict', label: 'عالي الصرامة (92%)' },
-                      ].map((s) => (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => setStrictness(s.id as StrictnessLevel)}
-                          className={`py-1.5 px-2 rounded-lg font-bold text-[0.6875rem] transition-all ${
-                            strictness === s.id
-                              ? 'bg-white text-stone-900 shadow-xs'
-                              : 'text-stone-600 hover:text-stone-900'
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Optional Register-Emphasis Chips */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[0.6875rem] font-bold text-stone-600 block">
-                        توجيه السجل اللغوي (اختياري):
-                      </span>
-                      {registerTargets.length === 0 && (
-                        <span className="text-[0.625rem] text-stone-500 italic">ترك الخيار للموديل</span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(['formal', 'neutral', 'informal', 'slang'] as GermanRegister[]).map((reg) => {
-                        const isSelected = registerTargets.includes(reg);
-                        return (
-                          <button
-                            key={reg}
-                            type="button"
-                            onClick={() => toggleRegister(reg)}
-                            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all border ${
-                              isSelected
-                                ? 'bg-[#C9703B] text-white border-[#C9703B] shadow-xs'
-                                : 'bg-white/70 text-stone-700 border-stone-300 hover:bg-stone-200'
-                            }`}
-                          >
-                            {REGISTER_LABELS_AR[reg]}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Pre-Start Live Estimate Line */}
-                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-amber-900 block">تقدير المهمة التقريبي:</span>
-                      <span className="text-[0.6875rem] text-amber-800">
-                        ~{liveEstimate.estCount} عنصر جديد • نموذج {selectedModel.name}
-                      </span>
-                    </div>
-                    <div className="text-end font-mono">
-                      <span className="text-sm font-bold text-[#C9703B] block">
-                        ~${liveEstimate.estCostUsd.toFixed(4)}
-                      </span>
-                      <span className="text-[0.625rem] text-stone-500">تُحسب بالتوكن الفعلي</span>
-                    </div>
-                  </div>
-
-                  {/* Start Furnace Button */}
-                  <div className="pt-2">
+              {/* STRICTNESS LEVEL CONTROLS */}
+              <div className="space-y-2">
+                <label className="font-extrabold text-xs text-stone-900 block">
+                  ب) حد الصرامة وتدقيق الجودة:
+                </label>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  {[
+                    { id: 'balanced', label: 'متوازن', score: '75%', desc: 'قبول عالي مع تصفية للتكرار' },
+                    { id: 'strict', label: 'صارم جداً', score: '85%', desc: 'استبعاد العبارات الضعيفة' },
+                    { id: 'very_strict', label: 'أقصى صرامة', score: '92%', desc: 'أصالة وقوة صياغة تامة' },
+                  ].map((s) => (
                     <button
+                      key={s.id}
                       type="button"
-                      disabled={isStartingJob}
-                      onClick={handleStartGeneration}
-                      className="w-full py-3 rounded-2xl bg-[#C9703B] text-white font-bold text-sm hover:bg-[#b05f2e] transition-colors shadow-md flex items-center justify-center gap-2"
+                      onClick={() => setStrictness(s.id as StrictnessLevel)}
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                        strictness === s.id
+                          ? 'bg-[#C9703B] text-white border-[#C9703B] font-bold shadow-xs'
+                          : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-100'
+                      }`}
                     >
-                      {isStartingJob ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>جاري تسخين الفرن وإطلاق المهمة...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 text-amber-200" />
-                          <span>ابدأ (تشغيل الفرن)</span>
-                        </>
-                      )}
+                      <span className="block font-bold text-xs">{s.label}</span>
+                      <span className="text-[0.625rem] font-mono block opacity-90">{s.score} ثقة</span>
                     </button>
-                  </div>
+                  ))}
                 </div>
-              )}
-            </>
+              </div>
+
+              {/* REGISTER STEERING CHIPS */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-extrabold text-xs text-stone-900 block">
+                    ج) توجيه السجل اللغوي (اختياري):
+                  </label>
+                  {registerTargets.length === 0 && (
+                    <span className="text-[0.625rem] text-stone-500 italic">ترك التنوع للموديل</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(['formal', 'neutral', 'informal', 'slang'] as GermanRegister[]).map((reg) => {
+                    const isSelected = registerTargets.includes(reg);
+                    return (
+                      <button
+                        key={reg}
+                        type="button"
+                        onClick={() => toggleRegister(reg)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
+                            : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-200'
+                        }`}
+                      >
+                        {REGISTER_LABELS_AR[reg]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* LIVE ESTIMATE SUMMARY CARD */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 text-xs flex items-center justify-between shadow-2xs">
+                <div>
+                  <span className="font-extrabold text-amber-900 block">تقدير التكلفة والمخرجات:</span>
+                  <span className="text-[0.6875rem] text-amber-800 block mt-0.5">
+                    النموذج: <span className="font-bold">{selectedModel?.name}</span> • التوقع: ~{liveEstimate.estCount} عنصر أصيل
+                  </span>
+                </div>
+                <div className="text-end font-mono">
+                  <span className="text-base font-black text-[#C9703B] block">
+                    ~${liveEstimate.estCostUsd.toFixed(4)}
+                  </span>
+                  <span className="text-[0.625rem] text-stone-500">حسب الاستهلاك الفعلي</span>
+                </div>
+              </div>
+
+              {/* START FURNACE GENERATION BUTTON */}
+              <div className="pt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep('model_selection')}
+                  className="px-4 py-3 rounded-2xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors cursor-pointer"
+                >
+                  السابق
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isStartingJob}
+                  onClick={handleStartGeneration}
+                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#C9703B] to-[#b05f2e] text-white font-black text-sm hover:from-[#b05f2e] hover:to-[#964f24] transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isStartingJob ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>جاري إطلاق شعلة الفرن...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Flame className="w-5 h-5 text-amber-300" />
+                      <span>ابدأ التوليد بالفرن الآن (حسب الخيارات)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           )}
 
-          {/* SECTION 3: LIVE WORKING MODE (JOB RUNNING) */}
+          {/* STEP 3: LIVE WORKING GENERATION STAGE */}
           {isJobActive && (
             <div className="space-y-5 py-2">
-              <div className="p-4 rounded-2xl bg-[#17324D] text-white space-y-3 shadow-md">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#C9703B] animate-ping" />
-                    <span className="font-bold text-xs">الفرن قيد الاشتعال والعمل الحثيث...</span>
+              <div className="p-4 rounded-3xl bg-gradient-to-br from-[#1A0E08] via-[#17324D] to-[#0D0704] text-white space-y-3 shadow-xl border border-[#FF7A29]/40 relative overflow-hidden">
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-3 h-3 rounded-full bg-[#FF7A29] animate-ping" />
+                    <span className="font-extrabold text-xs text-amber-200">
+                      الفرن يعمل في الخلفية بـ OpenRouter AI...
+                    </span>
                   </div>
-                  <span className="text-xs font-mono bg-white/10 px-2 py-0.5 rounded text-amber-300 font-bold">
+                  <span className="text-xs font-mono bg-white/10 px-2.5 py-1 rounded-full text-amber-300 font-black border border-white/20">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2 rounded-xl bg-white/10">
-                    <span className="block text-lg font-bold font-mono text-emerald-300">
-                      {job?.entries_generated || 0}
+                <div className="grid grid-cols-3 gap-2.5 text-center text-xs relative z-10">
+                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
+                    <span className="block text-xl font-black font-mono text-emerald-300">
+                      {job?.entries_generated || acceptedStubs.length}
                     </span>
-                    <span className="text-[0.625rem] opacity-80">مقبول</span>
+                    <span className="text-[0.625rem] opacity-90 font-bold">مقبول أصيل</span>
                   </div>
 
-                  <div className="p-2 rounded-xl bg-white/10">
-                    <span className="block text-lg font-bold font-mono text-amber-300">
+                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
+                    <span className="block text-xl font-black font-mono text-amber-300">
                       {job?.entries_skipped_duplicate || 0}
                     </span>
-                    <span className="text-[0.625rem] opacity-80">مكرر</span>
+                    <span className="text-[0.625rem] opacity-90 font-bold">مستبعد لتكراره</span>
                   </div>
 
-                  <div className="p-2 rounded-xl bg-white/10">
-                    <span className="block text-lg font-bold font-mono text-stone-300">
+                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
+                    <span className="block text-xl font-black font-mono text-stone-300">
                       {job?.entries_discarded_low_quality || 0}
                     </span>
-                    <span className="text-[0.625rem] opacity-80">مرفوض</span>
+                    <span className="text-[0.625rem] opacity-90 font-bold">مرفوض لضعف الثقة</span>
                   </div>
                 </div>
               </div>
 
-              {/* LIVE SHELF SLOTTING PREVIEW */}
+              {/* LIVE SHELF ENTRY SLOTTING FEED */}
               <div className="space-y-2">
-                <h4 className="font-bold text-xs text-stone-900 flex items-center justify-between">
-                  <span>المعاين الحي للرف (تنزيل المفردات المعتمدة مباشرة):</span>
-                  <span className="text-[0.625rem] font-mono text-stone-500">{acceptedStubs.length} عنصر</span>
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-xs text-stone-900 flex items-center gap-1.5">
+                    <Database className="w-4 h-4 text-[#17324D]" />
+                    <span>تغذية الرف الحية (نزول المفردات المعتمدة مباشر):</span>
+                  </h4>
+                  <span className="text-[0.6875rem] font-mono text-emerald-800 font-extrabold bg-emerald-100 px-2 py-0.5 rounded-full">
+                    +{acceptedStubs.length} عنصر
+                  </span>
+                </div>
 
-                <div className="p-3 rounded-2xl bg-white border border-stone-300 max-h-40 overflow-y-auto flex flex-wrap gap-2">
+                <div className="p-3.5 rounded-2xl bg-white border border-stone-300 max-h-44 overflow-y-auto flex flex-wrap gap-2 shadow-inner">
                   {acceptedStubs.length === 0 ? (
-                    <div className="w-full text-center py-6 text-stone-400 text-xs italic">
-                      جاري صياغة الدفعة الأولى وتصفية جودتها...
+                    <div className="w-full text-center py-8 text-stone-400 text-xs italic space-y-1">
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#C9703B]" />
+                      <p>جاري صياغة الدفعة الأولى وتصفيتها بالصارمة المحددة...</p>
                     </div>
                   ) : (
                     acceptedStubs.map((item) => {
@@ -628,10 +882,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="motion-safe:animate-slide-in px-2.5 py-1.5 rounded-xl bg-stone-100 border border-stone-300 text-xs flex items-center gap-2 shadow-2xs shrink-0"
+                          className="px-3 py-1.5 rounded-xl bg-stone-100 border border-stone-300 text-xs flex items-center gap-2 shadow-2xs shrink-0"
                         >
                           <span
-                            className="w-2 h-2 rounded-full shrink-0"
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: dotColor }}
                           />
                           <span className="font-bold text-stone-900 font-mono" dir="ltr">
@@ -644,17 +898,17 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 </div>
               </div>
 
-              {/* LIVE EXPANDABLE REJECTIONS FEED */}
-              <div className="border border-stone-300 rounded-2xl overflow-hidden bg-white/80">
+              {/* LIVE REJECTION REASONS FEED */}
+              <div className="border border-stone-300 rounded-2xl overflow-hidden bg-white/90">
                 <button
                   type="button"
                   onClick={() => setIsRejectionsExpanded(!isRejectionsExpanded)}
-                  className="w-full p-3 flex items-center justify-between text-xs font-bold text-stone-800 hover:bg-stone-200/50 transition-colors"
+                  className="w-full p-3 flex items-center justify-between text-xs font-bold text-stone-800 hover:bg-stone-200/50 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    <span>تغذية المرفوضات الحية (المستبعد وأسبابه)</span>
-                    <span className="bg-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded text-[0.625rem]">
+                    <span>سجل المستبعدات والمرفوضات (أسباب الاستبعاد الحية)</span>
+                    <span className="bg-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded-full text-[0.625rem]">
                       {rejections.length}
                     </span>
                   </div>
@@ -664,14 +918,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 {isRejectionsExpanded && (
                   <div className="p-3 border-t border-stone-200 max-h-36 overflow-y-auto space-y-1.5 text-xs font-mono">
                     {rejections.length === 0 ? (
-                      <p className="text-stone-500 text-center py-2 text-[0.6875rem]">لا توجد مرفوضات حتى الآن.</p>
+                      <p className="text-stone-500 text-center py-3 text-[0.6875rem]">
+                        لا توجد مرفوضات حتى اللحظة.
+                      </p>
                     ) : (
                       rejections.map((rej) => (
-                        <div key={rej.id} className="p-1.5 rounded bg-stone-100 flex items-center justify-between">
-                          <span className="text-stone-800 truncate max-w-[60%]" dir="ltr">
+                        <div key={rej.id} className="p-1.5 rounded-lg bg-stone-100 flex items-center justify-between">
+                          <span className="text-stone-800 truncate max-w-[65%]" dir="ltr">
                             {rej.candidate_text}
                           </span>
-                          <span className="text-[0.625rem] font-sans font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded">
+                          <span className="text-[0.625rem] font-sans font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
                             {REJECTION_REASON_LABELS_AR[rej.reason] || rej.reason}
                           </span>
                         </div>
@@ -681,11 +937,11 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 )}
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="pt-2 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors cursor-pointer"
                 >
                   إغلاق (المتابعة بالخلفية)
                 </button>
@@ -693,53 +949,53 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
             </div>
           )}
 
-          {/* SECTION 4: COMPLETION SUMMARY MODE */}
-          {isJobFinished && (
-            <div className="space-y-5 py-2 text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 mx-auto flex items-center justify-center shadow-xs">
-                <Check className="w-6 h-6" />
+          {/* STEP 4: COMPLETION SUMMARY STAGE */}
+          {step === 'summary' && !isJobActive && (
+            <div className="space-y-5 py-3 text-center">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 mx-auto flex items-center justify-center shadow-sm">
+                <Check className="w-7 h-7" />
               </div>
 
               <div>
-                <h3 className="font-bold text-base text-stone-900">
-                  {job?.status === 'completed' ? 'اكتملت عملة التوليد بالفرن!' : 'فشلت المهمة أو انقطعت'}
+                <h3 className="font-extrabold text-base text-stone-900">
+                  {job?.status === 'completed' ? 'اكتملت عملة التوليد بالفرن بنجاح أصيل!' : 'توقفت مهمة التوليد'}
                 </h3>
-                <p className="text-xs text-stone-600 mt-0.5">
-                  استقرت نتائج الفرن وتم حفظ العناصر المعتمدة بنجاح
+                <p className="text-xs text-stone-600 mt-1">
+                  تم صياغة واستقرار المفردات بالرف مباشرة.
                 </p>
               </div>
 
-              {/* Job Metrics Card */}
-              <div className="p-4 rounded-2xl bg-white border border-stone-300 text-xs space-y-2.5 text-start shadow-xs">
+              {/* Job Summary Breakdown Box */}
+              <div className="p-4 rounded-2xl bg-white border border-stone-300 text-xs space-y-3 text-start shadow-xs">
                 <div className="flex justify-between border-b border-stone-200 pb-2">
-                  <span className="text-stone-600">إجمالي المعتمد والموّلد:</span>
-                  <span className="font-bold text-emerald-800 font-mono text-sm">
-                    +{job?.entries_generated || 0} عنصر
+                  <span className="text-stone-600 font-bold">إجمالي المفردات المضافة للرف:</span>
+                  <span className="font-black text-emerald-800 font-mono text-sm">
+                    +{job?.entries_generated || acceptedStubs.length} عنصر
                   </span>
                 </div>
 
                 <div className="flex justify-between border-b border-stone-200 pb-2">
-                  <span className="text-stone-600">المستبعد للتكرار / الثقة / السجل:</span>
-                  <span className="font-bold text-stone-800 font-mono">
+                  <span className="text-stone-600 font-bold">المستبعد (تكرار / ثقة / سجل):</span>
+                  <span className="font-extrabold text-stone-800 font-mono">
                     {(job?.entries_skipped_duplicate || 0) + (job?.entries_discarded_low_quality || 0)} عنصر
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-stone-600">التكلفة النهائية للعملية:</span>
-                  <span className="font-bold text-[#C9703B] font-mono">
+                  <span className="text-stone-600 font-bold">التكلفة النهائية المستهلكة:</span>
+                  <span className="font-black text-[#C9703B] font-mono">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-between gap-3">
+              <div className="pt-2 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors cursor-pointer"
                 >
-                  إغلاق
+                  تم والإغلاق
                 </button>
 
                 <button
@@ -748,17 +1004,17 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     onClose();
                     navigate('/german-club/review');
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-[#17324D] text-white font-bold text-xs hover:bg-[#12273d] transition-colors shadow-xs flex items-center gap-1.5"
+                  className="px-5 py-2.5 rounded-xl bg-[#17324D] text-white font-bold text-xs hover:bg-[#12273d] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span>مراجعة واعتماد هذه الدفعة ←</span>
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>انتقل لصفحة مراجعة واعتماد المحتوى ←</span>
                 </button>
               </div>
             </div>
           )}
 
           {jobError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs">
+            <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold">
               {jobError}
             </div>
           )}
