@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, Check, Sparkles, Volume2 } from '@/lib/icons';
 import { GenderDot } from './GenderDot';
