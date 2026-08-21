@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import {
   Check,
   Copy,
+  Download,
   QrCode,
   ShieldCheck,
   Sparkles,
@@ -68,6 +69,94 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
       toast.success('تم نسخ رابط بطاقة الهوية الرقمية');
     } catch {
       toast.error('تعذر نسخ الرابط');
+    }
+  };
+
+  const handleDownloadPass = async () => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 600;
+      canvas.height = 760;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Dark Zen luxury background
+      ctx.fillStyle = '#121212';
+      ctx.fillRect(0, 0, 600, 760);
+
+      // Gold / primary accent border
+      ctx.strokeStyle = '#E45B60';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(16, 16, 568, 728);
+
+      // Header text
+      ctx.fillStyle = '#E45B60';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ZEN ELITE DIGITAL IDENTITY PASS', 300, 70);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'extrabold 32px sans-serif';
+      ctx.fillText('بطاقة العضوية الرقمية', 300, 120);
+
+      // Serial Number
+      ctx.fillStyle = '#A1A1AA';
+      ctx.font = '18px monospace';
+      ctx.fillText(serialNumber, 300, 160);
+
+      // Card Inner Surface
+      ctx.fillStyle = '#1E1E1E';
+      ctx.roundRect(40, 190, 520, 420, 24);
+      ctx.fill();
+
+      // Display name
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 30px sans-serif';
+      ctx.fillText(displayName, 300, 310);
+
+      // Username
+      ctx.fillStyle = '#E45B60';
+      ctx.font = '22px monospace';
+      ctx.fillText(`@${username}`, 300, 350);
+
+      // Title
+      ctx.fillStyle = '#D4D4D8';
+      ctx.font = '20px sans-serif';
+      ctx.fillText(title || 'عضو نخبة الهدوء', 300, 390);
+
+      // Verification Badge
+      ctx.fillStyle = '#34D399';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.fillText('✓ VERIFIED MEMBER • LIFETIME PASS', 300, 440);
+
+      // QR Code Box Placeholder on Canvas
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(240, 480, 120, 120);
+
+      // Draw QR Matrix pixels
+      ctx.fillStyle = '#000000';
+      const cellSize = 15;
+      qrMatrix.forEach((row, rIdx) => {
+        row.forEach((filled, cIdx) => {
+          if (filled) {
+            ctx.fillRect(240 + cIdx * cellSize, 480 + rIdx * cellSize, cellSize, cellSize);
+          }
+        });
+      });
+
+      // Footer
+      ctx.fillStyle = '#71717A';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('الهدوء والإنتاجية العالية • Zen Elite Architecture 2026', 300, 680);
+
+      const dataUri = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUri;
+      a.download = `Pass_${username || 'Zen'}.png`;
+      a.click();
+      toast.success('تم تصدير بطاقة الهوية الرقمية بنجاح');
+    } catch {
+      toast.error('تعذر تصدير البطاقة');
     }
   };
 
@@ -174,15 +263,23 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
           {/* Actions */}
           <div className="flex gap-2 pt-1">
             <button
+              onClick={handleDownloadPass}
+              className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"
+            >
+              <Download className="w-4 h-4" />
+              تحميل البطاقة
+            </button>
+            <button
               onClick={handleCopyLink}
-              className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              className="py-2.5 px-3 rounded-xl bg-secondary text-secondary-foreground text-mini font-semibold flex items-center justify-center gap-1 hover:bg-secondary/80 transition-colors"
+              title="نسخ الرابط"
             >
               <Copy className="w-4 h-4" />
-              نسخ رابط البطاقة
+              <span className="hidden sm:inline">نسخ</span>
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-muted/40 text-muted-foreground text-mini font-semibold hover:text-foreground transition-colors"
+              className="px-3 py-2.5 rounded-xl bg-muted/40 text-muted-foreground text-mini font-semibold hover:text-foreground transition-colors"
             >
               إغلاق
             </button>

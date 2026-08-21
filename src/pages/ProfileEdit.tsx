@@ -6,7 +6,9 @@ import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AvatarStudioModal } from '@/features/profile/components/AvatarStudioModal';
 import { DigitalIdentityPassModal } from '@/features/profile/components/DigitalIdentityPassModal';
+import { PhotoStudioModal } from '@/features/profile/components/PhotoStudioModal';
 import { ProfileActivityMatrixTab } from '@/features/profile/components/ProfileActivityMatrixTab';
 import { ProfileBadgesTab } from '@/features/profile/components/ProfileBadgesTab';
 import { ProfileCompletionCard } from '@/features/profile/components/ProfileCompletionCard';
@@ -15,6 +17,7 @@ import { ProfileOverviewTab } from '@/features/profile/components/ProfileOvervie
 import { COVER_THEME_OPTIONS, ProfilePrivacySettingsTab } from '@/features/profile/components/ProfilePrivacySettingsTab';
 import { APP_BADGES } from '@/features/profile/data/badges';
 import { calculateProfileActivitySummary } from '@/features/profile/lib/activityAggregator';
+import { generateInitialsAvatar } from '@/features/profile/lib/avatarStudioEngine';
 import { evaluateProfileBadges } from '@/features/profile/lib/badgeEvaluator';
 import { PrivacySettings, ProfileCompletionMetrics, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +26,7 @@ import {
   AlertTriangle,
   Award,
   Check,
+  Eye,
   Github,
   Globe,
   ImagePlus,
@@ -33,10 +37,12 @@ import {
   Send,
   Shield,
   ShieldAlert,
+  Sliders,
   Sparkles,
   Twitter,
   User,
   UserCircle,
+  Wand2,
 } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import { isUsernameAvailable, updateProfileAndAuth, uploadAvatar } from '@/services/supabase/profiles';
@@ -95,6 +101,9 @@ export default function ProfileEditPage() {
   const [usernameChanged, setUsernameChanged] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showPassModal, setShowPassModal] = useState(false);
+  const [showAvatarStudio, setShowAvatarStudio] = useState(false);
+  const [showPhotoStudio, setShowPhotoStudio] = useState(false);
+  const [isVisitorPreview, setIsVisitorPreview] = useState(false);
 
   // Snapshot of initial values to detect dirty state & floating save bar
   const [initial, setInitial] = useState({
@@ -641,12 +650,54 @@ export default function ProfileEditPage() {
 
           {activeTab === 'edit' && (
             <div className="space-y-5">
-              {/* Avatar Selection */}
+              {/* Real-time Interactive Live Preview Banner */}
+              <div className="surface-depth rounded-2xl p-4 border border-primary/20 space-y-3 bg-gradient-to-r from-card via-card to-primary/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-meta font-extrabold text-foreground">المعاينة الحية للبروفايل</span>
+                  </div>
+                  <button
+                    onClick={() => setIsVisitorPreview(!isVisitorPreview)}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold transition-all ${
+                      isVisitorPreview
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-primary/10 text-primary border border-primary/20'
+                    }`}
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{isVisitorPreview ? 'معاينة كزائر' : 'معاينة شخصية'}</span>
+                  </button>
+                </div>
+
+                <div className="p-3 rounded-xl bg-card border border-border/40 flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full ring-2 ring-primary bg-background overflow-hidden shrink-0 flex items-center justify-center">
+                    {selectedAvatar.startsWith('http') || selectedAvatar.startsWith('data:') ? (
+                      <img src={selectedAvatar} alt="Preview" className="w-full h-full object-cover" />
+                    ) : isEmojiAvatarValue(selectedAvatar) ? (
+                      <img src={getAppleEmojiUrl(selectedAvatar) || ''} alt="Preview" className="w-8 h-8" />
+                    ) : (
+                      <img src={getDefaultAvatarForUser(newUsername || 'U')} alt="Preview" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-meta font-bold text-foreground truncate">
+                      {displayName || newUsername || 'المستخدم'}
+                    </h4>
+                    <p className="text-micro font-mono text-muted-foreground" dir="ltr">
+                      @{newUsername || 'user'}
+                    </p>
+                    {bio && <p className="text-micro text-muted-foreground line-clamp-1 italic mt-0.5">"{bio}"</p>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Avatar Studio Creation Pathways */}
               <section className="surface-depth rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-meta font-bold text-foreground">الصورة الشخصية والرموز</h2>
-                    <p className="text-micro text-muted-foreground">اختر رمزاً تعبيرياً أو ارفع صورتك الخاصة</p>
+                    <h2 className="text-meta font-bold text-foreground">استوديو الصور والهوية الرمزية</h2>
+                    <p className="text-micro text-muted-foreground">اختر رمزاً تعبيرياً، ارفع صورة، أو اصنع هويتك المتجهة</p>
                   </div>
                   <input
                     ref={fileInputRef}
@@ -655,52 +706,83 @@ export default function ProfileEditPage() {
                     className="hidden"
                     onChange={handleFileUpload}
                   />
+                </div>
+
+                {/* Studio Action Shortcuts */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
+                    onClick={() => setShowAvatarStudio(true)}
+                    className="gap-2 h-auto py-3 rounded-xl border-primary/30 hover:bg-primary/10 text-primary font-bold"
                   >
-                    {uploading ? (
-                      <span className="animate-spin w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full" />
-                    ) : (
-                      <>
-                        <ImagePlus className="w-4 h-4" />
-                        رفع صورة
-                      </>
-                    )}
+                    <Wand2 className="w-4 h-4" />
+                    <div className="text-start">
+                      <span className="block text-micro font-bold">استوديو المتجهات</span>
+                      <span className="block text-[10px] text-muted-foreground font-normal">Vector Avatar Studio</span>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowPhotoStudio(true)}
+                    className="gap-2 h-auto py-3 rounded-xl font-bold"
+                  >
+                    <Sliders className="w-4 h-4 text-indigo-400" />
+                    <div className="text-start">
+                      <span className="block text-micro font-bold">معالجة الصور</span>
+                      <span className="block text-[10px] text-muted-foreground font-normal">Photo Filter Studio</span>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const initialsDataUri = generateInitialsAvatar((displayName || newUsername || 'U').slice(0, 2));
+                      setSelectedAvatar(initialsDataUri);
+                      toast.success('تم إنشاء صورة الحروف الأولى بنجاح');
+                    }}
+                    className="gap-2 h-auto py-3 rounded-xl sm:col-span-1 col-span-2 font-bold"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <div className="text-start">
+                      <span className="block text-micro font-bold">رمز الحروف الأولى</span>
+                      <span className="block text-[10px] text-muted-foreground font-normal">Initials Stamp</span>
+                    </div>
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2">
-                  {EMOJI_AVATARS.map((animal) => {
-                    const isSelected = selectedAvatar === animal.emoji;
-                    return (
-                      <button
-                        key={animal.id}
-                        onClick={() => setSelectedAvatar(animal.emoji)}
-                        className={`relative flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all ${
-                          isSelected
-                            ? 'bg-primary/10 ring-2 ring-primary scale-[1.03]'
-                            : 'bg-muted/30 ring-1 ring-border/40 active:scale-95'
-                        }`}
-                      >
-                        <img
-                          src={getAppleEmojiUrl(animal.emoji) || ''}
-                          alt={animal.label}
-                          className="w-8 h-8"
-                          loading="lazy"
-                        />
-                        <span className="text-micro text-muted-foreground">{animal.label}</span>
-                        {isSelected && (
-                          <div className="absolute top-1 end-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="w-2.5 h-2.5 text-primary-foreground" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                {/* Apple HD Emojis Catalog */}
+                <div className="pt-2 border-t border-border/30 space-y-2">
+                  <span className="text-micro font-bold text-muted-foreground">مكتبة الرموز التعبيرية عالية الدقة</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {EMOJI_AVATARS.map((animal) => {
+                      const isSelected = selectedAvatar === animal.emoji;
+                      return (
+                        <button
+                          key={animal.id}
+                          onClick={() => setSelectedAvatar(animal.emoji)}
+                          className={`relative flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all ${
+                            isSelected
+                              ? 'bg-primary/10 ring-2 ring-primary scale-[1.03]'
+                              : 'bg-muted/30 ring-1 ring-border/40 active:scale-95'
+                          }`}
+                        >
+                          <img
+                            src={getAppleEmojiUrl(animal.emoji) || ''}
+                            alt={animal.label}
+                            className="w-8 h-8"
+                            loading="lazy"
+                          />
+                          <span className="text-micro text-muted-foreground">{animal.label}</span>
+                          {isSelected && (
+                            <div className="absolute top-1 end-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </section>
 
@@ -945,6 +1027,26 @@ export default function ProfileEditPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Avatar Studio Modal */}
+      <AvatarStudioModal
+        isOpen={showAvatarStudio}
+        onClose={() => setShowAvatarStudio(false)}
+        onSelectAvatar={(dataUri) => {
+          setSelectedAvatar(dataUri);
+          toast.success('تمت إضافة رمز الهوية الرقمية المتجة بنجاح');
+        }}
+      />
+
+      {/* Photo Studio Modal */}
+      <PhotoStudioModal
+        isOpen={showPhotoStudio}
+        onClose={() => setShowPhotoStudio(false)}
+        onApplyPhoto={(dataUri) => {
+          setSelectedAvatar(dataUri);
+          toast.success('تم تطبيق المعالجة على الصورة بنجاح');
+        }}
+      />
 
       {/* Digital Identity Ticket Pass Modal */}
       <DigitalIdentityPassModal
