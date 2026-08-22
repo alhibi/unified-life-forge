@@ -1,12 +1,15 @@
 /**
  * AtlasScoutTab — the AI deep-discovery surface of the Travel Atlas.
  *
- * Left rail: the user's watch targets (favorite cities/countries) with an
- * inline picker. Main area: researched dossiers as rich cards — description,
- * atmosphere, local tips, months, price, dish — with one-tap promotion into
- * the real atlas (creates a travel_place via the existing API) or dismissal.
+ * Left rail: watch targets with geocoded autocomplete (Nominatim, debounced,
+ * one-request-per-second polite), depth selector, live progress with a real
+ * cancel button. Main area: researched dossiers as rich cards — Commons
+ * photo, description, atmosphere, local tips, months, price, dish — with
+ * one-tap promotion into the real atlas or dismissal.
  *
- * Scouting streams live progress; the UI stays honest at every step.
+ * Every run ends with an HONEST summary: how many places were newly filed,
+ * how many were duplicates already in the log, how many failed. No fake
+ * success messages.
  */
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -27,9 +30,14 @@ import {
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
+import type { GeocodeResult } from '../lib/geocoding';
+import { searchPlaces } from '../lib/geocoding';
+import { fetchPlacePhoto, type PlacePhotoResult } from '../lib/placePhoto';
+import { describeOutcome } from '../lib/scoutOutcome';
 import {
   atlasScoutApi,
   type ScoutDepth,
+  type ScoutOutcome,
   type ScoutPlace,
   type ScoutProgressEvent,
   type ScoutTargetKind,
@@ -65,22 +73,79 @@ function categoryColor(cat: string): string {
 
 const PRICE_LABELS = ['مجاني', 'رخيص', 'متوسط', 'مرتفع', 'فاخر'];
 
-/* ── Target picker row ───────────────────────────────────────────────────── */
+/** Input handed up by the picker — enriched when a geocode hit was chosen. */
+interface PickedTargetInput {
+  kind: ScoutTargetKind;
+  query: string;
+  displayNameAr: string;
+  displayNameEn: string;
+  isoCode: string | null;
+  centerLng: number | null;
+  centerLat: number | null;
+}
+
+/* ── Geocoded target picker ─────────────────────────────────────────────── */
+
+const SUGGEST_DEBOUNCE_MS = 700; // Nominatim usage policy: ≤1 req/s
 
 interface TargetPickerProps {
   busy: boolean;
-  onAdd: (input: { kind: ScoutTargetKind; query: string; displayNameAr: string; displayNameEn: string }) => void;
+  onAdd: (input: PickedTargetInput) => void;
 }
 
 function TargetPicker({ busy, onAdd }: TargetPickerProps) {
   const [kind, setKind] = useState<ScoutTargetKind>('city');
   const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<GeocodeResult[]>([]);
+  const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<GeocodeResult | null>(null);
+
+  // The dropdown is DERIVED: fresh suggestions only when the box is open,
+  // the query grew beyond a pick, and the text is long enough to search.
+  const trimmedQuery = query.trim();
+  const pickedStillMatches = picked !== null && picked.title === trimmedQuery;
+  const visibleSuggestions =
+    open && !pickedStillMatches && trimmedQuery.length >= 3 ? suggestions : [];
+
+  /* Debounced search-as-you-type */
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < 3 || picked?.title === trimmed) return;
+
+    const abort = new AbortController();
+    const timer = setTimeout(() => {
+      searchPlaces(trimmed, { signal: abort.signal, limit: 5 })
+        .then((results) => setSuggestions(results))
+        .catch(() => setSuggestions([]));
+    }, SUGGEST_DEBOUNCE_MS);
+
+    return () => {
+      abort.abort();
+      clearTimeout(timer);
+    };
+  }, [query, picked]);
 
   const submit = () => {
     const q = query.trim();
     if (!q || busy) return;
-    onAdd({ kind, query: q, displayNameAr: q, displayNameEn: q });
-    setQuery('');
+    const hit = picked?.title === q ? picked : null;
+    onAdd({
+      kind,
+      query: q,
+      displayNameAr: hit?.title ?? q,
+      displayNameEn: hit?.title ?? q,
+      isoCode: hit?.isoCode ?? null,
+      centerLng: hit ? hit.coordinates[0] : null,
+      centerLat: hit ? hit.coordinates[1] : null,
+    });
+    setOpen(false);
+    setSuggestions([]);
+  };
+
+  const pickSuggestion = (s: GeocodeResult) => {
+    setQuery(s.title);
+    setPicked(s);
+    setOpen(false);
   };
 
   return (
@@ -109,21 +174,90 @@ function TargetPicker({ busy, onAdd }: TargetPickerProps) {
         ))}
       </div>
       <div className="relative">
-        <Search className="w-3.5 h-3.5 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search className="w-3.5 h-3.5 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         <Input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPicked(null);
+          }}
+          onFocus={() => setOpen(true)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           placeholder={kind === 'city' ? 'برلين، إسطنبول، نيقوسيا…' : 'ألمانيا، اليابان…'}
           className="ps-9 bg-muted/20 border-border/50 text-mini"
           disabled={busy}
+          role="combobox"
+          aria-expanded={visibleSuggestions.length > 0}
+          aria-label="ابحث عن مدينة أو دولة"
         />
+        {visibleSuggestions.length > 0 && (
+          <ul
+            className="absolute z-20 inset-x-0 top-full mt-1 max-h-48 divide-y divide-border overflow-y-auto rounded-card border border-border bg-background shadow-lg"
+            role="listbox"
+          >
+            {visibleSuggestions.map((s) => (
+              <li key={s.id} role="option" aria-selected={false}>
+                <button
+                  type="button"
+                  onClick={() => pickSuggestion(s)}
+                  className="w-full text-start px-3 py-2 hover:bg-primary/10 transition-colors"
+                >
+                  <span className="block text-mini font-semibold text-foreground truncate">{s.title}</span>
+                  <span className="block text-micro text-muted-foreground truncate">{s.subtitle}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <Button size="sm" onClick={submit} disabled={!query.trim() || busy} className="w-full gap-1.5 rounded-xl font-bold">
         {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
         إضافة إلى المفضلة
       </Button>
     </div>
+  );
+}
+
+/* ── Card photo ─────────────────────────────────────────────────────────── */
+
+function usePlacePhoto(query: string | null): PlacePhotoResult {
+  const [photo, setPhoto] = useState<PlacePhotoResult>({ url: null, credit: null });
+  useEffect(() => {
+    if (!query) return;
+    let alive = true;
+    void fetchPlacePhoto(query).then((p) => {
+      if (alive) setPhoto(p);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [query]);
+  return photo;
+}
+
+function DossierPhoto({ place }: { place: ScoutPlace }) {
+  const photo = usePlacePhoto(place.photoQueryEn ?? place.nameEn);
+  const [failed, setFailed] = useState(false);
+
+  if (!photo.url || failed) return null;
+  return (
+    <figure className="relative -mx-4 -mt-4 mb-3 h-36 overflow-hidden">
+      <img
+        src={photo.url}
+        alt={place.nameAr || place.nameEn}
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className="h-full w-full object-cover"
+      />
+      {photo.credit && (
+        <figcaption
+          dir="ltr"
+          className="absolute bottom-0 end-0 max-w-[70%] truncate bg-background/70 backdrop-blur-sm px-1.5 py-0.5 text-micro text-muted-foreground"
+        >
+          © {photo.credit}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
@@ -146,6 +280,8 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
       transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="surface-depth rounded-2xl p-4 space-y-3 relative overflow-hidden"
     >
+      <DossierPhoto place={place} />
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 space-y-1">
@@ -231,8 +367,8 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
           </span>
         )}
         {place.bestMonths.length > 0 && (
-          <span className="px-2 py-0.5 rounded-lg bg-muted/20 border border-border/40 text-micro font-semibold text-foreground">
-            📅 أفضل أشهر: {place.bestMonths.sort((a, b) => a - b).join('، ')}
+          <span className="px-2 py-0.5 rounded-lg bg-muted/20 border border-border/40 text-micro font-semibold text-foreground tabular-nums">
+            📅 أفضل أشهر: {[...place.bestMonths].sort((a, b) => a - b).join('، ')}
           </span>
         )}
         {place.coordinates && (
@@ -301,22 +437,22 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
   }, []);
 
   useEffect(() => {
-    if (activeTargetId) void reloadPlaces(activeTargetId);
+    if (!activeTargetId) return;
+    const timer = setTimeout(() => void reloadPlaces(activeTargetId), 0);
+    return () => clearTimeout(timer);
   }, [activeTargetId, reloadPlaces]);
 
-  /* Add a target */
-  const handleAdd = async (input: {
-    kind: ScoutTargetKind;
-    query: string;
-    displayNameAr: string;
-    displayNameEn: string;
-  }) => {
+  /* Abort any in-flight stream when leaving the tab */
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  /* Add a target — revived rows get their own welcoming message */
+  const handleAdd = async (input: PickedTargetInput) => {
     setAdding(true);
     try {
-      const target = await atlasScoutApi.addTarget(input);
-      setTargets((prev) => [target, ...prev]);
+      const { target, revived } = await atlasScoutApi.addTarget(input);
+      setTargets((prev) => [target, ...prev.filter((x) => x.id !== target.id)]);
       setActiveTargetId(target.id);
-      toast.success(`أُضيف «${target.displayNameAr}» — جاهز للبحث العميق`);
+      toast.success(revived ? `عاد «${target.displayNameAr}» إلى مفضلتك` : `أُضيف «${target.displayNameAr}» — جاهز للبحث العميق`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -324,7 +460,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
     }
   };
 
-  /* Run the scout pipeline */
+  /* Run the scout pipeline — cancellable, honest at the end */
   const runScout = async () => {
     if (!activeTarget || scouting) return;
     abortRef.current?.abort();
@@ -333,26 +469,43 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
 
     setScouting(true);
     setProgress({ msg: 'نجهّز مهمة البحث…', pct: 5 });
+    let outcome: ScoutOutcome | null = null;
 
     try {
       await atlasScoutApi.scout(activeTarget, depth, (e: ScoutProgressEvent) => {
-        if (e.stage === 'geocode' || e.stage === 'discover') {
-          setProgress({ msg: e.message, pct: 15 });
-        } else if (e.stage === 'progress') {
-          const pct = 20 + Math.round((e.current / Math.max(1, e.total)) * 75);
+        if (e.stage === 'geocode') setProgress({ msg: e.message, pct: 12 });
+        else if (e.stage === 'discover') setProgress({ msg: e.message, pct: 22 });
+        else if (e.stage === 'dedup') setProgress({ msg: e.message, pct: 32 });
+        else if (e.stage === 'progress') {
+          const pct = 32 + Math.round((e.current / Math.max(1, e.total)) * 63);
           setProgress({ msg: `(${e.current}/${e.total}) ${e.message}`, pct });
+        } else if (e.stage === 'done') {
+          outcome = { filed: e.filed, total: e.total, failed: e.failed, duplicates: e.duplicates };
         }
       }, controller.signal);
 
       setProgress({ msg: 'اكتمل!', pct: 100 });
       await reloadPlaces(activeTarget.id);
-      toast.success('اكتمل الاستكشاف الذكي — أماكن جديدة بانتظارك');
+
+      if (outcome) {
+        const d = describeOutcome(outcome);
+        if (d.tone === 'success') toast.success(d.text);
+        else toast.info(d.text);
+      } else {
+        toast.success('اكتمل الاستكشاف الذكي');
+      }
     } catch (e) {
-      if ((e as Error).name !== 'AbortError') toast.error((e as Error).message);
+      const err = e as Error;
+      if (err.name === 'AbortError') toast.info('أُلغي البحث — ما دوّنه المحرك قبل الإلغاء محفوظ');
+      else toast.error(err.message);
     } finally {
       setScouting(false);
       setTimeout(() => setProgress(null), 1500);
     }
+  };
+
+  const cancelScout = () => {
+    abortRef.current?.abort();
   };
 
   /* Promote / dismiss */
@@ -487,14 +640,25 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
             ))}
           </div>
 
-          <Button
-            onClick={() => void runScout()}
-            disabled={!activeTarget || scouting}
-            className="w-full gap-2 rounded-xl font-extrabold"
-          >
-            {scouting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Compass className="w-4 h-4" />}
-            {scouting ? 'يبحث الآن…' : 'ابحث بعمق عن أماكن جديدة'}
-          </Button>
+          {scouting ? (
+            <Button
+              onClick={cancelScout}
+              variant="outline"
+              className="w-full gap-2 rounded-xl font-bold border-destructive/40 text-destructive hover:bg-destructive/10"
+            >
+              <X className="w-4 h-4" />
+              إلغاء البحث
+            </Button>
+          ) : (
+            <Button
+              onClick={() => void runScout()}
+              disabled={!activeTarget}
+              className="w-full gap-2 rounded-xl font-extrabold"
+            >
+              <Compass className="w-4 h-4" />
+              ابحث بعمق عن أماكن جديدة
+            </Button>
+          )}
 
           {!activeTarget && !loadingTargets && (
             <p className="text-micro text-muted-foreground text-center">اختر مكاناً مفضلاً أولاً</p>

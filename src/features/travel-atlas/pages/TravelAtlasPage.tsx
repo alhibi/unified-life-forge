@@ -39,6 +39,7 @@ import { continentLabel } from '../data/countriesCatalog';
 import { useAtlas, useToggleFavorite } from '../hooks';
 import { downloadGeoJson } from '../lib/exportAtlas';
 import { DEFAULT_FILTERS, filterPlaces, hasActiveFilters } from '../lib/filtering';
+import { canPromoteDossier, dossierToPlaceFields } from '../lib/promotion';
 import type { CountrySummary } from '../lib/stats';
 import type { ScoutPlace } from '../scoutApi';
 import type { TravelPlace } from '../types';
@@ -88,36 +89,22 @@ export default function TravelAtlasPage() {
 
   /** Promotes an AI-scouted dossier into a real atlas place. */
   const promoteScoutedPlace = async (scouted: ScoutPlace): Promise<string> => {
-    const coords = scouted.coordinates;
-    if (!coords) {
-      throw new Error('لا إحداثيات لهذا المكان — احفظه يدوياً من النموذج');
+    // Gate first: coordinates + description are non-negotiable for a place.
+    if (!canPromoteDossier(scouted)) {
+      throw new Error(
+        scouted.coordinates
+          ? 'ملف هذا المكان غير مكتمل — احفظه يدوياً من النموذج'
+          : 'لا إحداثيات لهذا المكان — احفظه يدوياً من النموذج',
+      );
     }
 
     // Find the containing catalog country (registry has a point lookup).
     const { atlasCountryAt } = await import('../data/countryRegistry');
-    const host = atlasCountryAt([coords.lng, coords.lat]);
+    const host = atlasCountryAt([scouted.coordinates!.lng, scouted.coordinates!.lat]);
     if (!host) throw new Error('تعذر تحديد الدولة — جرّب مكاناً آخر');
 
     const created = await createPlace({
-      nameAr: scouted.nameAr || scouted.nameEn,
-      nameEn: scouted.nameEn,
-      category: (scouted.category as TravelPlace['category']) || 'other',
-      coordinates: [coords.lng, coords.lat],
-      city: scouted.city,
-      address: scouted.addressLine,
-      descriptionAr: [
-        scouted.descriptionAr,
-        scouted.atmosphereAr ? `الأجواء: ${scouted.atmosphereAr}` : null,
-        scouted.tipsAr ? `نصائح: ${scouted.tipsAr}` : null,
-        scouted.signatureDish ? `طبق مميز: ${scouted.signatureDish}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n\n'),
-      bestMonths: scouted.bestMonths,
-      visitStatus: 'wishlist',
-      priceLevel: scouted.priceLevel,
-      durationMinutes: scouted.durationMinutes,
-      tags: ['استكشاف ذكي', ...(scouted.vibe ? [scouted.vibe] : [])],
+      ...dossierToPlaceFields({ ...scouted, coordinates: scouted.coordinates! }),
       country: host,
     });
     return created.id;
