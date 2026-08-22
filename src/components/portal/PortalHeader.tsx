@@ -12,6 +12,7 @@ import { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { openCommandPalette } from '@/components/CommandPalette';
+import { StreakFlameBadge } from '@/components/portal/StreakFlameBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -133,6 +134,9 @@ function PortalHeaderImpl({ unreadCount }: Props) {
 
         {/* Hairline rail divider: separates navigation glyphs from identity. */}
         <span className="mx-1.5 h-5 w-px bg-border/60" aria-hidden />
+
+        {/* Live commitment streak — sits beside the identity cluster. */}
+        {user && <StreakFlameBadge variant="header" />}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
