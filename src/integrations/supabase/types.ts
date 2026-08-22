@@ -130,27 +130,76 @@ export type Database = {
       }
       content_generation_jobs: {
         Row: {
+          completed_at: string | null
           created_at: string
+          entries_discarded_low_quality: number | null
+          entries_generated: number | null
+          entries_skipped_duplicate: number | null
+          error_message: string | null
+          estimated_cost_usd: number | null
           id: string
+          mode: Database["public"]["Enums"]["generation_mode"] | null
+          model_id: string | null
           model_used: string | null
+          register_targets: string[] | null
+          shelf_id: string | null
+          started_at: string | null
           status: string
-          unit_id: string
+          strictness: string | null
+          target_count: number | null
+          triggered_by: string | null
+          unit_id: string | null
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
+          entries_discarded_low_quality?: number | null
+          entries_generated?: number | null
+          entries_skipped_duplicate?: number | null
+          error_message?: string | null
+          estimated_cost_usd?: number | null
           id?: string
+          mode?: Database["public"]["Enums"]["generation_mode"] | null
+          model_id?: string | null
           model_used?: string | null
+          register_targets?: string[] | null
+          shelf_id?: string | null
+          started_at?: string | null
           status?: string
-          unit_id: string
+          strictness?: string | null
+          target_count?: number | null
+          triggered_by?: string | null
+          unit_id?: string | null
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
+          entries_discarded_low_quality?: number | null
+          entries_generated?: number | null
+          entries_skipped_duplicate?: number | null
+          error_message?: string | null
+          estimated_cost_usd?: number | null
           id?: string
+          mode?: Database["public"]["Enums"]["generation_mode"] | null
+          model_id?: string | null
           model_used?: string | null
+          register_targets?: string[] | null
+          shelf_id?: string | null
+          started_at?: string | null
           status?: string
-          unit_id?: string
+          strictness?: string | null
+          target_count?: number | null
+          triggered_by?: string | null
+          unit_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "content_generation_jobs_shelf_id_fkey"
+            columns: ["shelf_id"]
+            isOneToOne: false
+            referencedRelation: "german_club_shelves"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "content_generation_jobs_unit_id_fkey"
             columns: ["unit_id"]
@@ -452,6 +501,227 @@ export type Database = {
           steps?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      generation_job_rejections: {
+        Row: {
+          candidate_text: string
+          created_at: string | null
+          id: string
+          job_id: string | null
+          reason: string
+        }
+        Insert: {
+          candidate_text: string
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          reason: string
+        }
+        Update: {
+          candidate_text?: string
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_job_rejections_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "content_generation_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      german_club_entries: {
+        Row: {
+          arabic_translation: string
+          audio_url: string | null
+          created_at: string | null
+          difficulty_level: string | null
+          entry_type: Database["public"]["Enums"]["german_entry_type"]
+          example_sentence_ar: string | null
+          example_sentence_de: string | null
+          gender: Database["public"]["Enums"]["german_gender"] | null
+          generation_job_id: string | null
+          german_text: string
+          id: string
+          ipa: string | null
+          is_separable_verb: boolean | null
+          register: Database["public"]["Enums"]["german_register"] | null
+          review_status:
+            | Database["public"]["Enums"]["content_review_status"]
+            | null
+          separable_prefix: string | null
+          shelf_id: string | null
+          sort_order: number | null
+        }
+        Insert: {
+          arabic_translation: string
+          audio_url?: string | null
+          created_at?: string | null
+          difficulty_level?: string | null
+          entry_type: Database["public"]["Enums"]["german_entry_type"]
+          example_sentence_ar?: string | null
+          example_sentence_de?: string | null
+          gender?: Database["public"]["Enums"]["german_gender"] | null
+          generation_job_id?: string | null
+          german_text: string
+          id?: string
+          ipa?: string | null
+          is_separable_verb?: boolean | null
+          register?: Database["public"]["Enums"]["german_register"] | null
+          review_status?:
+            | Database["public"]["Enums"]["content_review_status"]
+            | null
+          separable_prefix?: string | null
+          shelf_id?: string | null
+          sort_order?: number | null
+        }
+        Update: {
+          arabic_translation?: string
+          audio_url?: string | null
+          created_at?: string | null
+          difficulty_level?: string | null
+          entry_type?: Database["public"]["Enums"]["german_entry_type"]
+          example_sentence_ar?: string | null
+          example_sentence_de?: string | null
+          gender?: Database["public"]["Enums"]["german_gender"] | null
+          generation_job_id?: string | null
+          german_text?: string
+          id?: string
+          ipa?: string | null
+          is_separable_verb?: boolean | null
+          register?: Database["public"]["Enums"]["german_register"] | null
+          review_status?:
+            | Database["public"]["Enums"]["content_review_status"]
+            | null
+          separable_prefix?: string | null
+          shelf_id?: string | null
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "german_club_entries_generation_job_id_fkey"
+            columns: ["generation_job_id"]
+            isOneToOne: false
+            referencedRelation: "content_generation_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "german_club_entries_shelf_id_fkey"
+            columns: ["shelf_id"]
+            isOneToOne: false
+            referencedRelation: "german_club_shelves"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      german_club_grammar_notes: {
+        Row: {
+          body_md: string
+          created_at: string | null
+          difficulty_level: string | null
+          id: string
+          related_shelf_ids: string[] | null
+          review_status:
+            | Database["public"]["Enums"]["content_review_status"]
+            | null
+          sort_order: number | null
+          title_ar: string
+          title_de: string | null
+        }
+        Insert: {
+          body_md: string
+          created_at?: string | null
+          difficulty_level?: string | null
+          id?: string
+          related_shelf_ids?: string[] | null
+          review_status?:
+            | Database["public"]["Enums"]["content_review_status"]
+            | null
+          sort_order?: number | null
+          title_ar: string
+          title_de?: string | null
+        }
+        Update: {
+          body_md?: string
+          created_at?: string | null
+          difficulty_level?: string | null
+          id?: string
+          related_shelf_ids?: string[] | null
+          review_status?:
+            | Database["public"]["Enums"]["content_review_status"]
+            | null
+          sort_order?: number | null
+          title_ar?: string
+          title_de?: string | null
+        }
+        Relationships: []
+      }
+      german_club_progress: {
+        Row: {
+          entry_id: string
+          is_mastered: boolean | null
+          last_seen_at: string | null
+          user_id: string
+        }
+        Insert: {
+          entry_id: string
+          is_mastered?: boolean | null
+          last_seen_at?: string | null
+          user_id: string
+        }
+        Update: {
+          entry_id?: string
+          is_mastered?: boolean | null
+          last_seen_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      german_club_shelves: {
+        Row: {
+          created_at: string | null
+          description_ar: string | null
+          icon: string | null
+          id: string
+          is_premium: boolean | null
+          situation_tags: string[] | null
+          slug: string
+          sort_order: number | null
+          target_entry_count: number | null
+          title_ar: string
+          title_de: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description_ar?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          situation_tags?: string[] | null
+          slug: string
+          sort_order?: number | null
+          target_entry_count?: number | null
+          title_ar: string
+          title_de?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description_ar?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          situation_tags?: string[] | null
+          slug?: string
+          sort_order?: number | null
+          target_entry_count?: number | null
+          title_ar?: string
+          title_de?: string | null
         }
         Relationships: []
       }
@@ -1097,6 +1367,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      model_performance_stats: {
+        Row: {
+          last_used_at: string | null
+          model_id: string
+          runs_count: number | null
+          shelf_id: string
+          total_accepted: number | null
+          total_generated: number | null
+        }
+        Insert: {
+          last_used_at?: string | null
+          model_id: string
+          runs_count?: number | null
+          shelf_id: string
+          total_accepted?: number | null
+          total_generated?: number | null
+        }
+        Update: {
+          last_used_at?: string | null
+          model_id?: string
+          runs_count?: number | null
+          shelf_id?: string
+          total_accepted?: number | null
+          total_generated?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "model_performance_stats_shelf_id_fkey"
+            columns: ["shelf_id"]
+            isOneToOne: false
+            referencedRelation: "german_club_shelves"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pkm_ai_generations: {
         Row: {
@@ -2169,6 +2474,12 @@ export type Database = {
       update_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
+      content_review_status: "ai_generated" | "reviewed" | "verified"
+      generation_job_status: "queued" | "running" | "completed" | "failed"
+      generation_mode: "model_capacity" | "fixed_count"
+      german_entry_type: "word" | "phrase" | "sentence" | "idiom"
+      german_gender: "der" | "die" | "das" | "plural" | "n_a"
+      german_register: "formal" | "neutral" | "informal" | "slang"
       journal_mood: "organic" | "analytical" | "balanced"
     }
     CompositeTypes: {
@@ -2297,6 +2608,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      content_review_status: ["ai_generated", "reviewed", "verified"],
+      generation_job_status: ["queued", "running", "completed", "failed"],
+      generation_mode: ["model_capacity", "fixed_count"],
+      german_entry_type: ["word", "phrase", "sentence", "idiom"],
+      german_gender: ["der", "die", "das", "plural", "n_a"],
+      german_register: ["formal", "neutral", "informal", "slang"],
       journal_mood: ["organic", "analytical", "balanced"],
     },
   },
