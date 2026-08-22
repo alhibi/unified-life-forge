@@ -136,7 +136,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
         <span className="mx-1.5 h-5 w-px bg-border/60" aria-hidden />
 
         {/* Live commitment streak — sits beside the identity cluster. */}
-        {user && <StreakFlameBadge variant="header" />}
+        {user && <StreakFlameBadge />}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

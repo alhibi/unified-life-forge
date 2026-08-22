@@ -3,14 +3,10 @@
  *
  * A hand-crafted SVG flame (not a stock glyph) whose heat grows with the
  * user's real unified streak: ember → spark → torch → inferno. The number
- * sits inside the flame's core so badge + count read as one object.
+ * sits inside the flame's core so flame + count read as one bare object:
+ * no chip, no box, no background — just fire and its number floating free.
  *
- * Variants:
- *  • 'header'  — compact, sits beside the avatar in the Portal top bar.
- *  • 'greeting'— larger editorial chip under the greeting line.
- *
- * The streak is computed once from the same activity matrix that powers the
- * profile engine (single source of truth), memoized per session.
+ * Single instance: rendered once in the Portal header, beside the avatar.
  */
 import { motion } from 'framer-motion';
 import { memo, useSyncExternalStore } from 'react';
@@ -170,26 +166,18 @@ const FlameMark = memo(function FlameMark({ tier, size, gradientId }: FlameMarkP
 /* ------------------------------------------------------------------ */
 
 export interface StreakFlameBadgeProps {
-  variant?: 'header' | 'greeting';
   /** Optional override for tests/storybook. */
   daysOverride?: number | null;
   onClick?: () => void;
 }
 
-function StreakFlameBadgeImpl({
-  variant = 'header',
-  daysOverride,
-  onClick,
-}: StreakFlameBadgeProps) {
+function StreakFlameBadgeImpl({ daysOverride, onClick }: StreakFlameBadgeProps) {
   const navigate = useNavigate();
   const liveDays = useUnifiedStreakDays();
   const days = daysOverride !== undefined && daysOverride !== null ? daysOverride : liveDays;
 
   const tier = flameTier(days ?? 0);
   const theme = TIER_THEMES[Math.min(tier, TIER_THEMES.length - 1)];
-  const gradientId = `streak-flame-${variant}`;
-
-  const isHeader = variant === 'header';
 
   const handleClick = () => {
     if (onClick) {
@@ -208,34 +196,28 @@ function StreakFlameBadgeImpl({
       onClick={handleClick}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.06 }}
-      whileTap={{ scale: 0.94 }}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.93 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       aria-label={`سلسلة الالتزام: ${days} ${days === 1 ? 'يوم' : 'أيام'} متتالية`}
       title={`سلسلة نشاطك المتواصل: ${days} ${days === 1 ? 'يوم' : 'أيام'}`}
       className={cn(
-        'group relative flex select-none items-center gap-1 outline-none',
+        'group relative flex select-none items-center outline-none',
         'focus-visible:ring-2 focus-visible:ring-ring rounded-full',
-        isHeader ? 'h-9 pe-2.5 ps-1' : 'h-11 pe-4 ps-1.5',
       )}
-      style={{
-        background: `linear-gradient(to top, ${theme.glow.replace(/[\d.]+\)$/, '0.10)')}, transparent 130%)`,
-        border: `1px solid ${theme.glow.replace(/[\d.]+\)$/, '0.25)')}`,
-        borderRadius: 999,
-      }}
     >
-      {/* Breathing outer glow */}
+      {/* Soft breathing halo directly behind the fire — no box, just light. */}
       <motion.span
         aria-hidden
-        className="pointer-events-none absolute -inset-1 rounded-full blur-md"
+        className="pointer-events-none absolute left-1 top-1/2 h-[34px] w-[52px] -translate-y-1/2 rounded-full blur-lg"
         style={{ background: theme.glow }}
         animate={{ opacity: theme.glowOpacity }}
         transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {/* The flame mark */}
+      {/* The flame mark itself */}
       <span className="relative">
-        <FlameMark tier={tier} size={isHeader ? 26 : 34} gradientId={gradientId} />
+        <FlameMark tier={tier} size={30} gradientId="streak-flame" />
       </span>
 
       {/* Count — tabular so it never jitters as it climbs */}
@@ -244,10 +226,7 @@ function StreakFlameBadgeImpl({
         initial={{ y: -6, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-        className={cn(
-          'relative font-black leading-none text-foreground',
-          isHeader ? 'text-[15px]' : 'text-xl',
-        )}
+        className="relative ps-0.5 text-[17px] font-black leading-none text-foreground"
         style={{
           fontVariantNumeric: 'tabular-nums',
           textShadow: tier >= 2 ? `0 0 12px ${theme.glow}` : undefined,

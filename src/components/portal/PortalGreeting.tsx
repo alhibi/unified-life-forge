@@ -7,10 +7,8 @@
  * survives is what the screen is actually for: who you are, what day it is,
  * and one quiet line of adab underneath — all on semantic tokens.
  */
-import { StreakFlameBadge } from '@/components/portal/StreakFlameBadge';
 import { formatHijriDate } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
-import { useAuth } from '@/hooks/useAuth';
 
 const WEEKDAY_FORMAT = new Intl.DateTimeFormat('ar', { weekday: 'long' });
 const DATE_FORMAT = new Intl.DateTimeFormat('ar', { day: 'numeric', month: 'long' });
@@ -41,7 +39,6 @@ function greetingFor(hour: number): string {
 
 export default function PortalGreeting({ username }: { username: string | null }) {
   const { hijri } = useLiveHijriDate();
-  const { user } = useAuth();
   const now = new Date();
   const hour = now.getHours();
   const slot = slotFor(hour);
@@ -52,15 +49,12 @@ export default function PortalGreeting({ username }: { username: string | null }
       <p className="arch-eyebrow">
         {WEEKDAY_FORMAT.format(now)} · {DATE_FORMAT.format(now)} · {formatHijriDate(hijri)}
       </p>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h2 className="text-hero font-normal leading-[1.15] tracking-[-0.01em] text-foreground">
-          {greetingFor(hour)}
-          {username && (
-            <span className="text-title font-normal text-muted-foreground">، {username}</span>
-          )}
-        </h2>
-        {user && <StreakFlameBadge variant="greeting" />}
-      </div>
+      <h2 className="text-hero font-normal leading-[1.15] tracking-[-0.01em] text-foreground">
+        {greetingFor(hour)}
+        {username && (
+          <span className="text-title font-normal text-muted-foreground">، {username}</span>
+        )}
+      </h2>
       <p className="max-w-[38ch] border-s border-primary/40 ps-3 font-amiri text-body leading-relaxed text-muted-foreground">
         {VERSES[slot]}
       </p>
