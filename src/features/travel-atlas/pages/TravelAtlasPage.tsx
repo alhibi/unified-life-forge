@@ -24,9 +24,13 @@ import {
   MoreVertical,
   Plus,
   Search,
+  Sparkles,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
+const AtlasScoutTab = lazy(() => import('../components/AtlasScoutTab'));
+
+import { createPlace } from '../api';
 import PassportPanel from '../components/PassportPanel';
 import PlaceFilterBar from '../components/PlaceFilterBar';
 import PlaceRow from '../components/PlaceRow';
@@ -36,12 +40,13 @@ import { useAtlas, useToggleFavorite } from '../hooks';
 import { downloadGeoJson } from '../lib/exportAtlas';
 import { DEFAULT_FILTERS, filterPlaces, hasActiveFilters } from '../lib/filtering';
 import type { CountrySummary } from '../lib/stats';
+import type { ScoutPlace } from '../scoutApi';
 import type { TravelPlace } from '../types';
 
 const WorldAtlasMap = lazy(() => import('../components/WorldAtlasMap'));
 const PlaceFormSheet = lazy(() => import('../components/PlaceFormSheet'));
 
-type AtlasTab = 'world' | 'places' | 'passport';
+type AtlasTab = 'world' | 'places' | 'passport' | 'scout';
 
 /**
  * The atlas entry point.
@@ -79,6 +84,43 @@ export default function TravelAtlasPage() {
     }
     downloadGeoJson(places, countries);
     toast.success('تم تصدير أطلسك بصيغة GeoJSON');
+  };
+
+  /** Promotes an AI-scouted dossier into a real atlas place. */
+  const promoteScoutedPlace = async (scouted: ScoutPlace): Promise<string> => {
+    const coords = scouted.coordinates;
+    if (!coords) {
+      throw new Error('لا إحداثيات لهذا المكان — احفظه يدوياً من النموذج');
+    }
+
+    // Find the containing catalog country (registry has a point lookup).
+    const { atlasCountryAt } = await import('../data/countryRegistry');
+    const host = atlasCountryAt([coords.lng, coords.lat]);
+    if (!host) throw new Error('تعذر تحديد الدولة — جرّب مكاناً آخر');
+
+    const created = await createPlace({
+      nameAr: scouted.nameAr || scouted.nameEn,
+      nameEn: scouted.nameEn,
+      category: (scouted.category as TravelPlace['category']) || 'other',
+      coordinates: [coords.lng, coords.lat],
+      city: scouted.city,
+      address: scouted.addressLine,
+      descriptionAr: [
+        scouted.descriptionAr,
+        scouted.atmosphereAr ? `الأجواء: ${scouted.atmosphereAr}` : null,
+        scouted.tipsAr ? `نصائح: ${scouted.tipsAr}` : null,
+        scouted.signatureDish ? `طبق مميز: ${scouted.signatureDish}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+      bestMonths: scouted.bestMonths,
+      visitStatus: 'wishlist',
+      priceLevel: scouted.priceLevel,
+      durationMinutes: scouted.durationMinutes,
+      tags: ['استكشاف ذكي', ...(scouted.vibe ? [scouted.vibe] : [])],
+      country: host,
+    });
+    return created.id;
   };
 
   return (
@@ -155,6 +197,10 @@ export default function TravelAtlasPage() {
         <TabsList className="mx-4 mt-3 shrink-0 self-start">
           <TabsTrigger value="world">الخريطة</TabsTrigger>
           <TabsTrigger value="places">الأماكن</TabsTrigger>
+          <TabsTrigger value="scout" className="gap-1">
+            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+            الاستكشاف الذكي
+          </TabsTrigger>
           <TabsTrigger value="passport">سجلّي</TabsTrigger>
         </TabsList>
 
@@ -274,6 +320,14 @@ export default function TravelAtlasPage() {
               </section>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="scout" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">
+          <div className="mx-auto w-full max-w-3xl pt-3">
+            <Suspense fallback={<div className="skeleton h-64 rounded-2xl" />}>
+              <AtlasScoutTab onPromoteToAtlas={promoteScoutedPlace} />
+            </Suspense>
+          </div>
         </TabsContent>
 
         <TabsContent value="passport" className="min-h-0 flex-1 overflow-y-auto px-4 pb-page">

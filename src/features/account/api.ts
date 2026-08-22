@@ -60,6 +60,9 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'podcast_prefs', ownerColumn: 'user_id', label: 'تفضيلات البودكاست' },
   { table: 'diwan_folders', ownerColumn: 'user_id', label: 'مجلدات الديوان' },
   { table: 'german_club_progress', ownerColumn: 'user_id', label: 'تقدم النادي الألماني' },
+  { table: 'atlas_watch_targets', ownerColumn: 'user_id', label: 'أماكن الاستكشاف المفضلة' },
+  { table: 'atlas_scout_runs', ownerColumn: 'user_id', label: 'مهام الاستكشاف الذكي' },
+  { table: 'atlas_scout_places', ownerColumn: 'user_id', label: 'نتائج الاستكشاف الذكي' },
   { table: 'premium_entitlements', ownerColumn: 'user_id', label: 'استحقاقات العضوية' },
 
   { table: 'mg_sources', ownerColumn: 'user_id', label: 'مصادر الهوامش' },
