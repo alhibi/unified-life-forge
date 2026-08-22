@@ -608,10 +608,19 @@ function LiveSunArc({
   dayLengthH: number;
   locale: string;
 }) {
-  const now = Date.now();
+  // The sun must MOVE: recompute progress every minute so the arc tracks the
+  // real clock instead of freezing at whatever time the page rendered at.
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNowTick(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const t0 = new Date(sunrise).getTime();
   const t1 = new Date(sunset).getTime();
-  const progress = Math.max(0, Math.min(1, (now - t0) / Math.max(1, t1 - t0)));
+  const progress = Math.max(0, Math.min(1, (nowTick - t0) / Math.max(1, t1 - t0)));
+  // Night: clamp to horizon edge nearest in time rather than floating mid-air.
+  const isNight = nowTick < t0 || nowTick > t1;
   const W = 320,
     H = 130,
     padX = 22,
@@ -650,14 +659,33 @@ function LiveSunArc({
             strokeWidth="1"
             strokeDasharray="2 3"
           />
-          <motion.g
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 220, damping: 18 }}
-          >
-            <circle cx={cx} cy={cy} r="14" fill="hsl(var(--primary))" fillOpacity="0.18" />
-            <circle cx={cx} cy={cy} r="6" fill="hsl(var(--primary))" />
-          </motion.g>
+          {isNight ? (
+            // Below-horizon marker: honest night state, no floating sun.
+            <motion.g
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <text
+                x={W / 2}
+                y={baseY - 14}
+                textAnchor="middle"
+                fontSize="13"
+                fill="hsl(var(--muted-foreground))"
+              >
+                {'الشمس تحت الأفق الآن'}
+              </text>
+            </motion.g>
+          ) : (
+            <motion.g
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', stiffness: 220, damping: 18 }}
+            >
+              <circle cx={cx} cy={cy} r="14" fill="hsl(var(--primary))" fillOpacity="0.18" />
+              <circle cx={cx} cy={cy} r="6" fill="hsl(var(--primary))" />
+            </motion.g>
+          )}
         </svg>
       </div>
       <div className="mt-2 grid grid-cols-3 gap-2 text-center" dir="ltr">
@@ -767,7 +795,13 @@ export default function Weather() {
 
   const hourly = forecast.hourly.slice(0, 24);
   const currentHour = hourly[0];
-  const CurrentIcon = iconForCode(currentHour?.weather_code ?? 0, currentHour?.is_day ?? true);
+  // Resolved description object (not a component factory) — avoids creating
+  // a component during render and keeps the glyph lookup pure.
+  const currentCondition = describeWeatherCode(
+    currentHour?.weather_code ?? 0,
+    currentHour?.is_day ?? true
+  );
+  const CurrentIcon = currentCondition.icon;
 
   const moonGlyph = useMemo(() => {
     const p = snapshot?.astronomical.moon_phase_name ?? 'new_moon';
@@ -859,8 +893,8 @@ export default function Weather() {
               className="mt-2 text-micro tracking-[0.15em] uppercase text-primary/90 font-bold tabular-nums"
               dir="ltr"
             >
-              {Math.round(snapshot.meta.location.elevation_m)} m · {activeLocation?.lat.toFixed(2)},{' '}
-              {activeLocation?.lng.toFixed(2)}
+              {Math.round(snapshot.meta.location.elevation_m)} m ·{' '}
+              {snapshot.meta.location.lat.toFixed(2)}, {snapshot.meta.location.lng.toFixed(2)}
             </p>
           </div>
           <button
@@ -875,6 +909,23 @@ export default function Weather() {
 
       {/* Main Container */}
       <main className="px-4 pt-5 space-y-6">
+        {/* Data freshness banner — accuracy means knowing the age of the reading */}
+        {(snapshot.meta.is_stale || snapshot.meta.data_age_minutes >= 20) && (
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-warning/10 border border-warning/30 text-mini">
+            <span className="text-foreground font-semibold">
+              {snapshot.meta.is_stale
+                ? `⚠️ البيانات متقادمة (${snapshot.meta.data_age_minutes} دقيقة) — يُنصح بالتحديث`
+                : `عمر القراءة ${snapshot.meta.data_age_minutes} دقيقة`}
+            </span>
+            <button
+              onClick={refresh}
+              className="shrink-0 px-3 py-1 rounded-lg bg-primary text-primary-foreground text-micro font-bold active:scale-95 transition-transform"
+            >
+              تحديث الآن
+            </button>
+          </div>
+        )}
+
         {/* City Search Module */}
         <CitySearch onSelectCity={handleCitySelect} />
 
@@ -934,8 +985,13 @@ export default function Weather() {
                         <span className="text-hero leading-[0.72] text-foreground tabular-nums font-extrabold">
                           {Math.round(snapshot.temperature.actual_c)}°
                         </span>
-                        <span className="mb-1 text-display leading-none text-primary/90 font-bold tabular-nums">
-                          /{Math.round(snapshot.temperature.apparent_c)}°
+                        <span className="mb-1 flex items-baseline gap-1 leading-none">
+                          <span className="text-display text-primary/90 font-bold tabular-nums">
+                            /{Math.round(snapshot.temperature.apparent_c)}°
+                          </span>
+                          <span className="text-micro font-bold uppercase tracking-[0.12em] text-primary/70">
+                            {'محسوسة'}
+                          </span>
                         </span>
                       </div>
                       <p className="mt-4 text-meta text-foreground/95 font-extrabold">
@@ -985,6 +1041,20 @@ export default function Weather() {
                       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                     />
                   </div>
+                  {/* Honest model spread: what the models individually said */}
+                  {snapshot.temperature.ensemble_range_c.max >
+                    snapshot.temperature.ensemble_range_c.min && (
+                    <p
+                      className="mt-2 text-micro text-muted-foreground tabular-nums"
+                      dir="ltr"
+                    >
+                      {'نطاق النماذج'} {Math.round(snapshot.temperature.ensemble_range_c.min)}°–
+                      {Math.round(snapshot.temperature.ensemble_range_c.max)}° ·{' '}
+                      {snapshot.meta.models_outlier.length > 0
+                        ? `استُبعد ${snapshot.meta.models_outlier.length} كشاذ`
+                        : 'لا نماذج شاذة'}
+                    </p>
+                  )}
                   <div className="mt-4 grid grid-cols-4 gap-2.5 text-center" dir="ltr">
                     {[
                       {
@@ -993,16 +1063,20 @@ export default function Weather() {
                         unit: 'hPa',
                       },
                       {
-                        label: 'ندى',
-                        value: `${Math.round(snapshot.temperature.dew_point_c)}`,
-                        unit: '°',
-                      },
-                      {
-                        label: 'انزعاج',
-                        value: snapshot.temperature.discomfort_index.toFixed(1),
+                        label: 'الاتجاه',
+                        value: snapshot.pressure.tendency_label,
                         unit: '',
                       },
-                      { label: 'أقصى UV', value: snapshot.solar.uv_max_today.toFixed(1), unit: '' },
+                      {
+                        label: 'أمطار ٦س',
+                        value: snapshot.precipitation.accumulation_6h_mm.toFixed(1),
+                        unit: 'mm',
+                      },
+                      {
+                        label: 'رطوبة مطلقة',
+                        value: snapshot.moisture.absolute_humidity_gm3.toFixed(1),
+                        unit: 'g/m³',
+                      },
                     ].map((m) => (
                       <div
                         key={m.label}
@@ -1045,7 +1119,7 @@ export default function Weather() {
                   value={Math.round(snapshot.moisture.relative_humidity_percent)}
                   unit="%"
                   pctValue={snapshot.moisture.relative_humidity_percent / 100}
-                  hint={`${'ندى'} ${Math.round(snapshot.temperature.dew_point_c)}°`}
+                  hint={`رطوبة نوعية ${Math.round(snapshot.moisture.specific_humidity_gkg)}g/kg`}
                   icon={<Droplets />}
                 />
                 <GaugeTile
@@ -1119,8 +1193,10 @@ export default function Weather() {
                 locale={locale}
               />
 
-              {/* Microclimatology and Derived scores */}
-              <Panel title={'المؤشرات الفيزيائية المشتقة'} sub={'علم الغلاف'}>
+              {/* Microclimatology and Derived scores — every metric here is
+                  unique across tabs; comfort lives on «الآن», cloud base on
+                  «الرياح والرادار». */}
+              <Panel title={'التربة والمناخ الدقيق'} sub={'طبقات الأرض'}>
                 <div className="grid grid-cols-2 gap-y-4 gap-x-4">
                   <Metric
                     label="VPD"
@@ -1128,18 +1204,31 @@ export default function Weather() {
                     unit="kPa"
                   />
                   <Metric
-                    label={'رطوبة مطلقة'}
-                    value={snapshot.moisture.absolute_humidity_gm3.toFixed(1)}
-                    unit="g/m³"
+                    label={'رطوبة التربة سطحية'}
+                    value={
+                      snapshot.moisture.soil_moisture_0_1cm_m3m3 !== null
+                        ? (snapshot.moisture.soil_moisture_0_1cm_m3m3 * 100).toFixed(0)
+                        : '—'
+                    }
+                    unit={snapshot.moisture.soil_moisture_0_1cm_m3m3 !== null ? '%' : ''}
                   />
                   <Metric
-                    label={'انزعاج'}
-                    value={snapshot.temperature.discomfort_index.toFixed(1)}
+                    label={'رطوبة التربة عمق'}
+                    value={
+                      snapshot.moisture.soil_moisture_3_9cm_m3m3 !== null
+                        ? (snapshot.moisture.soil_moisture_3_9cm_m3m3 * 100).toFixed(0)
+                        : '—'
+                    }
+                    unit={snapshot.moisture.soil_moisture_3_9cm_m3m3 !== null ? '%' : ''}
                   />
                   <Metric
-                    label={'قاعدة السحب'}
-                    value={snapshot.sky.cloud_base_m ?? '—'}
-                    unit={snapshot.sky.cloud_base_m ? 'م' : ''}
+                    label={'حرارة التربة'}
+                    value={
+                      snapshot.moisture.soil_temperature_6cm_c !== null
+                        ? Math.round(snapshot.moisture.soil_temperature_6cm_c)
+                        : '—'
+                    }
+                    unit={snapshot.moisture.soil_temperature_6cm_c !== null ? '°' : ''}
                   />
                   {snapshot.instability.cape_jkg !== null && (
                     <Metric
@@ -1197,9 +1286,8 @@ export default function Weather() {
                     unit="°"
                   />
                   <Metric
-                    label={'نقطة الندى'}
-                    value={Math.round(snapshot.temperature.dew_point_c)}
-                    unit="°"
+                    label={'انزعاج حراري'}
+                    value={snapshot.temperature.discomfort_index.toFixed(1)}
                   />
                   <Metric
                     label={'هبات الرياح'}
@@ -1264,7 +1352,11 @@ export default function Weather() {
                     hint={`${snapshot.solar.solar_azimuth_deg.toFixed(0)}°`}
                   />
                   <Metric label="GHI" value={Math.round(snapshot.solar.ghi_wm2)} unit="W/m²" />
-                  <Metric label={'أقصى UV'} value={snapshot.solar.uv_max_today.toFixed(1)} />
+                  <Metric
+                    label={'إشعاع مباشر DNI'}
+                    value={snapshot.solar.dni_wm2 !== null ? Math.round(snapshot.solar.dni_wm2) : '—'}
+                    unit={snapshot.solar.dni_wm2 !== null ? 'W/m²' : ''}
+                  />
                   <Metric
                     label={'القمر'}
                     value={`${moonGlyph} ${snapshot.astronomical.moon_illumination_percent.toFixed(0)}%`}
