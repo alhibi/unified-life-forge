@@ -19,15 +19,16 @@ import { AppProvider, useApp } from "@/contexts/AppContext";
 import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
 import { SystemEngineProvider, useSystemEngine } from "@/contexts/SystemEngineContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
-import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
 import { KeyboardProvider } from "@/features/keyboard";
+import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
 import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
+import { StreakGuardianRunner } from "@/features/profile/lib/streakGuardian";
 import { useAuth } from "@/hooks/useAuth";
 import { useAutoPrayerTheme } from "@/hooks/useAutoPrayerTheme";
-import { VisitTrackerRunner } from "@/hooks/useVisitTracker";
 import { useNavDirection } from "@/hooks/useNavDirection";
 import { usePredictivePrefetch } from "@/hooks/usePredictivePrefetch";
 import { usePresence } from "@/hooks/usePresence";
+import { VisitTrackerRunner } from "@/hooks/useVisitTracker";
 import { IconProvider } from "@/lib/icons";
 import { useInChatConversation } from "@/lib/inChatConversation";
 import {
@@ -815,6 +816,7 @@ const App = () => (
                 <PresenceRunner />
                 <NetworkConnectivityListener />
                 <VisitTrackerRunner />
+                <StreakGuardianRunner />
                 <NativeShell />
                 <EdgeSwipeBack />
                 <AnimatedRoutes />

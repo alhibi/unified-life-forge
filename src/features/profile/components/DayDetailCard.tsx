@@ -356,7 +356,7 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
                     return (
                       <span
                         key={s.category}
-                        className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-card border border-border/40 text-micro font-semibold text-foreground"
+                        className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/20 border border-border/40 text-micro font-semibold text-foreground"
                       >
                         <Icon className="w-3 h-3 text-primary" />
                         {getModuleLabelAr(s.category as never)}
@@ -393,7 +393,7 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
                         key={evt.id}
                         initial={{ opacity: 0, x: 8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="flex items-start justify-between gap-3 p-2.5 rounded-xl bg-card border border-border/30 hover:border-border/60 transition-colors"
+                        className="flex items-start justify-between gap-3 p-2.5 rounded-xl bg-muted/20 border border-border/30 hover:border-border/60 transition-colors"
                       >
                         <div className="flex items-start gap-2.5 min-w-0">
                           <div className="w-7 h-7 rounded-lg bg-muted/30 flex items-center justify-center shrink-0">
@@ -458,7 +458,7 @@ function NavButton({
       className={`w-8 h-8 rounded-xl flex items-center justify-center text-micro font-bold transition-all ${
         disabled
           ? 'bg-muted/20 text-muted-foreground/40 cursor-not-allowed'
-          : 'bg-card border border-border/40 text-foreground hover:bg-muted/40 active:scale-95'
+          : 'bg-muted/20 border border-border/40 text-foreground hover:bg-muted/40 active:scale-95'
       }`}
     >
       {children}
@@ -476,7 +476,7 @@ function StatCell({
   label: string;
 }) {
   return (
-    <div className="p-3 rounded-xl bg-card border border-border/40 text-center space-y-0.5">
+    <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
       <div className="flex justify-center">{icon}</div>
       <span className="block text-lead font-extrabold text-foreground tabular-nums">{value}</span>
       <span className="block text-micro text-muted-foreground leading-tight">{label}</span>

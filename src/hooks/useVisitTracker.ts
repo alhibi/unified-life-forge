@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { invalidateStreakStore } from '@/features/profile/lib/streakStore';
 import { recordAppVisit, seedHistoricalVisitsIfEmpty } from '@/features/profile/lib/visitTracker';
 
 /**
@@ -24,6 +25,9 @@ export function useVisitTracker() {
 
     recordAppVisit(currentPath, durationSecs);
     sessionStartTimeRef.current = now;
+    // A new visit may extend today's streak — refresh every live consumer.
+    invalidateStreakStore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 }
 

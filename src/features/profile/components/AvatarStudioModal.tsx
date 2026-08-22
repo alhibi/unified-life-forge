@@ -15,7 +15,6 @@ import {
   STUDIO_FRAMES,
   STUDIO_GRADIENTS,
   STUDIO_SEALS,
-  STUDIO_TEXTURES,
 } from '../lib/avatarStudioEngine';
 
 export interface AvatarStudioModalProps {
@@ -133,7 +132,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
             <div className="flex flex-col items-center justify-center p-6 surface-depth rounded-2xl relative overflow-hidden">
               <div className="relative w-36 h-36 rounded-2xl p-1 bg-card ring-2 ring-primary/30 shadow-2xl flex items-center justify-center group">
                 <img src={liveDataUri} alt="Studio Preview" className="w-full h-full object-contain rounded-xl" />
-                <div className="absolute top-2 end-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] font-extrabold text-primary border border-white/10">
+                <div className="absolute top-2 end-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[0.625rem] font-extrabold text-primary border border-white/10">
                   SVG 256px
                 </div>
               </div>
@@ -221,7 +220,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                         }`}
                       >
                         <span className="text-mini font-bold text-foreground">{arch.labelAr}</span>
-                        <span className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{arch.titleAr}</span>
+                        <span className="text-[0.6875rem] text-muted-foreground mt-0.5 line-clamp-1">{arch.titleAr}</span>
                       </button>
                     );
                   })}

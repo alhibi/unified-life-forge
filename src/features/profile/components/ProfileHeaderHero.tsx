@@ -2,12 +2,10 @@ import { motion } from 'framer-motion';
 import React from 'react';
 
 import BackButton from '@/components/BackButton';
+import { StreakFlameBadge } from '@/components/portal/StreakFlameBadge';
 import {
   Award,
-  Check,
   Copy,
-  Edit3,
-  ExternalLink,
   MapPin,
   Pencil,
   QrCode,
@@ -248,6 +246,9 @@ export const ProfileHeaderHero: React.FC<ProfileHeaderHeroProps> = ({
               عضو منذ {memberSinceDate}
             </span>
           )}
+
+          {/* The living flame — same single instance language as the portal */}
+          <StreakFlameBadge />
         </div>
       </div>
     </div>

@@ -160,21 +160,21 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
 
           {/* Stats cluster */}
           <div className="flex-1 grid grid-cols-3 gap-2">
-            <div className="p-3 rounded-xl bg-card border border-border/40 text-center space-y-0.5">
+            <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
               <Trophy className="w-4 h-4 mx-auto text-emerald-400" />
               <span className="block text-lead font-extrabold text-foreground tabular-nums">
                 {unified.longestStreakDays}
               </span>
               <span className="block text-micro text-muted-foreground">أطول سلسلة</span>
             </div>
-            <div className="p-3 rounded-xl bg-card border border-border/40 text-center space-y-0.5">
+            <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
               <Sparkles className="w-4 h-4 mx-auto text-primary" />
               <span className="block text-lead font-extrabold text-foreground tabular-nums">
                 {unified.activeDaysCount}
               </span>
               <span className="block text-micro text-muted-foreground">يوم نشط</span>
             </div>
-            <div className="p-3 rounded-xl bg-card border border-border/40 text-center space-y-0.5">
+            <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
               <Flame className={`w-4 h-4 mx-auto ${FLAME_GLOW[tier]}`} />
               <span className="block text-lead font-extrabold text-foreground tabular-nums">
                 {unified.totalContributions}
@@ -425,7 +425,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                         return (
                           <span
                             key={cat}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-card border border-border/40 text-micro font-semibold text-muted-foreground"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-muted/20 border border-border/40 text-micro font-semibold text-muted-foreground"
                           >
                             <Icon className="w-3 h-3 text-primary" />
                             {getModuleLabelAr(cat as never)} · {count}

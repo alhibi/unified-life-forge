@@ -1,21 +1,17 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
 import {
   Activity,
-  BookOpen,
   BrainCircuit,
   Calendar,
-  Check,
   ChevronDown,
   ChevronUp,
   Compass,
   Feather,
-  Filter,
   Flame,
   Globe,
   HeartHandshake,
-  Info,
   Languages,
   RotateCcw,
   Search,
@@ -23,19 +19,20 @@ import {
   TrendingUp,
 } from '@/lib/icons';
 
-import { DayDetailCard } from './DayDetailCard';
-import { ProfileStreakPanel } from './ProfileStreakPanel';
 import {
   calculate365DayContributions,
   calculateProfileActivitySummary,
 } from '../lib/activityAggregator';
-import { buildStreakSnapshot, type StreakSnapshot } from '../lib/streakEngine';
+import type { StreakSnapshot } from '../lib/streakEngine';
+import { useStreakSnapshot } from '../lib/streakStore';
 import {
   ActivityCategory,
   ContributionActivityEvent,
   DailyContribution,
   ProfileActivitySummary,
 } from '../types';
+import { DayDetailCard } from './DayDetailCard';
+import { ProfileStreakPanel } from './ProfileStreakPanel';
 
 export interface ProfileActivityMatrixTabProps {
   summary?: ProfileActivitySummary | null;
@@ -90,18 +87,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
     return calculate365DayContributions(selectedYear, selectedCategory);
   }, [selectedYear, selectedCategory]);
 
-  // Full-year unfiltered cells power the streak engine (never category-filtered)
-  const fullYearCells = useMemo(() => {
-    return calculate365DayContributions(selectedYear).dailyContributions;
-  }, [selectedYear]);
-
-  const streakSnapshot = useMemo<StreakSnapshot | null>(() => {
-    try {
-      return buildStreakSnapshot(fullYearCells);
-    } catch {
-      return null;
-    }
-  }, [fullYearCells]);
+  // Streak state comes from the central store — same instance the Portal
+  // badge and hero chip read, invalidated live when new activity lands.
+  // The matrix view always shows the trailing-365-day window streaks.
+  const storeSnapshot = useStreakSnapshot();
+  const streakSnapshot = storeSnapshot as StreakSnapshot | null;
 
   // Organize 52-week columns for matrix grid
   const weekColumns = useMemo(() => {
@@ -371,7 +361,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             {/* Matrix Body: Day of Week Labels + 52 Week Columns */}
             <div className="flex gap-1">
               {/* Day Labels Column */}
-              <div className="w-11 flex flex-col justify-between text-[10px] font-semibold text-muted-foreground pe-2 pt-0.5 shrink-0">
+              <div className="w-11 flex flex-col justify-between text-[0.625rem] font-semibold text-muted-foreground pe-2 pt-0.5 shrink-0">
                 <span>الأحد</span>
                 <span>الثلاثاء</span>
                 <span>الخميس</span>

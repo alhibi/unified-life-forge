@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AvatarStudioModal } from '@/features/profile/components/AvatarStudioModal';
@@ -15,36 +14,25 @@ import { ProfileCompletionCard } from '@/features/profile/components/ProfileComp
 import { ProfileHeaderHero } from '@/features/profile/components/ProfileHeaderHero';
 import { ProfileOverviewTab } from '@/features/profile/components/ProfileOverviewTab';
 import { COVER_THEME_OPTIONS, ProfilePrivacySettingsTab } from '@/features/profile/components/ProfilePrivacySettingsTab';
-import { APP_BADGES } from '@/features/profile/data/badges';
 import { calculateProfileActivitySummary } from '@/features/profile/lib/activityAggregator';
 import { generateInitialsAvatar } from '@/features/profile/lib/avatarStudioEngine';
 import { evaluateProfileBadges } from '@/features/profile/lib/badgeEvaluator';
+import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
 import { PrivacySettings, ProfileCompletionMetrics, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  Activity,
   AlertTriangle,
-  Award,
   Check,
   Eye,
   Github,
-  Globe,
-  ImagePlus,
-  Instagram,
   Linkedin,
   LogOut,
-  Pencil,
   Send,
-  Shield,
-  ShieldAlert,
   Sliders,
   Sparkles,
   Twitter,
-  User,
-  UserCircle,
   Wand2,
 } from '@/lib/icons';
-import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import { isUsernameAvailable, updateProfileAndAuth, uploadAvatar } from '@/services/supabase/profiles';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { EMOJI_AVATARS, getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
@@ -264,6 +252,9 @@ export default function ProfileEditPage() {
     return calculateProfileActivitySummary();
   }, []);
 
+  // Live unified streak from the central store (recomputes on activity)
+  const unifiedStreakDays = useUnifiedStreakDays();
+
   // Compute profile strength metrics
   const completionMetrics = useMemo<ProfileCompletionMetrics>(() => {
     const items = [
@@ -289,8 +280,12 @@ export default function ProfileEditPage() {
   }, [newUsername, displayName, selectedAvatar, bio, title, location, statusText, websiteUrl, socialLinks, featuredBadges]);
 
   const evaluatedBadges = useMemo(() => {
-    return evaluateProfileBadges(activitySummary, completionMetrics.percentage);
-  }, [activitySummary, completionMetrics.percentage]);
+    return evaluateProfileBadges(
+      activitySummary,
+      completionMetrics.percentage,
+      unifiedStreakDays ?? 0
+    );
+  }, [activitySummary, completionMetrics.percentage, unifiedStreakDays]);
 
   // Persist draft to localStorage when dirty
   useEffect(() => {
@@ -718,7 +713,7 @@ export default function ProfileEditPage() {
                     <Wand2 className="w-4 h-4" />
                     <div className="text-start">
                       <span className="block text-micro font-bold">استوديو المتجهات</span>
-                      <span className="block text-[10px] text-muted-foreground font-normal">Vector Avatar Studio</span>
+                      <span className="block text-[0.625rem] text-muted-foreground font-normal">Vector Avatar Studio</span>
                     </div>
                   </Button>
 
@@ -730,7 +725,7 @@ export default function ProfileEditPage() {
                     <Sliders className="w-4 h-4 text-indigo-400" />
                     <div className="text-start">
                       <span className="block text-micro font-bold">معالجة الصور</span>
-                      <span className="block text-[10px] text-muted-foreground font-normal">Photo Filter Studio</span>
+                      <span className="block text-[0.625rem] text-muted-foreground font-normal">Photo Filter Studio</span>
                     </div>
                   </Button>
 
@@ -746,7 +741,7 @@ export default function ProfileEditPage() {
                     <Sparkles className="w-4 h-4 text-amber-400" />
                     <div className="text-start">
                       <span className="block text-micro font-bold">رمز الحروف الأولى</span>
-                      <span className="block text-[10px] text-muted-foreground font-normal">Initials Stamp</span>
+                      <span className="block text-[0.625rem] text-muted-foreground font-normal">Initials Stamp</span>
                     </div>
                   </Button>
                 </div>

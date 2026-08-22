@@ -2,11 +2,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 import { toast } from 'sonner';
 
+import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
 import {
-  Check,
   Copy,
   Download,
-  QrCode,
   ShieldCheck,
   Sparkles,
   X,
@@ -35,13 +34,8 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
   location: _location,
   memberSinceDate: _memberSinceDate = '2026',
 }) => {
-  if (!isOpen) return null;
-
-  const serialNumber = `#ZE-${(username || 'anon').toUpperCase()}-2026`;
-  const isUrlAvatar = avatarUrl && avatarUrl.startsWith('http');
-  const isEmojiAvatar = avatarUrl && isEmojiAvatarValue(avatarUrl);
-
-  const profileUrl = `${window.location.origin}/u/${(username || 'user').toLowerCase()}`;
+  // All hooks BEFORE any early return (Rules of Hooks).
+  const unifiedStreakDays = useUnifiedStreakDays();
 
   // Generate 8x8 SVG matrix to represent a crisp vector QR code
   const qrMatrix = useMemo(() => {
@@ -50,7 +44,6 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
     for (let row = 0; row < 8; row++) {
       const rowArr = [];
       for (let col = 0; col < 8; col++) {
-        // Always place corners for standard QR pattern
         const isCorner =
           (row < 2 && col < 2) ||
           (row < 2 && col > 5) ||
@@ -62,6 +55,14 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
     }
     return grid;
   }, [username]);
+
+  if (!isOpen) return null;
+
+  const serialNumber = `#ZE-${(username || 'anon').toUpperCase()}-2026`;
+  const isUrlAvatar = avatarUrl && avatarUrl.startsWith('http');
+  const isEmojiAvatar = avatarUrl && isEmojiAvatarValue(avatarUrl);
+
+  const profileUrl = `${window.location.origin}/u/${(username || 'user').toLowerCase()}`;
 
   const handleCopyLink = async () => {
     try {
@@ -143,6 +144,11 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
           }
         });
       });
+
+      // Commitment streak line
+      ctx.fillStyle = '#F59E0B';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText(`🔥 سلسلة الالتزام: ${unifiedStreakDays ?? 0}`, 300, 640);
 
       // Footer
       ctx.fillStyle = '#71717A';
@@ -233,6 +239,19 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
                 </p>
                 <p className="text-micro font-semibold text-primary">{title || 'عضو نخبة الهدوء'}</p>
               </div>
+            </div>
+
+            {/* Commitment Streak Row — real unified streak */}
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
+              <span className="text-micro font-semibold text-muted-foreground">
+                سلسلة الالتزام المتواصلة
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-mini font-black text-amber-400 tabular-nums">
+                🔥 {unifiedStreakDays ?? 0}
+                <span className="text-micro font-bold text-muted-foreground">
+                  {(unifiedStreakDays ?? 0) === 1 ? 'يوم' : 'أيام'}
+                </span>
+              </span>
             </div>
 
             {/* Simulated Dynamic Vector QR Code & Barcode Ticket Edge */}

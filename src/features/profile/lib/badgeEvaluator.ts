@@ -1,5 +1,5 @@
 import { APP_BADGES } from '../data/badges';
-import { ProfileBadge, ProfileActivitySummary } from '../types';
+import { ProfileActivitySummary,ProfileBadge } from '../types';
 
 /**
  * Dynamically evaluates achievement badges against active user metrics.
@@ -7,7 +7,8 @@ import { ProfileBadge, ProfileActivitySummary } from '../types';
  */
 export function evaluateProfileBadges(
   summary: ProfileActivitySummary,
-  profileCompletionPercentage: number = 100
+  profileCompletionPercentage: number = 100,
+  unifiedStreakDays: number = 0
 ): ProfileBadge[] {
   return APP_BADGES.map((badge) => {
     let progress = badge.progressPercent;
@@ -106,6 +107,14 @@ export function evaluateProfileBadges(
       case 'badge_zen_elite': {
         progress = Math.min(100, profileCompletionPercentage);
         milestoneLabel = `${progress}% تخصيص واجهة`;
+        break;
+      }
+
+      case 'badge_eternal_flame': {
+        const target = 30;
+        const current = Math.min(target, unifiedStreakDays);
+        progress = Math.min(100, Math.round((current / target) * 100));
+        milestoneLabel = `${current}/${target} يوماً متتالياً`;
         break;
       }
 

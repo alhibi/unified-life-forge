@@ -193,4 +193,16 @@ export const APP_BADGES: ProfileBadge[] = [
     unlockedAt: '2026-03-02T12:00:00Z',
     milestoneLabelAr: 'تخصيص كامل',
   },
+  {
+    id: 'badge_eternal_flame',
+    titleAr: 'الشعلة الأبدية',
+    titleEn: 'Eternal Flame',
+    descriptionAr: 'الحفاظ على سلسلة نشاط متواصل لمدة 30 يوماً دون انقطاع عبر أي وحدات التطبيق',
+    category: 'spiritual',
+    iconName: 'Flame',
+    rarity: 'epic',
+    progressPercent: 0,
+    unlockedAt: null,
+    milestoneLabelAr: '0/30 يوماً',
+  },
 ];

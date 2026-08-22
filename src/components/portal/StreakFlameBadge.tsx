@@ -9,16 +9,10 @@
  * Single instance: rendered once in the Portal header, beside the avatar.
  */
 import { motion } from 'framer-motion';
-import { memo, useSyncExternalStore } from 'react';
+import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  calculate365DayContributions,
-} from '@/features/profile/lib/activityAggregator';
-import {
-  buildStreakSnapshot,
-  type StreakSnapshot,
-} from '@/features/profile/lib/streakEngine';
+import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -59,48 +53,6 @@ const TIER_THEMES: TierTheme[] = [
   // 5 · inferno — legendary
   { stops: ['#FEF9C3', '#FBBF24', '#7F1D1D'], glow: 'rgba(220,38,38,0.7)', glowOpacity: [0.55, 0.95], core: 'rgba(255,255,255,1)' },
 ];
-
-/* ------------------------------------------------------------------ */
-/* Hook — shared streak state (external store, computed once)          */
-/* ------------------------------------------------------------------ */
-
-let cachedSnapshot: StreakSnapshot | null = null;
-let snapshotComputed = false;
-
-const snapshotStore = {
-  subscribe(listener: () => void): () => void {
-    // The snapshot is immutable per page-load; re-subscribers get the
-    // current value instantly. Storage events could invalidate it, but
-    // activity data only changes through in-app actions that remount us.
-    window.addEventListener('streak-invalidate', listener);
-    return () => window.removeEventListener('streak-invalidate', listener);
-  },
-  getSnapshot(): StreakSnapshot | null {
-    if (!snapshotComputed) {
-      try {
-        const cells = calculate365DayContributions().dailyContributions;
-        cachedSnapshot = buildStreakSnapshot(cells);
-      } catch {
-        cachedSnapshot = null;
-      }
-      snapshotComputed = true;
-    }
-    return cachedSnapshot;
-  },
-  getServerSnapshot(): StreakSnapshot | null {
-    return null; // SSR: no localStorage — render nothing until hydration.
-  },
-};
-
-/** Reads (and caches) the unified streak without re-walking storage on every mount. */
-export function useUnifiedStreakDays(): number | null {
-  const snapshot = useSyncExternalStore(
-    snapshotStore.subscribe,
-    snapshotStore.getSnapshot,
-    snapshotStore.getServerSnapshot,
-  );
-  return snapshot?.unified.currentStreakDays ?? null;
-}
 
 /* ------------------------------------------------------------------ */
 /* The flame SVG                                                       */
@@ -226,7 +178,7 @@ function StreakFlameBadgeImpl({ daysOverride, onClick }: StreakFlameBadgeProps) 
         initial={{ y: -6, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-        className="relative ps-0.5 text-[17px] font-black leading-none text-foreground"
+        className="relative ps-0.5 text-[1.0625rem] font-black leading-none text-foreground"
         style={{
           fontVariantNumeric: 'tabular-nums',
           textShadow: tier >= 2 ? `0 0 12px ${theme.glow}` : undefined,
