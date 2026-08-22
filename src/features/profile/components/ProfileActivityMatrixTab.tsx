@@ -23,10 +23,13 @@ import {
   TrendingUp,
 } from '@/lib/icons';
 
+import { DayDetailCard } from './DayDetailCard';
+import { ProfileStreakPanel } from './ProfileStreakPanel';
 import {
   calculate365DayContributions,
   calculateProfileActivitySummary,
 } from '../lib/activityAggregator';
+import { buildStreakSnapshot, type StreakSnapshot } from '../lib/streakEngine';
 import {
   ActivityCategory,
   ContributionActivityEvent,
@@ -86,6 +89,19 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
   const yearlyData = useMemo(() => {
     return calculate365DayContributions(selectedYear, selectedCategory);
   }, [selectedYear, selectedCategory]);
+
+  // Full-year unfiltered cells power the streak engine (never category-filtered)
+  const fullYearCells = useMemo(() => {
+    return calculate365DayContributions(selectedYear).dailyContributions;
+  }, [selectedYear]);
+
+  const streakSnapshot = useMemo<StreakSnapshot | null>(() => {
+    try {
+      return buildStreakSnapshot(fullYearCells);
+    } catch {
+      return null;
+    }
+  }, [fullYearCells]);
 
   // Organize 52-week columns for matrix grid
   const weekColumns = useMemo(() => {
@@ -201,6 +217,25 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
   return (
     <div className="space-y-6" dir="rtl">
+      {/* 0. Deep Commitment Streaks Panel */}
+      {streakSnapshot && <ProfileStreakPanel snapshot={streakSnapshot} />}
+
+      {/* 0.5 Selected Day Detail Card */}
+      <AnimatePresence>
+        {selectedDay && yearlyData && (
+          <DayDetailCard
+            day={selectedDay}
+            allDays={yearlyData.dailyContributions}
+            events={yearlyData.activityEvents.filter(
+              (e) => e.dateISO === selectedDay.dateISO
+            )}
+            streakSnapshot={streakSnapshot}
+            onSelectDay={setSelectedDay}
+            onClearSelection={() => setSelectedDay(null)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* 1. Header Overview Metrics Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="surface-depth rounded-2xl p-4 space-y-1">

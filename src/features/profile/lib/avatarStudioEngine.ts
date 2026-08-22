@@ -532,3 +532,31 @@ export function isStudioAvatarUri(url?: string | null): boolean {
   if (!url) return false;
   return url.startsWith('data:image/svg+xml');
 }
+
+/**
+ * Generates a minimal, elegant initials avatar as an SVG Data URI.
+ * Used by the "رمز الحروف الأولى" quick action in ProfileEdit: renders the
+ * first letters of the display name over the studio's signature gradient,
+ * with a subtle inner ring — consistent with the rest of the studio output.
+ */
+export function generateInitialsAvatar(initials: string): string {
+  const safe = (initials || 'U').slice(0, 2).replace(/[<>&"]/g, '');
+  const primary = DEFAULT_STUDIO_PARAMS.primaryColor || '#E45B60';
+  const secondary = DEFAULT_STUDIO_PARAMS.secondaryColor || '#38BDF8';
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${primary}" />
+      <stop offset="100%" stop-color="${secondary}" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#bgG)" />
+  <circle cx="128" cy="128" r="112" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3" />
+  <text x="128" y="128" text-anchor="middle" dominant-baseline="central"
+    font-family="'Noto Kufi Arabic', 'Segoe UI', system-ui, sans-serif"
+    font-size="96" font-weight="700" fill="#FFFFFF">${safe}</text>
+</svg>`.replace(/\s+/g, ' ').trim();
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
