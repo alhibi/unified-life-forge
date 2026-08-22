@@ -20,7 +20,9 @@ import {
   Sunset,
 } from '@/lib/icons';
 
+import { AtmosphericInsightsPanel } from '../components/AtmosphericInsightsPanel';
 import CitySearch from '../components/CitySearch';
+import { MinutelyRainTimeline } from '../components/MinutelyRainTimeline';
 import EnsembleTrustPanel from '../components/EnsembleTrustPanel';
 import HourlyTrendPanel from '../components/HourlyTrendPanel';
 import MeteorologyConsole from '../components/MeteorologyConsole';
@@ -1099,11 +1101,17 @@ export default function Weather() {
                 </div>
               </section>
 
+              {/* Physics-based inference over the live snapshot */}
+              <AtmosphericInsightsPanel snapshot={snapshot} />
+
               {/* Provenance for the blended numbers above. */}
               <EnsembleTrustPanel snapshot={snapshot} />
 
               {/* Dynamic Hourly Ribbon Slider */}
               <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
+
+              {/* Minute-by-minute precip arrival (0-60 min layer) */}
+              <MinutelyRainTimeline entries={forecast.minutely} locale={locale} />
 
               {/* Standard Bento Tiles */}
               <div className="grid grid-cols-2 gap-3">
