@@ -46,6 +46,9 @@ export interface KeyboardSettings {
 }
 
 const STORAGE_KEY = 'smarthub:soft-keyboard-settings-v2';
+/** Exported so the traveling-settings sync layer can detect local ownership
+ *  without hard-coding the key a second time (single source of truth). */
+export const KEYBOARD_SETTINGS_STORAGE_KEY = STORAGE_KEY;
 /** Pre-v2 key: stored the raw 'app' | 'system' choice. Migrated on first read. */
 const LEGACY_PREFERENCE_KEY = 'smarthub:soft-keyboard';
 
@@ -118,6 +121,15 @@ export function writeKeyboardSettings(settings: Partial<KeyboardSettings>): Keyb
 /** Legacy support wrappers for backward compatibility */
 export function readSoftKeyboardPreference(): SoftKeyboardPreference {
   return readKeyboardSettings().preference;
+}
+
+/**
+ * Drops the in-memory fallback cache so a localStorage wipe (e.g. the
+ * sign-out sweep) isn't shadowed by stale cached settings for the rest
+ * of the session.
+ */
+export function clearKeyboardRuntimeCache(): void {
+  memorySettings = null;
 }
 
 export function writeSoftKeyboardPreference(value: SoftKeyboardPreference): void {

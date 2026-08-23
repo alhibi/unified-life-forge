@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 
+import { clearKeyboardRuntimeCache } from '@/features/keyboard/lib/preference';
 import { useAuth } from '@/hooks/useAuth';
 import { type Language, translate } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
@@ -81,6 +82,13 @@ import {
 } from '@/lib/motionRuntime';
 import { installPerfGovernor, setFrameBudgetHz } from '@/lib/perfMonitor';
 import { applyScrollProfile } from '@/lib/scrollRuntime';
+import {
+  applyTravelingSettings,
+  collectTravelingSettings,
+  parseTravelingSettings,
+  TRAVELING_SETTINGS_ROOT,
+  TRAVELING_SETTINGS_STORAGE_KEYS,
+} from '@/utils/settings/travelingSettings';
 import {
   applyThemeTokens,
   generateThemeTokens,
@@ -554,6 +562,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         /* storage may be blocked */
       }
     });
+    // Traveling feature settings (keyboard, weather, games, fitness,
+    // wellness) are preference residue too — a shared device must not
+    // leak the previous account's choices into the next session's sync.
+    TRAVELING_SETTINGS_STORAGE_KEYS.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch {
+        /* storage may be blocked */
+      }
+    });
+    clearKeyboardRuntimeCache();
 
     // Re-seed default values + state.
     setLanguageState('ar');
@@ -808,6 +827,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (s.tafsir_bookmarks)
           localStorage.setItem('tafsir-bookmarks', JSON.stringify(s.tafsir_bookmarks));
         if (s.browse) localStorage.setItem('browse:lastTab', s.browse);
+        // Feature-level traveling settings (keyboard, weather, games, fitness,
+        // wellness). Each section is validated independently — a corrupt
+        // section is dropped, never defaulted, and can't block the others.
+        if (s[TRAVELING_SETTINGS_ROOT] !== undefined) {
+          applyTravelingSettings(parseTravelingSettings(s[TRAVELING_SETTINGS_ROOT]));
+        }
         setTimeout(() => {
           syncRef.current = false;
         }, 100);
@@ -870,6 +895,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     settings.motionAmplitude = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
     settings.springBounce = parseFloat(localStorage.getItem('app-spring-bounce') || '0');
     settings.motionPreferences = readMotionPreferences();
+    // Feature-level traveling settings — one nested object under its own
+    // root key so it can't collide with the flat legacy keys. collect()
+    // speaks only for sections THIS device actually owns, so a device that
+    // never opened e.g. the keyboard page can't clobber one that did.
+    try {
+      const traveling = collectTravelingSettings();
+      if (Object.keys(traveling).length > 0) {
+        settings[TRAVELING_SETTINGS_ROOT] = traveling;
+      }
+    } catch {
+      /* noop */
+    }
     // Also save game stats and locations
     try {
       settings.gameStats = JSON.parse(localStorage.getItem('game-stats') || '{}');
