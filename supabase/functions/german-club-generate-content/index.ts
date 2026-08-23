@@ -35,8 +35,13 @@ serve(async (req) => {
 
   let body: {
     job_id?: string;
+    create_job?: boolean;
     shelf_id?: string;
     shelf_slug?: string;
+    shelf_title_ar?: string;
+    shelf_title_de?: string | null;
+    shelf_description_ar?: string | null;
+    shelf_target_count?: number;
     model_id?: string;
     mode?: "model_capacity" | "fixed_count";
     target_count?: number;
@@ -58,7 +63,6 @@ serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  const jobId = typeof body.job_id === "string" ? body.job_id.trim() : null;
   const modelId = typeof body.model_id === "string" && body.model_id.trim()
     ? body.model_id.trim()
     : "google/gemini-2.5-flash";
@@ -86,14 +90,63 @@ serve(async (req) => {
     if (shelfData) shelf = shelfData;
   }
 
+  // Shelf catalogue lives client-side; materialise the row on demand so generation
+  // can attach entries to a real shelf id.
+  if (!shelf && shelfIdInput && shelfSlug && typeof body.shelf_title_ar === "string") {
+    const { data: upserted, error: upsertErr } = await db
+      .from("german_club_shelves")
+      .upsert(
+        {
+          id: shelfIdInput,
+          slug: shelfSlug,
+          title_ar: body.shelf_title_ar,
+          title_de: body.shelf_title_de ?? null,
+          description_ar: body.shelf_description_ar ?? null,
+          target_entry_count: typeof body.shelf_target_count === "number" ? body.shelf_target_count : 25,
+        },
+        { onConflict: "slug" },
+      )
+      .select("id, title_ar, title_de, slug")
+      .maybeSingle();
+
+    if (upsertErr) console.error("Shelf upsert failed:", upsertErr.message);
+    if (upserted) shelf = upserted;
+  }
+
   if (contentType === "entry" && !shelf) {
     return jsonResponse({ error: "shelf_not_found" }, 404);
   }
 
-  // If a jobId is provided, kick off asynchronous background processing using waitUntil
+  // Job rows are service-role only: create them here so the client gets a real,
+  // realtime-subscribable job id back.
+  let jobId = typeof body.job_id === "string" && body.job_id.trim() ? body.job_id.trim() : null;
+
+  if (!jobId && body.create_job && shelf) {
+    const { data: createdJob, error: createErr } = await db
+      .from("content_generation_jobs")
+      .insert({
+        shelf_id: shelf.id,
+        model_id: modelId,
+        mode,
+        target_count: mode === "fixed_count" ? targetCount : null,
+        strictness,
+        register_targets: registerTargets,
+        status: "queued",
+        triggered_by: userId,
+      })
+      .select("*")
+      .single();
+
+    if (createErr || !createdJob) {
+      return jsonResponse({ error: `job_create_failed: ${createErr?.message ?? "unknown"}` }, 500);
+    }
+    jobId = createdJob.id as string;
+  }
+
+  // If a jobId exists, kick off asynchronous background processing using waitUntil
   if (jobId) {
     // 1. Immediately mark job as running
-    await db
+    const { data: runningJob } = await db
       .from("content_generation_jobs")
       .update({
         status: "running",
@@ -101,7 +154,9 @@ serve(async (req) => {
         strictness,
         register_targets: registerTargets,
       })
-      .eq("id", jobId);
+      .eq("id", jobId)
+      .select("*")
+      .maybeSingle();
 
     // 2. Schedule the background task
     const bgTask = processGenerationJob({
@@ -126,10 +181,13 @@ serve(async (req) => {
     return jsonResponse({
       success: true,
       job_id: jobId,
+      job: runningJob ?? null,
+      shelf_id: shelf?.id ?? null,
       status: "running",
       message: "Generation job started in background",
     });
   }
+
 
   // Synchronous path
   try {
