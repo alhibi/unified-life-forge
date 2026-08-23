@@ -89,6 +89,8 @@ import {
   TRAVELING_SETTINGS_ROOT,
   TRAVELING_SETTINGS_STORAGE_KEYS,
 } from '@/utils/settings/travelingSettings';
+import { parseUserSettingsRoot } from '@/utils/settings/userSettingsRoot';
+import type { Json } from '@/integrations/supabase/types';
 import {
   applyThemeTokens,
   generateThemeTokens,
@@ -258,6 +260,9 @@ interface AppContextType {
   setFontOpacity: (o: number) => void;
   prayerMadhab: PrayerMadhab;
   setPrayerMadhab: (m: PrayerMadhab) => void;
+  /** Reset every preference this provider owns to its default (also clears
+   *  traveling feature settings). UI-facing "restore defaults" action. */
+  resetToDefaults: () => void;
   midnightMode: number;
   setMidnightMode: (m: number) => void;
   latitudeAdjMethod: LatitudeAdjMethod;
@@ -677,7 +682,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .eq('user_id', authUser.id)
         .maybeSingle();
       if (data?.settings && typeof data.settings === 'object') {
-        const s = data.settings as Record<string, any>;
+        // Validated boundary — unknown keys stripped, known keys typed.
+        // Downstream resolve*/clamp* helpers stay as the second line of
+        // defense per value.
+        const validated = parseUserSettingsRoot(data.settings);
+        if (!validated) {
+          initialLoadDone.current = true;
+          return;
+        }
+        const s = validated;
         syncRef.current = true; // prevent save-back during load
         // Language is locked to 'ar' — ignore any cloud-persisted preference.
         localStorage.setItem('app-language', 'ar');
@@ -747,13 +760,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           s.appearancePreferences && typeof s.appearancePreferences === 'object'
             ? s.appearancePreferences
             : null;
-        const advancedSource = nestedAppearance ?? s;
+        // Legacy flat mirrors may carry the advanced prefs when the row was
+        // written before the versioned appearance document existed.
+        const legacyAdvancedSource: Record<string, unknown> = nestedAppearance ?? (s as unknown as Record<string, unknown>);
         const hasAdvancedPreferences =
           nestedAppearance !== null ||
-          Object.keys(ADVANCED_LEGACY_KEYS).some((key) => advancedSource[key] !== undefined);
+          Object.keys(ADVANCED_LEGACY_KEYS).some(
+            (key) => legacyAdvancedSource[key] !== undefined,
+          );
         if (hasAdvancedPreferences) {
           const advanced = sanitizeAdvancedInterfacePreferences(
-            advancedSource,
+            legacyAdvancedSource,
             advancedInterfacePreferencesRef.current,
           );
           advancedInterfacePreferencesRef.current = persistAdvancedInterfacePreferences(advanced);
@@ -879,22 +896,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       latitudeAdjMethod: localStorage.getItem('app-lat-adj-method') || 'angle',
       dstEnabled: localStorage.getItem('app-dst-enabled') !== 'false',
       calcMethod: localStorage.getItem('app-calc-method') ?? 'auto',
+      motionSpeed: parseFloat(localStorage.getItem('app-motion-speed') || '1'),
+      fpsCap: localStorage.getItem('app-fps-cap') || 'auto',
+      motionAmplitude: parseFloat(localStorage.getItem('app-motion-amplitude') || '1'),
+      springBounce: parseFloat(localStorage.getItem('app-spring-bounce') || '0'),
+      motionPreferences: readMotionPreferences(),
     };
-    settings.fontDisplayFamily = resolveFontId(localStorage.getItem('app-font-display'));
-    settings.typeRatio = resolveTypeRatio(localStorage.getItem('app-type-ratio'));
-    settings.typeLeading = resolveTypeLeading(localStorage.getItem('app-type-leading'));
-    settings.surfaceLift = resolveSurfaceLift(localStorage.getItem('app-surface-lift'));
-    settings.cornerSoftness = clampCornerSoftness(
-      parseFloat(localStorage.getItem('app-corner-softness') ?? '1'),
-    );
-    settings.uiDensity = resolveDensity(localStorage.getItem('app-ui-density'));
-    settings.contentWidth = resolveWidth(localStorage.getItem('app-content-width'));
-    settings.borderStrength = resolveBorder(localStorage.getItem('app-border-strength'));
-    settings.motionSpeed = parseFloat(localStorage.getItem('app-motion-speed') || '1');
-    settings.fpsCap = localStorage.getItem('app-fps-cap') || 'auto';
-    settings.motionAmplitude = parseFloat(localStorage.getItem('app-motion-amplitude') || '1');
-    settings.springBounce = parseFloat(localStorage.getItem('app-spring-bounce') || '0');
-    settings.motionPreferences = readMotionPreferences();
     // Feature-level traveling settings — one nested object under its own
     // root key so it can't collide with the flat legacy keys. collect()
     // speaks only for sections THIS device actually owns, so a device that
@@ -939,6 +946,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       /* noop */
     }
 
+    // Merge-on-write: atomic server-side jsonb merge so concurrent engines
+    // (app prefs here, chat/traveling subtrees elsewhere) compose instead of
+    // clobbering each other's keys.
+    const { error } = await supabase.rpc('merge_user_settings', {
+      p_patch: settings as Json,
+    });
+    if (!error) return;
+
+    // Pre-migration deployments without the RPC fall back to the legacy
+    // full-document upsert.
     await supabase
       .from('user_settings')
       .upsert({ user_id: user.id, settings: settings as any }, { onConflict: 'user_id' });
@@ -1963,6 +1980,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       resetInterfacePreferences,
       prayerMadhab,
       setPrayerMadhab,
+      resetToDefaults,
       midnightMode,
       setMidnightMode,
       latitudeAdjMethod,
@@ -2090,6 +2108,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       resetInterfacePreferences,
       prayerMadhab,
       setPrayerMadhab,
+      resetToDefaults,
       midnightMode,
       setMidnightMode,
       latitudeAdjMethod,
@@ -2133,6 +2152,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       applyMotionPreferences,
       applyMotionPreset,
       resetMotionPreferences,
+      resetToDefaults,
     ],
   );
 

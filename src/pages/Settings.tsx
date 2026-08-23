@@ -11,7 +11,6 @@ import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
 import { AccountPrivacySection } from '@/features/account';
 import { useAuth } from '@/hooks/useAuth';
-import { useDraftStorage } from '@/hooks/useDraftStorage';
 import { useNetworkToast } from '@/hooks/useNetworkStatus';
 import {
   BookOpen,
@@ -20,6 +19,7 @@ import {
   Keyboard,
   LogOut,
   Palette,
+  RotateCcw,
   SlidersHorizontal,
   UserCircle,
 } from '@/lib/icons';
@@ -29,21 +29,33 @@ import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 import packageJson from '../../package.json';
 
+const UI_DENSITY_LABELS: Record<string, string> = {
+  compact: 'مضغوط',
+  cozy: 'متوازن',
+  comfortable: 'مريح',
+};
+
+const MADHAB_LABELS: Record<string, string> = {
+  shafii: 'الشافعي',
+  hanafi: 'الحنفي',
+  hanbali: 'الحنبلي',
+  maliki: 'المالكي',
+};
+
+/** The motion row opens the motion platform — the speed multiplier is the
+ *  one value a passer-by can act on, so it doubles as the summary. */
+function motionSummary(speed: number): string {
+  return Math.abs(speed - 1) < 0.01 ? 'طبيعية' : `${speed}×`;
+}
+
 export default function SettingsPage() {
-  const { t, theme, language, prayerMadhab } = useApp();
+  const { t, theme, uiDensity, prayerMadhab, motionSpeed, resetToDefaults } = useApp();
   const { user, username, profile, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  // ── Deep-Polish: Draft storage for settings form ─────────────────────
-  // Auto-save settings form state for safety
-  const [settingsDraft, setSettingsDraft, hasSettingsDraft] = useDraftStorage(
-    `settings:draft:${user?.id || 'anon'}`,
-    { theme, language, prayerMadhab },
-    { ttl: 7 * 24 * 60 * 60 * 1000 }, // 7 days TTL
-  );
-
-  // ── Deep-Polish: Network toast notifications ─────────────────────────
+  // ── Network toast notifications ────────────────────────────────────────
   useNetworkToast({
     onlineMessage: 'تم استعادة الاتصال بالشبكة',
     offlineMessage: 'أنت غير متصل بالشبكة',
@@ -56,13 +68,16 @@ export default function SettingsPage() {
     navigate('/', { replace: true });
   };
 
+  const handleResetDefaults = () => {
+    setShowResetConfirm(false);
+    resetToDefaults();
+    toast.success('تمت استعادة الإعدادات الافتراضية');
+  };
+
   const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
-  const madhabLabel = {
-    shafii: 'الشافعي',
-    hanafi: 'الحنفي',
-    hanbali: 'الحنبلي',
-    maliki: 'المالكي',
-  }[prayerMadhab];
+  const densityLabel =
+    UI_DENSITY_LABELS[uiDensity as keyof typeof UI_DENSITY_LABELS] ?? '';
+  const madhabLabel = MADHAB_LABELS[prayerMadhab];
 
   // Grouped settings
   // Colour and type were two screens that could not show each other's effect.
@@ -79,21 +94,21 @@ export default function SettingsPage() {
       key: 'interface',
       icon: SlidersHorizontal,
       title: 'الواجهة والأبعاد',
-      value: '',
+      value: densityLabel,
       onClick: () => navigate('/settings/interface'),
     },
     {
       key: 'keyboard',
       icon: Keyboard,
       title: 'لوحة المفاتيح والإدخال',
-      value: '',
+      value: 'لوحة التطبيق',
       onClick: () => navigate('/settings/keyboard'),
     },
     {
       key: 'motion',
       icon: Gauge,
       title: 'الحركة والأداء',
-      value: '',
+      value: motionSummary(motionSpeed),
       onClick: () => navigate('/settings/motion'),
     },
   ];
@@ -145,13 +160,11 @@ export default function SettingsPage() {
     </motion.div>
   );
 
-  // Language picker retired — the app is Arabic-only.
-
   return (
     <PageShell className="pt-10">
       <SEO
         title="الإعدادات — SmartHub"
-        description="تخصيص اللغة، السمة، الخط، حساب الصلاة والملف الشخصي في SmartHub."
+        description="تخصيص المظهر والواجهة والحركة ولوحة المفاتيح وإعدادات الصلاة والخصوصية في SmartHub."
         path="/settings"
       />
       <motion.div
@@ -185,6 +198,7 @@ export default function SettingsPage() {
                 {/* Avatar */}
                 <button
                   onClick={() => navigate('/profile')}
+                  aria-label="تعديل الملف الشخصي"
                   className="relative active:scale-95 transition-transform"
                 >
                   <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
@@ -232,6 +246,7 @@ export default function SettingsPage() {
                 {/* Logout */}
                 <button
                   onClick={() => setShowLogoutConfirm(true)}
+                  aria-label="تسجيل الخروج"
                   className="flex items-center gap-1.5 text-destructive/80 active:scale-90 transition-transform p-2"
                 >
                   <LogOut className="w-4 h-4" />
@@ -269,6 +284,22 @@ export default function SettingsPage() {
 
         {/* Language picker retired — Arabic-only app. */}
 
+        {/* Restore defaults — every preference this provider owns returns to
+            its factory value (including traveling feature settings). */}
+        <motion.div variants={item}>
+          <AppCard className="p-0 overflow-hidden">
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              className="flex w-full items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors"
+            >
+              <RotateCcw className="w-[18px] h-[18px] text-muted-foreground stroke-[1.8]" />
+              <span className="text-meta font-medium text-foreground">
+                استعادة الإعدادات الافتراضية
+              </span>
+            </button>
+          </AppCard>
+        </motion.div>
+
         {/* Account & privacy — data export and erasure. Renders nothing
             when signed out or in local-only mode, where there is no
             server-side record to export or delete. */}
@@ -303,6 +334,31 @@ export default function SettingsPage() {
             className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
           >
             {'تسجيل خروج'}
+          </button>
+        </div>
+      </ResponsiveDrawer>
+
+      {/* Restore-defaults confirmation dialog */}
+      <ResponsiveDrawer
+        open={showResetConfirm}
+        onOpenChange={setShowResetConfirm}
+        title={'استعادة الإعدادات الافتراضية'}
+        description={
+          'ستعود جميع التفضيلات — المظهر والواجهة والحركة والصلاة وإعدادات الميزات — إلى قيمها الأصلية على هذا الجهاز.'
+        }
+      >
+        <div className="flex gap-3 pt-1">
+          <button
+            onClick={() => setShowResetConfirm(false)}
+            className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
+          >
+            {'إلغاء'}
+          </button>
+          <button
+            onClick={handleResetDefaults}
+            className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
+          >
+            {'استعادة'}
           </button>
         </div>
       </ResponsiveDrawer>

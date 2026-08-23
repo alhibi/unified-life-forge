@@ -207,7 +207,17 @@ export async function loadChatSettings(userId: string): Promise<ChatSettings> {
  */
 export async function saveChatSettings(userId: string, settings: ChatSettings): Promise<void> {
   if (!isSupabaseConfigured) return;
-  // Read-modify-write — coalesce into a single upsert.
+  // Merge-on-write via the merge_user_settings RPC: an ATOMIC server-side
+  // jsonb merge (`||`) into one shared settings document that several
+  // engines write concurrently. Read-modify-write here raced those writers
+  // and silently dropped the loser's subtree; merging composes both.
+  const { error } = await supabase.rpc('merge_user_settings', {
+    p_patch: { chat: settings as unknown as Record<string, unknown> },
+  });
+  if (!error) return;
+
+  // Older deployments may not have the migration applied yet — fall back to
+  // the legacy read-modify-write so the user's change is never dropped.
   const { data: row } = await supabase
     .from('user_settings')
     .select('settings')

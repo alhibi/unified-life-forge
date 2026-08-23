@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import ImageLightbox from '@/components/ImageLightbox';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,7 @@ export default function ChatDrawer({
   inline = false,
 }: ChatDrawerProps) {
   const chat = useChat({ open, onUnreadChange });
+  const navigate = useNavigate();
   const voice = useVoiceRecording({
     activeConvId: chat.activeConv?.id || null,
     userId: chat.user?.id,
@@ -526,6 +528,7 @@ export default function ChatDrawer({
             isLoading={chat.conversationsLoading && chat.conversations.length === 0}
             typingByConv={chat.typingByConv}
             onlineUserIds={chat.onlineUserIds}
+            onOpenSettings={() => navigate('/chat/settings')}
           />
         </>
       ) : /* ───────────────── NEW CHAT SCREEN ───────────────── */

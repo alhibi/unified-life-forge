@@ -2396,6 +2396,7 @@ export type Database = {
         Args: { fn_name: string; payload?: Json }
         Returns: number
       }
+      merge_user_settings: { Args: { p_patch: Json }; Returns: undefined }
       mark_message_read: { Args: { p_message_id: string }; Returns: undefined }
       mark_messages_delivered: {
         Args: { p_conversation_id: string }
