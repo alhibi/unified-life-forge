@@ -31,6 +31,21 @@ export interface WatchTarget {
   centerLat: number | null;
   isActive: boolean;
   createdAt: string | null;
+  /** v3 campaign badge — undefined on rows predating the migration. */
+  lastRunStatus?: 'idle' | 'running' | 'done' | 'failed' | 'empty';
+  lastAutoScoutAt?: string | null;
+}
+
+/** The editorial opening chapter written for a city target (v3). */
+export interface TargetBrief {
+  introAr: string;
+  characterAr: string | null;
+  foodSceneAr: string | null;
+  natureEscapeAr: string | null;
+  practicalAr: string | null;
+  whenToGo: string | null;
+  bestMonths: number[];
+  sources: string[];
 }
 
 export interface ScoutPlace {
@@ -115,6 +130,13 @@ const TargetRowSchema = z.object({
   center_lat: z.number().nullable(),
   is_active: z.boolean(),
   created_at: z.string().nullable(),
+  // v3 self-driving campaign state (rows written before the migration may
+  // lack the columns until they're next updated — treat as optional).
+  last_run_status: z
+    .enum(['idle', 'running', 'done', 'failed', 'empty'])
+    .optional()
+    .catch(undefined),
+  last_auto_scout_at: z.string().nullable().optional(),
 });
 type TargetRow = z.infer<typeof TargetRowSchema>;
 
@@ -162,6 +184,34 @@ function parseTarget(row: TargetRow): WatchTarget {
     centerLat: row.center_lat,
     isActive: row.is_active,
     createdAt: row.created_at,
+    lastRunStatus: row.last_run_status,
+    lastAutoScoutAt: row.last_auto_scout_at ?? null,
+  };
+}
+
+const BriefRowSchema = z.object({
+  intro_ar: z.string().min(1),
+  character_ar: z.string().nullable(),
+  food_scene_ar: z.string().nullable(),
+  nature_escape_ar: z.string().nullable(),
+  practical_ar: z.string().nullable(),
+  when_to_go: z.string().nullable(),
+  best_months: z.array(z.number()).nullable(),
+  sources: z.array(z.string()).nullable(),
+});
+
+function parseBriefRow(row: unknown): TargetBrief | null {
+  const parsed = BriefRowSchema.safeParse(row);
+  if (!parsed.success) return null;
+  return {
+    introAr: parsed.data.intro_ar,
+    characterAr: parsed.data.character_ar,
+    foodSceneAr: parsed.data.food_scene_ar,
+    natureEscapeAr: parsed.data.nature_escape_ar,
+    practicalAr: parsed.data.practical_ar,
+    whenToGo: parsed.data.when_to_go,
+    bestMonths: Array.isArray(parsed.data.best_months) ? parsed.data.best_months : [],
+    sources: Array.isArray(parsed.data.sources) ? parsed.data.sources : [],
   };
 }
 
@@ -397,6 +447,60 @@ export const atlasScoutApi = {
     }
 
     return { filed: state.filed, total: state.filed, failed: 0, duplicates: 0 };
+  },
+
+  /**
+   * v3 self-start: fires a background deep-scout campaign WITHOUT waiting
+   * for it. The edge function writes every result to the database as it
+   * goes and finalises the run even if this request is dropped, so the
+   * only thing that can fail here is the launch itself — which we report
+   * honestly via the returned boolean.
+   */
+  async runAutoScout(target: WatchTarget): Promise<boolean> {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) return false;
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15_000); // launch window
+      const res = await fetch(`${FN_BASE}/atlas-scout`, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          targetId: target.id,
+          query: target.query,
+          kind: target.kind,
+          displayNameAr: target.displayNameAr,
+          depth: 'deep',
+          auto: true,
+        }),
+      }).finally(() => clearTimeout(timer));
+
+      // Drain the stream in the background so the connection is released
+      // cleanly; events are ignored because the DB is the source of truth.
+      void res.body?.cancel().catch(() => undefined);
+
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+
+  /** The city's editorial brief, or null when none exists yet. */
+  async listBrief(targetId: string): Promise<TargetBrief | null> {
+    const { data, error } = await scoutFrom('atlas_target_briefs')
+      .select('*')
+      .eq('target_id', targetId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    return parseBriefRow(data);
   },
 
   /** Dismiss a dossier the user isn't interested in. */

@@ -25,9 +25,11 @@ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import {
   type DossierDraft,
   DEPTH_POLICY,
+  briefSystemPrompt,
   discoverySystemPrompt,
   dossierSystemPrompt,
   isFulfillable,
+  parseBrief,
   parseDiscoveryItem,
   parseDossier,
   placeKey,
@@ -62,6 +64,8 @@ interface RequestBody {
   kind?: string;
   displayNameAr?: string;
   depth?: ScoutDepth;
+  /** v3: fired automatically when the user added a favourite — no button. */
+  auto?: boolean;
 }
 
 /* ── Resilient fetch ─────────────────────────────────────────────────────── */
@@ -288,6 +292,7 @@ Deno.serve(async (req) => {
   const { targetId, query, kind } = body;
   const depth: ScoutDepth =
     body.depth === "standard" || body.depth === "deepest" ? body.depth : "deep";
+  const auto = body.auto === true;
   if (!targetId || !query || !["city", "country"].includes(kind ?? "")) {
     return new Response(JSON.stringify({ error: "معطيات ناقصة" }), {
       status: 400,
@@ -311,6 +316,16 @@ Deno.serve(async (req) => {
 
       // Runs must reach a terminal state even if the client disconnects —
       // every stage below writes its outcome to the DB before touching SSE.
+      const setTargetStatus = (status: string) =>
+        supabase
+          .from("atlas_watch_targets")
+          .update({
+            last_run_status: status,
+            ...(auto && status !== "running" ? { last_auto_scout_at: new Date().toISOString() } : {}),
+          })
+          .eq("id", targetId)
+          .eq("user_id", user.id);
+
       const finalize = async (patch: {
         status: "completed" | "failed";
         places_found?: number;
@@ -332,13 +347,22 @@ Deno.serve(async (req) => {
         // ── Create the run row ──────────────────────────────────────────
         const { data: runRow, error: runErr } = await supabase
           .from("atlas_scout_runs")
-          .insert({ target_id: targetId, user_id: user.id, status: "researching", model })
+          .insert({
+            target_id: targetId,
+            user_id: user.id,
+            status: "researching",
+            model,
+            trigger: auto ? "auto" : "manual",
+          })
           .select("id")
           .single();
         if (runErr || !runRow) {
           throw new Error(`فشل إنشاء مهمة الكشف: ${runErr?.message ?? "بلا تفاصيل"}`);
         }
         runId = runRow.id as string;
+
+        // Live badge on the target itself — survives the client leaving.
+        await setTargetStatus("running");
 
         // ── Stage 1: geocode (best effort) ──────────────────────────────
         sse("stage", { stage: "geocode", message: `نحدد موقع "${query}" على الخريطة…` });
@@ -416,6 +440,7 @@ Deno.serve(async (req) => {
             places_found: 0,
             error_message: `كل الأماكن (${candidates.length}) موجودة في سجلك مسبقاً`,
           });
+          await setTargetStatus("empty");
           sse("done", { filed: 0, total: candidates.length, failed: 0, duplicates: skippedDuplicates });
           safeClose(controller);
           return;
@@ -499,18 +524,70 @@ Deno.serve(async (req) => {
           if (!error) filed++;
         }
 
-        // ── Stage 5: finalize ───────────────────────────────────────────
         await finalize({
           status: filed > 0 ? "completed" : "failed",
           places_found: filed,
           error_message: filed === 0 ? "لم يُدوَّن أي مكان" : null,
         });
+        await setTargetStatus(filed > 0 ? "done" : "empty");
 
         sse("done", { filed, total: uniqueFresh.length, failed, duplicates: skippedDuplicates });
+
+        // ── Stage 6: city brief (v3) — the editorial opening chapter ────
+        // Cities only; a country brief would need a different scope. The
+        // run is already terminal, so a brief failure can never fail it.
+        if (kind === "city" && filed > 0) {
+          try {
+            sse("stage", { stage: "brief", message: `نكتب ملف ${body.displayNameAr ?? query} الافتتاحي…` });
+
+            const { data: existingBrief } = await supabase
+              .from("atlas_target_briefs")
+              .select("id")
+              .eq("target_id", targetId)
+              .maybeSingle();
+
+            if (!existingBrief) {
+              const placeNames = uniqueFresh
+                .slice(0, policy.places)
+                .map((c) => `- ${c.name_en}${c.name_ar ? ` (${c.name_ar})` : ""} [${c.category}]`)
+                .join("\n");
+              const raw = await callJSON<unknown>(
+                model,
+                briefSystemPrompt(),
+                `${scopeNote}\nأماكن دوّناها لهذه المدينة الآن:\n${placeNames}\nاكتب الملف الافتتاحي.`,
+                2400,
+                true,
+              );
+              const draft = parseBrief(raw);
+              if (draft) {
+                const { error } = await supabase.from("atlas_target_briefs").insert({
+                  user_id: user.id,
+                  target_id: targetId,
+                  intro_ar: draft.introAr,
+                  character_ar: draft.characterAr,
+                  food_scene_ar: draft.foodSceneAr,
+                  nature_escape_ar: draft.natureEscapeAr,
+                  practical_ar: draft.practicalAr,
+                  when_to_go: draft.whenToGo,
+                  best_months: draft.bestMonths,
+                  sources: draft.sources,
+                  model,
+                });
+                sse("brief", { ok: !error });
+              } else {
+                sse("brief", { ok: false });
+              }
+            }
+          } catch {
+            sse("brief", { ok: false }); // cosmetic stage only
+          }
+        }
+
         safeClose(controller);
       } catch (e) {
         const msg = e instanceof Error ? e.message : "خطأ غير متوقع";
         await finalize({ status: "failed", error_message: msg.slice(0, 300) });
+        await setTargetStatus("failed");
         sse("error", { message: msg });
         safeClose(controller);
       }

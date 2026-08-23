@@ -41,6 +41,7 @@ import {
   type ScoutPlace,
   type ScoutProgressEvent,
   type ScoutTargetKind,
+  type TargetBrief,
   type WatchTarget,
 } from '../scoutApi';
 
@@ -385,6 +386,68 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
   );
 }
 
+/* ── City brief — the editorial opening chapter (v3) ────────────────────── */
+
+function BriefSection({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="space-y-0.5">
+      <span className="text-micro font-bold uppercase tracking-[0.12em] text-primary/80">{label}</span>
+      <p className="text-micro leading-relaxed text-foreground/85">{text}</p>
+    </div>
+  );
+}
+
+function CityBriefCard({ brief, cityName }: { brief: TargetBrief; cityName: string }) {
+  const photo = usePlacePhoto(`${cityName} city skyline`);
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="surface-depth rounded-2xl p-4 space-y-3 relative overflow-hidden"
+    >
+      {!photo.url || (
+        <figure className="relative -mx-4 -mt-4 mb-1 h-40 overflow-hidden">
+          <img
+            src={photo.url}
+            alt={cityName}
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+          <figcaption className="absolute bottom-2 start-4 text-body font-extrabold text-foreground drop-shadow">
+            {cityName}
+          </figcaption>
+        </figure>
+      )}
+
+      <p className="text-mini leading-relaxed text-foreground/95">{brief.introAr}</p>
+
+      {brief.characterAr && <BriefSection label="شخصية المدينة" text={brief.characterAr} />}
+      {brief.foodSceneAr && <BriefSection label="مشهد الطعام" text={brief.foodSceneAr} />}
+      {brief.natureEscapeAr && <BriefSection label="هروب الطبيعة" text={brief.natureEscapeAr} />}
+      {brief.practicalAr && <BriefSection label="معلومات عملية" text={brief.practicalAr} />}
+
+      <div className="flex flex-wrap gap-1.5 pt-1">
+        {brief.whenToGo && (
+          <span className="px-2 py-0.5 rounded-lg bg-muted/20 border border-border/40 text-micro font-semibold text-foreground">
+            📅 {brief.whenToGo}
+          </span>
+        )}
+        {brief.bestMonths.length > 0 && (
+          <span className="px-2 py-0.5 rounded-lg bg-muted/20 border border-border/40 text-micro font-semibold text-foreground tabular-nums">
+            أفضل الأشهر: {[...brief.bestMonths].sort((a, b) => a - b).join('، ')}
+          </span>
+        )}
+      </div>
+
+      {brief.sources.length > 0 && (
+        <p className="text-micro text-muted-foreground/70">المصادر: {brief.sources.join(' · ')}</p>
+      )}
+    </motion.article>
+  );
+}
+
 /* ── The tab ─────────────────────────────────────────────────────────────── */
 
 export interface AtlasScoutTabProps {
@@ -396,6 +459,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
   const [targets, setTargets] = useState<WatchTarget[]>([]);
   const [activeTargetId, setActiveTargetId] = useState<string | null>(null);
   const [places, setPlaces] = useState<ScoutPlace[]>([]);
+  const [brief, setBrief] = useState<TargetBrief | null>(null);
   const [loadingTargets, setLoadingTargets] = useState(true);
   const [loadingPlaces, setLoadingPlaces] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -424,7 +488,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
     };
   }, []);
 
-  /* Load places when the active target changes */
+  /* Load places + the city brief when the active target changes */
   const reloadPlaces = useCallback(async (targetId: string) => {
     setLoadingPlaces(true);
     try {
@@ -436,23 +500,51 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
     }
   }, []);
 
+  const reloadBrief = useCallback(async (targetId: string) => {
+    try {
+      setBrief(await atlasScoutApi.listBrief(targetId));
+    } catch {
+      setBrief(null);
+    }
+  }, []);
+
   useEffect(() => {
     if (!activeTargetId) return;
     const timer = setTimeout(() => void reloadPlaces(activeTargetId), 0);
     return () => clearTimeout(timer);
   }, [activeTargetId, reloadPlaces]);
 
+  useEffect(() => {
+    if (!activeTargetId) return;
+    void reloadBrief(activeTargetId);
+  }, [activeTargetId, reloadBrief]);
+
   /* Abort any in-flight stream when leaving the tab */
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  /* Add a target — revived rows get their own welcoming message */
+  /* Add a target — v3: the deep campaign starts ITSELF in the background.
+   * No second button: choosing a favourite city IS the command to research
+   * it. The launch is fire-and-forget; the edge function finalises the run
+   * and writes every dossier even if the user closes the tab right after. */
   const handleAdd = async (input: PickedTargetInput) => {
     setAdding(true);
     try {
       const { target, revived } = await atlasScoutApi.addTarget(input);
-      setTargets((prev) => [target, ...prev.filter((x) => x.id !== target.id)]);
+
+      // Optimistic badge so the log shows motion immediately.
+      const withStatus = { ...target, lastRunStatus: 'running' as const };
+      setTargets((prev) => [withStatus, ...prev.filter((x) => x.id !== target.id)]);
       setActiveTargetId(target.id);
-      toast.success(revived ? `عاد «${target.displayNameAr}» إلى مفضلتك` : `أُضيف «${target.displayNameAr}» — جاهز للبحث العميق`);
+      toast.success(revived ? `عاد «${target.displayNameAr}» إلى مفضلتك` : `أُضيف «${target.displayNameAr}» — انطلق البحث العميق في الخلفية`);
+
+      void atlasScoutApi.runAutoScout(target).then((launched) => {
+        if (!launched) {
+          toast.error('تعذر إطلاق البحث الآلي — اضغط «ابحث بعمق» لاحقاً');
+          setTargets((prev) =>
+            prev.map((x) => (x.id === target.id ? { ...x, lastRunStatus: 'failed' as const } : x)),
+          );
+        }
+      });
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -579,8 +671,22 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
                     onKeyDown={(e) => e.key === 'Enter' && setActiveTargetId(t.id)}
                   >
                     <span className="min-w-0">
-                      <span className="block text-mini font-bold text-foreground truncate">
-                        {t.displayNameAr}
+                      <span className="flex items-center gap-1.5">
+                        <span className="block text-mini font-bold text-foreground truncate">
+                          {t.displayNameAr}
+                        </span>
+                        {t.lastRunStatus === 'running' && (
+                          <Loader2 className="w-3 h-3 animate-spin text-primary shrink-0" />
+                        )}
+                        {t.lastRunStatus === 'done' && (
+                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                        )}
+                        {(t.lastRunStatus === 'failed' || t.lastRunStatus === 'empty') && (
+                          <span
+                            className="w-2 h-2 rounded-full bg-amber-400/80 shrink-0"
+                            title={t.lastRunStatus === 'failed' ? 'فشل آخر بحث' : 'آخر بحث بلا نتائج جديدة'}
+                          />
+                        )}
                       </span>
                       <span className="block text-micro text-muted-foreground">
                         {t.kind === 'city' ? '🏙️ مدينة' : '🌍 دولة'}
@@ -685,7 +791,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
         </section>
       </aside>
 
-      {/* ── Main: dossiers ── */}
+      {/* ── Main: brief + dossiers ── */}
       <main className="min-w-0 space-y-4">
         {activeTarget && (
           <header className="flex items-center gap-2 text-muted-foreground">
@@ -697,6 +803,12 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
               </span>
             )}
           </header>
+        )}
+
+        {/* The editorial opening chapter — above the dossiers, like any
+            real guidebook. Appears once the auto-campaign writes it. */}
+        {brief && activeTarget && (
+          <CityBriefCard brief={brief} cityName={activeTarget.displayNameAr} />
         )}
 
         {loadingPlaces ? (

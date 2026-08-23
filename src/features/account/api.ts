@@ -63,6 +63,7 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'atlas_watch_targets', ownerColumn: 'user_id', label: 'أماكن الاستكشاف المفضلة' },
   { table: 'atlas_scout_runs', ownerColumn: 'user_id', label: 'مهام الاستكشاف الذكي' },
   { table: 'atlas_scout_places', ownerColumn: 'user_id', label: 'نتائج الاستكشاف الذكي' },
+  { table: 'atlas_target_briefs', ownerColumn: 'user_id', label: 'الملفات الافتتاحية للمدن' },
   { table: 'premium_entitlements', ownerColumn: 'user_id', label: 'استحقاقات العضوية' },
 
   { table: 'mg_sources', ownerColumn: 'user_id', label: 'مصادر الهوامش' },

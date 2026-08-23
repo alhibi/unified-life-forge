@@ -296,6 +296,7 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     links: [
       { path: '/travel-atlas', label: 'الخريطة', note: 'دولك على الكرة الأرضية', icon: Globe },
       { path: '/travel-atlas/trips', label: 'رحلاتي', note: 'الخطط يومًا بيوم', icon: Luggage },
+      { path: '/travel-atlas', label: 'المفضلات الذكية', note: 'بحث عميق تلقائي عن مدينتك', icon: Sparkles },
     ],
   },
   {

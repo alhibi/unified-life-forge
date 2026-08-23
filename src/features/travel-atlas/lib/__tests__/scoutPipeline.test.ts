@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  briefSystemPrompt,
   clampInt,
   cleanText,
   DEPTH_POLICY,
@@ -10,6 +11,7 @@ import {
   isScoutCategory,
   normalizeBestMonths,
   normalizeLngLat,
+  parseBrief,
   parseDiscoveryItem,
   parseDossier,
   placeKey,
@@ -215,5 +217,53 @@ describe('policy & prompts contract', () => {
     expect(scopeNoteFor('country', 'اليابان')).toContain('الدولة');
     expect(scopeNoteFor('city', 'برلين', 'Berlin')).toContain('Berlin');
     expect(scopeNoteFor('city', 'برلين')).toContain('المدينة');
+  });
+});
+
+describe('city brief (v3)', () => {
+  const VALID = {
+    intro_ar: 'برلين مدينة لا تنام، تتنفس التاريخ من كل زاوية.',
+    character_ar: 'مدينة الفن البديل والحرية.',
+    food_scene_ar: 'من الدونر إلى المطاعم النجمة.',
+    nature_escape_ar: 'تيرغارتن رئة المدينة الخضراء.',
+    practical_ar: 'استخدم مترو الأنفاق U-Bahn.',
+    when_to_go: 'الربيع والخريف أفضل الأوقات.',
+    best_months: [4, 5, 9, 13, 10],
+    sources: ['ويكيبيديا', 'زي برلين', ''],
+  };
+
+  it('accepts a full brief and normalises months and sources', () => {
+    const b = parseBrief(VALID);
+    expect(b).not.toBeNull();
+    expect(b?.introAr).toContain('برلين');
+    expect(b?.bestMonths).toEqual([4, 5, 9, 10]); // 13 dropped, sorted
+    expect(b?.sources).toEqual(['ويكيبيديا', 'زي برلين']); // empty dropped
+  });
+
+  it('returns null without an intro — a husk brief must not render', () => {
+    expect(parseBrief({ ...VALID, intro_ar: null })).toBeNull();
+    expect(parseBrief({ intro_ar: 'غير متوفر' })).toBeNull();
+    expect(parseBrief(null)).toBeNull();
+    expect(parseBrief('نص')).toBeNull();
+  });
+
+  it('optional sections may be absent without failing', () => {
+    const b = parseBrief({ intro_ar: 'مدينة جميلة' });
+    expect(b?.introAr).toBe('مدينة جميلة');
+    expect(b?.characterAr).toBeNull();
+    expect(b?.foodSceneAr).toBeNull();
+    expect(b?.bestMonths).toEqual([]);
+  });
+
+  it('brief prompt pins the exact JSON contract the parser reads', () => {
+    const p = briefSystemPrompt();
+    for (const field of ['intro_ar', 'character_ar', 'food_scene_ar', 'nature_escape_ar', 'practical_ar', 'when_to_go', 'best_months']) {
+      expect(p).toContain(field);
+    }
+  });
+
+  it('snake_case and camelCase both parse (models improvise)', () => {
+    expect(parseBrief({ introAr: 'نص' })?.introAr).toBe('نص');
+    expect(parseBrief({ intro_ar: 'نص' })?.introAr).toBe('نص');
   });
 });

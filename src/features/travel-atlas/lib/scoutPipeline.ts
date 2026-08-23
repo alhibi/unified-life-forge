@@ -235,3 +235,56 @@ export function scopeNoteFor(kind: 'city' | 'country', query: string, geoNameEn?
   const suffix = geoNameEn ? ` (${geoNameEn})` : '';
   return `المدينة: ${query}${suffix}. ركّز على أحيائها وضواحيها القريبة.`;
 }
+
+/* ── City brief (v3) — the editorial opening chapter ────────────────────── */
+
+export interface CityBriefDraft {
+  introAr: string;
+  characterAr: string | null;
+  foodSceneAr: string | null;
+  natureEscapeAr: string | null;
+  practicalAr: string | null;
+  whenToGo: string | null;
+  bestMonths: number[];
+  sources: string[];
+}
+
+/**
+ * Validates a model-written city brief. Returns null when the essential
+ * intro is missing — a brief without an opening paragraph cannot render.
+ */
+export function parseBrief(raw: unknown): CityBriefDraft | null {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+
+  const introAr = cleanText(o.intro_ar ?? o.introAr, 2000);
+  if (!introAr) return null;
+
+  const sourcesRaw = Array.isArray(o.sources) ? o.sources : [];
+  const sources = [
+    ...new Set(sourcesRaw.map((s) => cleanText(s, 120)).filter((s): s is string => s !== null)),
+  ].slice(0, 6);
+
+  return {
+    introAr,
+    characterAr: cleanText(o.character_ar ?? o.characterAr, 1600),
+    foodSceneAr: cleanText(o.food_scene_ar ?? o.foodSceneAr, 1600),
+    natureEscapeAr: cleanText(o.nature_escape_ar ?? o.natureEscapeAr, 1600),
+    practicalAr: cleanText(o.practical_ar ?? o.practicalAr, 1600),
+    whenToGo: cleanText(o.when_to_go ?? o.whenToGo, 400),
+    bestMonths: normalizeBestMonths(o.best_months ?? o.bestMonths),
+    sources,
+  };
+}
+
+export function briefSystemPrompt(): string {
+  return [
+    'أنت محرر أدلة سفر يكتب المقدمة الافتتاحية لملف مدينة. ستتلقى اسم المدينة وسياقها وقائمة بالأماكن التي دوّنها فريقك للتو.',
+    'مهمتك كتابة ملف تحريري غني بالعربية الفصحى المبسطة يجعل القارئ يشعر بالمدينة قبل زيارتها، مبني على معرفتك الحقيقية',
+    '(وسيُمنح بحث ويب عند توفره). لا تخترع حقائق؛ إن لم تكدس يقيناً من معلومة فاتركها. أخرج JSON فقط بالشكل:',
+    '{"intro_ar":"فقرة افتتاحية من ٤-٦ جمل: ما الذي تجعل هذه المدينة نفسها","character_ar":"٢-٤ جمل عن شخصية المدينة وإيقاع حياتها وأهلها",',
+    '"food_scene_ar":"٢-٤ جمل: ماذا تأكل هنا وما مشهد الطعام المحلي","nature_escape_ar":"٢-٣ جمل: أين تهرب الطبيعة والنزهات داخل المدينة أو قربها",',
+    '"practical_ar":"نصائح عملية: المواصلات، الحي الأفضل للإقامة، عادات يجب معرفتها","when_to_go":"جملة واحدة عن أفضل وقت للزيارة",',
+    '"best_months":[1..12],"sources":["ويكيبيديا","الموقع الرسمي للسياحة"...]}',
+  ].join('');
+}
