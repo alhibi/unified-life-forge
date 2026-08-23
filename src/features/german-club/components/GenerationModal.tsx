@@ -60,8 +60,10 @@ interface JobAcceptedEntryStub {
 
 interface GenerationModalProps {
   shelfId: string;
+  shelfSlug: string;
   shelfTitleAr: string;
   shelfTitleDe?: string | null;
+  shelfDescriptionAr?: string | null;
   currentEntryCount: number;
   targetCount?: number;
   isOpen: boolean;
@@ -72,12 +74,15 @@ type WizardStep = 'model_selection' | 'generation_options' | 'generating' | 'sum
 
 export const GenerationModal: React.FC<GenerationModalProps> = ({
   shelfId,
+  shelfSlug,
   shelfTitleAr,
   shelfTitleDe,
+  shelfDescriptionAr,
   currentEntryCount,
   targetCount = 25,
   isOpen,
   onClose,
+
 }) => {
   const navigate = useNavigate();
 
