@@ -167,8 +167,11 @@ export const GermanClubHome: React.FC = () => {
         {selectedFurnaceShelf && (
           <GenerationModal
             shelfId={selectedFurnaceShelf.id}
+            shelfSlug={selectedFurnaceShelf.slug}
             shelfTitleAr={selectedFurnaceShelf.title_ar}
             shelfTitleDe={selectedFurnaceShelf.title_de}
+            shelfDescriptionAr={selectedFurnaceShelf.description_ar}
+
             currentEntryCount={0}
             targetCount={selectedFurnaceShelf.target_entry_count || 25}
             isOpen={Boolean(selectedFurnaceShelf)}

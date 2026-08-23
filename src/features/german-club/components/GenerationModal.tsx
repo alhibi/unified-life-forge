@@ -60,8 +60,10 @@ interface JobAcceptedEntryStub {
 
 interface GenerationModalProps {
   shelfId: string;
+  shelfSlug: string;
   shelfTitleAr: string;
   shelfTitleDe?: string | null;
+  shelfDescriptionAr?: string | null;
   currentEntryCount: number;
   targetCount?: number;
   isOpen: boolean;
@@ -72,12 +74,15 @@ type WizardStep = 'model_selection' | 'generation_options' | 'generating' | 'sum
 
 export const GenerationModal: React.FC<GenerationModalProps> = ({
   shelfId,
+  shelfSlug,
   shelfTitleAr,
   shelfTitleDe,
+  shelfDescriptionAr,
   currentEntryCount,
   targetCount = 25,
   isOpen,
   onClose,
+
 }) => {
   const navigate = useNavigate();
 
@@ -348,36 +353,47 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     setRejections([]);
 
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const userId = userData.user?.id;
+      // The jobs table is server-write only, so the edge function creates the job
+      // row with the service role and hands the real id back for realtime tracking.
+      const { data: fnData, error: invokeErr } = await supabase.functions.invoke(
+        'german-club-generate-content',
+        {
+          body: {
+            create_job: true,
+            shelf_id: shelfId,
+            shelf_slug: shelfSlug,
+            shelf_title_ar: shelfTitleAr,
+            shelf_title_de: shelfTitleDe ?? null,
+            shelf_description_ar: shelfDescriptionAr ?? null,
+            shelf_target_count: targetCount,
+            model_id: selectedModel.id,
+            mode,
+            target_count: mode === 'fixed_count' ? fixedCount : undefined,
+            strictness,
+            register_targets: registerTargets,
+            situation_brief: shelfDescriptionAr ?? shelfTitleAr,
+          },
+        }
+      );
 
-      let createdJobId: string | null = null;
-      let createdJobRow: GenerationJobRow | null = null;
+      if (invokeErr) {
+        setJobError(`تعذر الاتصال بفرن التوليد: ${invokeErr.message}`);
+        return;
+      }
+      if (fnData?.error) {
+        setJobError(`خطأ من وحدة التوليد: ${fnData.error}`);
+        return;
+      }
 
-      // 1. Try creating content_generation_jobs row in database
-      const { data: newJob, error: createErr } = await supabase
-        .from('content_generation_jobs')
-        .insert({
-          shelf_id: shelfId,
-          model_id: selectedModel.id,
-          mode,
-          target_count: mode === 'fixed_count' ? fixedCount : null,
-          strictness,
-          register_targets: registerTargets,
-          status: 'queued',
-          triggered_by: userId,
-        })
-        .select('*')
-        .single();
+      const createdJobId: string | null = fnData?.job_id ?? null;
+      if (!createdJobId) {
+        setJobError('لم يُصدر الفرن رقم مهمة صالحًا.');
+        return;
+      }
 
-      if (!createErr && newJob) {
-        createdJobId = newJob.id;
-        createdJobRow = newJob as GenerationJobRow;
-      } else {
-        console.warn('Database insert into content_generation_jobs returned error/fallback:', createErr?.message);
-        // Fallback job ID if DB schema cache or table is temporarily unavailable
-        createdJobId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `job_${Date.now()}`;
-        createdJobRow = {
+      setJobId(createdJobId);
+      setJob(
+        (fnData.job as GenerationJobRow | null) ?? {
           id: createdJobId,
           shelf_id: shelfId,
           model_id: selectedModel.id,
@@ -391,37 +407,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           entries_discarded_low_quality: 0,
           estimated_cost_usd: liveEstimate.estCostUsd,
           error_message: null,
-        };
-      }
-
-      setJobId(createdJobId);
-      setJob(createdJobRow);
+        }
+      );
       setStep('generating');
-
-      // 2. Invoke Edge Function asynchronously
-      const { data: fnData, error: invokeErr } = await supabase.functions.invoke('german-club-generate-content', {
-        body: {
-          job_id: createdJobId,
-          shelf_id: shelfId,
-          model_id: selectedModel.id,
-          mode,
-          target_count: mode === 'fixed_count' ? fixedCount : undefined,
-          strictness,
-          register_targets: registerTargets,
-        },
-      });
-
-      if (invokeErr) {
-        setJobError(`تعذر الاتصال بفرن التوليد: ${invokeErr.message}`);
-      } else if (fnData?.error) {
-        setJobError(`خطأ من وحدة التوليد: ${fnData.error}`);
-      }
-    } catch (err: any) {
-      setJobError(err?.message || 'Error starting furnace generation job');
+    } catch (err) {
+      setJobError((err as Error)?.message || 'Error starting furnace generation job');
     } finally {
       setIsStartingJob(false);
     }
   };
+
 
   if (!isOpen) return null;
 

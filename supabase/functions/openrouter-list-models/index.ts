@@ -5,6 +5,7 @@ import { corsHeaders, jsonResponse, requireUser } from "../_shared/rss-utils.ts"
 interface OpenRouterModelRaw {
   id: string;
   name?: string;
+  created?: number;
   context_length?: number;
   pricing?: {
     prompt?: string | number;
@@ -28,6 +29,9 @@ interface ModelPerformanceInfo {
 interface FormattedModel {
   id: string;
   name: string;
+  created: number;
+  released_at: string | null;
+  is_recent: boolean;
   context_length: number;
   pricing: {
     prompt: number; // USD per 1M tokens
@@ -42,7 +46,6 @@ serve(async (req) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  // Admin authentication check
   const auth = await requireUser(req);
   if (!auth.ok) return jsonResponse({ error: auth.error }, auth.status);
   const userId = auth.userId;
@@ -72,7 +75,7 @@ serve(async (req) => {
   }
 
   // Fetch model performance stats from Supabase DB
-  let statsByModel: Record<string, {
+  const statsByModel: Record<string, {
     shelfStats?: { generated: number; accepted: number };
     overallStats: { generated: number; accepted: number };
   }> = {};
@@ -80,7 +83,7 @@ serve(async (req) => {
   try {
     const db = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
     const { data: statsRows } = await db.from("model_performance_stats").select("*");
@@ -125,15 +128,16 @@ serve(async (req) => {
 
     // Filter to text/chat capable models only
     const textModels: FormattedModel[] = [];
+    const recentCutoffMs = Date.now() - 1000 * 60 * 60 * 24 * 240;
 
     for (const model of rawModels) {
       const modality = model.architecture?.modality || "";
-      const inputMods = model.architecture?.input_modalities || [];
       const outputMods = model.architecture?.output_modalities || [];
 
       // Exclude non-text, embedding, or pure image generation models
       const isEmbedding = model.id.includes("embed") || modality.includes("embedding");
-      const isImageOnly = modality.includes("image->image") || (outputMods.length === 1 && outputMods[0] === "image");
+      const isImageOnly = modality.includes("image->image") ||
+        (outputMods.length === 1 && outputMods[0] === "image");
 
       if (isEmbedding || isImageOnly) {
         continue;
@@ -167,9 +171,15 @@ serve(async (req) => {
         }
       }
 
+      const createdTs = typeof model.created === "number" ? model.created : 0;
+      const createdMs = createdTs > 0 ? createdTs * 1000 : 0;
+
       const formatted: FormattedModel = {
         id: model.id,
         name: model.name || model.id,
+        created: createdTs,
+        released_at: createdMs ? new Date(createdMs).toISOString() : null,
+        is_recent: createdMs > recentCutoffMs,
         context_length: model.context_length || 4096,
         pricing: {
           prompt: Math.round(promptPer1M * 1000) / 1000,
@@ -189,16 +199,9 @@ serve(async (req) => {
       textModels.push(formatted);
     }
 
-    // Sort models with popular text models near top
+    // Newest releases first — the furnace must surface current-generation models.
     textModels.sort((a, b) => {
-      const priorityPrefixes = ["anthropic/", "openai/", "google/", "deepseek/", "qwen/", "meta-llama/"];
-      const aIndex = priorityPrefixes.findIndex((p) => a.id.startsWith(p));
-      const bIndex = priorityPrefixes.findIndex((p) => b.id.startsWith(p));
-
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-      if (aIndex !== -1) return -1;
-      if (bIndex !== -1) return 1;
-
+      if (b.created !== a.created) return b.created - a.created;
       return a.id.localeCompare(b.id);
     });
 

@@ -234,8 +234,11 @@ export const ShelfDetail: React.FC = () => {
         {currentShelf && (
           <GenerationModal
             shelfId={currentShelf.id}
+            shelfSlug={currentShelf.slug}
             shelfTitleAr={currentShelf.title_ar}
             shelfTitleDe={currentShelf.title_de}
+            shelfDescriptionAr={currentShelf.description_ar}
+
             currentEntryCount={entries.length}
             targetCount={currentShelf.target_entry_count || 25}
             isOpen={isGenerationModalOpen}

@@ -13213,38 +13213,33 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
     void get().fetchMasteredEntries();
 
     try {
-      const isEntitled = await get().checkEntitlement();
+      await get().checkEntitlement();
       const { data, error } = await supabase
         .from('german_club_entries')
         .select('*')
         .eq('shelf_id', activeShelf?.id || '')
-        .in('review_status', ['reviewed', 'verified'])
+        .in('review_status', ['ai_generated', 'reviewed', 'verified'])
         .order('sort_order', { ascending: true });
 
-      if (error || !data || data.length === 0) {
-        const local = LOCAL_ENTRIES_FALLBACK[shelfSlug] || [];
-        const processed = local.map((e) => ({
-          ...e,
-          locked: false,
-        }));
-        set({
-          currentShelf: activeShelf,
-          entries: processed,
-          isLoadingEntries: false,
-        });
-        return;
-      }
+      const remote = error || !data ? [] : (data as GermanEntry[]);
+      const local = LOCAL_ENTRIES_FALLBACK[shelfSlug] || [];
 
-      const processed = (data as GermanEntry[]).map((e) => ({
-        ...e,
-        locked: false,
-      }));
+      // Merge curated local seeds with freshly generated remote rows, de-duped by German text.
+      const seen = new Set<string>();
+      const merged: GermanEntry[] = [];
+      for (const e of [...local, ...remote]) {
+        const key = (e.german_text || '').trim().toLowerCase();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        merged.push({ ...e, locked: false });
+      }
 
       set({
         currentShelf: activeShelf,
-        entries: processed,
+        entries: merged,
         isLoadingEntries: false,
       });
+
     } catch {
       const local = LOCAL_ENTRIES_FALLBACK[shelfSlug] || [];
       set({
