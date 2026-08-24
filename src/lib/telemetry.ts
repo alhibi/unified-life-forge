@@ -27,8 +27,8 @@
  *   transport, not after.
  */
 
-import { scrubVerboseDetails } from '@/lib/scrub';
 import { onCircuitChange } from '@/lib/circuitBreaker';
+import { scrubVerboseDetails } from '@/lib/scrub';
 
 export type TelemetryKind =
   | 'UncaughtError'

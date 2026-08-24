@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+
 import { ArrowLeft, Check, Sparkles, Volume2 } from '@/lib/icons';
-import { GenderDot } from './GenderDot';
+
 import { GERMAN_CLUB_TOKENS, GermanEntry, REGISTER_LABELS_AR } from '../types';
+import { GenderDot } from './GenderDot';
 
 interface EntryCardProps {
   entry: GermanEntry;
@@ -39,7 +41,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, initialMastered = f
 
   // Separable Verb split calculation
   let baseVerb = entry.german_text;
-  let prefix = entry.separable_prefix || '';
+  const prefix = entry.separable_prefix || '';
 
   if (entry.is_separable_verb && prefix && baseVerb.toLowerCase().startsWith(prefix.toLowerCase())) {
     baseVerb = baseVerb.slice(prefix.length);

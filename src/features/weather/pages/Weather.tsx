@@ -1,14 +1,12 @@
 import './weather-theme.css';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import BackButton from '@/components/BackButton';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { useWeatherLocation } from '../context/WeatherLocationContext';
 import {
-  ChevronDown,
   Cloud,
   Droplets,
   Eye,
@@ -17,48 +15,40 @@ import {
   Settings,
   Sliders,
   Sun,
-  Sunrise,
-  Sunset,
 } from '@/lib/icons';
 
-import { AtmosphericInsightsPanel } from '../components/AtmosphericInsightsPanel';
-import CitySearch from '../components/CitySearch';
-import { MinutelyRainTimeline } from '../components/MinutelyRainTimeline';
-import { EnsembleTrustPanel } from '../components/EnsembleTrustPanel';
-import MeteorologyConsole from '../components/MeteorologyConsole';
-import MicroMap from '../components/MicroMap';
-import RadarMap from '../components/RadarMap';
-import WeatherPlanner from '../components/WeatherPlanner';
-import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
-import { useWeather } from '../hooks/useWeather';
-import { useWeatherForecast } from '../hooks/useWeatherForecast';
-import { describeWeatherCode, labelForWeatherCode } from '../lib/conditions';
-import {
-  aqiAdvice,
-  aqiCategoryLabel,
-  beaufortLabel,
-  cloudTypeLabel,
-  comfortLabel,
-  compassLabel,
-  uvCategoryLabel,
-} from '../lib/vocabulary';
-import { timeLabel } from '../lib/utils';
-
 // Import new extracted components
-import { AmbientBackdrop } from '../components/AmbientBackdrop';
 import { AQIGauge } from '../components/AQIGauge';
 import { Astronomics } from '../components/Astronomics';
-import { DailyRangeStrip } from '../components/DailyRangeStrip';
+import { AtmosphericInsightsPanel } from '../components/AtmosphericInsightsPanel';
+import CitySearch from '../components/CitySearch';
+import { EnsembleTrustPanel } from '../components/EnsembleTrustPanel';
 import { ForecastTab } from '../components/ForecastTab';
 import { HourlyRibbon } from '../components/HourlyRibbon';
 import { LiveSunArc } from '../components/LiveSunArc';
+import MeteorologyConsole from '../components/MeteorologyConsole';
+import MicroMap from '../components/MicroMap';
+import { MinutelyRainTimeline } from '../components/MinutelyRainTimeline';
 import { PhysicalMeasurements } from '../components/PhysicalMeasurements';
+import RadarMap from '../components/RadarMap';
 import { SoilAndMicroclimate } from '../components/SoilAndMicroclimate';
 import { SourceHealthPanel } from '../components/SourceHealthPanel';
 import { WeatherHero } from '../components/WeatherHero';
-import { WindCompass } from '../components/WindCompass';
 // Import standardized panels from WeatherPanels
-import { WeatherPanel, Metric as PanelMetric, GaugeTile } from '../components/WeatherPanels';
+import { GaugeTile } from '../components/WeatherPanels';
+import WeatherPlanner from '../components/WeatherPlanner';
+import { WindCompass } from '../components/WindCompass';
+import { useWeatherLocation } from '../context/WeatherLocationContext';
+import { useWeather } from '../hooks/useWeather';
+import { useWeatherForecast } from '../hooks/useWeatherForecast';
+import { describeWeatherCode } from '../lib/conditions';
+import {
+  aqiAdvice,
+  beaufortLabel,
+  cloudTypeLabel,
+  compassLabel,
+  uvCategoryLabel,
+} from '../lib/vocabulary';
 
 // Weather-code vocabulary lives in ../lib/conditions — the page used to carry
 // its own copy of both the glyph map and the Arabic labels, which drifted from

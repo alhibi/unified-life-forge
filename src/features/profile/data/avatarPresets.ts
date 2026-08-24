@@ -1,7 +1,6 @@
 import {
   AvatarStudioParams,
   generateAvatarDataUri,
-  STUDIO_ARCHETYPES,
 } from '../lib/avatarStudioEngine';
 
 export interface AvatarPreset {

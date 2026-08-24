@@ -1,9 +1,9 @@
-import { Loader2, ShieldCheck } from '@/lib/icons';
 import { useEffect, useState } from "react";
 import { useNavigate,useSearchParams } from "react-router-dom";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2, ShieldCheck } from '@/lib/icons';
 
 type AuthorizationDetails = {
   client?: { name?: string; client_uri?: string; logo_uri?: string };

@@ -23,10 +23,10 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 import {
-  type DossierDraft,
-  DEPTH_POLICY,
   briefSystemPrompt,
+  DEPTH_POLICY,
   discoverySystemPrompt,
+  type DossierDraft,
   dossierSystemPrompt,
   isFulfillable,
   parseBrief,

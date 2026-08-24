@@ -2,8 +2,9 @@ import React from 'react';
 
 import { AppCard } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+
+import { CHAIN_LABELS, type ChainId, type NormalizedPair } from '../types';
 import PriceChart from './PriceChart';
-import { type ChainId, CHAIN_LABELS, type NormalizedPair } from '../types';
 
 interface TokenDetailDrawerProps {
   open: boolean;

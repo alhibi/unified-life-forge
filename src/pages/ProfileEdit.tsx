@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AvatarStudioModal } from '@/features/profile/components/AvatarStudioModal';
+import { BadgeTelemetryPanel } from '@/features/profile/components/BadgeTelemetryPanel';
 import { DigitalIdentityPassModal } from '@/features/profile/components/DigitalIdentityPassModal';
 import { PhotoStudioModal } from '@/features/profile/components/PhotoStudioModal';
 import { ProfileActivityMatrixTab } from '@/features/profile/components/ProfileActivityMatrixTab';
@@ -15,14 +16,13 @@ import { ProfileHeaderHero } from '@/features/profile/components/ProfileHeaderHe
 import { ProfileInsightsPanel } from '@/features/profile/components/ProfileInsightsPanel';
 import { ProfileOverviewTab } from '@/features/profile/components/ProfileOverviewTab';
 import { ProfilePrivacySettingsTab } from '@/features/profile/components/ProfilePrivacySettingsTab';
-import { BadgeTelemetryPanel } from '@/features/profile/components/BadgeTelemetryPanel';
 import { calculateProfileActivitySummary } from '@/features/profile/lib/activityAggregator';
 import { generateInitialsAvatar } from '@/features/profile/lib/avatarStudioEngine';
 import { evaluateProfileBadges } from '@/features/profile/lib/badgeEvaluator';
+import { evaluateAndEmitBadges,startBadgeAutoEvaluation } from '@/features/profile/lib/badgeStore';
 import { calculateProfileCompletion, ProfileData } from '@/features/profile/lib/profileCompletionEngine';
 import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
-import { startBadgeAutoEvaluation, evaluateAndEmitBadges } from '@/features/profile/lib/badgeStore';
-import { PrivacySettings, ProfileCompletionMetrics, SocialLinks } from '@/features/profile/types';
+import { PrivacySettings, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
 import {
   AlertTriangle,

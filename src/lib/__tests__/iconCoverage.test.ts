@@ -6,9 +6,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import * as Lucide from 'lucide-react';
 import * as Phosphor from '@phosphor-icons/react';
 import * as Tabler from '@tabler/icons-react';
+import * as Lucide from 'lucide-react';
 import { describe, expect, it } from 'vitest';
 
 const SOURCE = fs.readFileSync(path.resolve(__dirname, '../icons.tsx'), 'utf8');

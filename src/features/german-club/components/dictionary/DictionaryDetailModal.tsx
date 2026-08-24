@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { X, Volume2, Bookmark, BookmarkCheck, BookOpen, Lightbulb, Sparkles, Share2 } from '@/lib/icons';
-import { DictionaryEntry, CEFRLevelLabels, DictionaryWordTypeLabels, GENDER_COLORS, GENDER_LABELS_AR } from '../../types';
+
+import { Bookmark, BookmarkCheck, BookOpen, Lightbulb,Sparkles, Volume2, X } from '@/lib/icons';
+
+import { CEFRLevelLabels, DictionaryEntry, DictionaryWordTypeLabels, GENDER_COLORS, GENDER_LABELS_AR } from '../../types';
 import { useDictionaryStore } from '../../useDictionaryStore';
 
 interface DictionaryDetailModalProps {

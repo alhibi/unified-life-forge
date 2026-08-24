@@ -1,11 +1,9 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Sunrise, Sunset, Sun } from '@/lib/icons';
-import { timeLabel } from '../lib/utils';
+
+import { describeWeatherCode,labelForWeatherCode } from '../lib/conditions';
 import { comfortLabel } from '../lib/vocabulary';
-import { labelForWeatherCode, describeWeatherCode } from '../lib/conditions';
-import { WeatherPanel, Metric } from './WeatherPanels';
 import { AmbientBackdrop } from './AmbientBackdrop';
+import { Metric,WeatherPanel } from './WeatherPanels';
 
 export interface WeatherHeroProps {
   snapshot: any; // WeatherSnapshot

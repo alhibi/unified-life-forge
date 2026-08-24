@@ -27,7 +27,7 @@ export function useVisitTracker() {
     sessionStartTimeRef.current = now;
     // A new visit may extend today's streak — refresh every live consumer.
     invalidateStreakStore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [location.pathname]);
 }
 

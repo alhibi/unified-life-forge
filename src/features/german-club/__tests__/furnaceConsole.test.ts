@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { GENDER_LABELS_AR, REGISTER_LABELS_AR, REJECTION_REASON_LABELS_AR } from '../types';
 
 describe('Furnace Console v2 Types and Constants', () => {

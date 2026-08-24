@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  DEFAULT_PRAYER_NOTIFICATION_PREFS,
-  PRAYER_NAMES,
   buildPrayerSchedule,
+  DEFAULT_PRAYER_NOTIFICATION_PREFS,
   isPrayerNotificationId,
+  PRAYER_NAMES,
   type PrayerNotificationPrefs,
 } from '@/lib/prayerNotifications';
 

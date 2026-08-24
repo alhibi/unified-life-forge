@@ -5,9 +5,9 @@
  * Combines static profile fields + dynamic activity metrics + customization.
  * Cached for performance, invalidated on relevant changes.
  */
+import { completionCache } from '../lib/cache';
 import { ProfileActivitySummary } from '../types';
 import { SocialLinks } from '../types';
-import { completionCache } from '../lib/cache';
 
 export interface CompletionItem {
   id: string;

@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
-import { PageShell } from '@/components/ui/app-shell';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, Sparkles } from '@/lib/icons';
-import { useGermanClubStore } from '../useGermanClubStore';
+
 import { GERMAN_CLUB_TOKENS } from '../types';
+import { useGermanClubStore } from '../useGermanClubStore';
 
 export const GrammarCorner: React.FC = () => {
   const { grammarNotes, isLoadingGrammar, fetchGrammarNotes } = useGermanClubStore();

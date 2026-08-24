@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import {
   AlertTriangle,
   ArrowRight,
@@ -16,15 +18,15 @@ import {
   Sparkles,
   X,
 } from '@/lib/icons';
-import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
+
 import {
   GENDER_COLORS,
   GERMAN_CLUB_TOKENS,
   GermanGender,
   GermanRegister,
   OpenRouterModelItem,
-  REJECTION_REASON_LABELS_AR,
   REGISTER_LABELS_AR,
+  REJECTION_REASON_LABELS_AR,
   StrictnessLevel,
 } from '../types';
 

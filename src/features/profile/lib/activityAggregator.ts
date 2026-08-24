@@ -1,4 +1,4 @@
-import { calculateVisitStats, getAppVisitLogs, toLocalDateISO } from './visitTracker';
+import { activityCache, PROFILE_CACHE_TTLs,sessionActivityCache } from '../lib/cache';
 import {
   ActivityCategory,
   ContributionActivityEvent,
@@ -6,7 +6,7 @@ import {
   ProfileActivitySummary,
   YearlyContributionSummary,
 } from '../types';
-import { activityCache, sessionActivityCache, PROFILE_CACHE_TTLs } from '../lib/cache';
+import { calculateVisitStats, getAppVisitLogs, toLocalDateISO } from './visitTracker';
 
 const MONTH_NAMES_AR = [
   'يناير',
@@ -94,7 +94,7 @@ function computeProfileActivitySummary(): ProfileActivitySummary {
   // 2. German Club & Dictionary Metrics
   let masteredWords = 0;
   let shelfMasteryPercent = 0;
-  let surgeStreakDays = 0;
+  const surgeStreakDays = 0;
 
   try {
     const germanRaw = localStorage.getItem('german-club-storage') || localStorage.getItem('german_mastered_words');
@@ -490,7 +490,7 @@ function compute365DayContributions(
   const days: DailyContribution[] = [];
   const allEvents: ContributionActivityEvent[] = [];
 
-  let curr = new Date(startDate);
+  const curr = new Date(startDate);
   let totalContributions = 0;
   let activeDaysCount = 0;
   let currentStreakDays = 0;
@@ -564,7 +564,7 @@ function compute365DayContributions(
   }
 
   // Compute current streak ending at today/latest active day
-  let streakCheck = new Date(endDate);
+  const streakCheck = new Date(endDate);
   while (streakCheck >= startDate) {
     const iso = toLocalDateISO(streakCheck);
     const cnt = categoryFilter === 'all' ? (dailyCountsMap[iso]?.all || 0) : (dailyCountsMap[iso]?.[categoryFilter] || 0);

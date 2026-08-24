@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { useWeatherLocation } from '@/features/weather/context/WeatherLocationContext';
+import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 // One WMO code vocabulary for the whole app — see features/weather/lib/conditions.
 import { iconForWeatherCode, labelForWeatherCode } from '@/features/weather/lib/conditions';
 import { ChevronLeft, Droplets, Gauge, Sun, Thermometer, Wind as WindIcon } from '@/lib/icons';

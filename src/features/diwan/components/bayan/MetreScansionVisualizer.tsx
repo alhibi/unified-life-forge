@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { PoeticMeterAnalysis } from "../../types/bayan";
 
 interface MetreScansionVisualizerProps {

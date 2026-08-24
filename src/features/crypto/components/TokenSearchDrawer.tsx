@@ -19,7 +19,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 import { cryptoApi } from '../api';
-import { type ChainId, CHAIN_LABELS, type NormalizedPair } from '../types';
+import { CHAIN_LABELS, type ChainId, type NormalizedPair } from '../types';
 
 interface TokenSearchDrawerProps {
   open: boolean;

@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import type { AlBayanAnalysisResult } from "../types/bayan";
+import { createJSONStorage,persist } from "zustand/middleware";
+
 import { analyzeArabicText } from "../lib/bayanEngine";
+import type { AlBayanAnalysisResult } from "../types/bayan";
 
 interface BayanState {
   history: AlBayanAnalysisResult[];

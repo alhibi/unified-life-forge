@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+
 import { WeatherPanel } from './WeatherPanels';
 
 export interface WindCompassProps {

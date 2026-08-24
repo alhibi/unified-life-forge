@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { GENDER_COLORS, GermanGender } from '../types';
 
 interface GenderDotProps {

@@ -1,10 +1,10 @@
 import { AnimatePresence,motion } from 'framer-motion';
-import { Clock, Compass, Info,MapPin, Search, X } from '@/lib/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useApp } from '@/contexts/AppContext';
 import { CITIES, type Region, REGION_LABELS } from '@/data/ummahCities';
+import { Clock, Compass, Info,MapPin, Search, X } from '@/lib/icons';
 import {
   bearingToCompass,
   formatLocalMinutes,

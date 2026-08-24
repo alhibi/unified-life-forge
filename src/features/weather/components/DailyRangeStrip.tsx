@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
+
 import { WeatherPanel } from './WeatherPanels';
 
 export interface DailyRangeEntry {
@@ -16,11 +17,11 @@ export interface DailyRangeStripProps {
 }
 
 export function DailyRangeStrip({ days, iconFor, locale }: DailyRangeStripProps) {
-  if (days.length === 0) return null;
-  
   const globalMin = useMemo(() => Math.min(...days.map((d) => d.low_c)), [days]);
   const globalMax = useMemo(() => Math.max(...days.map((d) => d.high_c)), [days]);
   const span = useMemo(() => Math.max(1, globalMax - globalMin), [globalMin, globalMax]);
+
+  if (days.length === 0) return null;
 
   return (
     <WeatherPanel title="الأيام القادمة وحركة الحرارة" subtitle={`${days.length} ${'أيام'}`}>

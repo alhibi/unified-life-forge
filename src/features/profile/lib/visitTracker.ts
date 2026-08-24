@@ -1,5 +1,5 @@
+import {visitsCache } from '../lib/cache';
 import { AppVisitLog } from '../types';
-import { visitsCache, PROFILE_CACHE_TTLs } from '../lib/cache';
 
 const VISIT_LOGS_STORAGE_KEY = 'app_visit_logs_v1';
 const MIN_SESSION_THROTTLE_MS = 10 * 60 * 1000; // 10 minutes session throttle per route
@@ -174,7 +174,7 @@ export function calculateVisitStats(): {
   const todayISO = toLocalDateISO(new Date());
 
   let streak = 0;
-  let checkDate = new Date();
+  const checkDate = new Date();
 
   for (let i = 0; i < 365; i++) {
     const iso = toLocalDateISO(checkDate);

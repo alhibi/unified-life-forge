@@ -5,12 +5,12 @@ import { parseUserSettingsRoot, USER_SETTINGS_TRAVELING_KEY } from '../userSetti
 
 describe('userSettingsRoot — the restore gate', () => {
   it('returns null ONLY for structural corruption', () => {
-    expect(parseUserSettingsRoot(null)).toBeNull();
-    expect(parseUserSettingsRoot(undefined)).toBeNull();
-    expect(parseUserSettingsRoot('{\"injected\":true}')).toBeNull();
-    expect(parseUserSettingsRoot([1, 2, 3])).toBeNull();
-    expect(parseUserSettingsRoot(42)).toBeNull();
-  });
+      expect(parseUserSettingsRoot(null)).toBeNull();
+      expect(parseUserSettingsRoot(undefined)).toBeNull();
+      expect(parseUserSettingsRoot('{"injected":true}')).toBeNull();
+      expect(parseUserSettingsRoot([1, 2, 3])).toBeNull();
+      expect(parseUserSettingsRoot(42)).toBeNull();
+    });
 
   it('strips unknown keys instead of flowing them into consumers', () => {
     const out = parseUserSettingsRoot({

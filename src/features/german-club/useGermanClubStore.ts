@@ -1,5 +1,7 @@
 import { create } from 'zustand';
+
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
+
 import { GermanEntry, GermanGrammarNote, GermanShelf } from './types';
 
 interface GermanClubState {

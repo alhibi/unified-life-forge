@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { useAuth } from '@/hooks/useAuth';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 

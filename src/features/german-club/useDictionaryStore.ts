@@ -1,14 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
+import { getWortDesTages,searchDictionary } from './lib/dictionaryData';
 import {
-  DictionaryEntry,
   CEFRLevel,
+  DictionaryEntry,
+  DictionarySortOption,
   DictionaryWordType,
   GermanGender,
-  DictionarySortOption,
   GrammaticalCase,
 } from './types';
-import { GERMAN_DICTIONARY_DATA, searchDictionary, getWortDesTages } from './lib/dictionaryData';
 
 interface DictionaryState {
   searchQuery: string;

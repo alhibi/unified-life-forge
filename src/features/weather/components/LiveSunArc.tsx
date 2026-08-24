@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Sunrise, Sunset, Sun } from '@/lib/icons';
+import { useMemo } from 'react';
+
+import { Sun,Sunrise, Sunset } from '@/lib/icons';
+
 import { timeLabel } from '../lib/utils';
 import { WeatherPanel } from './WeatherPanels';
 

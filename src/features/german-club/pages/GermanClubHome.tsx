@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageShell } from '@/components/ui/app-shell';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
-import { useGermanClubStore } from '../useGermanClubStore';
-import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
-import { ShelfCard } from '../components/ShelfCard';
-import { SessionMomentumLine } from '../components/SessionMomentumLine';
+
 import { GenerationModal } from '../components/GenerationModal';
+import { SessionMomentumLine } from '../components/SessionMomentumLine';
+import { ShelfCard } from '../components/ShelfCard';
+import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
+import { useGermanClubStore } from '../useGermanClubStore';
 
 export const GermanClubHome: React.FC = () => {
   const navigate = useNavigate();

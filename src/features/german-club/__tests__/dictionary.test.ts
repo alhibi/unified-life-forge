@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { searchDictionary, getWortDesTages, GERMAN_DICTIONARY_DATA } from '../lib/dictionaryData';
-import { useDictionaryStore } from '../useDictionaryStore';
+import { beforeEach,describe, expect, it } from 'vitest';
+
+import { GERMAN_DICTIONARY_DATA,getWortDesTages, searchDictionary } from '../lib/dictionaryData';
 import { DictionaryEntrySchema } from '../types';
+import { useDictionaryStore } from '../useDictionaryStore';
 
 describe('German Dictionary Engine & Store Suite', () => {
   beforeEach(() => {

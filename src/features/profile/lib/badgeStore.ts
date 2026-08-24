@@ -12,15 +12,13 @@
  */
 import { ProfileActivitySummary, ProfileBadge } from '../types';
 import { 
-  evaluateProfileBadges, 
-  evaluateProfileBadgesSession, 
-  precomputeBadgeEvaluations,
-  invalidateBadgeCache 
-} from './badgeEvaluator';
-import { 
-  calculateProfileActivitySummary, 
   invalidateActivityCache 
 } from './activityAggregator';
+import { 
+  evaluateProfileBadges, 
+  evaluateProfileBadgesSession, 
+  invalidateBadgeCache, 
+  precomputeBadgeEvaluations} from './badgeEvaluator';
 import { invalidateCompletionCache } from './profileCompletionEngine';
 import { invalidateStreakCache } from './streakEngine';
 import { invalidateVisitCache } from './visitTracker';
@@ -58,7 +56,7 @@ export interface CrossModuleInsight {
 type BadgeEventCallback = (event: BadgeEvent) => void;
 const badgeSubscriptions = new Set<BadgeSubscription>();
 
-let lastBadgeState: Map<string, ProfileBadge> = new Map();
+const lastBadgeState: Map<string, ProfileBadge> = new Map();
 let lastActivitySummary: ProfileActivitySummary | null = null;
 let evaluationInterval: ReturnType<typeof setInterval> | null = null;
 let isEvaluating = false;

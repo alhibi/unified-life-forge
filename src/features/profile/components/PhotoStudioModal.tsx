@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Check, ImagePlus, Sliders, Sparkles, X } from '@/lib/icons';
+import { Check, ImagePlus, Sliders, X } from '@/lib/icons';
 
 export interface PhotoStudioModalProps {
   isOpen: boolean;

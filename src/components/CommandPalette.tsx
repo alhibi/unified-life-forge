@@ -1,4 +1,9 @@
 import { Command } from 'cmdk';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { useApp } from '@/contexts/AppContext';
+import { useSystemEngine } from '@/contexts/SystemEngineContext';
 import {
   Battery,
   BookOpen,
@@ -17,11 +22,6 @@ import {
   Sun,
   Wifi,
 } from '@/lib/icons';
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { useApp } from '@/contexts/AppContext';
-import { useSystemEngine } from '@/contexts/SystemEngineContext';
 import { prefetchRoute } from '@/lib/routePrefetch';
 
 /** Custom event any surface (e.g. a mobile toolbar button) can dispatch. */

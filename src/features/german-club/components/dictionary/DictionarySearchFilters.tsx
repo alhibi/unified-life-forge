@@ -1,15 +1,17 @@
 import React from 'react';
-import { Search, X, RotateCcw, Filter, ArrowUpDown, Layers } from '@/lib/icons';
+
+import { ArrowUpDown, Filter, Layers,RotateCcw, Search, X } from '@/lib/icons';
+
 import { DICTIONARY_CATEGORIES } from '../../lib/dictionaryData';
-import { useDictionaryStore } from '../../useDictionaryStore';
 import {
   CEFRLevel,
+  DictionarySortOption,
+  DictionarySortOptionLabels,
   DictionaryWordType,
   GermanGender,
-  DictionarySortOption,
   GrammaticalCase,
-  DictionarySortOptionLabels,
 } from '../../types';
+import { useDictionaryStore } from '../../useDictionaryStore';
 
 export const DictionarySearchFilters: React.FC = () => {
   const {

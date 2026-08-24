@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
-import { WeatherPanel, Metric } from './WeatherPanels';
 import { timeLabel } from '../lib/utils';
+import { Metric,WeatherPanel } from './WeatherPanels';
 
 export interface AstronomicsProps {
   snapshot: any; // WeatherSnapshot

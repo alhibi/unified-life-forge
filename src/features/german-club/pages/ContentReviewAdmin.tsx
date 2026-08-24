@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { PageShell } from '@/components/ui/app-shell';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { Check, ShieldAlert, Sparkles, X } from '@/lib/icons';
-import { useGermanClubStore } from '../useGermanClubStore';
-import { GERMAN_CLUB_TOKENS, GermanEntry } from '../types';
+import { PageShell } from '@/components/ui/app-shell';
+import { Check, ShieldAlert, Sparkles } from '@/lib/icons';
+
 import { GenderDot } from '../components/GenderDot';
+import { GERMAN_CLUB_TOKENS } from '../types';
+import { useGermanClubStore } from '../useGermanClubStore';
 
 export const ContentReviewAdmin: React.FC = () => {
   const {

@@ -17,7 +17,7 @@ import {
 import { cryptoApi } from '../api';
 import TokenDetailDrawer from '../components/TokenDetailDrawer';
 import TokenSearchDrawer from '../components/TokenSearchDrawer';
-import { type ChainId, CHAIN_LABELS, type NormalizedPair, type WatchlistItem } from '../types';
+import { CHAIN_LABELS, type ChainId, type NormalizedPair, type WatchlistItem } from '../types';
 
 export default function CryptoWatchlist() {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);

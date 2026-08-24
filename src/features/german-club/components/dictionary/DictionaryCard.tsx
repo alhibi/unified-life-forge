@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Volume2, Bookmark, BookmarkCheck, ChevronLeft } from '@/lib/icons';
-import { DictionaryEntry, CEFRLevelLabels, DictionaryWordTypeLabels, GENDER_COLORS } from '../../types';
+
+import { Bookmark, BookmarkCheck, ChevronLeft,Volume2 } from '@/lib/icons';
+
+import { CEFRLevelLabels, DictionaryEntry, DictionaryWordTypeLabels, GENDER_COLORS } from '../../types';
 import { useDictionaryStore } from '../../useDictionaryStore';
 
 interface DictionaryCardProps {

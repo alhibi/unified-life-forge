@@ -371,8 +371,7 @@ function renderMonogramSealVector(
   secondary: string
 ) {
   const safeChar = (char && char.trim()) ? char.trim().charAt(0) : 'م';
-
-  let shapePath = '';
+  let shapePath: string;
   if (sealStyle.includes('hexagon')) {
     shapePath = '<polygon points="128,40 200,80 200,176 128,216 56,176 56,80" fill="none" stroke="url(#goldMetallic)" stroke-width="3" />';
   } else if (sealStyle.includes('octagon')) {
@@ -455,8 +454,8 @@ export function generateAvatarSvg(params: Partial<AvatarStudioParams> = {}): str
 
   const gradientDefs = buildGradientDefs(merged.gradientId, primary, secondary);
   const filterDefs = buildFilterDefs();
+  let bodyContent: string;
 
-  let bodyContent = '';
   if (merged.category === 'archetype') {
     bodyContent = renderArchetypeVector(merged.presetId, primary, secondary);
   } else if (merged.category === 'abstract') {

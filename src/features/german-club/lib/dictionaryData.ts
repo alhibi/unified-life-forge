@@ -1,4 +1,4 @@
-import { DictionaryEntry, CEFRLevel, DictionarySortOption, GrammaticalCase } from '../types';
+import { CEFRLevel, DictionaryEntry, DictionarySortOption, GrammaticalCase } from '../types';
 import { DICTIONARY_PART_1 } from './dataset/dictPart1';
 import { DICTIONARY_PART_2 } from './dataset/dictPart2';
 import { DICTIONARY_PART_3 } from './dataset/dictPart3';
@@ -74,7 +74,7 @@ export function searchDictionary(
 ): DictionaryEntry[] {
   const normalizedQuery = query.trim().toLowerCase();
 
-  let results = GERMAN_DICTIONARY_DATA.filter((entry) => {
+  const results = GERMAN_DICTIONARY_DATA.filter((entry) => {
     // 1. Filter by category
     if (options?.category && options.category !== 'all' && entry.category !== options.category) {
       return false;

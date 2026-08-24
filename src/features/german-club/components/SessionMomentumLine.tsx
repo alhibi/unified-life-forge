@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useGermanClubStore } from '../useGermanClubStore';
+import React, { useEffect } from 'react';
+
 import { GERMAN_CLUB_TOKENS, SURGE_TOKENS } from '../types';
+import { useGermanClubStore } from '../useGermanClubStore';
 
 export const SessionMomentumLine: React.FC = () => {
   const momentum = useGermanClubStore((state) => state.sessionMomentum);

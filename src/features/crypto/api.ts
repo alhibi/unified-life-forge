@@ -5,8 +5,8 @@ import {
   type ChartRange,
   type NormalizedPair,
   NormalizedPairSchema,
-  type OhlcvSeries,
   OhlcvResponseSchema,
+  type OhlcvSeries,
   type WatchlistItem,
   WatchlistItemSchema,
 } from './types';

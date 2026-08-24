@@ -1,5 +1,5 @@
-import { WeatherPanel, Metric } from './WeatherPanels';
 import { beaufortLabel } from '../lib/vocabulary';
+import { Metric,WeatherPanel } from './WeatherPanels';
 
 export interface PhysicalMeasurementsProps {
   snapshot: any; // WeatherSnapshot

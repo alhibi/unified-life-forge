@@ -3,20 +3,22 @@
  * ---------------------------------------------------------------------------
  * Shows cache hit rates, evaluation times, and system health metrics.
  */
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import React, { useEffect,useState } from 'react';
+
 import { 
   Activity, 
-  Database, 
-  Zap, 
-  Gauge, 
-  RefreshCw,
-  TrendingUp,
-  TrendingDown,
-  Minus,
   AlertCircle,
   CheckCircle,
+  Database, 
+  Gauge, 
+  Minus,
+  RefreshCw,
+  TrendingDown,
+  TrendingUp,
+  Zap, 
 } from '@/lib/icons';
+
 import { getBadgeTelemetry, resetBadgeTelemetry } from '../lib/badgeStore';
 
 interface BadgeTelemetryPanelProps {

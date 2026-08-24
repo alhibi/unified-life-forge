@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Volume2, Bookmark, BookmarkCheck, Sparkles, BookOpen } from '@/lib/icons';
-import { DictionaryEntry, CEFRLevelLabels, GENDER_COLORS } from '../../types';
+
+import { Bookmark, BookmarkCheck, BookOpen,Sparkles, Volume2 } from '@/lib/icons';
+
+import { CEFRLevelLabels, DictionaryEntry, GENDER_COLORS } from '../../types';
 import { useDictionaryStore } from '../../useDictionaryStore';
-import { GERMAN_CLUB_TOKENS } from '../../types';
 
 interface WortDesTagesCardProps {
   entry: DictionaryEntry;

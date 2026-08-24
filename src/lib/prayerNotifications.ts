@@ -15,9 +15,9 @@
  * tested. The plugin call is a thin, failure-tolerant wrapper around it.
  */
 
-import { computeLocalTimingsDetailed, pickMethodForLocation } from '@/lib/prayerCalculationMethod';
 import { atLocalTime } from '@/lib/islamicDay';
 import { isNative } from '@/lib/native';
+import { computeLocalTimingsDetailed, pickMethodForLocation } from '@/lib/prayerCalculationMethod';
 import { captureError } from '@/lib/telemetry';
 
 /** The five obligatory prayers. Sunrise is not a prayer and is never notified. */

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageShell } from '@/components/ui/app-shell';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { BookOpen, Sparkles, BookmarkCheck, SearchX, Layers } from '@/lib/icons';
-import { GERMAN_CLUB_TOKENS, DictionaryEntry } from '../types';
-import { useDictionaryStore } from '../useDictionaryStore';
-import { WortDesTagesCard } from '../components/dictionary/WortDesTagesCard';
+import { PageShell } from '@/components/ui/app-shell';
+import { BookmarkCheck, BookOpen, Layers,SearchX, Sparkles } from '@/lib/icons';
+
+import { AlphabetNav } from '../components/dictionary/AlphabetNav';
 import { DictionaryCard } from '../components/dictionary/DictionaryCard';
 import { DictionaryDetailModal } from '../components/dictionary/DictionaryDetailModal';
 import { DictionarySearchFilters } from '../components/dictionary/DictionarySearchFilters';
-import { AlphabetNav } from '../components/dictionary/AlphabetNav';
+import { WortDesTagesCard } from '../components/dictionary/WortDesTagesCard';
+import {GERMAN_CLUB_TOKENS } from '../types';
+import { useDictionaryStore } from '../useDictionaryStore';
 
 export const GermanDictionary: React.FC = () => {
   const navigate = useNavigate();

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { WeatherPanel, WeatherSection } from './WeatherPanels';
-import { HourlyRibbon } from './HourlyRibbon';
+
 import { DailyRangeStrip } from './DailyRangeStrip';
+import { HourlyRibbon } from './HourlyRibbon';
 import HourlyTrendPanel from './HourlyTrendPanel';
+import { WeatherPanel, WeatherSection } from './WeatherPanels';
 
 export interface ForecastTabProps {
   hourly: any[];

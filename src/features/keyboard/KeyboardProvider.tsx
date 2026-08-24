@@ -8,9 +8,9 @@ import {
   backspace,
   backspaceWord,
   type EditableField,
+  getAdaptiveEnterLabel,
   insertText,
   isSensitiveField,
-  getAdaptiveEnterLabel,
   isSoftKeyboardTarget,
   moveCaret,
   pressEnter,
@@ -165,14 +165,14 @@ export default function KeyboardProvider() {
     setInputTick((t) => t + 1);
   }, []);
 
-  if (typeof document === 'undefined') return null;
-
   const handleUseSystemKeyboard = useCallback(() => {
     const el = targetRef.current;
     writeSoftKeyboardPreference('system');
     release();
     window.setTimeout(() => el?.focus(), 0);
   }, [release]);
+
+  if (typeof document === 'undefined') return null;
 
   return createPortal(
     <div

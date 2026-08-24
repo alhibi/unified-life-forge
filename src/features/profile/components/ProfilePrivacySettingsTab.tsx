@@ -7,8 +7,10 @@
  * - Export/import settings functionality (with file picker)
  * - Reset to defaults
  */
-import React, { useEffect, useCallback, useRef } from 'react';
-import { Check, Eye, EyeOff, Lock, Palette, Shield, CloudDownload, CloudUpload, FileText } from '@/lib/icons';
+import React, { useCallback, useEffect, useRef } from 'react';
+
+import { Eye, EyeOff, Palette, Shield } from '@/lib/icons';
+
 import { PrivacySettings } from '../types';
 
 export interface ProfilePrivacySettingsTabProps {

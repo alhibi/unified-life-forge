@@ -4,27 +4,24 @@
  * Shows actionable insights generated from badge progress, activity patterns,
  * and profile completion metrics.
  */
-import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import React, { useMemo } from 'react';
+
 import { 
-  Lightbulb, 
-  TrendingUp, 
-  Target, 
-  Brain, 
-  Zap,
-  ArrowRight,
-  Clock,
-  Award,
   Activity,
-  BookOpen,
-  Heart,
-  Globe,
+  ArrowRight,
+  Brain,
+  Lightbulb, 
   Settings,
+  Target, 
+  TrendingUp, 
   Users,
+  Zap,
 } from '@/lib/icons';
-import { ProfileActivitySummary, ProfileBadge } from '../types';
+
+import { CrossModuleInsight,generateCrossModuleInsights } from '../lib/badgeStore';
 import { ProfileCompletionMetrics } from '../lib/profileCompletionEngine';
-import { generateCrossModuleInsights, CrossModuleInsight } from '../lib/badgeStore';
+import { ProfileActivitySummary, ProfileBadge } from '../types';
 
 interface ProfileInsightsPanelProps {
   summary: ProfileActivitySummary;

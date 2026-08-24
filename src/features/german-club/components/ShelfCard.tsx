@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { GERMAN_CLUB_TOKENS, SURGE_TOKENS, GermanShelf } from '../types';
+import React, { useEffect, useState } from 'react';
+
 import { Check, Sparkles } from '@/lib/icons';
+
+import { GERMAN_CLUB_TOKENS, GermanShelf,SURGE_TOKENS } from '../types';
 import { FurnaceButton } from './FurnaceButton';
 
 interface ShelfCardProps {

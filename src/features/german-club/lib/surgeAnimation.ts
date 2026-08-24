@@ -1,6 +1,6 @@
 import type { Variants } from 'framer-motion';
 
-import { SURGE_TOKENS, GERMAN_CLUB_TOKENS } from '../types';
+import { GERMAN_CLUB_TOKENS,SURGE_TOKENS } from '../types';
 
 /**
  * Animation Craft Standards for Surge & Momentum System:

@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect,useState } from 'react';
+
 import { ChevronDown } from '@/lib/icons';
-import { WeatherPanel } from './WeatherPanels';
+
 import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
+import { WeatherPanel } from './WeatherPanels';
 
 export function SourceHealthPanel() {
   const [rows, setRows] = useState<SourceHealth[]>([]);

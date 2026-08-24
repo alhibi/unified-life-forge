@@ -1,8 +1,8 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { corsHeaders, jsonResponse, requireUser } from "../_shared/rss-utils.ts";
 import { ANALYSIS_MODELS, callOpenRouter, safeJson } from "../_shared/marginalia.ts";
+import { corsHeaders, jsonResponse, requireUser } from "../_shared/rss-utils.ts";
 
 /**
  * mg-discover — the connection engine. Samples the archive across time and

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+
 import {
   contrastRatio,
   generateThemeTokens,
   getThemeScale,
   hexToHsl,
-  themePresets,
   type Hsl,
+  themePresets,
   type ThemeStyle,
 } from '@/utils/themeEngine';
 

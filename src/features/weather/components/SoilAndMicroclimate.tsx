@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import { WeatherPanel, Metric } from './WeatherPanels';
+import { Metric,WeatherPanel } from './WeatherPanels';
 
 export interface SoilAndMicroclimateProps {
   snapshot: any; // WeatherSnapshot

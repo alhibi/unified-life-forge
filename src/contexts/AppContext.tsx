@@ -14,8 +14,8 @@ import { clearKeyboardRuntimeCache } from '@/features/keyboard/lib/preference';
 import { useAuth } from '@/hooks/useAuth';
 import { type Language, translate } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 import { untypedSupabase } from '@/integrations/supabase/untypedClient';
-
 import {
   type AdvancedInterfacePreferences,
   APPEARANCE_PREFERENCES_STORAGE_KEY,
@@ -92,7 +92,6 @@ import {
   TRAVELING_SETTINGS_STORAGE_KEYS,
 } from '@/utils/settings/travelingSettings';
 import { parseUserSettingsRoot } from '@/utils/settings/userSettingsRoot';
-import type { Json } from '@/integrations/supabase/types';
 import {
   applyThemeTokens,
   generateThemeTokens,

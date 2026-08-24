@@ -1,7 +1,6 @@
-import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 
-import { Check, Lock, Pin, Sparkles, Star } from '@/lib/icons';
+import { Check, Lock, Pin, Sparkles } from '@/lib/icons';
 
 import { APP_BADGES } from '../data/badges';
 import { BadgeCategory, ProfileBadge } from '../types';

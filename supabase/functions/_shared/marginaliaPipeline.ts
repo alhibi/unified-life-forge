@@ -1,8 +1,8 @@
 // Article ingestion pipeline shared by `mg-ingest` (daily/batch) and
 // `mg-add-article` (synchronous, user-pasted URL).
 
-import { fetchWithRetry, isSafeUrl, scrapeArticle, stripText, USER_AGENT } from "./rss-utils.ts";
 import { callOpenRouter, chunkText, embedTexts, safeJson } from "./marginalia.ts";
+import { fetchWithRetry, isSafeUrl, scrapeArticle, stripText, USER_AGENT } from "./rss-utils.ts";
 
 // deno-lint-ignore no-explicit-any
 type Db = any;

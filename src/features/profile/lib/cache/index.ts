@@ -168,7 +168,7 @@ export const visitsCache = createModuleCache<any>('visits');
  * These are pure in-memory, no localStorage involvement
  */
 export function createSessionCache<T = any>(moduleKey: string) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const _moduleKey = moduleKey; // Mark as used to avoid warning
 
   const store: Map<string, { value: T; timestamp: number; ttl: number }> = new Map();

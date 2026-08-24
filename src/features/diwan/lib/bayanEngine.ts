@@ -1,26 +1,24 @@
+import {
+  BAYAN_MORPHOLOGY_PATTERNS,
+  BAYAN_POETIC_METERS,
+  BAYAN_RHETORIC_FIGURES,
+  BAYAN_SYNTAX_ROLES} from "../data/bayanLinguisticDatabase";
+import { BAYAN_LARGE_VERB_CONJUGATIONS } from "../data/bayanLinguisticDatabaseLarge";
 import type {
   AlBayanAnalysisResult,
-  SyntacticToken,
-  SyntacticBranch,
-  PoeticMeterAnalysis,
-  TafilaBlock,
-  PoeticSyllable,
-  MorphologicalToken,
-  RhetoricalFigure,
   BalaghaAnalysis,
-  MeterId
-} from "../types/bayan";
-import {
-  BAYAN_POETIC_METERS,
-  BAYAN_MORPHOLOGY_PATTERNS,
-  BAYAN_SYNTAX_ROLES,
-  BAYAN_RHETORIC_FIGURES
-} from "../data/bayanLinguisticDatabase";
-import { BAYAN_LARGE_VERB_CONJUGATIONS } from "../data/bayanLinguisticDatabaseLarge";
+  MeterId,
+  MorphologicalToken,
+  PoeticMeterAnalysis,
+  PoeticSyllable,
+  RhetoricalFigure,
+  SyntacticBranch,
+  SyntacticToken,
+  TafilaBlock} from "../types/bayan";
 
 // Auxiliary functions for cleaning Arabic characters
 export function removeDiacritics(text: string): string {
-  // eslint-disable-next-line no-misleading-character-class
+   
   return text.replace(/[\u064B-\u0652]/g, "");
 }
 

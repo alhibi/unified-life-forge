@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { AlBayanAnalysisResultSchema } from "../types/bayan";
 
 export const BayanInputSchema = z.object({

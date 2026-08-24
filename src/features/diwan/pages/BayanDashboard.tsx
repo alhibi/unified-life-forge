@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { ArrowLeft, BookOpen, Layers, Sparkles, Hash, History, Bookmark, BookmarkCheck, Search } from '@/lib/icons';
 import { Link } from "react-router-dom";
-import { useBayanStore } from "../stores/bayanStore";
-import { SyntaxTreeVisualizer } from "../components/bayan/SyntaxTreeVisualizer";
-import { MetreScansionVisualizer } from "../components/bayan/MetreScansionVisualizer";
-import { PageShell } from "@/components/ui/app-shell";
 import { toast } from "sonner";
+
+import { PageShell } from "@/components/ui/app-shell";
+import { ArrowLeft, Bookmark, BookmarkCheck, BookOpen, Hash, History, Layers, Search,Sparkles } from '@/lib/icons';
+
+import { MetreScansionVisualizer } from "../components/bayan/MetreScansionVisualizer";
+import { SyntaxTreeVisualizer } from "../components/bayan/SyntaxTreeVisualizer";
+import { useBayanStore } from "../stores/bayanStore";
 
 export default function BayanDashboard() {
   const [inputText, setInputText] = useState("");

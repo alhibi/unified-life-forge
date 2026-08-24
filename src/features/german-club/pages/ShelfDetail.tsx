@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PageShell } from '@/components/ui/app-shell';
+
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
-import { BookOpen, Sparkles } from '@/lib/icons';
+import { PageShell } from '@/components/ui/app-shell';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
-import { useGermanClubStore } from '../useGermanClubStore';
-import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
+import { BookOpen, Sparkles } from '@/lib/icons';
+
+import { BewaehrungsprobeStamp } from '../components/BewaehrungsprobeStamp';
 import { EntryCard } from '../components/EntryCard';
 import { FurnaceButton } from '../components/FurnaceButton';
 import { GenerationModal } from '../components/GenerationModal';
 import { SessionMomentumLine } from '../components/SessionMomentumLine';
-import { BewaehrungsprobeStamp } from '../components/BewaehrungsprobeStamp';
+import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
+import { useGermanClubStore } from '../useGermanClubStore';
 
 export const ShelfDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

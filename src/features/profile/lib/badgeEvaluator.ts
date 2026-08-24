@@ -5,11 +5,11 @@
  * Uses caching to avoid repeated localStorage reads on every render.
  */
 import { APP_BADGES } from '../data/badges';
-import { ProfileActivitySummary, ProfileBadge } from '../types';
 import { 
   badgeCache, 
   sessionBadgeCache, 
 } from '../lib/cache';
+import { ProfileActivitySummary, ProfileBadge } from '../types';
 
 /**
  * Creates a hash key from summary data for cache lookup
@@ -74,7 +74,7 @@ export function evaluateProfileBadges(
 
   // Compute badges fresh (fallback to computation)
   const results = APP_BADGES.map((badge) => {
-    let progress = badge.progressPercent;
+    let progress: number;
     let isUnlocked = Boolean(badge.unlockedAt);
     let milestoneLabel = badge.milestoneLabelAr;
 

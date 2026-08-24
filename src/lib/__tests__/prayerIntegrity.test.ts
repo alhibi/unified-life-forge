@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { hijriPartsForIslamicDay, islamicDayKey, resolveIslamicDay } from '@/lib/islamicDay';
 import {
   computeLocalTimingsDetailed,
   pickMethodForLocation,
 } from '@/lib/prayerCalculationMethod';
-import { hijriPartsForIslamicDay, islamicDayKey, resolveIslamicDay } from '@/lib/islamicDay';
 
 /** Every field the prayer UI reads. */
 const REQUIRED = [

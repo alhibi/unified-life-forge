@@ -1,11 +1,12 @@
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { GERMAN_CLUB_TOKENS, SURGE_TOKENS } from '../types';
+
 import {
+  REDUCED_SURGE_VARIANTS,
   STAMP_SURGE_VARIANTS,
   WASH_SURGE_VARIANTS,
-  REDUCED_SURGE_VARIANTS,
 } from '../lib/surgeAnimation';
+import { GERMAN_CLUB_TOKENS, SURGE_TOKENS } from '../types';
 
 interface BewaehrungsprobeStampProps {
   status: 'passed' | 'failed' | null;

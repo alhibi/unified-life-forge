@@ -19,10 +19,10 @@ import { useApp } from '@/contexts/AppContext';
 import { MECCA_FALLBACK, useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { isNative } from '@/lib/native';
 import {
+  cancelAllPrayerNotifications,
   DEFAULT_PRAYER_NOTIFICATION_PREFS,
   type PrayerName,
   type PrayerNotificationPrefs,
-  cancelAllPrayerNotifications,
   syncPrayerNotifications,
 } from '@/lib/prayerNotifications';
 

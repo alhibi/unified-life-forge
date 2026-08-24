@@ -1,12 +1,10 @@
-import { motion } from 'framer-motion';
 import React from 'react';
 
 import {
   Award,
   ExternalLink,
-  Globe,
-  Globe2,
   Github,
+  Globe,
   Instagram,
   Linkedin,
   MapPin,
@@ -18,7 +16,7 @@ import {
 } from '@/lib/icons';
 
 import { APP_BADGES } from '../data/badges';
-import { ProfileBadge, SocialLinks } from '../types';
+import { SocialLinks } from '../types';
 
 export interface ProfileOverviewTabProps {
   bio?: string | null;
