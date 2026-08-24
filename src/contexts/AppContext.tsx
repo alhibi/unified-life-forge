@@ -962,9 +962,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Merge-on-write: atomic server-side jsonb merge so concurrent engines
     // (app prefs here, chat/traveling subtrees elsewhere) compose instead of
     // clobbering each other's keys.
-    const { error } = await supabase.rpc('merge_user_settings', {
+    const { error } = await untypedSupabase.rpc('merge_user_settings', {
       p_patch: settings as Json,
     });
+
     if (!error) return;
 
     // Pre-migration deployments without the RPC fall back to the legacy
