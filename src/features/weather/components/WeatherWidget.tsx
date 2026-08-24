@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
+import { useWeatherLocation } from '@/features/weather/context/WeatherLocationContext';
 // One WMO code vocabulary for the whole app — see features/weather/lib/conditions.
 import { iconForWeatherCode, labelForWeatherCode } from '@/features/weather/lib/conditions';
 import { ChevronLeft, Droplets, Gauge, Sun, Thermometer, Wind as WindIcon } from '@/lib/icons';
@@ -19,7 +20,8 @@ const HOURS_AHEAD = 8;
  */
 export default function WeatherWidget() {
   const navigate = useNavigate();
-  const { data } = useWeatherData('ar');
+  const { selectedCoords } = useWeatherLocation();
+  const { data } = useWeatherData('ar', selectedCoords);
 
   const hours = useMemo(() => {
     if (!data) return [];

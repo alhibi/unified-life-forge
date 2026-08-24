@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async';
 
 import BackButton from '@/components/BackButton';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { useWeatherLocation } from '../context/WeatherLocationContext';
 import {
   ChevronDown,
   Cloud,
@@ -28,7 +29,6 @@ import MeteorologyConsole from '../components/MeteorologyConsole';
 import MicroMap from '../components/MicroMap';
 import RadarMap from '../components/RadarMap';
 import WeatherPlanner from '../components/WeatherPlanner';
-import WeatherWidget from '../components/WeatherWidget';
 import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
 import { useWeather } from '../hooks/useWeather';
 import { useWeatherForecast } from '../hooks/useWeatherForecast';
@@ -70,20 +70,16 @@ export default function Weather() {
   // 7-day strip printed "Sun / Mon / Tue" and clock labels used English
   // formatting inside otherwise Arabic copy.
   const locale = 'ar';
-  const [selectedCoords, setSelectedCoords] = useState<{
-    lat: number;
-    lng: number;
-    name?: string;
-  } | null>(null);
   
   // NEW: Four main tab groups for better organization
   const [activeMainTab, setActiveMainTab] = useState<'core' | 'forecast' | 'radar' | 'lab'>('core');
 
   // Use either the selected geocoded city, or fallback to the device singleton coords
   const { location: deviceLoc } = useDeviceLocation();
+  const { selectedCoords, setSelectedCoords, clearSelectedCoords } = useWeatherLocation();
   const activeLocation = selectedCoords || deviceLoc;
 
-  const { snapshot, status, tier, isRefreshing, refresh } = useWeather('ar', selectedCoords);
+  const { snapshot, status, tier, isRefreshing, refresh, dataAgeMinutes } = useWeather('ar', selectedCoords);
   const { forecast } = useWeatherForecast('ar', selectedCoords);
 
   const hourly = forecast.hourly.slice(0, 24);
@@ -204,12 +200,12 @@ export default function Weather() {
       {/* Main Container */}
       <main className="px-4 pt-6 space-y-7">
         {/* Data freshness banner — accuracy means knowing the age of the reading */}
-        {(snapshot.meta.is_stale || snapshot.meta.data_age_minutes >= 20) && (
+        {(snapshot.meta.is_stale || dataAgeMinutes >= 20) && (
           <div className="freshness-banner flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-warning/10 border border-warning/30 text-mini">
             <span className="text-foreground font-semibold">
               {snapshot.meta.is_stale
-                ? `⚠️ البيانات متقادمة (${snapshot.meta.data_age_minutes} دقيقة) — يُنصح بالتحديث`
-                : `عمر القراءة ${snapshot.meta.data_age_minutes} دقيقة`}
+                ? `⚠️ البيانات متقادمة (${dataAgeMinutes} دقيقة) — يُنصح بالتحديث`
+                : `عمر القراءة ${dataAgeMinutes} دقيقة`}
             </span>
             <button
               onClick={refresh}
@@ -441,7 +437,7 @@ export default function Weather() {
 
         <div className="divider-subtle" />
         <footer className="page-footer text-center text-micro tracking-[0.18em] uppercase text-primary/70 tabular-nums" dir="ltr">
-          {tier ?? 'fresh'} · {timeLabel(snapshot.meta.last_updated_unix, locale)} ·{' '}
+          {tier ?? 'fresh'} · عمر ${dataAgeMinutes} دقيقة ·{' '}
           {snapshot.meta.fetch_duration_ms}ms
         </footer>
       </main>

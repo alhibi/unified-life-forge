@@ -19,7 +19,8 @@ import { AppProvider, useApp } from "@/contexts/AppContext";
 import { ImageUploadProvider } from "@/contexts/ImageUploadContext";
 import { SystemEngineProvider, useSystemEngine } from "@/contexts/SystemEngineContext";
 import { VoicePlayerProvider } from "@/contexts/VoicePlayerContext";
-import { KeyboardProvider } from "@/features/keyboard";
+import { KeyboardProvider } from '@/features/keyboard';
+import { WeatherLocationProvider } from '@/features/weather/context/WeatherLocationContext';
 import PodcastMiniPlayer from "@/features/podcasts/components/PodcastMiniPlayer";
 import { PodcastPlayerProvider } from "@/features/podcasts/contexts/PodcastPlayerContext";
 import { StreakGuardianRunner } from "@/features/profile/lib/streakGuardian";
@@ -808,24 +809,26 @@ const App = () => (
         <VoicePlayerProvider>
           <ImageUploadProvider>
           <PodcastPlayerProvider>
-          <TooltipProvider>
-            <ErrorBoundary>
-              <Sonner />
-              <BrowserRouter>
-                <AutoPrayerThemeRunner />
-                <PresenceRunner />
-                <NetworkConnectivityListener />
-                <VisitTrackerRunner />
-                <StreakGuardianRunner />
-                <NativeShell />
-                <EdgeSwipeBack />
-                <AnimatedRoutes />
-                <PortalBackButton />
-                <PodcastMiniPlayer />
-                <KeyboardProvider />
-              </BrowserRouter>
-            </ErrorBoundary>
-          </TooltipProvider>
+            <TooltipProvider>
+              <ErrorBoundary>
+                <Sonner />
+                <BrowserRouter>
+                  <AutoPrayerThemeRunner />
+                  <PresenceRunner />
+                  <NetworkConnectivityListener />
+                  <VisitTrackerRunner />
+                  <StreakGuardianRunner />
+                  <NativeShell />
+                  <EdgeSwipeBack />
+                  <WeatherLocationProvider>
+                    <AnimatedRoutes />
+                  </WeatherLocationProvider>
+                  <PortalBackButton />
+                  <PodcastMiniPlayer />
+                  <KeyboardProvider />
+                </BrowserRouter>
+              </ErrorBoundary>
+            </TooltipProvider>
           </PodcastPlayerProvider>
           </ImageUploadProvider>
         </VoicePlayerProvider>

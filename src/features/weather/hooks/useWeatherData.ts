@@ -56,9 +56,12 @@ export interface LegacyWeatherData {
   airQuality: { europeanAqi: number | null; pm2_5: number | null; pm10: number | null } | null;
 }
 
-export function useWeatherData(language: 'ar' = 'ar'): { data: LegacyWeatherData | null; isRefreshing: boolean; refresh: () => void } {
-  const { snapshot, isRefreshing, refresh } = useWeather(language);
-  const { forecast } = useWeatherForecast(language);
+export function useWeatherData(
+  language: 'ar' = 'ar',
+  customCoords?: { lat: number; lng: number; name?: string } | null
+): { data: LegacyWeatherData | null; isRefreshing: boolean; refresh: () => void } {
+  const { snapshot, isRefreshing, refresh } = useWeather(language, customCoords);
+  const { forecast } = useWeatherForecast(language, customCoords);
   if (!snapshot) return { data: null, isRefreshing, refresh };
 
   const current: LegacyCurrent = {
