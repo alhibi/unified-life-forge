@@ -37,6 +37,8 @@ export interface MindState {
   mechanicalNoteIds: string[];
   notes: MindNote[];      // sorted newest → oldest
   events: MindEvent[];    // sorted newest → oldest
+  /** Distinct wiki-link edges [fromId, toId] between existing notes. */
+  links: Array<[string, string]>;
 }
 
 const EMPTY: MindState = {
@@ -51,6 +53,7 @@ const EMPTY: MindState = {
   mechanicalNoteIds: [],
   notes: [],
   events: [],
+  links: [],
 };
 
 function countWords(md: string): number {
@@ -134,11 +137,27 @@ export function useMindState(): MindState {
     const mechanicalNoteIds: string[] = [];
     let firstNoteAt: number | null = null;
 
+    // Distinct wiki-link edges between existing notes (for the 3D arcs).
+    const linkSeen = new Set<string>();
+    const links: Array<[string, string]> = [];
+
     const mindNotes: MindNote[] = notes.map((n) => {
       const isMech = aiAcceptedIds.has(n.id);
       const hemi: Hemisphere = isMech ? 'mechanical' : 'organic';
       const wordCount = countWords(n.contentMd);
       const backlinkCount = incoming.get(n.id) ?? 0;
+
+      // Collect resolved outgoing links as undirected edges.
+      for (const t of extractWikiLinks(n.contentMd)) {
+        const targetId = titleIndex.get(normalizeTitle(t));
+        if (!targetId || targetId === n.id) continue;
+        const key = n.id < targetId ? `${n.id}|${targetId}` : `${targetId}|${n.id}`;
+        if (!linkSeen.has(key)) {
+          linkSeen.add(key);
+          links.push(n.id < targetId ? [n.id, targetId] : [targetId, n.id]);
+        }
+      }
+
       const m = noteMass({ wordCount, isAiSynthesized: isMech, backlinkCount });
       if (isMech) { massMechanical += m; mechanicalNoteIds.push(n.id); }
       else        { massOrganic    += m; organicNoteIds.push(n.id); }
@@ -166,6 +185,7 @@ export function useMindState(): MindState {
       mechanicalNoteIds,
       notes: mindNotes,
       events,
+      links,
     };
   }, [notes, aiAcceptedIds, events, loading]);
 }

@@ -1,280 +1,106 @@
-import { OrbitControls, QuadraticBezierLine } from '@react-three/drei';
+import { OrbitControls, Sparkles } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
+import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
-import { INK_HEX } from '@/utils/themeEngine';
-
-import { anchorFor, type Hemisphere } from '../hooks/useMemoryAnchor';
 import type { MindState } from '../hooks/useMindState';
 import { renderParams } from '../lib/growth';
-
-const MIND_TOKENS = {
-  // The app's shared ink tone. A WebGL material cannot read a CSS variable,
-  // so this is the one place ink appears as a literal.
-  void: INK_HEX,
-  organicBase: '#8B5A4A',
-  organicGlow: '#FFC9A0',
-  mechBase: '#2A2A2A',
-  mechGlow: '#C9A84C',
-  seam: '#F2E7C9',
-  thread: '#C9A84C',
-};
+import { MIND_TOKENS } from '../lib/mindTokens';
+import MechanicalHemisphere from './MechanicalHemisphere';
+import NeuralConstellation from './NeuralConstellation';
+import OrganicHemisphere from './OrganicHemisphere';
+import SeamHardware from './SeamHardware';
 
 const BASE_RADIUS = 1.0;
 
-function OrganicHemisphere({ radius, glow }: { radius: number; glow: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const geom = useMemo(() => {
-    const g = new THREE.SphereGeometry(1, 96, 64, 0, Math.PI);
-    // Displace vertices with pseudo-noise for organic folding.
-    const pos = g.attributes.position as THREE.BufferAttribute;
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i),
-        y = pos.getY(i),
-        z = pos.getZ(i);
-      const n =
-        Math.sin(x * 4.2) * Math.cos(y * 3.7) * 0.06 +
-        Math.sin(y * 5.1 + z * 2.3) * 0.045 +
-        Math.cos(z * 6.4 + x * 1.9) * 0.03;
-      pos.setXYZ(i, x * (1 + n), y * (1 + n), z * (1 + n));
-    }
-    g.computeVertexNormals();
-    return g;
-  }, []);
-  useFrame((_, _dt) => {
-    if (!ref.current) return;
-    const m = ref.current.material as THREE.MeshStandardMaterial;
-    // Gentle breathing.
-    const t = performance.now() * 0.0005;
-    m.emissiveIntensity = glow * (0.6 + Math.sin(t) * 0.15);
-  });
-  return (
-    <mesh ref={ref} geometry={geom} scale={radius} rotation={[0, -Math.PI / 2, 0]}>
-      <meshStandardMaterial
-        color={MIND_TOKENS.organicBase}
-        emissive={MIND_TOKENS.organicGlow}
-        emissiveIntensity={glow}
-        roughness={0.85}
-        metalness={0.05}
-      />
-    </mesh>
-  );
-}
-
-function MechHemisphere({ radius, glow }: { radius: number; glow: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const geom = useMemo(() => {
-    const g = new THREE.SphereGeometry(1, 20, 16, 0, Math.PI);
-    // Low-poly panel look; toggle flat shading via normals reset.
-    g.computeVertexNormals();
-    return g;
-  }, []);
-  useFrame(() => {
-    if (!ref.current) return;
-    const m = ref.current.material as THREE.MeshStandardMaterial;
-    const t = performance.now() * 0.001;
-    m.emissiveIntensity = glow * (0.55 + Math.sin(t * 1.3) * 0.1);
-  });
-  return (
-    <mesh ref={ref} geometry={geom} scale={radius} rotation={[0, Math.PI / 2, 0]}>
-      <meshStandardMaterial
-        color={MIND_TOKENS.mechBase}
-        emissive={MIND_TOKENS.mechGlow}
-        emissiveIntensity={glow}
-        roughness={0.35}
-        metalness={0.75}
-        flatShading
-      />
-    </mesh>
-  );
-}
-
-function CorpusSeam({ radius }: { radius: number }) {
-  return (
-    <mesh rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[radius * 1.005, 0.012, 12, 96]} />
-      <meshBasicMaterial color={MIND_TOKENS.seam} toneMapped={false} />
-    </mesh>
-  );
-}
-
-function Filaments({
-  hemisphere,
-  count,
-  radius,
-  color,
-}: {
-  hemisphere: Hemisphere;
-  count: number;
-  radius: number;
-  color: string;
-}) {
-  const positions = useMemo(() => {
-    const arr: number[] = [];
-    for (let i = 0; i < count; i++) {
-      const seed = `${hemisphere}:${i}`;
-      const a = anchorFor(seed, hemisphere, radius);
-      const b = anchorFor(seed + '#', hemisphere, radius);
-      arr.push(a[0], a[1], a[2], b[0], b[1], b[2]);
-    }
-    return new Float32Array(arr);
-  }, [hemisphere, count, radius]);
-  if (!count) return null;
-  return (
-    <lineSegments>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-          count={positions.length / 3}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color={color} transparent opacity={0.35} />
-    </lineSegments>
-  );
-}
-
-function FillingCore({ radius }: { radius: number }) {
-  const count = Math.max(200, Math.floor(radius * 2000));
-  const positions = useMemo(() => {
-    const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      // Uniform in-sphere sampling.
-      const u = Math.random();
-      const r = radius * Math.cbrt(u) * 0.96;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      arr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      arr[i * 3 + 2] = r * Math.cos(phi);
-    }
-    return arr;
-  }, [count, radius]);
-  const ref = useRef<THREE.Points>(null);
-  useFrame(() => {
-    if (ref.current) ref.current.rotation.y += 0.0005;
-  });
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} count={count} />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.008}
-        color={MIND_TOKENS.seam}
-        transparent
-        opacity={0.55}
-        sizeAttenuation
-      />
-    </points>
-  );
-}
-
-function AutoRotator({ enabled }: { enabled: boolean }) {
+/** Slow ceremonial turn of the whole mind, plus an almost-invisible bob. */
+function AutoRotator({ enabled, children }: { enabled: boolean; children: React.ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
   useFrame((state, dt) => {
-    if (!enabled) return;
-    // ~4° per second.
-    state.scene.rotation.y += dt * ((4 * Math.PI) / 180);
+    if (!ref.current) return;
+    if (enabled) ref.current.rotation.y += dt * 0.055; // ≈ 3.2°/s
+    ref.current.position.y = Math.sin(state.clock.elapsedTime * 0.28) * 0.012;
   });
-  return null;
+  return <group ref={ref}>{children}</group>;
 }
 
-function Threads({
-  activeIds,
-  mind,
-  radius,
-}: {
-  activeIds: string[];
+export interface MindSceneProps {
   mind: MindState;
-  radius: number;
-}) {
-  if (!activeIds.length) return null;
-  const byId = new Map(mind.notes.map((n) => [n.id, n]));
-  return (
-    <>
-      {activeIds.map((id) => {
-        const n = byId.get(id);
-        if (!n) return null;
-        const target = anchorFor(id, n.hemisphere, radius);
-        const color = n.hemisphere === 'organic' ? MIND_TOKENS.organicGlow : MIND_TOKENS.mechGlow;
-        // Start from a fixed off-scene anchor to the right (RTL trailing edge).
-        return (
-          <QuadraticBezierLine
-            key={id}
-            start={[radius * 2.4, 0, 0]}
-            mid={[radius * 1.4, target[1] * 0.6, 0]}
-            end={[target[0], target[1], target[2]]}
-            color={color}
-            lineWidth={1.5}
-            transparent
-            opacity={0.85}
-          />
-        );
-      })}
-    </>
-  );
-}
-
-export default function MindScene({
-  mind,
-  activeIds,
-  reducedMotion,
-}: {
-  mind: MindState;
-  activeIds: string[];
+  selectedId: string | null;
+  onSelectNote: (id: string | null) => void;
   reducedMotion: boolean;
-}) {
-  const { fullness, vitalityOrganic, vitalityMechanical } = mind;
+}
+
+export default function MindScene({ mind, selectedId, onSelectNote, reducedMotion }: MindSceneProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const maxFilaments = isMobile ? 220 : 800;
-  const params = renderParams(fullness, vitalityOrganic, vitalityMechanical, {
-    baseRadius: BASE_RADIUS,
-    maxFilaments,
-  });
+
+  const params = useMemo(
+    () =>
+      renderParams(mind.fullness, mind.vitalityOrganic, mind.vitalityMechanical, {
+        baseRadius: BASE_RADIUS,
+        maxFilaments: isMobile ? 220 : 800,
+      }),
+    [mind.fullness, mind.vitalityOrganic, mind.vitalityMechanical, isMobile],
+  );
 
   return (
     <Canvas
-      dpr={[1, 2]}
+      dpr={isMobile ? [1, 1.5] : [1, 2]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
-      camera={{ position: [0, 0, 3.2], fov: 45 }}
+      camera={{ position: [0.15, 0.3, 3.15], fov: 45 }}
       style={{ background: MIND_TOKENS.void }}
+      onPointerMissed={() => onSelectNote(null)}
     >
       <color attach="background" args={[MIND_TOKENS.void]} />
-      <ambientLight intensity={0.25} />
-      <pointLight position={[3, 2, 3]} intensity={1.2} color={MIND_TOKENS.organicGlow} />
-      <pointLight position={[-3, 2, 3]} intensity={1.0} color={MIND_TOKENS.mechGlow} />
-      <pointLight position={[0, -3, 2]} intensity={0.35} color={MIND_TOKENS.seam} />
+      <fog attach="fog" args={['#0A0A0A', 4.6, 8.5]} />
+
+      {/* Cinematic three-point rig: warm key over the cortex, cool rim on the
+          chassis, soft fill under the seam. */}
+      <ambientLight intensity={0.24} />
+      <pointLight position={[3.4, 2.2, 2.6]} intensity={16} color={MIND_TOKENS.organicGlow} />
+      <pointLight position={[-3.4, 1.8, -2.4]} intensity={13} color="#7FB4FF" />
+      <pointLight position={[0, -2.6, 2.2]} intensity={5} color={MIND_TOKENS.seam} />
 
       <Suspense fallback={null}>
-        <group>
+        <AutoRotator enabled={!reducedMotion}>
           <OrganicHemisphere radius={BASE_RADIUS} glow={params.organic.glowIntensity} />
-          <MechHemisphere radius={BASE_RADIUS} glow={params.mechanical.glowIntensity} />
-          <CorpusSeam radius={BASE_RADIUS} />
-          <Filaments
-            hemisphere="organic"
-            count={params.organic.filamentCount}
-            radius={BASE_RADIUS}
-            color={MIND_TOKENS.organicGlow}
+          <MechanicalHemisphere radius={BASE_RADIUS} glow={params.mechanical.glowIntensity} />
+          <SeamHardware radius={BASE_RADIUS} />
+          <NeuralConstellation
+            mind={mind}
+            surfaceRadius={BASE_RADIUS * 1.03}
+            selectedId={selectedId}
+            onSelect={(id) => onSelectNote(selectedId === id ? null : id)}
           />
-          <Filaments
-            hemisphere="mechanical"
-            count={params.mechanical.filamentCount}
-            radius={BASE_RADIUS}
-            color={MIND_TOKENS.mechGlow}
-          />
-          <FillingCore radius={params.coreRadius} />
-          <Threads activeIds={activeIds} mind={mind} radius={BASE_RADIUS} />
-        </group>
-        <AutoRotator enabled={!reducedMotion} />
+        </AutoRotator>
+
+        {/* Ambient thought-dust drifting around the mind. */}
+        <Sparkles
+          count={isMobile ? 70 : 150}
+          scale={[4.6, 4.6, 4.6]}
+          size={2.2}
+          speed={0.22}
+          opacity={0.32}
+          color={MIND_TOKENS.seam}
+        />
       </Suspense>
+
+      {!isMobile && (
+        <EffectComposer multisampling={0}>
+          <Bloom intensity={1.05} luminanceThreshold={0.24} luminanceSmoothing={0.34} mipmapBlur radius={0.72} />
+        </EffectComposer>
+      )}
 
       <OrbitControls
         enablePan={false}
         enableZoom
-        minDistance={1.8}
-        maxDistance={5}
-        rotateSpeed={0.6}
+        minDistance={1.65}
+        maxDistance={5.2}
+        rotateSpeed={0.55}
+        zoomSpeed={0.7}
+        enableDamping
+        dampingFactor={0.08}
       />
     </Canvas>
   );
