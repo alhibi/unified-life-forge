@@ -14,6 +14,8 @@ import { clearKeyboardRuntimeCache } from '@/features/keyboard/lib/preference';
 import { useAuth } from '@/hooks/useAuth';
 import { type Language, translate } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import { untypedSupabase } from '@/integrations/supabase/untypedClient';
+
 import {
   type AdvancedInterfacePreferences,
   APPEARANCE_PREFERENCES_STORAGE_KEY,
