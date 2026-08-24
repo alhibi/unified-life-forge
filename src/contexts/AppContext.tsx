@@ -264,7 +264,10 @@ interface AppContextType {
   setPrayerMadhab: (m: PrayerMadhab) => void;
   /** Reset every preference this provider owns to its default (also clears
    *  traveling feature settings). UI-facing "restore defaults" action. */
-  resetToDefaults: () => void;
+  /** Restores preferences. Pass `{ includeUserData: true }` (sign-out only)
+   *  to also wipe saved content: cities, locations, stats, progress. */
+  resetToDefaults: (options?: { includeUserData?: boolean }) => void;
+
   midnightMode: number;
   setMidnightMode: (m: number) => void;
   latitudeAdjMethod: LatitudeAdjMethod;
@@ -681,7 +684,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Only the user → null transition counts as a sign-out worth
     // resetting preferences for. Initial mount when the user starts out
     // null must NOT clobber any locally-saved settings.
-    if (prev && !authUser) resetToDefaults();
+    if (prev && !authUser) resetToDefaults({ includeUserData: true });
   }, [authUser]);
 
   // Load settings from DB when user logs in
