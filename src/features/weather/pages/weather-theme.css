@@ -9,10 +9,179 @@
 .weather-theme .no-scrollbar::-webkit-scrollbar { display: none; }
 .weather-theme .no-scrollbar { scrollbar-width: none; }
 
-.weather-theme .bento {
+/* Enhanced tab bar styling */
+.weather-theme .tab-bar {
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.3);
+  box-shadow: 
+    0 1px 3px hsl(var(--foreground) / 0.04),
+    0 8px 24px hsl(var(--foreground) / 0.03);
+}
+
+.weather-theme .tab-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.weather-theme .tab-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, hsl(var(--primary) / 0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.weather-theme .tab-btn:hover::before {
+  opacity: 1;
+}
+
+.weather-theme .tab-btn.active {
+  background: hsl(var(--primary));
+  box-shadow: 
+    0 2px 8px hsl(var(--primary) / 0.25),
+    0 1px 2px hsl(var(--primary) / 0.15);
+}
+
+.weather-theme .tab-btn.active::before {
+  opacity: 0;
+}
+
+.weather-theme .tab-btn.active .tab-icon {
+  transform: scale(1.05);
+}
+
+.weather-theme .tab-btn .tab-icon {
+  transition: transform 0.2s ease;
+}
+
+/* Enhanced panel styling */
+.weather-theme .panel-elevated {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.4);
+  box-shadow: 
+    0 1px 3px hsl(var(--foreground) / 0.04),
+    0 4px 12px hsl(var(--foreground) / 0.03);
+}
+
+.weather-theme .panel-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent);
+}
+
+/* Spacing utilities */
+.weather-theme .space-section { margin-bottom: 1.5rem; } /* 24px */
+.weather-theme .space-panel { margin-bottom: 1rem; } /* 16px */
+.weather-theme .space-element { margin-bottom: 0.75rem; } /* 12px */
+
+/* Hero section enhancements */
+.weather-theme .hero-panel {
+  border-radius: 1.75rem; /* 28px */
+  overflow: hidden;
+  position: relative;
+}
+
+.weather-theme .hero-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(0deg, hsl(var(--card) / 0.9), transparent);
+  pointer-events: none;
+}
+
+/* Gauge tile refinements */
+.weather-theme .gauge-tile {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.weather-theme .gauge-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 16px hsl(var(--foreground) / 0.06),
+    0 2px 8px hsl(var(--foreground) / 0.04);
+}
+
+/* Card grid refinements */
+.weather-theme .card-grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 0.75rem; /* 12px */
 }
-.weather-theme .bento > * { grid-column: 1 / -1; }
-.weather-theme .bento > .b-one { grid-column: span 1 / span 1; }
+
+.weather-theme .card-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.weather-theme .card-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.625rem; /* 10px */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .weather-theme .card-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .weather-theme .card-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Section header styling */
+.weather-theme .section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.weather-theme .section-title {
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  line-height: 1.25;
+  color: hsl(var(--foreground));
+}
+
+.weather-theme .section-subtitle {
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 700;
+  letter-spacing: 0.024em;
+  text-transform: uppercase;
+  color: hsl(var(--foreground) / 0.6);
+  white-space: nowrap;
+}
+
+/* Divider */
+.weather-theme .divider-subtle {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--border) / 0.3), transparent);
+  margin: 1rem 0;
+}
+
+/* Freshness banner */
+.weather-theme .freshness-banner {
+  border-radius: 0.875rem; /* 14px */
+  border-width: 1px;
+}
+
+/* Footer styling */
+.weather-theme .page-footer {
+  padding-top: 0.5rem;
+  padding-bottom: 1.5rem;
+  border-top: 1px solid hsl(var(--border) / 0.15);
+  margin-top: 2rem;
+}

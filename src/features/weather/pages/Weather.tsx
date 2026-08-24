@@ -57,136 +57,13 @@ import { SoilAndMicroclimate } from '../components/SoilAndMicroclimate';
 import { SourceHealthPanel } from '../components/SourceHealthPanel';
 import { WeatherHero } from '../components/WeatherHero';
 import { WindCompass } from '../components/WindCompass';
+// Import standardized panels from WeatherPanels
+import { WeatherPanel, Metric as PanelMetric, GaugeTile } from '../components/WeatherPanels';
 
 // Weather-code vocabulary lives in ../lib/conditions — the page used to carry
 // its own copy of both the glyph map and the Arabic labels, which drifted from
 // the widget's copy (code 80 read "زخات مطر" here and "أمطار" there).
 const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, isDay).icon;
-
-function Panel({
-  title,
-  sub,
-  children,
-}: { title?: string; sub?: string; children: ReactNode }) {
-  return (
-    <section className="relative rounded-2xl surface-depth overflow-hidden">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40"
-      />
-      {(title || sub) && (
-        <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
-          {title && (
-            <h2 className="font-semibold text-lead leading-none text-foreground">
-              {title}
-            </h2>
-          )}
-          {sub && (
-            <span className="text-micro tracking-[0.15em] uppercase text-foreground/90 font-bold tabular-nums text-end">
-              {sub}
-            </span>
-          )}
-        </header>
-      )}
-      <div className={title || sub ? 'px-4 pb-4' : 'p-4'}>{children}</div>
-    </section>
-  );
-}
-
-function Metric({
-  label,
-  value,
-  unit,
-  hint,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  unit?: string;
-  hint?: string;
-  icon?: ReactNode;
-}) {
-  return (
-    <div className="min-w-0">
-      <div className="flex items-center gap-1.5 text-foreground/90 font-semibold min-w-0">
-        {icon && (
-          <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-primary shrink-0">{icon}</span>
-        )}
-        <span className="text-micro tracking-[0.12em] uppercase truncate">{label}</span>
-      </div>
-      <div className="mt-1 flex items-baseline gap-1 tabular-nums" dir="ltr">
-        <span className="font-bold text-display leading-none text-foreground">
-          {value}
-        </span>
-        {unit && <span className="text-mini text-primary/90 font-bold">{unit}</span>}
-      </div>
-      {hint && <p className="mt-0.5 text-micro text-foreground/80 font-medium truncate">{hint}</p>}
-    </div>
-  );
-}
-
-function GaugeTile({
-  label,
-  value,
-  unit,
-  pctValue,
-  hint,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  unit?: string;
-  pctValue: number;
-  hint?: string;
-  icon?: ReactNode;
-}) {
-  const clamped = Math.max(0, Math.min(1, pctValue));
-  const circumference = 2 * Math.PI * 33;
-  return (
-    <div className="rounded-2xl surface-depth p-3.5 min-w-0 h-full">
-      <div className="flex items-center justify-between gap-2 text-foreground/90 font-semibold">
-        <span className="text-micro tracking-[0.12em] uppercase truncate">{label}</span>
-        {icon && (
-          <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>
-        )}
-      </div>
-      <div className="mt-2 flex items-center gap-2">
-        <svg viewBox="0 0 80 80" className="w-14 h-14 shrink-0 -rotate-90">
-          <circle
-            cx="40"
-            cy="40"
-            r="33"
-            fill="none"
-            stroke="hsl(var(--foreground))"
-            strokeOpacity="0.09"
-            strokeWidth="7"
-          />
-          <circle
-            cx="40"
-            cy="40"
-            r="33"
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="7"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - clamped)}
-            style={{
-              transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          />
-        </svg>
-        <div className="min-w-0">
-          <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-bold text-display leading-none text-foreground">{value}</span>
-            {unit && <span className="text-micro text-primary/90 font-bold">{unit}</span>}
-          </div>
-          {hint && <p className="mt-1 text-micro text-foreground/80 font-medium truncate">{hint}</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Weather() {
   // Arabic-only app (design-system §1). This was 'en-GB', which is why the
@@ -300,14 +177,14 @@ export default function Weather() {
 
       {/* Sticky Header */}
       <div className="z-float border-b border-border/50 app-sticky-header">
-        <div className="px-4 py-3 flex items-center gap-3">
+        <div className="px-4 py-3.5 flex items-center gap-3">
           <BackButton />
           <div className="flex-1 min-w-0 text-center">
             <h1 className="font-bold text-title leading-none text-foreground truncate">
               {selectedCoords?.name || 'لوحة الأرصاد الجوية والفيزياء'}
             </h1>
             <p
-              className="mt-2 text-micro tracking-[0.15em] uppercase text-primary/90 font-bold tabular-nums"
+              className="mt-2.5 text-micro tracking-[0.15em] uppercase text-primary/90 font-bold tabular-nums"
               dir="ltr"
             >
               {Math.round(snapshot.meta.location.elevation_m)} m ·{' '}
@@ -317,7 +194,7 @@ export default function Weather() {
           <button
             onClick={refresh}
             aria-label={'تحديث الطقس'}
-            className="w-11 h-11 rounded-lg border border-border/60 bg-card flex items-center justify-center active:scale-[0.98] transition-transform"
+            className="w-11 h-11 rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm flex items-center justify-center active:scale-[0.98] transition-transform hover:bg-card hover:border-border/80"
           >
             <RefreshCw className={`w-4 h-4 text-primary ${isRefreshing ? 'animate-spin' : ''}`} />
           </button>
@@ -325,10 +202,10 @@ export default function Weather() {
       </div>
 
       {/* Main Container */}
-      <main className="px-4 pt-5 space-y-6">
+      <main className="px-4 pt-6 space-y-7">
         {/* Data freshness banner — accuracy means knowing the age of the reading */}
         {(snapshot.meta.is_stale || snapshot.meta.data_age_minutes >= 20) && (
-          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-warning/10 border border-warning/30 text-mini">
+          <div className="freshness-banner flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-warning/10 border border-warning/30 text-mini">
             <span className="text-foreground font-semibold">
               {snapshot.meta.is_stale
                 ? `⚠️ البيانات متقادمة (${snapshot.meta.data_age_minutes} دقيقة) — يُنصح بالتحديث`
@@ -348,7 +225,7 @@ export default function Weather() {
 
         {/* NEW: Four-group segmented control with descriptions */}
         <div className="space-y-2">
-          <div className="flex bg-background border border-border p-1.5 rounded-2xl gap-1.5 sticky top-16 z-header">
+          <div className="tab-bar flex bg-background/80 backdrop-blur-md border border-border/30 p-1.5 rounded-2xl gap-1.5 sticky top-16 z-header shadow-[0_1px_3px_hsl(var(--foreground)/0.04),0_8px_24px_hsl(var(--foreground)/0.03)]">
             {mainTabs.map((t) => {
               const TabIcon = t.icon;
               const active = activeMainTab === t.id;
@@ -358,14 +235,14 @@ export default function Weather() {
                   onClick={() => {
                     setActiveMainTab(t.id);
                   }}
-                  className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-bold transition-all duration-200 active:scale-95 ${
+                  className={`tab-btn flex-1 flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-bold transition-all duration-200 active:scale-95 relative overflow-hidden ${
                     active
-                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      ? 'bg-primary text-primary-foreground shadow-[0_2px_8px_hsl(var(--primary)/0.25),0_1px_2px_hsl(var(--primary)/0.15)]'
                       : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                   }`}
                   title={t.description}
                 >
-                  <TabIcon className="w-4 h-4" />
+                  <TabIcon className="tab-icon w-4 h-4 transition-transform duration-200" />
                   <span className="text-micro leading-tight text-center truncate max-w-full">
                     {t.label}
                   </span>
@@ -384,7 +261,7 @@ export default function Weather() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-6"
+              className="space-y-7"
             >
               {/* Weather Hero — uses new extracted component */}
               <WeatherHero snapshot={snapshot} hourly={hourly} />
@@ -402,7 +279,7 @@ export default function Weather() {
               <MinutelyRainTimeline entries={forecast.minutely} locale={locale} />
 
               {/* Standard Bento Tiles — using new GaugeTile */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="card-grid-2 gap-3">
                 <GaugeTile
                   label={'مؤشر UV'}
                   value={snapshot.solar.uv_index.toFixed(1)}
@@ -469,7 +346,7 @@ export default function Weather() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-6"
+              className="space-y-7"
             >
               {/* NEW Component: MicroMap Dark Live Map */}
               <MicroMap
@@ -499,7 +376,7 @@ export default function Weather() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-6"
+              className="space-y-7"
             >
               {/* Live Wind Compass & Dynamics */}
               <WindCompass
@@ -534,7 +411,7 @@ export default function Weather() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-6"
+              className="space-y-7"
             >
               {/* NEW Component: Smart Weather Planner & Medical Advisories */}
               <WeatherPlanner
@@ -562,10 +439,8 @@ export default function Weather() {
           )}
         </AnimatePresence>
 
-        <footer
-          className="pt-2 pb-6 text-center text-micro tracking-[0.18em] uppercase text-primary/70 tabular-nums"
-          dir="ltr"
-        >
+        <div className="divider-subtle" />
+        <footer className="page-footer text-center text-micro tracking-[0.18em] uppercase text-primary/70 tabular-nums" dir="ltr">
           {tier ?? 'fresh'} · {timeLabel(snapshot.meta.last_updated_unix, locale)} ·{' '}
           {snapshot.meta.fetch_duration_ms}ms
         </footer>
