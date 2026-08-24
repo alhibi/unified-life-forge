@@ -534,19 +534,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // tafsir, dynamic preset, lastLocation, …) leak across accounts on
   // shared devices. We now sweep every `app-*` key plus an explicit
   // allowlist of feature-scoped scratch keys, then re-seed defaults.
+  // Scratch keys that are pure UI residue — safe to clear on a plain
+  // "restore defaults" as well as on sign-out.
   const FEATURE_SCRATCH_KEYS = [
-    'game-stats',
-    'saved-locations',
-    'lastLocation',
     'mihrab:lastTab',
     'wellness:lastTab',
     'wellness:onboarded',
+    'rss:lastFeed',
+  ];
+  // User CONTENT, not preferences: saved cities, saved locations, game
+  // stats, reading/tafsir progress, unsent drafts. These are only wiped
+  // on sign-out (account switch on a shared device) — never by the
+  // in-Settings "restore defaults" action, which promises a
+  // look-and-feel reset only.
+  const USER_DATA_KEYS = [
+    'game-stats',
+    'saved-locations',
+    'lastLocation',
     'tafsir-state',
     'reading:state',
-    'rss:lastFeed',
     'clipboard:draft',
+    'weather-favorites',
+    'weather-search-history',
   ];
-  const resetToDefaults = () => {
+  const resetToDefaults = (options?: { includeUserData?: boolean }) => {
+    const includeUserData = options?.includeUserData ?? false;
     syncRef.current = true;
     // Sweep every app-* preference key (covers app-dynamic-preset and
     // any future app-prefixed setting we add without touching this list).
@@ -560,17 +572,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {
       /* storage may be blocked in private mode — ignore */
     }
-    FEATURE_SCRATCH_KEYS.forEach((k) => {
-      try {
-        localStorage.removeItem(k);
-      } catch {
-        /* storage may be blocked */
-      }
-    });
-    // Traveling feature settings (keyboard, weather, games, fitness,
-    // wellness) are preference residue too — a shared device must not
-    // leak the previous account's choices into the next session's sync.
-    TRAVELING_SETTINGS_STORAGE_KEYS.forEach((k) => {
+    const keys = [
+      ...FEATURE_SCRATCH_KEYS,
+      // Traveling *preferences* (keyboard, game themes, fitness toggle)
+      // are look-and-feel; content-bearing traveling keys are excluded
+      // unless this is a sign-out wipe.
+      ...TRAVELING_SETTINGS_STORAGE_KEYS.filter(
+        (k) => !USER_DATA_KEYS.includes(k),
+      ),
+      ...(includeUserData ? USER_DATA_KEYS : []),
+    ];
+    keys.forEach((k) => {
       try {
         localStorage.removeItem(k);
       } catch {
@@ -578,6 +590,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     });
     clearKeyboardRuntimeCache();
+
 
     // Re-seed default values + state.
     setLanguageState('ar');
