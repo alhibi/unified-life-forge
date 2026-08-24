@@ -199,6 +199,8 @@ const loadArchiveReader = () => import("./features/archive/pages/ArchiveReader")
 const loadPKM = () => import("./features/pkm/pages/PKM");
 // Living Mind — dedicated contemplative 3D destination for PKM.
 const loadMind = () => import("./features/mind/pages/Mind");
+// Living Mind — isolated material-study preview (Stage 1 visual language).
+const loadMaterialPreview = () => import("./features/mind/pages/MaterialPreviewPage");
 // "مذكرتي" — journal with 3D brain hero.
 const loadJournal = () => import("./features/journal/pages/JournalHome");
 // Travel Atlas — five surfaces: the world overview, one country's map, a place
@@ -291,6 +293,7 @@ registerRoute('/archive/new',    loadArchiveNew);
 registerRoute('/archive/:id',    loadArchiveReader);
 registerRoute('/pkm',            loadPKM);
 registerRoute('/pkm/mind',       loadMind);
+registerRoute('/dev/material-preview', loadMaterialPreview);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
 registerRoute('/crypto',          loadCrypto);
@@ -364,6 +367,7 @@ const ArchiveNewPage    = lazy(loadArchiveNew);
 const ArchiveReaderPage = lazy(loadArchiveReader);
 const PKMPage           = lazy(loadPKM);
 const MindPage          = lazy(loadMind);
+const MaterialPreviewPage = lazy(loadMaterialPreview);
 const OAuthConsentPage  = lazy(loadOAuthConsent);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
@@ -761,6 +765,7 @@ function AnimatedRoutes() {
                   {/* PKM — personal knowledge base (local-first MVP). */}
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
+                  <Route path="/dev/material-preview" element={<ErrorBoundary><MaterialPreviewPage /></ErrorBoundary>} />
                   {/* «الرئيسي» is no longer a standalone app — its widgets live on the portal. */}
                   <Route path="/now"           element={<Navigate to="/" replace />} />
                   <Route path="/crypto"        element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
