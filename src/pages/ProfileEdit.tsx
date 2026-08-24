@@ -12,12 +12,16 @@ import { ProfileActivityMatrixTab } from '@/features/profile/components/ProfileA
 import { ProfileBadgesTab } from '@/features/profile/components/ProfileBadgesTab';
 import { ProfileCompletionCard } from '@/features/profile/components/ProfileCompletionCard';
 import { ProfileHeaderHero } from '@/features/profile/components/ProfileHeaderHero';
+import { ProfileInsightsPanel } from '@/features/profile/components/ProfileInsightsPanel';
 import { ProfileOverviewTab } from '@/features/profile/components/ProfileOverviewTab';
-import { COVER_THEME_OPTIONS, ProfilePrivacySettingsTab } from '@/features/profile/components/ProfilePrivacySettingsTab';
+import { ProfilePrivacySettingsTab } from '@/features/profile/components/ProfilePrivacySettingsTab';
+import { BadgeTelemetryPanel } from '@/features/profile/components/BadgeTelemetryPanel';
 import { calculateProfileActivitySummary } from '@/features/profile/lib/activityAggregator';
 import { generateInitialsAvatar } from '@/features/profile/lib/avatarStudioEngine';
 import { evaluateProfileBadges } from '@/features/profile/lib/badgeEvaluator';
+import { calculateProfileCompletion, ProfileData } from '@/features/profile/lib/profileCompletionEngine';
 import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
+import { startBadgeAutoEvaluation, evaluateAndEmitBadges } from '@/features/profile/lib/badgeStore';
 import { PrivacySettings, ProfileCompletionMetrics, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -37,7 +41,7 @@ import { isUsernameAvailable, updateProfileAndAuth, uploadAvatar } from '@/servi
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { EMOJI_AVATARS, getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
-type ProfileTab = 'overview' | 'activity' | 'edit' | 'badges' | 'privacy';
+type ProfileTab = 'overview' | 'activity' | 'edit' | 'badges' | 'privacy' | 'insights' | 'telemetry';
 
 export default function ProfileEditPage() {
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
@@ -207,8 +211,16 @@ export default function ProfileEditPage() {
 
   // Sync active cover theme from state
   const activeCoverCss = useMemo(() => {
-    const theme = COVER_THEME_OPTIONS.find((t) => t.id === coverThemeId);
-    return theme ? theme.css : COVER_THEME_OPTIONS[0].css;
+    const themes = [
+      { id: 'obsidian', css: 'linear-gradient(135deg, #111113 0%, #1a1a1e 100%)' },
+      { id: 'copper', css: 'linear-gradient(135deg, #2b1a17 0%, #4a2820 100%)' },
+      { id: 'emerald', css: 'linear-gradient(135deg, #0e271d 0%, #184232 100%)' },
+      { id: 'amber', css: 'linear-gradient(135deg, #2f2110 0%, #4f361a 100%)' },
+      { id: 'cobalt', css: 'linear-gradient(135deg, #101c2e 0%, #1d2f4a 100%)' },
+      { id: 'velvet', css: 'linear-gradient(135deg, #221226 0%, #381b3f 100%)' },
+    ];
+    const theme = themes.find((t) => t.id === coverThemeId);
+    return theme ? theme.css : themes[0].css;
   }, [coverThemeId]);
 
   // Compute dirty flag
@@ -255,29 +267,32 @@ export default function ProfileEditPage() {
   // Live unified streak from the central store (recomputes on activity)
   const unifiedStreakDays = useUnifiedStreakDays();
 
-  // Compute profile strength metrics
-  const completionMetrics = useMemo<ProfileCompletionMetrics>(() => {
-    const items = [
-      { id: '1', labelAr: 'اختيار اسم مستخدم مميز', isCompleted: Boolean(newUsername.trim()), weight: 15, actionTab: 'edit', fieldKey: 'username' },
-      { id: '2', labelAr: 'تعيين الاسم الظاهر', isCompleted: Boolean(displayName.trim()), weight: 15, actionTab: 'edit', fieldKey: 'displayName' },
-      { id: '3', labelAr: 'تخصيص صورة الملف الشخصي', isCompleted: Boolean(selectedAvatar), weight: 15, actionTab: 'edit', fieldKey: 'avatar' },
-      { id: '4', labelAr: 'كتابة نبذة عن الشغف والتخصص', isCompleted: Boolean(bio.trim()), weight: 15, actionTab: 'edit', fieldKey: 'bio' },
-      { id: '5', labelAr: 'إضافة المسمى الوظيفي والمدينة', isCompleted: Boolean(title.trim() || location.trim()), weight: 10, actionTab: 'edit', fieldKey: 'title' },
-      { id: '6', labelAr: 'تحديث الحالة والرمز التعبيري', isCompleted: Boolean(statusText.trim()), weight: 10, actionTab: 'edit', fieldKey: 'status' },
-      { id: '7', labelAr: 'ربط حساب تواصل أو موقع شخصي', isCompleted: Boolean(websiteUrl.trim() || Object.values(socialLinks).some(Boolean)), weight: 10, actionTab: 'edit', fieldKey: 'social' },
-      { id: '8', labelAr: 'تثبيت الأوسمة المميزة', isCompleted: featuredBadges.length > 0, weight: 10, actionTab: 'badges', fieldKey: 'badges' },
-    ];
+  // Build ProfileData object for the completion engine
+  const profileData = useMemo<ProfileData>(() => ({
+    username: newUsername,
+    displayName,
+    avatar: selectedAvatar,
+    bio,
+    title,
+    location,
+    statusText,
+    statusEmoji,
+    websiteUrl,
+    socialLinks,
+    featuredBadges,
+    coverThemeId,
+    isPublic,
+    privacySettings,
+  }), [newUsername, displayName, selectedAvatar, bio, title, location, statusText, statusEmoji, websiteUrl, socialLinks, featuredBadges, coverThemeId, isPublic, privacySettings]);
 
-    const completed = items.filter((i) => i.isCompleted);
-    const percentage = completed.reduce((acc, curr) => acc + curr.weight, 0);
-
-    return {
-      percentage: Math.min(100, percentage),
-      completedCount: completed.length,
-      totalCount: items.length,
-      items,
-    };
-  }, [newUsername, displayName, selectedAvatar, bio, title, location, statusText, websiteUrl, socialLinks, featuredBadges]);
+  // Compute profile strength metrics using the new engine
+  const completionMetrics = useMemo(() => {
+    return calculateProfileCompletion(
+      profileData,
+      activitySummary,
+      unifiedStreakDays ?? 0
+    );
+  }, [profileData, activitySummary, unifiedStreakDays]);
 
   const evaluatedBadges = useMemo(() => {
     return evaluateProfileBadges(
@@ -286,6 +301,23 @@ export default function ProfileEditPage() {
       unifiedStreakDays ?? 0
     );
   }, [activitySummary, completionMetrics.percentage, unifiedStreakDays]);
+
+  // Start real-time badge evaluation on mount
+  useEffect(() => {
+    if (!user) return;
+    
+    const stopEvaluation = startBadgeAutoEvaluation(
+      () => calculateProfileActivitySummary(),
+      () => completionMetrics.percentage,
+      () => unifiedStreakDays ?? 0,
+      60000 // 1 minute
+    );
+    
+    // Initial evaluation
+    evaluateAndEmitBadges(activitySummary, completionMetrics.percentage, unifiedStreakDays ?? 0);
+    
+    return () => stopEvaluation();
+  }, [user, activitySummary, completionMetrics.percentage, unifiedStreakDays]);
 
   // Persist draft to localStorage when dirty
   useEffect(() => {
@@ -477,6 +509,51 @@ export default function ProfileEditPage() {
     }
   };
 
+  // Privacy settings handlers
+  const exportPrivacySettings = useCallback((settings: PrivacySettings) => {
+    try {
+      const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `privacy-settings-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('تم تصدير إعدادات الخصوصية');
+    } catch {
+      toast.error('فشل في تصدير الإعدادات');
+    }
+  }, []);
+
+  const importPrivacySettings = useCallback((settings: PrivacySettings) => {
+    try {
+      // Validate required fields
+      if (
+        typeof settings.hide_activity === 'boolean' &&
+        typeof settings.hide_location === 'boolean' &&
+        typeof settings.hide_online_status === 'boolean'
+      ) {
+        setPrivacySettings(settings);
+        toast.success('تم استيراد إعدادات الخصوصية');
+      } else {
+        toast.error('ملف الإعدادات غير صالح');
+      }
+    } catch {
+      toast.error('فشل في استيراد الإعدادات');
+    }
+  }, []);
+
+  const resetPrivacySettings = useCallback(() => {
+    setPrivacySettings({
+      hide_activity: false,
+      hide_location: false,
+      hide_online_status: false,
+    });
+    toast.success('تم إعادة تعيين إعدادات الخصوصية للوضع الافتراضي');
+  }, []);
+
   const memberSince = useMemo(() => {
     const createdAt = (profile as any)?.created_at || user?.created_at;
     if (!createdAt) return null;
@@ -574,6 +651,28 @@ export default function ProfileEditPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab('insights')}
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+              activeTab === 'insights'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            رؤى
+          </button>
+
+          <button
+            onClick={() => setActiveTab('telemetry')}
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+              activeTab === 'telemetry'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            أداء
+          </button>
+
+          <button
             onClick={() => setActiveTab('edit')}
             className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
               activeTab === 'edit'
@@ -640,7 +739,23 @@ export default function ProfileEditPage() {
                 setPrivacySettings({ ...privacySettings, [key]: val })
               }
               onSelectCoverTheme={setCoverThemeId}
+              onExportSettings={exportPrivacySettings}
+              onImportSettings={importPrivacySettings}
+              onResetSettings={resetPrivacySettings}
             />
+          )}
+
+          {activeTab === 'insights' && (
+            <ProfileInsightsPanel
+              summary={activitySummary}
+              badges={evaluatedBadges}
+              completionMetrics={completionMetrics}
+              onActionClick={(tab: string) => setActiveTab(tab as ProfileTab)}
+            />
+          )}
+
+          {activeTab === 'telemetry' && (
+            <BadgeTelemetryPanel />
           )}
 
           {activeTab === 'edit' && (

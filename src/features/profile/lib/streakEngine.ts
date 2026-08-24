@@ -4,7 +4,8 @@
  * Computes per-module and unified daily streaks from the SAME real activity
  * data that powers the contribution matrix (activityAggregator). No fake
  * numbers: every streak is derived from dated events across all modules.
- *
+ * 
+ * Now with caching for performance optimization.
  * Design principles:
  *  • Pure functions → fully unit-testable (no localStorage reads here).
  *  • Grace-period semantics: "today not yet logged" never breaks a live
@@ -17,6 +18,7 @@
  */
 import type { ActivityCategory, DailyContribution } from '../types';
 import { toLocalDateISO } from './visitTracker';
+import { streakCache, sessionStreakCache, PROFILE_CACHE_TTLs } from '../lib/cache';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -322,7 +324,7 @@ export function analyzeWeeklyRhythm(
 }
 
 /* ------------------------------------------------------------------ */
-/* Full snapshot                                                       */
+/* Cache helpers                                                       */
 /* ------------------------------------------------------------------ */
 
 interface DayCellLike {
@@ -332,11 +334,61 @@ interface DayCellLike {
 }
 
 /**
+ * Creates a cache key based on the daily cells data
+ */
+function createStreakCacheKey(dailyCells: readonly DayCellLike[]): string {
+  if (dailyCells.length === 0) return 'streak:empty';
+  
+  // Use all cells to create a comprehensive hash for uniqueness
+  const hashInput = dailyCells.map(c => `${c.dateISO}:${c.count}:${JSON.stringify(c.breakdown || {})}`).join('|');
+  let hash = 0;
+  for (let i = 0; i < hashInput.length; i++) {
+    hash = ((hash << 5) - hash) + hashInput.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  return `streak:${Math.abs(hash)}:${dailyCells.length}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Full snapshot with caching                                          */
+/* ------------------------------------------------------------------ */
+
+/**
  * Builds the complete streak snapshot from the real 365-day matrix cells.
  * `dailyCells` must cover every day of the window (as produced by
  * calculate365DayContributions), including zero-activity days.
+ * Now with caching for performance.
  */
 export function buildStreakSnapshot(dailyCells: readonly DayCellLike[]): StreakSnapshot {
+  const cacheKey = createStreakCacheKey(dailyCells);
+
+  // Try session cache first (fastest)
+  const sessionCached = sessionStreakCache.read(cacheKey);
+  if (sessionCached.valid) {
+    return sessionCached.value as StreakSnapshot;
+  }
+
+  // Try persistent cache
+  const cached = streakCache.read(cacheKey);
+  if (cached.valid) {
+    sessionStreakCache.write(cacheKey, cached.value);
+    return cached.value as StreakSnapshot;
+  }
+
+  // Compute fresh
+  const result = computeStreakSnapshot(dailyCells);
+  
+  // Cache results
+  streakCache.write(cacheKey, result, PROFILE_CACHE_TTLs.streaks);
+  sessionStreakCache.write(cacheKey, result);
+  
+  return result;
+}
+
+/**
+ * Internal computation function (separated for testability)
+ */
+function computeStreakSnapshot(dailyCells: readonly DayCellLike[]): StreakSnapshot {
   const now = new Date();
   const todayISO = toLocalDateISO(now);
 
@@ -405,4 +457,12 @@ export function buildStreakSnapshot(dailyCells: readonly DayCellLike[]): StreakS
     lastActiveDateISO:
       unifiedActive.size > 0 ? Array.from(unifiedActive).sort().at(-1)! : null,
   };
+}
+
+/**
+ * Invalidates the streak cache (call when underlying data changes)
+ */
+export function invalidateStreakCache(): void {
+  streakCache.clear();
+  sessionStreakCache.clear();
 }

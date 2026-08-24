@@ -6,6 +6,7 @@ import {
   ProfileActivitySummary,
   YearlyContributionSummary,
 } from '../types';
+import { activityCache, sessionActivityCache, PROFILE_CACHE_TTLs } from '../lib/cache';
 
 const MONTH_NAMES_AR = [
   'يناير',
@@ -23,10 +24,46 @@ const MONTH_NAMES_AR = [
 ];
 
 /**
+ * Creates a cache key based on the parameters
+ */
+function createActivityCacheKey(targetYear?: number, categoryFilter: ActivityCategory = 'all'): string {
+  return `activity:${targetYear || 'current'}:${categoryFilter}`;
+}
+
+/**
  * Calculates real-time user activity totals across all Super-App modules:
  * App Visits, Fitness, German Club, Diwan Poetry, PKM Memory, Travel Atlas, and Quran/Dhikr.
+ * Now with caching for performance.
  */
 export function calculateProfileActivitySummary(): ProfileActivitySummary {
+  // Try session cache first (fastest)
+  const sessionCached = sessionActivityCache.read('summary');
+  if (sessionCached.valid) {
+    return sessionCached.value as ProfileActivitySummary;
+  }
+
+  // Try persistent cache
+  const cached = activityCache.read('summary');
+  if (cached.valid) {
+    // Also populate session cache for next time
+    sessionActivityCache.write('summary', cached.value);
+    return cached.value as ProfileActivitySummary;
+  }
+
+  // Compute fresh
+  const result = computeProfileActivitySummary();
+  
+  // Cache results
+  activityCache.write('summary', result, PROFILE_CACHE_TTLs.activity);
+  sessionActivityCache.write('summary', result);
+  
+  return result;
+}
+
+/**
+ * Internal computation function (separated for testability)
+ */
+function computeProfileActivitySummary(): ProfileActivitySummary {
   // 1. Fitness Module Metrics
   let totalDistanceKm = 0;
   let totalWorkouts = 0;
@@ -188,8 +225,41 @@ export function calculateProfileActivitySummary(): ProfileActivitySummary {
  * Calculates a complete GitHub-style 365-Day (52-Week) Contribution Matrix & Activity Timeline.
  * Combines real app visits, fitness activities, german mastered items, diwan bookmarks,
  * PKM notes, travel stamps, and dhikr sessions into exact daily intensity cells and timeline events.
+ * Now with caching for performance.
  */
 export function calculate365DayContributions(
+  targetYear?: number,
+  categoryFilter: ActivityCategory = 'all'
+): YearlyContributionSummary {
+  const cacheKey = createActivityCacheKey(targetYear, categoryFilter);
+
+  // Try session cache first (fastest)
+  const sessionCached = sessionActivityCache.read(cacheKey);
+  if (sessionCached.valid) {
+    return sessionCached.value as YearlyContributionSummary;
+  }
+
+  // Try persistent cache
+  const cached = activityCache.read(cacheKey);
+  if (cached.valid) {
+    sessionActivityCache.write(cacheKey, cached.value);
+    return cached.value as YearlyContributionSummary;
+  }
+
+  // Compute fresh
+  const result = compute365DayContributions(targetYear, categoryFilter);
+  
+  // Cache results
+  activityCache.write(cacheKey, result, PROFILE_CACHE_TTLs.activity);
+  sessionActivityCache.write(cacheKey, result);
+  
+  return result;
+}
+
+/**
+ * Internal computation function (separated for testability)
+ */
+function compute365DayContributions(
   targetYear?: number,
   categoryFilter: ActivityCategory = 'all'
 ): YearlyContributionSummary {
@@ -524,4 +594,12 @@ export function calculate365DayContributions(
     dailyContributions: days,
     activityEvents: allEvents,
   };
+}
+
+/**
+ * Invalidates the activity cache (call when underlying data changes)
+ */
+export function invalidateActivityCache(): void {
+  activityCache.clear();
+  sessionActivityCache.clear();
 }

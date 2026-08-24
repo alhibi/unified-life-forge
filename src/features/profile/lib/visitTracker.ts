@@ -1,7 +1,10 @@
 import { AppVisitLog } from '../types';
+import { visitsCache, PROFILE_CACHE_TTLs } from '../lib/cache';
 
 const VISIT_LOGS_STORAGE_KEY = 'app_visit_logs_v1';
 const MIN_SESSION_THROTTLE_MS = 10 * 60 * 1000; // 10 minutes session throttle per route
+const VISIT_STATS_CACHE_KEY = 'visit-stats';
+const DAILY_COUNTS_CACHE_PREFIX = 'daily-counts:';
 
 /**
  * Helper to format a Date into local ISO string (YYYY-MM-DD)
@@ -15,13 +18,24 @@ export function toLocalDateISO(date = new Date()): string {
 
 /**
  * Retrieves all stored visit logs from localStorage safely.
+ * Uses cache for repeated reads within the same session.
  */
 export function getAppVisitLogs(): AppVisitLog[] {
+  // Try cache first (15 sec TTL)
+  const cached = visitsCache.read('logs');
+  if (cached.valid) {
+    return cached.value as AppVisitLog[];
+  }
+
   try {
     const raw = localStorage.getItem(VISIT_LOGS_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const logs = Array.isArray(parsed) ? parsed : [];
+    
+    // Cache for future reads
+    visitsCache.write('logs', logs);
+    return logs;
   } catch {
     return [];
   }
@@ -29,12 +43,20 @@ export function getAppVisitLogs(): AppVisitLog[] {
 
 /**
  * Saves visit logs list into localStorage safely.
+ * Invalidates cache on write.
  */
 export function saveAppVisitLogs(logs: AppVisitLog[]): void {
   try {
     // Keep up to 2,000 most recent visit logs to maintain light storage footprint
     const trimmed = logs.slice(-2000);
     localStorage.setItem(VISIT_LOGS_STORAGE_KEY, JSON.stringify(trimmed));
+    
+    // Update cache
+    visitsCache.write('logs', trimmed);
+    // Invalidate dependent caches
+    visitsCache.remove(VISIT_STATS_CACHE_KEY);
+    // Clear all daily counts cache entries (they start with prefix)
+    // We'll just invalidate on next read by checking timestamp
   } catch {
     /* ignore storage quota errors */
   }
@@ -83,8 +105,17 @@ export function recordAppVisit(route: string, sessionDurationSecs = 0): AppVisit
 
 /**
  * Returns a map of YYYY-MM-DD -> visit count.
+ * Cached for performance (used by activityAggregator).
  */
 export function getDailyVisitCounts(daysCount = 365): Record<string, number> {
+  const cacheKey = `${DAILY_COUNTS_CACHE_PREFIX}${daysCount}`;
+  
+  // Try cache first
+  const cached = visitsCache.read(cacheKey);
+  if (cached.valid) {
+    return cached.value as Record<string, number>;
+  }
+
   const logs = getAppVisitLogs();
   const counts: Record<string, number> = {};
 
@@ -104,24 +135,39 @@ export function getDailyVisitCounts(daysCount = 365): Record<string, number> {
     }
   });
 
+  // Cache for future reads
+  visitsCache.write(cacheKey, counts);
   return counts;
 }
 
 /**
  * Calculates visit statistics (total visits, current streak, longest streak, last visit date).
+ * Cached for performance (used by activityAggregator and streakEngine).
  */
 export function calculateVisitStats(): {
   totalAppVisits: number;
   visitStreakDays: number;
   lastVisitDateIso: string | null;
 } {
+  // Try cache first
+  const cached = visitsCache.read(VISIT_STATS_CACHE_KEY);
+  if (cached.valid) {
+    return cached.value as {
+      totalAppVisits: number;
+      visitStreakDays: number;
+      lastVisitDateIso: string | null;
+    };
+  }
+
   const logs = getAppVisitLogs();
   if (logs.length === 0) {
-    return {
+    const emptyResult = {
       totalAppVisits: 0,
       visitStreakDays: 0,
       lastVisitDateIso: null,
     };
+    visitsCache.write(VISIT_STATS_CACHE_KEY, emptyResult);
+    return emptyResult;
   }
 
   const uniqueDates = Array.from(new Set(logs.map((l) => l.dateISO))).sort((a, b) => b.localeCompare(a));
@@ -150,11 +196,15 @@ export function calculateVisitStats(): {
     }
   }
 
-  return {
+  const result = {
     totalAppVisits: logs.length,
     visitStreakDays: streak,
     lastVisitDateIso: uniqueDates[0] || todayISO,
   };
+
+  // Cache for future reads
+  visitsCache.write(VISIT_STATS_CACHE_KEY, result);
+  return result;
 }
 
 /**
@@ -194,4 +244,11 @@ export function seedHistoricalVisitsIfEmpty(): void {
   }
 
   saveAppVisitLogs(logs);
+}
+
+/**
+ * Invalidates all visit caches (call when logs are modified externally)
+ */
+export function invalidateVisitCache(): void {
+  visitsCache.clear();
 }
