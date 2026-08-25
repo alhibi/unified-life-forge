@@ -1,12 +1,18 @@
 // Curated tactical chess puzzles. Each puzzle is described by:
 // - fen: starting position (FEN)
-// - solution: a sequence of moves in coordinate notation, e.g. "e2e4" or "e7e8q"
-// - rating: rough Elo difficulty (0-3000)
+// - solution: a sequence of moves in UCI notation, e.g. "e2e4" or "e7e8q"
+// - rating: rough Elo difficulty (400-2000)
 // - theme: one of the canonical tactical motifs
-// - sideToMove: 'w' | 'b' inferred from FEN
 //
-// The first move is the OPPONENT setup (pre-played) — the user plays from
-// move index 1 onwards. solution[0] is auto-played by the engine.
+// PLAY CONVENTION (mirrored by ChessPuzzle.tsx):
+//  - solution.length >= 2 → solution[0] is the OPPONENT's setup move and is
+//    auto-played; the user then plays every subsequent move.
+//  - solution.length === 1 → the user IS the side to move in the FEN and must
+//    find that single blow themselves.
+//
+// Every entry is machine-verified by chessPuzzles.test.ts: the full solution
+// must replay legally through the chessCore engine, mover colors must match
+// the convention, and mate-themed puzzles must end in an actual checkmate.
 
 export type PuzzleTheme =
   | 'mateIn1' | 'mateIn2' | 'fork' | 'pin' | 'skewer' | 'discovery' | 'doubleAttack' | 'sacrifice' | 'trap';
@@ -20,13 +26,10 @@ export interface ChessPuzzle {
   ar: string;
 }
 
-// A small but solid hand-crafted puzzle bank covering classic motifs.
-// Each "solution" starts with opponent's move (auto-played), then the user
-// finds the tactical reply.
 export const PUZZLES: ChessPuzzle[] = [
-  // ------- Mate in 1 -------
+  // ─────────── Mate in 1 ───────────
   {
-    id: 'p1',
+    id: 'm1-rook-backrank',
     fen: '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1',
     solution: ['e1e8'],
     rating: 800,
@@ -34,182 +37,220 @@ export const PUZZLES: ChessPuzzle[] = [
     ar: 'مات بالقلعة على الصف الثامن',
   },
   {
-    id: 'p2',
-    fen: '6k1/6pp/8/8/8/8/8/R6K w - - 0 1',
+    id: 'm1-rook-corner',
+    fen: '6k1/5ppp/8/8/8/8/8/R6K w - - 0 1',
     solution: ['a1a8'],
     rating: 700,
     theme: 'mateIn1',
-    ar: 'مات بالقلعة في الزاوية',
+    ar: 'مات بالقلعة عبر الصف الأخير',
   },
   {
-    id: 'p3',
-    fen: 'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1',
-    solution: ['h4e1'],
-    rating: 900,
+    id: 'm1-fools-mate',
+    fen: 'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2',
+    solution: ['d8h4'],
+    rating: 800,
     theme: 'mateIn1',
-    ar: 'مات الراعي - الوزير الأسود يصل e1',
-  },
-
-  // ------- Forks -------
-  {
-    id: 'p4',
-    // Knight fork: White knight on e5 forks king and queen.
-    // Setup: black queen d7, king g7, knight on c5, white plays Nxd7 (no... fork via Ne6+).
-    fen: '6k1/3q1pp1/8/2N5/8/8/5PPP/6K1 w - - 0 1',
-    solution: ['c5e6'],
-    rating: 1100,
-    theme: 'fork',
-    ar: 'الحصان يهجم على الملك والوزير معاً',
+    ar: 'مات الغبيب: نقلة الوزير التي تُنهي كل شيء',
   },
   {
-    id: 'p5',
-    // Knight fork on f7+
-    fen: 'r1bqkb1r/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1',
-    solution: ['c6d4', 'f3d4'],
-    rating: 1000,
-    theme: 'fork',
-    ar: 'بعد Nxd4 يلاحظ الفرس البيض الفرصة',
+    id: 'm1-sealed-backrank',
+    fen: '4k3/3ppp2/n7/8/8/8/1P4PP/R5K1 b - - 0 1',
+    solution: ['a6b4', 'a1a8'],
+    rating: 700,
+    theme: 'mateIn1',
+    ar: 'بيادقُه تحبس ملكَه — أدخل القلعة',
   },
   {
-    id: 'p6',
-    // Royal fork by knight
-    fen: '4k3/8/4q3/8/3N4/8/8/4K3 w - - 0 1',
-    solution: ['d4f5'],
-    rating: 900,
-    theme: 'fork',
-    ar: 'فرس يهجم على الملك والوزير',
-  },
-
-  // ------- Pin -------
-  {
-    id: 'p7',
-    // Absolute pin then capture
-    fen: 'r3k2r/ppp2ppp/2n2q2/3p4/3P4/2N2Q2/PPP2PPP/R3K2R w KQkq - 0 1',
-    solution: ['c3d5', 'f6f3'],
-    rating: 1200,
-    theme: 'pin',
-    ar: 'الوزير الأبيض يثبّت',
-  },
-
-  // ------- Skewer -------
-  {
-    id: 'p8',
-    fen: '6k1/5ppp/8/3q4/8/8/3R4/6K1 w - - 0 1',
-    solution: ['d2d5'],
-    rating: 1000,
-    theme: 'skewer',
-    ar: 'القلعة تهدد الوزير ثم الملك',
-  },
-
-  // ------- Discovered attack -------
-  {
-    id: 'p9',
-    // Discovered check + capture
-    fen: '4k3/8/8/3N4/8/3R4/8/4K3 w - - 0 1',
-    solution: ['d5e7'],
-    rating: 1100,
-    theme: 'discovery',
-    ar: 'هجوم مكشوف من القلعة',
-  },
-
-  // ------- Mate in 2 -------
-  {
-    id: 'p10',
-    fen: '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1',
-    solution: ['d1d8', 'g8h7', 'd8h8'],
-    rating: 1400,
-    theme: 'mateIn2',
-    ar: 'مات في نقلتين بالقلعة',
-  },
-  {
-    id: 'p11',
-    fen: 'r5k1/5ppp/8/8/8/8/5PPP/Q5K1 w - - 0 1',
-    solution: ['a1a8', 'g8h7', 'a8h8'],
+    id: 'm1-smothered',
+    fen: '6rk/6pp/3N4/8/8/8/8/6K1 w - - 0 1',
+    solution: ['d6f7'],
     rating: 1300,
-    theme: 'mateIn2',
-    ar: 'الوزير يخترق الصف الأخير',
-  },
-
-  // ------- Sacrifice -------
-  {
-    id: 'p12',
-    // Queen sacrifice for back-rank mate
-    fen: '6k1/5ppp/8/8/8/8/4Q1PP/4R1K1 w - - 0 1',
-    solution: ['e2e8', 'g8e8', 'e1e8'],
-    rating: 1500,
-    theme: 'sacrifice',
-    ar: 'تضحية بالوزير للوصول للمات على الصف الأخير',
+    theme: 'mateIn1',
+    ar: 'مات الخنق: قطعه هي سجنُه والحصان هو الحكم',
   },
   {
-    id: 'p13',
-    // Smothered mate setup
-    fen: '6rk/6pp/8/7N/8/8/8/3R3K w - - 0 1',
-    solution: ['d1d8', 'g8d8', 'h5f6'],
-    rating: 1700,
-    theme: 'sacrifice',
-    ar: 'مزيج: تضحية بالقلعة ثم مات الفرس',
-  },
-
-  // ------- Double attack -------
-  {
-    id: 'p14',
-    // Queen forks two pieces
-    fen: '4k3/8/4q3/8/4Q3/8/8/4K3 w - - 0 1',
-    solution: ['e4h7'],
-    rating: 1000,
-    theme: 'doubleAttack',
-    ar: 'الوزير يهاجم قطعتين معاً',
-  },
-
-  // ------- More variety -------
-  {
-    id: 'p15',
-    fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b KQkq - 0 1',
-    solution: ['c5f2', 'e1f2'],
-    rating: 900,
-    theme: 'sacrifice',
-    ar: 'تضحية صغيرة لاكتساب موقع',
+    id: 'm1-queen-corner',
+    fen: 'k7/pp6/2Q5/8/8/8/6PP/6K1 w - - 0 1',
+    solution: ['c6c8'],
+    rating: 650,
+    theme: 'mateIn1',
+    ar: 'مات الزاوية بالوزير',
   },
   {
-    id: 'p16',
+    id: 'm1-promotion-backrank',
+    fen: '7k/5Ppp/8/8/8/8/1B6/6K1 w - - 0 1',
+    solution: ['f7f8q'],
+    rating: 1050,
+    theme: 'mateIn1',
+    ar: 'ترقية تُنهي المعركة فوراً',
+  },
+  {
+    id: 'm1-supported-queen',
+    fen: '7k/8/5K2/8/8/8/8/6Q1 w - - 0 1',
+    solution: ['g1g7'],
+    rating: 750,
+    theme: 'mateIn1',
+    ar: 'الوزير المدعوم من الملك يُسقط الملك',
+  },
+  {
+    id: 'm1-capture-backrank',
+    fen: 'r5k1/2p2ppp/8/8/8/8/5PPP/R5K1 w - - 0 1',
+    solution: ['a1a8'],
+    rating: 800,
+    theme: 'mateIn1',
+    ar: 'خذ القلعة وانتهِ: مات الصف الأخير',
+  },
+  {
+    id: 'm1-re8-classic',
     fen: '6k1/pp3ppp/8/8/8/8/PPP2PPP/4R1K1 w - - 0 1',
     solution: ['e1e8'],
-    rating: 800,
+    rating: 750,
     theme: 'mateIn1',
-    ar: 'مات بالقلعة في نهاية مفتوحة',
+    ar: 'الصف الثامن مفتوح — استغلّه',
   },
   {
-    id: 'p17',
-    fen: '4r1k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1',
-    solution: ['d1d8'],
-    rating: 1100,
-    theme: 'pin',
-    ar: 'تثبيت ثم تبادل',
+    id: 'm1-queen-takes-rook',
+    fen: 'r5k1/5ppp/8/8/8/8/5PPP/Q5K1 w - - 0 1',
+    solution: ['a1a8'],
+    rating: 1000,
+    theme: 'mateIn1',
+    ar: 'الوزير يأخذ القلعة ويعطي مات الصف الأخير',
   },
   {
-    id: 'p18',
-    fen: '6k1/3r1ppp/8/8/3R4/8/5PPP/6K1 w - - 0 1',
-    solution: ['d4d7'],
+    id: 'm1-underpromotion-capture',
+    fen: '6rk/p6P/8/8/8/1B6/8/6K1 b - - 0 1',
+    solution: ['a7a6', 'h7g8q'],
+    rating: 1200,
+    theme: 'mateIn1',
+    ar: 'أكل وترقية: البيدق يصبح وزيراً وماتاً',
+  },
+
+  // ─────────── Mate in 2 ───────────
+  {
+    id: 'm2-rook-ladder',
+    fen: '3k4/8/8/8/8/8/1R6/R5K1 b - - 0 1',
+    solution: ['d8e8', 'b2b7', 'e8d8', 'a1a8'],
+    rating: 1150,
+    theme: 'mateIn2',
+    ar: 'سلّم القلاتين: صف يقطع الطريق وصف يُنهي',
+  },
+
+  // ─────────── Forks ───────────
+  {
+    id: 'fork-royal-kq',
+    fen: '3qk3/pp3p1p/8/8/4N3/8/PPP2PPP/6K1 b - - 0 1',
+    solution: ['h7h6', 'e4f6', 'e8f8', 'f6d7'],
+    rating: 850,
+    theme: 'fork',
+    ar: 'شوكة ملكية: الحصان يكش ويأخذ الوزير',
+  },
+  {
+    id: 'fork-nq-g7',
+    fen: '2q3k1/7p/8/5N2/8/8/5PP1/6K1 b - - 0 1',
+    solution: ['h7h6', 'f5e7'],
+    rating: 1150,
+    theme: 'fork',
+    ar: 'شوكة تكسب الوزير: كشٌ بالحصان ثم الأسر',
+  },
+  {
+    id: 'fork-pawn-central',
+    fen: '4k3/pp3ppp/2n1r3/8/3P4/8/P4PPP/6K1 b - - 0 1',
+    solution: ['h7h6', 'd4d5'],
     rating: 700,
     theme: 'fork',
-    ar: 'القلعة تأكل القلعة!',
+    ar: 'شوكة البيادق: بيدق يهدّد فرساً وقلعة',
   },
+
+  // ─────────── Pins ───────────
   {
-    id: 'p19',
-    fen: 'r3k2r/8/8/8/8/8/8/3RKR2 w kq - 0 1',
-    solution: ['d1d8'],
-    rating: 800,
-    theme: 'mateIn1',
-    ar: 'تنفيذ مات الصف الخلفي',
-  },
-  {
-    id: 'p20',
-    // Bishop sacrifice on h7 (Greek gift)
-    fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/4P3/3P1N2/PPP2PPP/RNBQ1RK1 w kq - 0 1',
-    solution: ['c1g5', 'h7h6', 'g5f6'],
-    rating: 1300,
+    id: 'pin-bishop-knight',
+    fen: '4k3/pp4pp/2n5/1B6/3P4/8/5PPP/6K1 b - - 0 1',
+    solution: ['g7g6', 'd4d5'],
+    rating: 750,
     theme: 'pin',
-    ar: 'تثبيت الفرس بالحصان',
+    ar: 'الفيل يثبّت الفرس — ادفع البيادق وخذه',
+  },
+  {
+    id: 'pin-queen-knight',
+    fen: '1k6/p1p5/1n6/8/P7/1Q6/5PPP/6K1 b - - 0 1',
+    solution: ['c7c6', 'a4a5'],
+    rating: 700,
+    theme: 'pin',
+    ar: 'تثبيت الوزير للفرس أمام الملك',
+  },
+  {
+    id: 'pin-exploit-bxf6',
+    fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p1B1/4P3/3P1N2/PPP2PPP/RN1Q1RK1 b kq - 1 1',
+    solution: ['h7h6', 'g5f6'],
+    rating: 1000,
+    theme: 'pin',
+    ar: 'التثبيت جاهز — استثمره والتقط الفرس',
+  },
+
+  // ─────────── Skewers ───────────
+  {
+    id: 'skewer-king-front-queen',
+    fen: '4q3/8/8/4k3/8/8/8/R5K1 b - - 0 1',
+    solution: ['e8e7', 'a1e1', 'e5d6', 'e1e7'],
+    rating: 900,
+    theme: 'skewer',
+    ar: 'الاختزال: الكش يُخرج الملك فيأتي الدور على الوزير',
+  },
+
+  // ─────────── Discovery ───────────
+  {
+    id: 'discovery-rook-raid',
+    fen: 'r2k4/7p/8/3N4/8/8/8/3RK3 w - - 0 1',
+    solution: ['d5b6'],
+    rating: 950,
+    theme: 'discovery',
+    ar: 'كش مكشوف من القلعة وفرسٌ يسرق قلعةً أخرى',
+  },
+
+  // ─────────── Double attack ───────────
+  {
+    id: 'doubleattack-queen-cross',
+    fen: '2r3k1/7p/8/8/3Q4/8/5PP1/6K1 b - - 0 1',
+    solution: ['h7h6', 'd4g4', 'g8h8', 'g4c8'],
+    rating: 800,
+    theme: 'doubleAttack',
+    ar: 'الوزير يكش ويهاجم القلعة في وقت واحد',
+  },
+
+  // ─────────── Supported queen delivery ───────────
+  {
+    id: 'm1-qxg8-supported',
+    fen: 'r6k/4N1pp/4Q3/8/8/8/5PPP/6K1 b - - 0 1',
+    solution: ['a8g8', 'e6g8'],
+    rating: 1250,
+    theme: 'mateIn1',
+    ar: 'بعد دفاع الخصم: الوزير يهبط في الزاوية محميّاً بالفرس',
+  },
+
+  // ─────────── Traps / free material ───────────
+  {
+    id: 'trap-guarded-piece',
+    fen: 'r1bqkb1r/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1',
+    solution: ['c6d4', 'f3d4'],
+    rating: 650,
+    theme: 'trap',
+    ar: 'لا تلمس القطعة المحمية — الاسترجاع فوري',
+  },
+  {
+    id: 'trap-hanging-rook',
+    fen: '6k1/3r1ppp/8/8/3R4/8/5PPP/6K1 w - - 0 1',
+    solution: ['d4d7'],
+    rating: 500,
+    theme: 'trap',
+    ar: 'القلعة المعلّقة: التقطها بلا مقابل',
+  },
+  {
+    id: 'trap-free-bishop',
+    fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b KQkq - 0 1',
+    solution: ['c5f2', 'e1f2'],
+    rating: 600,
+    theme: 'trap',
+    ar: 'أكل يبدو مغرياً… لكن الملك يسترجعه',
   },
 ];
 

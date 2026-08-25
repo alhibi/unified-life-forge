@@ -118,6 +118,8 @@ function loadStats(): PuzzleStats {
   } catch { return { ...DEFAULT }; }
 }
 import { getGameProgress,saveGameProgress } from '../api';
+import MatchReportDialog from '../components/MatchReportDialog';
+import { dayKey, type GameMode, type MatchReport, reportMatch } from '../progression';
 
 function saveStatsFn(s: PuzzleStats) {
   localStorage.setItem('chess-puzzle-stats', JSON.stringify(s));
@@ -180,6 +182,9 @@ export default function ChessPuzzlePage() {
   const [showSolution, setShowSolution] = useState(false);
   const [lastMove, setLastMove] = useState<{ from: [number, number]; to: [number, number] } | null>(null);
   const [showWrongFeedback, setShowWrongFeedback] = useState(false);
+  // Post-session reward screen — see MatchReportDialog. Each solved puzzle is
+  // one completed session feeding the shared progression spine.
+  const [matchReport, setMatchReport] = useState<MatchReport | null>(null);
 
   const playerSide = useMemo(() => {
     // Solution[0] is opponent's move → after that, it's user's turn.
@@ -253,6 +258,19 @@ export default function ChessPuzzlePage() {
             s.currentStreak += 1;
             if (s.currentStreak > s.bestStreak) s.bestStreak = s.currentStreak;
             saveStatsFn(s); setStats(s);
+            // Feed the shared progression spine: one solved puzzle = one
+            // session. The puzzle's own Elo is the difficulty signal, and the
+            // solver's rating is the per-mode record.
+            setMatchReport(
+              reportMatch({
+                game: 'chess',
+                mode: 'chess-puzzles',
+                outcome: 'win',
+                durationMs: undefined,
+                score: puzzle.rating,
+                record: { value: s.rating },
+              }),
+            );
           } else {
             // Auto-play opponent's reply
             setStatus('correct');
@@ -547,6 +565,7 @@ export default function ChessPuzzlePage() {
           ))}
         </div>
       </div>
+      <MatchReportDialog report={matchReport} onClose={() => setMatchReport(null)} day={dayKey()} />
     </GameShell>
   );
 }
