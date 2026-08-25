@@ -14,7 +14,7 @@ import { useMemo } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { Gamepad2 } from '@/lib/icons';
+import { Gamepad2, Grid3X3, Puzzle, Swords } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 import AchievementShelf from '../components/AchievementShelf';
@@ -23,7 +23,14 @@ import { GAME_IDENTITY } from '../components/gameIdentity';
 import GameMasteryCard from '../components/GameMasteryCard';
 import ProfileCard from '../components/ProfileCard';
 import { GAMES, TOTAL_MODES } from '../data/modes';
+import type { GameId } from '../progression/types';
 import { useProgression } from '../progression/useProgression';
+
+const GAME_ICONS: Record<GameId, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
+  sudoku: Grid3X3,
+  chess: Swords,
+  memory: Puzzle,
+};
 
 export default function GamesPage() {
   const { state, challenges, mastery } = useProgression();
@@ -73,6 +80,7 @@ export default function GamesPage() {
               game={game}
               mastery={mastery(game.id)}
               stats={state.mastery[game.id]}
+              icon={GAME_ICONS[game.id]}
               identity={GAME_IDENTITY[game.id]}
             />
           </motion.div>
