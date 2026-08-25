@@ -1,21 +1,23 @@
 /**
- * DailyChallengeList — today's three challenges.
+ * DailyChallengeList — today's three challenges, as a compact quest strip.
  *
- * New surface: the app had no daily objectives at all, so there was no reason to
- * open the games tab on a given day rather than any other. Each row is tappable
- * and routes straight into a mode that can satisfy it, because a challenge you
- * have to go hunting for is a chore.
+ * Redesign: rows became quest tiles — a big XP coin on the right (RTL-first),
+ * kind chip, and a hairline progress track. Completed quests collapse to a
+ * satisfied state with a drawn check. Routing behavior unchanged: each tile
+ * still deep-links into the mode that satisfies it.
  */
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppCard } from '@/components/ui/app-shell';
-import { Check, ChevronLeft } from '@/lib/icons';
+import { Check, ChevronLeft, Sparkles } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import { GAMES } from '../data/modes';
-import { type Challenge,CHALLENGE_KIND_LABEL } from '../progression/challenges';
+import { type Challenge, CHALLENGE_KIND_LABEL } from '../progression/challenges';
+import type { GameId } from '../progression/types';
+import { GAME_IDENTITY } from './gameIdentity';
 
 interface Row {
   definition: Challenge;
@@ -49,100 +51,136 @@ function DailyChallengeListImpl({ challenges }: Props) {
   if (challenges.length === 0) return null;
 
   const done = challenges.filter((c) => c.completed).length;
+  const allDone = done === challenges.length;
 
   return (
-    <AppCard as="section" aria-label="تحديات اليوم">
-      <header className="flex items-baseline justify-between gap-3">
-        <h2 className="text-title font-semibold text-foreground">تحديات اليوم</h2>
-        <p className="text-mini tabular-nums text-muted-foreground" dir="rtl">
-          <span dir="ltr">{done}</span> من <span dir="ltr">{challenges.length}</span>
-        </p>
-      </header>
+    <AppCard as="section" aria-label="تحديات اليوم" className="relative overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            'radial-gradient(110% 80% at 90% -20%, hsl(var(--primary) / 0.10) 0%, transparent 55%)',
+        }}
+      />
 
-      <ul className="mt-3 space-y-2">
-        {challenges.map(({ definition, progress, completed }) => {
-          const ratio = Math.min(1, progress / definition.target);
-          return (
-            <li key={definition.id}>
-              <button
-                type="button"
-                onClick={() => navigate(routeFor(definition))}
-                disabled={completed}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-md border p-3 text-start',
-                  'transition-[transform,border-color,background-color] duration-normal ease-out-expo',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  completed
-                    ? 'border-primary/60 bg-accent/40'
-                    : 'border-border hover:-translate-y-0.5 hover:bg-muted/50',
-                )}
-              >
-                <span
-                  aria-label={completed ? 'مكتمل' : `${definition.xp} نقطة`}
+      <div className="relative">
+        <header className="flex items-baseline justify-between gap-3">
+          <h2 className="text-title font-semibold text-foreground">تحديات اليوم</h2>
+          <p className="text-mini tabular-nums text-muted-foreground" dir="rtl">
+            {allDone && <Sparkles className="me-1 inline h-3.5 w-3.5 text-primary" aria-hidden />}
+            <span dir="ltr">{done}</span> من <span dir="ltr">{challenges.length}</span>
+          </p>
+        </header>
+
+        <ul className="mt-3 space-y-2">
+          {challenges.map(({ definition, progress, completed }) => {
+            const ratio = Math.min(1, progress / definition.target);
+            const identity = GAME_IDENTITY[definition.game as GameId];
+            return (
+              <li key={definition.id}>
+                <button
+                  type="button"
+                  onClick={() => navigate(routeFor(definition))}
+                  disabled={completed}
                   className={cn(
-                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border text-micro font-bold',
+                    'group flex w-full items-center gap-3 rounded-xl border p-3 text-start',
+                    'transition-[transform,border-color,background-color] duration-normal ease-out-expo',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     completed
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-border text-muted-foreground',
+                      ? 'border-primary/50 bg-accent/40'
+                      : 'border-border hover:-translate-y-0.5 hover:bg-muted/40',
                   )}
-                  aria-hidden
                 >
-                  <AnimatePresence initial={false} mode="wait">
-                    {completed ? (
-                      <motion.span
-                        key="done"
-                        initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={reduce ? { duration: 0.08 } : { type: 'spring', stiffness: 620, damping: 26 }}
-                      >
-                        <Check className="h-4 w-4" />
-                      </motion.span>
-                    ) : (
-                      <motion.span key="xp" initial={false} className="tabular-nums" dir="ltr">
-                        +{definition.xp}
-                      </motion.span>
+                  {/* XP coin */}
+                  <span
+                    aria-label={completed ? 'مكتمل' : `${definition.xp} نقطة`}
+                    className={cn(
+                      'relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 text-micro font-black tabular-nums',
+                      completed ? 'border-primary bg-primary text-primary-foreground' : '',
                     )}
-                  </AnimatePresence>
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        'truncate text-meta font-semibold',
-                        completed ? 'text-muted-foreground line-through' : 'text-foreground',
+                    style={
+                      completed
+                        ? undefined
+                        : { borderColor: identity.line, background: identity.tint, color: identity.accent }
+                    }
+                    aria-hidden
+                  >
+                    <AnimatePresence initial={false} mode="wait">
+                      {completed ? (
+                        <motion.span
+                          key="done"
+                          initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.5, rotate: -30 }}
+                          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                          transition={reduce ? { duration: 0.08 } : { type: 'spring', stiffness: 520, damping: 22 }}
+                        >
+                          <Check className="h-5 w-5" />
+                        </motion.span>
+                      ) : (
+                        <motion.span key="xp" initial={false} dir="ltr">
+                          +{definition.xp}
+                        </motion.span>
                       )}
-                    >
-                      {definition.title}
-                    </span>
-                    <span className="shrink-0 rounded-sm border border-border px-1.5 text-micro text-muted-foreground">
-                      {CHALLENGE_KIND_LABEL[definition.kind]}
-                    </span>
-                  </span>
-                  <span className="mt-0.5 block text-mini text-muted-foreground">{definition.detail}</span>
-
-                  {definition.target > 1 && !completed && (
-                    <span className="mt-2 block h-1 overflow-hidden rounded-full bg-muted" dir="ltr">
+                    </AnimatePresence>
+                    {/* Coin inner rim */}
+                    {!completed && (
                       <span
-                        className="block h-full w-full origin-left rounded-full bg-primary transition-transform duration-normal ease-out-expo"
-                        style={{ transform: `scaleX(${ratio})` }}
+                        aria-hidden
+                        className="pointer-events-none absolute inset-[3px] rounded-full border border-dashed opacity-45"
+                        style={{ borderColor: identity.accent }}
                       />
+                    )}
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          'truncate text-meta font-bold',
+                          completed ? 'text-muted-foreground line-through' : 'text-foreground',
+                        )}
+                      >
+                        {definition.title}
+                      </span>
+                      <span
+                        className="shrink-0 rounded-sm px-1.5 py-px text-micro"
+                        style={{ background: identity.tint, color: identity.accent }}
+                      >
+                        {CHALLENGE_KIND_LABEL[definition.kind]}
+                      </span>
                     </span>
+                    <span className="mt-0.5 block truncate text-mini text-muted-foreground">
+                      {definition.detail}
+                    </span>
+
+                    {definition.target > 1 && !completed ? (
+                      <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-muted" dir="ltr">
+                        <span
+                          className="block h-full w-full origin-left rounded-full transition-transform duration-normal ease-out-expo"
+                          style={{ transform: `scaleX(${ratio})`, background: identity.accent }}
+                        />
+                      </span>
+                    ) : definition.target > 1 && completed ? (
+                      <span className="mt-1 block h-1 w-full rounded-full" style={{ background: identity.tint }} />
+                    ) : null}
+                  </span>
+
+                  {!completed && (
+                    <ChevronLeft
+                      className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-normal group-hover:-translate-x-0.5 rtl:rotate-180"
+                      aria-hidden
+                    />
                   )}
-                </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
 
-                {!completed && (
-                  <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      <p className="mt-3 text-micro text-muted-foreground">
-        تتجدّد التحديات كل يوم عند منتصف الليل، وهي واحدة لكل لعبة.
-      </p>
+        <p className="mt-3 text-micro text-muted-foreground">
+          تتجدّد التحديات كل يوم عند منتصف الليل، وهي واحدة لكل لعبة.
+        </p>
+      </div>
     </AppCard>
   );
 }
