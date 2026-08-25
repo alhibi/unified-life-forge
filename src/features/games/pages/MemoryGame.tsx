@@ -271,7 +271,10 @@ export default function MemoryGame() {
             // time's up
             setIsRunning(false);
             setSolved(true);
-            const newPairs = matched.length / 2;
+            // timeAttackPairs already holds every completed board; the
+            // current board was interrupted mid-play, so its half-matched
+            // pairs are NOT credit — reporting them would overstate.
+            const newPairs = timeAttackPairs;
             const s2 = loadStats();
             s2.gamesPlayed += 1;
             if (newPairs > s2.bestTimeAttackPairs) s2.bestTimeAttackPairs = newPairs;
@@ -308,9 +311,13 @@ export default function MemoryGame() {
   useEffect(() => {
     if (matched.length === 0 || matched.length !== cards.length || solved) return;
     if (mode === 'timeattack') {
-      // Time-attack solves: build a new harder board immediately
+      // Time-attack solves: build a new harder board immediately.
+      // Credit the pairs of the board JUST cleared (cards.length / 2) —
+      // crediting the next board's size was inflating the score by 2 per
+      // board, compounding every round.
+      const clearedPairs = cards.length / 2;
+      setTimeAttackPairs(p => p + clearedPairs);
       const nextPairs = Math.min(theme.icons.length, pairCount + 2);
-      setTimeAttackPairs(p => p + nextPairs);
       setCards(buildDeck(nextPairs, theme));
       setFlipped([]); setMatched([]);
       playSfx('streak'); vibrate(40);
@@ -429,14 +436,20 @@ export default function MemoryGame() {
   function finishVersus() {
     setSolved(true);
     setIsRunning(false);
+    const isWin = versusScores.player > versusScores.ai;
+    const isDraw = versusScores.player === versusScores.ai;
     const s = loadStats();
     s.gamesPlayed += 1;
-    if (versusScores.player > versusScores.ai) {
+    if (isWin) {
       s.gamesWon += 1; s.versusWins += 1;
       s.currentStreak += 1;
       if (s.currentStreak > s.bestStreak) s.bestStreak = s.currentStreak;
       s.xp += 80;
       playSfx('win');
+    } else if (isDraw) {
+      // A draw is not a loss: streak survives, modest XP.
+      s.xp += 40;
+      playSfx('match');
     } else {
       s.versusLosses += 1;
       s.currentStreak = 0;
@@ -451,7 +464,7 @@ export default function MemoryGame() {
       reportMatch({
         game: 'memory',
         mode: 'memory-versus',
-        outcome: versusScores.player > versusScores.ai ? 'win' : 'loss',
+        outcome: isWin ? 'win' : isDraw ? 'draw' : 'loss',
         difficulty,
         durationMs: timer * 1000,
         score: versusScores.player,
@@ -967,7 +980,7 @@ export default function MemoryGame() {
                 </>
               ) : mode === 'timeattack' ? (
                 <>
-                  <StatCard value={timeAttackPairs + matched.length / 2} label={'أزواج'} />
+                  <StatCard value={timeAttackPairs} label={'أزواج'} />
                   <StatCard value={moves} label={'حركات'} />
                   <StatCard value={`×${bestChainThisGame}`} label={'كومبو'} />
                 </>
