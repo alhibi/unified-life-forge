@@ -105,7 +105,7 @@ export function positionFromFen(fen: string): CorePosition | null {
   const board: CoreBoard = Array.from({ length: 8 }, () => Array(8).fill(null));
   const ranks = placement.split('/');
   if (ranks.length !== 8) return null;
-  let kings = { w: 0, b: 0 };
+  const kings = { w: 0, b: 0 };
   for (let r = 0; r < 8; r++) {
     let c = 0;
     for (const ch of ranks[r]) {

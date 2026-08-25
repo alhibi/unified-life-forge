@@ -119,7 +119,7 @@ function loadStats(): PuzzleStats {
 }
 import { getGameProgress,saveGameProgress } from '../api';
 import MatchReportDialog from '../components/MatchReportDialog';
-import { dayKey, type GameMode, type MatchReport, reportMatch } from '../progression';
+import { dayKey, type MatchReport, reportMatch } from '../progression';
 
 function saveStatsFn(s: PuzzleStats) {
   localStorage.setItem('chess-puzzle-stats', JSON.stringify(s));
