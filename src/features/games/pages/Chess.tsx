@@ -15,7 +15,8 @@ import {
   reportMatch,
 } from '@/features/games/progression';
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
-import { Clock, Crown, Flag, Lightbulb,Play, RotateCcw, Undo2 } from '@/lib/icons';
+import { applyMoveUci, positionFromFen, positionToFen } from '@/features/games/utils/chessCore';
+import { Clock, Copy, Crown, Download, Flag, Lightbulb,Play, RotateCcw, Undo2 } from '@/lib/icons';
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -862,6 +863,11 @@ export default function ChessPage() {
   const [clockB, setClockB] = useState<number>(() => TC[(localStorage.getItem('chess-tc') as TimeControl) || 'none'].seconds);
   const [hintMove, setHintMove] = useState<{ from: Square; to: Square } | null>(null);
   const [hintCount, setHintCount] = useState(0);
+  const [hintLoading, setHintLoading] = useState(false);
+  // Transient toast for FEN/PGN copy feedback.
+  const [copyFlash, setCopyFlash] = useState<string | null>(null);
+  // Winner of the just-finished game ('w'|'b'|'draw') for PGN export.
+  const [lastGameWinner, setLastGameWinner] = useState<'w' | 'b' | 'draw' | null>(null);
 
   // Bot personality (e.g. /games/chess?bot=fatima from career mode).
   // When unset, the AI plays the generic profile selected by aiDifficulty.
@@ -934,6 +940,7 @@ export default function ChessPage() {
   const formatTimer = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
   const recordResult = (winner: 'w' | 'b' | 'draw') => {
+    setLastGameWinner(winner);
     const s = { ...stats, gamesPlayed: stats.gamesPlayed + 1, totalMoves: stats.totalMoves + game.moveCount };
     if (winner === 'w') s.whiteWins++;
     else if (winner === 'b') s.blackWins++;
@@ -1274,13 +1281,36 @@ export default function ChessPage() {
   };
 
   const showHint = () => {
-    if (gameOver || !gameStarted || aiThinking) return;
-    const aiColor = game.turn;
-    const move = getBestMove(game, aiColor, 'hard');
-    if (move) {
-      setHintMove(move); setHintCount(n => n + 1);
-      playSfx('hint');
-      setTimeout(() => setHintMove(null), 3000);
+    if (gameOver || !gameStarted || aiThinking || hintLoading) return;
+    // Compute off-thread: a 'hard' search on the main thread froze the UI.
+    setHintLoading(true);
+    let worker: Worker | null = null;
+    try {
+      worker = new Worker(new URL('../utils/chessWorker.ts', import.meta.url), { type: 'module' });
+    } catch {
+      worker = null;
+    }
+    const finish = (move: { from: Square; to: Square } | null) => {
+      if (move) {
+        setHintMove(move); setHintCount(n => n + 1);
+        playSfx('hint');
+        setTimeout(() => setHintMove(null), 3000);
+      }
+      setHintLoading(false);
+      worker?.terminate();
+    };
+    if (worker) {
+      worker.onmessage = (e: MessageEvent) => {
+        finish(e.data.bestMove ?? null);
+      };
+      worker.onerror = () => {
+        // Degraded fallback: quick main-thread search rather than no hint.
+        finish(getBestMove(game, game.turn, 'medium'));
+      };
+      worker.postMessage({ game, aiColor: game.turn, difficulty: 'hard', opts: {} });
+    } else {
+      const move = getBestMove(game, game.turn, 'medium');
+      finish(move);
     }
   };
 
@@ -1290,6 +1320,66 @@ export default function ChessPage() {
     recordResult(winner);
     setGameOver(true);
     setIsRunning(false);
+  };
+
+  // ── FEN / PGN export ──────────────────────────────────────────────────
+  // Built on the pure chessCore engine (single source of rules truth).
+  const currentFen = useCallback((): string => {
+    const pos = positionFromFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+    if (!pos) return '';
+    // Rebuild the position by replaying the UCI history from the initial
+    // array — authoritative and avoids duplicating state mapping.
+    let current = pos;
+    for (const uci of uciHistory) {
+      const next = applyMoveUci(current, uci);
+      if (!next) break;
+      current = next;
+    }
+    return positionToFen(current);
+  }, [uciHistory]);
+
+  const copyFen = async () => {
+    const fen = currentFen();
+    if (!fen) return;
+    try {
+      await navigator.clipboard.writeText(fen);
+      setCopyFlash('تم نسخ FEN');
+      setTimeout(() => setCopyFlash(null), 1600);
+    } catch { /* clipboard unavailable */ }
+  };
+
+  const exportPgn = () => {
+    if (moveLog.length === 0) return;
+    const result =
+      gameOver && lastGameWinner === 'draw' ? '1/2-1/2'
+        : gameOver && lastGameWinner ? (lastGameWinner === 'w' ? '1-0' : '0-1')
+        : '*';
+    const date = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const headers = [
+      `[Event "SmartHub Chess"]`,
+      `[Site "amv.life"]`,
+      `[Date "${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())}"]`,
+      `[White "${gameMode === 'computer' ? (playerColor === 'w' ? 'Player' : `Engine (${aiDifficulty})`) : 'Player 1'}"]`,
+      `[Black "${gameMode === 'computer' ? (playerColor === 'b' ? 'Player' : `Engine (${aiDifficulty})`) : 'Player 2'}"]`,
+      `[Result "${result}"]`,
+      `[TimeControl "${timeControl === 'none' ? '-' : TC[timeControl].seconds + '+' + TC[timeControl].inc}"]`,
+    ];
+    let body = '';
+    moveLog.forEach((san, i) => {
+      if (i % 2 === 0) body += `${i / 2 + 1}. `;
+      body += `${san} `;
+    });
+    const pgn = `${headers.join('\n')}\n\n${body.trim()} ${result}\n`;
+    const blob = new Blob([pgn], { type: 'application/x-chess-pgn' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `smarthub-chess-${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}.pgn`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setCopyFlash('تم تصدير PGN');
+    setTimeout(() => setCopyFlash(null), 1600);
   };
 
   const resetGame = (mode?: GameMode) => {
@@ -1728,9 +1818,9 @@ export default function ChessPage() {
           <span className="text-micro font-medium">{'قلب'}</span>
         </button>
 
-        <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted}
+        <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted || hintLoading}
           className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 transition-all disabled:opacity-25">
-          <Lightbulb className="w-5 h-5" />
+          <Lightbulb className={`w-5 h-5 ${hintLoading ? 'animate-pulse' : ''}`} />
           <span className="text-micro font-medium">{'تلميح'}</span>
           {hintCount > 0 && <span className="absolute -top-1 -right-1 text-micro bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
         </button>
@@ -1743,12 +1833,38 @@ export default function ChessPage() {
           </button>
         )}
 
+        {moveLog.length > 0 && (
+          <>
+            <button onClick={copyFen} title={'نسخ وضعية اللوحة (FEN)'}
+              className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground active:scale-90 transition-all">
+              <Copy className="w-5 h-5" />
+              <span className="text-micro font-medium">FEN</span>
+            </button>
+            <button onClick={exportPgn} title={'تصدير اللعبة (PGN)'}
+              className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground active:scale-90 transition-all">
+              <Download className="w-5 h-5" />
+              <span className="text-micro font-medium">PGN</span>
+            </button>
+          </>
+        )}
+
         <button onClick={() => resetGame()}
           className="flex flex-col items-center gap-1 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground active:scale-90 transition-all">
           <RotateCcw className="w-5 h-5" />
           <span className="text-micro font-medium">{t('chess.newGame')}</span>
         </button>
       </div>
+
+      {/* Copy/export feedback toast */}
+      <AnimatePresence>
+        {copyFlash && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-drawer px-4 py-2 rounded-full bg-card border border-border text-micro font-bold text-foreground">
+            {copyFlash}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <MatchReportDialog report={matchReport} onClose={() => setMatchReport(null)} day={dayKey()} />
     </GameShell>
   );

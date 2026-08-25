@@ -667,6 +667,8 @@ function getBestMove(
 // ---------- Message Handler ----------
 self.onmessage = (e: MessageEvent) => {
   const { game, aiColor, difficulty, opts } = e.data;
-  const bestMove = getBestMove(game, aiColor, difficulty, opts);
+  // Serves both the AI opponent's reply and (mode:'hint') the human's best
+  // move — the caller picks the color and difficulty; this side is identical.
+  const bestMove = getBestMove(game, aiColor as Color, difficulty as AIDifficulty, opts);
   self.postMessage({ bestMove });
 };
