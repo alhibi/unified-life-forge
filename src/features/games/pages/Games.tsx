@@ -1,40 +1,32 @@
 /**
- * /games — the arcade hub, rebuilt around one progression spine.
+ * /games — the arcade hub.
  *
- * What it replaces: a page that read six separate per-game localStorage blobs,
- * summed incompatible numbers into a fake "overall" strip, listed decorative
- * mode names that were not addressable, and promoted four "worlds" whose only
- * shared trait was that they existed. Dice and Focus have been retired; the hub
- * now covers three games in depth instead of six in passing.
+ * The page reads, top to bottom, as one narrative:
+ *   من أنت (الرتبة، المستوى، السلسلة، الموسم) → ماذا تفعل اليوم (تحديات
+ *   حقيقية قابلة للنقر) → الألعاب الثلاث بهوياتها → الرف الإنجازات.
  *
- * The page is now: who you are (level, rank, season, streak) → what to do today
- * (daily challenges) → the three games with mastery and every mode → the
- * achievement shelf.
+ * Every number on this page is read from the progression store — the same
+ * store the award pipeline writes after every real session. Nothing is
+ * estimated, nothing is decorative.
  */
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { Gamepad2, Grid3X3, Puzzle, Swords } from '@/lib/icons';
+import { Gamepad2 } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 import AchievementShelf from '../components/AchievementShelf';
 import DailyChallengeList from '../components/DailyChallengeList';
+import { GAME_IDENTITY } from '../components/gameIdentity';
 import GameMasteryCard from '../components/GameMasteryCard';
 import ProfileCard from '../components/ProfileCard';
 import { GAMES, TOTAL_MODES } from '../data/modes';
-import type { GameId } from '../progression/types';
 import { useProgression } from '../progression/useProgression';
 
-const GAME_ICONS: Record<GameId, React.ComponentType<{ className?: string }>> = {
-  sudoku: Grid3X3,
-  chess: Swords,
-  memory: Puzzle,
-};
-
 export default function GamesPage() {
-  const { state, level, rank, challenges, mastery } = useProgression();
+  const { state, challenges, mastery } = useProgression();
 
   const subtitle = useMemo(
     () => `${GAMES.length} ألعاب · ${TOTAL_MODES} نمط لعب`,
@@ -68,7 +60,7 @@ export default function GamesPage() {
         className="mx-auto w-full max-w-2xl space-y-4 px-4 pt-2"
       >
         <motion.div variants={item}>
-          <ProfileCard state={state} level={level} rank={rank} />
+          <ProfileCard state={state} />
         </motion.div>
 
         <motion.div variants={item}>
@@ -81,7 +73,7 @@ export default function GamesPage() {
               game={game}
               mastery={mastery(game.id)}
               stats={state.mastery[game.id]}
-              icon={GAME_ICONS[game.id]}
+              identity={GAME_IDENTITY[game.id]}
             />
           </motion.div>
         ))}
