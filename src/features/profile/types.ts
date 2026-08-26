@@ -105,7 +105,12 @@ export interface DailyContribution {
   weekIndex: number; // 0 to 51/52
   monthIndex: number; // 0 to 11
   breakdown: Partial<Record<ActivityCategory, number>>;
+  /** Calendar padding outside the requested window — rendered as an empty slot. */
+  isPadding?: boolean;
+  /** Day still in the future — rendered as an outlined placeholder. */
+  isFuture?: boolean;
 }
+
 
 export interface ContributionActivityEvent {
   id: string;

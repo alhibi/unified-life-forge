@@ -68,6 +68,15 @@ const MONTH_NAMES_AR = [
   'ديسمبر',
 ];
 
+const DAY_LABELS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+/** Rows that carry a visible weekday label (mirrors GitHub's every-other-row rhythm). */
+const LABELED_ROWS = new Set([0, 2, 4, 6]);
+
+const CELL_PX = 13;
+const CELL_GAP_PX = 3;
+const EVENTS_PER_MONTH_PAGE = 15;
+
 export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> = ({
   summary: propSummary,
 }) => {
@@ -80,7 +89,15 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined); // undefined = Past 12 Months
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDay, setSelectedDay] = useState<DailyContribution | null>(null);
-  const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
+  const [collapsedMonths, setCollapsedMonths] = useState<Record<string, boolean>>({});
+  const [expandedMonthPages, setExpandedMonthPages] = useState<Record<string, number>>({});
+
+  // Year options are derived from the clock — never hardcoded, so the selector
+  // stays correct as calendars roll over.
+  const yearOptions = useMemo(() => {
+    const current = new Date().getFullYear();
+    return [current, current - 1, current - 2];
+  }, []);
 
   // Compute 365-day GitHub contribution summary
   const yearlyData = useMemo(() => {
@@ -93,7 +110,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
   const storeSnapshot = useStreakSnapshot();
   const streakSnapshot = storeSnapshot as StreakSnapshot | null;
 
-  // Organize 52-week columns for matrix grid
+  const rangeLabelAr = selectedYear ? `عام ${selectedYear}` : 'آخر 12 شهراً';
+
+  // Organize week columns for the matrix grid (each column = one calendar week).
   const weekColumns = useMemo(() => {
     const weeks: DailyContribution[][] = [];
     yearlyData.dailyContributions.forEach((day) => {
@@ -102,32 +121,45 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
       }
       weeks[day.weekIndex].push(day);
     });
-    return weeks;
+    return weeks.filter(Boolean);
   }, [yearlyData.dailyContributions]);
 
-  // Compute Month Header positions over 52 week columns
-  const monthHeaders = useMemo(() => {
-    const headers: Array<{ labelAr: string; colIndex: number }> = [];
-    let lastMonth = -1;
+  // Month headers as column spans so labels can never drift out of alignment.
+  const monthSpans = useMemo(() => {
+    const spans: Array<{ labelAr: string; monthIndex: number; span: number }> = [];
+    weekColumns.forEach((week) => {
+      // A week belongs to the month owning most of its in-range days.
+      const inRange = week.filter((d) => !d.isPadding);
+      const source = inRange.length > 0 ? inRange : week;
+      const tally = new Map<number, number>();
+      source.forEach((d) => tally.set(d.monthIndex, (tally.get(d.monthIndex) ?? 0) + 1));
+      let monthIndex = source[0].monthIndex;
+      let best = 0;
+      tally.forEach((n, m) => {
+        if (n > best) {
+          best = n;
+          monthIndex = m;
+        }
+      });
 
-    weekColumns.forEach((week, wIdx) => {
-      // Look at middle or first day of the week
-      const day = week.find((d) => d.monthIndex !== undefined) || week[0];
-      if (day && day.monthIndex !== lastMonth) {
-        headers.push({
-          labelAr: MONTH_NAMES_AR[day.monthIndex],
-          colIndex: wIdx,
-        });
-        lastMonth = day.monthIndex;
+      const last = spans[spans.length - 1];
+      if (last && last.monthIndex === monthIndex) {
+        last.span += 1;
+      } else {
+        spans.push({ labelAr: MONTH_NAMES_AR[monthIndex], monthIndex, span: 1 });
       }
     });
-
-    return headers;
+    // Very narrow spans would collide with their neighbour's label.
+    return spans.map((s) => ({ ...s, showLabel: s.span >= 2 }));
   }, [weekColumns]);
 
   // Filtered Activity Timeline Events
   const filteredEvents = useMemo(() => {
     let events = yearlyData.activityEvents;
+
+    if (selectedCategory !== 'all') {
+      events = events.filter((e) => e.category === selectedCategory);
+    }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -144,36 +176,44 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
     }
 
     return events;
-  }, [yearlyData.activityEvents, searchQuery, selectedDay]);
+  }, [yearlyData.activityEvents, searchQuery, selectedDay, selectedCategory]);
 
-  // Group events by Month for GitHub-style timeline
+  // Group events by Month for GitHub-style timeline (newest month first).
   const eventsByMonth = useMemo(() => {
-    const grouped: Record<string, ContributionActivityEvent[]> = {};
+    const grouped = new Map<string, ContributionActivityEvent[]>();
     filteredEvents.forEach((evt) => {
       const d = new Date(evt.timestamp);
       const monthKey = `${MONTH_NAMES_AR[d.getMonth()]} ${d.getFullYear()}`;
-      if (!grouped[monthKey]) {
-        grouped[monthKey] = [];
-      }
-      grouped[monthKey].push(evt);
+      const bucket = grouped.get(monthKey);
+      if (bucket) bucket.push(evt);
+      else grouped.set(monthKey, [evt]);
     });
-    return grouped;
+    return Array.from(grouped.entries());
   }, [filteredEvents]);
+
+  const hasActiveFilters =
+    Boolean(searchQuery) || Boolean(selectedDay) || selectedCategory !== 'all';
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedDay(null);
+    setSelectedCategory('all');
+  };
 
   // Intensity Styling Classes
   const getIntensityClass = (intensity: number) => {
     switch (intensity) {
       case 1:
-        return 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:border-emerald-400';
+        return 'bg-emerald-500/25 border border-emerald-500/30';
       case 2:
-        return 'bg-emerald-500/45 border border-emerald-500/60 text-emerald-300 hover:border-emerald-300';
+        return 'bg-emerald-500/50 border border-emerald-500/60';
       case 3:
-        return 'bg-emerald-500/75 border border-emerald-500/80 text-white hover:border-emerald-200';
+        return 'bg-emerald-500/75 border border-emerald-500/80';
       case 4:
-        return 'bg-emerald-500 border border-emerald-400 shadow-sm shadow-emerald-500/30 text-white hover:scale-110';
+        return 'bg-emerald-500 border border-emerald-400 shadow-sm shadow-emerald-500/30';
       case 0:
       default:
-        return 'bg-muted/30 border border-border/20 text-muted-foreground hover:border-border/60';
+        return 'bg-muted/30 border border-border/25';
     }
   };
 
@@ -198,11 +238,8 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
     }
   };
 
-  const toggleMonthExpansion = (monthKey: string) => {
-    setExpandedMonths((prev) => ({
-      ...prev,
-      [monthKey]: prev[monthKey] === false ? true : false,
-    }));
+  const toggleMonthCollapse = (monthKey: string) => {
+    setCollapsedMonths((prev) => ({ ...prev, [monthKey]: !prev[monthKey] }));
   };
 
   return (
@@ -233,8 +270,10 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             <span>إجمالي النشاطات</span>
             <Sparkles className="w-3.5 h-3.5 text-primary" />
           </div>
-          <p className="text-xl font-extrabold text-foreground">{yearlyData.totalContributions}</p>
-          <span className="text-micro text-muted-foreground block truncate">في الـ 12 شهراً الماضية</span>
+          <p className="text-xl font-extrabold text-foreground tabular-nums">
+            {yearlyData.totalContributions}
+          </p>
+          <span className="text-micro text-muted-foreground block truncate">{rangeLabelAr}</span>
         </div>
 
         <div className="surface-depth rounded-2xl p-4 space-y-1">
@@ -242,7 +281,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             <span>المواظبة الحالية</span>
             <Flame className="w-3.5 h-3.5 text-amber-500" />
           </div>
-          <p className="text-xl font-extrabold text-amber-500">{yearlyData.currentStreakDays} يوم</p>
+          <p className="text-xl font-extrabold text-amber-500 tabular-nums">
+            {yearlyData.currentStreakDays} يوم
+          </p>
           <span className="text-micro text-muted-foreground block truncate">سلسلة التفاعل المستمر</span>
         </div>
 
@@ -251,21 +292,27 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             <span>أطول سلسلة</span>
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
           </div>
-          <p className="text-xl font-extrabold text-emerald-400">{yearlyData.longestStreakDays} يوم</p>
+          <p className="text-xl font-extrabold text-emerald-400 tabular-nums">
+            {yearlyData.longestStreakDays} يوم
+          </p>
           <span className="text-micro text-muted-foreground block truncate">أعلى معدل استمرارية</span>
         </div>
 
         <div className="surface-depth rounded-2xl p-4 space-y-1">
           <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>المعدل اليومي</span>
+            <span>الأيام النشطة</span>
             <Calendar className="w-3.5 h-3.5 text-indigo-400" />
           </div>
-          <p className="text-xl font-extrabold text-foreground">{yearlyData.averageDaily}</p>
-          <span className="text-micro text-muted-foreground block truncate">نشاط / يوم في المتوسط</span>
+          <p className="text-xl font-extrabold text-foreground tabular-nums">
+            {yearlyData.activeDaysCount}
+          </p>
+          <span className="text-micro text-muted-foreground block truncate">
+            بمعدل {yearlyData.averageDaily} نشاط / يوم
+          </span>
         </div>
       </div>
 
-      {/* 2. GitHub-Style 52-Week Contribution Heatmap Graph */}
+      {/* 2. GitHub-Style Contribution Heatmap Graph */}
       <section className="surface-depth rounded-2xl p-5 space-y-4 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -273,9 +320,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lead font-bold text-foreground">مصفوفة النشاطات الحقيقية</h2>
+              <h2 className="text-lead font-bold text-foreground">مصفوفة النشاطات</h2>
               <p className="text-micro text-muted-foreground">
-                سجل الزيارات والتفاعل اليومي على نمط GitHub (52 أسبوعاً)
+                {rangeLabelAr} — {weekColumns.length} أسبوعاً من التفاعل اليومي
               </p>
             </div>
           </div>
@@ -283,7 +330,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           {/* Period / Year Selector */}
           <div className="flex items-center gap-1.5 self-end sm:self-auto bg-card border border-border/50 p-1 rounded-xl">
             <button
-              onClick={() => setSelectedYear(undefined)}
+              onClick={() => {
+                setSelectedYear(undefined);
+                setSelectedDay(null);
+              }}
+              aria-pressed={selectedYear === undefined}
               className={`px-3 py-1 rounded-lg text-micro font-semibold transition-all ${
                 selectedYear === undefined
                   ? 'bg-primary text-primary-foreground shadow-sm'
@@ -292,26 +343,23 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             >
               آخر 12 شهراً
             </button>
-            <button
-              onClick={() => setSelectedYear(2025)}
-              className={`px-3 py-1 rounded-lg text-micro font-semibold transition-all ${
-                selectedYear === 2025
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              2025
-            </button>
-            <button
-              onClick={() => setSelectedYear(2024)}
-              className={`px-3 py-1 rounded-lg text-micro font-semibold transition-all ${
-                selectedYear === 2024
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              2024
-            </button>
+            {yearOptions.map((year) => (
+              <button
+                key={year}
+                onClick={() => {
+                  setSelectedYear(year);
+                  setSelectedDay(null);
+                }}
+                aria-pressed={selectedYear === year}
+                className={`px-3 py-1 rounded-lg text-micro font-semibold tabular-nums transition-all ${
+                  selectedYear === year
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {year}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -327,6 +375,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                   setSelectedCategory(cat.id);
                   setSelectedDay(null);
                 }}
+                aria-pressed={isSelected}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-all shrink-0 ${
                   isSelected
                     ? 'bg-primary/15 text-primary border border-primary/40'
@@ -340,53 +389,99 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           })}
         </div>
 
-        {/* 52-Week Heatmap Container with Horizontal Scroll */}
-        <div className="overflow-x-auto no-scrollbar pt-2 pb-1">
-          <div className="min-w-[720px] space-y-1">
-            {/* Month Labels Row - Aligned over 52 Week Columns */}
-            <div className="relative h-5 text-micro font-bold text-muted-foreground/80 ps-12">
-              {monthHeaders.map((m, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    insetInlineStart: `calc(3rem + ${m.colIndex * 1.125}rem)`,
-                  }}
-                  className="absolute text-micro font-bold text-muted-foreground/80 whitespace-nowrap"
-                >
-                  {m.labelAr}
+        {/* Heatmap — time always flows left → right, so the grid is pinned to LTR */}
+        <div className="overflow-x-auto no-scrollbar pt-1 pb-1" dir="ltr">
+          <div className="inline-flex gap-2">
+            {/* Weekday label column, row-aligned with the grid */}
+            <div
+              className="grid shrink-0 text-[0.625rem] font-semibold text-muted-foreground/80"
+              style={{
+                gridTemplateRows: `repeat(7, ${CELL_PX}px)`,
+                rowGap: `${CELL_GAP_PX}px`,
+              }}
+              aria-hidden="true"
+            >
+              {DAY_LABELS_AR.map((label, row) => (
+                <span key={label} className="leading-none flex items-center justify-end pe-0.5">
+                  {LABELED_ROWS.has(row) ? label : ''}
                 </span>
               ))}
             </div>
 
-            {/* Matrix Body: Day of Week Labels + 52 Week Columns */}
-            <div className="flex gap-1">
-              {/* Day Labels Column */}
-              <div className="w-11 flex flex-col justify-between text-[0.625rem] font-semibold text-muted-foreground pe-2 pt-0.5 shrink-0">
-                <span>الأحد</span>
-                <span>الثلاثاء</span>
-                <span>الخميس</span>
+            <div className="space-y-1">
+              {/* Month labels as spans over their own week columns */}
+              <div
+                className="grid text-micro font-bold text-muted-foreground/80"
+                style={{ columnGap: `${CELL_GAP_PX}px` }}
+              >
+                <div
+                  className="col-start-1 row-start-1 grid"
+                  style={{
+                    gridTemplateColumns: monthSpans
+                      .map((s) => `${s.span * CELL_PX + (s.span - 1) * CELL_GAP_PX}px`)
+                      .join(` ${CELL_GAP_PX}px `),
+                    columnGap: 0,
+                  }}
+                >
+                  {monthSpans.map((s, idx) => (
+                    <React.Fragment key={`${s.labelAr}-${idx}`}>
+                      {idx > 0 && <span style={{ width: CELL_GAP_PX }} />}
+                      <span className="whitespace-nowrap overflow-hidden">
+                        {s.showLabel ? s.labelAr : ''}
+                      </span>
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
 
-              {/* Week Columns Grid */}
-              <div className="flex gap-1 flex-1">
+              {/* Week columns */}
+              <div className="flex" style={{ gap: `${CELL_GAP_PX}px` }}>
                 {weekColumns.map((weekDays, wIdx) => (
-                  <div key={wIdx} className="flex flex-col gap-1 min-w-[14px]">
+                  <div
+                    key={wIdx}
+                    className="grid"
+                    style={{
+                      gridTemplateRows: `repeat(7, ${CELL_PX}px)`,
+                      rowGap: `${CELL_GAP_PX}px`,
+                    }}
+                  >
                     {[0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => {
                       const day = weekDays.find((d) => d.dayOfWeek === dayOfWeek);
-                      if (!day) {
-                        return <div key={dayOfWeek} className="w-3 h-3 rounded-xs opacity-0" />;
+
+                      if (!day || day.isPadding) {
+                        return (
+                          <span
+                            key={`${wIdx}-${dayOfWeek}`}
+                            className="rounded-[3px]"
+                            style={{ width: CELL_PX, height: CELL_PX }}
+                          />
+                        );
+                      }
+
+                      if (day.isFuture) {
+                        return (
+                          <span
+                            key={day.dateISO}
+                            className="rounded-[3px] border border-dashed border-border/30"
+                            style={{ width: CELL_PX, height: CELL_PX }}
+                          />
+                        );
                       }
 
                       const isSelected = selectedDay?.dateISO === day.dateISO;
 
                       return (
-                        <div
+                        <button
                           key={day.dateISO}
+                          type="button"
                           onClick={() => setSelectedDay(isSelected ? null : day)}
-                          className={`w-3.5 h-3.5 rounded-xs transition-all cursor-pointer ${getIntensityClass(
+                          style={{ width: CELL_PX, height: CELL_PX }}
+                          className={`rounded-[3px] transition-transform hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
-                          )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 scale-125 z-10' : ''}`}
-                          title={`${day.dateFormattedAr}: ${day.count} نشاطات`}
+                          )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
+                          title={`${day.dateFormattedAr} — ${day.count} نشاط`}
+                          aria-label={`${day.dateFormattedAr}: ${day.count} نشاط`}
+                          aria-pressed={isSelected}
                         />
                       );
                     })}
@@ -399,23 +494,24 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
         {/* Heatmap Footer Legend & Selected Day Indicator */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-micro text-muted-foreground pt-2 border-t border-border/40">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5" dir="ltr">
             <span>أقل</span>
-            <div className="w-3 h-3 rounded-xs bg-muted/30 border border-border/20" />
-            <div className="w-3 h-3 rounded-xs bg-emerald-500/20 border border-emerald-500/30" />
-            <div className="w-3 h-3 rounded-xs bg-emerald-500/45 border border-emerald-500/60" />
-            <div className="w-3 h-3 rounded-xs bg-emerald-500/75 border border-emerald-500/80" />
-            <div className="w-3 h-3 rounded-xs bg-emerald-500 border border-emerald-400" />
+            <div className="w-3 h-3 rounded-[3px] bg-muted/30 border border-border/25" />
+            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/25 border border-emerald-500/30" />
+            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/50 border border-emerald-500/60" />
+            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/75 border border-emerald-500/80" />
+            <div className="w-3 h-3 rounded-[3px] bg-emerald-500 border border-emerald-400" />
             <span>أكثر</span>
           </div>
 
           {selectedDay ? (
             <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
               <span>
-                {selectedDay.dateFormattedAr}: <strong>{selectedDay.count}</strong> نشاط
+                {selectedDay.dateFormattedAr}: <strong className="tabular-nums">{selectedDay.count}</strong> نشاط
               </span>
               <button
                 onClick={() => setSelectedDay(null)}
+                aria-label="إلغاء تحديد اليوم"
                 className="hover:opacity-80 font-bold"
               >
                 ✕
@@ -431,9 +527,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
       <section className="surface-depth rounded-2xl p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lead font-bold text-foreground">سجل المساهمات والنشاطات التفصيلي</h2>
+            <h2 className="text-lead font-bold text-foreground">سجل النشاط التفصيلي</h2>
             <p className="text-micro text-muted-foreground">
-              تصفح التفاعل الزمني الكامل المرتب حسب الأشهر والأيام
+              {filteredEvents.length} نشاط مرتّب من الأحدث إلى الأقدم
             </p>
           </div>
 
@@ -445,11 +541,13 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="بحث في سجل الأنشطة…"
-              className="w-full ps-8 pe-3 py-1.5 rounded-xl bg-card border border-border/50 text-micro text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              aria-label="بحث في سجل الأنشطة"
+              className="w-full ps-8 pe-8 py-2 rounded-xl bg-card border border-border/50 text-mini text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
+                aria-label="مسح البحث"
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground text-micro hover:text-foreground"
               >
                 ✕
@@ -458,26 +556,33 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           </div>
         </div>
 
-        {/* Selected Day Reset Banner */}
-        {selectedDay && (
-          <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/20 text-micro">
+        {/* Active Filters Banner */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20 text-micro">
             <span className="text-primary font-semibold">
-              تصفية الأنشطة ليوم {selectedDay.dateFormattedAr} ({selectedDay.count} نشاط)
+              {selectedDay
+                ? `أنشطة يوم ${selectedDay.dateFormattedAr}`
+                : 'تصفية مُطبّقة على السجل'}
+              {selectedCategory !== 'all' &&
+                ` — ${CATEGORY_OPTIONS.find((c) => c.id === selectedCategory)?.labelAr}`}
             </span>
             <button
-              onClick={() => setSelectedDay(null)}
+              onClick={resetFilters}
               className="text-primary font-bold hover:underline flex items-center gap-1"
             >
-              <RotateCcw className="w-3 h-3" /> عرض كافة الأيام
+              <RotateCcw className="w-3 h-3" /> إعادة الضبط
             </button>
           </div>
         )}
 
         {/* Activity Feed Grouped by Month */}
-        {Object.keys(eventsByMonth).length > 0 ? (
-          <div className="space-y-6 pt-2">
-            {Object.entries(eventsByMonth).map(([monthKey, events]) => {
-              const isCollapsed = expandedMonths[monthKey] === true;
+        {eventsByMonth.length > 0 ? (
+          <div className="space-y-6 pt-1">
+            {eventsByMonth.map(([monthKey, events]) => {
+              const isCollapsed = collapsedMonths[monthKey] === true;
+              const pages = expandedMonthPages[monthKey] ?? 1;
+              const visibleEvents = events.slice(0, pages * EVENTS_PER_MONTH_PAGE);
+              const remaining = events.length - visibleEvents.length;
 
               return (
                 <div key={monthKey} className="space-y-3">
@@ -486,18 +591,19 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-primary" />
                       <h3 className="text-meta font-bold text-foreground">{monthKey}</h3>
-                      <span className="text-micro font-semibold px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground">
+                      <span className="text-micro font-semibold px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground tabular-nums">
                         {events.length} نشاط
                       </span>
                     </div>
 
                     <button
-                      onClick={() => toggleMonthExpansion(monthKey)}
+                      onClick={() => toggleMonthCollapse(monthKey)}
+                      aria-expanded={!isCollapsed}
                       className="text-micro font-medium text-muted-foreground hover:text-foreground flex items-center gap-1"
                     >
                       {isCollapsed ? (
                         <>
-                          إظهار التفاصيل <ChevronDown className="w-3.5 h-3.5" />
+                          إظهار <ChevronDown className="w-3.5 h-3.5" />
                         </>
                       ) : (
                         <>
@@ -509,24 +615,28 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
                   {/* Month Events Timeline List */}
                   {!isCollapsed && (
-                    <div className="space-y-2.5 ps-3 border-s-2 border-border/40 ms-2">
-                      {events.map((evt) => {
+                    <div className="space-y-2.5 ps-5 border-s border-border/40 ms-3">
+                      {visibleEvents.map((evt) => {
                         const IconComp = getCategoryIcon(evt.category);
                         const evtDate = new Date(evt.timestamp);
                         const dateFormatted = `${evtDate.getDate()} ${MONTH_NAMES_AR[evtDate.getMonth()]}`;
+                        const timeFormatted = evtDate.toLocaleTimeString('ar', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        });
 
                         return (
                           <div
                             key={evt.id}
-                            className="relative ps-6 group flex items-start justify-between p-3 rounded-xl bg-card border border-border/40 hover:border-primary/40 transition-all"
+                            className="relative group flex items-start justify-between gap-3 p-3 rounded-xl bg-card border border-border/40 hover:border-primary/40 transition-colors"
                           >
-                            {/* Bullet icon node */}
-                            <div className="absolute -start-[17px] top-3.5 w-7 h-7 rounded-full bg-background border-2 border-primary/40 flex items-center justify-center text-primary group-hover:border-primary group-hover:scale-110 transition-transform">
-                              <IconComp className="w-3.5 h-3.5" />
+                            {/* Bullet icon node on the rail */}
+                            <div className="absolute -start-[27px] top-3.5 w-6 h-6 rounded-full bg-background border border-border/60 flex items-center justify-center text-primary group-hover:border-primary/60 transition-colors">
+                              <IconComp className="w-3 h-3" />
                             </div>
 
                             {/* Event Details */}
-                            <div className="space-y-1">
+                            <div className="space-y-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="text-meta font-bold text-foreground">
                                   {evt.titleAr}
@@ -545,14 +655,31 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                               )}
                             </div>
 
-                            <div className="text-end shrink-0">
-                              <span className="text-micro font-semibold text-muted-foreground">
+                            <div className="text-end shrink-0 space-y-0.5">
+                              <span className="block text-micro font-semibold text-foreground/80 tabular-nums">
                                 {dateFormatted}
+                              </span>
+                              <span className="block text-micro text-muted-foreground tabular-nums">
+                                {timeFormatted}
                               </span>
                             </div>
                           </div>
                         );
                       })}
+
+                      {remaining > 0 && (
+                        <button
+                          onClick={() =>
+                            setExpandedMonthPages((prev) => ({
+                              ...prev,
+                              [monthKey]: (prev[monthKey] ?? 1) + 1,
+                            }))
+                          }
+                          className="w-full py-2 rounded-xl bg-muted/20 border border-border/40 text-micro font-bold text-primary hover:bg-muted/30 transition-colors"
+                        >
+                          إظهار {Math.min(remaining, EVENTS_PER_MONTH_PAGE)} نشاطاً إضافياً (تبقّى {remaining})
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -568,13 +695,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             <p className="text-micro text-muted-foreground max-w-sm mx-auto">
               جرّب تغيير فئة البحث أو اختيار فترة زمنية مختلفة لاستعراض سجل المساهمات
             </p>
-            {(searchQuery || selectedDay || selectedCategory !== 'all') && (
+            {hasActiveFilters && (
               <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedDay(null);
-                  setSelectedCategory('all');
-                }}
+                onClick={resetFilters}
                 className="text-micro font-bold text-primary hover:underline"
               >
                 إعادة ضبط جميع الفلاتر
@@ -583,6 +706,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           </div>
         )}
       </section>
+
 
       {/* 4. Cross-Module Statistics Breakdown Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
