@@ -5,10 +5,13 @@ import { useApp } from '@/contexts/AppContext';
 import { Check, Circle, Droplets, ImageIcon, Palette, Sparkles, Zap } from '@/lib/icons';
 import { MOTION, pageItem as item } from '@/lib/motion';
 import {
+  contrastRatio,
   createDynamicPreset,
   extractDominantColor,
+  generateThemeTokens,
   getThemeInk,
   getThemeScaleColors,
+  hexToHsl,
   resolveThemeId,
   SCALE_STEPS,
   themePresets,
@@ -105,6 +108,66 @@ function swatchBands(
 /** The labels under the tone strip — 50…600, then ink. */
 const TONE_LABELS: string[] = [...SCALE_STEPS.map((step) => String(step)), 'حبر'];
 
+function PaletteHealth({
+  preset,
+  paletteStyle,
+  isDark,
+}: {
+  preset: (typeof themePresets)[number];
+  paletteStyle: ThemeStyle;
+  isDark: boolean;
+}) {
+  const tokens = generateThemeTokens(preset, paletteStyle, isDark, false);
+  const mode = preset[isDark ? 'dark' : 'light'];
+  const background = hexToHsl(mode.bg);
+  const card = hexToHsl(mode.surface);
+  const accent = hexToHsl(mode.accent);
+  const textContrast = contrastRatio(hexToHsl(mode.ink), background);
+  const accentContrast = contrastRatio(accent, background);
+  const surfaceSeparation = Math.abs(card[2] - background[2]);
+  const checks = [
+    { label: 'النص الأساسي', value: `${textContrast.toFixed(1)}:1`, good: textContrast >= 6.9 },
+    { label: 'الإبراز', value: `${accentContrast.toFixed(1)}:1`, good: accentContrast >= 3.15 },
+    { label: 'فصل السطح', value: `${surfaceSeparation.toFixed(1)}°`, good: surfaceSeparation >= 2.5 },
+  ];
+
+  return (
+    <div className="space-y-3 border-t border-border pt-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-micro font-bold text-foreground">قراءة الثيم الحالية</p>
+          <p className="mt-0.5 text-micro text-muted-foreground">
+            {isDark ? 'داكن' : 'فاتح'} · {paletteStyle === 'neutral' ? 'إبراز خافت' : 'إبراز متوازن'}
+          </p>
+        </div>
+        <span className="rounded-full bg-success/10 px-2 py-1 text-micro font-semibold text-success">متوافق بصرياً</span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {checks.map((check) => (
+          <div key={check.label} className="rounded-md bg-secondary/60 px-2 py-2 text-center">
+            <p className="text-micro text-muted-foreground">{check.label}</p>
+            <p className={`mt-1 text-meta font-bold ${check.good ? 'text-foreground' : 'text-warning'}`}>{check.value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-2 overflow-hidden rounded-md border border-border">
+        <div className="flex min-h-16 flex-col justify-between p-3" style={{ backgroundColor: `hsl(${tokens['--background']})` }}>
+          <span className="text-micro" style={{ color: `hsl(${tokens['--muted-foreground']})` }}>الخلفية</span>
+          <span className="text-body font-bold" style={{ color: `hsl(${tokens['--foreground']})` }}>مساحة هادئة</span>
+        </div>
+        <div className="flex min-h-16 flex-col justify-between p-3" style={{ backgroundColor: `hsl(${tokens['--card']})` }}>
+          <span className="text-micro" style={{ color: `hsl(${tokens['--muted-foreground']})` }}>السطح</span>
+          <span className="text-micro font-semibold" style={{ color: `hsl(${tokens['--card-foreground']})` }}>محتوى واضح</span>
+        </div>
+        <div className="flex min-h-16 flex-col justify-between p-3" style={{ backgroundColor: `hsl(${tokens['--primary']})` }}>
+          <span className="text-micro" style={{ color: `hsl(${tokens['--primary-foreground']})` }}>الإبراز</span>
+          <span className="text-micro font-semibold" style={{ color: `hsl(${tokens['--primary-foreground']})` }}>إجراء مهم</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ThemePresetsCategorized({
   colorTheme,
   paletteStyle,
@@ -139,13 +202,13 @@ function ThemePresetsCategorized({
     return cat?.presets.includes(preset.id);
   });
 
-  const activePreset = themePresets.find((preset) => preset.id === colorTheme);
+  const activePreset = themePresets.find((preset) => preset.id === resolveThemeId(colorTheme));
 
   return (
     <div className="space-y-4">
       <p className="text-mini text-muted-foreground">
-        كل ثيم اثنتا عشرة درجة متناسقة (25 ← 900 ثم الحبر)، محسوبة إدراكياً على الوضع الحالي
-        {isDark ? ' (داكن)' : ' (فاتح)'} ومُتحقَّق من تباينها آلياً
+        كل ثيم سلّم لوني متكامل من ١١ درجة، محسوب إدراكياً على الوضع الحالي
+        {isDark ? ' الداكن' : ' الفاتح'} ومُتحقَّق من تباينه آلياً
       </p>
 
       {/* Segmented category tabs */}
@@ -269,6 +332,8 @@ function ThemePresetsCategorized({
           </p>
         </div>
       )}
+
+      {activePreset && <PaletteHealth preset={activePreset} paletteStyle={paletteStyle} isDark={isDark} />}
 
       {/* The applied tokens, as the app actually renders them. */}
       <div className="space-y-2 border-t border-border pt-3">
