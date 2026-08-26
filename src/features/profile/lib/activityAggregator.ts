@@ -586,16 +586,17 @@ function compute365DayContributions(
   }
 
 
-  // Compute current streak ending at today/latest active day
-  const streakCheck = new Date(endDate);
+  // Compute current streak ending at today (or the latest day of the window
+  // for past years) — never counts future dates.
+  const streakCheck = new Date(endDate > today ? today : endDate);
   while (streakCheck >= startDate) {
     const iso = toLocalDateISO(streakCheck);
     const cnt = categoryFilter === 'all' ? (dailyCountsMap[iso]?.all || 0) : (dailyCountsMap[iso]?.[categoryFilter] || 0);
     if (cnt > 0) {
       currentStreakDays++;
       streakCheck.setDate(streakCheck.getDate() - 1);
-    } else if (toLocalDateISO(streakCheck) === toLocalDateISO(today) && cnt === 0) {
-      // Check yesterday if today hasn't had activity yet
+    } else if (iso === todayISO) {
+      // Today may simply not have activity yet — look at yesterday before giving up
       streakCheck.setDate(streakCheck.getDate() - 1);
     } else {
       break;
@@ -605,7 +606,11 @@ function compute365DayContributions(
   // Sort events chronologically descending (newest first)
   allEvents.sort((a, b) => b.timestamp - a.timestamp);
 
-  const averageDaily = Math.round((totalContributions / Math.max(1, days.length)) * 10) / 10;
+  // Average is per *elapsed* day inside the window — padding and future days
+  // would otherwise dilute the number.
+  const averageDaily =
+    Math.round((totalContributions / Math.max(1, elapsedInRangeDays)) * 10) / 10;
+
 
   return {
     year,
