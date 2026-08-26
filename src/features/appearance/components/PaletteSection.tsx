@@ -108,6 +108,59 @@ function swatchBands(
 /** The labels under the tone strip — 50…600, then ink. */
 const TONE_LABELS: string[] = [...SCALE_STEPS.map((step) => String(step)), 'حبر'];
 
+function ModePalettePreview({
+  preset,
+  paletteStyle,
+  activeMode,
+  onModeChange,
+}: {
+  preset: (typeof themePresets)[number];
+  paletteStyle: ThemeStyle;
+  activeMode: 'light' | 'dark';
+  onModeChange: (mode: 'light' | 'dark') => void;
+}) {
+  const modes = [
+    { id: 'light' as const, label: 'فاتح', note: 'مساحة مشرقة ومتزنة' },
+    { id: 'dark' as const, label: 'داكن', note: 'عمق مريح للعين' },
+  ];
+
+  return (
+    <div className="space-y-3 border-t border-border pt-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-micro font-bold text-foreground">معاينة الوضعين</p>
+          <p className="mt-0.5 text-micro text-muted-foreground">نفس الهوية اللونية، معايرة مختلفة لكل إضاءة</p>
+        </div>
+        <span className="text-micro font-semibold text-primary">{preset.name}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {modes.map((mode) => {
+          const isActive = activeMode === mode.id;
+          const tokens = generateThemeTokens(preset, paletteStyle, mode.id === 'dark', false);
+          return (
+            <button
+              key={mode.id}
+              type="button"
+              onClick={() => onModeChange(mode.id)}
+              aria-pressed={isActive}
+              className={`group overflow-hidden rounded-md border text-start transition-all ${isActive ? 'border-primary ring-1 ring-primary/30' : 'border-border'}`}
+            >
+              <div className="flex h-12 items-end justify-between gap-1 p-2" style={{ backgroundColor: `hsl(${tokens['--background']})` }}>
+                <span className="text-micro font-bold" style={{ color: `hsl(${tokens['--foreground']})` }}>{mode.label}</span>
+                <span className="flex gap-1">
+                  <i className="h-3 w-3 rounded-full" style={{ backgroundColor: `hsl(${tokens['--primary']})` }} />
+                  <i className="h-3 w-3 rounded-full" style={{ backgroundColor: `hsl(${tokens['--card']})` }} />
+                </span>
+              </div>
+              <div className="bg-card px-2 py-1.5 text-micro text-muted-foreground">{mode.note}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function PaletteHealth({
   preset,
   paletteStyle,
@@ -168,16 +221,45 @@ function PaletteHealth({
   );
 }
 
+function StructuralRolePreview({
+  preset,
+  paletteStyle,
+  isDark,
+}: {
+  preset: (typeof themePresets)[number];
+  paletteStyle: ThemeStyle;
+  isDark: boolean;
+}) {
+  const tokens = generateThemeTokens(preset, paletteStyle, isDark, false);
+  const roles = [
+    { label: 'التنقل', bg: tokens['--navigation'], fg: tokens['--navigation-foreground'] },
+    { label: 'طبقة الطفو', bg: tokens['--overlay-surface'], fg: tokens['--overlay-foreground'] },
+    { label: 'حلقة التركيز', bg: tokens['--focus-ring'], fg: tokens['--primary-foreground'] },
+  ];
+  return (
+    <>
+      {roles.map((role) => (
+        <div key={role.label} className="flex flex-col items-center gap-1 rounded-md border border-border p-2" style={{ backgroundColor: `hsl(${role.bg})` }}>
+          <span className="text-micro text-muted-foreground">{role.label}</span>
+          <span className="text-micro font-bold" style={{ color: `hsl(${role.fg})` }}>{role.label}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
 function ThemePresetsCategorized({
   colorTheme,
   paletteStyle,
   setColorTheme,
   isDark,
+  setThemeMode,
 }: {
   colorTheme: string;
   paletteStyle: ThemeStyle;
   setColorTheme: (theme: string) => void;
   isDark: boolean;
+  setThemeMode: (mode: 'light' | 'dark') => void;
 }) {
   const initialCategory =
     THEME_CATEGORIES.find((cat) => cat.presets.includes(colorTheme))?.id || 'classic';
@@ -333,7 +415,30 @@ function ThemePresetsCategorized({
         </div>
       )}
 
-      {activePreset && <PaletteHealth preset={activePreset} paletteStyle={paletteStyle} isDark={isDark} />}
+      {activePreset && (
+        <>
+          <ModePalettePreview
+            preset={activePreset}
+            paletteStyle={paletteStyle}
+            activeMode={isDark ? 'dark' : 'light'}
+            onModeChange={setThemeMode}
+          />
+          <PaletteHealth preset={activePreset} paletteStyle={paletteStyle} isDark={isDark} />
+        </>
+      )}
+
+      {/* Structural roles preview — tokens that govern navigation, overlays, and interactive states. */}
+      {activePreset && (
+        <div className="space-y-3 border-t border-border pt-4">
+          <p className="text-micro font-bold text-foreground">الأدوار الهيكلية</p>
+          <p className="mt-0.5 text-micro text-muted-foreground">
+            رموز موحّدة للتنقل، الطبقات، والحالات التفاعلية
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            <StructuralRolePreview preset={activePreset} paletteStyle={paletteStyle} isDark={isDark} />
+          </div>
+        </div>
+      )}
 
       {/* The applied tokens, as the app actually renders them. */}
       <div className="space-y-2 border-t border-border pt-3">
@@ -360,7 +465,7 @@ function ThemePresetsCategorized({
 }
 
 export default function PaletteSection() {
-  const { colorTheme, setColorTheme, paletteStyle, setPaletteStyle, theme } = useApp();
+  const { colorTheme, setColorTheme, paletteStyle, setPaletteStyle, theme, setTheme } = useApp();
   const isDark = theme === 'dark';
 
   const handleDynamicImage = () => {
@@ -443,6 +548,7 @@ export default function PaletteSection() {
           paletteStyle={paletteStyle as ThemeStyle}
           setColorTheme={setColorTheme as (t: string) => void}
           isDark={isDark}
+          setThemeMode={setTheme}
         />
       </SettingsSection>
 

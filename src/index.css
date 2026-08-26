@@ -106,6 +106,17 @@
   --color-surface-2: hsl(var(--surface-2));
   --color-surface-3: hsl(var(--surface-3));
 
+  /* Structural + interactive roles shared by every feature. */
+  --color-navigation: hsl(var(--navigation));
+  --color-navigation-foreground: hsl(var(--navigation-foreground));
+  --color-overlay: hsl(var(--overlay-surface));
+  --color-overlay-foreground: hsl(var(--overlay-foreground));
+  --color-interactive-hover: hsl(var(--interactive-hover));
+  --color-interactive-pressed: hsl(var(--interactive-pressed));
+  --color-interactive-selected: hsl(var(--interactive-selected));
+  --color-interactive-selected-foreground: hsl(var(--interactive-selected-foreground));
+  --color-focus-ring: hsl(var(--focus-ring));
+
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-primary-50: hsl(var(--theme-50));

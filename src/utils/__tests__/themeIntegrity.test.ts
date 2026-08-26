@@ -89,6 +89,27 @@ describe('theme token integrity', () => {
           expect(t['--card-shadow']).toBe(t['--shadow-1']);
         });
 
+        it(`${label}: interactive states form a coherent perceptual ladder`, () => {
+          const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
+          const bg = parse(t['--background']);
+          const hover = parse(t['--interactive-hover']);
+          const pressed = parse(t['--interactive-pressed']);
+          const selected = parse(t['--interactive-selected']);
+
+          expect(contrastRatio(hover, bg)).toBeGreaterThan(1.01);
+          expect(contrastRatio(pressed, bg)).toBeGreaterThan(contrastRatio(hover, bg));
+          expect(contrastRatio(selected, bg)).toBeGreaterThan(contrastRatio(hover, bg));
+          expect(contrastRatio(parse(t['--focus-ring']), bg)).toBeGreaterThanOrEqual(3.15);
+        });
+
+        it(`${label}: overlay and navigation surfaces retain readable text`, () => {
+          const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
+          const nav = parse(t['--navigation']);
+          const overlay = parse(t['--overlay-surface']);
+          expect(contrastRatio(parse(t['--navigation-foreground']), nav)).toBeGreaterThanOrEqual(4.5);
+          expect(contrastRatio(parse(t['--overlay-foreground']), overlay)).toBeGreaterThanOrEqual(4.5);
+        });
+
         it(`${label}: the ink zone climbs in contrast`, () => {
           const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
           const bg = parse(t['--background']);

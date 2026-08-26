@@ -690,6 +690,18 @@ export function generateThemeTokens(
 
   const accentHighlightStr = solid(accHsl, bgHsl, 0.14); // subtle accent wash
 
+  // Interaction roles are published centrally so hover/pressed/selected states
+  // carry the same visual weight across every feature instead of each screen
+  // inventing an arbitrary opacity. The ordering is intentionally monotonic.
+  const interactiveHover = mixHsl(inkHsl, bgHsl, isDark ? 0.11 : 0.075);
+  const interactivePressed = mixHsl(inkHsl, bgHsl, isDark ? 0.2 : 0.14);
+  const interactiveSelected = mixHsl(accHsl, bgHsl, isDark ? 0.24 : 0.16);
+
+  // Navigation is slightly more grounded than the page; overlays use the
+  // highest elevation plane. Both receive their own contrast-corrected ink.
+  const navigation = mixHsl(surfHsl, bgHsl, isDark ? 0.58 : 0.48);
+  const navigationInk = ensureContrast(inkHsl, navigation, 4.5);
+
   // Text on the accent is whichever of ink/bg is actually readable on it —
   // pale accents in dark mode used to place a near-black label on gold.
   const primaryFgStr =
@@ -702,6 +714,7 @@ export function generateThemeTokens(
   // from the shadow.
   const surface2 = elevate(surfHsl, isDark, 0.035);
   const surface3 = elevate(surfHsl, isDark, 0.07);
+  const overlayInk = ensureContrast(inkHsl, surface3, 4.5);
 
   const shadowRgb = isDark ? '0,0,0' : '28,24,20';
   const shadow1 = isDark
@@ -757,6 +770,14 @@ export function generateThemeTokens(
     '--primary': accStr,
     '--primary-foreground': primaryFgStr,
     '--disabled': disabledStr,
+    // Coherent state ladder consumed app-wide by controls, rows and selections.
+    '--interactive-hover': hslToString(interactiveHover),
+    '--interactive-pressed': hslToString(interactivePressed),
+    '--interactive-selected': hslToString(interactiveSelected),
+    '--interactive-selected-foreground': hslToString(
+      ensureContrast(inkHsl, interactiveSelected, 4.5),
+    ),
+    '--focus-ring': accStr,
     // Status colours keep their fixed semantic hue but their TONE is resolved
     // against the active background, so they never sink into a very light or
     // very dark palette.
@@ -787,6 +808,12 @@ export function generateThemeTokens(
     '--surface-1': surfStr,
     '--surface-2': hslToString(surface2),
     '--surface-3': hslToString(surface3),
+    // Dedicated structural surfaces keep navigation and modal layers coherent
+    // even when individual features use translucent backgrounds.
+    '--navigation': hslToString(navigation),
+    '--navigation-foreground': hslToString(navigationInk),
+    '--overlay-surface': hslToString(surface3),
+    '--overlay-foreground': hslToString(overlayInk),
     // The shadow that belongs to each plane, plus the legacy aliases so old
     // call sites keep resolving to a real value.
     '--shadow-1': shadow1,
