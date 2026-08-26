@@ -14,8 +14,8 @@ import {
   type MatchReport,
   reportMatch,
 } from '@/features/games/progression';
-import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { applyMoveUci, positionFromFen, positionToFen } from '@/features/games/utils/chessCore';
+import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { Clock, Copy, Crown, Download, Flag, Lightbulb,Play, RotateCcw, Undo2 } from '@/lib/icons';
 
 /** المشهد ثلاثي الأبعاد — يُحمَّل كسولاً حتى لا يثقل حزمة بقية التطبيق. */
@@ -1615,9 +1615,6 @@ export default function ChessPage() {
             {(flipped ? whiteAdv < 0 : blackAdv > 0) && <span className="text-micro text-muted-foreground">+{flipped ? -whiteAdv : blackAdv}</span>}
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex gap-0.5 min-h-[18px]">
-              {game.captured[flipped ? 'w' : 'b'].map((p, i) => <span key={i} className="text-mini opacity-60">{p}</span>)}
-            </div>
             {timeControl !== 'none' && (
               <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'w' : 'b') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
                 {formatTimer(flipped ? clockW : clockB)}
@@ -1677,6 +1674,14 @@ export default function ChessPage() {
               hintMove={hintMove}
               interactive={!gameOver && !aiThinking && (gameMode === 'local' || game.turn === playerColor)}
               onSquareTap={handleClick}
+              capturedW={game.captured.w}
+              capturedB={game.captured.b}
+              turn={game.turn}
+              defeatedColor={
+                gameOver && lastGameWinner && lastGameWinner !== 'draw'
+                  ? ((lastGameWinner === 'w' ? 'b' : 'w') as Color)
+                  : null
+              }
             />
           </Suspense>
         </div>
@@ -1697,9 +1702,6 @@ export default function ChessPage() {
             {(flipped ? blackAdv > 0 : whiteAdv > 0) && <span className="text-micro text-muted-foreground">+{flipped ? blackAdv : whiteAdv}</span>}
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex gap-0.5 min-h-[18px]">
-              {game.captured[flipped ? 'b' : 'w'].map((p, i) => <span key={i} className="text-mini opacity-60">{p}</span>)}
-            </div>
             {timeControl !== 'none' && (
               <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'b' : 'w') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
                 {formatTimer(flipped ? clockB : clockW)}

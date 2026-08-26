@@ -20,6 +20,16 @@ export const easeOutQuint: Easing = (t) => 1 - Math.pow(1 - t, 5);
 /** نبضة تتضاءل — لهب الكش، اهتزاز الالتقاط. */
 export const pulseDecay: Easing = (t) => Math.exp(-4.5 * t) * Math.sin(t * Math.PI * 5);
 
+/** ارتداد كرة سقوط — لإسقاط الملك الخاسر. */
+export const easeOutBounce: Easing = (t) => {
+  const n1 = 7.5625;
+  const d1 = 2.75;
+  if (t < 1 / d1) return n1 * t * t;
+  if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+  if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  return n1 * (t -= 2.625 / d1) * t + 0.984375;
+};
+
 /** تقدّم زمني مقيد [0,1] أو null إذا انتهى المدة. */
 export function progress(elapsedMs: number, durationMs: number): number | null {
   if (durationMs <= 0) return null;
@@ -66,6 +76,10 @@ export const DUR_CHECK_PULSE = 1100;
 export const DUR_LEGAL_POP = 160;
 /** موجة دخول القطع عند بناء الرقعة. */
 export const DUR_STAGGER_STEP = 26;
+/** سقوط الملك الخاسر. */
+export const DUR_TOPPLE = 850;
+/** عمر تأثير الغبار عند الهبوط. */
+export const DUR_LAND_FX = 620;
 
 /** اختيار منحنى النقلة حسب نوعها — مركزي لضبط الإحساس دفعة واحدة. */
 export function moveEasing(kind: 'slide' | 'slideFar' | 'land'): Easing {

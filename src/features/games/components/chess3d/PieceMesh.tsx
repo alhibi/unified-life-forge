@@ -17,7 +17,9 @@ import {
   DUR_CAPTURE_SHUDDER,
   DUR_CAPTURE_SINK,
   DUR_LAND_SETTLE,
+  DUR_TOPPLE,
   easeOutBack,
+  easeOutBounce,
   easeOutCubic,
   progress,
   slideDuration,
@@ -30,6 +32,8 @@ export interface FlightSpec {
   t0: number;
   /** ترقية: وميض وهبوط مبهر عند الهبوط. */
   promoteFlash?: boolean;
+  /** يُنادى مرة واحدة لحظة اكتمال الرحلة (تأثيرات الغبار/العمود). */
+  onLand?: () => void;
 }
 
 interface PieceMeshProps {
@@ -41,6 +45,11 @@ interface PieceMeshProps {
   exiting: boolean;
   spawnAt: number | null;
   selected: boolean;
+  /**
+   * وضعية ثابتة (للمقبرة): لا يعيد المكون كتابة موضعه المحلي كل إطار،
+   * فتتولى المجموعة الأم تحديد الموضع والميلان.
+   */
+  staticPose?: boolean;
 }
 
 export default function PieceMesh({
@@ -51,6 +60,7 @@ export default function PieceMesh({
   exiting,
   spawnAt,
   selected,
+  staticPose = false,
 }: PieceMeshProps) {
   const group = useRef<THREE.Group>(null);
   const inner = useRef<THREE.Group>(null);
@@ -144,6 +154,7 @@ export default function PieceMesh({
         flightDoneRef.current = true;
         g.position.set(f.toW[0], 0, f.toW[1]);
         landedAtRef.current = now;
+        f.onLand?.();
         if (f.promoteFlash) {
           // وميض الترقية: نبضة تكبير سريعة تخفت
           body.scale.setScalar(1.22);
@@ -181,6 +192,7 @@ export default function PieceMesh({
     }
 
     // ── التحديد: تحويم ودوران حي ──
+    if (staticPose) return; // المقبرة: الوضع ثابت، الأم يتحكم بالموضع
     if (selected) {
       const t = now * 0.003;
       g.position.y = 0.07 + Math.sin(t * 2.4) * 0.018;
@@ -192,7 +204,7 @@ export default function PieceMesh({
   });
 
   return (
-    <group ref={group} position={[restPos[0], 0, restPos[1]]}>
+    <group position={staticPose ? [0, 0, 0] : [restPos[0], 0, restPos[1]]}>
       <group ref={inner} rotation={[0, facing, 0]}>
         <mesh geometry={geom} material={mat} castShadow receiveShadow />
       </group>
@@ -203,4 +215,54 @@ export default function PieceMesh({
 /** عودة معامل الفلاش إلى 1 عبر زمن الهبوط (مساعد داخلي). */
 function flashScaleX(current: number, _p: number): number {
   return current > 1 ? Math.max(1, current - 0.03) : 1;
+}
+
+/**
+ * FallingKing — الملك الخاسر: يتردد لحظة، ثم يسقط بارتجاف مرتد
+ * على جبهته باتجاه مركز الرقعة. يُركَّب بدل القطعة الحية عند النهاية.
+ */
+export function FallingKing({
+  ent,
+  geom,
+  mat,
+}: {
+  ent: PieceEntity;
+  geom: THREE.BufferGeometry;
+  mat: THREE.Material;
+}) {
+  const inner = useRef<THREE.Group>(null);
+  const start = useRef<number | null>(null);
+  const [rx, rz] = squareToWorld(ent.r, ent.c);
+  // اتجاه السقوط: نحو مركز الرقعة (حتمي).
+  const towardCenterX = Math.abs(rx) >= 1 ? -Math.sign(rx) : 0;
+  const towardCenterZ = towardCenterX === 0 ? -Math.sign(rz) : 0;
+
+  useFrame(() => {
+    const b = inner.current;
+    if (!b) return;
+    if (start.current === null) start.current = performance.now() + 380; // مهلة درامية
+    const t = performance.now() - start.current;
+    if (t < 0) return;
+    const p = Math.min(1, t / DUR_TOPPLE);
+    // تردد قصير ثم سقوط بارتداد
+    const wobble = p < 0.18 ? Math.sin((p / 0.18) * Math.PI) * 0.14 : 0;
+    const fallP = p < 0.18 ? 0 : (p - 0.18) / 0.82;
+    const fall = easeOutBounce(fallP);
+    if (towardCenterX !== 0) {
+      b.rotation.z = towardCenterX * (Math.PI / 2 - 0.05) * fall + wobble * 0.5;
+      b.rotation.x = 0;
+    } else {
+      b.rotation.x = towardCenterZ * (Math.PI / 2 - 0.05) * fall + wobble * 0.5;
+      b.rotation.z = 0;
+    }
+    b.position.y = Math.sin(Math.PI * Math.min(1, fallP)) * 0.04;
+  });
+
+  return (
+    <group position={[rx, 0, rz]}>
+      <group ref={inner}>
+        <mesh geometry={geom} material={mat} castShadow />
+      </group>
+    </group>
+  );
 }

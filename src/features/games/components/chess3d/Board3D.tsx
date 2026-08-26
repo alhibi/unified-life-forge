@@ -49,7 +49,10 @@ import {
   pulseDecay,
 } from '@/features/games/lib/three/tween';
 
-import PieceMesh, { type FlightSpec } from './PieceMesh';
+import CameraRig from './CameraRig';
+import Graveyard3D from './Graveyard3D';
+import PieceMesh, { FallingKing, type FlightSpec } from './PieceMesh';
+import { HintArrow, LandBurst, PromoteColumn, TurnBeacon } from './SceneFx';
 
 // ── أنواع بنائية مطابقة هيكلياً لأنواع الصفحة ──────────────────────
 export type Sq = [number, number];
@@ -65,7 +68,20 @@ export interface Board3DProps {
   /** هل يُسمح بالنقر (ليس دور الذكاء الاصطناعي ولا انتهت اللعبة)؟ */
   interactive: boolean;
   onSquareTap: (r: number, c: number) => void;
+  /** ما أسره الأبيض/الأسود من رموز (من حالة الصفحة) — يقود المقبرة ثلاثية الأبعاد. */
+  capturedW?: string[];
+  capturedB?: string[];
+  /** صاحب الدور الحالي — يقود منارة الدور. */
+  turn?: 'w' | 'b';
+  /** انتهت اللعبة بلون مهزوم: ملكه يسقط ارتداديّاً. */
+  defeatedColor?: 'w' | 'b' | null;
 }
+
+/** تحويل رمز يونيكود إلى نوع قطعة. */
+const GLYPH_TO_TYPE: Record<string, Type2> = {
+  '♙': 'P', '♘': 'N', '♗': 'B', '♖': 'R', '♕': 'Q',
+  '♟': 'P', '♞': 'N', '♝': 'B', '♜': 'R', '♛': 'Q',
+};
 
 if (!assertPaletteIntegrity().ok) throw new Error('لوحة ألوان الشطرنج تالفة');
 
@@ -291,23 +307,6 @@ function CheckEmber({ sq }: { sq: Sq }) {
   );
 }
 
-/** إطاران نابضان للتلميح (من ← إلى). */
-function HintFrame({ sq, delayPhase }: { sq: Sq; delayPhase: number }) {
-  const mat = useRef<THREE.MeshBasicMaterial>(null);
-  const [x, z] = squareToWorld(sq[0], sq[1]);
-  useFrame(({ clock }) => {
-    if (!mat.current) return;
-    const t = clock.elapsedTime + delayPhase;
-    mat.current.opacity = 0.55 + Math.sin(t * 5.2) * 0.35;
-  });
-  return (
-    <mesh position={[x, 0.02, z]} rotation={[-Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[0.4, 0.46, 4, 1]} />
-      <meshBasicMaterial ref={mat} color={hex('hint')} transparent depthWrite={false} side={THREE.DoubleSide} />
-    </mesh>
-  );
-}
-
 // ── الدوّار: قلب المنظور + تنفّس ───────────────────────────────────
 function Turntable({
   flipped,
@@ -399,6 +398,10 @@ export default function Board3D({
   hintMove,
   interactive,
   onSquareTap,
+  capturedW = [],
+  capturedB = [],
+  turn = 'w',
+  defeatedColor = null,
 }: Board3DProps) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const reducedMotion =
@@ -425,6 +428,39 @@ export default function Board3D({
   const [dying, setDying] = useState<DyingPiece[]>([]);
   const dyingSeq = useRef(0);
 
+  // ── المقبرة: غنائم الالتقاط — `capturedW` = ما أسره الأبيض (قطع سوداء) ──
+  const graves = useMemo(() => {
+    const toSpecs = (glyphs: string[], capturer: 'w' | 'b') => {
+      const counters = new Map<string, number>();
+      return glyphs
+        .map((g) => GLYPH_TO_TYPE[g])
+        .filter((t): t is Type2 => Boolean(t))
+        .map((type) => {
+          const pieceColor: 'w' | 'b' = capturer === 'w' ? 'b' : 'w';
+          const key0 = `${capturer}:${type}`;
+          const seq = counters.get(key0) ?? 0;
+          counters.set(key0, seq + 1);
+          return {
+            key: `${key0}:${seq}`,
+            ent: { id: `grave-${key0}-${seq}`, color: pieceColor, type, r: 0, c: 0 },
+            pieceColor,
+            capturer,
+            type,
+            seq,
+          };
+        });
+    };
+    return [...toSpecs(capturedW, 'w'), ...toSpecs(capturedB, 'b')];
+  }, [capturedW, capturedB]);
+
+  // ── تأثيرات لحظية: غبار الهبوط وعمود الترقية ──
+  const [fx, setFx] = useState<{ x: number; z: number; born: number; kind: 'land' | 'promote' }[]>([]);
+  const pushFx = useCallback((x: number, z: number, kind: 'land' | 'promote') => {
+    const item = { x, z, born: performance.now(), kind };
+    setFx((f) => [...f.slice(-6), item]);
+    window.setTimeout(() => setFx((f) => f.filter((g) => g !== item)), 1000);
+  }, []);
+
   useEffect(() => {
     const prev = prevBoardRef.current;
     if (prev === board) return;
@@ -450,13 +486,15 @@ export default function Board3D({
     if (moverEnt) {
       const [fx, fz] = squareToWorld(derived.from[0], derived.from[1]);
       const [tx, tz] = squareToWorld(derived.to[0], derived.to[1]);
+      const isPromo = derived.kind === 'promotion';
       movers.push({
         entId: moverEnt.id,
         spec: {
           fromW: [fx, fz],
           toW: [tx, tz],
           t0: performance.now() + 30,
-          promoteFlash: derived.kind === 'promotion',
+          promoteFlash: isPromo,
+          onLand: () => pushFx(tx, tz, isPromo ? 'promote' : 'land'),
         },
       });
     }
@@ -527,10 +565,15 @@ export default function Board3D({
       <color attach="background" args={['#05060A']} />
       <fog attach="fog" args={['#05060A', 13.5, 21]} />
 
+      {/* كاميرا حرة: دخول سينمائي + سحب/عصر (النقرة تمر للمربعات) */}
+      <CameraRig />
+
       {/* ── المسرح الضوئي: مفتاح دافئ + حافة قمرية باردة + ملء خافت ── */}
       <ambientLight intensity={0.3} color="#cfd3e0" />
       <directionalLight position={[5.5, 9, 4]} intensity={1.25} color="#ffd9a3" />
       <directionalLight position={[-6, 6.5, -6.5]} intensity={0.85} color="#8fa3c8" />
+      {/* ملء أمامي يرفع وجوه القطع الداكنة نحو الكاميرا */}
+      <directionalLight position={[0, 4.5, 11]} intensity={0.55} color="#aab4c8" />
       <pointLight position={[-3.5, 3, -4]} intensity={14} distance={12} decay={2} color="#4a4e5a" />
       <spotLight
         position={[0, 11.5, 1.5]}
@@ -556,9 +599,10 @@ export default function Board3D({
         {/* ظلال تلامس ناعمة تحت القطع */}
         <ContactShadows position={[0, 0.004, 0]} scale={10.5} blur={2.6} far={1.6} opacity={0.62} frames={isMobile ? 1 : Infinity} resolution={isMobile ? 256 : 512} color="#000000" />
 
-        {/* القطع الحية */}
+        {/* القطع الحية — يختفي الملك المهزوم لأن FallingKing يتولى مشهده */}
         {entities.map((ent) => {
           const isSel = selectedKey === `${ent.r}:${ent.c}`;
+          if (defeatedColor && ent.type === 'K' && ent.color === defeatedColor) return null;
           return (
             <PieceMesh
               key={ent.id}
@@ -600,13 +644,41 @@ export default function Board3D({
         {lastMove && <LastMoveTile sq={lastMove.from} />}
         {lastMove && <LastMoveTile sq={lastMove.to} />}
         {checkedKing && <CheckEmber sq={checkedKing} />}
-        {hintMove && <HintFrame sq={hintMove.from} delayPhase={0} />}
-        {hintMove && <HintFrame sq={hintMove.to} delayPhase={0.4} />}
+        {hintMove && <HintArrow from={hintMove.from} to={hintMove.to} />}
 
         {/* غبار جوي خافت */}
         {!isMobile && (
           <Sparkles count={54} scale={[9.5, 2.6, 9.5]} position={[0, 1.7, 0]} size={2.4} speed={0.22} opacity={0.4} color={hex('dustMote')} />
         )}
+
+        {/* المقبرة: غنائم الالتقاط على سكة الإطار */}
+        <Graveyard3D graves={graves} geoms={geoms} mats={materials} />
+
+        {/* تأثيرات لحظية */}
+        {fx.map((f) =>
+          f.kind === 'land' ? (
+            <LandBurst key={`${f.born}`} x={f.x} z={f.z} born={f.born} />
+          ) : (
+            <PromoteColumn key={`${f.born}`} x={f.x} z={f.z} born={f.born} />
+          ),
+        )}
+
+        {/* منارة الدور على جهة صاحب النقل */}
+        <TurnBeacon side={turn === 'w' ? 'near' : 'far'} />
+
+        {/* سقوط الملك الخاسر — سينما النهاية */}
+        {defeatedColor && (() => {
+          const kingEnt = entities.find((e) => e.type === 'K' && e.color === defeatedColor);
+          if (!kingEnt) return null;
+          return (
+            <FallingKing
+              key={`fall-${kingEnt.id}`}
+              ent={kingEnt}
+              geom={geoms.get('K')!}
+              mat={kingEnt.color === 'w' ? materials.ivory : materials.obsidian}
+            />
+          );
+        })()}
 
         {/* هالة تحويم خافتة على المربع تحت المؤشر */}
         {hovered &&

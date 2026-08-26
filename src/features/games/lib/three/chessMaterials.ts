@@ -73,6 +73,9 @@ export function buildChessMaterials(): ChessMaterials {
     clearcoat: 0.85,
     clearcoatRoughness: 0.18,
     envMapIntensity: 1.35,
+    // لمعان داخلي خافت يُبقي التفاصيل مقروءة في الظلال
+    emissive: new THREE.Color('#2A2E3C'),
+    emissiveIntensity: 0.22,
   });
   applyNoiseRoughness(obsidian, 202, {
     remap: (v) => 0.06 + v * 0.22,
