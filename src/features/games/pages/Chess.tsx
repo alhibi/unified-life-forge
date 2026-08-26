@@ -1,5 +1,5 @@
 import { AnimatePresence,motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo,useState } from 'react';
+import React, { lazy,Suspense, useCallback, useEffect, useMemo,useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useApp } from '@/contexts/AppContext';
@@ -17,6 +17,9 @@ import {
 import { playSfx, vibrate } from '@/features/games/utils/gameFeedback';
 import { applyMoveUci, positionFromFen, positionToFen } from '@/features/games/utils/chessCore';
 import { Clock, Copy, Crown, Download, Flag, Lightbulb,Play, RotateCcw, Undo2 } from '@/lib/icons';
+
+/** المشهد ثلاثي الأبعاد — يُحمَّل كسولاً حتى لا يثقل حزمة بقية التطبيق. */
+const Board3D = lazy(() => import('@/features/games/components/chess3d/Board3D'));
 
 type Color = 'w' | 'b';
 type PieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
@@ -1409,9 +1412,6 @@ export default function ChessPage() {
     setShowModeSelector(false);
   };
 
-  const isLastMoveSquare = (r: number, c: number) =>
-    lastMove && ((lastMove.from[0] === r && lastMove.from[1] === c) || (lastMove.to[0] === r && lastMove.to[1] === c));
-
   const checkedKing = (() => {
     if (!status) return null;
     const checkStr = t('chess.check');
@@ -1427,79 +1427,9 @@ export default function ChessPage() {
   }, [game.board]);
   const evalPct = ((evalScore + 10) / 20) * 100;
 
-  const theme = BOARD_THEMES[boardTheme];
-
-  const renderBoard = () => {
-    const rows = flipped ? [...Array(8)].map((_, i) => 7 - i) : [...Array(8)].map((_, i) => i);
-    const cols = flipped ? [...Array(8)].map((_, i) => 7 - i) : [...Array(8)].map((_, i) => i);
-
-    return rows.map((ri) => cols.map((ci) => {
-      const isDark = (ri + ci) % 2 === 1;
-      const cell = game.board[ri][ci];
-      const isSelected = selected?.[0] === ri && selected?.[1] === ci;
-      const isLegal = legalMoves.some(([mr, mc]) => mr === ri && mc === ci);
-      const isLast = isLastMoveSquare(ri, ci);
-      const isChecked = checkedKing && checkedKing[0] === ri && checkedKing[1] === ci;
-      const isHintFrom = hintMove && hintMove.from[0] === ri && hintMove.from[1] === ci;
-      const isHintTo = hintMove && hintMove.to[0] === ri && hintMove.to[1] === ci;
-
-      const showFile = (flipped ? ri === 0 : ri === 7);
-      const showRank = (flipped ? ci === 7 : ci === 0);
-
-      return (
-        <button
-          key={`${ri}-${ci}`}
-          onClick={() => handleClick(ri, ci)}
-          className={`aspect-square relative flex items-center justify-center transition-colors duration-100
-            ${isDark ? theme.dark : theme.light}
-            ${isSelected ? theme.selected : ''}
-            ${isLast && !isSelected ? theme.lastMove : ''}
-            ${isChecked ? theme.check : ''}
-          `}
-        >
-          {showRank && (
-            <span className={`absolute top-0.5 left-0.5 text-micro font-medium leading-none pointer-events-none select-none
-              ${isDark ? 'text-white/50' : 'text-black/35'}`}>
-              {RANKS[ri]}
-            </span>
-          )}
-          {showFile && (
-            <span className={`absolute bottom-0.5 right-1 text-micro font-medium leading-none pointer-events-none select-none
-              ${isDark ? 'text-white/50' : 'text-black/35'}`}>
-              {FILES[ci]}
-            </span>
-          )}
-
-          {isLegal && !cell && (
-            <div className="absolute w-[26%] h-[26%] rounded-full bg-black/20" />
-          )}
-          {isLegal && cell && (
-            <div className="absolute inset-[4px] rounded-full ring-[3px] ring-black/20 ring-inset" />
-          )}
-          {(isHintFrom || isHintTo) && (
-            <motion.div
-              className="absolute inset-0 rounded-md ring-2 ring-amber-400/80"
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-            />
-          )}
-
-          {cell && (
-            <motion.span
-              className={`relative z-raised select-none leading-none
-                ${cell.color === 'w' ? 'text-white ' : 'text-gray-900 '}`}
-              style={{ fontSize: 'min(7.5vw, 32px)' }}
-              initial={false}
-              animate={{ scale: isSelected ? 1.12 : 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-            >
-              {PIECE_SVG[cell.color][cell.type]}
-            </motion.span>
-          )}
-        </button>
-      );
-    }));
-  };
+  // ملاحظة: سمات نمط الرقعة ثنائي الأبعاد أُبقيت في الخيارات حفاظاً على
+  // تفضيلات المستخدم المخزنة، والمشهد ثلاثي الأبعاد يستخدم هويته البصرية
+  // الموحدة (أوبسيديان/عاج/نحاس) بغضّ النظر عنها.
 
   const pieceValues: Record<PieceType, number> = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 };
   const calcMaterial = (color: Color) => {
@@ -1709,12 +1639,12 @@ export default function ChessPage() {
         </div>
       </div>
 
-      {/* Board */}
+      {/* Board — المشهد ثلاثي الأبعاد */}
       <div className="max-w-[340px] mx-auto px-4 relative">
         <AnimatePresence>
           {!gameStarted && !gameOver && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-sticky rounded-lg bg-card flex items-center justify-center mx-4"
+              className="absolute inset-0 z-sticky rounded-lg bg-black/45 backdrop-blur-[2px] flex items-center justify-center mx-4"
               onClick={() => { setGameStarted(true); setIsRunning(true); }}>
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
@@ -1726,11 +1656,29 @@ export default function ChessPage() {
           )}
         </AnimatePresence>
 
-
-        <div className="rounded-lg overflow-hidden">
-          <div className="grid grid-cols-8">
-            {renderBoard()}
-          </div>
+        <div
+          className="rounded-lg overflow-hidden relative"
+          style={{ aspectRatio: '1 / 1' }}
+        >
+          <Suspense
+            fallback={
+              <div className="absolute inset-0 flex items-center justify-center bg-secondary/40">
+                <span className="text-micro text-muted-foreground animate-pulse">{'تجهيز الرقعة…'}</span>
+              </div>
+            }
+          >
+            <Board3D
+              board={game.board}
+              flipped={flipped}
+              selected={selected}
+              legalMoves={legalMoves}
+              lastMove={lastMove}
+              checkedKing={checkedKing}
+              hintMove={hintMove}
+              interactive={!gameOver && !aiThinking && (gameMode === 'local' || game.turn === playerColor)}
+              onSquareTap={handleClick}
+            />
+          </Suspense>
         </div>
       </div>
 
