@@ -361,47 +361,59 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         )}
       </AnimatePresence>
 
-      {/* 1. Header Overview Metrics Bar */}
+      {/* 1. Header Overview Metrics Bar — vibrant gradient chips */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>إجمالي النشاطات</span>
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">إجمالي النشاطات</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-300 to-teal-500 flex items-center justify-center text-emerald-950 shadow-[0_0_12px_rgba(52,211,153,0.35)]">
+              <Sparkles className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-foreground tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-emerald-300 to-teal-400 bg-clip-text text-transparent">
             {yearlyData.totalContributions}
           </p>
           <span className="text-micro text-muted-foreground block truncate">{rangeLabelAr}</span>
         </div>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>المواظبة الحالية</span>
-            <Flame className="w-3.5 h-3.5 text-amber-500" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-orange-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">المواظبة الحالية</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-300 to-orange-500 flex items-center justify-center text-orange-950 shadow-[0_0_12px_rgba(251,146,60,0.35)]">
+              <Flame className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-amber-500 tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-amber-300 to-orange-400 bg-clip-text text-transparent">
             {yearlyData.currentStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">سلسلة التفاعل المستمر</span>
         </div>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>أطول سلسلة</span>
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-sky-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">أطول سلسلة</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-300 to-blue-500 flex items-center justify-center text-sky-950 shadow-[0_0_12px_rgba(56,189,248,0.35)]">
+              <TrendingUp className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-emerald-400 tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-sky-300 to-blue-400 bg-clip-text text-transparent">
             {yearlyData.longestStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">أعلى معدل استمرارية</span>
         </div>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>الأيام النشطة</span>
-            <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-violet-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">الأيام النشطة</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-300 to-purple-500 flex items-center justify-center text-violet-950 shadow-[0_0_12px_rgba(167,139,250,0.35)]">
+              <Calendar className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-foreground tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-violet-300 to-purple-400 bg-clip-text text-transparent">
             {yearlyData.activeDaysCount}
           </p>
           <span className="text-micro text-muted-foreground block truncate">
