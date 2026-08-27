@@ -607,11 +607,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="flex flex-wrap items-center justify-between gap-3 text-micro text-muted-foreground pt-2 border-t border-border/40">
           <div className="flex items-center gap-1.5" dir="ltr">
             <span>أقل</span>
-            <div className="w-3 h-3 rounded-[3px] bg-muted/30 border border-border/25" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/25 border border-emerald-500/30" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/50 border border-emerald-500/60" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/75 border border-emerald-500/80" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500 border border-emerald-400" />
+            <div className={`w-3 h-3 rounded-[4px] ${EMPTY_CELL_CLASS}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[0]}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[1]}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[2]}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.legendMax}`} />
             <span>أكثر</span>
           </div>
 
