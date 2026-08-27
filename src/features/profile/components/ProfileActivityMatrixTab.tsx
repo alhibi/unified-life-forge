@@ -307,21 +307,12 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
     setSelectedCategory('all');
   };
 
-  // Intensity Styling Classes
+  // Intensity styling — palette follows the active category filter.
+  const activePalette = HEAT_PALETTES[selectedCategory] ?? HEAT_PALETTES.all;
+
   const getIntensityClass = (intensity: number) => {
-    switch (intensity) {
-      case 1:
-        return 'bg-emerald-500/25 border border-emerald-500/30';
-      case 2:
-        return 'bg-emerald-500/50 border border-emerald-500/60';
-      case 3:
-        return 'bg-emerald-500/75 border border-emerald-500/80';
-      case 4:
-        return 'bg-emerald-500 border border-emerald-400 shadow-sm shadow-emerald-500/30';
-      case 0:
-      default:
-        return 'bg-muted/30 border border-border/25';
-    }
+    if (intensity >= 1 && intensity <= 4) return activePalette.steps[intensity - 1];
+    return EMPTY_CELL_CLASS;
   };
 
   const getCategoryIcon = (cat: ActivityCategory) => {
