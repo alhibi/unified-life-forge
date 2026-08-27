@@ -587,7 +587,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                           type="button"
                           onClick={() => setSelectedDay(isSelected ? null : day)}
                           style={{ width: CELL_PX, height: CELL_PX }}
-                          className={`rounded-[3px] transition-transform hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
+                          className={`rounded-[4px] transition-all duration-150 hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
                           )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
                           title={`${day.dateFormattedAr} — ${day.count} نشاط`}
