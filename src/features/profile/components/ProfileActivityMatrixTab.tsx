@@ -478,6 +478,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           {CATEGORY_OPTIONS.map((cat) => {
             const IconComponent = cat.icon;
             const isSelected = selectedCategory === cat.id;
+            const palette = HEAT_PALETTES[cat.id];
             return (
               <button
                 key={cat.id}
@@ -488,8 +489,8 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                 aria-pressed={isSelected}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-all shrink-0 ${
                   isSelected
-                    ? 'bg-primary/15 text-primary border border-primary/40'
-                    : 'bg-card border border-border/40 text-muted-foreground hover:text-foreground'
+                    ? palette.pillActive
+                    : 'bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 <IconComponent className="w-3.5 h-3.5" />
