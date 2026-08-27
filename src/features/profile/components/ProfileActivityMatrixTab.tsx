@@ -573,7 +573,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                         return (
                           <span
                             key={day.dateISO}
-                            className="rounded-[3px] border border-dashed border-border/30"
+                            className="rounded-[4px] border border-dashed border-border/30"
                             style={{ width: CELL_PX, height: CELL_PX }}
                           />
                         );
