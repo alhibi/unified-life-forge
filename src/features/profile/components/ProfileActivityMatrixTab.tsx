@@ -73,9 +73,116 @@ const DAY_LABELS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'ال
 /** Rows that carry a visible weekday label (mirrors GitHub's every-other-row rhythm). */
 const LABELED_ROWS = new Set([0, 2, 4, 6]);
 
-const CELL_PX = 13;
+const CELL_PX = 14;
 const CELL_GAP_PX = 3;
 const EVENTS_PER_MONTH_PAGE = 15;
+
+/**
+ * Vibrant per-category heat palettes — every category carries its own hue so
+ * the matrix reads like a living spectrum, not a single washed-out green.
+ * Each ramp is a 4-step ladder from a faint tint to a glowing saturated cell.
+ */
+interface HeatPalette {
+  /** Cell classes for intensity 1..4 */
+  steps: [string, string, string, string];
+  /** Active pill / accent classes */
+  pillActive: string;
+  /** Legend dot for the max step (no border needed) */
+  legendMax: string;
+}
+
+const HEAT_PALETTES: Record<ActivityCategory, HeatPalette> = {
+  all: {
+    steps: [
+      'bg-emerald-400/25 border border-emerald-400/30',
+      'bg-emerald-400/50 border border-emerald-400/60',
+      'bg-emerald-400/80 border border-emerald-300/80',
+      'bg-gradient-to-br from-emerald-300 to-teal-400 border border-emerald-200 shadow-[0_0_8px_rgba(52,211,153,0.55)]',
+    ],
+    pillActive:
+      'bg-emerald-400/15 text-emerald-300 border border-emerald-400/50 shadow-[0_0_12px_rgba(52,211,153,0.18)]',
+    legendMax: 'bg-gradient-to-br from-emerald-300 to-teal-400 border border-emerald-200',
+  },
+  visits: {
+    steps: [
+      'bg-sky-400/25 border border-sky-400/30',
+      'bg-sky-400/50 border border-sky-400/60',
+      'bg-sky-400/80 border border-sky-300/80',
+      'bg-gradient-to-br from-sky-300 to-blue-500 border border-sky-200 shadow-[0_0_8px_rgba(56,189,248,0.55)]',
+    ],
+    pillActive:
+      'bg-sky-400/15 text-sky-300 border border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.18)]',
+    legendMax: 'bg-gradient-to-br from-sky-300 to-blue-500 border border-sky-200',
+  },
+  fitness: {
+    steps: [
+      'bg-orange-400/25 border border-orange-400/30',
+      'bg-orange-400/50 border border-orange-400/60',
+      'bg-orange-400/80 border border-orange-300/80',
+      'bg-gradient-to-br from-amber-300 to-orange-500 border border-amber-200 shadow-[0_0_8px_rgba(251,146,60,0.55)]',
+    ],
+    pillActive:
+      'bg-orange-400/15 text-orange-300 border border-orange-400/50 shadow-[0_0_12px_rgba(251,146,60,0.18)]',
+    legendMax: 'bg-gradient-to-br from-amber-300 to-orange-500 border border-amber-200',
+  },
+  german: {
+    steps: [
+      'bg-indigo-400/25 border border-indigo-400/30',
+      'bg-indigo-400/50 border border-indigo-400/60',
+      'bg-indigo-400/80 border border-indigo-300/80',
+      'bg-gradient-to-br from-indigo-300 to-violet-500 border border-indigo-200 shadow-[0_0_8px_rgba(129,140,248,0.55)]',
+    ],
+    pillActive:
+      'bg-indigo-400/15 text-indigo-300 border border-indigo-400/50 shadow-[0_0_12px_rgba(129,140,248,0.18)]',
+    legendMax: 'bg-gradient-to-br from-indigo-300 to-violet-500 border border-indigo-200',
+  },
+  diwan: {
+    steps: [
+      'bg-fuchsia-400/25 border border-fuchsia-400/30',
+      'bg-fuchsia-400/50 border border-fuchsia-400/60',
+      'bg-fuchsia-400/80 border border-fuchsia-300/80',
+      'bg-gradient-to-br from-fuchsia-300 to-pink-500 border border-fuchsia-200 shadow-[0_0_8px_rgba(232,121,249,0.55)]',
+    ],
+    pillActive:
+      'bg-fuchsia-400/15 text-fuchsia-300 border border-fuchsia-400/50 shadow-[0_0_12px_rgba(232,121,249,0.18)]',
+    legendMax: 'bg-gradient-to-br from-fuchsia-300 to-pink-500 border border-fuchsia-200',
+  },
+  pkm: {
+    steps: [
+      'bg-cyan-400/25 border border-cyan-400/30',
+      'bg-cyan-400/50 border border-cyan-400/60',
+      'bg-cyan-400/80 border border-cyan-300/80',
+      'bg-gradient-to-br from-cyan-300 to-teal-500 border border-cyan-200 shadow-[0_0_8px_rgba(34,211,238,0.55)]',
+    ],
+    pillActive:
+      'bg-cyan-400/15 text-cyan-300 border border-cyan-400/50 shadow-[0_0_12px_rgba(34,211,238,0.18)]',
+    legendMax: 'bg-gradient-to-br from-cyan-300 to-teal-500 border border-cyan-200',
+  },
+  atlas: {
+    steps: [
+      'bg-amber-400/25 border border-amber-400/30',
+      'bg-amber-400/50 border border-amber-400/60',
+      'bg-amber-400/80 border border-amber-300/80',
+      'bg-gradient-to-br from-amber-300 to-yellow-500 border border-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.55)]',
+    ],
+    pillActive:
+      'bg-amber-400/15 text-amber-300 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.18)]',
+    legendMax: 'bg-gradient-to-br from-amber-300 to-yellow-500 border border-amber-200',
+  },
+  spiritual: {
+    steps: [
+      'bg-violet-400/25 border border-violet-400/30',
+      'bg-violet-400/50 border border-violet-400/60',
+      'bg-violet-400/80 border border-violet-300/80',
+      'bg-gradient-to-br from-violet-300 to-purple-500 border border-violet-200 shadow-[0_0_8px_rgba(167,139,250,0.55)]',
+    ],
+    pillActive:
+      'bg-violet-400/15 text-violet-300 border border-violet-400/50 shadow-[0_0_12px_rgba(167,139,250,0.18)]',
+    legendMax: 'bg-gradient-to-br from-violet-300 to-purple-500 border border-violet-200',
+  },
+};
+
+const EMPTY_CELL_CLASS = 'bg-muted/25 border border-border/20';
 
 export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> = ({
   summary: propSummary,
@@ -200,21 +307,12 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
     setSelectedCategory('all');
   };
 
-  // Intensity Styling Classes
+  // Intensity styling — palette follows the active category filter.
+  const activePalette = HEAT_PALETTES[selectedCategory] ?? HEAT_PALETTES.all;
+
   const getIntensityClass = (intensity: number) => {
-    switch (intensity) {
-      case 1:
-        return 'bg-emerald-500/25 border border-emerald-500/30';
-      case 2:
-        return 'bg-emerald-500/50 border border-emerald-500/60';
-      case 3:
-        return 'bg-emerald-500/75 border border-emerald-500/80';
-      case 4:
-        return 'bg-emerald-500 border border-emerald-400 shadow-sm shadow-emerald-500/30';
-      case 0:
-      default:
-        return 'bg-muted/30 border border-border/25';
-    }
+    if (intensity >= 1 && intensity <= 4) return activePalette.steps[intensity - 1];
+    return EMPTY_CELL_CLASS;
   };
 
   const getCategoryIcon = (cat: ActivityCategory) => {
@@ -263,47 +361,59 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         )}
       </AnimatePresence>
 
-      {/* 1. Header Overview Metrics Bar */}
+      {/* 1. Header Overview Metrics Bar — vibrant gradient chips */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>إجمالي النشاطات</span>
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">إجمالي النشاطات</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-300 to-teal-500 flex items-center justify-center text-emerald-950 shadow-[0_0_12px_rgba(52,211,153,0.35)]">
+              <Sparkles className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-foreground tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-emerald-300 to-teal-400 bg-clip-text text-transparent">
             {yearlyData.totalContributions}
           </p>
           <span className="text-micro text-muted-foreground block truncate">{rangeLabelAr}</span>
         </div>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>المواظبة الحالية</span>
-            <Flame className="w-3.5 h-3.5 text-amber-500" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-orange-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">المواظبة الحالية</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-300 to-orange-500 flex items-center justify-center text-orange-950 shadow-[0_0_12px_rgba(251,146,60,0.35)]">
+              <Flame className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-amber-500 tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-amber-300 to-orange-400 bg-clip-text text-transparent">
             {yearlyData.currentStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">سلسلة التفاعل المستمر</span>
         </div>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>أطول سلسلة</span>
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-sky-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">أطول سلسلة</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-300 to-blue-500 flex items-center justify-center text-sky-950 shadow-[0_0_12px_rgba(56,189,248,0.35)]">
+              <TrendingUp className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-emerald-400 tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-sky-300 to-blue-400 bg-clip-text text-transparent">
             {yearlyData.longestStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">أعلى معدل استمرارية</span>
         </div>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-1">
-          <div className="flex items-center justify-between text-muted-foreground text-micro">
-            <span>الأيام النشطة</span>
-            <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-violet-400/10 blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-micro text-muted-foreground">الأيام النشطة</span>
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-300 to-purple-500 flex items-center justify-center text-violet-950 shadow-[0_0_12px_rgba(167,139,250,0.35)]">
+              <Calendar className="w-3.5 h-3.5" />
+            </span>
           </div>
-          <p className="text-xl font-extrabold text-foreground tabular-nums">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-violet-300 to-purple-400 bg-clip-text text-transparent">
             {yearlyData.activeDaysCount}
           </p>
           <span className="text-micro text-muted-foreground block truncate">
@@ -368,6 +478,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           {CATEGORY_OPTIONS.map((cat) => {
             const IconComponent = cat.icon;
             const isSelected = selectedCategory === cat.id;
+            const palette = HEAT_PALETTES[cat.id];
             return (
               <button
                 key={cat.id}
@@ -378,8 +489,8 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                 aria-pressed={isSelected}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-all shrink-0 ${
                   isSelected
-                    ? 'bg-primary/15 text-primary border border-primary/40'
-                    : 'bg-card border border-border/40 text-muted-foreground hover:text-foreground'
+                    ? palette.pillActive
+                    : 'bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
                 }`}
               >
                 <IconComponent className="w-3.5 h-3.5" />
@@ -462,7 +573,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                         return (
                           <span
                             key={day.dateISO}
-                            className="rounded-[3px] border border-dashed border-border/30"
+                            className="rounded-[4px] border border-dashed border-border/30"
                             style={{ width: CELL_PX, height: CELL_PX }}
                           />
                         );
@@ -476,7 +587,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                           type="button"
                           onClick={() => setSelectedDay(isSelected ? null : day)}
                           style={{ width: CELL_PX, height: CELL_PX }}
-                          className={`rounded-[3px] transition-transform hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
+                          className={`rounded-[4px] transition-all duration-150 hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
                           )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
                           title={`${day.dateFormattedAr} — ${day.count} نشاط`}
@@ -496,11 +607,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="flex flex-wrap items-center justify-between gap-3 text-micro text-muted-foreground pt-2 border-t border-border/40">
           <div className="flex items-center gap-1.5" dir="ltr">
             <span>أقل</span>
-            <div className="w-3 h-3 rounded-[3px] bg-muted/30 border border-border/25" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/25 border border-emerald-500/30" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/50 border border-emerald-500/60" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500/75 border border-emerald-500/80" />
-            <div className="w-3 h-3 rounded-[3px] bg-emerald-500 border border-emerald-400" />
+            <div className={`w-3 h-3 rounded-[4px] ${EMPTY_CELL_CLASS}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[0]}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[1]}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[2]}`} />
+            <div className={`w-3 h-3 rounded-[4px] ${activePalette.legendMax}`} />
             <span>أكثر</span>
           </div>
 
