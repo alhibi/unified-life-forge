@@ -73,9 +73,116 @@ const DAY_LABELS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'ال
 /** Rows that carry a visible weekday label (mirrors GitHub's every-other-row rhythm). */
 const LABELED_ROWS = new Set([0, 2, 4, 6]);
 
-const CELL_PX = 13;
+const CELL_PX = 14;
 const CELL_GAP_PX = 3;
 const EVENTS_PER_MONTH_PAGE = 15;
+
+/**
+ * Vibrant per-category heat palettes — every category carries its own hue so
+ * the matrix reads like a living spectrum, not a single washed-out green.
+ * Each ramp is a 4-step ladder from a faint tint to a glowing saturated cell.
+ */
+interface HeatPalette {
+  /** Cell classes for intensity 1..4 */
+  steps: [string, string, string, string];
+  /** Active pill / accent classes */
+  pillActive: string;
+  /** Legend dot for the max step (no border needed) */
+  legendMax: string;
+}
+
+const HEAT_PALETTES: Record<ActivityCategory, HeatPalette> = {
+  all: {
+    steps: [
+      'bg-emerald-400/25 border border-emerald-400/30',
+      'bg-emerald-400/50 border border-emerald-400/60',
+      'bg-emerald-400/80 border border-emerald-300/80',
+      'bg-gradient-to-br from-emerald-300 to-teal-400 border border-emerald-200 shadow-[0_0_8px_rgba(52,211,153,0.55)]',
+    ],
+    pillActive:
+      'bg-emerald-400/15 text-emerald-300 border border-emerald-400/50 shadow-[0_0_12px_rgba(52,211,153,0.18)]',
+    legendMax: 'bg-gradient-to-br from-emerald-300 to-teal-400 border border-emerald-200',
+  },
+  visits: {
+    steps: [
+      'bg-sky-400/25 border border-sky-400/30',
+      'bg-sky-400/50 border border-sky-400/60',
+      'bg-sky-400/80 border border-sky-300/80',
+      'bg-gradient-to-br from-sky-300 to-blue-500 border border-sky-200 shadow-[0_0_8px_rgba(56,189,248,0.55)]',
+    ],
+    pillActive:
+      'bg-sky-400/15 text-sky-300 border border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.18)]',
+    legendMax: 'bg-gradient-to-br from-sky-300 to-blue-500 border border-sky-200',
+  },
+  fitness: {
+    steps: [
+      'bg-orange-400/25 border border-orange-400/30',
+      'bg-orange-400/50 border border-orange-400/60',
+      'bg-orange-400/80 border border-orange-300/80',
+      'bg-gradient-to-br from-amber-300 to-orange-500 border border-amber-200 shadow-[0_0_8px_rgba(251,146,60,0.55)]',
+    ],
+    pillActive:
+      'bg-orange-400/15 text-orange-300 border border-orange-400/50 shadow-[0_0_12px_rgba(251,146,60,0.18)]',
+    legendMax: 'bg-gradient-to-br from-amber-300 to-orange-500 border border-amber-200',
+  },
+  german: {
+    steps: [
+      'bg-indigo-400/25 border border-indigo-400/30',
+      'bg-indigo-400/50 border border-indigo-400/60',
+      'bg-indigo-400/80 border border-indigo-300/80',
+      'bg-gradient-to-br from-indigo-300 to-violet-500 border border-indigo-200 shadow-[0_0_8px_rgba(129,140,248,0.55)]',
+    ],
+    pillActive:
+      'bg-indigo-400/15 text-indigo-300 border border-indigo-400/50 shadow-[0_0_12px_rgba(129,140,248,0.18)]',
+    legendMax: 'bg-gradient-to-br from-indigo-300 to-violet-500 border border-indigo-200',
+  },
+  diwan: {
+    steps: [
+      'bg-fuchsia-400/25 border border-fuchsia-400/30',
+      'bg-fuchsia-400/50 border border-fuchsia-400/60',
+      'bg-fuchsia-400/80 border border-fuchsia-300/80',
+      'bg-gradient-to-br from-fuchsia-300 to-pink-500 border border-fuchsia-200 shadow-[0_0_8px_rgba(232,121,249,0.55)]',
+    ],
+    pillActive:
+      'bg-fuchsia-400/15 text-fuchsia-300 border border-fuchsia-400/50 shadow-[0_0_12px_rgba(232,121,249,0.18)]',
+    legendMax: 'bg-gradient-to-br from-fuchsia-300 to-pink-500 border border-fuchsia-200',
+  },
+  pkm: {
+    steps: [
+      'bg-cyan-400/25 border border-cyan-400/30',
+      'bg-cyan-400/50 border border-cyan-400/60',
+      'bg-cyan-400/80 border border-cyan-300/80',
+      'bg-gradient-to-br from-cyan-300 to-teal-500 border border-cyan-200 shadow-[0_0_8px_rgba(34,211,238,0.55)]',
+    ],
+    pillActive:
+      'bg-cyan-400/15 text-cyan-300 border border-cyan-400/50 shadow-[0_0_12px_rgba(34,211,238,0.18)]',
+    legendMax: 'bg-gradient-to-br from-cyan-300 to-teal-500 border border-cyan-200',
+  },
+  atlas: {
+    steps: [
+      'bg-amber-400/25 border border-amber-400/30',
+      'bg-amber-400/50 border border-amber-400/60',
+      'bg-amber-400/80 border border-amber-300/80',
+      'bg-gradient-to-br from-amber-300 to-yellow-500 border border-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.55)]',
+    ],
+    pillActive:
+      'bg-amber-400/15 text-amber-300 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.18)]',
+    legendMax: 'bg-gradient-to-br from-amber-300 to-yellow-500 border border-amber-200',
+  },
+  spiritual: {
+    steps: [
+      'bg-violet-400/25 border border-violet-400/30',
+      'bg-violet-400/50 border border-violet-400/60',
+      'bg-violet-400/80 border border-violet-300/80',
+      'bg-gradient-to-br from-violet-300 to-purple-500 border border-violet-200 shadow-[0_0_8px_rgba(167,139,250,0.55)]',
+    ],
+    pillActive:
+      'bg-violet-400/15 text-violet-300 border border-violet-400/50 shadow-[0_0_12px_rgba(167,139,250,0.18)]',
+    legendMax: 'bg-gradient-to-br from-violet-300 to-purple-500 border border-violet-200',
+  },
+};
+
+const EMPTY_CELL_CLASS = 'bg-muted/25 border border-border/20';
 
 export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> = ({
   summary: propSummary,
