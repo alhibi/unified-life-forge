@@ -286,17 +286,19 @@
     --spring-exit: var(--ease-in);
     --spring-ios: var(--ease-spring);
     --ease-out-soft: var(--ease-out-expo);
-    /* ── The 7-step tonal scale of the default theme (Architectural Copper) ──
-       These seven tones are the palette. Every semantic token below is a
-       sample of the same curve, which is why the app reads as one colour
-       system instead of a background colour plus an accent colour.
-
-       This block is the pre-hydration fallback only — themeEngine.ts rewrites
-       all of it on <html> as soon as the app boots (including for the other 30
-       themes). Keep it in sync with generateThemeTokens(copper, 'neutral'). */
-    --theme-25: 36 12.8% 92.4%;
-    --theme-50: 36 18.5% 94.7%;
-    --theme-100: 40 27.3% 97.8%;
+    /* ═══════════════════════════════════════════════════════════════
+       TIME LEDGER LAYER COLORS — Semantic layer colors for timeline
+       ═══════════════════════════════════════════════════════════════
+       These are derived from the livingMindPalette tokens and used by
+       the Time Ledger feature for visual layer distinction. */
+    --tl-layer-calendar: 220 70% 50%;      /* Blue - calendar events */
+    --tl-layer-habits: 25 90% 55%;         /* Amber/Orange - habits, streaks */
+    --tl-layer-fitness: 145 60% 40%;       /* Green - fitness activities */
+    --tl-layer-weather: 200 80% 55%;       /* Sky Blue - weather snapshots */
+    --tl-layer-knowledge: 270 60% 55%;     /* Purple - knowledge, reading */
+    --tl-layer-capture: 35 100% 50%;       /* Orange - quick captures */
+    --tl-layer-prayer: 160 50% 45%;        /* Teal - prayer times */
+    --tl-layer-journal: 330 60% 50%;       /* Rose - journal entries */
     --theme-200: 40 12% 95.1%;
     --theme-300: 33 23.8% 83.5%;
     --theme-400: 32 34.1% 41%;
@@ -572,6 +574,16 @@
     --live-glow: 34 33.7% 60.2%;
     --accent-highlight: 24 8.2% 12%;
     --disabled: 0 0.5% 41%;
+
+    /* Time Ledger Layer Colors (dark mode) */
+    --tl-layer-calendar: 220 80% 65%;
+    --tl-layer-habits: 25 95% 65%;
+    --tl-layer-fitness: 145 70% 55%;
+    --tl-layer-weather: 200 90% 70%;
+    --tl-layer-knowledge: 270 70% 70%;
+    --tl-layer-capture: 35 100% 65%;
+    --tl-layer-prayer: 160 60% 60%;
+    --tl-layer-journal: 330 70% 65%;
   }
 }
 

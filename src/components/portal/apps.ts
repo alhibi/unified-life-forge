@@ -57,6 +57,12 @@ import {
   Swords,
   TrendingUp,
   Users,
+  Clock as ClockIcon,
+  Flame,
+  CloudSun,
+  Building,
+  FileText,
+  MinusCircle,
 } from '@/lib/icons';
 
 /** Filter buckets shown as the launcher's segmented control. */
@@ -312,6 +318,19 @@ export const PORTAL_APPS: readonly PortalApp[] = [
       { path: '/chat', label: 'المحادثات', note: 'كل الرسائل', icon: MessageSquareText },
       { path: '/chat/groups', label: 'المجموعات والقنوات', note: 'الغرف المشتركة', icon: Users },
       { path: '/chat/settings', label: 'إعدادات الدردشة', note: 'الخصوصية والتنبيهات', icon: Settings2 },
+    ],
+  },
+  {
+    key: 'time-ledger',
+    path: '/time-ledger',
+    label: 'سِجل الزمن',
+    caption: 'TIMELINE',
+    description: 'سجل زمني موحد: تقويم، عادات، لياقة، طقس، معرفة',
+    cat: 'mind',
+    icon: ClockIcon,
+    keywords: 'timeline time ledger سجل زمني تقويم عادات لياقة طقس معرفة مذكرة',
+    links: [
+      { path: '/time-ledger', label: 'السجل الزمني', note: 'كل الأنشطة في مكان واحد', icon: ClockIcon },
     ],
   },
 

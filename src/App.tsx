@@ -218,6 +218,7 @@ const loadTravelExplore = () => import("./features/travel-atlas/pages/ExploreMap
 const loadTravelCountries = () => import("./features/travel-atlas/pages/CountryStampsPage");
 const loadOAuthConsent = () => import("./pages/OAuthConsent");
 const loadCrypto = () => import("./features/crypto/pages/CryptoWatchlist");
+const loadTimeLedger = () => import("./features/time-ledger/pages/TimeLedger");
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
 // in-app intent surface (BottomNav pointerdown, NavLink hover, smart
@@ -297,6 +298,7 @@ registerRoute('/dev/material-preview', loadMaterialPreview);
 registerRoute('/games',           loadGames);
 registerRoute('/chat',            loadChatTab);
 registerRoute('/crypto',          loadCrypto);
+registerRoute('/time-ledger',     loadTimeLedger);
 
 const CryptoWatchlistPage = lazy(loadCrypto);
 const GermanClubHomePage = lazy(loadGermanClubHome);
@@ -369,6 +371,7 @@ const PKMPage           = lazy(loadPKM);
 const MindPage          = lazy(loadMind);
 const MaterialPreviewPage = lazy(loadMaterialPreview);
 const OAuthConsentPage  = lazy(loadOAuthConsent);
+const TimeLedgerPage    = lazy(loadTimeLedger);
 
 // Tab pages are now eager (always mounted), so the idle prefetch warms
 // the next most-likely sub-routes instead of the tabs themselves.
@@ -390,6 +393,7 @@ function useIdlePrefetch() {
       loadKnowledge, loadBayan,
       loadWellness, loadFitness, loadDiwan,
       loadGroupsIndex, loadChatSettings,
+      loadTimeLedger,
       // Heaviest chunk in the app (bundled German corpora), hence last.
       loadGermanClubHome,
     ];
@@ -766,6 +770,8 @@ function AnimatedRoutes() {
                   <Route path="/pkm"           element={<ErrorBoundary><PKMPage /></ErrorBoundary>} />
                   <Route path="/pkm/mind"      element={<ErrorBoundary><MindPage /></ErrorBoundary>} />
                   <Route path="/dev/material-preview" element={<ErrorBoundary><MaterialPreviewPage /></ErrorBoundary>} />
+                  {/* Time Ledger — unified timeline */}
+                  <Route path="/time-ledger"   element={<ErrorBoundary><TimeLedgerPage /></ErrorBoundary>} />
                   {/* «الرئيسي» is no longer a standalone app — its widgets live on the portal. */}
                   <Route path="/now"           element={<Navigate to="/" replace />} />
                   <Route path="/crypto"        element={<ErrorBoundary><CryptoWatchlistPage /></ErrorBoundary>} />
