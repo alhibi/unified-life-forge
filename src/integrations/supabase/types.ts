@@ -1806,6 +1806,54 @@ export type Database = {
         }
         Relationships: []
       }
+      quick_captures: {
+        Row: {
+          capture_type: string
+          captured_at: string
+          content: string | null
+          created_at: string
+          id: string
+          is_task: boolean
+          tags: string[]
+          task_completed: boolean
+          task_due_at: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          voice_transcript: string | null
+        }
+        Insert: {
+          capture_type?: string
+          captured_at?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_task?: boolean
+          tags?: string[]
+          task_completed?: boolean
+          task_due_at?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          voice_transcript?: string | null
+        }
+        Update: {
+          capture_type?: string
+          captured_at?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_task?: boolean
+          tags?: string[]
+          task_completed?: boolean
+          task_due_at?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          voice_transcript?: string | null
+        }
+        Relationships: []
+      }
       reading_bookmarks: {
         Row: {
           article_link: string

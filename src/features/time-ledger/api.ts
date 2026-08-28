@@ -2,234 +2,241 @@
  * Time Ledger API — Unified timeline data access layer.
  *
  * Single chokepoint for all Supabase queries in this feature.
- * Aggregates data from multiple domain tables into TimeLedgerEntry objects.
+ * Every fetcher below maps a *real* table that exists in the project schema;
+ * layers without a backing table are intentionally absent (see TIME_LEDGER_LAYERS).
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import type { Json } from '@/integrations/supabase/types';
-import type { WeatherSnapshot } from '@/features/weather/types/WeatherSnapshot';
 
 import {
-  type CalendarEntry,
   type FitnessEntry,
   type HabitEntry,
   type JournalEntry,
   type KnowledgeEntry,
-  type PrayerEntry,
   type QuickCaptureEntry,
   type TimeLedgerDayGroup,
   type TimeLedgerEntry,
   type TimeLedgerQueryFilters,
   type TimeLedgerSource,
-  type WeatherEntry,
-  CalendarEntrySchema,
   FitnessEntrySchema,
   HabitEntrySchema,
   JournalEntrySchema,
   KnowledgeEntrySchema,
-  PrayerEntrySchema,
   QuickCaptureEntrySchema,
-  TimeLedgerEntrySchema,
-  WeatherEntrySchema,
+  TIME_LEDGER_LAYERS,
 } from './types';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────────────────────────────────────
 
-const db = supabase as any;
+/** Schema-agnostic client: several tables here are not in generated types. */
+type LooseQuery = {
+  select: (cols: string) => LooseQuery;
+  eq: (col: string, val: unknown) => LooseQuery;
+  gte: (col: string, val: unknown) => LooseQuery;
+  lte: (col: string, val: unknown) => LooseQuery;
+  order: (col: string, opts: { ascending: boolean }) => LooseQuery;
+  limit: (n: number) => LooseQuery;
+  insert: (row: Record<string, unknown>) => Promise<{ error: unknown }>;
+  update: (row: Record<string, unknown>) => LooseQuery;
+  delete: () => LooseQuery;
+  then: <T>(cb: (r: { data: Record<string, unknown>[] | null; error: { message?: string; code?: string } | null }) => T) => Promise<T>;
+};
+
+const db = supabase as unknown as { from: (table: string) => LooseQuery };
+
+const ALL_SOURCES: TimeLedgerSource[] = TIME_LEDGER_LAYERS.map((l) => l.source);
 
 async function currentUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
   return data.session?.user?.id ?? null;
 }
 
-function toISODate(date: Date): string {
-  return date.toISOString().split('T')[0];
-}
-
 function dateRangeToISO(filters?: TimeLedgerQueryFilters): { start?: string; end?: string } {
   if (!filters?.dateRange) return {};
-  return {
-    start: filters.dateRange.start,
-    end: filters.dateRange.end,
-  };
+  return { start: filters.dateRange.start, end: filters.dateRange.end };
 }
 
-function applyDateRange(query: any, field: string, range?: { start?: string; end?: string }) {
+function applyDateRange(query: LooseQuery, field: string, range?: { start?: string; end?: string }) {
   if (!range) return query;
   if (range.start) query = query.gte(field, range.start);
   if (range.end) query = query.lte(field, range.end);
   return query;
 }
 
-function applyLimit(query: any, limit?: number) {
-  if (limit && limit > 0) return query.limit(limit);
-  return query;
+function applyLimit(query: LooseQuery, limit?: number) {
+  return limit && limit > 0 ? query.limit(limit) : query;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Calendar Events
-// ──────────────────────────────────────────────────────────────────────────────
+/** Per-source budget so one noisy table can never starve the others. */
+function sourceLimit(filters?: TimeLedgerQueryFilters): number {
+  const total = filters?.limit && filters.limit > 0 ? filters.limit : 400;
+  return Math.max(40, Math.ceil(total / 3));
+}
 
-async function fetchCalendarEvents(filters?: TimeLedgerQueryFilters): Promise<CalendarEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
+function isMissingRelation(error: { message?: string; code?: string } | null): boolean {
+  if (!error) return false;
+  const msg = (error.message ?? '').toLowerCase();
+  return error.code === '42P01' || error.code === 'PGRST205' || msg.includes('does not exist') || msg.includes('schema cache');
+}
 
-  const range = dateRangeToISO(filters);
+function str(v: unknown, fallback = ''): string {
+  return typeof v === 'string' && v.trim() ? v : fallback;
+}
 
-  const { data, error } = await applyLimit(
-    applyDateRange(
-      db.from('calendar_events').select('*').eq('user_id', uid).order('start_time', { ascending: true }),
-      'start_time',
-      range
-    ),
-    filters?.limit
-  );
+function num(v: unknown): number | undefined {
+  const n = typeof v === 'string' ? Number(v) : typeof v === 'number' ? v : NaN;
+  return Number.isFinite(n) ? n : undefined;
+}
 
-  if (error) {
-    console.error('[time-ledger] Calendar fetch failed:', error);
+function iso(v: unknown): string | null {
+  if (typeof v !== 'string' || !v) return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+function tagList(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((t): t is string => typeof t === 'string' && !!t).slice(0, 8) : [];
+}
+
+function safeHost(url: unknown): string {
+  const raw = str(url);
+  if (!raw) return '';
+  try {
+    return new URL(raw).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+/** Runs a query, swallowing "table missing" as an empty result instead of a crash. */
+async function rows(
+  build: () => LooseQuery,
+  label: string
+): Promise<Record<string, unknown>[]> {
+  try {
+    const { data, error } = await build();
+    if (error) {
+      if (!isMissingRelation(error)) console.error(`[time-ledger] ${label} fetch failed:`, error);
+      return [];
+    }
+    return data ?? [];
+  } catch (err) {
+    console.error(`[time-ledger] ${label} fetch threw:`, err);
     return [];
   }
-
-  return (data ?? []).map((row: any) => {
-    const entry: CalendarEntry = {
-      id: row.id,
-      source: 'calendar',
-      timestamp: row.start_time,
-      endTimestamp: row.end_time,
-      title: row.title ?? 'بدون عنوان',
-      description: row.description,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      layerColor: 'var(--tl-layer-calendar)',
-      meta: {
-        calendarId: row.calendar_id,
-        calendarName: row.calendar_name,
-        eventId: row.event_id ?? row.id,
-        location: row.location,
-        attendees: Array.isArray(row.attendees) ? row.attendees : undefined,
-        isAllDay: row.is_all_day ?? false,
-        recurrenceRule: row.recurrence_rule,
-        status: row.status ?? 'confirmed',
-        htmlLink: row.html_link,
-      },
-    };
-    return CalendarEntrySchema.parse(entry);
-  });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Habits (from profile streaks + dhikr/sunnah)
+// Habits — spaced-repetition reviews + German Club mastery
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function fetchHabitEntries(filters?: TimeLedgerQueryFilters): Promise<HabitEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
-
+async function fetchHabitEntries(uid: string, filters?: TimeLedgerQueryFilters): Promise<HabitEntry[]> {
   const range = dateRangeToISO(filters);
+  const cap = sourceLimit(filters);
   const entries: HabitEntry[] = [];
 
-  // Fetch streak-based habits (daily visits, workouts, etc.)
-  const { data: streaks, error: streakError } = await applyLimit(
-    applyDateRange(
-      db.from('streak_logs').select('*').eq('user_id', uid).order('date_iso', { ascending: true }),
-      'date_iso',
-      range
-    ),
-    filters?.limit
+  const reviews = await rows(
+    () =>
+      applyLimit(
+        applyDateRange(
+          db.from('srs_review_log').select('id, item_id, rating, reviewed_at').eq('user_id', uid).order('reviewed_at', { ascending: false }),
+          'reviewed_at',
+          range
+        ),
+        cap
+      ),
+    'srs_review_log'
   );
 
-  if (!streakError && streaks) {
-    for (const row of streaks) {
-      const entry: HabitEntry = {
-        id: `streak-${row.id}`,
-        source: 'habits',
-        timestamp: `${row.date_iso}T00:00:00.000Z`,
-        title: row.habit_name ?? 'عاده يومية',
-        description: row.notes,
-        tags: ['streak', row.category].filter(Boolean),
-        layerColor: 'var(--tl-layer-habits)',
-        meta: {
-          habitId: row.habit_id ?? row.id,
-          habitName: row.habit_name ?? 'عاده',
-          habitType: 'streak',
-          completionStatus: row.count > 0 ? 'completed' : 'missed',
-          currentStreak: row.current_streak,
-          targetCount: row.target_count ?? 1,
-          completedCount: row.count,
-          unit: row.unit,
-        },
-      };
-      entries.push(HabitEntrySchema.parse(entry));
-    }
+  // Group reviews per day: a single "مراجعة الحفظ" habit row per day is far more
+  // readable than dozens of identical rows.
+  const reviewsByDay = new Map<string, { count: number; good: number; last: string }>();
+  for (const row of reviews) {
+    const at = iso(row.reviewed_at);
+    if (!at) continue;
+    const day = at.slice(0, 10);
+    const bucket = reviewsByDay.get(day) ?? { count: 0, good: 0, last: at };
+    bucket.count += 1;
+    if (row.rating === 'good' || row.rating === 'easy') bucket.good += 1;
+    if (at > bucket.last) bucket.last = at;
+    reviewsByDay.set(day, bucket);
   }
 
-  // Fetch adhkar/sunnah completions
-  const { data: adhkar, error: adhkarError } = await applyLimit(
-    applyDateRange(
-      db.from('adhkar_completions').select('*').eq('user_id', uid).order('completed_at', { ascending: true }),
-      'completed_at',
-      range
-    ),
-    filters?.limit
-  );
-
-  if (!adhkarError && adhkar) {
-    for (const row of adhkar) {
-      const entry: HabitEntry = {
-        id: `adhkar-${row.id}`,
+  for (const [day, bucket] of reviewsByDay) {
+    entries.push(
+      HabitEntrySchema.parse({
+        id: `srs-${day}`,
         source: 'habits',
-        timestamp: row.completed_at,
-        title: row.adhkar_name ?? 'ذكر',
-        description: row.notes,
-        tags: ['adhkar', row.category].filter(Boolean),
+        timestamp: bucket.last,
+        title: 'مراجعة الحفظ',
+        description: `${bucket.count} بطاقة، ${bucket.good} منها بإجابة قوية`,
+        tags: ['مراجعة'],
         layerColor: 'var(--tl-layer-habits)',
         meta: {
-          habitId: row.adhkar_id ?? row.id,
-          habitName: row.adhkar_name ?? 'ذكر',
-          habitType: 'adhkar',
-          completionStatus: 'completed',
-          targetCount: row.target_count ?? 1,
-          completedCount: row.completed_count ?? 1,
-          unit: 'مرات',
+          habitId: 'srs-review',
+          habitName: 'مراجعة الحفظ',
+          habitType: 'custom',
+          completionStatus: bucket.count > 0 ? 'completed' : 'missed',
+          targetCount: Math.max(bucket.count, 1),
+          completedCount: bucket.count,
+          unit: 'بطاقة',
         },
-      };
-      entries.push(HabitEntrySchema.parse(entry));
-    }
+      }) as HabitEntry
+    );
   }
 
-  // Fetch sunnah completions
-  const { data: sunnah, error: sunnahError } = await applyLimit(
-    applyDateRange(
-      db.from('sunnah_completions').select('*').eq('user_id', uid).order('completed_at', { ascending: true }),
-      'completed_at',
-      range
-    ),
-    filters?.limit
+  const mastery = await rows(
+    () =>
+      applyLimit(
+        applyDateRange(
+          db
+            .from('german_club_progress')
+            .select('entry_id, is_mastered, last_seen_at')
+            .eq('user_id', uid)
+            .order('last_seen_at', { ascending: false }),
+          'last_seen_at',
+          range
+        ),
+        cap
+      ),
+    'german_club_progress'
   );
 
-  if (!sunnahError && sunnah) {
-    for (const row of sunnah) {
-      const entry: HabitEntry = {
-        id: `sunnah-${row.id}`,
+  const masteryByDay = new Map<string, { seen: number; mastered: number; last: string }>();
+  for (const row of mastery) {
+    const at = iso(row.last_seen_at);
+    if (!at) continue;
+    const day = at.slice(0, 10);
+    const bucket = masteryByDay.get(day) ?? { seen: 0, mastered: 0, last: at };
+    bucket.seen += 1;
+    if (row.is_mastered === true) bucket.mastered += 1;
+    if (at > bucket.last) bucket.last = at;
+    masteryByDay.set(day, bucket);
+  }
+
+  for (const [day, bucket] of masteryByDay) {
+    entries.push(
+      HabitEntrySchema.parse({
+        id: `german-${day}`,
         source: 'habits',
-        timestamp: row.completed_at,
-        title: row.sunnah_name ?? 'سنة',
-        description: row.notes,
-        tags: ['sunnah', row.category].filter(Boolean),
+        timestamp: bucket.last,
+        title: 'تدريب المفردات',
+        description: `${bucket.seen} مدخل، أُتقن ${bucket.mastered}`,
+        tags: ['مفردات'],
         layerColor: 'var(--tl-layer-habits)',
         meta: {
-          habitId: row.sunnah_id ?? row.id,
-          habitName: row.sunnah_name ?? 'سنة',
-          habitType: 'sunnah',
-          completionStatus: 'completed',
-          targetCount: row.target_count ?? 1,
-          completedCount: row.completed_count ?? 1,
-          unit: 'مرات',
+          habitId: 'german-club',
+          habitName: 'تدريب المفردات',
+          habitType: 'custom',
+          completionStatus: bucket.mastered > 0 ? 'completed' : 'partial',
+          targetCount: Math.max(bucket.seen, 1),
+          completedCount: bucket.mastered,
+          unit: 'مدخل',
         },
-      };
-      entries.push(HabitEntrySchema.parse(entry));
-    }
+      }) as HabitEntry
+    );
   }
 
   return entries;
@@ -239,368 +246,398 @@ async function fetchHabitEntries(filters?: TimeLedgerQueryFilters): Promise<Habi
 // Fitness Activities
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function fetchFitnessEntries(filters?: TimeLedgerQueryFilters): Promise<FitnessEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
+const ACTIVITY_LABELS: Record<string, string> = {
+  walking: 'مشي',
+  running: 'جري',
+  cycling: 'دراجة',
+  hiking: 'هايكنج',
+  swimming: 'سباحة',
+  strength: 'قوة',
+  workout: 'تمرين',
+  mobility: 'مرونة',
+  yoga: 'يوغا',
+};
 
+function workoutKind(activityType: string): 'gps' | 'strength' | 'mobility' | 'custom' {
+  if (['walking', 'running', 'cycling', 'hiking'].includes(activityType)) return 'gps';
+  if (['strength', 'weights', 'gym'].includes(activityType)) return 'strength';
+  if (['mobility', 'yoga', 'stretching'].includes(activityType)) return 'mobility';
+  return 'custom';
+}
+
+async function fetchFitnessEntries(uid: string, filters?: TimeLedgerQueryFilters): Promise<FitnessEntry[]> {
   const range = dateRangeToISO(filters);
 
-  const { data, error } = await applyLimit(
-    applyDateRange(
-      db.from('fitness_activities').select('*').eq('user_id', uid).order('start_time', { ascending: true }),
-      'start_time',
-      range
-    ),
-    filters?.limit
+  const data = await rows(
+    () =>
+      applyLimit(
+        applyDateRange(
+          db
+            .from('fitness_activities')
+            .select('id, activity_type, source, start_time, end_time, duration_seconds, distance_meters, calories, avg_heart_rate')
+            .eq('user_id', uid)
+            .order('start_time', { ascending: false }),
+          'start_time',
+          range
+        ),
+        sourceLimit(filters)
+      ),
+    'fitness_activities'
   );
 
-  if (error) {
-    console.error('[time-ledger] Fitness fetch failed:', error);
-    return [];
-  }
+  const out: FitnessEntry[] = [];
+  for (const row of data) {
+    const start = iso(row.start_time);
+    if (!start) continue;
 
-  return (data ?? []).map((row: any) => {
-    const entry: FitnessEntry = {
-      id: row.id,
-      source: 'fitness',
-      timestamp: row.start_time,
-      endTimestamp: row.end_time,
-      title: row.name ?? 'تمرين',
-      description: row.notes,
-      tags: Array.isArray(row.tags) ? row.tags : [row.workout_type].filter(Boolean),
-      layerColor: 'var(--tl-layer-fitness)',
-      meta: {
-        workoutId: row.id,
-        workoutType: row.workout_type,
-        durationSeconds: row.duration_seconds ?? 0,
-        distanceKm: row.distance_meters ? row.distance_meters / 1000 : undefined,
-        caloriesKcal: row.calories,
-        avgHeartRate: row.avg_heart_rate,
-        maxHeartRate: row.max_heart_rate,
-        gpxPath: row.gpx_path,
-        feeling: row.feeling,
-        equipment: Array.isArray(row.equipment) ? row.equipment : undefined,
-      },
-    };
-    return FitnessEntrySchema.parse(entry);
-  });
+    const activityType = str(row.activity_type, 'workout');
+    const distanceMeters = num(row.distance_meters);
+    const duration = num(row.duration_seconds);
+
+    out.push(
+      FitnessEntrySchema.parse({
+        id: `fitness-${str(row.id)}`,
+        source: 'fitness',
+        timestamp: start,
+        endTimestamp: iso(row.end_time) ?? undefined,
+        title: ACTIVITY_LABELS[activityType] ?? activityType,
+        tags: [activityType, str(row.source)].filter(Boolean),
+        layerColor: 'var(--tl-layer-fitness)',
+        meta: {
+          workoutId: str(row.id),
+          workoutType: workoutKind(activityType),
+          durationSeconds: duration && duration > 0 ? Math.round(duration) : 1,
+          distanceKm: distanceMeters !== undefined ? distanceMeters / 1000 : undefined,
+          caloriesKcal: num(row.calories) !== undefined ? Math.round(num(row.calories)!) : undefined,
+          avgHeartRate: num(row.avg_heart_rate) ? Math.round(num(row.avg_heart_rate)!) : undefined,
+        },
+      }) as FitnessEntry
+    );
+  }
+  return out;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Weather Snapshots (hourly for the date range)
+// Knowledge — reading, bookmarks, archive monographs, notes
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function fetchWeatherEntries(filters?: TimeLedgerQueryFilters): Promise<WeatherEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
-
+async function fetchKnowledgeEntries(uid: string, filters?: TimeLedgerQueryFilters): Promise<KnowledgeEntry[]> {
   const range = dateRangeToISO(filters);
-
-  // Weather snapshots are stored per location per hour
-  const { data, error } = await applyLimit(
-    applyDateRange(
-      db.from('weather_snapshots').select('*').eq('user_id', uid).order('timestamp_unix', { ascending: true }),
-      'timestamp_unix',
-      range
-    ),
-    filters?.limit
-  );
-
-  if (error) {
-    console.error('[time-ledger] Weather fetch failed:', error);
-    return [];
-  }
-
-  return (data ?? []).map((row: any) => {
-    const snapshot = row.snapshot as WeatherSnapshot;
-    if (!snapshot) return null;
-
-    const entry: WeatherEntry = {
-      id: row.id,
-      source: 'weather',
-      timestamp: new Date(row.timestamp_unix * 1000).toISOString(),
-      title: `طقس: ${snapshot.temperature.actual_c.toFixed(1)}°م، ${snapshot.sky.cloud_type}`,
-      description: `رطوبة ${snapshot.moisture.relative_humidity_percent}%، رياح ${snapshot.wind.speed_kph} كم/س`,
-      tags: ['weather', snapshot.sky.cloud_type, snapshot.temperature.thermal_comfort_level].filter(Boolean),
-      layerColor: 'var(--tl-layer-weather)',
-      meta: {
-        temperatureC: snapshot.temperature.actual_c,
-        feelsLikeC: snapshot.temperature.feels_like_c,
-        conditionCode: snapshot.sky.cloud_cover_total_percent,
-        conditionLabel: snapshot.sky.cloud_type,
-        conditionIcon: '', // resolved in UI
-        humidityPercent: snapshot.moisture.relative_humidity_percent,
-        windKph: snapshot.wind.speed_kph,
-        uvIndex: snapshot.solar.uv_index,
-        aqi: snapshot.airQuality.aqi_us,
-        precipitationMm: snapshot.precipitation.accumulation_1h_mm,
-        locationName: row.location_name ?? 'موقع غير معروف',
-        lat: snapshot.meta.location.lat,
-        lng: snapshot.meta.location.lng,
-      },
-    };
-    return WeatherEntrySchema.parse(entry);
-  }).filter((e: WeatherEntry | null): e is WeatherEntry => e !== null);
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Knowledge (Reading, Podcasts, Archive, PKM)
-// ──────────────────────────────────────────────────────────────────────────────
-
-async function fetchKnowledgeEntries(filters?: TimeLedgerQueryFilters): Promise<KnowledgeEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
-
-  const range = dateRangeToISO(filters);
+  const cap = Math.max(20, Math.ceil(sourceLimit(filters) / 3));
   const entries: KnowledgeEntry[] = [];
 
-  // Reading articles (read_state timestamps)
-  const { data: readState, error: readError } = await applyLimit(
-    applyDateRange(
-      db.from('reading_read_state').select('*').eq('user_id', uid).order('read_at', { ascending: true }),
-      'read_at',
-      range
+  const [readState, bookmarks, monographs, notes] = await Promise.all([
+    rows(
+      () =>
+        applyLimit(
+          applyDateRange(
+            db.from('reading_read_state').select('article_link, read_at').eq('user_id', uid).order('read_at', { ascending: false }),
+            'read_at',
+            range
+          ),
+          cap
+        ),
+      'reading_read_state'
     ),
-    filters?.limit
-  );
+    rows(
+      () =>
+        applyLimit(
+          applyDateRange(
+            db.from('reading_bookmarks').select('article_link, snapshot, created_at').eq('user_id', uid).order('created_at', { ascending: false }),
+            'created_at',
+            range
+          ),
+          cap
+        ),
+      'reading_bookmarks'
+    ),
+    rows(
+      () =>
+        applyLimit(
+          applyDateRange(
+            db
+              .from('archive_documents')
+              .select('id, title, abstract, tags, word_count, created_at')
+              .eq('user_id', uid)
+              .order('created_at', { ascending: false }),
+            'created_at',
+            range
+          ),
+          cap
+        ),
+      'archive_documents'
+    ),
+    rows(
+      () =>
+        applyLimit(
+          applyDateRange(
+            db
+              .from('pkm_notes')
+              .select('id, title, content_md, updated_at, is_deleted')
+              .eq('user_id', uid)
+              .order('updated_at', { ascending: false }),
+            'updated_at',
+            range
+          ),
+          cap
+        ),
+      'pkm_notes'
+    ),
+  ]);
 
-  if (!readError && readState) {
-    for (const row of readState) {
-      const entry: KnowledgeEntry = {
-        id: `reading-${row.id}`,
+  for (const row of readState) {
+    const at = iso(row.read_at);
+    if (!at) continue;
+    const url = str(row.article_link);
+    const host = safeHost(url);
+    entries.push(
+      KnowledgeEntrySchema.parse({
+        id: `reading-${url || at}`,
         source: 'knowledge',
-        timestamp: row.read_at,
-        title: `مقالة: ${row.article_title ?? 'بدون عنوان'}`,
-        description: row.article_summary,
-        tags: ['article', 'reading', ...(Array.isArray(row.tags) ? row.tags : [])].filter(Boolean),
+        timestamp: at,
+        title: host ? `قراءة من ${host}` : 'قراءة مقالة',
+        tags: host ? [host] : [],
         layerColor: 'var(--tl-layer-knowledge)',
         meta: {
           contentType: 'article',
-          contentId: row.article_link,
-          contentTitle: row.article_title ?? 'بدون عنوان',
-          sourceName: row.feed_name ?? 'مصدر غير معروف',
-          author: row.author,
-          url: row.article_link,
+          contentId: url || at,
+          contentTitle: host ? `مقالة من ${host}` : 'مقالة',
+          sourceName: host || 'قارئ الأخبار',
+          url: url || undefined,
+          progressPercent: 100,
           isFavorite: false,
-          tags: Array.isArray(row.tags) ? row.tags : [],
+          tags: host ? [host] : [],
         },
-      };
-      entries.push(KnowledgeEntrySchema.parse(entry));
-    }
+      }) as KnowledgeEntry
+    );
   }
 
-  // Podcast listening history
-  const { data: podcasts, error: podError } = await applyLimit(
-    applyDateRange(
-      db.from('podcast_history').select('*').eq('user_id', uid).order('listened_at', { ascending: true }),
-      'listened_at',
-      range
-    ),
-    filters?.limit
-  );
-
-  if (!podError && podcasts) {
-    for (const row of podcasts) {
-      const entry: KnowledgeEntry = {
-        id: `podcast-${row.id}`,
+  for (const row of bookmarks) {
+    const at = iso(row.created_at);
+    if (!at) continue;
+    const snapshot = (row.snapshot ?? {}) as Record<string, unknown>;
+    const title = str(snapshot.title, 'مقالة محفوظة');
+    const url = str(row.article_link) || str(snapshot.link);
+    const host = safeHost(url);
+    entries.push(
+      KnowledgeEntrySchema.parse({
+        id: `bookmark-${url || at}`,
         source: 'knowledge',
-        timestamp: row.listened_at,
-        title: `حلقة: ${row.episode_title ?? 'بدون عنوان'}`,
-        description: row.episode_description,
-        tags: ['podcast', row.show_name].filter(Boolean),
+        timestamp: at,
+        title,
+        description: str(snapshot.description).slice(0, 200) || undefined,
+        tags: ['محفوظ', host].filter(Boolean),
         layerColor: 'var(--tl-layer-knowledge)',
         meta: {
-          contentType: 'podcast',
-          contentId: row.episode_id,
-          contentTitle: row.episode_title ?? 'بدون عنوان',
-          sourceName: row.show_name,
-          author: row.author,
-          url: row.episode_url,
-          durationMinutes: row.duration_minutes,
-          progressPercent: row.progress_percent,
-          isFavorite: row.is_favorite ?? false,
-          tags: ['podcast', row.show_name].filter(Boolean),
+          contentType: 'article',
+          contentId: url || at,
+          contentTitle: title,
+          sourceName: str(snapshot.source_name, host || 'قارئ الأخبار'),
+          url: url || undefined,
+          isFavorite: true,
+          tags: host ? [host] : [],
         },
-      };
-      entries.push(KnowledgeEntrySchema.parse(entry));
-    }
+      }) as KnowledgeEntry
+    );
   }
 
-  // Archive monographs
-  const { data: archive, error: archiveError } = await applyLimit(
-    applyDateRange(
-      db.from('archive_monographs').select('*').eq('user_id', uid).order('created_at', { ascending: true }),
-      'created_at',
-      range
-    ),
-    filters?.limit
-  );
-
-  if (!archiveError && archive) {
-    for (const row of archive) {
-      const entry: KnowledgeEntry = {
-        id: `archive-${row.id}`,
+  for (const row of monographs) {
+    const at = iso(row.created_at);
+    if (!at) continue;
+    const title = str(row.title, 'وثيقة أرشيف');
+    entries.push(
+      KnowledgeEntrySchema.parse({
+        id: `archive-${str(row.id)}`,
         source: 'knowledge',
-        timestamp: row.created_at,
-        title: `أرشيف: ${row.title ?? 'بدون عنوان'}`,
-        description: row.summary,
-        tags: ['archive', 'monograph', ...(Array.isArray(row.tags) ? row.tags : [])].filter(Boolean),
+        timestamp: at,
+        title,
+        description: str(row.abstract).slice(0, 200) || undefined,
+        tags: tagList(row.tags),
         layerColor: 'var(--tl-layer-knowledge)',
         meta: {
           contentType: 'monograph',
-          contentId: row.id,
-          contentTitle: row.title ?? 'بدون عنوان',
-          sourceName: 'الأرشيف المعرفي',
-          author: row.author,
-          url: `/archive/${row.id}`,
-          isFavorite: row.is_favorite ?? false,
-          tags: Array.isArray(row.tags) ? row.tags : [],
+          contentId: str(row.id),
+          contentTitle: title,
+          sourceName: 'الأرشيف',
+          durationMinutes: num(row.word_count) ? Math.max(1, Math.round(num(row.word_count)! / 220)) : undefined,
+          isFavorite: false,
+          tags: tagList(row.tags),
         },
-      };
-      entries.push(KnowledgeEntrySchema.parse(entry));
-    }
+      }) as KnowledgeEntry
+    );
+  }
+
+  for (const row of notes) {
+    if (row.is_deleted === true) continue;
+    const at = iso(row.updated_at);
+    if (!at) continue;
+    const title = str(row.title, 'ملاحظة');
+    entries.push(
+      KnowledgeEntrySchema.parse({
+        id: `note-${str(row.id)}`,
+        source: 'knowledge',
+        timestamp: at,
+        title,
+        description: str(row.content_md).replace(/[#*_>`]/g, '').slice(0, 200) || undefined,
+        tags: ['ملاحظات'],
+        layerColor: 'var(--tl-layer-knowledge)',
+        meta: {
+          contentType: 'note',
+          contentId: str(row.id),
+          contentTitle: title,
+          sourceName: 'الملاحظات',
+          isFavorite: false,
+          tags: [],
+        },
+      }) as KnowledgeEntry
+    );
   }
 
   return entries;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Prayer Times Completions
+// Journal
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function fetchPrayerEntries(filters?: TimeLedgerQueryFilters): Promise<PrayerEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
-
+async function fetchJournalEntries(uid: string, filters?: TimeLedgerQueryFilters): Promise<JournalEntry[]> {
   const range = dateRangeToISO(filters);
 
-  const { data, error } = await applyLimit(
-    applyDateRange(
-      db.from('prayer_completions').select('*').eq('user_id', uid).order('prayer_time', { ascending: true }),
-      'prayer_time',
-      range
-    ),
-    filters?.limit
+  const data = await rows(
+    () =>
+      applyLimit(
+        applyDateRange(
+          db
+            .from('journal_entries')
+            .select('id, title, content, mood, tags, word_count, created_at')
+            .eq('user_id', uid)
+            .order('created_at', { ascending: false }),
+          'created_at',
+          range
+        ),
+        sourceLimit(filters)
+      ),
+    'journal_entries'
   );
 
-  if (error) {
-    console.error('[time-ledger] Prayer fetch failed:', error);
-    return [];
+  const out: JournalEntry[] = [];
+  for (const row of data) {
+    const at = iso(row.created_at);
+    if (!at) continue;
+    out.push(
+      JournalEntrySchema.parse({
+        id: `journal-${str(row.id)}`,
+        source: 'journal',
+        timestamp: at,
+        title: str(row.title, 'مذكرة يومية'),
+        description: str(row.content).slice(0, 200) || undefined,
+        tags: tagList(row.tags),
+        layerColor: 'var(--tl-layer-journal)',
+        meta: {
+          entryId: str(row.id),
+          mood: typeof row.mood === 'string' ? row.mood : undefined,
+          wordCount: num(row.word_count) ?? 0,
+          hasVoiceNote: false,
+          tags: tagList(row.tags),
+        },
+      }) as JournalEntry
+    );
   }
-
-  return (data ?? []).map((row: any) => {
-    const entry: PrayerEntry = {
-      id: row.id,
-      source: 'prayer',
-      timestamp: row.prayer_time,
-      title: `صلاة ${row.prayer_label_ar ?? row.prayer_name}`,
-      description: row.notes,
-      tags: ['prayer', row.prayer_name].filter(Boolean),
-      layerColor: 'var(--tl-layer-prayer)',
-      meta: {
-        prayerName: row.prayer_name,
-        prayerLabelAr: row.prayer_label_ar,
-        isCompleted: row.is_completed ?? false,
-        completionTime: row.completed_at,
-        locationName: row.location_name ?? 'غير معروف',
-        method: row.calculation_method ?? 'muslim_world_league',
-      },
-    };
-    return PrayerEntrySchema.parse(entry);
-  });
+  return out;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Journal Entries
+// Quick Capture
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function fetchJournalEntries(filters?: TimeLedgerQueryFilters): Promise<JournalEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
-
+async function fetchQuickCaptureEntries(uid: string, filters?: TimeLedgerQueryFilters): Promise<QuickCaptureEntry[]> {
   const range = dateRangeToISO(filters);
 
-  const { data, error } = await applyLimit(
-    applyDateRange(
-      db.from('journal_entries').select('*').eq('user_id', uid).order('created_at', { ascending: true }),
-      'created_at',
-      range
-    ),
-    filters?.limit
+  const data = await rows(
+    () =>
+      applyLimit(
+        applyDateRange(
+          db
+            .from('quick_captures')
+            .select('id, title, content, capture_type, is_task, task_completed, task_due_at, voice_transcript, tags, captured_at')
+            .eq('user_id', uid)
+            .order('captured_at', { ascending: false }),
+          'captured_at',
+          range
+        ),
+        sourceLimit(filters)
+      ),
+    'quick_captures'
   );
 
-  if (error) {
-    console.error('[time-ledger] Journal fetch failed:', error);
-    return [];
+  const out: QuickCaptureEntry[] = [];
+  for (const row of data) {
+    const at = iso(row.captured_at);
+    if (!at) continue;
+    out.push(
+      QuickCaptureEntrySchema.parse({
+        id: `capture-${str(row.id)}`,
+        source: 'quick-capture',
+        timestamp: at,
+        title: str(row.title, row.is_task === true ? 'مهمة' : 'ملاحظة'),
+        description: str(row.content) || undefined,
+        tags: tagList(row.tags),
+        layerColor: 'var(--tl-layer-capture)',
+        meta: {
+          captureType: (['note', 'task', 'idea', 'reminder', 'observation'] as const).includes(
+            row.capture_type as 'note'
+          )
+            ? (row.capture_type as QuickCaptureEntry['meta']['captureType'])
+            : 'note',
+          isTask: row.is_task === true,
+          taskCompleted: row.task_completed === true,
+          taskDueAt: iso(row.task_due_at) ?? undefined,
+          voiceTranscript: str(row.voice_transcript) || undefined,
+        },
+      }) as QuickCaptureEntry
+    );
   }
-
-  return (data ?? []).map((row: any) => {
-    const entry: JournalEntry = {
-      id: row.id,
-      source: 'journal',
-      timestamp: row.created_at,
-      title: row.title ?? 'مذكرة يومية',
-      description: row.content?.slice(0, 200),
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      layerColor: 'var(--tl-layer-journal)',
-      meta: {
-        entryId: row.id,
-        mood: row.mood,
-        energyLevel: row.energy_level,
-        wordCount: row.word_count ?? 0,
-        hasVoiceNote: row.has_voice_note ?? false,
-        tags: Array.isArray(row.tags) ? row.tags : [],
-      },
-    };
-    return JournalEntrySchema.parse(entry);
-  });
+  return out;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Quick Capture (local-first, synced via outbox)
+// Grouping
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function fetchQuickCaptureEntries(filters?: TimeLedgerQueryFilters): Promise<QuickCaptureEntry[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
+export function groupEntriesByDay(entries: TimeLedgerEntry[]): TimeLedgerDayGroup[] {
+  const byDate = new Map<string, TimeLedgerEntry[]>();
 
-  const range = dateRangeToISO(filters);
-
-  const { data, error } = await applyLimit(
-    applyDateRange(
-      db.from('quick_captures').select('*').eq('user_id', uid).order('created_at', { ascending: true }),
-      'created_at',
-      range
-    ),
-    filters?.limit
-  );
-
-  if (error) {
-    console.error('[time-ledger] Quick capture fetch failed:', error);
-    return [];
+  for (const entry of entries) {
+    const date = entry.timestamp.slice(0, 10);
+    if (!byDate.has(date)) byDate.set(date, []);
+    byDate.get(date)!.push(entry);
   }
 
-  return (data ?? []).map((row: any) => {
-    const entry: QuickCaptureEntry = {
-      id: row.id,
-      source: 'quick-capture',
-      timestamp: row.created_at,
-      title: row.title ?? (row.is_task ? 'مهمة' : 'ملاحظة'),
-      description: row.content,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      layerColor: 'var(--tl-layer-capture)',
-      pendingSync: row.pending_sync ?? false,
-      meta: {
-        captureType: row.capture_type,
-        isTask: row.is_task ?? false,
-        taskCompleted: row.task_completed ?? false,
-        taskDueAt: row.task_due_at,
-        linkedEntryId: row.linked_entry_id,
-        voiceTranscript: row.voice_transcript,
-      },
-    };
-    return QuickCaptureEntrySchema.parse(entry);
-  });
+  return Array.from(byDate.entries())
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([date, dayEntries]) => {
+      const bySource = {} as Record<TimeLedgerSource, number>;
+      for (const e of dayEntries) {
+        bySource[e.source] = (bySource[e.source] ?? 0) + 1;
+      }
+
+      return {
+        date,
+        entries: [...dayEntries].sort(
+          (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        ),
+        summary: {
+          total: dayEntries.length,
+          bySource,
+          hasIncompleteTasks: dayEntries.some(
+            (e) => e.source === 'quick-capture' && e.meta.isTask && !e.meta.taskCompleted
+          ),
+          hasUnfinishedHabits: dayEntries.some(
+            (e) => e.source === 'habits' && e.meta.completionStatus !== 'completed'
+          ),
+        },
+      };
+    });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -608,184 +645,131 @@ async function fetchQuickCaptureEntries(filters?: TimeLedgerQueryFilters): Promi
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const timeLedgerApi = {
-  /**
-   * Fetch all timeline entries for the current user, merged and sorted by timestamp.
-   * This is the primary query for the TimeLedgerView.
-   */
+  /** All timeline entries for the signed-in user, newest first. */
   async fetchTimeline(filters?: TimeLedgerQueryFilters): Promise<TimeLedgerEntry[]> {
-    const sources = filters?.sources ?? [
-      'calendar',
-      'habits',
-      'fitness',
-      'weather',
-      'knowledge',
-      'quick-capture',
-      'prayer',
-      'journal',
-    ];
+    const uid = await currentUserId();
+    if (!uid) return [];
 
-    const fetchers: Array<() => Promise<TimeLedgerEntry[]>> = [];
+    const sources = filters?.sources?.length ? filters.sources : ALL_SOURCES;
+    const jobs: Array<Promise<TimeLedgerEntry[]>> = [];
 
-    if (sources.includes('calendar')) fetchers.push(() => fetchCalendarEvents(filters));
-    if (sources.includes('habits')) fetchers.push(() => fetchHabitEntries(filters));
-    if (sources.includes('fitness')) fetchers.push(() => fetchFitnessEntries(filters));
-    if (sources.includes('weather')) fetchers.push(() => fetchWeatherEntries(filters));
-    if (sources.includes('knowledge')) fetchers.push(() => fetchKnowledgeEntries(filters));
-    if (sources.includes('quick-capture')) fetchers.push(() => fetchQuickCaptureEntries(filters));
-    if (sources.includes('prayer')) fetchers.push(() => fetchPrayerEntries(filters));
-    if (sources.includes('journal')) fetchers.push(() => fetchJournalEntries(filters));
+    if (sources.includes('habits')) jobs.push(fetchHabitEntries(uid, filters));
+    if (sources.includes('fitness')) jobs.push(fetchFitnessEntries(uid, filters));
+    if (sources.includes('knowledge')) jobs.push(fetchKnowledgeEntries(uid, filters));
+    if (sources.includes('journal')) jobs.push(fetchJournalEntries(uid, filters));
+    if (sources.includes('quick-capture')) jobs.push(fetchQuickCaptureEntries(uid, filters));
 
-    const results = await Promise.all(fetchers.map(f => f().catch(e => {
-      console.error('[time-ledger] Fetcher failed:', e);
-      return [] as TimeLedgerEntry[];
-    })));
+    const results = await Promise.all(
+      jobs.map((p) =>
+        p.catch((e) => {
+          console.error('[time-ledger] Fetcher failed:', e);
+          return [] as TimeLedgerEntry[];
+        })
+      )
+    );
 
-    // Flatten, sort by timestamp (newest first), and apply global limit
-    const allEntries = results.flat()
+    const all = results
+      .flat()
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    if (filters?.limit && filters.limit > 0) {
-      return allEntries.slice(0, filters.limit);
+    if (filters?.searchText?.trim()) {
+      const q = filters.searchText.trim().toLowerCase();
+      return all.filter(
+        (e) =>
+          e.title.toLowerCase().includes(q) ||
+          (e.description ?? '').toLowerCase().includes(q) ||
+          e.tags.some((t) => t.toLowerCase().includes(q))
+      );
     }
-    return allEntries;
+
+    return filters?.limit && filters.limit > 0 ? all.slice(0, filters.limit) : all;
   },
 
-  /**
-   * Fetch timeline grouped by day (for DayCard rendering).
-   */
+  /** Timeline grouped by day (kept for prefetch helpers/back-compat). */
   async fetchTimelineByDay(filters?: TimeLedgerQueryFilters): Promise<TimeLedgerDayGroup[]> {
-    const entries = await this.fetchTimeline(filters);
-
-    // Group by date (YYYY-MM-DD)
-    const byDate = new Map<string, TimeLedgerEntry[]>();
-
-    for (const entry of entries) {
-      const date = entry.timestamp.split('T')[0];
-      if (!byDate.has(date)) byDate.set(date, []);
-      byDate.get(date)!.push(entry);
-    }
-
-    // Build day groups sorted by date (newest first)
-    const dayGroups: TimeLedgerDayGroup[] = Array.from(byDate.entries())
-      .sort(([a], [b]) => b.localeCompare(a))
-      .map(([date, entries]) => {
-        const bySource: Record<string, number> = {};
-        for (const e of entries) {
-          bySource[e.source] = (bySource[e.source] ?? 0) + 1;
-        }
-
-        return {
-          date,
-          entries,
-          summary: {
-            total: entries.length,
-            bySource: bySource as Record<TimeLedgerSource, number>,
-            hasIncompleteTasks: entries.some(
-              e => e.source === 'quick-capture' && e.meta.isTask && !e.meta.taskCompleted
-            ),
-            hasUnfinishedHabits: entries.some(
-              e => e.source === 'habits' && e.meta.completionStatus !== 'completed'
-            ),
-          },
-        };
-      });
-
-    return dayGroups;
+    return groupEntriesByDay(await this.fetchTimeline(filters));
   },
 
-  /**
-   * Create a quick capture entry (optimistic local write, then sync).
-   */
-  async createQuickCapture(entry: Omit<QuickCaptureEntry, 'id' | 'source' | 'layerColor'>): Promise<QuickCaptureEntry> {
+  async createQuickCapture(
+    entry: Omit<QuickCaptureEntry, 'id' | 'source' | 'layerColor'>
+  ): Promise<QuickCaptureEntry> {
     const uid = await currentUserId();
     if (!uid) throw new Error('يجب تسجيل الدخول أولاً');
 
     const id = crypto.randomUUID();
-    const now = new Date().toISOString();
+    const capturedAt = entry.timestamp ?? new Date().toISOString();
 
-    const newEntry: QuickCaptureEntry = {
-      ...entry,
-      id,
-      source: 'quick-capture',
-      layerColor: 'var(--tl-layer-capture)',
-      timestamp: entry.timestamp ?? now,
-    };
-
-    // Optimistic local insert
     const { error } = await db.from('quick_captures').insert({
       id,
       user_id: uid,
-      title: newEntry.title,
-      content: newEntry.description ?? '',
-      capture_type: newEntry.meta.captureType,
-      is_task: newEntry.meta.isTask,
-      task_completed: newEntry.meta.taskCompleted ?? false,
-      task_due_at: newEntry.meta.taskDueAt,
-      linked_entry_id: newEntry.meta.linkedEntryId,
-      voice_transcript: newEntry.meta.voiceTranscript,
-      tags: newEntry.tags,
-      pending_sync: true,
-      created_at: now,
-      updated_at: now,
+      title: entry.title,
+      content: entry.description ?? null,
+      capture_type: entry.meta.captureType,
+      is_task: entry.meta.isTask,
+      task_completed: entry.meta.taskCompleted ?? false,
+      task_due_at: entry.meta.taskDueAt ?? null,
+      voice_transcript: entry.meta.voiceTranscript || null,
+      tags: entry.tags ?? [],
+      captured_at: capturedAt,
     });
 
     if (error) {
       console.error('[time-ledger] Quick capture create failed:', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('تعذر حفظ الالتقاط');
     }
 
-    // Enqueue for background sync (via existing PKM sync engine pattern)
-    window.dispatchEvent(new CustomEvent('time-ledger:quick-capture-created', { detail: newEntry }));
-
-    return QuickCaptureEntrySchema.parse(newEntry);
+    return QuickCaptureEntrySchema.parse({
+      ...entry,
+      id: `capture-${id}`,
+      source: 'quick-capture',
+      layerColor: 'var(--tl-layer-capture)',
+      timestamp: capturedAt,
+    }) as QuickCaptureEntry;
   },
 
-  /**
-   * Update a quick capture entry (toggle task completion, etc.)
-   */
-  async updateQuickCapture(id: string, patch: Partial<Pick<QuickCaptureEntry, 'title' | 'description' | 'tags' | 'meta'>>): Promise<void> {
+  async updateQuickCapture(
+    id: string,
+    patch: Partial<Pick<QuickCaptureEntry, 'title' | 'description' | 'tags' | 'meta'>>
+  ): Promise<void> {
     const uid = await currentUserId();
     if (!uid) throw new Error('يجب تسجيل الدخول أولاً');
 
-    const updatePayload: Record<string, any> = {
-      updated_at: new Date().toISOString(),
-      pending_sync: true,
-    };
+    const payload: Record<string, unknown> = {};
+    if (patch.title !== undefined) payload.title = patch.title;
+    if (patch.description !== undefined) payload.content = patch.description;
+    if (patch.tags !== undefined) payload.tags = patch.tags;
+    if (patch.meta?.isTask !== undefined) payload.is_task = patch.meta.isTask;
+    if (patch.meta?.taskCompleted !== undefined) payload.task_completed = patch.meta.taskCompleted;
+    if (patch.meta?.taskDueAt !== undefined) payload.task_due_at = patch.meta.taskDueAt ?? null;
+    if (patch.meta?.voiceTranscript !== undefined) payload.voice_transcript = patch.meta.voiceTranscript;
 
-    if (patch.title !== undefined) updatePayload.title = patch.title;
-    if (patch.description !== undefined) updatePayload.content = patch.description;
-    if (patch.tags !== undefined) updatePayload.tags = patch.tags;
-    if (patch.meta) {
-      if (patch.meta.isTask !== undefined) updatePayload.is_task = patch.meta.isTask;
-      if (patch.meta.taskCompleted !== undefined) updatePayload.task_completed = patch.meta.taskCompleted;
-      if (patch.meta.taskDueAt !== undefined) updatePayload.task_due_at = patch.meta.taskDueAt;
-      if (patch.meta.voiceTranscript !== undefined) updatePayload.voice_transcript = patch.meta.voiceTranscript;
-    }
+    if (Object.keys(payload).length === 0) return;
 
-    const { error } = await db.from('quick_captures').update(updatePayload).eq('id', id).eq('user_id', uid);
+    const { error } = await db
+      .from('quick_captures')
+      .update(payload)
+      .eq('id', id.replace(/^capture-/, ''))
+      .eq('user_id', uid);
 
     if (error) {
       console.error('[time-ledger] Quick capture update failed:', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('تعذر تحديث الالتقاط');
     }
-
-    window.dispatchEvent(new CustomEvent('time-ledger:quick-capture-updated', { detail: { id, patch } }));
   },
 
-  /**
-   * Delete a quick capture entry.
-   */
   async deleteQuickCapture(id: string): Promise<void> {
     const uid = await currentUserId();
     if (!uid) throw new Error('يجب تسجيل الدخول أولاً');
 
-    const { error } = await db.from('quick_captures').delete().eq('id', id).eq('user_id', uid);
+    const { error } = await db
+      .from('quick_captures')
+      .delete()
+      .eq('id', id.replace(/^capture-/, ''))
+      .eq('user_id', uid);
 
     if (error) {
       console.error('[time-ledger] Quick capture delete failed:', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('تعذر حذف الالتقاط');
     }
-
-    window.dispatchEvent(new CustomEvent('time-ledger:quick-capture-deleted', { detail: { id } }));
   },
 };
