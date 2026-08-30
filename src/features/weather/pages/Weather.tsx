@@ -300,7 +300,10 @@ export default function Weather() {
 
       <main className="px-4 pt-6">
         <div className="space-y-6">
-          <CitySearch onSelectCity={handleCitySelect} />
+          <CitySearch
+            onSelectCity={handleCitySelect}
+            userLocation={activeLocation ? { lat: activeLocation.lat, lng: activeLocation.lng } : null}
+          />
 
           {snapshot && <ConfidenceFloorBanner snapshot={snapshot} />}
 
