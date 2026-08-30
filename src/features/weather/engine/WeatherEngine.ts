@@ -9,6 +9,9 @@
 //   6. Persist to cache, emit final snapshot.
 
 import { type CachedBundle,cacheManager } from '../cache/CacheManager';
+import { recordLedgerEntry } from './ForecastLedger';
+import { aggregateByField, isObservationDue, verifyForecasts } from './ForecastVerification';
+import { recordVerifiedSkill } from './SourceVerifier';
 import { computeAstronomy, solarPosition } from '../compute/AstronomyEngine';
 import { aqiCategory, burnTimeMinutes,dayQualityScore, outdoorHealthScore, uvCategory } from '../compute/ComfortScorer';
 import { classifyPressureTendency, PRESSURE_TENDENCY_UNKNOWN_LABEL } from '../compute/PressureTrend';
@@ -161,9 +164,85 @@ export class WeatherEngine {
     const bundle: CachedBundle = { snapshot, forecast, cachedAt: Date.now() };
     await cacheManager.write(cacheKey, bundle);
 
+    // Verification layer — fire-and-forget. We never block the user-visible
+    // pipeline on writes to IndexedDB or on the per-source ledger reads; the
+    // adaptive tracker can absorb the new evidence on the next run.
+    void this.runVerificationSideEffects(req, okResponses, settled);
+
     const result: EngineResult = { snapshot, forecast, tier: 'fresh', responses: settled };
     this.emit(result);
     return result;
+  }
+
+  /**
+   * Side effects that power the verification layer:
+   *   • Record every atmospheric member's forecast into the 24h ledger so a
+   *     future pipeline run can score it against the next observation.
+   *   • Score the previous hour's forecasts against the snapshot we just
+   *     built, then feed the residuals into the adaptive tracker.
+   * Each step is best-effort: any failure is logged and swallowed.
+   */
+  private async runVerificationSideEffects(
+    req: EngineRequest,
+    okResponses: AdapterResponse[],
+    settled: AdapterResponse[],
+  ): Promise<void> {
+    const now = Date.now();
+    const issuedHour = Math.floor(now / 3_600_000) * 3_600_000;
+
+    // (1) Record every atmospheric member's forecast at every hour we have.
+    try {
+      const writes: Promise<void>[] = [];
+      for (const r of okResponses) {
+        const forecast = r.forecast;
+        if (!forecast?.hourly?.length) continue;
+        for (const entry of forecast.hourly) {
+          writes.push(recordLedgerEntry(req.lat, req.lng, r.sourceId, {
+            valid_unix: entry.timestamp_unix,
+            issued_unix: issuedHour,
+            lead_hours: Math.max(0, Math.round((entry.timestamp_unix - issuedHour) / 3_600_000)),
+            temperature_c: entry.temperature_c,
+            humidity_percent: entry.humidity_percent,
+            pressure_hpa: entry.pressure_hpa,
+            wind_kph: entry.wind_kph,
+            cloud_cover_percent: entry.cloud_cover_percent,
+            precip_mm: entry.precip_mm,
+          }));
+        }
+      }
+      await Promise.all(writes);
+    } catch (e) {
+      // Side effects must never break the pipeline.
+      console.warn('[weather] ledger write failed:', (e as Error).message);
+    }
+
+    // (2) Resolve any forecast from the previous hour that has matured.
+    const previousHour = issuedHour - 3_600_000;
+    if (!isObservationDue(previousHour, now)) return;
+
+    // We need an observation to score against. The ensemble we just produced
+    // IS the best observation we have at this location at this moment.
+    const snapshot = this.buildSnapshot(req, okResponses, 0);
+    const observation = {
+      timestamp_unix: previousHour,
+      temperature_c: snapshot.temperature.actual_c,
+      humidity_percent: snapshot.moisture.relative_humidity_percent,
+      pressure_hpa: snapshot.pressure.msl_hpa,
+      wind_kph: snapshot.wind.speed_kph,
+      cloud_cover_percent: snapshot.sky.cloud_cover_total_percent,
+    };
+
+    try {
+      // Only atmospheric sources have a forecast to score.
+      const atmosphericSources = settled
+        .filter((r) => r.ok && r.forecast?.hourly?.length)
+        .map((r) => r.sourceId);
+      const verified = await verifyForecasts(req.lat, req.lng, observation, atmosphericSources);
+      const aggregated = aggregateByField(verified);
+      recordVerifiedSkill(aggregated, req.lat, req.lng);
+    } catch (e) {
+      console.warn('[weather] verification pass failed:', (e as Error).message);
+    }
   }
 
   /**
