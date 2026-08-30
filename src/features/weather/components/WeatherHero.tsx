@@ -1,145 +1,129 @@
+// ============================================================================
+// WeatherHero — kept for backward compatibility (some legacy code paths
+// import this name). The active hero on the page is WeatherHeroRefined;
+// this one provides the same composition pattern in a slightly smaller
+// footprint for tools that want a hero without the full scene canvas.
+//
+// New design: large temperature, atmospheric icon, gradient backdrop,
+// ensemble confidence meter, 4 micro-metrics. All surfaces reuse the
+// same shape as WeatherHeroRefined minus the WeatherScene.
+// ============================================================================
+
 import { motion } from 'framer-motion';
 
-import { describeWeatherCode,labelForWeatherCode } from '../lib/conditions';
+import { describeWeatherCode, labelForWeatherCode } from '../lib/conditions';
 import { comfortLabel } from '../lib/vocabulary';
+import { duration, easing, heroSpringTransition } from '../lib/weather-motion';
+import type { HourlyEntry } from '../types/ForecastLayer';
+import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 import { AmbientBackdrop } from './AmbientBackdrop';
-import { Metric,WeatherPanel } from './WeatherPanels';
+import { CardEyebrow } from './UnifiedCard';
 
-export interface WeatherHeroProps {
-  snapshot: any; // WeatherSnapshot
-  hourly: any[];
+interface WeatherHeroProps {
+  snapshot: WeatherSnapshot;
+  hourly: HourlyEntry[];
 }
 
-export function WeatherHero({
-  snapshot,
-  hourly,
-}: WeatherHeroProps) {
+export function WeatherHero({ snapshot, hourly }: WeatherHeroProps) {
   const currentHour = hourly[0];
-  const currentCondition = describeWeatherCode(
+  const condition = describeWeatherCode(
     currentHour?.weather_code ?? 0,
-    currentHour?.is_day ?? true
+    currentHour?.is_day ?? true,
   );
-  const CurrentIcon = currentCondition.icon;
+  const Icon = condition.icon;
   const conf = snapshot.meta.ensemble_confidence_percent;
+  const range = snapshot.temperature.ensemble_range_c;
 
   return (
-    <WeatherPanel
-      title="الحالة الجوية الحالية"
-      subtitle="الآن"
-      accentLine={false}
-      padding="none"
-      elevated={false}
-      className="relative rounded-[26px] surface-depth overflow-hidden"
-    >
+    <section className="relative rounded-3xl border border-border/40 overflow-hidden surface-depth isolate">
       <AmbientBackdrop
         code={currentHour?.weather_code ?? 0}
         isDay={currentHour?.is_day ?? true}
       />
-      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
-      <div className="relative p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-micro tracking-[0.2em] uppercase text-primary/95 font-bold">
-              {comfortLabel(snapshot.temperature.thermal_comfort_level)}
-            </p>
-            <div className="mt-3 flex items-end gap-3" dir="ltr">
-              <span className="text-hero leading-[0.72] text-foreground tabular-nums font-extrabold">
-                {Math.round(snapshot.temperature.actual_c)}°
-              </span>
-              <span className="mb-1 flex items-baseline gap-1 leading-none">
-                <span className="text-display text-primary/90 font-bold tabular-nums">
-                  /{Math.round(snapshot.temperature.apparent_c)}°
-                </span>
-                <span className="text-micro font-bold uppercase tracking-[0.12em] text-primary/70">
-                  {'محسوسة'}
-                </span>
-              </span>
-            </div>
-            <p className="mt-4 text-meta text-foreground/95 font-extrabold">
-              {labelForWeatherCode(currentHour?.weather_code ?? 0)}
-            </p>
-            <p className="mt-2 text-mini text-foreground/90 font-bold tabular-nums" dir="ltr">
-              ↑ {Math.round(snapshot.temperature.daily_high_c)}° · ↓{' '}
-              {Math.round(snapshot.temperature.daily_low_c)}° · {'ندى'}{' '}
-              {Math.round(snapshot.temperature.dew_point_c)}°
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-3 shrink-0">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', stiffness: 180, damping: 16 }}
-              className="relative"
-            >
-              <CurrentIcon className="w-20 h-20 text-primary" strokeWidth={1.05} />
-            </motion.div>
-            <div className="text-center">
-              <div className="text-micro tracking-[0.15em] uppercase text-foreground/80 font-bold">
-                {'ثقة التنبؤ'}
-              </div>
-              <div className="font-bold text-display leading-none text-foreground tabular-nums" dir="ltr">
-                {conf}%
-              </div>
-            </div>
-          </div>
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent z-10" />
+
+      <div className="relative z-10 px-6 pt-6 pb-5">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <span className="inline-flex items-center gap-2 text-mini font-bold tracking-[0.22em] uppercase text-primary">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden />
+            {'الآن'}
+          </span>
+          <span className="text-mini font-bold tracking-[0.16em] uppercase text-foreground/70 truncate">
+            {comfortLabel(snapshot.temperature.thermal_comfort_level)}
+            {' · '}
+            {labelForWeatherCode(currentHour?.weather_code ?? 0)}
+          </span>
         </div>
 
-        {/* Confidence bar */}
-        <div className="mt-5 h-1.5 rounded-full bg-foreground/15 overflow-hidden" dir="ltr">
+        <div className="grid grid-cols-[1fr_auto] items-end gap-5">
           <motion.div
-            className="h-full w-full origin-left rounded-full bg-primary"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: conf / 100 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          />
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={heroSpringTransition}
+            className="flex items-baseline gap-1 leading-[0.78]"
+            dir="ltr"
+          >
+            <span className="text-[clamp(4.5rem,12vw,7rem)] font-extralight tracking-[-0.045em] text-foreground tabular-nums">
+              {Math.round(snapshot.temperature.actual_c)}
+            </span>
+            <span className="text-[clamp(2rem,5vw,3rem)] font-light text-primary/85 -translate-y-3">°</span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 180, damping: 16 }}
+            className="relative w-24 h-24 sm:w-28 sm:h-28 grid place-items-center"
+          >
+            <span aria-hidden className="absolute inset-2 rounded-full bg-primary/15 blur-2xl" />
+            <span aria-hidden className="absolute inset-1 rounded-full border border-foreground/12" />
+            <Icon className="relative w-20 h-20 sm:w-24 sm:h-24 text-primary" strokeWidth={1.05} />
+          </motion.div>
         </div>
 
-        {/* Ensemble range */}
-        {snapshot.temperature.ensemble_range_c.max > snapshot.temperature.ensemble_range_c.min && (
-          <p className="mt-2 text-micro text-muted-foreground tabular-nums" dir="ltr">
-            {'نطاق النماذج'} {Math.round(snapshot.temperature.ensemble_range_c.min)}°–{' '}
-            {Math.round(snapshot.temperature.ensemble_range_c.max)}° ·{' '}
-            {snapshot.meta.models_outlier.length > 0
-              ? `استُبعد ${snapshot.meta.models_outlier.length} كشاذ`
-              : 'لا نماذج شاذة'}
-          </p>
-        )}
+        <p className="mt-4 text-mini text-foreground/80 leading-relaxed tabular-nums" dir="ltr">
+          <span className="text-foreground/60">{`محسوسة `}</span>
+          <span className="font-bold text-foreground">{Math.round(snapshot.temperature.apparent_c)}°</span>
+          <span className="text-foreground/30 mx-2">·</span>
+          <span className="text-foreground/60">{`العظمى `}</span>
+          <span className="font-bold text-foreground">{Math.round(snapshot.temperature.daily_high_c)}°</span>
+          <span className="text-foreground/30 mx-2">·</span>
+          <span className="text-foreground/60">{`الصغرى `}</span>
+          <span className="font-bold text-foreground">{Math.round(snapshot.temperature.daily_low_c)}°</span>
+          <span className="text-foreground/30 mx-2">·</span>
+          <span className="text-foreground/60">{`ندى `}</span>
+          <span className="font-bold text-foreground">{Math.round(snapshot.temperature.dew_point_c)}°</span>
+        </p>
 
-        {/* Quick metrics grid */}
-        <div className="mt-4 grid grid-cols-4 gap-2.5 text-center" dir="ltr">
-          {[
-            {
-              label: 'ضغط',
-              value: `${Math.round(snapshot.pressure.msl_hpa)}`,
-              unit: 'hPa',
-            },
-            {
-              label: 'الاتجاه',
-              value: snapshot.pressure.tendency_label,
-              unit: '',
-            },
-            {
-              label: 'أمطار ٦س',
-              value: snapshot.precipitation.accumulation_6h_mm.toFixed(1),
-              unit: 'mm',
-            },
-            {
-              label: 'رطوبة مطلقة',
-              value: snapshot.moisture.absolute_humidity_gm3.toFixed(1),
-              unit: 'g/m³',
-            },
-          ].map((m) => (
-            <Metric
-              key={m.label}
-              label={m.label}
-              value={m.value}
-              unit={m.unit}
-              size="sm"
-              className="rounded-xl border border-border/50 bg-background/50 py-2.5 px-1.5 shadow-sm"
+        <div className="mt-5">
+          <div className="flex items-baseline justify-between gap-3 mb-1.5">
+            <CardEyebrow className="mb-0">{'ثقة الإجماع'}</CardEyebrow>
+            <span className="text-meta font-extralight tracking-tight text-foreground tabular-nums" dir="ltr">
+              {conf}
+              <span className="ms-1 text-mini font-medium text-foreground/55">٪</span>
+            </span>
+          </div>
+          <div className="h-1 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
+            <motion.div
+              className="h-full origin-left rounded-full bg-gradient-to-r from-primary/70 via-primary to-primary"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: conf / 100 }}
+              transition={{ duration: duration.reveal * 2.5, ease: easing.decelerate }}
             />
-          ))}
+          </div>
+          {range.max > range.min && (
+            <p className="mt-2 text-mini text-foreground/55 tabular-nums" dir="ltr">
+              {`نطاق النماذج ${Math.round(range.min)}° – ${Math.round(range.max)}°`}
+              {snapshot.meta.models_outlier.length > 0 && (
+                <>
+                  <span className="text-foreground/30 mx-2">·</span>
+                  {`${snapshot.meta.models_outlier.length} شُذوذ`}
+                </>
+              )}
+            </p>
+          )}
         </div>
       </div>
-    </WeatherPanel>
+    </section>
   );
 }

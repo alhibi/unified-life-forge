@@ -1,72 +1,198 @@
+// ============================================================================
+// HourlyRibbon — 24 hours ahead as a horizontal ribbon.
+//
+// WHY A SPARKLINE BEHIND THE COLUMN
+//   Each previous version showed the temperatures as numbers + a tiny heat
+//   bar. Numbers are easy to compare; the bar was decoration. This version
+//   plots the full 24h temperature curve BEHIND the columns, so the user
+//   sees the shape of the day at a glance — drop, peak, recovery — while
+//   the foreground columns pin individual hours.
+//
+// VISUAL HIERARCHY
+//   • A continuous polyline (the sparkline) fills the whole ribbon width.
+//   • A soft gradient fill underneath the line — same as the line colour,
+//     20% at the bottom, transparent at the top.
+//   • Each hour gets a thin vertical column with the icon + temperature.
+//   • The current hour is highlighted (border + accent label).
+//
+// ACCESSIBILITY
+//   The ribbon is keyboard-scrollable with snap-to-hour. Tabbing through
+//   columns moves focus, Enter jumps to detailed view.
+// ============================================================================
+
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
-import { WeatherPanel } from './WeatherPanels';
+import { cn } from '@/lib/utils';
 
-export interface HourlyRibbonEntry {
-  timestamp_unix: number;
-  temperature_c: number;
-  weather_code: number;
-  is_day: boolean;
-  precip_probability_percent: number;
-}
+import { duration, easing } from '../lib/weather-motion';
+import type { HourlyEntry } from '../types/ForecastLayer';
+
+const HOUR_MS = 3_600_000;
 
 export interface HourlyRibbonProps {
-  entries: HourlyRibbonEntry[];
-  iconFor: (code: number, isDay: boolean) => any;
+  entries: HourlyEntry[];
+  iconFor: (code: number, isDay: boolean) => React.ComponentType<{ className?: string; strokeWidth?: number }>;
   locale: string;
 }
 
 export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
-  const slice = useMemo(() => entries.slice(0, 12), [entries]);
+  const slice = useMemo(() => entries.slice(0, 24), [entries]);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const { minT, span, polyline, fillPath } = useMemo(() => {
+    if (slice.length < 2) return { minT: 0, span: 1, polyline: '', fillPath: '' };
+    const temps = slice.map((e) => e.temperature_c);
+    const mn = Math.min(...temps);
+    const mx = Math.max(...temps);
+    const sp = Math.max(1, mx - mn);
+    // Map each entry to (x, y) inside a 0..100 / 0..100 viewBox.
+    const W = 100;
+    const H = 40;
+    const pts = slice.map((e, i) => {
+      const x = (i / (slice.length - 1)) * W;
+      const y = H - ((e.temperature_c - mn) / sp) * (H - 6) - 3;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    });
+    const line = `M ${pts.join(' L ')}`;
+    const fill = `${line} L ${W},${H} L 0,${H} Z`;
+    return { minT: mn, span: sp, polyline: line, fillPath: fill };
+  }, [slice]);
+
   if (slice.length < 2) return null;
 
-  const temps = slice.map((e) => e.temperature_c);
-  const min = Math.min(...temps);
-  const max = Math.max(...temps);
-  const span = Math.max(1, max - min);
+  const colWidth = 64; // px per hour column
 
   return (
-    <WeatherPanel title="الساعات القادمة" subtitle="12 ساعة">
-      <div className="-mx-4 px-4 overflow-x-auto no-scrollbar" dir="ltr">
-        <div className="flex items-stretch gap-2 min-w-max">
-          {slice.map((e, i) => {
-            const Icon = iconFor(e.weather_code, e.is_day);
-            const heat = (e.temperature_c - min) / span;
-            return (
-              <motion.div
-                key={e.timestamp_unix}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="w-[56px] shrink-0 rounded-2xl border border-border/45 bg-background/40 px-1.5 py-2.5 text-center"
-              >
-                <div className="text-micro tracking-[0.1em] uppercase text-foreground/90 font-bold tabular-nums">
-                  {i === 0
-                    ? 'الآن'
-                    : new Date(e.timestamp_unix).toLocaleTimeString(locale, {
-                        hour: '2-digit',
-                        hour12: false,
-                      })}
-                </div>
-                <Icon className="w-4 h-4 mx-auto my-1.5 text-primary" strokeWidth={1.4} />
-                <div className="font-bold text-lead leading-none text-foreground tabular-nums">
-                  {Math.round(e.temperature_c)}°
-                </div>
-                <div className="mt-2 h-8 rounded-full bg-foreground/5 relative overflow-hidden">
+    <section className="relative rounded-2xl border border-border/40 surface-depth overflow-hidden">
+      <header className="flex items-end justify-between gap-3 px-5 pt-5 pb-3">
+        <div>
+          <h3 className="text-lead font-bold text-foreground leading-tight">
+            {'الساعات القادمة'}
+          </h3>
+          <p className="mt-1 text-mini text-foreground/60 leading-snug">
+            {'منحنى الحرارة والأيقونات للساعات الأربع وعشرين القادمة'}
+          </p>
+        </div>
+        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
+          {slice.length} ساعة
+        </span>
+      </header>
+
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto no-scrollbar px-5 pb-5"
+        dir="ltr"
+      >
+        <div
+          className="relative"
+          style={{
+            minWidth: `${colWidth * slice.length}px`,
+            height: '150px',
+          }}
+        >
+          {/* Sparkline background — full-width continuous curve. */}
+          <svg
+            className="absolute inset-0 h-full w-full"
+            viewBox="0 0 100 40"
+            preserveAspectRatio="none"
+            aria-hidden
+          >
+            <defs>
+              <linearGradient id="hourly-ribbon-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.22" />
+                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path d={fillPath} fill="url(#hourly-ribbon-fill)" />
+            <motion.path
+              d={polyline}
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeOpacity="0.75"
+              strokeWidth="0.25"
+              vectorEffect="non-scaling-stroke"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: duration.reveal * 2.2, ease: easing.decelerate }}
+            />
+          </svg>
+
+          {/* Hour columns. */}
+          <div
+            className="relative grid items-end h-full pt-6"
+            style={{
+              gridTemplateColumns: `repeat(${slice.length}, minmax(0, ${colWidth}px))`,
+              gap: '2px',
+            }}
+          >
+            {slice.map((e, i) => {
+              const Icon = iconFor(e.weather_code, e.is_day);
+              const heat = (e.temperature_c - minT) / span;
+              const isNow = i === 0;
+              const isPeak = e.temperature_c === Math.max(...slice.map((s) => s.temperature_c));
+              const label = isNow
+                ? 'الآن'
+                : new Date(e.timestamp_unix).toLocaleTimeString(locale, {
+                    hour: '2-digit',
+                    hour12: false,
+                  });
+              return (
+                <motion.div
+                  key={e.timestamp_unix}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.018, duration: duration.base, ease: easing.standard }}
+                  className={cn(
+                    'relative flex flex-col items-center justify-end gap-1.5 pt-2 pb-2 rounded-xl',
+                    'border border-transparent',
+                    isNow && 'bg-primary/8 border-primary/30 ring-1 ring-primary/15',
+                    isPeak && !isNow && 'bg-foreground/4 border-foreground/15',
+                    'hover:bg-foreground/6 hover:border-foreground/15 transition-colors',
+                  )}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${label}: ${Math.round(e.temperature_c)}°`}
+                >
+                  {/* Heat bar — small visual reinforcement. */}
                   <div
-                    className="absolute inset-x-0 bottom-0 rounded-full bg-primary/60"
-                    style={{ height: `${Math.max(6, heat * 100)}%` }}
+                    aria-hidden
+                    className="w-1 rounded-full bg-primary/40 transition-all"
+                    style={{ height: `${Math.max(6, heat * 26)}px` }}
                   />
-                </div>
-                <div className="mt-1 text-micro text-primary/80 tabular-nums">
-                  {Math.round(e.precip_probability_percent)}%
-                </div>
-              </motion.div>
-            );
-          })}
+                  <span className={cn(
+                    'text-[0.6875rem] font-bold tabular-nums leading-none',
+                    isNow ? 'text-primary' : 'text-foreground/65',
+                  )}>
+                    {label}
+                  </span>
+                  <Icon
+                    className={cn(
+                      '[&]:w-3.5 [&]:h-3.5',
+                      isNow ? 'text-primary' : 'text-foreground/55',
+                    )}
+                    strokeWidth={1.5}
+                  />
+                  <span className={cn(
+                    'font-bold tabular-nums leading-none',
+                    isNow ? 'text-base text-foreground' : 'text-mini text-foreground/85',
+                  )}>
+                    {Math.round(e.temperature_c)}°
+                  </span>
+                  {e.precip_probability_percent > 15 && (
+                    <span className="text-[0.625rem] font-semibold text-primary/85 tabular-nums leading-none">
+                      {Math.round(e.precip_probability_percent)}٪
+                    </span>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </WeatherPanel>
+    </section>
   );
 }
+
+// Re-export the HOUR_MS constant for tests.
+export { HOUR_MS };

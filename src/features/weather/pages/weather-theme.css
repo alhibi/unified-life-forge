@@ -1,20 +1,37 @@
-/* Weather page — inherits the app's Neutral + Live Pulse identity.
-   Only adds bento layout helpers and a subtle ambient background.
-   No token overrides — the app's copper accent + surface-depth stay intact. */
+/* Weather page — single source of truth for the page chrome, micro-details,
+   and shared animations. The page's structural classes are utility-only;
+   any per-component look lives in the component itself.
+
+   What this file owns:
+   1. Page background — radial wash that gives the page a soft "sky" feel.
+   2. Reusable layout primitives — card-grid, section-stack, dividers.
+   3. Micro-detail utilities — accent line, eyebrow line, inner divider.
+   4. Focus ring, scrollbar, reduced-motion support.
+   5. A few legacy classes (panel-elevated, panel-accent) kept for older
+      components that still import WeatherPanel.
+*/
 
 .weather-theme {
-  background-color: hsl(var(--background));
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% 0%,
+      hsl(var(--primary) / 0.08),
+      transparent 60%
+    ),
+    hsl(var(--background));
 }
 
+/* Hide scrollbars for horizontal ribbons */
 .weather-theme .no-scrollbar::-webkit-scrollbar { display: none; }
 .weather-theme .no-scrollbar { scrollbar-width: none; }
 
-/* Enhanced tab bar styling */
+/* ── Tab bar — pill segmented control ──────────────────────────────── */
+
 .weather-theme .tab-bar {
-  background: hsl(var(--background) / 0.8);
+  background: hsl(var(--background) / 0.85);
   backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--border) / 0.3);
-  box-shadow: 
+  border: 1px solid hsl(var(--border) / 0.35);
+  box-shadow:
     0 1px 3px hsl(var(--foreground) / 0.04),
     0 8px 24px hsl(var(--foreground) / 0.03);
 }
@@ -33,34 +50,175 @@
   transition: opacity 0.2s ease;
 }
 
-.weather-theme .tab-btn:hover::before {
-  opacity: 1;
-}
+.weather-theme .tab-btn:hover::before { opacity: 1; }
 
 .weather-theme .tab-btn.active {
   background: hsl(var(--primary));
-  box-shadow: 
+  box-shadow:
     0 2px 8px hsl(var(--primary) / 0.25),
     0 1px 2px hsl(var(--primary) / 0.15);
 }
 
-.weather-theme .tab-btn.active::before {
-  opacity: 0;
+.weather-theme .tab-btn.active::before { opacity: 0; }
+.weather-theme .tab-btn.active .tab-icon { transform: scale(1.05); }
+.weather-theme .tab-btn .tab-icon { transition: transform 0.2s ease; }
+
+/* ── Card grids ────────────────────────────────────────────────────── */
+
+.weather-theme .card-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.weather-theme .tab-btn.active .tab-icon {
-  transform: scale(1.05);
+.weather-theme .card-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.weather-theme .tab-btn .tab-icon {
-  transition: transform 0.2s ease;
+.weather-theme .card-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.625rem;
 }
 
-/* Enhanced panel styling */
+@media (max-width: 768px) {
+  .weather-theme .card-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .weather-theme .card-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ── Section header + dividers ─────────────────────────────────────── */
+
+.weather-theme .section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.weather-theme .section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: hsl(var(--foreground));
+}
+
+.weather-theme .section-subtitle {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.024em;
+  text-transform: uppercase;
+  color: hsl(var(--foreground) / 0.6);
+  white-space: nowrap;
+}
+
+/* Accent line at the top of cards — gradient fade at both ends */
+.weather-theme .accent-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--border) / 0.3), transparent);
+  margin: 1rem 0;
+}
+
+.weather-theme .divider-subtle {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--border) / 0.3), transparent);
+  margin: 1rem 0;
+}
+
+.weather-theme .eyebrow-line {
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0));
+}
+
+.weather-theme .inner-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--border) / 0.35) 20%,
+    hsl(var(--border) / 0.35) 80%,
+    transparent
+  );
+  margin: 0.875rem 0;
+}
+
+/* ── Hero & panel chrome ───────────────────────────────────────────── */
+
+.weather-theme .freshness-banner {
+  border-radius: 0.875rem;
+  border-width: 1px;
+}
+
+.weather-theme .page-footer {
+  padding-top: 0.5rem;
+  padding-bottom: 1.5rem;
+  border-top: 1px solid hsl(var(--border) / 0.15);
+  margin-top: 2rem;
+}
+
+.weather-theme .hero-number {
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.04em;
+}
+
+/* ── Surface depth + tile hover ─────────────────────────────────────── */
+
+.weather-theme .surface-depth {
+  box-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.02) inset,
+    0 1px 3px hsl(var(--foreground) / 0.04),
+    0 4px 12px hsl(var(--foreground) / 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.weather-theme .tile-hover {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.weather-theme .tile-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.02) inset,
+    0 4px 16px hsl(var(--foreground) / 0.07),
+    0 2px 8px hsl(var(--foreground) / 0.04);
+}
+
+/* ── Segmented pill bar (sliding indicator) ────────────────────────── */
+
+.weather-theme .pill-bar {
+  position: relative;
+  display: grid;
+  padding: 0.375rem;
+  border-radius: 1rem;
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.35);
+  box-shadow:
+    0 1px 3px hsl(var(--foreground) / 0.04),
+    0 8px 24px hsl(var(--foreground) / 0.03);
+}
+
+.weather-theme .pill-bar [data-pill] {
+  position: absolute;
+  inset-block: 0.375rem;
+  border-radius: 0.75rem;
+  background: hsl(var(--primary));
+  box-shadow:
+    0 4px 14px hsl(var(--primary) / 0.30),
+    0 1px 2px hsl(var(--primary) / 0.20);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Panel variants (legacy) ────────────────────────────────────────── */
+
 .weather-theme .panel-elevated {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border) / 0.4);
-  box-shadow: 
+  box-shadow:
     0 1px 3px hsl(var(--foreground) / 0.04),
     0 4px 12px hsl(var(--foreground) / 0.03);
 }
@@ -75,198 +233,13 @@
   background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent);
 }
 
-/* Spacing utilities */
-.weather-theme .space-section { margin-bottom: 1.5rem; } /* 24px */
-.weather-theme .space-panel { margin-bottom: 1rem; } /* 16px */
-.weather-theme .space-element { margin-bottom: 0.75rem; } /* 12px */
+/* ── Page-level transitions ─────────────────────────────────────────── */
 
-/* Hero section enhancements */
-.weather-theme .hero-panel {
-  border-radius: 1.75rem; /* 28px */
-  overflow: hidden;
-  position: relative;
-}
-
-.weather-theme .hero-panel::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 120px;
-  background: linear-gradient(0deg, hsl(var(--card) / 0.9), transparent);
-  pointer-events: none;
-}
-
-/* Gauge tile refinements */
-.weather-theme .gauge-tile {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.weather-theme .gauge-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 4px 16px hsl(var(--foreground) / 0.06),
-    0 2px 8px hsl(var(--foreground) / 0.04);
-}
-
-/* Card grid refinements */
-.weather-theme .card-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem; /* 12px */
-}
-
-.weather-theme .card-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.weather-theme .card-grid-4 {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.625rem; /* 10px */
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .weather-theme .card-grid-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  
-  .weather-theme .card-grid-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Section header styling */
-.weather-theme .section-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.weather-theme .section-title {
-  font-size: 1rem; /* 16px */
-  font-weight: 600;
-  line-height: 1.25;
-  color: hsl(var(--foreground));
-}
-
-.weather-theme .section-subtitle {
-  font-size: 0.6875rem; /* 11px */
-  font-weight: 700;
-  letter-spacing: 0.024em;
-  text-transform: uppercase;
-  color: hsl(var(--foreground) / 0.6);
-  white-space: nowrap;
-}
-
-/* Divider */
-.weather-theme .divider-subtle {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(var(--border) / 0.3), transparent);
-  margin: 1rem 0;
-}
-
-/* Freshness banner */
-.weather-theme .freshness-banner {
-  border-radius: 0.875rem; /* 14px */
-  border-width: 1px;
-}
-
-/* Footer styling */
-.weather-theme .page-footer {
-  padding-top: 0.5rem;
-  padding-bottom: 1.5rem;
-  border-top: 1px solid hsl(var(--border) / 0.15);
-  margin-top: 2rem;
-}
-
-/* ── Refined typography & micro-details (Aug 2026) ─────────────────────── */
-
-/* Better text rendering for hero numbers */
-.weather-theme .hero-number {
-  font-feature-settings: "tnum" 1, "lnum" 1;
-  font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.04em;
-}
-
-/* Subtle inner glow used by cards with elevated variant */
-.weather-theme .surface-depth {
-  box-shadow:
-    0 1px 0 hsl(var(--foreground) / 0.02) inset,
-    0 1px 3px hsl(var(--foreground) / 0.04),
-    0 4px 12px hsl(var(--foreground) / 0.04);
-  transition: box-shadow 0.2s ease;
-}
-
-/* Hover lift for tile-style cards */
-.weather-theme .tile-hover {
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-.weather-theme .tile-hover:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 hsl(var(--foreground) / 0.02) inset,
-    0 4px 16px hsl(var(--foreground) / 0.07),
-    0 2px 8px hsl(var(--foreground) / 0.04);
-}
-
-/* Sliding pill backdrop for segmented controls */
-.weather-theme .pill-bar {
-  position: relative;
-  display: grid;
-  padding: 0.375rem;
-  border-radius: 1rem;
-  background: hsl(var(--background) / 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid hsl(var(--border) / 0.35);
-  box-shadow:
-    0 1px 3px hsl(var(--foreground) / 0.04),
-    0 8px 24px hsl(var(--foreground) / 0.03);
-}
-
-/* Active pill animation target */
-.weather-theme .pill-bar [data-pill] {
-  position: absolute;
-  inset-block: 0.375rem;
-  border-radius: 0.75rem;
-  background: hsl(var(--primary));
-  box-shadow:
-    0 4px 14px hsl(var(--primary) / 0.30),
-    0 1px 2px hsl(var(--primary) / 0.20);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Section eyebrow line gradient */
-.weather-theme .eyebrow-line {
-  height: 2px;
-  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0));
-}
-
-/* Subtle inner divider line used inside cards */
-.weather-theme .inner-divider {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    hsl(var(--border) / 0.35) 20%,
-    hsl(var(--border) / 0.35) 80%,
-    transparent
-  );
-  margin: 0.875rem 0;
-}
-
-/* Tab transitions — slightly slower & more deliberate than the default. */
 .weather-theme .tab-pane-enter {
   opacity: 0;
   transform: translateY(12px);
 }
+
 .weather-theme .tab-pane-active {
   opacity: 1;
   transform: translateY(0);
@@ -275,7 +248,8 @@
     transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Better focus ring across the whole feature */
+/* ── Focus ring (page-wide) ─────────────────────────────────────────── */
+
 .weather-theme :focus-visible {
   outline: none;
   box-shadow:
@@ -284,18 +258,8 @@
   border-radius: 0.625rem;
 }
 
-/* Page chrome — the body background gives a subtle wash. */
-.weather-theme {
-  background:
-    radial-gradient(
-      ellipse 80% 50% at 50% 0%,
-      hsl(var(--primary) / 0.06),
-      transparent 60%
-    ),
-    hsl(var(--background));
-}
+/* ── Reduced motion ─────────────────────────────────────────────────── */
 
-/* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .weather-theme .surface-depth,
   .weather-theme .tile-hover,

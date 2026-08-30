@@ -1,26 +1,19 @@
+import { motion } from 'framer-motion';
 import { type ReactNode } from 'react';
 
 /**
- * WeatherPanel — Standardized panel component for weather feature
- * Provides consistent styling, header, and content spacing
- * Follows Zen Elite design system (no hardcoded colors)
+ * WeatherPanel — Standardized panel component for weather feature.
+ * Backed by UnifiedCard (section variant). Kept for backward compatibility
+ * with the older components — new code should reach for UnifiedCard directly.
  */
 export interface WeatherPanelProps {
-  /** Main panel title */
   title?: string;
-  /** Subtitle/description (shown next to title) */
   subtitle?: string;
-  /** Optional action element (button, link, etc.) in header */
   action?: ReactNode;
-  /** Panel children */
   children: ReactNode;
-  /** Additional className for panel wrapper */
   className?: string;
-  /** Whether to show the top accent line */
   accentLine?: boolean;
-  /** Padding variant */
   padding?: 'default' | 'compact' | 'none';
-  /** Whether to use elevated surface depth */
   elevated?: boolean;
 }
 
@@ -34,40 +27,32 @@ export function WeatherPanel({
   padding = 'default',
   elevated = true,
 }: WeatherPanelProps) {
-  const paddingClasses = {
+  const paddingClasses: Record<'default' | 'compact' | 'none', string> = {
     default: 'p-4',
     compact: 'px-4 py-3',
     none: '',
   };
 
-  const headerPaddingClasses = {
-    default: 'px-4 pt-4 pb-3',
-    compact: 'px-4 py-2.5',
-    none: '',
-  };
-
   return (
-    <section
-      className={`relative rounded-2xl ${elevated ? 'surface-depth' : 'bg-card'} overflow-hidden border border-border/40 ${className}`}
-    >
+    <section className={`relative rounded-2xl ${elevated ? 'surface-depth' : 'bg-card/60'} overflow-hidden border border-border/40 ${className}`}>
       {accentLine && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
         />
       )}
       {(title || subtitle || action) && (
-        <header className={`flex items-end justify-between gap-3 ${headerPaddingClasses[padding]}`}>
-          <div className="flex items-end gap-3 min-w-0">
+        <header className="flex items-end justify-between gap-3 px-5 pt-5 pb-2">
+          <div className="min-w-0 flex-1">
             {title && (
-              <h2 className="font-semibold text-lead leading-none text-foreground truncate">
+              <h2 className="font-bold text-lead leading-tight text-foreground truncate">
                 {title}
               </h2>
             )}
             {subtitle && (
-              <span className="text-micro tracking-[0.15em] uppercase text-foreground/90 font-bold tabular-nums text-end whitespace-nowrap shrink-0">
+              <p className="mt-1 text-mini text-foreground/65 leading-snug">
                 {subtitle}
-              </span>
+              </p>
             )}
           </div>
           {action && <div className="shrink-0">{action}</div>}
@@ -79,8 +64,8 @@ export function WeatherPanel({
 }
 
 /**
- * WeatherSection — Lightweight section without panel chrome
- * For grouping related content with consistent spacing
+ * WeatherSection — Lightweight section with header.
+ * Used to group related content without card chrome.
  */
 export interface WeatherSectionProps {
   title?: string;
@@ -99,8 +84,8 @@ export function WeatherSection({
 }: WeatherSectionProps) {
   const gapClasses = {
     sm: 'space-y-3',
-    md: 'space-y-5',
-    lg: 'space-y-7',
+    md: 'space-y-4',
+    lg: 'space-y-6',
   };
 
   return (
@@ -108,12 +93,12 @@ export function WeatherSection({
       {(title || subtitle) && (
         <header className="flex items-end justify-between gap-3">
           {title && (
-            <h3 className="font-medium text-base leading-none text-foreground">
+            <h3 className="font-bold text-lead leading-tight text-foreground">
               {title}
             </h3>
           )}
           {subtitle && (
-            <span className="text-micro tracking-[0.12em] uppercase text-muted-foreground font-medium tabular-nums">
+            <span className="text-[0.625rem] tracking-[0.18em] uppercase text-foreground/55 font-bold tabular-nums">
               {subtitle}
             </span>
           )}
@@ -125,8 +110,8 @@ export function WeatherSection({
 }
 
 /**
- * Metric — Standardized metric display for weather data
- * Replaces inline Metric components with consistent styling
+ * Metric — Standardized metric display for weather data.
+ * Inline label + value + hint, with optional trend chip.
  */
 export interface MetricProps {
   label: string;
@@ -151,51 +136,49 @@ export function Metric({
   className = '',
   size = 'md',
 }: MetricProps) {
-  const sizeClasses = {
-    sm: 'text-micro gap-1',
-    md: 'text-lead gap-1.5',
-    lg: 'text-display gap-2',
-  };
-
-  const labelSizeClasses = {
-    sm: 'text-micro tracking-[0.1em]',
-    md: 'text-micro tracking-[0.12em]',
-    lg: 'text-mini tracking-[0.15em]',
+  const valueSizeClasses = {
+    sm: 'text-meta',
+    md: 'text-lead',
+    lg: 'text-title',
   };
 
   return (
     <div className={`min-w-0 ${className}`}>
-      <div className={`flex items-center gap-1.5 ${labelSizeClasses[size]} uppercase text-foreground/90 font-semibold truncate`}>
+      <div className="flex items-center gap-1.5 text-[0.625rem] tracking-[0.18em] uppercase text-foreground/60 font-bold truncate">
         {icon && (
-          <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">
+          <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-primary shrink-0">
             {icon}
           </span>
         )}
         <span className="truncate">{label}</span>
         {trend && trendValue && (
           <span
-            className={`shrink-0 text-micro font-bold ${
-              trend === 'up' ? 'text-emerald' : trend === 'down' ? 'text-rose' : 'text-muted-foreground'
+            className={`shrink-0 text-[0.625rem] font-bold tabular-nums ${
+              trend === 'up' ? 'text-emerald-600 dark:text-emerald-400'
+                : trend === 'down' ? 'text-rose-600 dark:text-rose-400'
+                : 'text-muted-foreground'
             }`}
           >
             {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
           </span>
         )}
       </div>
-      <div className={`mt-1 flex items-baseline gap-1 tabular-nums ${sizeClasses[size]}`} dir="ltr">
+      <div className={`mt-1 flex items-baseline gap-1 tabular-nums ${valueSizeClasses[size]}`} dir="ltr">
         <span className="font-bold text-foreground">{value}</span>
-        {unit && <span className="text-primary/90 font-bold">{unit}</span>}
+        {unit && <span className="text-mini text-primary/85 font-bold">{unit}</span>}
       </div>
       {hint && (
-        <p className="mt-0.5 text-micro text-foreground/80 font-medium truncate">{hint}</p>
+        <p className="mt-1 text-mini text-foreground/65 font-medium truncate">{hint}</p>
       )}
     </div>
   );
 }
 
 /**
- * GaugeTile — Circular gauge with animated progress
- * For percentage-based metrics (UV, humidity, cloud cover, etc.)
+ * GaugeTile — Circular gauge with animated progress.
+ * For percentage-based metrics (UV, humidity, cloud cover, etc.).
+ *
+ * New design: gradient stroke, larger dial, better typographic hierarchy.
  */
 export interface GaugeTileProps {
   label: string;
@@ -217,48 +200,65 @@ export function GaugeTile({
   className = '',
 }: GaugeTileProps) {
   const clamped = Math.max(0, Math.min(1, pctValue));
-  const circumference = 2 * Math.PI * 33;
+  const radius = 36;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - clamped);
 
   return (
-    <div className={`rounded-2xl surface-depth p-3.5 min-w-0 h-full ${className}`}>
-      <div className="flex items-center justify-between gap-2 text-foreground/90 font-semibold">
-        <span className="text-micro tracking-[0.12em] uppercase truncate">{label}</span>
+    <div className={`group relative rounded-2xl border border-border/40 surface-depth overflow-hidden p-4 min-w-0 h-full transition-all hover:-translate-y-0.5 hover:border-border/70 ${className}`}>
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="flex items-center justify-between gap-2 mb-2.5">
+        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/65 truncate">
+          {label}
+        </span>
         {icon && (
-          <span className="[&>svg]:w-4 [&>svg]:h-4 [&>svg]:text-primary shrink-0">{icon}</span>
+          <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-primary/70 shrink-0 transition-colors group-hover:text-primary">
+            {icon}
+          </span>
         )}
       </div>
-      <div className="mt-2 flex items-center gap-2">
-        <svg viewBox="0 0 80 80" className="w-14 h-14 shrink-0 -rotate-90">
+      <div className="flex items-center gap-3">
+        <svg viewBox="0 0 88 88" className="w-16 h-16 shrink-0 -rotate-90">
+          <defs>
+            <linearGradient id={`gauge-tile-grad-${label}`} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="1" />
+            </linearGradient>
+          </defs>
           <circle
-            cx="40"
-            cy="40"
-            r="33"
+            cx="44"
+            cy="44"
+            r={radius}
             fill="none"
-            stroke="hsl(var(--foreground))"
-            strokeOpacity="0.09"
-            strokeWidth="7"
+            stroke="hsl(var(--foreground) / 0.10)"
+            strokeWidth="6"
           />
-          <circle
-            cx="40"
-            cy="40"
-            r="33"
+          <motion.circle
+            cx="44"
+            cy="44"
+            r={radius}
             fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="7"
+            stroke={`url(#gauge-tile-grad-${label})`}
+            strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - clamped)}
-            style={{
-              transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           />
         </svg>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1 tabular-nums" dir="ltr">
-            <span className="font-bold text-display leading-none text-foreground">{value}</span>
-            {unit && <span className="text-micro text-primary/90 font-bold">{unit}</span>}
+            <span className="font-bold text-[1.75rem] leading-none text-foreground tracking-tight">
+              {value}
+            </span>
+            {unit && <span className="text-mini font-bold text-primary/75">{unit}</span>}
           </div>
-          {hint && <p className="mt-1 text-micro text-foreground/80 font-medium truncate">{hint}</p>}
+          {hint && (
+            <p className="mt-1.5 text-mini text-foreground/65 font-medium truncate">
+              {hint}
+            </p>
+          )}
         </div>
       </div>
     </div>

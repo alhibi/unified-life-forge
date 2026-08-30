@@ -1,27 +1,20 @@
-/**
- * EnsembleTrustPanel — makes the hybrid forecast auditable.
- *
- * The app queries up to six atmospheric models and blends them; the user has no
- * way to know that, nor how much the models disagreed, nor which one was thrown
- * out as an outlier. This panel states all of it plainly:
- *
- *   • how many sources answered, out of how many were asked,
- *   • how tightly they agreed (and what that means in plain Arabic),
- *   • which models formed the consensus and which were rejected,
- *   • the barometric tendency, with an explicit "still measuring" state
- *     instead of a fabricated "steady".
- *
- * A forecast UI that shows a single number with no provenance is asking to be
- * trusted blindly. This is the opposite of that.
- */
+// ============================================================================
+// EnsembleTrustPanel — the audit trail of the ensemble: how many sources
+// answered, how tightly they agreed, the barometric tendency, and which
+// models formed the consensus vs. which were rejected as outliers.
+//
+// New design unifies the previous header / dl / source-list into one
+// clean section card with gradient accents.
+// ============================================================================
+
+import { motion } from 'framer-motion';
 import { memo } from 'react';
 
-import { AppCard } from '@/components/ui/app-shell';
-import { Gauge, TrendingDown, TrendingUp } from '@/lib/icons';
+import { Gauge, TrendingDown, TrendingUp, Users } from '@/lib/icons';
 
 import { confidenceLabel } from '../lib/vocabulary';
-import type { SourceId } from '../types/SourceRegistry';
-import { SOURCE_REGISTRY } from '../types/SourceRegistry';
+import { duration, easing } from '../lib/weather-motion';
+import { SOURCE_REGISTRY, type SourceId } from '../types/SourceRegistry';
 import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 
 interface Props {
@@ -39,8 +32,6 @@ function sourceLabel(id: string): string {
 function EnsembleTrustPanelImpl({ snapshot }: Props) {
   const { meta, pressure } = snapshot;
   const confidence = Math.max(0, Math.min(100, meta.ensemble_confidence_percent));
-  // `models_*` are plain strings on the snapshot (they cross the cache
-  // boundary), so narrow through the registry rather than casting blindly.
   const isAtmospheric = (id: string) => sourceMeta(id)?.domain === 'atmosphere';
   const agreed = meta.models_in_agreement.filter(isAtmospheric);
   const outliers = meta.models_outlier.filter(isAtmospheric);
@@ -50,88 +41,107 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
   const TendencyIcon = falling ? TrendingDown : TrendingUp;
 
   return (
-    <AppCard as="section" aria-label="موثوقية التوقع">
-      <header className="flex items-baseline justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-title font-semibold text-foreground">
-          <Gauge className="h-5 w-5 text-muted-foreground" aria-hidden />
-          موثوقية التوقع
-        </h2>
-        <p className="text-mini tabular-nums text-muted-foreground" dir="ltr">
-          {meta.sources_responded}/{meta.sources_queried}
-        </p>
+    <section className="rounded-2xl border border-border/40 surface-depth overflow-hidden">
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      <header className="px-6 pt-6 pb-3 flex items-end justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 font-bold text-lead leading-tight text-foreground">
+            <Gauge className="w-5 h-5 text-primary" aria-hidden />
+            {'موثوقية الإجماع'}
+          </h2>
+          <p className="mt-1 text-mini text-foreground/65 leading-snug">
+            {'كيف اتفقت النماذج، وأيها استُبعد كشاذ'}
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55">
+          <Users className="w-3 h-3" aria-hidden />
+          <span dir="ltr" className="tabular-nums">
+            {meta.sources_responded}/{meta.sources_queried}
+          </span>
+        </span>
       </header>
 
-      {/* Confidence meter. Animated with scaleX, not width: animating width
-          forces layout on every frame (design-system §8). */}
-      <div className="mt-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="text-meta text-muted-foreground">{confidenceLabel(confidence)}</span>
-          <span className="text-title font-semibold tabular-nums text-foreground" dir="ltr">
-            {confidence}%
-          </span>
+      <div className="px-6 pb-6 space-y-5">
+        {/* Confidence meter */}
+        <div>
+          <div className="flex items-baseline justify-between gap-3 mb-2">
+            <span className="text-mini text-foreground/65 font-medium">{confidenceLabel(confidence)}</span>
+            <span className="text-title font-extralight tracking-tight tabular-nums text-foreground" dir="ltr">
+              {confidence}
+              <span className="ms-1 text-mini font-bold text-foreground/55">٪</span>
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
+            <motion.div
+              className="h-full origin-left rounded-full bg-gradient-to-r from-primary/60 via-primary to-primary"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: confidence / 100 }}
+              transition={{ duration: duration.reveal * 2.5, ease: easing.decelerate }}
+            />
+          </div>
         </div>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" dir="ltr">
-          <div
-            className="h-full origin-left rounded-full bg-primary transition-transform duration-slow ease-out-expo"
-            style={{ transform: `scaleX(${confidence / 100})`, width: '100%' }}
-            role="progressbar"
-            aria-valuenow={confidence}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="ثقة الإجماع بين النماذج"
-          />
+
+        {/* Disagreement + tendency */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl bg-background/40 border border-foreground/10 px-4 py-3">
+            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-1.5">
+              {'تباعد النماذج'}
+            </p>
+            <p className="text-lead font-extralight text-foreground tabular-nums leading-none" dir="ltr">
+              {meta.disagreement_score_percent}
+              <span className="ms-1 text-[0.625rem] font-bold text-foreground/55">٪</span>
+            </p>
+            <p className="mt-1 text-[0.625rem] text-foreground/55 leading-snug">
+              {'كلما قل الرقم، زاد الاتفاق'}
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-background/40 border border-foreground/10 px-4 py-3">
+            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-1.5">
+              {'اتجاه الضغط'}
+            </p>
+            <p className="flex items-center gap-1.5 text-meta font-bold text-foreground leading-tight">
+              {(rising || falling) && <TendencyIcon className="w-4 h-4 shrink-0 text-primary" aria-hidden />}
+              <span className="min-w-0 truncate">{pressure.tendency_label}</span>
+            </p>
+            {pressure.tendency_hpa_per_3hr !== 0 && (
+              <p className="mt-1 text-[0.625rem] text-foreground/55 tabular-nums leading-tight" dir="ltr">
+                {pressure.tendency_hpa_per_3hr > 0 ? '+' : ''}
+                {pressure.tendency_hpa_per_3hr} hPa / 3h
+              </p>
+            )}
+          </div>
         </div>
+
+        {/* Contributor chips */}
+        {agreed.length > 0 && (
+          <div>
+            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-2.5">
+              {'النماذج المساهمة'}
+            </p>
+            <ul className="flex flex-wrap gap-1.5">
+              {agreed.map((id) => (
+                <li
+                  key={id}
+                  className="rounded-md bg-primary/10 border border-primary/25 px-2.5 py-1 text-mini font-bold text-foreground"
+                >
+                  {sourceLabel(id)}
+                </li>
+              ))}
+              {outliers.map((id) => (
+                <li
+                  key={id}
+                  title="استُبعد كقيمة شاذة في هذا التحديث"
+                  className="rounded-md bg-background/40 border border-dashed border-foreground/25 px-2.5 py-1 text-mini font-medium text-foreground/50 line-through"
+                >
+                  {sourceLabel(id)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-
-      <dl className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-md border border-border p-3">
-          <dt className="text-micro uppercase tracking-[0.14em] text-muted-foreground">تباعد النماذج</dt>
-          <dd className="mt-1 text-body font-semibold tabular-nums text-foreground" dir="ltr">
-            {meta.disagreement_score_percent}%
-          </dd>
-        </div>
-        <div className="rounded-md border border-border p-3">
-          <dt className="text-micro uppercase tracking-[0.14em] text-muted-foreground">اتجاه الضغط</dt>
-          <dd className="mt-1 flex items-center gap-1.5 text-meta font-semibold text-foreground">
-            {(rising || falling) && <TendencyIcon className="h-4 w-4 shrink-0" aria-hidden />}
-            <span className="min-w-0 truncate">{pressure.tendency_label}</span>
-          </dd>
-          {pressure.tendency_hpa_per_3hr !== 0 && (
-            <dd className="mt-0.5 text-mini tabular-nums text-muted-foreground" dir="ltr">
-              {pressure.tendency_hpa_per_3hr > 0 ? '+' : ''}
-              {pressure.tendency_hpa_per_3hr} hPa / 3h
-            </dd>
-          )}
-        </div>
-      </dl>
-
-      {agreed.length > 0 && (
-        <div className="mt-4">
-          <p className="app-section-label mb-2">النماذج المساهمة</p>
-          <ul className="flex flex-wrap gap-1.5">
-            {agreed.map((id) => (
-              <li
-                key={id}
-                className="rounded-sm border border-border px-2 py-1 text-micro font-medium text-foreground"
-              >
-                {sourceLabel(id)}
-              </li>
-            ))}
-            {outliers.map((id) => (
-              <li
-                key={id}
-                // Rejected by the Grubbs test for this refresh — shown, not
-                // hidden, so a systematically odd model is visible to the user.
-                className="rounded-sm border border-dashed border-border px-2 py-1 text-micro font-medium text-muted-foreground line-through"
-                title="استُبعد كقيمة شاذة في هذا التحديث"
-              >
-                {sourceLabel(id)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </AppCard>
+    </section>
   );
 }
 
