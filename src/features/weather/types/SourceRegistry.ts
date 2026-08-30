@@ -8,7 +8,7 @@ import type { PartialSnapshot } from './WeatherSnapshot';
 export type SourceId =
   | 'open-meteo' | 'met-norway' | 'noaa' | 'tomorrow' | 'openweathermap'
   | 'weatherbit' | 'waqi' | 'stormglass' | 'rainviewer' | 'openuv'
-  | 'sunrise-sunset' | 'visual-crossing';
+  | 'sunrise-sunset' | 'visual-crossing' | 'pws-network';
 
 export type CircuitState = 'closed' | 'open' | 'half_open';
 
@@ -64,6 +64,7 @@ export const SOURCE_REGISTRY: Record<SourceId, SourceMeta> = {
   'openuv':          { id: 'openuv',          label: 'OpenUV',            weight: 1.00, requiresApiKey: KEY,   apiKeyEnv: 'VITE_OPENUV_API_KEY',                                                     domain: 'uv',           homepage: 'https://openuv.io', freeTierNotes: '50 calls/day',                       timeoutMs: 4000, retryMax: 2 },
   'sunrise-sunset':  { id: 'sunrise-sunset',  label: 'SunCalc (local)',   weight: 1.00, requiresApiKey: NO_KEY,                                                                                      domain: 'astronomy',    homepage: 'https://github.com/mourner/suncalc',          timeoutMs: 1000, retryMax: 1 },
   'visual-crossing': { id: 'visual-crossing', label: 'Visual Crossing',   weight: 0.00, requiresApiKey: KEY,   apiKeyEnv: 'VITE_VISUAL_CROSSING_API_KEY',                                            domain: 'historical',   homepage: 'https://weather.visualcrossing.com', freeTierNotes: '1000 calls/day, historical only', timeoutMs: 6000, retryMax: 2 },
+  'pws-network':     { id: 'pws-network',     label: 'PWS Network (aggregate)', weight: 0.18, requiresApiKey: NO_KEY,                                                                                  domain: 'atmosphere',   homepage: 'https://github.com/unified-life-forge/weather-pws',                          freeTierNotes: 'Aggregates registered PWS providers',                  timeoutMs: 4000, retryMax: 1 },
 };
 
 export const ALL_SOURCE_IDS = Object.keys(SOURCE_REGISTRY) as SourceId[];
