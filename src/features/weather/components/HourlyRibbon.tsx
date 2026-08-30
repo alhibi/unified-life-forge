@@ -119,13 +119,30 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
           </svg>
 
           {/* Hour columns. */}
-          <div
+          <motion.div
+            key={`columns-${slice[slice.length - 1]?.timestamp_unix ?? 'static'}`}
             className="relative grid items-end h-full pt-6"
             style={{
               gridTemplateColumns: `repeat(${slice.length}, minmax(0, ${colWidth}px))`,
               gap: '2px',
             }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: duration.layout, ease: easing.expo }}
           >
+            {/* Sweeping highlight overlay — moves left-to-right once on mount. */}
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-2 start-0 rounded-full"
+              style={{
+                width: `${(100 / slice.length) * 1.5}%`,
+                background:
+                  'linear-gradient(90deg, transparent, hsl(var(--primary) / 0.18), transparent)',
+              }}
+              initial={{ left: '-5%' }}
+              animate={{ left: '105%' }}
+              transition={{ duration: duration.cinematic * 1.2, ease: easing.cinematic }}
+            />
             {slice.map((e, i) => {
               const Icon = iconFor(e.weather_code, e.is_day);
               const heat = (e.temperature_c - minT) / span;
@@ -140,9 +157,9 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
               return (
                 <motion.div
                   key={e.timestamp_unix}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.018, duration: duration.base, ease: easing.standard }}
+                  initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: i * 0.022, duration: duration.reveal, ease: easing.expo }}
                   className={cn(
                     'relative flex flex-col items-center justify-end gap-1.5 pt-2 pb-2 rounded-xl',
                     'border border-transparent',
@@ -187,7 +204,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

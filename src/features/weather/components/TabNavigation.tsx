@@ -24,7 +24,7 @@ import { type ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { duration, easing } from '../lib/weather-motion';
+import { duration, easing, pillSlideTransition, motionPresets } from '../lib/weather-motion';
 
 export interface TabDef {
   id: string;
@@ -71,7 +71,7 @@ export function TabNavigation<T extends string>({
             left: `${(activeIndex * 100) / tabs.length}%`,
             width: `${100 / tabs.length}%`,
           }}
-          transition={{ duration: duration.reveal, ease: easing.standard }}
+          transition={pillSlideTransition}
         />
 
         {tabs.map((tab) => {
@@ -94,7 +94,16 @@ export function TabNavigation<T extends string>({
               )}
             >
               <span className="flex items-center gap-1.5">
-                <span className="[&>svg]:w-4 [&>svg]:h-4">{tab.icon}</span>
+                <motion.span
+                  className="[&>svg]:w-4 [&>svg]:h-4"
+                  animate={{
+                    scale: active ? 1.12 : 1,
+                    y: active ? -1 : 0,
+                  }}
+                  transition={{ duration: duration.base, ease: easing.expo }}
+                >
+                  {tab.icon}
+                </motion.span>
                 <span className="text-mini font-bold whitespace-nowrap">{tab.label}</span>
               </span>
               <span

@@ -1,5 +1,5 @@
 // ============================================================================
-// GaugeTileRefined — refined version of the bento tile.
+// GaugeTileRefined — refined version of the bento tile with magnetic hover.
 //
 // VISUAL TWEAKS vs GaugeTile
 //   • Title gets more breathing room and a clearer hierarchy:
@@ -7,8 +7,8 @@
 //   • Gauge ring has a wider, softer track and a brighter, longer arc.
 //   • Container uses the new UnifiedCard variant=tile — same shadow +
 //     rounded corners as every other tile in the feature.
-//   • Hover lifts the tile by 2px and brightens the border. Subtle, but
-//     it's the micro-detail that makes the page feel alive.
+//   • MagneticCard wrapper — subtle pointer-following tilt + glow halo.
+//     The card lifts 2px and tilts up to 1.5° toward the cursor.
 // ============================================================================
 
 import { motion } from 'framer-motion';
@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 import { duration, easing } from '../lib/weather-motion';
+import { MagneticCard } from './MagneticCard';
 
 export interface GaugeTileRefinedProps {
   label: string;
@@ -44,13 +45,13 @@ export function GaugeTileRefined({
   const offset = CIRCUMFERENCE * (1 - clamped);
 
   return (
-    <div
+    <MagneticCard
       className={cn(
-        'group relative rounded-2xl border border-border/40 surface-depth overflow-hidden',
-        'p-4 min-w-0 h-full',
-        'transition-all hover:-translate-y-0.5 hover:border-border/70',
+        'group relative rounded-2xl border border-border/40 surface-depth overflow-hidden p-4 min-w-0 h-full',
         className,
       )}
+      maxTilt={1.5}
+      liftPx={2}
     >
       <span
         aria-hidden
@@ -81,8 +82,7 @@ export function GaugeTileRefined({
             cy="44"
             r={RADIUS}
             fill="none"
-            stroke="hsl(var(--foreground))"
-            strokeOpacity="0.08"
+            stroke="hsl(var(--foreground) / 0.08)"
             strokeWidth="6"
           />
           <motion.circle
@@ -116,6 +116,6 @@ export function GaugeTileRefined({
           )}
         </div>
       </div>
-    </div>
+    </MagneticCard>
   );
 }

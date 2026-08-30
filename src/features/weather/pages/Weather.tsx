@@ -105,6 +105,7 @@ import {
   duration,
   easing,
   motionPresets,
+  tabContentVariants,
 } from '../lib/weather-motion';
 
 type TabId = 'core' | 'forecast' | 'radar' | 'lab';
@@ -319,10 +320,10 @@ export default function Weather() {
             {activeMainTab === 'core' && (
               <motion.div
                 key="core"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: duration.reveal, ease: easing.standard }}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
               >
                 <TabPane>
                   <Section
@@ -423,10 +424,10 @@ export default function Weather() {
             {activeMainTab === 'forecast' && (
               <motion.div
                 key="forecast"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: duration.reveal, ease: easing.standard }}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
               >
                 <TabPane>
                   <Section eyebrow={'الخريطة'} title={'موقعك الدقيق'}>
@@ -456,10 +457,10 @@ export default function Weather() {
             {activeMainTab === 'radar' && (
               <motion.div
                 key="radar"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: duration.reveal, ease: easing.standard }}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
               >
                 <TabPane>
                   <Section eyebrow={'اتجاه وسرعة'} title={'بوصلة الرياح'}>
@@ -494,10 +495,10 @@ export default function Weather() {
             {activeMainTab === 'lab' && (
               <motion.div
                 key="lab"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: duration.reveal, ease: easing.standard }}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
               >
                 <TabPane>
                   <Section eyebrow={'نصائح'} title={'المخطط الطبي للأنشطة'}>

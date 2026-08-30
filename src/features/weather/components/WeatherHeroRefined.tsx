@@ -31,10 +31,11 @@ import { cn } from '@/lib/utils';
 
 import { describeWeatherCode, labelForWeatherCode } from '../lib/conditions';
 import { comfortLabel } from '../lib/vocabulary';
-import { duration, easing, heroSpringTransition } from '../lib/weather-motion';
+import { duration, easing, heroRevealTransition, iconPulseTransition, motionPresets } from '../lib/weather-motion';
 import type { HourlyEntry } from '../types/ForecastLayer';
 import type { WeatherSnapshot } from '../types/WeatherSnapshot';
 import { CardEyebrow } from './UnifiedCard';
+import { CountUpNumber } from './CountUpNumber';
 import { WeatherScene } from './WeatherScene';
 
 /** Single micro-metric tile used in the tertiary tier. */
@@ -100,18 +101,14 @@ function PrimaryTemperature({ celsius }: { celsius: number }) {
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={heroSpringTransition}
+      transition={heroRevealTransition}
       className="flex items-baseline gap-1 leading-[0.78]"
       dir="ltr"
     >
-      <span
-        className={cn(
-          'font-extralight tracking-[-0.045em] text-foreground tabular-nums',
-          'text-[clamp(4.5rem,12vw,7.5rem)]',
-        )}
-      >
-        {Math.round(celsius)}
-      </span>
+      <CountUpNumber
+        value={celsius}
+        className="font-extralight tracking-[-0.045em] text-foreground tabular-nums text-[clamp(4.5rem,12vw,7.5rem)]"
+      />
       <span className="text-[clamp(2.25rem,6vw,3.25rem)] font-extralight text-primary/85 -translate-y-3">
         °
       </span>
@@ -130,7 +127,7 @@ function AtmosphericIcon({
     <motion.div
       initial={{ opacity: 0, scale: 0.6 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 180, damping: 16 }}
+      transition={{ duration: duration.reveal, ease: easing.expo }}
       className="relative w-24 h-24 sm:w-28 sm:h-28 grid place-items-center"
     >
       {/* Outer glow ring */}
@@ -146,7 +143,12 @@ function AtmosphericIcon({
         aria-hidden
         className="absolute inset-1 rounded-full border border-foreground/12"
       />
-      <Icon className="relative w-20 h-20 sm:w-24 sm:h-24 text-primary" strokeWidth={1.05} />
+      <motion.div
+        transition={iconPulseTransition}
+        animate={{ scale: [1, 1.05, 1], opacity: [1, 0.92, 1] }}
+      >
+        <Icon className="relative w-20 h-20 sm:w-24 sm:h-24 text-primary" strokeWidth={1.05} />
+      </motion.div>
     </motion.div>
   );
 }
