@@ -1,10 +1,13 @@
 // Abstract base for every data source.
 // Concrete adapters implement `fetchPartial()` and `fetchForecast()` where
 // applicable. The engine never instantiates adapters directly — it calls
-// `runAdapter()` which wraps the call with timeout + circuit-breaker check.
+// `runAdapter()` which wraps the call with retry + circuit-breaker.
 
+import { executeWithResilience } from '../engine/ResilienceStrategy';
+import { DEFAULT_RETRY_POLICY } from '../engine/RetryPolicy';
 import type { ForecastLayers } from '../types/ForecastLayer';
 import type { AdapterResponse, SourceId, SourceMeta } from '../types/SourceRegistry';
+import { SOURCE_REGISTRY } from '../types/SourceRegistry';
 import type { PartialSnapshot } from '../types/WeatherSnapshot';
 
 export interface AdapterContext {
@@ -29,45 +32,43 @@ export abstract class BaseAdapter {
   async ping(): Promise<boolean> { return true; }
 }
 
-const DEFAULT_TIMEOUT_MS = 5000;
-
-/** Wrap an adapter call with a hard timeout and structured error capture. */
+/**
+ * Run an adapter through the resilience layer. The resilience layer applies:
+ *   • per-source timeout (from SOURCE_REGISTRY.timeoutMs, default 5000 ms)
+ *   • exponential-backoff retry (from SOURCE_REGISTRY.retryMax, default 2)
+ *   • circuit-breaker gating (state persisted to localStorage)
+ *
+ * The caller always gets back a single AdapterResponse whose `ok`/`error`
+ * reflect the final outcome after all retries. The engine no longer needs
+ * to know about retry counts.
+ */
 export async function runAdapter(
   adapter: BaseAdapter,
   ctx: AdapterContext,
-  timeoutMs = DEFAULT_TIMEOUT_MS,
 ): Promise<AdapterResponse> {
-  const started = performance.now();
-  const ac = new AbortController();
-  const timer = setTimeout(() => ac.abort(new Error('adapter timeout')), timeoutMs);
-  try {
-    const [snapshot, forecast] = await Promise.all([
-      adapter.fetchPartial({ ...ctx, signal: ac.signal }),
-      adapter.fetchForecast({ ...ctx, signal: ac.signal }),
-    ]);
-    return {
-      sourceId: adapter.id,
-      ok: true,
-      durationMs: Math.round(performance.now() - started),
-      snapshot,
-      forecast,
-    };
-  } catch (e) {
-    return {
-      sourceId: adapter.id,
-      ok: false,
-      durationMs: Math.round(performance.now() - started),
-      error: (e as Error).message ?? 'unknown error',
-    };
-  } finally {
-    clearTimeout(timer);
-  }
+  const meta = SOURCE_REGISTRY[adapter.id];
+  const timeoutMs = meta.timeoutMs ?? 5000;
+  const retryMax = meta.retryMax ?? DEFAULT_RETRY_POLICY.maxAttempts;
+  const policy = { ...DEFAULT_RETRY_POLICY, maxAttempts: retryMax };
+
+  const { response } = await executeWithResilience(
+    (signal) => Promise.all([
+      adapter.fetchPartial({ ...ctx, signal }),
+      adapter.fetchForecast({ ...ctx, signal }),
+    ]).then(([snapshot, forecast]) => ({ snapshot, forecast })),
+    { sourceId: adapter.id, timeoutMs, retry: policy },
+  );
+  return response;
 }
 
 /** Safe wrapper around `fetch` honoring an AbortSignal and JSON parsing. */
 export async function safeJson<T>(url: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(url, init);
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status} ${res.statusText}`) as Error & { status: number };
+    err.status = res.status;
+    throw err;
+  }
   return res.json() as Promise<T>;
 }
 
