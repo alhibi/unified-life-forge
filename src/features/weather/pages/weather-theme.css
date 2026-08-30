@@ -185,3 +185,121 @@
   border-top: 1px solid hsl(var(--border) / 0.15);
   margin-top: 2rem;
 }
+
+/* ── Refined typography & micro-details (Aug 2026) ─────────────────────── */
+
+/* Better text rendering for hero numbers */
+.weather-theme .hero-number {
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.04em;
+}
+
+/* Subtle inner glow used by cards with elevated variant */
+.weather-theme .surface-depth {
+  box-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.02) inset,
+    0 1px 3px hsl(var(--foreground) / 0.04),
+    0 4px 12px hsl(var(--foreground) / 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Hover lift for tile-style cards */
+.weather-theme .tile-hover {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.weather-theme .tile-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.02) inset,
+    0 4px 16px hsl(var(--foreground) / 0.07),
+    0 2px 8px hsl(var(--foreground) / 0.04);
+}
+
+/* Sliding pill backdrop for segmented controls */
+.weather-theme .pill-bar {
+  position: relative;
+  display: grid;
+  padding: 0.375rem;
+  border-radius: 1rem;
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.35);
+  box-shadow:
+    0 1px 3px hsl(var(--foreground) / 0.04),
+    0 8px 24px hsl(var(--foreground) / 0.03);
+}
+
+/* Active pill animation target */
+.weather-theme .pill-bar [data-pill] {
+  position: absolute;
+  inset-block: 0.375rem;
+  border-radius: 0.75rem;
+  background: hsl(var(--primary));
+  box-shadow:
+    0 4px 14px hsl(var(--primary) / 0.30),
+    0 1px 2px hsl(var(--primary) / 0.20);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Section eyebrow line gradient */
+.weather-theme .eyebrow-line {
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0));
+}
+
+/* Subtle inner divider line used inside cards */
+.weather-theme .inner-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--border) / 0.35) 20%,
+    hsl(var(--border) / 0.35) 80%,
+    transparent
+  );
+  margin: 0.875rem 0;
+}
+
+/* Tab transitions — slightly slower & more deliberate than the default. */
+.weather-theme .tab-pane-enter {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.weather-theme .tab-pane-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Better focus ring across the whole feature */
+.weather-theme :focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 4px hsl(var(--primary) / 0.55);
+  border-radius: 0.625rem;
+}
+
+/* Page chrome — the body background gives a subtle wash. */
+.weather-theme {
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% 0%,
+      hsl(var(--primary) / 0.06),
+      transparent 60%
+    ),
+    hsl(var(--background));
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .weather-theme .surface-depth,
+  .weather-theme .tile-hover,
+  .weather-theme .tab-pane-active {
+    transition: none;
+  }
+}

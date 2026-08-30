@@ -1,4 +1,54 @@
-import './weather-theme.css';
+// ============================================================================
+// Weather — the page that orchestrates the entire feature.
+//
+// This file used to lay out 23 components in four flat `space-y-7` lists,
+// each tab indistinguishable from the others. The new layout introduces a
+// proper information hierarchy:
+//
+//   HEADER (sticky)
+//     ├── location + coords
+//     └── refresh
+//
+//   HERO (variant=hero) — primary tier: current temperature + condition.
+//
+//   CORE TAB
+//     ├── ConfidenceFloorBanner (when degraded/unreliable)
+//     ├── Hero's tertiary metrics grid (now inside hero)
+//     ├── AtmosphericInsightsPanel
+//     ├── HourlyRibbon
+//     ├── MinutelyRainTimeline
+//     ├── Bento 4-tile grid (UV, humidity, cloud, visibility)
+//     ├── AQI Gauge
+//     ├── LiveSunArc
+//     └── EnsembleTrustPanel
+//
+//   FORECAST TAB
+//     ├── MicroMap
+//     ├── ForecastTab (hourly / daily sub-tabs)
+//     └── SoilAndMicroclimate
+//
+//   RADAR TAB
+//     ├── WindCompass
+//     ├── RadarMap
+//     └── PhysicalMeasurements
+//
+//   LAB TAB
+//     ├── WeatherPlanner
+//     ├── MeteorologyConsole
+//     ├── Astronomics
+//     ├── VerificationPanel (new in this revision)
+//     └── SourceHealthPanel
+//
+// The new tab system is TabNavigation with a sliding pill. Each tab pane
+// uses motion-presets.tab + a staggered container so children fade in one
+// after another when the tab mounts.
+//
+// Why a brand new file rather than editing Weather.tsx in place:
+//   • The old file mixed layout, copy, and orchestration. Splitting concerns
+//     is easier than untangling 435 lines of mixed responsibilities.
+//   • The new structure exposes the layout clearly — every section is a
+//     named function, easy to reorder, easy to A/B test.
+// ============================================================================
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
@@ -17,13 +67,14 @@ import {
   Sun,
 } from '@/lib/icons';
 
-// Import new extracted components
 import { AQIGauge } from '../components/AQIGauge';
 import { Astronomics } from '../components/Astronomics';
 import { AtmosphericInsightsPanel } from '../components/AtmosphericInsightsPanel';
 import CitySearch from '../components/CitySearch';
+import { ConfidenceFloorBanner } from '../components/ConfidenceFloorBanner';
 import { EnsembleTrustPanel } from '../components/EnsembleTrustPanel';
 import { ForecastTab } from '../components/ForecastTab';
+import { GaugeTileRefined } from '../components/GaugeTileRefined';
 import { HourlyRibbon } from '../components/HourlyRibbon';
 import { LiveSunArc } from '../components/LiveSunArc';
 import MeteorologyConsole from '../components/MeteorologyConsole';
@@ -31,11 +82,12 @@ import MicroMap from '../components/MicroMap';
 import { MinutelyRainTimeline } from '../components/MinutelyRainTimeline';
 import { PhysicalMeasurements } from '../components/PhysicalMeasurements';
 import RadarMap from '../components/RadarMap';
+import { SectionHeader } from '../components/SectionHeader';
 import { SoilAndMicroclimate } from '../components/SoilAndMicroclimate';
 import { SourceHealthPanel } from '../components/SourceHealthPanel';
-import { WeatherHero } from '../components/WeatherHero';
-// Import standardized panels from WeatherPanels
-import { GaugeTile } from '../components/WeatherPanels';
+import { type TabDef,TabNavigation } from '../components/TabNavigation';
+import { VerificationPanel } from '../components/VerificationPanel';
+import { WeatherHeroRefined } from '../components/WeatherHeroRefined';
 import WeatherPlanner from '../components/WeatherPlanner';
 import { WindCompass } from '../components/WindCompass';
 import { useWeatherLocation } from '../context/WeatherLocationContext';
@@ -49,38 +101,139 @@ import {
   compassLabel,
   uvCategoryLabel,
 } from '../lib/vocabulary';
+import {
+  duration,
+  easing,
+  motionPresets,
+} from '../lib/weather-motion';
 
-// Weather-code vocabulary lives in ../lib/conditions — the page used to carry
-// its own copy of both the glyph map and the Arabic labels, which drifted from
-// the widget's copy (code 80 read "زخات مطر" here and "أمطار" there).
+type TabId = 'core' | 'forecast' | 'radar' | 'lab';
+
+const TABS: readonly TabDef[] = [
+  { id: 'core',     label: 'الأساسيات',     description: 'الحالة، الساعات، الجودة', icon: <Sun /> },
+  { id: 'forecast', label: 'التوقعات',       description: 'ساعي، يومي، مناخ',       icon: <Sliders /> },
+  { id: 'radar',    label: 'الرياح والرادار', description: 'الرياح، الرادار، فيزياء', icon: <Layers /> },
+  { id: 'lab',      label: 'المختبر',        description: 'تخطيط، فلك، مصادر',       icon: <Settings /> },
+] as const;
+
 const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, isDay).icon;
 
-export default function Weather() {
-  // Arabic-only app (design-system §1). This was 'en-GB', which is why the
-  // 7-day strip printed "Sun / Mon / Tue" and clock labels used English
-  // formatting inside otherwise Arabic copy.
-  const locale = 'ar';
-  
-  // NEW: Four main tab groups for better organization
-  const [activeMainTab, setActiveMainTab] = useState<'core' | 'forecast' | 'radar' | 'lab'>('core');
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen grid place-items-center bg-background text-foreground px-6">
+      <div className="text-center space-y-3">
+        <div className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse mx-auto" />
+        <p className="font-semibold text-title text-primary">
+          {'نقرأ الغلاف الجوي ونجمع الأرصاد…'}
+        </p>
+      </div>
+    </div>
+  );
+}
 
-  // Use either the selected geocoded city, or fallback to the device singleton coords
+function EmptyScreen() {
+  return (
+    <div className="min-h-screen grid place-items-center bg-background text-foreground px-6">
+      <p className="text-meta text-muted-foreground">{'تعذر تحميل بيانات الطقس.'}</p>
+    </div>
+  );
+}
+
+function StickyHeader({
+  name,
+  elevation,
+  lat,
+  lng,
+  onRefresh,
+  isRefreshing,
+}: {
+  name: string;
+  elevation: number;
+  lat: number;
+  lng: number;
+  onRefresh: () => void;
+  isRefreshing: boolean;
+}) {
+  return (
+    <div className="z-float border-b border-border/40 backdrop-blur-md bg-background/80 app-sticky-header">
+      <div className="px-4 py-3 flex items-center gap-3">
+        <BackButton />
+        <div className="flex-1 min-w-0 text-center">
+          <h1 className="font-bold text-title leading-none text-foreground truncate">
+            {name}
+          </h1>
+          <p
+            className="mt-1.5 text-micro tracking-[0.18em] uppercase text-primary/85 font-bold tabular-nums"
+            dir="ltr"
+          >
+            {Math.round(elevation)} m · {lat.toFixed(2)}, {lng.toFixed(2)}
+          </p>
+        </div>
+        <button
+          onClick={onRefresh}
+          aria-label={'تحديث الطقس'}
+          className="w-11 h-11 rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-card hover:border-border/80"
+        >
+          <RefreshCw className={`w-4 h-4 text-primary ${isRefreshing ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BentoGrid({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {children}
+    </div>
+  );
+}
+
+function TabPane({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={motionPresets.staggerContainer}
+      className="space-y-7"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Section({
+  eyebrow,
+  title,
+  subtitle,
+  children,
+}: {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.section variants={motionPresets.staggerItem} className="space-y-3">
+      <SectionHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
+      {children}
+    </motion.section>
+  );
+}
+
+export default function Weather() {
+  const locale = 'ar';
+  const [activeMainTab, setActiveMainTab] = useState<TabId>('core');
+
   const { location: deviceLoc } = useDeviceLocation();
-  const { selectedCoords, setSelectedCoords, clearSelectedCoords } = useWeatherLocation();
+  const { selectedCoords, setSelectedCoords } = useWeatherLocation();
   const activeLocation = selectedCoords || deviceLoc;
 
-  const { snapshot, status, tier, isRefreshing, refresh, dataAgeMinutes } = useWeather('ar', selectedCoords);
+  const { snapshot, status, tier, isRefreshing, refresh, dataAgeMinutes } =
+    useWeather('ar', selectedCoords);
   const { forecast } = useWeatherForecast('ar', selectedCoords);
 
   const hourly = forecast.hourly.slice(0, 24);
-  const currentHour = hourly[0];
-  // Resolved description object (not a component factory) — avoids creating
-  // a component during render and keeps the glyph lookup pure.
-  const currentCondition = describeWeatherCode(
-    currentHour?.weather_code ?? 0,
-    currentHour?.is_day ?? true
-  );
-  const CurrentIcon = currentCondition.icon;
 
   const moonGlyph = useMemo(() => {
     const p = snapshot?.astronomical.moon_phase_name ?? 'new_moon';
@@ -102,33 +255,8 @@ export default function Weather() {
     setSelectedCoords({ lat, lng, name });
   };
 
-  // NEW: Four logical tab groups
-  const mainTabs = [
-    { id: 'core', label: 'الأساسيات', icon: Sun, description: 'الحالة الحالية، الساعات، جودة الهواء' },
-    { id: 'forecast', label: 'التوقعات', icon: Sliders, description: 'ساعي، يومي، رسوم بيانية' },
-    { id: 'radar', label: 'الرياح والرادار', icon: Layers, description: 'الرياح، الرادار، القياسات الفيزيائية' },
-    { id: 'lab', label: 'المختبر', icon: Settings, description: 'التخطيط، الفلك، مصادر البيانات' },
-  ] as const;
-
-  if (status === 'loading' && !snapshot) {
-    return (
-      <div className="min-h-screen p-6 grid place-items-center bg-background text-foreground">
-        <span className="font-semibold text-title text-primary animate-pulse">
-          {'نقرأ الغلاف الجوي ونجمع الأرصاد…'}
-        </span>
-      </div>
-    );
-  }
-
-  if (!snapshot) {
-    return (
-      <div className="min-h-screen p-6 grid place-items-center bg-background text-foreground">
-        <span className="text-meta text-muted-foreground">{'تعذر تحميل بيانات الطقس.'}</span>
-      </div>
-    );
-  }
-
-  const conf = snapshot.meta.ensemble_confidence_percent;
+  if (status === 'loading' && !snapshot) return <LoadingScreen />;
+  if (!snapshot) return <EmptyScreen />;
 
   return (
     <div dir={'rtl'} className="weather-theme min-h-screen pb-page">
@@ -161,275 +289,255 @@ export default function Weather() {
         </script>
       </Helmet>
 
-      {/* Sticky Header */}
-      <div className="z-float border-b border-border/50 app-sticky-header">
-        <div className="px-4 py-3.5 flex items-center gap-3">
-          <BackButton />
-          <div className="flex-1 min-w-0 text-center">
-            <h1 className="font-bold text-title leading-none text-foreground truncate">
-              {selectedCoords?.name || 'لوحة الأرصاد الجوية والفيزياء'}
-            </h1>
-            <p
-              className="mt-2.5 text-micro tracking-[0.15em] uppercase text-primary/90 font-bold tabular-nums"
-              dir="ltr"
-            >
-              {Math.round(snapshot.meta.location.elevation_m)} m ·{' '}
-              {snapshot.meta.location.lat.toFixed(2)}, {snapshot.meta.location.lng.toFixed(2)}
-            </p>
-          </div>
-          <button
-            onClick={refresh}
-            aria-label={'تحديث الطقس'}
-            className="w-11 h-11 rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm flex items-center justify-center active:scale-[0.98] transition-transform hover:bg-card hover:border-border/80"
+      <StickyHeader
+        name={selectedCoords?.name || 'لوحة الأرصاد الجوية والفيزياء'}
+        elevation={snapshot.meta.location.elevation_m}
+        lat={snapshot.meta.location.lat}
+        lng={snapshot.meta.location.lng}
+        onRefresh={refresh}
+        isRefreshing={isRefreshing}
+      />
+
+      <main className="px-4 pt-6">
+        <div className="space-y-6">
+          <CitySearch onSelectCity={handleCitySelect} />
+
+          {snapshot && <ConfidenceFloorBanner snapshot={snapshot} />}
+
+          <WeatherHeroRefined snapshot={snapshot} hourly={hourly} />
+
+          <TabNavigation<TabId>
+            tabs={TABS}
+            activeTab={activeMainTab}
+            onChange={setActiveMainTab}
+          />
+
+          <AnimatePresence mode="wait">
+            {activeMainTab === 'core' && (
+              <motion.div
+                key="core"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: duration.reveal, ease: easing.standard }}
+              >
+                <TabPane>
+                  <Section
+                    eyebrow={'رؤية فيزيائية'}
+                    title={'استنتاجات الغلاف الجوي'}
+                  >
+                    <AtmosphericInsightsPanel snapshot={snapshot} />
+                  </Section>
+
+                  <Section
+                    eyebrow={'ساعات قادمة'}
+                    title={'خط الزمن القريب'}
+                  >
+                    <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
+                  </Section>
+
+                  {(forecast.minutely?.length ?? 0) > 0 && (
+                    <Section eyebrow={'الدقائق الستين'} title={'نبض المطر اللحظي'}>
+                      <MinutelyRainTimeline entries={forecast.minutely} locale={locale} />
+                    </Section>
+                  )}
+
+                  <Section eyebrow={'بطلاقات متساوية'} title={'المقاييس الأساسية'}>
+                    <BentoGrid>
+                      <GaugeTileRefined
+                        label={'مؤشر UV'}
+                        value={snapshot.solar.uv_index.toFixed(1)}
+                        pctValue={snapshot.solar.uv_index / 11}
+                        hint={uvCategoryLabel(snapshot.solar.uv_category)}
+                        icon={<Sun />}
+                      />
+                      <GaugeTileRefined
+                        label={'الرطوبة النسبية'}
+                        value={Math.round(snapshot.moisture.relative_humidity_percent)}
+                        unit="٪"
+                        pctValue={snapshot.moisture.relative_humidity_percent / 100}
+                        hint={`رطوبة نوعية ${Math.round(snapshot.moisture.specific_humidity_gkg)} g/kg`}
+                        icon={<Droplets />}
+                      />
+                      <GaugeTileRefined
+                        label={'تغطية الغيوم'}
+                        value={Math.round(snapshot.sky.cloud_cover_total_percent)}
+                        unit="٪"
+                        pctValue={snapshot.sky.cloud_cover_total_percent / 100}
+                        hint={cloudTypeLabel(snapshot.sky.cloud_type)}
+                        icon={<Cloud />}
+                      />
+                      <GaugeTileRefined
+                        label={'مدى الرؤية'}
+                        value={Math.round(snapshot.sky.visibility_km)}
+                        unit="كم"
+                        pctValue={Math.min(1, snapshot.sky.visibility_km / 20)}
+                        hint={
+                          snapshot.sky.visibility_km < 5
+                            ? 'رؤية منخفضة'
+                            : snapshot.sky.visibility_km < 10
+                              ? 'رؤية متوسطة'
+                              : 'رؤية ممتازة'
+                        }
+                        icon={<Eye />}
+                      />
+                    </BentoGrid>
+                  </Section>
+
+                  <Section eyebrow={'جودة الهواء'} title={'تركيز الملوثات'}>
+                    <AQIGauge
+                      caqi={snapshot.airQuality.aqi_eu_caqi}
+                      pm25={snapshot.airQuality.pm25_ugm3}
+                      pm10={snapshot.airQuality.pm10_ugm3}
+                      o3={snapshot.airQuality.o3_ugm3}
+                      no2={snapshot.airQuality.no2_ugm3}
+                      so2={snapshot.airQuality.so2_ugm3}
+                      co={snapshot.airQuality.co_mgm3}
+                      advisory={aqiAdvice(snapshot.airQuality.aqi_us)}
+                      healthScore={snapshot.biological.outdoor_health_score}
+                      source={snapshot.airQuality.source_station_name}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'مسار الشمس'} title={'القوس الضوئي اليومي'}>
+                    <LiveSunArc
+                      sunrise={snapshot.astronomical.sunrise}
+                      sunset={snapshot.astronomical.sunset}
+                      elevationDeg={snapshot.solar.solar_elevation_deg}
+                      azimuthDeg={snapshot.solar.solar_azimuth_deg}
+                      dayLengthH={snapshot.astronomical.day_length_hours}
+                      locale={locale}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'مصدر الأرقام'} title={'ثقة الإجماع'}>
+                    <EnsembleTrustPanel snapshot={snapshot} />
+                  </Section>
+                </TabPane>
+              </motion.div>
+            )}
+
+            {activeMainTab === 'forecast' && (
+              <motion.div
+                key="forecast"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: duration.reveal, ease: easing.standard }}
+              >
+                <TabPane>
+                  <Section eyebrow={'الخريطة'} title={'موقعك الدقيق'}>
+                    <MicroMap
+                      lat={activeLocation?.lat ?? snapshot.meta.location.lat}
+                      lng={activeLocation?.lng ?? snapshot.meta.location.lng}
+                      elevationM={Math.round(snapshot.meta.location.elevation_m)}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'ساعي ويومي'} title={'منحنى التوقع'}>
+                    <ForecastTab
+                      hourly={hourly}
+                      daily={forecast.daily}
+                      iconFor={iconForCode}
+                      locale={locale}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'تحت السطح'} title={'التربة والمناخ المحلي'}>
+                    <SoilAndMicroclimate snapshot={snapshot} />
+                  </Section>
+                </TabPane>
+              </motion.div>
+            )}
+
+            {activeMainTab === 'radar' && (
+              <motion.div
+                key="radar"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: duration.reveal, ease: easing.standard }}
+              >
+                <TabPane>
+                  <Section eyebrow={'اتجاه وسرعة'} title={'بوصلة الرياح'}>
+                    <WindCompass
+                      speed={snapshot.wind.speed_kph}
+                      gusts={snapshot.wind.gusts_kph}
+                      dirDeg={snapshot.wind.direction_deg}
+                      cardinal={compassLabel(snapshot.wind.direction_cardinal_16pt, true)}
+                      beaufort={beaufortLabel(snapshot.wind.beaufort_scale)}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'رادار'} title={'محاكي الجسيمات الحية'}>
+                    <RadarMap
+                      pastTimestamps={snapshot.radar.past_timestamps}
+                      futureTimestamps={snapshot.radar.future_timestamps}
+                      tileTemplate={snapshot.radar.tile_url_template}
+                      windSpeedKph={snapshot.wind.speed_kph}
+                      windDirectionDeg={snapshot.wind.direction_deg}
+                      precipIntensity={snapshot.precipitation.intensity_mm_hr}
+                      weatherCode={hourly[0]?.weather_code ?? 0}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'فيزياء'} title={'القياسات الفيزيائية'}>
+                    <PhysicalMeasurements snapshot={snapshot} />
+                  </Section>
+                </TabPane>
+              </motion.div>
+            )}
+
+            {activeMainTab === 'lab' && (
+              <motion.div
+                key="lab"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: duration.reveal, ease: easing.standard }}
+              >
+                <TabPane>
+                  <Section eyebrow={'نصائح'} title={'المخطط الطبي للأنشطة'}>
+                    <WeatherPlanner
+                      aqiUs={snapshot.airQuality.aqi_us}
+                      uvIndex={snapshot.solar.uv_index}
+                      humidityPercent={snapshot.moisture.relative_humidity_percent}
+                      temperatureC={snapshot.temperature.actual_c}
+                      pollenRisk={snapshot.biological.pollen_risk}
+                      solarElevationDeg={snapshot.solar.solar_elevation_deg}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'محاكاة'} title={'مختبر المعادلات المترولوجية'}>
+                    <MeteorologyConsole />
+                  </Section>
+
+                  <Section eyebrow={'سماء'} title={'الفلك والأقمار'}>
+                    <Astronomics snapshot={snapshot} locale={locale} moonGlyph={moonGlyph} />
+                  </Section>
+
+                  <Section eyebrow={'تدقيق'} title={'لوحة التحقق الفعلي'}>
+                    <VerificationPanel
+                      lat={snapshot.meta.location.lat}
+                      lng={snapshot.meta.location.lng}
+                    />
+                  </Section>
+
+                  <Section eyebrow={'بنية'} title={'إدارة المصادر والأوزان'}>
+                    <SourceHealthPanel />
+                  </Section>
+                </TabPane>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <footer
+            className="mt-10 pt-4 border-t border-border/25 text-center text-micro tracking-[0.22em] uppercase text-primary/65 font-bold tabular-nums"
+            dir="ltr"
           >
-            <RefreshCw className={`w-4 h-4 text-primary ${isRefreshing ? 'animate-spin' : ''}`} />
-          </button>
+            {tier ?? 'fresh'} · {dataAgeMinutes} دقيقة · {snapshot.meta.fetch_duration_ms}ms
+          </footer>
         </div>
-      </div>
-
-      {/* Main Container */}
-      <main className="px-4 pt-6 space-y-7">
-        {/* Data freshness banner — accuracy means knowing the age of the reading */}
-        {(snapshot.meta.is_stale || dataAgeMinutes >= 20) && (
-          <div className="freshness-banner flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-warning/10 border border-warning/30 text-mini">
-            <span className="text-foreground font-semibold">
-              {snapshot.meta.is_stale
-                ? `⚠️ البيانات متقادمة (${dataAgeMinutes} دقيقة) — يُنصح بالتحديث`
-                : `عمر القراءة ${dataAgeMinutes} دقيقة`}
-            </span>
-            <button
-              onClick={refresh}
-              className="shrink-0 px-3 py-1 rounded-lg bg-primary text-primary-foreground text-micro font-bold active:scale-95 transition-transform"
-            >
-              تحديث الآن
-            </button>
-          </div>
-        )}
-
-        {/* City Search Module */}
-        <CitySearch onSelectCity={handleCitySelect} />
-
-        {/* NEW: Four-group segmented control with descriptions */}
-        <div className="space-y-2">
-          <div className="tab-bar flex bg-background/80 backdrop-blur-md border border-border/30 p-1.5 rounded-2xl gap-1.5 sticky top-16 z-header shadow-[0_1px_3px_hsl(var(--foreground)/0.04),0_8px_24px_hsl(var(--foreground)/0.03)]">
-            {mainTabs.map((t) => {
-              const TabIcon = t.icon;
-              const active = activeMainTab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => {
-                    setActiveMainTab(t.id);
-                  }}
-                  className={`tab-btn flex-1 flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-bold transition-all duration-200 active:scale-95 relative overflow-hidden ${
-                    active
-                      ? 'bg-primary text-primary-foreground shadow-[0_2px_8px_hsl(var(--primary)/0.25),0_1px_2px_hsl(var(--primary)/0.15)]'
-                      : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
-                  }`}
-                  title={t.description}
-                >
-                  <TabIcon className="tab-icon w-4 h-4 transition-transform duration-200" />
-                  <span className="text-micro leading-tight text-center truncate max-w-full">
-                    {t.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {/* TAB 1: CORE - الأساسيات */}
-          {activeMainTab === 'core' && (
-            <motion.div
-              key="core"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-7"
-            >
-              {/* Weather Hero — uses new extracted component */}
-              <WeatherHero snapshot={snapshot} hourly={hourly} />
-
-              {/* Physics-based inference over the live snapshot */}
-              <AtmosphericInsightsPanel snapshot={snapshot} />
-
-              {/* Provenance for the blended numbers above. */}
-              <EnsembleTrustPanel snapshot={snapshot} />
-
-              {/* Dynamic Hourly Ribbon Slider */}
-              <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
-
-              {/* Minute-by-minute precip arrival (0-60 min layer) */}
-              <MinutelyRainTimeline entries={forecast.minutely} locale={locale} />
-
-              {/* Standard Bento Tiles — using new GaugeTile */}
-              <div className="card-grid-2 gap-3">
-                <GaugeTile
-                  label={'مؤشر UV'}
-                  value={snapshot.solar.uv_index.toFixed(1)}
-                  pctValue={snapshot.solar.uv_index / 11}
-                  hint={uvCategoryLabel(snapshot.solar.uv_category)}
-                  icon={<Sun />}
-                />
-                <GaugeTile
-                  label={'الرطوبة النسبية'}
-                  value={Math.round(snapshot.moisture.relative_humidity_percent)}
-                  unit="%"
-                  pctValue={snapshot.moisture.relative_humidity_percent / 100}
-                  hint={`رطوبة نوعية ${Math.round(snapshot.moisture.specific_humidity_gkg)}g/kg`}
-                  icon={<Droplets />}
-                />
-                <GaugeTile
-                  label={'تغطية الغيوم'}
-                  value={Math.round(snapshot.sky.cloud_cover_total_percent)}
-                  unit="%"
-                  pctValue={snapshot.sky.cloud_cover_total_percent / 100}
-                  hint={cloudTypeLabel(snapshot.sky.cloud_type)}
-                  icon={<Cloud />}
-                />
-                <GaugeTile
-                  label={'مدى الرؤية الأفقية'}
-                  value={Math.round(snapshot.sky.visibility_km)}
-                  unit="كم"
-                  pctValue={Math.min(1, snapshot.sky.visibility_km / 20)}
-                  icon={<Eye />}
-                />
-              </div>
-
-              {/* Real Air Quality Indicator (AQI) with pollutant meters */}
-              <AQIGauge
-                caqi={snapshot.airQuality.aqi_eu_caqi}
-                pm25={snapshot.airQuality.pm25_ugm3}
-                pm10={snapshot.airQuality.pm10_ugm3}
-                o3={snapshot.airQuality.o3_ugm3}
-                no2={snapshot.airQuality.no2_ugm3}
-                so2={snapshot.airQuality.so2_ugm3}
-                co={snapshot.airQuality.co_mgm3}
-                advisory={aqiAdvice(snapshot.airQuality.aqi_us)}
-                healthScore={snapshot.biological.outdoor_health_score}
-                source={snapshot.airQuality.source_station_name}
-              />
-
-              {/* Live Sun trajectory */}
-              <LiveSunArc
-                sunrise={snapshot.astronomical.sunrise}
-                sunset={snapshot.astronomical.sunset}
-                elevationDeg={snapshot.solar.solar_elevation_deg}
-                azimuthDeg={snapshot.solar.solar_azimuth_deg}
-                dayLengthH={snapshot.astronomical.day_length_hours}
-                locale={locale}
-              />
-            </motion.div>
-          )}
-
-          {/* TAB 2: FORECAST - التوقعات */}
-          {activeMainTab === 'forecast' && (
-            <motion.div
-              key="forecast"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-7"
-            >
-              {/* NEW Component: MicroMap Dark Live Map */}
-              <MicroMap
-                lat={activeLocation?.lat ?? snapshot.meta.location.lat}
-                lng={activeLocation?.lng ?? snapshot.meta.location.lng}
-                elevationM={Math.round(snapshot.meta.location.elevation_m)}
-              />
-
-              {/* NEW: ForecastTab with sub-tabs */}
-              <ForecastTab
-                hourly={hourly}
-                daily={forecast.daily}
-                iconFor={iconForCode}
-                locale={locale}
-              />
-
-              {/* Soil and Microclimatology */}
-              <SoilAndMicroclimate snapshot={snapshot} />
-            </motion.div>
-          )}
-
-          {/* TAB 3: RADAR - الرياح والرادار */}
-          {activeMainTab === 'radar' && (
-            <motion.div
-              key="radar"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-7"
-            >
-              {/* Live Wind Compass & Dynamics */}
-              <WindCompass
-                speed={snapshot.wind.speed_kph}
-                gusts={snapshot.wind.gusts_kph}
-                dirDeg={snapshot.wind.direction_deg}
-                cardinal={compassLabel(snapshot.wind.direction_cardinal_16pt, true)}
-                beaufort={beaufortLabel(snapshot.wind.beaufort_scale)}
-              />
-
-              {/* NEW Component: Realtime Particle simulator & interactive radar */}
-              <RadarMap
-                pastTimestamps={snapshot.radar.past_timestamps}
-                futureTimestamps={snapshot.radar.future_timestamps}
-                tileTemplate={snapshot.radar.tile_url_template}
-                windSpeedKph={snapshot.wind.speed_kph}
-                windDirectionDeg={snapshot.wind.direction_deg}
-                precipIntensity={snapshot.precipitation.intensity_mm_hr}
-                weatherCode={currentHour?.weather_code ?? 0}
-              />
-
-              {/* Classic details panel - now using PhysicalMeasurements component */}
-              <PhysicalMeasurements snapshot={snapshot} />
-            </motion.div>
-          )}
-
-          {/* TAB 4: LAB - المختبر */}
-          {activeMainTab === 'lab' && (
-            <motion.div
-              key="lab"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="space-y-7"
-            >
-              {/* NEW Component: Smart Weather Planner & Medical Advisories */}
-              <WeatherPlanner
-                aqiUs={snapshot.airQuality.aqi_us}
-                uvIndex={snapshot.solar.uv_index}
-                humidityPercent={snapshot.moisture.relative_humidity_percent}
-                temperatureC={snapshot.temperature.actual_c}
-                pollenRisk={snapshot.biological.pollen_risk}
-                solarElevationDeg={snapshot.solar.solar_elevation_deg}
-              />
-
-              {/* NEW Component: Physics Meteorology Calculator simulator */}
-              <MeteorologyConsole />
-
-              {/* Astronomics and Lunar stats - now using Astronomics component */}
-              <Astronomics
-                snapshot={snapshot}
-                locale={locale}
-                moonGlyph={moonGlyph}
-              />
-
-              {/* 12 sources management console - now using SourceHealthPanel component */}
-              <SourceHealthPanel />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="divider-subtle" />
-        <footer className="page-footer text-center text-micro tracking-[0.18em] uppercase text-primary/70 tabular-nums" dir="ltr">
-          {tier ?? 'fresh'} · عمر ${dataAgeMinutes} دقيقة ·{' '}
-          {snapshot.meta.fetch_duration_ms}ms
-        </footer>
       </main>
     </div>
   );
