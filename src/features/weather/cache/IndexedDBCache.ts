@@ -81,4 +81,20 @@ export class IndexedDBCache<T> {
       } catch { resolve(); }
     });
   }
+
+  /** Drop every entry in this store. Test seam. */
+  async clear(): Promise<void> {
+    const db = await openDB();
+    if (!db) return;
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(this.store, 'readwrite');
+        tx.objectStore(this.store).clear();
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      } catch {
+        resolve();
+      }
+    });
+  }
 }

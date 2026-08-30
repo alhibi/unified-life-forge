@@ -8,10 +8,8 @@
 //   5. Run derived/computed fields (thermal, astronomy, scoring).
 //   6. Persist to cache, emit final snapshot.
 
-import { type CachedBundle,cacheManager } from '../cache/CacheManager';
-import { recordLedgerEntry } from './ForecastLedger';
-import { aggregateByField, isObservationDue, verifyForecasts } from './ForecastVerification';
-import { recordVerifiedSkill } from './SourceVerifier';
+import { cacheManager } from '../cache/CacheManager';
+import { persistLayers, planRefresh, readAllLayers } from '../cache/LayeredCacheEngine';
 import { computeAstronomy, solarPosition } from '../compute/AstronomyEngine';
 import { aqiCategory, burnTimeMinutes,dayQualityScore, outdoorHealthScore, uvCategory } from '../compute/ComfortScorer';
 import { classifyPressureTendency, PRESSURE_TENDENCY_UNKNOWN_LABEL } from '../compute/PressureTrend';
@@ -42,7 +40,10 @@ import { circularMean } from './CircularStats';
 import { biasCorrection, type Observation, recordObservations, type SkillField, weightMultiplier } from './ConsensusSkillTracker';
 import { absoluteSpread, aggregate, type NumericSample } from './EnsembleAggregator';
 import { blendForecasts } from './ForecastEnsemble';
+import { recordLedgerEntry } from './ForecastLedger';
+import { aggregateByField, isObservationDue, verifyForecasts } from './ForecastVerification';
 import { recordPressure } from './PressureHistory';
+import { recordVerifiedSkill } from './SourceVerifier';
 
 // Composite adapter list. Open-Meteo contributes two adapters: atmospheric + AQI.
 const ATMOSPHERIC_ADAPTERS: BaseAdapter[] = [
@@ -110,21 +111,36 @@ export class WeatherEngine {
     const t0 = performance.now();
     const cacheKey = cacheManager.keyFor(req.lat, req.lng);
 
-    // 1 — emit cached value immediately if present.
+    // 1 — read the five independent layers and decide which ones can stay.
     if (!req.forceRefresh) {
-      const cached = await cacheManager.read(cacheKey);
-      if (cached) {
-        const preEmit: EngineResult = {
-          snapshot: cached.value.snapshot,
-          forecast: cached.value.forecast,
-          tier: cached.tier,
-          responses: [],
-        };
-        // Emit cached result; fall through and refresh in background.
-        this.emit(preEmit);
-        if (Date.now() - cached.value.cachedAt < 5 * 60_000) {
-          // very fresh — skip background refresh
-          return preEmit;
+      const layered = await readAllLayers(cacheKey, { acceptEmergency: true });
+      const plan = planRefresh(layered);
+
+      // Stitch the best of each layer into a coherent pre-emit. If a layer
+      // has anything at all (fresh, stale, or expired), we use it; otherwise
+      // we drop it. The current snapshot is what most callers actually read,
+      // so we prioritise it.
+      if (layered.current) {
+        const snap = layered.current.value;
+        // Mark stale/expired data so the UI can badge the readout.
+        snap.meta.is_stale = layered.current.freshness !== 'fresh';
+        const forecast = layered.hourly?.value ?? layered.daily?.value ?? null;
+        if (forecast) {
+          const preEmit: EngineResult = {
+            snapshot: snap,
+            forecast,
+            tier: layered.current.freshness === 'fresh' ? 'L1'
+                : layered.current.freshness === 'stale' ? 'L2'
+                : 'L3',
+            responses: [],
+          };
+          this.emit(preEmit);
+          // If the current layer is fresh, the other layers may still be
+          // stale — but we still need to fetch them in the background. Only
+          // short-circuit when EVERY relevant layer is fresh.
+          if (plan.background.length === 0 && plan.foreground.length === 0) {
+            return preEmit;
+          }
         }
       }
     }
@@ -161,8 +177,9 @@ export class WeatherEngine {
       });
     }
 
-    const bundle: CachedBundle = { snapshot, forecast, cachedAt: Date.now() };
-    await cacheManager.write(cacheKey, bundle);
+    // Persist to all five layers in parallel. Even if some layers failed
+    // during fetch, partial writes to the rest help the next visit.
+    await persistLayers(cacheKey, snapshot, forecast);
 
     // Verification layer — fire-and-forget. We never block the user-visible
     // pipeline on writes to IndexedDB or on the per-source ledger reads; the
