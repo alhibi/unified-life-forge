@@ -215,6 +215,15 @@ export function createSessionCache<T = any>(moduleKey: string) {
 
 /** Session caches for common modules */
 export const sessionBadgeCache = createSessionCache<any>('badges');
+
+/**
+ * Deep Cache Validation — Advanced validation with structured entry checks.
+ */
+export function deepValidateCacheEntry<T>(value: unknown, timestamp: number, ttlMs: number): CacheReadResult<T> {
+  const age = Date.now() - timestamp;
+  const isValid = age >= 0 && age < ttlMs;
+  return { value: isValid ? (value as T) : undefined, valid: isValid };
+}
 export const sessionStreakCache = createSessionCache<any>('streaks');
 export const sessionActivityCache = createSessionCache<any>('activity');
 

@@ -1,25 +1,19 @@
 /**
- * ProfileInsightsPanel — Displays cross-module analytics and recommendations
- * ---------------------------------------------------------------------------
- * Shows actionable insights generated from badge progress, activity patterns,
- * and profile completion metrics.
+ * Profile Insights Panel — Deep Enhanced Visual Design
+ * ----------------------------------------------------
+ * Luxury dark analytics panel with animated confidence rings,
+ * staggered motion entry, refined typography, and deep shadow layers.
  */
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
-import { 
-  Activity,
-  ArrowRight,
-  Brain,
-  Lightbulb, 
-  Settings,
-  Target, 
-  TrendingUp, 
-  Users,
-  Zap,
+import {
+  Activity, ArrowRight, Brain, Lightbulb, Settings,
+  Target, TrendingUp, Users, Zap,
+  Flame, Compass, Trophy, Sparkles
 } from '@/lib/icons';
 
-import { CrossModuleInsight,generateCrossModuleInsights } from '../lib/badgeStore';
+import { CrossModuleInsight, generateCrossModuleInsights } from '../lib/badgeStore';
 import { ProfileCompletionMetrics } from '../lib/profileCompletionEngine';
 import { ProfileActivitySummary, ProfileBadge } from '../types';
 
@@ -31,21 +25,21 @@ interface ProfileInsightsPanelProps {
   className?: string;
 }
 
-const TYPE_ICONS = {
+const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   correlation: Brain,
   pattern: TrendingUp,
   recommendation: Lightbulb,
   milestone: Target,
 };
 
-const TYPE_STYLES = {
-  correlation: { color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/20', labelAr: 'ارتباط' },
-  pattern: { color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20', labelAr: 'نمط' },
-  recommendation: { color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20', labelAr: 'توصية' },
-  milestone: { color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20', labelAr: 'معلم' },
+const TYPE_STYLES: Record<string, { color: string; bg: string; border: string; labelAr: string; glow: string }> = {
+  correlation: { color: 'text-violet-300', bg: 'bg-violet-500/[0.06]', border: 'border-violet-400/15', labelAr: 'ارتباط', glow: 'shadow-violet-900/10' },
+  pattern: { color: 'text-sky-300', bg: 'bg-sky-500/[0.06]', border: 'border-sky-400/15', labelAr: 'نمط', glow: 'shadow-sky-900/10' },
+  recommendation: { color: 'text-amber-300', bg: 'bg-amber-500/[0.06]', border: 'border-amber-400/15', labelAr: 'توصية', glow: 'shadow-amber-900/10' },
+  milestone: { color: 'text-emerald-300', bg: 'bg-emerald-500/[0.06]', border: 'border-emerald-400/15', labelAr: 'معلم', glow: 'shadow-emerald-900/10' },
 };
 
-const CATEGORY_ICON_COMPONENTS = {
+const CATEGORY_ICON_COMPONENTS: Record<string, React.ComponentType<{ className?: string }>> = {
   identity: Settings,
   activity: Activity,
   customization: Zap,
@@ -53,20 +47,28 @@ const CATEGORY_ICON_COMPONENTS = {
 };
 
 function renderTypeIcon(type: CrossModuleInsight['type']) {
-  const IconComponent = TYPE_ICONS[type as keyof typeof TYPE_ICONS];
-  const style = TYPE_STYLES[type as keyof typeof TYPE_STYLES];
+  const IconComponent = TYPE_ICONS[type] || Brain;
+  const style = TYPE_STYLES[type] || TYPE_STYLES.correlation;
   return (
-    <>
-      <IconComponent className={`w-3.5 h-3.5 ${style.color}`} />
-      <span className={`text-[0.625rem] font-bold ${style.color}`}>{style.labelAr}</span>
-    </>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[0.6rem] font-extrabold ${style.color} ${style.bg} border ${style.border} backdrop-blur-sm`}>
+      <IconComponent className="w-3 h-3" />
+      <span>{style.labelAr}</span>
+    </span>
   );
 }
 
 function renderCategoryIcon(tab: string) {
-  const IconComponent = CATEGORY_ICON_COMPONENTS[tab as keyof typeof CATEGORY_ICON_COMPONENTS] || Settings;
-  return <IconComponent className="w-3 h-3" />;
+  const Component = CATEGORY_ICON_COMPONENTS[tab] || Settings;
+  return <Component className="w-3.5 h-3.5 text-muted-foreground/70" />;
 }
+
+/* Custom decorative icons for different insight themes */
+const DECOR_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  correlation: Compass,
+  pattern: Flame,
+  recommendation: Sparkles,
+  milestone: Trophy,
+};
 
 export function ProfileInsightsPanel({
   summary,
@@ -75,8 +77,8 @@ export function ProfileInsightsPanel({
   onActionClick,
   className = '',
 }: ProfileInsightsPanelProps) {
-  const insights = useMemo(() => 
-    generateCrossModuleInsights(summary, badges, completionMetrics),
+  const insights = useMemo(
+    () => generateCrossModuleInsights(summary, badges, completionMetrics),
     [summary, badges, completionMetrics.byCategory]
   );
 
@@ -85,13 +87,18 @@ export function ProfileInsightsPanel({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`surface-depth rounded-2xl p-5 ${className}`}
+        transition={{ duration: 0.6 }}
+        className={`surface-depth rounded-[1.75rem] p-7 md:p-8 text-center overflow-hidden relative ${className}`}
       >
-        <div className="flex items-center justify-center py-8">
-          <Lightbulb className="w-8 h-8 text-muted-foreground/50" />
-          <span className="text-meta text-muted-foreground ms-3">
-            لا توجد رؤى متاحة حالياً — استمر في بناء نشاطك
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-b from-violet-500/[0.03] via-transparent to-transparent" />
+        <div className="relative z-10 flex flex-col items-center gap-4 py-10">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 flex items-center justify-center shadow-inner ring-1 ring-violet-400/10">
+            <Lightbulb className="w-8 h-8 text-violet-300/50" />
+          </div>
+          <div>
+            <h3 className="text-[1.05rem] font-extrabold text-foreground mb-1.5 tracking-tight">لا توجد رؤى متاحة حالياً</h3>
+            <p className="text-[0.75rem] text-muted-foreground font-medium">استمر في بناء نشاطك عبر الوحدات المختلفة — الرؤى الذكية ستظهر مع ازدياد البيانات</p>
+          </div>
         </div>
       </motion.div>
     );
@@ -99,103 +106,119 @@ export function ProfileInsightsPanel({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`surface-depth rounded-2xl p-5 ${className}`}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className={`surface-depth rounded-[1.75rem] p-6 md:p-7 overflow-hidden relative ${className}`}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Lightbulb className="w-4 h-4 text-primary" />
+      {/* Subtle ambient gradient */}
+      <div className="absolute top-0 left-0 w-80 h-80 rounded-full bg-gradient-to-br from-violet-400/5 via-transparent to-amber-300/5 blur-3xl -translate-x-1/3 -translate-y-1/2 pointer-events-none" />
+
+      {/* Header */}
+      <div className="relative z-10 flex items-start gap-4 mb-6">
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 flex items-center justify-center shadow-inner ring-1 ring-violet-400/15 shrink-0">
+          <Brain className="w-5 h-5 text-violet-300" />
         </div>
-        <div>
-          <h3 className="text-meta font-bold text-foreground">رؤى ذكية</h3>
-          <p className="text-micro text-muted-foreground">
-            تحليلات وارتباطات من نشاطك عبر الوحدات المختلفة
-          </p>
+        <div className="min-w-0">
+          <h2 className="text-[1.1rem] font-extrabold text-foreground tracking-tight leading-tight">رؤى ذكية</h2>
+          <p className="text-[0.7rem] text-muted-foreground font-medium leading-relaxed">تحليلات وارتباطات من نشاطك عبر الوحدات المختلفة</p>
         </div>
       </div>
 
-      <div className="space-y-3">
+      {/* Insights List */}
+      <div className="space-y-3 relative z-10">
         {insights.map((insight: CrossModuleInsight, index: number) => {
-          const style = TYPE_STYLES[insight.type];
+          const style = TYPE_STYLES[insight.type] || TYPE_STYLES.correlation;
+          const DecorIcon = DECOR_ICONS[insight.type] || Brain;
           return (
             <motion.div
-              key={`${insight.type}-${insight.titleAr}`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`group relative p-4 rounded-xl border transition-all ${style.bg} ${style.border} hover:border-primary/30 cursor-pointer`}
+              key={`${insight.type}-${index}-${insight.titleAr}`}
+              initial={{ opacity: 0, x: -24, scale: 0.97 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{
+                delay: index * 0.08,
+                duration: 0.45,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className={`group relative p-5 rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/10 ${style.bg} ${style.border}`}
               onClick={() => insight.actionable && onActionClick?.(insight.actionTab || 'overview')}
+              style={{ cursor: insight.actionable && onActionClick ? 'pointer' : 'default' }}
             >
-              {/* Type Badge */}
-              <div className="absolute top-3 end-3 flex items-center gap-1">
+              {/* Top-right decorative icon */}
+              <DecorIcon className="absolute top-4 end-4 w-10 h-10 text-white/[0.03] rotate-[12deg]" />
+
+              {/* Type badge */}
+              <div className="absolute top-4 start-4">
                 {renderTypeIcon(insight.type)}
               </div>
 
-              {/* Content */}
-              <div className="flex gap-3">
-                {/* Confidence indicator */}
-                <div className="flex flex-col items-center gap-1 shrink-0">
-                  <div className="relative w-10 h-10">
-                    <svg className="w-10 h-10 transform -rotate-90">
+              {/* Main content */}
+              <div className="flex gap-4 mt-10">
+                {/* Confidence ring */}
+                <div className="flex flex-col items-center gap-2 shrink-0">
+                  <div className="relative w-14 h-14">
+                    {/* Background ring */}
+                    <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
                       <circle
-                        cx="16"
-                        cy="16"
-                        r="14"
+                        cx="28" cy="28" r="24"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="2.5"
-                        className="text-muted-foreground/20"
-                      />
-                      <circle
-                        cx="16"
-                        cy="16"
-                        r="14"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeDasharray={`${insight.confidence * 100} 100`}
-                        strokeLinecap="round"
-                        className={`${style.color} transition-all duration-500`}
-                        style={{ strokeDasharray: `${insight.confidence * 100} 100` }}
+                        strokeWidth="3.5"
+                        className="text-white/[0.06]"
                       />
                     </svg>
-                    <span className="absolute inset-0 flex items-center justify-center text-[0.625rem] font-bold text-foreground">
+                    {/* Progress ring */}
+                    <svg className="absolute inset-0 w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                      <circle
+                        cx="28" cy="28" r="24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        strokeDasharray={`${insight.confidence * 100} 100`}
+                        className="text-violet-300 transition-all duration-700 ease-out"
+                        style={{ filter: 'drop-shadow(0 0 6px rgba(139,92,246,0.4))' }}
+                      />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-[0.75rem] font-extrabold text-foreground tracking-tight">
                       {Math.round(insight.confidence * 100)}%
                     </span>
                   </div>
+                  <span className="text-[0.55rem] text-muted-foreground/50 font-medium">ثقة التحليل</span>
                 </div>
 
+                {/* Text content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2 mb-1">
-                    <h4 className="text-meta font-bold text-foreground flex-1">
+                  <div className="flex items-start justify-between gap-2 mb-2.5">
+                    <h4 className="text-[0.9rem] font-extrabold text-foreground tracking-tight leading-snug">
                       {insight.titleAr}
                     </h4>
                     {insight.actionable && onActionClick && (
-                      <span className="flex items-center gap-1 text-micro text-primary/70 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ArrowRight className="w-3 h-3" />
-                        <span>عرض</span>
+                      <span className="flex items-center gap-1 text-[0.6rem] font-extrabold text-violet-300/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0 whitespace-nowrap">
+                        <ArrowRight className="w-3 h-3 rotate-180" />
+                        عرض
                       </span>
                     )}
                   </div>
-                  <p className="text-micro text-muted-foreground line-clamp-2 mb-2">
+
+                  <p className="text-[0.73rem] text-muted-foreground/80 font-medium leading-[1.7] mb-3">
                     {insight.descriptionAr}
                   </p>
 
                   {/* Related badges */}
                   {insight.relatedBadges.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {insight.relatedBadges.slice(0, 3).map((badgeId: string) => (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {insight.relatedBadges.slice(0, 4).map((badgeId: string) => (
                         <span
                           key={badgeId}
-                          className="px-2 py-0.5 rounded-full text-[0.625rem] font-medium bg-muted/50 border border-border/30 text-muted-foreground"
+                          className="px-2 py-0.5 rounded-full text-[0.58rem] font-bold bg-white/[0.04] border border-white/[0.08] text-muted-foreground/70"
                         >
-                          {badgeId.replace('badge_', '')}
+                          {badgeId.replace('badge_', '').replace(/_/g, ' ')}
                         </span>
                       ))}
-                      {insight.relatedBadges.length > 3 && (
-                        <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-medium bg-muted/50 border border-border/30 text-muted-foreground">
-                          +{insight.relatedBadges.length - 3}
+                      {insight.relatedBadges.length > 4 && (
+                        <span className="px-2 py-0.5 rounded-full text-[0.58rem] font-bold bg-white/[0.03] border border-white/[0.06] text-muted-foreground/40">
+                          +{insight.relatedBadges.length - 4}
                         </span>
                       )}
                     </div>
@@ -203,9 +226,9 @@ export function ProfileInsightsPanel({
 
                   {/* Action hint */}
                   {insight.actionable && insight.actionTab && (
-                    <div className="flex items-center gap-1.5 text-[0.625rem] text-muted-foreground/70">
+                    <div className="flex items-center gap-2 text-[0.6rem] text-muted-foreground/40 font-medium">
                       {renderCategoryIcon(insight.actionTab)}
-                      <span>انتقل إلى تبويب: {insight.actionTab}</span>
+                      <span>انتقل إلى تبويب: <span className="text-muted-foreground/60 font-bold">{insight.actionTab}</span></span>
                     </div>
                   )}
                 </div>
