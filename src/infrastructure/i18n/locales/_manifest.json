@@ -1,0 +1,66 @@
+{
+  "de": {
+    "language": "de",
+    "generated": "2026-08-31T04:51:02.807Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "es": {
+    "language": "es",
+    "generated": "2026-08-31T04:51:02.834Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "fr": {
+    "language": "fr",
+    "generated": "2026-08-31T04:51:02.823Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "id": {
+    "language": "id",
+    "generated": "2026-08-31T04:51:02.829Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "ms": {
+    "language": "ms",
+    "generated": "2026-08-31T04:51:02.830Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "ru": {
+    "language": "ru",
+    "generated": "2026-08-31T04:51:02.836Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "tr": {
+    "language": "tr",
+    "generated": "2026-08-31T04:51:02.828Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  },
+  "ur": {
+    "language": "ur",
+    "generated": "2026-08-31T04:51:02.828Z",
+    "added": 319,
+    "kept": 0,
+    "total": 319,
+    "status": "machine-translated-pending-human-review"
+  }
+}
