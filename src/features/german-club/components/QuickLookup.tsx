@@ -1,10 +1,9 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Search, Sparkles, X } from '@/lib/icons';
 
-import { GERMAN_DICTIONARY_DATA } from '../lib/dictionaryData';
 import {
   buildIndex,
   detectQueryLanguage,
@@ -13,8 +12,6 @@ import {
   type ScoredHit,
 } from '../lib/search';
 import { GERMAN_CLUB_TOKENS } from '../types';
-
-const DICT_INDEX: readonly IndexedEntry[] = buildIndex(GERMAN_DICTIONARY_DATA);
 
 const MAX_SUGGESTIONS = 6;
 
@@ -32,14 +29,26 @@ const MAX_SUGGESTIONS = 6;
  *
  * Performance: ~5000 entries searched in ~10ms (single-threaded). No
  * web worker needed.
+ * 
+ * Dictionary data is loaded lazily on first input to keep the initial
+ * bundle small.
  */
 export const QuickLookup: React.FC = () => {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [open, setOpen] = useState(false);
+  const [dictIndex, setDictIndex] = useState<readonly IndexedEntry[] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
+
+  // Load dictionary data lazily on first input
+  const loadDictionary = useCallback(async () => {
+    if (dictIndex) return;
+    const { GERMAN_DICTIONARY_DATA } = await import('../lib/dictionaryData');
+    const { buildIndex } = await import('../lib/search');
+    setDictIndex(buildIndex(GERMAN_DICTIONARY_DATA));
+  }, [dictIndex]);
 
   // 180ms debounce — snappy but cheap on a 5000-entry index.
   useEffect(() => {
@@ -47,18 +56,25 @@ export const QuickLookup: React.FC = () => {
     return () => clearTimeout(t);
   }, [query]);
 
+  // Trigger dictionary load on first user input
+  useEffect(() => {
+    if (query && !dictIndex) {
+      loadDictionary();
+    }
+  }, [query, dictIndex, loadDictionary]);
+
   // Live results
   const results: ScoredHit[] = useMemo(() => {
-    if (!debounced.trim()) return [];
-    return fuzzyMultiLangSearch(debounced, DICT_INDEX, MAX_SUGGESTIONS);
-  }, [debounced]);
+    if (!debounced.trim() || !dictIndex) return [];
+    return fuzzyMultiLangSearch(debounced, dictIndex, MAX_SUGGESTIONS);
+  }, [debounced, dictIndex]);
 
   const totalMatches = useMemo(() => {
-    if (!debounced.trim()) return 0;
+    if (!debounced.trim() || !dictIndex) return 0;
     // Count everything, capped to 999 for display
-    const all = fuzzyMultiLangSearch(debounced, DICT_INDEX, 999);
+    const all = fuzzyMultiLangSearch(debounced, dictIndex, 999);
     return all.length;
-  }, [debounced]);
+  }, [debounced, dictIndex]);
 
   const queryLang = detectQueryLanguage(query);
 
@@ -81,9 +97,10 @@ export const QuickLookup: React.FC = () => {
         className="relative flex items-center gap-2 rounded-2xl border bg-white px-3.5 py-2.5 shadow-sm transition-all"
         style={{
           borderColor: open && query ? GERMAN_CLUB_TOKENS.prussian : `${GERMAN_CLUB_TOKENS.oak}44`,
-          boxShadow: open && query
-            ? '0 0 0 4px rgba(23, 50, 77, 0.08), 0 4px 16px -8px rgba(23, 24, 28, 0.18)'
-            : '0 1px 0 rgba(0,0,0,0.02), 0 4px 12px -8px rgba(23,24,28,0.12)',
+          boxShadow:
+            open && query
+              ? '0 0 0 4px rgba(23, 50, 77, 0.08), 0 4px 16px -8px rgba(23, 24, 28, 0.18)'
+              : '0 1px 0 rgba(0,0,0,0.02), 0 4px 12px -8px rgba(23,24,28,0.12)',
         }}
       >
         <Search className="w-4 h-4 text-stone-500 shrink-0" />
@@ -144,13 +161,15 @@ export const QuickLookup: React.FC = () => {
             <div className="flex items-center justify-between px-3.5 py-2 border-b border-stone-200/70 bg-stone-50/60">
               <div className="flex items-center gap-1.5 text-xs">
                 <span className="font-mono font-bold uppercase tracking-wider text-stone-600">
-                  {queryLang === 'arabic' ? 'بحث عربي' : queryLang === 'german' ? 'Suche' : 'Search'}
+                  {queryLang === 'arabic'
+                    ? 'بحث عربي'
+                    : queryLang === 'german'
+                      ? 'Suche'
+                      : 'Search'}
                 </span>
                 <span className="text-stone-400">·</span>
                 <span className="text-stone-500">
-                  {totalMatches > 0
-                    ? `${totalMatches} نتيجة`
-                    : 'لا توجد نتائج'}
+                  {totalMatches > 0 ? `${totalMatches} نتيجة` : 'لا توجد نتائج'}
                 </span>
               </div>
               {totalMatches > MAX_SUGGESTIONS && (
@@ -169,9 +188,7 @@ export const QuickLookup: React.FC = () => {
             {results.length === 0 ? (
               <div className="px-4 py-8 text-center text-stone-500">
                 <p className="text-sm font-medium mb-1">لا توجد نتائج لـ "{debounced}"</p>
-                <p className="text-xs text-stone-400">
-                  جرّب جزءاً من الكلمة، أو بالأحرف الأولى
-                </p>
+                <p className="text-xs text-stone-400">جرّب جزءاً من الكلمة، أو بالأحرف الأولى</p>
               </div>
             ) : (
               <ul className="max-h-80 overflow-y-auto">
@@ -213,10 +230,10 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
             backgroundColor: isExact
               ? '#22c55e'
               : isPrefix
-              ? GERMAN_CLUB_TOKENS.prussian
-              : isFuzzy
-              ? '#9ca3af'
-              : '#d4d4d8',
+                ? GERMAN_CLUB_TOKENS.prussian
+                : isFuzzy
+                  ? '#9ca3af'
+                  : '#d4d4d8',
           }}
           aria-hidden="true"
         />

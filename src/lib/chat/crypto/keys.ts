@@ -38,6 +38,8 @@
  *     The UI must not claim otherwise.
  */
 
+import { fromBase64Url, toBase64Url, utf8 } from './envelope';
+
 const DB_NAME = 'amv-chat-e2ee';
 const DB_VERSION = 1;
 const STORE = 'identity';
@@ -112,7 +114,6 @@ async function generateIdentity(): Promise<StoredIdentity> {
   ])) as CryptoKeyPair;
   // The public half must be extractable — it is meant to be published.
   const rawPublic = await subtle().exportKey('raw', pair.publicKey);
-  const { toBase64Url } = await import('./envelope');
   return {
     publicKey: pair.publicKey,
     privateKey: pair.privateKey,
@@ -150,7 +151,6 @@ export async function getIdentity(): Promise<StoredIdentity> {
 
 /** Import a peer's published public key. */
 export async function importPublicKey(raw: string): Promise<CryptoKey> {
-  const { fromBase64Url } = await import('./envelope');
   const bytes = fromBase64Url(raw);
   return subtle().importKey(
     'raw',
@@ -183,8 +183,6 @@ export async function deriveConversationKey(
     privateKey,
     256,
   );
-
-  const { utf8 } = await import('./envelope');
   const [a, b] = [myUserId, peerUserId].sort();
   const hkdfKey = await subtle().importKey('raw', shared, 'HKDF', false, ['deriveKey']);
 
@@ -212,9 +210,11 @@ export async function deriveConversationKey(
  * enough that two people will actually read it to each other.
  */
 export async function safetyNumber(myPublicRaw: string, peerPublicRaw: string): Promise<string> {
-  const { utf8 } = await import('./envelope');
   const [a, b] = [myPublicRaw, peerPublicRaw].sort();
-  const digest = await subtle().digest('SHA-256', utf8(`${PROTOCOL_INFO}|${a}|${b}`) as BufferSource);
+  const digest = await subtle().digest(
+    'SHA-256',
+    utf8(`${PROTOCOL_INFO}|${a}|${b}`) as BufferSource,
+  );
   const bytes = new Uint8Array(digest);
 
   const groups: string[] = [];
