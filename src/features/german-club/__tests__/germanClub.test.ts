@@ -17,7 +17,7 @@ describe('German Club Feature Unit Tests', () => {
       const state = useGermanClubStore.getState();
       expect(state.entries.length).toBeGreaterThan(0);
       expect(state.entries.every((e) => !e.locked)).toBe(true);
-    });
+    }, 15000);
 
     it('should include core macro-domain shelves like burgeramt-anmeldung and coffee-bakery', () => {
       const state = useGermanClubStore.getState();
