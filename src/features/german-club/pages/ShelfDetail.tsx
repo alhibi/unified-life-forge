@@ -7,11 +7,9 @@ import { PageShell } from '@/components/ui/app-shell';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import { BookOpen, Sparkles } from '@/lib/icons';
 
-import { BewaehrungsprobeStamp } from '../components/BewaehrungsprobeStamp';
 import { EntryCard } from '../components/EntryCard';
 import { FurnaceButton } from '../components/FurnaceButton';
 import { GenerationModal } from '../components/GenerationModal';
-import { SessionMomentumLine } from '../components/SessionMomentumLine';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
 
@@ -21,15 +19,12 @@ export const ShelfDetail: React.FC = () => {
   const [filterRegister, setFilterRegister] = useState<GermanRegister | 'all'>('all');
   const [isGenerationModalOpen, setIsGenerationModalOpen] = useState<boolean>(false);
   const [activeJobStatus, setActiveJobStatus] = useState<string | null>(null);
-  const [stampStatus, setStampStatus] = useState<'passed' | null>(null);
 
   const {
     currentShelf,
     entries,
     isLoadingEntries,
     fetchShelfEntries,
-    toggleEntryMastered,
-    masteredEntryIds,
   } = useGermanClubStore();
 
   useEffect(() => {
@@ -92,7 +87,6 @@ export const ShelfDetail: React.FC = () => {
 
   return (
     <PageShell centered={false} flush>
-      <SessionMomentumLine />
       <SEO
         title={`${currentShelf?.title_ar || 'تفاصيل الرف'} — النادي الألماني`}
         description={currentShelf?.description_ar || 'عبارات ومفردات الرف الألمانية'}
@@ -124,7 +118,7 @@ export const ShelfDetail: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Burning Ember "D" Furnace Button for All Users */}
+            {/* Furnace 'D' Button — opens the AI generation modal */}
             {currentShelf && (
               <FurnaceButton
                 currentCount={entries.length}
@@ -133,15 +127,6 @@ export const ShelfDetail: React.FC = () => {
                 onClick={() => setIsGenerationModalOpen(true)}
               />
             )}
-
-            <button
-              type="button"
-              onClick={() => setStampStatus('passed')}
-              className="text-xs font-bold px-3 py-1.5 rounded-xl bg-[#17324D] text-white hover:bg-[#12273d] transition-colors flex items-center gap-1 shadow-xs"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              اختبار Bewährungsprobe
-            </button>
 
             <button
               type="button"
@@ -221,18 +206,13 @@ export const ShelfDetail: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {filteredEntries.map((entry) => (
-                <EntryCard
-                  key={entry.id}
-                  entry={entry}
-                  initialMastered={masteredEntryIds.has(entry.id)}
-                  onToggleMastered={toggleEntryMastered}
-                />
+                <EntryCard key={entry.id} entry={entry} />
               ))}
             </div>
           )}
         </div>
 
-        {/* Furnace Generation Console v2 Modal */}
+        {/* Furnace Generation Modal */}
         {currentShelf && (
           <GenerationModal
             shelfId={currentShelf.id}
@@ -240,20 +220,12 @@ export const ShelfDetail: React.FC = () => {
             shelfTitleAr={currentShelf.title_ar}
             shelfTitleDe={currentShelf.title_de}
             shelfDescriptionAr={currentShelf.description_ar}
-
             currentEntryCount={entries.length}
             targetCount={currentShelf.target_entry_count || 25}
             isOpen={isGenerationModalOpen}
             onClose={() => setIsGenerationModalOpen(false)}
           />
         )}
-
-        {/* Bewährungsprobe Surge Stamp Moment */}
-        <BewaehrungsprobeStamp
-          status={stampStatus}
-          shelfTitleAr={currentShelf?.title_ar}
-          onComplete={() => setStampStatus(null)}
-        />
       </div>
     </PageShell>
   );

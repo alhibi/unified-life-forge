@@ -7,7 +7,6 @@ import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
 
 import { GenerationModal } from '../components/GenerationModal';
-import { SessionMomentumLine } from '../components/SessionMomentumLine';
 import { ShelfCard } from '../components/ShelfCard';
 import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
@@ -18,25 +17,19 @@ export const GermanClubHome: React.FC = () => {
     shelves,
     isLoadingShelves,
     fetchShelves,
-    masteredShelfIds,
-    animatedMasteryIds,
-    markShelfAnimated,
-    checkShelfMastery,
   } = useGermanClubStore();
 
   const [selectedFurnaceShelf, setSelectedFurnaceShelf] = useState<GermanShelf | null>(null);
 
   useEffect(() => {
     fetchShelves();
-    checkShelfMastery();
-  }, [fetchShelves, checkShelfMastery]);
+  }, [fetchShelves]);
 
   return (
     <PageShell centered={false} flush>
-      <SessionMomentumLine />
       <SEO
-        title="النادي الألماني (Der Club) — مكتبة المواقف الواقعية"
-        description="مساحة القراءة الخاصة باللغة الألمانية مرتبة حسب المواقف اليومية بألوان الأجناس ونظام القواعد الذكي."
+        title="النادي الألماني (Der Club) — مرجع المواقف الواقعية"
+        description="مرجع لغوي ألماني/عربي مرتب حسب المواقف اليومية بألوان الأجناس وتفسير الأفعال المنفصلة."
         path="/german-club"
       />
 
@@ -93,11 +86,11 @@ export const GermanClubHome: React.FC = () => {
           <div className="max-w-4xl mx-auto text-center space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>مكتبة القراءة المجانية والمتاحة للجميع</span>
+              <span>مرجع مجاني للقراءة والاستخدام</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-extrabold text-[#17181C] tracking-tight leading-tight">
-              تعلم الألمانية بأسلوب <span className="text-[#17324D]">المواقف الحية</span>
+              الألمانية <span className="text-[#17324D]">بالمواقف الحية</span>
             </h2>
 
             <p className="text-xs sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed">
@@ -136,7 +129,7 @@ export const GermanClubHome: React.FC = () => {
             <h3 className="text-base sm:text-lg font-bold text-[#17181C]">
               رفوف المواقف اليومية ({shelves.length})
             </h3>
-            <span className="text-xs text-stone-500">اختر الرف لبدء القراءة</span>
+            <span className="text-xs text-stone-500">اختر الرف لتصفح محتواه</span>
           </div>
 
           {isLoadingShelves ? (
@@ -151,9 +144,6 @@ export const GermanClubHome: React.FC = () => {
                 <ShelfCard
                   key={shelf.id}
                   shelf={shelf}
-                  isMastered={masteredShelfIds.has(shelf.id)}
-                  hasBeenAnimated={animatedMasteryIds.has(shelf.id)}
-                  onMasteryAnimationComplete={markShelfAnimated}
                   onOpenFurnace={(s, e) => {
                     e.stopPropagation();
                     setSelectedFurnaceShelf(s);
@@ -173,7 +163,6 @@ export const GermanClubHome: React.FC = () => {
             shelfTitleAr={selectedFurnaceShelf.title_ar}
             shelfTitleDe={selectedFurnaceShelf.title_de}
             shelfDescriptionAr={selectedFurnaceShelf.description_ar}
-
             currentEntryCount={0}
             targetCount={selectedFurnaceShelf.target_entry_count || 25}
             isOpen={Boolean(selectedFurnaceShelf)}

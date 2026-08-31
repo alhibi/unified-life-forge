@@ -1,33 +1,28 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { ArrowLeft, Check, Sparkles, Volume2 } from '@/lib/icons';
+import { ArrowLeft, Sparkles, Volume2 } from '@/lib/icons';
 
 import { GERMAN_CLUB_TOKENS, GermanEntry, REGISTER_LABELS_AR } from '../types';
 import { GenderDot } from './GenderDot';
 
 interface EntryCardProps {
   entry: GermanEntry;
-  initialMastered?: boolean;
-  onToggleMastered?: (id: string, mastered: boolean) => void;
 }
 
-export const EntryCard: React.FC<EntryCardProps> = ({ entry, initialMastered = false, onToggleMastered }) => {
+/**
+ * Entry Card — a reference card for one German entry.
+ * Displays the headword, IPA, gender, register, and example sentence.
+ * Click anywhere to expand/reveal the example sentence.
+ *
+ * This is a READ-ONLY reference card. There is no "mastered" toggle,
+ * no progress bar, no streak counter — the German Club is a reference,
+ * not a teaching app.
+ */
+export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
   const [showExample, setShowExample] = useState(false);
   const [isSplitting, setIsSplitting] = useState(false);
-  const [isMastered, setIsMastered] = useState(initialMastered);
   const shouldReduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    setIsMastered(initialMastered);
-  }, [initialMastered, entry.id]);
-
-  const handleMastered = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const next = !isMastered;
-    setIsMastered(next);
-    if (onToggleMastered) onToggleMastered(entry.id, next);
-  };
 
   const handleCardClick = () => {
     if (entry.is_separable_verb) {
@@ -51,16 +46,14 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, initialMastered = f
     <motion.div
       layout={!shouldReduceMotion}
       onClick={handleCardClick}
-      className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-200 active:scale-[0.99] ${
-        isMastered ? 'opacity-80 bg-emerald-950/5 border-emerald-800/20' : ''
-      }`}
+      className="relative cursor-pointer rounded-2xl border p-5 transition-all duration-200 active:scale-[0.99]"
       style={{
         backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
-        borderColor: isMastered ? '#22c55e33' : `${GERMAN_CLUB_TOKENS.oak}26`,
+        borderColor: `${GERMAN_CLUB_TOKENS.oak}26`,
         boxShadow: '0 2px 12px -2px rgba(23, 24, 28, 0.04)',
       }}
     >
-      {/* Top row: Gender Dot, Headword (German), and Action Triggers */}
+      {/* Top row: Gender Dot, Headword (German), and Audio trigger */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-baseline gap-2.5 min-w-0 flex-1">
           {entry.gender !== 'n_a' && <GenderDot gender={entry.gender} size={11} className="mt-1.5" />}
@@ -100,35 +93,21 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry, initialMastered = f
           </div>
         </div>
 
-        {/* Mastered & Audio Triggers */}
-        <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-          {entry.audio_url && (
-            <button
-              type="button"
-              onClick={() => {
-                const audio = new Audio(entry.audio_url!);
-                audio.play().catch(() => {});
-              }}
-              className="p-1.5 rounded-lg hover:bg-stone-200/60 text-stone-600 transition-colors"
-              title="استماع للنطق"
-            >
-              <Volume2 className="w-4 h-4" />
-            </button>
-          )}
-
+        {/* Audio trigger only — no mastered button */}
+        {entry.audio_url && (
           <button
             type="button"
-            onClick={handleMastered}
-            className={`p-1.5 rounded-lg border transition-all ${
-              isMastered
-                ? 'bg-emerald-600 text-white border-emerald-600'
-                : 'border-stone-300 text-stone-400 hover:text-stone-600 hover:bg-stone-200/50'
-            }`}
-            title={isMastered ? 'تم الحفظ' : 'تحديد كـ متقن'}
+            onClick={(e) => {
+              e.stopPropagation();
+              const audio = new Audio(entry.audio_url!);
+              audio.play().catch(() => {});
+            }}
+            className="p-1.5 rounded-lg border border-stone-300/60 hover:bg-stone-200/60 text-stone-600 transition-colors shrink-0"
+            title="استماع للنطق"
           >
-            <Check className="w-3.5 h-3.5" />
+            <Volume2 className="w-4 h-4" />
           </button>
-        </div>
+        )}
       </div>
 
       {/* Arabic Translation Subtitle */}

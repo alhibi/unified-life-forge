@@ -17,27 +17,12 @@ interface GermanClubState {
   isLoadingUnreviewed: boolean;
   error: string | null;
 
-  // Ephemeral, client-side session momentum (0 to 100)
-  sessionMomentum: number;
-  incrementMomentum: (amount?: number) => void;
-  coolMomentum: (decayAmount?: number) => void;
-  resetMomentum: () => void;
-
-  // Mastered shelf IDs state & animated mastery tracking
-  masteredShelfIds: Set<string>;
-  masteredEntryIds: Set<string>;
-  animatedMasteryIds: Set<string>;
-  fetchMasteredEntries: () => Promise<void>;
-  markShelfAnimated: (shelfId: string) => void;
-  checkShelfMastery: () => Promise<void>;
-
   fetchShelves: () => Promise<void>;
   fetchShelfEntries: (shelfSlug: string) => Promise<void>;
   fetchGrammarNotes: () => Promise<void>;
   fetchUnreviewedEntries: () => Promise<void>;
   checkEntitlement: () => Promise<boolean>;
   promoteEntryStatus: (entryId: string, newStatus: 'reviewed' | 'verified') => Promise<boolean>;
-  toggleEntryMastered: (entryId: string, mastered: boolean) => Promise<void>;
 }
 
 // Static fallback seed data to ensure offline/instant availability for all 38+ shelves
@@ -13090,104 +13075,6 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
   isLoadingUnreviewed: false,
   error: null,
 
-  sessionMomentum: 0,
-  incrementMomentum: (amount = 25) => {
-    set((state) => ({
-      sessionMomentum: Math.min(100, state.sessionMomentum + amount),
-    }));
-  },
-  coolMomentum: (decayAmount = 15) => {
-    set((state) => ({
-      sessionMomentum: Math.max(0, state.sessionMomentum - decayAmount),
-    }));
-  },
-  resetMomentum: () => {
-    set({ sessionMomentum: 0 });
-  },
-
-  masteredShelfIds: new Set<string>(),
-  masteredEntryIds: new Set<string>(),
-  animatedMasteryIds: new Set<string>(),
-  fetchMasteredEntries: async () => {
-    try {
-      const { data: userRes } = await supabase.auth.getUser();
-      if (!userRes?.user) return;
-
-      const { data } = await supabase
-        .from('german_club_progress')
-        .select('entry_id')
-        .eq('user_id', userRes.user.id)
-        .eq('is_mastered', true);
-
-      set({ masteredEntryIds: new Set<string>((data ?? []).map((row) => row.entry_id as string)) });
-    } catch {
-      /* ignore offline progress errors */
-    }
-  },
-  markShelfAnimated: (shelfId: string) => {
-    set((state) => {
-      const next = new Set(state.animatedMasteryIds);
-      next.add(shelfId);
-      return { animatedMasteryIds: next };
-    });
-  },
-  checkShelfMastery: async () => {
-    try {
-      const { data: userRes } = await supabase.auth.getUser();
-      if (!userRes?.user) return;
-
-      const { data: progressData } = await supabase
-        .from('german_club_progress')
-        .select('entry_id, is_mastered')
-        .eq('user_id', userRes.user.id)
-        .eq('is_mastered', true);
-
-      if (!progressData || progressData.length === 0) return;
-
-      const masteredEntryIds = new Set(progressData.map((row) => row.entry_id));
-
-      // Query entries mapping across all shelves
-      const { data: allEntriesData } = await supabase
-        .from('german_club_entries')
-        .select('id, shelf_id');
-
-      const { shelves } = get();
-      const masteredShelves = new Set<string>();
-
-      if (allEntriesData && allEntriesData.length > 0) {
-        const shelfEntriesMap = new Map<string, string[]>();
-        for (const entry of allEntriesData) {
-          if (!shelfEntriesMap.has(entry.shelf_id)) {
-            shelfEntriesMap.set(entry.shelf_id, []);
-          }
-          shelfEntriesMap.get(entry.shelf_id)!.push(entry.id);
-        }
-
-        for (const shelf of shelves) {
-          const entryIds = shelfEntriesMap.get(shelf.id) || [];
-          if (entryIds.length > 0 && entryIds.every((id) => masteredEntryIds.has(id))) {
-            masteredShelves.add(shelf.id);
-          }
-        }
-      } else {
-        // Fallback for offline local entries map
-        for (const shelf of shelves) {
-          const localEntries = LOCAL_ENTRIES_FALLBACK[shelf.slug] || [];
-          if (
-            localEntries.length > 0 &&
-            localEntries.every((e) => masteredEntryIds.has(e.id))
-          ) {
-            masteredShelves.add(shelf.id);
-          }
-        }
-      }
-
-      set({ masteredShelfIds: masteredShelves });
-    } catch {
-      /* ignore offline progress errors */
-    }
-  },
-
   fetchShelves: async () => {
     set({ isLoadingShelves: true, error: null });
     try {
@@ -13211,8 +13098,6 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
     set({ isLoadingEntries: true, error: null });
     const { shelves } = get();
     const activeShelf = shelves.find((s) => s.slug === shelfSlug) || null;
-
-    void get().fetchMasteredEntries();
 
     try {
       await get().checkEntitlement();
@@ -13312,35 +13197,6 @@ export const useGermanClubStore = create<GermanClubState>((set, get) => ({
       return true;
     } catch {
       return false;
-    }
-  },
-
-  toggleEntryMastered: async (entryId: string, mastered: boolean) => {
-    set((state) => {
-      const next = new Set(state.masteredEntryIds);
-      if (mastered) next.add(entryId);
-      else next.delete(entryId);
-      return { masteredEntryIds: next };
-    });
-
-    if (mastered) {
-      get().incrementMomentum(25);
-    } else {
-      get().coolMomentum(20);
-    }
-
-    try {
-      const { data: userRes } = await supabase.auth.getUser();
-      if (!userRes?.user) return;
-
-      await supabase.from('german_club_progress').upsert({
-        user_id: userRes.user.id,
-        entry_id: entryId,
-        is_mastered: mastered,
-        last_seen_at: new Date().toISOString(),
-      });
-    } catch {
-      /* ignore offline progress errors */
     }
   },
 }));
