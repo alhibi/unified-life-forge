@@ -7,6 +7,7 @@ import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, ShieldAlert, Sparkles, Wand2 } from '@/lib/icons';
 
 import { DiscoveryCard } from '../components/DiscoveryCard';
+import { WortschatzSpiegel } from '../components/WortschatzSpiegel';
 import { Wortspaziergang } from '../components/Wortspaziergang';
 import { GenerationModal } from '../components/GenerationModal';
 import { HeuteImClub } from '../components/Daily/HeuteImClub';
@@ -104,7 +105,7 @@ export const GermanClubHome: React.FC = () => {
             </p>
 
             {/* Wortspaziergang CTA — the hero action */}
-            <div className="pt-3">
+            <div className="pt-3 flex flex-col items-center gap-3">
               <button
                 type="button"
                 onClick={() => setSpaziergangOpen(true)}
@@ -116,6 +117,8 @@ export const GermanClubHome: React.FC = () => {
                   7 خطوات
                 </span>
               </button>
+
+              <WortschatzSpiegel />
             </div>
           </div>
         </div>
