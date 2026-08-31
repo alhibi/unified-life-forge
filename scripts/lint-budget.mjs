@@ -23,11 +23,26 @@ import process from 'node:process';
 const BUDGET_FILE = path.resolve(import.meta.dirname, '../lint-budget.json');
 const write = process.argv.includes('--write');
 
+function resolveRunner() {
+  // Prefer `bunx` (the project mandates Bun first), but fall back to `npx`
+  // so the budget still runs on plain Node when Bun isn't available.
+  for (const candidate of ['bunx', 'npx']) {
+    try {
+      execFileSync(candidate, ['--version'], { stdio: 'ignore' });
+      return candidate;
+    } catch {
+      // try next
+    }
+  }
+  throw new Error('Neither `bunx` nor `npx` is available on PATH.');
+}
+
 function runEslint() {
   // ESLint exits non-zero when it reports errors; we want the JSON either way.
+  const runner = resolveRunner();
   let stdout;
   try {
-    stdout = execFileSync('bunx', ['eslint', '.', '-f', 'json'], {
+    stdout = execFileSync(runner, ['eslint', '.', '-f', 'json'], {
       encoding: 'utf8',
       maxBuffer: 256 * 1024 * 1024,
     });
