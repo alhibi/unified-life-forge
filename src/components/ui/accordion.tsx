@@ -4,16 +4,11 @@ import * as React from 'react';
 import { ChevronDown } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
-
 const Accordion = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root> | any
->(({ ...props }, ref) => (
-  // @ts-ignore Typescript is overly strict here
-  <AccordionPrimitive.Root ref={ref} {...props} />
-));
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>
+>(({ ...props }, ref) => <AccordionPrimitive.Root ref={ref} {...props} />);
 Accordion.displayName = 'Accordion';
-
 
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,

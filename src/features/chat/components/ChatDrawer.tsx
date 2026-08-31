@@ -37,9 +37,7 @@ import {
   renderRichText,
   stripMarkers,
 } from './chatUtils';
-import {
-  WALLPAPERS,
-} from './constants';
+import { WALLPAPERS } from './constants';
 import ConversationList from './ConversationList';
 import { getBubbleRadius } from './drawer/bubbleRadius';
 import { renderAvatar } from './drawer/chatAvatar';
@@ -84,6 +82,81 @@ export default function ChatDrawer({
     sendMessage: chat.sendMessage,
   });
   const voicePlayer = useVoicePlayer();
+
+  // Destructure chat properties to avoid "accessing ref during render" warnings
+  // when accessing chat.* in JSX. The chat object contains refs (fileInputRef,
+  // messagesEndRef, etc.) that should not be accessed during render.
+  const {
+    user,
+    activeConv,
+    messages,
+    conversations,
+    filteredByTab,
+    typingByConv,
+    onlineUserIds,
+    conversationsLoading,
+    messagesLoading,
+    selectionMode,
+    showNewChat,
+    showChatMenu,
+    showProfilePopup,
+    showWallpaperPicker,
+    showExtraEmojis,
+    showSelfDestructMenu,
+    showEmojiPicker,
+    showSearch,
+    forwardingMessages,
+    messagesEndRef,
+    messagesContainerRef,
+    fileInputRef,
+    inputRef,
+    getFileUrl,
+    sendMessage,
+    setActiveConv,
+    setShowNewChat,
+    setShowChatMenu,
+    setShowProfilePopup,
+    setShowWallpaperPicker,
+    setShowExtraEmojis,
+    setShowSelfDestructMenu,
+    setShowEmojiPicker,
+    setShowSearch,
+    setConversationFilter,
+    conversationFilter,
+    toggleSelect,
+    toggleReaction,
+    scrollToBottom,
+    focusComposer,
+    resizeComposer,
+    handleScroll,
+    loadConversations,
+    loadMessages,
+    retryFailedMessage,
+    deleteMessage,
+    deleteManyMessages,
+    hideMessageForSelf,
+    pinMessage,
+    startEditMessage,
+    saveEditMessage,
+    searchInChat,
+    navigateSearch,
+    getReplyPreview,
+    deleteConversation,
+    searchForUser,
+    startConversation,
+    getMessageMeta,
+    copyMessage,
+    broadcastTyping,
+    getMessageOpacity,
+    getForwardedName,
+    handleFileUpload,
+    addImagesFromFiles,
+    addFilesFromDrop,
+    sendStagedImages,
+    removeStagedImage,
+    clearStagedImages,
+    chatPrefs,
+  } = chat;
 
   // Trigger the Apple-emoji map preload (lazy-loads `@emoji-mart/data` and
   // builds the native→unified lookup used by `renderRichText`). The boolean
@@ -287,7 +360,6 @@ export default function ChatDrawer({
     toggleReaction: chat.toggleReaction,
   });
 
-
   // Keyboard shortcuts: Esc cascades through overlays/modes; Ctrl/Cmd+K opens
   // search (in-chat when a conversation is open, otherwise conversation list).
   React.useEffect(() => {
@@ -360,7 +432,6 @@ export default function ChatDrawer({
     enabled: !!chat.activeConv,
     onFiles: chat.addFilesFromDrop,
   });
-
 
   // ── Wallpaper resolution ──────────────────────────────────────────────────
   const currentWallpaperId = chat.chatPrefs.getWallpaper(chat.activeConv?.id);
@@ -444,7 +515,6 @@ export default function ChatDrawer({
         BackIcon={BackIcon}
         onRequestDeleteConversation={() => setShowDeleteConfirm(true)}
       />
-
 
       {/* ───────────────── CONVERSATION LIST SCREEN ───────────────── */}
       {!chat.activeConv && !chat.showNewChat ? (
@@ -622,7 +692,6 @@ export default function ChatDrawer({
         <>
           {/* Conversation header. See chat/drawer/ChatHeader.tsx. */}
           <ChatHeader chat={chat} BackIcon={BackIcon} totalUnread={totalUnread} />
-
 
           {/* ── Search Bar ── */}
           <AnimatePresence>
@@ -1445,7 +1514,6 @@ export default function ChatDrawer({
             onCloseKeepingEmojiTray={() => setActionMenu(null)}
             onShowMessageInfo={setMessageInfoTarget}
           />
-
 
           {/* ── Chat Input ── */}
           {chat.activeConv && chat.chatPrefs.isBlocked(chat.activeConv.id) ? (

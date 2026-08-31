@@ -20,13 +20,15 @@ const DEPTHS: { key: ArchiveDepth; title: string; subtitle: string; est: string 
   {
     key: 'deep',
     title: 'متعمّق (الرصانة الأكاديمية)',
-    subtitle: '5 × 3 · ~14250 كلمة · بحث هجين + هيكل مفصل + نقد ذاتي للهيكل + كتابة غنية + تلميع لغوي',
+    subtitle:
+      '5 × 3 · ~14250 كلمة · بحث هجين + هيكل مفصل + نقد ذاتي للهيكل + كتابة غنية + تلميع لغوي',
     est: '~1.5 دقيقة (متوازي)',
   },
   {
     key: 'deepest',
     title: 'الأطروحة الموسوعية الإمبراطورية (البُعد الأقصى)',
-    subtitle: '7 × 4 · ~45000 كلمة · مونوغراف فخم كالأطروحات الفلسفية الكبرى + مراجعة ونقد صارم + بحث ويب ميكرو تفصيلي لكل فقرة + تلميع أدبي بليغ ومبهر',
+    subtitle:
+      '7 × 4 · ~45000 كلمة · مونوغراف فخم كالأطروحات الفلسفية الكبرى + مراجعة ونقد صارم + بحث ويب ميكرو تفصيلي لكل فقرة + تلميع أدبي بليغ ومبهر',
     est: '~2.5 دقيقة (تسريع فائق)',
   },
 ];
@@ -141,13 +143,14 @@ export default function ArchiveNew() {
       for await (const ev of archiveApi.generate(topic.trim(), depth, overrides, ctrl.signal)) {
         applyEvent(ev);
       }
-    } catch (e: any) {
-      if (e?.name === 'AbortError') {
+    } catch (e: unknown) {
+      if (e instanceof Error && e.name === 'AbortError') {
         setStage('idle');
         return;
       }
       console.error(e);
-      setError(e?.message || 'حدث خطأ غير متوقع');
+      const message = e instanceof Error ? e.message : 'حدث خطأ غير متوقع';
+      setError(message);
       setStage('error');
     }
   }
@@ -223,7 +226,9 @@ export default function ArchiveNew() {
       </AppCard>
 
       <AppCard>
-        <label className="block text-mini font-semibold text-foreground mb-3">مستوى العمق المعرفي</label>
+        <label className="block text-mini font-semibold text-foreground mb-3">
+          مستوى العمق المعرفي
+        </label>
         <div className="flex flex-col gap-2">
           {DEPTHS.map((d) => (
             <button

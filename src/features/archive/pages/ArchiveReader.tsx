@@ -113,12 +113,14 @@ function slugify(s: string) {
   );
 }
 
-function extractText(children: any): string {
+function extractText(children: React.ReactNode): string {
   if (children == null) return '';
   if (typeof children === 'string' || typeof children === 'number') return String(children);
   if (Array.isArray(children)) return children.map(extractText).join('');
-  if (typeof children === 'object' && 'props' in children)
-    return extractText((children as any).props?.children);
+  if (typeof children === 'object' && children !== null && 'props' in children) {
+    const element = children as { props?: { children?: React.ReactNode } };
+    return extractText(element.props?.children);
+  }
   return '';
 }
 
@@ -262,7 +264,8 @@ export default function ArchiveReader() {
     const loadVoicesList = () => {
       const list = window.speechSynthesis.getVoices();
       setVoices(list);
-      const preferred = list.find((v) => v.lang.startsWith('ar') || v.lang.startsWith('en'))?.name || '';
+      const preferred =
+        list.find((v) => v.lang.startsWith('ar') || v.lang.startsWith('en'))?.name || '';
       setSelectedVoiceName(preferred);
     };
     loadVoicesList();
@@ -282,7 +285,9 @@ export default function ArchiveReader() {
         if (wakeLockRef.current) {
           try {
             await wakeLockRef.current.release();
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
           wakeLockRef.current = null;
         }
       }
@@ -296,49 +301,52 @@ export default function ArchiveReader() {
   }, [prefs.lock]);
 
   // Speech player handlers
-  const startSpeaking = useCallback((startIndex: number) => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
+  const startSpeaking = useCallback(
+    (startIndex: number) => {
+      if (typeof window === 'undefined' || !window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
 
-    let currentIndex = startIndex;
-    const playParagraph = () => {
-      if (currentIndex >= paragraphs.length) {
-        setIsSpeaking(false);
-        setIsPaused(false);
-        setSpokenParagraphIndex(null);
-        return;
-      }
+      let currentIndex = startIndex;
+      const playParagraph = () => {
+        if (currentIndex >= paragraphs.length) {
+          setIsSpeaking(false);
+          setIsPaused(false);
+          setSpokenParagraphIndex(null);
+          return;
+        }
 
-      setSpokenParagraphIndex(currentIndex);
-      const text = paragraphs[currentIndex];
-      // Clean text of basic markdown tokens for smoother spoken reading
-      const cleanText = text.replace(/[#*`_[\]()\-+]/g, ' ').trim();
+        setSpokenParagraphIndex(currentIndex);
+        const text = paragraphs[currentIndex];
+        // Clean text of basic markdown tokens for smoother spoken reading
+        const cleanText = text.replace(/[#*`_[\]()\-+]/g, ' ').trim();
 
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = voiceSpeed;
-      if (selectedVoiceName) {
-        const found = voices.find((v) => v.name === selectedVoiceName);
-        if (found) utterance.voice = found;
-      }
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.rate = voiceSpeed;
+        if (selectedVoiceName) {
+          const found = voices.find((v) => v.name === selectedVoiceName);
+          if (found) utterance.voice = found;
+        }
 
-      utterance.onend = () => {
-        currentIndex++;
-        playParagraph();
+        utterance.onend = () => {
+          currentIndex++;
+          playParagraph();
+        };
+
+        utterance.onerror = () => {
+          setIsSpeaking(false);
+          setIsPaused(false);
+          setSpokenParagraphIndex(null);
+        };
+
+        window.speechSynthesis.speak(utterance);
       };
 
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-        setIsPaused(false);
-        setSpokenParagraphIndex(null);
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
-
-    setIsSpeaking(true);
-    setIsPaused(false);
-    playParagraph();
-  }, [paragraphs, voices, selectedVoiceName, voiceSpeed]);
+      setIsSpeaking(true);
+      setIsPaused(false);
+      playParagraph();
+    },
+    [paragraphs, voices, selectedVoiceName, voiceSpeed],
+  );
 
   const pauseSpeaking = useCallback(() => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -363,17 +371,22 @@ export default function ArchiveReader() {
   // Safe client-side full text highlight renderer mapping segments into plain JSX tags
   const highlightSearch = useCallback((text: string, query: string): React.ReactNode => {
     if (!query || !text) return text;
-    const parts = text.split(new RegExp(`(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'));
+    const parts = text.split(
+      new RegExp(`(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'),
+    );
     return (
       <>
         {parts.map((part, i) =>
           part.toLowerCase() === query.toLowerCase() ? (
-            <mark key={i} className="bg-amber-400/40 text-foreground px-0.5 rounded-sm font-semibold border-b border-amber-500">
+            <mark
+              key={i}
+              className="bg-amber-400/40 text-foreground px-0.5 rounded-sm font-semibold border-b border-amber-500"
+            >
               {part}
             </mark>
           ) : (
             part
-          )
+          ),
         )}
       </>
     );
@@ -479,7 +492,9 @@ export default function ArchiveReader() {
   useEffect(() => {
     try {
       localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-    } catch { /* quota or private mode */ }
+    } catch {
+      /* quota or private mode */
+    }
   }, [prefs]);
 
   useEffect(() => {
@@ -488,11 +503,15 @@ export default function ArchiveReader() {
     setLoading(true);
     archiveApi
       .get(id)
-      .then((d: any) => {
+      .then((d) => {
         if (alive) setDoc(d);
       })
-      .catch((e: any) => alive && setErr(e.message || 'خطأ'))
-      .finally(() => alive && setLoading(false));
+      .catch((e) => {
+        if (alive) setErr(e.message || 'خطأ');
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
     return () => {
       alive = false;
     };
@@ -513,6 +532,11 @@ export default function ArchiveReader() {
 
   const toc = useMemo(() => (doc ? buildToc(doc.content) : []), [doc]);
   const idCounter = useRef(new Map<string, number>());
+
+  // Reset idCounter on new document
+  useEffect(() => {
+    idCounter.current = new Map();
+  }, [doc?.id]);
 
   const makeHeadingId = useCallback((text: string) => {
     const base = slugify(text);
@@ -537,7 +561,9 @@ export default function ArchiveReader() {
       await navigator.clipboard.writeText(`${doc.title}\n\n${doc.content}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch { /* clipboard permission denied */ }
+    } catch {
+      /* clipboard permission denied */
+    }
   };
 
   if (loading)
@@ -586,21 +612,23 @@ export default function ArchiveReader() {
   return (
     <div
       ref={stageRef}
-      style={{
-        backgroundColor: activeBg,
-        color: activeFg,
-        minHeight: '100dvh',
-        transition: 'background-color 400ms ease, background 400ms ease, color 400ms ease',
-        ['--ambient-glow' as any]:
-          prefs.theme === 'sepia'
-            ? 'rgba(138, 90, 26, 0.10)'
-            : prefs.theme === 'night'
-              ? 'rgba(212, 180, 131, 0.10)'
-              : prefs.theme === 'custom'
-                ? 'rgba(0,0,0,0.05)'
-                : 'hsl(var(--live, var(--primary)) / 0.10)',
-        ['--ambient-accent' as any]: accentColor ?? 'hsl(var(--live, var(--primary)))',
-      } as React.CSSProperties}
+      style={
+        {
+          backgroundColor: activeBg,
+          color: activeFg,
+          minHeight: '100dvh',
+          transition: 'background-color 400ms ease, background 400ms ease, color 400ms ease',
+          ['--ambient-glow' as any]:
+            prefs.theme === 'sepia'
+              ? 'rgba(138, 90, 26, 0.10)'
+              : prefs.theme === 'night'
+                ? 'rgba(212, 180, 131, 0.10)'
+                : prefs.theme === 'custom'
+                  ? 'rgba(0,0,0,0.05)'
+                  : 'hsl(var(--live, var(--primary)) / 0.10)',
+          ['--ambient-accent' as any]: accentColor ?? 'hsl(var(--live, var(--primary)))',
+        } as React.CSSProperties
+      }
       className={`pt-14 pb-page px-5 relative ${prefs.cinematic ? 'archive-cinematic' : ''} ${prefs.transitions === 'fade' ? 'animate-fade-in' : prefs.transitions === 'slide' ? 'animate-slide-up' : ''}`}
     >
       {/* Dynamic Brightness hardware-like overlay */}
@@ -796,7 +824,10 @@ export default function ArchiveReader() {
                   <SlidersHorizontal className="w-4 h-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="rounded-t-3xl max-h-[92dvh] p-0 flex flex-col overflow-hidden bg-background">
+              <SheetContent
+                side="bottom"
+                className="rounded-t-3xl max-h-[92dvh] p-0 flex flex-col overflow-hidden bg-background"
+              >
                 {/* Visual drag indicator */}
                 <button
                   type="button"
@@ -828,14 +859,18 @@ export default function ArchiveReader() {
                       {/* Active Preview */}
                       <div
                         className="p-4 rounded-2xl border transition-all shadow-sm"
-                        style={{
-                          backgroundColor: activeBg,
-                          color: activeFg,
-                          fontFamily,
-                          borderColor: borderColor || 'hsl(var(--border) / 0.4)',
-                        } as React.CSSProperties}
+                        style={
+                          {
+                            backgroundColor: activeBg,
+                            color: activeFg,
+                            fontFamily,
+                            borderColor: borderColor || 'hsl(var(--border) / 0.4)',
+                          } as React.CSSProperties
+                        }
                       >
-                        <div className="text-micro font-medium opacity-65 mb-1 text-center">المعاينة الحية</div>
+                        <div className="text-micro font-medium opacity-65 mb-1 text-center">
+                          المعاينة الحية
+                        </div>
                         <p
                           style={{
                             fontSize: `${prefs.size}px`,
@@ -845,17 +880,25 @@ export default function ArchiveReader() {
                           }}
                           className="text-center"
                         >
-                          إن الهدف من الملاحظة ليس البحث عن العيوب، بل الكشف عن الجمال الخفي في ثنايا الكلمات المعرفية الكلاسيكية.
+                          إن الهدف من الملاحظة ليس البحث عن العيوب، بل الكشف عن الجمال الخفي في
+                          ثنايا الكلمات المعرفية الكلاسيكية.
                         </p>
                       </div>
 
                       {/* Theme Selector Section */}
                       <div>
-                        <div className="text-mini font-medium text-muted-foreground mb-2 text-start">السمة</div>
+                        <div className="text-mini font-medium text-muted-foreground mb-2 text-start">
+                          السمة
+                        </div>
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2 flex-1">
                             {[
-                              { k: 'default' as const, label: 'افتراضي', bg: '#ffffff', fg: '#1f2937' },
+                              {
+                                k: 'default' as const,
+                                label: 'افتراضي',
+                                bg: '#ffffff',
+                                fg: '#1f2937',
+                              },
                               { k: 'sepia' as const, label: 'ورقي', bg: '#f4ecd8', fg: '#3b2f1f' },
                               { k: 'night' as const, label: 'ليلي', bg: '#0f0f10', fg: '#e8e6e1' },
                             ].map(({ k, label, bg, fg }) => (
@@ -866,7 +909,9 @@ export default function ArchiveReader() {
                                 style={{ backgroundColor: bg }}
                                 title={label}
                               >
-                                {prefs.theme === k && <Check className="w-4 h-4" style={{ color: fg }} />}
+                                {prefs.theme === k && (
+                                  <Check className="w-4 h-4" style={{ color: fg }} />
+                                )}
                               </button>
                             ))}
                             <button
@@ -895,7 +940,9 @@ export default function ArchiveReader() {
                             >
                               <Waves className="w-5 h-5" />
                             </button>
-                            <span className="text-micro text-muted-foreground mt-1">القارئ الصوتي</span>
+                            <span className="text-micro text-muted-foreground mt-1">
+                              القارئ الصوتي
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -903,27 +950,37 @@ export default function ArchiveReader() {
                       {/* Custom Palette Builder - Revealed when Custom Theme active */}
                       {prefs.theme === 'custom' && (
                         <div className="p-3 rounded-2xl bg-muted/30 border border-border/30 space-y-3 animate-fade-in text-start">
-                          <div className="text-micro font-medium text-muted-foreground">صانع السمة المخصصة</div>
+                          <div className="text-micro font-medium text-muted-foreground">
+                            صانع السمة المخصصة
+                          </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="text-micro text-muted-foreground block mb-1">لون الخلفية</label>
+                              <label className="text-micro text-muted-foreground block mb-1">
+                                لون الخلفية
+                              </label>
                               <div className="flex items-center gap-1.5">
                                 <input
                                   type="color"
                                   value={prefs.customBg}
-                                  onChange={(e) => setPrefs((p) => ({ ...p, customBg: e.target.value }))}
+                                  onChange={(e) =>
+                                    setPrefs((p) => ({ ...p, customBg: e.target.value }))
+                                  }
                                   className="w-7 h-7 rounded-md overflow-hidden border-0 cursor-pointer"
                                 />
                                 <span className="font-mono text-micro">{prefs.customBg}</span>
                               </div>
                             </div>
                             <div>
-                              <label className="text-micro text-muted-foreground block mb-1">لون النص</label>
+                              <label className="text-micro text-muted-foreground block mb-1">
+                                لون النص
+                              </label>
                               <div className="flex items-center gap-1.5">
                                 <input
                                   type="color"
                                   value={prefs.customFg}
-                                  onChange={(e) => setPrefs((p) => ({ ...p, customFg: e.target.value }))}
+                                  onChange={(e) =>
+                                    setPrefs((p) => ({ ...p, customFg: e.target.value }))
+                                  }
                                   className="w-7 h-7 rounded-md overflow-hidden border-0 cursor-pointer"
                                 />
                                 <span className="font-mono text-micro">{prefs.customFg}</span>
@@ -937,25 +994,38 @@ export default function ArchiveReader() {
                       {isSpeaking && (
                         <div className="p-3 rounded-2xl bg-primary/5 border border-primary/10 space-y-2 animate-fade-in text-start">
                           <div className="flex items-center justify-between">
-                            <span className="text-micro font-semibold text-primary">التحكم بالصوت</span>
+                            <span className="text-micro font-semibold text-primary">
+                              التحكم بالصوت
+                            </span>
                             <div className="flex items-center gap-1.5">
                               {isPaused ? (
-                                <button onClick={resumeSpeaking} className="p-1.5 bg-primary/10 rounded-md text-primary">
+                                <button
+                                  onClick={resumeSpeaking}
+                                  className="p-1.5 bg-primary/10 rounded-md text-primary"
+                                >
                                   <Play className="w-3.5 h-3.5" />
                                 </button>
                               ) : (
-                                <button onClick={pauseSpeaking} className="p-1.5 bg-primary/10 rounded-md text-primary">
+                                <button
+                                  onClick={pauseSpeaking}
+                                  className="p-1.5 bg-primary/10 rounded-md text-primary"
+                                >
                                   <Pause className="w-3.5 h-3.5" />
                                 </button>
                               )}
-                              <button onClick={stopSpeaking} className="p-1.5 bg-rose-500/10 rounded-md text-rose-500">
+                              <button
+                                onClick={stopSpeaking}
+                                className="p-1.5 bg-rose-500/10 rounded-md text-rose-500"
+                              >
                                 <X className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-micro">
                             <div>
-                              <label className="text-micro text-muted-foreground block mb-0.5">سرعة القراءة</label>
+                              <label className="text-micro text-muted-foreground block mb-0.5">
+                                سرعة القراءة
+                              </label>
                               <select
                                 value={voiceSpeed}
                                 onChange={(e) => {
@@ -973,7 +1043,9 @@ export default function ArchiveReader() {
                               </select>
                             </div>
                             <div>
-                              <label className="text-micro text-muted-foreground block mb-0.5">الصوت</label>
+                              <label className="text-micro text-muted-foreground block mb-0.5">
+                                الصوت
+                              </label>
                               <select
                                 value={selectedVoiceName}
                                 onChange={(e) => {
@@ -1008,7 +1080,10 @@ export default function ArchiveReader() {
                             autoFocus
                           />
                           {searchQuery && (
-                            <button onClick={() => setSearchQuery('')} className="p-1 rounded-full hover:bg-muted text-muted-foreground">
+                            <button
+                              onClick={() => setSearchQuery('')}
+                              className="p-1 rounded-full hover:bg-muted text-muted-foreground"
+                            >
                               <X className="w-3 h-3" />
                             </button>
                           )}
@@ -1025,7 +1100,9 @@ export default function ArchiveReader() {
                             className="col-span-2 rounded-2xl bg-muted/40 dark:bg-muted/15 p-3 border border-border/40 flex flex-col items-center justify-center gap-1 hover:bg-muted/60 transition active:scale-95 text-center min-h-[5rem]"
                           >
                             <ALargeSmall className="w-5 h-5 text-primary" />
-                            <div className="text-micro font-semibold text-foreground">تخصيص النص</div>
+                            <div className="text-micro font-semibold text-foreground">
+                              تخصيص النص
+                            </div>
                             <div className="text-micro text-muted-foreground">خيارات متقدمة</div>
                           </button>
 
@@ -1043,7 +1120,12 @@ export default function ArchiveReader() {
                             onClick={() =>
                               setPrefs((p) => ({
                                 ...p,
-                                transitions: p.transitions === 'fade' ? 'slide' : p.transitions === 'slide' ? 'none' : 'fade',
+                                transitions:
+                                  p.transitions === 'fade'
+                                    ? 'slide'
+                                    : p.transitions === 'slide'
+                                      ? 'none'
+                                      : 'fade',
                               }))
                             }
                             className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition active:scale-95 ${prefs.transitions !== 'none' ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
@@ -1064,7 +1146,9 @@ export default function ArchiveReader() {
                               onChange={(v) => setPrefs((p) => ({ ...p, size: v }))}
                               icon={<ALargeSmall className="w-4 h-4" />}
                             />
-                            <span className="text-micro font-medium text-muted-foreground">حجم الخط</span>
+                            <span className="text-micro font-medium text-muted-foreground">
+                              حجم الخط
+                            </span>
                           </div>
 
                           {/* Brightness Slider */}
@@ -1076,7 +1160,9 @@ export default function ArchiveReader() {
                               onChange={(v) => setPrefs((p) => ({ ...p, brightness: v }))}
                               icon={<Sun className="w-4 h-4" />}
                             />
-                            <span className="text-micro font-medium text-muted-foreground">السطوع</span>
+                            <span className="text-micro font-medium text-muted-foreground">
+                              السطوع
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1089,14 +1175,20 @@ export default function ArchiveReader() {
                             const next = !prefs.offline;
                             setPrefs((p) => ({ ...p, offline: next }));
                             if (next) {
-                              toast.success('تم تمكين القراءة بدون اتصال. تم حفظ المقال محلياً بنجاح!');
+                              toast.success(
+                                'تم تمكين القراءة بدون اتصال. تم حفظ المقال محلياً بنجاح!',
+                              );
                             } else {
                               toast.info('تم إيقاف وضع القراءة بدون اتصال.');
                             }
                           }}
                           className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition active:scale-[0.98] ${prefs.offline ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
                         >
-                          {prefs.offline ? <Wifi className="w-4 h-4 animate-pulse" /> : <WifiOff className="w-4 h-4" />}
+                          {prefs.offline ? (
+                            <Wifi className="w-4 h-4 animate-pulse" />
+                          ) : (
+                            <WifiOff className="w-4 h-4" />
+                          )}
                           <div className="text-start">
                             <div className="text-micro font-semibold">قراءة دون اتصال</div>
                             <div className="text-micro text-muted-foreground">حفظ نسخة مؤقتة</div>
@@ -1116,10 +1208,16 @@ export default function ArchiveReader() {
                           }}
                           className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition active:scale-[0.98] ${prefs.lock ? 'bg-blue-500/10 border-blue-500/30 text-blue-500' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
                         >
-                          {prefs.lock ? <Lock className="w-4 h-4 text-blue-500" /> : <Unlock className="w-4 h-4" />}
+                          {prefs.lock ? (
+                            <Lock className="w-4 h-4 text-blue-500" />
+                          ) : (
+                            <Unlock className="w-4 h-4" />
+                          )}
                           <div className="text-start">
                             <div className="text-micro font-semibold">تثبيت الشاشة</div>
-                            <div className="text-micro text-muted-foreground">منع النوم التلقائي</div>
+                            <div className="text-micro text-muted-foreground">
+                              منع النوم التلقائي
+                            </div>
                           </div>
                         </button>
                       </div>
@@ -1131,25 +1229,32 @@ export default function ArchiveReader() {
                     <div className="space-y-4 text-start">
                       {/* Sub Preview Block */}
                       <div className="space-y-1">
-                        <div className="text-micro font-semibold text-muted-foreground uppercase tracking-wider text-start">المعاينة المتقدمة</div>
+                        <div className="text-micro font-semibold text-muted-foreground uppercase tracking-wider text-start">
+                          المعاينة المتقدمة
+                        </div>
                         <div
                           className="p-3 rounded-2xl border bg-muted/15"
-                          style={{
-                            fontFamily,
-                            fontSize: `${prefs.size}px`,
-                            fontWeight: prefs.weight,
-                            textAlign: prefs.alignment === 'justify' ? 'justify' : 'start',
-                            lineHeight: prefs.lineHeight,
-                            fontVariantLigatures: prefs.ligatures ? 'common-ligatures' : 'none',
-                          } as React.CSSProperties}
+                          style={
+                            {
+                              fontFamily,
+                              fontSize: `${prefs.size}px`,
+                              fontWeight: prefs.weight,
+                              textAlign: prefs.alignment === 'justify' ? 'justify' : 'start',
+                              lineHeight: prefs.lineHeight,
+                              fontVariantLigatures: prefs.ligatures ? 'common-ligatures' : 'none',
+                            } as React.CSSProperties
+                          }
                         >
-                          إن الحكمة هي ضالة المؤمن، فحيثما وجدها فهو أحق بها. المعرفة نور يستضاء به في دروب الحياة الوعرة...
+                          إن الحكمة هي ضالة المؤمن، فحيثما وجدها فهو أحق بها. المعرفة نور يستضاء به
+                          في دروب الحياة الوعرة...
                         </div>
                       </div>
 
                       {/* Select Font Carousel */}
                       <div>
-                        <div className="text-mini font-semibold text-muted-foreground mb-1.5">اختر الخط</div>
+                        <div className="text-mini font-semibold text-muted-foreground mb-1.5">
+                          اختر الخط
+                        </div>
                         <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
                           {[
                             { k: 'georgia' as const, label: 'Georgia' },
@@ -1164,7 +1269,12 @@ export default function ArchiveReader() {
                               onClick={() => setPrefs((p) => ({ ...p, font: k }))}
                               className={`flex-none w-24 rounded-2xl border p-3 flex flex-col items-center justify-center gap-1.5 transition-all snap-start ${prefs.font === k ? 'border-primary ring-2 ring-primary/30 bg-primary/5 text-primary scale-105' : 'border-border/60 bg-muted/30 text-foreground/80'}`}
                             >
-                              <span className="text-title font-semibold" style={{ fontFamily: FONT_STACKS[k] } as React.CSSProperties}>Aa</span>
+                              <span
+                                className="text-title font-semibold"
+                                style={{ fontFamily: FONT_STACKS[k] } as React.CSSProperties}
+                              >
+                                Aa
+                              </span>
                               <span className="text-micro font-medium">{label}</span>
                             </button>
                           ))}
@@ -1185,7 +1295,9 @@ export default function ArchiveReader() {
                         {/* Line Height slider control */}
                         <div className="flex items-center justify-between">
                           <span className="text-micro font-semibold">تباعد الأسطر</span>
-                          <span className="text-micro font-mono text-muted-foreground">{prefs.lineHeight.toFixed(2)}</span>
+                          <span className="text-micro font-mono text-muted-foreground">
+                            {prefs.lineHeight.toFixed(2)}
+                          </span>
                         </div>
                         <Slider
                           min={1.4}
@@ -1206,17 +1318,23 @@ export default function ArchiveReader() {
                               size="icon"
                               className="w-7 h-7 rounded-lg"
                               disabled={prefs.weight <= 400}
-                              onClick={() => setPrefs((p) => ({ ...p, weight: Math.max(400, p.weight - 100) }))}
+                              onClick={() =>
+                                setPrefs((p) => ({ ...p, weight: Math.max(400, p.weight - 100) }))
+                              }
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </Button>
-                            <span className="text-micro font-mono font-medium w-10 text-center">{prefs.weight}</span>
+                            <span className="text-micro font-mono font-medium w-10 text-center">
+                              {prefs.weight}
+                            </span>
                             <Button
                               variant="outline"
                               size="icon"
                               className="w-7 h-7 rounded-lg"
                               disabled={prefs.weight >= 700}
-                              onClick={() => setPrefs((p) => ({ ...p, weight: Math.min(700, p.weight + 100) }))}
+                              onClick={() =>
+                                setPrefs((p) => ({ ...p, weight: Math.min(700, p.weight + 100) }))
+                              }
                             >
                               <Plus className="w-3.5 h-3.5" />
                             </Button>
@@ -1226,19 +1344,27 @@ export default function ArchiveReader() {
                         {/* Ligatures Toggle */}
                         <div className="flex items-center justify-between border-t border-border/30 pt-3 text-start">
                           <div className="space-y-0.5">
-                            <span className="text-micro font-semibold">الروابط المطبعية (Ligatures)</span>
-                            <p className="text-micro text-muted-foreground">تحسين ترابط الحروف العربية واللاتينية تلقائياً</p>
+                            <span className="text-micro font-semibold">
+                              الروابط المطبعية (Ligatures)
+                            </span>
+                            <p className="text-micro text-muted-foreground">
+                              تحسين ترابط الحروف العربية واللاتينية تلقائياً
+                            </p>
                           </div>
                           <Switch
                             checked={prefs.ligatures}
-                            onCheckedChange={(checked) => setPrefs((p) => ({ ...p, ligatures: checked }))}
+                            onCheckedChange={(checked) =>
+                              setPrefs((p) => ({ ...p, ligatures: checked }))
+                            }
                           />
                         </div>
                       </div>
 
                       {/* Text Alignment Choice Section */}
                       <div>
-                        <div className="text-mini font-semibold text-muted-foreground mb-2">محاذاة النص</div>
+                        <div className="text-mini font-semibold text-muted-foreground mb-2">
+                          محاذاة النص
+                        </div>
                         <div className="grid grid-cols-2 gap-3 text-start">
                           {/* Default/Start align */}
                           <button
@@ -1246,12 +1372,18 @@ export default function ArchiveReader() {
                             className={`p-3 rounded-2xl border text-start space-y-1 transition active:scale-[0.98] ${prefs.alignment === 'default' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-micro font-semibold text-foreground">طبيعي (Default)</span>
+                              <span className="text-micro font-semibold text-foreground">
+                                طبيعي (Default)
+                              </span>
                               <div className="h-4 w-4 rounded-full border border-primary flex items-center justify-center">
-                                {prefs.alignment === 'default' && <div className="h-2 w-2 rounded-full bg-primary" />}
+                                {prefs.alignment === 'default' && (
+                                  <div className="h-2 w-2 rounded-full bg-primary" />
+                                )}
                               </div>
                             </div>
-                            <p className="text-micro text-muted-foreground">تحاذى الأسطر لليمين بشكل انسيابي طبيعي.</p>
+                            <p className="text-micro text-muted-foreground">
+                              تحاذى الأسطر لليمين بشكل انسيابي طبيعي.
+                            </p>
                           </button>
 
                           {/* Justify Align */}
@@ -1260,12 +1392,18 @@ export default function ArchiveReader() {
                             className={`p-3 rounded-2xl border text-start space-y-1 transition active:scale-[0.98] ${prefs.alignment === 'justify' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-micro font-semibold text-foreground">ملء السطر (Justify)</span>
+                              <span className="text-micro font-semibold text-foreground">
+                                ملء السطر (Justify)
+                              </span>
                               <div className="h-4 w-4 rounded-full border border-primary flex items-center justify-center">
-                                {prefs.alignment === 'justify' && <div className="h-2 w-2 rounded-full bg-primary" />}
+                                {prefs.alignment === 'justify' && (
+                                  <div className="h-2 w-2 rounded-full bg-primary" />
+                                )}
                               </div>
                             </div>
-                            <p className="text-micro text-muted-foreground">تتمدد الكلمات لتملأ السطر بأكمله بانتظام.</p>
+                            <p className="text-micro text-muted-foreground">
+                              تتمدد الكلمات لتملأ السطر بأكمله بانتظام.
+                            </p>
                           </button>
                         </div>
                       </div>
@@ -1369,7 +1507,11 @@ export default function ArchiveReader() {
                 h2: ({ node: _node, children, ...props }) => {
                   const text = extractText(children);
                   const hid = makeHeadingId(text);
-                  const isHighlighted = isSpeaking && spokenParagraphIndex !== null && text.trim() === paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
+                  const isHighlighted =
+                    isSpeaking &&
+                    spokenParagraphIndex !== null &&
+                    text.trim() ===
+                      paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
                   return (
                     <h2
                       id={hid}
@@ -1387,7 +1529,11 @@ export default function ArchiveReader() {
                 h3: ({ node: _node, children, ...props }) => {
                   const text = extractText(children);
                   const hid = makeHeadingId(text);
-                  const isHighlighted = isSpeaking && spokenParagraphIndex !== null && text.trim() === paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
+                  const isHighlighted =
+                    isSpeaking &&
+                    spokenParagraphIndex !== null &&
+                    text.trim() ===
+                      paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
                   return (
                     <h3
                       id={hid}
@@ -1401,7 +1547,11 @@ export default function ArchiveReader() {
                 },
                 p: ({ node: _node, children, ...props }) => {
                   const text = extractText(children);
-                  const isHighlighted = isSpeaking && spokenParagraphIndex !== null && text.trim() === paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
+                  const isHighlighted =
+                    isSpeaking &&
+                    spokenParagraphIndex !== null &&
+                    text.trim() ===
+                      paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
                   return (
                     <p
                       className={`reveal mb-4 transition-all duration-300 ${isHighlighted ? 'bg-primary/15 text-primary p-2 rounded-xl scale-[1.01] border-s-2 border-primary shadow-sm' : ''}`}

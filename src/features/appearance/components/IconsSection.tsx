@@ -71,10 +71,6 @@ const EXTRA: IconComponent[] = [Camera, BookOpen, Feather, MessageCircle, Sparkl
 export default function IconsSection() {
   const [active, setActive] = useState<IconSet>(() => readIconSet());
 
-  useEffect(() => {
-    setActive(readIconSet());
-  }, []);
-
   // The previews render every library at once, so make sure each one is
   // fetched (they are lazily loaded to keep the app's first paint light).
   useEffect(() => {
@@ -146,9 +142,7 @@ export default function IconsSection() {
         </div>
 
         <div className="rounded-md border border-border bg-secondary/40 px-3 py-2">
-          <span className="block text-micro font-bold text-muted-foreground">
-            معاينة موسّعة
-          </span>
+          <span className="block text-micro font-bold text-muted-foreground">معاينة موسّعة</span>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-foreground/80">
             {[...SAMPLE, ...EXTRA].map((Icon, i) => (
               <Icon key={i} className="h-5 w-5" aria-hidden />

@@ -149,7 +149,12 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           aria-hidden
         />
 
-        <div className={cn('relative z-10 flex w-full', list ? 'items-center gap-3' : 'flex-col gap-3')}>
+        <div
+          className={cn(
+            'relative z-10 flex w-full',
+            list ? 'items-center gap-3' : 'flex-col gap-3',
+          )}
+        >
           <span
             className={cn(
               'flex shrink-0 items-center justify-center rounded-xl',

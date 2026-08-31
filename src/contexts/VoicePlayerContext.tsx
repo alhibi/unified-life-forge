@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect,useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 // Best-effort language detection so the play-failure toast follows the user's
@@ -53,7 +53,13 @@ interface VoicePlayerContextType {
    */
   setOnEnded: (
     resolver:
-      | ((finishedMsgId: string, conversationId: string) => Promise<{ msgId: string; url: string; senderName: string } | null> | { msgId: string; url: string; senderName: string } | null)
+      | ((
+          finishedMsgId: string,
+          conversationId: string,
+        ) =>
+          | Promise<{ msgId: string; url: string; senderName: string } | null>
+          | { msgId: string; url: string; senderName: string }
+          | null)
       | undefined,
   ) => void;
 }
@@ -108,13 +114,17 @@ const extractWaveform = async (url: string, barCount = 40): Promise<number[]> =>
       peaks.push(sum / blockSize);
     }
     const max = Math.max(...peaks, 0.001);
-    return peaks.map(p => Math.max(p / max, 0.08));
+    return peaks.map((p) => Math.max(p / max, 0.08));
   } catch {
     return [];
   } finally {
     clearTimeout(timeout);
     if (audioCtx && audioCtx.state !== 'closed') {
-      try { await audioCtx.close(); } catch { /* no-op */ }
+      try {
+        await audioCtx.close();
+      } catch {
+        /* no-op */
+      }
     }
   }
 };
@@ -139,10 +149,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Mirror state in a ref so callbacks captured before a setState batch
   // (like the play() factory below) can still read the latest playbackRate.
   const stateRef = useRef<VoicePlayerState>({
-    isPlaying: false, msgId: null, url: '', progress: 0, duration: 0,
-    senderName: '', conversationId: '', waveformData: [], playbackRate: 1,
+    isPlaying: false,
+    msgId: null,
+    url: '',
+    progress: 0,
+    duration: 0,
+    senderName: '',
+    conversationId: '',
+    waveformData: [],
+    playbackRate: 1,
   });
-  useEffect(() => { stateRef.current = state; }, [state]);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
   // Auto-advance resolver — see setOnEnded(). Callers register a function
   // that, given the message that just ended and its conversation id, returns
   // the next voice message to play (or null to stop). Stored in a ref so
@@ -155,6 +174,11 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     | { msgId: string; url: string; senderName: string }
     | null;
   const onEndedRef = useRef<EndedResolver | undefined>(undefined);
+
+  // Store play function in a ref so onended can call it without temporal dead zone
+  const playRef = useRef<
+    (msgId: string, url: string, senderName: string, conversationId: string) => void
+  >(() => {});
 
   const setOnEnded = useCallback((resolver: EndedResolver | undefined) => {
     onEndedRef.current = resolver;
@@ -179,7 +203,7 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const now = performance.now();
         if (now - lastProgressAtRef.current >= 80) {
           lastProgressAtRef.current = now;
-          setState(prev => ({ ...prev, progress: audio.currentTime / audio.duration }));
+          setState((prev) => ({ ...prev, progress: audio.currentTime / audio.duration }));
         }
       }
       rafRef.current = requestAnimationFrame(tick);
@@ -194,180 +218,219 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       audioRef.current = null;
     }
     stopRAF();
-    setState(prev => ({ ...prev, isPlaying: false, msgId: null, progress: 0 }));
+    setState((prev) => ({ ...prev, isPlaying: false, msgId: null, progress: 0 }));
   }, [stopRAF]);
 
-  const play = useCallback((msgId: string, url: string, senderName: string, conversationId: string) => {
-    if (!url) return;
+  const play = useCallback(
+    (msgId: string, url: string, senderName: string, conversationId: string) => {
+      if (!url) return;
 
-    // Stop previous
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.removeAttribute('src');
-      audioRef.current.load();
-      audioRef.current = null;
-    }
-    stopRAF();
-
-    const waveform = waveformCacheRef.current[msgId] || seedWaveform(msgId);
-
-    // Set state to "loading" - show play button changing
-    setState(prev => ({
-      isPlaying: false,
-      msgId,
-      url,
-      progress: 0,
-      duration: 0,
-      senderName,
-      conversationId,
-      waveformData: waveform,
-      playbackRate: prev.playbackRate,
-    }));
-
-    const audio = new Audio();
-    audio.preload = 'auto';
-    audio.playbackRate = stateRef.current.playbackRate;
-    audioRef.current = audio;
-
-    let started = false;
-
-    const doPlay = () => {
-      if (started) return;
-      started = true;
-      audio.play().then(() => {
-        setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: true } : prev);
-        startRAF();
-      }).catch((err: unknown) => {
-        // Reset only if this is still the active message
-        setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
-        // Suppress the NotAllowedError that fires when the browser blocks
-        // autoplay before a gesture — the user will tap play themselves.
-        const name = (err as { name?: string } | null)?.name;
-        if (name !== 'NotAllowedError' && name !== 'AbortError') notifyPlayFailure();
-      });
-    };
-
-    audio.onloadedmetadata = () => {
-      if (isFinite(audio.duration) && audio.duration > 0) {
-        setState(prev => prev.msgId === msgId ? { ...prev, duration: audio.duration } : prev);
-        return;
+      // Stop previous
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeAttribute('src');
+        audioRef.current.load();
+        audioRef.current = null;
       }
-      // Chromium's MediaRecorder produces webm/opus without a duration
-      // header, so `audio.duration` is `Infinity` until we seek past the
-      // end. Force a seek to a huge offset — the browser then rewinds
-      // and reports the true duration via a second `durationchange`.
-      try {
-        const onDurationFix = () => {
-          if (isFinite(audio.duration) && audio.duration > 0) {
-            audio.removeEventListener('durationchange', onDurationFix);
-            const dur = audio.duration;
-            audio.currentTime = 0;
-            setState(prev => prev.msgId === msgId ? { ...prev, duration: dur } : prev);
-          }
-        };
-        audio.addEventListener('durationchange', onDurationFix);
-        audio.currentTime = 1e9;
-      } catch { /* no-op */ }
-    };
-
-    audio.oncanplaythrough = () => doPlay();
-    // Fallback - some browsers only fire canplay
-    audio.oncanplay = () => doPlay();
-
-    audio.onended = () => {
       stopRAF();
-      const finishedId = msgId;
-      const conv = conversationId;
-      // Reset state immediately so the bubble flips back to "play" while we
-      // resolve the next clip.
-      setState(prev => ({ ...prev, isPlaying: false, progress: 0, msgId: null }));
-      const resolver = onEndedRef.current;
-      if (!resolver) return;
-      try {
-        const ret = resolver(finishedId, conv);
-        const handle = (
-          next: { msgId: string; url: string; senderName: string } | null,
-        ) => {
-          if (!next) return;
-          // Use the public `play` via this same closure-capable function.
-          // Wrap in a setTimeout so the previous Audio element is fully torn
-          // down before we mount the next one — otherwise iOS Safari's
-          // single-element audio session gets confused.
-          setTimeout(() => play(next.msgId, next.url, next.senderName, conv), 80);
-        };
-        if (ret && typeof (ret as Promise<unknown>).then === 'function') {
-          (ret as Promise<{ msgId: string; url: string; senderName: string } | null>).then(handle).catch(() => {});
-        } else {
-          handle(ret as { msgId: string; url: string; senderName: string } | null);
+
+      const waveform = waveformCacheRef.current[msgId] || seedWaveform(msgId);
+
+      // Set state to "loading" - show play button changing
+      setState((prev) => ({
+        isPlaying: false,
+        msgId,
+        url,
+        progress: 0,
+        duration: 0,
+        senderName,
+        conversationId,
+        waveformData: waveform,
+        playbackRate: prev.playbackRate,
+      }));
+
+      const audio = new Audio();
+      audio.preload = 'auto';
+      audio.playbackRate = stateRef.current.playbackRate;
+      audioRef.current = audio;
+
+      let started = false;
+
+      const doPlay = () => {
+        if (started) return;
+        started = true;
+        audio
+          .play()
+          .then(() => {
+            setState((prev) => (prev.msgId === msgId ? { ...prev, isPlaying: true } : prev));
+            startRAF();
+          })
+          .catch((err: unknown) => {
+            // Reset only if this is still the active message
+            setState((prev) =>
+              prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev,
+            );
+            // Suppress the NotAllowedError that fires when the browser blocks
+            // autoplay before a gesture — the user will tap play themselves.
+            const name = (err as { name?: string } | null)?.name;
+            if (name !== 'NotAllowedError' && name !== 'AbortError') notifyPlayFailure();
+          });
+      };
+
+      audio.onloadedmetadata = () => {
+        if (isFinite(audio.duration) && audio.duration > 0) {
+          setState((prev) => (prev.msgId === msgId ? { ...prev, duration: audio.duration } : prev));
+          return;
         }
-      } catch { /* no-op — defensive */ }
-    };
+        // Chromium's MediaRecorder produces webm/opus without a duration
+        // header, so `audio.duration` is `Infinity` until we seek past the
+        // end. Force a seek to a huge offset — the browser then rewinds
+        // and reports the true duration via a second `durationchange`.
+        try {
+          const onDurationFix = () => {
+            if (isFinite(audio.duration) && audio.duration > 0) {
+              audio.removeEventListener('durationchange', onDurationFix);
+              const dur = audio.duration;
+              audio.currentTime = 0;
+              setState((prev) => (prev.msgId === msgId ? { ...prev, duration: dur } : prev));
+            }
+          };
+          audio.addEventListener('durationchange', onDurationFix);
+          audio.currentTime = 1e9;
+        } catch {
+          /* no-op */
+        }
+      };
 
-    audio.onerror = () => {
-      setState(prev => prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev);
-      notifyPlayFailure();
-    };
+      audio.oncanplaythrough = () => doPlay();
+      // Fallback - some browsers only fire canplay
+      audio.oncanplay = () => doPlay();
 
-    audio.src = url;
-    audio.load();
+      audio.onended = () => {
+        stopRAF();
+        const finishedId = msgId;
+        const conv = conversationId;
+        // Reset state immediately so the bubble flips back to "play" while we
+        // resolve the next clip.
+        setState((prev) => ({ ...prev, isPlaying: false, progress: 0, msgId: null }));
+        const resolver = onEndedRef.current;
+        if (!resolver) return;
+        try {
+          const ret = resolver(finishedId, conv);
+          const handle = (next: { msgId: string; url: string; senderName: string } | null) => {
+            if (!next) return;
+            // Use the public `play` via the ref to avoid temporal dead zone.
+            // Wrap in a setTimeout so the previous Audio element is fully torn
+            // down before we mount the next one — otherwise iOS Safari's
+            // single-element audio session gets confused.
+            setTimeout(() => playRef.current(next.msgId, next.url, next.senderName, conv), 80);
+          };
+          if (ret && typeof (ret as Promise<unknown>).then === 'function') {
+            (ret as Promise<{ msgId: string; url: string; senderName: string } | null>)
+              .then(handle)
+              .catch(() => {});
+          } else {
+            handle(ret as { msgId: string; url: string; senderName: string } | null);
+          }
+        } catch {
+          /* no-op — defensive */
+        }
+      };
 
-    // Safety timeout: if canplay doesn't fire within 500ms, force play
-    setTimeout(() => {
-      if (!started && audioRef.current === audio) {
-        doPlay();
-      }
-    }, 500);
-  }, [stopRAF, startRAF]);
+      audio.onerror = () => {
+        setState((prev) =>
+          prev.msgId === msgId ? { ...prev, isPlaying: false, msgId: null } : prev,
+        );
+        notifyPlayFailure();
+      };
+
+      audio.src = url;
+      audio.load();
+
+      // Safety timeout: if canplay doesn't fire within 500ms, force play
+      setTimeout(() => {
+        if (!started && audioRef.current === audio) {
+          doPlay();
+        }
+      }, 500);
+    },
+    [stopRAF, startRAF],
+  );
+
+  // Keep playRef in sync with play
+  useEffect(() => {
+    playRef.current = play;
+  }, [play]);
 
   const pause = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       stopRAF();
-      setState(prev => ({ ...prev, isPlaying: false }));
+      setState((prev) => ({ ...prev, isPlaying: false }));
     }
   }, [stopRAF]);
 
-  const togglePlayback = useCallback((msgId: string, url: string, senderName: string, conversationId: string) => {
-    if (state.msgId === msgId && state.isPlaying) {
-      pause();
-    } else if (state.msgId === msgId && !state.isPlaying && audioRef.current && audioRef.current.src) {
-      // Resume paused audio
-      audioRef.current.play().then(() => {
-        setState(prev => ({ ...prev, isPlaying: true }));
-        startRAF();
-      }).catch(() => {
-        // If resume fails, restart from scratch
+  const togglePlayback = useCallback(
+    (msgId: string, url: string, senderName: string, conversationId: string) => {
+      if (state.msgId === msgId && state.isPlaying) {
+        pause();
+      } else if (
+        state.msgId === msgId &&
+        !state.isPlaying &&
+        audioRef.current &&
+        audioRef.current.src
+      ) {
+        // Resume paused audio
+        audioRef.current
+          .play()
+          .then(() => {
+            setState((prev) => ({ ...prev, isPlaying: true }));
+            startRAF();
+          })
+          .catch(() => {
+            // If resume fails, restart from scratch
+            play(msgId, url, senderName, conversationId);
+          });
+      } else {
         play(msgId, url, senderName, conversationId);
-      });
-    } else {
-      play(msgId, url, senderName, conversationId);
-    }
-  }, [state.msgId, state.isPlaying, pause, play, startRAF]);
+      }
+    },
+    [state.msgId, state.isPlaying, pause, play, startRAF],
+  );
 
   const seek = useCallback((fraction: number) => {
     const audio = audioRef.current;
     if (audio && audio.duration && isFinite(audio.duration)) {
       audio.currentTime = fraction * audio.duration;
-      setState(prev => ({ ...prev, progress: fraction }));
+      setState((prev) => ({ ...prev, progress: fraction }));
     }
   }, []);
 
-  const getProgress = useCallback((msgId: string) => {
-    return state.msgId === msgId ? state.progress : 0;
-  }, [state.msgId, state.progress]);
+  const getProgress = useCallback(
+    (msgId: string) => {
+      return state.msgId === msgId ? state.progress : 0;
+    },
+    [state.msgId, state.progress],
+  );
 
-  const getDuration = useCallback((msgId: string) => {
-    return state.msgId === msgId ? state.duration : 0;
-  }, [state.msgId, state.duration]);
+  const getDuration = useCallback(
+    (msgId: string) => {
+      return state.msgId === msgId ? state.duration : 0;
+    },
+    [state.msgId, state.duration],
+  );
 
-  const isPlayingMsg = useCallback((msgId: string) => {
-    return state.msgId === msgId && state.isPlaying;
-  }, [state.msgId, state.isPlaying]);
+  const isPlayingMsg = useCallback(
+    (msgId: string) => {
+      return state.msgId === msgId && state.isPlaying;
+    },
+    [state.msgId, state.isPlaying],
+  );
 
   const setPlaybackRate = useCallback((rate: number) => {
     const clamped = Math.max(0.5, Math.min(3, rate));
     if (audioRef.current) audioRef.current.playbackRate = clamped;
-    setState(prev => ({ ...prev, playbackRate: clamped }));
+    setState((prev) => ({ ...prev, playbackRate: clamped }));
   }, []);
 
   const cyclePlaybackRate = useCallback(() => {
@@ -384,17 +447,19 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (waveformCacheRef.current[msgId]) return waveformCacheRef.current[msgId];
     const fallback = seedWaveform(msgId);
     waveformCacheRef.current[msgId] = fallback;
-    setWaveformCache(prev => ({ ...prev, [msgId]: fallback }));
+    setWaveformCache((prev) => ({ ...prev, [msgId]: fallback }));
     if (!inflightWaveforms.current.has(msgId)) {
       inflightWaveforms.current.add(msgId);
-      extractWaveform(url).then(peaks => {
-        if (peaks.length > 0) {
-          waveformCacheRef.current[msgId] = peaks;
-          setWaveformCache(prev => ({ ...prev, [msgId]: peaks }));
-        }
-      }).finally(() => {
-        inflightWaveforms.current.delete(msgId);
-      });
+      extractWaveform(url)
+        .then((peaks) => {
+          if (peaks.length > 0) {
+            waveformCacheRef.current[msgId] = peaks;
+            setWaveformCache((prev) => ({ ...prev, [msgId]: peaks }));
+          }
+        })
+        .finally(() => {
+          inflightWaveforms.current.delete(msgId);
+        });
     }
     return fallback;
   }, []);
@@ -411,22 +476,24 @@ export const VoicePlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [stopRAF]);
 
   return (
-    <VoicePlayerContext.Provider value={{
-      state,
-      play,
-      pause,
-      togglePlayback,
-      seek,
-      stop,
-      cyclePlaybackRate,
-      setPlaybackRate,
-      getProgress,
-      getDuration,
-      isPlayingMsg,
-      generateWaveform,
-      waveformCache,
-      setOnEnded,
-    }}>
+    <VoicePlayerContext.Provider
+      value={{
+        state,
+        play,
+        pause,
+        togglePlayback,
+        seek,
+        stop,
+        cyclePlaybackRate,
+        setPlaybackRate,
+        getProgress,
+        getDuration,
+        isPlayingMsg,
+        generateWaveform,
+        waveformCache,
+        setOnEnded,
+      }}
+    >
       {children}
     </VoicePlayerContext.Provider>
   );

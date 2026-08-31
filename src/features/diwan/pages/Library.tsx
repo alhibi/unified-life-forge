@@ -1,4 +1,4 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -138,28 +138,28 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             label="البحث المتقدّم"
             sub="ابحث في 3 ملايين بيت"
             icon={<Search className="w-4 h-4 text-[var(--wax)]" />}
-            chev={Chevron}
+            chev={ChevronRight}
           />
           <ActionLink
             to="/diwan/library/poets"
             label="شجرة الشعراء"
             sub="مرتّبون بالعصور"
             icon={<Users className="w-4 h-4 text-[var(--wax)]" />}
-            chev={Chevron}
+            chev={ChevronRight}
           />
           <ActionLink
             to="/diwan/library/favorites"
             label="مفضلتي الخاصة"
             sub="المحفوظ من القصائد"
             icon={<Heart className="w-4 h-4 text-[var(--wax)]" />}
-            chev={Chevron}
+            chev={ChevronRight}
           />
           <ActionLink
             to="/diwan/bayan"
             label="البيان الإعرابي والبلاغي"
             sub="محلل عروضي وصرفي عميق"
             icon={<Sparkles className="w-4 h-4 text-[var(--wax)]" />}
-            chev={Chevron}
+            chev={ChevronRight}
           />
         </div>
 
@@ -256,7 +256,7 @@ function ActionLink({
   label: string;
   sub: string;
   icon: React.ReactNode;
-  chev: React.ElementType;
+  chev: React.ElementType<{ className?: string }>;
 }) {
   return (
     <Link
@@ -270,9 +270,7 @@ function ActionLink({
         <p className="font-bold text-mini text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
         <p className="text-micro text-[#7E7259] mt-0.5 truncate font-tajawal">{sub}</p>
       </div>
-      {/* @ts-ignore */}
-{/* @ts-ignore */}
-<Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />
+      <Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />
     </Link>
   );
 }

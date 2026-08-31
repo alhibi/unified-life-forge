@@ -1,63 +1,15 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import {
-  createContext,
-  forwardRef,
-  memo,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-} from 'react';
+import { forwardRef, memo, ReactNode, useContext, useLayoutEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { useApp } from '@/contexts/AppContext';
-import { buildNavVariants, type NavMode, REDUCED_MOTION_NAV_VARIANTS } from '@/lib/motion';
+import { buildNavVariants, REDUCED_MOTION_NAV_VARIANTS } from '@/lib/motion';
 import { navLoaded } from '@/lib/navPerf';
 
-/**
- * PageTransition — the one place a screen enters and leaves.
- * ─────────────────────────────────────────────────────────────────────
- * Every duration, curve and offset comes from `MOTION` in `@/lib/motion`,
- * and the CHARACTER of the transition comes from the user's navigation-style
- * preference (`/settings/motion` → "نمط انتقال الشاشات"):
- *
- *   silk    — cross-fade only. No transform is interpolated, so there is no
- *             per-frame layout or geometry work at all, and no enter delay:
- *             the incoming screen starts resolving the instant the route
- *             commits. This is the default and the one that holds a 120 Hz
- *             cadence on modest hardware.
- *   depth   — Material-3-expressive scale + fade.
- *   slide   — iOS push/pop with a parallax tail, mirrored for RTL.
- *   instant — no animation.
- *
- * Reduced motion (either the OS preference or the in-app switch) overrides
- * all four with a short cross-fade.
- *
- * Why the outgoing page moves in the right direction
- * ──────────────────────────────────────────────────
- * The current nav direction is delivered via <NavModeContext> from
- * <AnimatedRoutes> in App.tsx and forwarded to framer as `custom`. When
- * AnimatePresence runs the EXIT variant on the outgoing page it reads
- * `custom` from the <AnimatePresence custom={mode}> wrapper — which holds the
- * LATEST direction, the one the user just initiated. So a forward push gives
- * the OLD page mode='push' for its exit, and it leaves accordingly, without
- * prop drilling and without a page needing to know its own future.
- *
- * Performance contract
- * ────────────────────
- *   • Only `transform` and `opacity` are animated — both GPU-composited.
- *   • Layer promotion is expressed in CSS, gated on
- *     `html[data-compositor-hints]`, so the user's switch genuinely controls
- *     it and we are not permanently pinning a texture behind their back.
- *   • There is NO CSS transition on transform/opacity for this element — see
- *     the note in index.css. Owning a property in two animation systems at
- *     once is what makes a transition look like it hesitates.
- *   • The wrapper never animates width / height / top / left / margin /
- *     padding.
- */
+import { NavModeContext } from './PageTransitionContext';
 
-/* ── Context: lets the parent flow nav direction down ─────────────── */
-export const NavModeContext = createContext<NavMode>('initial');
+// Re-export for backwards compatibility
+export { NavModeContext };
 
 /* ── Component ────────────────────────────────────────────────────── */
 

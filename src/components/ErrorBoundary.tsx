@@ -1,27 +1,20 @@
-import React, { Component, type ReactNode } from 'react';
+import React, { Component } from 'react';
 
-import { Home,RefreshCw } from '@/lib/icons';
+import { Home, RefreshCw } from '@/lib/icons';
 import { scrubVerboseDetails } from '@/lib/scrub';
 import { captureTelemetry } from '@/lib/telemetry';
+
+import { ErrorBoundaryProps, ErrorBoundaryState } from './ErrorBoundaryTypes';
 
 // Re-exported for the existing call sites that import it from here. The
 // implementation moved to lib/scrub.ts so lib/telemetry.ts can use it without
 // creating an import cycle back into this component.
 export { scrubVerboseDetails };
 
-interface Props {
-  children: ReactNode;
-  fallbackTitle?: string;
-}
+export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  override state: ErrorBoundaryState = { hasError: false };
 
-interface State {
-  hasError: boolean;
-}
-
-export default class ErrorBoundary extends Component<Props, State> {
-  override state: State = { hasError: false };
-
-  static getDerivedStateFromError(): State {
+  static getDerivedStateFromError(): ErrorBoundaryState {
     return { hasError: true };
   }
 
@@ -62,9 +55,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             <h3 className="text-body font-semibold text-foreground mb-1">
               {this.props.fallbackTitle || 'حدث خطأ غير متوقع'}
             </h3>
-            <p className="text-meta text-muted-foreground">
-              يرجى المحاولة مرة أخرى
-            </p>
+            <p className="text-meta text-muted-foreground">يرجى المحاولة مرة أخرى</p>
           </div>
           <div className="flex gap-3">
             <button

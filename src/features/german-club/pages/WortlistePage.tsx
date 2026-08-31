@@ -8,16 +8,13 @@ import { PageShell } from '@/components/ui/app-shell';
 import { Bookmark, Sparkles } from '@/lib/icons';
 
 import { SpeakPlayer } from '../components/SpeakPlayer';
-import {
-  deriveInsights,
-  summarizeInsights,
-} from '../lib/wortliste';
 import { GERMAN_DICTIONARY_DATA } from '../lib/dictionaryData';
+import { deriveInsights, summarizeInsights } from '../lib/wortliste';
 import { GERMAN_CLUB_TOKENS } from '../types';
 import { useDictionaryStore } from '../useDictionaryStore';
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
-const CEFR_COLORS: Record<typeof CEFR_LEVELS[number], string> = {
+const CEFR_COLORS: Record<(typeof CEFR_LEVELS)[number], string> = {
   A1: '#10b981',
   A2: '#14b8a6',
   B1: '#0ea5e9',
@@ -38,7 +35,7 @@ const CEFR_COLORS: Record<typeof CEFR_LEVELS[number], string> = {
 export const WortlistePage: React.FC = () => {
   const navigate = useNavigate();
   const { bookmarkedIds, setSelectedEntry, toggleBookmark } = useDictionaryStore();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion() ?? false;
 
   // Resolve bookmarks to dictionary entries
   const entries = useMemo(() => {
@@ -163,6 +160,7 @@ export const WortlistePage: React.FC = () => {
                     entry={entry}
                     onOpen={() => setSelectedEntry(entry)}
                     onRemove={() => toggleBookmark(entry.id)}
+                    shouldReduceMotion={shouldReduceMotion}
                   />
                 ))}
               </section>
@@ -188,11 +186,11 @@ interface WortlisteRowProps {
   entry: ReturnType<typeof GERMAN_DICTIONARY_DATA.find>;
   onOpen: () => void;
   onRemove: () => void;
+  shouldReduceMotion: boolean;
 }
 
-const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove }) => {
+const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, shouldReduceMotion }) => {
   if (!entry) return null;
-  const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div
@@ -204,11 +202,7 @@ const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove }) 
       className="flex items-center gap-3 p-3 rounded-2xl border bg-white group hover:border-stone-400 transition-colors"
       style={{ borderColor: `${GERMAN_CLUB_TOKENS.oak}22` }}
     >
-      <button
-        type="button"
-        onClick={onOpen}
-        className="flex-1 text-start min-w-0"
-      >
+      <button type="button" onClick={onOpen} className="flex-1 text-start min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p
             dir="ltr"

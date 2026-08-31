@@ -40,7 +40,6 @@ export default function ArchiveHome() {
 
   useEffect(() => {
     if (!user) {
-      setLoading(false);
       return;
     }
     let alive = true;
@@ -54,7 +53,9 @@ export default function ArchiveHome() {
         console.error(err);
         if (alive) setItems([]);
       })
-      .finally(() => alive && setLoading(false));
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
     return () => {
       alive = false;
     };

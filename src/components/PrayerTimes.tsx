@@ -1,5 +1,5 @@
-import { AnimatePresence,motion } from 'framer-motion';
-import { lazy, Suspense,useCallback, useEffect, useMemo, useRef,useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useApp } from '@/contexts/AppContext';
@@ -9,9 +9,15 @@ import {
   getUpcomingOccasions,
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
-import { MECCA_FALLBACK,useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { MECCA_FALLBACK, useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
-import { CalendarDays, ChevronDown,ChevronLeft, Compass, Sunrise as SunriseIcon } from '@/lib/icons';
+import {
+  CalendarDays,
+  ChevronDown,
+  ChevronLeft,
+  Compass,
+  Sunrise as SunriseIcon,
+} from '@/lib/icons';
 
 /** Qibla compass + world prayer clock, folded inside this card behind a chevron. */
 const UmmahPulse = lazy(() => import('./UmmahPulse'));
@@ -410,6 +416,11 @@ export default function PrayerTimes() {
   // hook itself — no per-component listeners needed.
   const { location, status: locationStatus, requestLocation } = useDeviceLocation();
 
+  // Track if we've already fetched for the current location to avoid
+  // redundant fetches when the effect re-runs due to fetchPrayers reference
+  // changes (it's a useCallback with deps).
+  const lastFetchedRef = useRef<{ lat: number; lng: number } | null>(null);
+
   useEffect(() => {
     // Cold start with no cached coordinates — kick off our own prompt
     // (Index.tsx covers the homepage, but this card may also be embedded
@@ -424,6 +435,13 @@ export default function PrayerTimes() {
     if (locationStatus === 'requesting' && !location) return;
 
     const { lat, lng } = location ?? MECCA_FALLBACK;
+
+    // Skip if we already fetched for these coordinates
+    if (lastFetchedRef.current?.lat === lat && lastFetchedRef.current?.lng === lng) {
+      return;
+    }
+    lastFetchedRef.current = { lat, lng };
+
     fetchPrayers(lat, lng);
   }, [location?.lat, location?.lng, locationStatus, requestLocation, fetchPrayers]);
 
@@ -628,9 +646,7 @@ function Hero({
           </span>
         </div>
         <div className="flex items-end justify-between gap-2">
-          <span className="truncate text-body font-medium leading-none">
-            {nameOf(nextPrayer)}
-          </span>
+          <span className="truncate text-body font-medium leading-none">{nameOf(nextPrayer)}</span>
           <span
             className="shrink-0 pb-[3px] text-mini font-medium tabular-nums leading-none text-muted-foreground/70"
             dir="ltr"
@@ -1100,8 +1116,11 @@ function SlabRow({
   const [guideAlpha, setGuideAlpha] = useState(0);
   useEffect(() => {
     if (guideKey === 0) return;
-    setGuideAlpha(0.22);
-    const timeout = setTimeout(() => setGuideAlpha(0), 150);
+    const timeout = setTimeout(() => {
+      setGuideAlpha(0.22);
+      const timeout2 = setTimeout(() => setGuideAlpha(0), 150);
+      return () => clearTimeout(timeout2);
+    }, 0);
     return () => clearTimeout(timeout);
   }, [guideKey]);
 
@@ -1163,7 +1182,13 @@ function SlabRow({
  * occasions as scrollable pills. Tapping the ALL button or the arrow navigates
  * to the full /occasions calendar page.
  */
-function HijriCalendarStrip({ language: _language, t: _t }: { language: string; t: (k: string) => string }) {
+function HijriCalendarStrip({
+  language: _language,
+  t: _t,
+}: {
+  language: string;
+  t: (k: string) => string;
+}) {
   const navigate = useNavigate();
   const { hijri, todayISO, offset } = useLiveHijriDate();
   // Recompute when the day flips OR when the Saudi offset changes.

@@ -16,29 +16,14 @@
  *      it costs nothing and honours `prefers-reduced-motion` via the
  *      `motion-reduce:` variant.
  */
-import { memo } from 'react';
 
-export type MotifKey =
-  | 'dawn'
-  | 'mushaf'
-  | 'beads'
-  | 'arch'
-  | 'meter'
-  | 'pulse'
-  | 'orbit'
-  | 'columns'
-  | 'waveform'
-  | 'glyph'
-  | 'contour'
-  | 'bubbles'
-  | 'board'
-  | 'ticker';
+import { type MotifKey } from './Motif';
 
-export interface TileIdentity {
+export type TileIdentity = {
   /** `H S% L%` triplet — consumed as `hsl(var(--tile) / a)`. */
   accent: string;
   motif: MotifKey;
-}
+};
 
 /** One row per launcher app. Keys mirror `PORTAL_APPS[].key`. */
 const IDENTITY: Record<string, TileIdentity> = {
@@ -137,7 +122,12 @@ function Motif({ motif }: { motif: MotifKey }) {
     case 'meter':
       return (
         <svg className={SVG} viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden>
-          <g className={`${EASE} group-hover:translate-x-2`} stroke="currentColor" strokeWidth="2" fill="none">
+          <g
+            className={`${EASE} group-hover:translate-x-2`}
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+          >
             {[0, 1, 2, 3, 4].map((i) => (
               <path key={i} d={`M${16 + i * 38} 72 q9 -18 18 0`} />
             ))}
@@ -218,7 +208,12 @@ function Motif({ motif }: { motif: MotifKey }) {
     case 'contour':
       return (
         <svg className={SVG} viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden>
-          <g className={`${EASE} group-hover:translate-x-2`} fill="none" stroke="currentColor" strokeWidth="1">
+          <g
+            className={`${EASE} group-hover:translate-x-2`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
             <path d="M-10 96 q50 -26 100 -6 t110 -18" />
             <path d="M-10 74 q54 -28 104 -8 t106 -20" opacity="0.7" />
             <path d="M-10 52 q58 -30 108 -10 t102 -22" opacity="0.45" />
@@ -229,7 +224,12 @@ function Motif({ motif }: { motif: MotifKey }) {
     case 'bubbles':
       return (
         <svg className={SVG} viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden>
-          <g className={`${EASE} group-hover:translate-y-[-4px]`} fill="none" stroke="currentColor" strokeWidth="1">
+          <g
+            className={`${EASE} group-hover:translate-y-[-4px]`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
             <rect x="18" y="26" width="104" height="34" rx="17" />
             <rect x="72" y="70" width="110" height="34" rx="17" opacity="0.6" />
           </g>
@@ -252,7 +252,12 @@ function Motif({ motif }: { motif: MotifKey }) {
     case 'ticker':
       return (
         <svg className={SVG} viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden>
-          <g className={`${EASE} group-hover:translate-x-3`} fill="none" stroke="currentColor" strokeWidth="2">
+          <g
+            className={`${EASE} group-hover:translate-x-3`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M0 94 l34 -22 l26 16 l30 -38 l34 22 l30 -34 l46 -12" />
           </g>
         </svg>
@@ -261,18 +266,21 @@ function Motif({ motif }: { motif: MotifKey }) {
       return null;
   }
 }
-
 /**
  * The tile's motif layer. Kept memoised: the drawing depends only on the
  * motif key, so hovering or reordering the grid never re-renders it.
  */
+import { memo } from 'react';
+
+import { Motif as MotifComponent } from './Motif';
+
 export const TileMotif = memo(function TileMotif({ motif }: { motif: MotifKey }) {
   return (
     <div
       className="pointer-events-none absolute inset-0 overflow-hidden text-[hsl(var(--tile))] opacity-[0.16] transition-opacity duration-normal group-hover:opacity-[0.26] dark:opacity-[0.2] dark:group-hover:opacity-[0.3]"
       aria-hidden
     >
-      <Motif motif={motif} />
+      <MotifComponent motif={motif} />
     </div>
   );
 });

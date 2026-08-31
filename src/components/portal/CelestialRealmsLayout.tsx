@@ -6,7 +6,7 @@
 import { AnimatePresence } from 'framer-motion';
 import { useMemo } from 'react';
 
-import { PORTAL_APPS,type PortalApp } from '@/components/portal/apps';
+import { PORTAL_APPS, type PortalApp } from '@/components/portal/apps';
 import AppTile from '@/components/portal/AppTile';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import { BookOpen, Brain, Dumbbell, Gamepad2 } from '@/lib/icons';
@@ -28,7 +28,7 @@ interface RealmDefinition {
   title: string;
   subtitle: string;
   description: string;
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   color: string;
 }
 
@@ -142,20 +142,25 @@ export default function CelestialRealmsLayout({
 
         return (
           <section key={realm.key} className="space-y-4">
-
             {/* Philosophical Realm Header */}
             <div className="flex items-center gap-3 border-b border-border/40 pb-2">
-              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/45 ${realm.color}`}>
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/45 ${realm.color}`}
+              >
                 <Icon className="h-4.5 w-4.5" />
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <h3 className="font-amiri text-title font-extrabold text-foreground">{realm.title}</h3>
+                  <h3 className="font-amiri text-title font-extrabold text-foreground">
+                    {realm.title}
+                  </h3>
                   <span className="hidden text-micro font-mono uppercase tracking-widest text-muted-foreground opacity-60 @[26rem]:inline">
                     {realm.subtitle}
                   </span>
                 </div>
-                <p className="mt-0.5 text-micro leading-normal text-muted-foreground">{realm.description}</p>
+                <p className="mt-0.5 text-micro leading-normal text-muted-foreground">
+                  {realm.description}
+                </p>
               </div>
             </div>
 
@@ -183,7 +188,6 @@ export default function CelestialRealmsLayout({
                 })}
               </AnimatePresence>
             </div>
-
           </section>
         );
       })}

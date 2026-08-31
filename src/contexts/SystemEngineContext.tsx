@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -104,8 +105,12 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
   // user. Refs keep the values fresh with a stable effect identity.
   const motionSpeedRef = useRef(motionSpeed);
   const fpsCapRef = useRef(fpsCap);
-  motionSpeedRef.current = motionSpeed;
-  fpsCapRef.current = fpsCap;
+
+  // Update refs after render to avoid "cannot update ref during render" warning
+  useLayoutEffect(() => {
+    motionSpeedRef.current = motionSpeed;
+    fpsCapRef.current = fpsCap;
+  }, [motionSpeed, fpsCap]);
 
   // Pre-saver snapshot, persisted so a reload while the saver is active
   // does not lock the user into the reduced profile forever.
@@ -226,7 +231,9 @@ export function SystemEngineProvider({ children }: { children: ReactNode }) {
 
     const cap = prevFpsCap.current;
     if (cap !== null) {
-      setFpsCap(cap === '60' || cap === '90' || cap === '120' ? (Number(cap) as 60 | 90 | 120) : 'auto');
+      setFpsCap(
+        cap === '60' || cap === '90' || cap === '120' ? (Number(cap) as 60 | 90 | 120) : 'auto',
+      );
     }
 
     prevMotionSpeed.current = null;

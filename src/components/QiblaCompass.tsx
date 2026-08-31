@@ -1,11 +1,11 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useApp } from '@/contexts/AppContext';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { Compass, Crosshair, Info, MapPin,Maximize2, X } from '@/lib/icons';
-import { bearingToCompass,qiblaBearing } from '@/utils/prayerAstronomy';
+import { Compass, Crosshair, Info, MapPin, Maximize2, X } from '@/lib/icons';
+import { bearingToCompass, qiblaBearing } from '@/utils/prayerAstronomy';
 
 /**
  * Live Qibla compass.
@@ -79,16 +79,21 @@ function useStableDeviceHeading() {
   /** Set once an Earth-referenced feed is seen; relative samples are then ignored. */
   const hasAbsoluteRef = useRef(false);
   const attachRef = useRef<(() => void) | null>(null);
+  // Track support state in a ref to avoid setState in effect
+  const supportedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const hasAPI = 'DeviceOrientationEvent' in window;
-    setSupported(hasAPI);
+    supportedRef.current = hasAPI;
+    setSupported(hasAPI); // Initial sync - only runs once on mount
     if (!hasAPI) return;
 
-    const Ctor = (window as unknown as {
-      DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
-    }).DeviceOrientationEvent;
+    const Ctor = (
+      window as unknown as {
+        DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
+      }
+    ).DeviceOrientationEvent;
     const needsPerm = typeof Ctor?.requestPermission === 'function';
 
     const getScreenAngle = (): number => {
@@ -141,9 +146,11 @@ function useStableDeviceHeading() {
 
       // iOS: webkitCompassHeading is a true-north heading, already corrected
       // for magnetic declination by the OS.
-      const wk = (e as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading;
+      const wk = (e as DeviceOrientationEvent & { webkitCompassHeading?: number })
+        .webkitCompassHeading;
       if (typeof wk === 'number' && !Number.isNaN(wk)) {
-        const acc = (e as DeviceOrientationEvent & { webkitCompassAccuracy?: number }).webkitCompassAccuracy;
+        const acc = (e as DeviceOrientationEvent & { webkitCompassAccuracy?: number })
+          .webkitCompassAccuracy;
         pushSample(wk, true, typeof acc === 'number' && acc >= 0 ? acc : undefined);
         return;
       }
@@ -174,9 +181,11 @@ function useStableDeviceHeading() {
   }, []);
 
   const request = async () => {
-    const Ctor = (window as unknown as {
-      DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
-    }).DeviceOrientationEvent;
+    const Ctor = (
+      window as unknown as {
+        DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
+      }
+    ).DeviceOrientationEvent;
     if (Ctor && typeof Ctor.requestPermission === 'function') {
       try {
         const res = await Ctor.requestPermission();
@@ -198,9 +207,14 @@ export default function QiblaCompass() {
   const { location } = useDeviceLocation();
   const [expanded, setExpanded] = useState(false);
   const {
-    heading: rawHeading, quality, supported, permission, request, accuracy, tilted,
+    heading: rawHeading,
+    quality,
+    supported,
+    permission,
+    request,
+    accuracy,
+    tilted,
   } = useStableDeviceHeading();
-  const alignedRef = useRef(false);
 
   // Only an Earth-referenced reading may rotate the needle. With a relative
   // gyro feed we keep the dial north-up and say so, rather than pointing the
@@ -218,13 +232,20 @@ export default function QiblaCompass() {
   const delta = Math.min(needleAngle, 360 - needleAngle);
 
   // Hysteresis on the aligned state to stop flicker around the threshold.
-  if (heading != null) {
-    if (!alignedRef.current && delta < 2) alignedRef.current = true;
-    else if (alignedRef.current && delta > 4) alignedRef.current = false;
-  } else {
-    alignedRef.current = false;
-  }
-  const isAligned = alignedRef.current;
+  // Moved to useEffect to avoid ref access during render.
+  const [isAligned, setIsAligned] = useState(false);
+
+  useEffect(() => {
+    if (heading != null) {
+      setIsAligned((prev) => {
+        if (!prev && delta < 2) return true;
+        if (prev && delta > 4) return false;
+        return prev;
+      });
+    } else {
+      setIsAligned(false);
+    }
+  }, [heading, delta]);
 
   // Lock body scroll while expanded.
   useEffect(() => {
@@ -402,9 +423,7 @@ export default function QiblaCompass() {
                   )}
 
                   {tilted && quality === 'absolute' && (
-                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">
-                      {t.tilted}
-                    </p>
+                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">{t.tilted}</p>
                   )}
 
                   {quality === 'relative' && (
