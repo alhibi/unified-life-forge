@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
@@ -16,16 +16,41 @@ import { useDictionaryStore } from '../useDictionaryStore';
 
 export const GermanDictionary: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     getFilteredEntries,
     getWortDesTages,
     selectedEntry,
     setSelectedEntry,
     bookmarkedIds,
+    setSearchQuery,
   } = useDictionaryStore();
 
   const [activeTab, setActiveTab] = useState<'all' | 'bookmarks'>('all');
   const [visibleCount, setVisibleCount] = useState<number>(40);
+
+  // Honor ?q= and ?focus= URL parameters on mount.
+  useEffect(() => {
+    const q = searchParams.get('q');
+    const focus = searchParams.get('focus');
+    if (q) {
+      setSearchQuery(q);
+    }
+    if (focus) {
+      // Open the detail modal for the focused entry.
+      const all = getFilteredEntries();
+      const target = all.find((e) => e.id === focus);
+      if (target) {
+        setSelectedEntry(target);
+      }
+      // Strip the focus param so reload doesn't keep reopening the modal
+      const next = new URLSearchParams(searchParams);
+      next.delete('focus');
+      setSearchParams(next, { replace: true });
+    }
+    // We deliberately don't depend on getFilteredEntries — this runs once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredEntries = getFilteredEntries();
   const wortDesTages = getWortDesTages();

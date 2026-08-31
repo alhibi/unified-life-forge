@@ -7,7 +7,9 @@ import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
 
 import { GenerationModal } from '../components/GenerationModal';
+import { DiscoveryCard } from '../components/DiscoveryCard';
 import { HeuteImClub } from '../components/Daily/HeuteImClub';
+import { QuickLookup } from '../components/QuickLookup';
 import { ShelfCard } from '../components/ShelfCard';
 import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
@@ -122,6 +124,16 @@ export const GermanClubHome: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Quick Lookup — live multi-language search */}
+        <div className="max-w-3xl mx-auto px-4 pt-2 pb-1">
+          <QuickLookup />
+        </div>
+
+        {/* Discovery — random word with reason */}
+        <div className="max-w-3xl mx-auto px-4 pt-2 pb-1">
+          <DiscoveryCard />
         </div>
 
         {/* Heute im Club — daily content */}
