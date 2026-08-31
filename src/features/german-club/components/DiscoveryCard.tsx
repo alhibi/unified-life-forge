@@ -99,7 +99,7 @@ export const DiscoveryCard: React.FC = () => {
             {entry.german}
           </h3>
           {entry.ipa && (
-            <span className="text-xs font-mono text-stone-500 ml-0.5" dir="ltr">
+            <span className="text-xs font-mono text-stone-500 ms-0.5" dir="ltr">
               [{entry.ipa}]
             </span>
           )}

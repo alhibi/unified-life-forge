@@ -83,7 +83,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
             {wort.wort}
           </h3>
           {wort.ipa && (
-            <span className="text-xs sm:text-sm font-mono text-stone-500 ml-1" dir="ltr">
+            <span className="text-xs sm:text-sm font-mono text-stone-500 ms-1" dir="ltr">
               [{wort.ipa}]
             </span>
           )}
