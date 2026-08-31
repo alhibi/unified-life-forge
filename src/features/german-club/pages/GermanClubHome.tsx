@@ -7,6 +7,7 @@ import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
 
 import { GenerationModal } from '../components/GenerationModal';
+import { HeuteImClub } from '../components/Daily/HeuteImClub';
 import { ShelfCard } from '../components/ShelfCard';
 import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
@@ -121,6 +122,11 @@ export const GermanClubHome: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Heute im Club — daily content */}
+        <div className="max-w-3xl mx-auto px-4 pt-4 pb-2">
+          <HeuteImClub />
         </div>
 
         {/* Main Shelf Wall */}
