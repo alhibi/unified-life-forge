@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 
 const Accordion = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root> | any
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>
 >(({ ...props }, ref) => (
-  // @ts-ignore Typescript is overly strict here
+  // @ts-expect-error — Radix's polymorphic props clash with React 19's stricter ref forwarding; the
+  // runtime contract is correct. Re-evaluate after upgrading @radix-ui/react-accordion.
   <AccordionPrimitive.Root ref={ref} {...props} />
 ));
 Accordion.displayName = 'Accordion';

@@ -24,6 +24,7 @@ function getRating(name: string, value: number): PerformanceMetric['rating'] {
 
 export function instrumentWebVitals() {
   if (typeof window === 'undefined' || !window.PerformanceObserver) return;
+  if (!import.meta.env.DEV) return;
 
   const logMetric = (name: string, value: number) => {
     const rating = getRating(name, value);

@@ -104,10 +104,10 @@ export default function CryptoWatchlist() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         isBackgroundedRef.current = true;
-        console.log('[CryptoWatchlist] Visibility hidden: Pausing coin polling.');
+        if (import.meta.env.DEV) console.log('[CryptoWatchlist] Visibility hidden: Pausing coin polling.');
       } else {
         isBackgroundedRef.current = false;
-        console.log('[CryptoWatchlist] Visibility visible: Resuming coin polling.');
+        if (import.meta.env.DEV) console.log('[CryptoWatchlist] Visibility visible: Resuming coin polling.');
         loadData(true); // refresh immediately when returning to foreground
       }
     };
@@ -117,7 +117,7 @@ export default function CryptoWatchlist() {
     // 2. Setup 30s Auto Polling
     const intervalId = setInterval(() => {
       if (!isBackgroundedRef.current) {
-        console.log('[CryptoWatchlist] Auto-polling live prices...');
+        if (import.meta.env.DEV) console.log('[CryptoWatchlist] Auto-polling live prices...');
         loadData();
       }
     }, 30 * 1000);

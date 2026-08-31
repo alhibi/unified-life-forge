@@ -270,9 +270,8 @@ function ActionLink({
         <p className="font-bold text-mini text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
         <p className="text-micro text-[#7E7259] mt-0.5 truncate font-tajawal">{sub}</p>
       </div>
-      {/* @ts-ignore */}
-{/* @ts-ignore */}
-<Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />
+      {/* @ts-ignore — Chev is a dynamic React.ComponentType<any> from data */}
+      <Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />
     </Link>
   );
 }
