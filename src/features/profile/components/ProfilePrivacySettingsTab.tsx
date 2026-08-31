@@ -426,7 +426,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                   : 'bg-slate-800/20 border-white/[0.04] opacity-70'
               }`}
             >
-              <div className={`text-[0.6rem] font-bold mb-1.5 tracking-wide ${item.active ? 'text-emerald-300/80' : 'text-muted-foreground/40'}`}>
+              <div className={`text-[0.625rem] font-bold mb-1.5 tracking-wide ${item.active ? 'text-emerald-300/80' : 'text-muted-foreground/40'}`}>
                 {item.label}
               </div>
               <div className={`text-[0.8rem] font-extrabold ${item.active ? 'text-foreground' : 'text-muted-foreground/50'}`}>
@@ -446,7 +446,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
           ].filter(s => s.active).map(s => (
             <span
               key={s.label}
-              className="px-2.5 py-1 rounded-full text-[0.6rem] font-extrabold bg-gradient-to-r from-emerald-500/10 to-emerald-400/5 text-emerald-200/80 border border-emerald-400/15 shadow-inner shadow-emerald-900/5"
+              className="px-2.5 py-1 rounded-full text-[0.625rem] font-extrabold bg-gradient-to-r from-emerald-500/10 to-emerald-400/5 text-emerald-200/80 border border-emerald-400/15 shadow-inner shadow-emerald-900/5"
             >
               {s.label}
             </span>

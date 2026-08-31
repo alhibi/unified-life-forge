@@ -102,13 +102,13 @@ export function ProfileStatsDashboard({ summary, unifiedStreakDays = 0, classNam
               >
                 <div className="flex items-start justify-between mb-3">
                   <Icon className={`w-5 h-5 ${stat.colorClass} opacity-80`} />
-                  <span className="text-[0.55rem] font-extrabold text-muted-foreground/30 group-hover:text-muted-foreground/50 transition-colors">#{i + 1}</span>
+                  <span className="text-[0.625rem] font-extrabold text-muted-foreground/30 group-hover:text-muted-foreground/50 transition-colors">#{i + 1}</span>
                 </div>
                 <div className="text-[1.6rem] md:text-[2rem] font-extrabold text-foreground tracking-tight leading-none mb-0.5">
                   {stat.format ? stat.format(stat.value as number) : stat.value}
                 </div>
                 <div className="text-[0.65rem] font-bold text-muted-foreground/60">{stat.label}</div>
-                <div className="text-[0.55rem] text-muted-foreground/30 font-medium">{stat.sublabel}</div>
+                <div className="text-[0.625rem] text-muted-foreground/30 font-medium">{stat.sublabel}</div>
               </motion.div>
             );
           })}
@@ -116,11 +116,11 @@ export function ProfileStatsDashboard({ summary, unifiedStreakDays = 0, classNam
 
         {/* Footer bar */}
         <div className="mt-5 pt-4 border-t border-white/[0.05] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[0.6rem] text-muted-foreground/40 font-medium">
+          <div className="flex items-center gap-2 text-[0.625rem] text-muted-foreground/40 font-medium">
             <Clock className="w-3 h-3" />
             <span>آخر تحديث: الآن</span>
           </div>
-          <div className="text-[0.6rem] text-muted-foreground/30 font-medium tracking-wide">
+          <div className="text-[0.625rem] text-muted-foreground/30 font-medium tracking-wide">
             بيانات حية من جميع الوحدات
           </div>
         </div>

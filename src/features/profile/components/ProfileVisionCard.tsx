@@ -72,7 +72,7 @@ export function ProfileVisionCard({ profile, privacySettings, isPublic, classNam
             { active: privacySettings.hide_online_status, label: 'حالة مخفية', Icon: Eye },
             { active: isPublic, label: 'ملف عام', Icon: Sparkles },
           ].filter(s => s.active).map(s => (
-            <span key={s.label} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.6rem] font-extrabold bg-white/[0.05] text-violet-200/70 border border-white/[0.08]">
+            <span key={s.label} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.625rem] font-extrabold bg-white/[0.05] text-violet-200/70 border border-white/[0.08]">
               <s.Icon className="w-3 h-3" />
               {s.label}
             </span>

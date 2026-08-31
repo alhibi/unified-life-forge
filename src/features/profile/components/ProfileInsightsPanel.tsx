@@ -50,7 +50,7 @@ function renderTypeIcon(type: CrossModuleInsight['type']) {
   const IconComponent = TYPE_ICONS[type] || Brain;
   const style = TYPE_STYLES[type] || TYPE_STYLES.correlation;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[0.6rem] font-extrabold ${style.color} ${style.bg} border ${style.border} backdrop-blur-sm`}>
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[0.625rem] font-extrabold ${style.color} ${style.bg} border ${style.border} backdrop-blur-sm`}>
       <IconComponent className="w-3 h-3" />
       <span>{style.labelAr}</span>
     </span>
@@ -184,7 +184,7 @@ export function ProfileInsightsPanel({
                       {Math.round(insight.confidence * 100)}%
                     </span>
                   </div>
-                  <span className="text-[0.55rem] text-muted-foreground/50 font-medium">ثقة التحليل</span>
+                  <span className="text-[0.625rem] text-muted-foreground/50 font-medium">ثقة التحليل</span>
                 </div>
 
                 {/* Text content */}
@@ -194,7 +194,7 @@ export function ProfileInsightsPanel({
                       {insight.titleAr}
                     </h4>
                     {insight.actionable && onActionClick && (
-                      <span className="flex items-center gap-1 text-[0.6rem] font-extrabold text-violet-300/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0 whitespace-nowrap">
+                      <span className="flex items-center gap-1 text-[0.625rem] font-extrabold text-violet-300/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0 whitespace-nowrap">
                         <ArrowRight className="w-3 h-3 rotate-180" />
                         عرض
                       </span>
@@ -211,13 +211,13 @@ export function ProfileInsightsPanel({
                       {insight.relatedBadges.slice(0, 4).map((badgeId: string) => (
                         <span
                           key={badgeId}
-                          className="px-2 py-0.5 rounded-full text-[0.58rem] font-bold bg-white/[0.04] border border-white/[0.08] text-muted-foreground/70"
+                          className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-white/[0.04] border border-white/[0.08] text-muted-foreground/70"
                         >
                           {badgeId.replace('badge_', '').replace(/_/g, ' ')}
                         </span>
                       ))}
                       {insight.relatedBadges.length > 4 && (
-                        <span className="px-2 py-0.5 rounded-full text-[0.58rem] font-bold bg-white/[0.03] border border-white/[0.06] text-muted-foreground/40">
+                        <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-white/[0.03] border border-white/[0.06] text-muted-foreground/40">
                           +{insight.relatedBadges.length - 4}
                         </span>
                       )}
@@ -226,7 +226,7 @@ export function ProfileInsightsPanel({
 
                   {/* Action hint */}
                   {insight.actionable && insight.actionTab && (
-                    <div className="flex items-center gap-2 text-[0.6rem] text-muted-foreground/40 font-medium">
+                    <div className="flex items-center gap-2 text-[0.625rem] text-muted-foreground/40 font-medium">
                       {renderCategoryIcon(insight.actionTab)}
                       <span>انتقل إلى تبويب: <span className="text-muted-foreground/60 font-bold">{insight.actionTab}</span></span>
                     </div>
