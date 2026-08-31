@@ -78,6 +78,19 @@ export const EXPORT_SOURCES: readonly ExportSource[] = [
   { table: 'message_drafts', ownerColumn: 'user_id', label: 'مسوّدات الرسائل' },
   { table: 'messages', ownerColumn: 'sender_id', label: 'الرسائل المُرسَلة' },
   { table: 'chat_members', ownerColumn: 'user_id', label: 'عضويات المحادثات' },
+
+  // Time Ledger — unified timeline tables
+  { table: 'calendar_events', ownerColumn: 'user_id', label: 'أحداث التقويم' },
+  { table: 'streak_logs', ownerColumn: 'user_id', label: 'سجل العادات المتتابعة' },
+  { table: 'adhkar_completions', ownerColumn: 'user_id', label: 'إتمامات الأذكار' },
+  { table: 'sunnah_completions', ownerColumn: 'user_id', label: 'إتمامات السنن' },
+  { table: 'weather_snapshots', ownerColumn: 'user_id', label: 'لقطات الطقس' },
+  { table: 'quick_captures', ownerColumn: 'user_id', label: 'الملاحظات السريعة' },
+  { table: 'prayer_completions', ownerColumn: 'user_id', label: 'إتمامات الصلوات' },
+
+  // Wellness catalog — user interactions
+  { table: 'catalog_user_product_interaction', ownerColumn: 'user_id', label: 'تفاعلات المنتجات' },
+  { table: 'catalog_translation_record', ownerColumn: 'reviewed_by', label: 'سجل ترجمات المنتجات' },
 ] as const;
 
 /**

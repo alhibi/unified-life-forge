@@ -107,8 +107,15 @@ BEGIN
   -- (c) Everything else — profiles, user_settings, journal_entries,
   --     pkm_notes, wellness_records, reading_*, podcast_*, diwan_folders,
   --     archive_documents, clipboard_items, game_progress, keyword_alerts,
-  --     mind_*, audio_files, message_drafts, user_roles — declares
-  --     ON DELETE CASCADE against auth.users and goes with this statement.
+  --     mind_*, audio_files, message_drafts, user_roles,
+  --     catalog_user_product_interaction — declares ON DELETE CASCADE
+  --     against auth.users and goes with this statement.
+  --
+  --     catalog_translation_record uses ON DELETE SET NULL
+  --     for reviewed_by (see 20260830000000_catalog_core). The row
+  --     itself stays as part of the catalog's review audit trail,
+  --     while the reviewer link is blanked. Documented here so the
+  --     cascade-coverage test sees it.
   DELETE FROM auth.users WHERE id = uid;
 END $$;
 
