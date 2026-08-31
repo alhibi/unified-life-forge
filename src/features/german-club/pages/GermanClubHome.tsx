@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
-import { BookOpen, ShieldAlert, Sparkles } from '@/lib/icons';
+import { BookOpen, ShieldAlert, Sparkles, Wand2 } from '@/lib/icons';
 
-import { GenerationModal } from '../components/GenerationModal';
 import { DiscoveryCard } from '../components/DiscoveryCard';
+import { Wortspaziergang } from '../components/Wortspaziergang';
+import { GenerationModal } from '../components/GenerationModal';
 import { HeuteImClub } from '../components/Daily/HeuteImClub';
 import { QuickLookup } from '../components/QuickLookup';
 import { ShelfCard } from '../components/ShelfCard';
@@ -23,6 +24,7 @@ export const GermanClubHome: React.FC = () => {
   } = useGermanClubStore();
 
   const [selectedFurnaceShelf, setSelectedFurnaceShelf] = useState<GermanShelf | null>(null);
+  const [spaziergangOpen, setSpaziergangOpen] = useState(false);
 
   useEffect(() => {
     fetchShelves();
@@ -100,6 +102,21 @@ export const GermanClubHome: React.FC = () => {
               رفوف مرتبة بالحالات اليومية — من طلب القهوة إلى مواقف العمل والقطارات.
               مع توضيح أجناس الأسماء بالألوان وتفكيك الأفعال المنفصلة حركةً.
             </p>
+
+            {/* Wortspaziergang CTA — the hero action */}
+            <div className="pt-3">
+              <button
+                type="button"
+                onClick={() => setSpaziergangOpen(true)}
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[#17324D] text-white text-sm font-bold hover:bg-[#12273d] active:scale-[0.98] transition-all shadow-md hover:shadow-lg"
+              >
+                <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                <span>ابدأ جولة لغوية</span>
+                <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-amber-400 border border-amber-400/40 rounded-md px-1.5 py-0.5">
+                  7 خطوات
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -187,6 +204,9 @@ export const GermanClubHome: React.FC = () => {
             onClose={() => setSelectedFurnaceShelf(null)}
           />
         )}
+
+        {/* Wortspaziergang Modal */}
+        <Wortspaziergang open={spaziergangOpen} onClose={() => setSpaziergangOpen(false)} />
       </div>
     </PageShell>
   );
