@@ -24,9 +24,9 @@ export interface LocalGlossaryEntry {
 }
 
 export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
-  // ═══ معلقة امرئ القيس ═══
-  // slug = imru-alqays-معلقه-امرئ-القيس
-  'imru-alqays-معلقه-امرئ-القيس': [
+  // ═══ معلقة امرؤ القيس ═══
+  // slug = imru-alqays-معلقه-امرؤ-القيس---قفا-نبك
+  'imru-alqays-معلقه-امرؤ-القيس---قفا-نبك': [
     {
       word: 'قفا',
       meaning: 'أمر للاثنين بالوقوف، يُخاطب صاحبَيْه طالباً منهما الوقوف معه عند الأطلال.',
@@ -65,9 +65,9 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
     { word: 'الغبيط', meaning: 'مَركَب من مراكب النساء كالهودج.', verse_position: 13 },
   ],
 
-  // ═══ معلقة طرفة بن العبد ═══
-  // slug = tarafa-معلقه-طرفه-بن-العبد
-  'tarafa-معلقه-طرفه-بن-العبد': [
+  // ═══ معلقة طرفة ═══
+  // slug = tarafa-معلقه-طرفه---لخوله-اطلال
+  'tarafa-معلقه-طرفه---لخوله-اطلال': [
     { word: 'برقة ثهمد', meaning: 'موضع كانت تنزله محبوبته خَوْلة.', verse_position: 0 },
     { word: 'حدوج', meaning: 'جمع حِدْج: مَركب من مراكب النساء كالهودج.', verse_position: 2 },
     { word: 'النواصف', meaning: 'الأماكن الواسعة في الوادي.', verse_position: 2 },
@@ -84,9 +84,9 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
     { word: 'إثمد', meaning: 'حجر يُكتحل به، شديد السواد.', verse_position: 8 },
   ],
 
-  // ═══ معلقة زهير بن أبي سلمى ═══
-  // slug = zuhayr-معلقه-زهير-بن-ابي-سلمي
-  'zuhayr-معلقه-زهير-بن-ابي-سلمي': [],
+  // ═══ معلقة زهير ═══
+  // slug = zuhayr-معلقه-زهير---امن-ام-اوفي
+  'zuhayr-معلقه-زهير---امن-ام-اوفي': [],
 
   // ═══ المتنبي — على قدر أهل العزم ═══
   // slug = mutanabbi-علي-قدر-اهل-العزم
@@ -182,10 +182,6 @@ export const diwanLocalGlossary: Record<string, LocalGlossaryEntry[]> = {
       verse_position: 6,
     },
   ],
-
-  // ═══ كعب بن زهير — قصيدة البردة (بانت سعاد) ═══
-  // ملاحظة: عنوان القصيدة في poetryData يحوي ' - ' فيُنتِج slug
-  // فيه ثلاث شَرَط متوالية بسبب \s+ المُحيطة بالشَرَط نفسها.
-  // slug = kaab-قصيده-البرده---بانت-سعاد
-  'kaab-قصيده-البرده---بانت-سعاد': [],
 };
+
+  
