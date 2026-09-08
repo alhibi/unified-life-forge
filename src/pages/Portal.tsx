@@ -209,8 +209,8 @@ export default function Portal() {
             <Suspense
               fallback={
                 <SkeletonGroup className="space-y-3" label="جارٍ تحميل ودجات اليوم">
-                  <Skeleton height={148} className="w-full rounded-3xl" />
-                  <Skeleton height={96} className="w-full rounded-3xl" />
+                  <Skeleton height={336} className="w-full rounded-3xl" />
+                  <Skeleton height={264} className="w-full rounded-3xl" />
                 </SkeletonGroup>
               }
             >
