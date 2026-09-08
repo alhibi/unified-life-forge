@@ -862,6 +862,21 @@ export default function ChatDrawer({
                 messages={chat.messages}
                 scrollElementRef={chat.messagesContainerRef}
                 handleRef={virtualListRef}
+                // Everything the per-row tree below actually reads from drawer
+                // state. Unrelated state (conversation search text, sheets,
+                // menus) no longer re-renders a single bubble.
+                rowDeps={[
+                  chat.messages,
+                  chat.user?.id,
+                  chat.activeConv,
+                  chat.selectionMode,
+                  chat.selectedIds,
+                  chat.firstUnreadId,
+                  chat.showSearch,
+                  chat.chatSearchQuery,
+                  reactionsByMsgId,
+                  voicePlayer,
+                ]}
                 renderRow={(msg, idx) => {
                   const isMine = msg.sender_id === chat.user!.id;
                   const msgReactions = reactionsByMsgId.get(msg.id) ?? [];

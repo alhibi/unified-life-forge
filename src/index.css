@@ -78,9 +78,14 @@
   --z-index-fullscreen-above: 110;
   --z-index-player: 120;
   --z-index-queue: 130;
+  /* Soft keyboard rides above sheets/pickers but under fullscreen surfaces. */
+  --z-index-keyboard: 95;
+  --z-index-modal: 150;
   --z-index-overlay: 200;
-  --z-index-lightbox: 200;
+  --z-index-lightbox: 210;
   --z-index-toast: 300;
+  /* Reserved for full-viewport transition flashes only. */
+  --z-index-max: 400;
 
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));

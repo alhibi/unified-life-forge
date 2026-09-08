@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Heart, RefreshCw, Settings, Zap } from '@/lib/icons';
@@ -29,9 +29,15 @@ export function HealthConnectCard({ onSynced }: Props) {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
 
+  // Health Connect probes are slow native round-trips; a user who leaves the
+  // screen mid-probe must not get a setState (or a phase flip) afterwards.
+  const aliveRef = useRef(true);
+  useEffect(() => () => { aliveRef.current = false; }, []);
+
   const evaluate = useCallback(async () => {
     setPhase('checking');
     const avail = await checkHealthAvailability();
+    if (!aliveRef.current) return;
     if (avail.platform) setPlatform(avail.platform);
     if (!avail.available) {
       setPhase('unavailable');
@@ -40,12 +46,13 @@ export function HealthConnectCard({ onSynced }: Props) {
     }
     try {
       const status = await checkHealthPermissions();
+      if (!aliveRef.current) return;
       const need = ['steps', 'distance', 'calories', 'heartRate', 'sleep', 'workouts'].some(
         (k) => !status.readAuthorized.includes(k as any),
       );
       setPhase(need ? 'needs-permission' : 'ready');
     } catch {
-      setPhase('needs-permission');
+      if (aliveRef.current) setPhase('needs-permission');
     }
   }, []);
 
@@ -78,6 +85,7 @@ export function HealthConnectCard({ onSynced }: Props) {
     setPhase('syncing');
     try {
       const res = await syncHealthData(30);
+      if (!aliveRef.current) return;
       setLastSync(new Date().toLocaleString('ar-SA'));
       toast.success(
         `تمت المزامنة · ${res.upserted} يوم · ${res.imported} تمرين${
@@ -88,7 +96,7 @@ export function HealthConnectCard({ onSynced }: Props) {
     } catch (e: any) {
       toast.error(e?.message || 'فشلت المزامنة');
     } finally {
-      setPhase('ready');
+      if (aliveRef.current) setPhase('ready');
     }
   };
 

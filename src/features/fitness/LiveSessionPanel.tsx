@@ -6,12 +6,14 @@
  * computed by the tracking engine; this component only renders them.
  */
 import { AnimatePresence, motion } from 'framer-motion';
-import { memo } from 'react';
+import { lazy, memo, Suspense } from 'react';
 
 import ProgressRing from '@/components/ProgressRing';
 import { Mountain, Pause, Play, Square, Zap } from '@/lib/icons';
 
-import { FullActivityMap } from './FullActivityMap';
+const FullActivityMap = lazy(() =>
+  import('./FullActivityMap').then((m) => ({ default: m.FullActivityMap })),
+);
 import { formatDuration, formatPace } from './metrics';
 import type { RoutePoint, TrackSplit } from './types';
 
@@ -95,7 +97,9 @@ function LiveSessionPanelImpl({
       </div>
 
       <div className="rounded-xl overflow-hidden border border-border/30 h-32 bg-background/50">
-        <FullActivityMap route={route} height={128} />
+        <Suspense fallback={<div className="h-full w-full animate-pulse bg-muted/20" />}>
+          <FullActivityMap route={route} height={128} />
+        </Suspense>
       </div>
 
       {/* Pace ring + primary numbers */}

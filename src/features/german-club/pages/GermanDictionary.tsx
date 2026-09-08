@@ -10,6 +10,7 @@ import { AlphabetNav } from '../components/dictionary/AlphabetNav';
 import { DictionaryCard } from '../components/dictionary/DictionaryCard';
 import { DictionaryDetailModal } from '../components/dictionary/DictionaryDetailModal';
 import { DictionarySearchFilters } from '../components/dictionary/DictionarySearchFilters';
+import { DictionaryVirtualGrid } from '../components/dictionary/DictionaryVirtualGrid';
 import { WortDesTagesCard } from '../components/dictionary/WortDesTagesCard';
 import {GERMAN_CLUB_TOKENS } from '../types';
 import { useDictionaryStore } from '../useDictionaryStore';
@@ -27,7 +28,6 @@ export const GermanDictionary: React.FC = () => {
   } = useDictionaryStore();
 
   const [activeTab, setActiveTab] = useState<'all' | 'bookmarks'>('all');
-  const [visibleCount, setVisibleCount] = useState<number>(40);
 
   // Honor ?q= and ?focus= URL parameters on mount.
   useEffect(() => {
@@ -60,12 +60,6 @@ export const GermanDictionary: React.FC = () => {
       ? filteredEntries.filter((e) => bookmarkedIds.includes(e.id))
       : filteredEntries;
 
-  const paginatedEntries = displayedEntries.slice(0, visibleCount);
-
-  // Reset pagination on tab/filter change
-  React.useEffect(() => {
-    setVisibleCount(40);
-  }, [activeTab, filteredEntries.length]);
 
   return (
     <PageShell centered={false} flush>
@@ -179,42 +173,13 @@ export const GermanDictionary: React.FC = () => {
 
           {/* Dictionary Grid */}
           {displayedEntries.length > 0 ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {paginatedEntries.map((entry) => (
-                  <DictionaryCard key={entry.id} entry={entry} onSelect={setSelectedEntry} />
-                ))}
-              </div>
-
-              {/* Incremental Pagination Controls */}
-              {visibleCount < displayedEntries.length && (
-                <div className="pt-4 text-center space-y-2">
-                  <p className="text-xs text-stone-500 font-mono">
-                    عرض {paginatedEntries.length} من أصل {displayedEntries.length.toLocaleString('en-US')} مفردة
-                  </p>
-                  <div className="flex items-center justify-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => { setVisibleCount((prev) => prev + 40); }}
-                      className="px-6 py-2.5 rounded-2xl bg-[#17324D] text-white text-xs font-bold shadow-xs hover:bg-[#17324D]/90 transition-all active:scale-95"
-                    >
-                      عرض المزيد (+40)
-                    </button>
-                    <button
-                      type="button"
-                      // Mounting 5,000+ cards in one commit freezes (and on
-                      // low-memory phones kills) the tab, so the jump is capped
-                      // at a chunk the renderer can absorb.
-                      onClick={() => {
-                        setVisibleCount((prev) => Math.min(prev + 400, displayedEntries.length));
-                      }}
-                      className="px-4 py-2.5 rounded-2xl bg-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-300 transition-all"
-                    >
-                      دفعة كبيرة (+400)
-                    </button>
-                  </div>
-                </div>
-              )}
+            <div className="space-y-4">
+              {/* Windowed: only on-screen rows are mounted, so the DOM stays
+                  flat across the full 5,000+ entry corpus. */}
+              <DictionaryVirtualGrid entries={displayedEntries} onSelect={setSelectedEntry} />
+              <p className="text-xs text-stone-500 font-mono text-center">
+                {displayedEntries.length.toLocaleString('en-US')} مفردة
+              </p>
             </div>
           ) : (
             <div className="p-12 text-center rounded-3xl border border-dashed border-stone-300 bg-stone-100/50 space-y-3">

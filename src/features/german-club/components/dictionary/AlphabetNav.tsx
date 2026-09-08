@@ -7,8 +7,9 @@ const ALPHABET = [
   'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
 ];
 
-export const AlphabetNav: React.FC = () => {
-  const { selectedLetter, setSelectedLetter } = useDictionaryStore();
+const AlphabetNavImpl: React.FC = () => {
+  const selectedLetter = useDictionaryStore((s) => s.selectedLetter);
+  const setSelectedLetter = useDictionaryStore((s) => s.setSelectedLetter);
 
   return (
     <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-none text-xs font-mono">
@@ -44,3 +45,5 @@ export const AlphabetNav: React.FC = () => {
     </div>
   );
 };
+
+export const AlphabetNav = React.memo(AlphabetNavImpl);

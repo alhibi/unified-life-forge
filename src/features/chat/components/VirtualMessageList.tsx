@@ -1,6 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
 type CSSProperties,
+  memo,
   type ReactNode,   useEffect, useLayoutEffect, useMemo, useRef,
 } from 'react';
 
@@ -65,6 +66,40 @@ const OVERSCAN = 6;
 /** Distance from bottom (px) to consider "near bottom" for auto-follow. */
 const NEAR_BOTTOM_PX = 250;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MessageRowSlot — the memo boundary
+//
+// `renderRow` is, by construction, a fresh closure on every parent render (it
+// closes over the whole chat state). Without a boundary, typing in the search
+// field or toggling selection mode re-runs the full per-message tree for every
+// row in the window.
+//
+// The slot takes the render function through a *ref* (stable identity) plus an
+// explicit `rowDeps` tuple listing everything a row actually reads from parent
+// state. A row then re-renders only when its own message object changes, its
+// index changes, or one of those deps changes — shallow-compared.
+// ─────────────────────────────────────────────────────────────────────────────
+interface MessageRowSlotProps {
+  msg: Message;
+  index: number;
+  renderRef: React.MutableRefObject<(msg: Message, index: number) => ReactNode>;
+  rowDeps: readonly unknown[];
+}
+
+const MessageRowSlot = memo(
+  function MessageRowSlot({ msg, index, renderRef }: MessageRowSlotProps) {
+    return <>{renderRef.current(msg, index)}</>;
+  },
+  (a, b) => {
+    if (a.msg !== b.msg || a.index !== b.index || a.renderRef !== b.renderRef) return false;
+    if (a.rowDeps.length !== b.rowDeps.length) return false;
+    for (let i = 0; i < a.rowDeps.length; i++) {
+      if (a.rowDeps[i] !== b.rowDeps[i]) return false;
+    }
+    return true;
+  },
+);
+
 export interface VirtualMessageListHandle {
   /**
    * Scroll the message with the given id into view. No-op if the message
@@ -107,7 +142,15 @@ interface VirtualMessageListProps {
   onScrollAwayFromBottom?: (away: boolean) => void;
   /** Callback when user reaches the top (for loading older messages). */
   onReachTop?: () => void;
+  /**
+   * Everything `renderRow` reads from parent state (selection mode, selected
+   * ids, reactions map, unread marker, fade tick…). Rows re-render only when
+   * one of these changes — see `MessageRowSlot`.
+   */
+  rowDeps?: readonly unknown[];
 }
+
+const EMPTY_DEPS: readonly unknown[] = [];
 
 export function VirtualMessageList({
   messages,
@@ -117,7 +160,11 @@ export function VirtualMessageList({
   threshold = VIRTUALIZE_THRESHOLD,
   onScrollAwayFromBottom,
   onReachTop,
+  rowDeps = EMPTY_DEPS,
 }: VirtualMessageListProps) {
+  // Keep the latest render closure reachable without making it a prop.
+  const renderRef = useRef(renderRow);
+  renderRef.current = renderRow;
   // ── Virtualizer setup ──────────────────────────────────────────────────────
   // We always create the virtualizer (cheap when count is small) so the
   // imperative handle is available regardless of activation. The actual
@@ -258,7 +305,7 @@ export function VirtualMessageList({
             data-msg-index={idx}
             style={{ contain: 'content', contentVisibility: 'auto', containIntrinsicSize: '0 72px' } as CSSProperties}
           >
-            {renderRow(msg, idx)}
+            <MessageRowSlot msg={msg} index={idx} renderRef={renderRef} rowDeps={rowDeps} />
           </div>
         ))}
       </>
@@ -300,7 +347,7 @@ export function VirtualMessageList({
               transform: `translateY(${vi.start}px)`,
             }}
           >
-            {renderRow(msg, vi.index)}
+            <MessageRowSlot msg={msg} index={vi.index} renderRef={renderRef} rowDeps={rowDeps} />
           </div>
         );
       })}

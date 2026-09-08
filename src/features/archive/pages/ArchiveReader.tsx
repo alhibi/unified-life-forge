@@ -634,7 +634,7 @@ export default function ArchiveReader() {
       {/* Dynamic Brightness hardware-like overlay */}
       {prefs.brightness < 1 && (
         <div
-          className="fixed inset-0 pointer-events-none z-[9999] bg-black"
+          className="fixed inset-0 pointer-events-none z-max bg-black"
           style={{ opacity: 1 - prefs.brightness }}
         />
       )}
