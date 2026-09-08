@@ -347,7 +347,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   // Re-emit total unread to host whenever conversations or mute prefs change.
   useEffect(() => {
-    const muted = new Set(chatPrefs.prefs.muted);
+    const muted = chatPrefs.prefs.muted;
     const next = conversations.reduce(
       (sum, conversation) => muted.has(conversation.id) ? sum : sum + (conversation.unreadCount || 0),
       0,
@@ -1262,7 +1262,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
       const results: Array<{ error: unknown; path: string; file: File } | null> = [];
       for (const [index, file] of others.entries()) {
-        if (!validateFile(file, 'file')) return null;
+        if (!validateFile(file, 'file')) continue;
         const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
         const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;

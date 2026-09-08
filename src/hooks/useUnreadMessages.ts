@@ -14,7 +14,7 @@
 // .env doesn't cause a stream of failed requests in the console.
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
