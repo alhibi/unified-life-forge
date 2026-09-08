@@ -15,7 +15,7 @@ import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
 import { copyToSystemClipboard, getClipboardHistory } from '../lib/clipboard';
-import { canUndo, getSelectionState, performUndo, selectAll } from '../lib/edit';
+import { canUndo, getSelectionState, getWordContext, performUndo, selectAll } from '../lib/edit';
 import { getPreferredInitialLayout } from '../lib/edit';
 import {
   ALEF_VARIANTS,
@@ -30,11 +30,21 @@ import {
   QUICK_PUNCTUATION,
   WESTERN_NUMBER_ROW,
 } from '../lib/layouts';
-import { getAutoCorrection, getWordSuggestions, learnWord } from '../lib/prediction';
 import {
+  forgetLearnedWord,
+  getAutoCorrection,
+  getWordSuggestions,
+  learnPhrase,
+  learnWord,
+} from '../lib/prediction';
+import {
+  KEY_HEIGHT_MAX,
+  KEY_HEIGHT_MIN,
   type KeyboardSettings,
   readKeyboardSettings,
+  writeKeyboardSettings,
 } from '../lib/preference';
+import { expandSnippet } from '../lib/snippets';
 import { playKeyClickSound } from '../lib/sound';
 import { keyboardPaletteVars } from '../lib/theme';
 import { ClipboardPanel } from './ClipboardPanel';
