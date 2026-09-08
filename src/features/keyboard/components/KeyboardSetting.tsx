@@ -1,28 +1,66 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { Switch } from '@/components/ui/switch';
-import { Keyboard, Palette } from '@/lib/icons';
+import { Keyboard, Palette, Sparkles, Trash2, Wand2 } from '@/lib/icons';
 
+import { clearLearnedDictionary, getDictionaryStats } from '../lib/prediction';
 import {
+  type KeyboardHeight,
   type KeyboardSettings,
+  type KeyboardTheme,
   readKeyboardSettings,
   supportsSoftKeyboard,
   writeKeyboardSettings,
 } from '../lib/preference';
+import { deleteSnippet, resetSnippets, saveSnippet, type Snippet, getSnippets } from '../lib/snippets';
 
 interface KeyboardSettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const THEME_OPTIONS: ReadonlyArray<{ id: KeyboardTheme; label: string }> = [
+  { id: 'gboard-dark', label: 'داكن Gboard' },
+  { id: 'gboard-light', label: 'فاتح Gboard' },
+  { id: 'oled', label: 'أسود OLED' },
+  { id: 'luxury-gold', label: 'ذهبي فاخر' },
+  { id: 'sand', label: 'رملي كلاسيك' },
+  { id: 'emerald', label: 'زمردي' },
+  { id: 'sapphire', label: 'أزرق ياقوتي' },
+];
+
+const HEIGHT_OPTIONS: ReadonlyArray<{ id: KeyboardHeight; label: string }> = [
+  { id: 'compact', label: 'مدمج' },
+  { id: 'normal', label: 'طبيعي' },
+  { id: 'tall', label: 'مرتفع' },
+  { id: 'extra-tall', label: 'مرتفع جداً' },
+];
+
 export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsModalProps) {
   const [settings, setSettings] = useState<KeyboardSettings>(() => readKeyboardSettings());
+  const [stats, setStats] = useState(() => ({ words: 0, pairs: 0 }));
+  const [snippets, setSnippets] = useState<Snippet[]>([]);
+  const [draft, setDraft] = useState({ trigger: '', text: '' });
+
+  // Read the local stores only while the sheet is actually open.
+  useEffect(() => {
+    if (!open) return;
+    setStats(getDictionaryStats());
+    setSnippets(getSnippets());
+  }, [open]);
 
   const update = (patch: Partial<KeyboardSettings>) => {
     const next = writeKeyboardSettings(patch);
     setSettings(next);
   };
+
+  const addSnippet = useCallback(() => {
+    if (!draft.trigger.trim() || !draft.text.trim()) return;
+    setSnippets(saveSnippet(draft.trigger, draft.text));
+    setDraft({ trigger: '', text: '' });
+  }, [draft]);
+
 
   return (
     <ResponsiveDrawer
