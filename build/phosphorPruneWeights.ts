@@ -24,7 +24,7 @@ import type { Plugin } from 'vite';
  */
 
 /** Weights the app can actually render. Keep in sync with src/lib/icons.tsx. */
-export const KEPT_WEIGHTS = ['regular', 'fill', 'bold'] as const;
+export const KEPT_WEIGHTS = ['regular', 'fill', 'bold', 'duotone'] as const;
 
 const DEF_MODULE = /@phosphor-icons[\\/]react[\\/]dist[\\/]defs[\\/][A-Za-z0-9]+\.es\.js$/;
 
