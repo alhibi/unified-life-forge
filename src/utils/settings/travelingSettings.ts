@@ -89,6 +89,10 @@ export const keyboardSettingsSchema = z.object({
   clipboardEnabled: z.boolean(),
   clipboardRetention: z.enum(['unlimited', '1day', '7days', '30days', 'session']),
   keyBorders: z.boolean(),
+  learningEnabled: z.boolean(),
+  snippetsEnabled: z.boolean(),
+  suggestionsEnabled: z.boolean(),
+  keyHeightPx: z.number().min(24).max(80).nullable(),
 });
 
 /** Weather cities the user pinned / recently searched. */
