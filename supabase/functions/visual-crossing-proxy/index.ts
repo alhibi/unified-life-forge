@@ -25,18 +25,16 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const parsed = QuerySchema.safeParse({
-      lat: url.searchParams.get('lat'),
-      lng: url.searchParams.get('lng'),
-    });
-    if (!parsed.success) {
-      return new Response(
-        JSON.stringify({ error: parsed.error.flatten().fieldErrors }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      );
+    // Accept both GET (?lat=&lng=) and POST (JSON body) — supabase-js invoke
+    // sends a POST with a JSON body.
+    let raw: unknown;
+    if (req.method === 'POST') {
+      raw = await req.json().catch(() => null);
+    } else {
+      const url = new URL(req.url);
+      raw = { lat: url.searchParams.get('lat'), lng: url.searchParams.get('lng') };
     }
-    const { lat, lng } = parsed.data;
+    const parsed = QuerySchema.safeParse(raw);
 
     const upstream =
       `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/` +
