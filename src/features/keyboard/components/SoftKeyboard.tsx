@@ -668,17 +668,41 @@ export default function SoftKeyboard({
         onOpenChange={setSettingsModalOpen}
       />
 
+      {/* Drag grip — resize the rows to fit the thumbs */}
+      <div
+        role="separator"
+        aria-label="اسحب لتغيير ارتفاع لوحة المفاتيح"
+        aria-orientation="horizontal"
+        onPointerDown={handleGripDown}
+        onPointerMove={handleGripMove}
+        onPointerUp={handleGripUp}
+        onPointerCancel={handleGripUp}
+        onDoubleClick={() => {
+          writeKeyboardSettings({ keyHeightPx: null });
+          setLiveHeightPx(null);
+        }}
+        className="mx-auto mb-1 flex h-4 w-16 cursor-ns-resize touch-none items-center justify-center"
+      >
+        <span className="h-1 w-10 rounded-full bg-[hsl(var(--kb-fg))]/25" />
+      </div>
+
       {/* Top Action & Suggestion Bar */}
       <ToolBar
-        suggestions={isSensitive ? [] : suggestions}
+        suggestions={isSensitive || !settings.suggestionsEnabled ? [] : suggestions}
         onSelectSuggestion={(word) => {
-          onInsert(word + ' ');
-          if (!isSensitive) {
-            learnWord(word);
-          }
+          // Completing the in-progress token must replace it, not append to it.
+          const replaced = typedBuffer ? onReplaceLastWord(typedBuffer, word + ' ') : false;
+          if (!replaced) onInsert(word + ' ');
+          commitWord(word);
           setTypedBuffer('');
+          setLastCorrection(null);
           updateSuggestions('', isSensitive);
           if (settings.vibrateOnKeyPress) haptics('selection');
+        }}
+        onForgetSuggestion={(word) => {
+          forgetLearnedWord(word);
+          updateSuggestions(typedBuffer, isSensitive);
+          haptics('warning');
         }}
         activePanel={activePanel}
         setActivePanel={useCallback((panel) => {
