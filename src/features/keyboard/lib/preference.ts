@@ -149,6 +149,14 @@ export function readSoftKeyboardPreference(): SoftKeyboardPreference {
  */
 export function clearKeyboardRuntimeCache(): void {
   memorySettings = null;
+  // The learned dictionary and snippet list are per-person data: their caches
+  // must not survive a sign-out either.
+  void Promise.all([import('./prediction'), import('./snippets')])
+    .then(([prediction, snippets]) => {
+      prediction.clearPredictionRuntimeCache();
+      snippets.clearSnippetRuntimeCache();
+    })
+    .catch(() => undefined);
 }
 
 export function writeSoftKeyboardPreference(value: SoftKeyboardPreference): void {
