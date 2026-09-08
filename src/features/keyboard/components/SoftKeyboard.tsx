@@ -109,6 +109,8 @@ const Key = memo(function Key({
   showPopupPreview?: boolean;
   /** Haptic + sound settings, resolved once by the panel. */
   feedback: TapFeedbackOptions;
+  /** Overrides the feedback weight derived from `tone` (the spacebar is softer). */
+  feedbackKind?: FeedbackKind;
   keyBorders?: boolean;
   /** Long-press threshold, driven by user preference. */
   holdDelayMs?: number;
