@@ -210,19 +210,39 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!container) return;
     const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
     isNearBottomRef.current = distFromBottom < 120;
-    setShowScrollDown(distFromBottom > 200);
+    setShowScrollDown(prev => {
+      const next = distFromBottom > 200;
+      return prev === next ? prev : next;
+    });
+
+    // Reaching the top pulls in the previous page of history, the way both
+    // Telegram and WhatsApp do — the thread is never loaded whole.
+    if (container.scrollTop < 400) loadOlderRef.current?.();
 
     // Persist scroll position so the next visit resumes here. We only
     // remember non-bottom positions — at the bottom we always want fresh
-    // messages to anchor.
+    // messages to anchor. Writing on every scroll event would push a
+    // preference update (and a full drawer re-render) per frame, so the
+    // write is throttled and the last position is flushed on a trailing
+    // timer.
     const convId = activeConvIdRef.current;
-    if (convId) {
-      if (distFromBottom < 80) {
-        chatPrefsRef.current.clearScroll(convId);
-      } else {
-        chatPrefsRef.current.setScroll(convId, container.scrollTop);
-      }
-    }
+    if (!convId) return;
+    const persist = () => {
+      const el = messagesContainerRef.current;
+      if (!el) return;
+      const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (dist < 80) chatPrefsRef.current.clearScroll(convId);
+      else chatPrefsRef.current.setScroll(convId, el.scrollTop);
+    };
+    if (scrollPersistTimerRef.current) return;
+    scrollPersistTimerRef.current = setTimeout(() => {
+      scrollPersistTimerRef.current = null;
+      persist();
+    }, 350);
+  }, []);
+
+  useEffect(() => () => {
+    if (scrollPersistTimerRef.current) clearTimeout(scrollPersistTimerRef.current);
   }, []);
 
   const revokeStagedPreviews = useCallback(() => {
