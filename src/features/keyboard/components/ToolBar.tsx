@@ -139,14 +139,28 @@ export const ToolBar = memo(function ToolBar({
 
             {suggestions.length > 0 ? (
               suggestions.map((word, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    onSelectSuggestion(word);
-                    haptics('selection');
-                  }}
+                <SuggestionChip
+                  key={`${word}-${idx}`}
+                  word={word}
+                  onSelect={onSelectSuggestion}
+                  onForget={onForgetSuggestion}
+                />
+              ))
+            ) : (
+              <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground/70">
+                <Wand2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>لوحة المفاتيح الذكية جاهزة...</span>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      {/* eslint-disable-next-line no-constant-condition */}
+      {false && (
+        <button
+          type="button"
+          onPointerDown={() => {
+            onSelectSuggestion('');
                   className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
                 >
                   <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
