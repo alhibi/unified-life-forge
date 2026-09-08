@@ -73,6 +73,16 @@ export default defineConfig(({ mode }) => ({
     appShellServiceWorker(),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
+  optimizeDeps: {
+    // The Phosphor barrel re-exports ~9k glyph modules. Left unbundled, dev
+    // serves them as thousands of separate requests, so every screen paints
+    // with blank gaps where icons should be and they trickle in seconds later.
+    // Pre-bundling collapses them into one file that arrives with the page.
+    include: ['@phosphor-icons/react'],
+    // The alternate families stay out: they are fetched only when the user
+    // actually switches icon library.
+    exclude: ['lucide-react', '@tabler/icons-react'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
