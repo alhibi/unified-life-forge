@@ -20,15 +20,18 @@ export default function PortalBackgroundCanvas() {
     let height = 0;
 
     // Responsive High-DPI layout handling
+    // Size the backing store from the element's own box, never from
+    // window.innerWidth: innerWidth includes the scrollbar, so writing it back
+    // as an inline width grew this fixed layer by the scrollbar's width on the
+    // first frame — a measurable layout shift on the home screen. The CSS box
+    // is fixed inset-0 and already correct before the first paint.
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      ctx.scale(dpr, dpr);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     resize();
