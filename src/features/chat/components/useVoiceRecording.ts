@@ -308,9 +308,11 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
         }
       };
 
-      // Larger timeslice = bigger chunks = fewer events on the JS thread =
-      // less risk of dropping audio when the page is doing other work.
-      mediaRecorder.start(1000);
+      // Smaller timeslice than the original 1000 ms: MediaRecorder only
+      // flushes a chunk per slice, and a very short tap-and-release used to
+      // end up with an empty buffer on some Android WebViews. 250 ms keeps
+      // the JS thread quiet while guaranteeing real audio for short clips.
+      mediaRecorder.start(250);
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
@@ -327,39 +329,55 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
       }, MAX_VOICE_SECONDS * 1000);
 
       haptic('medium');
+      startingRef.current = false;
+
+      // The finger was already lifted while we were starting up: honour that
+      // release now so the recorder never stays on after the gesture ended.
+      const pending = pendingStopModeRef.current;
+      if (pending) {
+        pendingStopModeRef.current = null;
+        cancelModeRef.current = pending;
+        // Give the recorder a beat to emit at least one chunk, otherwise the
+        // resulting blob is empty and the user just loses the tap.
+        setTimeout(() => {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
+          }
+        }, 300);
+      }
     } catch (err) {
+      startingRef.current = false;
+      pendingStopModeRef.current = null;
       reportMicError(err);
       cleanupRecorder();
     }
   }, [voicePlayer, cleanupRecorder, uploadBlob]);
 
-  const stopAndSend = useCallback(() => {
-    cancelModeRef.current = 'send';
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
-    } else {
-      cleanupRecorder();
+  /** Single stop path — safe to call at any point of the recording lifecycle. */
+  const requestStop = useCallback((mode: 'send' | 'cancel' | 'preview') => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      cancelModeRef.current = mode;
+      try { recorder.stop(); } catch { cleanupRecorder(); }
+      return;
     }
+    if (startingRef.current) {
+      // Still acquiring the microphone: remember the outcome for later.
+      pendingStopModeRef.current = mode;
+      return;
+    }
+    cleanupRecorder();
   }, [cleanupRecorder]);
+
+  const stopAndSend = useCallback(() => { requestStop('send'); }, [requestStop]);
 
   const stopAndCancel = useCallback(() => {
-    cancelModeRef.current = 'cancel';
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
-    } else {
-      cleanupRecorder();
-    }
+    requestStop('cancel');
     haptic('heavy');
-  }, [cleanupRecorder]);
+  }, [requestStop]);
 
-  const stopForPreview = useCallback(() => {
-    cancelModeRef.current = 'preview';
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
-    } else {
-      cleanupRecorder();
-    }
-  }, [cleanupRecorder]);
+  const stopForPreview = useCallback(() => { requestStop('preview'); }, [requestStop]);
+
 
   const lockRecording = useCallback(() => {
     setLocked(true);
