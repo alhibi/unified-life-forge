@@ -1492,7 +1492,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // through public setters (which would schedule a redundant cloud write).
   useEffect(() => {
     const syncAllAppearanceState = () => {
-      setThemeState(localStorage.getItem('app-theme') === 'dark' ? 'dark' : 'light');
+      // Dark is the default everywhere (see the boot script in index.html and
+      // the initializer above); only a stored 'light' means light.
+      setThemeState(localStorage.getItem('app-theme') === 'light' ? 'light' : 'dark');
       setPaletteStyleState(
         (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral',
       );
@@ -1553,7 +1555,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           break;
         }
         case 'app-theme':
-          setThemeState(value === 'dark' ? 'dark' : 'light');
+          setThemeState(value === 'light' ? 'light' : 'dark');
           break;
         case 'app-palette-style':
           setPaletteStyleState((value as PaletteStyle) || 'neutral');
