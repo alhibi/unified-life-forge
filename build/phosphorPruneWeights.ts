@@ -6,13 +6,14 @@ import type { Plugin } from 'vite';
  * Every `@phosphor-icons/react/dist/defs/<Name>.es.js` module exports a Map of
  * SIX pre-built React elements — one per weight (thin, light, regular, bold,
  * fill, duotone) — and `duotone` alone carries two paths. The app only ever
- * renders three of them:
+ * renders four of them:
  *
  *   • `regular` — the global default set by <IconProvider>
- *   • `fill`    — what `makeIcon` switches to for a truthy `fill` prop
- *   • `bold`    — one explicit call site (PrayerTimes' ChevronDown)
+ *   • `fill`    — what `IconSlot` switches to for a truthy `fill` prop
+ *   • `bold`    — the "lively" interaction style, plus a few explicit sites
+ *   • `duotone` — the default rendered weight of every Phosphor glyph
  *
- * The other three were pure dead weight, and because the icon barrel is
+ * The other two were pure dead weight, and because the icon barrel is
  * reachable from nearly every route they shipped on first load: the icons
  * chunk was 567 kB / 128 kB gzip.
  *
@@ -24,7 +25,7 @@ import type { Plugin } from 'vite';
  */
 
 /** Weights the app can actually render. Keep in sync with src/lib/icons.tsx. */
-export const KEPT_WEIGHTS = ['regular', 'fill', 'bold'] as const;
+export const KEPT_WEIGHTS = ['regular', 'fill', 'bold', 'duotone'] as const;
 
 const DEF_MODULE = /@phosphor-icons[\\/]react[\\/]dist[\\/]defs[\\/][A-Za-z0-9]+\.es\.js$/;
 
