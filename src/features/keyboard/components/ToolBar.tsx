@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils';
 export interface ToolBarProps {
   suggestions: string[];
   onSelectSuggestion: (word: string) => void;
+  /** Long-press a chip to drop a word the keyboard learned by mistake. */
+  onForgetSuggestion?: (word: string) => void;
   activePanel: 'none' | 'clipboard' | 'emoji' | 'settings' | 'islamic';
   setActivePanel: (panel: 'none' | 'clipboard' | 'emoji' | 'settings' | 'islamic') => void;
   oneHandedMode: 'off' | 'left' | 'right';
@@ -40,6 +42,7 @@ export interface ToolBarProps {
 export const ToolBar = memo(function ToolBar({
   suggestions,
   onSelectSuggestion,
+  onForgetSuggestion,
   activePanel,
   setActivePanel,
   oneHandedMode,
