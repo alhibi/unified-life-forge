@@ -191,6 +191,113 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
               onCheckedChange={(checked) => update({ clipboardEnabled: checked })}
             />
           </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">شريط الاقتراحات</p>
+              <p className="text-micro text-muted-foreground">عرض الكلمات المقترحة أعلى اللوحة أثناء الكتابة</p>
+            </div>
+            <Switch
+              checked={settings.suggestionsEnabled}
+              onCheckedChange={(checked) => update({ suggestionsEnabled: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">التعلّم من كتابتك</p>
+              <p className="text-micro text-muted-foreground">
+                تحفظ اللوحة كلماتك وتسلسلها على هذا الجهاز فقط لتصبح الاقتراحات أدق مع الوقت (تُستثنى حقول كلمات المرور)
+              </p>
+            </div>
+            <Switch
+              checked={settings.learningEnabled}
+              onCheckedChange={(checked) => update({ learningEnabled: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">اختصارات النص</p>
+              <p className="text-micro text-muted-foreground">توسيع الاختصارات المحفوظة عند الضغط على المسافة</p>
+            </div>
+            <Switch
+              checked={settings.snippetsEnabled}
+              onCheckedChange={(checked) => update({ snippetsEnabled: checked })}
+            />
+          </div>
+        </div>
+
+        {/* Personal dictionary */}
+        <div className="space-y-2 border-t border-border/30 pt-3">
+          <label className="flex items-center gap-2 text-mini font-semibold text-foreground">
+            <Sparkles className="h-4 w-4 text-[hsl(var(--live))]" />
+            <span>القاموس الشخصي</span>
+          </label>
+          <p className="text-micro text-muted-foreground">
+            {stats.words} كلمة و{stats.pairs} تسلسل محفوظ على هذا الجهاز.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              clearLearnedDictionary();
+              setStats(getDictionaryStats());
+            }}
+            className="flex items-center gap-1.5 rounded-lg bg-destructive/10 px-2.5 py-1.5 text-micro font-semibold text-destructive hover:bg-destructive/20"
+          >
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>مسح القاموس المتعلّم</span>
+          </button>
+        </div>
+
+        {/* Snippets */}
+        <div className="space-y-2 border-t border-border/30 pt-3">
+          <label className="flex items-center gap-2 text-mini font-semibold text-foreground">
+            <Wand2 className="h-4 w-4 text-[hsl(var(--live))]" />
+            <span>اختصارات النص</span>
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {snippets.map((snippet) => (
+              <button
+                key={snippet.trigger}
+                type="button"
+                onClick={() => setSnippets(deleteSnippet(snippet.trigger))}
+                title={`حذف الاختصار: ${snippet.text}`}
+                className="flex items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 py-1 text-micro text-foreground hover:bg-destructive/15 hover:text-destructive"
+              >
+                <span className="font-semibold">{snippet.trigger}</span>
+                <span className="max-w-[10rem] truncate text-muted-foreground">{snippet.text}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={draft.trigger}
+              onChange={(e) => setDraft((d) => ({ ...d, trigger: e.target.value }))}
+              placeholder="الاختصار"
+              className="w-24 rounded-lg border border-border/40 bg-[hsl(var(--surface-2))] px-2 py-1.5 text-base text-foreground"
+            />
+            <input
+              value={draft.text}
+              onChange={(e) => setDraft((d) => ({ ...d, text: e.target.value }))}
+              placeholder="النص الكامل"
+              className="min-w-0 flex-1 rounded-lg border border-border/40 bg-[hsl(var(--surface-2))] px-2 py-1.5 text-base text-foreground"
+            />
+            <button
+              type="button"
+              onClick={addSnippet}
+              className="rounded-lg bg-[hsl(var(--live))]/20 px-3 text-micro font-semibold text-[hsl(var(--live))]"
+            >
+              إضافة
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSnippets(resetSnippets())}
+            className="text-micro text-muted-foreground underline-offset-2 hover:underline"
+          >
+            إرجاع الاختصارات الافتراضية
+          </button>
         </div>
       </div>
     </ResponsiveDrawer>
