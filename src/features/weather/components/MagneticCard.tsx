@@ -19,7 +19,7 @@ import { type ReactNode, useRef } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { cardHoverTransition, magneticTilt, reducedMotionTransition } from '../lib/weather-motion';
+import { cardHoverTransition, reducedMotionTransition } from '../lib/weather-motion';
 
 interface MagneticCardProps {
   children: ReactNode;

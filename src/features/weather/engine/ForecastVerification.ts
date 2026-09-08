@@ -19,7 +19,7 @@
 // ============================================================================
 
 import type { SourceId } from '../types/SourceRegistry';
-import { readLedgerEntries, type LedgerEntry } from './ForecastLedger';
+import { type LedgerEntry,readLedgerEntries } from './ForecastLedger';
 
 /** Fields the verifier scores — subset of `SkillField` plus precipitation. */
 export type VerifiableField = 'temperature' | 'humidity' | 'pressure' | 'wind' | 'cloud';

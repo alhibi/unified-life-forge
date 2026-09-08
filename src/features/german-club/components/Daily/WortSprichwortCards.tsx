@@ -3,8 +3,8 @@ import React from 'react';
 
 import { BookOpen, Quote, Sparkles } from '@/lib/icons';
 
-import { GERMAN_CLUB_TOKENS } from '../../types';
 import type { DailySprichwort, DailyWort } from '../../lib/daily';
+import { GERMAN_CLUB_TOKENS } from '../../types';
 
 interface WortCardProps {
   wort: DailyWort;

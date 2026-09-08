@@ -10,20 +10,20 @@ import { supabase } from '@/integrations/supabase/client';
 
 import {
   type FitnessEntry,
+  FitnessEntrySchema,
   type HabitEntry,
+  HabitEntrySchema,
   type JournalEntry,
+  JournalEntrySchema,
   type KnowledgeEntry,
+  KnowledgeEntrySchema,
   type QuickCaptureEntry,
+  QuickCaptureEntrySchema,
+  TIME_LEDGER_LAYERS,
   type TimeLedgerDayGroup,
   type TimeLedgerEntry,
   type TimeLedgerQueryFilters,
   type TimeLedgerSource,
-  FitnessEntrySchema,
-  HabitEntrySchema,
-  JournalEntrySchema,
-  KnowledgeEntrySchema,
-  QuickCaptureEntrySchema,
-  TIME_LEDGER_LAYERS,
 } from './types';
 
 // ──────────────────────────────────────────────────────────────────────────────

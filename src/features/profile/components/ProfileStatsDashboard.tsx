@@ -5,9 +5,11 @@
  * animated progress bars, live data visualization, and elegant typography.
  * Built with Framer Motion for smooth staggered animations.
  */
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Compass, Trophy, Sparkles, ShieldCheck, Clock } from '@/lib/icons';
+import React from 'react';
+
+import { Clock,Compass, Flame, ShieldCheck, Sparkles, Trophy } from '@/lib/icons';
+
 import { ProfileActivitySummary } from '../types';
 
 interface ProfileStatsDashboardProps {

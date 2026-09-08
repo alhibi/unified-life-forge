@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Sparkles, X } from '@/lib/icons';
 
 import {
-  buildIndex,
   detectQueryLanguage,
   fuzzyMultiLangSearch,
   type IndexedEntry,

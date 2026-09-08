@@ -25,6 +25,33 @@ export interface IndexedEntry {
   readonly category: string;
   readonly cefr: string;
   readonly word_type: string;
+  /** Bitmask of the ASCII letters/digits present in `germanLower` (prefilter). */
+  readonly germanMask: number;
+}
+
+/**
+ * Bitmask of distinct a–z / 0–9 characters in a string.
+ *
+ * Used as a cheap admissibility test before Levenshtein: every character the
+ * query has and the candidate lacks costs at least one edit, so when the
+ * number of such characters exceeds the bound the pair cannot match and the
+ * (far more expensive) distance computation is skipped.
+ */
+export function letterMask(s: string): number {
+  let mask = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c >= 97 && c <= 122) mask |= 1 << (c - 97);
+    else if (c >= 48 && c <= 57) mask |= 1 << (26 + ((c - 48) % 6));
+  }
+  return mask;
+}
+
+function popcount(v: number): number {
+  let n = v - ((v >> 1) & 0x55555555);
+  n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+  n = (n + (n >> 4)) & 0x0f0f0f0f;
+  return (n * 0x01010101) >> 24;
 }
 
 export interface ScoredHit {
@@ -73,6 +100,7 @@ export function buildIndex<
       category: e.category,
       cefr: e.cefr,
       word_type: e.word_type,
+      germanMask: letterMask(gLower),
     };
   }
   return out;
@@ -97,7 +125,20 @@ export function detectQueryLanguage(query: string): 'arabic' | 'german' | 'engli
   return 'english';
 }
 
-/** Levenshtein distance (bounded, with early termination) — used for fuzzy matching. */
+/**
+ * Levenshtein distance, bounded and early-terminating.
+ *
+ * Returns `maxDistance + 1` as a sentinel when the true distance exceeds the
+ * bound, so callers MUST compare against `maxDistance`, never against a
+ * larger threshold — the sentinel is not a real distance.
+ *
+ * The two working rows are module-level scratch buffers: this runs once per
+ * dictionary entry per keystroke (5k+ calls), and allocating two arrays each
+ * time was the dominant cost of a search.
+ */
+let lvPrev: number[] = [];
+let lvCurr: number[] = [];
+
 function levenshteinBounded(a: string, b: string, maxDistance: number): number {
   const m = a.length;
   const n = b.length;
@@ -105,8 +146,12 @@ function levenshteinBounded(a: string, b: string, maxDistance: number): number {
   if (m === 0) return n;
   if (n === 0) return m;
 
-  let prev = new Array<number>(n + 1);
-  let curr = new Array<number>(n + 1);
+  if (lvPrev.length < n + 1) {
+    lvPrev = new Array<number>(n + 1);
+    lvCurr = new Array<number>(n + 1);
+  }
+  let prev = lvPrev;
+  let curr = lvCurr;
   for (let j = 0; j <= n; j++) prev[j] = j;
 
   for (let i = 1; i <= m; i++) {
@@ -122,11 +167,16 @@ function levenshteinBounded(a: string, b: string, maxDistance: number): number {
       curr[j] = v;
       if (v < rowMin) rowMin = v;
     }
-    if (rowMin > maxDistance) return maxDistance + 1;
-    [prev, curr] = [curr, prev];
+    if (rowMin > maxDistance) {
+      lvPrev = prev; lvCurr = curr;
+      return maxDistance + 1;
+    }
+    const swap = prev; prev = curr; curr = swap;
   }
+  lvPrev = prev; lvCurr = curr;
   return prev[n];
 }
+
 
 /**
  * Multi-language fuzzy search.
@@ -157,6 +207,7 @@ export function fuzzyMultiLangSearch(
   const qLower = trimmed.toLowerCase();
   const qArabic = normalizeArabic(trimmed);
   const qPrefix = qLower.slice(0, 3);
+  const qMask = letterMask(qLower);
 
   const hits: ScoredHit[] = [];
 
@@ -190,13 +241,21 @@ export function fuzzyMultiLangSearch(
       score = 0.55;
       matchedField = 'arabic';
     }
-    // 6. Fuzzy: Levenshtein ≤ 1 on German
+    // 6. Fuzzy: Levenshtein ≤ 1 (≤ 2 for long queries) on German.
+    //    The bound is passed to the matcher up front — asking for a bound of 1
+    //    and then testing `d <= 2` treated the "over the bound" sentinel as a
+    //    real distance, so every long query matched the whole dictionary.
     else if (qLower.length >= 3) {
-      const d = levenshteinBounded(qLower, e.germanLower, 1);
+      const bound = qLower.length >= 5 ? 2 : 1;
+      const missing = popcount(qMask & ~e.germanMask);
+      const d =
+        missing > bound
+          ? bound + 1
+          : levenshteinBounded(qLower, e.germanLower, bound);
       if (d <= 1) {
         score = 0.55;
         matchedField = 'fuzzy';
-      } else if (qLower.length >= 5 && d <= 2) {
+      } else if (d <= bound) {
         score = 0.4;
         matchedField = 'fuzzy';
       } else if (lang === 'arabic' && qArabic.length >= 4) {
@@ -208,6 +267,7 @@ export function fuzzyMultiLangSearch(
         }
       }
     }
+
 
     if (score > 0) {
       hits.push({ entry: e, score, matchedField });

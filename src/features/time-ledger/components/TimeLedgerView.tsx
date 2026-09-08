@@ -5,14 +5,13 @@
  * expandable/collapsible. Uses content-visibility for performance on long timelines.
  */
 
+import { AnimatePresence } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Filter, Search, Settings } from '@/lib/icons';
 
-import { AppCard, Section, IconButton } from '@/components/ui/app-shell';
+import { IconButton } from '@/components/ui/app-shell';
+import { Filter, Search, Settings } from '@/lib/icons';
+
 import { useTimeLedger, useTimeLedgerLayers } from '../hooks/useTimeLedger';
-import type { TimeLedgerEntry, TimeLedgerDayGroup, TimeLedgerSource } from '../types';
-
 import DayCard from './DayCard';
 import LayerToggleBar from './LayerToggleBar';
 import QuickCaptureFab from './QuickCaptureFab';

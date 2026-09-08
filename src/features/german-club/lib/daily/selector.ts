@@ -1,8 +1,8 @@
-import { DAILY_WORTER, DAILY_WORTER_COUNT } from './woerter';
-import { DAILY_SPRICHWOERTER, DAILY_SPRICHWOERTER_COUNT } from './sprichwoerter';
-import { DAILY_SAETZE, DAILY_SAETZE_COUNT } from './saetze';
 import { DAILY_KULTURPERLEN, DAILY_KULTURPERLEN_COUNT } from './kulturperlen';
+import { DAILY_SAETZE, DAILY_SAETZE_COUNT } from './saetze';
+import { DAILY_SPRICHWOERTER, DAILY_SPRICHWOERTER_COUNT } from './sprichwoerter';
 import type { DailyBundle } from './types';
+import { DAILY_WORTER, DAILY_WORTER_COUNT } from './woerter';
 
 /**
  * Deterministic daily selection.

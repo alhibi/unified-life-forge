@@ -1,5 +1,5 @@
-import { GERMAN_DICTIONARY_DATA } from '../dictionaryData';
 import type { DictionaryEntry } from '../../types';
+import { GERMAN_DICTIONARY_DATA } from '../dictionaryData';
 
 /**
  * Random Discovery — pick a random entry, or a "related" entry near one

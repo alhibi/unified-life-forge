@@ -24,7 +24,7 @@ import { type ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { duration, easing, pillSlideTransition, motionPresets } from '../lib/weather-motion';
+import { duration, easing,pillSlideTransition } from '../lib/weather-motion';
 
 export interface TabDef {
   id: string;

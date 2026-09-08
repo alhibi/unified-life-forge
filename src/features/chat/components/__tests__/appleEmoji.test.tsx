@@ -67,7 +67,9 @@ describe('appleEmoji', () => {
       await preloadAppleEmoji();
 
       expect(isAppleEmojiReady()).toBe(true);
-    });
+      // The first import of the emoji dataset is a ~1MB module parse; in jsdom
+      // that regularly exceeds the 5s default and is not an app-level delay.
+    }, 30_000);
 
     it('deduplicates concurrent calls to preloadAppleEmoji', async () => {
       const { preloadAppleEmoji } = await import('../appleEmoji');

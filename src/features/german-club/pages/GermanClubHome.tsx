@@ -6,13 +6,13 @@ import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
 import { BookOpen, ShieldAlert, Sparkles, Wand2 } from '@/lib/icons';
 
-import { DiscoveryCard } from '../components/DiscoveryCard';
-import { WortschatzSpiegel } from '../components/WortschatzSpiegel';
-import { Wortspaziergang } from '../components/Wortspaziergang';
-import { GenerationModal } from '../components/GenerationModal';
 import { HeuteImClub } from '../components/Daily/HeuteImClub';
+import { DiscoveryCard } from '../components/DiscoveryCard';
+import { GenerationModal } from '../components/GenerationModal';
 import { QuickLookup } from '../components/QuickLookup';
 import { ShelfCard } from '../components/ShelfCard';
+import { WortschatzSpiegel } from '../components/WortschatzSpiegel';
+import { Wortspaziergang } from '../components/Wortspaziergang';
 import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
 

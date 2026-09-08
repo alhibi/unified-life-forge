@@ -6,9 +6,9 @@
  * architecture swappable.
  */
 
-export type { DailyWort, DailySprichwort, DailySatz, DailyKulturperle, DailyBundle } from './types';
-export { getDailyBundle, getWortDesTages, daysSinceEpoch, dayKey } from './selector';
-export { DAILY_WORTER, DAILY_WORTER_COUNT } from './woerter';
-export { DAILY_SPRICHWOERTER, DAILY_SPRICHWOERTER_COUNT } from './sprichwoerter';
-export { DAILY_SAETZE, DAILY_SAETZE_COUNT } from './saetze';
 export { DAILY_KULTURPERLEN, DAILY_KULTURPERLEN_COUNT } from './kulturperlen';
+export { DAILY_SAETZE, DAILY_SAETZE_COUNT } from './saetze';
+export { dayKey,daysSinceEpoch, getDailyBundle, getWortDesTages } from './selector';
+export { DAILY_SPRICHWOERTER, DAILY_SPRICHWOERTER_COUNT } from './sprichwoerter';
+export type { DailyBundle,DailyKulturperle, DailySatz, DailySprichwort, DailyWort } from './types';
+export { DAILY_WORTER, DAILY_WORTER_COUNT } from './woerter';

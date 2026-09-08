@@ -19,7 +19,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 import { timeLabel } from '../lib/utils';
-import { duration, easing } from '../lib/weather-motion';
+import { duration } from '../lib/weather-motion';
 
 interface LiveSunArcProps {
   sunrise: string;

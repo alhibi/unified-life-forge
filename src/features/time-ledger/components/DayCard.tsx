@@ -5,12 +5,13 @@
  * individual entries grouped by source layer.
  */
 
-import { useMemo } from 'react';
-import { ChevronDown, Clock, CheckCircle, AlertCircle, HelpCircle } from '@/lib/icons';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useMemo } from 'react';
 
 import { AppCard, Section } from '@/components/ui/app-shell';
-import type { TimeLedgerDayGroup, TimeLedgerEntry, TimeLedgerSource, TimeLedgerLayerConfig } from '../types';
+import { AlertCircle, ChevronDown, Clock, HelpCircle } from '@/lib/icons';
+
+import type { TimeLedgerDayGroup, TimeLedgerEntry, TimeLedgerLayerConfig,TimeLedgerSource } from '../types';
 import TimeLedgerEntryItem from './TimeLedgerEntryItem';
 
 interface DayCardProps {

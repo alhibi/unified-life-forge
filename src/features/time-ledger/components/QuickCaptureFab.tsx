@@ -5,24 +5,25 @@
  * Uses local-first optimistic writes for instant feedback.
  */
 
-import { useState, useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect,useRef, useState } from 'react';
+import { toast } from 'sonner';
+
+import { IconButton,Section } from '@/components/ui/app-shell';
 import {
-  Plus,
-  X,
-  FileText,
-  CheckSquare,
-  Lightbulb,
   Bell,
+  CheckSquare,
   Eye,
+  FileText,
+  Lightbulb,
   Mic,
+  Plus,
   Send,
+  X,
 } from '@/lib/icons';
 
-import { AppCard, Section, IconButton } from '@/components/ui/app-shell';
 import { useQuickCapture } from '../hooks/useTimeLedger';
 import type { QuickCaptureEntry } from '../types';
-import { toast } from 'sonner';
 
 const CAPTURE_TYPES = [
   { value: 'note' as const, label: 'ملاحظة', icon: FileText, description: 'فكرة، ملاحظة، تفكير' },

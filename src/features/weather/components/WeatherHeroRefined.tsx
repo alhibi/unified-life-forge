@@ -31,11 +31,11 @@ import { cn } from '@/lib/utils';
 
 import { describeWeatherCode, labelForWeatherCode } from '../lib/conditions';
 import { comfortLabel } from '../lib/vocabulary';
-import { duration, easing, heroRevealTransition, iconPulseTransition, motionPresets } from '../lib/weather-motion';
+import { duration, easing, heroRevealTransition, iconPulseTransition } from '../lib/weather-motion';
 import type { HourlyEntry } from '../types/ForecastLayer';
 import type { WeatherSnapshot } from '../types/WeatherSnapshot';
-import { CardEyebrow } from './UnifiedCard';
 import { CountUpNumber } from './CountUpNumber';
+import { CardEyebrow } from './UnifiedCard';
 import { WeatherScene } from './WeatherScene';
 
 /** Single micro-metric tile used in the tertiary tier. */
