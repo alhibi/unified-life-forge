@@ -429,10 +429,27 @@ export default function SoftKeyboard({
       ? [HARAKAT.slice(0, 6), HARAKAT.slice(6, 12)]
       : LAYOUT_ROWS[layout as keyof typeof LAYOUT_ROWS] ?? LAYOUT_ROWS.ar;
 
+  /**
+   * Files a finished word into the personal dictionary together with the word
+   * before it. Skipped on sensitive fields and when learning is switched off —
+   * a password or an OTP must never enter the dictionary.
+   */
+  const commitWord = useCallback(
+    (word: string, previous?: string) => {
+      if (!settings.learningEnabled || isSensitive) return;
+      const context = previous ?? getWordContext(targetElRef.current).previous;
+      learnWord(word, context || null);
+    },
+    [settings.learningEnabled, isSensitive],
+  );
+
   const emit = useCallback(
     (key: KeyDef) => {
       const upper = shift || caps;
       const textToInsert = upper && key.alt ? key.alt : key.ch;
+      // Context has to be read *before* the insertion, while the previous word
+      // is still the one preceding the caret.
+      const previousWord = getWordContext(targetElRef.current).previous;
       onInsert(textToInsert);
       if (shift && !caps) setShift(false);
 
@@ -442,11 +459,12 @@ export default function SoftKeyboard({
       // Only letters continue a word. Digits, punctuation and combining marks end
       // it, so the prediction buffer never accumulates junk that can't be matched.
       const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
+      if (!isWordChar && typedBuffer) commitWord(typedBuffer, previousWord);
       const newBuffer = isWordChar ? typedBuffer + textToInsert : '';
       setTypedBuffer(newBuffer);
       updateSuggestions(newBuffer, isSensitive);
     },
-    [shift, caps, onInsert, typedBuffer, updateSuggestions, isSensitive],
+    [shift, caps, onInsert, typedBuffer, updateSuggestions, isSensitive, commitWord],
   );
 
   const handleBackspace = useCallback(() => {
