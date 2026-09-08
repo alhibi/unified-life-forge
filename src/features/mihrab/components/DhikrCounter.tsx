@@ -22,6 +22,11 @@ import { useCallback, useRef, useState } from 'react';
 
 import ProgressRing from '@/components/ProgressRing';
 import { AnimatedNumber } from '@/components/ui/animated-number';
+import {
+  SignatureAnnouncement,
+  SignatureBloom,
+  useSignatureMoment,
+} from '@/components/ui/signature-moment';
 import { AppCard } from '@/components/ui/app-shell';
 import { Minus, Pin, RotateCcw } from '@/lib/icons';
 import { DURATION } from '@/lib/motion';
@@ -69,6 +74,16 @@ export default function DhikrCounter() {
   // A finished round shows a full ring rather than snapping back to empty.
   const ringProgress = target > 0 ? (withinRound === 0 && count > 0 ? 1 : withinRound / target) : 0;
 
+  /**
+   * Closing a round is one of the app's two signature moments (see
+   * `signature-moment.tsx`). Every other count gets the plain 8ms tick — the
+   * flourish only means something because 99 taps out of 100 do not get it.
+   */
+  const roundComplete = useSignatureMoment({
+    kind: 'complete',
+    announce: 'تمّت دورة الذكر',
+  });
+
   const increment = useCallback(() => {
     // Guard against a double-fire from a synthetic click after a touch.
     const now = Date.now();
@@ -78,9 +93,13 @@ export default function DhikrCounter() {
     const next = count + 1;
     countDhikr(activeId, 1);
     setPulse((p) => p + 1);
-    if (target > 0 && next % target === 0) vibrate([18, 40, 18, 40, 24]);
-    else vibrate(8);
-  }, [activeId, count, countDhikr, target]);
+    if (target > 0 && next % target === 0) {
+      // The signature moment owns the haptic here, so we do not double-buzz.
+      roundComplete.fire();
+    } else {
+      vibrate(8);
+    }
+  }, [activeId, count, countDhikr, roundComplete, target]);
 
   return (
     <AppCard as="section" aria-label="عدّاد الذكر" className="p-0">
@@ -130,7 +149,9 @@ export default function DhikrCounter() {
           {entry.text}
         </p>
 
-        <ProgressRing progress={ringProgress} size={168} thickness={4} label={`${withinRound} من ${target}`}>
+        <span className="relative flex items-center justify-center">
+          <SignatureBloom active={roundComplete.active} />
+          <ProgressRing progress={ringProgress} size={168} thickness={4} label={`${withinRound} من ${target}`}>
           <span className="flex flex-col items-center">
             {/* The figure itself pulses on count: a scale tick is the cheapest
                 possible confirmation and never shifts layout. */}
