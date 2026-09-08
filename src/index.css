@@ -959,6 +959,44 @@
     }
   }
 
+  /* ──────────────────────────────────────────────────────────────
+     CONSERVATION — what the app gives up when the device asks.
+     `data-battery-saver` / `data-data-saver` are written to <html> by
+     SystemEngineContext; `src/lib/conserve.ts` reads the same two
+     attributes for background polling, so visuals and network back off
+     together instead of one of them silently continuing.
+
+     Deliberately NOT the same thing as reduced motion: reduced motion is
+     an accessibility preference about *all* movement, this is a power
+     budget. So here we drop only the perpetual, decorative loops and the
+     expensive blurs — every purposeful transition (a sheet opening, a
+     press, a tab change) keeps working, because breaking those would make
+     a low battery feel like a broken app.
+     ────────────────────────────────────────────────────────────── */
+  html[data-battery-saver='true'] .live-dot,
+  html[data-battery-saver='true'] .podcast-eq-bar,
+  html[data-battery-saver='true'] [data-ambient-loop='true'] {
+    animation: none !important;
+    opacity: 0.9;
+  }
+
+  /* Backdrop blur is the single most expensive continuous GPU cost in the
+     app; opaque surfaces look nearly identical and cost nothing. */
+  html[data-battery-saver='true'] .glass-overlay,
+  html[data-battery-saver='true'] .surface-depth,
+  html[data-battery-saver='true'] [class*='backdrop-blur'] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Data saver is about bytes, not frames: stop decorative media from
+     fetching/animating, and let images arrive without a shimmer that
+     implies imminent content on a slow pipe. */
+  html[data-data-saver='true'] video[data-decorative='true'],
+  html[data-data-saver='true'] [data-decorative-media='true'] {
+    display: none !important;
+  }
+
   /* NOTE: the `[data-sidebar]` / `.group/sidebar-wrapper` rules were
      removed together with src/components/ui/sidebar.tsx — nothing in the
      app ever rendered a sidebar, and the block animated `width` (a layout

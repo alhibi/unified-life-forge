@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
+import { pollInterval, subscribeConserve } from '@/lib/conserve';
 
 type Listener = (count: number) => void;
 
@@ -33,6 +34,7 @@ let pollTimer: ReturnType<typeof setInterval> | null = null;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let channel: RealtimeChannel | null = null;
 let inFlight: Promise<void> | null = null;
+let detachConserve: (() => void) | null = null;
 
 function emit(count: number) {
   currentCount = count;
@@ -83,7 +85,31 @@ function startWatching(userId: string) {
 
   // Initial fetch + periodic refresh as a safety net for missed realtime events.
   void fetchNow(userId);
-  pollTimer = setInterval(() => { void fetchNow(userId); }, POLL_INTERVAL_MS);
+
+  // The poll is only a *safety net* — realtime INSERT/UPDATE events are the
+  // real transport for this badge. That makes it the ideal candidate to stretch
+  // or drop under conservation: at the hard level we rely on realtime alone
+  // plus the refetch that happens when the app returns to the foreground, so
+  // the badge stays correct without a timer waking a low battery every minute.
+  const armPoll = () => {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    if (watchedUserId !== userId) return;
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+    const ms = pollInterval(POLL_INTERVAL_MS, true);
+    if (ms === null) return;
+    pollTimer = setInterval(() => { void fetchNow(userId); }, ms);
+  };
+  const onVisibility = () => {
+    if (document.visibilityState === 'visible') void fetchNow(userId);
+    armPoll();
+  };
+  armPoll();
+  const offConserve = subscribeConserve(armPoll);
+  document.addEventListener('visibilitychange', onVisibility);
+  detachConserve = () => {
+    offConserve();
+    document.removeEventListener('visibilitychange', onVisibility);
+  };
 
   if (isSupabaseConfigured) {
     channel = supabase
@@ -104,6 +130,7 @@ function startWatching(userId: string) {
 
 function stopWatching() {
   watchedUserId = null;
+  if (detachConserve) { detachConserve(); detachConserve = null; }
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
   if (channel) { supabase.removeChannel(channel); channel = null; }

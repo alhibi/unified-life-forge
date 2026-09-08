@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
+import { useConservingInterval } from '@/hooks/useConserve';
 import {
-  Activity,
   Plus,
   RefreshCw,
   Trash2,
@@ -34,9 +35,6 @@ export default function CryptoWatchlist() {
   // Price Tick Pulsing ref to store previous prices
   const prevPricesRef = useRef<Record<string, string>>({});
   const [pulsingKeys, setPulsingKeys] = useState<Record<string, 'up' | 'down'>>({});
-
-  // Background Visibility Tracking
-  const isBackgroundedRef = useRef(false);
 
   // Every deferred handler timer is tracked so navigating away cancels it —
   // otherwise a pulse-clear setState or a delete network call fires minutes
@@ -109,7 +107,7 @@ export default function CryptoWatchlist() {
       } else {
         setPairsData([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[CryptoWatchlist] Load failed:', err);
       setError('تعذّر جلب أسعار العملات الحية. يرجى التحقق من اتصال الشبكة.');
     } finally {
@@ -118,36 +116,29 @@ export default function CryptoWatchlist() {
     }
   };
 
+  // Keep a stable reference to the latest loader so the polling hook below is
+  // armed once and never re-armed by an unrelated render.
+  const loadRef = useRef(loadData);
   useEffect(() => {
-    loadData();
+    loadRef.current = loadData;
+  });
 
-    // 1. Lifecycle: Pause polling when backgrounded
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        isBackgroundedRef.current = true;
-        console.log('[CryptoWatchlist] Visibility hidden: Pausing coin polling.');
-      } else {
-        isBackgroundedRef.current = false;
-        console.log('[CryptoWatchlist] Visibility visible: Resuming coin polling.');
-        loadData(true); // refresh immediately when returning to foreground
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // 2. Setup 30s Auto Polling
-    const intervalId = setInterval(() => {
-      if (!isBackgroundedRef.current) {
-        console.log('[CryptoWatchlist] Auto-polling live prices...');
-        loadData();
-      }
-    }, 30 * 1000);
-
-    return () => {
-      clearInterval(intervalId);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
+  useEffect(() => {
+    void loadRef.current();
   }, []);
+
+  const poll = useCallback(() => {
+    void loadRef.current();
+  }, []);
+
+  // Price polling is `optional`: on a device in hard conservation we stop
+  // entirely rather than stretch, because the screen has a pull-to-refresh and
+  // a manual refresh button — the user can always ask for fresh prices, and a
+  // watchlist quietly costing battery in the background is worse than a price
+  // that is a few minutes old. Visibility pausing and the refresh-on-return are
+  // now part of the hook instead of hand-rolled here.
+  useConservingInterval(poll, 30 * 1000, { optional: true, refreshOnResume: true });
+
 
   // Remove Watchlist item with undo toast logic
   const handleRemove = async (dbId: string, symbol: string, chainId: string, address: string) => {
@@ -299,36 +290,31 @@ export default function CryptoWatchlist() {
             ))}
           </div>
         ) : error && watchlist.length === 0 ? (
-          <div className="p-6 rounded-xl border border-destructive/20 bg-destructive/5 text-center">
-            <p className="text-meta font-semibold text-destructive mb-2">تعذر جلب البيانات</p>
-            <p className="text-mini text-muted-foreground mb-4">{error}</p>
-            <button
-              type="button"
-              onClick={() => loadData(true)}
-              className="px-4 py-2 text-mini font-bold rounded-md bg-primary text-primary-foreground"
-            >
-              إعادة المحاولة
-            </button>
-          </div>
+          // Offline and "the price service failed" are different problems and
+          // deserve different sentences: one is the user's connection and will
+          // fix itself, the other is ours and needs a retry.
+          <StateView
+            kind={navigator.onLine ? 'error' : 'offline'}
+            title={navigator.onLine ? 'تعذّر جلب الأسعار' : 'لا يوجد اتصال بالإنترنت'}
+            body={
+              navigator.onLine
+                ? 'خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة.'
+                : 'أسعار العملات تحتاج اتصالاً مباشراً. قائمتك محفوظة، وستُحدَّث الأسعار تلقائياً عند عودة الاتصال.'
+            }
+            action={{
+              label: 'إعادة المحاولة',
+              onClick: () => void loadData(true),
+              pending: refreshing,
+            }}
+          />
         ) : watchlist.length === 0 ? (
-          // Custom beautiful empty state
-          <div className="empty-state-surface flex flex-col items-center justify-center py-12 px-6 rounded-xl border border-dashed border-border/40 text-center" role="status">
-            <div className="relative w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Activity className="h-6 w-6 text-primary" />
-            </div>
-            <p className="text-meta font-bold text-foreground mb-1">قائمة المراقبة فارغة</p>
-            <p className="text-mini text-muted-foreground max-w-[280px] leading-relaxed mb-6">
-              لم تقم بإضافة أي عملة مشفرة حتى الآن. ابدأ بالبحث وإضافة أزواج التداول الحية لمتابعتها في مكان واحد.
-            </p>
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-motion text-mini"
-            >
-              <Plus className="h-4 w-4" />
-              ابحث عن عملة الآن
-            </button>
-          </div>
+          <StateView
+            kind="empty"
+            title="قائمة المراقبة فارغة"
+            body="لم تُضِف أي عملة بعد. ابحث عن زوج تداول لتتابع سعره الحيّ وتغيّره خلال 24 ساعة في مكان واحد."
+            action={{ label: 'ابحث عن عملة', onClick: () => setSearchOpen(true) }}
+          />
+
         ) : (
           // Watchlisted token entries
           <div className="space-y-2.5">

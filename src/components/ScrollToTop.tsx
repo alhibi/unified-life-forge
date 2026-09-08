@@ -26,13 +26,39 @@ import { useLocation, useNavigationType } from 'react-router-dom';
  */
 const PERSISTENT_TAB_PATHS = new Set<string>(['/', '/games', '/chat']);
 
+/**
+ * Tab offsets are additionally mirrored to `sessionStorage`, because on a
+ * mobile WebView "leaving" is not always a navigation: Android can evict the
+ * process while the user is in another app, and coming back is a full reload.
+ * In-memory-only memory made that reload feel like a reset of the whole app.
+ * Session scope is the right lifetime — a fresh launch should start at the top.
+ */
+const SCROLL_STORE_KEY = 'scroll:tabs-v1';
+
+function readStoredPositions(): Map<string, number> {
+  try {
+    const raw = sessionStorage.getItem(SCROLL_STORE_KEY);
+    if (!raw) return new Map();
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return new Map();
+    const entries = Object.entries(parsed as Record<string, unknown>).filter(
+      (entry): entry is [string, number] =>
+        typeof entry[1] === 'number' && Number.isFinite(entry[1]),
+    );
+    return new Map(entries);
+  } catch {
+    return new Map();
+  }
+}
+
 export default function ScrollToTop() {
   const location = useLocation();
   const navType  = useNavigationType();
   const { pathname, key } = location;
 
   // Per-tab scroll offsets. Only persistent-tab paths are ever stored.
-  const positions = useRef<Map<string, number>>(new Map());
+  const positions = useRef<Map<string, number>>(readStoredPositions());
+
   // The path that currently "owns" the window scroll. A ref (not state)
   // so the single scroll listener always attributes a scroll to the
   // right tab without re-subscribing on every navigation. It is updated
@@ -60,7 +86,33 @@ export default function ScrollToTop() {
       if (subKey !== null) subPagePositions.current.set(subKey, window.scrollY);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    // Written on the way out, never per scroll event: a storage write on every
+    // frame of a flick would be the exact kind of jank this app spent Stage 2
+    // removing. `pagehide` is the only event guaranteed to fire when a mobile
+    // WebView is backgrounded or evicted.
+    const persist = () => {
+      try {
+        sessionStorage.setItem(
+          SCROLL_STORE_KEY,
+          JSON.stringify(Object.fromEntries(positions.current)),
+        );
+      } catch {
+        /* quota or private mode — scroll memory simply stays in-memory */
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') persist();
+    };
+    window.addEventListener('pagehide', persist);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('pagehide', persist);
+      document.removeEventListener('visibilitychange', onVisibility);
+      persist();
+    };
   }, []);
 
   useLayoutEffect(() => {
