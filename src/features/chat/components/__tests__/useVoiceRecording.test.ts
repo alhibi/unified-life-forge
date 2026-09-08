@@ -58,7 +58,7 @@ class FakeMediaRecorder implements Recorder {
   ondataavailable: ((e: { data: Blob }) => void) | null = null;
   onstop: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  constructor() { lastRecorder = this; }
+  constructor() { lastRecorder = this as Recorder; }
   start() {
     this.state = 'recording';
     // Emit a realistic chunk so the produced blob is not an empty stub.
