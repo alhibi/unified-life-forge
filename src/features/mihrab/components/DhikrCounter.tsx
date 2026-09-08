@@ -137,10 +137,10 @@ export default function DhikrCounter() {
               initial={reduce ? false : { scale: 0.88 }}
               animate={{ scale: 1 }}
               transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 620, damping: 26 }}
-              className="text-hero font-semibold leading-none tabular-nums text-foreground"
+              className="text-hero font-semibold leading-none text-foreground"
               dir="ltr"
             >
-              {count}
+              <AnimatedNumber value={count} duration={DURATION.fast} />
             </motion.span>
             <span className="mt-1 text-mini tabular-nums text-muted-foreground">
               الهدف {target}
