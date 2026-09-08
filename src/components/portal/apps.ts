@@ -136,7 +136,37 @@ export const PORTAL_APPS: readonly PortalApp[] = [
     ],
   },
 
+  {
+    key: 'mihrab',
+    path: '/mihrab',
+    label: 'المحراب',
+    caption: 'MIHRAB',
+    description: 'مجالس القرآن والسنة والأدب في مكان واحد',
+    cat: 'spirit',
+    icon: Compass,
+    keywords: 'mihrab محراب قرآن سنة أدب صلاة دليل الصلاة فضائل مجالس',
+    links: [
+      { path: '/mihrab', label: 'المحراب', note: 'المجالس الثلاثة: قرآن وسنة وأدب', icon: Compass },
+      { path: '/mihrab/prayer-guide', label: 'دليل الصلاة', note: 'شرح الصلاة خطوة بخطوة', icon: BookOpen },
+      { path: '/section/quran-virtues', label: 'فضائل القرآن', note: 'فضل التلاوة والسور', icon: Sparkles },
+    ],
+  },
+
   /* ── الجسد ── */
+  {
+    key: 'weather',
+    path: '/weather',
+    label: 'الطقس',
+    caption: 'WEATHER',
+    description: 'التوقعات والرادار وجودة الهواء',
+    cat: 'body',
+    icon: Sun,
+    keywords: 'weather forecast radar air quality طقس توقعات حرارة مطر رادار جودة الهواء حبوب لقاح شمس قمر',
+    links: [
+      { path: '/weather', label: 'لوحة الطقس', note: 'التوقعات الساعية واليومية', icon: Sun },
+      { path: '/weather', label: 'جودة الهواء والرادار', note: 'خرائط المطر ومؤشرات الهواء', icon: Gauge },
+    ],
+  },
   {
     key: 'wellness',
     path: '/wellness',
