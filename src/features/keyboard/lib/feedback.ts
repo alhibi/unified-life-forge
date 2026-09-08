@@ -10,7 +10,7 @@
 
 import { haptics, type HapticKind } from '@/lib/native';
 
-import type { HapticIntensity, SoundTone } from './preference';
+import { readKeyboardSettings, type HapticIntensity, type KeyboardSettings, type SoundTone } from './preference';
 import { playKeyClickSound, type KeySoundType } from './sound';
 
 /** Feedback weight per interaction kind, before the user's intensity scaling. */
@@ -83,4 +83,38 @@ export function tapFeedback(kind: FeedbackKind, options: TapFeedbackOptions) {
 /** Test seam: forget the throttle window. */
 export function resetFeedbackThrottle() {
   lastHapticAt = 0;
+}
+
+
+/* ── Chrome (toolbar, panels) feedback ───────────────────────────────
+ * Toolbar buttons used to call `haptics('selection')` directly, ignoring both
+ * the intensity preference and "off". They now share the same policy as the
+ * keys, reading a cached copy of the settings so a tap never parses
+ * localStorage on the interaction path.
+ */
+
+let cached: KeyboardSettings | null = null;
+
+function settings(): KeyboardSettings {
+  if (!cached) {
+    cached = readKeyboardSettings();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('soft-keyboard-settings-changed', (event) => {
+        cached = (event as CustomEvent<KeyboardSettings>).detail ?? null;
+      });
+    }
+  }
+  return cached;
+}
+
+/** Feedback for keyboard chrome: suggestions, toolbar buttons, panel taps. */
+export function chromeFeedback(kind: FeedbackKind = 'modifier') {
+  const current = settings();
+  tapFeedback(kind, {
+    enabled: current.vibrateOnKeyPress,
+    intensity: current.hapticIntensity,
+    soundEnabled: current.soundOnClick || current.soundEnabled,
+    soundVolume: current.soundVolume,
+    soundTone: current.soundTone,
+  });
 }
