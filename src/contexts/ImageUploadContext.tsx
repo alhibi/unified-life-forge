@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useRef,useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useRef,useState } from 'react';
 
 import { supabase } from '@/integrations/supabase/client';
 import { compressionSaving, type PreparedAsset,prepareImageForChat } from '@/lib/chat/mediaPipeline';
@@ -111,6 +111,7 @@ function describePrepError(err: unknown): string {
 
 export function ImageUploadProvider({ children }: { children: React.ReactNode }) {
   const [uploads, setUploads] = useState<PendingUpload[]>([]);
+  const uploadsRef = useRef<PendingUpload[]>([]);
   const fileCache = useRef<Map<string, File>>(new Map());
   // Keep prepared assets keyed by tempId so retry doesn't re-run the
   // (expensive) compression path. Cleared in `clearUpload`.
@@ -130,6 +131,14 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
     onCompleteRef.current = cb;
   }, []);
 
+  const updateUploads = useCallback((update: (current: PendingUpload[]) => PendingUpload[]) => {
+    setUploads(current => {
+      const next = update(current);
+      uploadsRef.current = next;
+      return next;
+    });
+  }, []);
+
   const doUpload = useCallback(async (
     tempId: string, file: File, conversationId: string, senderId: string, presetAsset?: PreparedAsset,
   ) => {
@@ -141,12 +150,12 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       asset = presetAsset ?? await prepareImageForChat(file);
     } catch (err) {
       const message = describePrepError(err);
-      setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'error', errorMessage: message } : u));
+       updateUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'error', errorMessage: message } : u));
       return;
     }
     assetCache.current.set(tempId, asset);
 
-    setUploads(prev => prev.map(u => u.tempId === tempId ? {
+    updateUploads(prev => prev.map(u => u.tempId === tempId ? {
       ...u,
       status: 'uploading' as const,
       progress: 0,
@@ -178,7 +187,7 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const pct = Math.round((e.loaded / e.total) * 100);
-          setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, progress: pct } : u));
+          updateUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, progress: pct } : u));
         }
       });
 
@@ -210,7 +219,7 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       if (ratio > 0) {
         console.info(`[image-upload] compressed ${ratio}% (${originalBytes} → ${asset.file.size} bytes)`);
       }
-      setUploads(prev => prev.map(u => u.tempId === tempId
+      updateUploads(prev => prev.map(u => u.tempId === tempId
         ? { ...u, status: 'done', progress: 100, storagePath, errorMessage: undefined }
         : u
       ));
@@ -224,9 +233,9 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       });
     } catch (err) {
       const message = (err as Error)?.message || 'Upload failed';
-      setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'error', errorMessage: message } : u));
+      updateUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, status: 'error', errorMessage: message } : u));
     }
-  }, []);
+  }, [updateUploads]);
 
   const startUpload = useCallback((file: File, conversationId: string, senderId: string): string => {
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -245,36 +254,45 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       originalBytes: file.size,
     };
 
-    setUploads(prev => [...prev, pending]);
+    updateUploads(prev => [...prev, pending]);
     doUpload(tempId, file, conversationId, senderId);
     return tempId;
-  }, [doUpload]);
+  }, [doUpload, updateUploads]);
 
   const retryUpload = useCallback((tempId: string) => {
-    const upload = uploads.find(u => u.tempId === tempId);
+    const upload = uploadsRef.current.find(u => u.tempId === tempId);
     const file = fileCache.current.get(tempId);
     if (!upload || !file) return;
     // Skip the compression step if we already have a prepared asset; the
     // failure was almost certainly on the network leg.
     const presetAsset = assetCache.current.get(tempId);
-    setUploads(prev => prev.map(u => u.tempId === tempId
+    updateUploads(prev => prev.map(u => u.tempId === tempId
       ? { ...u, status: presetAsset ? 'uploading' : 'compressing', progress: 0, errorMessage: undefined }
       : u));
     doUpload(tempId, file, upload.conversationId, upload.senderId, presetAsset);
-  }, [uploads, doUpload]);
+  }, [doUpload, updateUploads]);
 
-  const getUpload = useCallback((tempId: string) => uploads.find(u => u.tempId === tempId), [uploads]);
+  const getUpload = useCallback((tempId: string) => uploadsRef.current.find(u => u.tempId === tempId), []);
 
   const clearUpload = useCallback((tempId: string) => {
-    const upload = uploads.find(u => u.tempId === tempId);
+    const upload = uploadsRef.current.find(u => u.tempId === tempId);
     if (upload) URL.revokeObjectURL(upload.localPreviewUrl);
     fileCache.current.delete(tempId);
     assetCache.current.delete(tempId);
-    setUploads(prev => prev.filter(u => u.tempId !== tempId));
-  }, [uploads]);
+    updateUploads(prev => prev.filter(u => u.tempId !== tempId));
+  }, [updateUploads]);
+
+  const value = useMemo<ImageUploadContextType>(() => ({
+    uploads,
+    startUpload,
+    retryUpload,
+    getUpload,
+    clearUpload,
+    setOnUploadComplete,
+  }), [uploads, startUpload, retryUpload, getUpload, clearUpload, setOnUploadComplete]);
 
   return (
-    <ImageUploadContext.Provider value={{ uploads, startUpload, retryUpload, getUpload, clearUpload, setOnUploadComplete }}>
+    <ImageUploadContext.Provider value={value}>
       {children}
     </ImageUploadContext.Provider>
   );

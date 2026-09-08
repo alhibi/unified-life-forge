@@ -14,7 +14,7 @@
 // .env doesn't cause a stream of failed requests in the console.
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
@@ -168,8 +168,12 @@ export function useUnreadMessages(): UseUnreadMessagesResult {
     };
   }, [user?.id]);
 
+  const refresh = useCallback(() => {
+    if (watchedUserId) void fetchNow(watchedUserId);
+  }, []);
+
   return {
     unreadCount: count,
-    refresh: () => { if (watchedUserId) void fetchNow(watchedUserId); },
+    refresh,
   };
 }

@@ -39,6 +39,9 @@ export default function ChatPage() {
   const navigate = useNavigate();
   // Singleton hook — same value (and same network cost) as BottomNav and Index.
   const { unreadCount, refresh: refreshUnread } = useUnreadMessages();
+  const handleUnreadChange = useCallback(() => {
+    refreshUnread();
+  }, [refreshUnread]);
 
   // The drawer asks to "close" via onOpenChange(false). On the dedicated
   // page that is a router-level back-navigation — `useSmartBack` handles
@@ -82,7 +85,7 @@ export default function ChatPage() {
           // realtime UPDATE will already pick that up, but we also poke
           // the singleton for an instant refresh so the badge updates
           // without waiting for the 800ms debounce.
-          onUnreadChange={() => refreshUnread()}
+          onUnreadChange={handleUnreadChange}
         />
       </Suspense>
     </ErrorBoundary>

@@ -84,6 +84,24 @@ export function useFileDropZone({ enabled, onFiles }: Params): FileDropZone {
     }
   }, [enabled]);
 
+  // Never let the browser navigate the entire SPA to a dropped local file.
+  // The actual drop zone below still consumes files when a conversation is
+  // open; this capture-phase guard only neutralises the dangerous browser
+  // default everywhere else (header, composer, conversation list, etc.).
+  React.useEffect(() => {
+    const preventFileNavigation = (event: DragEvent) => {
+      if (Array.from(event.dataTransfer?.types ?? []).includes('Files')) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener('dragover', preventFileNavigation, true);
+    window.addEventListener('drop', preventFileNavigation, true);
+    return () => {
+      window.removeEventListener('dragover', preventFileNavigation, true);
+      window.removeEventListener('drop', preventFileNavigation, true);
+    };
+  }, []);
+
   return {
     isDraggingFiles,
     dragHandlers: { onDragEnter, onDragOver, onDragLeave, onDrop },

@@ -399,11 +399,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
   // `window` for its whole lifetime — that is what used to leave the
   // recorder running after the user lifted their finger.
   const startPointer = React.useRef<{ x: number; y: number; pressed: boolean } | null>(null);
+  const capturedPointerRef = React.useRef<{ target: Element; id: number } | null>(null);
   const detachGestureRef = React.useRef<(() => void) | null>(null);
   const SLIDE_CANCEL_PX = 100;
   const LOCK_PX = 70;
 
   const endGesture = React.useCallback(() => {
+    const captured = capturedPointerRef.current;
+    if (captured && 'releasePointerCapture' in captured.target) {
+      try { (captured.target as Element & { releasePointerCapture: (id: number) => void }).releasePointerCapture(captured.id); } catch { /* target may be unmounted */ }
+    }
+    capturedPointerRef.current = null;
     startPointer.current = null;
     drag.set(0);
     dragY.set(0);
@@ -419,6 +425,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleMicPointerDown = (e: React.PointerEvent) => {
     if (previewBlob) return;
+    e.preventDefault();
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+      capturedPointerRef.current = { target: e.currentTarget, id: e.pointerId };
+    } catch { /* older WebViews still use the window listeners below */ }
     startPointer.current = { x: e.clientX, y: e.clientY, pressed: true };
 
     const onMove = (ev: PointerEvent) => {
