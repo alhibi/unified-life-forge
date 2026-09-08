@@ -69,8 +69,19 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
     }
   }, []);
 
+  /**
+   * Intent — not navigation — is what warms the section. Touch users get
+   * the warm on press-start (≈120ms before the tap completes), mouse users
+   * on hover, keyboard users on focus. `prefetchRoute` is memoised and
+   * TTL-guarded, so firing it on every hover costs nothing after the first.
+   */
+  const warm = useCallback(() => {
+    prefetchRoute(app.path);
+  }, [app.path]);
+
   const handlePointerDown = useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
+      warm();
       if (event.pointerType === 'mouse') return;
       longPressFired.current = false;
       clearLongPress();
