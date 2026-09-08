@@ -326,6 +326,12 @@ export default function SoftKeyboard({
     return () => document.removeEventListener('selectionchange', updateState);
   }, [editableTarget, inputTick]);
 
+  /** Live handle on the field, so the prediction job can read real text. */
+  const targetElRef = useRef(editableTarget);
+  useEffect(() => {
+    targetElRef.current = editableTarget;
+  }, [editableTarget]);
+
   const rootRef = useRef<HTMLDivElement>(null);
   const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
   const lastSpaceTapRef = useRef<number>(0);
