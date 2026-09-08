@@ -60,43 +60,13 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
   const [hoverTheme, setHoverTheme] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* Load cached settings on mount */
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(PRIVACY_SETTINGS_CACHE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const merged: PrivacySettings = {
-          hide_activity: parsed.hide_activity !== undefined ? parsed.hide_activity : DEFAULT_PRIVACY_SETTINGS.hide_activity,
-          hide_location: parsed.hide_location !== undefined ? parsed.hide_location : DEFAULT_PRIVACY_SETTINGS.hide_location,
-          hide_online_status: parsed.hide_online_status !== undefined ? parsed.hide_online_status : DEFAULT_PRIVACY_SETTINGS.hide_online_status,
-        };
-        onUpdatePrivacySetting('hide_activity', merged.hide_activity);
-        onUpdatePrivacySetting('hide_location', merged.hide_location);
-        onUpdatePrivacySetting('hide_online_status', merged.hide_online_status);
-      }
-    } catch {
-      onUpdatePrivacySetting('hide_activity', DEFAULT_PRIVACY_SETTINGS.hide_activity);
-      onUpdatePrivacySetting('hide_location', DEFAULT_PRIVACY_SETTINGS.hide_location);
-      onUpdatePrivacySetting('hide_online_status', DEFAULT_PRIVACY_SETTINGS.hide_online_status);
-    }
-  }, [onUpdatePrivacySetting]);
-
-  /* Persist settings */
+  /* The account record is the single source of truth for privacy flags —
+     no local cache is replayed over the loaded values on mount. */
   const handleToggle = useCallback((key: keyof PrivacySettings, value: boolean) => {
     setAnimatingKey(key);
     setTimeout(() => setAnimatingKey(null), 400);
     onUpdatePrivacySetting(key, value);
-    try {
-      localStorage.setItem(PRIVACY_SETTINGS_CACHE_KEY, JSON.stringify({
-        hide_activity: key === 'hide_activity' ? value : privacySettings.hide_activity,
-        hide_location: key === 'hide_location' ? value : privacySettings.hide_location,
-        hide_online_status: key === 'hide_online_status' ? value : privacySettings.hide_online_status,
-      }));
-    } catch {
-      // ignore storage quota errors gracefully
-    }
-  }, [onUpdatePrivacySetting, privacySettings]);
+  }, [onUpdatePrivacySetting]);
 
   const handleExport = useCallback(() => {
     onExportSettings?.(privacySettings);
