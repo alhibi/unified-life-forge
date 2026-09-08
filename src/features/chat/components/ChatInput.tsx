@@ -1016,10 +1016,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   type="button"
                   className="h-10 w-10 rounded-full flex items-center justify-center text-muted-foreground active:bg-accent/30 transition-colors"
                   onPointerDown={handleMicPointerDown}
-                  onPointerMove={handleMicPointerMove}
-                  onPointerUp={handleMicPointerUp}
-                  onPointerCancel={handleMicPointerCancel}
                   onContextMenu={(e) => e.preventDefault()}
+
                   aria-label={'تسجيل صوت'}
                 >
                   <Mic className="h-5 w-5" />
