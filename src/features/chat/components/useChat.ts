@@ -530,12 +530,16 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [open, user, conversations.length]);
 
   // ── Resolve signed URLs for files ─────────────────────────────────────────
+  // Requests are de-duplicated by message id in a ref rather than by reading
+  // `signedUrls` state: depending on that state re-ran this effect (and
+  // re-scanned every message) after each batch resolved, and a failed sign
+  // was retried on every keystroke-driven render.
   useEffect(() => {
-    const needsUrl = messages.filter(m => {
-      if (signedUrls[m.id]) return false;
-      return !!m.file_url;
-    });
+    const needsUrl = messages.filter(
+      m => !!m.file_url && !signedUrlInFlightRef.current.has(m.id),
+    );
     if (needsUrl.length === 0) return;
+    for (const m of needsUrl) signedUrlInFlightRef.current.add(m.id);
 
     let cancelled = false;
     Promise.all(needsUrl.map(async (m) => {
@@ -545,18 +549,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         const url = await getSignedFileUrl(path);
         return { id: m.id, url };
       } catch {
+        // Allow one later retry (e.g. after the session refreshes).
+        signedUrlInFlightRef.current.delete(m.id);
         return { id: m.id, url: '' };
       }
     })).then(results => {
       if (cancelled) return;
+      const resolved = results.filter(r => r.url);
+      if (resolved.length === 0) return;
       setSignedUrls(prev => {
         const next = { ...prev };
-        results.forEach(r => { if (r.url) next[r.id] = r.url; });
+        resolved.forEach(r => { next[r.id] = r.url; });
         return next;
       });
     });
     return () => { cancelled = true; };
-  }, [messages, signedUrls]);
+  }, [messages]);
 
   const getFileUrl = useCallback((msg: Message) => {
     if (signedUrls[msg.id]) return signedUrls[msg.id];
