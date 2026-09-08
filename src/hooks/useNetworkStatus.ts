@@ -65,7 +65,7 @@ export function useNetworkToast(options?: {
 
   useEffect(() => {
     const handleOnline = (event: Event) => {
-      const message = options?.onlineMessage ?? 'Network connection restored';
+      const message = options?.onlineMessage ?? 'عاد الاتصال بالإنترنت — يجري تحديث البيانات الآن';
       toast.success(message, {
         id: 'network-status',
         duration: 4000,
@@ -74,7 +74,8 @@ export function useNetworkToast(options?: {
     };
 
     const handleOffline = (event: Event) => {
-      const message = options?.offlineMessage ?? 'You are offline. Some features may not work.';
+      const message = options?.offlineMessage ??
+        'انقطع الاتصال بالإنترنت. ما حُمِّل مسبقاً يبقى متاحاً، وسيُستأنف التحديث تلقائياً عند عودة الشبكة.';
       toast.error(message, {
         id: 'network-status',
         duration: 5000,

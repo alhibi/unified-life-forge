@@ -1,9 +1,10 @@
 import { AnimatePresence,motion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useApp } from '@/contexts/AppContext';
 import { CITIES, type Region, REGION_LABELS } from '@/data/ummahCities';
+import { useConservingInterval } from '@/hooks/useConserve';
 import { Clock, Compass, Info,MapPin, Search, X } from '@/lib/icons';
 import {
   bearingToCompass,
@@ -156,11 +157,14 @@ function UmmahPulse() {
   const [search, setSearch] = useState('');
   const userShadowFactor: 1 | 2 = prayerMadhab === 'hanafi' ? 2 : 1;
 
-  // Clock tick — every 15s in expanded view, every 60s compact
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), expanded ? 15_000 : 60_000);
-    return () => clearInterval(id);
-  }, [expanded]);
+  // Clock tick — every 15s in expanded view, every 60s compact. Routed through
+  // the conservation policy: this ticker exists purely to keep the "time until
+  // next prayer" label honest, so on a struggling device it slows down (the
+  // label is still correct to within a few minutes) rather than waking the main
+  // thread on a fixed schedule. It is not `optional`, because a visibly frozen
+  // countdown reads as a bug.
+  const tick = useCallback(() => setNow(new Date()), []);
+  useConservingInterval(tick, expanded ? 15_000 : 60_000, { refreshOnResume: true });
 
   // Lock body scroll when modal is open
   useEffect(() => {

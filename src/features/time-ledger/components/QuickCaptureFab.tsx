@@ -10,6 +10,7 @@ import { useEffect,useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { IconButton,Section } from '@/components/ui/app-shell';
+import { usePersistentDraft } from '@/hooks/usePersistentDraft';
 import {
   Bell,
   CheckSquare,
@@ -36,9 +37,14 @@ const CAPTURE_TYPES = [
 export default function QuickCaptureFab() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<QuickCaptureEntry['meta']['captureType']>('note');
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
+  // The three text fields are drafts, not transient state: this sheet is opened
+  // mid-thought and closed by accident (back gesture, a tap outside, an
+  // incoming call), and losing a half-written note is the one failure that
+  // makes a capture tool untrustworthy. They survive until the note is saved
+  // or explicitly discarded.
+  const [title, setTitle, clearTitle] = usePersistentDraft('quick-capture:title');
+  const [content, setContent, clearContent] = usePersistentDraft('quick-capture:content');
+  const [tags, setTags, clearTags] = usePersistentDraft('quick-capture:tags');
   const [isTask, setIsTask] = useState(false);
   const [taskDueAt, setTaskDueAt] = useState('');
   const [voiceTranscript, setVoiceTranscript] = useState('');
@@ -87,9 +93,9 @@ export default function QuickCaptureFab() {
   };
 
   const resetForm = () => {
-    setTitle('');
-    setContent('');
-    setTags('');
+    clearTitle();
+    clearContent();
+    clearTags();
     setIsTask(false);
     setTaskDueAt('');
     setVoiceTranscript('');

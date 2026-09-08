@@ -24,6 +24,7 @@ import { calculateProfileCompletion, ProfileData } from '@/features/profile/lib/
 import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
 import { PrivacySettings, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
+import { usePersistentSection } from '@/hooks/usePersistentDraft';
 import {
   AlertTriangle,
   Check,
@@ -43,6 +44,18 @@ import { EMOJI_AVATARS, getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emo
 
 type ProfileTab = 'overview' | 'activity' | 'edit' | 'badges' | 'privacy' | 'insights' | 'telemetry';
 
+/** Kept next to the type so a removed tab can never leave a stored value
+ *  pointing at a screen that no longer exists — the hook falls back instead. */
+const PROFILE_TABS: readonly ProfileTab[] = [
+  'overview',
+  'activity',
+  'edit',
+  'badges',
+  'privacy',
+  'insights',
+  'telemetry',
+];
+
 export default function ProfileEditPage() {
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
@@ -57,7 +70,14 @@ export default function ProfileEditPage() {
   }, []);
 
   // active tab state
-  const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
+  // Returning to the profile returns you to the tab you were last using —
+  // people live in one of these tabs (usually النشاط or التعديل) and being sent
+  // back to the overview every time is a small, repeated tax.
+  const [activeTab, setActiveTab] = usePersistentSection<ProfileTab>(
+    'profile',
+    PROFILE_TABS,
+    'overview',
+  );
 
   // Form Field States
   const [newUsername, setNewUsername] = useState('');

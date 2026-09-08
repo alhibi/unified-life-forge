@@ -5,6 +5,7 @@
 
  import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+ import { useConservingInterval } from '@/hooks/useConserve';
  import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 
  import { type EngineResult, weatherEngine } from '../engine/WeatherEngine';
@@ -92,12 +93,15 @@
      });
    }, [location?.lat, location?.lng, language, refreshNonce]);
 
-   // Periodic refresh every 15 min.
-   useEffect(() => {
-     if (!location) return;
-     const id = setInterval(() => setRefreshNonce(n => n + 1), 15 * 60_000);
-     return () => clearInterval(id);
-   }, [location?.lat, location?.lng]);
+   // Periodic refresh. 15 min on a healthy device; stretched under battery/data
+   // conservation and suspended entirely at the hard level — the weather is
+   // `optional` because the screen refreshes on return to the foreground, which
+   // is the moment the user actually reads it.
+   useConservingInterval(refresh, 15 * 60_000, {
+     enabled: Boolean(location),
+     optional: true,
+   });
+
 
    // Compute data age dynamically from snapshot's last_updated_unix
    const dataAgeMinutes = useMemo(() => {
