@@ -35,6 +35,14 @@ Deno.serve(async (req: Request) => {
       raw = { lat: url.searchParams.get('lat'), lng: url.searchParams.get('lng') };
     }
     const parsed = QuerySchema.safeParse(raw);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: parsed.error.flatten().fieldErrors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+    const { lat, lng } = parsed.data;
+
 
     const upstream =
       `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/` +
