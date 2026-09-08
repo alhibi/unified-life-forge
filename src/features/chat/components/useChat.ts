@@ -141,6 +141,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const signedUrlInFlightRef = useRef<Set<string>>(new Set());
   /** Guards concurrent history pages. */
   const loadingOlderRef = useRef(false);
+  /** Mirrors `hasMoreMessages` for loops that page several times in a row. */
+  const hasMoreRef = useRef(false);
+  /** Late-bound history-until-found helper, consumed by in-chat search. */
+  const ensureMessagesLoadedRef = useRef<((ids: string[]) => Promise<void>) | null>(null);
 
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
@@ -265,6 +269,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [revokeStagedPreviews]);
 
   // ── Search (extracted) ────────────────────────────────────────────────────
+  const ensureMessagesLoaded = useCallback(async (ids: string[]) => {
+    await ensureMessagesLoadedRef.current?.(ids);
+  }, []);
+
   const {
     showSearch, setShowSearch,
     chatSearchQuery,
@@ -273,7 +281,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     searchInChat,
     navigateSearch,
     resetSearch,
-  } = useInChatSearch({ activeConv, messages });
+  } = useInChatSearch({ activeConv, messages, ensureMessagesLoaded });
 
   // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
   const setActiveConv = useCallback((conv: Conversation | null) => {
@@ -297,6 +305,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setStagedPreviews([]);
     isNearBottomRef.current = true;
     // A fresh thread starts from its latest page.
+    hasMoreRef.current = false;
     setHasMoreMessages(false);
     setLoadingOlder(false);
     loadingOlderRef.current = false;
@@ -414,6 +423,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
       setMessages(result.messages);
       setReactions(result.reactions);
+      hasMoreRef.current = result.hasMore;
       setHasMoreMessages(result.hasMore);
 
       // Mark in parallel: every undelivered "from them" row becomes
@@ -457,7 +467,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const loadOlderMessages = useCallback(async () => {
     const conv = activeConv;
     if (!conv || !user) return;
-    if (loadingOlderRef.current || !hasMoreMessages) return;
+    if (loadingOlderRef.current || !hasMoreRef.current) return;
     const oldest = messagesRef.current.find(m => !m.id.startsWith('optimistic_'));
     if (!oldest) return;
 
@@ -472,6 +482,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         before: oldest.created_at,
       });
       if (activeConvIdRef.current !== conv.id) return;
+      hasMoreRef.current = page.hasMore;
       setHasMoreMessages(page.hasMore);
       if (page.messages.length === 0) return;
 
@@ -497,10 +508,21 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       loadingOlderRef.current = false;
       setLoadingOlder(false);
     }
-  }, [activeConv, user, hasMoreMessages]);
+  }, [activeConv, user]);
 
   useEffect(() => {
     loadOlderRef.current = () => { void loadOlderMessages(); };
+    // Page backwards until every requested message id is in the window, so a
+    // search hit deep in history can actually be scrolled to.
+    ensureMessagesLoadedRef.current = async (ids: string[]) => {
+      if (ids.length === 0) return;
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const known = new Set(messagesRef.current.map(m => m.id));
+        if (ids.every(id => known.has(id))) return;
+        if (!hasMoreRef.current) return;
+        await loadOlderMessages();
+      }
+    };
   }, [loadOlderMessages]);
 
   useEffect(() => { if (open && user) loadConversations(); }, [open, user, loadConversations]);
@@ -1652,6 +1674,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Realtime
     typingUser, typingByConv, onlineUserIds, uploading,
     messagesLoading, conversationsLoading,
+    hasMoreMessages, loadingOlder, loadOlderMessages,
     signedUrls, getFileUrl, refreshSignedUrl,
     // Search
     showSearch, setShowSearch,
