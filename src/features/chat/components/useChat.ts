@@ -123,6 +123,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const lastIncomingTsRef = useRef<number>(0);   // for rate-limiting receive sound
   const isNearBottomRef = useRef(true);          // whether to auto-scroll new msgs
   const stagedPreviewsRef = useRef<string[]>([]);
+  /** The picker/clipboard can resolve asynchronously; keeping the file list in
+   *  a ref lets concurrent selections reserve against the latest count. */
+  const stagedImagesRef = useRef<File[]>([]);
   const userIdRef = useRef<string | undefined>(user?.id);
   const activeConvIdRef = useRef<string | null>(null);
   /** Peer of the open conversation. Needed inside the (synchronous) realtime
@@ -147,6 +150,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const ensureMessagesLoadedRef = useRef<((ids: string[]) => Promise<void>) | null>(null);
 
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
+  useEffect(() => { stagedImagesRef.current = stagedImages; }, [stagedImages]);
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
   useEffect(() => { activeConvIdRef.current = activeConv?.id ?? null; }, [activeConv?.id]);
   useEffect(() => { activePeerIdRef.current = activeConv?.otherUserId ?? null; }, [activeConv?.otherUserId]);
@@ -262,6 +266,18 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       try { URL.revokeObjectURL(url); } catch { /* no-op */ }
     });
     stagedPreviewsRef.current = [];
+  }, []);
+
+  const appendStagedImages = useCallback((files: File[]) => {
+    const room = Math.max(0, MAX_STAGED_IMAGES - stagedImagesRef.current.length);
+    if (files.length > room) chatError('tooManyImages');
+    const accepted = files.slice(0, room);
+    if (accepted.length === 0) return;
+    const previews = accepted.map(file => URL.createObjectURL(file));
+    stagedImagesRef.current = [...stagedImagesRef.current, ...accepted];
+    stagedPreviewsRef.current = [...stagedPreviewsRef.current, ...previews];
+    setStagedImages(stagedImagesRef.current);
+    setStagedPreviews(stagedPreviewsRef.current);
   }, []);
 
   useEffect(() => {
@@ -1236,15 +1252,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (images.length > 0) {
       const stageable = await stageableFromImages(images);
       const validImages = stageable.filter(f => validateFile(f, 'image'));
-      const currentCount = stagedImages.length;
-      const room = Math.max(0, MAX_STAGED_IMAGES - currentCount);
-      if (validImages.length > room) chatError('tooManyImages');
-      const toStage = validImages.slice(0, room);
-      if (toStage.length > 0) {
-        const previews = toStage.map(f => URL.createObjectURL(f));
-        setStagedImages(prev => [...prev, ...toStage]);
-        setStagedPreviews(prev => [...prev, ...previews]);
-      }
+      appendStagedImages(validImages);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
 
@@ -1283,21 +1291,15 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       }
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [user, activeConv, sendMessage, stagedImages.length, stageableFromImages]);
+  }, [user, activeConv, sendMessage, stageableFromImages, appendStagedImages]);
 
   const addImagesFromFiles = useCallback(async (files: File[]) => {
     const images = files.filter(f => f.type.startsWith('image/') || looksLikeHeic(f));
     if (images.length === 0) return;
     const stageable = await stageableFromImages(images);
     const valid = stageable.filter(f => validateFile(f, 'image'));
-    const room = Math.max(0, MAX_STAGED_IMAGES - stagedImages.length);
-    if (valid.length > room) chatError('tooManyImages');
-    const toStage = valid.slice(0, room);
-    if (toStage.length === 0) return;
-    const previews = toStage.map(f => URL.createObjectURL(f));
-    setStagedImages(prev => [...prev, ...toStage]);
-    setStagedPreviews(prev => [...prev, ...previews]);
-  }, [stagedImages.length, stageableFromImages]);
+    appendStagedImages(valid);
+  }, [stageableFromImages, appendStagedImages]);
 
   const addFilesFromDrop = useCallback(async (files: File[]) => {
     if (!files.length || !user || !activeConv) return;
@@ -1357,6 +1359,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       resizeComposer();
     }
     stagedPreviews.forEach(url => { try { URL.revokeObjectURL(url); } catch { /* no-op */ } });
+    stagedImagesRef.current = [];
+    stagedPreviewsRef.current = [];
     setStagedImages([]);
     setStagedPreviews([]);
     isNearBottomRef.current = true;
@@ -1367,12 +1371,16 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const removeStagedImage = useCallback((index: number) => {
     const url = stagedPreviews[index];
     if (url) { try { URL.revokeObjectURL(url); } catch { /* no-op */ } }
-    setStagedImages(prev => prev.filter((_, i) => i !== index));
-    setStagedPreviews(prev => prev.filter((_, i) => i !== index));
+    stagedImagesRef.current = stagedImagesRef.current.filter((_, i) => i !== index);
+    stagedPreviewsRef.current = stagedPreviewsRef.current.filter((_, i) => i !== index);
+    setStagedImages(stagedImagesRef.current);
+    setStagedPreviews(stagedPreviewsRef.current);
   }, [stagedPreviews]);
 
   const clearStagedImages = useCallback(() => {
     stagedPreviews.forEach(url => { try { URL.revokeObjectURL(url); } catch { /* no-op */ } });
+    stagedImagesRef.current = [];
+    stagedPreviewsRef.current = [];
     setStagedImages([]);
     setStagedPreviews([]);
   }, [stagedPreviews]);

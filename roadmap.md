@@ -5,4 +5,4 @@
 - [x] Prevent file drops from navigating away from the app.
 - [x] Make voice pointer lifecycle deterministic and clean delayed timers.
 - [x] Serialize generic file uploads to avoid mobile memory/network spikes.
-- [ ] Validate the repaired chat in the signed-in preview without sending private test content to a real contact.
+- [x] Validate the repaired chat in the signed-in preview without sending private test content to a real contact.
