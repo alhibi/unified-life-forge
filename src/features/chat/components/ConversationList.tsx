@@ -3,7 +3,6 @@ import React, { useCallback,useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useChats } from '@/lib/chat';
 import {
 Archive, ArchiveRestore, BellOff, Check, CheckCheck,
 ChevronLeft,
@@ -185,9 +184,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
   const fabRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
-  const { chats } = useChats();
-  const groupsCount = chats.filter(c => c.kind !== 'dm').length;
-
   // Sort conversations: pinned first, then by time
   const sortedConversations = useMemo(() => {
     const pinned = conversations.filter(c => isPinned(c.id));
@@ -338,9 +334,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             {'المجموعات والقنوات'}
           </p>
           <p className="text-micro text-muted-foreground">
-            {groupsCount > 0
-              ? (`${groupsCount} ${groupsCount === 1 ? 'محادثة' : 'محادثات'}`)
-              : ('إنشاء مجموعة جديدة')}
+            {'إنشاء مجموعة جديدة'}
           </p>
         </div>
         {<ChevronLeft className="w-4 h-4 text-muted-foreground shrink-0" />}

@@ -91,6 +91,7 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
   const recordingChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelModeRef = useRef<'send' | 'cancel' | 'preview'>('send');
   const analyserRef = useRef<MicAnalyserHandle | null>(null);
   // Keep the latest bar snapshot in a ref so we can capture an envelope
@@ -128,6 +129,7 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
     return () => {
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       if (maxDurationTimerRef.current) clearTimeout(maxDurationTimerRef.current);
+      if (pendingStopTimerRef.current) clearTimeout(pendingStopTimerRef.current);
       analyserRef.current?.stop();
       analyserRef.current = null;
       streamRef.current?.getTracks().forEach(t => t.stop());
@@ -145,6 +147,10 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
     if (maxDurationTimerRef.current) {
       clearTimeout(maxDurationTimerRef.current);
       maxDurationTimerRef.current = null;
+    }
+    if (pendingStopTimerRef.current) {
+      clearTimeout(pendingStopTimerRef.current);
+      pendingStopTimerRef.current = null;
     }
     setRecordingTime(0);
     setIsRecording(false);
@@ -343,7 +349,8 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
         cancelModeRef.current = pending;
         // Give the recorder a beat to emit at least one chunk, otherwise the
         // resulting blob is empty and the user just loses the tap.
-        setTimeout(() => {
+        pendingStopTimerRef.current = setTimeout(() => {
+          pendingStopTimerRef.current = null;
           if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
             try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
           }

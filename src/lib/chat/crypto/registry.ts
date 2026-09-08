@@ -89,6 +89,10 @@ export async function fetchPublicKey(
   opts: { bypassCache?: boolean } = {},
 ): Promise<DirectoryEntry | null> {
   if (!isSupabaseConfigured) return null;
+  // A missing table is a project-wide, session-stable condition. Once the
+  // backend has told us it is absent, do not issue another doomed request for
+  // every encrypted message in the page.
+  if (directoryAvailable === false) return null;
   if (!opts.bypassCache && peerCache.has(userId)) return peerCache.get(userId) ?? null;
 
   const { data, error } = (await supabase

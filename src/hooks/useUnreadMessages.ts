@@ -168,8 +168,12 @@ export function useUnreadMessages(): UseUnreadMessagesResult {
     };
   }, [user?.id]);
 
+  const refresh = useCallback(() => {
+    if (watchedUserId) void fetchNow(watchedUserId);
+  }, []);
+
   return {
     unreadCount: count,
-    refresh: () => { if (watchedUserId) void fetchNow(watchedUserId); },
+    refresh,
   };
 }

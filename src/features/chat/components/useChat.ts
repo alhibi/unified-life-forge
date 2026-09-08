@@ -143,6 +143,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const loadingOlderRef = useRef(false);
   /** Mirrors `hasMoreMessages` for loops that page several times in a row. */
   const hasMoreRef = useRef(false);
+  const lastReportedUnreadRef = useRef<number | null>(null);
   /** Late-bound history-until-found helper, consumed by in-chat search. */
   const ensureMessagesLoadedRef = useRef<((ids: string[]) => Promise<void>) | null>(null);
 
@@ -346,8 +347,15 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
   // Re-emit total unread to host whenever conversations or mute prefs change.
   useEffect(() => {
-    onUnreadChange(conversations.reduce((sum, c) => chatPrefs.isMuted(c.id) ? sum : sum + (c.unreadCount || 0), 0));
-  }, [conversations, chatPrefs.prefs.muted, onUnreadChange, chatPrefs]);
+    const muted = new Set(chatPrefs.prefs.muted);
+    const next = conversations.reduce(
+      (sum, conversation) => muted.has(conversation.id) ? sum : sum + (conversation.unreadCount || 0),
+      0,
+    );
+    if (lastReportedUnreadRef.current === next) return;
+    lastReportedUnreadRef.current = next;
+    onUnreadChange(next);
+  }, [conversations, chatPrefs.prefs.muted, onUnreadChange]);
 
   // ── Load conversations ────────────────────────────────────────────────────
   const loadConversations = useCallback(async () => {
@@ -1252,7 +1260,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (others.length > 0) {
       setUploading(true);
 
-      const uploadPromises = others.map(async (file, index) => {
+      const results: Array<{ error: unknown; path: string; file: File } | null> = [];
+      for (const [index, file] of others.entries()) {
         if (!validateFile(file, 'file')) return null;
         const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
@@ -1264,10 +1273,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           contentType: file.type || 'application/octet-stream',
           upsert: false,
         });
-        return { error, path, file };
-      });
-
-      const results = await Promise.all(uploadPromises);
+        results.push({ error, path, file });
+      }
 
       try {
         for (const result of results) {
@@ -1309,8 +1316,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (others.length > 0) {
       setUploading(true);
 
-      const uploadPromises = others.map(async (file, index) => {
-        if (!validateFile(file, 'file')) return null;
+      const results: Array<{ error: unknown; path: string; file: File } | null> = [];
+      for (const [index, file] of others.entries()) {
+        if (!validateFile(file, 'file')) continue;
         const ext = file.name.includes('.') ? (file.name.split('.').pop() || 'bin') : 'bin';
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
         const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
@@ -1321,10 +1329,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
           contentType: file.type || 'application/octet-stream',
           upsert: false,
         });
-        return { error, path, file };
-      });
-
-      const results = await Promise.all(uploadPromises);
+        results.push({ error, path, file });
+      }
 
       try {
         for (const result of results) {
