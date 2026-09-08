@@ -821,6 +821,25 @@ export default function ChatDrawer({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Older history loads as the user reaches the top of the thread. */}
+            {chat.messages.length > 0 && (chat.hasMoreMessages || chat.loadingOlder) && (
+              <div className="flex items-center justify-center py-3">
+                {chat.loadingOlder ? (
+                  <span className="text-mini text-muted-foreground/80" role="status">
+                    {'جارٍ تحميل الرسائل الأقدم…'}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { void chat.loadOlderMessages(); }}
+                    className="text-mini text-muted-foreground/80 rounded-full border border-border/40 px-3 py-1 transition-motion hover:text-foreground active:scale-[0.97]"
+                  >
+                    {'تحميل رسائل أقدم'}
+                  </button>
+                )}
+              </div>
+            )}
             {chat.messagesLoading && chat.messages.length === 0 && (
               <div className="flex flex-col gap-3 py-4" aria-hidden="true">
                 {[0, 1, 2, 3, 4].map((i) => {
