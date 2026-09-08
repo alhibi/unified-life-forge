@@ -579,15 +579,19 @@ export default function SoftKeyboard({
   const rtl = isRtlLayout(layout);
   const quickStrip: readonly string[] = layout === 'ar' ? ALEF_VARIANTS : QUICK_PUNCTUATION;
 
-  // Height dynamic variable mapping with landscape adaptability
+  // Height: an exact dragged height wins over the coarse preset.
   const keyHeightVar =
-    settings.keyHeight === 'compact'
-      ? '2.2rem'
-      : settings.keyHeight === 'tall'
-        ? '3.1rem'
-        : settings.keyHeight === 'extra-tall'
-          ? '3.5rem'
-          : '2.75rem';
+    liveHeightPx !== null
+      ? `${liveHeightPx}px`
+      : settings.keyHeightPx !== null
+        ? `${settings.keyHeightPx}px`
+        : settings.keyHeight === 'compact'
+          ? '2.2rem'
+          : settings.keyHeight === 'tall'
+            ? '3.1rem'
+            : settings.keyHeight === 'extra-tall'
+              ? '3.5rem'
+              : '2.75rem';
 
   return (
     <motion.div
