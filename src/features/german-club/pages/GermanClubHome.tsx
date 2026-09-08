@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
@@ -8,13 +8,18 @@ import { BookOpen, ShieldAlert, Sparkles, Wand2 } from '@/lib/icons';
 
 import { HeuteImClub } from '../components/Daily/HeuteImClub';
 import { DiscoveryCard } from '../components/DiscoveryCard';
-import { GenerationModal } from '../components/GenerationModal';
 import { QuickLookup } from '../components/QuickLookup';
 import { ShelfCard } from '../components/ShelfCard';
 import { WortschatzSpiegel } from '../components/WortschatzSpiegel';
 import { Wortspaziergang } from '../components/Wortspaziergang';
 import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
+
+// The content furnace (generation tool) is an occasional admin-ish flow —
+// keep it out of the initial club bundle.
+const GenerationModal = lazy(() =>
+  import('../components/GenerationModal').then((m) => ({ default: m.GenerationModal })),
+);
 
 export const GermanClubHome: React.FC = () => {
   const navigate = useNavigate();
@@ -195,6 +200,7 @@ export const GermanClubHome: React.FC = () => {
 
         {/* Furnace Generation Modal when triggered from home shelf cards */}
         {selectedFurnaceShelf && (
+          <Suspense fallback={null}>
           <GenerationModal
             shelfId={selectedFurnaceShelf.id}
             shelfSlug={selectedFurnaceShelf.slug}
@@ -206,6 +212,7 @@ export const GermanClubHome: React.FC = () => {
             isOpen={Boolean(selectedFurnaceShelf)}
             onClose={() => setSelectedFurnaceShelf(null)}
           />
+          </Suspense>
         )}
 
         {/* Wortspaziergang Modal */}

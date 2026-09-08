@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import BackButton from '@/components/BackButton';
@@ -9,9 +9,14 @@ import { BookOpen, Sparkles } from '@/lib/icons';
 
 import { EntryCard } from '../components/EntryCard';
 import { FurnaceButton } from '../components/FurnaceButton';
-import { GenerationModal } from '../components/GenerationModal';
 import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
+
+// The content furnace (generation tool) is an occasional admin-ish flow —
+// keep it out of the initial club bundle.
+const GenerationModal = lazy(() =>
+  import('../components/GenerationModal').then((m) => ({ default: m.GenerationModal })),
+);
 
 export const ShelfDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -214,6 +219,7 @@ export const ShelfDetail: React.FC = () => {
 
         {/* Furnace Generation Modal */}
         {currentShelf && (
+          <Suspense fallback={null}>
           <GenerationModal
             shelfId={currentShelf.id}
             shelfSlug={currentShelf.slug}
@@ -225,6 +231,7 @@ export const ShelfDetail: React.FC = () => {
             isOpen={isGenerationModalOpen}
             onClose={() => setIsGenerationModalOpen(false)}
           />
+          </Suspense>
         )}
       </div>
     </PageShell>

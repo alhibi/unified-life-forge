@@ -140,11 +140,12 @@ export function FullActivityMap({
     });
 
     // Trigger map invalidation to ensure it resizes and renders tiles perfectly
-    setTimeout(() => {
+    const invalidateTimer = setTimeout(() => {
       map.invalidateSize();
     }, 150);
 
     return () => {
+      clearTimeout(invalidateTimer);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;

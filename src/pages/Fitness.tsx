@@ -1,15 +1,24 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useMemo, useRef,useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef,useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 // UI Primitives & Layout
 import { AppCard, PageShell, Section } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
-import { FullActivityMap } from '@/features/fitness/FullActivityMap';
 import { RouteThumbnail } from '@/features/fitness/RouteThumbnail';
 // Fitness Feature hooks & components
 import { useActivityTracking } from '@/features/fitness/useActivityTracking';
+
+// Leaflet + the raster tile layer are the heaviest thing in this route and are
+// only needed once a user opens a route map, so they load on demand.
+const FullActivityMap = lazy(() =>
+  import('@/features/fitness/FullActivityMap').then((m) => ({ default: m.FullActivityMap })),
+);
+const MapFallback = ({ height }: { height: number }) => (
+  <div className="rounded-xl bg-muted/20 animate-pulse" style={{ height }} />
+);
 // Standard Icons
 import {
   Activity,
@@ -138,8 +147,33 @@ function FitnessPageInner({
   // Active tracking hook (DeviceMotion/Capacitor GPS precision tracker)
   const tracker = useActivityTracking();
 
-  // Zustand state stores
-  const store = useFitnessAppStore();
+  // Zustand state stores — selected field-by-field with a shallow comparator so
+  // an unrelated slice mutation (or a write from another screen) does not
+  // re-render this 2k-line page.
+  const store = useFitnessAppStore(
+    useShallow((s) => ({
+      lastActiveTab: s.lastActiveTab,
+      timetable: s.timetable,
+      waterLogs: s.waterLogs,
+      weightLogs: s.weightLogs,
+      weightTargetKg: s.weightTargetKg,
+      dailyWaterTargetMl: s.dailyWaterTargetMl,
+      setLastActiveTab: s.setLastActiveTab,
+      addWater: s.addWater,
+      resetWater: s.resetWater,
+      logWeight: s.logWeight,
+      deleteWeightLog: s.deleteWeightLog,
+      setWeightTarget: s.setWeightTarget,
+      addExerciseToDay: s.addExerciseToDay,
+      removeExerciseFromDay: s.removeExerciseFromDay,
+      addSetToExercise: s.addSetToExercise,
+      removeSetFromExercise: s.removeSetFromExercise,
+      toggleSetCompletion: s.toggleSetCompletion,
+      updateSetValues: s.updateSetValues,
+      updateWorkoutDayMeta: s.updateWorkoutDayMeta,
+      clearAllFitnessAppData: s.clearAllFitnessAppData,
+    })),
+  );
 
   const [activeTab, setActiveTab] = useState<string>(() => store.lastActiveTab || 'dashboard');
 
@@ -1241,7 +1275,9 @@ function FitnessPageInner({
               >
                 {selectedMapActivity && (
                   <div className="p-4 space-y-4">
-                    <FullActivityMap activity={selectedMapActivity} height={340} />
+                    <Suspense fallback={<MapFallback height={340} />}>
+                      <FullActivityMap activity={selectedMapActivity} height={340} />
+                    </Suspense>
 
                     {/* Telemetry info card */}
                     <div className="p-3.5 rounded-xl border border-border/40 bg-muted/5 flex items-center justify-between">

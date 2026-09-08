@@ -186,7 +186,7 @@ export default function KeyboardProvider() {
       onMouseDown={(event) => event.stopPropagation()}
       onTouchStart={(event) => event.stopPropagation()}
       onFocusCapture={(event) => event.stopPropagation()}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[95]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-keyboard"
       aria-hidden={!(active && target)}
     >
       <KeyboardErrorBoundary onUseSystemKeyboard={handleUseSystemKeyboard}>

@@ -10,9 +10,11 @@ interface DictionaryCardProps {
   onSelect: (entry: DictionaryEntry) => void;
 }
 
-export const DictionaryCard: React.FC<DictionaryCardProps> = ({ entry, onSelect }) => {
-  const { isBookmarked, toggleBookmark } = useDictionaryStore();
-  const bookmarked = isBookmarked(entry.id);
+const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) => {
+  // Field selectors, not the whole store: a filter change elsewhere must not
+  // re-render every mounted card.
+  const bookmarked = useDictionaryStore((s) => s.bookmarkedIds.includes(entry.id));
+  const toggleBookmark = useDictionaryStore((s) => s.toggleBookmark);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const speakGerman = (e: React.MouseEvent) => {
@@ -112,3 +114,7 @@ export const DictionaryCard: React.FC<DictionaryCardProps> = ({ entry, onSelect 
     </div>
   );
 };
+
+// 5,000+ entries live in this list — the memo boundary is what keeps scrolling
+// cheap when an unrelated store field changes.
+export const DictionaryCard = React.memo(DictionaryCardImpl);

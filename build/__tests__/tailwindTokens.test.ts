@@ -90,7 +90,7 @@ describe.each([
         }
         if (
           scale === 'zIndex' &&
-          !/^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|overlay|lightbox|toast)(-above)?$/.test(
+          !/^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|keyboard|modal|overlay|lightbox|toast|max)(-above)?$/.test(
             name,
           )
         ) {
@@ -120,7 +120,7 @@ describe('generated CSS', () => {
     for (const { text } of SOURCES) {
       for (const match of text.matchAll(/\bz-([a-z][a-z-]{2,})\b/g)) {
         if (
-          /^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|overlay|lightbox|toast)(-above)?$/.test(
+          /^(base|scrim|raised|sticky|header|float|drawer|sheet|picker|nested|deep|fullscreen|player|queue|keyboard|modal|overlay|lightbox|toast|max)(-above)?$/.test(
             match[1],
           )
         ) {

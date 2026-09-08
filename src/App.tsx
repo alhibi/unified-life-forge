@@ -19,7 +19,6 @@ import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ImageUploadProvider } from '@/contexts/ImageUploadContext';
 import { SystemEngineProvider, useSystemEngine } from '@/contexts/SystemEngineContext';
 import { VoicePlayerProvider } from '@/contexts/VoicePlayerContext';
-import { KeyboardProvider } from '@/features/keyboard';
 import PodcastMiniPlayer from '@/features/podcasts/components/PodcastMiniPlayer';
 import { PodcastPlayerProvider } from '@/features/podcasts/contexts/PodcastPlayerContext';
 import { StreakGuardianRunner } from '@/features/profile/lib/streakGuardian';
@@ -42,6 +41,9 @@ import { registerRoute } from '@/lib/routePrefetch';
 // Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
 // the entry chunk for the 99% of sessions that never enable it.
 const SplitWorkspace = lazy(() => import('@/components/SplitWorkspace'));
+// The in-app keyboard carries its own layouts/theme tables and only ever
+// mounts on coarse-pointer touch devices — load it off the critical path.
+const KeyboardProvider = lazy(() => import('@/features/keyboard/KeyboardProvider'));
 
 // Eager load the portal (new home) — tiny, no heavy data fetch.
 import Portal from './pages/Portal';
@@ -1389,7 +1391,9 @@ const App = () => (
                       </WeatherLocationProvider>
                       <PortalBackButton />
                       <PodcastMiniPlayer />
-                      <KeyboardProvider />
+                      <Suspense fallback={null}>
+                        <KeyboardProvider />
+                      </Suspense>
                     </BrowserRouter>
                   </ErrorBoundary>
                 </TooltipProvider>

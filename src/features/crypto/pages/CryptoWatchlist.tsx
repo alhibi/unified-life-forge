@@ -38,6 +38,27 @@ export default function CryptoWatchlist() {
   // Background Visibility Tracking
   const isBackgroundedRef = useRef(false);
 
+  // Every deferred handler timer is tracked so navigating away cancels it —
+  // otherwise a pulse-clear setState or a delete network call fires minutes
+  // after the screen is gone.
+  const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  const mountedRef = useRef(true);
+  const defer = (fn: () => void, ms: number) => {
+    const id = setTimeout(() => {
+      timersRef.current.delete(id);
+      if (mountedRef.current) fn();
+    }, ms);
+    timersRef.current.add(id);
+  };
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+      for (const id of timersRef.current) clearTimeout(id);
+      timersRef.current.clear();
+    },
+    [],
+  );
+
   // Fetch initial watchlist entries and their live parameters
   const loadData = async (showRefresher = false) => {
     if (showRefresher) setRefreshing(true);
@@ -75,7 +96,7 @@ export default function CryptoWatchlist() {
         if (Object.keys(newPulsing).length > 0) {
           setPulsingKeys((prev) => ({ ...prev, ...newPulsing }));
           // Clear pulsing states after 1.5s
-          setTimeout(() => {
+          defer(() => {
             setPulsingKeys((prev) => {
               const updated = { ...prev };
               Object.keys(newPulsing).forEach((k) => delete updated[k]);
@@ -153,7 +174,7 @@ export default function CryptoWatchlist() {
     });
 
     // Wait for toast duration or close
-    setTimeout(async () => {
+    defer(() => { void (async () => {
       if (!undo) {
         try {
           await cryptoApi.removeFromWatchlist(dbId);
@@ -165,7 +186,7 @@ export default function CryptoWatchlist() {
           setPairsData(previousPairs);
         }
       }
-    }, 5100);
+    })(); }, 5100);
   };
 
   const handleOpenDetail = (pair: NormalizedPair) => {

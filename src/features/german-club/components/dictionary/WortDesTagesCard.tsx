@@ -11,8 +11,8 @@ interface WortDesTagesCardProps {
 }
 
 export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSelect }) => {
-  const { isBookmarked, toggleBookmark } = useDictionaryStore();
-  const bookmarked = isBookmarked(entry.id);
+  const bookmarked = useDictionaryStore((s) => s.bookmarkedIds.includes(entry.id));
+  const toggleBookmark = useDictionaryStore((s) => s.toggleBookmark);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const speakGerman = (e: React.MouseEvent) => {

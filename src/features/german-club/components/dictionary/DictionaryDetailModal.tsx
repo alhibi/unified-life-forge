@@ -32,7 +32,11 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
   entry,
   onClose,
 }) => {
-  const { isBookmarked, toggleBookmark, setSelectedEntry } = useDictionaryStore();
+  // Selectors only: typing in the search field must not re-render the open modal.
+  const toggleBookmark = useDictionaryStore((s) => s.toggleBookmark);
+  const setSelectedEntry = useDictionaryStore((s) => s.setSelectedEntry);
+  const bookmarkedIds = useDictionaryStore((s) => s.bookmarkedIds);
+  const isBookmarked = (id: string) => bookmarkedIds.includes(id);
   const [isPlaying, setIsPlaying] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
