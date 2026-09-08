@@ -108,7 +108,7 @@ export default function AllOccasions() {
                   setSelectedDay(monthIdx === today.month ? today.day : 1);
                 }}
                 whileTap={{ scale: 0.96 }}
-                className={`relative rounded-xl border px-2.5 py-2 text-start transition-all ${
+                className={`relative rounded-xl border px-2.5 py-2 text-start transition-motion ${
                   active
                     ? 'bg-primary/15 border-primary/40 '
                     : 'bg-card/60 border-border/50 hover:bg-card'
@@ -163,7 +163,7 @@ export default function AllOccasions() {
                 key={d}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => setSelectedDay(d)}
-                className={`relative aspect-square rounded-lg border flex items-center justify-center transition-all ${
+                className={`relative aspect-square rounded-lg border flex items-center justify-center transition-motion ${
                   isSelected
                     ? 'bg-primary/20 border-primary/50 '
                     : isToday

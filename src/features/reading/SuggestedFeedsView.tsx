@@ -218,7 +218,7 @@ export function SuggestedFeedsView({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
@@ -279,7 +279,7 @@ export function SuggestedFeedsView({
                 type="button"
                 onClick={() => setActiveLang(l.id)}
                 aria-pressed={activeLang === l.id}
-                className={`px-3 py-1 rounded-full text-micro font-medium transition-all shrink-0 active:scale-95 ${
+                className={`px-3 py-1 rounded-full text-micro font-medium transition-motion shrink-0 active:scale-95 ${
                   activeLang === l.id
                     ? 'bg-foreground/90 text-background'
                     : 'bg-accent/25 text-muted-foreground hover:bg-accent/40'
@@ -301,7 +301,7 @@ export function SuggestedFeedsView({
                   type="button"
                   onClick={() => setActiveCat(id)}
                   aria-pressed={isActive}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-medium transition-all shrink-0 active:scale-95 ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-medium transition-motion shrink-0 active:scale-95 ${
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-accent/30 text-muted-foreground hover:bg-accent/50'

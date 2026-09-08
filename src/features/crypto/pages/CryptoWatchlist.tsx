@@ -258,7 +258,7 @@ export default function CryptoWatchlist() {
             type="button"
             disabled={refreshing || loading}
             onClick={() => loadData(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm text-muted-foreground hover:text-foreground active:scale-95 disabled:opacity-50 transition-all"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm text-muted-foreground hover:text-foreground active:scale-95 disabled:opacity-50 transition-motion"
             title="تحديث الأسعار"
             aria-label="تحديث الأسعار"
           >
@@ -269,7 +269,7 @@ export default function CryptoWatchlist() {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-all text-mini"
+            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-motion text-mini"
           >
             <Plus className="h-4 w-4" />
             إضافة عملة
@@ -323,7 +323,7 @@ export default function CryptoWatchlist() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-all text-mini"
+              className="flex h-10 gap-2 items-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-motion text-mini"
             >
               <Plus className="h-4 w-4" />
               ابحث عن عملة الآن
@@ -354,7 +354,7 @@ export default function CryptoWatchlist() {
                     <AppCard
                       pressable
                       onClick={() => pair && handleOpenDetail(pair)}
-                      className={`group flex items-center justify-between gap-3 rounded-2xl border border-border/10 bg-card/30 backdrop-blur-sm p-3.5 hover:bg-card/50 hover:border-border/25 transition-all relative overflow-hidden ${
+                      className={`group flex items-center justify-between gap-3 rounded-2xl border border-border/10 bg-card/30 backdrop-blur-sm p-3.5 hover:bg-card/50 hover:border-border/25 transition-motion relative overflow-hidden ${
                         pulseState === 'up'
                           ? 'ring-1 ring-emerald-500/30 bg-emerald-500/5'
                           : pulseState === 'down'
@@ -449,7 +449,7 @@ export default function CryptoWatchlist() {
                             e.stopPropagation(); // prevent opening detail
                             handleRemove(item.id, item.token_symbol, item.chain_id, item.pair_address);
                           }}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground/50 opacity-70 group-hover:opacity-100 hover:border-rose-500/25 hover:bg-rose-500/10 hover:text-rose-500 transition-all"
+                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground/50 opacity-70 group-hover:opacity-100 hover:border-rose-500/25 hover:bg-rose-500/10 hover:text-rose-500 transition-motion"
                           title="إزالة من القائمة"
                           aria-label={`إزالة ${item.token_symbol} من القائمة`}
                         >

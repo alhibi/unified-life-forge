@@ -135,7 +135,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
           draggable={false}
           className={cn(
             'absolute inset-0 w-full h-full object-cover',
-            'transition-opacity duration-300',
+            'transition-opacity duration-normal',
             status === 'ready' ? 'opacity-0' : 'opacity-100',
           )}
           style={{ filter: 'blur(14px)', transform: 'scale(1.05)' }}
@@ -186,7 +186,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
             }
           }}
           className={cn(
-            'absolute inset-0 w-full h-full object-cover transition-opacity duration-200',
+            'absolute inset-0 w-full h-full object-cover transition-opacity duration-fast',
             status === 'ready' ? 'opacity-100' : 'opacity-0'
           )}
         />

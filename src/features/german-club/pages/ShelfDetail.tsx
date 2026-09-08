@@ -185,7 +185,7 @@ export const ShelfDetail: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setFilterRegister(tab.id as GermanRegister | 'all')}
-                className={`px-3 py-1.5 rounded-xl transition-all shrink-0 font-medium ${
+                className={`px-3 py-1.5 rounded-xl transition-motion shrink-0 font-medium ${
                   filterRegister === tab.id
                     ? 'bg-[#17324D] text-white shadow-xs'
                     : 'bg-stone-200/60 text-stone-700 hover:bg-stone-300/60'

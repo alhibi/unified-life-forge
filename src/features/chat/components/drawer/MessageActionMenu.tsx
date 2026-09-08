@@ -192,7 +192,7 @@ export default function MessageActionMenu({
                       <button
                         onClick={() => chat.setShowExtraEmojis(!chat.showExtraEmojis)}
                         className={cn(
-                          'w-7 h-7 rounded-full flex items-center justify-center transition-all ms-1',
+                          'w-7 h-7 rounded-full flex items-center justify-center transition-motion ms-1',
                           chat.showExtraEmojis
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted/30 text-muted-foreground',
@@ -201,7 +201,7 @@ export default function MessageActionMenu({
                       >
                         <ChevronDown
                           className={cn(
-                            'w-3.5 h-3.5 transition-transform duration-200',
+                            'w-3.5 h-3.5 transition-transform duration-fast',
                             chat.showExtraEmojis && 'rotate-180',
                           )}
                         />

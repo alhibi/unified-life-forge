@@ -70,7 +70,7 @@ export default function SearchBar({
         }}
         onFocus={() => setFocused(true)}
         placeholder={placeholder}
-        className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-all font-tajawal text-meta"
+        className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-motion font-tajawal text-meta"
         style={{
           border: 'none',
           borderBottom: focused ? '1px solid var(--wax)' : '1px solid var(--hairline-strong)',

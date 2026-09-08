@@ -114,9 +114,9 @@ export const GermanClubHome: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSpaziergangOpen(true)}
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[#17324D] text-white text-sm font-bold hover:bg-[#12273d] active:scale-[0.98] transition-all shadow-md hover:shadow-lg"
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[#17324D] text-white text-sm font-bold hover:bg-[#12273d] active:scale-[0.98] transition-motion shadow-md hover:shadow-lg"
               >
-                <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-normal" />
                 <span>ابدأ جولة لغوية</span>
                 <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-amber-400 border border-amber-400/40 rounded-md px-1.5 py-0.5">
                   7 خطوات

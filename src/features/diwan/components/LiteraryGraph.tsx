@@ -256,7 +256,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                 strokeWidth={active ? 2.2 : 0.8}
                 strokeOpacity={active ? 0.7 : 0.1}
                 strokeLinecap="round"
-                className="transition-all duration-500 ease-out"
+                className="transition-motion duration-slow ease-enter"
               />
             );
           })}
@@ -343,7 +343,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   stroke={node.color}
                   strokeWidth={isSel ? 2.5 : 1.2}
                   filter="url(#node-)"
-                  className="transition-all duration-300"
+                  className="transition-motion duration-normal"
                 />
 
                 {/* Inner gradient circle */}
@@ -351,7 +351,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   r={radius * 0.45}
                   fill={node.color}
                   opacity={isSel ? 1 : 0.85}
-                  className="transition-all duration-300"
+                  className="transition-motion duration-normal"
                 />
 
                 {/* Connection count badge */}
@@ -390,16 +390,16 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
 
       {/* Zoom controls */}
       <div className="ui-panel absolute top-4 start-4 flex flex-col gap-1.5 z-raised">
-        <button onClick={() => doZoom(0.25)} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-all hover:bg-accent">
+        <button onClick={() => doZoom(0.25)} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-motion hover:bg-accent">
           <ZoomIn className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => doZoom(-0.25)} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-all hover:bg-accent">
+        <button onClick={() => doZoom(-0.25)} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-motion hover:bg-accent">
           <ZoomOut className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => setTransform({ x: 0, y: 0, s: 1 })} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-all hover:bg-accent">
+        <button onClick={() => setTransform({ x: 0, y: 0, s: 1 })} className="w-10 h-10 rounded-2xl bg-card border border-border flex items-center justify-center active:scale-[0.98] transition-motion hover:bg-accent">
           <Maximize2 className="w-4.5 h-4.5 text-foreground" />
         </button>
-        <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl border border-border flex items-center justify-center active:scale-[0.98] transition-all ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card hover:bg-accent'}`}>
+        <button onClick={() => setShowFilters(!showFilters)} className={`w-10 h-10 rounded-2xl border border-border flex items-center justify-center active:scale-[0.98] transition-motion ${showFilters ? 'bg-primary/15 border-primary/30' : 'bg-card hover:bg-accent'}`}>
           <Filter className={`w-4.5 h-4.5 ${showFilters ? 'text-primary' : 'text-foreground'}`} />
         </button>
       </div>
@@ -428,7 +428,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                         return next;
                       });
                     }}
-                    className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-micro font-medium transition-all ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground'}`}
+                    className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-micro font-medium transition-motion ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground'}`}
                   >
                     <span className="w-3 h-3 rounded-full ring-1 ring-black/5" style={{ backgroundColor: relationColors[type], opacity: isActive ? 1 : 0.3 }} />
                     {label}
@@ -488,7 +488,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                       <button
                         key={i}
                         onClick={() => { const n = nodes.find(nd => nd.id === other.id); if (n) setSelected(n); }}
-                        className="w-full flex items-start gap-3 p-3 rounded-2xl bg-muted/30 hover:bg-muted/50 active:scale-[0.98] transition-all text-start"
+                        className="w-full flex items-start gap-3 p-3 rounded-2xl bg-muted/30 hover:bg-muted/50 active:scale-[0.98] transition-motion text-start"
                       >
                         <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: `${relationColors[l.relation.type]}15` }}>
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: relationColors[l.relation.type] }} />
@@ -511,7 +511,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
             {onSelectPoet && (
               <button
                 onClick={() => onSelectPoet(selected.id)}
-                className="mt-4 w-full py-3 rounded-2xl bg-primary/10 hover:bg-primary/15 text-primary text-mini font-bold active:scale-[0.98] transition-all border border-primary/20"
+                className="mt-4 w-full py-3 rounded-2xl bg-primary/10 hover:bg-primary/15 text-primary text-mini font-bold active:scale-[0.98] transition-motion border border-primary/20"
               >
                 عرض قصائد {selected.name}
               </button>
@@ -540,9 +540,9 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                       setTransform({ x: SIM_W / 2 - firstNode.x, y: SIM_H / 2 - firstNode.y, s: 1.2 });
                     }
                   }}
-                  className={`flex-1 flex flex-col items-center gap-1 py-1 px-1 rounded-xl transition-all ${isHighlighted ? 'opacity-100' : 'opacity-40'} hover:opacity-100 active:scale-95`}
+                  className={`flex-1 flex flex-col items-center gap-1 py-1 px-1 rounded-xl transition-motion ${isHighlighted ? 'opacity-100' : 'opacity-40'} hover:opacity-100 active:scale-95`}
                 >
-                  <div className="w-full h-1.5 rounded-full transition-all" style={{ backgroundColor: color, opacity: isHighlighted ? 0.9 : 0.3 }} />
+                  <div className="w-full h-1.5 rounded-full transition-motion" style={{ backgroundColor: color, opacity: isHighlighted ? 0.9 : 0.3 }} />
                   <span className="text-micro font-medium text-muted-foreground leading-none">{label}</span>
                 </button>
               );

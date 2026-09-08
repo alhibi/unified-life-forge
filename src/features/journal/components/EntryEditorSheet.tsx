@@ -94,7 +94,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
                     key={m.id}
                     type="button"
                     onClick={() => setMood(m.id)}
-                    className={`rounded-2xl border px-3 py-3 text-center transition-all ${
+                    className={`rounded-2xl border px-3 py-3 text-center transition-motion ${
                       active
                         ? 'border-primary/60 bg-card'
                         : 'border-border bg-card/30 hover:bg-card/60'

@@ -35,7 +35,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
   return (
     <div
       onClick={() => onSelect(entry)}
-      className="relative overflow-hidden rounded-3xl border-2 border-[#17324D]/20 p-5 sm:p-6 bg-gradient-to-br from-stone-100 via-amber-50/40 to-stone-200/80 shadow-md cursor-pointer hover:border-[#17324D]/40 transition-all group"
+      className="relative overflow-hidden rounded-3xl border-2 border-[#17324D]/20 p-5 sm:p-6 bg-gradient-to-br from-stone-100 via-amber-50/40 to-stone-200/80 shadow-md cursor-pointer hover:border-[#17324D]/40 transition-motion group"
     >
       <div className="flex items-center justify-between border-b border-stone-300/60 pb-3 mb-4">
         <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
             <button
               type="button"
               onClick={speakGerman}
-              className={`p-1.5 rounded-xl border border-stone-300/80 hover:bg-stone-200/80 transition-all ${
+              className={`p-1.5 rounded-xl border border-stone-300/80 hover:bg-stone-200/80 transition-motion ${
                 isPlaying ? 'scale-110 bg-amber-100 border-amber-400 text-amber-800' : 'text-stone-700 bg-white/60'
               }`}
               title="استمع للنطق الأصلي"

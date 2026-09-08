@@ -180,7 +180,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
                   </div>
                   <div
                     className={cn(
-                      'h-6 w-6 rounded-full flex items-center justify-center shrink-0 transition-all',
+                      'h-6 w-6 rounded-full flex items-center justify-center shrink-0 transition-motion',
                       isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-transparent',
                     )}
                   >

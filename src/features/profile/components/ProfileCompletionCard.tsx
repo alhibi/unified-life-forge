@@ -35,7 +35,7 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
   const missingItems = metrics.items.filter((item) => !item.isCompleted);
 
   return (
-    <div className="surface-depth rounded-2xl p-4 space-y-3 transition-all">
+    <div className="surface-depth rounded-2xl p-4 space-y-3 transition-motion">
       <div
         className="flex items-center justify-between cursor-pointer select-none"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -62,7 +62,7 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
           aria-label="عرض التفاصيل"
         >
           <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${
+            className={`w-4 h-4 transition-transform duration-fast ${
               isExpanded ? 'rotate-180' : ''
             }`}
           />

@@ -210,7 +210,7 @@ export default function TokenSearchDrawer({
                       type="button"
                       disabled={adding}
                       onClick={() => handleAdd(pair)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground transition-all duration-normal active:scale-95 disabled:opacity-50"
+                      className="flex h-8 w-8 items-center justify-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground transition-motion duration-normal active:scale-95 disabled:opacity-50"
                       title="إضافة لقائمة المراقبة"
                     >
                       {adding ? (

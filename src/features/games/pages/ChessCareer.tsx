@@ -193,7 +193,7 @@ export default function ChessCareerPage() {
               transition={{ delay: idx * 0.04 }}
               onClick={() => unlocked && setSelected(bot)}
               disabled={!unlocked}
-              className={`w-full text-start rounded-2xl border p-3 transition-all ${
+              className={`w-full text-start rounded-2xl border p-3 transition-motion ${
  isCurrent
  ? 'border-purple-400 bg-purple-500/15 ring-1 ring-purple-400/30'
  : beaten

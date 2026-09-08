@@ -10,6 +10,8 @@
  * reads as fourteen distinct places rather than one repeated card.
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
@@ -202,7 +204,16 @@ export default function Portal() {
 
             <PortalGreeting username={username} />
 
-            <Suspense fallback={null}>
+            {/* Reserve the widgets' height while they load: a null fallback made
+                the whole tile grid jump down the moment they arrived. */}
+            <Suspense
+              fallback={
+                <SkeletonGroup className="space-y-3" label="جارٍ تحميل ودجات اليوم">
+                  <Skeleton height={148} className="w-full rounded-3xl" />
+                  <Skeleton height={96} className="w-full rounded-3xl" />
+                </SkeletonGroup>
+              }
+            >
               <PortalTodayWidgets />
             </Suspense>
 

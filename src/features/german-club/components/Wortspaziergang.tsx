@@ -116,7 +116,7 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
                       type="button"
                       onClick={() => setStepIdx(i)}
                       aria-label={`الخطوة ${s.step}`}
-                      className={`rounded-full transition-all ${
+                      className={`rounded-full transition-motion ${
                         i === stepIdx
                           ? 'w-6 h-1.5 bg-[#17324D]'
                           : i < stepIdx

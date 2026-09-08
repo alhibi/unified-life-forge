@@ -210,6 +210,57 @@
   letter-spacing: -0.02em;
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+ * ONE interaction-transition utility.
+ *
+ * `transition-all` was authored 300+ times across the app. It transitions
+ * EVERY animatable property — including width, height, inset, margin and
+ * padding — so a hover could quietly run a layout animation on the main
+ * thread. `transition-motion` replaces it with an explicit property list that
+ * contains no layout-triggering property, plus the shared token duration and
+ * easing, so every hover/press/state change in the app moves on one curve.
+ * ───────────────────────────────────────────────────────────────────── */
+@utility transition-motion {
+  transition-property: transform, opacity, color, background-color, border-color,
+    outline-color, text-decoration-color, fill, stroke, box-shadow, filter,
+    backdrop-filter;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--motion-ease-enter);
+}
+
+/* Progress fills: scaleX, never width.
+   Animating `width` re-runs layout on every frame (and, inside a scroll
+   container, invalidates the whole subtree). A fill is a full-width bar the
+   compositor squashes on the inline axis instead, driven by `--progress`
+   (0…1). Origin follows the writing direction so RTL bars still grow from the
+   start edge. */
+@utility progress-fill {
+  width: 100%;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform var(--duration-normal) var(--motion-ease-enter);
+}
+
+/* Token durations as utilities. Tailwind's numeric `duration-300` bakes in a
+   raw millisecond value, which both fragments the timing vocabulary and opts
+   out of the user's motion-speed preference; these follow it. */
+@utility duration-instant {
+  transition-duration: var(--duration-instant);
+  animation-duration: var(--duration-instant);
+}
+@utility duration-fast {
+  transition-duration: var(--duration-fast);
+  animation-duration: var(--duration-fast);
+}
+@utility duration-normal {
+  transition-duration: var(--duration-normal);
+  animation-duration: var(--duration-normal);
+}
+@utility duration-slow {
+  transition-duration: var(--duration-slow);
+  animation-duration: var(--duration-slow);
+}
+
 @layer base {
   /* Base defaults — overridden dynamically by themeEngine */
   :root {
@@ -1220,6 +1271,11 @@
 }
 
 @layer utilities {
+  [dir='rtl'] .progress-fill,
+  html[dir='rtl'] .progress-fill {
+    transform-origin: right center;
+  }
+
   /* Keep elevation intentional: only canonical shadows are used by shared surfaces. */
   .shadow-none {
     box-shadow: none !important;

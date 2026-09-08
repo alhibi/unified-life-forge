@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState }
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { CommandPalette } from '@/components/CommandPalette';
+import { SkeletonPage } from '@/components/ui/skeleton';
 import EdgeSwipeBack from '@/components/EdgeSwipeBack';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import NativeShell from '@/components/NativeShell';
@@ -465,16 +466,9 @@ const queryClient = new QueryClient({
   },
 });
 
-// Skeleton fallback matching app layout
-const PageSkeleton = () => (
-  <div className="min-h-screen p-4 space-y-4">
-    <div className="skeleton h-8 w-40 mx-auto" />
-    <div className="skeleton h-24 w-full" />
-    <div className="skeleton h-16 w-full" />
-    <div className="skeleton h-16 w-full" />
-    <div className="skeleton h-32 w-full" />
-  </div>
-);
+// Route fallback. One shared skeleton primitive that reserves the page's real
+// dimensions, so a lazily loaded route does not shift the layout when it lands.
+const PageSkeleton = () => <SkeletonPage />;
 
 // All paths where BottomNav is visible — used to decide whether
 // <main> should reserve space at the bottom for the nav bar.

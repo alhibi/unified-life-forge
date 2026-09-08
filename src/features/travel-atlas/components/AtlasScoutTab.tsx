@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 /**
  * AtlasScoutTab — the AI deep-discovery surface of the Travel Atlas.
  *
@@ -164,7 +165,7 @@ function TargetPicker({ busy, onAdd }: TargetPickerProps) {
             aria-selected={kind === k.id}
             onClick={() => setKind(k.id)}
             className={cn(
-              'px-3 py-1.5 rounded-xl text-micro font-bold transition-all active:scale-95',
+              'px-3 py-1.5 rounded-xl text-micro font-bold transition-motion active:scale-95',
               kind === k.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted/20 border border-border/50 text-muted-foreground hover:text-foreground'
@@ -311,7 +312,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
             title="حفظ في أطلسي"
             aria-label="حفظ في الأطلس"
             className={cn(
-              'w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90',
+              'w-8 h-8 rounded-xl flex items-center justify-center transition-motion active:scale-90',
               place.promotedPlaceId
                 ? 'bg-emerald-500/20 text-emerald-400'
                 : 'bg-primary/10 text-primary hover:bg-primary/20'
@@ -330,7 +331,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
               onClick={() => onDismiss(place)}
               title="إخفاء"
               aria-label="إخفاء هذا المكان"
-              className="w-8 h-8 rounded-xl flex items-center justify-center bg-muted/30 text-muted-foreground hover:text-foreground transition-all active:scale-90"
+              className="w-8 h-8 rounded-xl flex items-center justify-center bg-muted/30 text-muted-foreground hover:text-foreground transition-motion active:scale-90"
             >
               <X className="w-4 h-4" />
             </button>
@@ -660,7 +661,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
                 <li key={t.id}>
                   <div
                     className={cn(
-                      'group flex items-center justify-between gap-2 px-3 py-2 rounded-xl border transition-all cursor-pointer',
+                      'group flex items-center justify-between gap-2 px-3 py-2 rounded-xl border transition-motion cursor-pointer',
                       t.id === activeTargetId
                         ? 'bg-primary/10 border-primary/40'
                         : 'bg-muted/20 border-border/40 hover:border-border'
@@ -698,7 +699,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
                         void removeTarget(t);
                       }}
                       aria-label={`حذف ${t.displayNameAr}`}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive transition-all shrink-0"
+                      className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive transition-motion shrink-0"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -735,7 +736,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
                 onClick={() => setDepth(d.id)}
                 disabled={scouting}
                 className={cn(
-                  'flex-1 py-1.5 rounded-xl text-micro font-bold transition-all active:scale-95 disabled:opacity-50',
+                  'flex-1 py-1.5 rounded-xl text-micro font-bold transition-motion active:scale-95 disabled:opacity-50',
                   depth === d.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted/20 border border-border/50 text-muted-foreground hover:text-foreground'
@@ -780,8 +781,8 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
               >
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden" dir="ltr">
                   <div
-                    className="h-full rounded-full bg-gradient-to-l from-primary to-cyan-400 transition-[width] duration-500"
-                    style={{ width: `${progress.pct}%` }}
+                    className="h-full rounded-full bg-gradient-to-l from-primary to-cyan-400 progress-fill duration-slow"
+                    style={{ '--progress': progress.pct / 100 } as CSSProperties}
                   />
                 </div>
                 <p className="text-micro text-muted-foreground leading-relaxed">{progress.msg}</p>

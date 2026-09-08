@@ -163,7 +163,7 @@ export default function ProfilePanel({
             <button
               onClick={() => chat.setProfileTab('info')}
               className={cn(
-                'flex-1 py-2 rounded-lg text-mini font-medium transition-all',
+                'flex-1 py-2 rounded-lg text-mini font-medium transition-motion',
                 chat.profileTab === 'info'
                   ? 'bg-background text-foreground '
                   : 'text-muted-foreground',
@@ -179,7 +179,7 @@ export default function ProfilePanel({
                 }
               }}
               className={cn(
-                'flex-1 py-2 rounded-lg text-mini font-medium transition-all',
+                'flex-1 py-2 rounded-lg text-mini font-medium transition-motion',
                 chat.profileTab === 'media'
                   ? 'bg-background text-foreground '
                   : 'text-muted-foreground',

@@ -30,7 +30,7 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
         to={`/diwan/library/poem/${poem.slug}`}
         onPointerEnter={prefetch}
         onTouchStart={prefetch}
-        className="block w-full py-4 px-1 hover:bg-[rgba(242,233,216,0.015)] active:scale-[0.99] transition-all select-none rounded-[8px]"
+        className="block w-full py-4 px-1 hover:bg-[rgba(242,233,216,0.015)] active:scale-[0.99] transition-motion select-none rounded-[8px]"
       >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">

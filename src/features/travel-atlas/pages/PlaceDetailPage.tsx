@@ -271,8 +271,10 @@ export default function PlaceDetailPage() {
                     type="button"
                     onClick={() => carouselApi?.scrollTo(index)}
                     className={cn(
-                      'h-1.5 rounded-full border border-background/60 transition-[width]',
-                      index === activePhoto ? 'w-5 bg-background' : 'w-1.5 bg-background/50',
+                      'h-1.5 w-5 origin-center rounded-full border border-background/60 transition-motion duration-fast',
+                      index === activePhoto
+                        ? 'scale-x-100 bg-background'
+                        : 'scale-x-[0.3] bg-background/50',
                     )}
                     tabIndex={-1}
                   />

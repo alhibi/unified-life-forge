@@ -141,7 +141,7 @@ export const EmojiPanel = memo(function EmojiPanel({
                 setSearchQuery('');
                 haptics('selection');
               }}
-              className={`shrink-0 rounded-lg px-2.5 py-1 text-micro font-medium transition-all ${
+              className={`shrink-0 rounded-lg px-2.5 py-1 text-micro font-medium transition-motion ${
                 idx === activeCatIndex && !searchQuery
                   ? 'bg-[hsl(var(--live))] text-white shadow-sm'
                   : 'bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'

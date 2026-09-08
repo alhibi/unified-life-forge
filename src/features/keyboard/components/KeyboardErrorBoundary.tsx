@@ -52,7 +52,7 @@ export class KeyboardErrorBoundary extends Component<Props, State> {
           <button
             type="button"
             onClick={() => this.props.onUseSystemKeyboard()}
-            className="mt-1 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-mini font-semibold text-primary-foreground transition-all active:scale-95"
+            className="mt-1 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-mini font-semibold text-primary-foreground transition-motion active:scale-95"
           >
             استخدام لوحة مفاتيح النظام
           </button>

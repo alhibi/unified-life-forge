@@ -115,7 +115,7 @@ function HistoryRow({
           onRemove();
         }}
         aria-label={'\u0625\u0632\u0627\u0644\u0629'}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+        className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-motion opacity-0 group-hover:opacity-100 shrink-0"
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>

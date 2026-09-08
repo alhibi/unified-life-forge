@@ -94,7 +94,7 @@ export default function BrowsePage() {
                   onClick={() => setTab(t.key)}
                   aria-pressed={active}
                   aria-label={t.labelAr}
-                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-lg transition-colors duration-150 ${
+                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 rounded-lg transition-colors duration-fast ${
                     active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
  }`}
  >

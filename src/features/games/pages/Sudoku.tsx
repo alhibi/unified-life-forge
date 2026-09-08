@@ -665,7 +665,7 @@ export default function SudokuPage() {
 
               return (
                 <button key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
-                  className={`aspect-square flex items-center justify-center relative transition-colors duration-100
+                  className={`aspect-square flex items-center justify-center relative transition-colors duration-instant
                     ${borderR} ${borderB} ${getHighlight(ri, ci)}
                     ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}`}
                 >
@@ -700,7 +700,7 @@ export default function SudokuPage() {
             const isActive = selectedNumber === n;
             return (
               <button key={n} onClick={() => handleNumberInput(n)} disabled={isComplete}
-                className={`flex flex-col items-center justify-center py-2 rounded-2xl transition-all active:scale-90 ${
+                className={`flex flex-col items-center justify-center py-2 rounded-2xl transition-motion active:scale-90 ${
                   isComplete
                     ? 'opacity-20 cursor-not-allowed'
                     : isActive

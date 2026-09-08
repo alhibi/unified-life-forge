@@ -160,7 +160,7 @@ export default function SymptomAdvisor({ lang }: Props) {
               <button
                 key={s.key}
                 onClick={() => handleToggleSymptom(s.key)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-micro font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-micro font-semibold transition-motion ${
                   active
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card text-muted-foreground border-border/40 hover:border-primary/30'

@@ -397,7 +397,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                         >
                           <span
                             className={cn(
-                              'absolute top-[2px] w-[14px] h-[14px] rounded-full bg-background transition-all',
+                              'absolute top-[2px] w-[14px] h-[14px] rounded-full bg-background transition-motion',
                               chat.chatPrefs.prefs.enterToSend ? 'start-[16px]' : 'start-[2px]',
                             )}
                           />

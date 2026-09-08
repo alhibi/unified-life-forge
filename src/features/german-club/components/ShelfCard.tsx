@@ -28,7 +28,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="group relative cursor-pointer overflow-hidden rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+      className="group relative cursor-pointer overflow-hidden rounded-2xl border p-5 transition-motion duration-fast hover:-translate-y-0.5 active:scale-[0.98]"
       style={{
         backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
         borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,

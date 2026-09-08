@@ -205,7 +205,7 @@ export default function VoiceBubble({
                 <div
                   key={i}
                   className={cn(
-                    'flex-1 rounded-full transition-colors duration-100',
+                    'flex-1 rounded-full transition-colors duration-instant',
                     isActive ? 'bg-primary' : 'bg-muted-foreground/25',
                   )}
                   style={{ height: `${h * 20}px`, minWidth: '2px' }}

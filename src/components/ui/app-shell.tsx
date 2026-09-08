@@ -39,7 +39,7 @@ export function PageShell({
     >
       {/* High-fidelity ambient radial glow matching the active theme's primary accent color */}
       <div
-        className="pointer-events-none fixed top-[-300px] left-1/2 h-[600px] w-[1000px] -translate-x-1/2 opacity-60 dark:opacity-100 transition-all duration-1000"
+        className="pointer-events-none fixed top-[-300px] left-1/2 h-[600px] w-[1000px] -translate-x-1/2 opacity-60 dark:opacity-100 transition-motion duration-slow"
         style={{
           background: 'radial-gradient(ellipse, hsl(var(--primary) / 0.06) 0%, transparent 65%)',
           zIndex: 0,

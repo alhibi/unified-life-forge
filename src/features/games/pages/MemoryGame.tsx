@@ -1126,7 +1126,7 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
 }) {
   return (
     <button onClick={onClick} disabled={disabled || count <= 0} title={`${label} (${count})`}
-      className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-30"
+      className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-motion active:scale-90 disabled:opacity-30"
       style={{
         background: active ? `${color}30` : `${color}14`,
         border: `1px solid ${active ? color : `${color}40`}`,

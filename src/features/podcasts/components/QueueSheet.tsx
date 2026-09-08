@@ -139,7 +139,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                   return (
                     <div
                       key={item.episode.id}
-                      className="flex items-center gap-3 px-4 py-2.5 transition-all"
+                      className="flex items-center gap-3 px-4 py-2.5 transition-motion"
                     >
                       {/* Move up / down — touch-friendly replacement
                           for HTML5 drag (which doesn't fire on mobile). */}

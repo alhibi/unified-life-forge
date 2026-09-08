@@ -205,7 +205,7 @@ export function GaugeTile({
   const offset = circumference * (1 - clamped);
 
   return (
-    <div className={`group relative rounded-2xl border border-border/40 surface-depth overflow-hidden p-4 min-w-0 h-full transition-all hover:-translate-y-0.5 hover:border-border/70 ${className}`}>
+    <div className={`group relative rounded-2xl border border-border/40 surface-depth overflow-hidden p-4 min-w-0 h-full transition-motion hover:-translate-y-0.5 hover:border-border/70 ${className}`}>
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/65 truncate">

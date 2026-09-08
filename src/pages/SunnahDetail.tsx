@@ -55,7 +55,7 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
           <div className="w-10" />
         </div>
         <div className="h-1 w-full bg-muted/30">
-          <div className="h-full bg-primary transition-all duration-300" style={{ width: `${((currentIndex + 1) / total) * 100}%` }} />
+          <div className="h-full bg-primary transition-motion duration-normal" style={{ width: `${((currentIndex + 1) / total) * 100}%` }} />
         </div>
       </div>
 

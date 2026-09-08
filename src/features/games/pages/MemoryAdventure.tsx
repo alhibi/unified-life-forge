@@ -103,7 +103,7 @@ export default function MemoryAdventurePage() {
               transition={{ delay: idx * 0.03 }}
               onClick={() => unlocked && setSelected(stage)}
               disabled={!unlocked}
-              className={`relative w-full flex items-center gap-3 py-2 ps-1 pe-2 rounded-2xl mb-1.5 transition-all ${
+              className={`relative w-full flex items-center gap-3 py-2 ps-1 pe-2 rounded-2xl mb-1.5 transition-motion ${
                 isCurrent
                   ? 'bg-pink-500/15 ring-1 ring-pink-400/40'
                   : stars > 0

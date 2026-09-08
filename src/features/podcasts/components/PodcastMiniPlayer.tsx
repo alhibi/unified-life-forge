@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 // App-wide floating mini-player.
 //
 // Direct port of Podium's `FloatingMediaPlayer.kt` — same behavior,
@@ -56,14 +57,14 @@ function MiniProgressBar() {
   return (
     <div className="mt-1 h-[3px] rounded-full bg-foreground/10 overflow-hidden">
       <div
-        className="h-full rounded-full transition-[width] duration-200"
+        className="h-full rounded-full progress-fill duration-fast"
         style={{
-          width: `${pct}%`,
+          '--progress': pct / 100,
           background: 'var(--podcast-primary, hsl(var(--primary)))',
           // A faint glow at the head of the fill makes the bar read as
           // luminous rather than flat — matches the player sheet's
           // gradient seek bar.
-        }}
+        } as CSSProperties}
       />
     </div>
   );
@@ -116,7 +117,7 @@ const InlineControl = memo(function InlineControl({
       aria-label={ariaLabel}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 active:scale-90 transition-transform duration-150 cursor-pointer select-none touch-manipulation"
+      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 active:scale-90 transition-transform duration-fast cursor-pointer select-none touch-manipulation"
       style={{ width: size, height: size, willChange: 'transform', ...style }}
     >
       {children}

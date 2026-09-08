@@ -1,6 +1,6 @@
 // ============================================================================
 // CountUpNumber — animates a numeric value from 0 (or `from`) to `value`
-// using an expo ease-out curve. The user's eye lands on the final digit at
+// using an expo ease-enter curve. The user's eye lands on the final digit at
 // the moment they enter the page.
 //
 // USAGE

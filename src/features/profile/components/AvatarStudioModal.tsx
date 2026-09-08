@@ -150,7 +150,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                   setActiveTab('archetype');
                   setParams({ ...params, category: 'archetype', presetId: 'arch-scholar' });
                 }}
-                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-all ${
+                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-motion ${
                   activeTab === 'archetype'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -164,7 +164,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                   setActiveTab('abstract');
                   setParams({ ...params, category: 'abstract', presetId: 'abs-mesh-3d' });
                 }}
-                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-all ${
+                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-motion ${
                   activeTab === 'abstract'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -178,7 +178,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                   setActiveTab('monogram');
                   setParams({ ...params, category: 'monogram', presetId: 'seal-squircle-gold' });
                 }}
-                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-all ${
+                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-motion ${
                   activeTab === 'monogram'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -192,7 +192,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                   setActiveTab('pattern');
                   setParams({ ...params, category: 'pattern', presetId: 'pattern-lattice' });
                 }}
-                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-all ${
+                className={`flex-1 min-w-[100px] py-2 rounded-xl text-micro font-bold transition-motion ${
                   activeTab === 'pattern'
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -213,7 +213,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                       <button
                         key={arch.id}
                         onClick={() => setParams({ ...params, presetId: arch.id })}
-                        className={`p-3 rounded-2xl flex flex-col items-center text-center transition-all ${
+                        className={`p-3 rounded-2xl flex flex-col items-center text-center transition-motion ${
                           isSelected
                             ? 'bg-primary/10 ring-2 ring-primary scale-[1.02]'
                             : 'bg-card border border-border/50 hover:bg-muted/30'
@@ -238,7 +238,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                       <button
                         key={abs.id}
                         onClick={() => setParams({ ...params, presetId: abs.id })}
-                        className={`p-3 rounded-2xl flex flex-col items-center text-center transition-all ${
+                        className={`p-3 rounded-2xl flex flex-col items-center text-center transition-motion ${
                           isSelected
                             ? 'bg-primary/10 ring-2 ring-primary scale-[1.02]'
                             : 'bg-card border border-border/50 hover:bg-muted/30'
@@ -273,7 +273,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                         <button
                           key={seal.id}
                           onClick={() => setParams({ ...params, presetId: seal.id })}
-                          className={`p-3 rounded-2xl flex flex-col items-center text-center transition-all ${
+                          className={`p-3 rounded-2xl flex flex-col items-center text-center transition-motion ${
                             isSelected
                               ? 'bg-primary/10 ring-2 ring-primary scale-[1.02]'
                               : 'bg-card border border-border/50 hover:bg-muted/30'
@@ -301,7 +301,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                     <button
                       key={g.id}
                       onClick={() => setParams({ ...params, gradientId: g.id })}
-                      className={`relative h-10 rounded-xl overflow-hidden transition-all ${
+                      className={`relative h-10 rounded-xl overflow-hidden transition-motion ${
                         isSelected ? 'ring-2 ring-primary ring-offset-2 scale-[1.05]' : 'opacity-85 hover:opacity-100'
                       }`}
                       style={{ background: `linear-gradient(135deg, ${g.colors[0]}, ${g.colors[g.colors.length - 1]})` }}
@@ -328,7 +328,7 @@ export const AvatarStudioModal: React.FC<AvatarStudioModalProps> = ({
                     <button
                       key={f.id}
                       onClick={() => setParams({ ...params, frameId: f.id })}
-                      className={`p-2.5 rounded-xl text-micro font-semibold transition-all ${
+                      className={`p-2.5 rounded-xl text-micro font-semibold transition-motion ${
                         isSelected
                           ? 'bg-primary/10 ring-2 ring-primary text-primary'
                           : 'bg-card border border-border/50 text-muted-foreground hover:text-foreground'

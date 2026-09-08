@@ -20,13 +20,13 @@
 import type { Transition, Variants } from 'framer-motion';
 
 export const easing = {
-  /** Quint-style ease-out: brisk, decisive entry. Default for everything. */
+  /** Quint-style ease-enter: brisk, decisive entry. Default for everything. */
   standard:    [0.22, 1, 0.36, 1] as const,
   /** Slightly softer, slower entry — for chips and tertiary metrics. */
   gentle:      [0.4, 0, 0.2, 1] as const,
   /** Decelerate — fast in, long settle. Hero numbers, gauges. */
   decelerate:  [0.16, 1, 0.3, 1] as const,
-  /** Expo-style ease-out: dramatic deceleration. Tab pills, big reveals. */
+  /** Expo-style ease-enter: dramatic deceleration. Tab pills, big reveals. */
   expo:        [0.19, 1, 0.22, 1] as const,
   /** Cinematic — slow start, slow end. Tab pane transitions. */
   cinematic:   [0.83, 0, 0.17, 1] as const,
@@ -189,11 +189,11 @@ export function formatCount(value: number, pad = 0): string {
 
 /**
  * Compute a count-up value at time t (ms) from start to end.
- * Uses an expo ease-out: dramatic deceleration toward the target.
+ * Uses an expo ease-enter: dramatic deceleration toward the target.
  */
 export function countUpValue(t: number, start: number, end: number, totalMs: number): number {
   const progress = Math.min(1, Math.max(0, t / totalMs));
-  // 1 - (1 - p)^4 → quartic ease-out, dramatic settle.
+  // 1 - (1 - p)^4 → quartic ease-enter, dramatic settle.
   const eased = 1 - Math.pow(1 - progress, 4);
   return start + (end - start) * eased;
 }

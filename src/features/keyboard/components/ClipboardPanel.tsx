@@ -168,7 +168,7 @@ export const ClipboardPanel = memo(function ClipboardPanel({
             <div
               key={item.id}
               className={cn(
-                'group flex items-center justify-between gap-2 rounded-xl border p-2.5 transition-all',
+                'group flex items-center justify-between gap-2 rounded-xl border p-2.5 transition-motion',
                 item.pinned
                   ? 'border-[hsl(var(--live))]/40 bg-[hsl(var(--live))]/10'
                   : 'border-border/30 bg-[hsl(var(--surface-2))]/60 hover:bg-[hsl(var(--surface-2))]',

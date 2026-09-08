@@ -93,7 +93,7 @@ export const QuickLookup: React.FC = () => {
     <div className="relative w-full">
       {/* Search input */}
       <div
-        className="relative flex items-center gap-2 rounded-2xl border bg-white px-3.5 py-2.5 shadow-sm transition-all"
+        className="relative flex items-center gap-2 rounded-2xl border bg-white px-3.5 py-2.5 shadow-sm transition-motion"
         style={{
           borderColor: open && query ? GERMAN_CLUB_TOKENS.prussian : `${GERMAN_CLUB_TOKENS.oak}44`,
           boxShadow:

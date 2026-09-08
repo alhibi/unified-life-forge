@@ -619,7 +619,7 @@ export default function ProfileEditPage() {
         <div className="flex items-center gap-1 bg-card border border-border/50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar shadow-sm">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'overview'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -630,7 +630,7 @@ export default function ProfileEditPage() {
 
           <button
             onClick={() => setActiveTab('activity')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'activity'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -641,7 +641,7 @@ export default function ProfileEditPage() {
 
           <button
             onClick={() => setActiveTab('badges')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'badges'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -652,7 +652,7 @@ export default function ProfileEditPage() {
 
           <button
             onClick={() => setActiveTab('insights')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'insights'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -663,7 +663,7 @@ export default function ProfileEditPage() {
 
           <button
             onClick={() => setActiveTab('telemetry')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'telemetry'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -674,7 +674,7 @@ export default function ProfileEditPage() {
 
           <button
             onClick={() => setActiveTab('edit')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'edit'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -685,7 +685,7 @@ export default function ProfileEditPage() {
 
           <button
             onClick={() => setActiveTab('privacy')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-all ${
+            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
               activeTab === 'privacy'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -769,7 +769,7 @@ export default function ProfileEditPage() {
                   </div>
                   <button
                     onClick={() => setIsVisitorPreview(!isVisitorPreview)}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold transition-motion ${
                       isVisitorPreview
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         : 'bg-primary/10 text-primary border border-primary/20'
@@ -871,7 +871,7 @@ export default function ProfileEditPage() {
                         <button
                           key={animal.id}
                           onClick={() => setSelectedAvatar(animal.emoji)}
-                          className={`relative flex flex-col items-center gap-1 py-2.5 rounded-xl transition-all ${
+                          className={`relative flex flex-col items-center gap-1 py-2.5 rounded-xl transition-motion ${
                             isSelected
                               ? 'bg-primary/10 ring-2 ring-primary scale-[1.03]'
                               : 'bg-muted/30 ring-1 ring-border/40 active:scale-95'

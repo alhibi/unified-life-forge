@@ -36,8 +36,8 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
           type="button"
           className={cn(
             'inline-flex items-center gap-2 bg-muted/60 border border-border/40 rounded-lg px-3 py-1.5',
-            'text-meta font-medium text-foreground outline-none transition-all',
-            'hover:bg-muted active:scale-[0.97] duration-150',
+            'text-meta font-medium text-foreground outline-none transition-motion',
+            'hover:bg-muted active:scale-[0.97] duration-fast',
             'focus-visible:ring-2 focus-visible:ring-primary/40',
  className,
  )}
@@ -73,7 +73,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             caption_label: 'text-meta font-semibold text-foreground',
             nav: 'space-x-1 flex items-center',
             nav_button:
-              'h-7 w-7 rounded-full bg-secondary hover:bg-muted transition-colors active:scale-90 duration-150 flex items-center justify-center text-foreground',
+              'h-7 w-7 rounded-full bg-secondary hover:bg-muted transition-colors active:scale-90 duration-fast flex items-center justify-center text-foreground',
             nav_button_previous: 'absolute start-1',
             nav_button_next: 'absolute end-1',
             table: 'w-full border-collapse',
@@ -84,7 +84,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             cell: 'relative p-0.5 text-center',
             day: cn(
               'h-9 w-9 mx-auto rounded-lg text-mini font-medium text-foreground',
-              'hover:bg-secondary transition-colors duration-200 active:scale-90',
+              'hover:bg-secondary transition-colors duration-fast active:scale-90',
               'aria-selected:opacity-100 tabular-nums',
             ),
             day_selected:

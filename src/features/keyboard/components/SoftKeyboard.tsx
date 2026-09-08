@@ -214,7 +214,7 @@ const Key = memo(function Key({
         onContextMenu={(event) => event.preventDefault()}
         className={cn(
           'relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
-          'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-75',
+          'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-instant',
           'active:scale-[0.93] touch-none',
           tone === 'letter' &&
             'bg-[hsl(var(--kb-key))] text-[hsl(var(--kb-fg))] shadow-[0_1px_2px_rgba(0,0,0,0.14)]',
@@ -644,7 +644,7 @@ export default function SoftKeyboard({
                   onInsert(sym.ch);
                   if (settings.vibrateOnKeyPress) haptics('selection');
                 }}
-                className="flex h-9 items-center justify-center rounded-xl border border-white/5 bg-[hsl(var(--surface-2))] px-2 text-mini font-medium text-foreground transition-all active:scale-95 hover:bg-[hsl(var(--live))]/20"
+                className="flex h-9 items-center justify-center rounded-xl border border-white/5 bg-[hsl(var(--surface-2))] px-2 text-mini font-medium text-foreground transition-motion active:scale-95 hover:bg-[hsl(var(--live))]/20"
               >
                 {sym.label}
               </button>

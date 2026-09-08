@@ -181,7 +181,7 @@ export default function AutoPrayerThemeSection() {
                                     onClick={() => updateSlot(slot.id, p.id, cur?.mode || 'light')}
                                     aria-label={p.name}
                                     aria-pressed={isSel}
-                                    className={`relative aspect-square w-full rounded-full border-2 transition-all ${
+                                    className={`relative aspect-square w-full rounded-full border-2 transition-motion ${
                                       isSel ? 'scale-110 border-primary' : 'border-border'
                                     }`}
                                     style={{ backgroundColor: swatch }}

@@ -42,7 +42,7 @@ export const KeyPopup = memo(function KeyPopup({
                 haptics('selection');
               }}
               className={
-                'flex h-10 min-w-10 items-center justify-center rounded-lg text-lg font-medium transition-all active:scale-110 ' +
+                'flex h-10 min-w-10 items-center justify-center rounded-lg text-lg font-medium transition-motion active:scale-110 ' +
                 (activeVariant === variant
                   ? 'scale-110 bg-[hsl(var(--live))] text-white'
                   : 'bg-[hsl(var(--surface-2))] text-foreground')

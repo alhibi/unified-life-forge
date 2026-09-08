@@ -113,14 +113,14 @@ export default function ArchiveHome() {
         <div className="flex rounded-xl bg-muted/40 p-1 mb-2">
           <button
             onClick={() => setActiveTab('list')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-all ${activeTab === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-motion ${activeTab === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
           >
             <Grid3X3 className="w-3.5 h-3.5" />
             <span>الفهرس الأرشيفي</span>
           </button>
           <button
             onClick={() => setActiveTab('graph')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-all ${activeTab === 'graph' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-motion ${activeTab === 'graph' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
           >
             <Network className="w-3.5 h-3.5" />
             <span>الشبكة الدلالية</span>

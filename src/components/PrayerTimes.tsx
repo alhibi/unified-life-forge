@@ -565,7 +565,7 @@ export default function PrayerTimes() {
           <Compass className="h-3.5 w-3.5 text-primary/80" aria-hidden />
           <span className="text-micro font-semibold text-muted-foreground">بوصلة القبلة</span>
           <ChevronDown
-            className={`ms-auto h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${showQibla ? 'rotate-180' : ''}`}
+            className={`ms-auto h-3.5 w-3.5 text-muted-foreground transition-transform duration-normal ${showQibla ? 'rotate-180' : ''}`}
             aria-hidden
           />
         </button>
@@ -1107,7 +1107,7 @@ function SlabRow({
         { transform: 'translateX(-3px)' },
         { transform: 'translateX(0)' },
       ],
-      { duration: 360, easing: 'ease-out' },
+      { duration: 360, easing: 'ease-enter' },
     );
     return () => anim.cancel();
   }, [shakeKey]);

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 /**
  * LiveSessionPanel — the in-session cockpit.
  *
@@ -193,8 +194,8 @@ function LiveSessionPanelImpl({
                     </span>
                     <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[hsl(var(--fitness-primary))] transition-[width] duration-500"
-                        style={{ width: `${Math.round(ratio * 100)}%` }}
+                        className="h-full rounded-full bg-[hsl(var(--fitness-primary))] progress-fill duration-slow"
+                        style={{ '--progress': Math.min(1, Math.max(0, ratio)) } as CSSProperties}
                       />
                     </div>
                     <span className="text-micro tabular-nums text-foreground font-bold">
@@ -216,14 +217,14 @@ function LiveSessionPanelImpl({
       <div className="flex gap-2">
         <button
           onClick={onTogglePause}
-          className="flex-1 h-10 rounded-button border border-border/40 hover:bg-muted/10 text-foreground text-micro font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
+          className="flex-1 h-10 rounded-button border border-border/40 hover:bg-muted/10 text-foreground text-micro font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-motion"
         >
           {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
           {isPaused ? 'استئناف' : 'إيقاف مؤقت'}
         </button>
         <button
           onClick={onStop}
-          className="flex-[1.4] h-10 rounded-button bg-destructive text-destructive-foreground text-micro font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-all"
+          className="flex-[1.4] h-10 rounded-button bg-destructive text-destructive-foreground text-micro font-bold inline-flex items-center justify-center gap-1.5 active-tactile transition-motion"
         >
           <Square className="w-3.5 h-3.5" />
           إنهاء وحفظ

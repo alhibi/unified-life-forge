@@ -105,7 +105,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(isActive ? null : tab.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-semibold whitespace-nowrap transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-semibold whitespace-nowrap transition-motion"
                 style={{
                   background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.04)',
                   color: isActive ? accentColor : 'rgba(255,255,255,0.35)',
@@ -180,7 +180,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
                         <button
                           key={choice.value}
                           onClick={() => opt.onChange(choice.value)}
-                          className="px-3 py-1.5 rounded-lg text-micro font-semibold transition-all"
+                          className="px-3 py-1.5 rounded-lg text-micro font-semibold transition-motion"
                           style={{
                             background: opt.current === choice.value ? `${accentColor}25` : 'rgba(255,255,255,0.04)',
                             color: opt.current === choice.value ? accentColor : 'rgba(255,255,255,0.4)',

@@ -115,7 +115,7 @@ export const DictionarySearchFilters: React.FC = () => {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex-shrink-0 border ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-motion flex-shrink-0 border ${
                   isActive
                     ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
                     : 'bg-stone-100 text-stone-700 border-stone-300/80 hover:bg-stone-200/60'
@@ -231,7 +231,7 @@ export const DictionarySearchFilters: React.FC = () => {
           <button
             type="button"
             onClick={() => setOnlySeparableVerbs(!onlySeparableVerbs)}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all border ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition-motion border ${
               onlySeparableVerbs
                 ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
                 : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-200/60'

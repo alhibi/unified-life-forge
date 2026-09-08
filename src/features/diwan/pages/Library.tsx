@@ -74,7 +74,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             <div className="mt-1 shrink-0">
               <BackButton
                 fallback="/"
-                className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all"
+                className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-motion"
               />
             </div>
           )}
@@ -167,7 +167,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
         <section className="mt-6">
           <button
             onClick={() => setShowGraph((s) => !s)}
-            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-[12px] border transition-all ${
+            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-[12px] border transition-motion ${
               showGraph
                 ? 'bg-[var(--wax-soft)] border-[var(--wax-soft2)] text-[var(--wax)]'
                 : 'bg-[#1D1811] border-[var(--hairline-strong)] text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E]'
@@ -176,7 +176,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${showGraph ? 'bg-[var(--wax-soft2)]' : 'bg-[rgba(242,233,216,0.04)]'}`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-motion ${showGraph ? 'bg-[var(--wax-soft2)]' : 'bg-[rgba(242,233,216,0.04)]'}`}
               >
                 <Network className="w-4 h-4 text-[var(--wax)]" />
               </div>
@@ -261,7 +261,7 @@ function ActionLink({
   return (
     <Link
       to={to}
-      className="rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] px-4 py-3.5 active:scale-[0.98] hover:border-[#B8AA8E] transition-all flex items-center gap-3.5"
+      className="rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] px-4 py-3.5 active:scale-[0.98] hover:border-[#B8AA8E] transition-motion flex items-center gap-3.5"
     >
       <div className="w-9 h-9 rounded-full bg-[rgba(184,73,46,0.08)] flex items-center justify-center shrink-0 border border-[var(--wax-soft)]">
         {icon}

@@ -107,7 +107,7 @@ export default function TokenDetailDrawer({
           </div>
           <div className="h-1.5 w-full rounded-full bg-rose-500/20 overflow-hidden flex">
             <div
-              className="bg-emerald-500 h-full transition-all duration-500"
+              className="bg-emerald-500 h-full transition-motion duration-slow"
               style={{ width: `${ratio.buysPct}%` }}
             />
           </div>
@@ -177,7 +177,7 @@ export default function TokenDetailDrawer({
             href={`https://dexscreener.com/${pair.chainId}/${pair.pairAddress}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-muted/60 border border-border/40 hover:bg-muted text-mini font-bold text-foreground transition-all duration-normal active:scale-95"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-muted/60 border border-border/40 hover:bg-muted text-mini font-bold text-foreground transition-motion duration-normal active:scale-95"
           >
             📊 فتح الصفحة الكاملة على DEX Screener
           </a>

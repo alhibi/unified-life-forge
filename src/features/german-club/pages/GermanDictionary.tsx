@@ -142,7 +142,7 @@ export const GermanDictionary: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab('all')}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
+                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion ${
                   activeTab === 'all'
                     ? 'bg-[#17324D] text-white shadow-xs'
                     : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
@@ -154,7 +154,7 @@ export const GermanDictionary: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab('bookmarks')}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion flex items-center gap-1.5 ${
                   activeTab === 'bookmarks'
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'

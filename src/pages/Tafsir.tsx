@@ -342,7 +342,7 @@ export default function TafsirPage() {
                 {filteredSurahs.map(({ name, index }) => {
                   const hasBookmark = bookmarks.some(b => b.startsWith(`${index}:`));
                   return (
-                    <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={`relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-xl border transition-all group ${hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-card border-border/50 hover:bg-accent/40 hover:border-primary/30'}`}>
+                    <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={`relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-xl border transition-motion group ${hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-card border-border/50 hover:bg-accent/40 hover:border-primary/30'}`}>
                       <span className="absolute top-1.5 start-2 text-micro text-muted-foreground/60 font-mono">{index + 1}</span>
                       {hasBookmark && <BookmarkCheck className="absolute top-1.5 end-1.5 w-3 h-3 text-primary" />}
                       <span className="text-mini font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>
@@ -377,7 +377,7 @@ export default function TafsirPage() {
                         <motion.button
                           variants={itemAnim}
                           onClick={() => setSelectedAyah(isSelected ? null : ayah.numberInSurah)}
-                          className={`w-full text-end px-4 py-4 border transition-all ${isSelected ? 'bg-primary/8 border-primary/30 rounded-t-xl rounded-b-none' : 'bg-card border-border/50 hover:bg-accent/30 hover:border-primary/20 rounded-xl'}`}
+                          className={`w-full text-end px-4 py-4 border transition-motion ${isSelected ? 'bg-primary/8 border-primary/30 rounded-t-xl rounded-b-none' : 'bg-card border-border/50 hover:bg-accent/30 hover:border-primary/20 rounded-xl'}`}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-primary/20' : 'bg-muted/50'}`}>

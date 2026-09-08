@@ -16,7 +16,7 @@ const AlphabetNavImpl: React.FC = () => {
       <button
         type="button"
         onClick={() => setSelectedLetter('all')}
-        className={`px-3 py-1.5 rounded-xl font-bold transition-all flex-shrink-0 border ${
+        className={`px-3 py-1.5 rounded-xl font-bold transition-motion flex-shrink-0 border ${
           selectedLetter === 'all'
             ? 'bg-[#17324D] text-white border-[#17324D]'
             : 'bg-stone-200/80 text-stone-700 border-stone-300 hover:bg-stone-300/80'
@@ -32,7 +32,7 @@ const AlphabetNavImpl: React.FC = () => {
             key={letter}
             type="button"
             onClick={() => setSelectedLetter(letter)}
-            className={`w-8 h-8 rounded-xl font-bold transition-all flex items-center justify-center flex-shrink-0 border ${
+            className={`w-8 h-8 rounded-xl font-bold transition-motion flex items-center justify-center flex-shrink-0 border ${
               isActive
                 ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
                 : 'bg-stone-100 text-stone-700 border-stone-300/80 hover:bg-stone-200/80'

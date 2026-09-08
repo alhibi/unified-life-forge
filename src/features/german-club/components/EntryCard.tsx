@@ -46,7 +46,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
     <motion.div
       layout={!shouldReduceMotion}
       onClick={handleCardClick}
-      className="relative cursor-pointer rounded-2xl border p-5 transition-all duration-200 active:scale-[0.99]"
+      className="relative cursor-pointer rounded-2xl border p-5 transition-motion duration-fast active:scale-[0.99]"
       style={{
         backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
         borderColor: `${GERMAN_CLUB_TOKENS.oak}26`,

@@ -141,7 +141,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 onClick={() => onSelectCoverTheme(theme.id)}
                 whileTap={{ scale: 0.96 }}
                 whileHover={{ y: -3 }}
-                className={`relative h-24 rounded-2xl overflow-hidden ring-1 transition-shadow duration-300 group ${
+                className={`relative h-24 rounded-2xl overflow-hidden ring-1 transition-shadow duration-normal group ${
                   active
                     ? 'ring-2 ring-amber-300/60 shadow-lg shadow-amber-900/10 scale-[1.03]'
                     : 'ring-white/10 hover:ring-white/20 hover:shadow-xl'
@@ -153,7 +153,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
 
                 {/* Decorative sparkle */}
-                <Sparkles className={`absolute top-2.5 end-2.5 w-3.5 h-3.5 transition-opacity duration-300 ${active ? 'text-amber-200/90 opacity-100' : 'text-white/20 opacity-0 group-hover:opacity-50'}`} />
+                <Sparkles className={`absolute top-2.5 end-2.5 w-3.5 h-3.5 transition-opacity duration-normal ${active ? 'text-amber-200/90 opacity-100' : 'text-white/20 opacity-0 group-hover:opacity-50'}`} />
 
                 {/* Label */}
                 <div className="absolute inset-x-0 bottom-2.5 px-2.5 flex flex-col items-center">
@@ -208,7 +208,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => onTogglePublic(!isPublic)}
-            className={`relative overflow-hidden rounded-2xl px-5 py-2.5 text-[0.75rem] font-extrabold transition-all duration-300 shadow-lg min-w-[120px] ${
+            className={`relative overflow-hidden rounded-2xl px-5 py-2.5 text-[0.75rem] font-extrabold transition-motion duration-normal shadow-lg min-w-[120px] ${
               isPublic
                 ? 'bg-gradient-to-r from-emerald-500/15 to-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/30 shadow-emerald-900/10'
                 : 'bg-gradient-to-r from-slate-700/40 to-slate-800/50 text-slate-400 ring-1 ring-white/5 shadow-slate-900/20'
@@ -245,10 +245,10 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               <motion.div
                 key={cfg.key}
                 layout
-                className="group flex items-center justify-between rounded-2xl px-4 py-4 hover:bg-white/[0.02] transition-colors duration-200"
+                className="group flex items-center justify-between rounded-2xl px-4 py-4 hover:bg-white/[0.02] transition-colors duration-fast"
               >
                 <div className="flex items-start gap-3.5">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-normal ${
                     active ? 'bg-indigo-500/15 text-indigo-300' : 'bg-muted/40 text-muted-foreground/60 group-hover:bg-muted/60'
                   }`}>
                     <Icon className="w-4 h-4" />
@@ -262,7 +262,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 <motion.button
                   onClick={() => handleToggle(cfg.key, !active)}
                   aria-checked={active}
-                  className={`relative w-11 h-6 rounded-full transition-all duration-300 shadow-inner ${
+                  className={`relative w-11 h-6 rounded-full transition-motion duration-normal shadow-inner ${
                     active
                       ? 'bg-gradient-to-r from-indigo-500/30 to-indigo-400/20 shadow-indigo-900/10 ring-1 ring-indigo-400/25'
                       : 'bg-slate-800/60 ring-1 ring-white/5'
@@ -270,7 +270,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                   whileTap={{ scaleX: 0.92 }}
                 >
                   {/* Track */}
-                  <span className={`absolute inset-0 rounded-full transition-opacity duration-300 ${active ? 'opacity-100' : 'opacity-40'}`} />
+                  <span className={`absolute inset-0 rounded-full transition-opacity duration-normal ${active ? 'opacity-100' : 'opacity-40'}`} />
 
                   {/* Thumb */}
                   <motion.span
@@ -310,7 +310,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleReset}
-              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-bold text-muted-foreground bg-slate-800/30 hover:bg-slate-800/50 border border-white/[0.06] hover:border-white/[0.1] transition-all duration-300 shadow-inner shadow-black/5"
+              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-bold text-muted-foreground bg-slate-800/30 hover:bg-slate-800/50 border border-white/[0.06] hover:border-white/[0.1] transition-motion duration-normal shadow-inner shadow-black/5"
             >
               <span className="flex items-center justify-center gap-2">
                 <Lock className="w-3.5 h-3.5" />
@@ -323,7 +323,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleExport}
-              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-amber-300 bg-gradient-to-br from-amber-500/10 to-amber-400/5 hover:from-amber-500/20 hover:to-amber-400/10 border border-amber-400/20 hover:border-amber-400/30 transition-all duration-300 shadow-lg shadow-amber-900/5"
+              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-amber-300 bg-gradient-to-br from-amber-500/10 to-amber-400/5 hover:from-amber-500/20 hover:to-amber-400/10 border border-amber-400/20 hover:border-amber-400/30 transition-motion duration-normal shadow-lg shadow-amber-900/5"
             >
               <span className="flex items-center justify-center gap-2">
                 <Shield className="w-3.5 h-3.5" />
@@ -345,7 +345,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleImport}
-                className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-violet-300 bg-gradient-to-br from-violet-500/10 to-fuchsia-400/5 hover:from-violet-500/20 hover:to-fuchsia-400/10 border border-violet-400/20 hover:border-violet-400/30 transition-all duration-300 shadow-lg shadow-violet-900/5"
+                className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-violet-300 bg-gradient-to-br from-violet-500/10 to-fuchsia-400/5 hover:from-violet-500/20 hover:to-fuchsia-400/10 border border-violet-400/20 hover:border-violet-400/30 transition-motion duration-normal shadow-lg shadow-violet-900/5"
               >
                 <span className="flex items-center justify-center gap-2">
                   <Sparkles className="w-3.5 h-3.5" />
@@ -384,7 +384,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
           ].map((item) => (
             <div
               key={item.label}
-              className={`rounded-2xl p-3.5 text-center transition-all duration-300 border ${
+              className={`rounded-2xl p-3.5 text-center transition-motion duration-normal border ${
                 item.active
                   ? 'bg-gradient-to-b from-emerald-500/[0.06] to-transparent border-emerald-400/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
                   : 'bg-slate-800/20 border-white/[0.04] opacity-70'

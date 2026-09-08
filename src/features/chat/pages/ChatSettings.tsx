@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -359,12 +360,12 @@ export default function ChatSettingsPage() {
                   </div>
                   <div className="h-2 rounded-full bg-muted/40 overflow-hidden">
                     <div
-                      className="h-full bg-primary transition-[width] duration-300"
+                      className="h-full bg-primary progress-fill duration-normal"
                       style={{
-                        width: `${Math.min(100, storageReport.quotaMb > 0
-                          ? (storageReport.usageMb / storageReport.quotaMb) * 100
-                          : 0)}%`,
-                      }}
+                        '--progress': Math.min(1, storageReport.quotaMb > 0
+                          ? storageReport.usageMb / storageReport.quotaMb
+                          : 0),
+                      } as CSSProperties}
                     />
                   </div>
                 </div>
@@ -556,7 +557,7 @@ function ToggleRow({ icon, label, description, value, onChange, disabled }: Togg
       </div>
       <span
         className={cn(
-          'w-[44px] h-[24px] rounded-full transition-colors duration-200 relative shrink-0 mt-0.5',
+          'w-[44px] h-[24px] rounded-full transition-colors duration-fast relative shrink-0 mt-0.5',
           value ? 'bg-primary' : 'bg-muted',
  )}
  dir="ltr"

@@ -63,7 +63,7 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
       style={{
         boxShadow: shadowGlow,
       }}
-      className={`rounded-full border border-[#FF7A29]/70 bg-gradient-to-b from-[#2A170F] via-[#1A0E08] to-[#0D0704] hover:border-[#FF9E4A] hover:scale-105 active:scale-95 transition-all flex items-center justify-center relative group shrink-0 cursor-pointer overflow-hidden ${sizeClasses} ${className}`}
+      className={`rounded-full border border-[#FF7A29]/70 bg-gradient-to-b from-[#2A170F] via-[#1A0E08] to-[#0D0704] hover:border-[#FF9E4A] hover:scale-105 active:scale-95 transition-motion flex items-center justify-center relative group shrink-0 cursor-pointer overflow-hidden ${sizeClasses} ${className}`}
     >
       {/* Background Fiery Glow Surface */}
       <span
@@ -79,7 +79,7 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
             ? '0 0 12px #FF7A29, 0 0 20px #FF9E4A, 0 0 2px #FFFFFF'
             : '0 0 8px rgba(255, 122, 41, 0.7)',
         }}
-        className={`font-black font-mono tracking-tighter text-[#FF9E4A] select-none relative z-10 transition-all ${
+        className={`font-black font-mono tracking-tighter text-[#FF9E4A] select-none relative z-10 transition-motion ${
           isJobRunning ? 'motion-safe:animate-pulse text-amber-300 scale-110' : 'group-hover:text-amber-200'
         }`}
       >

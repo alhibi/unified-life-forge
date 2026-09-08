@@ -174,7 +174,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
                   {/* Heat bar — small visual reinforcement. */}
                   <div
                     aria-hidden
-                    className="w-1 rounded-full bg-primary/40 transition-all"
+                    className="w-1 rounded-full bg-primary/40 transition-motion"
                     style={{ height: `${Math.max(6, heat * 26)}px` }}
                   />
                   <span className={cn(

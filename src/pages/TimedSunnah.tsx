@@ -68,7 +68,7 @@ export default function TimedSunnah() {
                   </span>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${isCatOpen ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-muted-foreground transition-transform duration-fast ${isCatOpen ? 'rotate-180' : ''}`}
                 />
               </button>
 
@@ -104,7 +104,7 @@ export default function TimedSunnah() {
                                 </span>
                                 {isDetailed && (
                                   <ChevronDown
-                                    className={`w-4 h-4 text-muted-foreground/60 shrink-0 transition-transform duration-200 ${isItemOpen ? 'rotate-180' : ''}`}
+                                    className={`w-4 h-4 text-muted-foreground/60 shrink-0 transition-transform duration-fast ${isItemOpen ? 'rotate-180' : ''}`}
                                   />
                                 )}
                               </button>
