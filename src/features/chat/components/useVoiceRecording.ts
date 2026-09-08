@@ -97,6 +97,14 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
   // for the preview without depending on state-update timing (the
   // analyser keeps emitting after stop() until cleanupRecorder runs).
   const latestBarsRef = useRef<number[]>([]);
+  // A recording start is asynchronous (getUserMedia + MediaRecorder). If the
+  // user lifts their finger before that resolves, the stop request has no
+  // recorder to act on yet. We remember the requested outcome here and apply
+  // it the moment the recorder exists, so a quick tap can never leave the
+  // microphone running forever.
+  const startingRef = useRef(false);
+  const pendingStopModeRef = useRef<'send' | 'cancel' | 'preview' | null>(null);
+
 
   // Keep latest callbacks/ids in refs so the long-lived onstop closure
   // always uses current values (recordings can outlive several re-renders).
