@@ -349,7 +349,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   useEffect(() => {
     const muted = chatPrefs.prefs.muted;
     const next = conversations.reduce(
-      (sum, conversation) => muted.has(conversation.id) ? sum : sum + (conversation.unreadCount || 0),
+      (sum, conversation) => muted[conversation.id] ? sum : sum + (conversation.unreadCount || 0),
       0,
     );
     if (lastReportedUnreadRef.current === next) return;
