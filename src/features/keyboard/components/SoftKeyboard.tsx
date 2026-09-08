@@ -91,6 +91,7 @@ const Key = memo(function Key({
   popups,
   showPopupPreview = true,
   feedback,
+  feedbackKind,
   keyBorders = false,
   holdDelayMs = 280,
   pressOnRelease = false,
