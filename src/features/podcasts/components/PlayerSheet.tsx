@@ -532,7 +532,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 <div className="flex items-center justify-center gap-6 px-6 mt-5">
                   <button
                     onClick={() => player.skip(-SKIP)}
-                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-all"
+                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-motion"
                     aria-label={`-${SKIP}s`}
                   >
                     <RotateCcw className="w-9 h-9" strokeWidth={1.5} />
@@ -564,7 +564,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
 
                   <button
                     onClick={() => player.skip(SKIP)}
-                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-all"
+                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-motion"
                     aria-label={`+${SKIP}s`}
                   >
                     <RotateCw className="w-9 h-9" strokeWidth={1.5} />

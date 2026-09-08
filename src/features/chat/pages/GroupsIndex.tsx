@@ -145,7 +145,7 @@ export default function GroupsIndexPage() {
                 type="button"
                 onClick={() => setFilter(tab.id)}
                 className={cn(
-                  'h-8 px-3.5 rounded-full text-mini font-medium transition-all whitespace-nowrap inline-flex items-center gap-1.5',
+                  'h-8 px-3.5 rounded-full text-mini font-medium transition-motion whitespace-nowrap inline-flex items-center gap-1.5',
                   active
                     ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50',

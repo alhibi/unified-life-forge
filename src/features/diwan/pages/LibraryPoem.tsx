@@ -233,7 +233,7 @@ export default function LibraryPoemPage() {
           <div className="mt-1 shrink-0">
             <BackButton
               fallback="/mihrab"
-              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all"
+              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-motion"
             />
           </div>
           <div className="flex-1 min-w-0">
@@ -262,7 +262,7 @@ export default function LibraryPoemPage() {
               disabled={toggleFav.isPending}
               aria-pressed={isFavorited}
               aria-label={isFavorited ? 'إزالة من المفضّلة' : 'إضافة إلى المفضّلة'}
-              className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 border ${
+              className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-motion active:scale-90 border ${
                 isFavorited
                   ? 'bg-[rgba(184,73,46,0.1)] text-[var(--wax)] border-[var(--wax-soft2)]'
                   : 'border-[var(--hairline-strong)] bg-[#1D1811] text-[#B8AA8E] hover:text-[#F2E9D8]'
@@ -308,7 +308,7 @@ export default function LibraryPoemPage() {
           )}
           <button
             onClick={copyAll}
-            className="ms-auto flex items-center gap-1.5 text-micro text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-all font-tajawal"
+            className="ms-auto flex items-center gap-1.5 text-micro text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-motion font-tajawal"
           >
             <ClipboardCopy className="w-3.5 h-3.5" />
             نسخ المخطوطة
@@ -321,7 +321,7 @@ export default function LibraryPoemPage() {
             <button
               onClick={() => setTashkeel((t) => !t)}
               aria-pressed={tashkeel}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-all border ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-motion border ${
                 tashkeel
                   ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
                   : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
@@ -337,7 +337,7 @@ export default function LibraryPoemPage() {
             <button
               onClick={() => setShowContext((c) => !c)}
               aria-pressed={showContext}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-all border ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-motion border ${
                 showContext
                   ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
                   : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'

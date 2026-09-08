@@ -64,7 +64,7 @@ export default function PodcastsTab() {
           key={c.key}
           variants={item}
           onClick={c.onClick}
-          className="w-full flex items-center gap-3 p-4 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
+          className="w-full flex items-center gap-3 p-4 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-motion duration-fast text-start"
         >
           <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <c.icon className="w-5 h-5 text-primary" />

@@ -198,7 +198,7 @@ export default function QuickCaptureFab() {
                           setSelectedType(type.value);
                           setIsTask(type.value === 'task');
                         }}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-micro font-medium border transition-all ${
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-micro font-medium border transition-motion ${
                           selectedType === type.value
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'text-muted-foreground border-border/30 hover:border-primary/40 hover:bg-primary/5'
@@ -325,7 +325,7 @@ export default function QuickCaptureFab() {
                   <button
                     type="submit"
                     disabled={isCreating || (!title.trim() && !content.trim())}
-                    className="flex h-10 gap-2 items-center rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-all text-mini disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex h-10 gap-2 items-center rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-5 active:scale-95 transition-motion text-mini disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="h-4 w-4" />
                     {isCreating ? 'حفظ…' : 'حفظ'}

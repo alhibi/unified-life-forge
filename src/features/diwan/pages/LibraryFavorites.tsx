@@ -36,7 +36,7 @@ export default function LibraryFavoritesPage() {
           <div className="mt-1 shrink-0">
             <BackButton
               fallback="/mihrab"
-              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-all"
+              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-motion"
             />
           </div>
           <div className="flex-1 min-w-0">
@@ -110,7 +110,7 @@ function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => 
       {sbReady && (
         <button
           onClick={onSignIn}
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#1D1811] border border-[var(--hairline-strong)] hover:border-[#B8AA8E] text-[#B8AA8E] hover:text-[#F2E9D8] text-mini font-bold active:scale-[0.98] transition-all"
+          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#1D1811] border border-[var(--hairline-strong)] hover:border-[#B8AA8E] text-[#B8AA8E] hover:text-[#F2E9D8] text-mini font-bold active:scale-[0.98] transition-motion"
         >
           <LogIn className="w-4 h-4 text-[var(--wax)]" />
           تسجيل الدخول للمكتبة

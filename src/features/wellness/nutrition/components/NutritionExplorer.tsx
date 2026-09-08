@@ -179,7 +179,7 @@ export default function NutritionExplorer() {
             if (e.target.value.trim()) setView('search');
           }}
           placeholder={T.searchPlaceholder[lang]}
-          className="w-full ps-10 pe-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-meta focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+          className="w-full ps-10 pe-10 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-meta focus:outline-none focus:ring-2 focus:ring-primary/30 transition-motion"
           dir={'rtl'}
         />
         {query && (
@@ -263,7 +263,7 @@ export default function NutritionExplorer() {
                   <button
                     key={key}
                     onClick={() => handleSmartSelect(key)}
-                    className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-all hover:bg-muted/60"
+                    className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-motion hover:bg-muted/60"
                   >
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center"
@@ -464,7 +464,7 @@ function QuickPill({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/40 whitespace-nowrap active:scale-95 transition-all shrink-0"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/40 whitespace-nowrap active:scale-95 transition-motion shrink-0"
     >
       <Icon className="w-3 h-3" style={{ color }} />
       <span className="text-micro font-medium text-foreground">{label}</span>

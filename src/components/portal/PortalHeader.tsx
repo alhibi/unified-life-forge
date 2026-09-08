@@ -36,7 +36,7 @@ interface Props {
 /** Bare glyph control: no filled box, just the hairline rail it sits on. */
 const railBtn = cn(
   'flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground',
-  'transition-[color,background-color,transform] duration-fast ease-out',
+  'transition-[color,background-color,transform] duration-fast ease-enter',
   'hover:bg-foreground/[0.05] hover:text-foreground',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
 );
@@ -80,7 +80,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
     <header
       className={cn(
         'sticky top-0 z-header flex h-14 items-center gap-1 px-4',
-        'transition-[background-color,border-color,backdrop-filter] duration-normal ease-out',
+        'transition-[background-color,border-color,backdrop-filter] duration-normal ease-enter',
         lifted
           ? 'border-b border-border/50 bg-background/72 backdrop-blur-xl backdrop-saturate-150'
           : 'border-b border-transparent bg-transparent',
@@ -157,7 +157,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
               className={cn(
                 'flex h-9 w-9 items-center justify-center overflow-hidden rounded-full',
                 'border border-primary/40 text-foreground',
-                'transition-[border-color,box-shadow] duration-normal ease-out',
+                'transition-[border-color,box-shadow] duration-normal ease-enter',
                 'hover:border-primary/70 hover:shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]',
                 'data-[state=open]:border-primary/80 data-[state=open]:shadow-[0_0_0_3px_hsl(var(--primary)/0.16)]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',

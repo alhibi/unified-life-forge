@@ -357,7 +357,7 @@ function ToggleRow({ icon, label, value, onChange }: ToggleRowProps) {
         value ? 'bg-primary' : 'bg-muted',
       )}>
         <span className={cn(
-          'absolute top-0.5 h-4 w-4 rounded-full bg-background transition-all',
+          'absolute top-0.5 h-4 w-4 rounded-full bg-background transition-motion',
           value ? 'start-[18px]' : 'start-0.5',
         )} />
       </span>

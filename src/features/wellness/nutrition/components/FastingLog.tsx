@@ -169,7 +169,7 @@ export default function FastingLog({ lang }: Props) {
             </span>
             <button
               onClick={handleEnd}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-destructive text-white hover:bg-destructive/90 text-micro font-bold active:scale-95 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-destructive text-white hover:bg-destructive/90 text-micro font-bold active:scale-95 transition-motion"
             >
               <Square className="w-3 h-3 fill-current" />
               <span>{T.end[lang]}</span>
@@ -202,7 +202,7 @@ export default function FastingLog({ lang }: Props) {
               </p>
               <div className="h-1 rounded-full bg-muted/60 overflow-hidden">
                 <div
-                  className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                  className="h-full bg-indigo-500 rounded-full transition-motion duration-slow"
                   style={{ width: `${metabolicPhase.progress * 100}%` }}
                 />
               </div>
@@ -226,7 +226,7 @@ export default function FastingLog({ lang }: Props) {
                 <button
                   key={proto.name}
                   onClick={() => setSelectedProtocol(proto)}
-                  className={`px-3 py-2 rounded-xl border text-micro font-bold text-center transition-all ${
+                  className={`px-3 py-2 rounded-xl border text-micro font-bold text-center transition-motion ${
                     active
                       ? 'bg-indigo-500 text-white border-indigo-500 shadow-lg shadow-indigo-500/10'
                       : 'bg-muted/30 border-border/30 text-muted-foreground'
@@ -243,7 +243,7 @@ export default function FastingLog({ lang }: Props) {
 
           <button
             onClick={handleStart}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-mini active:scale-98 transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-mini active:scale-98 transition-motion"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>{T.start[lang]}</span>

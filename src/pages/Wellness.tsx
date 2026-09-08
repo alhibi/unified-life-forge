@@ -315,7 +315,7 @@ export default function WellnessPage() {
                     onClick={() => setTab(t.key)}
                     aria-pressed={active}
                     aria-label={t.labelAr}
-                    className={`relative shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-lg transition-colors duration-150 ${
+                    className={`relative shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-lg transition-colors duration-fast ${
                       active
                         ? 'text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground'

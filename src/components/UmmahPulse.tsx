@@ -909,7 +909,7 @@ function UmmahPulse() {
             return (
               <div
                 key={key}
-                className={`rounded-lg px-1.5 py-2 text-center transition-all ${
+                className={`rounded-lg px-1.5 py-2 text-center transition-motion ${
                   isCurrent ? 'shadow-sm' : 'bg-muted/30'
                 }`}
                 style={
@@ -1090,7 +1090,7 @@ function UmmahPulse() {
                           <button
                             key={s}
                             onClick={() => setFilter(s)}
-                            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-micro font-semibold transition-all ${
+                            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-micro font-semibold transition-motion ${
                               active
                                 ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                                 : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
@@ -1127,7 +1127,7 @@ function UmmahPulse() {
                           <button
                             key={r}
                             onClick={() => setRegionFilter(r)}
-                            className={`shrink-0 px-2.5 py-1 rounded-full border text-micro font-medium transition-all ${
+                            className={`shrink-0 px-2.5 py-1 rounded-full border text-micro font-medium transition-motion ${
                               active
                                 ? 'bg-foreground/90 text-background border-foreground'
                                 : 'bg-card border-border/30 text-muted-foreground hover:text-foreground'
@@ -1184,7 +1184,7 @@ function UmmahPulse() {
                             key={c.name}
                             layout
                             onClick={() => setSelectedCity(isSelected ? null : c.name)}
-                            className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-all text-start ${
+                            className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-motion text-start ${
                               isSelected
                                 ? 'bg-primary/5 border-primary/40 shadow-sm'
                                 : 'bg-card border-border/30 active:scale-[0.99]'

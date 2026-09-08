@@ -76,7 +76,7 @@ export default function BayanDashboard() {
 
           <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Link to="/diwan" className="p-2 rounded-lg hover:bg-surface/80 border border-border/40 transition-all">
+              <Link to="/diwan" className="p-2 rounded-lg hover:bg-surface/80 border border-border/40 transition-motion">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
@@ -96,7 +96,7 @@ export default function BayanDashboard() {
               {activeAnalysis && (
                 <button
                   onClick={handleToggleBookmark}
-                  className="px-3.5 py-2 rounded-lg border border-border bg-surface hover:border-live text-mini font-semibold flex items-center gap-2 transition-all active-tactile"
+                  className="px-3.5 py-2 rounded-lg border border-border bg-surface hover:border-live text-mini font-semibold flex items-center gap-2 transition-motion active-tactile"
                 >
                   {isBookmarked ? (
                     <>
@@ -144,7 +144,7 @@ export default function BayanDashboard() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 rounded-lg bg-live text-white font-bold text-meta transition-all shadow-md active-tactile disabled:opacity-50 hover:bg-live/90 flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-lg bg-live text-white font-bold text-meta transition-motion shadow-md active-tactile disabled:opacity-50 hover:bg-live/90 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -168,7 +168,7 @@ export default function BayanDashboard() {
                     <button
                       key={past.id}
                       onClick={() => loadPastAnalysis(past)}
-                      className={`w-full p-2.5 rounded-lg border text-end transition-all flex flex-col gap-1 ${
+                      className={`w-full p-2.5 rounded-lg border text-end transition-motion flex flex-col gap-1 ${
                         activeAnalysis?.id === past.id
                           ? "bg-live/5 border-live"
                           : "bg-surface hover:bg-background border-border/50"
@@ -205,7 +205,7 @@ export default function BayanDashboard() {
                   {activeAnalysis.prosody && (
                     <button
                       onClick={() => setActiveTab("prosody")}
-                      className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                      className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
                         activeTab === "prosody"
                           ? "border-live text-live"
                           : "border-transparent text-muted-foreground hover:text-foreground"
@@ -218,7 +218,7 @@ export default function BayanDashboard() {
 
                   <button
                     onClick={() => setActiveTab("syntax")}
-                    className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                    className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
                       activeTab === "syntax"
                         ? "border-live text-live"
                         : "border-transparent text-muted-foreground hover:text-foreground"
@@ -230,7 +230,7 @@ export default function BayanDashboard() {
 
                   <button
                     onClick={() => setActiveTab("morphology")}
-                    className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                    className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
                       activeTab === "morphology"
                         ? "border-live text-live"
                         : "border-transparent text-muted-foreground hover:text-foreground"
@@ -242,7 +242,7 @@ export default function BayanDashboard() {
 
                   <button
                     onClick={() => setActiveTab("rhetoric")}
-                    className={`px-4 py-2 text-mini font-bold font-mono transition-all border-b-2 flex items-center gap-1.5 ${
+                    className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
                       activeTab === "rhetoric"
                         ? "border-live text-live"
                         : "border-transparent text-muted-foreground hover:text-foreground"

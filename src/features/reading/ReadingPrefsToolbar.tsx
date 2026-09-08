@@ -34,7 +34,7 @@ export function ReadingPrefsToolbar({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+          className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
           aria-label={'تفضيلات العرض'}
           title={'فرز ، تجميع ، كثافة'}
         >
@@ -171,7 +171,7 @@ function Segmented<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`min-h-9 px-2 rounded-lg text-micro font-medium inline-flex items-center justify-center gap-1.5 transition-all ${
+            className={`min-h-9 px-2 rounded-lg text-micro font-medium inline-flex items-center justify-center gap-1.5 transition-motion ${
               active
                 ? 'bg-background text-foreground '
                 : 'text-muted-foreground hover:text-foreground'

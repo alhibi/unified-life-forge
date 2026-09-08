@@ -133,7 +133,7 @@ export default function Marginalia() {
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-all ${
+            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-motion ${
               tab === key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >

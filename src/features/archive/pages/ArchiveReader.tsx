@@ -203,10 +203,10 @@ function VerticalCylinderSlider({ value, min, max, onChange, icon }: VerticalCyl
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      className="relative w-12 h-36 bg-muted/60 dark:bg-muted/30 rounded-full overflow-hidden cursor-pointer active:scale-x-[1.03] transition-all touch-none border border-border/40 shadow-inner flex flex-col justify-end"
+      className="relative w-12 h-36 bg-muted/60 dark:bg-muted/30 rounded-full overflow-hidden cursor-pointer active:scale-x-[1.03] transition-motion touch-none border border-border/40 shadow-inner flex flex-col justify-end"
     >
       <div
-        className="w-full bg-primary/20 dark:bg-primary/30 transition-all duration-75 flex items-center justify-center relative"
+        className="w-full bg-primary/20 dark:bg-primary/30 transition-motion duration-instant flex items-center justify-center relative"
         style={{ height: `${fillPct}%` }}
       >
         <div className="absolute top-0 inset-x-0 h-[2px] bg-primary/40 shadow-glow" />
@@ -523,7 +523,11 @@ export default function ArchiveReader() {
       const h = document.documentElement;
       const total = h.scrollHeight - h.clientHeight;
       const next = total > 0 ? Math.min(100, Math.max(0, (h.scrollTop / total) * 100)) : 0;
-      if (progressBarRef.current) progressBarRef.current.style.width = `${next}%`;
+      // scaleX, not width: the reading-progress bar updates on every scroll
+      // frame, and a width write would force layout each time.
+      if (progressBarRef.current) {
+        progressBarRef.current.style.setProperty('--progress', String(next / 100));
+      }
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -645,8 +649,8 @@ export default function ArchiveReader() {
       <div className="fixed top-0 inset-x-0 h-[2px] z-float bg-transparent">
         <div
           ref={progressBarRef}
-          className="h-full transition-[width] duration-150"
-          style={{ width: '0%', background: accentColor ?? 'hsl(var(--live, var(--primary)))' }}
+          className="h-full progress-fill duration-fast"
+          style={{ '--progress': 0, background: accentColor ?? 'hsl(var(--live, var(--primary)))' } as React.CSSProperties}
         />
       </div>
 
@@ -858,7 +862,7 @@ export default function ArchiveReader() {
                     <div className="space-y-5">
                       {/* Active Preview */}
                       <div
-                        className="p-4 rounded-2xl border transition-all shadow-sm"
+                        className="p-4 rounded-2xl border transition-motion shadow-sm"
                         style={
                           {
                             backgroundColor: activeBg,
@@ -905,7 +909,7 @@ export default function ArchiveReader() {
                               <button
                                 key={k}
                                 onClick={() => setPrefs((p) => ({ ...p, theme: k }))}
-                                className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-all active:scale-90 ${prefs.theme === k ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
+                                className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion active:scale-90 ${prefs.theme === k ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
                                 style={{ backgroundColor: bg }}
                                 title={label}
                               >
@@ -916,7 +920,7 @@ export default function ArchiveReader() {
                             ))}
                             <button
                               onClick={() => setPrefs((p) => ({ ...p, theme: 'custom' }))}
-                              className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-all active:scale-90 bg-gradient-to-tr from-pink-300 via-purple-300 to-indigo-300 ${prefs.theme === 'custom' ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
+                              className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion active:scale-90 bg-gradient-to-tr from-pink-300 via-purple-300 to-indigo-300 ${prefs.theme === 'custom' ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
                               title="مخصصة"
                             >
                               <Pencil className="w-4 h-4 text-foreground/80" />
@@ -935,7 +939,7 @@ export default function ArchiveReader() {
                                   startSpeaking(0);
                                 }
                               }}
-                              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all active:scale-90 ${isSpeaking ? 'bg-primary/20 border-primary text-primary animate-pulse' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
+                              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-motion active:scale-90 ${isSpeaking ? 'bg-primary/20 border-primary text-primary animate-pulse' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
                               title="القارئ الصوتي الذكي"
                             >
                               <Waves className="w-5 h-5" />
@@ -1267,7 +1271,7 @@ export default function ArchiveReader() {
                             <button
                               key={k}
                               onClick={() => setPrefs((p) => ({ ...p, font: k }))}
-                              className={`flex-none w-24 rounded-2xl border p-3 flex flex-col items-center justify-center gap-1.5 transition-all snap-start ${prefs.font === k ? 'border-primary ring-2 ring-primary/30 bg-primary/5 text-primary scale-105' : 'border-border/60 bg-muted/30 text-foreground/80'}`}
+                              className={`flex-none w-24 rounded-2xl border p-3 flex flex-col items-center justify-center gap-1.5 transition-motion snap-start ${prefs.font === k ? 'border-primary ring-2 ring-primary/30 bg-primary/5 text-primary scale-105' : 'border-border/60 bg-muted/30 text-foreground/80'}`}
                             >
                               <span
                                 className="text-title font-semibold"
@@ -1284,7 +1288,7 @@ export default function ArchiveReader() {
                           {['georgia', 'iowan', 'amiri'].map((_group, idx) => (
                             <span
                               key={idx}
-                              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${prefs.font === 'georgia' || prefs.font === 'sf' ? (idx === 0 ? 'bg-primary w-3' : 'bg-muted-foreground/30') : prefs.font === 'iowan' || prefs.font === 'avenir' ? (idx === 1 ? 'bg-primary w-3' : 'bg-muted-foreground/30') : idx === 2 ? 'bg-primary w-3' : 'bg-muted-foreground/30'}`}
+                              className={`w-1.5 h-1.5 rounded-full transition-motion duration-normal ${prefs.font === 'georgia' || prefs.font === 'sf' ? (idx === 0 ? 'bg-primary w-3' : 'bg-muted-foreground/30') : prefs.font === 'iowan' || prefs.font === 'avenir' ? (idx === 1 ? 'bg-primary w-3' : 'bg-muted-foreground/30') : idx === 2 ? 'bg-primary w-3' : 'bg-muted-foreground/30'}`}
                             />
                           ))}
                         </div>
@@ -1515,7 +1519,7 @@ export default function ArchiveReader() {
                   return (
                     <h2
                       id={hid}
-                      className={`reveal font-bold mt-10 mb-3 pb-2 border-b scroll-mt-24 transition-all duration-300 ${isHighlighted ? 'bg-primary/10 text-primary px-2 rounded-lg' : ''}`}
+                      className={`reveal font-bold mt-10 mb-3 pb-2 border-b scroll-mt-24 transition-motion duration-normal ${isHighlighted ? 'bg-primary/10 text-primary px-2 rounded-lg' : ''}`}
                       style={{
                         fontSize: prefs.size + 6,
                         borderColor: borderColor ?? 'hsl(var(--border) / 0.3)',
@@ -1537,7 +1541,7 @@ export default function ArchiveReader() {
                   return (
                     <h3
                       id={hid}
-                      className={`reveal font-semibold mt-7 mb-2 scroll-mt-24 transition-all duration-300 ${isHighlighted ? 'bg-primary/10 text-primary px-2 rounded-lg' : ''}`}
+                      className={`reveal font-semibold mt-7 mb-2 scroll-mt-24 transition-motion duration-normal ${isHighlighted ? 'bg-primary/10 text-primary px-2 rounded-lg' : ''}`}
                       style={{ fontSize: prefs.size + 3 }}
                       {...props}
                     >
@@ -1554,7 +1558,7 @@ export default function ArchiveReader() {
                       paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
                   return (
                     <p
-                      className={`reveal mb-4 transition-all duration-300 ${isHighlighted ? 'bg-primary/15 text-primary p-2 rounded-xl scale-[1.01] border-s-2 border-primary shadow-sm' : ''}`}
+                      className={`reveal mb-4 transition-motion duration-normal ${isHighlighted ? 'bg-primary/15 text-primary p-2 rounded-xl scale-[1.01] border-s-2 border-primary shadow-sm' : ''}`}
                       {...props}
                     >
                       {highlightSearch(text, searchQuery)}

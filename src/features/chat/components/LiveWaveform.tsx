@@ -87,7 +87,7 @@ const LiveWaveform: React.FC<LiveWaveformProps> = ({
               // into a flowing motion. Short enough that loud peaks
               // still snap forward, long enough that silence decays
               // without flickering.
-              'transition-transform duration-75 ease-out',
+              'transition-transform duration-instant ease-enter',
             )}
             style={{
               width: barWidth,

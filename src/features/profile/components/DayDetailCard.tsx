@@ -455,7 +455,7 @@ function NavButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`w-8 h-8 rounded-xl flex items-center justify-center text-micro font-bold transition-all ${
+      className={`w-8 h-8 rounded-xl flex items-center justify-center text-micro font-bold transition-motion ${
         disabled
           ? 'bg-muted/20 text-muted-foreground/40 cursor-not-allowed'
           : 'bg-muted/20 border border-border/40 text-foreground hover:bg-muted/40 active:scale-95'

@@ -15,7 +15,7 @@ const AstNode: React.FC<AstNodeProps> = ({ branch, tokens, depth }) => {
     <div className="flex flex-col items-center relative w-full" style={{ marginTop: depth > 0 ? "16px" : "0px" }}>
       {/* Node Box */}
       <div
-        className="px-4 py-2.5 rounded-lg border border-border bg-surface text-center min-w-[140px] shadow-sm relative transition-all duration-300 hover:border-live"
+        className="px-4 py-2.5 rounded-lg border border-border bg-surface text-center min-w-[140px] shadow-sm relative transition-motion duration-normal hover:border-live"
         style={{
           borderLeft: branch.role === "مسند" ? "3px solid var(--live)" : undefined,
           borderRight: branch.role === "مسند إليه" ? "3px solid var(--live)" : undefined,

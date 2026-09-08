@@ -59,7 +59,7 @@ export function getTileIdentity(key: string): TileIdentity {
    and all of them animate with a single transform on group hover.        */
 
 const SVG = 'absolute inset-0 h-full w-full';
-const EASE = 'transition-transform duration-[700ms] ease-out motion-reduce:transition-none';
+const EASE = 'transition-transform duration-slow ease-enter motion-reduce:transition-none';
 
 function Motif({ motif }: { motif: MotifKey }) {
   switch (motif) {

@@ -97,7 +97,7 @@ function DifficultyDots({ level, color }: { level: number; color: string }) {
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
-          className="w-1 h-1 rounded-full transition-all"
+          className="w-1 h-1 rounded-full transition-motion"
           style={{
             backgroundColor: i < level ? color : 'hsl(var(--muted))',
             opacity: i < level ? 0.85 : 0.25,
@@ -163,7 +163,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
             <button
               key={cat}
               onClick={() => setFilterCat(cat)}
-              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-all ${
+              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-motion ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -394,7 +394,7 @@ function FoodSection({ lang, query }: { lang: 'ar'; query: string }) {
             <button
               key={g}
               onClick={() => setFilterGroup(g)}
-              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-all whitespace-nowrap ${
+              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-motion whitespace-nowrap ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -637,7 +637,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
             <button
               key={c}
               onClick={() => setFilterCat(c)}
-              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-all flex items-center gap-1 ${
+              className={`shrink-0 h-6 px-2 rounded-full text-micro font-medium transition-motion flex items-center gap-1 ${
                 active
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
@@ -847,7 +847,7 @@ export default function EncyclopediaTab() {
             <button
               key={t.key}
               onClick={() => setSubTab(t.key)}
-              className={`relative flex-1 h-8 flex items-center justify-center gap-1.5 rounded-lg transition-all ${
+              className={`relative flex-1 h-8 flex items-center justify-center gap-1.5 rounded-lg transition-motion ${
                 active ? 'text-white' : 'text-muted-foreground hover:text-foreground'
               }`}
             >

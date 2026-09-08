@@ -42,7 +42,7 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
                 {tafila.symbolPattern.split("").map((sym, symIdx) => (
                   <div
                     key={symIdx}
-                    className={`w-6 h-6 rounded flex items-center justify-center font-mono text-mini font-semibold transition-all ${
+                    className={`w-6 h-6 rounded flex items-center justify-center font-mono text-mini font-semibold transition-motion ${
                       sym === "/"
                         ? "bg-live text-white shadow-sm"
                         : "bg-muted-foreground/15 text-muted-foreground border border-border"

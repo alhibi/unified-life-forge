@@ -198,7 +198,7 @@ function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Pro
                 onClick={() => navigate(mode.path)}
                 onMouseEnter={() => prefetchRoute(mode.path)}
                 className={cn(
-                  'group flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-micro font-bold transition-all duration-normal ease-out-expo',
+                  'group flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-micro font-bold transition-motion duration-normal ease-out-expo',
                   'hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95',
                 )}
                 style={{

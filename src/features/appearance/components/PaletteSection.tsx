@@ -143,7 +143,7 @@ function ModePalettePreview({
               type="button"
               onClick={() => onModeChange(mode.id)}
               aria-pressed={isActive}
-              className={`group overflow-hidden rounded-md border text-start transition-all ${isActive ? 'border-primary ring-1 ring-primary/30' : 'border-border'}`}
+              className={`group overflow-hidden rounded-md border text-start transition-motion ${isActive ? 'border-primary ring-1 ring-primary/30' : 'border-border'}`}
             >
               <div className="flex h-12 items-end justify-between gap-1 p-2" style={{ backgroundColor: `hsl(${tokens['--background']})` }}>
                 <span className="text-micro font-bold" style={{ color: `hsl(${tokens['--foreground']})` }}>{mode.label}</span>
@@ -347,7 +347,7 @@ function ThemePresetsCategorized({
                 className="group relative flex flex-col items-center gap-2"
               >
                 <div
-                  className={`relative h-12 w-12 overflow-hidden rounded-full border-2 transition-all ${
+                  className={`relative h-12 w-12 overflow-hidden rounded-full border-2 transition-motion ${
                     isActive ? 'scale-110 border-primary' : 'border-border'
                   }`}
                 >

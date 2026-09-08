@@ -107,7 +107,7 @@ export default function HydrationLog({ lang }: Props) {
               <button
                 key={amt}
                 onClick={() => handleAdd(amt)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-blue-500/20 bg-blue-500/5 text-blue-500 hover:bg-blue-500/10 text-micro font-bold active:scale-95 transition-all"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-blue-500/20 bg-blue-500/5 text-blue-500 hover:bg-blue-500/10 text-micro font-bold active:scale-95 transition-motion"
               >
                 <Plus className="w-3 h-3" />
                 <span>

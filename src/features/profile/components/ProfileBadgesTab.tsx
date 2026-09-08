@@ -64,7 +64,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
             return (
               <div
                 key={i}
-                className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
+                className={`w-8 h-8 rounded-full border flex items-center justify-center transition-motion ${
                   isFilled
                     ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
                     : 'bg-muted/20 border-border/40 text-muted-foreground'
@@ -85,7 +85,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-micro font-bold whitespace-nowrap transition-all active:scale-95 ${
+              className={`px-3.5 py-1.5 rounded-full text-micro font-bold whitespace-nowrap transition-motion active:scale-95 ${
                 active
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'bg-card border border-border/50 text-muted-foreground hover:text-foreground'
@@ -107,7 +107,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
           return (
             <div
               key={badge.id}
-              className={`surface-depth rounded-2xl p-4 relative flex flex-col justify-between space-y-3 transition-all ${
+              className={`surface-depth rounded-2xl p-4 relative flex flex-col justify-between space-y-3 transition-motion ${
                 isUnlocked
                   ? 'border-border/60 hover:border-primary/40'
                   : 'opacity-70 grayscale-[0.3] bg-muted/10'
@@ -149,7 +149,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                 {isUnlocked && (
                   <button
                     onClick={() => onToggleFeaturedBadge(badge.id)}
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-motion ${
                       isPinned
                         ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40 scale-105'
                         : 'bg-muted/30 text-muted-foreground hover:text-foreground'

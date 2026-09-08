@@ -235,7 +235,7 @@ export default function ArchiveNew() {
               key={d.key}
               disabled={running}
               onClick={() => setDepth(d.key)}
-              className={`text-start rounded-xl border p-3 transition-all ${
+              className={`text-start rounded-xl border p-3 transition-motion ${
                 depth === d.key
                   ? 'border-primary/70 bg-primary/5 ring-1 ring-primary/30'
                   : 'border-border/40 bg-muted/20 active:scale-[0.98]'
@@ -255,7 +255,7 @@ export default function ArchiveNew() {
         <button
           onClick={() => setShowModels(!showModels)}
           disabled={running}
-          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-mini font-semibold text-foreground hover:bg-muted/40 transition-all"
+          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-mini font-semibold text-foreground hover:bg-muted/40 transition-motion"
         >
           <span>⚙️ إعدادات النماذج والذكاء الاصطناعي</span>
           <ChevronDown

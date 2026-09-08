@@ -255,7 +255,7 @@ export function SearchPanel({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />

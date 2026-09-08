@@ -249,7 +249,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
             </div>
             <div className="w-16 h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-motion"
                 style={{ width: `${Math.min(100, densityScore)}%` }}
               />
             </div>
@@ -488,7 +488,7 @@ function NutrientBar({
       <span className="text-micro text-foreground/70 w-20 truncate">{label}</span>
       <div className="flex-1 h-2 rounded-full bg-muted/50 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-700"
+          className="h-full rounded-full transition-motion duration-slow"
           style={{ width: `${Math.min(100, rdaPct)}%`, backgroundColor: color }}
         />
       </div>

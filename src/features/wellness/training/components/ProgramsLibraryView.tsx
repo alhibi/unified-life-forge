@@ -165,7 +165,7 @@ function ProgramCard({
       initial={{ y: 8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay }}
-      className={`rounded-2xl p-3.5 border transition-all ${
+      className={`rounded-2xl p-3.5 border transition-motion ${
         isActive
           ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/30'
           : 'bg-card border-border/40'

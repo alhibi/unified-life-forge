@@ -49,7 +49,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
                   key={wp.id}
                   onClick={() => onPick(wp.id)}
                   className={cn(
-                    'relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-all active:scale-95',
+                    'relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-motion active:scale-95',
                     selected ? 'border-primary ' : 'border-border/15'
                   )}
                   style={{ background: wp.background }}

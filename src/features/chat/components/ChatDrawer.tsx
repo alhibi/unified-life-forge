@@ -920,7 +920,7 @@ export default function ChatDrawer({
                           )}
                           style={{
                             opacity: fadeOpacity,
-                            transition: 'opacity 2s ease-out, background-color 0.15s',
+                            transition: 'opacity 2s ease-enter, background-color 0.15s',
                           }}
                           onClick={(e) => {
                             if (chat.selectionMode && !msg.deleted) {
@@ -1368,7 +1368,7 @@ export default function ChatDrawer({
                             src={upload.localPreviewUrl}
                             alt=""
                             className={cn(
-                              'absolute inset-0 w-full h-full object-cover transition-all duration-500',
+                              'absolute inset-0 w-full h-full object-cover transition-motion duration-slow',
                               (upload.status === 'uploading' || upload.status === 'compressing') &&
                                 'blur-[2px] brightness-75',
                               upload.status === 'done' && 'blur-0 brightness-100',
@@ -1422,7 +1422,7 @@ export default function ChatDrawer({
                                   strokeLinecap="round"
                                   strokeDasharray={`${2 * Math.PI * 20}`}
                                   strokeDashoffset={`${2 * Math.PI * 20 * (1 - upload.progress / 100)}`}
-                                  className="transition-all duration-300"
+                                  className="transition-motion duration-normal"
                                 />
                               </svg>
                               <span className="absolute text-white text-micro font-bold">

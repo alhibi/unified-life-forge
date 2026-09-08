@@ -81,7 +81,7 @@ export function ReaderPrefsPopover({
         ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-all"
+        className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
         aria-label={'إعدادات القراءة'}
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -162,7 +162,7 @@ export function ReaderPrefsPopover({
                     active={prefs.theme === t}
                     onClick={() => onChange({ ...prefs, theme: t })}
                     title={themeLabelMap[t]}
-                    className={`h-10 text-micro flex flex-col gap-1 rounded-xl transition-all ${
+                    className={`h-10 text-micro flex flex-col gap-1 rounded-xl transition-motion ${
                       prefs.theme === t
                         ? 'bg-primary/20 text-primary border border-primary/40'
                         : 'bg-accent/40'

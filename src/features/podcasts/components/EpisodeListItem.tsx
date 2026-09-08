@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 // Single-episode row used inside `PodcastDetail`.
 //
 // Modeled on Podium's `PodcastEpisodeListItem.kt`:
@@ -306,11 +307,11 @@ const EpisodeListItem = memo(function EpisodeListItem({
       {isInProgress && (
         <div className="mt-3 -mx-1 h-1 rounded-full bg-muted/40 overflow-hidden">
           <div
-            className="h-full rounded-full transition-[width] duration-300"
+            className="h-full rounded-full progress-fill duration-normal"
             style={{
-              width: `${progressPct}%`,
+              '--progress': progressPct / 100,
               background: 'var(--podcast-primary, hsl(var(--primary)))',
-            }}
+            } as CSSProperties}
           />
         </div>
       )}

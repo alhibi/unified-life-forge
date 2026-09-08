@@ -72,7 +72,7 @@ export function CitySearchResult({
       tabIndex={highlighted ? 0 : -1}
       className={cn(
         'relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer',
-        'transition-all duration-150 outline-none',
+        'transition-motion duration-fast outline-none',
         highlighted
           ? 'bg-primary/8 ring-1 ring-primary/30 shadow-[0_2px_8px_hsl(var(--primary)/0.10)]'
           : 'hover:bg-foreground/5 focus-visible:bg-foreground/5',

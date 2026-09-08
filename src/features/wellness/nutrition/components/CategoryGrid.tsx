@@ -56,7 +56,7 @@ export default function CategoryGrid({ lang, onSelect }: Props) {
             key={cat}
             variants={item}
             onClick={() => onSelect(cat)}
-            className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-all hover:bg-muted/60 relative overflow-hidden"
+            className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-motion hover:bg-muted/60 relative overflow-hidden"
           >
             <span className="text-display">{info.emoji}</span>
             <span className="text-micro font-medium text-foreground text-center leading-tight line-clamp-2">

@@ -50,7 +50,7 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
                 key={theme.id}
                 type="button"
                 onClick={() => update({ theme: theme.id as any })}
-                className={`flex h-10 items-center justify-center rounded-xl border text-micro font-medium transition-all ${
+                className={`flex h-10 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
                   settings.theme === theme.id
                     ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
                     : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'
@@ -78,7 +78,7 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
                 key={height.id}
                 type="button"
                 onClick={() => update({ keyHeight: height.id as any })}
-                className={`flex h-9 items-center justify-center rounded-xl border text-micro font-medium transition-all ${
+                className={`flex h-9 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
                   settings.keyHeight === height.id
                     ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
                     : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'

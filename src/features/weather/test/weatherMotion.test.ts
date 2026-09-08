@@ -37,12 +37,12 @@ describe('countUpValue', () => {
   it('returns the end value at t=total', () => {
     expect(countUpValue(1000, 0, 100, 1000)).toBeCloseTo(100, 5);
   });
-  it('overshoots never happen — curve is ease-out', () => {
-    // The expo ease-out asymptotes but never overshoots.
+  it('overshoots never happen — curve is ease-enter', () => {
+    // The expo ease-enter asymptotes but never overshoots.
     expect(countUpValue(2000, 0, 100, 1000)).toBeLessThanOrEqual(100);
   });
   it('passes the midpoint roughly at the curve\'s natural inflection', () => {
-    // At t=500ms (midpoint of 1000ms), the quartic ease-out is at 0.9375.
+    // At t=500ms (midpoint of 1000ms), the quartic ease-enter is at 0.9375.
     // So countUpValue should be 0 + (100-0) * 0.9375 ≈ 93.75.
     const mid = countUpValue(500, 0, 100, 1000);
     expect(mid).toBeGreaterThan(85);

@@ -139,7 +139,7 @@ export function ProfileInsightsPanel({
                 duration: 0.45,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className={`group relative p-5 rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/10 ${style.bg} ${style.border}`}
+              className={`group relative p-5 rounded-2xl border transition-motion duration-normal hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/10 ${style.bg} ${style.border}`}
               onClick={() => insight.actionable && onActionClick?.(insight.actionTab || 'overview')}
               style={{ cursor: insight.actionable && onActionClick ? 'pointer' : 'default' }}
             >
@@ -175,7 +175,7 @@ export function ProfileInsightsPanel({
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeDasharray={`${insight.confidence * 100} 100`}
-                        className="text-violet-300 transition-all duration-700 ease-out"
+                        className="text-violet-300 transition-motion duration-slow ease-enter"
                         style={{ filter: 'drop-shadow(0 0 6px rgba(139,92,246,0.4))' }}
                       />
                     </svg>
@@ -193,7 +193,7 @@ export function ProfileInsightsPanel({
                       {insight.titleAr}
                     </h4>
                     {insight.actionable && onActionClick && (
-                      <span className="flex items-center gap-1 text-[0.625rem] font-extrabold text-violet-300/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0 whitespace-nowrap">
+                      <span className="flex items-center gap-1 text-[0.625rem] font-extrabold text-violet-300/70 opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
                         <ArrowRight className="w-3 h-3 rotate-180" />
                         عرض
                       </span>

@@ -22,7 +22,7 @@ export type MotifKey =
   | 'ticker';
 
 const SVG = 'absolute inset-0 w-full h-full';
-const EASE = 'transition-all duration-normal ease-enter motion-reduce:transition-none';
+const EASE = 'transition-motion duration-normal ease-enter motion-reduce:transition-none';
 
 export const Motif = memo(function Motif({ motif }: { motif: MotifKey }) {
   switch (motif) {

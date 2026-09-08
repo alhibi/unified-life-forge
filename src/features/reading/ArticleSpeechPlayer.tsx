@@ -179,7 +179,7 @@ export function ArticleSpeechPlayer({
           <button
             type="button"
             onClick={handlePlayPause}
-            className={`p-2 rounded-xl transition-all active:scale-95 ${
+            className={`p-2 rounded-xl transition-motion active:scale-95 ${
               isPlaying && !isPaused
                 ? 'bg-primary/20 text-primary'
                 : 'bg-primary text-primary-foreground hover:opacity-90'
@@ -193,7 +193,7 @@ export function ArticleSpeechPlayer({
             <button
               type="button"
               onClick={handleStop}
-              className="p-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-all active:scale-95"
+              className="p-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-motion active:scale-95"
               title={'إيقاف كامل'}
             >
               <RotateCcw className="h-4 w-4" />

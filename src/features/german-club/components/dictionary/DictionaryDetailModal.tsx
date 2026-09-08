@@ -304,7 +304,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                       const target = GERMAN_DICTIONARY_DATA.find((e) => e.id === w.id);
                       if (target) setSelectedEntry(target);
                     }}
-                    className="text-start p-2.5 rounded-xl bg-white border border-stone-200/60 hover:bg-stone-50 hover:border-stone-300 transition-all group"
+                    className="text-start p-2.5 rounded-xl bg-white border border-stone-200/60 hover:bg-stone-50 hover:border-stone-300 transition-motion group"
                   >
                     <p
                       dir="ltr"

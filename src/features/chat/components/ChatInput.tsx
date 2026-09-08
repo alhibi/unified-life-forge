@@ -879,7 +879,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </button>
 
             {/* Text input — iOS-style pill with the emoji button tucked inside. */}
-            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-3xl overflow-visible transition-all duration-200 focus-within:border-primary/25 focus-within:bg-muted/5 ">
+            <div className="flex-1 relative flex items-end bg-muted/15 border border-border/15 rounded-3xl overflow-visible transition-motion duration-fast focus-within:border-primary/25 focus-within:bg-muted/5 ">
               <CharacterCounter count={newMessage.length} />
 
               {/* Emoji toggle — sits inside the pill on the start edge,

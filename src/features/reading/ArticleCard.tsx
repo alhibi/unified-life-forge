@@ -247,7 +247,7 @@ export function ArticleCard({
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.25 }}
-            className={`relative w-full text-start rounded-2xl bg-card overflow-hidden transition-all duration-300 border ${
+            className={`relative w-full text-start rounded-2xl bg-card overflow-hidden transition-motion duration-normal border ${
               isRead
                 ? 'opacity-70 border-border/40 hover:bg-accent/5'
                 : 'border-primary/20 bg-card hover:bg-accent/5 hover:border-primary/30'
@@ -258,7 +258,7 @@ export function ArticleCard({
                 <img
                   src={article.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-[1.04]"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-slow hover:scale-[1.04]"
                   loading="lazy"
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                 />
@@ -363,7 +363,7 @@ export function ArticleCard({
           <button
             type="button"
             onClick={handleClick}
-            className={`w-full text-start px-4 py-4 transition-all duration-300 flex gap-4 ${
+            className={`w-full text-start px-4 py-4 transition-motion duration-normal flex gap-4 ${
               isRead
                 ? 'hover:bg-accent/10 active:bg-accent/15'
                 : 'bg-primary/[0.03] hover:bg-primary/[0.06] active:bg-primary/[0.1]'
@@ -423,7 +423,7 @@ export function ArticleCard({
                 <img
                   src={article.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-slow group-hover:scale-[1.06]"
                   loading="lazy"
                   onError={(e) => {
                     const wrap = (e.currentTarget as HTMLImageElement).parentElement;
@@ -436,7 +436,7 @@ export function ArticleCard({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
-            className="absolute top-3.5 end-3.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent/50 transition-all"
+            className="absolute top-3.5 end-3.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent/50 transition-motion"
             aria-label={
               isBookmarked
                 ? ('إلغاء الحفظ')
@@ -546,7 +546,7 @@ export function HeroArticleCard({
           <img
             src={article.image}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-slow group-hover:scale-[1.03]"
             loading="lazy"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = 'none';

@@ -37,7 +37,7 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
   return (
     <div
       onClick={() => onSelect(entry)}
-      className="p-4 sm:p-5 rounded-2xl border border-stone-300/80 bg-stone-100/70 hover:bg-white hover:shadow-md transition-all cursor-pointer space-y-3 group"
+      className="p-4 sm:p-5 rounded-2xl border border-stone-300/80 bg-stone-100/70 hover:bg-white hover:shadow-md transition-motion cursor-pointer space-y-3 group"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">

@@ -200,7 +200,7 @@ export default function RadarMap({
         <div className="flex bg-background/50 border border-border/40 p-0.5 rounded-lg">
           <button
             onClick={() => setActiveLayer('particles')}
-            className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-all ${
+            className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
               activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
@@ -208,7 +208,7 @@ export default function RadarMap({
           </button>
           <button
             onClick={() => setActiveLayer('radar')}
-            className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-all ${
+            className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
               activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
             }`}
           >

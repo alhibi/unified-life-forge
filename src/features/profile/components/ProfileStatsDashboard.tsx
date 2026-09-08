@@ -100,7 +100,7 @@ export function ProfileStatsDashboard({ summary, unifiedStreakDays = 0, classNam
                   duration: 0.45,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="group relative rounded-2xl p-4 bg-gradient-to-b from-white/[0.03] to-transparent border border-white/[0.06] hover:border-white/[0.12] hover:-translate-y-0.5 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-xl"
+                className="group relative rounded-2xl p-4 bg-gradient-to-b from-white/[0.03] to-transparent border border-white/[0.06] hover:border-white/[0.12] hover:-translate-y-0.5 transition-motion duration-normal shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-xl"
               >
                 <div className="flex items-start justify-between mb-3">
                   <Icon className={`w-5 h-5 ${stat.colorClass} opacity-80`} />

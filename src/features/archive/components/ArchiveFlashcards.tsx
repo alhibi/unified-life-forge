@@ -142,7 +142,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 cx="40"
                 cy="40"
                 r="34"
-                className="stroke-primary fill-none transition-all duration-1000"
+                className="stroke-primary fill-none transition-motion duration-slow"
                 strokeWidth="4"
                 strokeDasharray={2 * Math.PI * 34}
                 strokeDashoffset={2 * Math.PI * 34 * (1 - stats.scorePct / 100)}
@@ -181,7 +181,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
         <div className="space-y-4">
           <div className="relative h-[220px] md:h-[260px] w-full perspective-[1000px]">
             <motion.div
-              className="relative w-full h-full duration-500 preserve-3d cursor-pointer"
+              className="relative w-full h-full duration-slow preserve-3d cursor-pointer"
               animate={{ rotateY: isFlipped ? 180 : 0 }}
               onClick={() => setIsFlipped(!isFlipped)}
             >

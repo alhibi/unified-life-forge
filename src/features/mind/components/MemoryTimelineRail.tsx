@@ -58,7 +58,9 @@ export default function MemoryTimelineRail({
   return (
     <div
       className={cn(
-        'shrink-0 h-full transition-[width] duration-300 ease-out',
+        // Width is a layout property: it is set, never transitioned. The rail
+        // snaps between its two sizes and the content inside fades.
+        'shrink-0 h-full',
         expanded ? 'w-[260px]' : 'w-[88px]',
       )}
     >

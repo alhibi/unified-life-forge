@@ -269,7 +269,7 @@ export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
                       <button
                         key={frame.id}
                         onClick={() => setSelectedFrame(frame.id)}
-                        className={`p-2.5 rounded-xl text-micro font-semibold transition-all ${
+                        className={`p-2.5 rounded-xl text-micro font-semibold transition-motion ${
                           selectedFrame === frame.id
                             ? 'bg-primary/10 ring-2 ring-primary text-primary'
                             : 'bg-card border border-border/50 text-muted-foreground'
@@ -288,7 +288,7 @@ export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
                       <button
                         key={filter.id}
                         onClick={() => setSelectedFilter(filter.id)}
-                        className={`p-2.5 rounded-xl text-micro font-semibold transition-all ${
+                        className={`p-2.5 rounded-xl text-micro font-semibold transition-motion ${
                           selectedFilter === filter.id
                             ? 'bg-primary/10 ring-2 ring-primary text-primary'
                             : 'bg-card border border-border/50 text-muted-foreground'

@@ -445,7 +445,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                 setSelectedDay(null);
               }}
               aria-pressed={selectedYear === undefined}
-              className={`px-3 py-1 rounded-lg text-micro font-semibold transition-all ${
+              className={`px-3 py-1 rounded-lg text-micro font-semibold transition-motion ${
                 selectedYear === undefined
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
@@ -461,7 +461,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                   setSelectedDay(null);
                 }}
                 aria-pressed={selectedYear === year}
-                className={`px-3 py-1 rounded-lg text-micro font-semibold tabular-nums transition-all ${
+                className={`px-3 py-1 rounded-lg text-micro font-semibold tabular-nums transition-motion ${
                   selectedYear === year
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -487,7 +487,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                   setSelectedDay(null);
                 }}
                 aria-pressed={isSelected}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-all shrink-0 ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-motion shrink-0 ${
                   isSelected
                     ? palette.pillActive
                     : 'bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
@@ -587,7 +587,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                           type="button"
                           onClick={() => setSelectedDay(isSelected ? null : day)}
                           style={{ width: CELL_PX, height: CELL_PX }}
-                          className={`rounded-[4px] transition-all duration-150 hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
+                          className={`rounded-[4px] transition-motion duration-fast hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
                           )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
                           title={`${day.dateFormattedAr} — ${day.count} نشاط`}

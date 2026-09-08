@@ -208,7 +208,7 @@ export default function MealTracker() {
       {/* Add button */}
       <button
         onClick={() => setShowAddForm(true)}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary active:scale-98 transition-all"
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary active:scale-98 transition-motion"
       >
         <Plus className="w-4 h-4" />
         <span className="text-meta font-medium">{T.addMeal[lang]}</span>
@@ -296,7 +296,7 @@ function AddMealForm({
                   <button
                     key={food.id}
                     onClick={() => handleSelectFood(food)}
-                    className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 active:scale-98 transition-all text-start"
+                    className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 active:scale-98 transition-motion text-start"
                   >
                     <span className="text-lead">{food.emoji}</span>
                     <div className="flex-1 min-w-0">
@@ -329,7 +329,7 @@ function AddMealForm({
                   <button
                     key={type}
                     onClick={() => setMealType(type)}
-                    className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-micro font-medium transition-all ${
+                    className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-micro font-medium transition-motion ${
                       mealType === type
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted/50 text-foreground/70'
@@ -348,7 +348,7 @@ function AddMealForm({
                   <button
                     key={i}
                     onClick={() => setServingIdx(i)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-micro transition-all ${
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-micro transition-motion ${
                       servingIdx === i ? 'bg-primary/10 border border-primary/30' : 'bg-muted/30'
                     }`}
                   >

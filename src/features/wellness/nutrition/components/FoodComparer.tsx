@@ -404,7 +404,7 @@ function MacroRow({
               </span>
               <div className="h-1 rounded-full bg-muted/40 overflow-hidden">
                 <div
-                  className="h-full rounded-full transition-all duration-300"
+                  className="h-full rounded-full transition-motion duration-normal"
                   style={{ width: `${pct}%`, backgroundColor: color }}
                 />
               </div>
@@ -457,7 +457,7 @@ function MicroRow({
               {val > 0 && (
                 <div className="h-1 rounded-full bg-muted/40 overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-300"
+                    className="h-full rounded-full transition-motion duration-normal"
                     style={{ width: `${pct}%`, backgroundColor: color }}
                   />
                 </div>

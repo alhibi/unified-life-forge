@@ -66,7 +66,7 @@ export function ForecastTab({ hourly, daily, iconFor, locale }: ForecastTabProps
               aria-selected={active}
               onClick={() => setSub(t.id)}
               className={cn(
-                'relative z-10 px-2 py-2 rounded-xl text-mini font-bold transition-colors duration-200 active:scale-[0.97]',
+                'relative z-10 px-2 py-2 rounded-xl text-mini font-bold transition-colors duration-fast active:scale-[0.97]',
                 active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >

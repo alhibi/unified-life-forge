@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useReducedMotion } from 'framer-motion';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -40,8 +41,8 @@ function VitalityBar({
       </span>
       <div className="h-[3px] w-24 overflow-hidden rounded-full bg-white/10">
         <div
-          className="h-full rounded-full transition-[width] duration-700 ease-out"
-          style={{ width: `${Math.round(value * 100)}%`, background: color, boxShadow: `0 0 8px ${color}` }}
+          className="h-full rounded-full progress-fill duration-slow"
+          style={{ '--progress': Math.min(1, Math.max(0, value)), background: color, boxShadow: `0 0 8px ${color}` } as CSSProperties}
         />
       </div>
       <span

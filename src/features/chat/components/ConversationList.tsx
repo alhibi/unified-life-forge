@@ -275,7 +275,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 key={tab.id}
                 onClick={() => onFilterChange(tab.id)}
                 className={cn(
-                  'h-8 px-3.5 rounded-full text-mini font-medium whitespace-nowrap flex items-center gap-1.5 transition-all',
+                  'h-8 px-3.5 rounded-full text-mini font-medium whitespace-nowrap flex items-center gap-1.5 transition-motion',
                   active
                     ? 'bg-primary text-primary-foreground '
                     : 'bg-muted/30 text-muted-foreground active:bg-muted/50'

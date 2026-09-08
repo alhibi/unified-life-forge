@@ -103,7 +103,7 @@ export function ArticleTranslator({
               type="button"
               onClick={handleTranslate}
               disabled={translating}
-              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 active:scale-95 transition-all inline-flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 active:scale-95 transition-motion inline-flex items-center gap-1.5"
             >
               {translating ? (
                 <>
@@ -122,7 +122,7 @@ export function ArticleTranslator({
           <button
             type="button"
             onClick={handleReset}
-            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-mini font-bold active:scale-95 transition-all"
+            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-mini font-bold active:scale-95 transition-motion"
           >
             {'عرض النص الأصلي'}
           </button>

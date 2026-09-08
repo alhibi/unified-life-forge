@@ -300,7 +300,7 @@ function FitnessPageInner({
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 transition-all active-tactile ${
+              className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 transition-motion active-tactile ${
                 active ? 'text-white' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -378,7 +378,7 @@ function FitnessPageInner({
                     {/* Progress visual water cylinder */}
                     <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
                       <div
-                        className="h-full bg-blue-500 transition-all duration-300"
+                        className="h-full bg-blue-500 transition-motion duration-normal"
                         style={{
                           width: `${Math.min(100, ((store.waterLogs[new Date().toISOString().split('T')[0]] || 0) / store.dailyWaterTargetMl) * 100)}%`
                         }}
@@ -667,7 +667,7 @@ function FitnessPageInner({
                       <button
                         key={dayKey}
                         onClick={() => setSelectedDay(dayKey)}
-                        className={`flex-1 min-w-[50px] py-3 rounded-xl flex flex-col items-center border transition-all active-tactile ${
+                        className={`flex-1 min-w-[50px] py-3 rounded-xl flex flex-col items-center border transition-motion active-tactile ${
                           selectedDay === dayKey
                             ? 'bg-[hsl(100,40%,45%)] text-white border-primary/20'
                             : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
@@ -780,7 +780,7 @@ function FitnessPageInner({
                                             // Trigger rest timer only if checking off completed
                                             if (!set.completed) startRestTimer(60);
                                           }}
-                                          className={`w-6 h-6 rounded flex items-center justify-center border transition-all active-tactile ${
+                                          className={`w-6 h-6 rounded flex items-center justify-center border transition-motion active-tactile ${
                                             set.completed
                                               ? 'bg-emerald-500 border-emerald-500 text-white'
                                               : 'bg-card border-border/60 text-transparent hover:border-primary'
@@ -909,7 +909,7 @@ function FitnessPageInner({
                     <button
                       key={group}
                       onClick={() => setLibraryFilter(group)}
-                      className={`shrink-0 px-3 py-1.5 rounded-full text-mini font-semibold border transition-all active-tactile ${
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-mini font-semibold border transition-motion active-tactile ${
                         libraryFilter === group
                           ? 'bg-primary border-primary text-white'
                           : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
@@ -936,7 +936,7 @@ function FitnessPageInner({
               {/* Exercises List */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredExercises.map((ex) => (
-                  <AppCard key={ex.key} className="p-4 flex flex-col justify-between hover:border-primary/30 transition-all">
+                  <AppCard key={ex.key} className="p-4 flex flex-col justify-between hover:border-primary/30 transition-motion">
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="px-2 py-0.5 rounded-full bg-[hsl(100,40%,45%)]/10 text-[hsl(100,40%,45%)] text-micro font-bold">
@@ -1209,7 +1209,7 @@ function FitnessPageInner({
                       });
 
                       return (
-                        <AppCard key={act.id} className="p-4 space-y-4 hover:border-primary/20 transition-all">
+                        <AppCard key={act.id} className="p-4 space-y-4 hover:border-primary/20 transition-motion">
                           {/* Card Header metadata */}
                           <div className="flex justify-between items-start gap-3">
                             <div>

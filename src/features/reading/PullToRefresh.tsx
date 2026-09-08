@@ -212,7 +212,7 @@ export function PullToRefresh({
         }}
       >
         <div
-          className={`rounded-full border p-2.5 transition-all duration-200 ${
+          className={`rounded-full border p-2.5 transition-motion duration-fast ${
  crossed
  ? 'bg-primary/10 border-primary/30 scale-110'
  : 'bg-card border-border/50'

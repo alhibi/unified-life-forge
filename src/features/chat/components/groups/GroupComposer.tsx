@@ -157,7 +157,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
           }}
           disabled={!canSend}
           className={cn(
-            'h-10 w-10 rounded-full flex items-center justify-center transition-all shrink-0',
+            'h-10 w-10 rounded-full flex items-center justify-center transition-motion shrink-0',
             'active:scale-90',
             canSend
               ? 'bg-primary text-primary-foreground '

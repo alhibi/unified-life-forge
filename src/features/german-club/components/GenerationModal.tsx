@@ -425,9 +425,9 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
   const isJobActive = job && (job.status === 'queued' || job.status === 'running');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs transition-motion">
       <div
-        className="w-full max-w-2xl rounded-3xl border border-stone-300 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all relative"
+        className="w-full max-w-2xl rounded-3xl border border-stone-300 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-motion relative"
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Panel Header */}
@@ -467,7 +467,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
             <button
               type="button"
               onClick={() => setStep('model_selection')}
-              className={`flex items-center gap-2 font-bold transition-all ${
+              className={`flex items-center gap-2 font-bold transition-motion ${
                 step === 'model_selection' ? 'text-[#C9703B]' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
@@ -485,7 +485,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               type="button"
               disabled={!selectedModel}
               onClick={() => selectedModel && setStep('generation_options')}
-              className={`flex items-center gap-2 font-bold transition-all ${
+              className={`flex items-center gap-2 font-bold transition-motion ${
                 step === 'generation_options' ? 'text-[#C9703B]' : 'text-stone-500 hover:text-stone-800'
               } ${!selectedModel ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -531,7 +531,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     key={v.id}
                     type="button"
                     onClick={() => setVendorFilter(v.id)}
-                    className={`px-3 py-1 rounded-full font-bold transition-all border shrink-0 ${
+                    className={`px-3 py-1 rounded-full font-bold transition-motion border shrink-0 ${
                       vendorFilter === v.id
                         ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
                         : 'bg-white/80 text-stone-700 border-stone-300 hover:bg-stone-200'
@@ -577,7 +577,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                           key={m.id}
                           type="button"
                           onClick={() => setSelectedModel(m)}
-                          className={`w-full text-start p-3 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${
+                          className={`w-full text-start p-3 rounded-2xl border transition-motion flex items-center justify-between cursor-pointer ${
                             isSelected
                               ? 'bg-[#C9703B]/10 border-[#C9703B] ring-2 ring-[#C9703B]/30 shadow-xs'
                               : 'bg-white border-stone-200 hover:border-stone-400'
@@ -667,7 +667,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setMode('model_capacity')}
-                    className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer relative ${
+                    className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
                       mode === 'model_capacity'
                         ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
                         : 'bg-white text-stone-800 border-stone-300 hover:border-stone-400'
@@ -686,7 +686,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setMode('fixed_count')}
-                    className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer relative ${
+                    className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
                       mode === 'fixed_count'
                         ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
                         : 'bg-white text-stone-800 border-stone-300 hover:border-stone-400'
@@ -752,7 +752,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       key={s.id}
                       type="button"
                       onClick={() => setStrictness(s.id as StrictnessLevel)}
-                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-xl border text-center transition-motion cursor-pointer ${
                         strictness === s.id
                           ? 'bg-[#C9703B] text-white border-[#C9703B] font-bold shadow-xs'
                           : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-100'
@@ -783,7 +783,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         key={reg}
                         type="button"
                         onClick={() => toggleRegister(reg)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-motion border cursor-pointer ${
                           isSelected
                             ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
                             : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-200'
@@ -826,7 +826,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   type="button"
                   disabled={isStartingJob}
                   onClick={handleStartGeneration}
-                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#C9703B] to-[#b05f2e] text-white font-black text-sm hover:from-[#b05f2e] hover:to-[#964f24] transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#C9703B] to-[#b05f2e] text-white font-black text-sm hover:from-[#b05f2e] hover:to-[#964f24] transition-motion shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isStartingJob ? (
                     <>

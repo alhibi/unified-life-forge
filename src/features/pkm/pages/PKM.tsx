@@ -238,7 +238,7 @@ export default function PKM() {
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={cn(
-                  'relative h-9 px-4 rounded-full text-mini font-semibold border transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[\'\']',
+                  'relative h-9 px-4 rounded-full text-mini font-semibold border transition-motion focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[\'\']',
                   statusFilter === s
                     ? 'bg-primary/15 border-primary/40 text-primary'
                     : 'bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border/80',
@@ -619,7 +619,7 @@ function Editor({
   }, [body]);
 
   const toolbarBtn =
-    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-mini font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-all flex items-center justify-center';
+    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-mini font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-motion flex items-center justify-center';
 
   return (
     <AppCard className="flex flex-col gap-3 min-h-[60vh]">

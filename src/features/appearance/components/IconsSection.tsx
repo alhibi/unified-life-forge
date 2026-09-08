@@ -102,7 +102,7 @@ export default function IconsSection() {
                 type="button"
                 onClick={() => handlePick(preset.id)}
                 aria-pressed={isActive}
-                className={`app-card app-card-compact app-card-pressable flex flex-col gap-3 text-start transition-all ${
+                className={`app-card app-card-compact app-card-pressable flex flex-col gap-3 text-start transition-motion ${
                   isActive ? 'border-primary/60 ring-1 ring-primary/40' : ''
                 }`}
               >

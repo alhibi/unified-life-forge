@@ -73,15 +73,15 @@ export default function AdvancedAnalytics({ lang }: Props) {
         </h4>
         <div className="h-4 rounded-full overflow-hidden flex bg-muted/30">
           <div
-            className="h-full bg-red-500 transition-all duration-500"
+            className="h-full bg-red-500 transition-motion duration-slow"
             style={{ width: `${pPct || 33}%` }}
           />
           <div
-            className="h-full bg-yellow-500 transition-all duration-500"
+            className="h-full bg-yellow-500 transition-motion duration-slow"
             style={{ width: `${cPct || 33}%` }}
           />
           <div
-            className="h-full bg-cyan-500 transition-all duration-500"
+            className="h-full bg-cyan-500 transition-motion duration-slow"
             style={{ width: `${fPct || 34}%` }}
           />
         </div>

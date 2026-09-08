@@ -299,7 +299,7 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
           }}
           onKeyDown={handleKeyDown}
           placeholder={'ابحث عن مدينة، حي، أو موقع…'}
-          className="relative w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-meta outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all shadow-sm"
+          className="relative w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-meta outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-motion shadow-sm"
         />
         {query && (
           <button

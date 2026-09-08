@@ -101,7 +101,7 @@ export default function ArticlesTab() {
           key={c.key}
           variants={item}
           onClick={() => navigate('/reading')}
-          className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-all duration-150 text-start"
+          className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border hover:border-primary/30 active:scale-[0.98] transition-motion duration-fast text-start"
         >
           <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
             <c.icon className="w-[18px] h-[18px] text-foreground" />

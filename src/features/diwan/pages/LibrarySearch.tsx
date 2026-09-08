@@ -338,7 +338,7 @@ function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-mini font-semibold transition-all ${
+      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-mini font-semibold transition-motion ${
  active
  ? 'bg-card text-foreground border border-border/30'
  : 'text-muted-foreground hover:text-foreground'

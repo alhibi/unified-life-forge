@@ -86,7 +86,7 @@ export function TabNavigation<T extends string>({
               className={cn(
                 'relative z-10 flex flex-col items-center justify-center gap-0.5',
                 'px-2 py-2.5 rounded-xl',
-                'transition-colors duration-200',
+                'transition-colors duration-fast',
                 'active:scale-[0.97]',
                 active
                   ? 'text-primary-foreground'

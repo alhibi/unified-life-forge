@@ -68,7 +68,7 @@ export const GrammarCorner: React.FC = () => {
               {grammarNotes.map((note) => (
                 <div
                   key={note.id}
-                  className="rounded-2xl border p-6 space-y-3 transition-all"
+                  className="rounded-2xl border p-6 space-y-3 transition-motion"
                   style={{
                     backgroundColor: GERMAN_CLUB_TOKENS.paper,
                     borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
