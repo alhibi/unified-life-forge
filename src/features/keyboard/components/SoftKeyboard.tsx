@@ -70,7 +70,14 @@ export interface SoftKeyboardProps {
   inputTick?: number;
 }
 
-const HOLD_REPEAT_MS = 70;
+/**
+ * Hold-to-repeat starts deliberate and accelerates, the way OS keyboards do:
+ * a held backspace should clear a long paragraph without being twitchy on a
+ * short one.
+ */
+const HOLD_REPEAT_START_MS = 120;
+const HOLD_REPEAT_MIN_MS = 28;
+const HOLD_REPEAT_ACCEL = 0.86;
 /** Slop, in px, a finger may travel on a key before the tap is treated as a drag. */
 const DRAG_SLOP = 12;
 
