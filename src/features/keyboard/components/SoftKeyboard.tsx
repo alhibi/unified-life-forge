@@ -222,7 +222,7 @@ const Key = memo(function Key({
             const variant = variantAt(event.clientX, event.clientY);
             if (variant) {
               if (onPopupSelect) onPopupSelect(variant);
-              if (vibrate) haptics('selection');
+              tapFeedback('modifier', feedback);
             }
           } else if (pressOnRelease && !consumedRef.current) {
             onPress();
@@ -239,13 +239,16 @@ const Key = memo(function Key({
           'relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
           'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-instant',
           'active:scale-[0.93] touch-none',
+          // Relief comes from the palette's own elevation recipe, so a white
+          // key on a light theme is not shadowed with the same black as OLED.
           tone === 'letter' &&
-            'bg-[hsl(var(--kb-key))] text-[hsl(var(--kb-fg))] shadow-[0_1px_2px_rgba(0,0,0,0.14)]',
+            'bg-[hsl(var(--kb-key))] text-[hsl(var(--kb-fg))] shadow-[var(--kb-key-shadow)]',
           tone === 'modifier' &&
-            'bg-[hsl(var(--kb-key-mod))] text-[hsl(var(--kb-fg-muted))] shadow-[0_1px_1px_rgba(0,0,0,0.1)]',
+            'bg-[hsl(var(--kb-key-mod))] text-[hsl(var(--kb-fg-muted))] shadow-[var(--kb-key-shadow-mod)]',
           tone === 'accent' &&
-            'bg-[hsl(var(--kb-accent))] text-[hsl(var(--kb-accent-fg))] font-semibold shadow-[0_2px_4px_rgba(0,0,0,0.2)]',
-          isPressed && 'brightness-[1.18]',
+            'bg-[hsl(var(--kb-accent))] text-[hsl(var(--kb-accent-fg))] font-semibold shadow-[var(--kb-key-shadow)]',
+          isPressed && tone !== 'accent' && 'bg-[hsl(var(--kb-key-press))] shadow-none',
+          isPressed && tone === 'accent' && 'brightness-[1.12] shadow-none',
           keyBorders && 'ring-1 ring-[hsl(var(--kb-edge))]',
           className,
         )}
@@ -601,18 +604,24 @@ export default function SoftKeyboard({
   const keyChrome = useMemo(
     () => ({
       showPopupPreview: settings.showKeyPressPopup,
-      vibrate: settings.vibrateOnKeyPress,
-      soundOnClick: settings.soundOnClick || settings.soundEnabled,
-      soundVolume: settings.soundVolume,
+      feedback: {
+        enabled: settings.vibrateOnKeyPress,
+        intensity: settings.hapticIntensity,
+        soundEnabled: settings.soundOnClick || settings.soundEnabled,
+        soundVolume: settings.soundVolume,
+        soundTone: settings.soundTone,
+      } satisfies TapFeedbackOptions,
       keyBorders: settings.keyBorders,
       holdDelayMs: settings.holdDelayMs,
     }),
     [
       settings.showKeyPressPopup,
       settings.vibrateOnKeyPress,
+      settings.hapticIntensity,
       settings.soundOnClick,
       settings.soundEnabled,
       settings.soundVolume,
+      settings.soundTone,
       settings.keyBorders,
       settings.holdDelayMs,
     ],
@@ -697,7 +706,7 @@ export default function SoftKeyboard({
           setTypedBuffer('');
           setLastCorrection(null);
           updateSuggestions('', isSensitive);
-          if (settings.vibrateOnKeyPress) haptics('selection');
+          if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
         }}
         onForgetSuggestion={(word) => {
           forgetLearnedWord(word);
@@ -790,7 +799,7 @@ export default function SoftKeyboard({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onInsert(sym.ch);
-                  if (settings.vibrateOnKeyPress) haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
                 }}
                 className="flex h-9 items-center justify-center rounded-xl border border-white/5 bg-[hsl(var(--surface-2))] px-2 text-mini font-medium text-foreground transition-motion active:scale-95 hover:bg-[hsl(var(--live))]/20"
               >
@@ -812,7 +821,7 @@ export default function SoftKeyboard({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onInsert(ch);
-                  if (settings.vibrateOnKeyPress) haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
                 }}
                 className="h-8 min-w-8 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:scale-90 active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
               >
@@ -828,7 +837,7 @@ export default function SoftKeyboard({
               onPointerDown={(e) => {
                 e.preventDefault();
                 onMoveCaret(caretDelta(layout, 'right'));
-                if (settings.vibrateOnKeyPress) haptics('selection');
+                if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
               }}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
@@ -841,7 +850,7 @@ export default function SoftKeyboard({
               onPointerDown={(e) => {
                 e.preventDefault();
                 onMoveCaret(caretDelta(layout, 'left'));
-                if (settings.vibrateOnKeyPress) haptics('selection');
+                if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
               }}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
@@ -1019,7 +1028,7 @@ export default function SoftKeyboard({
                   // Dragging right moves caret visually right, dragging left moves caret visually left
                   onMoveCaret(caretDelta(layout, diff > 0 ? 'right' : 'left'));
                   spaceDragRef.current = { startX: e.clientX, moved: true };
-                  if (settings.vibrateOnKeyPress) haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
                 }
               }}
               onPointerUp={() => {
@@ -1047,7 +1056,7 @@ export default function SoftKeyboard({
                   // Long-press spacebar triggers 3-way language cycle (ar -> en -> de -> ar)
                   const nextLayout = layout === 'ar' ? 'en' : layout === 'en' ? 'de' : 'ar';
                   switchLayout(nextLayout);
-                  if (settings.vibrateOnKeyPress) haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
                 }}
                 className="w-full"
               >
