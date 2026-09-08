@@ -1,8 +1,15 @@
+import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/ui/app-shell";
+import {
+  SignatureAnnouncement,
+  SignatureBloom,
+  useSignatureMoment,
+} from "@/components/ui/signature-moment";
+import { MOTION } from "@/lib/motion";
 import { ArrowLeft, Bookmark, BookmarkCheck, BookOpen, Hash, History, Layers, Search,Sparkles } from '@/lib/icons';
 
 import { MetreScansionVisualizer } from "../components/bayan/MetreScansionVisualizer";
@@ -25,6 +32,16 @@ export default function BayanDashboard() {
 
   const [activeTab, setActiveTab] = useState<"syntax" | "morphology" | "rhetoric" | "prosody">("syntax");
 
+  /**
+   * A finished analysis is the app's second signature moment: the user waited
+   * for it, and it is the payoff of the whole screen. Nothing else in Diwan
+   * gets a flourish.
+   */
+  const revealed = useSignatureMoment({
+    kind: "reveal",
+    announce: "اكتمل التحليل — النتيجة جاهزة",
+  });
+
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) {
@@ -33,6 +50,7 @@ export default function BayanDashboard() {
     }
     const res = await analyzeText(inputText);
     if (res) {
+      revealed.fire();
       toast.success("اكتمل التحليل البلاغي والإعرابي بنجاح!");
       if (res.prosody) {
         setActiveTab("prosody");
@@ -141,7 +159,9 @@ export default function BayanDashboard() {
                   />
                 </div>
 
-                <button
+                <span className="relative block">
+                  <SignatureBloom active={revealed.active} className="rounded-lg" />
+                  <button
                   type="submit"
                   disabled={loading}
                   className="w-full py-3 px-4 rounded-lg bg-live text-white font-bold text-meta transition-motion shadow-md active-tactile disabled:opacity-50 hover:bg-live/90 flex items-center justify-center gap-2"
@@ -152,7 +172,9 @@ export default function BayanDashboard() {
                     <Sparkles className="w-4 h-4" />
                   )}
                   <span>ابدأ التحليل اللغوي</span>
-                </button>
+                  </button>
+                </span>
+                <SignatureAnnouncement text={revealed.announcement} />
               </form>
             </div>
 
@@ -198,7 +220,16 @@ export default function BayanDashboard() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
+              /* The result *arrives* — so it uses the SETTLE curve: a 6px rise
+                 and a fade, transform+opacity only, keyed on the analysis id so
+                 each new result lands rather than swapping in place. */
+              <motion.div
+                key={activeAnalysis.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={MOTION.settle}
+                className="space-y-6"
+              >
 
                 {/* Visual Tab Selectors */}
                 <div className="flex border-b border-border/50 pb-px gap-1 overflow-x-auto scrollbar-none">
