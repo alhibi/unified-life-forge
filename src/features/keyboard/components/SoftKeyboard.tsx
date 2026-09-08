@@ -293,6 +293,10 @@ export default function SoftKeyboard({
   const [shift, setShift] = useState(false);
   const [caps, setCaps] = useState(false);
 
+  // Park the synthesized-click audio graph when the keyboard closes: leaving
+  // the context running kept the audio hardware awake for the whole session.
+  useEffect(() => () => releaseKeyboardAudio(), []);
+
   // Sync auto-capitalization on English layout
   useEffect(() => {
     if (layout === 'en' && settings.autoCapitalization && shouldAutoCap && !caps) {
@@ -1043,6 +1047,7 @@ export default function SoftKeyboard({
                 label=""
                 ariaLabel="مسافة"
                 {...keyChrome}
+                feedbackKind="space"
                 showPopupPreview={false}
                 // Space commits on release so sliding it as a caret trackpad
                 // never leaves a stray space behind.
