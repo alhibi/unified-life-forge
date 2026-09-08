@@ -10,7 +10,6 @@
  * reads as fourteen distinct places rather than one repeated card.
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
 import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
