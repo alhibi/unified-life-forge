@@ -77,17 +77,11 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
             <span>المظهر والسمة (Theme)</span>
           </label>
           <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'gboard-dark', label: 'داكن Gboard' },
-              { id: 'gboard-light', label: 'فاتح Gboard' },
-              { id: 'oled', label: 'أسود OLED' },
-              { id: 'luxury-gold', label: 'ذهبي فاخر' },
-              { id: 'sand', label: 'رملي كلاسيك' },
-            ].map((theme) => (
+            {THEME_OPTIONS.map((theme) => (
               <button
                 key={theme.id}
                 type="button"
-                onClick={() => update({ theme: theme.id as any })}
+                onClick={() => update({ theme: theme.id })}
                 className={`flex h-10 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
                   settings.theme === theme.id
                     ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
