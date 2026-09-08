@@ -50,11 +50,14 @@
 //     named function, easy to reorder, easy to A/B test.
 // ============================================================================
 
+import './weather-theme.css';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import BackButton from '@/components/BackButton';
+import { Button } from '@/components/ui/button';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import {
   Cloud,
@@ -72,6 +75,7 @@ import { Astronomics } from '../components/Astronomics';
 import { AtmosphericInsightsPanel } from '../components/AtmosphericInsightsPanel';
 import CitySearch from '../components/CitySearch';
 import { ConfidenceFloorBanner } from '../components/ConfidenceFloorBanner';
+import { DailyRangeStrip } from '../components/DailyRangeStrip';
 import { EnsembleTrustPanel } from '../components/EnsembleTrustPanel';
 import { ForecastTab } from '../components/ForecastTab';
 import { GaugeTileRefined } from '../components/GaugeTileRefined';
@@ -119,21 +123,37 @@ const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, 
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen grid place-items-center bg-background text-foreground px-6">
-      <div className="text-center space-y-3">
-        <div className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse mx-auto" />
-        <p className="font-semibold text-title text-primary">
-          {'نقرأ الغلاف الجوي ونجمع الأرصاد…'}
-        </p>
+    <div className="weather-theme min-h-screen px-4 py-20" dir="rtl" aria-busy="true">
+      <div className="mx-auto max-w-6xl weather-shell p-5 sm:p-8">
+        <div className="weather-skeleton-line h-8 w-40 rounded-md" />
+        <div className="mt-8 grid gap-5 lg:grid-cols-[1.7fr_0.85fr]">
+          <div className="weather-skeleton-line min-h-[34rem] rounded-md" />
+          <div className="space-y-4">
+            <div className="weather-skeleton-line h-64 rounded-md" />
+            <div className="weather-skeleton-line h-52 rounded-md" />
+          </div>
+        </div>
+        <p className="sr-only">{'نقرأ الغلاف الجوي ونجمع الأرصاد…'}</p>
       </div>
     </div>
   );
 }
 
-function EmptyScreen() {
+function EmptyScreen({ onSelectCity }: { onSelectCity: (lat: number, lng: number, name: string) => void }) {
   return (
-    <div className="min-h-screen grid place-items-center bg-background text-foreground px-6">
-      <p className="text-meta text-muted-foreground">{'تعذر تحميل بيانات الطقس.'}</p>
+    <div className="weather-theme min-h-screen px-4 py-20" dir="rtl">
+      <div className="mx-auto max-w-xl weather-shell p-6 sm:p-8">
+        <p className="text-mini font-semibold weather-copper-text">{'اختر موقعاً للبدء'}</p>
+        <h1 className="weather-display mt-2 text-[2rem] font-semibold leading-tight text-foreground">
+          {'أين تريد قراءة الطقس؟'}
+        </h1>
+        <p className="mt-3 text-body leading-relaxed text-muted-foreground">
+          {'لم نتمكن من تحديد موقعك تلقائياً. ابحث عن مدينتك لعرض الحالة والتوقعات الدقيقة.'}
+        </p>
+        <div className="mt-6">
+          <CitySearch onSelectCity={onSelectCity} userLocation={null} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -168,22 +188,16 @@ function StickyHeader({
             {Math.round(elevation)} m · {lat.toFixed(2)}, {lng.toFixed(2)}
           </p>
         </div>
-        <button
+        <Button
+          variant="outline"
+          size="icon"
           onClick={onRefresh}
           aria-label={'تحديث الطقس'}
-          className="w-11 h-11 rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm flex items-center justify-center active:scale-[0.97] transition-transform hover:bg-card hover:border-border/80"
+          className="border-border/60 bg-card/80 backdrop-blur-sm hover:bg-card hover:border-border/80"
         >
           <RefreshCw className={`w-4 h-4 text-primary ${isRefreshing ? 'animate-spin' : ''}`} />
-        </button>
+        </Button>
       </div>
-    </div>
-  );
-}
-
-function BentoGrid({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      {children}
     </div>
   );
 }
@@ -255,7 +269,7 @@ export default function Weather() {
   };
 
   if (status === 'loading' && !snapshot) return <LoadingScreen />;
-  if (!snapshot) return <EmptyScreen />;
+  if (!snapshot) return <EmptyScreen onSelectCity={handleCitySelect} />;
 
   return (
     <div dir={'rtl'} className="weather-theme min-h-screen pb-page">
@@ -297,16 +311,66 @@ export default function Weather() {
         isRefreshing={isRefreshing}
       />
 
-      <main className="px-4 pt-6">
-        <div className="space-y-6">
-          <CitySearch
-            onSelectCity={handleCitySelect}
-            userLocation={activeLocation ? { lat: activeLocation.lat, lng: activeLocation.lng } : null}
-          />
+      <main className="px-3 pt-4 sm:px-5 sm:pt-6">
+        <div className="mx-auto max-w-6xl space-y-5">
+          <div className="grid items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <CitySearch
+              onSelectCity={handleCitySelect}
+              userLocation={activeLocation ? { lat: activeLocation.lat, lng: activeLocation.lng } : null}
+            />
+            <p className="hidden text-mini text-foreground/45 sm:block" dir="ltr">
+              {Math.round(snapshot.meta.location.elevation_m)} m · {snapshot.meta.location.lat.toFixed(2)}, {snapshot.meta.location.lng.toFixed(2)}
+            </p>
+          </div>
 
           {snapshot && <ConfidenceFloorBanner snapshot={snapshot} />}
 
-          <WeatherHeroRefined snapshot={snapshot} hourly={hourly} />
+          <section className="weather-shell weather-dashboard-grid">
+            <div className="min-w-0">
+              <WeatherHeroRefined
+                snapshot={snapshot}
+                hourly={hourly}
+                locationName={selectedCoords?.name || 'موقعك الحالي'}
+              />
+              <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
+            </div>
+            <aside className="border-t weather-divider bg-background/20 lg:border-s lg:border-t-0">
+              <DailyRangeStrip days={forecast.daily.slice(0, 7)} iconFor={iconForCode} locale={locale} />
+              <div className="grid grid-cols-2 gap-2 border-t weather-divider p-4 sm:p-5">
+                <GaugeTileRefined
+                  label={'مؤشر UV'}
+                  value={snapshot.solar.uv_index.toFixed(1)}
+                  pctValue={snapshot.solar.uv_index / 11}
+                  hint={uvCategoryLabel(snapshot.solar.uv_category)}
+                  icon={<Sun />}
+                />
+                <GaugeTileRefined
+                  label={'الرطوبة'}
+                  value={Math.round(snapshot.moisture.relative_humidity_percent)}
+                  unit="٪"
+                  pctValue={snapshot.moisture.relative_humidity_percent / 100}
+                  hint={'نقطة الندى ' + Math.round(snapshot.temperature.dew_point_c) + '°'}
+                  icon={<Droplets />}
+                />
+                <GaugeTileRefined
+                  label={'الغيوم'}
+                  value={Math.round(snapshot.sky.cloud_cover_total_percent)}
+                  unit="٪"
+                  pctValue={snapshot.sky.cloud_cover_total_percent / 100}
+                  hint={cloudTypeLabel(snapshot.sky.cloud_type)}
+                  icon={<Cloud />}
+                />
+                <GaugeTileRefined
+                  label={'الرؤية'}
+                  value={Math.round(snapshot.sky.visibility_km)}
+                  unit="كم"
+                  pctValue={Math.min(1, snapshot.sky.visibility_km / 20)}
+                  hint={snapshot.sky.visibility_km < 5 ? 'منخفضة' : snapshot.sky.visibility_km < 10 ? 'متوسطة' : 'ممتازة'}
+                  icon={<Eye />}
+                />
+              </div>
+            </aside>
+          </section>
 
           <TabNavigation<TabId>
             tabs={TABS}
@@ -331,60 +395,11 @@ export default function Weather() {
                     <AtmosphericInsightsPanel snapshot={snapshot} />
                   </Section>
 
-                  <Section
-                    eyebrow={'ساعات قادمة'}
-                    title={'خط الزمن القريب'}
-                  >
-                    <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
-                  </Section>
-
                   {(forecast.minutely?.length ?? 0) > 0 && (
                     <Section eyebrow={'الدقائق الستين'} title={'نبض المطر اللحظي'}>
                       <MinutelyRainTimeline entries={forecast.minutely} locale={locale} />
                     </Section>
                   )}
-
-                  <Section eyebrow={'بطلاقات متساوية'} title={'المقاييس الأساسية'}>
-                    <BentoGrid>
-                      <GaugeTileRefined
-                        label={'مؤشر UV'}
-                        value={snapshot.solar.uv_index.toFixed(1)}
-                        pctValue={snapshot.solar.uv_index / 11}
-                        hint={uvCategoryLabel(snapshot.solar.uv_category)}
-                        icon={<Sun />}
-                      />
-                      <GaugeTileRefined
-                        label={'الرطوبة النسبية'}
-                        value={Math.round(snapshot.moisture.relative_humidity_percent)}
-                        unit="٪"
-                        pctValue={snapshot.moisture.relative_humidity_percent / 100}
-                        hint={`رطوبة نوعية ${Math.round(snapshot.moisture.specific_humidity_gkg)} g/kg`}
-                        icon={<Droplets />}
-                      />
-                      <GaugeTileRefined
-                        label={'تغطية الغيوم'}
-                        value={Math.round(snapshot.sky.cloud_cover_total_percent)}
-                        unit="٪"
-                        pctValue={snapshot.sky.cloud_cover_total_percent / 100}
-                        hint={cloudTypeLabel(snapshot.sky.cloud_type)}
-                        icon={<Cloud />}
-                      />
-                      <GaugeTileRefined
-                        label={'مدى الرؤية'}
-                        value={Math.round(snapshot.sky.visibility_km)}
-                        unit="كم"
-                        pctValue={Math.min(1, snapshot.sky.visibility_km / 20)}
-                        hint={
-                          snapshot.sky.visibility_km < 5
-                            ? 'رؤية منخفضة'
-                            : snapshot.sky.visibility_km < 10
-                              ? 'رؤية متوسطة'
-                              : 'رؤية ممتازة'
-                        }
-                        icon={<Eye />}
-                      />
-                    </BentoGrid>
-                  </Section>
 
                   <Section eyebrow={'جودة الهواء'} title={'تركيز الملوثات'}>
                     <AQIGauge

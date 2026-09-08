@@ -22,6 +22,7 @@
 import { motion } from 'framer-motion';
 import { type ReactNode } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import { duration, easing,pillSlideTransition } from '../lib/weather-motion';
@@ -54,8 +55,8 @@ export function TabNavigation<T extends string>({
       aria-label="أقسام لوحة الطقس"
       className={cn(
         'sticky top-16 z-header',
-        'rounded-2xl border border-border/40 surface-depth',
-        'p-1.5 backdrop-blur-md bg-background/85',
+        'rounded-md border border-border/40 surface-depth',
+        'p-1 backdrop-blur-md bg-background/90',
         'shadow-[0_1px_3px_hsl(var(--foreground)/0.04),0_8px_24px_hsl(var(--foreground)/0.03)]',
         className,
       )}
@@ -65,7 +66,7 @@ export function TabNavigation<T extends string>({
         <motion.div
           aria-hidden
           layoutId="weather-tab-pill"
-          className="absolute inset-y-0 rounded-xl bg-primary shadow-[0_4px_14px_hsl(var(--primary)/0.30),0_1px_2px_hsl(var(--primary)/0.20)]"
+          className="absolute inset-y-0 rounded-sm bg-primary shadow-[0_4px_14px_hsl(var(--primary)/0.30),0_1px_2px_hsl(var(--primary)/0.20)]"
           initial={false}
           animate={{
             left: `${(activeIndex * 100) / tabs.length}%`,
@@ -77,15 +78,16 @@ export function TabNavigation<T extends string>({
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
           return (
-            <button
+            <Button
               key={tab.id}
+              variant="ghost"
               role="tab"
               aria-selected={active}
               aria-controls={`tabpanel-${tab.id}`}
               onClick={() => onChange(tab.id as T)}
               className={cn(
                 'relative z-10 flex flex-col items-center justify-center gap-0.5',
-                'px-2 py-2.5 rounded-xl',
+                'h-auto px-2 py-2.5 rounded-sm',
                 'transition-colors duration-fast',
                 'active:scale-[0.97]',
                 active
@@ -114,7 +116,7 @@ export function TabNavigation<T extends string>({
               >
                 {tab.description}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>
