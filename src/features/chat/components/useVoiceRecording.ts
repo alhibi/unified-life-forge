@@ -154,7 +154,11 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
     analyserRef.current = null;
     streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
+    mediaRecorderRef.current = null;
+    startingRef.current = false;
+    pendingStopModeRef.current = null;
   }, []);
+
 
   /**
    * Uploads a recorded blob to chat-files storage and emits the message.
