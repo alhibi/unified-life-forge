@@ -12,13 +12,72 @@
 */
 
 .weather-theme {
+  --weather-ink: 240 7% 5%;
+  --weather-panel: 225 8% 10%;
+  --weather-copper: 34 47% 60%;
+  --weather-sky: 196 32% 66%;
+  --weather-paper: 36 22% 88%;
+  --weather-font-display: "Outfit", var(--font-sans);
+  --weather-font-body: "Figtree", var(--font-sans);
   background:
     radial-gradient(
-      ellipse 80% 50% at 50% 0%,
-      hsl(var(--primary) / 0.08),
-      transparent 60%
+      ellipse 65% 38% at 82% 0%,
+      hsl(var(--weather-sky) / 0.12),
+      transparent 64%
     ),
-    hsl(var(--background));
+    radial-gradient(
+      ellipse 52% 30% at 12% 8%,
+      hsl(var(--weather-copper) / 0.08),
+      transparent 72%
+    ),
+    hsl(var(--weather-ink));
+  color: hsl(var(--weather-paper));
+  font-family: var(--weather-font-body);
+}
+
+.weather-theme .weather-display {
+  font-family: var(--weather-font-display);
+}
+
+.weather-theme .weather-shell {
+  border: 1px solid hsl(var(--weather-paper) / 0.10);
+  border-radius: var(--r-lg);
+  background: linear-gradient(145deg, hsl(var(--weather-panel) / 0.94), hsl(var(--weather-ink) / 0.98));
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+
+.weather-theme .weather-panel {
+  border: 1px solid hsl(var(--weather-paper) / 0.09);
+  border-radius: var(--r-md);
+  background: hsl(var(--weather-panel) / 0.62);
+  box-shadow: inset 0 1px 0 hsl(var(--weather-paper) / 0.025);
+}
+
+.weather-theme .weather-sky-text { color: hsl(var(--weather-sky)); }
+.weather-theme .weather-copper-text { color: hsl(var(--weather-copper)); }
+.weather-theme .weather-divider { border-color: hsl(var(--weather-paper) / 0.09); }
+
+.weather-theme .weather-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .weather-theme .weather-dashboard-grid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(20rem, 0.85fr);
+  }
+}
+
+.weather-theme .weather-skeleton-line {
+  background: linear-gradient(90deg, hsl(var(--weather-paper) / 0.04), hsl(var(--weather-paper) / 0.09), hsl(var(--weather-paper) / 0.04));
+  background-size: 220% 100%;
+  animation: weather-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes weather-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -120% 0; }
 }
 
 /* Hide scrollbars for horizontal ribbons */
@@ -266,4 +325,5 @@
   .weather-theme .tab-pane-active {
     transition: none;
   }
+  .weather-theme .weather-skeleton-line { animation: none; }
 }

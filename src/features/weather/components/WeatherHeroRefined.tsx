@@ -179,9 +179,10 @@ function ConfidenceMeter({ value }: { value: number }) {
 export interface WeatherHeroRefinedProps {
   snapshot: WeatherSnapshot;
   hourly: HourlyEntry[];
+  locationName?: string;
 }
 
-export function WeatherHeroRefined({ snapshot, hourly }: WeatherHeroRefinedProps) {
+export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقعك الحالي' }: WeatherHeroRefinedProps) {
   const currentHour = hourly[0];
   const condition = describeWeatherCode(
     currentHour?.weather_code ?? 0,
@@ -196,10 +197,7 @@ export function WeatherHeroRefined({ snapshot, hourly }: WeatherHeroRefinedProps
 
   return (
     <section
-      className={cn(
-        'relative rounded-3xl border border-border/40 overflow-hidden',
-        'surface-depth isolate',
-      )}
+      className={cn('relative min-h-[30rem] overflow-hidden isolate')}
     >
       <WeatherScene
         code={currentHour?.weather_code ?? 0}
@@ -213,20 +211,34 @@ export function WeatherHeroRefined({ snapshot, hourly }: WeatherHeroRefinedProps
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent z-10"
       />
 
-      <div className="relative z-10 px-6 pt-7 pb-6">
+      <div className="relative z-10 flex min-h-[30rem] flex-col px-5 py-6 sm:px-8 sm:py-8">
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-mini font-semibold text-foreground/55">{'الطقس في'}</p>
+            <h2 className="weather-display mt-1 truncate text-[2rem] font-semibold leading-none text-foreground">
+              {locationName}
+            </h2>
+          </div>
+          <div className="shrink-0 rounded-md border border-foreground/10 bg-background/25 px-3 py-2 text-end backdrop-blur-md">
+            <p className="text-mini text-foreground/55">{'آخر قراءة'}</p>
+            <p className="mt-0.5 text-mini font-semibold text-foreground tabular-nums" dir="ltr">
+              {new Date(snapshot.meta.last_updated_unix).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        </div>
         <HeroEyebrow
           comfort={comfortLabel(snapshot.temperature.thermal_comfort_level)}
           conditionLabel={labelForWeatherCode(currentHour?.weather_code ?? 0)}
         />
 
         {/* PRIMARY tier — temperature + icon */}
-        <div className="grid grid-cols-[1fr_auto] items-end gap-6">
+        <div className="grid grid-cols-[1fr_auto] items-center gap-3 sm:gap-8">
           <PrimaryTemperature celsius={snapshot.temperature.actual_c} />
           <AtmosphericIcon Icon={Icon} isDay={isDay} />
         </div>
 
         {/* SECONDARY tier — apparent, range, spread */}
-        <div className="mt-6 pt-5 border-t border-foreground/10">
+        <div className="mt-auto pt-6 border-t border-foreground/10">
           <p className="text-meta font-medium text-foreground/85 leading-relaxed" dir="ltr">
             <span className="text-foreground/60">{`محسوسة `}</span>
             <span className="font-bold text-foreground tabular-nums">
@@ -251,7 +263,7 @@ export function WeatherHeroRefined({ snapshot, hourly }: WeatherHeroRefinedProps
         </div>
 
         {/* Confidence meter */}
-        <div className="mt-5">
+        <div className="mt-5 max-w-xl">
           <ConfidenceMeter value={conf} />
           {hasSpread && (
             <p
@@ -269,8 +281,8 @@ export function WeatherHeroRefined({ snapshot, hourly }: WeatherHeroRefinedProps
           )}
         </div>
 
-        {/* TERTIARY tier — 3×2 micro-metric grid */}
-        <div className="mt-6 grid grid-cols-3 gap-2.5">
+        {/* TERTIARY tier — compact facts along the bottom edge. */}
+        <div className="mt-6 grid grid-cols-3 gap-2">
           <MetricTile
             label={'ضغط'}
             value={Math.round(snapshot.pressure.msl_hpa).toString()}
@@ -285,22 +297,6 @@ export function WeatherHeroRefined({ snapshot, hourly }: WeatherHeroRefinedProps
             label={'مطر ٦س'}
             value={snapshot.precipitation.accumulation_6h_mm.toFixed(1)}
             unit="mm"
-            align="end"
-          />
-          <MetricTile
-            label={'رطوبة مطلقة'}
-            value={snapshot.moisture.absolute_humidity_gm3.toFixed(1)}
-            unit="g/m³"
-          />
-          <MetricTile
-            label={'مصادر'}
-            value={`${snapshot.meta.sources_responded}/${snapshot.meta.sources_queried}`}
-            align="center"
-          />
-          <MetricTile
-            label={'زمن الجلب'}
-            value={snapshot.meta.fetch_duration_ms.toString()}
-            unit="ms"
             align="end"
           />
         </div>

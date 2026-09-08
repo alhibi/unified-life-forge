@@ -64,8 +64,8 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
   const colWidth = 64; // px per hour column
 
   return (
-    <section className="relative rounded-2xl border border-border/40 surface-depth overflow-hidden">
-      <header className="flex items-end justify-between gap-3 px-5 pt-5 pb-3">
+    <section className="relative overflow-hidden border-t weather-divider bg-background/10">
+      <header className="flex items-end justify-between gap-3 px-5 pt-5 pb-3 sm:px-8">
         <div>
           <h3 className="text-lead font-bold text-foreground leading-tight">
             {'الساعات القادمة'}
@@ -81,7 +81,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
 
       <div
         ref={scrollRef}
-        className="overflow-x-auto no-scrollbar px-5 pb-5"
+        className="overflow-x-auto no-scrollbar px-5 pb-5 sm:px-8"
         dir="ltr"
       >
         <div
@@ -161,7 +161,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ delay: i * 0.022, duration: duration.reveal, ease: easing.expo }}
                   className={cn(
-                    'relative flex flex-col items-center justify-end gap-1.5 pt-2 pb-2 rounded-xl',
+                    'relative flex flex-col items-center justify-end gap-1.5 pt-2 pb-2 rounded-md',
                     'border border-transparent',
                     isNow && 'bg-primary/8 border-primary/30 ring-1 ring-primary/15',
                     isPeak && !isNow && 'bg-foreground/4 border-foreground/15',
