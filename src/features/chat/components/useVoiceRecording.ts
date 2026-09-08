@@ -97,6 +97,14 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
   // for the preview without depending on state-update timing (the
   // analyser keeps emitting after stop() until cleanupRecorder runs).
   const latestBarsRef = useRef<number[]>([]);
+  // A recording start is asynchronous (getUserMedia + MediaRecorder). If the
+  // user lifts their finger before that resolves, the stop request has no
+  // recorder to act on yet. We remember the requested outcome here and apply
+  // it the moment the recorder exists, so a quick tap can never leave the
+  // microphone running forever.
+  const startingRef = useRef(false);
+  const pendingStopModeRef = useRef<'send' | 'cancel' | 'preview' | null>(null);
+
 
   // Keep latest callbacks/ids in refs so the long-lived onstop closure
   // always uses current values (recordings can outlive several re-renders).
@@ -146,7 +154,11 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
     analyserRef.current = null;
     streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
+    mediaRecorderRef.current = null;
+    startingRef.current = false;
+    pendingStopModeRef.current = null;
   }, []);
+
 
   /**
    * Uploads a recorded blob to chat-files storage and emits the message.
@@ -190,6 +202,11 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
   }, []);
 
   const startRecording = useCallback(async () => {
+    // Guard against a double start (pointerdown + a stray synthetic event).
+    if (startingRef.current) return;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') return;
+    startingRef.current = true;
+    pendingStopModeRef.current = null;
     try {
       if (voicePlayer.state.isPlaying) voicePlayer.stop();
 
@@ -197,6 +214,7 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
       // gesture by a ref-swap) need this check.
       if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
         chatError('micUnavailable');
+        startingRef.current = false;
         return;
       }
 
@@ -210,6 +228,17 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
         }
       });
       streamRef.current = stream;
+
+      // The user already let go (or cancelled) while permission was being
+      // resolved: release the microphone instead of recording into the void.
+      if (pendingStopModeRef.current === 'cancel') {
+        pendingStopModeRef.current = null;
+        startingRef.current = false;
+        stream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+        return;
+      }
+
 
       // Spin up the live amplitude analyser BEFORE MediaRecorder.start so
       // the first frame is on screen by the time the user's finger has
@@ -283,9 +312,11 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
         }
       };
 
-      // Larger timeslice = bigger chunks = fewer events on the JS thread =
-      // less risk of dropping audio when the page is doing other work.
-      mediaRecorder.start(1000);
+      // Smaller timeslice than the original 1000 ms: MediaRecorder only
+      // flushes a chunk per slice, and a very short tap-and-release used to
+      // end up with an empty buffer on some Android WebViews. 250 ms keeps
+      // the JS thread quiet while guaranteeing real audio for short clips.
+      mediaRecorder.start(250);
       setIsRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
@@ -302,39 +333,55 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
       }, MAX_VOICE_SECONDS * 1000);
 
       haptic('medium');
+      startingRef.current = false;
+
+      // The finger was already lifted while we were starting up: honour that
+      // release now so the recorder never stays on after the gesture ended.
+      const pending = pendingStopModeRef.current;
+      if (pending) {
+        pendingStopModeRef.current = null;
+        cancelModeRef.current = pending;
+        // Give the recorder a beat to emit at least one chunk, otherwise the
+        // resulting blob is empty and the user just loses the tap.
+        setTimeout(() => {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
+          }
+        }, 300);
+      }
     } catch (err) {
+      startingRef.current = false;
+      pendingStopModeRef.current = null;
       reportMicError(err);
       cleanupRecorder();
     }
   }, [voicePlayer, cleanupRecorder, uploadBlob]);
 
-  const stopAndSend = useCallback(() => {
-    cancelModeRef.current = 'send';
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
-    } else {
-      cleanupRecorder();
+  /** Single stop path — safe to call at any point of the recording lifecycle. */
+  const requestStop = useCallback((mode: 'send' | 'cancel' | 'preview') => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      cancelModeRef.current = mode;
+      try { recorder.stop(); } catch { cleanupRecorder(); }
+      return;
     }
+    if (startingRef.current) {
+      // Still acquiring the microphone: remember the outcome for later.
+      pendingStopModeRef.current = mode;
+      return;
+    }
+    cleanupRecorder();
   }, [cleanupRecorder]);
+
+  const stopAndSend = useCallback(() => { requestStop('send'); }, [requestStop]);
 
   const stopAndCancel = useCallback(() => {
-    cancelModeRef.current = 'cancel';
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
-    } else {
-      cleanupRecorder();
-    }
+    requestStop('cancel');
     haptic('heavy');
-  }, [cleanupRecorder]);
+  }, [requestStop]);
 
-  const stopForPreview = useCallback(() => {
-    cancelModeRef.current = 'preview';
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      try { mediaRecorderRef.current.stop(); } catch { cleanupRecorder(); }
-    } else {
-      cleanupRecorder();
-    }
-  }, [cleanupRecorder]);
+  const stopForPreview = useCallback(() => { requestStop('preview'); }, [requestStop]);
+
 
   const lockRecording = useCallback(() => {
     setLocked(true);
