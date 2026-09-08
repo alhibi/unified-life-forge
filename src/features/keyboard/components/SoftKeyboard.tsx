@@ -106,9 +106,8 @@ const Key = memo(function Key({
   onPopupSelect?: (ch: string) => void;
   popups?: string[];
   showPopupPreview?: boolean;
-  vibrate?: boolean;
-  soundOnClick?: boolean;
-  soundVolume?: number;
+  /** Haptic + sound settings, resolved once by the panel. */
+  feedback: TapFeedbackOptions;
   keyBorders?: boolean;
   /** Long-press threshold, driven by user preference. */
   holdDelayMs?: number;
