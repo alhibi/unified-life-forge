@@ -432,7 +432,7 @@ export default function BayanDashboard() {
 
                 </div>
 
-              </div>
+              </motion.div>
             )}
           </div>
 
