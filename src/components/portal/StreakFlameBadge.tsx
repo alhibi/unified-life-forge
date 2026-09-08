@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
 import { cn } from '@/lib/utils';
 
@@ -173,19 +174,14 @@ function StreakFlameBadgeImpl({ daysOverride, onClick }: StreakFlameBadgeProps) 
       </span>
 
       {/* Count — tabular so it never jitters as it climbs */}
-      <motion.span
-        key={days}
-        initial={{ y: -6, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+      {/* The figure travels to its new value rather than snapping: a streak
+          is a quantity that grew, and tabular digits keep the flame from
+          shifting while it climbs. */}
+      <AnimatedNumber
+        value={days}
         className="relative ps-0.5 text-[1.0625rem] font-black leading-none text-foreground"
-        style={{
-          fontVariantNumeric: 'tabular-nums',
-          textShadow: tier >= 2 ? `0 0 12px ${theme.glow}` : undefined,
-        }}
-      >
-        {days}
-      </motion.span>
+        style={{ textShadow: tier >= 2 ? `0 0 12px ${theme.glow}` : undefined }}
+      />
     </motion.button>
   );
 }

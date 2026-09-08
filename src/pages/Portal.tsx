@@ -10,8 +10,6 @@
  * reads as fourteen distinct places rather than one repeated card.
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
@@ -20,7 +18,7 @@ import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
 import PortalHeader from '@/components/portal/PortalHeader';
-import { PortalRealmsSkeleton } from '@/components/portal/PortalSkeletons';
+import { PortalRealmsSkeleton, PortalTodayWidgetsSkeleton } from '@/components/portal/PortalSkeletons';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
@@ -206,14 +204,7 @@ export default function Portal() {
 
             {/* Reserve the widgets' height while they load: a null fallback made
                 the whole tile grid jump down the moment they arrived. */}
-            <Suspense
-              fallback={
-                <SkeletonGroup className="space-y-3" label="جارٍ تحميل ودجات اليوم">
-                  <Skeleton height={336} className="w-full rounded-3xl" />
-                  <Skeleton height={264} className="w-full rounded-3xl" />
-                </SkeletonGroup>
-              }
-            >
+            <Suspense fallback={<PortalTodayWidgetsSkeleton />}>
               <PortalTodayWidgets />
             </Suspense>
 
