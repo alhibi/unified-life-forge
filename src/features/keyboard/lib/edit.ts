@@ -60,6 +60,30 @@ export function getSelectionState(el: EditableField | null): SelectionState {
   };
 }
 
+export interface WordContext {
+  /** The in-progress token immediately before the caret. */
+  token: string;
+  /** The completed word before that token, for next-word prediction. */
+  previous: string;
+}
+
+/**
+ * Reads the typing context straight off the field instead of trusting an
+ * internal buffer: the caret may have been moved, text pasted or edited with
+ * the OS keyboard, and predictions must still match what is actually there.
+ */
+export function getWordContext(el: EditableField | null): WordContext {
+  if (!el) return { token: '', previous: '' };
+  const [start] = selection(el);
+  const before = el.value.slice(0, start);
+  const parts = before.split(/[\s\n]+/);
+  const trailingSpace = /[\s\n]$/.test(before);
+  const token = trailingSpace ? '' : (parts[parts.length - 1] ?? '');
+  const previousIndex = trailingSpace ? parts.length - 1 : parts.length - 2;
+  const previous = previousIndex >= 0 ? (parts[previousIndex] ?? '') : '';
+  return { token, previous };
+}
+
 export function selectAll(el: EditableField): void {
   try {
     el.setSelectionRange(0, el.value.length);
