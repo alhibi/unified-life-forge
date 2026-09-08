@@ -78,7 +78,7 @@ describe('phosphorPruneWeights', () => {
     const tricky =
       'import * as a from "react";\nconst l = /* @__PURE__ */ new Map([\n' +
       '  ["regular", a.createElement("path", { d: "M0,0 [z] \\"q\\" (1)" })],\n' +
-      '  ["duotone", a.createElement("path", { d: "M9,9 [drop]" })]\n]);\n' +
+      '  ["thin", a.createElement("path", { d: "M9,9 [drop]" })]\n]);\n' +
       'export { l as default };\n';
     const out = runTransform(tricky, DEF_ID)!.code;
     expect(out).toContain('M0,0 [z] \\"q\\" (1)');
