@@ -50,6 +50,21 @@
   --radius-card: var(--r-lg);
   --radius-section: var(--r-xl);
 
+  /* The two semantic curves — see src/lib/motion.ts.
+     SETTLE = something arriving. SNAP = something under the finger. */
+  --ease-settle: cubic-bezier(0.16, 0.84, 0.24, 1);
+  --ease-snap: cubic-bezier(0.3, 0.7, 0.1, 1);
+
+  /* Elevation scale. `--shadow-1..4` are theme-generated per mode
+     (light/dark/true-black) in themeEngine, so `shadow-e2` is the ONLY
+     sanctioned way to lift a surface — never an ad hoc box-shadow, which
+     cannot follow the active theme. e1 rests on the page, e2 is a card,
+     e3 is a menu/popover, e4 is a modal or sheet. */
+  --shadow-e1: var(--shadow-1);
+  --shadow-e2: var(--shadow-2);
+  --shadow-e3: var(--shadow-3);
+  --shadow-e4: var(--shadow-4);
+
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;
@@ -227,6 +242,32 @@
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--motion-ease-enter);
 }
+
+/* The CSS half of the two semantic curves. `transition-motion` stays the
+   generic state-change transition; these two name the *intent*, so a
+   reviewer can tell arrival from manipulation by reading the class. */
+@utility transition-settle {
+  transition-property: transform, opacity, color, background-color, border-color,
+    box-shadow, filter, backdrop-filter;
+  transition-duration: var(--duration-normal);
+  transition-timing-function: var(--ease-settle);
+}
+
+@utility transition-snap {
+  transition-property: transform, opacity, color, background-color, border-color,
+    box-shadow;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-snap);
+}
+
+/* Elevation utilities. Tokenized so a card lifted in light mode and the
+   same card in true-black mode both read correctly without a per-component
+   override. */
+@utility elevation-1 { box-shadow: var(--shadow-1); }
+@utility elevation-2 { box-shadow: var(--shadow-2); }
+@utility elevation-3 { box-shadow: var(--shadow-3); }
+@utility elevation-4 { box-shadow: var(--shadow-4); }
+@utility elevation-none { box-shadow: none; }
 
 /* Progress fills: scaleX, never width.
    Animating `width` re-runs layout on every frame (and, inside a scroll
