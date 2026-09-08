@@ -293,8 +293,9 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
           onFocus={() => setOpen(true)}
           onBlur={(e) => {
             // Delay so click events on results still fire.
+            const searchRoot = e.currentTarget.parentElement?.parentElement;
             setTimeout(() => {
-              if (!e.currentTarget.contains(document.activeElement)) setOpen(false);
+              if (!searchRoot?.contains(document.activeElement)) setOpen(false);
             }, 120);
           }}
           onKeyDown={handleKeyDown}
