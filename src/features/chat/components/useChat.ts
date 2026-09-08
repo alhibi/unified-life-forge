@@ -133,6 +133,12 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const chatPrefsRef = useRef(chatPrefs);
   const messagesRef = useRef<Message[]>(messages);
   const restoreScrollRef = useRef<number | null>(null);
+  /** Throttle for persisting the scroll position (see handleScroll). */
+  const scrollPersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Late-bound so `handleScroll` can trigger paging without re-binding. */
+  const loadOlderRef = useRef<(() => void) | null>(null);
+  /** Signed-URL requests already issued, keyed by storage path. */
+  const signedUrlInFlightRef = useRef<Set<string>>(new Set());
 
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
