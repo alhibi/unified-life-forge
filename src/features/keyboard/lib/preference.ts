@@ -151,10 +151,13 @@ export function clearKeyboardRuntimeCache(): void {
   memorySettings = null;
   // The learned dictionary and snippet list are per-person data: their caches
   // must not survive a sign-out either.
-  void Promise.all([import('./prediction'), import('./snippets')])
-    .then(([prediction, snippets]) => {
+  void Promise.all([import('./prediction'), import('./snippets'), import('./sound')])
+    .then(([prediction, snippets, sound]) => {
       prediction.clearPredictionRuntimeCache();
       snippets.clearSnippetRuntimeCache();
+      // Tear the audio graph down as well, so a signed-out device keeps no
+      // running AudioContext behind.
+      sound.disposeKeyboardAudio();
     })
     .catch(() => undefined);
 }

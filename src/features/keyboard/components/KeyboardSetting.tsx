@@ -2,18 +2,23 @@ import { useCallback, useEffect, useState } from 'react';
 
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { Switch } from '@/components/ui/switch';
-import { Keyboard, Palette, Sparkles, Trash2, Wand2 } from '@/lib/icons';
+import { Keyboard, Palette, Sparkles, Trash2, Volume2, Wand2 } from '@/lib/icons';
 
+import { resetFeedbackThrottle, tapFeedback } from '../lib/feedback';
 import { clearLearnedDictionary, getDictionaryStats } from '../lib/prediction';
 import {
+  type HapticIntensity,
   type KeyboardHeight,
   type KeyboardSettings,
   type KeyboardTheme,
   readKeyboardSettings,
+  type SoundTone,
   supportsSoftKeyboard,
   writeKeyboardSettings,
 } from '../lib/preference';
-import { deleteSnippet, resetSnippets, saveSnippet, type Snippet, getSnippets } from '../lib/snippets';
+import { deleteSnippet, getSnippets,resetSnippets, saveSnippet, type Snippet } from '../lib/snippets';
+import { playKeyClickSound } from '../lib/sound';
+import { keyboardSwatch } from '../lib/theme';
 
 interface KeyboardSettingsModalProps {
   open: boolean;
@@ -28,6 +33,20 @@ const THEME_OPTIONS: ReadonlyArray<{ id: KeyboardTheme; label: string }> = [
   { id: 'sand', label: 'رملي كلاسيك' },
   { id: 'emerald', label: 'زمردي' },
   { id: 'sapphire', label: 'أزرق ياقوتي' },
+];
+
+const TONE_OPTIONS: ReadonlyArray<{ id: SoundTone; label: string }> = [
+  { id: 'default', label: 'ناعم كلاسيك' },
+  { id: 'click', label: 'نقرة حادة' },
+  { id: 'mechanical', label: 'ميكانيكي' },
+  { id: 'soft', label: 'هامس' },
+];
+
+const HAPTIC_OPTIONS: ReadonlyArray<{ id: HapticIntensity; label: string }> = [
+  { id: 'off', label: 'بدون' },
+  { id: 'light', label: 'خفيف' },
+  { id: 'medium', label: 'متوسط' },
+  { id: 'heavy', label: 'قوي' },
 ];
 
 const HEIGHT_OPTIONS: ReadonlyArray<{ id: KeyboardHeight; label: string }> = [
@@ -77,20 +96,35 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
             <span>المظهر والسمة (Theme)</span>
           </label>
           <div className="grid grid-cols-3 gap-2">
-            {THEME_OPTIONS.map((theme) => (
-              <button
-                key={theme.id}
-                type="button"
-                onClick={() => update({ theme: theme.id })}
-                className={`flex h-10 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
-                  settings.theme === theme.id
-                    ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
-                    : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {theme.label}
-              </button>
-            ))}
+            {THEME_OPTIONS.map((theme) => {
+              const [surface, accent] = keyboardSwatch(theme.id);
+              const active = settings.theme === theme.id;
+              return (
+                <button
+                  key={theme.id}
+                  type="button"
+                  onClick={() => update({ theme: theme.id })}
+                  aria-pressed={active}
+                  className={`flex flex-col items-stretch gap-1.5 rounded-xl border p-1.5 text-micro font-medium transition-motion ${
+                    active
+                      ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] font-semibold'
+                      : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {/* Miniature keyboard: panel tint, two key faces, action key. */}
+                  <span
+                    className="flex h-7 items-end gap-1 rounded-lg p-1"
+                    style={{ background: surface }}
+                    aria-hidden
+                  >
+                    <span className="h-3 flex-1 rounded-[3px] bg-white/20" />
+                    <span className="h-3 flex-1 rounded-[3px] bg-white/20" />
+                    <span className="h-3 flex-1 rounded-[3px]" style={{ background: accent }} />
+                  </span>
+                  <span className="truncate">{theme.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -161,23 +195,12 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-mini font-medium text-foreground">صوت الضغط على المفاتيح</p>
-              <p className="text-micro text-muted-foreground">تفعيل صوت نقر خفيف عند الكتابة</p>
+              <p className="text-mini font-medium text-foreground">حدود المفاتيح</p>
+              <p className="text-micro text-muted-foreground">إظهار خط رقيق حول كل مفتاح لبروز أوضح</p>
             </div>
             <Switch
-              checked={settings.soundOnClick}
-              onCheckedChange={(checked) => update({ soundOnClick: checked, soundEnabled: checked })}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-mini font-medium text-foreground">الاهتزاز والتغذية الراجعة (Haptics)</p>
-              <p className="text-micro text-muted-foreground">اهتزاز خفيف عند النقر على المفاتيح</p>
-            </div>
-            <Switch
-              checked={settings.vibrateOnKeyPress}
-              onCheckedChange={(checked) => update({ vibrateOnKeyPress: checked })}
+              checked={settings.keyBorders}
+              onCheckedChange={(checked) => update({ keyBorders: checked })}
             />
           </div>
 
@@ -226,6 +249,123 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
               onCheckedChange={(checked) => update({ snippetsEnabled: checked })}
             />
           </div>
+        </div>
+
+        {/* Tap feedback: sound + haptics */}
+        <div className="space-y-3 border-t border-border/30 pt-3">
+          <label className="flex items-center gap-2 text-mini font-semibold text-foreground">
+            <Volume2 className="h-4 w-4 text-[hsl(var(--live))]" />
+            <span>النقر والاهتزاز</span>
+          </label>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">صوت الضغط على المفاتيح</p>
+              <p className="text-micro text-muted-foreground">نقرة مسموعة عند الكتابة</p>
+            </div>
+            <Switch
+              checked={settings.soundOnClick}
+              onCheckedChange={(checked) => update({ soundOnClick: checked, soundEnabled: checked })}
+            />
+          </div>
+
+          {settings.soundOnClick && (
+            <div className="space-y-2 rounded-xl bg-[hsl(var(--surface-2))] p-2.5">
+              <div className="grid grid-cols-4 gap-1.5">
+                {TONE_OPTIONS.map((tone) => (
+                  <button
+                    key={tone.id}
+                    type="button"
+                    onClick={() => {
+                      update({ soundTone: tone.id });
+                      playKeyClickSound('letter', settings.soundVolume, tone.id);
+                    }}
+                    aria-pressed={settings.soundTone === tone.id}
+                    className={`h-8 rounded-lg border text-micro transition-motion ${
+                      settings.soundTone === tone.id
+                        ? 'border-[hsl(var(--live))] text-[hsl(var(--live))] font-semibold'
+                        : 'border-border/40 text-muted-foreground'
+                    }`}
+                  >
+                    {tone.label}
+                  </button>
+                ))}
+              </div>
+              <label className="flex items-center gap-2 text-micro text-muted-foreground">
+                <span className="w-14 shrink-0">شدة الصوت</span>
+                <input
+                  type="range"
+                  min={0.1}
+                  max={1}
+                  step={0.05}
+                  value={settings.soundVolume}
+                  onChange={(e) => update({ soundVolume: Number(e.target.value) })}
+                  onPointerUp={() => playKeyClickSound('letter', settings.soundVolume, settings.soundTone)}
+                  className="h-1.5 min-w-0 flex-1 accent-[hsl(var(--live))]"
+                  aria-label="شدة صوت النقر"
+                />
+                <span className="w-8 text-end tabular-nums">{Math.round(settings.soundVolume * 100)}</span>
+              </label>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">الاهتزاز عند النقر</p>
+              <p className="text-micro text-muted-foreground">تغذية راجعة لمسية عند كل مفتاح</p>
+            </div>
+            <Switch
+              checked={settings.vibrateOnKeyPress}
+              onCheckedChange={(checked) => update({ vibrateOnKeyPress: checked })}
+            />
+          </div>
+
+          {settings.vibrateOnKeyPress && (
+            <div className="grid grid-cols-4 gap-1.5">
+              {HAPTIC_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    update({ hapticIntensity: option.id });
+                    if (option.id !== 'off') {
+                      resetFeedbackThrottle();
+                      tapFeedback('letter', {
+                        enabled: true,
+                        intensity: option.id,
+                        soundEnabled: false,
+                        soundVolume: 0,
+                        soundTone: settings.soundTone,
+                      });
+                    }
+                  }}
+                  aria-pressed={settings.hapticIntensity === option.id}
+                  className={`h-8 rounded-lg border text-micro transition-motion ${
+                    settings.hapticIntensity === option.id
+                      ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/15 text-[hsl(var(--live))] font-semibold'
+                      : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <label className="flex items-center gap-2 text-micro text-muted-foreground">
+            <span className="w-24 shrink-0">زمن الضغط المطوّل</span>
+            <input
+              type="range"
+              min={160}
+              max={600}
+              step={20}
+              value={settings.holdDelayMs}
+              onChange={(e) => update({ holdDelayMs: Number(e.target.value) })}
+              className="h-1.5 min-w-0 flex-1 accent-[hsl(var(--live))]"
+              aria-label="زمن الضغط المطوّل بالمللي ثانية"
+            />
+            <span className="w-14 text-end tabular-nums">{settings.holdDelayMs} م.ث</span>
+          </label>
         </div>
 
         {/* Personal dictionary */}

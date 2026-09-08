@@ -17,6 +17,8 @@ import {
 import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
+import { chromeFeedback } from '../lib/feedback';
+
 export interface ToolBarProps {
   suggestions: string[];
   onSelectSuggestion: (word: string) => void;
@@ -93,7 +95,7 @@ const SuggestionChip = memo(function SuggestionChip({
         if (!onForget || holdRef.current) {
           clear();
           onSelect(word);
-          haptics('selection');
+          chromeFeedback();
         }
       }}
       onPointerCancel={clear}
@@ -137,7 +139,7 @@ export const ToolBar = memo(function ToolBar({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onCut();
-                  haptics('selection');
+                  chromeFeedback();
                 }}
                 className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-medium text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
               >
@@ -151,7 +153,7 @@ export const ToolBar = memo(function ToolBar({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onCopy();
-                  haptics('selection');
+                  chromeFeedback();
                 }}
                 className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
               >
@@ -165,7 +167,7 @@ export const ToolBar = memo(function ToolBar({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onPaste();
-                  haptics('selection');
+                  chromeFeedback();
                 }}
                 className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
               >
@@ -179,7 +181,7 @@ export const ToolBar = memo(function ToolBar({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onSelectAll();
-                  haptics('selection');
+                  chromeFeedback();
                 }}
                 className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
               >
@@ -198,7 +200,7 @@ export const ToolBar = memo(function ToolBar({
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onUndo();
-                  haptics('selection');
+                  chromeFeedback();
                 }}
                 className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-semibold text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
               >
@@ -236,7 +238,7 @@ export const ToolBar = memo(function ToolBar({
           onPointerDown={(e) => {
             e.preventDefault();
             setActivePanel(activePanel === 'islamic' ? 'none' : 'islamic');
-            haptics('selection');
+            chromeFeedback();
           }}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
@@ -253,7 +255,7 @@ export const ToolBar = memo(function ToolBar({
           onPointerDown={(e) => {
             e.preventDefault();
             setActivePanel(activePanel === 'emoji' ? 'none' : 'emoji');
-            haptics('selection');
+            chromeFeedback();
           }}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
@@ -270,7 +272,7 @@ export const ToolBar = memo(function ToolBar({
           onPointerDown={(e) => {
             e.preventDefault();
             setActivePanel(activePanel === 'clipboard' ? 'none' : 'clipboard');
-            haptics('selection');
+            chromeFeedback();
           }}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
@@ -288,7 +290,7 @@ export const ToolBar = memo(function ToolBar({
             e.preventDefault();
             const next = oneHandedMode === 'off' ? 'right' : oneHandedMode === 'right' ? 'left' : 'off';
             setOneHandedMode(next);
-            haptics('selection');
+            chromeFeedback();
           }}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
@@ -305,7 +307,7 @@ export const ToolBar = memo(function ToolBar({
           onPointerDown={(e) => {
             e.preventDefault();
             setActivePanel(activePanel === 'settings' ? 'none' : 'settings');
-            haptics('selection');
+            chromeFeedback();
           }}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
