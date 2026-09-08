@@ -22,7 +22,7 @@ import {
   encryptOutgoingText,
   isEncrypted,
 } from './internal/e2ee';
-import { fetchMessagesWithReactions } from './internal/messagesQuery';
+import { fetchMessagesWithReactions, MESSAGE_PAGE_SIZE } from './internal/messagesQuery';
 import { useInChatSearch } from './internal/useInChatSearch';
 import { useTypingChannel } from './internal/useTypingChannel';
 import { haptic,playChatSound, primeAudio } from './sounds';
@@ -81,6 +81,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   // ── Realtime / network ────────────────────────────────────────────────────
   const [uploading, setUploading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  /** Older history exists beyond the loaded window. */
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [conversationsLoading, setConversationsLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
@@ -130,6 +133,18 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const chatPrefsRef = useRef(chatPrefs);
   const messagesRef = useRef<Message[]>(messages);
   const restoreScrollRef = useRef<number | null>(null);
+  /** Throttle for persisting the scroll position (see handleScroll). */
+  const scrollPersistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Late-bound so `handleScroll` can trigger paging without re-binding. */
+  const loadOlderRef = useRef<(() => void) | null>(null);
+  /** Signed-URL requests already issued, keyed by storage path. */
+  const signedUrlInFlightRef = useRef<Set<string>>(new Set());
+  /** Guards concurrent history pages. */
+  const loadingOlderRef = useRef(false);
+  /** Mirrors `hasMoreMessages` for loops that page several times in a row. */
+  const hasMoreRef = useRef(false);
+  /** Late-bound history-until-found helper, consumed by in-chat search. */
+  const ensureMessagesLoadedRef = useRef<((ids: string[]) => Promise<void>) | null>(null);
 
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
@@ -207,19 +222,39 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!container) return;
     const distFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
     isNearBottomRef.current = distFromBottom < 120;
-    setShowScrollDown(distFromBottom > 200);
+    setShowScrollDown(prev => {
+      const next = distFromBottom > 200;
+      return prev === next ? prev : next;
+    });
+
+    // Reaching the top pulls in the previous page of history, the way both
+    // Telegram and WhatsApp do — the thread is never loaded whole.
+    if (container.scrollTop < 400) loadOlderRef.current?.();
 
     // Persist scroll position so the next visit resumes here. We only
     // remember non-bottom positions — at the bottom we always want fresh
-    // messages to anchor.
+    // messages to anchor. Writing on every scroll event would push a
+    // preference update (and a full drawer re-render) per frame, so the
+    // write is throttled and the last position is flushed on a trailing
+    // timer.
     const convId = activeConvIdRef.current;
-    if (convId) {
-      if (distFromBottom < 80) {
-        chatPrefsRef.current.clearScroll(convId);
-      } else {
-        chatPrefsRef.current.setScroll(convId, container.scrollTop);
-      }
-    }
+    if (!convId) return;
+    const persist = () => {
+      const el = messagesContainerRef.current;
+      if (!el) return;
+      const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (dist < 80) chatPrefsRef.current.clearScroll(convId);
+      else chatPrefsRef.current.setScroll(convId, el.scrollTop);
+    };
+    if (scrollPersistTimerRef.current) return;
+    scrollPersistTimerRef.current = setTimeout(() => {
+      scrollPersistTimerRef.current = null;
+      persist();
+    }, 350);
+  }, []);
+
+  useEffect(() => () => {
+    if (scrollPersistTimerRef.current) clearTimeout(scrollPersistTimerRef.current);
   }, []);
 
   const revokeStagedPreviews = useCallback(() => {
@@ -234,6 +269,10 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [revokeStagedPreviews]);
 
   // ── Search (extracted) ────────────────────────────────────────────────────
+  const ensureMessagesLoaded = useCallback(async (ids: string[]) => {
+    await ensureMessagesLoadedRef.current?.(ids);
+  }, []);
+
   const {
     showSearch, setShowSearch,
     chatSearchQuery,
@@ -242,7 +281,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     searchInChat,
     navigateSearch,
     resetSearch,
-  } = useInChatSearch({ activeConv, messages });
+  } = useInChatSearch({ activeConv, messages, ensureMessagesLoaded });
 
   // Wrapped setActiveConv: save/restore drafts, reset ephemeral UI state.
   const setActiveConv = useCallback((conv: Conversation | null) => {
@@ -260,10 +299,16 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowEmojiPicker(false);
     setSelectedIds(new Set());
     setSignedUrls({});
+    signedUrlInFlightRef.current.clear();
     revokeStagedPreviews();
     setStagedImages([]);
     setStagedPreviews([]);
     isNearBottomRef.current = true;
+    // A fresh thread starts from its latest page.
+    hasMoreRef.current = false;
+    setHasMoreMessages(false);
+    setLoadingOlder(false);
+    loadingOlderRef.current = false;
 
     if (conv) {
       // Instant unread reset: clear the count locally so the badge updates
@@ -366,9 +411,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!activeConv || !user) return;
     setMessagesLoading(true);
     try {
-      let result: { messages: Message[]; reactions: Reaction[] };
+      let result: Awaited<ReturnType<typeof fetchMessagesWithReactions>>;
       try {
-        result = await fetchMessagesWithReactions(activeConv.id, user.id, activeConv.otherUserId);
+        result = await fetchMessagesWithReactions(activeConv.id, user.id, activeConv.otherUserId, {
+          limit: MESSAGE_PAGE_SIZE,
+        });
       } catch (err) {
         chatError('conversationGone', describeError(err));
         return;
@@ -376,6 +423,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
       setMessages(result.messages);
       setReactions(result.reactions);
+      hasMoreRef.current = result.hasMore;
+      setHasMoreMessages(result.hasMore);
 
       // Mark in parallel: every undelivered "from them" row becomes
       // delivered, every unread one becomes read. Both RPCs ignore
@@ -410,6 +459,72 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
   }, [activeConv, user, scrollToBottom]);
 
+  /**
+   * Prepend the page of history immediately older than the oldest loaded
+   * message, keeping the viewport visually still: the container grows at the
+   * top, so we re-apply the scroll offset by the height delta before paint.
+   */
+  const loadOlderMessages = useCallback(async () => {
+    const conv = activeConv;
+    if (!conv || !user) return;
+    if (loadingOlderRef.current || !hasMoreRef.current) return;
+    const oldest = messagesRef.current.find(m => !m.id.startsWith('optimistic_'));
+    if (!oldest) return;
+
+    loadingOlderRef.current = true;
+    setLoadingOlder(true);
+    const container = messagesContainerRef.current;
+    const prevHeight = container?.scrollHeight ?? 0;
+    const prevTop = container?.scrollTop ?? 0;
+    try {
+      const page = await fetchMessagesWithReactions(conv.id, user.id, conv.otherUserId, {
+        limit: MESSAGE_PAGE_SIZE,
+        before: oldest.created_at,
+      });
+      if (activeConvIdRef.current !== conv.id) return;
+      hasMoreRef.current = page.hasMore;
+      setHasMoreMessages(page.hasMore);
+      if (page.messages.length === 0) return;
+
+      setMessages(prev => {
+        const known = new Set(prev.map(m => m.id));
+        const older = page.messages.filter(m => !known.has(m.id));
+        return older.length === 0 ? prev : [...older, ...prev];
+      });
+      setReactions(prev => {
+        const known = new Set(prev.map(r => r.id));
+        const extra = page.reactions.filter(r => !known.has(r.id));
+        return extra.length === 0 ? prev : [...prev, ...extra];
+      });
+
+      requestAnimationFrame(() => {
+        const el = messagesContainerRef.current;
+        if (!el) return;
+        el.scrollTop = prevTop + (el.scrollHeight - prevHeight);
+      });
+    } catch {
+      // History paging is best-effort: the loaded window stays usable.
+    } finally {
+      loadingOlderRef.current = false;
+      setLoadingOlder(false);
+    }
+  }, [activeConv, user]);
+
+  useEffect(() => {
+    loadOlderRef.current = () => { void loadOlderMessages(); };
+    // Page backwards until every requested message id is in the window, so a
+    // search hit deep in history can actually be scrolled to.
+    ensureMessagesLoadedRef.current = async (ids: string[]) => {
+      if (ids.length === 0) return;
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const known = new Set(messagesRef.current.map(m => m.id));
+        if (ids.every(id => known.has(id))) return;
+        if (!hasMoreRef.current) return;
+        await loadOlderMessages();
+      }
+    };
+  }, [loadOlderMessages]);
+
   useEffect(() => { if (open && user) loadConversations(); }, [open, user, loadConversations]);
   useEffect(() => { if (activeConv) loadMessages(); }, [activeConv, loadMessages]);
 
@@ -442,12 +557,16 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   }, [open, user, conversations.length]);
 
   // ── Resolve signed URLs for files ─────────────────────────────────────────
+  // Requests are de-duplicated by message id in a ref rather than by reading
+  // `signedUrls` state: depending on that state re-ran this effect (and
+  // re-scanned every message) after each batch resolved, and a failed sign
+  // was retried on every keystroke-driven render.
   useEffect(() => {
-    const needsUrl = messages.filter(m => {
-      if (signedUrls[m.id]) return false;
-      return !!m.file_url;
-    });
+    const needsUrl = messages.filter(
+      m => !!m.file_url && !signedUrlInFlightRef.current.has(m.id),
+    );
     if (needsUrl.length === 0) return;
+    for (const m of needsUrl) signedUrlInFlightRef.current.add(m.id);
 
     let cancelled = false;
     Promise.all(needsUrl.map(async (m) => {
@@ -457,18 +576,22 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         const url = await getSignedFileUrl(path);
         return { id: m.id, url };
       } catch {
+        // Allow one later retry (e.g. after the session refreshes).
+        signedUrlInFlightRef.current.delete(m.id);
         return { id: m.id, url: '' };
       }
     })).then(results => {
       if (cancelled) return;
+      const resolved = results.filter(r => r.url);
+      if (resolved.length === 0) return;
       setSignedUrls(prev => {
         const next = { ...prev };
-        results.forEach(r => { if (r.url) next[r.id] = r.url; });
+        resolved.forEach(r => { next[r.id] = r.url; });
         return next;
       });
     });
     return () => { cancelled = true; };
-  }, [messages, signedUrls]);
+  }, [messages]);
 
   const getFileUrl = useCallback((msg: Message) => {
     if (signedUrls[msg.id]) return signedUrls[msg.id];
@@ -827,10 +950,24 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const retryFailedMessage = useCallback(async (failed: Message) => {
     if (!user || !failed.client_id) return;
     setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'pending' } : m));
+
+    // The failed row holds PLAINTEXT (the optimistic copy the sender reads).
+    // Re-encrypt before the retry, otherwise a retried message would land on
+    // the server in the clear while its siblings are sealed.
+    const peerId = conversationsRef.current.find(c => c.id === failed.conversation_id)?.otherUserId
+      ?? (activeConvIdRef.current === failed.conversation_id ? activePeerIdRef.current : null);
+    const { content: wireContent } = peerId
+      ? await encryptOutgoingText(
+          { myUserId: user.id, peerUserId: peerId, conversationId: failed.conversation_id },
+          failed.message_type,
+          failed.content,
+        )
+      : { content: failed.content };
+
     const insertData: Record<string, unknown> = {
       conversation_id: failed.conversation_id,
       sender_id: user.id,
-      content: failed.content,
+      content: wireContent,
       message_type: failed.message_type,
       file_url: failed.file_url ?? null,
       file_name: failed.file_name ?? null,
@@ -856,8 +993,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
             .eq('client_id', failed.client_id)
             .single();
           if (existing) {
+            // Keep the plaintext the sender typed — the stored row is sealed.
             setMessages(prev => prev.map(m =>
-              m.id === failed.id ? { ...(existing as Message), status: 'sent' } : m,
+              m.id === failed.id
+                ? { ...(existing as Message), content: failed.content, status: 'sent' }
+                : m,
             ));
             return;
           }
@@ -868,7 +1008,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       }
       if (realMsg) {
         setMessages(prev => prev.map(m =>
-          m.id === failed.id ? { ...(realMsg as Message), status: 'sent' } : m,
+          m.id === failed.id
+            ? { ...(realMsg as Message), content: failed.content, status: 'sent' }
+            : m,
         ));
       }
     } catch (err) {
@@ -1532,6 +1674,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     // Realtime
     typingUser, typingByConv, onlineUserIds, uploading,
     messagesLoading, conversationsLoading,
+    hasMoreMessages, loadingOlder, loadOlderMessages,
     signedUrls, getFileUrl, refreshSignedUrl,
     // Search
     showSearch, setShowSearch,

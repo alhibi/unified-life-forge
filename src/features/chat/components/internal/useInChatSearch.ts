@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,6 +7,12 @@ import type { Conversation, Message } from '../types';
 interface UseInChatSearchArgs {
   activeConv: Conversation | null;
   messages: Message[];
+  /**
+   * Pages history backwards until the given message ids are inside the loaded
+   * window. Message history is paginated, so a full-text hit can point at a
+   * row that is not mounted yet — without this the hit would silently vanish.
+   */
+  ensureMessagesLoaded?: (ids: string[]) => Promise<void>;
 }
 
 /**
@@ -20,7 +26,11 @@ interface UseInChatSearchArgs {
  * conversations and returning highlighted snippets. Two hooks with one name
  * and incompatible return shapes is how you end up importing the wrong one.
  */
-export function useInChatSearch({ activeConv, messages }: UseInChatSearchArgs) {
+export function useInChatSearch({ activeConv, messages, ensureMessagesLoaded }: UseInChatSearchArgs) {
+  // Read through a ref: paging in older history during the search resolves
+  // after the callback closed over `messages`.
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
   const [showSearch, setShowSearch] = useState(false);
   const [chatSearchQuery, setChatSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Message[]>([]);
@@ -33,7 +43,7 @@ export function useInChatSearch({ activeConv, messages }: UseInChatSearchArgs) {
     if (!activeConv) { setSearchResults([]); setSearchIndex(0); return; }
 
     const q = trimmed.toLowerCase();
-    const local = messages.filter(m =>
+    const local = messagesRef.current.filter(m =>
       !m.deleted && m.message_type === 'text' && m.content.toLowerCase().includes(q),
     );
     setSearchResults(local);
@@ -52,8 +62,15 @@ export function useInChatSearch({ activeConv, messages }: UseInChatSearchArgs) {
         conversation_id: string;
         chat_id:         string | null;
       }>;
+      const wanted = hits
+        .filter(h => h.conversation_id === activeConv.id)
+        .map(h => h.message_id);
+      if (ensureMessagesLoaded && wanted.length > 0) {
+        await ensureMessagesLoaded(wanted);
+      }
+
       const byId = new Map<string, Message>();
-      for (const m of messages) byId.set(m.id, m);
+      for (const m of messagesRef.current) byId.set(m.id, m);
       const ranked: Message[] = [];
       for (const h of hits) {
         if (h.conversation_id !== activeConv.id) continue;
@@ -88,7 +105,7 @@ export function useInChatSearch({ activeConv, messages }: UseInChatSearchArgs) {
         });
       }
     }
-  }, [activeConv, messages]);
+  }, [activeConv, ensureMessagesLoaded]);
 
   const navigateSearch = useCallback((direction: 'up' | 'down') => {
     if (searchResults.length === 0) return;
