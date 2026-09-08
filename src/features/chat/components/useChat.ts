@@ -1405,7 +1405,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setTimeout(() => imageUpload.clearUpload(tempId), 500);
     });
     return () => imageUpload.setOnUploadComplete(undefined);
-  }, [user, sendMessage, imageUpload]);
+  }, [user, sendMessage, imageUpload.setOnUploadComplete, imageUpload.clearUpload]);
 
   const getReplyPreview = useCallback((replyId: string) => {
     const msg = messages.find(m => m.id === replyId);
