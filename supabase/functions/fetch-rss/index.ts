@@ -25,11 +25,13 @@ const FETCH_TIMEOUT_MS = 15_000;
 const SCRAPE_TIMEOUT_MS = 12_000;
 const SCRAPE_CONCURRENCY = 2;
 const BG_DEADLINE_MS = 25_000;
-const MAX_FEEDS_PER_REQUEST = 8;
+const MAX_FEEDS_PER_REQUEST = 6;
+// Feeds are processed one at a time on the persisting path so that only a
+// single feed's parsed XML + scraped bodies are ever resident in the isolate.
 const FEED_FETCH_CONCURRENCY = 2;
-const MAX_FULL_CONTENT_CHARS = 12_000;
-const MAX_RESPONSE_BYTES = 1_500_000; // 1.5 MB per feed response
-const MAX_ITEMS_HARD_CAP = 60;
+const MAX_FULL_CONTENT_CHARS = 8_000;
+const MAX_RESPONSE_BYTES = 1_000_000; // 1 MB per feed response
+const MAX_ITEMS_HARD_CAP = 40;
 const MAX_RETRIES = 1; // one retry on network/5xx
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
@@ -1076,77 +1078,88 @@ serve(async (req) => {
       metaMap = new Map();
     }
 
-    // Phase 1 — fetch & parse feeds with bounded concurrency to keep
-    // peak memory low (each feed can hold up to a few MB of XML).
+    // Single streaming pipeline: fetch → scrape → persist → release, one feed
+    // at a time when we are persisting. Previously every feed was fetched and
+    // parsed up-front and only released after the whole batch had been stored,
+    // so peak memory grew with the number of feeds and tripped
+    // WORKER_RESOURCE_LIMIT. Now at most one feed's bodies are resident.
+    const persisting = store && authed;
     const fetched: FeedResult[] = new Array(safeUrls.length);
+    const deadline = Date.now() + BG_DEADLINE_MS;
     let feedCursor = 0;
+
     const feedWorker = async () => {
       while (true) {
         const i = feedCursor++;
         if (i >= safeUrls.length) return;
         const url = safeUrls[i];
-        fetched[i] = await fetchSingleFeed(
+        const fr = await fetchSingleFeed(
           url,
           metaMap.get(url),
           nameMap?.[url],
           maxItems,
         );
+        fetched[i] = fr;
+
+        if (!persisting) continue;
+
+        if (fr.status !== "ok") {
+          await recordFeedMeta(sb, fr.url, {
+            last_status: fr.httpStatus,
+            last_error: fr.status === "error" ? (fr.error || "error") : null,
+            increment_failures: fr.status === "error",
+            reset_failures: fr.status === "not_modified",
+          }).catch(() => {});
+          continue;
+        }
+
+        // Past the soft deadline we still store what we already parsed, but
+        // stop paying for extra scrape round-trips.
+        if (fetchFullContent && Date.now() < deadline) {
+          await scrapeMissingContent(fr.items);
+        }
+        await storeArticles(sb, fr.items, fr.url, fr.sourceName);
+
+        // Release scraped bodies immediately — the `store` response never
+        // carries full HTML.
+        fr.items.forEach((it) => {
+          it.fullContent = "";
+        });
+
+        await recordFeedMeta(sb, fr.url, {
+          etag: fr.etag ?? null,
+          last_modified: fr.lastModified ?? null,
+          last_status: fr.httpStatus,
+          last_error: null,
+          item_count_last: fr.items.length,
+          reset_failures: true,
+        }).catch(() => {});
       }
     };
+
+    const workerCount = persisting
+      ? 1
+      : Math.min(FEED_FETCH_CONCURRENCY, safeUrls.length);
     await Promise.all(
-      Array.from(
-        { length: Math.min(FEED_FETCH_CONCURRENCY, safeUrls.length) },
-        () => feedWorker(),
-      ),
+      Array.from({ length: workerCount }, () => feedWorker()),
     );
 
-    // Phase 2 — scrape full content (only when requested) + persist.
-    // Anonymous callers cannot persist; we silently drop the write phase.
-    if (store && authed) {
-      const bg = (async () => {
-        for (const fr of fetched) {
-          if (fr.status !== "ok") {
-            // Record failure / 304 metadata
-            await recordFeedMeta(sb, fr.url, {
-              last_status: fr.httpStatus,
-              last_error: fr.status === "error" ? (fr.error || "error") : null,
-              increment_failures: fr.status === "error",
-              reset_failures: fr.status === "not_modified",
-            }).catch(() => {});
-            continue;
-          }
-
-          if (fetchFullContent) {
-            await scrapeMissingContent(fr.items);
-          }
-          await storeArticles(sb, fr.items, fr.url, fr.sourceName);
-
-          // Release the scraped bodies as soon as they are persisted — the
-          // response payload never carries full HTML on the `store` path,
-          // and keeping N feeds × M items of HTML alive is what pushes the
-          // isolate past its memory ceiling (WORKER_RESOURCE_LIMIT).
-          fr.items.forEach((it) => {
-            it.fullContent = "";
-          });
-
-          // Persist new ETag/Last-Modified from response headers.
-          await recordFeedMeta(sb, fr.url, {
-            etag: fr.etag ?? null,
-            last_modified: fr.lastModified ?? null,
-            last_status: fr.httpStatus,
-            last_error: null,
-            item_count_last: fr.items.length,
-            reset_failures: true,
-          }).catch(() => {});
-        }
-      })();
-      // Best-effort: respond after BG_DEADLINE_MS; the work continues but
-      // the client doesn't wait beyond the cap.
-      await Promise.race([
-        bg,
-        new Promise((r) => setTimeout(r, BG_DEADLINE_MS)),
-      ]);
+    // A feed that never got processed (should not happen) must not break the
+    // response shaping below.
+    for (let i = 0; i < fetched.length; i++) {
+      if (!fetched[i]) {
+        fetched[i] = {
+          url: safeUrls[i],
+          status: "error",
+          httpStatus: 0,
+          items: [],
+          sourceName: nameMap?.[safeUrls[i]] ?? safeUrls[i],
+          title: "",
+          error: "skipped",
+        } as FeedResult;
+      }
     }
+
 
     // Phase 3 — shape response
     const feeds = fetched
