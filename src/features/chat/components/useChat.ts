@@ -928,10 +928,24 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const retryFailedMessage = useCallback(async (failed: Message) => {
     if (!user || !failed.client_id) return;
     setMessages(prev => prev.map(m => m.id === failed.id ? { ...m, status: 'pending' } : m));
+
+    // The failed row holds PLAINTEXT (the optimistic copy the sender reads).
+    // Re-encrypt before the retry, otherwise a retried message would land on
+    // the server in the clear while its siblings are sealed.
+    const peerId = conversationsRef.current.find(c => c.id === failed.conversation_id)?.otherUserId
+      ?? (activeConvIdRef.current === failed.conversation_id ? activePeerIdRef.current : null);
+    const { content: wireContent } = peerId
+      ? await encryptOutgoingText(
+          { myUserId: user.id, peerUserId: peerId, conversationId: failed.conversation_id },
+          failed.message_type,
+          failed.content,
+        )
+      : { content: failed.content };
+
     const insertData: Record<string, unknown> = {
       conversation_id: failed.conversation_id,
       sender_id: user.id,
-      content: failed.content,
+      content: wireContent,
       message_type: failed.message_type,
       file_url: failed.file_url ?? null,
       file_name: failed.file_name ?? null,
