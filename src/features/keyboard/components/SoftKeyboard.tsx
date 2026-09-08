@@ -345,6 +345,10 @@ export default function SoftKeyboard({
   /**
    * Non-blocking prediction pipeline with requestIdleCallback or immediate timeout fallback.
    * Cancels any pending prediction job on rapid consecutive keystrokes.
+   *
+   * The token and its preceding word are read from the field itself, not from
+   * the internal buffer: after a caret move, a paste or an undo the buffer is
+   * stale, and stale suggestions are worse than none.
    */
   const updateSuggestions = useCallback((buffer: string, sensitive: boolean) => {
     if (pendingPredictionRef.current?.idleId && typeof cancelIdleCallback !== 'undefined') {
@@ -361,7 +365,10 @@ export default function SoftKeyboard({
     }
 
     const compute = () => {
-      setSuggestions(getWordSuggestions(buffer));
+      const el = targetElRef.current;
+      const context = getWordContext(el);
+      const token = el ? context.token : buffer;
+      setSuggestions(getWordSuggestions(token, 5, el ? context.previous : null));
     };
 
     if (typeof requestIdleCallback !== 'undefined') {
