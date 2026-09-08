@@ -189,8 +189,7 @@ const Key = memo(function Key({
           }
           setIsPressed(true);
           if (!pressOnRelease) onPress();
-          if (vibrate) haptics('selection');
-          if (soundOnClick) playKeyClickSound(tone, soundVolume);
+          tapFeedback(feedbackKind ?? tone, feedback);
 
           timers.current.start = window.setTimeout(() => {
             if (popups && popups.length > 0) {
