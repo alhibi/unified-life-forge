@@ -27,6 +27,7 @@ import { forwardRef, memo, useCallback, useRef } from 'react';
 
 import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
+import { prefetchRoute } from '@/lib/routePrefetch';
 import { cn } from '@/lib/utils';
 
 import type { PortalApp } from './apps';
