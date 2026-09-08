@@ -5,7 +5,7 @@
  * motion animations, refined visual hierarchy, and deep interaction design.
  * Uses the unified design system (OKLCH tokens, semantic Tailwind v4).
  */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye, EyeOff, Palette, Shield, ShieldCheck, Sparkles,
@@ -31,8 +31,6 @@ const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
   hide_location: false,
   hide_online_status: false,
 };
-
-const PRIVACY_SETTINGS_CACHE_KEY = 'profile:privacy-v1';
 
 /* ─── Design Tokens (localized for this component) ─── */
 const THEME_PRESETS: { id: string; labelAr: string; gradient: string; glow: string }[] = [
@@ -86,7 +84,6 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
         const parsed = JSON.parse(text);
         if (parsed.hide_activity !== undefined && parsed.hide_location !== undefined && parsed.hide_online_status !== undefined) {
           onImportSettings?.(parsed);
-          localStorage.setItem(PRIVACY_SETTINGS_CACHE_KEY, JSON.stringify(parsed));
         }
       } catch { /* ignore */ }
     };
@@ -99,9 +96,6 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
     onUpdatePrivacySetting('hide_activity', defaults.hide_activity);
     onUpdatePrivacySetting('hide_location', defaults.hide_location);
     onUpdatePrivacySetting('hide_online_status', defaults.hide_online_status);
-    try {
-      localStorage.setItem(PRIVACY_SETTINGS_CACHE_KEY, JSON.stringify(defaults));
-    } catch { /* ignore */ }
   }, [onUpdatePrivacySetting]);
 
   const activeTheme = THEME_PRESETS.find(t => t.id === coverThemeId) || THEME_PRESETS[0];
