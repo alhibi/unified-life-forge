@@ -155,27 +155,7 @@ export const ToolBar = memo(function ToolBar({
           </>
         )}
       </div>
-      {/* eslint-disable-next-line no-constant-condition */}
-      {false && (
-        <button
-          type="button"
-          onPointerDown={() => {
-            onSelectSuggestion('');
-                  className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
-                >
-                  <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
-                  <span>{word}</span>
-                </button>
-              ))
-            ) : (
-              <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground/70">
-                <Wand2 className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>لوحة المفاتيح الذكية جاهزة...</span>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+
 
       {/* Quick Access Tools */}
       <div className="flex shrink-0 items-center gap-0.5">
