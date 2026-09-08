@@ -121,7 +121,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastIncomingTsRef = useRef<number>(0);   // for rate-limiting receive sound
-  const loadConversationsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isNearBottomRef = useRef(true);          // whether to auto-scroll new msgs
   const stagedPreviewsRef = useRef<string[]>([]);
   const userIdRef = useRef<string | undefined>(user?.id);
@@ -370,13 +369,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setConversationsLoading(false);
     }
   }, [user]);
-
-  const scheduleLoadConversations = useCallback(() => {
-    if (loadConversationsTimerRef.current) clearTimeout(loadConversationsTimerRef.current);
-    loadConversationsTimerRef.current = setTimeout(() => {
-      loadConversations();
-    }, 400);
-  }, [loadConversations]);
 
   /**
    * Optimistically bump a conversation row to the top of the list with a
