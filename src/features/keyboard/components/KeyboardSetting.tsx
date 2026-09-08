@@ -1,28 +1,66 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { Switch } from '@/components/ui/switch';
-import { Keyboard, Palette } from '@/lib/icons';
+import { Keyboard, Palette, Sparkles, Trash2, Wand2 } from '@/lib/icons';
 
+import { clearLearnedDictionary, getDictionaryStats } from '../lib/prediction';
 import {
+  type KeyboardHeight,
   type KeyboardSettings,
+  type KeyboardTheme,
   readKeyboardSettings,
   supportsSoftKeyboard,
   writeKeyboardSettings,
 } from '../lib/preference';
+import { deleteSnippet, resetSnippets, saveSnippet, type Snippet, getSnippets } from '../lib/snippets';
 
 interface KeyboardSettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const THEME_OPTIONS: ReadonlyArray<{ id: KeyboardTheme; label: string }> = [
+  { id: 'gboard-dark', label: 'داكن Gboard' },
+  { id: 'gboard-light', label: 'فاتح Gboard' },
+  { id: 'oled', label: 'أسود OLED' },
+  { id: 'luxury-gold', label: 'ذهبي فاخر' },
+  { id: 'sand', label: 'رملي كلاسيك' },
+  { id: 'emerald', label: 'زمردي' },
+  { id: 'sapphire', label: 'أزرق ياقوتي' },
+];
+
+const HEIGHT_OPTIONS: ReadonlyArray<{ id: KeyboardHeight; label: string }> = [
+  { id: 'compact', label: 'مدمج' },
+  { id: 'normal', label: 'طبيعي' },
+  { id: 'tall', label: 'مرتفع' },
+  { id: 'extra-tall', label: 'مرتفع جداً' },
+];
+
 export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsModalProps) {
   const [settings, setSettings] = useState<KeyboardSettings>(() => readKeyboardSettings());
+  const [stats, setStats] = useState(() => ({ words: 0, pairs: 0 }));
+  const [snippets, setSnippets] = useState<Snippet[]>([]);
+  const [draft, setDraft] = useState({ trigger: '', text: '' });
+
+  // Read the local stores only while the sheet is actually open.
+  useEffect(() => {
+    if (!open) return;
+    setStats(getDictionaryStats());
+    setSnippets(getSnippets());
+  }, [open]);
 
   const update = (patch: Partial<KeyboardSettings>) => {
     const next = writeKeyboardSettings(patch);
     setSettings(next);
   };
+
+  const addSnippet = useCallback(() => {
+    if (!draft.trigger.trim() || !draft.text.trim()) return;
+    setSnippets(saveSnippet(draft.trigger, draft.text));
+    setDraft({ trigger: '', text: '' });
+  }, [draft]);
+
 
   return (
     <ResponsiveDrawer
@@ -39,17 +77,11 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
             <span>المظهر والسمة (Theme)</span>
           </label>
           <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'gboard-dark', label: 'داكن Gboard' },
-              { id: 'gboard-light', label: 'فاتح Gboard' },
-              { id: 'oled', label: 'أسود OLED' },
-              { id: 'luxury-gold', label: 'ذهبي فاخر' },
-              { id: 'sand', label: 'رملي كلاسيك' },
-            ].map((theme) => (
+            {THEME_OPTIONS.map((theme) => (
               <button
                 key={theme.id}
                 type="button"
-                onClick={() => update({ theme: theme.id as any })}
+                onClick={() => update({ theme: theme.id })}
                 className={`flex h-10 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
                   settings.theme === theme.id
                     ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
@@ -68,18 +100,14 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
             <Keyboard className="h-4 w-4 text-[hsl(var(--live))]" />
             <span>ارتفاع لوحة المفاتيح</span>
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'compact', label: 'مدمج' },
-              { id: 'normal', label: 'طبيعي' },
-              { id: 'tall', label: 'مرتفع' },
-            ].map((height) => (
+          <div className="grid grid-cols-4 gap-2">
+            {HEIGHT_OPTIONS.map((height) => (
               <button
                 key={height.id}
                 type="button"
-                onClick={() => update({ keyHeight: height.id as any })}
+                onClick={() => update({ keyHeight: height.id, keyHeightPx: null })}
                 className={`flex h-9 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
-                  settings.keyHeight === height.id
+                  settings.keyHeight === height.id && settings.keyHeightPx === null
                     ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
                     : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'
                 }`}
@@ -88,7 +116,13 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
               </button>
             ))}
           </div>
+          <p className="text-micro text-muted-foreground">
+            {settings.keyHeightPx !== null
+              ? `ارتفاع مخصص بالسحب: ${settings.keyHeightPx} نقطة — انقر أحد الخيارات للعودة للمقاسات الجاهزة.`
+              : 'يمكنك أيضاً سحب المقبض أعلى اللوحة لضبط الارتفاع بدقة (نقرة مزدوجة للإرجاع).'}
+          </p>
         </div>
+
 
         {/* Toggles */}
         <div className="space-y-3 pt-2 border-t border-border/30">
@@ -157,6 +191,113 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
               onCheckedChange={(checked) => update({ clipboardEnabled: checked })}
             />
           </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">شريط الاقتراحات</p>
+              <p className="text-micro text-muted-foreground">عرض الكلمات المقترحة أعلى اللوحة أثناء الكتابة</p>
+            </div>
+            <Switch
+              checked={settings.suggestionsEnabled}
+              onCheckedChange={(checked) => update({ suggestionsEnabled: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">التعلّم من كتابتك</p>
+              <p className="text-micro text-muted-foreground">
+                تحفظ اللوحة كلماتك وتسلسلها على هذا الجهاز فقط لتصبح الاقتراحات أدق مع الوقت (تُستثنى حقول كلمات المرور)
+              </p>
+            </div>
+            <Switch
+              checked={settings.learningEnabled}
+              onCheckedChange={(checked) => update({ learningEnabled: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-mini font-medium text-foreground">اختصارات النص</p>
+              <p className="text-micro text-muted-foreground">توسيع الاختصارات المحفوظة عند الضغط على المسافة</p>
+            </div>
+            <Switch
+              checked={settings.snippetsEnabled}
+              onCheckedChange={(checked) => update({ snippetsEnabled: checked })}
+            />
+          </div>
+        </div>
+
+        {/* Personal dictionary */}
+        <div className="space-y-2 border-t border-border/30 pt-3">
+          <label className="flex items-center gap-2 text-mini font-semibold text-foreground">
+            <Sparkles className="h-4 w-4 text-[hsl(var(--live))]" />
+            <span>القاموس الشخصي</span>
+          </label>
+          <p className="text-micro text-muted-foreground">
+            {stats.words} كلمة و{stats.pairs} تسلسل محفوظ على هذا الجهاز.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              clearLearnedDictionary();
+              setStats(getDictionaryStats());
+            }}
+            className="flex items-center gap-1.5 rounded-lg bg-destructive/10 px-2.5 py-1.5 text-micro font-semibold text-destructive hover:bg-destructive/20"
+          >
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>مسح القاموس المتعلّم</span>
+          </button>
+        </div>
+
+        {/* Snippets */}
+        <div className="space-y-2 border-t border-border/30 pt-3">
+          <label className="flex items-center gap-2 text-mini font-semibold text-foreground">
+            <Wand2 className="h-4 w-4 text-[hsl(var(--live))]" />
+            <span>اختصارات النص</span>
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {snippets.map((snippet) => (
+              <button
+                key={snippet.trigger}
+                type="button"
+                onClick={() => setSnippets(deleteSnippet(snippet.trigger))}
+                title={`حذف الاختصار: ${snippet.text}`}
+                className="flex items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 py-1 text-micro text-foreground hover:bg-destructive/15 hover:text-destructive"
+              >
+                <span className="font-semibold">{snippet.trigger}</span>
+                <span className="max-w-[10rem] truncate text-muted-foreground">{snippet.text}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={draft.trigger}
+              onChange={(e) => setDraft((d) => ({ ...d, trigger: e.target.value }))}
+              placeholder="الاختصار"
+              className="w-24 rounded-lg border border-border/40 bg-[hsl(var(--surface-2))] px-2 py-1.5 text-base text-foreground"
+            />
+            <input
+              value={draft.text}
+              onChange={(e) => setDraft((d) => ({ ...d, text: e.target.value }))}
+              placeholder="النص الكامل"
+              className="min-w-0 flex-1 rounded-lg border border-border/40 bg-[hsl(var(--surface-2))] px-2 py-1.5 text-base text-foreground"
+            />
+            <button
+              type="button"
+              onClick={addSnippet}
+              className="rounded-lg bg-[hsl(var(--live))]/20 px-3 text-micro font-semibold text-[hsl(var(--live))]"
+            >
+              إضافة
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSnippets(resetSnippets())}
+            className="text-micro text-muted-foreground underline-offset-2 hover:underline"
+          >
+            إرجاع الاختصارات الافتراضية
+          </button>
         </div>
       </div>
     </ResponsiveDrawer>

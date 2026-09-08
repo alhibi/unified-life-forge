@@ -43,7 +43,22 @@ export interface KeyboardSettings {
   clipboardEnabled: boolean;
   clipboardRetention: ClipboardRetention;
   keyBorders: boolean;
+  /** Learn typed words and word pairs to personalise suggestions over time. */
+  learningEnabled: boolean;
+  /** Expand saved text shortcuts on word boundaries. */
+  snippetsEnabled: boolean;
+  /** Show the smart suggestion strip at all. */
+  suggestionsEnabled: boolean;
+  /**
+   * Key height in px, set by dragging the keyboard's grip. Overrides the
+   * coarse `keyHeight` preset when present — long sessions want an exact fit.
+   */
+  keyHeightPx: number | null;
 }
+
+/** Bounds for the drag-to-resize grip, in px per key row. */
+export const KEY_HEIGHT_MIN = 32;
+export const KEY_HEIGHT_MAX = 68;
 
 const STORAGE_KEY = 'smarthub:soft-keyboard-settings-v2';
 /** Exported so the traveling-settings sync layer can detect local ownership
@@ -76,6 +91,10 @@ export const DEFAULT_KEYBOARD_SETTINGS: KeyboardSettings = {
   clipboardEnabled: true,
   clipboardRetention: 'unlimited',
   keyBorders: true,
+  learningEnabled: true,
+  snippetsEnabled: true,
+  suggestionsEnabled: true,
+  keyHeightPx: null,
 };
 
 export function readKeyboardSettings(): KeyboardSettings {
@@ -130,6 +149,14 @@ export function readSoftKeyboardPreference(): SoftKeyboardPreference {
  */
 export function clearKeyboardRuntimeCache(): void {
   memorySettings = null;
+  // The learned dictionary and snippet list are per-person data: their caches
+  // must not survive a sign-out either.
+  void Promise.all([import('./prediction'), import('./snippets')])
+    .then(([prediction, snippets]) => {
+      prediction.clearPredictionRuntimeCache();
+      snippets.clearSnippetRuntimeCache();
+    })
+    .catch(() => undefined);
 }
 
 export function writeSoftKeyboardPreference(value: SoftKeyboardPreference): void {

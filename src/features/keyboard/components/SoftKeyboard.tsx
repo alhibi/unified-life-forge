@@ -15,7 +15,7 @@ import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
 import { copyToSystemClipboard, getClipboardHistory } from '../lib/clipboard';
-import { canUndo, getSelectionState, performUndo, selectAll } from '../lib/edit';
+import { canUndo, getSelectionState, getWordContext, performUndo, selectAll } from '../lib/edit';
 import { getPreferredInitialLayout } from '../lib/edit';
 import {
   ALEF_VARIANTS,
@@ -30,11 +30,21 @@ import {
   QUICK_PUNCTUATION,
   WESTERN_NUMBER_ROW,
 } from '../lib/layouts';
-import { getAutoCorrection, getWordSuggestions, learnWord } from '../lib/prediction';
 import {
+  forgetLearnedWord,
+  getAutoCorrection,
+  getWordSuggestions,
+  learnPhrase,
+  learnWord,
+} from '../lib/prediction';
+import {
+  KEY_HEIGHT_MAX,
+  KEY_HEIGHT_MIN,
   type KeyboardSettings,
   readKeyboardSettings,
+  writeKeyboardSettings,
 } from '../lib/preference';
+import { expandSnippet } from '../lib/snippets';
 import { playKeyClickSound } from '../lib/sound';
 import { keyboardPaletteVars } from '../lib/theme';
 import { ClipboardPanel } from './ClipboardPanel';
@@ -60,7 +70,14 @@ export interface SoftKeyboardProps {
   inputTick?: number;
 }
 
-const HOLD_REPEAT_MS = 70;
+/**
+ * Hold-to-repeat starts deliberate and accelerates, the way OS keyboards do:
+ * a held backspace should clear a long paragraph without being twitchy on a
+ * short one.
+ */
+const HOLD_REPEAT_START_MS = 120;
+const HOLD_REPEAT_MIN_MS = 28;
+const HOLD_REPEAT_ACCEL = 0.86;
 /** Slop, in px, a finger may travel on a key before the tap is treated as a drag. */
 const DRAG_SLOP = 12;
 
@@ -118,7 +135,7 @@ const Key = memo(function Key({
 
   const clear = useCallback(() => {
     if (timers.current.start) window.clearTimeout(timers.current.start);
-    if (timers.current.repeat) window.clearInterval(timers.current.repeat);
+    if (timers.current.repeat) window.clearTimeout(timers.current.repeat);
     timers.current = {};
     setIsPressed(false);
     setShowPopup(false);
@@ -184,7 +201,13 @@ const Key = memo(function Key({
             } else if (onHold) {
               consumedRef.current = true;
               onHold();
-              timers.current.repeat = window.setInterval(onHold, HOLD_REPEAT_MS);
+              let delay = HOLD_REPEAT_START_MS;
+              const tick = () => {
+                onHold();
+                delay = Math.max(HOLD_REPEAT_MIN_MS, delay * HOLD_REPEAT_ACCEL);
+                timers.current.repeat = window.setTimeout(tick, delay);
+              };
+              timers.current.repeat = window.setTimeout(tick, delay);
             }
           }, holdDelayMs);
         }}
@@ -303,6 +326,55 @@ export default function SoftKeyboard({
     return () => document.removeEventListener('selectionchange', updateState);
   }, [editableTarget, inputTick]);
 
+  /** Live handle on the field, so the prediction job can read real text. */
+  const targetElRef = useRef(editableTarget);
+  useEffect(() => {
+    targetElRef.current = editableTarget;
+  }, [editableTarget]);
+
+  /**
+   * Drag-to-resize: heavy typists want the rows exactly where their thumbs
+   * are. The live value drives the CSS var while dragging and is written to
+   * settings only on release, so a drag costs one write, not sixty.
+   */
+  const [liveHeightPx, setLiveHeightPx] = useState<number | null>(null);
+  const gripRef = useRef<{ startY: number; startH: number } | null>(null);
+
+  const handleGripDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const current =
+      readKeyboardSettings().keyHeightPx ??
+      Math.round(
+        parseFloat(
+          getComputedStyle(rootRef.current ?? document.documentElement).getPropertyValue('--kb-key-h'),
+        ) || 44,
+      );
+    gripRef.current = { startY: event.clientY, startH: current };
+    setLiveHeightPx(current);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* capture is best-effort */
+    }
+  }, []);
+
+  const handleGripMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const grip = gripRef.current;
+    if (!grip) return;
+    // Dragging up (negative delta) makes the keys taller.
+    const next = Math.round(grip.startH + (grip.startY - event.clientY) / 3);
+    setLiveHeightPx(Math.min(KEY_HEIGHT_MAX, Math.max(KEY_HEIGHT_MIN, next)));
+  }, []);
+
+  const handleGripUp = useCallback(() => {
+    if (!gripRef.current) return;
+    gripRef.current = null;
+    setLiveHeightPx((value) => {
+      if (value !== null) writeKeyboardSettings({ keyHeightPx: value });
+      return value;
+    });
+    haptics('selection');
+  }, []);
+
   const rootRef = useRef<HTMLDivElement>(null);
   const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
   const lastSpaceTapRef = useRef<number>(0);
@@ -322,6 +394,10 @@ export default function SoftKeyboard({
   /**
    * Non-blocking prediction pipeline with requestIdleCallback or immediate timeout fallback.
    * Cancels any pending prediction job on rapid consecutive keystrokes.
+   *
+   * The token and its preceding word are read from the field itself, not from
+   * the internal buffer: after a caret move, a paste or an undo the buffer is
+   * stale, and stale suggestions are worse than none.
    */
   const updateSuggestions = useCallback((buffer: string, sensitive: boolean) => {
     if (pendingPredictionRef.current?.idleId && typeof cancelIdleCallback !== 'undefined') {
@@ -338,7 +414,10 @@ export default function SoftKeyboard({
     }
 
     const compute = () => {
-      setSuggestions(getWordSuggestions(buffer));
+      const el = targetElRef.current;
+      const context = getWordContext(el);
+      const token = el ? context.token : buffer;
+      setSuggestions(getWordSuggestions(token, 5, el ? context.previous : null));
     };
 
     if (typeof requestIdleCallback !== 'undefined') {
@@ -393,10 +472,27 @@ export default function SoftKeyboard({
       ? [HARAKAT.slice(0, 6), HARAKAT.slice(6, 12)]
       : LAYOUT_ROWS[layout as keyof typeof LAYOUT_ROWS] ?? LAYOUT_ROWS.ar;
 
+  /**
+   * Files a finished word into the personal dictionary together with the word
+   * before it. Skipped on sensitive fields and when learning is switched off —
+   * a password or an OTP must never enter the dictionary.
+   */
+  const commitWord = useCallback(
+    (word: string, previous?: string) => {
+      if (!settings.learningEnabled || isSensitive) return;
+      const context = previous ?? getWordContext(targetElRef.current).previous;
+      learnWord(word, context || null);
+    },
+    [settings.learningEnabled, isSensitive],
+  );
+
   const emit = useCallback(
     (key: KeyDef) => {
       const upper = shift || caps;
       const textToInsert = upper && key.alt ? key.alt : key.ch;
+      // Context has to be read *before* the insertion, while the previous word
+      // is still the one preceding the caret.
+      const previousWord = getWordContext(targetElRef.current).previous;
       onInsert(textToInsert);
       if (shift && !caps) setShift(false);
 
@@ -406,11 +502,12 @@ export default function SoftKeyboard({
       // Only letters continue a word. Digits, punctuation and combining marks end
       // it, so the prediction buffer never accumulates junk that can't be matched.
       const isWordChar = /^[\p{L}\u0640]+$/u.test(textToInsert);
+      if (!isWordChar && typedBuffer) commitWord(typedBuffer, previousWord);
       const newBuffer = isWordChar ? typedBuffer + textToInsert : '';
       setTypedBuffer(newBuffer);
       updateSuggestions(newBuffer, isSensitive);
     },
-    [shift, caps, onInsert, typedBuffer, updateSuggestions, isSensitive],
+    [shift, caps, onInsert, typedBuffer, updateSuggestions, isSensitive, commitWord],
   );
 
   const handleBackspace = useCallback(() => {
@@ -438,6 +535,24 @@ export default function SoftKeyboard({
 
   const handleSpacePress = useCallback(() => {
     const now = Date.now();
+    const previousWord = getWordContext(targetElRef.current).previous;
+
+    // A saved shortcut wins over everything else: it is an explicit, typed
+    // instruction, so it expands before correction or auto-period logic runs.
+    if (settings.snippetsEnabled && typedBuffer && !isSensitive) {
+      const expansion = expandSnippet(typedBuffer);
+      if (expansion) {
+        const replaced = onReplaceLastWord(typedBuffer, expansion + ' ');
+        if (replaced) {
+          setLastCorrection({ original: typedBuffer, corrected: expansion });
+          setTypedBuffer('');
+          if (settings.learningEnabled) learnPhrase(expansion);
+          lastSpaceTapRef.current = now;
+          updateSuggestions('', isSensitive);
+          return;
+        }
+      }
+    }
 
     // Check mild auto-correction on word boundary space
     if (settings.autoCorrectionEnabled && typedBuffer && !isSensitive) {
@@ -447,6 +562,7 @@ export default function SoftKeyboard({
         if (replaced) {
           setLastCorrection({ original: typedBuffer, corrected: correction });
           setTypedBuffer('');
+          commitWord(correction, previousWord);
           updateSuggestions('', isSensitive);
           return;
         }
@@ -454,6 +570,7 @@ export default function SoftKeyboard({
     }
 
     setLastCorrection(null);
+    if (typedBuffer) commitWord(typedBuffer, previousWord);
 
     if (settings.autoPeriod && now - lastSpaceTapRef.current < 320) {
       // Auto-period shortcut: convert previous space/tap to ". "
@@ -469,12 +586,15 @@ export default function SoftKeyboard({
   }, [
     settings.autoCorrectionEnabled,
     settings.autoPeriod,
+    settings.snippetsEnabled,
+    settings.learningEnabled,
     typedBuffer,
     isSensitive,
     onBackspace,
     onInsert,
     onReplaceLastWord,
     updateSuggestions,
+    commitWord,
   ]);
 
   /** Props every key shares, memoized to prevent unnecessary re-renders across rows. */
@@ -502,15 +622,19 @@ export default function SoftKeyboard({
   const rtl = isRtlLayout(layout);
   const quickStrip: readonly string[] = layout === 'ar' ? ALEF_VARIANTS : QUICK_PUNCTUATION;
 
-  // Height dynamic variable mapping with landscape adaptability
+  // Height: an exact dragged height wins over the coarse preset.
   const keyHeightVar =
-    settings.keyHeight === 'compact'
-      ? '2.2rem'
-      : settings.keyHeight === 'tall'
-        ? '3.1rem'
-        : settings.keyHeight === 'extra-tall'
-          ? '3.5rem'
-          : '2.75rem';
+    liveHeightPx !== null
+      ? `${liveHeightPx}px`
+      : settings.keyHeightPx !== null
+        ? `${settings.keyHeightPx}px`
+        : settings.keyHeight === 'compact'
+          ? '2.2rem'
+          : settings.keyHeight === 'tall'
+            ? '3.1rem'
+            : settings.keyHeight === 'extra-tall'
+              ? '3.5rem'
+              : '2.75rem';
 
   return (
     <motion.div
@@ -544,17 +668,41 @@ export default function SoftKeyboard({
         onOpenChange={setSettingsModalOpen}
       />
 
+      {/* Drag grip — resize the rows to fit the thumbs */}
+      <div
+        role="separator"
+        aria-label="اسحب لتغيير ارتفاع لوحة المفاتيح"
+        aria-orientation="horizontal"
+        onPointerDown={handleGripDown}
+        onPointerMove={handleGripMove}
+        onPointerUp={handleGripUp}
+        onPointerCancel={handleGripUp}
+        onDoubleClick={() => {
+          writeKeyboardSettings({ keyHeightPx: null });
+          setLiveHeightPx(null);
+        }}
+        className="mx-auto mb-1 flex h-4 w-16 cursor-ns-resize touch-none items-center justify-center"
+      >
+        <span className="h-1 w-10 rounded-full bg-[hsl(var(--kb-fg))]/25" />
+      </div>
+
       {/* Top Action & Suggestion Bar */}
       <ToolBar
-        suggestions={isSensitive ? [] : suggestions}
+        suggestions={isSensitive || !settings.suggestionsEnabled ? [] : suggestions}
         onSelectSuggestion={(word) => {
-          onInsert(word + ' ');
-          if (!isSensitive) {
-            learnWord(word);
-          }
+          // Completing the in-progress token must replace it, not append to it.
+          const replaced = typedBuffer ? onReplaceLastWord(typedBuffer, word + ' ') : false;
+          if (!replaced) onInsert(word + ' ');
+          commitWord(word);
           setTypedBuffer('');
+          setLastCorrection(null);
           updateSuggestions('', isSensitive);
           if (settings.vibrateOnKeyPress) haptics('selection');
+        }}
+        onForgetSuggestion={(word) => {
+          forgetLearnedWord(word);
+          updateSuggestions(typedBuffer, isSensitive);
+          haptics('warning');
         }}
         activePanel={activePanel}
         setActivePanel={useCallback((panel) => {

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 
 import {
   CheckSquare,
@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils';
 export interface ToolBarProps {
   suggestions: string[];
   onSelectSuggestion: (word: string) => void;
+  /** Long-press a chip to drop a word the keyboard learned by mistake. */
+  onForgetSuggestion?: (word: string) => void;
   activePanel: 'none' | 'clipboard' | 'emoji' | 'settings' | 'islamic';
   setActivePanel: (panel: 'none' | 'clipboard' | 'emoji' | 'settings' | 'islamic') => void;
   oneHandedMode: 'off' | 'left' | 'right';
@@ -35,11 +37,82 @@ export interface ToolBarProps {
 }
 
 /**
+ * One suggestion chip. A tap accepts the word; a long press offers to forget
+ * it — the escape hatch that keeps a learning dictionary from slowly filling
+ * with typos over months of use.
+ */
+const SuggestionChip = memo(function SuggestionChip({
+  word,
+  onSelect,
+  onForget,
+}: {
+  word: string;
+  onSelect: (word: string) => void;
+  onForget?: (word: string) => void;
+}) {
+  const holdRef = useRef<number | undefined>(undefined);
+  const [confirming, setConfirming] = useState(false);
+
+  const clear = useCallback(() => {
+    if (holdRef.current) window.clearTimeout(holdRef.current);
+    holdRef.current = undefined;
+  }, []);
+
+  if (confirming) {
+    return (
+      <button
+        type="button"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          onForget?.(word);
+          setConfirming(false);
+        }}
+        onPointerLeave={() => setConfirming(false)}
+        className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-destructive/15 px-2.5 text-mini font-medium text-destructive"
+      >
+        <span>نسيان «{word}»؟</span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        if (onForget) {
+          holdRef.current = window.setTimeout(() => {
+            holdRef.current = undefined;
+            setConfirming(true);
+            haptics('warning');
+          }, 500);
+        }
+      }}
+      onPointerUp={(e) => {
+        e.preventDefault();
+        if (!onForget || holdRef.current) {
+          clear();
+          onSelect(word);
+          haptics('selection');
+        }
+      }}
+      onPointerCancel={clear}
+      onPointerLeave={clear}
+      className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
+    >
+      <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
+      <span>{word}</span>
+    </button>
+  );
+});
+
+/**
  * Gboard-style top action bar. Features smart word suggestion chips & quick tool toggles.
  */
 export const ToolBar = memo(function ToolBar({
   suggestions,
   onSelectSuggestion,
+  onForgetSuggestion,
   activePanel,
   setActivePanel,
   oneHandedMode,
@@ -136,19 +209,12 @@ export const ToolBar = memo(function ToolBar({
 
             {suggestions.length > 0 ? (
               suggestions.map((word, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    onSelectSuggestion(word);
-                    haptics('selection');
-                  }}
-                  className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
-                >
-                  <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
-                  <span>{word}</span>
-                </button>
+                <SuggestionChip
+                  key={`${word}-${idx}`}
+                  word={word}
+                  onSelect={onSelectSuggestion}
+                  onForget={onForgetSuggestion}
+                />
               ))
             ) : (
               <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground/70">
@@ -159,6 +225,7 @@ export const ToolBar = memo(function ToolBar({
           </>
         )}
       </div>
+
 
       {/* Quick Access Tools */}
       <div className="flex shrink-0 items-center gap-0.5">
