@@ -291,10 +291,15 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     setShowEmojiPicker(false);
     setSelectedIds(new Set());
     setSignedUrls({});
+    signedUrlInFlightRef.current.clear();
     revokeStagedPreviews();
     setStagedImages([]);
     setStagedPreviews([]);
     isNearBottomRef.current = true;
+    // A fresh thread starts from its latest page.
+    setHasMoreMessages(false);
+    setLoadingOlder(false);
+    loadingOlderRef.current = false;
 
     if (conv) {
       // Instant unread reset: clear the count locally so the badge updates
