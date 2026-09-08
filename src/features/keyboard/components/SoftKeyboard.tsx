@@ -135,7 +135,7 @@ const Key = memo(function Key({
 
   const clear = useCallback(() => {
     if (timers.current.start) window.clearTimeout(timers.current.start);
-    if (timers.current.repeat) window.clearInterval(timers.current.repeat);
+    if (timers.current.repeat) window.clearTimeout(timers.current.repeat);
     timers.current = {};
     setIsPressed(false);
     setShowPopup(false);
@@ -201,7 +201,13 @@ const Key = memo(function Key({
             } else if (onHold) {
               consumedRef.current = true;
               onHold();
-              timers.current.repeat = window.setInterval(onHold, HOLD_REPEAT_MS);
+              let delay = HOLD_REPEAT_START_MS;
+              const tick = () => {
+                onHold();
+                delay = Math.max(HOLD_REPEAT_MIN_MS, delay * HOLD_REPEAT_ACCEL);
+                timers.current.repeat = window.setTimeout(tick, delay);
+              };
+              timers.current.repeat = window.setTimeout(tick, delay);
             }
           }, holdDelayMs);
         }}
