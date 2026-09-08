@@ -395,9 +395,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     if (!activeConv || !user) return;
     setMessagesLoading(true);
     try {
-      let result: { messages: Message[]; reactions: Reaction[] };
+      let result: Awaited<ReturnType<typeof fetchMessagesWithReactions>>;
       try {
-        result = await fetchMessagesWithReactions(activeConv.id, user.id, activeConv.otherUserId);
+        result = await fetchMessagesWithReactions(activeConv.id, user.id, activeConv.otherUserId, {
+          limit: MESSAGE_PAGE_SIZE,
+        });
       } catch (err) {
         chatError('conversationGone', describeError(err));
         return;
@@ -405,6 +407,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
       setMessages(result.messages);
       setReactions(result.reactions);
+      setHasMoreMessages(result.hasMore);
 
       // Mark in parallel: every undelivered "from them" row becomes
       // delivered, every unread one becomes read. Both RPCs ignore
@@ -438,6 +441,60 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       setMessagesLoading(false);
     }
   }, [activeConv, user, scrollToBottom]);
+
+  /**
+   * Prepend the page of history immediately older than the oldest loaded
+   * message, keeping the viewport visually still: the container grows at the
+   * top, so we re-apply the scroll offset by the height delta before paint.
+   */
+  const loadOlderMessages = useCallback(async () => {
+    const conv = activeConv;
+    if (!conv || !user) return;
+    if (loadingOlderRef.current || !hasMoreMessages) return;
+    const oldest = messagesRef.current.find(m => !m.id.startsWith('optimistic_'));
+    if (!oldest) return;
+
+    loadingOlderRef.current = true;
+    setLoadingOlder(true);
+    const container = messagesContainerRef.current;
+    const prevHeight = container?.scrollHeight ?? 0;
+    const prevTop = container?.scrollTop ?? 0;
+    try {
+      const page = await fetchMessagesWithReactions(conv.id, user.id, conv.otherUserId, {
+        limit: MESSAGE_PAGE_SIZE,
+        before: oldest.created_at,
+      });
+      if (activeConvIdRef.current !== conv.id) return;
+      setHasMoreMessages(page.hasMore);
+      if (page.messages.length === 0) return;
+
+      setMessages(prev => {
+        const known = new Set(prev.map(m => m.id));
+        const older = page.messages.filter(m => !known.has(m.id));
+        return older.length === 0 ? prev : [...older, ...prev];
+      });
+      setReactions(prev => {
+        const known = new Set(prev.map(r => r.id));
+        const extra = page.reactions.filter(r => !known.has(r.id));
+        return extra.length === 0 ? prev : [...prev, ...extra];
+      });
+
+      requestAnimationFrame(() => {
+        const el = messagesContainerRef.current;
+        if (!el) return;
+        el.scrollTop = prevTop + (el.scrollHeight - prevHeight);
+      });
+    } catch {
+      // History paging is best-effort: the loaded window stays usable.
+    } finally {
+      loadingOlderRef.current = false;
+      setLoadingOlder(false);
+    }
+  }, [activeConv, user, hasMoreMessages]);
+
+  useEffect(() => {
+    loadOlderRef.current = () => { void loadOlderMessages(); };
+  }, [loadOlderMessages]);
 
   useEffect(() => { if (open && user) loadConversations(); }, [open, user, loadConversations]);
   useEffect(() => { if (activeConv) loadMessages(); }, [activeConv, loadMessages]);
