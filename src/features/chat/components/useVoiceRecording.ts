@@ -198,6 +198,11 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
   }, []);
 
   const startRecording = useCallback(async () => {
+    // Guard against a double start (pointerdown + a stray synthetic event).
+    if (startingRef.current) return;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') return;
+    startingRef.current = true;
+    pendingStopModeRef.current = null;
     try {
       if (voicePlayer.state.isPlaying) voicePlayer.stop();
 
@@ -205,6 +210,7 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
       // gesture by a ref-swap) need this check.
       if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
         chatError('micUnavailable');
+        startingRef.current = false;
         return;
       }
 
@@ -218,6 +224,17 @@ export function useVoiceRecording({ activeConvId, userId, sendMessage }: UseVoic
         }
       });
       streamRef.current = stream;
+
+      // The user already let go (or cancelled) while permission was being
+      // resolved: release the microphone instead of recording into the void.
+      if (pendingStopModeRef.current === 'cancel') {
+        pendingStopModeRef.current = null;
+        startingRef.current = false;
+        stream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+        return;
+      }
+
 
       // Spin up the live amplitude analyser BEFORE MediaRecorder.start so
       // the first frame is on screen by the time the user's finger has
