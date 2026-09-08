@@ -45,7 +45,8 @@ import {
   writeKeyboardSettings,
 } from '../lib/preference';
 import { expandSnippet } from '../lib/snippets';
-import { playKeyClickSound } from '../lib/sound';
+import { tapFeedback, type TapFeedbackOptions } from '../lib/feedback';
+import { releaseKeyboardAudio } from '../lib/sound';
 import { keyboardPaletteVars } from '../lib/theme';
 import { ClipboardPanel } from './ClipboardPanel';
 import { EmojiPanel } from './EmojiPanel';
