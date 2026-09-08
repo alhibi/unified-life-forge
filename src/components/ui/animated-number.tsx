@@ -83,7 +83,7 @@ function AnimatedNumberImpl({
 
     const controls = animate(from, value, {
       duration: duration ?? DURATION.slow,
-      ease: EASE_OUT_QUAD as unknown as number[],
+      ease: [...EASE_OUT_QUAD] as [number, number, number, number],
       onUpdate: (n) => {
         shown.current = n;
         write(n);
