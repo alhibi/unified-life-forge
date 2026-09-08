@@ -9,7 +9,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
 
-const uploadMock = vi.fn(async () => ({ error: null }));
+type UploadResult = { error: { message: string } | null };
+const uploadMock = vi.fn(async (): Promise<UploadResult> => ({ error: null }));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: { storage: { from: () => ({ upload: uploadMock }) } },
@@ -85,7 +86,7 @@ function installMediaMocks(opts: { deferStream?: boolean } = {}) {
 }
 
 function setup() {
-  const sendMessage = vi.fn(async () => {});
+  const sendMessage = vi.fn(async (_type: string, _url?: string, _name?: string) => {});
   const hook = renderHook(() =>
     useVoiceRecording({ activeConvId: 'conv-1', userId: 'user-1', sendMessage }),
   );
