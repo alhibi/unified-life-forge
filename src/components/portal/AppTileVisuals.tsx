@@ -46,6 +46,10 @@ const IDENTITY: Record<string, TileIdentity> = {
   chat: { accent: '232 36% 60%', motif: 'bubbles' },
   games: { accent: '300 28% 56%', motif: 'board' },
   crypto: { accent: '96 34% 46%', motif: 'ticker' },
+  mihrab: { accent: '166 30% 48%', motif: 'arch' },
+  'german-club': { accent: '48 40% 52%', motif: 'glyph' },
+  marginalia: { accent: '280 26% 56%', motif: 'columns' },
+  'time-ledger': { accent: '216 32% 56%', motif: 'orbit' },
 };
 
 const FALLBACK: TileIdentity = { accent: '32 58% 62%', motif: 'dawn' };
