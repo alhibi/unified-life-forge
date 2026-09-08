@@ -80,6 +80,25 @@ export const EASE_M3_ACCELERATE: EaseTuple = [0.4, 0.0, 1.0, 1.0];
  * immediately, decelerate hard, and land exactly on target with no
  * rebound. `SILK_OUT` is the one curve used by every enter in the silk
  * profile, which is why the whole app reads as a single gesture. */
+/* ── The two semantic curves (Stage 6) ─────────────────────────────
+ * Everything the user perceives is one of two kinds of movement, so the
+ * app speaks exactly two curves and reserves overshoot for the rare
+ * signature moment:
+ *
+ *   SETTLE — something *arrives*: content, an overlay, a result, a list
+ *            row. Leaves rest instantly, decelerates long, lands dead on
+ *            target with zero rebound, because arriving content that
+ *            bounces reads as unstable.
+ *   SNAP   — something the finger is *directly manipulating*: a toggle
+ *            knob, a tab underline, a press. Short, mostly linear at the
+ *            start so it feels attached to the finger, then clipped.
+ *
+ * If a new animation is neither an arrival nor a direct manipulation,
+ * it probably should not be animated at all.
+ */
+export const EASE_SETTLE: EaseTuple = [0.16, 0.84, 0.24, 1];
+export const EASE_SNAP: EaseTuple = [0.3, 0.7, 0.1, 1];
+
 export const EASE_SILK_OUT: EaseTuple = [0.22, 1, 0.36, 1];
 export const EASE_SILK_IN: EaseTuple = [0.4, 0, 0.9, 1];
 export const EASE_SILK_IN_OUT: EaseTuple = [0.5, 0, 0.2, 1];
@@ -202,6 +221,36 @@ export const MOTION = {
   modalOut: {
     duration: 0.26,
     ease: EASE_IN_CUBIC,
+  } as Transition,
+
+  /**
+   * SETTLE — the arrival transition. Use for any content, result or
+   * overlay landing on screen. Never overshoots.
+   */
+  settle: {
+    duration: 0.28,
+    ease: EASE_SETTLE,
+  } as Transition,
+
+  /**
+   * SNAP — direct manipulation. Use for anything that must feel attached
+   * to the finger: toggle knobs, segmented selection, tab indicators.
+   */
+  snap: {
+    duration: 0.14,
+    ease: EASE_SNAP,
+  } as Transition,
+
+  /**
+   * SIGNATURE — the only sanctioned overshoot, and only for the handful
+   * of moments listed in `signature-moment.tsx`. Deliberately scarce:
+   * it reads as special because nothing else in the app does this.
+   */
+  signature: {
+    type: 'spring',
+    stiffness: 420,
+    damping: 26,
+    mass: 0.7,
   } as Transition,
 
   /** Generic fade / cross-fade. */
