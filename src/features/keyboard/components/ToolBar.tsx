@@ -15,9 +15,9 @@ import {
   Wand2,
 } from '@/lib/icons';
 import { haptics } from '@/lib/native';
+import { cn } from '@/lib/utils';
 
 import { chromeFeedback } from '../lib/feedback';
-import { cn } from '@/lib/utils';
 
 export interface ToolBarProps {
   suggestions: string[];
