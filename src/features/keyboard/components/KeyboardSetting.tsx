@@ -100,18 +100,14 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
             <Keyboard className="h-4 w-4 text-[hsl(var(--live))]" />
             <span>ارتفاع لوحة المفاتيح</span>
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'compact', label: 'مدمج' },
-              { id: 'normal', label: 'طبيعي' },
-              { id: 'tall', label: 'مرتفع' },
-            ].map((height) => (
+          <div className="grid grid-cols-4 gap-2">
+            {HEIGHT_OPTIONS.map((height) => (
               <button
                 key={height.id}
                 type="button"
-                onClick={() => update({ keyHeight: height.id as any })}
+                onClick={() => update({ keyHeight: height.id, keyHeightPx: null })}
                 className={`flex h-9 items-center justify-center rounded-xl border text-micro font-medium transition-motion ${
-                  settings.keyHeight === height.id
+                  settings.keyHeight === height.id && settings.keyHeightPx === null
                     ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))]/20 text-[hsl(var(--live))] font-semibold'
                     : 'border-border/40 bg-[hsl(var(--surface-2))] text-muted-foreground hover:text-foreground'
                 }`}
@@ -120,7 +116,13 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
               </button>
             ))}
           </div>
+          <p className="text-micro text-muted-foreground">
+            {settings.keyHeightPx !== null
+              ? `ارتفاع مخصص بالسحب: ${settings.keyHeightPx} نقطة — انقر أحد الخيارات للعودة للمقاسات الجاهزة.`
+              : 'يمكنك أيضاً سحب المقبض أعلى اللوحة لضبط الارتفاع بدقة (نقرة مزدوجة للإرجاع).'}
+          </p>
         </div>
+
 
         {/* Toggles */}
         <div className="space-y-3 pt-2 border-t border-border/30">
