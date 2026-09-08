@@ -19,7 +19,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { type ReactNode } from 'react';
 
-import { cascadeChild, cascadeParent } from '../lib/weather-motion';
+import { cascadeChild } from '../lib/weather-motion';
 
 interface SectionRevealProps {
   children: ReactNode;

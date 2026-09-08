@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import React, { useState } from 'react';
 
-import { ArrowRight, Compass, Sparkles } from '@/lib/icons';
+import { Compass, Sparkles } from '@/lib/icons';
 
 import { discoverRandom, type DiscoveryResult } from '../lib/discovery';
 import { GERMAN_CLUB_TOKENS } from '../types';

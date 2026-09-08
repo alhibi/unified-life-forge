@@ -5,12 +5,12 @@
  * motion animations, refined visual hierarchy, and deep interaction design.
  * Uses the unified design system (OKLCH tokens, semantic Tailwind v4).
  */
+import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import {
-  Eye, EyeOff, Palette, Shield, ShieldCheck, Sparkles,
-  ChevronLeft, Lock, Globe, Check, CircleDashed
-} from '@/lib/icons';
+Check, CircleDashed,
+  Eye, EyeOff, Globe, Lock, Palette, Shield, ShieldCheck, Sparkles} from '@/lib/icons';
 
 import { PrivacySettings } from '../types';
 

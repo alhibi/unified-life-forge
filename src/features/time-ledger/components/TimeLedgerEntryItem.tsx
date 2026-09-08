@@ -6,37 +6,38 @@
  */
 
 import { useMemo } from 'react';
-import {
-  Calendar,
-  Flame,
-  Activity,
-  CloudSun,
-  BookOpen,
-  PlusCircle,
-  Building,
-  FileText,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Trash2,
-  Edit2,
-  ExternalLink,
-  PlayCircle,
-  Bookmark,
-  HelpCircle,
-} from '@/lib/icons';
 
 import { AppCard } from '@/components/ui/app-shell';
+import {
+  Activity,
+  AlertCircle,
+  Bookmark,
+  BookOpen,
+  Building,
+  Calendar,
+  CheckCircle,
+  Clock,
+  CloudSun,
+  Edit2,
+  ExternalLink,
+  FileText,
+  Flame,
+  HelpCircle,
+  PlayCircle,
+  PlusCircle,
+  Trash2,
+} from '@/lib/icons';
+
 import type { TimeLedgerEntry, TimeLedgerLayerConfig } from '../types';
 import {
   isCalendarEntry,
-  isHabitEntry,
   isFitnessEntry,
-  isWeatherEntry,
-  isKnowledgeEntry,
-  isQuickCaptureEntry,
-  isPrayerEntry,
+  isHabitEntry,
   isJournalEntry,
+  isKnowledgeEntry,
+  isPrayerEntry,
+  isQuickCaptureEntry,
+  isWeatherEntry,
 } from '../types';
 
 interface TimeLedgerEntryItemProps {

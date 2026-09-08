@@ -6,9 +6,10 @@
  */
 
 import { useMemo } from 'react';
-import { Check, X, Filter } from '@/lib/icons';
 
 import { AppCard } from '@/components/ui/app-shell';
+import { Check,X } from '@/lib/icons';
+
 import type { TimeLedgerLayerConfig, TimeLedgerSource } from '../types';
 
 interface LayerToggleBarProps {

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { ArrowLeft, ArrowRight, MapPin, Volume2, Wand2, X } from '@/lib/icons';
 

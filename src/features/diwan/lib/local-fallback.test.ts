@@ -201,10 +201,10 @@ describe('localPoem', () => {
   });
 
   it('returns full poem detail for known slug (Imru al-Qays Mu`allaqa)', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const poem = await localPoem(slug);
     expect(poem).not.toBeNull();
-    expect(poem!.title).toBe('معلقة امرئ القيس');
+    expect(poem!.title).toBe('معلقة امرؤ القيس - قفا نبك');
     expect(poem!.poet_slug).toBe('imru-alqays');
     expect(poem!.era_id).toBe('jahili');
     expect(poem!.verses.length).toBeGreaterThan(0);
@@ -213,7 +213,7 @@ describe('localPoem', () => {
   });
 
   it('verses have sequential positions starting from 0', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const poem = await localPoem(slug);
     expect(poem).not.toBeNull();
     poem!.verses.forEach((v, i) => {
@@ -222,7 +222,7 @@ describe('localPoem', () => {
   });
 
   it('opening matches first hemistich', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const poem = await localPoem(slug);
     expect(poem!.opening).toBe(poem!.verses[0].hemistich1);
   });
@@ -307,31 +307,31 @@ describe('localSimilarPoems', () => {
   });
 
   it('returns up to N similar poems (default 6)', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const list = await localSimilarPoems(slug);
     expect(list.length).toBeLessThanOrEqual(6);
   });
 
   it('returns at most `limit` items', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const list = await localSimilarPoems(slug, 3);
     expect(list.length).toBeLessThanOrEqual(3);
   });
 
   it('excludes the source poem itself from results', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const list = await localSimilarPoems(slug);
     for (const p of list) expect(p.slug).not.toBe(slug);
   });
 
   it('every result has a positive score', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const list = await localSimilarPoems(slug);
     for (const p of list) expect(p.score).toBeGreaterThan(0);
   });
 
   it('results are sorted by score desc', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const list = await localSimilarPoems(slug);
     for (let i = 1; i < list.length; i++) {
       expect(list[i - 1].score).toBeGreaterThanOrEqual(list[i].score);
@@ -377,7 +377,7 @@ describe('localGlossary', () => {
   });
 
   it('returns entries for Imru al-Qays Muallaqa (seeded in pack-b)', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     const entries = await localGlossary(slug);
     // الباقة B بذرت ~20 مدخل لهذه القصيدة
     expect(entries.length).toBeGreaterThan(0);
@@ -389,7 +389,7 @@ describe('localGlossary', () => {
   });
 
   it('every entry has word_normalized matching norm(word)', async () => {
-    const slug = poemSlug('imru-alqays', 'معلقة امرئ القيس');
+    const slug = poemSlug('imru-alqays', 'معلقة امرؤ القيس - قفا نبك');
     for (const g of await localGlossary(slug)) {
       expect(g.word_normalized).toBe(norm(g.word));
     }

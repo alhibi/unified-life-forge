@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  fenSideToMove,
-  PUZZLES,
-  type PuzzleTheme,
-} from './chessPuzzles';
-import {
   applyMoveUci,
   gameStatus,
   positionFromFen,
 } from '../utils/chessCore';
+import {
+  fenSideToMove,
+  PUZZLES,
+  type PuzzleTheme,
+} from './chessPuzzles';
 
 /**
  * Contract test for the puzzle bank.

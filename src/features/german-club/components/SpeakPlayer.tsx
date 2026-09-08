@@ -4,7 +4,7 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Volume2, Square } from '@/lib/icons';
+import { Square,Volume2 } from '@/lib/icons';
 
 export interface SpeakPlayerProps {
   /** Lines to read out, in order. */

@@ -8,10 +8,9 @@ import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
 import {
-  Activity, ArrowRight, Brain, Lightbulb, Settings,
-  Target, TrendingUp, Users, Zap,
-  Flame, Compass, Trophy, Sparkles
-} from '@/lib/icons';
+  Activity, ArrowRight, Brain, Compass,   Flame, Lightbulb, Settings,
+Sparkles,
+  Target, TrendingUp, Trophy, Users, Zap} from '@/lib/icons';
 
 import { CrossModuleInsight, generateCrossModuleInsights } from '../lib/badgeStore';
 import { ProfileCompletionMetrics } from '../lib/profileCompletionEngine';

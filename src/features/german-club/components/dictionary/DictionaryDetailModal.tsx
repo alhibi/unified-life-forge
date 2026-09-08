@@ -12,6 +12,8 @@ import {
   X,
 } from '@/lib/icons';
 
+import { GERMAN_DICTIONARY_DATA } from '../../lib/dictionaryData';
+import { enrichEntry } from '../../lib/enrichment';
 import {
   CEFRLevelLabels,
   DictionaryEntry,
@@ -20,8 +22,6 @@ import {
   GENDER_LABELS_AR,
 } from '../../types';
 import { useDictionaryStore } from '../../useDictionaryStore';
-import { enrichEntry } from '../../lib/enrichment';
-import { GERMAN_DICTIONARY_DATA } from '../../lib/dictionaryData';
 
 interface DictionaryDetailModalProps {
   entry: DictionaryEntry | null;

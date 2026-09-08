@@ -7,8 +7,10 @@
 // ============================================================================
 
 import 'fake-indexeddb/auto';
+
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { cellKey, resetSkillStore } from '../engine/ConsensusSkillTracker';
 import {
   clearLedger,
   ledgerCellKey,
@@ -23,7 +25,6 @@ import {
   verifyForecasts,
 } from '../engine/ForecastVerification';
 import { feedVerifiedSkill, recordVerifiedSkill } from '../engine/SourceVerifier';
-import { cellKey, recordObservations, resetSkillStore } from '../engine/ConsensusSkillTracker';
 
 const HOUR_MS = 3_600_000;
 const lat = 52.52;

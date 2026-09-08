@@ -16,7 +16,7 @@
 //     fresh install, etc.) so the rest of the pipeline is unchanged.
 // ============================================================================
 
-import { recordObservations, type Observation, type SkillField } from './ConsensusSkillTracker';
+import { type Observation, recordObservations, type SkillField } from './ConsensusSkillTracker';
 import type { VerifiedSkill } from './ForecastVerification';
 
 const MIN_SAMPLES_TO_EMIT = 3;

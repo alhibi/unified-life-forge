@@ -3,8 +3,8 @@ import React from 'react';
 
 import { Bookmark } from '@/lib/icons';
 
-import { useDictionaryStore } from '../useDictionaryStore';
 import { GERMAN_CLUB_TOKENS } from '../types';
+import { useDictionaryStore } from '../useDictionaryStore';
 
 /**
  * WortschatzSpiegel — "vocabulary mirror".

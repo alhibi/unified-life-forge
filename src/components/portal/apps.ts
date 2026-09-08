@@ -20,6 +20,7 @@ import {
   Calendar,
   ChevronRight,
   Clock,
+  Clock as ClockIcon,
   Compass,
   Crown,
   Dumbbell,
@@ -57,12 +58,6 @@ import {
   Swords,
   TrendingUp,
   Users,
-  Clock as ClockIcon,
-  Flame,
-  CloudSun,
-  Building,
-  FileText,
-  MinusCircle,
 } from '@/lib/icons';
 
 /** Filter buckets shown as the launcher's segmented control. */

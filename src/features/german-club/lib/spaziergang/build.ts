@@ -1,5 +1,5 @@
-import { GERMAN_DICTIONARY_DATA } from '../dictionaryData';
 import type { DictionaryEntry } from '../../types';
+import { GERMAN_DICTIONARY_DATA } from '../dictionaryData';
 
 /**
  * Der Wortspaziergang — "the word walk" — a 7-step wandering journey.

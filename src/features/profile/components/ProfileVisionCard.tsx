@@ -4,11 +4,13 @@
  * A luxury identity card displaying profile identity, privacy state,
  * and customization status with deep visual hierarchy and motion.
  */
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Eye, EyeOff, Palette, Sparkles } from '@/lib/icons';
-import { PrivacySettings } from '../types';
+import React from 'react';
+
+import { Eye, EyeOff, Palette, Shield, Sparkles } from '@/lib/icons';
+
 import type { ProfileData } from '../lib/profileCompletionEngine';
+import { PrivacySettings } from '../types';
 
 interface ProfileVisionCardProps {
   profile: ProfileData;

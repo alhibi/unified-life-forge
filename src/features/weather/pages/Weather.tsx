@@ -102,8 +102,6 @@ import {
   uvCategoryLabel,
 } from '../lib/vocabulary';
 import {
-  duration,
-  easing,
   motionPresets,
   tabContentVariants,
 } from '../lib/weather-motion';
