@@ -25,11 +25,13 @@ const FETCH_TIMEOUT_MS = 15_000;
 const SCRAPE_TIMEOUT_MS = 12_000;
 const SCRAPE_CONCURRENCY = 2;
 const BG_DEADLINE_MS = 25_000;
-const MAX_FEEDS_PER_REQUEST = 8;
+const MAX_FEEDS_PER_REQUEST = 6;
+// Feeds are processed one at a time on the persisting path so that only a
+// single feed's parsed XML + scraped bodies are ever resident in the isolate.
 const FEED_FETCH_CONCURRENCY = 2;
-const MAX_FULL_CONTENT_CHARS = 12_000;
-const MAX_RESPONSE_BYTES = 1_500_000; // 1.5 MB per feed response
-const MAX_ITEMS_HARD_CAP = 60;
+const MAX_FULL_CONTENT_CHARS = 8_000;
+const MAX_RESPONSE_BYTES = 1_000_000; // 1 MB per feed response
+const MAX_ITEMS_HARD_CAP = 40;
 const MAX_RETRIES = 1; // one retry on network/5xx
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
