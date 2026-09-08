@@ -332,6 +332,49 @@ export default function SoftKeyboard({
     targetElRef.current = editableTarget;
   }, [editableTarget]);
 
+  /**
+   * Drag-to-resize: heavy typists want the rows exactly where their thumbs
+   * are. The live value drives the CSS var while dragging and is written to
+   * settings only on release, so a drag costs one write, not sixty.
+   */
+  const [liveHeightPx, setLiveHeightPx] = useState<number | null>(null);
+  const gripRef = useRef<{ startY: number; startH: number } | null>(null);
+
+  const handleGripDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const current =
+      readKeyboardSettings().keyHeightPx ??
+      Math.round(
+        parseFloat(
+          getComputedStyle(rootRef.current ?? document.documentElement).getPropertyValue('--kb-key-h'),
+        ) || 44,
+      );
+    gripRef.current = { startY: event.clientY, startH: current };
+    setLiveHeightPx(current);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* capture is best-effort */
+    }
+  }, []);
+
+  const handleGripMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const grip = gripRef.current;
+    if (!grip) return;
+    // Dragging up (negative delta) makes the keys taller.
+    const next = Math.round(grip.startH + (grip.startY - event.clientY) / 3);
+    setLiveHeightPx(Math.min(KEY_HEIGHT_MAX, Math.max(KEY_HEIGHT_MIN, next)));
+  }, []);
+
+  const handleGripUp = useCallback(() => {
+    if (!gripRef.current) return;
+    gripRef.current = null;
+    setLiveHeightPx((value) => {
+      if (value !== null) writeKeyboardSettings({ keyHeightPx: value });
+      return value;
+    });
+    haptics('selection');
+  }, []);
+
   const rootRef = useRef<HTMLDivElement>(null);
   const spaceDragRef = useRef<{ startX: number; moved: boolean } | null>(null);
   const lastSpaceTapRef = useRef<number>(0);
