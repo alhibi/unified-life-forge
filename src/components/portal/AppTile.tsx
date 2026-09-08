@@ -97,7 +97,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         onInspect(app);
       }, LONG_PRESS_MS);
     },
-    [app, clearLongPress, onInspect],
+    [app, clearLongPress, onInspect, warm],
   );
 
   const handleClick = useCallback(() => {
@@ -135,8 +135,15 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           event.preventDefault();
           onInspect(app);
         }}
-        onMouseEnter={() => onFocusApp(app)}
-        onFocus={() => onFocusApp(app)}
+        onMouseEnter={() => {
+          warm();
+          onFocusApp(app);
+        }}
+        onFocus={() => {
+          warm();
+          onFocusApp(app);
+        }}
+        data-prefetch-target={app.path}
         aria-label={`${app.label} — ${app.description}`}
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
