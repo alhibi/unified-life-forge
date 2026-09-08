@@ -519,6 +519,7 @@ export default function SoftKeyboard({
         if (replaced) {
           setLastCorrection({ original: typedBuffer, corrected: correction });
           setTypedBuffer('');
+          commitWord(correction, previousWord);
           updateSuggestions('', isSensitive);
           return;
         }
@@ -526,6 +527,7 @@ export default function SoftKeyboard({
     }
 
     setLastCorrection(null);
+    if (typedBuffer) commitWord(typedBuffer, previousWord);
 
     if (settings.autoPeriod && now - lastSpaceTapRef.current < 320) {
       // Auto-period shortcut: convert previous space/tap to ". "
@@ -541,12 +543,15 @@ export default function SoftKeyboard({
   }, [
     settings.autoCorrectionEnabled,
     settings.autoPeriod,
+    settings.snippetsEnabled,
+    settings.learningEnabled,
     typedBuffer,
     isSensitive,
     onBackspace,
     onInsert,
     onReplaceLastWord,
     updateSuggestions,
+    commitWord,
   ]);
 
   /** Props every key shares, memoized to prevent unnecessary re-renders across rows. */
