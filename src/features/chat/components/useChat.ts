@@ -1258,20 +1258,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
         const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
 
-        const { error } = await supabase.storage.from('chat-files').upload(path, file);
+        // Keep the real MIME type so the recipient's browser opens the file
+        // instead of downloading an unnamed octet-stream.
+        const { error } = await supabase.storage.from('chat-files').upload(path, file, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false,
+        });
         return { error, path, file };
       });
 
       const results = await Promise.all(uploadPromises);
-      setUploading(false);
 
-      for (const result of results) {
-        if (!result) continue;
-        if (result.error) {
-          chatError('uploadFailed', describeError(result.error));
-          continue;
+      try {
+        for (const result of results) {
+          if (!result) continue;
+          if (result.error) {
+            chatError('uploadFailed', describeError(result.error));
+            continue;
+          }
+          await sendMessage('file', result.path, result.file.name);
         }
-        await sendMessage('file', result.path, result.file.name);
+      } finally {
+        // Only drop the busy state once the messages themselves are out —
+        // otherwise the composer looks idle while sends are still pending.
+        setUploading(false);
       }
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -1305,20 +1315,30 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
         const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${index}`;
         const path = `${user.id}/${activeConv.id}/${uniqueId}.${ext}`;
 
-        const { error } = await supabase.storage.from('chat-files').upload(path, file);
+        // Keep the real MIME type so the recipient's browser opens the file
+        // instead of downloading an unnamed octet-stream.
+        const { error } = await supabase.storage.from('chat-files').upload(path, file, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false,
+        });
         return { error, path, file };
       });
 
       const results = await Promise.all(uploadPromises);
-      setUploading(false);
 
-      for (const result of results) {
-        if (!result) continue;
-        if (result.error) {
-          chatError('uploadFailed', describeError(result.error));
-          continue;
+      try {
+        for (const result of results) {
+          if (!result) continue;
+          if (result.error) {
+            chatError('uploadFailed', describeError(result.error));
+            continue;
+          }
+          await sendMessage('file', result.path, result.file.name);
         }
-        await sendMessage('file', result.path, result.file.name);
+      } finally {
+        // Only drop the busy state once the messages themselves are out —
+        // otherwise the composer looks idle while sends are still pending.
+        setUploading(false);
       }
     }
   }, [user, activeConv, addImagesFromFiles, sendMessage]);
