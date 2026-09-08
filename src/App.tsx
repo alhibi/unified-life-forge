@@ -38,7 +38,7 @@ import {
   REDUCED_MOTION_TAB_LAYER_VARIANTS,
 } from '@/lib/motion';
 import { navStart } from '@/lib/navPerf';
-import { registerRoute } from '@/lib/routePrefetch';
+import { registerDataPrefetch, registerRoute } from '@/lib/routePrefetch';
 // Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
 // the entry chunk for the 99% of sessions that never enable it.
 const SplitWorkspace = lazy(() => import('@/components/SplitWorkspace'));
@@ -465,6 +465,19 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// ──────────────────────────────────────────────────────────────────────
+// Data warmers — intent-based *data* prefetch, on top of module prefetch.
+// Warming the module removes the parse cost; warming the query means the
+// screen usually opens on real content instead of a skeleton. Each warmer
+// is read-only, idempotent and TTL-guarded inside the registry, so it is
+// safe on a hover that never becomes a navigation.
+// ──────────────────────────────────────────────────────────────────────
+registerDataPrefetch('/time-ledger', () =>
+  import('./features/time-ledger/hooks/useTimeLedger').then((m) =>
+    Promise.all([m.prefetchTimeLedger(queryClient), m.prefetchTimeLedgerByDay(queryClient)]),
+  ),
+);
 
 // Route fallback. One shared skeleton primitive that reserves the page's real
 // dimensions, so a lazily loaded route does not shift the layout when it lands.
