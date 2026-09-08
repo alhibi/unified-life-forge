@@ -16,9 +16,9 @@ import {
   supportsSoftKeyboard,
   writeKeyboardSettings,
 } from '../lib/preference';
-import { keyboardSwatch } from '../lib/theme';
 import { deleteSnippet, resetSnippets, saveSnippet, type Snippet, getSnippets } from '../lib/snippets';
 import { playKeyClickSound } from '../lib/sound';
+import { keyboardSwatch } from '../lib/theme';
 
 interface KeyboardSettingsModalProps {
   open: boolean;
