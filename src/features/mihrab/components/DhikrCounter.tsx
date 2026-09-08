@@ -170,9 +170,11 @@ export default function DhikrCounter() {
               {rounds > 0 && ` · ${rounds} دورة`}
             </span>
           </span>
-        </ProgressRing>
+          </ProgressRing>
+        </span>
 
         <span className="text-micro text-muted-foreground">اضغط في أي مكان للعدّ</span>
+        <SignatureAnnouncement text={roundComplete.announcement} />
       </button>
 
       {/* Controls */}
