@@ -11,12 +11,12 @@ import {
   type KeyboardHeight,
   type KeyboardSettings,
   type KeyboardTheme,
-  type SoundTone,
   readKeyboardSettings,
+  type SoundTone,
   supportsSoftKeyboard,
   writeKeyboardSettings,
 } from '../lib/preference';
-import { deleteSnippet, resetSnippets, saveSnippet, type Snippet, getSnippets } from '../lib/snippets';
+import { deleteSnippet, getSnippets,resetSnippets, saveSnippet, type Snippet } from '../lib/snippets';
 import { playKeyClickSound } from '../lib/sound';
 import { keyboardSwatch } from '../lib/theme';
 

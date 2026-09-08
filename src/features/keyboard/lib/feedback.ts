@@ -8,10 +8,10 @@
  * this module, mapped to preferences and rate-limited.
  */
 
-import { haptics, type HapticKind } from '@/lib/native';
+import { type HapticKind,haptics } from '@/lib/native';
 
-import { readKeyboardSettings, type HapticIntensity, type KeyboardSettings, type SoundTone } from './preference';
-import { playKeyClickSound, type KeySoundType } from './sound';
+import { type HapticIntensity, type KeyboardSettings, readKeyboardSettings, type SoundTone } from './preference';
+import { type KeySoundType,playKeyClickSound } from './sound';
 
 /** Feedback weight per interaction kind, before the user's intensity scaling. */
 export type FeedbackKind = 'letter' | 'modifier' | 'accent' | 'space' | 'repeat';

@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { copyToSystemClipboard, getClipboardHistory } from '../lib/clipboard';
 import { canUndo, getSelectionState, getWordContext, performUndo, selectAll } from '../lib/edit';
 import { getPreferredInitialLayout } from '../lib/edit';
+import { type FeedbackKind, tapFeedback, type TapFeedbackOptions } from '../lib/feedback';
 import {
   ALEF_VARIANTS,
   caretDelta,
@@ -45,7 +46,6 @@ import {
   writeKeyboardSettings,
 } from '../lib/preference';
 import { expandSnippet } from '../lib/snippets';
-import { tapFeedback, type FeedbackKind, type TapFeedbackOptions } from '../lib/feedback';
 import { releaseKeyboardAudio } from '../lib/sound';
 import { keyboardPaletteVars } from '../lib/theme';
 import { ClipboardPanel } from './ClipboardPanel';
