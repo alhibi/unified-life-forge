@@ -971,8 +971,11 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
             .eq('client_id', failed.client_id)
             .single();
           if (existing) {
+            // Keep the plaintext the sender typed — the stored row is sealed.
             setMessages(prev => prev.map(m =>
-              m.id === failed.id ? { ...(existing as Message), status: 'sent' } : m,
+              m.id === failed.id
+                ? { ...(existing as Message), content: failed.content, status: 'sent' }
+                : m,
             ));
             return;
           }
@@ -983,7 +986,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
       }
       if (realMsg) {
         setMessages(prev => prev.map(m =>
-          m.id === failed.id ? { ...(realMsg as Message), status: 'sent' } : m,
+          m.id === failed.id
+            ? { ...(realMsg as Message), content: failed.content, status: 'sent' }
+            : m,
         ));
       }
     } catch (err) {
