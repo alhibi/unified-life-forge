@@ -136,9 +136,22 @@
         }
 
         try {
-          const theme = localStorage.getItem('app-theme') || 'light';
-          const isDark = theme === 'dark';
+          // Architectural Copper is a nocturnal system: dark is the shipped
+          // default and light is an explicit opt-in. This MUST match the
+          // initializer in src/contexts/AppContext.tsx — when the two
+          // disagreed, a first cold start (and every Capacitor cold start
+          // before hydration) painted light and then snapped to dark.
+          const stored = localStorage.getItem('app-theme');
+          const isDark = stored !== 'light';
           document.documentElement.classList.toggle('dark', isDark);
+
+          // Keep the OS chrome (status bar / address bar) in step with the
+          // resolved theme instead of the system preference, otherwise the
+          // WebView flashes the wrong bar colour on launch.
+          var themeColor = isDark ? '#1c1827' : '#f1f0f4';
+          var metas = document.querySelectorAll('meta[name="theme-color"]');
+          for (var i = 0; i < metas.length; i++) metas[i].removeAttribute('media');
+          for (var j = 0; j < metas.length; j++) metas[j].setAttribute('content', themeColor);
 
           const lang = localStorage.getItem('app-language') || 'ar';
           document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';

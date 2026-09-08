@@ -39,6 +39,11 @@ import {
   MOTION_PRESETS,
 } from '@/lib/motionPreferences';
 import { getNativeHz, measureDisplayHz } from '@/lib/motionRuntime';
+import {
+  isSignatureSoundEnabled,
+  playSignatureSound,
+  setSignatureSoundEnabled,
+} from '@/lib/signatureSound';
 
 import LiveMotionPreview from './LiveMotionPreview';
 import PerformancePanel from './PerformancePanel';
@@ -181,6 +186,20 @@ export default function MotionSection() {
   } = useApp();
 
   const [nativeHz, setNativeHz] = useState<number | null>(getNativeHz);
+
+  /**
+   * Sound lives on this screen rather than in a "sounds" screen on purpose: it
+   * belongs to the same feedback budget as motion and haptics, and there are
+   * only two tones in the entire app. Flipping it on plays one immediately, so
+   * the user hears exactly what they just agreed to instead of guessing.
+   */
+  const [signatureSound, setSignatureSound] = useState(isSignatureSoundEnabled);
+
+  const handleSignatureSound = (next: boolean) => {
+    setSignatureSoundEnabled(next);
+    setSignatureSound(next);
+    if (next) playSignatureSound('complete');
+  };
 
   useEffect(() => {
     if (nativeHz !== null) return;
@@ -629,6 +648,13 @@ export default function MotionSection() {
             note="يجمع مع إعداد النظام ولا يلغيه — كل انتقال يصبح تلاشياً شبه فوري"
             checked={reduceMotion}
             onCheckedChange={setReduceMotion}
+          />
+          <ToggleRow
+            id="signature-sound"
+            label="نبرة اللحظات المميزة"
+            note="مطفأة افتراضياً. نبرتان هادئتان فقط: إتمام دورة ذكر، واكتمال تحليل بيان. لا صوت لأي شيء آخر"
+            checked={signatureSound}
+            onCheckedChange={handleSignatureSound}
           />
         </div>
       </SettingsSection>

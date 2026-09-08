@@ -72,7 +72,7 @@ function ChipRow({ title, values }: { title: string; values: string[] }) {
       <div className="flex gap-1">
         {values.map((hex) => (
           <div key={hex} className="flex flex-col items-center gap-0.5">
-            <span className="h-4 w-4 rounded-[4px] border border-white/15" style={{ background: hex }} />
+            <span className="h-4 w-4 rounded-xs border border-white/15" style={{ background: hex }} />
             <span
               className="text-micro leading-none text-[color:#F2E7C9]/35 tabular-nums"
               style={{ fontFamily: '"IBM Plex Mono", monospace' }}

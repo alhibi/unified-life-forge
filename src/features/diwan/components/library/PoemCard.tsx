@@ -67,12 +67,12 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
             {/* الشارات الإضافية إذا توفرت (البحر، القافية) */}
             <div className="hidden sm:flex items-center gap-1.5 text-micro font-tajawal">
               {poem.meter && (
-                <span className="px-1.5 py-0.5 rounded-[4px] border border-[var(--hairline-strong)] text-[#7E7259]">
+                <span className="px-1.5 py-0.5 rounded-xs border border-[var(--hairline-strong)] text-[#7E7259]">
                   {poem.meter}
                 </span>
               )}
               {poem.rhyme && (
-                <span className="px-1.5 py-0.5 rounded-[4px] border border-[var(--hairline-strong)] text-[#7E7259]">
+                <span className="px-1.5 py-0.5 rounded-xs border border-[var(--hairline-strong)] text-[#7E7259]">
                   روي {poem.rhyme}
                 </span>
               )}

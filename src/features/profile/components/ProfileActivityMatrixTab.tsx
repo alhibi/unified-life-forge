@@ -573,7 +573,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                         return (
                           <span
                             key={day.dateISO}
-                            className="rounded-[4px] border border-dashed border-border/30"
+                            className="rounded-xs border border-dashed border-border/30"
                             style={{ width: CELL_PX, height: CELL_PX }}
                           />
                         );
@@ -587,7 +587,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                           type="button"
                           onClick={() => setSelectedDay(isSelected ? null : day)}
                           style={{ width: CELL_PX, height: CELL_PX }}
-                          className={`rounded-[4px] transition-motion duration-fast hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
+                          className={`rounded-xs transition-motion duration-fast hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
                           )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
                           title={`${day.dateFormattedAr} — ${day.count} نشاط`}
@@ -607,11 +607,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="flex flex-wrap items-center justify-between gap-3 text-micro text-muted-foreground pt-2 border-t border-border/40">
           <div className="flex items-center gap-1.5" dir="ltr">
             <span>أقل</span>
-            <div className={`w-3 h-3 rounded-[4px] ${EMPTY_CELL_CLASS}`} />
-            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[0]}`} />
-            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[1]}`} />
-            <div className={`w-3 h-3 rounded-[4px] ${activePalette.steps[2]}`} />
-            <div className={`w-3 h-3 rounded-[4px] ${activePalette.legendMax}`} />
+            <div className={`w-3 h-3 rounded-xs ${EMPTY_CELL_CLASS}`} />
+            <div className={`w-3 h-3 rounded-xs ${activePalette.steps[0]}`} />
+            <div className={`w-3 h-3 rounded-xs ${activePalette.steps[1]}`} />
+            <div className={`w-3 h-3 rounded-xs ${activePalette.steps[2]}`} />
+            <div className={`w-3 h-3 rounded-xs ${activePalette.legendMax}`} />
             <span>أكثر</span>
           </div>
 
