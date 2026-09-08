@@ -783,7 +783,6 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
 
     return () => {
       cancelled = true;
-      if (loadConversationsTimerRef.current) clearTimeout(loadConversationsTimerRef.current);
       supabase.removeChannel(channel);
     };
   }, [user, open, scrollToBottom, bumpConversationLocally]);
