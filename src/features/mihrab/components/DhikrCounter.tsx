@@ -21,8 +21,10 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useCallback, useRef, useState } from 'react';
 
 import ProgressRing from '@/components/ProgressRing';
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { AppCard } from '@/components/ui/app-shell';
 import { Minus, Pin, RotateCcw } from '@/lib/icons';
+import { DURATION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 import { DHIKR_CATALOGUE, findDhikr } from '../data/catalogue';
