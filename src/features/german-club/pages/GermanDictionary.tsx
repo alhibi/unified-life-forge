@@ -7,7 +7,6 @@ import { PageShell } from '@/components/ui/app-shell';
 import { BookmarkCheck, BookOpen, Layers,SearchX, Sparkles } from '@/lib/icons';
 
 import { AlphabetNav } from '../components/dictionary/AlphabetNav';
-import { DictionaryCard } from '../components/dictionary/DictionaryCard';
 import { DictionaryDetailModal } from '../components/dictionary/DictionaryDetailModal';
 import { DictionarySearchFilters } from '../components/dictionary/DictionarySearchFilters';
 import { DictionaryVirtualGrid } from '../components/dictionary/DictionaryVirtualGrid';
