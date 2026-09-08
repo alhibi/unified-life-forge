@@ -81,6 +81,9 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   // ── Realtime / network ────────────────────────────────────────────────────
   const [uploading, setUploading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  /** Older history exists beyond the loaded window. */
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [conversationsLoading, setConversationsLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
