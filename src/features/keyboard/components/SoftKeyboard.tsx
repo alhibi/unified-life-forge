@@ -492,6 +492,24 @@ export default function SoftKeyboard({
 
   const handleSpacePress = useCallback(() => {
     const now = Date.now();
+    const previousWord = getWordContext(targetElRef.current).previous;
+
+    // A saved shortcut wins over everything else: it is an explicit, typed
+    // instruction, so it expands before correction or auto-period logic runs.
+    if (settings.snippetsEnabled && typedBuffer && !isSensitive) {
+      const expansion = expandSnippet(typedBuffer);
+      if (expansion) {
+        const replaced = onReplaceLastWord(typedBuffer, expansion + ' ');
+        if (replaced) {
+          setLastCorrection({ original: typedBuffer, corrected: expansion });
+          setTypedBuffer('');
+          if (settings.learningEnabled) learnPhrase(expansion);
+          lastSpaceTapRef.current = now;
+          updateSuggestions('', isSensitive);
+          return;
+        }
+      }
+    }
 
     // Check mild auto-correction on word boundary space
     if (settings.autoCorrectionEnabled && typedBuffer && !isSensitive) {
