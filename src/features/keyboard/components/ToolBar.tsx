@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 
 import {
   CheckSquare,
@@ -35,6 +35,76 @@ export interface ToolBarProps {
   canUndo?: boolean;
   onUndo?: () => void;
 }
+
+/**
+ * One suggestion chip. A tap accepts the word; a long press offers to forget
+ * it — the escape hatch that keeps a learning dictionary from slowly filling
+ * with typos over months of use.
+ */
+const SuggestionChip = memo(function SuggestionChip({
+  word,
+  onSelect,
+  onForget,
+}: {
+  word: string;
+  onSelect: (word: string) => void;
+  onForget?: (word: string) => void;
+}) {
+  const holdRef = useRef<number | undefined>(undefined);
+  const [confirming, setConfirming] = useState(false);
+
+  const clear = useCallback(() => {
+    if (holdRef.current) window.clearTimeout(holdRef.current);
+    holdRef.current = undefined;
+  }, []);
+
+  if (confirming) {
+    return (
+      <button
+        type="button"
+        onPointerDown={(e) => {
+          e.preventDefault();
+          onForget?.(word);
+          setConfirming(false);
+        }}
+        onPointerLeave={() => setConfirming(false)}
+        className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-destructive/15 px-2.5 text-mini font-medium text-destructive"
+      >
+        <span>نسيان «{word}»؟</span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        if (onForget) {
+          holdRef.current = window.setTimeout(() => {
+            holdRef.current = undefined;
+            setConfirming(true);
+            haptics('warning');
+          }, 500);
+        }
+      }}
+      onPointerUp={(e) => {
+        e.preventDefault();
+        if (!onForget || holdRef.current) {
+          clear();
+          onSelect(word);
+          haptics('selection');
+        }
+      }}
+      onPointerCancel={clear}
+      onPointerLeave={clear}
+      className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
+    >
+      <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
+      <span>{word}</span>
+    </button>
+  );
+});
 
 /**
  * Gboard-style top action bar. Features smart word suggestion chips & quick tool toggles.
