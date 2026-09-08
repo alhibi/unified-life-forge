@@ -393,57 +393,74 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   // ── Pointer handlers for voice recording ──────────────────────────────────
+  // The mic button is swapped out of the DOM the instant recording begins
+  // (the composer turns into the recording bar), so the release event can
+  // never arrive on the button itself. We therefore track the gesture on
+  // `window` for its whole lifetime — that is what used to leave the
+  // recorder running after the user lifted their finger.
   const startPointer = React.useRef<{ x: number; y: number; pressed: boolean } | null>(null);
+  const detachGestureRef = React.useRef<(() => void) | null>(null);
   const SLIDE_CANCEL_PX = 100;
   const LOCK_PX = 70;
 
+  const endGesture = React.useCallback(() => {
+    startPointer.current = null;
+    drag.set(0);
+    dragY.set(0);
+    detachGestureRef.current?.();
+    detachGestureRef.current = null;
+  }, [drag, dragY]);
+
+  // Latest handler values without re-registering window listeners mid-gesture.
+  const voiceApiRef = React.useRef({ locked, stopAndCancel, stopAndSend, lockRecording });
+  voiceApiRef.current = { locked, stopAndCancel, stopAndSend, lockRecording };
+
+  React.useEffect(() => () => { detachGestureRef.current?.(); }, []);
+
   const handleMicPointerDown = (e: React.PointerEvent) => {
     if (previewBlob) return;
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     startPointer.current = { x: e.clientX, y: e.clientY, pressed: true };
+
+    const onMove = (ev: PointerEvent) => {
+      const api = voiceApiRef.current;
+      if (api.locked || !startPointer.current?.pressed) return;
+      const dx = ev.clientX - startPointer.current.x;
+      const dy = ev.clientY - startPointer.current.y;
+      drag.set(Math.max(-180, Math.min(0, -dx)));
+      dragY.set(Math.max(-120, Math.min(0, dy)));
+
+      if (dx > SLIDE_CANCEL_PX) {
+        api.stopAndCancel();
+        endGesture();
+      } else if (-dy > LOCK_PX) {
+        api.lockRecording();
+        endGesture();
+      }
+    };
+    const onUp = () => {
+      const api = voiceApiRef.current;
+      if (startPointer.current?.pressed && !api.locked) api.stopAndSend();
+      endGesture();
+    };
+    const onCancel = () => {
+      const api = voiceApiRef.current;
+      if (startPointer.current?.pressed && !api.locked) api.stopAndCancel();
+      endGesture();
+    };
+
+    detachGestureRef.current?.();
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
+    detachGestureRef.current = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onCancel);
+    };
+
     startRecording();
   };
 
-  const handleMicPointerMove = (e: React.PointerEvent) => {
-    if (locked || !startPointer.current || !startPointer.current.pressed) return;
-    const dx = e.clientX - startPointer.current.x;
-    const dy = e.clientY - startPointer.current.y;
-    // Horizontal drag direction depends on language (RTL drags right to cancel)
-    const horizontalCancelValue = dx;
-    const appliedX = Math.max(-180, Math.min(0, -horizontalCancelValue));
-    drag.set(appliedX);
-    dragY.set(Math.max(-120, Math.min(0, dy)));
-
-    if (horizontalCancelValue > SLIDE_CANCEL_PX) {
-      stopAndCancel();
-      startPointer.current = null;
-      drag.set(0);
-      dragY.set(0);
-    } else if (-dy > LOCK_PX) {
-      lockRecording();
-      startPointer.current = null;
-      drag.set(0);
-      dragY.set(0);
-    }
-  };
-
-  const handleMicPointerUp = () => {
-    // If the user released *before* locking, stop-and-send the recording.
-    // startPointer is null once the drag handlers consumed the gesture.
-    if (startPointer.current?.pressed && !locked) {
-      stopAndSend();
-    }
-    startPointer.current = null;
-    drag.set(0);
-    dragY.set(0);
-  };
-
-  const handleMicPointerCancel = () => {
-    if (startPointer.current?.pressed && !locked) stopAndCancel();
-    startPointer.current = null;
-    drag.set(0);
-    dragY.set(0);
-  };
 
   const insertEmoji = (emoji: string) => {
     const el = inputRef.current;
