@@ -18,7 +18,7 @@ export default function PortalTodayWidgets() {
         <PrayerTimes />
       </section>
 
-      <section aria-labelledby="portal-weather-h" className="min-h-[16.5rem]">
+      <section aria-labelledby="portal-weather-h" className="min-h-[17.5rem]">
         <h2 id="portal-weather-h" className="sr-only">الطقس</h2>
         <WeatherWidget />
       </section>
