@@ -22,7 +22,7 @@ import {
   encryptOutgoingText,
   isEncrypted,
 } from './internal/e2ee';
-import { fetchMessagesWithReactions } from './internal/messagesQuery';
+import { fetchMessagesWithReactions, MESSAGE_PAGE_SIZE } from './internal/messagesQuery';
 import { useInChatSearch } from './internal/useInChatSearch';
 import { useTypingChannel } from './internal/useTypingChannel';
 import { haptic,playChatSound, primeAudio } from './sounds';
@@ -139,6 +139,8 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
   const loadOlderRef = useRef<(() => void) | null>(null);
   /** Signed-URL requests already issued, keyed by storage path. */
   const signedUrlInFlightRef = useRef<Set<string>>(new Set());
+  /** Guards concurrent history pages. */
+  const loadingOlderRef = useRef(false);
 
   useEffect(() => { stagedPreviewsRef.current = stagedPreviews; }, [stagedPreviews]);
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
