@@ -70,6 +70,7 @@
     "@radix-ui/react-toggle": "^1.1.18",
     "@radix-ui/react-toggle-group": "^1.1.19",
     "@radix-ui/react-tooltip": "^1.2.16",
+    "@radix-ui/react-visually-hidden": "^1.1.0",
     "@react-three/drei": "^10",
     "@react-three/fiber": "^9",
     "@react-three/postprocessing": "^3.1.0",
@@ -114,6 +115,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/typography": "^0.5.20",
