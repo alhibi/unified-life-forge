@@ -89,9 +89,7 @@ import { describeWeatherCode } from '../lib/conditions';
 import {
   aqiAdvice,
   beaufortLabel,
-  cloudTypeLabel,
   compassLabel,
-  uvCategoryLabel,
 } from '../lib/vocabulary';
 import {
   motionPresets,
