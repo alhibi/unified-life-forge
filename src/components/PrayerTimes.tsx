@@ -1107,7 +1107,7 @@ function SlabRow({
         { transform: 'translateX(-3px)' },
         { transform: 'translateX(0)' },
       ],
-      { duration: 360, easing: 'ease-enter' },
+      { duration: 360, easing: 'ease-out' },
     );
     return () => anim.cancel();
   }, [shakeKey]);
