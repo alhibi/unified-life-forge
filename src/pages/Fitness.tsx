@@ -531,7 +531,7 @@ function FitnessPageInner({
                         <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mx-auto">
                           <Play className="w-8 h-8 ms-1" />
                         </div>
-                        <h3 className="text-lead font-bold">جاهز لبدء تمرين هوائي؟</h3>
+                        <h2 className="text-lead font-bold">جاهز لبدء تمرين هوائي؟</h2>
                         <p className="text-muted-foreground text-mini max-w-sm mx-auto leading-relaxed">
                           قم بتسجيل وتتبع مساراتك عبر النظام الجغرافي الدقيق للـ GPS، وحلل سرعتك وأوقات الاستجابة مع حماية مدمجة ضد انقطاعات التتبع.
                         </p>
@@ -944,7 +944,7 @@ function FitnessPageInner({
                         </span>
                         <span className="text-micro text-muted-foreground font-bold uppercase">{ex.difficulty}</span>
                       </div>
-                      <h3 className="text-mini font-bold text-foreground mb-1.5">{ex.name}</h3>
+                      <h2 className="text-mini font-bold text-foreground mb-1.5">{ex.name}</h2>
                       <p className="text-micro text-muted-foreground leading-relaxed mb-3">{ex.desc}</p>
                     </div>
                     <div className="pt-2 border-t border-border/40 text-micro text-muted-foreground space-y-1">
@@ -975,7 +975,7 @@ function FitnessPageInner({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Metrics Entry Form */}
                 <AppCard className="p-5 space-y-4">
-                  <h3 className="text-meta font-bold text-foreground pb-2 border-b border-border/40">تسجيل مؤشرات الجسم اليومية</h3>
+                  <h2 className="text-meta font-bold text-foreground pb-2 border-b border-border/40">تسجيل مؤشرات الجسم اليومية</h2>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
@@ -1032,7 +1032,7 @@ function FitnessPageInner({
                 {/* Target Milestones */}
                 <AppCard className="p-5 space-y-4 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-meta font-bold text-foreground pb-2 border-b border-border/40">الهدف العضلي والوزني</h3>
+                    <h2 className="text-meta font-bold text-foreground pb-2 border-b border-border/40">الهدف العضلي والوزني</h2>
                     <p className="text-micro text-muted-foreground mt-2 leading-relaxed">حدد هدفك الأخير للوزن لمقارنته مع التقدم الحالي.</p>
 
                     <div className="space-y-3 mt-4">

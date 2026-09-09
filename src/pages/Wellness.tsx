@@ -213,7 +213,7 @@ export default function WellnessPage() {
                 <Activity className="w-7 h-7" />
               </div>
               <div className="space-y-1.5 relative z-10">
-                <h3 className="text-meta font-bold text-foreground">تطبيق اللياقة البدنية المتكامل</h3>
+                <h2 className="text-meta font-bold text-foreground">تطبيق اللياقة البدنية المتكامل</h2>
                 <p className="text-micro text-muted-foreground max-w-xs mx-auto leading-relaxed">
                   لقد تمت ترقية قسم تتبع الأنشطة ليكون تطبيقاً مستقلاً متكاملاً مليئاً بالتفاصيل العميقة وجداول التمارين الأسبوعية، مؤقتات الاستراحة، حاسبات مؤشرات الوزن وحساب حرق السعرات الحرارية الدقيق.
                 </p>
@@ -392,7 +392,7 @@ export default function WellnessPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <h3 className="text-mini font-medium text-foreground">{T.privacyTitle[language]}</h3>
+                  <h2 className="text-mini font-medium text-foreground">{T.privacyTitle[language]}</h2>
                 </div>
                 <button onClick={() => setShowPrivacy(false)} className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center">
                   <X className="w-3 h-3 text-muted-foreground" />
