@@ -3,6 +3,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef,useState } from 'reac
 import { useShallow } from 'zustand/react/shallow';
 
 // UI Primitives & Layout
+import SEO from '@/components/SEO';
 import { AppCard, PageShell, Section } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
@@ -250,6 +251,11 @@ function FitnessPageInner({
 
   return (
     <PageShell className="pb-page" style={{ position: 'relative' }}>
+      <SEO
+        title="اللياقة والتمارين — SmartHub"
+        description="تتبع تمارينك وأنشطتك اليومية في SmartHub: جدول أسبوعي، مكتبة تمارين، حساب السعرات ومؤشرات الجسم وتتبع المسارات."
+        path="/fitness"
+      />
       {/* Dynamic Ambient Glow overlay matching Zen Elite System */}
       <div
         className="fixed top-0 left-0 right-0 h-64 pointer-events-none z-base"
