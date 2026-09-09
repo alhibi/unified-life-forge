@@ -87,7 +87,7 @@ export default function HourlyTrendPanel({ entries }: Props) {
             label: 'المحسوسة',
             kind: 'line',
             values: slice.map((e) => e.apparent_c),
-            colorVar: '--muted-foreground',
+            colorVar: '--weather-gold',
             dash: [4, 3],
             strokeWidth: 1.6,
             unit: '°',
@@ -124,7 +124,7 @@ export default function HourlyTrendPanel({ entries }: Props) {
             label: 'الرطوبة',
             kind: 'line',
             values: slice.map((e) => e.humidity_percent),
-            colorVar: '--muted-foreground',
+            colorVar: '--weather-gold',
             dash: [4, 3],
             strokeWidth: 1.6,
             unit: '%',
@@ -149,10 +149,13 @@ export default function HourlyTrendPanel({ entries }: Props) {
     : null;
 
   return (
-    <AppCard as="section" aria-label="منحنى الساعات القادمة التفاعلي">
-      <header className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="text-title font-semibold text-foreground">منحنى ٢٤ ساعة</h2>
-        <p className="text-mini text-muted-foreground">مزيج المصادر</p>
+    <AppCard as="section" aria-label="منحنى الساعات القادمة التفاعلي" className="weather-premium-chart">
+      <header className="mb-5 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-micro font-semibold uppercase text-primary">المشهد القادم</p>
+          <h2 className="weather-display mt-1 text-title font-semibold text-foreground">منحنى 24 ساعة</h2>
+        </div>
+        <p className="text-mini text-muted-foreground">مزيج المصادر · مباشر</p>
       </header>
 
       <Tabs value={metric} onValueChange={(v) => setMetric(v as MetricId)}>
@@ -169,13 +172,13 @@ export default function HourlyTrendPanel({ entries }: Props) {
         </TabsList>
       </Tabs>
 
-      <div className="mt-4">
+      <div className="mt-5 rounded-md border border-border/60 bg-background/35 px-2 py-3">
         <CanvasChart
           key={metric}
           xLabels={xLabels}
           series={series}
           domain={domain}
-          height={196}
+          height={260}
           activeIndex={activeIndex}
           onActiveIndexChange={setActiveIndex}
           themeKey={`${theme}-${colorTheme}-${metric}`}

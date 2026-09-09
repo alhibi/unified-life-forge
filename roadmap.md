@@ -11,4 +11,7 @@
 - [x] Build the selected Atmospheric Scene dashboard with real weather data.
 - [x] Refine hourly, daily, metrics, navigation, loading, and responsive states.
 - [x] Verify the weather page on mobile and desktop.
+- [ ] Rebuild weather as the selected premium radar-cinematic magazine interface.
+- [ ] Separate every main tab into focused, non-duplicated content.
+- [ ] Verify premium charts and navigation on mobile and desktop.
 

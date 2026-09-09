@@ -54,10 +54,9 @@ export function TabNavigation<T extends string>({
       role="tablist"
       aria-label="أقسام لوحة الطقس"
       className={cn(
-        'sticky top-16 z-header',
-        'rounded-md border border-border/40 surface-depth',
-        'p-1 backdrop-blur-md bg-background/90',
-        'shadow-[0_1px_3px_hsl(var(--foreground)/0.04),0_8px_24px_hsl(var(--foreground)/0.03)]',
+        'weather-tabs sticky top-16 z-header',
+        'rounded-md border border-border/60',
+        'p-1.5 backdrop-blur-xl bg-background/90',
         className,
       )}
     >
@@ -66,10 +65,10 @@ export function TabNavigation<T extends string>({
         <motion.div
           aria-hidden
           layoutId="weather-tab-pill"
-          className="absolute inset-y-0 rounded-sm bg-primary shadow-[0_4px_14px_hsl(var(--primary)/0.30),0_1px_2px_hsl(var(--primary)/0.20)]"
+          className="absolute inset-y-0 rounded-sm bg-primary"
           initial={false}
           animate={{
-            left: `${(activeIndex * 100) / tabs.length}%`,
+            right: `${(activeIndex * 100) / tabs.length}%`,
             width: `${100 / tabs.length}%`,
           }}
           transition={pillSlideTransition}
@@ -87,7 +86,7 @@ export function TabNavigation<T extends string>({
               onClick={() => onChange(tab.id as T)}
               className={cn(
                 'relative z-10 flex flex-col items-center justify-center gap-0.5',
-                'h-auto px-2 py-2.5 rounded-sm',
+                'h-auto min-h-14 px-1.5 py-2.5 rounded-sm sm:min-h-16 sm:px-3',
                 'transition-colors duration-fast',
                 'active:scale-[0.97]',
                 active
@@ -106,11 +105,11 @@ export function TabNavigation<T extends string>({
                 >
                   {tab.icon}
                 </motion.span>
-                <span className="text-mini font-bold whitespace-nowrap">{tab.label}</span>
+                 <span className="text-mini font-bold whitespace-nowrap sm:text-meta">{tab.label}</span>
               </span>
               <span
                 className={cn(
-                  'text-[0.625rem] font-medium tracking-[0.06em] truncate max-w-full',
+                   'hidden text-[0.625rem] font-medium tracking-[0.06em] truncate max-w-full sm:block',
                   active ? 'text-primary-foreground/80' : 'text-muted-foreground/80',
                 )}
               >

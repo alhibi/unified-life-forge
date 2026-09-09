@@ -59,27 +59,15 @@ import { Helmet } from 'react-helmet-async';
 import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import {
-  Cloud,
-  Droplets,
-  Eye,
-  Layers,
-  RefreshCw,
-  Settings,
-  Sliders,
-  Sun,
-} from '@/lib/icons';
+import { Layers, RefreshCw, Settings, Sliders, Sun } from '@/lib/icons';
 
 import { AQIGauge } from '../components/AQIGauge';
 import { Astronomics } from '../components/Astronomics';
 import { AtmosphericInsightsPanel } from '../components/AtmosphericInsightsPanel';
 import CitySearch from '../components/CitySearch';
 import { ConfidenceFloorBanner } from '../components/ConfidenceFloorBanner';
-import { DailyRangeStrip } from '../components/DailyRangeStrip';
 import { EnsembleTrustPanel } from '../components/EnsembleTrustPanel';
 import { ForecastTab } from '../components/ForecastTab';
-import { GaugeTileRefined } from '../components/GaugeTileRefined';
-import { HourlyRibbon } from '../components/HourlyRibbon';
 import { LiveSunArc } from '../components/LiveSunArc';
 import MeteorologyConsole from '../components/MeteorologyConsole';
 import MicroMap from '../components/MicroMap';
@@ -325,53 +313,6 @@ export default function Weather() {
 
           {snapshot && <ConfidenceFloorBanner snapshot={snapshot} />}
 
-          <section className="weather-shell weather-dashboard-grid">
-            <div className="min-w-0">
-              <WeatherHeroRefined
-                snapshot={snapshot}
-                hourly={hourly}
-                locationName={selectedCoords?.name || 'موقعك الحالي'}
-              />
-              <HourlyRibbon entries={hourly} iconFor={iconForCode} locale={locale} />
-            </div>
-            <aside className="border-t weather-divider bg-background/20 lg:border-s lg:border-t-0">
-              <DailyRangeStrip days={forecast.daily.slice(0, 7)} iconFor={iconForCode} locale={locale} />
-              <div className="grid grid-cols-2 gap-2 border-t weather-divider p-4 sm:p-5">
-                <GaugeTileRefined
-                  label={'مؤشر UV'}
-                  value={snapshot.solar.uv_index.toFixed(1)}
-                  pctValue={snapshot.solar.uv_index / 11}
-                  hint={uvCategoryLabel(snapshot.solar.uv_category)}
-                  icon={<Sun />}
-                />
-                <GaugeTileRefined
-                  label={'الرطوبة'}
-                  value={Math.round(snapshot.moisture.relative_humidity_percent)}
-                  unit="٪"
-                  pctValue={snapshot.moisture.relative_humidity_percent / 100}
-                  hint={'نقطة الندى ' + Math.round(snapshot.temperature.dew_point_c) + '°'}
-                  icon={<Droplets />}
-                />
-                <GaugeTileRefined
-                  label={'الغيوم'}
-                  value={Math.round(snapshot.sky.cloud_cover_total_percent)}
-                  unit="٪"
-                  pctValue={snapshot.sky.cloud_cover_total_percent / 100}
-                  hint={cloudTypeLabel(snapshot.sky.cloud_type)}
-                  icon={<Cloud />}
-                />
-                <GaugeTileRefined
-                  label={'الرؤية'}
-                  value={Math.round(snapshot.sky.visibility_km)}
-                  unit="كم"
-                  pctValue={Math.min(1, snapshot.sky.visibility_km / 20)}
-                  hint={snapshot.sky.visibility_km < 5 ? 'منخفضة' : snapshot.sky.visibility_km < 10 ? 'متوسطة' : 'ممتازة'}
-                  icon={<Eye />}
-                />
-              </div>
-            </aside>
-          </section>
-
           <TabNavigation<TabId>
             tabs={TABS}
             activeTab={activeMainTab}
@@ -388,6 +329,13 @@ export default function Weather() {
                 exit="exit"
               >
                 <TabPane>
+                  <section className="weather-shell">
+                    <WeatherHeroRefined
+                      snapshot={snapshot}
+                      hourly={hourly}
+                      locationName={selectedCoords?.name || 'موقعك الحالي'}
+                    />
+                  </section>
                   <Section
                     eyebrow={'رؤية فيزيائية'}
                     title={'استنتاجات الغلاف الجوي'}
@@ -443,15 +391,7 @@ export default function Weather() {
                 exit="exit"
               >
                 <TabPane>
-                  <Section eyebrow={'الخريطة'} title={'موقعك الدقيق'}>
-                    <MicroMap
-                      lat={activeLocation?.lat ?? snapshot.meta.location.lat}
-                      lng={activeLocation?.lng ?? snapshot.meta.location.lng}
-                      elevationM={Math.round(snapshot.meta.location.elevation_m)}
-                    />
-                  </Section>
-
-                  <Section eyebrow={'ساعي ويومي'} title={'منحنى التوقع'}>
+                  <Section eyebrow={'ساعي ويومي'} title={'التوقعات المرئية'} subtitle={'حرارة · هطول · رياح'}>
                     <ForecastTab
                       hourly={hourly}
                       daily={forecast.daily}
@@ -476,6 +416,13 @@ export default function Weather() {
                 exit="exit"
               >
                 <TabPane>
+                  <Section eyebrow={'الموقع'} title={'النطاق الجغرافي'}>
+                    <MicroMap
+                      lat={activeLocation?.lat ?? snapshot.meta.location.lat}
+                      lng={activeLocation?.lng ?? snapshot.meta.location.lng}
+                      elevationM={Math.round(snapshot.meta.location.elevation_m)}
+                    />
+                  </Section>
                   <Section eyebrow={'اتجاه وسرعة'} title={'بوصلة الرياح'}>
                     <WindCompass
                       speed={snapshot.wind.speed_kph}

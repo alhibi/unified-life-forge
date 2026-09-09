@@ -12,23 +12,42 @@
 */
 
 .weather-theme {
-  --weather-ink: 240 7% 5%;
-  --weather-panel: 225 8% 10%;
-  --weather-copper: 34 47% 60%;
-  --weather-sky: 196 32% 66%;
-  --weather-paper: 36 22% 88%;
-  --weather-font-display: "Outfit", var(--font-sans);
-  --weather-font-body: "Figtree", var(--font-sans);
+  --weather-ink: 190 14% 4%;
+  --weather-panel: 195 11% 10%;
+  --weather-radar: 157 65% 66%;
+  --weather-gold: 39 57% 63%;
+  --weather-alert: 4 100% 70%;
+  --weather-paper: 150 8% 94%;
+  --weather-copper: var(--weather-gold);
+  --weather-sky: var(--weather-radar);
+  --weather-font-display: "Sora", var(--font-sans);
+  --weather-font-body: "Manrope", var(--font-sans);
+  --background: var(--weather-ink);
+  --foreground: var(--weather-paper);
+  --card: var(--weather-panel);
+  --card-foreground: var(--weather-paper);
+  --popover: var(--weather-panel);
+  --popover-foreground: var(--weather-paper);
+  --primary: var(--weather-radar);
+  --primary-foreground: var(--weather-ink);
+  --accent: var(--weather-gold);
+  --accent-foreground: var(--weather-ink);
+  --destructive: var(--weather-alert);
+  --muted: 195 9% 15%;
+  --muted-foreground: 160 7% 65%;
+  --border: 160 8% 24%;
+  --input: 160 8% 24%;
+  --ring: var(--weather-radar);
   background:
     radial-gradient(
-      ellipse 65% 38% at 82% 0%,
-      hsl(var(--weather-sky) / 0.12),
-      transparent 64%
+      ellipse 78% 36% at 85% -4%,
+      hsl(var(--weather-radar) / 0.12),
+      transparent 66%
     ),
     radial-gradient(
-      ellipse 52% 30% at 12% 8%,
-      hsl(var(--weather-copper) / 0.08),
-      transparent 72%
+      ellipse 45% 24% at 8% 12%,
+      hsl(var(--weather-gold) / 0.07),
+      transparent 70%
     ),
     hsl(var(--weather-ink));
   color: hsl(var(--weather-paper));
@@ -40,15 +59,15 @@
 }
 
 .weather-theme .weather-shell {
-  border: 1px solid hsl(var(--weather-paper) / 0.10);
+  border: 1px solid hsl(var(--weather-radar) / 0.16);
   border-radius: var(--r-lg);
-  background: linear-gradient(145deg, hsl(var(--weather-panel) / 0.94), hsl(var(--weather-ink) / 0.98));
-  box-shadow: var(--shadow-3);
+  background: linear-gradient(145deg, hsl(var(--weather-panel) / 0.88), hsl(var(--weather-ink) / 0.97));
+  box-shadow: 0 30px 90px hsl(var(--weather-ink) / 0.62), inset 0 1px hsl(var(--weather-radar) / 0.05);
   overflow: hidden;
 }
 
 .weather-theme .weather-panel {
-  border: 1px solid hsl(var(--weather-paper) / 0.09);
+  border: 1px solid hsl(var(--weather-radar) / 0.12);
   border-radius: var(--r-md);
   background: hsl(var(--weather-panel) / 0.62);
   box-shadow: inset 0 1px 0 hsl(var(--weather-paper) / 0.025);
@@ -61,6 +80,53 @@
 .weather-theme .weather-dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+}
+
+.weather-theme .weather-tabs {
+  box-shadow: 0 18px 55px hsl(var(--weather-ink) / 0.72), inset 0 1px hsl(var(--weather-paper) / 0.04);
+}
+
+.weather-theme .weather-tabs [aria-selected="true"] {
+  box-shadow: inset 0 0 0 1px hsl(var(--weather-paper) / 0.16);
+}
+
+.weather-theme .weather-forecast-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.weather-theme .weather-chart-stage,
+.weather-theme .weather-forecast-rail {
+  min-width: 0;
+}
+
+.weather-theme .weather-chart-stage > *,
+.weather-theme .weather-forecast-rail {
+  border: 1px solid hsl(var(--weather-radar) / 0.13);
+  border-radius: var(--r-md);
+  background: hsl(var(--weather-panel) / 0.72);
+  box-shadow: inset 0 1px hsl(var(--weather-paper) / 0.035);
+}
+
+.weather-theme .weather-forecast-rail {
+  overflow: hidden;
+}
+
+.weather-theme .weather-forecast-rail > * + * {
+  border-top: 1px solid hsl(var(--weather-paper) / 0.08);
+}
+
+.weather-theme .weather-premium-chart {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 960px) {
+  .weather-theme .weather-forecast-layout {
+    grid-template-columns: minmax(0, 1.55fr) minmax(20rem, 0.8fr);
+    align-items: start;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -220,7 +286,7 @@
 .weather-theme .hero-number {
   font-feature-settings: "tnum" 1, "lnum" 1;
   font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 /* ── Surface depth + tile hover ─────────────────────────────────────── */
