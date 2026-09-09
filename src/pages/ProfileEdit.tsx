@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AvatarStudioModal } from '@/features/profile/components/AvatarStudioModal';
@@ -604,6 +605,11 @@ export default function ProfileEditPage() {
 
   return (
     <div className="min-h-screen bg-background pb-36 relative overflow-x-hidden" dir="rtl">
+      <SEO
+        title="الملف الشخصي والخصوصية — SmartHub"
+        description="أدر ملفك الشخصي في SmartHub: الصورة والاسم والنبذة، شارات الإنجاز، إعدادات الخصوصية ومتابعة نشاطك."
+        path="/settings/profile"
+      />
       {/* 1. Header Hero with Animated Canvas & Circular Progress Ring */}
       <ProfileHeaderHero
         username={newUsername || authUsername || ''}

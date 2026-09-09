@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate,useSearchParams } from "react-router-dom";
 
+import SEO from "@/components/SEO";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ShieldCheck } from '@/lib/icons';
@@ -68,6 +69,11 @@ export default function OAuthConsent() {
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-5 py-14">
+      <SEO
+        title="تفويض الوصول — SmartHub"
+        description="صفحة تأكيد منح تطبيق خارجي صلاحية الوصول إلى حسابك في SmartHub، مع بيان الصلاحيات المطلوبة قبل الموافقة."
+        path="/.lovable/oauth/consent"
+      />
       <div className="premium-card-elevated p-6 max-w-md w-full space-y-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
