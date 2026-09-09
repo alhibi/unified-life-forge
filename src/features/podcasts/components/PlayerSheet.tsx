@@ -607,18 +607,12 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
 
                   <button
                     onClick={() => player.toggle()}
-                    className="podcast-play-button w-20 h-20 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+                    className="podcast-play-button w-20 h-20 rounded-full flex items-center justify-center transition-motion"
                     data-playing={isActive ? 'true' : 'false'}
                     style={{
-                      // Two-stop gradient gives the button visual depth
-                      // without needing an extra ring element. The fall-
-                      // back hsl() values keep things readable when the
-                      // seed-color tokens haven't been set (e.g. before
-                      // the cover art has loaded).
-
                       color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
                     }}
-                    aria-label={player.isPlaying ? 'Pause' : 'Play'}
+                    aria-label={player.isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
                   >
                     <Icon
                       className={`w-9 h-9 ${player.isLoading ? 'animate-spin' : ''}`}
