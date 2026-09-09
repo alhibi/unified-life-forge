@@ -14,6 +14,13 @@ import "@fontsource/outfit/700.css";
 import "@fontsource/figtree/400.css";
 import "@fontsource/figtree/500.css";
 import "@fontsource/figtree/600.css";
+import "@fontsource/sora/400.css";
+import "@fontsource/sora/500.css";
+import "@fontsource/sora/600.css";
+import "@fontsource/sora/700.css";
+import "@fontsource/manrope/400.css";
+import "@fontsource/manrope/500.css";
+import "@fontsource/manrope/600.css";
 
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";

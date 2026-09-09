@@ -11,4 +11,8 @@
 - [x] Build the selected Atmospheric Scene dashboard with real weather data.
 - [x] Refine hourly, daily, metrics, navigation, loading, and responsive states.
 - [x] Verify the weather page on mobile and desktop.
+- [x] Rebuild weather as the selected premium radar-cinematic magazine interface.
+- [x] Separate every main tab into focused, non-duplicated content.
+- [x] Verify type safety, weather tests, and horizontal layout constraints.
+- [ ] Validate live-data visuals on a physical Android device.
 
