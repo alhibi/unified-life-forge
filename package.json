@@ -115,7 +115,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6",
+    "@capacitor/cli": "^8",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/typography": "^0.5.20",
