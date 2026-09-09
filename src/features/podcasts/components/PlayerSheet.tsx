@@ -105,30 +105,68 @@ function PlayerSheetSeek({
   ariaLabel: string;
   onSeek: (s: number) => void;
 }) {
-  const { position, duration } = usePodcastPlayerProgress();
-  return (
-    <div className="px-6 mt-6">
-      <input
-        type="range"
-        min={0}
-        max={Math.max(1, duration)}
-        step={1}
-        value={Math.min(position, duration || 0)}
-        onChange={(e) => onSeek(parseFloat(e.target.value))}
-        className="w-full appearance-none bg-transparent podcast-seek"
-        style={{
-          // Inline gradient is easier to tint than ::-webkit-slider-runnable-track.
-          // We add a soft 20% drop at the head of the filled portion so the
-          // bar reads as a smooth ribbon rather than a hard pill.
+  const { position, duration, buffered } = usePodcastPlayerProgress();
+  // Local value while the finger is down: the audio element only reports
+  // the new position after the seek lands, which used to make the thumb
+  // snap back under the finger mid-drag.
+  const [dragValue, setDragValue] = useState<number | null>(null);
+  const total = duration > 0 ? duration : 0;
+  const shown = dragValue ?? Math.min(position, total);
+  const playedPct = total > 0 ? Math.min(100, (shown / total) * 100) : 0;
+  const bufferedPct = total > 0 ? Math.min(100, (buffered / total) * 100) : 0;
+  const remaining = Math.max(0, total - shown);
 
-          height: 6,
-          borderRadius: 999,
-        }}
-        aria-label={ariaLabel}
-      />
-      <div className="flex justify-between mt-2 text-micro tabular-nums text-foreground/70 font-semibold">
-        <span>{formatTime(position)}</span>
-        <span>-{formatTime(Math.max(0, duration - position))}</span>
+  return (
+    <div className="px-6 mt-5">
+      {/* The track is drawn by us (three stacked layers: rail, buffered,
+          played) with the native range input laid transparently on top so
+          we keep real keyboard/pointer semantics and accessibility. */}
+      <div className="relative h-6 flex items-center" dir="ltr">
+        <div className="absolute inset-x-0 h-1.5 rounded-full bg-foreground/12 overflow-hidden">
+          <div
+            className="absolute inset-y-0 left-0 bg-foreground/20 transition-motion"
+            style={{ width: `${bufferedPct}%` }}
+          />
+          <div
+            className="absolute inset-y-0 left-0 rounded-full bg-primary"
+            style={{ width: `${playedPct}%` }}
+          />
+        </div>
+        <div
+          className="absolute size-3.5 -translate-x-1/2 rounded-full bg-primary shadow-[0_2px_8px_hsl(var(--background)/0.6)] ring-2 ring-background pointer-events-none"
+          style={{ left: `${playedPct}%` }}
+        />
+        <input
+          type="range"
+          min={0}
+          max={Math.max(1, total)}
+          step={1}
+          value={shown}
+          onChange={(e) => setDragValue(parseFloat(e.target.value))}
+          onPointerUp={() => {
+            if (dragValue !== null) onSeek(dragValue);
+            setDragValue(null);
+          }}
+          onPointerCancel={() => setDragValue(null)}
+          onKeyUp={() => {
+            if (dragValue !== null) onSeek(dragValue);
+            setDragValue(null);
+          }}
+          onBlur={() => {
+            if (dragValue !== null) onSeek(dragValue);
+            setDragValue(null);
+          }}
+          className="relative w-full h-6 appearance-none bg-transparent podcast-seek cursor-pointer"
+          aria-label={ariaLabel}
+          aria-valuetext={`${formatTime(shown)} من ${formatTime(total)}`}
+        />
+      </div>
+      <div
+        className="flex justify-between mt-1.5 text-micro tabular-nums text-foreground/70 font-semibold"
+        dir="ltr"
+      >
+        <span>{formatTime(shown)}</span>
+        <span>−{formatTime(remaining)}</span>
       </div>
     </div>
   );
@@ -524,12 +562,38 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                   onSeek={player.seek}
                 />
 
+                {/* ── Playback state line ───────────────────────────────
+                  One slot, three possible states: a recoverable error
+                  with a retry action, a buffering hint, or nothing.
+                  Keeping them in one place avoids the layout jumping
+                  between the seek bar and the transport row. */}
+                {player.error ? (
+                  <div className="mx-6 mt-3 flex items-center justify-between gap-3 rounded-2xl border border-destructive/40 bg-destructive/10 px-3 py-2">
+                    <span className="text-mini font-medium text-foreground/90">{player.error}</span>
+                    <button
+                      type="button"
+                      onClick={() => player.retry()}
+                      className="shrink-0 h-8 px-3 rounded-full text-mini font-semibold bg-foreground/10 hover:bg-foreground/15 transition-colors"
+                    >
+                      إعادة المحاولة
+                    </button>
+                  </div>
+                ) : player.isBuffering ? (
+                  <div className="mx-6 mt-3 flex items-center justify-center gap-2 text-mini text-muted-foreground font-medium">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>جارٍ التحميل…</span>
+                  </div>
+                ) : null}
+
+
                 {/* ── Transport row ─────────────────────────────────────
                   Skip-back, big gradient play button, skip-forward.
                   The skip arrows have their "15s" label embedded in
                   the center of the rotation icon — same affordance
                   Apple Podcasts / Pocket Casts use. */}
-                <div className="flex items-center justify-center gap-6 px-6 mt-5">
+                {/* `dir="ltr"`: transport order is universal — back on the
+                    left, forward on the right — even in an RTL layout. */}
+                <div className="flex items-center justify-center gap-6 px-6 mt-5" dir="ltr">
                   <button
                     onClick={() => player.skip(-SKIP)}
                     className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-motion"
@@ -543,18 +607,12 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
 
                   <button
                     onClick={() => player.toggle()}
-                    className="podcast-play-button w-20 h-20 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+                    className="podcast-play-button w-20 h-20 rounded-full flex items-center justify-center transition-motion"
                     data-playing={isActive ? 'true' : 'false'}
                     style={{
-                      // Two-stop gradient gives the button visual depth
-                      // without needing an extra ring element. The fall-
-                      // back hsl() values keep things readable when the
-                      // seed-color tokens haven't been set (e.g. before
-                      // the cover art has loaded).
-
                       color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
                     }}
-                    aria-label={player.isPlaying ? 'Pause' : 'Play'}
+                    aria-label={player.isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
                   >
                     <Icon
                       className={`w-9 h-9 ${player.isLoading ? 'animate-spin' : ''}`}

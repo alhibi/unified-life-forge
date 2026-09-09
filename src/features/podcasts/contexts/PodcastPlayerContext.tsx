@@ -87,6 +87,13 @@ interface PodcastPlayerContextValue {
   /** Current playback rate (1.0 by default). */
   speed: number;
   error: string | null;
+  /** Re-bind the audio source and resume from the last known position.
+   *  Surfaced by the player's error banner so a dropped connection or a
+   *  blocked autoplay attempt is one tap away from recovering. */
+  retry: () => void;
+  /** True while the browser is starved for data mid-playback (as opposed
+   *  to the initial load) — the UI shows a buffering hint. */
+  isBuffering: boolean;
 
   /** Auto-play the next queued episode when the current one ends.
    *  Persisted to localStorage so the choice survives reloads. */
@@ -142,6 +149,9 @@ interface PodcastPlayerProgressValue {
    *  updates to avoid re-rendering the world while audio is playing. */
   position: number;
   duration: number;
+  /** End of the last buffered range, in seconds. Lets the seek bar draw
+   *  a "downloaded so far" layer like Apple Podcasts / YouTube. */
+  buffered: number;
 }
 
 const PodcastPlayerContext = createContext<PodcastPlayerContextValue | undefined>(undefined);
@@ -169,6 +179,8 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [buffered, setBuffered] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(false);
   const [speed, setSpeedState] = useState<number>(() => {
     const saved = parseFloat(localStorage.getItem(SPEED_KEY) ?? '1');
     return Number.isFinite(saved) && saved > 0 ? saved : 1;
@@ -246,14 +258,35 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
 
+    // `timeupdate` fires 4–66× a second depending on the browser. We
+    // throttle state to ~4 Hz so the seek bar stays live without
+    // flooding React with renders during a two-hour episode.
+    let lastTick = 0;
     const onTimeUpdate = () => {
+      const now = Date.now();
+      if (now - lastTick < 240) return;
+      lastTick = now;
       setPosition(audio.currentTime);
     };
     const onDurationChange = () => {
-      if (Number.isFinite(audio.duration)) setDuration(audio.duration);
+      if (Number.isFinite(audio.duration) && audio.duration > 0) setDuration(audio.duration);
+    };
+    const onProgress = () => {
+      const ranges = audio.buffered;
+      if (ranges.length > 0) setBuffered(ranges.end(ranges.length - 1));
     };
     const onLoadStart = () => setIsLoading(true);
-    const onCanPlay = () => setIsLoading(false);
+    const onCanPlay = () => {
+      setIsLoading(false);
+      setIsBuffering(false);
+    };
+    const onWaiting = () => setIsBuffering(true);
+    const onStalled = () => setIsBuffering(true);
+    const onPlaying = () => {
+      setIsLoading(false);
+      setIsBuffering(false);
+      setIsPlaying(true);
+    };
     const onPlay = () => {
       setIsPlaying(true);
       setIsLoading(false);
@@ -313,14 +346,21 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     };
     const onError = () => {
       setIsLoading(false);
+      setIsBuffering(false);
       setIsPlaying(false);
-      setError('Audio failed to load');
+      // Arabic-only UI: the message is shown verbatim in the player's
+      // error banner, next to a retry button.
+      setError('تعذّر تحميل الصوت. تحقّق من الاتصال ثم أعد المحاولة.');
     };
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('durationchange', onDurationChange);
+    audio.addEventListener('progress', onProgress);
     audio.addEventListener('loadstart', onLoadStart);
     audio.addEventListener('canplay', onCanPlay);
+    audio.addEventListener('waiting', onWaiting);
+    audio.addEventListener('stalled', onStalled);
+    audio.addEventListener('playing', onPlaying);
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('ended', onEnded);
@@ -329,8 +369,12 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('durationchange', onDurationChange);
+      audio.removeEventListener('progress', onProgress);
       audio.removeEventListener('loadstart', onLoadStart);
       audio.removeEventListener('canplay', onCanPlay);
+      audio.removeEventListener('waiting', onWaiting);
+      audio.removeEventListener('stalled', onStalled);
+      audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('ended', onEnded);
@@ -468,19 +512,51 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     ms.setActionHandler('seekto', (e) => {
       if (typeof e.seekTime === 'number') seekRef.current(e.seekTime);
     });
+    // Lock-screen next/previous: next pulls from the Up Next queue,
+    // previous restarts the current episode (the convention every
+    // podcast app follows — there is no "previous episode" concept).
+    ms.setActionHandler('nexttrack', () => playNextRef.current());
+    ms.setActionHandler('previoustrack', () => seekRef.current(0));
     return () => {
       ms.setActionHandler('play', null);
       ms.setActionHandler('pause', null);
       ms.setActionHandler('seekbackward', null);
       ms.setActionHandler('seekforward', null);
       ms.setActionHandler('seekto', null);
+      ms.setActionHandler('nexttrack', null);
+      ms.setActionHandler('previoustrack', null);
     };
   }, [current]);
+
+  // Keep the OS notification in sync: play/pause glyph and the
+  // scrubber. Without `setPositionState` the Android media notification
+  // shows a stuck 0:00 progress bar even while audio advances.
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    const ms = navigator.mediaSession;
+    if (typeof ms.setPositionState !== 'function') return;
+    if (!(duration > 0) || !Number.isFinite(duration)) return;
+    try {
+      ms.setPositionState({
+        duration,
+        position: Math.min(Math.max(0, position), duration),
+        playbackRate: speed,
+      });
+    } catch {
+      // Some engines throw when the values disagree mid-seek — harmless.
+    }
+  }, [position, duration, speed]);
 
   /* ----------------------------- actions ------------------------------------- */
 
   const skipRef = useRef<(d: number) => void>(() => {});
   const seekRef = useRef<(s: number) => void>(() => {});
+  const playNextRef = useRef<() => void>(() => {});
   const playRef = useRef<
     (meta?: PlayingEpisodeMeta, queue?: PlayingEpisodeMeta[]) => Promise<void>
   >(async () => {});
@@ -488,7 +564,24 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
   const seek = useCallback((seconds: number) => {
     const audio = audioRef.current;
     if (!audio || !Number.isFinite(seconds)) return;
-    audio.currentTime = Math.max(0, Math.min(audio.duration || seconds, seconds));
+    // `audio.duration` is NaN until metadata lands. The old code did
+    // `Math.min(NaN, seconds)`, producing NaN and throwing when assigned
+    // to `currentTime` — a hard crash when the user grabbed the seek bar
+    // during the first second of a track. Clamp only when we have a
+    // finite duration.
+    const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null;
+    const target = dur === null
+      ? Math.max(0, seconds)
+      : Math.max(0, Math.min(dur - 0.25, seconds));
+    try {
+      audio.currentTime = target;
+    } catch {
+      // Source not seekable yet — ignore rather than break the UI.
+      return;
+    }
+    // Paint the new playhead immediately instead of waiting for the next
+    // throttled `timeupdate`, so dragging feels attached to the finger.
+    setPosition(target);
   }, []);
   seekRef.current = seek;
 
@@ -565,7 +658,16 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       // Reset live progress so the mini-player's bar doesn't show
       // stale values from the previous track until `timeupdate` fires.
       setPosition(0);
-      setDuration(0);
+      // Seed the duration from the feed's declared `<itunes:duration>` so
+      // the seek bar and the remaining-time label are meaningful from the
+      // first frame instead of collapsing to 0:00 until metadata arrives.
+      setDuration(
+        Number.isFinite(target.episode.duration) && (target.episode.duration ?? 0) > 0
+          ? (target.episode.duration as number)
+          : 0,
+      );
+      setBuffered(0);
+      setIsBuffering(false);
       boundEpisodeIdRef.current = target.episode.id;
 
       const saved = getPlayState(target.episode.id);
@@ -597,9 +699,16 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       await audio.play();
     } catch (e) {
       // Common case: NotAllowedError because the page hasn't had a user
-      // gesture yet. We surface that as a recoverable error rather than
-      // crashing.
-      setError(e instanceof Error ? e.message : 'Playback blocked');
+      // gesture yet. AbortError means a newer `play()`/`load()` replaced
+      // this one — that is normal during fast track switching and must
+      // NOT surface as an error banner.
+      const name = e instanceof Error ? e.name : '';
+      if (name === 'AbortError') return;
+      setError(
+        name === 'NotAllowedError'
+          ? 'المتصفح منع التشغيل التلقائي. اضغط زر التشغيل مرة أخرى.'
+          : 'تعذّر بدء التشغيل. أعد المحاولة.',
+      );
       setIsPlaying(false);
       setIsLoading(false);
     }
@@ -615,10 +724,44 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     else void play();
   }, [isPlaying, pause, play]);
 
+  /**
+   * Recover from a failed load: re-bind the same source (a fresh request,
+   * so a CDN hiccup or a dropped connection is retried), restore the last
+   * persisted position, and resume.
+   */
+  const retry = useCallback(() => {
+    const audio = audioRef.current;
+    const cur = currentRef.current;
+    if (!audio || !cur) return;
+    setError(null);
+    setIsLoading(true);
+    const resumeAt = audio.currentTime || getPlayState(cur.episode.id)?.position || 0;
+    boundEpisodeIdRef.current = null;
+    metaCleanupRef.current?.();
+    metaCleanupRef.current = null;
+    audio.src = cur.episode.audioUrl;
+    audio.load();
+    const onMeta = () => {
+      audio.removeEventListener('loadedmetadata', onMeta);
+      if (resumeAt > 0) seekRef.current(resumeAt);
+    };
+    audio.addEventListener('loadedmetadata', onMeta);
+    boundEpisodeIdRef.current = cur.episode.id;
+    void audio.play().catch(() => {
+      setIsLoading(false);
+    });
+  }, []);
+
   const setSpeed = useCallback((s: number) => {
-    setSpeedState(s);
-    localStorage.setItem(SPEED_KEY, String(s));
-    if (audioRef.current) audioRef.current.playbackRate = s;
+    // Clamp to the range every browser accepts without pitch artifacts.
+    const next = Math.min(3, Math.max(0.5, Number.isFinite(s) ? s : 1));
+    setSpeedState(next);
+    try {
+      localStorage.setItem(SPEED_KEY, String(next));
+    } catch {
+      /* storage full or blocked — speed still applies for this session */
+    }
+    if (audioRef.current) audioRef.current.playbackRate = next;
   }, []);
 
   const close = useCallback(() => {
@@ -637,6 +780,9 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     setIsPlaying(false);
     setPosition(0);
     setDuration(0);
+    setBuffered(0);
+    setIsBuffering(false);
+    setError(null);
     setLastPlayed(null);
   }, []);
 
@@ -701,6 +847,11 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       void playRef.current(meta);
     }
   }, []);
+  // Assigned in an effect (not during render) so the lock-screen
+  // "next" handler always points at the latest stable callback.
+  useEffect(() => {
+    playNextRef.current = playNextFromQueue;
+  }, [playNextFromQueue]);
 
   // Command slice — does NOT include position/duration. Splitting these
   // out from the progress slice keeps EpisodeListItem (and any other
@@ -713,6 +864,8 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       isLoading,
       speed,
       error,
+      retry,
+      isBuffering,
       queueItems,
       queueCount,
       addToQueue,
@@ -740,6 +893,8 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       isLoading,
       speed,
       error,
+      retry,
+      isBuffering,
       queueItems,
       queueCount,
       addToQueue,
@@ -767,8 +922,9 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
     () => ({
       position,
       duration,
+      buffered,
     }),
-    [position, duration],
+    [position, duration, buffered],
   );
 
   return (

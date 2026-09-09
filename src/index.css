@@ -2339,38 +2339,69 @@ html[data-reduced-motion='true'].theme-transition *::after {
   margin-bottom: 0;
 }
 
-/* Seek bar: hide the native track and only style the thumb. The track
-   color is set inline (`background: linear-gradient(...)`) so it can
-   reflect the live progress without a state-driven re-render. */
+/* Seek bar: the visible rail, buffered layer, played layer and thumb are
+   all rendered as real elements by `PlayerSheetSeek`. The native input is
+   kept for pointer + keyboard semantics only, so every native part is
+   made fully transparent here (a large invisible thumb keeps the touch
+   target comfortable, ~44px tall via the wrapper). */
 input.podcast-seek {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
+  background: transparent;
   outline: none;
   cursor: pointer;
+}
+input.podcast-seek::-webkit-slider-runnable-track {
+  height: 24px;
+  background: transparent;
+  border: none;
 }
 input.podcast-seek::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: var(--podcast-primary, hsl(var(--primary)));
-  border: 2px solid hsl(var(--background));
+  background: transparent;
+  border: none;
   cursor: pointer;
 }
 input.podcast-seek::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: var(--podcast-primary, hsl(var(--primary)));
-  border: 2px solid hsl(var(--background));
+  background: transparent;
+  border: none;
   cursor: pointer;
 }
 input.podcast-seek::-moz-range-track {
-  height: 6px;
-  border-radius: 999px;
+  height: 24px;
   background: transparent;
+  border: none;
+}
+input.podcast-seek:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+/* Primary transport button: a solid, unmistakable target. Previously the
+   class carried no styling at all, so the play glyph floated without a
+   surface. */
+.podcast-play-button {
+  background: var(--podcast-primary, hsl(var(--primary)));
+  color: hsl(var(--primary-foreground));
+  box-shadow:
+    0 10px 30px -12px hsl(var(--background) / 0.9),
+    inset 0 1px 0 hsl(0 0% 100% / 0.14);
+}
+.podcast-play-button:active {
+  transform: scale(0.96);
+}
+.podcast-play-button:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 3px;
 }
 
 /* ──────────────────────────────────────────────────────────────────────
