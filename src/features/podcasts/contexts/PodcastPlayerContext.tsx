@@ -847,7 +847,11 @@ export function PodcastPlayerProvider({ children }: { children: ReactNode }) {
       void playRef.current(meta);
     }
   }, []);
-  playNextRef.current = playNextFromQueue;
+  // Assigned in an effect (not during render) so the lock-screen
+  // "next" handler always points at the latest stable callback.
+  useEffect(() => {
+    playNextRef.current = playNextFromQueue;
+  }, [playNextFromQueue]);
 
   // Command slice — does NOT include position/duration. Splitting these
   // out from the progress slice keeps EpisodeListItem (and any other
