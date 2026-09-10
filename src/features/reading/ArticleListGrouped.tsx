@@ -464,7 +464,7 @@ export function ArticleListGrouped({
   );
 
   // ─── Render ───────────────────────────────────────────────────────────
-  if (loading && articles.length === 0) {
+  if (loading && articles.length === 0 && !stalled) {
     return (
       <div ref={containerRef} className="flex-1 overflow-y-auto">
         <ArticleListSkeleton count={6} />
