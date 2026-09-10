@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import {
   Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
-  Newspaper, Plus, RefreshCw, Search, Settings2, Sparkle,
+  Newspaper, Plus, RefreshCw, Search, Settings2,
 Trash2, Type, X} from '@/lib/icons';
 
 import { getCustomFolders, storeCustomFolders } from './foldersStorage';
@@ -209,14 +209,6 @@ export function ListHeader({
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
           </IconBtn>
-          <IconBtn
-            onClick={onDiscoverFeeds}
-            accent
-            aria-label={'اكتشاف مصادر'}
-            title={'اكتشاف وإضافة مصادر جديدة'}
-          >
-            <Compass className="h-4 w-4" />
-          </IconBtn>
           <ReadingPrefsToolbar
             prefs={listPrefs}
             onChange={onListPrefsChange}
@@ -262,6 +254,10 @@ export function ListHeader({
                 <span>{'قراءة رابط'}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onDiscoverFeeds} className="rounded-lg gap-2.5">
+                <Compass className="h-4 w-4 text-primary" />
+                <span>{'اكتشاف مصادر جديدة'}</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={onManage} className="rounded-lg gap-2.5">
                 <Settings2 className="h-4 w-4 text-muted-foreground" />
                 <span>{'إدارة المصادر'}</span>
@@ -300,101 +296,64 @@ export function ListHeader({
         )}
       </AnimatePresence>
 
-      {/* Real-time Sync Progressive Panel (VIP grade) */}
-      <AnimatePresence>
-        {syncProgress?.active && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, y: -10 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-3 px-3.5 py-2.5 rounded-2xl bg-muted/60 border border-border/50 shadow-sm overflow-hidden"
-          >
-            <div className="flex items-center justify-between text-mini font-semibold text-amber-600 dark:text-amber-400 mb-1.5">
-              <span className="flex items-center gap-1.5">
-                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                <span className="truncate max-w-[200px] animate-pulse">
-                  {syncProgress.currentFeed || ('جاري تحديث المصادر...')}
-                </span>
-              </span>
-              <span className="tabular-nums opacity-90">
-                {syncProgress.current} / {syncProgress.total}
-              </span>
-            </div>
-            {/* VIP Gold-theme smooth progress bar */}
-            <div className="h-1.5 w-full bg-amber-500/15 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(syncProgress.current / syncProgress.total) * 100}%` }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="h-full bg-primary rounded-full"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* One hairline progress line for both refresh and prefetch — a
+          quiet caption plus a 2px rail, instead of two competing panels
+          that used to steal a third of the header. Animates scaleX only. */}
+      <ProgressLine
+        active={Boolean(syncProgress?.active)}
+        current={syncProgress?.current ?? 0}
+        total={syncProgress?.total ?? 0}
+        label={syncProgress?.currentFeed || 'تحديث المصادر'}
+        spinning
+      />
+      <ProgressLine
+        active={Boolean(prefetchProgress?.active) && !syncProgress?.active}
+        current={prefetchProgress?.current ?? 0}
+        total={prefetchProgress?.total ?? 0}
+        label={prefetchProgress?.currentTitle || 'تجهيز المقالات للقراءة'}
+      />
 
-      {/* VIP Smart Pre-loading/Pre-fetching Panel */}
-      <AnimatePresence>
-        {prefetchProgress?.active && !syncProgress?.active && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, y: -10 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-3 px-3.5 py-2 rounded-2xl bg-primary/10 border border-primary/20 shadow-sm overflow-hidden"
-          >
-            <div className="flex items-center justify-between text-micro font-bold text-primary mb-1">
-              <span className="flex items-center gap-1.5">
-                <Sparkle className="h-3.5 w-3.5 animate-pulse text-amber-500 fill-amber-500" />
-                <span>
-                  {'تجهيز ذكي فائق للمقالات الكاملة...'}
-                </span>
-              </span>
-              <span className="tabular-nums opacity-90">
-                {prefetchProgress.current} / {prefetchProgress.total}
-              </span>
-            </div>
-            {prefetchProgress.currentTitle && (
-              <p className="text-micro text-muted-foreground truncate mb-1.5 opacity-80" dir="auto">
-                {prefetchProgress.currentTitle}
-              </p>
-            )}
-            <div className="h-1.5 w-full bg-primary/15 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${(prefetchProgress.current / prefetchProgress.total) * 100}%` }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="h-full bg-primary rounded-full"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* One single scrollable filter rail: state chips → folders →
+          sources. Merging the two previous rows removes the clipped,
+          stacked look while keeping every control reachable. */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-0.5">
+        <Chip
+          active={filterTab === 'all' && sourceFilter === 'all' && categoryFilter === 'all'}
+          onClick={() => {
+            setFilterTab('all');
+            setSourceFilter('all');
+            setCategoryFilter('all');
+          }}
+          label={'الكل'}
+          count={articleCount}
+        />
+        <Chip
+          active={filterTab === 'unread'}
+          onClick={() => setFilterTab(filterTab === 'unread' ? 'all' : 'unread')}
+          label={'غير مقروء'}
+          count={unreadCount}
+        />
+        <Chip
+          active={filterTab === 'bookmarks'}
+          onClick={() => setFilterTab(filterTab === 'bookmarks' ? 'all' : 'bookmarks')}
+          icon={<Bookmark className="h-3 w-3 inline" />}
+          label={'المحفوظات'}
+          count={bookmarksCount > 0 ? bookmarksCount : undefined}
+        />
 
-      {/* Category folder row */}
-      {showCategoryRow && (
-        <div className="space-y-2 mb-2.5">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
-            <CategoryChip
-              active={categoryFilter === 'all'}
-              onClick={() => {
-                setCategoryFilter('all');
-                setSourceFilter('all');
-              }}
-              label={'كل الأقسام'}
-              icon={<FolderOpen className="h-3 w-3" />}
-            />
+        {showCategoryRow && (
+          <>
+            <Divider />
             {populatedCategories.map((c) => (
               <div key={c.id} className="relative group shrink-0">
                 <CategoryChip
                   active={categoryFilter === c.id}
                   onClick={() => {
                     setCategoryFilter(c.id === categoryFilter ? 'all' : c.id);
-                    // Clear source when switching folders
                     setSourceFilter('all');
                   }}
                   label={c.ar}
+                  icon={<FolderOpen className="h-3 w-3" />}
                 />
                 {customFolders.includes(c.id) && (
                   <button
@@ -414,70 +373,16 @@ export function ListHeader({
             <button
               type="button"
               onClick={() => setShowFolderInput(!showFolderInput)}
-              className="px-2.5 py-1 rounded-full text-micro font-semibold transition-motion shrink-0 active:scale-95 inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
+              className="p-1.5 rounded-full transition-motion shrink-0 active:scale-95 text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20"
+              aria-label={'مجلد جديد'}
+              title={'مجلد جديد'}
             >
               <Plus className="h-3 w-3" />
-              <span>{'مجلد جديد'}</span>
             </button>
-          </div>
-
-          <AnimatePresence>
-            {showFolderInput && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex gap-2"
-              >
-                <Input
-                  placeholder={'اسم المجلد الجديد...'}
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                  className="h-9 text-mini rounded-xl"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddFolder();
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddFolder}
-                  className="px-3 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 transition-opacity shrink-0"
-                >
-                  {'إضافة'}
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Filter / source chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
-        <Chip
-          active={filterTab === 'all' && sourceFilter === 'all'}
-          onClick={() => {
-            setFilterTab('all');
-            setSourceFilter('all');
-          }}
-          label={'الكل'}
-          count={articleCount}
-        />
-        <Chip
-          active={filterTab === 'unread'}
-          onClick={() => setFilterTab(filterTab === 'unread' ? 'all' : 'unread')}
-          label={'غير مقروء'}
-          count={unreadCount}
-        />
-        <Chip
-          active={filterTab === 'bookmarks'}
-          onClick={() => setFilterTab(filterTab === 'bookmarks' ? 'all' : 'bookmarks')}
-          icon={<Bookmark className="h-3 w-3 inline" />}
-          label={'المحفوظات'}
-          count={bookmarksCount > 0 ? bookmarksCount : undefined}
-        />
-        {visibleSources.length > 0 && (
-          <div className="w-px h-4 bg-border/40 shrink-0 mx-0.5" />
+          </>
         )}
+
+        {visibleSources.length > 0 && <Divider />}
         {visibleSources.map((source) => (
           <Chip
             key={source.url}
@@ -492,9 +397,94 @@ export function ListHeader({
           />
         ))}
       </div>
+
+      <AnimatePresence>
+        {showFolderInput && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex gap-2 overflow-hidden mt-2"
+          >
+            <Input
+              placeholder={'اسم المجلد الجديد...'}
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              className="h-9 text-mini rounded-xl"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddFolder();
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleAddFolder}
+              className="px-3 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 transition-opacity shrink-0"
+            >
+              {'إضافة'}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+/** Hairline separator between segments of the filter rail. */
+function Divider() {
+  return <div aria-hidden className="w-px h-4 bg-border/50 shrink-0 mx-1" />;
+}
+
+/**
+ * Quiet one-line progress indicator: caption + 2px rail. Reserves its
+ * own height only while active and animates `scaleX` so nothing in the
+ * header re-lays-out mid-refresh.
+ */
+function ProgressLine({
+  active,
+  current,
+  total,
+  label,
+  spinning,
+}: {
+  active: boolean;
+  current: number;
+  total: number;
+  label: string;
+  spinning?: boolean;
+}) {
+  const ratio = total > 0 ? Math.min(1, Math.max(0, current / total)) : 0;
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          className="mb-2.5 space-y-1"
+        >
+          <div className="flex items-center justify-between gap-2 text-micro text-muted-foreground/80">
+            <span className="flex items-center gap-1.5 min-w-0" dir="auto">
+              {spinning && <RefreshCw className="h-3 w-3 animate-spin text-primary shrink-0" />}
+              <span className="truncate">{label}</span>
+            </span>
+            <span className="tabular-nums shrink-0">{`${current}/${total}`}</span>
+          </div>
+          <div className="h-0.5 w-full rounded-full bg-border/50 overflow-hidden">
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: ratio }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{ transformOrigin: 'right' }}
+              className="h-full w-full rounded-full bg-primary"
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 
 function IconBtn({
   children,

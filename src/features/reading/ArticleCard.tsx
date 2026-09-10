@@ -314,7 +314,10 @@ export function ArticleCard({
     );
   }
 
-  // Default: comfortable
+  // Default: comfortable — one uniform editorial rhythm for every row:
+  // meta line (source · time · minutes) → title → excerpt, with a square
+  // thumbnail on the trailing edge. No per-row entry animation: rows must
+  // appear with the paint, not fade in one by one.
   return (
     <ArticleContextMenu
       article={article}
@@ -328,13 +331,10 @@ export function ArticleCard({
       onMarkBelowRead={onMarkBelowRead ?? (() => undefined)}
       onToggleBookmark={onToggleBookmark}
     >
-      <motion.div
+      <div
         ref={registerEl as React.Ref<HTMLDivElement>}
         data-link={article.link}
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.25 }}
-        className={`group relative overflow-hidden ${isRead ? 'opacity-70' : ''}`}
+        className="group relative overflow-hidden"
       >
         <SwipeBackdrop
           bookmarkOpacity={bookmarkBgOpacity}
@@ -351,57 +351,27 @@ export function ArticleCard({
           onDrag={onDrag}
           onDragEnd={onDragEnd}
           style={{ x }}
-          className="relative bg-background animate-scale-in"
+          className="relative bg-background"
         >
-          {/* Unread indicator — vertical accent bar on the leading edge */}
-          {!isRead && (
-            <span
-              aria-hidden
-              className="absolute top-4 bottom-4 start-0 w-[3px] rounded-full bg-primary"
-            />
-          )}
           <button
             type="button"
             onClick={handleClick}
-            className={`w-full text-start px-4 py-4 transition-motion duration-normal flex gap-4 ${
-              isRead
-                ? 'hover:bg-accent/10 active:bg-accent/15'
-                : 'bg-primary/[0.03] hover:bg-primary/[0.06] active:bg-primary/[0.1]'
-            }`}
+            className="w-full text-start px-4 py-4 flex gap-4 transition-colors duration-fast hover:bg-accent/10 active:bg-accent/20"
           >
             <div className="flex-1 min-w-0">
-              <h4
-                dir="auto"
-                className={`text-meta leading-[1.35] line-clamp-2 tracking-[-0.005em] flex items-start gap-1.5 ${
-                  isRead
-                    ? 'font-medium text-foreground/65'
-                    : 'font-bold text-foreground'
-                }`}
-              >
+              <div className="flex items-center gap-1.5 min-w-0">
                 {!isRead && (
-                  <span className="w-1.5 h-1.5 mt-2 rounded-full bg-primary shrink-0" />
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                 )}
-                <span>{article.title}</span>
-              </h4>
-              {article.description && (
-                <p
-                  dir="auto"
-                  className="text-mini text-muted-foreground/85 mt-1.5 line-clamp-2 leading-[1.55]"
-                >
-                  {article.description}
-                </p>
-              )}
-              <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <SourcePill name={article.source} size="sm" />
-                <span className="text-micro text-foreground/80 font-semibold truncate max-w-[120px]">
+                <span className="text-micro font-semibold text-primary/90 truncate max-w-[45%]">
                   {article.source}
                 </span>
-                <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-micro text-muted-foreground/70 shrink-0">
+                <span className="text-micro text-muted-foreground/60 shrink-0">·</span>
+                <span className="text-micro text-muted-foreground/70 shrink-0 tabular-nums">
                   {timeAgo(article.pubDate, language)}
                 </span>
-                <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-micro text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
+                <span className="text-micro text-muted-foreground/60 shrink-0">·</span>
+                <span className="text-micro text-muted-foreground/70 shrink-0 tabular-nums inline-flex items-center gap-0.5">
                   <Clock className="h-2.5 w-2.5" />
                   {`${minutes} د`}
                 </span>
@@ -409,22 +379,45 @@ export function ArticleCard({
                   <BookmarkCheck className="h-3 w-3 text-primary shrink-0" />
                 )}
                 {cached && !isBookmarked && (
-                  <span
-                    className="inline-flex items-center gap-0.5 text-micro text-emerald-600 dark:text-emerald-400 shrink-0"
-                    title={'متاحة دون اتصال'}
-                  >
-                    <CircleCheck className="h-2.5 w-2.5" />
+                  <span className="shrink-0 inline-flex" title={'متاحة دون اتصال'}>
+                    <CircleCheck className="h-3 w-3 text-primary/50" />
                   </span>
                 )}
               </div>
+
+              <h4
+                dir="auto"
+                className={`mt-1.5 text-meta leading-[1.4] line-clamp-2 ${
+                  isRead ? 'font-medium text-foreground/60' : 'font-bold text-foreground'
+                }`}
+              >
+                {article.title}
+              </h4>
+
+              {article.description && (
+                <p
+                  dir="auto"
+                  className={`text-mini mt-1.5 line-clamp-2 leading-[1.6] ${
+                    isRead ? 'text-muted-foreground/55' : 'text-muted-foreground/85'
+                  }`}
+                >
+                  {article.description}
+                </p>
+              )}
             </div>
+
             {article.image && (
-              <div className="relative w-[84px] h-[84px] shrink-0 rounded-2xl overflow-hidden bg-muted/40 ring-1 ring-border/40">
+              <div
+                className={`relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-muted/30 ring-1 ring-border/40 ${
+                  isRead ? 'opacity-60' : ''
+                }`}
+              >
                 <img
                   src={article.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-slow group-hover:scale-[1.06]"
+                  className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     const wrap = (e.currentTarget as HTMLImageElement).parentElement;
                     if (wrap) wrap.style.display = 'none';
@@ -448,7 +441,7 @@ export function ArticleCard({
               : <Bookmark className="h-4 w-4 text-muted-foreground" />}
           </button>
         </motion.div>
-      </motion.div>
+      </div>
     </ArticleContextMenu>
   );
 }
@@ -500,108 +493,5 @@ function SwipeBackdrop({
           : <CircleCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />}
       </motion.div>
     </>
-  );
-}
-
-/**
- * Hero variant — used for the first unread article so the page opens
- * with a strong visual anchor. Falls back gracefully when no image is
- * available (then it just renders a tall gradient panel with the
- * title).
- */
-export function HeroArticleCard({
-  article,
-  isBookmarked,
-  language,
-  onOpen,
-  onToggleBookmark,
-}: {
-  article: FeedItem;
-  isBookmarked: boolean;
-  language: string;
-  onOpen: () => void;
-  onToggleBookmark: () => void;
-}) {
-  const minutes = readingMinutes(
-    article.fullContent || article.description || article.title,
-    language,
-  );
-
-  return (
-    // The card is a CONTAINER, not a button. It used to be a <motion.button>
-    // with the bookmark <button> nested inside it — invalid HTML that React
-    // reported as a hydration error and that left the bookmark control
-    // unreachable for keyboard and screen-reader users. The open affordance is
-    // now a full-bleed button layered under the chrome, so both controls are
-    // real siblings.
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="relative mx-3 my-2 overflow-hidden rounded-2xl bg-card group"
-      style={{ aspectRatio: '16 / 10' }}
-    >
-      {article.image
-        ? (
-          <img
-            src={article.image}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-slow group-hover:scale-[1.03]"
-            loading="lazy"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = 'none';
-            }}
-          />
-        )
-        : (
-          // Imageless fallback: a themed panel rather than a bare card, so the
-          // white title keeps its contrast.
-          <div className="absolute inset-0 bg-gradient-to-br from-muted via-card to-background" />
-        )}
-
-      {/* Scrim. Text sits on media here, so a fixed light foreground over a
-          dark bottom-weighted scrim is the only way to hold 4.5:1 in every
-          theme. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
-
-      {/* Full-bleed open affordance, below the chrome in z-order. */}
-      <button
-        type="button"
-        onClick={onOpen}
-        className="absolute inset-0 z-0 app-focus-ring"
-        aria-label={article.title}
-      />
-
-      <div className="pointer-events-none absolute top-3 start-3 z-10 flex items-center gap-2">
-        <SourcePill name={article.source} size="md" />
-        <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-black/70 text-white/95">
-          {article.source}
-        </span>
-      </div>
-
-      <button
-        type="button"
-        onClick={onToggleBookmark}
-        className="absolute top-3 end-3 z-10 grid place-items-center size-9 rounded-full bg-black/70 hover:bg-black/80 app-focus-ring"
-        aria-label={isBookmarked ? 'إلغاء الحفظ' : 'حفظ'}
-        aria-pressed={isBookmarked}
-      >
-        {isBookmarked
-          ? <BookmarkCheck className="h-4 w-4 text-white" />
-          : <Bookmark className="h-4 w-4 text-white/85" />}
-      </button>
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-4 pb-4 pt-12">
-        <h2 dir="auto" className="text-white text-lead font-bold leading-tight line-clamp-3">
-          {article.title}
-        </h2>
-        <div className="flex items-center gap-2 mt-2 text-white/85 text-micro">
-          <span>{timeAgo(article.pubDate, language)}</span>
-          <span className="w-1 h-1 rounded-full bg-white/50" />
-          <Clock className="h-3 w-3" />
-          <span>{`${minutes} د قراءة`}</span>
-        </div>
-      </div>
-    </motion.div>
   );
 }
