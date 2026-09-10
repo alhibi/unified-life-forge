@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from '@/lib/icons';
 
-import { ArticleCard, HeroArticleCard } from './ArticleCard';
+import { ArticleCard } from './ArticleCard';
 import type { ListPrefs } from './listPrefs';
 import { bucketLabel, bucketOf, type DateBucket } from './listPrefs';
 import { ArticleListSkeleton } from './Skeletons';
@@ -137,34 +137,12 @@ export function ArticleListGrouped({
     return list;
   }, [articles, prefs.sort, readSet]);
 
-  // ─── Hero card (only for default view; never with non-newest sort) ────
-  const heroAndRest = useMemo(() => {
-    const isFiltered =
-      filterTab !== 'all' ||
-      sourceFilter !== 'all' ||
-      searchQuery.trim().length > 0 ||
-      prefs.sort !== 'newest' ||
-      prefs.group === 'date' ||
-      prefs.density !== 'comfortable';
-    if (sorted.length === 0 || isFiltered) {
-      return { hero: null, rest: sorted };
-    }
-    const unreadWithImage = sorted.find(
-      (a) => !readSet.has(a.link) && !!a.image,
-    );
-    const hero = unreadWithImage || sorted[0];
-    const rest = sorted.filter((a) => a.link !== hero.link);
-    return { hero, rest };
-  }, [
-    sorted,
-    filterTab,
-    sourceFilter,
-    searchQuery,
-    prefs.sort,
-    prefs.group,
-    prefs.density,
-    readSet,
-  ]);
+  // The list now keeps one uniform rhythm end to end — no oversized hero
+  // row that broke the scan pattern at the top of the feed.
+  const heroAndRest = useMemo(() => ({ hero: null, rest: sorted }), [sorted]);
+
+  // O(1) bookmark lookup per row instead of a linear scan per render.
+  const bookmarkSet = useMemo(() => new Set(bookmarks), [bookmarks]);
 
   // ─── Grouping into buckets (when enabled) ─────────────────────────────
   // Returns a flat list of "items" — either headers or article rows —
@@ -517,15 +495,6 @@ export function ArticleListGrouped({
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto">
-      {heroAndRest.hero && (
-        <HeroArticleCard
-          article={heroAndRest.hero}
-          isBookmarked={bookmarks.includes(heroAndRest.hero.link)}
-          language={language}
-          onOpen={() => onOpenArticle(heroAndRest.hero!)}
-          onToggleBookmark={() => onToggleBookmark(heroAndRest.hero!.link)}
-        />
-      )}
 
       {topSpacer > 0 && <div style={{ height: topSpacer }} aria-hidden />}
 
@@ -555,7 +524,7 @@ export function ArticleListGrouped({
               article={a}
               index={idx}
               isRead={isRead}
-              isBookmarked={bookmarks.includes(a.link)}
+              isBookmarked={bookmarkSet.has(a.link)}
               cached={cachedLinks?.has(a.link)}
               language={language}
               density={prefs.density}

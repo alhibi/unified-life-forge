@@ -1,11 +1,10 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 
-import { AppCard } from '@/components/ui/app-shell';
-import { Bookmark, Clock, Newspaper, Play, Rss } from '@/lib/icons';
+import { Bookmark, Clock, Play, Rss } from '@/lib/icons';
 
 import type { FeedItem } from './types';
-import { readingMinutes, timeAgo } from './utils';
+import { readingMinutes } from './utils';
 
 /**
  * A calm, actionable overview placed at the top of the reading list.
@@ -61,51 +60,38 @@ export function ReadingBriefing({
   if (articles.length === 0) return null;
 
   return (
-    <AppCard className="mx-4 mt-3 p-4" aria-label="ملخص القراءة">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-mini text-muted-foreground">مساحة قراءتك</p>
-          <h4 className="text-title font-bold mt-1">ابدأ بما يهمك الآن</h4>
-        </div>
-        <span className="w-11 h-11 rounded-lg bg-primary/10 text-primary inline-flex items-center justify-center shrink-0">
-          <Newspaper className="h-5 w-5" />
-        </span>
+    <section className="px-4 pt-3 pb-1" aria-label="ملخص القراءة">
+      {/* Compact three-column stat strip — same information, a fraction
+          of the vertical weight the old card consumed. */}
+      <div className="grid grid-cols-3 rounded-lg bg-card/40 ring-1 ring-border/40 py-2.5">
+        <BriefMetric icon={<Rss className="h-3 w-3" />} label="مصادر" value={enabledFeedCount} />
+        <BriefMetric bordered icon={<Clock className="h-3 w-3" />} label="جديد اليوم" value={freshToday} />
+        <BriefMetric bordered icon={<Bookmark className="h-3 w-3" />} label="محفوظ" value={bookmarksCount} />
       </div>
 
-      <div className="grid grid-cols-3 mt-4">
-        <BriefMetric icon={<Rss className="h-3.5 w-3.5" />} label="مصادر نشطة" value={enabledFeedCount} />
-        <BriefMetric bordered icon={<Clock className="h-3.5 w-3.5" />} label="جديد اليوم" value={freshToday} />
-        <BriefMetric bordered icon={<Bookmark className="h-3.5 w-3.5" />} label="محفوظ" value={bookmarksCount} />
-      </div>
-
+      {/* One quiet action line. It deliberately does NOT repeat the
+          article title — the newest item is already the first row, and
+          printing it twice was the redundancy in the old card. */}
       {nextArticle && (
         <button
           type="button"
           onClick={() => onOpenArticle(nextArticle)}
-          className="w-full mt-4 p-3 rounded-lg bg-accent/35 hover:bg-accent/55 text-start transition-colors"
-          aria-label={`متابعة القراءة: ${nextArticle.title}`}
+          className="w-full mt-1.5 px-1 py-2 rounded-lg text-start transition-colors hover:bg-accent/20 active:bg-accent/30 flex items-center gap-1.5 text-micro"
+          aria-label={'ابدأ القراءة من أحدث مقالة غير مقروءة'}
         >
-          <div className="flex items-center gap-2 text-mini text-muted-foreground">
-            <Play className="h-3.5 w-3.5 text-primary" fill="currentColor" />
-            <span>متابعة القراءة</span>
-            <span className="w-1 h-1 rounded-full bg-border" />
-            <span>{`${unreadCount} غير مقروء`}</span>
-            {unreadMinutes > 0 && (
-              <>
-                <span className="w-1 h-1 rounded-full bg-border" />
-                <span>{`حوالي ${unreadMinutes} د`}</span>
-              </>
-            )}
-          </div>
-          <p className="text-body font-semibold leading-relaxed line-clamp-2 mt-1.5" dir="auto">
-            {nextArticle.title}
-          </p>
-          <p className="text-mini text-muted-foreground mt-1" dir="auto">
-            {`${nextArticle.source} · ${timeAgo(nextArticle.pubDate, language)}`}
-          </p>
+          <Play className="h-3 w-3 text-primary" fill="currentColor" />
+          <span className="font-semibold text-primary/90">ابدأ القراءة</span>
+          <span className="w-1 h-1 rounded-full bg-border" />
+          <span className="tabular-nums text-muted-foreground/75">{`${unreadCount} غير مقروء`}</span>
+          {unreadMinutes > 0 && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span className="tabular-nums text-muted-foreground/75">{`~${unreadMinutes} د`}</span>
+            </>
+          )}
         </button>
       )}
-    </AppCard>
+    </section>
   );
 }
 
@@ -121,12 +107,12 @@ function BriefMetric({
   bordered?: boolean;
 }) {
   return (
-    <div className={`px-2 first:ps-0 last:pe-0 ${bordered ? 'border-s border-border/50' : ''}`}>
-      <span className="inline-flex items-center gap-1 text-mini text-muted-foreground">
+    <div className={`px-3 text-center ${bordered ? 'border-s border-border/40' : ''}`}>
+      <p className="text-body font-bold tabular-nums leading-none">{value}</p>
+      <span className="inline-flex items-center gap-1 text-micro text-muted-foreground/75 mt-1">
         {icon}
         {label}
       </span>
-      <p className="text-lead font-bold tabular-nums mt-1">{value}</p>
     </div>
   );
 }
