@@ -415,9 +415,16 @@ export function ArticleCard({
                 <img
                   src={article.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
+                  width={80}
+                  height={80}
+                  className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
                   loading="lazy"
                   decoding="async"
+                  fetchPriority="low"
+                  referrerPolicy="no-referrer"
+                  onLoad={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.opacity = '1';
+                  }}
                   onError={(e) => {
                     const wrap = (e.currentTarget as HTMLImageElement).parentElement;
                     if (wrap) wrap.style.display = 'none';

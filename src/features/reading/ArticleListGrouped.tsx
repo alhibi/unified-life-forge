@@ -463,8 +463,22 @@ export function ArticleListGrouped({
     [visibleArticles, readSet, onMarkManyRead],
   );
 
+  // ─── Stalled-load guard ──────────────────────────────────────────────
+  // A hung network call would otherwise leave the skeleton shimmering
+  // forever. After 12 s with no articles we stop pretending and show a
+  // plain message with a retry button instead of a frozen screen.
+  const [stalled, setStalled] = useState(false);
+  useEffect(() => {
+    if (!loading || articles.length > 0) {
+      setStalled(false);
+      return;
+    }
+    const t = window.setTimeout(() => setStalled(true), 12_000);
+    return () => window.clearTimeout(t);
+  }, [loading, articles.length]);
+
   // ─── Render ───────────────────────────────────────────────────────────
-  if (loading && articles.length === 0) {
+  if (loading && articles.length === 0 && !stalled) {
     return (
       <div ref={containerRef} className="flex-1 overflow-y-auto">
         <ArticleListSkeleton count={6} />
@@ -480,7 +494,7 @@ export function ArticleListGrouped({
           searchQuery={searchQuery}
           refreshing={refreshing}
           hasFeeds={hasFeeds ?? true}
-          serviceError={serviceError ?? null}
+          serviceError={serviceError ?? (stalled ? 'timeout' : null)}
           onRefresh={onRefresh}
           onAddFeeds={onAddFeeds}
         />
