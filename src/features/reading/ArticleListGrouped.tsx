@@ -463,6 +463,22 @@ export function ArticleListGrouped({
     [visibleArticles, readSet, onMarkManyRead],
   );
 
+  // ─── Stalled-load guard ──────────────────────────────────────────────
+  // A hung network call would otherwise leave the skeleton shimmering
+  // forever. After 12 s with no articles we stop pretending and show a
+  // plain message with a retry button instead of a frozen screen.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [stalled, setStalled] = useState(false);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!loading || articles.length > 0) {
+      setStalled(false);
+      return;
+    }
+    const t = window.setTimeout(() => setStalled(true), 12_000);
+    return () => window.clearTimeout(t);
+  }, [loading, articles.length]);
+
   // ─── Render ───────────────────────────────────────────────────────────
   if (loading && articles.length === 0 && !stalled) {
     return (
