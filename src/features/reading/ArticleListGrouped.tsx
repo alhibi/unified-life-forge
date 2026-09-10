@@ -467,9 +467,7 @@ export function ArticleListGrouped({
   // A hung network call would otherwise leave the skeleton shimmering
   // forever. After 12 s with no articles we stop pretending and show a
   // plain message with a retry button instead of a frozen screen.
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [stalled, setStalled] = useState(false);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!loading || articles.length > 0) {
       setStalled(false);
@@ -496,7 +494,7 @@ export function ArticleListGrouped({
           searchQuery={searchQuery}
           refreshing={refreshing}
           hasFeeds={hasFeeds ?? true}
-          serviceError={serviceError ?? null}
+          serviceError={serviceError ?? (stalled ? 'timeout' : null)}
           onRefresh={onRefresh}
           onAddFeeds={onAddFeeds}
         />
