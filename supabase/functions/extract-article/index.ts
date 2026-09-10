@@ -92,10 +92,19 @@ serve(async (req) => {
     });
   }
 
-  return jsonResponse(
-    { error: "Could not extract a readable article from that URL" },
-    422,
-  );
+  // Nothing extractable at all. Still answer 200 with an empty payload so the
+  // reader keeps whatever the feed gave it instead of surfacing a hard error
+  // (a 422 here bubbled up to the UI as a blank screen).
+  return jsonResponse({
+    url: normalized,
+    title: "",
+    siteName: undefined,
+    description: undefined,
+    image: null,
+    html: "",
+    partial: true,
+    extractable: false,
+  });
 });
 
 /** Escape text destined for an HTML text node. */
