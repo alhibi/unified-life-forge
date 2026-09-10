@@ -546,14 +546,18 @@ export function ArticleReader({
         ref={scrollRef}
         className="flex-1 overflow-y-auto"
       >
-        {bodyImage && (
-          <div className="relative">
+        {coverImage && (
+          <div className="relative bg-muted/30 h-56">
             <img
-              src={bodyImage}
+              src={coverImage}
               alt=""
+              width={1200}
+              height={630}
               className="w-full h-56 object-cover"
               loading="eager"
+              decoding="async"
               fetchPriority="high"
+              referrerPolicy="no-referrer"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
               }}
