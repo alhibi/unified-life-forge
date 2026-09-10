@@ -135,6 +135,22 @@ export function ArticleReader({
   );
 
   /**
+   * Cover image for the detail screen. Feeds often omit an explicit
+   * image even though the scraped body carries one, so we fall back to
+   * the first absolute http(s) `<img>` inside the article body. That
+   * keeps every article visually complete without an extra request.
+   */
+  const coverImage = useMemo(() => {
+    if (bodyImage) return bodyImage;
+    if (!bodyHtml) return null;
+    const m = /<img[^>]*?(?:src|data-src)\s*=\s*["']([^"']+)["']/i.exec(bodyHtml);
+    const raw = m?.[1];
+    if (!raw) return null;
+    if (raw.startsWith('//')) return `https:${raw}`;
+    return /^https?:\/\//i.test(raw) ? raw : null;
+  }, [bodyImage, bodyHtml]);
+
+  /**
    * Offline-first hydration + auto-upgrade pipeline.
    *
    * On every article change we walk through three escalating tiers:
