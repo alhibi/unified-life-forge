@@ -49,19 +49,95 @@ serve(async (req) => {
   }
 
   const scraped = await scrapeArticle(normalized);
-  if (!scraped) {
-    return jsonResponse(
-      { error: "Could not extract a readable article from that URL" },
-      422,
-    );
+  if (scraped && scraped.html) {
+    return jsonResponse({
+      url: normalized,
+      title: scraped.title,
+      siteName: scraped.siteName,
+      description: scraped.description,
+      image: scraped.ogImage || null,
+      html: scraped.html,
+    });
   }
 
-  return jsonResponse({
-    url: normalized,
-    title: scraped.title,
-    siteName: scraped.siteName,
-    description: scraped.description,
-    image: scraped.ogImage || null,
-    html: scraped.html,
-  });
+  // Fallback — many publishers either block datacenter user agents
+  // (HTTP 403) or render the body client-side, so the regex strategies
+  // above find nothing. A plain-text reader proxy handles both cases:
+  // it returns the rendered prose, which we re-wrap as paragraphs.
+  const proxied = await fetchReaderProxy(normalized);
+  if (proxied && proxied.length > 200) {
+    return jsonResponse({
+      url: normalized,
+      title: scraped?.title ?? "",
+      siteName: scraped?.siteName,
+      description: scraped?.description,
+      image: scraped?.ogImage || null,
+      html: paragraphsToHtml(proxied),
+      partial: true,
+    });
+  }
+
+  // Last resort — at least hand back the metadata we did read so the
+  // reader shows a real card (title, image, summary) with a link out
+  // instead of a hard failure screen.
+  if (scraped && (scraped.description || scraped.ogImage || scraped.title)) {
+    return jsonResponse({
+      url: normalized,
+      title: scraped.title,
+      siteName: scraped.siteName,
+      description: scraped.description,
+      image: scraped.ogImage || null,
+      html: scraped.description ? `<p>${escapeHtml(scraped.description)}</p>` : "",
+      partial: true,
+    });
+  }
+
+  return jsonResponse(
+    { error: "Could not extract a readable article from that URL" },
+    422,
+  );
 });
+
+/** Escape text destined for an HTML text node. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Turn plain text into simple, safe paragraph markup. */
+function paragraphsToHtml(text: string): string {
+  const paras = text
+    .split(/\n{2,}/)
+    .map((p) => p.replace(/\s+/g, " ").trim())
+    .filter((p) => p.length > 40)
+    .slice(0, 400);
+  if (paras.length === 0) return "";
+  return paras.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+}
+
+/**
+ * Read the article through a public text-extraction proxy. Returns the
+ * plain-text body, or null when the proxy is unavailable or slow — the
+ * caller degrades to metadata-only rather than failing.
+ */
+async function fetchReaderProxy(url: string): Promise<string | null> {
+  const target = `https://r.jina.ai/${url}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch(target, {
+      headers: { "Accept": "text/plain", "X-Return-Format": "text" },
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    // Hard cap the payload so one huge page cannot exhaust the worker.
+    return text.slice(0, 200_000);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
