@@ -61,7 +61,7 @@ function ensureHook(): void {
  * article text and its images only.
  */
 const BOILERPLATE_TEXT =
-  /^\s*(?:اقرأ\s*(?:أيضا|أيضاً|ايضا|المزيد)|إقرأ\s*(?:أيضا|أيضاً|المزيد)|شاهد\s*أيضا|موضوعات?\s*(?:ذات\s*صلة|متعلقة)|مواضيع\s*ذات\s*صلة|الأكثر\s*قراءة|شارك\s*(?:الخبر|المقال)|تابعنا|read\s*(?:more|also)|related(?:\s*(?:articles?|topics?|stories))?|share\s*this|advertisement|sponsored)\b/i;
+  /^\s*(?:اقرأ\s*(?:أيضا|أيضاً|ايضا|المزيد)|إقرأ\s*(?:أيضا|أيضاً|المزيد)|شاهد\s*أيضا|موضوعات?\s*(?:ذات\s*صلة|متعلقة)|مواضيع\s*ذات\s*صلة|الأكثر\s*قراءة|شارك\s*(?:الخبر|المقال)|تابعنا|read\s*(?:more|also)|related(?:\s*(?:articles?|topics?|stories))?|share\s*this|advertisement|sponsored)/i;
 
 /** Fraction of an element's text that sits inside links. */
 function linkRatio(el: Element): number {
