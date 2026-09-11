@@ -256,13 +256,77 @@ export function cleanArticleHtml(html: string, title = ""): string {
       stripText(inner).toLowerCase() === normTitle ? "" : block);
   }
 
-  return out
-    .replace(/<(p|li|h2|h3|h4|blockquote|figcaption|td|th)>\s*<\/\1>/gi, "")
+  out = out
+    .replace(/<(p|li|h2|h3|h4|blockquote|figcaption|td|th|strong|b|em|i|a)>\s*<\/\1>/gi, "")
     .replace(/(?:<br>\s*){3,}/gi, "<br><br>")
     .replace(/\s+/g, " ")
     .replace(/>\s+</g, "><")
     .trim();
+
+  // Final gate — keep only top-level blocks. Everything loose at the root
+  // (skip links, publish stamps, "most read" labels, stray anchors) is
+  // page chrome that happened to live inside the article container.
+  return keepTopLevelBlocks(out, title);
 }
+
+/** Block tags allowed to sit at the root of a cleaned article body. */
+const ROOT_BLOCKS = new Set([
+  "p", "h2", "h3", "h4", "ul", "ol", "blockquote", "pre", "figure",
+  "table", "hr", "img",
+]);
+
+/** In-body labels that are chrome even when they arrive as prose. */
+const CHROME_TEXT =
+  /^(?:تخط[^\s]*\s|الأكثر\s*قراءة|أخبار\s*ذات\s*صلة|مواضيع\s*ذات\s*صلة|واصل\s*القراءة|شارك|تابعنا|اقرأ\s*أيض|شاهد\s*أيض|Published\b|Last\s*updated|Skip\b|Share\b|Read\s*more|Advertisement|Sponsored)/i;
+
+/**
+ * Rebuild the body from its root-level block elements only, dropping
+ * chrome-labelled blocks. Loose text between blocks is discarded — it is
+ * never article prose in practice, only bylines, timestamps and rails.
+ */
+function keepTopLevelBlocks(html: string, title: string): string {
+  const open = /<([a-z0-9]+)\b[^>]*>/gi;
+  const normTitle = stripText(title).toLowerCase();
+  const parts: string[] = [];
+  let m: RegExpExecArray | null;
+  let cursor = 0;
+  while ((m = open.exec(html)) !== null) {
+    if (m.index < cursor) continue;
+    const tag = m[1].toLowerCase();
+    if (!ROOT_BLOCKS.has(tag)) {
+      cursor = m.index + m[0].length;
+      open.lastIndex = cursor;
+      continue;
+    }
+    let block: string;
+    if (tag === "img" || tag === "hr") {
+      block = m[0];
+      cursor = m.index + m[0].length;
+    } else {
+      const end = findClosing(html, tag, m.index);
+      if (end === -1) {
+        cursor = m.index + m[0].length;
+        open.lastIndex = cursor;
+        continue;
+      }
+      block = html.slice(m.index, end);
+      cursor = end;
+    }
+    open.lastIndex = cursor;
+    const text = stripText(block);
+    if (tag !== "img" && tag !== "figure" && tag !== "hr") {
+      if (text.length === 0) continue;
+      if (CHROME_TEXT.test(text) && text.length < 200) continue;
+      if (normTitle.length > 8 && text.toLowerCase() === normTitle) continue;
+    }
+    parts.push(block);
+  }
+  const joined = parts.join("");
+  // If the gate found nothing structured, keep the pre-gate markup so a
+  // plain-text publisher body isn't wiped out entirely.
+  return stripText(joined).length >= 200 ? joined : html;
+}
+
 
 
 export function extractContainer(
