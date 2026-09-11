@@ -1173,13 +1173,13 @@ serve(async (req) => {
         url: f.url,
         title: f.title,
         items: f.items,
-        count: f.items.length,
+        count: f.storedCount ?? f.items.length,
       }));
     const statuses = fetched.map((f) => ({
       url: f.url,
       status: f.status,
       httpStatus: f.httpStatus,
-      itemCount: f.items.length,
+      itemCount: f.storedCount ?? f.items.length,
       error: f.error,
     }));
 
