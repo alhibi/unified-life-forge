@@ -433,89 +433,85 @@ export async function scrapeArticle(
     };
   }
 
-  const clean = html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<aside[\s\S]*?<\/aside>/gi, "")
-    .replace(/<!--[\s\S]*?-->/g, "");
+  // Chrome (nav/aside/footer/share rails/ad slots) is removed once, up
+  // front, so every strategy below scores prose only.
+  const clean = stripNoise(html);
 
-  // Strategy 2 — <article> or <main>
+  /** Collect candidate containers, then keep the highest-scoring body. */
+  const candidates: string[] = [];
+
   for (const tag of ["article", "main"]) {
-    const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i");
-    const m = clean.match(re);
-    if (m && stripText(m[1]).length > 300) {
-      return {
-        title,
-        siteName,
-        description,
-        html: cleanArticleHtml(m[1]),
-        ogImage,
-      };
+    const open = new RegExp(`<${tag}\\b[^>]*>`, "gi");
+    let m: RegExpExecArray | null;
+    while ((m = open.exec(clean)) !== null) {
+      const end = findClosing(clean, tag, m.index);
+      if (end === -1) continue;
+      candidates.push(clean.slice(m.index + m[0].length, end - tag.length - 3));
+      if (candidates.length > 6) break;
     }
   }
 
-  // Strategy 3 — itemprop=articleBody / known content classes
   const itemprop = clean.match(
-    /<[^>]+itemprop=["']articleBody["'][^>]*>([\s\S]*?)<\/[a-z]+>/i,
+    /<([a-z]+)\b[^>]*itemprop=["']articleBody["'][^>]*>/i,
   );
-  if (itemprop && stripText(itemprop[1]).length > 300) {
-    return {
-      title,
-      siteName,
-      description,
-      html: cleanArticleHtml(itemprop[1]),
-      ogImage,
-    };
+  if (itemprop?.index !== undefined) {
+    const tag = itemprop[1].toLowerCase();
+    const end = findClosing(clean, tag, itemprop.index);
+    if (end !== -1) {
+      candidates.push(
+        clean.slice(itemprop.index + itemprop[0].length, end - tag.length - 3),
+      );
+    }
   }
 
   const contentClasses = [
-    "entry-content", "article-body", "article-content", "post-content",
-    "story-body", "news-content", "wysiwyg", "content-body",
-    "single-content", "s-ct-inner", "rbct", "post__content",
-    "rich-text", "story",
+    "entry-content", "article-body", "article-content", "articleBody",
+    "post-content", "story-body", "story-content", "news-content",
+    "wysiwyg", "content-body", "single-content", "s-ct-inner", "rbct",
+    "post__content", "rich-text", "text-content", "body-content",
   ];
   for (const cls of contentClasses) {
     const idx = clean.indexOf(cls);
-    if (idx !== -1) {
-      const before = clean.lastIndexOf("<div", idx);
-      if (before !== -1) {
-        const content = extractContainer(clean, before);
-        if (content && stripText(content).length > 300) {
-          return {
-            title,
-            siteName,
-            description,
-            html: cleanArticleHtml(content),
-            ogImage,
-          };
-        }
-      }
-    }
+    if (idx === -1) continue;
+    const before = clean.lastIndexOf("<div", idx);
+    if (before === -1) continue;
+    const content = extractContainer(clean, before);
+    if (content) candidates.push(content);
   }
 
-  // Strategy 4 — paragraph cluster
-  const pRe = /<p[^>]*>[\s\S]*?<\/p>/gi;
+  let best: { html: string; score: number } | null = null;
+  for (const candidate of candidates) {
+    const body = cleanArticleHtml(candidate, title);
+    const text = stripText(body);
+    if (text.length < 300) continue;
+    const paragraphs = (body.match(/<p>/g) ?? []).length;
+    // Prose length rewarded, link rails punished, real paragraphs bonus.
+    const score = text.length * (1 - linkDensity(body)) + paragraphs * 60;
+    if (!best || score > best.score) best = { html: body, score };
+  }
+  if (best) {
+    return { title, siteName, description, html: best.html, ogImage };
+  }
+
+  // Fallback — paragraph cluster from the de-noised document.
+  const pRe = /<p\b[^>]*>[\s\S]*?<\/p>/gi;
   const ps: string[] = [];
-  let pm;
+  let pm: RegExpExecArray | null;
   while ((pm = pRe.exec(clean)) !== null) {
     const text = stripText(pm[0]);
-    if (text.length > 40) ps.push(pm[0]);
+    if (text.length > 60 && linkDensity(pm[0]) < 0.4) ps.push(pm[0]);
   }
   if (ps.length >= 4) {
-    return {
-      title,
-      siteName,
-      description,
-      html: cleanArticleHtml(ps.join("\n")),
-      ogImage,
-    };
+    const body = cleanArticleHtml(ps.join("\n"), title);
+    if (stripText(body).length > 300) {
+      return { title, siteName, description, html: body, ogImage };
+    }
   }
 
   return ogImage
     ? { title, siteName, description, html: "", ogImage }
     : null;
+
 }
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
