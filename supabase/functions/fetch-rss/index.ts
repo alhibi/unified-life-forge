@@ -122,6 +122,9 @@ interface FeedResult {
   title: string;
   sourceName: string;
   items: FeedItem[];
+  /** Count of items that were parsed before the bodies were released
+   *  (store mode drops item payloads to keep peak memory flat). */
+  storedCount?: number;
   error?: string;
   httpStatus?: number;
   etag?: string | null;
