@@ -1123,18 +1123,20 @@ serve(async (req) => {
         }
         await storeArticles(sb, fr.items, fr.url, fr.sourceName);
 
-        // Release scraped bodies immediately — the `store` response never
-        // carries full HTML.
-        fr.items.forEach((it) => {
-          it.fullContent = "";
-        });
+        // Release every parsed item immediately. In store mode the client
+        // reads articles back from the database, so keeping parsed bodies
+        // (and their image arrays) alive for the response is what made peak
+        // memory grow with feed count and tripped WORKER_RESOURCE_LIMIT.
+        const storedCount = fr.items.length;
+        fr.storedCount = storedCount;
+        fr.items = [];
 
         await recordFeedMeta(sb, fr.url, {
           etag: fr.etag ?? null,
           last_modified: fr.lastModified ?? null,
           last_status: fr.httpStatus,
           last_error: null,
-          item_count_last: fr.items.length,
+          item_count_last: storedCount,
           reset_failures: true,
         }).catch(() => {});
       }
