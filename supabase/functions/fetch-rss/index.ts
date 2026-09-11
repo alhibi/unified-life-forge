@@ -25,7 +25,7 @@ const FETCH_TIMEOUT_MS = 15_000;
 const SCRAPE_TIMEOUT_MS = 12_000;
 const SCRAPE_CONCURRENCY = 2;
 const BG_DEADLINE_MS = 25_000;
-const MAX_FEEDS_PER_REQUEST = 6;
+const MAX_FEEDS_PER_REQUEST = 3;
 // Feeds are processed one at a time on the persisting path so that only a
 // single feed's parsed XML + scraped bodies are ever resident in the isolate.
 const FEED_FETCH_CONCURRENCY = 2;
