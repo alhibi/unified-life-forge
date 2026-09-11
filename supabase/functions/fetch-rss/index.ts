@@ -25,7 +25,7 @@ const FETCH_TIMEOUT_MS = 15_000;
 const SCRAPE_TIMEOUT_MS = 12_000;
 const SCRAPE_CONCURRENCY = 2;
 const BG_DEADLINE_MS = 25_000;
-const MAX_FEEDS_PER_REQUEST = 6;
+const MAX_FEEDS_PER_REQUEST = 3;
 // Feeds are processed one at a time on the persisting path so that only a
 // single feed's parsed XML + scraped bodies are ever resident in the isolate.
 const FEED_FETCH_CONCURRENCY = 2;
@@ -122,6 +122,9 @@ interface FeedResult {
   title: string;
   sourceName: string;
   items: FeedItem[];
+  /** Count of items that were parsed before the bodies were released
+   *  (store mode drops item payloads to keep peak memory flat). */
+  storedCount?: number;
   error?: string;
   httpStatus?: number;
   etag?: string | null;
@@ -1120,18 +1123,20 @@ serve(async (req) => {
         }
         await storeArticles(sb, fr.items, fr.url, fr.sourceName);
 
-        // Release scraped bodies immediately — the `store` response never
-        // carries full HTML.
-        fr.items.forEach((it) => {
-          it.fullContent = "";
-        });
+        // Release every parsed item immediately. In store mode the client
+        // reads articles back from the database, so keeping parsed bodies
+        // (and their image arrays) alive for the response is what made peak
+        // memory grow with feed count and tripped WORKER_RESOURCE_LIMIT.
+        const storedCount = fr.items.length;
+        fr.storedCount = storedCount;
+        fr.items = [];
 
         await recordFeedMeta(sb, fr.url, {
           etag: fr.etag ?? null,
           last_modified: fr.lastModified ?? null,
           last_status: fr.httpStatus,
           last_error: null,
-          item_count_last: fr.items.length,
+          item_count_last: storedCount,
           reset_failures: true,
         }).catch(() => {});
       }
@@ -1168,13 +1173,13 @@ serve(async (req) => {
         url: f.url,
         title: f.title,
         items: f.items,
-        count: f.items.length,
+        count: f.storedCount ?? f.items.length,
       }));
     const statuses = fetched.map((f) => ({
       url: f.url,
       status: f.status,
       httpStatus: f.httpStatus,
-      itemCount: f.items.length,
+      itemCount: f.storedCount ?? f.items.length,
       error: f.error,
     }));
 

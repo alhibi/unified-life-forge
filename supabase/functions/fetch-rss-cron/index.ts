@@ -92,7 +92,7 @@ serve(async (req) => {
   // feed in one call made the downstream isolate hold all parsed feeds plus
   // scraped article bodies in memory at once, which tripped
   // WORKER_RESOURCE_LIMIT (memory limit exceeded).
-  const BATCH_SIZE = 6;
+  const BATCH_SIZE = 3;
   const batchStatuses: { batch: number; httpStatus: number }[] = [];
 
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
