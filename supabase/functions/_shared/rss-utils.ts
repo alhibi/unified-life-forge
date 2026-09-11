@@ -94,27 +94,176 @@ export function stripText(html: string): string {
     .trim();
 }
 
-export function cleanArticleHtml(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
-    .replace(/<form[\s\S]*?<\/form>/gi, "")
-    .replace(/<button[\s\S]*?<\/button>/gi, "")
-    .replace(/<svg[\s\S]*?<\/svg>/gi, "")
-    .replace(
-      /<div[^>]*class="[^"]*(?:share|social|comment|related|sidebar|widget|ad-|advertisement|newsletter|subscribe|tag-bar|breadcrumb|nav)[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
-      "",
-    )
-    .replace(/class="[^"]*"/gi, "")
-    .replace(/style="[^"]*"/gi, "")
-    .replace(/id="[^"]*"/gi, "")
-    .replace(/data-[a-z-]+="[^"]*"/gi, "")
-    .replace(/on\w+="[^"]*"/gi, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
+/**
+ * Class / id fragments that mark chrome rather than prose. Anything whose
+ * class or id matches is dropped wholesale before scoring, so sidebars,
+ * "most read" rails, share bars and newsletter prompts never leak into
+ * the reader next to the real article.
+ */
+const NOISE_PATTERN =
+  /(?:share|social|comment|related|read-?more|more-?news|most-?read|recommend|sidebar|side-?bar|widget|promo|banner|\bads?\b|ad-|-ad\b|advert|sponsor|newsletter|subscri|paywall|donate|follow|author-box|byline-box|tag-?(?:s|bar|list)|breadcrumb|\bnav\b|menu|pagination|footer|header|toolbar|meta-?bar|trending|popular|outbrain|taboola|disqus|cookie|consent|modal|popup|lightbox|gallery-?nav|caption-?credit|copyright|back-?to-?top|print|source-?link|topics)/i;
+
+/** Block-level wrappers that are never article prose. */
+const NOISE_TAGS = [
+  "script", "style", "noscript", "iframe", "form", "button", "select",
+  "textarea", "svg", "canvas", "video", "audio", "object", "embed",
+  "nav", "aside", "footer", "header", "template", "dialog",
+];
+
+/** Tags we keep in the final body. Everything else is unwrapped. */
+const KEEP_TAGS = new Set([
+  "p", "br", "h2", "h3", "h4", "strong", "b", "em", "i", "u", "s",
+  "blockquote", "pre", "code", "ul", "ol", "li", "a", "img", "figure",
+  "figcaption", "table", "thead", "tbody", "tr", "th", "td", "hr",
+]);
+
+/** Attributes worth preserving per tag — everything else is dropped. */
+const KEEP_ATTRS: Record<string, string[]> = {
+  a: ["href"],
+  img: ["src", "alt"],
+};
+
+/** Remove chrome elements (by tag and by class/id) from a document. */
+export function stripNoise(html: string): string {
+  let out = html.replace(/<!--[\s\S]*?-->/g, "");
+  for (const tag of NOISE_TAGS) {
+    out = out.replace(
+      new RegExp(`<${tag}\\b[\\s\\S]*?<\\/${tag}>`, "gi"),
+      " ",
+    );
+    out = out.replace(new RegExp(`<${tag}\\b[^>]*\\/?>`, "gi"), " ");
+  }
+  // Drop containers whose class/id screams "not the article".
+  for (const tag of ["div", "section", "ul", "ol", "figure", "span"]) {
+    out = removeMatchingContainers(out, tag);
+  }
+  return out;
+}
+
+/**
+ * Walk every `<tag ...>` occurrence and delete the whole subtree when its
+ * class/id matches NOISE_PATTERN. Depth-aware so nested same-tag markup
+ * doesn't cut the removal short.
+ */
+function removeMatchingContainers(html: string, tag: string): string {
+  const open = new RegExp(`<${tag}\\b([^>]*)>`, "gi");
+  let result = html;
+  let guard = 0;
+  while (guard++ < 400) {
+    open.lastIndex = 0;
+    let hit: RegExpExecArray | null = null;
+    let m: RegExpExecArray | null;
+    while ((m = open.exec(result)) !== null) {
+      const attrs = m[1] || "";
+      const cls = /(?:class|id)\s*=\s*["']([^"']*)["']/i.exec(attrs)?.[1] ?? "";
+      if (cls && NOISE_PATTERN.test(cls)) {
+        hit = m;
+        break;
+      }
+    }
+    if (!hit) break;
+    const end = findClosing(result, tag, hit.index);
+    if (end === -1) {
+      // Unbalanced markup — drop just the tag so we can't loop forever.
+      result = result.slice(0, hit.index) + " " +
+        result.slice(hit.index + hit[0].length);
+      continue;
+    }
+    result = result.slice(0, hit.index) + " " + result.slice(end);
+  }
+  return result;
+}
+
+/** Index just past the matching closing tag, or -1 when unbalanced. */
+function findClosing(html: string, tag: string, startIdx: number): number {
+  const re = new RegExp(`<(\\/?)${tag}\\b[^>]*?(\\/?)>`, "gi");
+  re.lastIndex = startIdx;
+  let depth = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    if (m[1] === "/") {
+      depth--;
+      if (depth === 0) return m.index + m[0].length;
+    } else if (m[2] !== "/") {
+      depth++;
+    }
+  }
+  return -1;
+}
+
+/** Ratio of characters sitting inside links — high means a link rail. */
+function linkDensity(html: string): number {
+  const total = stripText(html).length;
+  if (total === 0) return 1;
+  let linked = 0;
+  const re = /<a\b[^>]*>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) linked += stripText(m[1]).length;
+  return linked / total;
+}
+
+/**
+ * Reduce an extracted container to article prose only: whitelisted tags,
+ * minimal attributes, no link rails, no empty shells.
+ */
+export function cleanArticleHtml(html: string, title = ""): string {
+  let out = stripNoise(html);
+
+  // Unwrap or drop every tag not on the whitelist.
+  out = out.replace(/<(\/?)([a-z0-9]+)\b([^>]*)>/gi, (_all, slash, rawTag, attrs) => {
+    const tag = String(rawTag).toLowerCase();
+    if (!KEEP_TAGS.has(tag)) return " ";
+    if (slash) return `</${tag}>`;
+    const keep = KEEP_ATTRS[tag] ?? [];
+    if (keep.length === 0) return `<${tag}>`;
+    const kept: string[] = [];
+    for (const name of keep) {
+      const v = new RegExp(`${name}\\s*=\\s*["']([^"']*)["']`, "i")
+        .exec(String(attrs))?.[1];
+      if (!v) continue;
+      if (name === "href" && !/^https?:\/\//i.test(v)) continue;
+      if (name === "src") {
+        const src = v.startsWith("//") ? `https:${v}` : v;
+        if (!/^https?:\/\//i.test(src)) return " ";
+        if (/pixel|1x1|tracking|spacer|blank\.gif|\.svg($|\?)/i.test(src)) {
+          return " ";
+        }
+        kept.push(`src="${src}"`);
+        continue;
+      }
+      kept.push(`${name}="${v.replace(/"/g, "&quot;")}"`);
+    }
+    if (tag === "img" && kept.length === 0) return " ";
+    return `<${tag}${kept.length ? " " + kept.join(" ") : ""}>`;
+  });
+
+  // Drop link-dense list blocks ("related stories" survivors).
+  out = out.replace(/<(ul|ol)>[\s\S]*?<\/\1>/gi, (block) =>
+    linkDensity(block) > 0.5 ? " " : block);
+
+  // Drop paragraphs that are only a link or boilerplate one-liners.
+  out = out.replace(/<p>([\s\S]*?)<\/p>/gi, (block, inner) => {
+    const text = stripText(inner);
+    if (text.length === 0) return "";
+    if (text.length < 60 && linkDensity(inner) > 0.6) return "";
+    return block;
+  });
+
+  // Remove a heading that merely repeats the article title.
+  const normTitle = stripText(title).toLowerCase();
+  if (normTitle.length > 8) {
+    out = out.replace(/<(h2|h3|h4)>([\s\S]*?)<\/\1>/gi, (block, _t, inner) =>
+      stripText(inner).toLowerCase() === normTitle ? "" : block);
+  }
+
+  return out
+    .replace(/<(p|li|h2|h3|h4|blockquote|figcaption|td|th)>\s*<\/\1>/gi, "")
+    .replace(/(?:<br>\s*){3,}/gi, "<br><br>")
     .replace(/\s+/g, " ")
+    .replace(/>\s+</g, "><")
     .trim();
 }
+
 
 export function extractContainer(
   html: string,
