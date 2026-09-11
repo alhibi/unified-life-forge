@@ -244,7 +244,9 @@ export function cleanArticleHtml(html: string, title = ""): string {
   // Drop paragraphs that are only a link or boilerplate one-liners.
   out = out.replace(/<p>([\s\S]*?)<\/p>/gi, (block, inner) => {
     const text = stripText(inner);
-    if (text.length === 0) return "";
+    // Publishers commonly wrap article photography in an otherwise empty
+    // paragraph. Keep it when a valid image survived the whitelist above.
+    if (text.length === 0) return /<img\b/i.test(inner) ? block : "";
     if (text.length < 60 && linkDensity(inner) > 0.6) return "";
     return block;
   });
@@ -315,7 +317,9 @@ function keepTopLevelBlocks(html: string, title: string): string {
     open.lastIndex = cursor;
     const text = stripText(block);
     if (tag !== "img" && tag !== "figure" && tag !== "hr") {
-      if (text.length === 0) continue;
+      // An image-only paragraph is meaningful article content, not an empty
+      // shell. Invalid/tracking images were already removed by the whitelist.
+      if (text.length === 0 && !/<img\b/i.test(block)) continue;
       if (CHROME_TEXT.test(text) && text.length < 200) continue;
       if (normTitle.length > 8 && text.toLowerCase() === normTitle) continue;
     }
