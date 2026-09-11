@@ -115,12 +115,19 @@ function escapeHtml(text: string): string {
     .replace(/>/g, "&gt;");
 }
 
+/** Nav / chrome lines the reader proxy picks up alongside the prose. */
+const PROXY_CHROME =
+  /^(?:تخط[^\s]*\s|انتقل\s*(?:إلى|الى)|Navigation|Menu\b|اعرض\s*المزيد|اضغط\s*هنا|تسجيل\b|البث\s*الحي|الأكثر\s*قراءة|أخبار\s*ذات\s*صلة|مواضيع\s*ذات\s*صلة|اقرأ\s*أيض|شاهد\s*أيض|شارك\b|تابعنا|حقوق\s*النشر|Published\s*On|Skip\b|Share\b|Subscribe\b|Advertisement|Sponsored|Related\b|Follow\s*us|Copyright)/i;
+
 /** Turn plain text into simple, safe paragraph markup. */
 function paragraphsToHtml(text: string): string {
   const paras = text
     .split(/\n{2,}/)
     .map((p) => p.replace(/\s+/g, " ").trim())
     .filter((p) => p.length > 40)
+    // Drop menu dumps and rails; keep only prose-looking lines.
+    .filter((p) => !PROXY_CHROME.test(p))
+    .filter((p) => (p.match(/\|/g) ?? []).length < 3)
     .slice(0, 400);
   if (paras.length === 0) return "";
   return paras.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
