@@ -102,7 +102,10 @@ export function ArticleReader({
    * parent's `articles[]` reducer is slow to flush — the user sees
    * the upgraded text immediately.
    */
-  const [bodyHtml, setBodyHtml] = useState<string>(article.fullContent || '');
+  const [canonicalBodyHtml, setBodyHtml] = useState<string>(article.fullContent || '');
+  const [translation, setTranslation] = useState<{ html: string; title: string } | null>(null);
+  const bodyHtml = translation?.html ?? canonicalBodyHtml;
+  const displayTitle = translation?.title ?? article.title;
   const [bodyImage, setBodyImage] = useState<string | null>(article.image);
   /** Status of the background full-content fetch. */
   const [upgradeStatus, setUpgradeStatus] = useState<
@@ -117,17 +120,8 @@ export function ArticleReader({
     setBodyImage(article.image);
     setUpgradeStatus('idle');
     manualUpgradeRef.current = false;
-    setOriginalBodyHtml(article.fullContent || '');
-    setOriginalTitle(article.title);
+    setTranslation(null);
   }, [article.link, article.fullContent, article.image, article.title]);
-
-  const [originalBodyHtml, setOriginalBodyHtml] = useState<string>(article.fullContent || '');
-  const [originalTitle, setOriginalTitle] = useState<string>(article.title);
-  const [displayTitle, setDisplayTitle] = useState<string>(article.title);
-
-  useEffect(() => {
-    setDisplayTitle(article.title);
-  }, [article.title]);
 
   const minutes = readingMinutes(
     bodyHtml || article.description || article.title,
@@ -604,16 +598,11 @@ export function ArticleReader({
           {/* Article Translation integration */}
           <div className="mb-6">
             <ArticleTranslator
-              originalHtml={originalBodyHtml || article.description || ''}
-              originalTitle={originalTitle}
-              onTranslationComplete={(transHtml, transTitle) => {
-                setBodyHtml(transHtml);
-                setDisplayTitle(transTitle);
-              }}
-              onReset={() => {
-                setBodyHtml(originalBodyHtml);
-                setDisplayTitle(originalTitle);
-              }}
+              identity={article.link}
+              originalHtml={canonicalBodyHtml || article.description || ''}
+              originalTitle={article.title}
+              onTranslationComplete={(html, title) => setTranslation({ html, title })}
+              onReset={() => setTranslation(null)}
             />
           </div>
 

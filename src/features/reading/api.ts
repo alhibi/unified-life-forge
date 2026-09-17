@@ -27,7 +27,7 @@ const DEFAULT_PREFS: ReaderPrefs = {
   ttsSpeed: 1.0,
 };
 
-async function currentUserId(): Promise<string | null> {
+export async function currentUserId(): Promise<string | null> {
   try {
     // Use getSession() (local, no network) instead of getUser() (calls
     // /auth/v1/user on every invocation). The reading feature calls
@@ -41,10 +41,18 @@ async function currentUserId(): Promise<string | null> {
   }
 }
 
+async function scopedUserId(expectedUserId?: string): Promise<string | null> {
+  const uid = await currentUserId();
+  if (expectedUserId !== undefined && uid !== expectedUserId) {
+    throw new Error('Reading account changed');
+  }
+  return uid;
+}
+
 // ─── Feeds ────────────────────────────────────────────────────────────
 
-export async function listFeeds(): Promise<FeedSource[] | null> {
-  const uid = await currentUserId();
+export async function listFeeds(expectedUserId?: string): Promise<FeedSource[] | null> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid) return null;
   const { data, error } = await supabase
     .from('reading_feeds')
@@ -60,8 +68,8 @@ export async function listFeeds(): Promise<FeedSource[] | null> {
   }));
 }
 
-export async function replaceFeeds(feeds: FeedSource[]): Promise<void> {
-  const uid = await currentUserId();
+export async function replaceFeeds(feeds: FeedSource[], expectedUserId?: string): Promise<void> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid) return;
   // Upsert-then-prune: keeps user-added feeds in sync without deleting
   // and reinserting on every mutation (which would churn read-state
@@ -90,8 +98,8 @@ export async function replaceFeeds(feeds: FeedSource[]): Promise<void> {
 
 // ─── Read state ───────────────────────────────────────────────────────
 
-export async function listReadLinks(): Promise<string[] | null> {
-  const uid = await currentUserId();
+export async function listReadLinks(expectedUserId?: string): Promise<string[] | null> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid) return null;
   // Pull most-recent 5000 read markers — plenty for UI dimming;
   // ancient ones don't need to be in memory.
@@ -105,8 +113,8 @@ export async function listReadLinks(): Promise<string[] | null> {
   return (data ?? []).map((r) => r.article_link);
 }
 
-export async function markRead(links: string[]): Promise<void> {
-  const uid = await currentUserId();
+export async function markRead(links: string[], expectedUserId?: string): Promise<void> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid || links.length === 0) return;
   const now = new Date().toISOString();
   const rows = links.map((l) => ({
@@ -120,8 +128,8 @@ export async function markRead(links: string[]): Promise<void> {
   if (error) throw error;
 }
 
-export async function markUnread(links: string[]): Promise<void> {
-  const uid = await currentUserId();
+export async function markUnread(links: string[], expectedUserId?: string): Promise<void> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid || links.length === 0) return;
   const { error } = await supabase
     .from('reading_read_state')
@@ -133,10 +141,10 @@ export async function markUnread(links: string[]): Promise<void> {
 
 // ─── Bookmarks ────────────────────────────────────────────────────────
 
-export async function listBookmarks(): Promise<
+export async function listBookmarks(expectedUserId?: string): Promise<
   { link: string; snapshot: FeedItem }[] | null
 > {
-  const uid = await currentUserId();
+  const uid = await scopedUserId(expectedUserId);
   if (!uid) return null;
   const { data, error } = await supabase
     .from('reading_bookmarks')
@@ -150,8 +158,8 @@ export async function listBookmarks(): Promise<
   }));
 }
 
-export async function addBookmark(article: FeedItem): Promise<void> {
-  const uid = await currentUserId();
+export async function addBookmark(article: FeedItem, expectedUserId?: string): Promise<void> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid || !article.link) return;
   const { error } = await supabase.from('reading_bookmarks').upsert(
     [{
@@ -164,8 +172,8 @@ export async function addBookmark(article: FeedItem): Promise<void> {
   if (error) throw error;
 }
 
-export async function removeBookmark(link: string): Promise<void> {
-  const uid = await currentUserId();
+export async function removeBookmark(link: string, expectedUserId?: string): Promise<void> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid || !link) return;
   const { error } = await supabase
     .from('reading_bookmarks')
@@ -177,8 +185,8 @@ export async function removeBookmark(link: string): Promise<void> {
 
 // ─── Reader preferences ───────────────────────────────────────────────
 
-export async function loadReaderPrefs(): Promise<ReaderPrefs | null> {
-  const uid = await currentUserId();
+export async function loadReaderPrefs(expectedUserId?: string): Promise<ReaderPrefs | null> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid) return null;
   const { data, error } = await supabase
     .from('reading_prefs')
@@ -190,8 +198,8 @@ export async function loadReaderPrefs(): Promise<ReaderPrefs | null> {
   return { ...DEFAULT_PREFS, ...((data.prefs as Partial<ReaderPrefs>) ?? {}) };
 }
 
-export async function saveReaderPrefs(prefs: ReaderPrefs): Promise<void> {
-  const uid = await currentUserId();
+export async function saveReaderPrefs(prefs: ReaderPrefs, expectedUserId?: string): Promise<void> {
+  const uid = await scopedUserId(expectedUserId);
   if (!uid) return;
   const { error } = await supabase.from('reading_prefs').upsert(
     [{

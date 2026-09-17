@@ -100,6 +100,10 @@ export function KeywordAlertsView({
   const notifications = useNotifications();
   const { prefs: notifPrefs, permission, request, notify, mute, setPrefs: setNotifPrefs } =
     notifications;
+  const notificationRef = useRef({ prefs: notifPrefs, notify });
+  useEffect(() => {
+    notificationRef.current = { prefs: notifPrefs, notify };
+  }, [notifPrefs, notify]);
 
   // Burst-of-inserts: many alerts can match new articles within 30ms
   // when the cron fires. Coalesce into a single browser notification
@@ -195,14 +199,14 @@ export function KeywordAlertsView({
     // Digest mode silences individual notifications; the user will
     // see the inbox count + badge instead. We still update the
     // in-app inbox state above; here we just skip the notification.
-    if (notifPrefs.frequency === 'digest') return;
+    if (notificationRef.current.prefs.frequency === 'digest') return;
 
     const title = count === 1 ? 'تطابق جديد' : `${count} تطابقات جديدة`;
     const body = count === 1 ? firstTitle : firstTitle + (
       ` و ${count - 1} أخرى`
     );
 
-    const result = notify({
+    const result = notificationRef.current.notify({
       title,
       body,
       tag: 'reading-alerts',

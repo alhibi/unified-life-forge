@@ -122,8 +122,9 @@ interface FeedResult {
   title: string;
   sourceName: string;
   items: FeedItem[];
-  /** Count of items that were parsed before the bodies were released
-   *  (store mode drops item payloads to keep peak memory flat). */
+  /** Parsed items before store mode releases the payloads. */
+  parsedCount?: number;
+  /** Rows successfully inserted or updated, excluding unchanged articles. */
   storedCount?: number;
   error?: string;
   httpStatus?: number;
@@ -707,53 +708,69 @@ async function recordFeedMeta(
   await sb.from("rss_feed_meta").upsert(row, { onConflict: "source_url" });
 }
 
+type StorageResult =
+  | { ok: true; storedCount: number }
+  | { ok: false; storedCount: number; error: string };
+
 async function storeArticles(
   sb: SupabaseClient,
   items: FeedItem[],
   sourceUrl: string,
   sourceName: string,
-): Promise<void> {
-  const links = items.map((i) => i.link).filter(Boolean);
-  if (links.length === 0) return;
-  const { data: existing } = await sb
-    .from("rss_articles")
-    .select("link, full_content")
-    .in("link", links);
-  const existingMap = new Map<string, number>();
-  (existing || []).forEach((r: { link: string; full_content: string | null }) =>
-    existingMap.set(r.link, (r.full_content || "").length)
-  );
+): Promise<StorageResult> {
+  let storedCount = 0;
+  try {
+    const links = items.map((i) => i.link).filter(Boolean);
+    if (links.length === 0) return { ok: true, storedCount: 0 };
+    const { data: existing, error: readError } = await sb
+      .from("rss_articles")
+      .select("link, full_content")
+      .in("link", links);
+    if (readError) return { ok: false, storedCount: 0, error: readError.message };
+    const existingMap = new Map<string, number>();
+    (existing || []).forEach((r: { link: string; full_content: string | null }) =>
+      existingMap.set(r.link, (r.full_content || "").length)
+    );
 
-  const toUpsert: Record<string, unknown>[] = [];
-  for (const item of items) {
-    if (!item.link) continue;
-    const existLen = existingMap.get(item.link);
-    const newLen = (item.fullContent || "").length;
-    if (existLen !== undefined && newLen <= existLen) continue;
-    let parsedDate: string | null = null;
-    if (item.pubDate) {
-      try {
-        parsedDate = new Date(item.pubDate).toISOString();
-      } catch { /* skip */ }
+    const toUpsert: Record<string, unknown>[] = [];
+    for (const item of items) {
+      if (!item.link) continue;
+      const existLen = existingMap.get(item.link);
+      const newLen = (item.fullContent || "").length;
+      if (existLen !== undefined && newLen <= existLen) continue;
+      let parsedDate: string | null = null;
+      if (item.pubDate) {
+        try {
+          parsedDate = new Date(item.pubDate).toISOString();
+        } catch { /* skip */ }
+      }
+      toUpsert.push({
+        title: item.title,
+        link: item.link,
+        description: item.description || "",
+        full_content: item.fullContent || "",
+        pub_date: parsedDate,
+        image: item.image,
+        images: item.images || [],
+        source_name: sourceName,
+        source_url: sourceUrl,
+      });
     }
-    toUpsert.push({
-      title: item.title,
-      link: item.link,
-      description: item.description || "",
-      full_content: item.fullContent || "",
-      pub_date: parsedDate,
-      image: item.image,
-      images: item.images || [],
-      source_name: sourceName,
-      source_url: sourceUrl,
-    });
-  }
-  for (let i = 0; i < toUpsert.length; i += 50) {
-    const batch = toUpsert.slice(i, i + 50);
-    const { error } = await sb.from("rss_articles").upsert(batch, {
-      onConflict: "link",
-    });
-    if (error) console.error("rss_articles upsert error:", error.message);
+    for (let i = 0; i < toUpsert.length; i += 50) {
+      const batch = toUpsert.slice(i, i + 50);
+      const { error } = await sb.from("rss_articles").upsert(batch, {
+        onConflict: "link",
+      });
+      if (error) return { ok: false, storedCount, error: error.message };
+      storedCount += batch.length;
+    }
+    return { ok: true, storedCount };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      storedCount,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 
@@ -1121,22 +1138,29 @@ serve(async (req) => {
         if (fetchFullContent && Date.now() < deadline) {
           await scrapeMissingContent(fr.items);
         }
-        await storeArticles(sb, fr.items, fr.url, fr.sourceName);
-
-        // Release every parsed item immediately. In store mode the client
-        // reads articles back from the database, so keeping parsed bodies
-        // (and their image arrays) alive for the response is what made peak
-        // memory grow with feed count and tripped WORKER_RESOURCE_LIMIT.
-        const storedCount = fr.items.length;
-        fr.storedCount = storedCount;
+        fr.parsedCount = fr.items.length;
+        const storage = await storeArticles(sb, fr.items, fr.url, fr.sourceName);
+        fr.storedCount = storage.storedCount;
+        // Release payloads on failure too; the next refresh must retry the feed.
         fr.items = [];
+        if (!storage.ok) {
+          fr.status = "error";
+          fr.error = `Article persistence failed: ${storage.error}`;
+          // Do not advance validators or the last successful item count.
+          await recordFeedMeta(sb, fr.url, {
+            last_status: fr.httpStatus,
+            last_error: fr.error,
+            increment_failures: true,
+          }).catch(() => {});
+          continue;
+        }
 
         await recordFeedMeta(sb, fr.url, {
           etag: fr.etag ?? null,
           last_modified: fr.lastModified ?? null,
           last_status: fr.httpStatus,
           last_error: null,
-          item_count_last: storedCount,
+          item_count_last: fr.parsedCount,
           reset_failures: true,
         }).catch(() => {});
       }
@@ -1173,13 +1197,17 @@ serve(async (req) => {
         url: f.url,
         title: f.title,
         items: f.items,
-        count: f.storedCount ?? f.items.length,
+        count: f.parsedCount ?? f.items.length,
+        parsedCount: f.parsedCount ?? f.items.length,
+        storedCount: f.storedCount ?? 0,
       }));
     const statuses = fetched.map((f) => ({
       url: f.url,
       status: f.status,
       httpStatus: f.httpStatus,
-      itemCount: f.storedCount ?? f.items.length,
+      itemCount: f.parsedCount ?? f.items.length,
+      parsedCount: f.parsedCount ?? f.items.length,
+      storedCount: f.storedCount ?? 0,
       error: f.error,
     }));
 

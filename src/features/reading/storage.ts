@@ -35,7 +35,7 @@ export const FEED_FREQUENCY_KEY = 'rss-reader-feed-frequency-v1';
 
 // ─── In-memory mirrors (hydrated from cloud on boot) ────────────────
 
-let feedsMirror: FeedSource[] = [];
+let feedsMirror: FeedSource[] = DEFAULT_FEEDS;
 let readMirror: string[] = [];
 let bookmarksMirror: string[] = [];
 let bookmarkSnapshots: Record<string, FeedItem> = {};
@@ -47,29 +47,147 @@ let prefsMirror: ReaderPrefs = {
   translationLang: 'ar',
   ttsSpeed: 1.0,
 };
+let generation = 0;
+let mutationRevision = 0;
+let accountId: string | null | undefined;
 let hydrated = false;
 let hydratePromise: Promise<void> | null = null;
+
+type PendingMutation =
+  | { kind: 'read' | 'unread'; links: string[] }
+  | { kind: 'feeds'; feeds: FeedSource[] }
+  | { kind: 'bookmark'; article: FeedItem }
+  | { kind: 'unbookmark'; link: string }
+  | { kind: 'prefs'; prefs: ReaderPrefs };
+let pendingMutations: PendingMutation[] = [];
+let flushPromise: Promise<void> | null = null;
+export interface ReadingSyncState {
+  userId: string | null;
+  hydration: 'unloaded' | 'loading' | 'ready' | 'error';
+  sync: 'idle' | 'pending' | 'syncing' | 'error';
+  pendingCount: number;
+  durable: boolean;
+  error: string | null;
+}
+let syncState: ReadingSyncState = {
+  userId: null, hydration: 'unloaded', sync: 'idle', pendingCount: 0, durable: true, error: null,
+};
+export function getReadingSyncState(): ReadingSyncState { return syncState; }
+function updateSync(patch: Partial<ReadingSyncState>): void {
+  syncState = { ...syncState, ...patch, userId: accountId ?? null, pendingCount: pendingMutations.length };
+  notify();
+}
+const outboxKey = (uid: string): string => `rss-reader-outbox-v1:${encodeURIComponent(uid)}`;
+function persistPending(): void {
+  if (!accountId) return;
+  try {
+    localStorage.setItem(outboxKey(accountId), JSON.stringify(pendingMutations));
+    updateSync({ durable: true });
+  } catch {
+    updateSync({ durable: false, error: 'Pending changes could not be saved on this device' });
+  }
+}
+function restorePending(): void {
+  if (!accountId) return;
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(outboxKey(accountId)) ?? '[]');
+    if (!Array.isArray(parsed) || !parsed.every((item: unknown) => {
+      if (!item || typeof item !== 'object') return false;
+      if (!('kind' in item)) return false;
+      switch (item.kind) {
+        case 'read': case 'unread': return 'links' in item && Array.isArray(item.links) &&
+          item.links.every((link: unknown) => typeof link === 'string');
+        case 'feeds': return 'feeds' in item && Array.isArray(item.feeds) && item.feeds.every((feed: unknown) =>
+          !!feed && typeof feed === 'object' && 'url' in feed && typeof feed.url === 'string' &&
+          'name' in feed && typeof feed.name === 'string' && 'category' in feed && typeof feed.category === 'string' &&
+          'enabled' in feed && typeof feed.enabled === 'boolean');
+        case 'bookmark': return 'article' in item && !!item.article && typeof item.article === 'object' &&
+          'link' in item.article && typeof item.article.link === 'string';
+        case 'unbookmark': return 'link' in item && typeof item.link === 'string';
+        case 'prefs': return 'prefs' in item && !!item.prefs && typeof item.prefs === 'object';
+        default: return false;
+      }
+    })) throw new Error('Invalid reading outbox');
+    pendingMutations = parsed as PendingMutation[];
+    replayPending();
+    updateSync({ sync: pendingMutations.length ? 'pending' : 'idle' });
+  } catch {
+    updateSync({ sync: 'error', durable: false, error: 'Pending changes could not be restored' });
+  }
+}
+function replayPending(): void {
+  for (const mutation of pendingMutations) {
+    switch (mutation.kind) {
+      case 'read': readMirror = [...new Set([...readMirror, ...mutation.links])]; break;
+      case 'unread': readMirror = readMirror.filter((link) => !mutation.links.includes(link)); break;
+      case 'feeds': feedsMirror = mutation.feeds; break;
+      case 'bookmark':
+        bookmarkSnapshots[mutation.article.link] = mutation.article;
+        bookmarksMirror = [mutation.article.link, ...bookmarksMirror.filter((link) => link !== mutation.article.link)];
+        break;
+      case 'unbookmark':
+        bookmarksMirror = bookmarksMirror.filter((link) => link !== mutation.link);
+        delete bookmarkSnapshots[mutation.link];
+        break;
+      case 'prefs': prefsMirror = mutation.prefs; break;
+    }
+  }
+}
+function enqueueMutation(mutation: PendingMutation): void {
+  mutationRevision++;
+  if (!accountId) return;
+  pendingMutations.push(mutation);
+  persistPending();
+  updateSync({ sync: 'pending' });
+  void flushReadingMutations();
+}
+/** Retry pending account-bound writes, in order; failure leaves the outbox intact. */
+export async function flushReadingMutations(): Promise<void> {
+  if (flushPromise) return flushPromise;
+  const uid = accountId;
+  if (!uid || !pendingMutations.length) return;
+  const scope = generation;
+  flushPromise = (async () => {
+    updateSync({ sync: 'syncing' });
+    try {
+      while (pendingMutations.length && scope === generation && accountId === uid) {
+        const mutation = pendingMutations[0];
+        switch (mutation.kind) {
+          case 'read': await cloud.markRead(mutation.links, uid); break;
+          case 'unread': await cloud.markUnread(mutation.links, uid); break;
+          case 'feeds': await cloud.replaceFeeds(mutation.feeds, uid); break;
+          case 'bookmark': await cloud.addBookmark(mutation.article, uid); break;
+          case 'unbookmark': await cloud.removeBookmark(mutation.link, uid); break;
+          case 'prefs': await cloud.saveReaderPrefs(mutation.prefs, uid); break;
+        }
+        if (scope !== generation || accountId !== uid) return;
+        pendingMutations.shift();
+        mutationRevision++;
+        persistPending();
+      }
+      if (scope === generation && accountId === uid) {
+        updateSync({ sync: 'idle', error: syncState.durable ? null : syncState.error });
+      }
+    } catch (error) {
+      if (scope === generation && accountId === uid) {
+        updateSync({ sync: 'error', error: error instanceof Error ? error.message : 'Reading sync failed' });
+      }
+    } finally {
+      if (scope === generation) flushPromise = null;
+    }
+  })();
+  return flushPromise;
+}
 
 // ─── Realtime channel (cross-device sync) ────────────────────────────
 // A single channel per signed-in user subscribes to changes on all
 // four reading tables. Any remote mutation triggers a debounced
 // re-hydrate so this device's mirror stays converged with the cloud.
 let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
-let realtimeDebounce: ReturnType<typeof setTimeout> | null = null;
-function scheduleRemoteResync(): void {
-  if (realtimeDebounce) clearTimeout(realtimeDebounce);
-  realtimeDebounce = setTimeout(() => {
-    void hydrateReadingFromCloud({ force: true });
-  }, 400);
-}
 function teardownRealtime(): void {
   if (realtimeChannel) {
     try { supabase.removeChannel(realtimeChannel); } catch { /* ignore */ }
     realtimeChannel = null;
-  }
-  if (realtimeDebounce) {
-    clearTimeout(realtimeDebounce);
-    realtimeDebounce = null;
   }
 }
 async function setupRealtime(): Promise<void> {
@@ -101,23 +219,46 @@ function notify(): void {
 export async function hydrateReadingFromCloud(
   opts: { force?: boolean } = {},
 ): Promise<void> {
+  const requestedGeneration = generation;
+  const uid = await cloud.currentUserId();
+  if (requestedGeneration !== generation) return;
+  if (uid !== accountId) {
+    resetReadingStorage();
+    accountId = uid;
+    restorePending();
+  }
+  if (!uid) return;
   if (hydrated && !opts.force) return;
   if (hydratePromise) return hydratePromise;
+  const scope = generation;
+  updateSync({ hydration: 'loading' });
+  const revision = mutationRevision;
   hydratePromise = (async () => {
     try {
       const [feeds, reads, bms, prefs] = await Promise.all([
-        cloud.listFeeds().catch(() => null),
-        cloud.listReadLinks().catch(() => null),
-        cloud.listBookmarks().catch(() => null),
-        cloud.loadReaderPrefs().catch(() => null),
+        cloud.listFeeds(uid),
+        cloud.listReadLinks(uid),
+        cloud.listBookmarks(uid),
+        cloud.loadReaderPrefs(uid),
       ]);
-      // Feeds: fall back to defaults for a first-time signed-in user
-      // who has no cloud rows yet, OR when the user is signed out.
-      feedsMirror = feeds && feeds.length ? feeds : DEFAULT_FEEDS;
-      if (feeds !== null && feeds.length === 0) {
-        // First-time signed-in user: seed defaults into their cloud.
-        void cloud.replaceFeeds(DEFAULT_FEEDS).catch(() => {});
+      if (scope !== generation || accountId !== uid) return;
+      // Re-verify identity against the live session at commit time: the
+      // auth event may not have been delivered yet when the session changed.
+      const currentUid = await cloud.currentUserId();
+      if (scope !== generation || accountId !== uid) return;
+      if (currentUid !== uid) {
+        hydrated = false;
+        updateSync({ hydration: 'unloaded' });
+        return;
       }
+      if (revision !== mutationRevision) {
+        hydrated = false;
+        updateSync({ hydration: 'unloaded' });
+        return;
+      }
+      // Empty is authoritative. Without a server initialization marker,
+      // an empty account cannot safely be distinguished from a new one.
+      feedsMirror = feeds ?? DEFAULT_FEEDS;
       readMirror = reads ?? [];
       if (bms) {
         bookmarksMirror = bms.map((b) => b.link);
@@ -127,14 +268,21 @@ export async function hydrateReadingFromCloud(
         bookmarkSnapshots = {};
       }
       if (prefs) prefsMirror = prefs;
+      replayPending();
       hydrated = true;
-      notify();
+      updateSync({ hydration: 'ready', error: syncState.sync === 'error' || !syncState.durable ? syncState.error : null });
       // Attach realtime on first successful hydrate too (covers the
       // case where the session was already restored before this module
       // loaded, so no SIGNED_IN event will fire).
       if (!realtimeChannel) void setupRealtime();
+      await flushReadingMutations();
+    } catch (error) {
+      if (scope === generation && accountId === uid) {
+        hydrated = false;
+        updateSync({ hydration: 'error', error: error instanceof Error ? error.message : 'Reading hydration failed' });
+      }
     } finally {
-      hydratePromise = null;
+      if (scope === generation) hydratePromise = null;
     }
   })();
   return hydratePromise;
@@ -143,6 +291,12 @@ export async function hydrateReadingFromCloud(
 /** Signed-out fallback: reset to defaults. Called on sign-out so a
  *  subsequent sign-in re-hydrates fresh data. */
 export function resetReadingStorage(): void {
+  generation++;
+  accountId = null;
+  hydratePromise = null;
+  flushPromise = null;
+  pendingMutations = [];
+  updateSync({ hydration: 'unloaded', sync: 'idle', durable: true, error: null });
   feedsMirror = DEFAULT_FEEDS;
   readMirror = [];
   bookmarksMirror = [];
@@ -164,7 +318,7 @@ export function resetReadingStorage(): void {
 // Signing in re-hydrates from that user's rows; signing out resets to
 // defaults so no previous-user data leaks across accounts.
 if (typeof window !== 'undefined') {
-  supabase.auth.onAuthStateChange((event) => {
+  supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       resetReadingStorage();
     } else if (event === 'SIGNED_IN') {
@@ -173,7 +327,13 @@ if (typeof window !== 'undefined') {
       // so re-hydrating on it produced a feedback loop of API calls
       // and re-renders. Token refresh doesn't change what data the
       // user should see — skip it.
-      void hydrateReadingFromCloud({ force: true });
+      if (accountId !== session?.user.id) {
+        resetReadingStorage();
+        accountId = session?.user.id ?? null;
+        restorePending();
+      }
+      // Do not invoke Supabase auth methods while its auth callback holds a lock.
+      queueMicrotask(() => { void hydrateReadingFromCloud({ force: true }); });
     }
   });
 }
@@ -184,14 +344,12 @@ export function getStoredFeeds(): FeedSource[] {
   // Prior to hydration or when signed-out we return DEFAULT_FEEDS so
   // the reader has *something* to render — hydration replaces this
   // with the user's real list a moment later.
-  return feedsMirror.length ? feedsMirror : DEFAULT_FEEDS;
+  return feedsMirror;
 }
 
 export function storeFeeds(feeds: FeedSource[]): void {
   feedsMirror = feeds;
-  void cloud.replaceFeeds(feeds).catch((e) => {
-    console.warn('[Reading/storage] failed to persist feeds', e);
-  });
+  enqueueMutation({ kind: 'feeds', feeds });
   notify();
 }
 
@@ -211,7 +369,7 @@ export function storeBookmarks(b: string[]): void {
   bookmarksMirror = b.filter((l) => bookmarksMirror.includes(l));
   for (const link of removed) {
     delete bookmarkSnapshots[link];
-    void cloud.removeBookmark(link).catch(() => {});
+    enqueueMutation({ kind: 'unbookmark', link });
   }
   notify();
 }
@@ -223,16 +381,14 @@ export function setBookmarkArticle(article: FeedItem): void {
   if (!bookmarksMirror.includes(article.link)) {
     bookmarksMirror = [article.link, ...bookmarksMirror];
   }
-  void cloud.addBookmark(article).catch((e) => {
-    console.warn('[Reading/storage] failed to persist bookmark', e);
-  });
+  enqueueMutation({ kind: 'bookmark', article });
   notify();
 }
 
 export function deleteBookmark(link: string): void {
   bookmarksMirror = bookmarksMirror.filter((l) => l !== link);
   delete bookmarkSnapshots[link];
-  void cloud.removeBookmark(link).catch(() => {});
+  enqueueMutation({ kind: 'unbookmark', link });
   notify();
 }
 
@@ -259,8 +415,8 @@ export function storeReadArticles(r: string[]): void {
   const added = [...after].filter((l) => !before.has(l));
   const removed = [...before].filter((l) => !after.has(l));
   readMirror = capped;
-  if (added.length) void cloud.markRead(added).catch(() => {});
-  if (removed.length) void cloud.markUnread(removed).catch(() => {});
+  if (added.length) enqueueMutation({ kind: 'read', links: added });
+  if (removed.length) enqueueMutation({ kind: 'unread', links: removed });
   notify();
 }
 
@@ -272,9 +428,7 @@ export function getReaderPrefs(): ReaderPrefs {
 
 export function storeReaderPrefs(p: ReaderPrefs): void {
   prefsMirror = p;
-  void cloud.saveReaderPrefs(p).catch((e) => {
-    console.warn('[Reading/storage] failed to persist reader prefs', e);
-  });
+  enqueueMutation({ kind: 'prefs', prefs: p });
   notify();
 }
 

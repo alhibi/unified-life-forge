@@ -192,8 +192,7 @@ export function ReaderView({
     if (!url) return;
     setLoading(true);
     setError('');
-    setArticle(null);
-    setSaved(false);
+    // Keep the last readable article until a replacement succeeds.
     // First, try the offline cache — instant, and works even if we're
     // disconnected. We still hit the edge function below to refresh
     // the content if we have network, but having the cached version
@@ -232,6 +231,7 @@ export function ReaderView({
         );
       }
       setArticle(payload);
+      setSaved(false);
       // Record successful read in local history so it shows up in the
       // "recently read" list when the URL field is empty next time.
       pushReaderHistory({
@@ -263,7 +263,7 @@ export function ReaderView({
       // If we already populated `article` from the cache above, keep
       // it visible — the network refresh failed but the user can read
       // the cached copy.
-      if (!article) {
+      {
         // supabase-js wraps non-2xx responses in a generic
         // "Edge Function returned a non-2xx status code" error. Try to
         // read the JSON body the function actually returned so we can

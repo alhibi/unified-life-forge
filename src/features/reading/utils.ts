@@ -41,7 +41,7 @@ export function sortByPubDateDesc<T extends { pubDate?: string | null }>(
  * protocol change, which used to produce visible duplicates whenever a
  * source was re-enabled and its cached + fresh rows merged.
  */
-const TRACKING_PARAM = /^(utm_|fbclid|gclid|mc_cid|mc_eid|ref|ref_src|igshid|spm)/i;
+const TRACKING_PARAM = /^(?:utm_source|utm_medium|utm_campaign|utm_term|utm_content|utm_id|fbclid|gclid|mc_cid|mc_eid|ref|ref_src|igshid|spm)$/i;
 export function articleKey(link: string | null | undefined): string {
   if (!link) return '';
   const raw = link.trim();
@@ -100,11 +100,18 @@ export function mergeArticles<
       if (!existing) { byKey.set(key, item); continue; }
       // Prefer the richer record; on a tie prefer the newer batch, but
       // never lose an already-extracted full body.
-      if (richness(item) >= richness(existing)) {
-        byKey.set(key, item.fullContent || !existing.fullContent
-          ? item
-          : { ...item, fullContent: existing.fullContent });
-      }
+      const preferred = richness(item) >= richness(existing) ? item : existing;
+      const fullContent = textQuality(existing.fullContent || '') > textQuality(item.fullContent || '')
+        ? existing.fullContent : item.fullContent;
+      byKey.set(key, {
+        ...preferred,
+        fullContent,
+        description: textQuality(existing.description || '') > textQuality(item.description || '')
+          ? existing.description : item.description,
+        image: item.image || existing.image,
+        images: [...new Set([...(existing.images || []), ...(item.images || [])])],
+      });
+
     }
   }
   return sortByPubDateDesc([...byKey.values()]);
@@ -192,7 +199,19 @@ export function formatDate(dateStr: string, _lang: string): string {
   } catch { return ''; }
 }
 
-/** Strip HTML tags for plain-text length / preview computations. */
+/** Conservative fallback without extraction provenance: compare readable text,
+ * not HTML size. This is not a sanitizer or a guarantee of editorial quality. */
+function textQuality(html: string): number {
+  if (!html) return 0;
+  const plain = html
+    .replace(/<(script|style|template)\b[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ');
+  const text = stripHtml(plain);
+  return text.length;
+}
+
+/** Strip HTML tags for plain-text previews. */
 export function stripHtml(html: string): string {
   if (!html) return '';
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();

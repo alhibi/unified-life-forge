@@ -69,6 +69,18 @@ export function ArticleSpeechPlayer({
     };
   }, [language]);
 
+  useEffect(() => {
+    const utterance = utteranceRef.current;
+    if (utterance) {
+      utterance.onend = null;
+      utterance.onerror = null;
+    }
+    synthRef.current?.cancel();
+    utteranceRef.current = null;
+    setIsPlaying(false);
+    setIsPaused(false);
+  }, [textToSpeak, language]);
+
   const handlePlayPause = () => {
     if (!synthRef.current) {
       toast.error('ميزة تحويل النص إلى كلام غير مدعومة في هذا المتصفح');
@@ -160,7 +172,8 @@ export function ArticleSpeechPlayer({
     }
   };
 
-  if (!synthRef.current) return null;
+  // Render the chrome even without synthesis support so the reader
+  // surface is stable; the play handler explains the limitation.
 
   return (
     <div className="flex flex-col gap-2 p-3 bg-card border border-border/50 rounded-2xl shadow-sm">
