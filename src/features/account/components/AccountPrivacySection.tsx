@@ -32,7 +32,7 @@ interface Props {
  * accident, and a confirm button alone does not establish intent.
  */
 export default function AccountPrivacySection({ appName, appVersion }: Props) {
-  const { user, username } = useAuth();
+  const { user, username, signOut } = useAuth();
   const navigate = useNavigate();
 
   const [exporting, setExporting] = useState(false);
@@ -89,9 +89,30 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
       return;
     }
     // The auth row is gone, so the current JWT no longer resolves to a user.
-    // signOut() clears the local session and drafts; navigating home avoids
-    // leaving a dead authenticated screen on screen.
+    // Destroy this device's E2EE identity too: the account it was published
+    // against no longer exists, so the private key material on this device is
+    // now orphaned and "delete my data" should cover it. Unlike sign-out
+    // (which keeps the device-bound key), deletion is irreversible. Done
+    // BEFORE signOut's own purge so both layers are wiped together. Failure
+    // must not trap the user on a dead authenticated screen.
+    try {
+      const { deleteIdentity } = await import('@/lib/chat/crypto');
+      await deleteIdentity();
+    } catch {
+      /* a blocked IndexedDB must not block account deletion */
+    }
+    // The deleted account's JWT is now a dead token: the server no longer
+    // resolves it to a user, so leaving it in localStorage would strand the
+    // app on an authenticated-looking shell that fails every request. Run the
+    // full sign-out purge (drafts, atlas cache, E2EE sessions) to clear it.
+    // signOut() is deliberately resilient — it never throws — so a failure
+    // here cannot trap the user. THEN navigate home off the dead screen.
     setDeleteOpen(false);
+    try {
+      await signOut();
+    } catch {
+      /* sign-out purge is best-effort; the account is already gone server-side */
+    }
     toast.success('تم حذف حسابك وكل بياناته');
     navigate('/', { replace: true });
   };

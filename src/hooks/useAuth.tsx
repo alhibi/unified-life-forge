@@ -285,6 +285,29 @@ async function signOut(): Promise<void> {
     console.warn('Failed to clear the travel atlas cache during signout:', e);
   }
 
+  // Purge the E2EE layer. The derived conversation AES keys live in a
+  // module-level Map (`resetSessions`), the public-key directory cache and
+  // the `selfPublished`/`directoryAvailable` flags are module-level too
+  // (`resetDirectoryCache`), and the in-memory identity handle is cached in
+  // `resetIdentityCache`. None of these are user-scoped, so without this
+  // purge the next account signed in on this device could decrypt with the
+  // previous account's cached session keys, or see a stale "directory
+  // unavailable" state. The IndexedDB identity itself is device-bound and
+  // intentionally kept — it is THIS device's key pair, not the account's.
+  // Imported dynamically so the chat crypto stack (WebCrypto + Dexie chain)
+  // stays out of the entry chunk for every visitor who never opens chat.
+  try {
+    const { resetSessions, resetDirectoryCache, resetIdentityCache } = await import(
+      '@/lib/chat/crypto'
+    );
+    resetSessions();
+    resetDirectoryCache();
+    resetIdentityCache();
+  } catch (e) {
+    // Never block sign-out on a crypto module that failed to load.
+    console.warn('Failed to reset the E2EE crypto layer during signout:', e);
+  }
+
   if (!isSupabaseConfigured) {
     await localSignOut();
     void syncAuthState(null);
