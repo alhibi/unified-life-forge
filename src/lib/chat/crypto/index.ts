@@ -14,6 +14,7 @@ export {
 } from './envelope';
 export {
   CURVE,
+  deleteIdentity,
   deriveConversationKey,
   getIdentity,
   importPublicKey,

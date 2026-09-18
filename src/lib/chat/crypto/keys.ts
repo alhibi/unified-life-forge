@@ -231,3 +231,41 @@ export function resetIdentityCache(): void {
   cachedIdentity = null;
   identityPromise = null;
 }
+
+/**
+ * Permanently destroy this device's E2EE identity (the non-extractable
+ * ECDH key pair persisted in IndexedDB).
+ *
+ * This is ONLY for irreversible account deletion — not sign-out. On a plain
+ * sign-out the identity is kept because it is device-bound and the same
+ * human may sign back in; destroying it would orphan every past message they
+ * sent. But when the ACCOUNT is deleted, keeping a private key whose public
+ * half is published against a now-deleted user id serves no one, and the
+ * privacy promise of "delete my data" reasonably covers the key material
+ * that identifies the account on this device.
+ *
+ * The in-memory cache is dropped first so no in-flight crypto call re-reads
+ * a half-deleted identity, then the whole database is removed (there is a
+ * single object store, so deleting the DB is the clean erase).
+ */
+export async function deleteIdentity(): Promise<void> {
+  resetIdentityCache();
+  if (typeof indexedDB === 'undefined') return;
+  await new Promise<void>((resolve) => {
+    let settled = false;
+    const done = () => {
+      if (!settled) {
+        settled = true;
+        resolve();
+      }
+    };
+    try {
+      const request = indexedDB.deleteDatabase(DB_NAME);
+      request.onsuccess = done;
+      request.onerror = done; // a blocked/absent DB must not hang account deletion
+      request.onblocked = done;
+    } catch {
+      done();
+    }
+  });
+}

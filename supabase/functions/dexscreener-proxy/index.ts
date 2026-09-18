@@ -8,7 +8,15 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// Whitelist of supported chains
+// Whitelist of supported chains.
+//
+// NOTE (AGENTS.md — crypto feature): the client-side source of truth is
+// `SUPPORTED_CHAINS` in `src/features/crypto/types.ts`. This edge function
+// runs on Deno and cannot import from `src/`, so the list is duplicated here
+// by necessity. The two lists MUST be kept identical: the client validates
+// outgoing requests against its copy and the server re-validates against
+// this one. If you add/remove a chain, change BOTH files in the same commit
+// or the proxy will start rejecting pairs the UI believes are supported.
 const SUPPORTED_CHAINS = ["solana", "ethereum", "bsc", "base", "arbitrum", "polygon"] as const;
 type ChainId = typeof SUPPORTED_CHAINS[number];
 
@@ -397,17 +405,21 @@ serve(async (req) => {
         const { data, isStale } = await fetchFromUpstream(url, cacheKey);
         const pairs: DexPair[] = data.pairs ?? [];
 
-        // Filter results to supported chains only
-        const filteredPairs = pairs.filter((p) => SUPPORTED_CHAINS.includes(p.chainId as any));
+        // Filter results to supported chains only. `chainId` arrives as a
+        // plain string from upstream, so narrow it against the whitelist
+        // without a blanket `any` cast.
+        const filteredPairs = pairs.filter((p): p is DexPair & { chainId: ChainId } =>
+          (SUPPORTED_CHAINS as readonly string[]).includes(p.chainId),
+        );
         const normalized = filteredPairs.map((p) => normalizePairData(p, isStale));
 
         return new Response(JSON.stringify({ data: normalized }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Search is a soft path: never break the UI, return an empty result set with a flag.
-        console.error("[dexscreener-proxy] Search unavailable:", err?.message ?? err);
+        console.error("[dexscreener-proxy] Search unavailable:", err instanceof Error ? err.message : err);
         return new Response(JSON.stringify({ data: [], unavailable: true }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -592,9 +604,13 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    // Log the full error server-side for debugging, but NEVER leak
+    // `error.message` to the client — upstream errors can embed internal
+    // URLs, stack fragments, or request state that aid an attacker probing
+    // the function's internals. The client only needs to know it failed.
     console.error("[dexscreener-proxy] Unexpected server error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error", details: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
