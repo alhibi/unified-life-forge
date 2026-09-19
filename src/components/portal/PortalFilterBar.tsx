@@ -70,10 +70,11 @@ function PortalFilterBarImpl({
               {active && (
                 <motion.span
                   layoutId="portal-category-indicator"
-                  // A copper underline instead of a filled pill: the tab rail
-                  // now reads as a drafted baseline, and the moving element is
-                  // 2px tall so it never fights the label for contrast.
-                  className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-primary"
+                  // An ink underline instead of a filled pill or a coloured
+                  // bar: the rail reads as a drafted baseline, the active label
+                  // is already carried by weight and contrast, and the moving
+                  // element is 2px tall so it never fights the text.
+                  className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-foreground"
                   transition={reduce ? { duration: 0 } : MOTION.spring}
                   aria-hidden
                 />
