@@ -804,14 +804,14 @@
     --disabled: 0 0.5% 41%;
 
     /* Time Ledger Layer Colors (dark mode) */
-    --tl-layer-calendar: 220 80% 65%;
-    --tl-layer-habits: 25 95% 65%;
-    --tl-layer-fitness: 145 70% 55%;
-    --tl-layer-weather: 200 90% 70%;
-    --tl-layer-knowledge: 270 70% 70%;
-    --tl-layer-capture: 35 100% 65%;
-    --tl-layer-prayer: 160 60% 60%;
-    --tl-layer-journal: 330 70% 65%;
+    --tl-layer-calendar: var(--data-4);
+    --tl-layer-habits: var(--data-2);
+    --tl-layer-fitness: var(--data-1);
+    --tl-layer-weather: 205 30% 66%;
+    --tl-layer-knowledge: var(--data-6);
+    --tl-layer-capture: var(--signal);
+    --tl-layer-prayer: 168 22% 60%;
+    --tl-layer-journal: var(--data-5);
   }
 }
 
