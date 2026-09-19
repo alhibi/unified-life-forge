@@ -68,6 +68,30 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_users: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       cefr_levels: {
         Row: {
           code: string
@@ -521,6 +545,27 @@ export type Database = {
           source?: string | null
           steps?: number | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_progress: {
+        Row: {
+          game: string
+          state: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          game: string
+          state?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          game?: string
+          state?: Json
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -1761,6 +1806,102 @@ export type Database = {
           },
         ]
       }
+      podcast_episode_state: {
+        Row: {
+          completed: boolean
+          duration_sec: number
+          episode_guid: string
+          feed_url: string | null
+          played_at: string
+          position_sec: number
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          duration_sec?: number
+          episode_guid: string
+          feed_url?: string | null
+          played_at?: string
+          position_sec?: number
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          duration_sec?: number
+          episode_guid?: string
+          feed_url?: string | null
+          played_at?: string
+          position_sec?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      podcast_prefs: {
+        Row: {
+          prefs: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          prefs?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          prefs?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      podcast_queue: {
+        Row: {
+          added_at: string
+          episode_guid: string
+          feed_url: string | null
+          position: number
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          episode_guid: string
+          feed_url?: string | null
+          position?: number
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          episode_guid?: string
+          feed_url?: string | null
+          position?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      podcast_subscriptions: {
+        Row: {
+          added_at: string
+          feed_url: string
+          image: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          feed_url: string
+          image?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          feed_url?: string
+          image?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2327,6 +2468,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           id: string
@@ -2461,6 +2623,13 @@ export type Database = {
     }
     Functions: {
       get_last_seen: { Args: { target_user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       invoke_edge_function: {
         Args: { fn_name: string; payload?: Json }
         Returns: number
@@ -2543,6 +2712,7 @@ export type Database = {
       update_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       content_review_status: "ai_generated" | "reviewed" | "verified"
       generation_job_status: "queued" | "running" | "completed" | "failed"
       generation_mode: "model_capacity" | "fixed_count"
@@ -2677,6 +2847,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       content_review_status: ["ai_generated", "reviewed", "verified"],
       generation_job_status: ["queued", "running", "completed", "failed"],
       generation_mode: ["model_capacity", "fixed_count"],
