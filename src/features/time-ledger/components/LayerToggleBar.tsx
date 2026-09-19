@@ -87,14 +87,14 @@ export default function LayerToggleBar({
                 style={{
                   backgroundColor: isEnabled ? undefined : `hsl(${layer.color} / 0.1)`,
                   borderColor: isEnabled ? 'transparent' : `hsl(${layer.color} / 0.3)`,
-                  color: isEnabled ? 'var(--primary-foreground)' : layer.color,
+                  color: isEnabled ? 'hsl(var(--primary-foreground))' : `hsl(${layer.color})`,
                 }}
                 aria-pressed={isEnabled}
                 title={`${layer.labelAr}: ${count} إدخال`}
               >
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: layer.color }}
+                  style={{ backgroundColor: `hsl(${layer.color})` }}
                 />
                 <span>{layer.labelAr}</span>
                 {count > 0 && (
@@ -102,7 +102,7 @@ export default function LayerToggleBar({
                     className="px-1.5 py-0.5 rounded-full text-micro font-bold tabular-nums"
                     style={{
                       backgroundColor: isEnabled ? 'hsl(var(--primary-foreground) / 0.2)' : `hsl(${layer.color} / 0.2)`,
-                      color: isEnabled ? 'inherit' : layer.color,
+                      color: isEnabled ? 'inherit' : `hsl(${layer.color})`,
                     }}
                   >
                     {count}
