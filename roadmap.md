@@ -50,6 +50,8 @@
 - [ ] Settings IA with an Advanced tier and value validation.
 - [ ] Wellness (hub) vs Fitness (execution) separation.
 - [ ] Reading header simplification and scroll/state restore.
+- [ ] Reading reliability rebuild informed by ReadYou and Capy Reader: local-first article cache, deterministic refresh queue, source identity, pagination, feed discovery, and end-to-end failure states.
+- [ ] Reading parity pass: folders/tags, per-feed retention and refresh controls, mark-read gestures, OPML fidelity, article extraction, image handling, and offline verification.
 - [ ] Weather progressive disclosure and a useful no-location state.
 - [ ] Podcast player moved into the app shell.
 
