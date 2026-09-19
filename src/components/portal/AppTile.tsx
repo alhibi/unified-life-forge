@@ -178,26 +178,21 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               list ? 'h-10 w-10' : 'h-11 w-11',
             )}
           >
-            <Icon className={list ? 'h-5 w-5' : 'h-[1.375rem] w-[1.375rem]'} aria-hidden />
+            <Icon className="h-5 w-5" aria-hidden />
           </span>
 
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-1.5">
-              <span
-                className={cn(
-                  'truncate font-semibold text-foreground',
-                  list ? 'text-body' : 'text-title [font-family:var(--font-display)]',
-                )}
-              >
+              <span className={cn('truncate text-foreground', list ? 'type-body' : 'type-section')}>
                 {app.label}
               </span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="mt-0.5 block truncate text-mini leading-[1.5] text-muted-foreground">
+            <span className="type-meta mt-1 block truncate text-muted-foreground">
               {app.description}
             </span>
             {!list && (
-              <span className="mt-1.5 block text-micro font-semibold uppercase tracking-[0.2em] text-[hsl(var(--tile))] opacity-75">
+              <span className="type-meta mt-2 block font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
                 {app.caption}
               </span>
             )}
