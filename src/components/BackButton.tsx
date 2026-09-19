@@ -19,7 +19,9 @@ interface BackButtonProps {
   onClick?: () => void;
   /**
    * Where to land when there is no usable browser history (deep-link
-   * entry). Defaults to '/'. Has no effect when `to` or `onClick` is
+   * entry). When omitted we climb one level of the current path — a deep
+   * link to `/german-club/shelf/42` goes back to `/german-club/shelf`,
+   * not all the way home. Has no effect when `to` or `onClick` is
    * supplied.
    */
   fallback?: string;
