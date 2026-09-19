@@ -86,7 +86,7 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
               style={{ backgroundColor: genderColor }}
             />
           )}
-          <h4 dir="ltr" className="text-lg sm:text-xl font-bold text-[#17181C] tracking-tight group-hover:text-[#17324D] transition-colors">
+          <h4 dir="ltr" className="text-lg sm:text-xl font-bold text-[hsl(var(--foreground))] tracking-tight group-hover:text-[hsl(var(--primary))] transition-colors">
             {entry.german}
           </h4>
           {entry.ipa && (

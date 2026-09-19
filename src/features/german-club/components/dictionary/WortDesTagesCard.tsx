@@ -35,15 +35,15 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
   return (
     <div
       onClick={() => onSelect(entry)}
-      className="relative overflow-hidden rounded-3xl border-2 border-[#17324D]/20 p-5 sm:p-6 bg-gradient-to-br from-secondary/40 via-amber-50/40 to-secondary/40 shadow-md cursor-pointer hover:border-[#17324D]/40 transition-motion group"
+      className="relative overflow-hidden rounded-3xl border-2 border-[hsl(var(--primary))]/20 p-5 sm:p-6 bg-gradient-to-br from-secondary/40 via-amber-50/40 to-secondary/40 shadow-md cursor-pointer hover:border-[hsl(var(--primary))]/40 transition-motion group"
     >
       <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3 mb-4">
         <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-xl bg-[#17324D]/10 text-[#17324D]">
+          <span className="p-1.5 rounded-xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
             <Sparkles className="w-4 h-4 text-amber-600" />
           </span>
           <div>
-            <h3 className="text-xs font-bold text-[#17324D] uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
               كلمة اليوم المميزة (Wort des Tages)
             </h3>
             <p className="text-[0.625rem] text-muted-foreground">تم اختيارها لمستوى صياغتها وأهميتها</p>
@@ -80,7 +80,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
               />
             )}
 
-            <span dir="ltr" className="text-2xl sm:text-3xl font-extrabold text-[#17181C] tracking-tight">
+            <span dir="ltr" className="text-2xl sm:text-3xl font-extrabold text-[hsl(var(--foreground))] tracking-tight">
               {entry.german}
             </span>
 

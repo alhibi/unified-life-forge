@@ -41,7 +41,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
       {/* Header: Title AR */}
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex flex-col min-w-0">
-          <h3 className="text-lg sm:text-xl font-bold text-[#17181C] tracking-tight group-hover:text-[#17324D] transition-colors">
+          <h3 className="text-lg sm:text-xl font-bold text-[hsl(var(--foreground))] tracking-tight group-hover:text-[hsl(var(--primary))] transition-colors">
             {shelf.title_ar}
           </h3>
           {shelf.title_de && (
@@ -86,7 +86,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
         </div>
 
         {typeof itemCount === 'number' && (
-          <span className="font-mono text-xs font-semibold text-[#17324D] flex items-center gap-1">
+          <span className="font-mono text-xs font-semibold text-[hsl(var(--primary))] flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-600" />
             {itemCount} عنصر
           </span>

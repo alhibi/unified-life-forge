@@ -433,20 +433,20 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
         {/* Panel Header */}
         <div className="px-5 py-4 border-b border-[hsl(var(--track))] flex items-center justify-between bg-secondary shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2A170F] to-[#0D0704] border border-[#FF7A29]/60 flex items-center justify-center shadow-md shrink-0">
-              <span className="font-black font-mono text-base text-[#FF9E4A] drop-shadow-xs">D</span>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(var(--foreground))] to-[hsl(var(--foreground))] border border-[hsl(var(--signal))]/60 flex items-center justify-center shadow-md shrink-0">
+              <span className="font-black font-mono text-base text-[hsl(var(--signal))] drop-shadow-xs">D</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-extrabold text-foreground leading-tight">
                   الفرن — وحدة التوليد بالذكاء الاصطناعي v2
                 </h2>
-                <span className="text-[0.625rem] font-mono font-bold bg-[#FF7A29]/15 text-[#C9703B] px-2 py-0.5 rounded-full border border-[#FF7A29]/30">
+                <span className="text-[0.625rem] font-mono font-bold bg-[hsl(var(--signal))]/15 text-[hsl(var(--signal))] px-2 py-0.5 rounded-full border border-[hsl(var(--signal))]/30">
                   OpenRouter API
                 </span>
               </div>
               <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                الرف: <span className="font-bold text-[#17324D]">{shelfTitleAr}</span>{' '}
+                الرف: <span className="font-bold text-[hsl(var(--primary))]">{shelfTitleAr}</span>{' '}
                 {shelfTitleDe ? `(${shelfTitleDe})` : ''} • ({currentEntryCount}/{targetCount} عنصر)
               </p>
             </div>
@@ -468,11 +468,11 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               type="button"
               onClick={() => setStep('model_selection')}
               className={`flex items-center gap-2 font-bold transition-motion ${
-                step === 'model_selection' ? 'text-[#C9703B]' : 'text-muted-foreground hover:text-foreground'
+                step === 'model_selection' ? 'text-[hsl(var(--signal))]' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
-                step === 'model_selection' ? 'bg-[#C9703B] text-white' : 'bg-secondary text-foreground'
+                step === 'model_selection' ? 'bg-[hsl(var(--signal))] text-white' : 'bg-secondary text-foreground'
               }`}>
                 1
               </span>
@@ -486,11 +486,11 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               disabled={!selectedModel}
               onClick={() => selectedModel && setStep('generation_options')}
               className={`flex items-center gap-2 font-bold transition-motion ${
-                step === 'generation_options' ? 'text-[#C9703B]' : 'text-muted-foreground hover:text-foreground'
+                step === 'generation_options' ? 'text-[hsl(var(--signal))]' : 'text-muted-foreground hover:text-foreground'
               } ${!selectedModel ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
-                step === 'generation_options' ? 'bg-[#C9703B] text-white' : 'bg-secondary text-foreground'
+                step === 'generation_options' ? 'bg-[hsl(var(--signal))] text-white' : 'bg-secondary text-foreground'
               }`}>
                 2
               </span>
@@ -507,7 +507,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-[#C9703B]" />
+                    <Cpu className="w-4 h-4 text-[hsl(var(--signal))]" />
                     <span>اختر نموذج الذكاء الاصطناعي المناسب لرفك من OpenRouter:</span>
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -533,7 +533,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     onClick={() => setVendorFilter(v.id)}
                     className={`px-3 py-1 rounded-full font-bold transition-motion border shrink-0 ${
                       vendorFilter === v.id
-                        ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
+                        ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
                         : 'bg-white/80 text-foreground border-[hsl(var(--track))] hover:bg-secondary'
                     }`}
                   >
@@ -552,7 +552,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   onChange={(e) => {
                     setModelSearch(e.target.value);
                   }}
-                  className="w-full ps-9 pe-3 py-2 text-xs rounded-xl border border-[hsl(var(--track))] bg-white focus:outline-none focus:ring-2 focus:ring-[#C9703B]"
+                  className="w-full ps-9 pe-3 py-2 text-xs rounded-xl border border-[hsl(var(--track))] bg-white focus:outline-none focus:ring-2 focus:ring-[hsl(var(--signal))]"
                 />
               </div>
 
@@ -579,7 +579,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                           onClick={() => setSelectedModel(m)}
                           className={`w-full text-start p-3 rounded-2xl border transition-motion flex items-center justify-between cursor-pointer ${
                             isSelected
-                              ? 'bg-[#C9703B]/10 border-[#C9703B] ring-2 ring-[#C9703B]/30 shadow-xs'
+                              ? 'bg-[hsl(var(--signal))]/10 border-[hsl(var(--signal))] ring-2 ring-[hsl(var(--signal))]/30 shadow-xs'
                               : 'bg-white border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
                           }`}
                         >
@@ -625,7 +625,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   type="button"
                   disabled={!selectedModel}
                   onClick={() => setStep('generation_options')}
-                  className="px-5 py-2.5 rounded-xl bg-[#17324D] text-white font-bold text-xs hover:bg-[#12273d] transition-colors shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-[hsl(var(--primary))] text-white font-bold text-xs hover:bg-[hsl(var(--primary))] transition-colors shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   <span>التالي: تحديد نمط التوليد</span>
                   <ArrowRight className="w-4 h-4 rotate-180" />
@@ -640,7 +640,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3">
                 <div>
                   <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#C9703B]" />
+                    <Sparkles className="w-4 h-4 text-[hsl(var(--signal))]" />
                     <span>خيارات النمط والصرامة وضوابط الإبداع:</span>
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -651,7 +651,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep('model_selection')}
-                  className="text-xs text-[#17324D] font-bold hover:underline"
+                  className="text-xs text-[hsl(var(--primary))] font-bold hover:underline"
                 >
                   تغيير الموديل ←
                 </button>
@@ -669,7 +669,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     onClick={() => setMode('model_capacity')}
                     className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
                       mode === 'model_capacity'
-                        ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
+                        ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] ring-2 ring-[hsl(var(--primary))]/30 shadow-md'
                         : 'bg-white text-foreground border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
                     }`}
                   >
@@ -688,7 +688,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     onClick={() => setMode('fixed_count')}
                     className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
                       mode === 'fixed_count'
-                        ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
+                        ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] ring-2 ring-[hsl(var(--primary))]/30 shadow-md'
                         : 'bg-white text-foreground border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
                     }`}
                   >
@@ -754,7 +754,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       onClick={() => setStrictness(s.id as StrictnessLevel)}
                       className={`p-2.5 rounded-xl border text-center transition-motion cursor-pointer ${
                         strictness === s.id
-                          ? 'bg-[#C9703B] text-white border-[#C9703B] font-bold shadow-xs'
+                          ? 'bg-[hsl(var(--signal))] text-white border-[hsl(var(--signal))] font-bold shadow-xs'
                           : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-card'
                       }`}
                     >
@@ -785,7 +785,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         onClick={() => toggleRegister(reg)}
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-motion border cursor-pointer ${
                           isSelected
-                            ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
+                            ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
                             : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-secondary'
                         }`}
                       >
@@ -805,7 +805,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   </span>
                 </div>
                 <div className="text-end font-mono">
-                  <span className="text-base font-black text-[#C9703B] block">
+                  <span className="text-base font-black text-[hsl(var(--signal))] block">
                     ~${liveEstimate.estCostUsd.toFixed(4)}
                   </span>
                   <span className="text-[0.625rem] text-muted-foreground">حسب الاستهلاك الفعلي</span>
@@ -826,7 +826,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   type="button"
                   disabled={isStartingJob}
                   onClick={handleStartGeneration}
-                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#C9703B] to-[#b05f2e] text-white font-black text-sm hover:from-[#b05f2e] hover:to-[#964f24] transition-motion shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[hsl(var(--signal))] to-[hsl(var(--signal))] text-white font-black text-sm hover:from-[hsl(var(--signal))] hover:to-[hsl(var(--signal))] transition-motion shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isStartingJob ? (
                     <>
@@ -847,10 +847,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           {/* STEP 3: LIVE WORKING GENERATION STAGE */}
           {isJobActive && (
             <div className="space-y-5 py-2">
-              <div className="p-4 rounded-3xl bg-gradient-to-br from-[#1A0E08] via-[#17324D] to-[#0D0704] text-white space-y-3 shadow-xl border border-[#FF7A29]/40 relative overflow-hidden">
+              <div className="p-4 rounded-3xl bg-gradient-to-br from-[hsl(var(--foreground))] via-[hsl(var(--primary))] to-[hsl(var(--foreground))] text-white space-y-3 shadow-xl border border-[hsl(var(--signal))]/40 relative overflow-hidden">
                 <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[#FF7A29] animate-ping" />
+                    <span className="w-3 h-3 rounded-full bg-[hsl(var(--signal))] animate-ping" />
                     <span className="font-extrabold text-xs text-amber-200">
                       الفرن يعمل في الخلفية بـ OpenRouter AI...
                     </span>
@@ -888,7 +888,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h4 className="font-extrabold text-xs text-foreground flex items-center gap-1.5">
-                    <Database className="w-4 h-4 text-[#17324D]" />
+                    <Database className="w-4 h-4 text-[hsl(var(--primary))]" />
                     <span>تغذية الرف الحية (نزول المفردات المعتمدة مباشر):</span>
                   </h4>
                   <span className="text-[0.6875rem] font-mono text-emerald-800 font-extrabold bg-emerald-100 px-2 py-0.5 rounded-full">
@@ -899,7 +899,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <div className="p-3.5 rounded-2xl bg-white border border-[hsl(var(--track))] max-h-44 overflow-y-auto flex flex-wrap gap-2 shadow-inner">
                   {acceptedStubs.length === 0 ? (
                     <div className="w-full text-center py-8 text-muted-foreground text-xs italic space-y-1">
-                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#C9703B]" />
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-[hsl(var(--signal))]" />
                       <p>جاري صياغة الدفعة الأولى وتصفيتها بالصارمة المحددة...</p>
                     </div>
                   ) : (
@@ -1009,7 +1009,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground font-bold">التكلفة النهائية المستهلكة:</span>
-                  <span className="font-black text-[#C9703B] font-mono">
+                  <span className="font-black text-[hsl(var(--signal))] font-mono">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
@@ -1030,7 +1030,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     onClose();
                     navigate('/german-club/review');
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-[#17324D] text-white font-bold text-xs hover:bg-[#12273d] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[hsl(var(--primary))] text-white font-bold text-xs hover:bg-[hsl(var(--primary))] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-amber-300" />
                   <span>انتقل لصفحة مراجعة واعتماد المحتوى ←</span>

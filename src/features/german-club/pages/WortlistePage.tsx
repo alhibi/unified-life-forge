@@ -59,14 +59,14 @@ export const WortlistePage: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* App Bar */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[#EFEEE7]/90 backdrop-blur-md">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[hsl(var(--card))]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
               <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 قائمة كلماتي
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 DEINE WORTLISTE
               </span>
             </div>
@@ -77,7 +77,7 @@ export const WortlistePage: React.FC = () => {
             onClick={() => navigate('/german-club/dictionary?tab=bookmarks')}
             className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
           >
-            <Bookmark className="w-3.5 h-3.5 text-[#17324D]" />
+            <Bookmark className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
             عرض في القاموس
           </button>
         </div>
@@ -97,7 +97,7 @@ export const WortlistePage: React.FC = () => {
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-                  <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+                  <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
                     مرآة
                   </span>
                 </div>
@@ -206,7 +206,7 @@ const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, sh
         <div className="flex items-center gap-2 flex-wrap">
           <p
             dir="ltr"
-            className="font-bold text-[#17181C] truncate"
+            className="font-bold text-[hsl(var(--foreground))] truncate"
             style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}
           >
             {entry.german}

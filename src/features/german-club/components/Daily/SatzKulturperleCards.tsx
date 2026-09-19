@@ -33,22 +33,22 @@ export const SatzCard: React.FC<SatzCardProps> = ({ satz, animate = true }) => {
       }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <MessageSquareQuote className="w-3.5 h-3.5 text-[#17324D]" />
-        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+        <MessageSquareQuote className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
           Satz des Tages
         </span>
       </div>
 
       {/* The actual sentence */}
       <p
-        className="text-xl sm:text-2xl font-bold text-[#17181C] leading-snug mb-2"
+        className="text-xl sm:text-2xl font-bold text-[hsl(var(--foreground))] leading-snug mb-2"
         dir="ltr"
         style={{ unicodeBidi: 'isolate' }}
       >
         „{satz.satz}"
       </p>
 
-      <p className="text-sm font-semibold text-[#17181C] mb-3 leading-snug">{satz.arabic}</p>
+      <p className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 leading-snug">{satz.arabic}</p>
 
       {/* Context — italic small */}
       <p className="text-xs text-muted-foreground italic leading-relaxed">
@@ -106,20 +106,20 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
       <div className="relative">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#C9703B]">
+          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--signal))]">
             Kulturperle
           </span>
         </div>
 
         {/* Title — German + Arabic */}
         <h3
-          className="text-lg sm:text-xl font-black text-[#17181C] leading-tight mb-1"
+          className="text-lg sm:text-xl font-black text-[hsl(var(--foreground))] leading-tight mb-1"
           dir="ltr"
           style={{ unicodeBidi: 'isolate' }}
         >
           {perle.title_de}
         </h3>
-        <p className="text-sm font-semibold text-[#17324D] mb-3 leading-snug">{perle.title_ar}</p>
+        <p className="text-sm font-semibold text-[hsl(var(--primary))] mb-3 leading-snug">{perle.title_ar}</p>
 
         {/* Body — the pearl */}
         <p className="text-sm text-foreground leading-relaxed">{perle.body_ar}</p>

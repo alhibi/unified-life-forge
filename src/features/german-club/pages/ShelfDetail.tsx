@@ -112,7 +112,7 @@ export const ShelfDetail: React.FC = () => {
               </h1>
               {currentShelf?.title_de && (
                 <span
-                  className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-wider uppercase block truncate"
+                  className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-wider uppercase block truncate"
                   dir="ltr"
                   style={{ unicodeBidi: 'isolate' }}
                 >
@@ -138,7 +138,7 @@ export const ShelfDetail: React.FC = () => {
               onClick={() => navigate('/german-club/grammar')}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
+              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
               زاوية القواعد
             </button>
           </div>
@@ -150,7 +150,7 @@ export const ShelfDetail: React.FC = () => {
             <div className="space-y-2 border-b border-[hsl(var(--track))] pb-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[#17324D] bg-[#17324D]/10 px-2.5 py-1 rounded-md">
+                  <span className="text-xs font-bold text-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10 px-2.5 py-1 rounded-md">
                     مواقف حية
                   </span>
                   <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
@@ -159,7 +159,7 @@ export const ShelfDetail: React.FC = () => {
                 </div>
 
                 {activeJobStatus && (
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#C9703B] bg-[#C9703B]/10 px-2.5 py-1 rounded-md border border-[#C9703B]/20">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[hsl(var(--signal))] bg-[hsl(var(--signal))]/10 px-2.5 py-1 rounded-md border border-[hsl(var(--signal))]/20">
                     <Sparkles className="w-3.5 h-3.5 animate-spin" />
                     <span>الفرن يعمل في الخلفية...</span>
                   </div>
@@ -187,7 +187,7 @@ export const ShelfDetail: React.FC = () => {
                 onClick={() => setFilterRegister(tab.id as GermanRegister | 'all')}
                 className={`px-3 py-1.5 rounded-xl transition-motion shrink-0 font-medium ${
                   filterRegister === tab.id
-                    ? 'bg-[#17324D] text-white shadow-xs'
+                    ? 'bg-[hsl(var(--primary))] text-white shadow-xs'
                     : 'bg-secondary text-foreground hover:bg-secondary'
                 }`}
               >

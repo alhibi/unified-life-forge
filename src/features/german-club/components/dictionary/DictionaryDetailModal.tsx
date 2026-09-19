@@ -78,7 +78,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-[hsl(var(--track))] bg-[#EFEEE7] text-[#17181C] shadow-2xl p-6 sm:p-8 space-y-6"
+          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-[hsl(var(--track))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-2xl p-6 sm:p-8 space-y-6"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Sticky Top Header Controls */}
@@ -125,7 +125,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                   title={entry.gender ? GENDER_LABELS_AR[entry.gender] : ''}
                 />
               )}
-              <h2 dir="ltr" className="text-3xl sm:text-4xl font-black text-[#17181C] tracking-tight">
+              <h2 dir="ltr" className="text-3xl sm:text-4xl font-black text-[hsl(var(--foreground))] tracking-tight">
                 {entry.german}
               </h2>
 
@@ -162,7 +162,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {/* Noun / Verb Detailed Grammar Forms */}
           {entry.word_type === 'noun' && entry.noun_forms && (
             <div className="p-4 rounded-2xl bg-secondary border border-[hsl(var(--track))] space-y-2">
-              <h4 className="text-xs font-bold text-[#17324D] uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
                 الصيغ الإعرابية والجمع (Grammatische Formen)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -184,7 +184,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
 
           {entry.word_type === 'verb' && entry.verb_forms && (
             <div className="p-4 rounded-2xl bg-secondary border border-[hsl(var(--track))] space-y-2">
-              <h4 className="text-xs font-bold text-[#17324D] uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
                 تصريفات الفعل الرئيسية (Stammformen)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -213,7 +213,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {/* Examples List */}
           {entry.examples.length > 0 && (
             <div className="space-y-3">
-              <h4 className="text-sm font-bold text-[#17181C] flex items-center gap-1.5">
+              <h4 className="text-sm font-bold text-[hsl(var(--foreground))] flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-600" />
                 أمثلة توضيحية من الحياة الواقعية ({entry.examples.length})
               </h4>
@@ -291,7 +291,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {/* Related words — same CEFR + category */}
           {enrichment.relatedWords.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#17324D] uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5" />
                 كلمات من نفس المجال ({enrichment.relatedWords.length})
               </h4>
@@ -308,7 +308,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                   >
                     <p
                       dir="ltr"
-                      className="text-sm font-bold text-[#17181C] group-hover:text-[#17324D] truncate"
+                      className="text-sm font-bold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] truncate"
                       style={{ unicodeBidi: 'isolate' }}
                     >
                       {w.german}

@@ -73,14 +73,14 @@ export const GermanDictionary: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[#EFEEE7]/90 backdrop-blur-md">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[hsl(var(--card))]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
               <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 القاموس الألماني-العربي
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 DEUTSCH-ARABISCHES WÖRTERBUCH
               </span>
             </div>
@@ -92,7 +92,7 @@ export const GermanDictionary: React.FC = () => {
               onClick={() => navigate('/german-club')}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
+              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
               المواقف اليومية
             </button>
           </div>
@@ -102,19 +102,19 @@ export const GermanDictionary: React.FC = () => {
         <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
           <div className="max-w-4xl mx-auto space-y-3 text-center sm:text-start">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
                 <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                 <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
               </div>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-foreground border border-[hsl(var(--track))] text-xs font-bold">
-                <Layers className="w-3.5 h-3.5 text-[#17324D]" />
+                <Layers className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
                 <span>تصنيف أكاديمي ومعجمي مستقل عن المواقف اليومية</span>
               </div>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black text-[#17181C] tracking-tight leading-tight">
-              قاموس ومعجم <span className="text-[#17324D]">الألمانية المعاصرة</span>
+            <h2 className="text-2xl sm:text-4xl font-black text-[hsl(var(--foreground))] tracking-tight leading-tight">
+              قاموس ومعجم <span className="text-[hsl(var(--primary))]">الألمانية المعاصرة</span>
             </h2>
 
             <p className="text-xs sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
@@ -144,7 +144,7 @@ export const GermanDictionary: React.FC = () => {
                 onClick={() => setActiveTab('all')}
                 className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion ${
                   activeTab === 'all'
-                    ? 'bg-[#17324D] text-white shadow-xs'
+                    ? 'bg-[hsl(var(--primary))] text-white shadow-xs'
                     : 'bg-secondary text-foreground hover:bg-secondary'
                 }`}
               >

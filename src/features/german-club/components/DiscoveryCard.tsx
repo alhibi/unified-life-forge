@@ -42,7 +42,7 @@ export const DiscoveryCard: React.FC = () => {
     <section
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        background: `linear-gradient(135deg, ${GERMAN_CLUB_TOKENS.prussian}06, ${GERMAN_CLUB_TOKENS.ember}06)`,
+        background: 'transparent',
         borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
@@ -50,8 +50,8 @@ export const DiscoveryCard: React.FC = () => {
       {/* Top: label + wander button */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Compass className="w-3.5 h-3.5 text-[#17324D]" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+          <Compass className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
             Zufallsfund
           </span>
           <span className="text-[0.625rem] text-muted-foreground">·</span>
@@ -88,7 +88,7 @@ export const DiscoveryCard: React.FC = () => {
           transition={{ duration: 0.22, ease: 'easeOut' }}
         >
           <h3
-            className="font-black text-[#17181C] mb-1 leading-tight"
+            className="font-black text-[hsl(var(--foreground))] mb-1 leading-tight"
             style={{
               fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
               fontSize: 'clamp(1.5rem, 6vw, 2.125rem)',
@@ -104,7 +104,7 @@ export const DiscoveryCard: React.FC = () => {
             </span>
           )}
 
-          <p className="text-base font-semibold text-[#17181C] mt-2 mb-1.5 leading-snug">
+          <p className="text-base font-semibold text-[hsl(var(--foreground))] mt-2 mb-1.5 leading-snug">
             {entry.arabic}
           </p>
 

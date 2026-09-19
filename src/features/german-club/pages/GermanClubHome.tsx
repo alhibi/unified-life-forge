@@ -56,7 +56,7 @@ export const GermanClubHome: React.FC = () => {
               <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 النادي الألماني
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 DER CLUB — AMV
               </span>
             </div>
@@ -66,7 +66,7 @@ export const GermanClubHome: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/german-club/dictionary')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[#17324D]/30 bg-[#17324D] text-white hover:bg-[#17324D]/90 transition-colors flex items-center gap-1.5 shadow-xs"
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--primary))]/30 bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 transition-colors flex items-center gap-1.5 shadow-xs"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               القاموس الشامل
@@ -77,7 +77,7 @@ export const GermanClubHome: React.FC = () => {
               onClick={() => navigate('/german-club/grammar')}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
+              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
               زاوية القواعد
             </button>
 
@@ -95,13 +95,13 @@ export const GermanClubHome: React.FC = () => {
         {/* Hero Section */}
         <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 sm:py-12 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
           <div className="max-w-4xl mx-auto text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
               <span>مرجع مجاني للقراءة والاستخدام</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#17181C] tracking-tight leading-tight">
-              الألمانية <span className="text-[#17324D]">بالمواقف الحية</span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[hsl(var(--foreground))] tracking-tight leading-tight">
+              الألمانية <span className="text-[hsl(var(--primary))]">بالمواقف الحية</span>
             </h2>
 
             <p className="text-xs sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
@@ -114,7 +114,7 @@ export const GermanClubHome: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSpaziergangOpen(true)}
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[#17324D] text-white text-sm font-bold hover:bg-[#12273d] active:scale-[0.98] transition-motion shadow-md hover:shadow-lg"
+                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[hsl(var(--primary))] text-white text-sm font-bold hover:bg-[hsl(var(--primary))] active:scale-[0.98] transition-motion shadow-md hover:shadow-lg"
               >
                 <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-normal" />
                 <span>ابدأ جولة لغوية</span>
@@ -136,15 +136,15 @@ export const GermanClubHome: React.FC = () => {
             </span>
             <div className="flex items-center gap-4 flex-wrap font-medium">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#3E6E9E] shadow-xs" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--primary))] shadow-xs" />
                 <span>Der (مذكر)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#A15A6B] shadow-xs" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--data-5))] shadow-xs" />
                 <span>Die (مؤنث)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#6B6558] shadow-xs" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--data-6))] shadow-xs" />
                 <span>Das (محايد)</span>
               </div>
             </div>
@@ -169,7 +169,7 @@ export const GermanClubHome: React.FC = () => {
         {/* Main Shelf Wall */}
         <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-bold text-[#17181C]">
+            <h3 className="text-base sm:text-lg font-bold text-[hsl(var(--foreground))]">
               رفوف المواقف اليومية ({shelves.length})
             </h3>
             <span className="text-xs text-muted-foreground">اختر الرف لتصفح محتواه</span>

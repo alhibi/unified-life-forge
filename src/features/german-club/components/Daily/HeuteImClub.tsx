@@ -35,7 +35,7 @@ export const HeuteImClub: React.FC = () => {
         <div className="flex items-center gap-2">
           <Coffee className="w-4 h-4 text-foreground" />
           <h2
-            className="text-sm sm:text-base font-black tracking-tight text-[#17181C]"
+            className="text-sm sm:text-base font-black tracking-tight text-[hsl(var(--foreground))]"
             style={{ letterSpacing: '-0.02em' }}
           >
             Heute im Club

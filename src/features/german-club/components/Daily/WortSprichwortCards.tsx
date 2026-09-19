@@ -57,7 +57,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
             Wort des Tages
           </span>
         </div>
@@ -72,7 +72,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
             />
           )}
           <h3
-            className="font-black tracking-tight text-[#17181C]"
+            className="font-black tracking-tight text-[hsl(var(--foreground))]"
             style={{
               fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
               fontSize: 'clamp(1.875rem, 7vw, 2.625rem)',
@@ -90,7 +90,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
         </div>
 
         {/* Arabic translation */}
-        <p className="text-base font-semibold text-[#17181C] mb-1.5 leading-snug">{wort.arabic}</p>
+        <p className="text-base font-semibold text-[hsl(var(--foreground))] mb-1.5 leading-snug">{wort.arabic}</p>
 
         {/* Hint — the punchy line */}
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{wort.hint_ar}</p>
@@ -139,15 +139,15 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
       }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <Quote className="w-3.5 h-3.5 text-[#17324D]" />
-        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+        <Quote className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
           Sprichwort
         </span>
       </div>
 
       {/* The proverb — large */}
       <p
-        className="text-lg sm:text-xl font-bold text-[#17181C] leading-snug mb-3"
+        className="text-lg sm:text-xl font-bold text-[hsl(var(--foreground))] leading-snug mb-3"
         dir="ltr"
         style={{ unicodeBidi: 'isolate' }}
       >
@@ -175,7 +175,7 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
           <motion.p
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm font-medium text-[#17181C] leading-relaxed"
+            className="text-sm font-medium text-[hsl(var(--foreground))] leading-relaxed"
           >
             {sprichwort.meaning_ar}
           </motion.p>

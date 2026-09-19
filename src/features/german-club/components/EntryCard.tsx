@@ -60,7 +60,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
 
           <div className="flex flex-wrap items-baseline gap-2" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
             {entry.is_separable_verb && entry.separable_prefix ? (
-              <div className="inline-flex items-baseline font-mono text-xl sm:text-2xl font-black tracking-tight text-[#17181C]">
+              <div className="inline-flex items-baseline font-mono text-xl sm:text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">
                 {/* Prefix Motion Element */}
                 <motion.span
                   animate={
@@ -73,14 +73,14 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
                       : {}
                   }
                   transition={{ duration: 0.8, ease: 'easeInOut' }}
-                  className="text-[#17324D] underline decoration-dotted underline-offset-4"
+                  className="text-[hsl(var(--primary))] underline decoration-dotted underline-offset-4"
                 >
                   {prefix}
                 </motion.span>
                 <span>{baseVerb}</span>
               </div>
             ) : (
-              <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[#17181C]">
+              <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">
                 {entry.german_text}
               </span>
             )}
@@ -132,7 +132,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
         </div>
 
         {entry.example_sentence_de && (
-          <span className="text-xs font-medium text-[#17324D] flex items-center gap-1 hover:underline">
+          <span className="text-xs font-medium text-[hsl(var(--primary))] flex items-center gap-1 hover:underline">
             {showExample ? 'إخفاء المثال' : 'عرض مثال بالجملة'}
             <ArrowLeft className={`w-3 h-3 transition-transform ${showExample ? 'rotate-90' : ''}`} />
           </span>
@@ -151,7 +151,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
             borderColor: 'rgba(23, 50, 77, 0.12)',
           }}
         >
-          <div className="text-sm font-mono font-bold text-[#17324D] leading-relaxed" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+          <div className="text-sm font-mono font-bold text-[hsl(var(--primary))] leading-relaxed" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
             {entry.example_sentence_de}
           </div>
           {entry.example_sentence_ar && (

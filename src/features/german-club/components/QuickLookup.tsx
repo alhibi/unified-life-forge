@@ -176,7 +176,7 @@ export const QuickLookup: React.FC = () => {
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleSeeAll}
-                  className="text-xs font-semibold text-[#17324D] hover:underline"
+                  className="text-xs font-semibold text-[hsl(var(--primary))] hover:underline"
                 >
                   عرض الكل ({totalMatches}) ←
                 </button>
@@ -240,7 +240,7 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
             <span
-              className={`font-bold text-[#17181C] truncate ${isFuzzy ? 'italic text-muted-foreground' : ''}`}
+              className={`font-bold text-[hsl(var(--foreground))] truncate ${isFuzzy ? 'italic text-muted-foreground' : ''}`}
               dir="ltr"
               style={{ unicodeBidi: 'isolate' }}
             >

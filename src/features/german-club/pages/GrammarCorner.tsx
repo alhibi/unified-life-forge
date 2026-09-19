@@ -35,13 +35,13 @@ export const GrammarCorner: React.FC = () => {
               <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 زاوية القواعد (Grammar Corner)
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 GRAMMATIK — DER CLUB
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] text-xs font-bold">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-xs font-bold">
             <BookOpen className="w-3.5 h-3.5" />
             <span>نحو سياقي</span>
           </div>
@@ -49,7 +49,7 @@ export const GrammarCorner: React.FC = () => {
 
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
           <div className="space-y-1">
-            <h2 className="text-xl font-extrabold text-[#17181C]">
+            <h2 className="text-xl font-extrabold text-[hsl(var(--foreground))]">
               قواعد عملية ومصممة للواقع
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -77,12 +77,12 @@ export const GrammarCorner: React.FC = () => {
                 >
                   <div className="flex items-start justify-between gap-3 border-b border-[hsl(var(--track))] pb-3">
                     <div>
-                      <h3 className="text-lg font-bold text-[#17181C]">
+                      <h3 className="text-lg font-bold text-[hsl(var(--foreground))]">
                         {note.title_ar}
                       </h3>
                       {note.title_de && (
                         <span
-                          className="text-xs font-mono text-[#17324D] font-semibold"
+                          className="text-xs font-mono text-[hsl(var(--primary))] font-semibold"
                           dir="ltr"
                           style={{ unicodeBidi: 'isolate' }}
                         >
@@ -101,7 +101,7 @@ export const GrammarCorner: React.FC = () => {
                   </div>
 
                   <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-[#17324D] font-medium">
+                    <span className="flex items-center gap-1 text-[hsl(var(--primary))] font-medium">
                       <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                       مرتبطة برفوف المواقف اليومية
                     </span>

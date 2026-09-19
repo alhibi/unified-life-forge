@@ -71,13 +71,13 @@ export const ContentReviewAdmin: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-bold text-[#17181C]">
+            <h3 className="text-base sm:text-lg font-bold text-[hsl(var(--foreground))]">
               العناصر بانتظار الاعتماد ({unreviewedEntries.length})
             </h3>
             <button
               type="button"
               onClick={() => fetchUnreviewedEntries()}
-              className="text-xs font-semibold text-[#17324D] hover:underline"
+              className="text-xs font-semibold text-[hsl(var(--primary))] hover:underline"
             >
               تحديث القائمة
             </button>
@@ -147,7 +147,7 @@ export const ContentReviewAdmin: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handlePromote(item.id, 'verified')}
-                      className="px-3 py-1.5 rounded-xl bg-[#17324D] hover:bg-[#12273d] text-white text-xs font-bold transition-colors flex items-center gap-1 shadow-xs"
+                      className="px-3 py-1.5 rounded-xl bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] text-white text-xs font-bold transition-colors flex items-center gap-1 shadow-xs"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                       <span>توثيق دقيق (Verified)</span>

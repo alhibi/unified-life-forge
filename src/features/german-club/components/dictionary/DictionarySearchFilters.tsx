@@ -56,7 +56,7 @@ export const DictionarySearchFilters: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ابحث عن كلمة، معنى بالعربية، صيغة جمع، أو تراكيب لغوية..."
-          className="w-full pe-12 ps-10 py-3.5 rounded-2xl border border-[hsl(var(--track))] bg-white text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#17324D]/30 focus:border-[#17324D] text-sm font-medium shadow-xs"
+          className="w-full pe-12 ps-10 py-3.5 rounded-2xl border border-[hsl(var(--track))] bg-white text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/30 focus:border-[hsl(var(--primary))] text-sm font-medium shadow-xs"
         />
         {searchQuery && (
           <button
@@ -97,11 +97,11 @@ export const DictionarySearchFilters: React.FC = () => {
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-[0.7rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
           <span className="flex items-center gap-1">
-            <Layers className="w-3 h-3 text-[#17324D]" />
+            <Layers className="w-3 h-3 text-[hsl(var(--primary))]" />
             التصنيف حسب المجال المعجمي والأكاديمي
           </span>
           {activeCategoryObj && activeCategoryObj.id !== 'all' && (
-            <span className="text-[#17324D] text-xs font-semibold">
+            <span className="text-[hsl(var(--primary))] text-xs font-semibold">
               {activeCategoryObj.description_ar}
             </span>
           )}
@@ -117,7 +117,7 @@ export const DictionarySearchFilters: React.FC = () => {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-motion flex-shrink-0 border ${
                   isActive
-                    ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
+                    ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
                     : 'bg-card text-foreground border-[hsl(var(--track))] hover:bg-secondary'
                 }`}
               >
@@ -134,13 +134,13 @@ export const DictionarySearchFilters: React.FC = () => {
           {/* Sorting Control */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-foreground font-bold">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#17324D]" />
+              <ArrowUpDown className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
               <span>طريقة الفرز:</span>
             </div>
             <select
               value={selectedSort}
               onChange={(e) => setSelectedSort(e.target.value as DictionarySortOption)}
-              className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-bold focus:outline-none focus:ring-1 focus:ring-[#17324D]"
+              className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-bold focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]"
             >
               {Object.entries(DictionarySortOptionLabels).map(([key, label]) => (
                 <option key={key} value={key}>
@@ -164,7 +164,7 @@ export const DictionarySearchFilters: React.FC = () => {
         {/* Filter Dropdowns Grid */}
         <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-[hsl(var(--track))]">
           <div className="flex items-center gap-1.5 text-muted-foreground font-medium me-1">
-            <Filter className="w-3 h-3 text-[#17324D]" />
+            <Filter className="w-3 h-3 text-[hsl(var(--primary))]" />
             <span>فلترة نحوية:</span>
           </div>
 
@@ -233,7 +233,7 @@ export const DictionarySearchFilters: React.FC = () => {
             onClick={() => setOnlySeparableVerbs(!onlySeparableVerbs)}
             className={`px-3 py-1.5 rounded-xl font-bold transition-motion border ${
               onlySeparableVerbs
-                ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
+                ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
                 : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-secondary'
             }`}
           >
