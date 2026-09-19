@@ -150,23 +150,15 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         className={cn(
           'arch-plate group relative w-full overflow-hidden rounded-card text-start',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5 hover:border-[hsl(var(--tile)/0.45)]',
+          'hover:-translate-y-0.5 hover:bg-[hsl(var(--interactive-hover))]',
           'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-          active && 'border-[hsl(var(--tile)/0.6)]',
+          active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
           list ? 'flex items-center gap-3 p-3' : 'flex min-h-[132px] flex-col justify-between p-4',
         )}
       >
         <TileMotif motif={identity.motif} />
-
-        {/* Accent hairline along the top edge — the app's signature. It fades
-            out toward the trailing edge so the grid reads as drafted lines
-            rather than as fourteen coloured bars. */}
-        <span
-          className="pointer-events-none absolute start-0 end-0 top-0 h-px bg-gradient-to-r from-[hsl(var(--tile)/0.7)] to-transparent"
-          aria-hidden
-        />
 
         <div
           className={cn(
