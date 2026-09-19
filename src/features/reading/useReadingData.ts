@@ -41,7 +41,10 @@ const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
 /** The Edge Function caps one request at 15 feeds; the client batches transparently. */
 // Must stay <= MAX_FEEDS_PER_REQUEST in the fetch-rss edge function (8);
 // larger batches were silently truncated and blew the isolate's memory cap.
-const EDGE_BATCH_SIZE = 6;
+// Must stay <= the edge function's MAX_FEEDS_PER_REQUEST (3). A larger batch
+// was silently dropped server-side, so those feeds never refreshed and the
+// missing statuses surfaced as a failed refresh in the UI.
+const EDGE_BATCH_SIZE = 3;
 
 type EdgeRefreshData = {
   statuses?: FeedStatus[];
