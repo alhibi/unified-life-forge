@@ -1022,6 +1022,31 @@ export function useReadingData() {
             });
           }
         }
+        // In `store: true` mode the edge function persists the items and
+        // releases their payloads (memory budget), so `feeds[].items` is
+        // empty by design. Read the rows it just wrote instead of
+        // telling the user the brand-new source has nothing.
+        if (fresh.length === 0) {
+          const { data: storedRows } = await supabase
+            .from('rss_articles')
+            .select('title, link, description, pub_date, created_at, image, images, source_name')
+            .eq('source_name', feed.name)
+            .order('pub_date', { ascending: false })
+            .limit(100);
+          for (const r of storedRows ?? []) {
+            fresh.push({
+              title: r.title,
+              link: r.link,
+              description: r.description || '',
+              fullContent: '',
+              pubDate: r.pub_date || r.created_at || '',
+              image: r.image ?? null,
+              images: (r.images as FeedItem['images']) || [],
+              author: undefined,
+              source: r.source_name,
+            });
+          }
+        }
         if (fresh.length > 0) {
           setArticles((prev) => capArticles(mergeArticles<FeedItem>(prev, fresh)));
           toast.success(`تمت إضافة ${fresh.length} مقال من ${feed.name}`);
