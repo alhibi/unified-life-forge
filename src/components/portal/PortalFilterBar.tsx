@@ -90,9 +90,10 @@ function PortalFilterBarImpl({
           onClick={() => onViewChange(view === 'grid' ? 'list' : 'grid')}
           aria-label={view === 'grid' ? 'العرض كقائمة' : 'العرض كشبكة'}
           className={cn(
-            'mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border',
-            'text-muted-foreground transition-colors duration-fast hover:bg-muted hover:text-foreground',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary',
+            'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
+            'text-muted-foreground transition-colors duration-fast hover:text-foreground',
+            'active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
         >
           {view === 'grid' ? (
