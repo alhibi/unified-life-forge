@@ -14,15 +14,15 @@ import { MOTION } from '@/lib/motion';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
-  'border-s-emerald-500': '#10b981',
-  'border-s-emerald-600': '#059669',
-  'border-s-sky-500': '#0ea5e9',
-  'border-s-violet-500': '#8b5cf6',
-  'border-s-amber-500': '#f59e0b',
-  'border-s-yellow-500': '#eab308',
-  'border-s-yellow-600': '#ca8a04',
-  'border-s-rose-500': '#f43f5e',
-  'border-s-slate-500': '#64748b',
+  'border-s-data-1': '#10b981',
+  'border-s-data-1': '#059669',
+  'border-s-data-4': '#0ea5e9',
+  'border-s-data-6': '#8b5cf6',
+  'border-s-signal': '#f59e0b',
+  'border-s-signal': '#eab308',
+  'border-s-signal': '#ca8a04',
+  'border-s-data-5': '#f43f5e',
+  'border-s-[hsl(var(--track))]': '#64748b',
 };
 
 export default function AllOccasions() {

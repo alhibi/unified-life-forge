@@ -34,11 +34,11 @@ const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
 
 /* ─── Design Tokens (localized for this component) ─── */
 const THEME_PRESETS: { id: string; labelAr: string; gradient: string; glow: string }[] = [
-  { id: 'obsidian', labelAr: 'أوبسيديان فاخر', gradient: 'from-slate-900 via-zinc-900 to-black', glow: 'shadow-slate-400/20' },
+  { id: 'obsidian', labelAr: 'أوبسيديان فاخر', gradient: 'from-muted via-muted to-black', glow: 'shadow-foreground/20' },
   { id: 'copper', labelAr: 'نحاسي ملكي', gradient: 'from-signal via-signal to-signal', glow: 'shadow-signal/30' },
   { id: 'emerald', labelAr: 'زمردي هادئ', gradient: 'from-data-1 via-data-1 to-data-1', glow: 'shadow-data-1/30' },
   { id: 'amber', labelAr: 'عنبر وأصيل', gradient: 'from-signal via-signal to-signal', glow: 'shadow-signal/20' },
-  { id: 'cobalt', labelAr: 'كوبالت عميق', gradient: 'from-data-4 via-data-6 to-slate-950', glow: 'shadow-data-4/30' },
+  { id: 'cobalt', labelAr: 'كوبالت عميق', gradient: 'from-data-4 via-data-6 to-muted', glow: 'shadow-data-4/30' },
   { id: 'velvet', labelAr: 'مخمل ليلي', gradient: 'from-data-6 via-data-6 to-data-6', glow: 'shadow-data-6/20' },
 ];
 
@@ -211,7 +211,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
             className={`relative overflow-hidden rounded-2xl px-5 py-2.5 text-[0.75rem] font-extrabold transition-motion duration-normal shadow-lg min-w-[120px] ${
               isPublic
                 ? 'bg-gradient-to-r from-data-1/15 to-data-1/10 text-data-1 ring-1 ring-data-1/30 shadow-data-1/10'
-                : 'bg-gradient-to-r from-slate-700/40 to-slate-800/50 text-muted-foreground ring-1 ring-white/5 shadow-slate-900/20'
+                : 'bg-gradient-to-r from-muted/40 to-muted/50 text-muted-foreground ring-1 ring-white/5 shadow-foreground/20'
             }`}
             aria-pressed={isPublic}
           >
@@ -222,7 +222,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
             {/* Animated background shimmer */}
             <motion.div
               layoutId="public-shimmer"
-              className={`absolute inset-0 ${isPublic ? 'bg-gradient-to-r from-data-1/10 via-transparent to-transparent' : 'bg-gradient-to-r from-slate-600/10 via-transparent to-transparent'}`}
+              className={`absolute inset-0 ${isPublic ? 'bg-gradient-to-r from-data-1/10 via-transparent to-transparent' : 'bg-gradient-to-r from-muted/10 via-transparent to-transparent'}`}
               transition={{ duration: 0.5 }}
             />
           </motion.button>
@@ -278,7 +278,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                     animate={{ x: active ? 22 : 4 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     className={`absolute top-1 w-4 h-4 rounded-full shadow-md flex items-center justify-center ${
-                      active ? 'bg-gradient-to-br from-data-6 to-data-6 shadow-data-6/30' : 'bg-secondary0 shadow-slate-900/50'
+                      active ? 'bg-gradient-to-br from-data-6 to-data-6 shadow-data-6/30' : 'bg-secondary0 shadow-foreground/50'
                     }`}
                   >
                     <AnimatePresence>

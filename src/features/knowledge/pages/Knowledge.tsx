@@ -103,7 +103,7 @@ const CATEGORIES: Category[] = [
   { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"#C8A96E", bg:"from-signal"   },
   { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"#D4A5C9", bg:"from-data-6"  },
   { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"#7EB8C9", bg:"from-data-4"     },
-  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"#C9A87E", bg:"from-stone-900"   },
+  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"#C9A87E", bg:"from-muted"   },
   { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"#C97E8A", bg:"from-data-5"    },
 ];
 

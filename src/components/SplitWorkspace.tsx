@@ -23,7 +23,7 @@ interface SplitWorkspaceProps {
  * from the command palette.
  *
  * The chrome also used hard-coded `neutral-*` / `#C9A84C` colours (plus
- * `bg-neutral-750`, which is not a real Tailwind shade and therefore rendered
+ * `bg-muted`, which is not a real Tailwind shade and therefore rendered
  * nothing) and so ignored all 32 of the app's colour themes. It now composes
  * from semantic tokens like the rest of the UI.
  */
