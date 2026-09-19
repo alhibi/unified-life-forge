@@ -249,24 +249,25 @@
  * ───────────────────────────────────────────────────────────────────── */
 @utility type-title {
   font-family: var(--font-display);
-  font-size: var(--fs-display);
-  line-height: 1.22;
-  font-weight: 650;
-  letter-spacing: -0.028em;
+  font-size: calc(22px * var(--type-base-scale));
+  line-height: calc(28px * var(--type-base-scale));
+  font-weight: 600;
+  letter-spacing: -0.7px;
   text-wrap: balance;
 }
 @utility type-section {
   font-family: var(--font-display);
-  font-size: var(--fs-lead);
-  line-height: 1.28;
+  font-size: calc(19px * var(--type-base-scale));
+  line-height: calc(24px * var(--type-base-scale));
   font-weight: 600;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.6px;
 }
 @utility type-body {
-  font-size: var(--fs-body);
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: calc(14.5px * var(--type-base-scale));
+  line-height: calc(18px * var(--type-base-scale));
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: 0.3px;
 }
 @utility type-label {
   font-size: var(--fs-meta);
@@ -569,9 +570,9 @@
     /* control(s) = 36 · 44 · 52 — 8px (one grid unit) apart. 44 is the
        default because it is the smallest safe touch target. */
     --ui-button-xs-h: 28px;
-    --ui-button-sm-h: 36px;
+    --ui-button-sm-h: 38px;
     --ui-button-h: 44px;
-    --ui-button-lg-h: 52px;
+    --ui-button-lg-h: 46px;
     --ui-tap: 44px;
     --ui-touch-min: 44px;
     --ui-scale: 1;
@@ -668,6 +669,17 @@
     --shadow-card: var(--shadow-2);
     --shadow-elevated: var(--shadow-3);
     --shadow-intense: var(--shadow-4);
+    --shadow-control:
+      inset 0 1px 0 hsl(var(--foreground) / 0.08),
+      inset 0 -1px 0 hsl(var(--background) / 0.18),
+      0 1px 2px hsl(var(--shadow-color) / 0.08),
+      0 4px 10px hsl(var(--shadow-color) / 0.06);
+    --shadow-control-pressed:
+      inset 0 1px 2px hsl(var(--shadow-color) / 0.12),
+      0 1px 2px hsl(var(--shadow-color) / 0.04);
+    --text: hsl(var(--foreground));
+    --text-muted: hsl(var(--muted-foreground));
+    --strong: hsl(var(--foreground));
     --font-display:
       'Inter Tight', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-body:
@@ -1173,9 +1185,11 @@
   .premium-card-intense,
   .surface-depth {
     background-color: hsl(var(--card) / var(--ui-material-alpha));
-    border: var(--ui-border-width) solid hsl(var(--border));
+    border: 0;
     border-radius: var(--r-lg); /* the canonical card radius */
-    box-shadow: var(--card-shadow);
+    box-shadow:
+      inset 0 1px 0 hsl(var(--foreground) / 0.035),
+      var(--shadow-2);
     contain: layout style;
   }
 
@@ -1190,8 +1204,7 @@
   }
   /* Quiet variant for a card nested inside another card. */
   .app-card-flat {
-    background-color: transparent;
-    border-color: hsl(var(--border) / var(--ui-border-soft-alpha));
+    background-color: hsl(var(--secondary) / 0.42);
     box-shadow: none;
   }
 
@@ -1204,19 +1217,21 @@
     transition:
       transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press),
       background-color var(--duration-fast) var(--motion-ease-enter),
-      border-color var(--duration-fast) var(--motion-ease-enter),
+      box-shadow var(--duration-fast) var(--motion-ease-enter),
       background-image var(--duration-fast) var(--motion-ease-enter);
     cursor: pointer;
   }
   .dark .app-card-pressable:hover {
-    border-color: hsl(var(--primary) / 0.28);
-    background-image: radial-gradient(circle at 100% 0%, hsl(var(--primary) / 0.05) 0%, transparent 60%);
+    background-color: hsl(var(--surface-2));
   }
   .app-card-pressable:active,
   .surface-depth-pressable:active {
     transform: scale(var(--ui-press-scale)) translateY(var(--ui-press-offset));
     background-color: hsl(var(--accent) / 0.4);
     background-image: none;
+    box-shadow:
+      inset 0 1px 2px hsl(var(--shadow-color) / 0.12),
+      var(--shadow-1);
   }
   @media (prefers-reduced-motion: reduce) {
     .app-card-pressable:active,
@@ -1243,7 +1258,7 @@
     position: sticky;
     top: 0;
     min-height: var(--ui-header-h);
-    border-bottom: var(--ui-border-width) solid hsl(var(--border) / var(--ui-border-alpha));
+    border-bottom: 1px solid hsl(var(--track));
   }
   .app-sticky-header {
     background-color: hsl(var(--background));
@@ -1257,19 +1272,25 @@
   .app-icon-btn {
     width: var(--ui-tap);
     height: var(--ui-tap);
-    border-radius: var(--r-md);
+    border-radius: 9999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: hsl(var(--accent) / 0.5);
-    color: hsl(var(--foreground));
+    border: 0;
+    background-color: hsl(var(--secondary));
+    color: var(--strong);
+    box-shadow: var(--shadow-control);
     transition:
       background-color var(--duration-fast) linear,
-      transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press);
+      transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press),
+      box-shadow var(--duration-fast) var(--motion-ease-enter);
     position: relative;
   }
   .app-icon-btn:hover {
     background-color: hsl(var(--accent));
+  }
+  .app-icon-btn:active:not(:disabled) {
+    box-shadow: var(--shadow-control-pressed);
   }
   /* Press feedback comes from the single global rule — no per-class
      override here. `.active-tactile` was removed: it was unused in JSX and
@@ -1336,7 +1357,8 @@
       transform calc(120ms * var(--motion-duration-scale)) var(--motion-ease-press),
       background-color var(--duration-fast) var(--motion-ease-enter),
       border-color var(--duration-fast) var(--motion-ease-enter),
-      color var(--duration-fast) var(--motion-ease-enter);
+      color var(--duration-fast) var(--motion-ease-enter),
+      box-shadow var(--duration-fast) var(--motion-ease-enter);
     -webkit-tap-highlight-color: transparent;
   }
   .app-pressable:active:not(:disabled):not([aria-disabled='true']) {
@@ -1505,19 +1527,19 @@
      rather than a hand-picked `border-border/40` so one setting moves every
      separator in the app together. */
   .app-divider-b {
-    border-block-end: var(--ui-divider-width) solid hsl(var(--border) / var(--ui-divider-alpha));
+    border-block-end: 1px solid hsl(var(--track));
   }
   .app-divider-t {
-    border-block-start: var(--ui-divider-width) solid hsl(var(--border) / var(--ui-divider-alpha));
+    border-block-start: 1px solid hsl(var(--track));
   }
 
   /* Canonical section heading — tiny uppercase tracking label above a group. */
   .app-section-label {
-    font-size: var(--fs-micro);
-    line-height: calc(var(--fs-micro) * var(--type-leading-tight));
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
+    font-family: var(--font-display);
+    font-size: calc(19px * var(--type-base-scale));
+    line-height: calc(24px * var(--type-base-scale));
+    letter-spacing: -0.6px;
+    color: var(--text);
     font-weight: 600;
     margin-bottom: 0.5rem;
     padding-inline-start: 0.25rem;
@@ -3241,9 +3263,9 @@ input.podcast-seek:active::-moz-range-thumb {
      and cost a blur pass per tile on a grid of twenty. */
   .arch-plate {
     background-color: hsl(var(--card) / var(--ui-material-alpha));
-    border: var(--ui-border-width) solid hsl(var(--border) / 0.7);
+    border: 0;
     box-shadow:
       inset 0 1px 0 0 hsl(var(--foreground) / 0.04),
-      var(--shadow-1);
+      var(--shadow-2);
   }
 }

@@ -9,24 +9,24 @@ const buttonVariants = cva(
   // the shared focus ring, and the control radius rung (`--r-md`). A size only
   // changes height, inline padding, icon size and the type rung — never the
   // shape language.
-  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium antialiased app-focus-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--r-md)] border-0 font-medium antialiased shadow-[var(--shadow-control)] app-focus-ring disabled:pointer-events-none disabled:opacity-50 active:shadow-[var(--shadow-control-pressed)] [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        outline: 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-[var(--ui-button-h)] px-4 text-body [&_svg]:size-5',
-        xs: 'h-[var(--ui-button-xs-h)] rounded-sm px-2 text-mini [&_svg]:size-4',
+        xs: 'h-[var(--ui-button-xs-h)] rounded-[var(--r-sm)] px-3 text-mini [&_svg]:size-4',
         sm: 'h-[var(--ui-button-sm-h)] px-3 text-meta [&_svg]:size-4',
         lg: 'h-[var(--ui-button-lg-h)] px-6 text-lead [&_svg]:size-5',
-        icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] [&_svg]:size-5',
-        'icon-sm': 'h-[var(--ui-button-sm-h)] w-[var(--ui-button-sm-h)] rounded-sm [&_svg]:size-4',
+        icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] rounded-full p-0 [&_svg]:size-5',
+        'icon-sm': 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] rounded-full p-0 [&_svg]:size-4',
       },
     },
     defaultVariants: {

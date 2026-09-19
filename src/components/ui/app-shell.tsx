@@ -37,18 +37,10 @@ export function PageShell({
       className={cn('page-shell relative overflow-hidden', flush && 'page-shell-flush', className)}
       {...rest}
     >
-      {/* High-fidelity ambient radial glow matching the active theme's primary accent color */}
-      <div
-        className="pointer-events-none fixed top-[-300px] left-1/2 h-[600px] w-[1000px] -translate-x-1/2 opacity-60 dark:opacity-100 transition-motion duration-slow"
-        style={{
-          background: 'radial-gradient(ellipse, hsl(var(--primary) / 0.06) 0%, transparent 65%)',
-          zIndex: 0,
-        }}
-      />
       {centered ? (
-        <div className="page-shell-inner app-stack relative z-base">{children}</div>
+        <div className="page-shell-inner app-stack relative">{children}</div>
       ) : (
-        <div className="relative z-base">{children}</div>
+        <div className="relative">{children}</div>
       )}
     </div>
   );
@@ -94,7 +86,7 @@ AppCard.displayName = 'AppCard';
 
 type IconButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-/** Canonical 44×44 rounded-md icon button used in headers and toolbars. */
+/** Canonical 44×44 circular, raised icon button used in headers and toolbars. */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ className, type = 'button', ...rest }, ref) => (
     <button ref={ref} type={type} className={cn('app-icon-btn', className)} {...rest} />
