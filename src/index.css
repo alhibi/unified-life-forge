@@ -479,14 +479,16 @@
        ═══════════════════════════════════════════════════════════════
        These are derived from the livingMindPalette tokens and used by
        the Time Ledger feature for visual layer distinction. */
-    --tl-layer-calendar: 220 70% 50%;      /* Blue - calendar events */
-    --tl-layer-habits: 25 90% 55%;         /* Amber/Orange - habits, streaks */
-    --tl-layer-fitness: 145 60% 40%;       /* Green - fitness activities */
-    --tl-layer-weather: 200 80% 55%;       /* Sky Blue - weather snapshots */
-    --tl-layer-knowledge: 270 60% 55%;     /* Purple - knowledge, reading */
-    --tl-layer-capture: 35 100% 50%;       /* Orange - quick captures */
-    --tl-layer-prayer: 160 50% 45%;        /* Teal - prayer times */
-    --tl-layer-journal: 330 60% 50%;       /* Rose - journal entries */
+    /* Drawn from the restrained data palette so the ledger reads as one
+       system instead of eight loud hues. */
+    --tl-layer-calendar: var(--data-4);
+    --tl-layer-habits: var(--data-2);
+    --tl-layer-fitness: var(--data-1);
+    --tl-layer-weather: 205 32% 48%;
+    --tl-layer-knowledge: var(--data-6);
+    --tl-layer-capture: var(--signal);
+    --tl-layer-prayer: 168 24% 40%;
+    --tl-layer-journal: var(--data-5);
     --theme-200: 40 12% 95.1%;
     --theme-300: 33 23.8% 83.5%;
     --theme-400: 32 34.1% 41%;
