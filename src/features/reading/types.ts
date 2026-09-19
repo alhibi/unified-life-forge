@@ -52,6 +52,10 @@ export interface ReaderPrefs {
   collapsedFeeds?: string[];
   mutedSources?: string[];
   alertsSeenAt?: string;
+  /** Set once the account's feed list has been initialised. Lets an
+   *  empty list be read as "the user cleared their sources" rather than
+   *  "brand-new account", so starter feeds are seeded exactly once. */
+  feedsInitialized?: boolean;
 }
 
 /**
