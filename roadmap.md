@@ -32,7 +32,17 @@
 - [x] Portal hierarchy: compact Today block — occasions strip merged into prayer card behind a disclosure (collapsed by default, like qibla), weather hourly rail sm+-only, reserves tightened to measured heights (15.5rem / 8.5→16.5rem).
 - [ ] Chat stability pass on a real Android device.
 
-### P1 — experience rebuild
+### Editorial design system (new default)
+- [x] Foundation: `editorial` palette (warm off-white / warm graphite, graphite controls), Inter Tight + IBM Plex Sans Arabic, corner ladder 6·8·12·16·20, two-layer ambient+contact shadows, `--signal` orange for data/change only, `--track` divider token, `type-title/section/body/label/meta` roles, `rule-x/rule-y`.
+- [ ] Portal: retire per-app colored glows/gradients, neutral tiles with signal only where something changed.
+- [ ] Bottom nav: 54-64px floating pill, tonal active state, no oversized bar.
+- [ ] Cards & lists: borderless tonal surfaces, grouped rows, compact metadata alignment.
+- [ ] Controls: 38-46px heights, 1px inset highlight, press = less elevation + subtle scale.
+- [ ] Inputs: quiet surfaces, accent focus, search integrated into the page.
+- [ ] Charts & heatmaps: thin strokes, track grid, signal accent only.
+- [ ] Per-app sweep across all 20 apps + empty/loading/error/sheet/modal states.
+
+## P1 — experience rebuild
 - [ ] Portal recomposition and Continue section.
 - [ ] Design tokens enforcement (raw hex, radius, durations, raw buttons).
 - [ ] Typography roles (UI Arabic / Editorial Arabic / Latin UI / Mono).
