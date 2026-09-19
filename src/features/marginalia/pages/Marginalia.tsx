@@ -203,9 +203,12 @@ export default function Marginalia() {
 
             {tab === 'pinboard' && (
               pinnedConnections.length === 0 ? (
-                <AppCard className="text-center py-8">
-                  <p className="text-meta text-muted-foreground">لا شيء مثبّت بعد.</p>
-                </AppCard>
+                <StateView
+                  kind="empty"
+                  compact
+                  title={'لوحة التثبيت فارغة'}
+                  body={'عندما يظهر ربط يستحق التذكّر، ثبّته من تبويب الروابط فيبقى هنا مع ملاحظتك عليه.'}
+                />
               ) : pinnedConnections.map(({ pin, connection }) => (
                 <ConnectionCard
                   key={pin.id}
