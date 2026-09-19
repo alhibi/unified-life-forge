@@ -208,6 +208,12 @@ export default function Portal() {
               <PortalTodayWidgets />
             </Suspense>
 
+            {/* "متابعة" — recents recorded by usePortalPrefs. Renders nothing
+                for a first-time user, so no empty shelf appears above the
+                grid. */}
+            <PortalContinue apps={recentApps} onOpen={openApp} />
+
+
             {/* Sticky under the 56px header so the category rail never scrolls away. */}
             <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 bg-background/85 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
               <PortalFilterBar
