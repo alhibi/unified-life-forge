@@ -29,7 +29,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       ? GERMAN_CLUB_TOKENS.dieRose
       : wort.gender === 'das'
       ? GERMAN_CLUB_TOKENS.dasStone
-      : '#7E7259'
+      : 'hsl(var(--data-1))'
     : null;
 
   return (
@@ -39,7 +39,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6 group"
       style={{
-        backgroundColor: '#FDFCF7',
+        backgroundColor: 'hsl(var(--card))',
         borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
@@ -133,7 +133,7 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
       transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        backgroundColor: '#FFFDF6',
+        backgroundColor: 'hsl(var(--card))',
         borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}

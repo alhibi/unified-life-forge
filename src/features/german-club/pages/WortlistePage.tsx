@@ -15,12 +15,12 @@ import { useDictionaryStore } from '../useDictionaryStore';
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
 const CEFR_COLORS: Record<(typeof CEFR_LEVELS)[number], string> = {
-  A1: '#10b981',
-  A2: '#14b8a6',
-  B1: '#0ea5e9',
-  B2: '#6366f1',
-  C1: '#f59e0b',
-  C2: '#f43f5e',
+  A1: 'hsl(var(--data-1))',
+  A2: 'hsl(var(--data-1))',
+  B1: 'hsl(var(--data-4))',
+  B2: 'hsl(var(--data-6))',
+  C1: 'hsl(var(--data-3))',
+  C2: 'hsl(var(--data-5))',
 };
 
 /**

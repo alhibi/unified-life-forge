@@ -904,7 +904,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     </div>
                   ) : (
                     acceptedStubs.map((item) => {
-                      const dotColor = GENDER_COLORS[item.gender] || '#8B7E68';
+                      const dotColor = GENDER_COLORS[item.gender] || 'hsl(var(--muted-foreground))';
                       return (
                         <div
                           key={item.id}

@@ -27,7 +27,7 @@ export const SatzCard: React.FC<SatzCardProps> = ({ satz, animate = true }) => {
       transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        backgroundColor: '#F7F9FB',
+        backgroundColor: 'hsl(var(--card))',
         borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
@@ -89,7 +89,7 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
       transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        backgroundColor: '#F9F5F0',
+        backgroundColor: 'hsl(var(--card))',
         borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}

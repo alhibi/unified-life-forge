@@ -227,12 +227,12 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
           className="shrink-0 w-1 self-stretch rounded-full"
           style={{
             backgroundColor: isExact
-              ? '#22c55e'
+              ? 'hsl(var(--success))'
               : isPrefix
                 ? GERMAN_CLUB_TOKENS.prussian
                 : isFuzzy
-                  ? '#9ca3af'
-                  : '#d4d4d8',
+                  ? 'hsl(var(--muted-foreground))'
+                  : 'hsl(var(--track))',
           }}
           aria-hidden="true"
         />

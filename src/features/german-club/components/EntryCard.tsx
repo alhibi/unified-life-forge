@@ -68,7 +68,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
                       ? {
                           x: [0, 40, 0],
                           y: [0, -10, 0],
-                          color: [GERMAN_CLUB_TOKENS.prussian, '#dc2626', GERMAN_CLUB_TOKENS.prussian],
+                          color: [GERMAN_CLUB_TOKENS.prussian, 'hsl(var(--destructive))', GERMAN_CLUB_TOKENS.prussian],
                         }
                       : {}
                   }

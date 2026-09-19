@@ -76,7 +76,7 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
         style={{
           opacity: isJobRunning ? 1 : 0.75 + hungerRatio * 0.25,
           textShadow: isJobRunning
-            ? '0 0 12px #FF7A29, 0 0 20px #FF9E4A, 0 0 2px #FFFFFF'
+            ? 'var(--shadow-control)'
             : '0 0 8px rgba(255, 122, 41, 0.7)',
         }}
         className={`font-black font-mono tracking-tighter text-[hsl(var(--signal))] select-none relative z-10 transition-motion ${
