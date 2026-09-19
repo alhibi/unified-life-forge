@@ -1223,13 +1223,12 @@ function HijriCalendarStrip({
 
   // Accent hex per color class
   const accentMap: Record<string, string> = {
-    'border-s-data-1': '#10b981',
-    'border-s-data-1': '#059669',
-    'border-s-data-4': '#0ea5e9',
-    'border-s-data-6': '#8b5cf6',
-    'border-s-signal': '#f59e0b',
-    'border-s-signal': '#eab308',
-    'border-s-signal': '#ca8a04',
+    'border-s-data-1': 'hsl(var(--data-1))',
+    'border-s-data-4': 'hsl(var(--data-4))',
+    'border-s-data-6': 'hsl(var(--data-6))',
+    'border-s-data-5': 'hsl(var(--data-5))',
+    'border-s-signal': 'hsl(var(--signal))',
+    'border-s-[hsl(var(--track))]': 'hsl(var(--muted-foreground))',
   };
 
   return (
