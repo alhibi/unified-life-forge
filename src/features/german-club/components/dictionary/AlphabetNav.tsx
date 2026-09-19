@@ -19,7 +19,7 @@ const AlphabetNavImpl: React.FC = () => {
         className={`px-3 py-1.5 rounded-xl font-bold transition-motion flex-shrink-0 border ${
           selectedLetter === 'all'
             ? 'bg-[#17324D] text-white border-[#17324D]'
-            : 'bg-stone-200/80 text-stone-700 border-stone-300 hover:bg-stone-300/80'
+            : 'bg-secondary text-foreground border-[hsl(var(--track))] hover:bg-secondary'
         }`}
       >
         الكل (A-Z)
@@ -35,7 +35,7 @@ const AlphabetNavImpl: React.FC = () => {
             className={`w-8 h-8 rounded-xl font-bold transition-motion flex items-center justify-center flex-shrink-0 border ${
               isActive
                 ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
-                : 'bg-stone-100 text-stone-700 border-stone-300/80 hover:bg-stone-200/80'
+                : 'bg-card text-foreground border-[hsl(var(--track))] hover:bg-secondary'
             }`}
           >
             {letter}

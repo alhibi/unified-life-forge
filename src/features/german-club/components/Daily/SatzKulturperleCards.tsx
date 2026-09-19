@@ -51,13 +51,13 @@ export const SatzCard: React.FC<SatzCardProps> = ({ satz, animate = true }) => {
       <p className="text-sm font-semibold text-[#17181C] mb-3 leading-snug">{satz.arabic}</p>
 
       {/* Context — italic small */}
-      <p className="text-xs text-stone-500 italic leading-relaxed">
+      <p className="text-xs text-muted-foreground italic leading-relaxed">
         {satz.context_ar}
       </p>
 
       {/* Register tag — minimal */}
-      <div className="mt-3 pt-3 border-t border-stone-200/60 flex items-center gap-1.5">
-        <span className="text-[0.625rem] font-mono text-stone-500 uppercase tracking-wider">
+      <div className="mt-3 pt-3 border-t border-[hsl(var(--track))] flex items-center gap-1.5">
+        <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
           {satz.register === 'formal' && 'رسمي'}
           {satz.register === 'neutral' && 'محايد'}
           {satz.register === 'informal' && 'غير رسمي'}
@@ -122,7 +122,7 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
         <p className="text-sm font-semibold text-[#17324D] mb-3 leading-snug">{perle.title_ar}</p>
 
         {/* Body — the pearl */}
-        <p className="text-sm text-stone-700 leading-relaxed">{perle.body_ar}</p>
+        <p className="text-sm text-foreground leading-relaxed">{perle.body_ar}</p>
       </div>
     </motion.div>
   );

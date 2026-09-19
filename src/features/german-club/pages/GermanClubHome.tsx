@@ -49,11 +49,11 @@ export const GermanClubHome: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 النادي الألماني
               </h1>
               <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
@@ -75,7 +75,7 @@ export const GermanClubHome: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/german-club/grammar')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
               زاوية القواعد
@@ -84,7 +84,7 @@ export const GermanClubHome: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/german-club/review')}
-              className="p-1.5 rounded-xl border border-stone-300/80 text-stone-600 hover:bg-stone-200/60 transition-colors"
+              className="p-1.5 rounded-xl border border-[hsl(var(--track))] text-muted-foreground hover:bg-secondary transition-colors"
               title="مراجعة المحتوى"
             >
               <ShieldAlert className="w-4 h-4 text-amber-700" />
@@ -93,7 +93,7 @@ export const GermanClubHome: React.FC = () => {
         </div>
 
         {/* Hero Section */}
-        <div className="relative overflow-hidden border-b border-stone-300/80 px-4 py-8 sm:py-12 bg-gradient-to-b from-stone-200/80 via-stone-100 to-transparent">
+        <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 sm:py-12 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
           <div className="max-w-4xl mx-auto text-center space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
@@ -104,7 +104,7 @@ export const GermanClubHome: React.FC = () => {
               الألمانية <span className="text-[#17324D]">بالمواقف الحية</span>
             </h2>
 
-            <p className="text-xs sm:text-base text-stone-600 max-w-xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
               رفوف مرتبة بالحالات اليومية — من طلب القهوة إلى مواقف العمل والقطارات.
               مع توضيح أجناس الأسماء بالألوان وتفكيك الأفعال المنفصلة حركةً.
             </p>
@@ -130,8 +130,8 @@ export const GermanClubHome: React.FC = () => {
 
         {/* Gender Color Code Legend */}
         <div className="max-w-4xl mx-auto px-4 py-4 my-2">
-          <div className="p-3.5 rounded-2xl border border-stone-300/60 bg-stone-100/60 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <span className="font-bold text-stone-700 flex items-center gap-1.5">
+          <div className="p-3.5 rounded-2xl border border-[hsl(var(--track))] bg-card flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span className="font-bold text-foreground flex items-center gap-1.5">
               <span>رمزية ألوان أجناس الأسماء:</span>
             </span>
             <div className="flex items-center gap-4 flex-wrap font-medium">
@@ -172,13 +172,13 @@ export const GermanClubHome: React.FC = () => {
             <h3 className="text-base sm:text-lg font-bold text-[#17181C]">
               رفوف المواقف اليومية ({shelves.length})
             </h3>
-            <span className="text-xs text-stone-500">اختر الرف لتصفح محتواه</span>
+            <span className="text-xs text-muted-foreground">اختر الرف لتصفح محتواه</span>
           </div>
 
           {isLoadingShelves ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-36 rounded-2xl bg-stone-200/60 animate-pulse" />
+                <div key={i} className="h-36 rounded-2xl bg-secondary animate-pulse" />
               ))}
             </div>
           ) : (

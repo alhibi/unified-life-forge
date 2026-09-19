@@ -86,7 +86,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
             )}
 
             {entry.ipa && (
-              <span className="text-xs font-mono text-stone-500 font-normal dir-ltr" dir="ltr">
+              <span className="text-xs font-mono text-muted-foreground font-normal dir-ltr" dir="ltr">
                 [{entry.ipa}]
               </span>
             )}
@@ -102,7 +102,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
               const audio = new Audio(entry.audio_url!);
               audio.play().catch(() => {});
             }}
-            className="p-1.5 rounded-lg border border-stone-300/60 hover:bg-stone-200/60 text-stone-600 transition-colors shrink-0"
+            className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors shrink-0"
             title="استماع للنطق"
           >
             <Volume2 className="w-4 h-4" />
@@ -112,14 +112,14 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
 
       {/* Arabic Translation Subtitle */}
       <div className="mt-2 text-start">
-        <p className="text-sm font-normal text-stone-800 leading-snug">{entry.arabic_translation}</p>
+        <p className="text-sm font-normal text-foreground leading-snug">{entry.arabic_translation}</p>
       </div>
 
       {/* Meta tags row */}
-      <div className="mt-3 flex items-center justify-between gap-2 pt-2 border-t border-stone-200/60">
+      <div className="mt-3 flex items-center justify-between gap-2 pt-2 border-t border-[hsl(var(--track))]">
         <div className="flex items-center gap-2">
           {entry.register && entry.register !== 'neutral' && (
-            <span className="text-[0.6875rem] font-medium text-stone-500 bg-stone-200/60 px-2 py-0.5 rounded-md">
+            <span className="text-[0.6875rem] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-md">
               {REGISTER_LABELS_AR[entry.register]}
             </span>
           )}
@@ -155,7 +155,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
             {entry.example_sentence_de}
           </div>
           {entry.example_sentence_ar && (
-            <div className="mt-1.5 text-xs text-stone-600 font-normal leading-normal">
+            <div className="mt-1.5 text-xs text-muted-foreground font-normal leading-normal">
               {entry.example_sentence_ar}
             </div>
           )}

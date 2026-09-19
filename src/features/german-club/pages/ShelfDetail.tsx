@@ -103,11 +103,11 @@ export const ShelfDetail: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
           <div className="flex items-center gap-3">
             <BackButton />
             <div className="min-w-0">
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none truncate">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none truncate">
                 {currentShelf?.title_ar || 'مواقف الرف'}
               </h1>
               {currentShelf?.title_de && (
@@ -136,7 +136,7 @@ export const ShelfDetail: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/german-club/grammar')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
               زاوية القواعد
@@ -147,7 +147,7 @@ export const ShelfDetail: React.FC = () => {
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
           {/* Header Info Block */}
           {currentShelf && (
-            <div className="space-y-2 border-b border-stone-300/60 pb-5">
+            <div className="space-y-2 border-b border-[hsl(var(--track))] pb-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-[#17324D] bg-[#17324D]/10 px-2.5 py-1 rounded-md">
@@ -165,7 +165,7 @@ export const ShelfDetail: React.FC = () => {
                   </div>
                 )}
               </div>
-              <p className="text-sm text-stone-600 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {currentShelf.description_ar}
               </p>
             </div>
@@ -173,7 +173,7 @@ export const ShelfDetail: React.FC = () => {
 
           {/* Filter Bar (Registers) */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="font-bold text-stone-500 shrink-0">السجل اللغوي:</span>
+            <span className="font-bold text-muted-foreground shrink-0">السجل اللغوي:</span>
             {[
               { id: 'all', label: 'الكل' },
               { id: 'neutral', label: 'محايد' },
@@ -188,7 +188,7 @@ export const ShelfDetail: React.FC = () => {
                 className={`px-3 py-1.5 rounded-xl transition-motion shrink-0 font-medium ${
                   filterRegister === tab.id
                     ? 'bg-[#17324D] text-white shadow-xs'
-                    : 'bg-stone-200/60 text-stone-700 hover:bg-stone-300/60'
+                    : 'bg-secondary text-foreground hover:bg-secondary'
                 }`}
               >
                 {tab.label}
@@ -200,12 +200,12 @@ export const ShelfDetail: React.FC = () => {
           {isLoadingEntries ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-28 rounded-2xl bg-stone-200/60 animate-pulse" />
+                <div key={i} className="h-28 rounded-2xl bg-secondary animate-pulse" />
               ))}
             </div>
           ) : filteredEntries.length === 0 ? (
-            <div className="text-center py-12 text-stone-500 space-y-2">
-              <Sparkles className="w-8 h-8 mx-auto text-stone-400 opacity-60" />
+            <div className="text-center py-12 text-muted-foreground space-y-2">
+              <Sparkles className="w-8 h-8 mx-auto text-muted-foreground opacity-60" />
               <p className="text-sm">لا توجد عناصر في هذا الرف تنطبق عليها تصفية السجل المحدد.</p>
             </div>
           ) : (

@@ -83,7 +83,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
             {wort.wort}
           </h3>
           {wort.ipa && (
-            <span className="text-xs sm:text-sm font-mono text-stone-500 ms-1" dir="ltr">
+            <span className="text-xs sm:text-sm font-mono text-muted-foreground ms-1" dir="ltr">
               [{wort.ipa}]
             </span>
           )}
@@ -93,13 +93,13 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
         <p className="text-base font-semibold text-[#17181C] mb-1.5 leading-snug">{wort.arabic}</p>
 
         {/* Hint — the punchy line */}
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">{wort.hint_ar}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{wort.hint_ar}</p>
 
         {/* Footer — register tag (subtle) */}
         {wort.register !== 'neutral' && (
-          <div className="mt-3 pt-3 border-t border-stone-200/70 flex items-center gap-1.5">
-            <BookOpen className="w-3 h-3 text-stone-400" />
-            <span className="text-[0.625rem] font-mono text-stone-500 uppercase tracking-wider">
+          <div className="mt-3 pt-3 border-t border-[hsl(var(--track))] flex items-center gap-1.5">
+            <BookOpen className="w-3 h-3 text-muted-foreground" />
+            <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
               {wort.register === 'formal' && 'رسمي'}
               {wort.register === 'informal' && 'غير رسمي'}
               {wort.register === 'slang' && 'عامي'}
@@ -155,11 +155,11 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
       </p>
 
       {/* Literal — always shown */}
-      <div className="mb-3 pb-3 border-b border-stone-200/60">
-        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-stone-500 block mb-1">
+      <div className="mb-3 pb-3 border-b border-[hsl(var(--track))]">
+        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground block mb-1">
           حرفياً
         </span>
-        <p className="text-sm text-stone-700 leading-relaxed italic">{sprichwort.literal_ar}</p>
+        <p className="text-sm text-foreground leading-relaxed italic">{sprichwort.literal_ar}</p>
       </div>
 
       {/* Real meaning — tap to reveal */}
@@ -168,7 +168,7 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
         onClick={() => setRevealed((v) => !v)}
         className="w-full text-start"
       >
-        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-stone-500 block mb-1">
+        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground block mb-1">
           {revealed ? 'المعنى' : 'المعنى — اضغط للقراءة'}
         </span>
         {revealed ? (
@@ -180,7 +180,7 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
             {sprichwort.meaning_ar}
           </motion.p>
         ) : (
-          <p className="text-sm text-stone-500 leading-relaxed select-none">
+          <p className="text-sm text-muted-foreground leading-relaxed select-none">
             <span className="opacity-50">— — — — —</span>
           </p>
         )}

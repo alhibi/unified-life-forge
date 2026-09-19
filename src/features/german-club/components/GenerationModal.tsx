@@ -427,25 +427,25 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs transition-motion">
       <div
-        className="w-full max-w-2xl rounded-3xl border border-stone-300 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-motion relative"
+        className="w-full max-w-2xl rounded-3xl border border-[hsl(var(--track))] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-motion relative"
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Panel Header */}
-        <div className="px-5 py-4 border-b border-stone-300/80 flex items-center justify-between bg-stone-200/60 shrink-0">
+        <div className="px-5 py-4 border-b border-[hsl(var(--track))] flex items-center justify-between bg-secondary shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2A170F] to-[#0D0704] border border-[#FF7A29]/60 flex items-center justify-center shadow-md shrink-0">
               <span className="font-black font-mono text-base text-[#FF9E4A] drop-shadow-xs">D</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-extrabold text-stone-900 leading-tight">
+                <h2 className="text-base font-extrabold text-foreground leading-tight">
                   الفرن — وحدة التوليد بالذكاء الاصطناعي v2
                 </h2>
                 <span className="text-[0.625rem] font-mono font-bold bg-[#FF7A29]/15 text-[#C9703B] px-2 py-0.5 rounded-full border border-[#FF7A29]/30">
                   OpenRouter API
                 </span>
               </div>
-              <p className="text-xs text-stone-600 font-medium mt-0.5">
+              <p className="text-xs text-muted-foreground font-medium mt-0.5">
                 الرف: <span className="font-bold text-[#17324D]">{shelfTitleAr}</span>{' '}
                 {shelfTitleDe ? `(${shelfTitleDe})` : ''} • ({currentEntryCount}/{targetCount} عنصر)
               </p>
@@ -455,7 +455,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-stone-300/60 transition-colors text-stone-600 cursor-pointer"
+            className="p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -463,34 +463,34 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
         {/* Wizard Progress Bar Stepper Header */}
         {!isJobActive && step !== 'summary' && (
-          <div className="px-5 py-2.5 border-b border-stone-200 bg-stone-100/70 flex items-center justify-between text-xs shrink-0">
+          <div className="px-5 py-2.5 border-b border-[hsl(var(--track))] bg-card flex items-center justify-between text-xs shrink-0">
             <button
               type="button"
               onClick={() => setStep('model_selection')}
               className={`flex items-center gap-2 font-bold transition-motion ${
-                step === 'model_selection' ? 'text-[#C9703B]' : 'text-stone-500 hover:text-stone-800'
+                step === 'model_selection' ? 'text-[#C9703B]' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
-                step === 'model_selection' ? 'bg-[#C9703B] text-white' : 'bg-stone-300 text-stone-700'
+                step === 'model_selection' ? 'bg-[#C9703B] text-white' : 'bg-secondary text-foreground'
               }`}>
                 1
               </span>
               <span>1. اختيار النموذج المقبول</span>
             </button>
 
-            <span className="text-stone-400">←</span>
+            <span className="text-muted-foreground">←</span>
 
             <button
               type="button"
               disabled={!selectedModel}
               onClick={() => selectedModel && setStep('generation_options')}
               className={`flex items-center gap-2 font-bold transition-motion ${
-                step === 'generation_options' ? 'text-[#C9703B]' : 'text-stone-500 hover:text-stone-800'
+                step === 'generation_options' ? 'text-[#C9703B]' : 'text-muted-foreground hover:text-foreground'
               } ${!selectedModel ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
-                step === 'generation_options' ? 'bg-[#C9703B] text-white' : 'bg-stone-300 text-stone-700'
+                step === 'generation_options' ? 'bg-[#C9703B] text-white' : 'bg-secondary text-foreground'
               }`}>
                 2
               </span>
@@ -506,18 +506,18 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-extrabold text-sm text-stone-900 flex items-center gap-2">
+                  <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
                     <Cpu className="w-4 h-4 text-[#C9703B]" />
                     <span>اختر نموذج الذكاء الاصطناعي المناسب لرفك من OpenRouter:</span>
                   </h3>
-                  <p className="text-xs text-stone-600 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     يتم استدعاء النماذج مباشرةً بواسطة مفتاح OpenRouter مع مراقبة الأداء والتكلفة لكل 1M توكن.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => fetchModels(modelSearch)}
-                  className="p-1.5 rounded-lg border border-stone-300 hover:bg-stone-200 text-stone-600 transition-colors"
+                  className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors"
                   title="تحديث قائمة النماذج"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isLoadingModels ? 'animate-spin' : ''}`} />
@@ -534,7 +534,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     className={`px-3 py-1 rounded-full font-bold transition-motion border shrink-0 ${
                       vendorFilter === v.id
                         ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
-                        : 'bg-white/80 text-stone-700 border-stone-300 hover:bg-stone-200'
+                        : 'bg-white/80 text-foreground border-[hsl(var(--track))] hover:bg-secondary'
                     }`}
                   >
                     {v.label}
@@ -544,7 +544,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* Model Search Input */}
               <div className="relative">
-                <Search className="w-4 h-4 absolute inset-s-3 top-2.5 text-stone-400" />
+                <Search className="w-4 h-4 absolute inset-s-3 top-2.5 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="ابحث باسم الموديل أو المعرف (gpt-4o, gemini, claude, deepseek, qwen)..."
@@ -552,7 +552,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   onChange={(e) => {
                     setModelSearch(e.target.value);
                   }}
-                  className="w-full ps-9 pe-3 py-2 text-xs rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9703B]"
+                  className="w-full ps-9 pe-3 py-2 text-xs rounded-xl border border-[hsl(var(--track))] bg-white focus:outline-none focus:ring-2 focus:ring-[#C9703B]"
                 />
               </div>
 
@@ -560,13 +560,13 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {isLoadingModels ? (
                 <div className="space-y-2 py-2">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-16 rounded-2xl bg-stone-200/60 animate-pulse" />
+                    <div key={i} className="h-16 rounded-2xl bg-secondary animate-pulse" />
                   ))}
                 </div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto pe-1">
                   {filteredModels.length === 0 ? (
-                    <div className="text-center py-8 text-stone-500 text-xs">
+                    <div className="text-center py-8 text-muted-foreground text-xs">
                       لا توجد نماذج تطابق بحثك الحالي.
                     </div>
                   ) : (
@@ -580,25 +580,25 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                           className={`w-full text-start p-3 rounded-2xl border transition-motion flex items-center justify-between cursor-pointer ${
                             isSelected
                               ? 'bg-[#C9703B]/10 border-[#C9703B] ring-2 ring-[#C9703B]/30 shadow-xs'
-                              : 'bg-white border-stone-200 hover:border-stone-400'
+                              : 'bg-white border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
                           }`}
                         >
                           <div className="min-w-0 pe-3 space-y-1">
                             <div className="flex items-center gap-2">
-                              <p className="font-extrabold text-xs text-stone-900 truncate">{m.name}</p>
+                              <p className="font-extrabold text-xs text-foreground truncate">{m.name}</p>
                               {m.performance?.badge_text && (
                                 <span className="text-[0.625rem] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold shrink-0 border border-amber-300">
                                   {m.performance.badge_text}
                                 </span>
                               )}
                             </div>
-                            <p className="text-[0.625rem] font-mono text-stone-500 truncate" dir="ltr">
+                            <p className="text-[0.625rem] font-mono text-muted-foreground truncate" dir="ltr">
                               {m.id}
                             </p>
                           </div>
 
                           <div className="text-end shrink-0 ps-2 space-y-0.5">
-                            <span className="text-[0.625rem] font-mono bg-stone-100 px-2 py-0.5 rounded text-stone-700 block font-bold">
+                            <span className="text-[0.625rem] font-mono bg-card px-2 py-0.5 rounded text-foreground block font-bold">
                               {(m.context_length / 1024).toFixed(0)}k سياق
                             </span>
                             <span className="text-[0.6875rem] font-mono text-emerald-800 block font-black">
@@ -613,10 +613,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               )}
 
               {/* Model Selection Action Bar */}
-              <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
+              <div className="pt-3 border-t border-[hsl(var(--track))] flex items-center justify-between">
                 <div className="text-xs">
-                  <span className="text-stone-600 block">الموديل المحدد:</span>
-                  <span className="font-bold text-stone-900 font-mono text-xs truncate max-w-xs block">
+                  <span className="text-muted-foreground block">الموديل المحدد:</span>
+                  <span className="font-bold text-foreground font-mono text-xs truncate max-w-xs block">
                     {selectedModel?.name || 'لم يتم الاختيار'}
                   </span>
                 </div>
@@ -637,13 +637,13 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           {/* STEP 2: GENERATION SETUP & LEVERS STAGE */}
           {step === 'generation_options' && !isJobActive && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+              <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3">
                 <div>
-                  <h3 className="font-extrabold text-sm text-stone-900 flex items-center gap-2">
+                  <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#C9703B]" />
                     <span>خيارات النمط والصرامة وضوابط الإبداع:</span>
                   </h3>
-                  <p className="text-xs text-stone-600 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     اختر بين التوليد حسب قدرة النموذج أو تحديد عدد ثابت صارم.
                   </p>
                 </div>
@@ -659,7 +659,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* 2 DISTINCT GENERATION MODES (USER REQUEST CORE REQUIREMENT) */}
               <div className="space-y-2">
-                <label className="font-extrabold text-xs text-stone-900 block">
+                <label className="font-extrabold text-xs text-foreground block">
                   أ) نمط التوليد المستهدف:
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -670,14 +670,14 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
                       mode === 'model_capacity'
                         ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
-                        : 'bg-white text-stone-800 border-stone-300 hover:border-stone-400'
+                        : 'bg-white text-foreground border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-extrabold text-xs">1. حسب قدرة النموذج</span>
-                      <Flame className={`w-4 h-4 ${mode === 'model_capacity' ? 'text-amber-400' : 'text-stone-400'}`} />
+                      <Flame className={`w-4 h-4 ${mode === 'model_capacity' ? 'text-amber-400' : 'text-muted-foreground'}`} />
                     </div>
-                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'model_capacity' ? 'text-stone-200' : 'text-stone-600'}`}>
+                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'model_capacity' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                       يولد الموديل أقصى حصيلة ممكنة من العبارات الأصيلة وغير المكررة حتى يستنفذ أفكاره ذات الثقة العالية وتتوقف الحلقة تلقائيًا.
                     </p>
                   </button>
@@ -689,14 +689,14 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
                       mode === 'fixed_count'
                         ? 'bg-[#17324D] text-white border-[#17324D] ring-2 ring-[#17324D]/30 shadow-md'
-                        : 'bg-white text-stone-800 border-stone-300 hover:border-stone-400'
+                        : 'bg-white text-foreground border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-extrabold text-xs">2. حسب العدد الذي اختاره انا</span>
-                      <Layers className={`w-4 h-4 ${mode === 'fixed_count' ? 'text-amber-400' : 'text-stone-400'}`} />
+                      <Layers className={`w-4 h-4 ${mode === 'fixed_count' ? 'text-amber-400' : 'text-muted-foreground'}`} />
                     </div>
-                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'fixed_count' ? 'text-stone-200' : 'text-stone-600'}`}>
+                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'fixed_count' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                       تحديد عدد دقيق ومحدد مسبقًا للمفردات المراد إضافتها إلى هذا الرف دون زيادة أو نقصان.
                     </p>
                   </button>
@@ -704,13 +704,13 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
                 {/* Numeric Stepper for Fixed Count Mode */}
                 {mode === 'fixed_count' && (
-                  <div className="p-3 bg-white rounded-2xl border border-stone-300 text-xs flex items-center justify-between shadow-2xs mt-2">
-                    <label className="font-bold text-stone-800">حدد عدد العناصر المطلوبة:</label>
+                  <div className="p-3 bg-white rounded-2xl border border-[hsl(var(--track))] text-xs flex items-center justify-between shadow-2xs mt-2">
+                    <label className="font-bold text-foreground">حدد عدد العناصر المطلوبة:</label>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setFixedCount((prev) => Math.max(prev - 5, 5))}
-                        className="w-7 h-7 rounded-lg bg-stone-200 hover:bg-stone-300 font-bold text-stone-800 flex items-center justify-center cursor-pointer"
+                        className="w-7 h-7 rounded-lg bg-secondary hover:bg-secondary font-bold text-foreground flex items-center justify-center cursor-pointer"
                       >
                         -
                       </button>
@@ -722,16 +722,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         onChange={(e) =>
                           setFixedCount(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 500))
                         }
-                        className="w-16 px-2 py-1 rounded-lg border border-stone-300 font-mono text-center font-extrabold text-stone-900"
+                        className="w-16 px-2 py-1 rounded-lg border border-[hsl(var(--track))] font-mono text-center font-extrabold text-foreground"
                       />
                       <button
                         type="button"
                         onClick={() => setFixedCount((prev) => Math.min(prev + 5, 500))}
-                        className="w-7 h-7 rounded-lg bg-stone-200 hover:bg-stone-300 font-bold text-stone-800 flex items-center justify-center cursor-pointer"
+                        className="w-7 h-7 rounded-lg bg-secondary hover:bg-secondary font-bold text-foreground flex items-center justify-center cursor-pointer"
                       >
                         +
                       </button>
-                      <span className="text-[0.6875rem] text-stone-500 font-mono font-medium">عنصر</span>
+                      <span className="text-[0.6875rem] text-muted-foreground font-mono font-medium">عنصر</span>
                     </div>
                   </div>
                 )}
@@ -739,7 +739,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* STRICTNESS LEVEL CONTROLS */}
               <div className="space-y-2">
-                <label className="font-extrabold text-xs text-stone-900 block">
+                <label className="font-extrabold text-xs text-foreground block">
                   ب) حد الصرامة وتدقيق الجودة:
                 </label>
                 <div className="grid grid-cols-3 gap-2 text-xs">
@@ -755,7 +755,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       className={`p-2.5 rounded-xl border text-center transition-motion cursor-pointer ${
                         strictness === s.id
                           ? 'bg-[#C9703B] text-white border-[#C9703B] font-bold shadow-xs'
-                          : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-100'
+                          : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-card'
                       }`}
                     >
                       <span className="block font-bold text-xs">{s.label}</span>
@@ -768,11 +768,11 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* REGISTER STEERING CHIPS */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="font-extrabold text-xs text-stone-900 block">
+                  <label className="font-extrabold text-xs text-foreground block">
                     ج) توجيه السجل اللغوي (اختياري):
                   </label>
                   {registerTargets.length === 0 && (
-                    <span className="text-[0.625rem] text-stone-500 italic">ترك التنوع للموديل</span>
+                    <span className="text-[0.625rem] text-muted-foreground italic">ترك التنوع للموديل</span>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -786,7 +786,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-motion border cursor-pointer ${
                           isSelected
                             ? 'bg-[#17324D] text-white border-[#17324D] shadow-xs'
-                            : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-200'
+                            : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-secondary'
                         }`}
                       >
                         {REGISTER_LABELS_AR[reg]}
@@ -808,7 +808,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   <span className="text-base font-black text-[#C9703B] block">
                     ~${liveEstimate.estCostUsd.toFixed(4)}
                   </span>
-                  <span className="text-[0.625rem] text-stone-500">حسب الاستهلاك الفعلي</span>
+                  <span className="text-[0.625rem] text-muted-foreground">حسب الاستهلاك الفعلي</span>
                 </div>
               </div>
 
@@ -817,7 +817,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep('model_selection')}
-                  className="px-4 py-3 rounded-2xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors cursor-pointer"
+                  className="px-4 py-3 rounded-2xl bg-secondary text-foreground font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
                 >
                   السابق
                 </button>
@@ -876,7 +876,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   </div>
 
                   <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
-                    <span className="block text-xl font-black font-mono text-stone-300">
+                    <span className="block text-xl font-black font-mono text-muted-foreground">
                       {job?.entries_discarded_low_quality || 0}
                     </span>
                     <span className="text-[0.625rem] opacity-90 font-bold">مرفوض لضعف الثقة</span>
@@ -887,7 +887,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* LIVE SHELF ENTRY SLOTTING FEED */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-extrabold text-xs text-stone-900 flex items-center gap-1.5">
+                  <h4 className="font-extrabold text-xs text-foreground flex items-center gap-1.5">
                     <Database className="w-4 h-4 text-[#17324D]" />
                     <span>تغذية الرف الحية (نزول المفردات المعتمدة مباشر):</span>
                   </h4>
@@ -896,9 +896,9 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white border border-stone-300 max-h-44 overflow-y-auto flex flex-wrap gap-2 shadow-inner">
+                <div className="p-3.5 rounded-2xl bg-white border border-[hsl(var(--track))] max-h-44 overflow-y-auto flex flex-wrap gap-2 shadow-inner">
                   {acceptedStubs.length === 0 ? (
-                    <div className="w-full text-center py-8 text-stone-400 text-xs italic space-y-1">
+                    <div className="w-full text-center py-8 text-muted-foreground text-xs italic space-y-1">
                       <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#C9703B]" />
                       <p>جاري صياغة الدفعة الأولى وتصفيتها بالصارمة المحددة...</p>
                     </div>
@@ -908,13 +908,13 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="px-3 py-1.5 rounded-xl bg-stone-100 border border-stone-300 text-xs flex items-center gap-2 shadow-2xs shrink-0"
+                          className="px-3 py-1.5 rounded-xl bg-card border border-[hsl(var(--track))] text-xs flex items-center gap-2 shadow-2xs shrink-0"
                         >
                           <span
                             className="w-2.5 h-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: dotColor }}
                           />
-                          <span className="font-bold text-stone-900 font-mono" dir="ltr">
+                          <span className="font-bold text-foreground font-mono" dir="ltr">
                             {item.german_text}
                           </span>
                         </div>
@@ -925,16 +925,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               </div>
 
               {/* LIVE REJECTION REASONS FEED */}
-              <div className="border border-stone-300 rounded-2xl overflow-hidden bg-white/90">
+              <div className="border border-[hsl(var(--track))] rounded-2xl overflow-hidden bg-white/90">
                 <button
                   type="button"
                   onClick={() => setIsRejectionsExpanded(!isRejectionsExpanded)}
-                  className="w-full p-3 flex items-center justify-between text-xs font-bold text-stone-800 hover:bg-stone-200/50 transition-colors cursor-pointer"
+                  className="w-full p-3 flex items-center justify-between text-xs font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600" />
                     <span>سجل المستبعدات والمرفوضات (أسباب الاستبعاد الحية)</span>
-                    <span className="bg-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded-full text-[0.625rem]">
+                    <span className="bg-secondary text-foreground font-mono px-2 py-0.5 rounded-full text-[0.625rem]">
                       {rejections.length}
                     </span>
                   </div>
@@ -942,15 +942,15 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 </button>
 
                 {isRejectionsExpanded && (
-                  <div className="p-3 border-t border-stone-200 max-h-36 overflow-y-auto space-y-1.5 text-xs font-mono">
+                  <div className="p-3 border-t border-[hsl(var(--track))] max-h-36 overflow-y-auto space-y-1.5 text-xs font-mono">
                     {rejections.length === 0 ? (
-                      <p className="text-stone-500 text-center py-3 text-[0.6875rem]">
+                      <p className="text-muted-foreground text-center py-3 text-[0.6875rem]">
                         لا توجد مرفوضات حتى اللحظة.
                       </p>
                     ) : (
                       rejections.map((rej) => (
-                        <div key={rej.id} className="p-1.5 rounded-lg bg-stone-100 flex items-center justify-between">
-                          <span className="text-stone-800 truncate max-w-[65%]" dir="ltr">
+                        <div key={rej.id} className="p-1.5 rounded-lg bg-card flex items-center justify-between">
+                          <span className="text-foreground truncate max-w-[65%]" dir="ltr">
                             {rej.candidate_text}
                           </span>
                           <span className="text-[0.625rem] font-sans font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
@@ -967,7 +967,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-secondary text-foreground font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
                 >
                   إغلاق (المتابعة بالخلفية)
                 </button>
@@ -983,32 +983,32 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               </div>
 
               <div>
-                <h3 className="font-extrabold text-base text-stone-900">
+                <h3 className="font-extrabold text-base text-foreground">
                   {job?.status === 'completed' ? 'اكتملت عملة التوليد بالفرن بنجاح أصيل!' : 'توقفت مهمة التوليد'}
                 </h3>
-                <p className="text-xs text-stone-600 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   تم صياغة واستقرار المفردات بالرف مباشرة.
                 </p>
               </div>
 
               {/* Job Summary Breakdown Box */}
-              <div className="p-4 rounded-2xl bg-white border border-stone-300 text-xs space-y-3 text-start shadow-xs">
-                <div className="flex justify-between border-b border-stone-200 pb-2">
-                  <span className="text-stone-600 font-bold">إجمالي المفردات المضافة للرف:</span>
+              <div className="p-4 rounded-2xl bg-white border border-[hsl(var(--track))] text-xs space-y-3 text-start shadow-xs">
+                <div className="flex justify-between border-b border-[hsl(var(--track))] pb-2">
+                  <span className="text-muted-foreground font-bold">إجمالي المفردات المضافة للرف:</span>
                   <span className="font-black text-emerald-800 font-mono text-sm">
                     +{job?.entries_generated || acceptedStubs.length} عنصر
                   </span>
                 </div>
 
-                <div className="flex justify-between border-b border-stone-200 pb-2">
-                  <span className="text-stone-600 font-bold">المستبعد (تكرار / ثقة / سجل):</span>
-                  <span className="font-extrabold text-stone-800 font-mono">
+                <div className="flex justify-between border-b border-[hsl(var(--track))] pb-2">
+                  <span className="text-muted-foreground font-bold">المستبعد (تكرار / ثقة / سجل):</span>
+                  <span className="font-extrabold text-foreground font-mono">
                     {(job?.entries_skipped_duplicate || 0) + (job?.entries_discarded_low_quality || 0)} عنصر
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-stone-600 font-bold">التكلفة النهائية المستهلكة:</span>
+                  <span className="text-muted-foreground font-bold">التكلفة النهائية المستهلكة:</span>
                   <span className="font-black text-[#C9703B] font-mono">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
@@ -1019,7 +1019,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl bg-stone-200 text-stone-800 font-bold text-xs hover:bg-stone-300 transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-secondary text-foreground font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
                 >
                   تم والإغلاق
                 </button>

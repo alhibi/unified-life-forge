@@ -102,7 +102,7 @@ export const QuickLookup: React.FC = () => {
               : '0 1px 0 rgba(0,0,0,0.02), 0 4px 12px -8px rgba(23,24,28,0.12)',
         }}
       >
-        <Search className="w-4 h-4 text-stone-500 shrink-0" />
+        <Search className="w-4 h-4 text-muted-foreground shrink-0" />
         <input
           ref={inputRef}
           type="text"
@@ -123,7 +123,7 @@ export const QuickLookup: React.FC = () => {
             }
           }}
           placeholder="ابحث بكلمة أو عبارة — بالعربي أو الألماني أو الإنجليزي"
-          className="flex-1 bg-transparent outline-none text-sm placeholder:text-stone-400"
+          className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
           aria-label="بحث سريع في القاموس"
           dir="auto"
         />
@@ -134,7 +134,7 @@ export const QuickLookup: React.FC = () => {
               setQuery('');
               inputRef.current?.focus();
             }}
-            className="shrink-0 p-1 rounded-md hover:bg-stone-100 text-stone-500 transition-colors"
+            className="shrink-0 p-1 rounded-md hover:bg-card text-muted-foreground transition-colors"
             aria-label="مسح البحث"
           >
             <X className="w-3.5 h-3.5" />
@@ -157,17 +157,17 @@ export const QuickLookup: React.FC = () => {
             }}
           >
             {/* Header — what we searched */}
-            <div className="flex items-center justify-between px-3.5 py-2 border-b border-stone-200/70 bg-stone-50/60">
+            <div className="flex items-center justify-between px-3.5 py-2 border-b border-[hsl(var(--track))] bg-card">
               <div className="flex items-center gap-1.5 text-xs">
-                <span className="font-mono font-bold uppercase tracking-wider text-stone-600">
+                <span className="font-mono font-bold uppercase tracking-wider text-muted-foreground">
                   {queryLang === 'arabic'
                     ? 'بحث عربي'
                     : queryLang === 'german'
                       ? 'Suche'
                       : 'Search'}
                 </span>
-                <span className="text-stone-400">·</span>
-                <span className="text-stone-500">
+                <span className="text-muted-foreground">·</span>
+                <span className="text-muted-foreground">
                   {totalMatches > 0 ? `${totalMatches} نتيجة` : 'لا توجد نتائج'}
                 </span>
               </div>
@@ -185,9 +185,9 @@ export const QuickLookup: React.FC = () => {
 
             {/* Results list */}
             {results.length === 0 ? (
-              <div className="px-4 py-8 text-center text-stone-500">
+              <div className="px-4 py-8 text-center text-muted-foreground">
                 <p className="text-sm font-medium mb-1">لا توجد نتائج لـ "{debounced}"</p>
-                <p className="text-xs text-stone-400">جرّب جزءاً من الكلمة، أو بالأحرف الأولى</p>
+                <p className="text-xs text-muted-foreground">جرّب جزءاً من الكلمة، أو بالأحرف الأولى</p>
               </div>
             ) : (
               <ul className="max-h-80 overflow-y-auto">
@@ -220,7 +220,7 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
         type="button"
         onMouseDown={(e) => e.preventDefault()}
         onClick={onClick}
-        className="w-full text-start px-3.5 py-2.5 hover:bg-stone-50 transition-colors flex items-center gap-3 border-b border-stone-100/60 last:border-b-0"
+        className="w-full text-start px-3.5 py-2.5 hover:bg-card transition-colors flex items-center gap-3 border-b border-[hsl(var(--track))] last:border-b-0"
       >
         {/* Match strength indicator */}
         <span
@@ -240,7 +240,7 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
             <span
-              className={`font-bold text-[#17181C] truncate ${isFuzzy ? 'italic text-stone-600' : ''}`}
+              className={`font-bold text-[#17181C] truncate ${isFuzzy ? 'italic text-muted-foreground' : ''}`}
               dir="ltr"
               style={{ unicodeBidi: 'isolate' }}
             >
@@ -252,15 +252,15 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
               </span>
             )}
             {isFuzzy && (
-              <span className="text-[0.625rem] font-mono font-bold text-stone-500 uppercase tracking-wider">
+              <span className="text-[0.625rem] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                 قريب
               </span>
             )}
           </div>
-          <p className="text-xs text-stone-600 truncate leading-snug">{entry.arabic}</p>
+          <p className="text-xs text-muted-foreground truncate leading-snug">{entry.arabic}</p>
         </div>
 
-        <Sparkles className="w-3 h-3 text-stone-400 shrink-0" aria-hidden="true" />
+        <Sparkles className="w-3 h-3 text-muted-foreground shrink-0" aria-hidden="true" />
       </button>
     </li>
   );

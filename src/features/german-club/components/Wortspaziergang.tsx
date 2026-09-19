@@ -78,24 +78,24 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-xl rounded-3xl border border-stone-300 bg-[#EFEEE7] text-[#17181C] shadow-2xl overflow-hidden"
+          className="relative w-full max-w-xl rounded-3xl border border-[hsl(var(--track))] bg-[#EFEEE7] text-[#17181C] shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-stone-300/60">
+          <div className="flex items-center justify-between p-5 border-b border-[hsl(var(--track))]">
             <div className="flex items-center gap-2">
               <Wand2 className="w-4 h-4 text-[#17324D]" />
               <h2 className="text-base font-bold text-[#17181C] tracking-tight">
                 Wortspaziergang
               </h2>
-              <span className="text-[0.625rem] font-mono text-stone-500 uppercase tracking-widest">
+              <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-widest">
                 · 7 خطوات
               </span>
             </div>
             <button
               type="button"
               onClick={close}
-              className="p-1.5 rounded-lg hover:bg-stone-200/60 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
               aria-label="إغلاق"
             >
               <X className="w-4 h-4" />
@@ -121,7 +121,7 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
                           ? 'w-6 h-1.5 bg-[#17324D]'
                           : i < stepIdx
                           ? 'w-1.5 h-1.5 bg-[#17324D]/60'
-                          : 'w-1.5 h-1.5 bg-stone-300'
+                          : 'w-1.5 h-1.5 bg-secondary'
                       }`}
                     />
                   ))}
@@ -132,18 +132,18 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
                 </AnimatePresence>
 
                 {/* Controls */}
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-stone-300/60">
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-[hsl(var(--track))]">
                   <button
                     type="button"
                     onClick={prev}
                     disabled={stepIdx === 0}
-                    className="text-xs font-bold px-3 py-2 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:hover:bg-transparent"
+                    className="text-xs font-bold px-3 py-2 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:hover:bg-transparent"
                   >
                     <ArrowRight className="w-3.5 h-3.5" />
                     رجوع
                   </button>
 
-                  <span className="text-xs font-mono text-stone-500">
+                  <span className="text-xs font-mono text-muted-foreground">
                     {stepIdx + 1} / {activeWalk.length}
                   </span>
 
@@ -184,7 +184,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => (
       <h3 className="text-xl font-black text-[#17181C] mb-1.5 tracking-tight">
         جولة لغوية قصيرة
       </h3>
-      <p className="text-sm text-stone-600 max-w-xs mx-auto leading-relaxed">
+      <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
         سبع كلمات تتدفق معاً، من نفس العالم اللغوي ثم تقفز إلى عوالم أخرى. بدون أي التزام.
       </p>
     </div>
@@ -232,10 +232,10 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
       {/* Step reason */}
       <div className="flex items-center gap-1.5 text-xs">
         <span className="text-base leading-none">{emoji}</span>
-        <span className="font-mono text-stone-500 uppercase tracking-wider">
+        <span className="font-mono text-muted-foreground uppercase tracking-wider">
           الخطوة {step}
         </span>
-        <span className="text-stone-300">·</span>
+        <span className="text-muted-foreground">·</span>
         <span className="font-bold text-[#17324D]">{reason}</span>
       </div>
 
@@ -263,7 +263,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
           <button
             type="button"
             onClick={speak}
-            className="p-2 rounded-xl border border-stone-300 hover:bg-stone-200 transition-colors"
+            className="p-2 rounded-xl border border-[hsl(var(--track))] hover:bg-secondary transition-colors"
             title="نطق"
             aria-label="نطق"
           >
@@ -272,7 +272,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
         </div>
 
         {entry.ipa && (
-          <p dir="ltr" className="text-xs font-mono text-stone-500">
+          <p dir="ltr" className="text-xs font-mono text-muted-foreground">
             [{entry.ipa}]
           </p>
         )}
@@ -288,10 +288,10 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
         <span className={`font-bold px-2 py-0.5 rounded-full border ${cefrInfo.badge_color}`}>
           {entry.cefr}
         </span>
-        <span className="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
+        <span className="px-2 py-0.5 rounded-full bg-secondary text-foreground">
           {DictionaryWordTypeLabels[entry.word_type]}
         </span>
-        <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 flex items-center gap-1">
+        <span className="px-2 py-0.5 rounded-full bg-card text-muted-foreground flex items-center gap-1">
           <MapPin className="w-2.5 h-2.5" />
           {entry.category}
         </span>
@@ -299,14 +299,14 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
 
       {/* First example if available */}
       {entry.examples[0] && (
-        <div className="p-3 rounded-2xl bg-white/80 border border-stone-200/90">
+        <div className="p-3 rounded-2xl bg-white/80 border border-[hsl(var(--track))]">
           <p
             dir="ltr"
             className="text-sm font-bold text-[#17324D] leading-snug"
           >
             „{entry.examples[0].de}"
           </p>
-          <p className="text-xs text-stone-600 leading-snug mt-1">
+          <p className="text-xs text-muted-foreground leading-snug mt-1">
             {entry.examples[0].ar}
           </p>
         </div>

@@ -40,11 +40,11 @@ export const ContentReviewAdmin: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 مراجعة محتوى الذكاء الاصطناعي
               </h1>
               <span className="text-[0.625rem] font-mono font-bold text-amber-900 tracking-widest uppercase">
@@ -86,16 +86,16 @@ export const ContentReviewAdmin: React.FC = () => {
           {isLoadingUnreviewed ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 rounded-2xl bg-stone-200/60 animate-pulse" />
+                <div key={i} className="h-32 rounded-2xl bg-secondary animate-pulse" />
               ))}
             </div>
           ) : unreviewedEntries.length === 0 ? (
-            <div className="text-center py-12 text-stone-500 space-y-2 border-2 border-dashed border-stone-300 rounded-2xl p-6">
+            <div className="text-center py-12 text-muted-foreground space-y-2 border-2 border-dashed border-[hsl(var(--track))] rounded-2xl p-6">
               <Check className="w-8 h-8 mx-auto text-emerald-600" />
-              <p className="text-sm font-bold text-stone-800">
+              <p className="text-sm font-bold text-foreground">
                 لا توجد عناصر بانتظار المراجعة!
               </p>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-muted-foreground">
                 جميع المفردات والعبارات الموّلدة تمت مراجعتها واعتمادها بنجاح.
               </p>
             </div>
@@ -104,16 +104,16 @@ export const ContentReviewAdmin: React.FC = () => {
               {unreviewedEntries.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border p-5 bg-white/80 border-stone-300/80 shadow-xs space-y-3"
+                  className="rounded-2xl border p-5 bg-white/80 border-[hsl(var(--track))] shadow-xs space-y-3"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-baseline gap-2">
                       <GenderDot gender={item.gender} size={11} className="mt-1" />
-                      <span className="font-mono text-xl font-bold text-stone-900" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                      <span className="font-mono text-xl font-bold text-foreground" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
                         {item.german_text}
                       </span>
                       {item.ipa && (
-                        <span className="text-xs font-mono text-stone-500">[{item.ipa}]</span>
+                        <span className="text-xs font-mono text-muted-foreground">[{item.ipa}]</span>
                       )}
                     </div>
 
@@ -122,25 +122,25 @@ export const ContentReviewAdmin: React.FC = () => {
                     </span>
                   </div>
 
-                  <p className="text-sm text-stone-800">{item.arabic_translation}</p>
+                  <p className="text-sm text-foreground">{item.arabic_translation}</p>
 
                   {item.example_sentence_de && (
-                    <div className="text-xs font-mono bg-stone-100 p-2.5 rounded-lg border border-stone-200/60 text-stone-700" dir="ltr">
+                    <div className="text-xs font-mono bg-card p-2.5 rounded-lg border border-[hsl(var(--track))] text-foreground" dir="ltr">
                       {item.example_sentence_de}
-                      <div className="mt-1 font-sans text-stone-600 text-[0.6875rem]" dir="rtl">
+                      <div className="mt-1 font-sans text-muted-foreground text-[0.6875rem]" dir="rtl">
                         {item.example_sentence_ar}
                       </div>
                     </div>
                   )}
 
                   {/* Actions Bar */}
-                  <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-200">
+                  <div className="pt-2 flex items-center justify-end gap-2 border-t border-[hsl(var(--track))]">
                     <button
                       type="button"
                       onClick={() => handlePromote(item.id, 'reviewed')}
-                      className="px-3 py-1.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold transition-colors flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-xl bg-secondary hover:bg-secondary text-foreground text-xs font-bold transition-colors flex items-center gap-1"
                     >
-                      <Check className="w-3.5 h-3.5 text-stone-700" />
+                      <Check className="w-3.5 h-3.5 text-foreground" />
                       <span>اعتماد (Reviewed)</span>
                     </button>
 

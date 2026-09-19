@@ -37,14 +37,14 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
   return (
     <div
       onClick={() => onSelect(entry)}
-      className="p-4 sm:p-5 rounded-2xl border border-stone-300/80 bg-stone-100/70 hover:bg-white hover:shadow-md transition-motion cursor-pointer space-y-3 group"
+      className="p-4 sm:p-5 rounded-2xl border border-[hsl(var(--track))] bg-card hover:bg-white hover:shadow-md transition-motion cursor-pointer space-y-3 group"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className={`text-[0.625rem] font-bold px-2 py-0.5 rounded-full border ${cefrInfo.badge_color}`}>
             {entry.cefr}
           </span>
-          <span className="text-[0.625rem] font-medium px-2 py-0.5 rounded-full bg-stone-200/80 text-stone-700">
+          <span className="text-[0.625rem] font-medium px-2 py-0.5 rounded-full bg-secondary text-foreground">
             {DictionaryWordTypeLabels[entry.word_type]}
           </span>
         </div>
@@ -53,8 +53,8 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
           <button
             type="button"
             onClick={speakGerman}
-            className={`p-1.5 rounded-lg border border-stone-300/60 hover:bg-stone-200/60 transition-colors ${
-              isPlaying ? 'bg-amber-100 border-amber-300 text-amber-800' : 'text-stone-600'
+            className={`p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary transition-colors ${
+              isPlaying ? 'bg-amber-100 border-amber-300 text-amber-800' : 'text-muted-foreground'
             }`}
             title="نطق ألماني"
           >
@@ -66,13 +66,13 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
               e.stopPropagation();
               toggleBookmark(entry.id);
             }}
-            className="p-1.5 rounded-lg border border-stone-300/60 hover:bg-stone-200/60 text-stone-600 transition-colors"
+            className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors"
             title={bookmarked ? 'إزالة من الحفظ' : 'حفظ الكلمة'}
           >
             {bookmarked ? (
               <BookmarkCheck className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
             ) : (
-              <Bookmark className="w-3.5 h-3.5 text-stone-400" />
+              <Bookmark className="w-3.5 h-3.5 text-muted-foreground" />
             )}
           </button>
         </div>
@@ -90,26 +90,26 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
             {entry.german}
           </h4>
           {entry.ipa && (
-            <span dir="ltr" className="text-xs font-mono text-stone-500">
+            <span dir="ltr" className="text-xs font-mono text-muted-foreground">
               [{entry.ipa}]
             </span>
           )}
         </div>
 
-        <p className="text-sm font-bold text-stone-800 line-clamp-1">
+        <p className="text-sm font-bold text-foreground line-clamp-1">
           {entry.arabic}
         </p>
       </div>
 
       {entry.examples[0] && (
-        <p dir="ltr" className="text-xs text-stone-600 truncate bg-stone-200/50 p-2 rounded-xl">
+        <p dir="ltr" className="text-xs text-muted-foreground truncate bg-secondary p-2 rounded-xl">
           "{entry.examples[0].de}"
         </p>
       )}
 
-      <div className="flex items-center justify-between text-[0.625rem] text-stone-500 pt-1 border-t border-stone-200/60">
+      <div className="flex items-center justify-between text-[0.625rem] text-muted-foreground pt-1 border-t border-[hsl(var(--track))]">
         <span>اضغط للتفاصيل والشيوع</span>
-        <ChevronLeft className="w-3.5 h-3.5 text-stone-400 group-hover:-translate-x-1 transition-transform" />
+        <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:-translate-x-1 transition-transform" />
       </div>
     </div>
   );

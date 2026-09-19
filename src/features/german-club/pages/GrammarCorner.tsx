@@ -28,11 +28,11 @@ export const GrammarCorner: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 زاوية القواعد (Grammar Corner)
               </h1>
               <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
@@ -52,7 +52,7 @@ export const GrammarCorner: React.FC = () => {
             <h2 className="text-xl font-extrabold text-[#17181C]">
               قواعد عملية ومصممة للواقع
             </h2>
-            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوطة بالأمثلة العملية.
             </p>
           </div>
@@ -60,7 +60,7 @@ export const GrammarCorner: React.FC = () => {
           {isLoadingGrammar ? (
             <div className="space-y-4">
               {[1, 2].map((i) => (
-                <div key={i} className="h-44 rounded-2xl bg-stone-200/60 animate-pulse" />
+                <div key={i} className="h-44 rounded-2xl bg-secondary animate-pulse" />
               ))}
             </div>
           ) : (
@@ -75,7 +75,7 @@ export const GrammarCorner: React.FC = () => {
                     boxShadow: '0 4px 16px -4px rgba(23, 24, 28, 0.04)',
                   }}
                 >
-                  <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 pb-3">
+                  <div className="flex items-start justify-between gap-3 border-b border-[hsl(var(--track))] pb-3">
                     <div>
                       <h3 className="text-lg font-bold text-[#17181C]">
                         {note.title_ar}
@@ -91,16 +91,16 @@ export const GrammarCorner: React.FC = () => {
                       )}
                     </div>
 
-                    <span className="text-[0.6875rem] font-bold px-2.5 py-0.5 rounded bg-stone-200/70 text-stone-700">
+                    <span className="text-[0.6875rem] font-bold px-2.5 py-0.5 rounded bg-secondary text-foreground">
                       مستوى {note.difficulty_level}
                     </span>
                   </div>
 
-                  <div className="text-sm text-stone-700 leading-relaxed whitespace-pre-line font-normal">
+                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-line font-normal">
                     {note.body_md}
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-xs text-stone-500">
+                  <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 text-[#17324D] font-medium">
                       <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                       مرتبطة برفوف المواقف اليومية

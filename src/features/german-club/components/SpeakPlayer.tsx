@@ -66,8 +66,8 @@ export const SpeakPlayer: React.FC<SpeakPlayerProps> = ({ text, variant = 'icon'
 
   const base =
     variant === 'pill'
-      ? 'shrink-0 inline-flex items-center gap-1.5 rounded-full border border-stone-300/80 px-2.5 py-1 text-[0.625rem] font-semibold text-stone-600 hover:bg-stone-200/60 transition-colors'
-      : 'shrink-0 inline-flex items-center justify-center rounded-xl p-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-200/60 transition-colors';
+      ? 'shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--track))] px-2.5 py-1 text-[0.625rem] font-semibold text-muted-foreground hover:bg-secondary transition-colors'
+      : 'shrink-0 inline-flex items-center justify-center rounded-xl p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors';
 
   return (
     <button

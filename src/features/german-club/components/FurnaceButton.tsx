@@ -91,12 +91,12 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
         <>
           <span className="absolute inset-0 rounded-full border border-[#FF9E4A] motion-safe:animate-ping opacity-80 pointer-events-none" />
           <span className="absolute inset-0 rounded-full bg-gradient-to-t from-[#FF7A29]/30 to-transparent motion-safe:animate-pulse pointer-events-none" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-stone-900 motion-safe:animate-bounce z-20" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-[hsl(var(--track))] motion-safe:animate-bounce z-20" />
         </>
       )}
 
       {/* Hover Tooltip Hint */}
-      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-stone-950 text-amber-100 text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-amber-500/30 pointer-events-none">
+      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-foreground text-amber-100 text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-amber-500/30 pointer-events-none">
         الفرن: توليد الذكاء الاصطناعي ({currentCount}/{targetCount})
       </span>
     </button>

@@ -54,8 +54,8 @@ export const DiscoveryCard: React.FC = () => {
           <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
             Zufallsfund
           </span>
-          <span className="text-[0.625rem] text-stone-500">·</span>
-          <span className="text-[0.625rem] font-mono text-stone-600 uppercase tracking-wider">
+          <span className="text-[0.625rem] text-muted-foreground">·</span>
+          <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
             {reasonMeta.text}
           </span>
         </div>
@@ -99,7 +99,7 @@ export const DiscoveryCard: React.FC = () => {
             {entry.german}
           </h3>
           {entry.ipa && (
-            <span className="text-xs font-mono text-stone-500 ms-0.5" dir="ltr">
+            <span className="text-xs font-mono text-muted-foreground ms-0.5" dir="ltr">
               [{entry.ipa}]
             </span>
           )}
@@ -109,19 +109,19 @@ export const DiscoveryCard: React.FC = () => {
           </p>
 
           {/* Meta line — category + CEFR */}
-          <div className="flex items-center gap-1.5 flex-wrap mt-3 text-[0.625rem] font-mono text-stone-500 uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 flex-wrap mt-3 text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
             <span>{entry.category}</span>
-            <span className="text-stone-300">·</span>
+            <span className="text-muted-foreground">·</span>
             <span>{entry.cefr}</span>
-            <span className="text-stone-300">·</span>
+            <span className="text-muted-foreground">·</span>
             <span>{entry.word_type}</span>
           </div>
         </motion.div>
       </AnimatePresence>
 
       {/* Bottom hint */}
-      <div className="mt-4 pt-3 border-t border-stone-200/60 flex items-center justify-between">
-        <span className="text-xs text-stone-500 italic">
+      <div className="mt-4 pt-3 border-t border-[hsl(var(--track))] flex items-center justify-between">
+        <span className="text-xs text-muted-foreground italic">
           {reason === 'synonym' && 'كلمة بمعنى مشابه — لا تخلط بينهما'}
           {reason === 'antonym' && 'الضد تماماً — جرّب استخدامهما في جملة'}
           {reason === 'same-level' && 'في نفس مستواك — قرّب منه'}

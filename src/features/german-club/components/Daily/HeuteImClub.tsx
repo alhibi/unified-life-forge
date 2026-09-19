@@ -33,7 +33,7 @@ export const HeuteImClub: React.FC = () => {
         className="flex items-baseline justify-between px-1"
       >
         <div className="flex items-center gap-2">
-          <Coffee className="w-4 h-4 text-stone-700" />
+          <Coffee className="w-4 h-4 text-foreground" />
           <h2
             className="text-sm sm:text-base font-black tracking-tight text-[#17181C]"
             style={{ letterSpacing: '-0.02em' }}
