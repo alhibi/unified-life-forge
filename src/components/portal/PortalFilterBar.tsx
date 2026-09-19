@@ -45,7 +45,7 @@ function PortalFilterBarImpl({
       <div
         role="tablist"
         aria-label="تصنيفات التطبيقات"
-        className="flex min-w-0 flex-1 items-end gap-1 border-b border-border/60"
+        className="flex min-w-0 flex-1 items-end gap-1 border-b border-[hsl(var(--track))]"
       >
         {PORTAL_CATEGORIES.map((c) => {
           const active = c.key === category;
