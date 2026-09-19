@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { useAuth } from '@/hooks/useAuth';
 import {
   BookOpen,
@@ -160,20 +161,21 @@ export default function ArchiveHome() {
           </AppCard>
 
           {filtered.length === 0 ? (
-            <AppCard className="text-center py-12">
-              <BookOpen className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-meta text-muted-foreground mb-4">
-                {items && items.length === 0 ? 'الأرشيف فارغ. ابدأ ببحث جديد.' : 'لا نتائج مطابقة.'}
-              </p>
-              {items && items.length === 0 && (
-                <button
-                  onClick={() => navigate('/archive/new')}
-                  className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-meta font-semibold"
-                >
-                  توليد أول مستند
-                </button>
-              )}
-            </AppCard>
+            items && items.length === 0 ? (
+              <StateView
+                kind="empty"
+                title={'الأرشيف فارغ'}
+                body={'كل مستند تولّده يُحفظ هنا للرجوع إليه لاحقاً، مع ملخّصه ووسومه.'}
+                action={{ label: 'توليد أول مستند', onClick: () => navigate('/archive/new') }}
+              />
+            ) : (
+              <StateView
+                kind="search"
+                title={'لا مستند يطابق بحثك'}
+                body={'البحث يشمل العنوان والملخّص والوسوم — جرّب كلمة واحدة أقصر.'}
+                action={{ label: 'مسح البحث', onClick: () => setQuery('') }}
+              />
+            )
           ) : (
             <div className="flex flex-col gap-3">
               <AnimatePresence initial={false}>

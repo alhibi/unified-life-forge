@@ -26,7 +26,7 @@
 - [x] Back button climbs to the parent path on deep-link entry instead of jumping home.
 - [ ] Full route audit table (auth, network, persisted state, loading/error/empty/offline, back behaviour).
 - [ ] Deep-link contract per route (entry, parent, fallback, restore).
-- [ ] Unified state system (idle/loading/partial/ready/empty/offline/error/unauthorized) via StateView.
+- [x] Unified state system via StateView: PKM notes (empty vs filtered), Archive home (empty vs no-match), Marginalia pinboard and sources.
 - [ ] Mobile touch targets ≥44px audit and fixes.
 - [x] Portal "متابعة" row: recents surfaced above the grid, hidden for new users.
 - [x] Portal hierarchy: compact Today block — occasions strip merged into prayer card behind a disclosure (collapsed by default, like qibla), weather hourly rail sm+-only, reserves tightened to measured heights (15.5rem / 8.5→16.5rem).

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 import { AppCard } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { Loader2, Plus, RefreshCw, Rss, Trash2 } from '@/lib/icons';
 
 import { marginaliaApi } from '../api';
@@ -163,10 +164,12 @@ const SourcesPanel: React.FC<Props> = ({ sources, onChanged }) => {
       )}
 
       {sources.length === 0 ? (
-        <AppCard className="text-center py-8 space-y-2">
-          <Rss className="w-8 h-8 mx-auto text-muted-foreground/60" />
-          <p className="text-meta text-muted-foreground">لا مصادر بعد — أضف تغذية لتبدأ الأرشفة.</p>
-        </AppCard>
+        <StateView
+          kind="empty"
+          compact
+          title={'لا مصادر بعد'}
+          body={'أضف مصدر تغذية واحداً على الأقل ليبدأ جمع المقالات وربطها تلقائياً.'}
+        />
       ) : sources.map((s) => (
         <AppCard key={s.id} compact className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
