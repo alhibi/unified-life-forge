@@ -29,7 +29,7 @@
 - [ ] Unified state system (idle/loading/partial/ready/empty/offline/error/unauthorized) via StateView.
 - [ ] Mobile touch targets ≥44px audit and fixes.
 - [x] Portal "متابعة" row: recents surfaced above the grid, hidden for new users.
-- [ ] Portal hierarchy: compact Today block (prayer + weather reserve ~38rem before the apps).
+- [x] Portal hierarchy: compact Today block — occasions strip merged into prayer card behind a disclosure (collapsed by default, like qibla), weather hourly rail sm+-only, reserves tightened to measured heights (15.5rem / 8.5→16.5rem).
 - [ ] Chat stability pass on a real Android device.
 
 ### P1 — experience rebuild
