@@ -166,11 +166,14 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             list ? 'items-center gap-3' : 'flex-col gap-3',
           )}
         >
+          {/* The app's colour survives in exactly one place: the glyph. The
+              chip itself is a neutral tonal well, so a grid of twenty apps
+              reads as one system instead of twenty coloured badges. */}
           <span
             className={cn(
-              'flex shrink-0 items-center justify-center rounded-xl',
-              'border border-[hsl(var(--tile)/0.26)] bg-[hsl(var(--tile)/0.1)] text-[hsl(var(--tile))]',
-              'shadow-[inset_0_1px_0_0_hsl(var(--tile)/0.22)]',
+              'flex shrink-0 items-center justify-center rounded-[10px]',
+              'bg-secondary text-[hsl(var(--tile))]',
+              'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
               'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
               list ? 'h-10 w-10' : 'h-11 w-11',
             )}
