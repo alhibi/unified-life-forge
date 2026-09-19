@@ -54,7 +54,7 @@ interface BackButtonProps {
 export default function BackButton({
   to,
   onClick,
-  fallback = '/',
+  fallback,
   className,
   ariaLabel,
 }: BackButtonProps) {
