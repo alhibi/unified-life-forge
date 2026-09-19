@@ -281,7 +281,10 @@ import { Motif as MotifComponent } from './Motif';
 export const TileMotif = memo(function TileMotif({ motif }: { motif: MotifKey }) {
   return (
     <div
-      className="pointer-events-none absolute inset-0 overflow-hidden text-[hsl(var(--tile))] opacity-[0.16] transition-opacity duration-normal group-hover:opacity-[0.26] dark:opacity-[0.2] dark:group-hover:opacity-[0.3]"
+      // Ink, not the app colour, and a third of the previous opacity: the motif
+      // is a watermark that tells apps apart on a second glance, never a
+      // coloured wash competing with the label.
+      className="pointer-events-none absolute inset-0 overflow-hidden text-foreground opacity-[0.05] transition-opacity duration-normal group-hover:opacity-[0.08] dark:opacity-[0.06] dark:group-hover:opacity-[0.09]"
       aria-hidden
     >
       <MotifComponent motif={motif} />
