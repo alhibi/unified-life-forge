@@ -231,14 +231,17 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-md',
+          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-lg',
+          // 32px of ink, 44px of touch: the pseudo-element grows the hit area
+          // without pushing the visual chip off the tile's corner grid.
+          "after:absolute after:-inset-1.5 after:content-['']",
           'text-muted-foreground opacity-60 transition-[opacity,background-color,color] duration-fast',
-          'hover:bg-muted hover:text-foreground hover:opacity-100',
+          'hover:bg-secondary hover:text-foreground hover:opacity-100',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           list ? 'end-2 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
         )}
       >
-        <MoreHorizontal className="h-4 w-4" aria-hidden />
+        <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />
       </button>
     </motion.div>
   );
