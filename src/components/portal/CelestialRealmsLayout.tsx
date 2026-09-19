@@ -141,7 +141,7 @@ export default function CelestialRealmsLayout({
                 the live count. Hierarchy comes from size, weight and spacing —
                 the four realms used to be told apart by four hardcoded Tailwind
                 hues, which is exactly what the accent budget forbids. */}
-            <div className="flex items-baseline gap-3 rule-x pb-2.5">
+            <div className="rule-b flex items-baseline gap-3 pb-2.5">
               <Icon className="h-[18px] w-[18px] shrink-0 self-center text-muted-foreground" aria-hidden />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2">
