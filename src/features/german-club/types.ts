@@ -108,28 +108,30 @@ export const REJECTION_REASON_LABELS_AR: Record<GenerationJobRejection["reason"]
   low_confidence: "ثقة/جودة منخفضة",
 };
 
-// Color tokens for German Club & Furnace Console v2
+// Color tokens for German Club & Furnace Console v2.
+// Every value resolves through the global design tokens so the feature
+// follows the active theme (light/dark) instead of carrying its own palette.
 export const GERMAN_CLUB_TOKENS = {
-  paper: "#EFEEE7",
-  ink: "#17181C",
-  prussian: "#17324D",
-  oak: "#8B7E68",
-  ember: "#C9703B",
-  derBlue: "#3E6E9E",
-  dieRose: "#A15A6B",
-  dasStone: "#6B6558",
+  paper: "hsl(var(--card))",
+  ink: "hsl(var(--foreground))",
+  prussian: "hsl(var(--primary))",
+  oak: "hsl(var(--muted-foreground))",
+  ember: "hsl(var(--signal))",
+  derBlue: "hsl(var(--data-4))",
+  dieRose: "hsl(var(--data-5))",
+  dasStone: "hsl(var(--data-6))",
 } as const;
 
 export const SURGE_TOKENS = {
-  surgeCobalt: "#2D6FF2",
-  surgeEmberHot: "#FF7A29",
+  surgeCobalt: "hsl(var(--data-4))",
+  surgeEmberHot: "hsl(var(--signal))",
 } as const;
 
 export const GENDER_COLORS: Record<GermanGender, string | null> = {
   der: GERMAN_CLUB_TOKENS.derBlue,
   die: GERMAN_CLUB_TOKENS.dieRose,
   das: GERMAN_CLUB_TOKENS.dasStone,
-  plural: "#7E7259",
+  plural: "hsl(var(--data-1))",
   n_a: null,
 };
 
