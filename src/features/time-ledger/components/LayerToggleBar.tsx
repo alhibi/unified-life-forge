@@ -85,8 +85,8 @@ export default function LayerToggleBar({
                     : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
                 style={{
-                  backgroundColor: isEnabled ? undefined : `${layer.color}10`,
-                  borderColor: isEnabled ? 'transparent' : `${layer.color}30`,
+                  backgroundColor: isEnabled ? undefined : `hsl(${layer.color} / 0.1)`,
+                  borderColor: isEnabled ? 'transparent' : `hsl(${layer.color} / 0.3)`,
                   color: isEnabled ? 'var(--primary-foreground)' : layer.color,
                 }}
                 aria-pressed={isEnabled}
@@ -101,7 +101,7 @@ export default function LayerToggleBar({
                   <span
                     className="px-1.5 py-0.5 rounded-full text-micro font-bold tabular-nums"
                     style={{
-                      backgroundColor: isEnabled ? 'rgba(255,255,255,0.2)' : `${layer.color}20`,
+                      backgroundColor: isEnabled ? 'hsl(var(--primary-foreground) / 0.2)' : `hsl(${layer.color} / 0.2)`,
                       color: isEnabled ? 'inherit' : layer.color,
                     }}
                   >
