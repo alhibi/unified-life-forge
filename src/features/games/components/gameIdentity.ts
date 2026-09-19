@@ -21,21 +21,22 @@ export interface GameIdentity {
 }
 
 export const GAME_IDENTITY: Record<GameId, GameIdentity> = {
-  // Matches the in-page shells: Sudoku sky · Chess indigo · Memory pink.
+  // Each game borrows one hue from the shared data palette, so the hub reads
+  // as one system and both themes stay in step.
   sudoku: {
-    accent: 'hsl(199 89% 48%)',
-    tint: 'hsl(199 89% 48% / 0.12)',
-    line: 'hsl(199 89% 48% / 0.30)',
+    accent: 'hsl(var(--data-4))',
+    tint: 'hsl(var(--data-4) / 0.12)',
+    line: 'hsl(var(--data-4) / 0.30)',
   },
   chess: {
-    accent: 'hsl(221 83% 60%)',
-    tint: 'hsl(221 83% 60% / 0.12)',
-    line: 'hsl(221 83% 60% / 0.30)',
+    accent: 'hsl(var(--data-6))',
+    tint: 'hsl(var(--data-6) / 0.12)',
+    line: 'hsl(var(--data-6) / 0.30)',
   },
   memory: {
-    accent: 'hsl(328 80% 58%)',
-    tint: 'hsl(328 80% 58% / 0.12)',
-    line: 'hsl(328 80% 58% / 0.30)',
+    accent: 'hsl(var(--data-5))',
+    tint: 'hsl(var(--data-5) / 0.12)',
+    line: 'hsl(var(--data-5) / 0.30)',
   },
 };
 
