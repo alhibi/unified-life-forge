@@ -392,12 +392,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [blackMode, setBlackModeState] = useState<boolean>(
     () => localStorage.getItem('app-black-mode') === 'true',
   );
-  const [colorTheme, setColorThemeState] = useState<ColorTheme>(
-    () =>
-      // 'editorial' is the shipped system palette: warm off-white / warm
-      // graphite with neutral controls and one orange signal accent.
-      (localStorage.getItem('app-color-theme') as ColorTheme) || 'editorial',
-  );
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>(() => {
+    // 'editorial' is the shipped system palette: warm off-white / warm
+    // graphite with neutral controls and one orange signal accent.
+    const stored = localStorage.getItem('app-color-theme') as ColorTheme | null;
+    // One-time migration off the retired Architectural Copper default. Copper
+    // was written to storage for everyone, so a plain `|| 'editorial'` fallback
+    // would never reach an existing install. Anyone who picks copper again
+    // after the migration keeps it, because the flag is only written once.
+    if (stored === 'copper' && !localStorage.getItem('app-theme-editorial-migrated')) {
+      localStorage.setItem('app-theme-editorial-migrated', '1');
+      localStorage.setItem('app-color-theme', 'editorial');
+      return 'editorial';
+    }
+    if (!localStorage.getItem('app-theme-editorial-migrated')) {
+      localStorage.setItem('app-theme-editorial-migrated', '1');
+    }
+    return stored || 'editorial';
+  });
 
   const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
     resolveSurfaceLift(localStorage.getItem('app-surface-lift')),
