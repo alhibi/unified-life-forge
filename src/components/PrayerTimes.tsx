@@ -586,7 +586,6 @@ export default function PrayerTimes() {
             </motion.div>
           )}
         </AnimatePresence>
-      </AnimatePresence>
 
         {/* ── Occasions disclosure: Hijri strip, collapsed by default ──── */}
         <div className="h-px bg-foreground/[0.06]" />
