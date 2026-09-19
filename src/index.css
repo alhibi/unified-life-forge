@@ -294,6 +294,15 @@
   align-self: stretch;
   background-color: hsl(var(--track));
 }
+/* The same 1px tone as an EDGE on an existing box. `rule-x` is a standalone
+   element (it sets its own height); these two do not touch layout, so they are
+   what a section header or a list row wants. */
+@utility rule-b {
+  border-block-end: 1px solid hsl(var(--track));
+}
+@utility rule-t {
+  border-block-start: 1px solid hsl(var(--track));
+}
 
 /* ─────────────────────────────────────────────────────────────────────
  * ONE interaction-transition utility.
@@ -3225,18 +3234,16 @@ input.podcast-seek:active::-moz-range-thumb {
     color: hsl(var(--primary) / 0.9);
   }
 
-  /* Engraved plate: a card that reads as milled metal rather than as a
-     floating web panel — one hairline, one inner light edge, no drop shadow. */
+  /* Plate: a layer inside a physical surface, not an outlined box.
+     Editorial system — tonal separation plus two very soft shadow layers and a
+     1px inner highlight. The previous recipe (a vertical gradient fill, a 0.55
+     hairline and a 10px backdrop blur) announced itself as a floating web panel
+     and cost a blur pass per tile on a grid of twenty. */
   .arch-plate {
-    background:
-      linear-gradient(hsl(var(--card) / 0.72), hsl(var(--card) / 0.52));
-    border: 1px solid hsl(var(--border) / 0.55);
-    box-shadow: inset 0 1px 0 0 hsl(var(--foreground) / 0.045);
-    backdrop-filter: blur(10px) saturate(115%);
-  }
-  @supports (border-width: 0.5px) {
-    .arch-plate {
-      border-width: 0.5px;
-    }
+    background-color: hsl(var(--card) / var(--ui-material-alpha));
+    border: var(--ui-border-width) solid hsl(var(--border) / 0.7);
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--foreground) / 0.04),
+      var(--shadow-1);
   }
 }

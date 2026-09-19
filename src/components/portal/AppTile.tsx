@@ -150,23 +150,15 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         className={cn(
           'arch-plate group relative w-full overflow-hidden rounded-card text-start',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5 hover:border-[hsl(var(--tile)/0.45)]',
+          'hover:-translate-y-0.5 hover:bg-[hsl(var(--interactive-hover))]',
           'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-          active && 'border-[hsl(var(--tile)/0.6)]',
+          active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
           list ? 'flex items-center gap-3 p-3' : 'flex min-h-[132px] flex-col justify-between p-4',
         )}
       >
         <TileMotif motif={identity.motif} />
-
-        {/* Accent hairline along the top edge — the app's signature. It fades
-            out toward the trailing edge so the grid reads as drafted lines
-            rather than as fourteen coloured bars. */}
-        <span
-          className="pointer-events-none absolute start-0 end-0 top-0 h-px bg-gradient-to-r from-[hsl(var(--tile)/0.7)] to-transparent"
-          aria-hidden
-        />
 
         <div
           className={cn(
@@ -174,35 +166,33 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             list ? 'items-center gap-3' : 'flex-col gap-3',
           )}
         >
+          {/* The app's colour survives in exactly one place: the glyph. The
+              chip itself is a neutral tonal well, so a grid of twenty apps
+              reads as one system instead of twenty coloured badges. */}
           <span
             className={cn(
-              'flex shrink-0 items-center justify-center rounded-xl',
-              'border border-[hsl(var(--tile)/0.26)] bg-[hsl(var(--tile)/0.1)] text-[hsl(var(--tile))]',
-              'shadow-[inset_0_1px_0_0_hsl(var(--tile)/0.22)]',
+              'flex shrink-0 items-center justify-center rounded-[10px]',
+              'bg-secondary text-[hsl(var(--tile))]',
+              'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
               'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
               list ? 'h-10 w-10' : 'h-11 w-11',
             )}
           >
-            <Icon className={list ? 'h-5 w-5' : 'h-[1.375rem] w-[1.375rem]'} aria-hidden />
+            <Icon className="h-5 w-5" aria-hidden />
           </span>
 
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-1.5">
-              <span
-                className={cn(
-                  'truncate font-semibold text-foreground',
-                  list ? 'text-body' : 'text-title [font-family:var(--font-display)]',
-                )}
-              >
+              <span className={cn('truncate text-foreground', list ? 'type-body' : 'type-section')}>
                 {app.label}
               </span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="mt-0.5 block truncate text-mini leading-[1.5] text-muted-foreground">
+            <span className="type-meta mt-1 block truncate text-muted-foreground">
               {app.description}
             </span>
             {!list && (
-              <span className="mt-1.5 block text-micro font-semibold uppercase tracking-[0.2em] text-[hsl(var(--tile))] opacity-75">
+              <span className="type-meta mt-2 block font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
                 {app.caption}
               </span>
             )}
@@ -220,12 +210,14 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           <span
             className={cn(
               'absolute z-10 flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5',
-              'bg-primary text-mini font-bold tabular-nums text-primary-foreground',
+              // Unread is literally "what changed", which is what the signal
+              // accent is reserved for.
+              'bg-[hsl(var(--signal))] text-micro font-semibold tabular-nums text-[hsl(var(--signal-foreground))]',
               list ? 'end-12 top-1/2 -translate-y-1/2' : 'top-3 end-3',
             )}
             aria-label={`${badge} غير مقروء`}
           >
-            {badge > 99 ? '٩٩+' : badge}
+            {badge > 99 ? '99+' : badge}
           </span>
         )}
       </button>
@@ -239,14 +231,17 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-md',
+          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-lg',
+          // 32px of ink, 44px of touch: the pseudo-element grows the hit area
+          // without pushing the visual chip off the tile's corner grid.
+          "after:absolute after:-inset-1.5 after:content-['']",
           'text-muted-foreground opacity-60 transition-[opacity,background-color,color] duration-fast',
-          'hover:bg-muted hover:text-foreground hover:opacity-100',
+          'hover:bg-secondary hover:text-foreground hover:opacity-100',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           list ? 'end-2 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
         )}
       >
-        <MoreHorizontal className="h-4 w-4" aria-hidden />
+        <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />
       </button>
     </motion.div>
   );

@@ -45,7 +45,7 @@ function PortalFilterBarImpl({
       <div
         role="tablist"
         aria-label="تصنيفات التطبيقات"
-        className="flex min-w-0 flex-1 items-end gap-1 border-b border-border/60"
+        className="flex min-w-0 flex-1 items-end gap-1 border-b border-[hsl(var(--track))]"
       >
         {PORTAL_CATEGORIES.map((c) => {
           const active = c.key === category;
@@ -60,8 +60,8 @@ function PortalFilterBarImpl({
               disabled={empty && !active}
               onClick={() => onCategoryChange(c.key)}
               className={cn(
-                'relative isolate min-w-0 flex-1 px-2 pb-2.5 pt-1.5 text-center text-mini font-semibold',
-                'transition-colors duration-normal ease-out-expo sm:text-meta',
+                'type-label relative isolate min-w-0 flex-1 px-2 pb-3 pt-2 text-center',
+                'transition-colors duration-normal ease-out-expo',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 empty && !active && 'opacity-40',
@@ -70,10 +70,11 @@ function PortalFilterBarImpl({
               {active && (
                 <motion.span
                   layoutId="portal-category-indicator"
-                  // A copper underline instead of a filled pill: the tab rail
-                  // now reads as a drafted baseline, and the moving element is
-                  // 2px tall so it never fights the label for contrast.
-                  className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-primary"
+                  // An ink underline instead of a filled pill or a coloured
+                  // bar: the rail reads as a drafted baseline, the active label
+                  // is already carried by weight and contrast, and the moving
+                  // element is 2px tall so it never fights the text.
+                  className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-foreground"
                   transition={reduce ? { duration: 0 } : MOTION.spring}
                   aria-hidden
                 />
@@ -89,9 +90,10 @@ function PortalFilterBarImpl({
           onClick={() => onViewChange(view === 'grid' ? 'list' : 'grid')}
           aria-label={view === 'grid' ? 'العرض كقائمة' : 'العرض كشبكة'}
           className={cn(
-            'mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border',
-            'text-muted-foreground transition-colors duration-fast hover:bg-muted hover:text-foreground',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            'mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary',
+            'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
+            'text-muted-foreground transition-colors duration-fast hover:text-foreground',
+            'active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
         >
           {view === 'grid' ? (

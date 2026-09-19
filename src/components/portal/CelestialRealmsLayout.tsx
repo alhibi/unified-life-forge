@@ -29,7 +29,6 @@ interface RealmDefinition {
   subtitle: string;
   description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  color: string;
 }
 
 const REALMS: RealmDefinition[] = [
@@ -39,7 +38,6 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Spirit',
     description: 'للقرآن والسنة وأذكار اليوم والسكينة',
     icon: BookOpen,
-    color: 'text-amber-500',
   },
   {
     key: 'mind',
@@ -47,7 +45,6 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Mind',
     description: 'لتدبر المعرفة والذاكرة الرقمية والرحلات والأدب',
     icon: Brain,
-    color: 'text-blue-500',
   },
   {
     key: 'body',
@@ -55,7 +52,6 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Body',
     description: 'للعافية وتتبع اللياقة وجداول التمارين ويومياتك',
     icon: Dumbbell,
-    color: 'text-emerald-500',
   },
   {
     key: 'play',
@@ -63,7 +59,6 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Play',
     description: 'ألعاب شطرنج وسودوكو وتحديات بصرية ممتعة',
     icon: Gamepad2,
-    color: 'text-rose-500',
   },
 ];
 
@@ -142,26 +137,24 @@ export default function CelestialRealmsLayout({
 
         return (
           <section key={realm.key} className="space-y-4">
-            {/* Philosophical Realm Header */}
-            <div className="flex items-center gap-3 border-b border-border/40 pb-2">
-              <div
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/45 ${realm.color}`}
-              >
-                <Icon className="h-4.5 w-4.5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <h3 className="font-amiri text-title font-extrabold text-foreground">
-                    {realm.title}
-                  </h3>
-                  <span className="hidden text-micro font-mono uppercase tracking-widest text-muted-foreground opacity-60 @[26rem]:inline">
+            {/* Section header: title, latin subtitle, one line of purpose and
+                the live count. Hierarchy comes from size, weight and spacing —
+                the four realms used to be told apart by four hardcoded Tailwind
+                hues, which is exactly what the accent budget forbids. */}
+            <div className="rule-b flex items-baseline gap-3 pb-2.5">
+              <Icon className="h-[18px] w-[18px] shrink-0 self-center text-muted-foreground" aria-hidden />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <h3 className="type-section text-foreground">{realm.title}</h3>
+                  <span className="type-meta hidden uppercase tracking-[0.16em] text-muted-foreground/70 @[26rem]:inline">
                     {realm.subtitle}
                   </span>
                 </div>
-                <p className="mt-0.5 text-micro leading-normal text-muted-foreground">
-                  {realm.description}
-                </p>
+                <p className="type-meta mt-1 text-muted-foreground">{realm.description}</p>
               </div>
+              <span className="type-meta shrink-0 tabular-nums text-muted-foreground/70">
+                {appsInRealm.length}
+              </span>
             </div>
 
             {/* Realm Apps Grid */}

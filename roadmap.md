@@ -34,7 +34,7 @@
 
 ### Editorial design system (new default)
 - [x] Foundation: `editorial` palette (warm off-white / warm graphite, graphite controls), Inter Tight + IBM Plex Sans Arabic, corner ladder 6·8·12·16·20, two-layer ambient+contact shadows, `--signal` orange for data/change only, `--track` divider token, `type-title/section/body/label/meta` roles, `rule-x/rule-y`.
-- [ ] Portal: retire per-app colored glows/gradients, neutral tiles with signal only where something changed.
+- [x] Portal: retired per-app colored glows/gradients (tiles, motifs, filter rail, continue chips, realm section headers are neutral-tonal; icon + unread badge carry the only colour).
 - [ ] Bottom nav: 54-64px floating pill, tonal active state, no oversized bar.
 - [ ] Cards & lists: borderless tonal surfaces, grouped rows, compact metadata alignment.
 - [ ] Controls: 38-46px heights, 1px inset highlight, press = less elevation + subtle scale.

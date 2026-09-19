@@ -45,13 +45,10 @@ function ContinueChip({ app, onOpen }: { app: PortalApp; onOpen: (app: PortalApp
       onPointerDown={warm}
       onFocus={warm}
       style={{ '--tile': identity.accent } as React.CSSProperties}
-      className="group flex h-11 shrink-0 items-center gap-2 rounded-button border border-border/70 bg-card/70 px-3 text-meta font-semibold text-foreground backdrop-blur-sm transition-colors duration-fast hover:border-[hsl(var(--tile)/0.55)] hover:bg-[hsl(var(--tile)/0.1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--tile)/0.6)]"
+      className="type-label group flex h-11 shrink-0 items-center gap-2 rounded-full bg-secondary px-3.5 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)] transition-[background-color,transform] duration-fast hover:bg-[hsl(var(--interactive-hover))] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span
-        aria-hidden
-        className="flex h-6 w-6 items-center justify-center rounded-full bg-[hsl(var(--tile)/0.16)] text-[hsl(var(--tile))]"
-      >
-        <Icon className="h-3.5 w-3.5" />
+      <span aria-hidden className="flex items-center justify-center text-[hsl(var(--tile))]">
+        <Icon className="h-4 w-4" />
       </span>
       <span className="whitespace-nowrap">{app.label}</span>
     </button>
@@ -65,7 +62,7 @@ function PortalContinueImpl({ apps, onOpen }: PortalContinueProps) {
     <section aria-labelledby="portal-continue-h" className="relative z-10">
       <h2
         id="portal-continue-h"
-        className="mb-2 text-micro font-semibold tracking-[0.14em] text-muted-foreground/80"
+        className="type-meta mb-3 font-medium tracking-[0.14em] text-muted-foreground"
       >
         متابعة
       </h2>
