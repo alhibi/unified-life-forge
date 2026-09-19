@@ -763,7 +763,7 @@ export default function MemoryGame() {
     <GameShell
       title={'أزواج الذاكرة'}
       icon={Brain}
-      accentColor="hsl(262, 83%, 58%)"
+      accentColor="hsl(var(--data-5))"
       rules={rules}
       stats={statsArr}
       options={options}

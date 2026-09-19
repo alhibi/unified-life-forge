@@ -408,7 +408,7 @@ export default function ChessPuzzlePage() {
     <GameShell
       title={'ألغاز الشطرنج'}
       icon={Puzzle}
-      accentColor="hsl(45, 93%, 47%)"
+      accentColor="hsl(var(--data-6))"
       rules={rules}
       stats={statsArr}
       options={options}

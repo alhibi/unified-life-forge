@@ -127,7 +127,7 @@ export default function ChessCareerPage() {
     <GameShell
       title={'مسيرة الشطرنج'}
       icon={Crown}
-      accentColor="hsl(25, 95%, 53%)"
+      accentColor="hsl(var(--data-6))"
       rules={[
         'تسلق سلم الأبطال الثمانية',
         'كل بطل له شخصيته وأسلوبه الفريد',
