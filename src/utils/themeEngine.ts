@@ -713,9 +713,14 @@ export function generateThemeTokens(
   // compose its own alpha, e.g. `hsl(var(--border) / 0.72)`.
   // Dark surfaces need a heavier mix to read at the same perceived strength,
   // which is why the two modes carry different ladders.
-  const lineBase = isDark ? 0.26 : 0.2;
+  // Editorial system: separation is carried by tone and shadow, so the hairline
+  // sits only just above `--track` (0.09 / 0.13). It is still a real line — a
+  // fully borderless card loses its edge on a busy photo — but it no longer
+  // draws the eye before the content does. Inputs stay a step stronger because
+  // a field must announce that it is editable.
+  const lineBase = isDark ? 0.17 : 0.12;
   const borderStr = solid(inkHsl, bgHsl, lineBase); // hairline
-  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.12); // field outline
+  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.1); // field outline
   const secondaryStr = solid(inkHsl, bgHsl, isDark ? 0.14 : 0.11);
   const secondaryFgStr = solid(inkHsl, bgHsl, 0.94); // near-ink text
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
