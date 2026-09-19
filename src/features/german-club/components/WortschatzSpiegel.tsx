@@ -36,7 +36,7 @@ export const WortschatzSpiegel: React.FC = () => {
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl border"
       style={{
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}40`,
+        borderColor: 'hsl(var(--track))',
         backgroundColor: 'rgba(255, 253, 246, 0.6)',
       }}
     >

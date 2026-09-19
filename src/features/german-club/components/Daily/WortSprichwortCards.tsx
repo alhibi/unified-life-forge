@@ -40,7 +40,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6 group"
       style={{
         backgroundColor: '#FDFCF7',
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
@@ -134,7 +134,7 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
         backgroundColor: '#FFFDF6',
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >

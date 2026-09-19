@@ -28,7 +28,7 @@ export const SatzCard: React.FC<SatzCardProps> = ({ satz, animate = true }) => {
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
         backgroundColor: '#F7F9FB',
-        borderColor: `${GERMAN_CLUB_TOKENS.prussian}22`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
@@ -90,7 +90,7 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
         backgroundColor: '#F9F5F0',
-        borderColor: `${GERMAN_CLUB_TOKENS.ember}33`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >

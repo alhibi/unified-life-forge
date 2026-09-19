@@ -31,7 +31,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
       className="group relative cursor-pointer overflow-hidden rounded-2xl border p-5 transition-motion duration-fast hover:-translate-y-0.5 active:scale-[0.98]"
       style={{
         backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 4px 20px -4px rgba(23, 24, 28, 0.05)',
       }}
     >

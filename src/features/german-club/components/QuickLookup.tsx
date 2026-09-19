@@ -95,7 +95,7 @@ export const QuickLookup: React.FC = () => {
       <div
         className="relative flex items-center gap-2 rounded-2xl border bg-white px-3.5 py-2.5 shadow-sm transition-motion"
         style={{
-          borderColor: open && query ? GERMAN_CLUB_TOKENS.prussian : `${GERMAN_CLUB_TOKENS.oak}44`,
+          borderColor: open && query ? GERMAN_CLUB_TOKENS.prussian : 'hsl(var(--track))',
           boxShadow:
             open && query
               ? '0 0 0 4px rgba(23, 50, 77, 0.08), 0 4px 16px -8px rgba(23, 24, 28, 0.18)'
@@ -152,7 +152,7 @@ export const QuickLookup: React.FC = () => {
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="absolute z-50 left-0 right-0 mt-1.5 rounded-2xl border bg-white overflow-hidden"
             style={{
-              borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+              borderColor: 'hsl(var(--track))',
               boxShadow: '0 8px 32px -12px rgba(23,24,28,0.24), 0 2px 8px -4px rgba(0,0,0,0.06)',
             }}
           >

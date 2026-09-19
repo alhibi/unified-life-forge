@@ -71,7 +71,7 @@ export const GrammarCorner: React.FC = () => {
                   className="rounded-2xl border p-6 space-y-3 transition-motion"
                   style={{
                     backgroundColor: GERMAN_CLUB_TOKENS.paper,
-                    borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+                    borderColor: 'hsl(var(--track))',
                     boxShadow: '0 4px 16px -4px rgba(23, 24, 28, 0.04)',
                   }}
                 >

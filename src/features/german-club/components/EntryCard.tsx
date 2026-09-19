@@ -49,7 +49,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
       className="relative cursor-pointer rounded-2xl border p-5 transition-motion duration-fast active:scale-[0.99]"
       style={{
         backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}26`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 2px 12px -2px rgba(23, 24, 28, 0.04)',
       }}
     >

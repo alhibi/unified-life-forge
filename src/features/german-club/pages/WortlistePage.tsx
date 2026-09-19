@@ -93,7 +93,7 @@ export const WortlistePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="p-5 rounded-3xl border bg-white/60"
-                style={{ borderColor: `${GERMAN_CLUB_TOKENS.oak}33` }}
+                style={{ borderColor: 'hsl(var(--track))' }}
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles className="w-3.5 h-3.5 text-amber-700" />
@@ -200,7 +200,7 @@ const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, sh
       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 16 }}
       transition={{ duration: 0.25 }}
       className="flex items-center gap-3 p-3 rounded-2xl border bg-white group hover:border-[hsl(var(--track))] transition-colors"
-      style={{ borderColor: `${GERMAN_CLUB_TOKENS.oak}22` }}
+      style={{ borderColor: 'hsl(var(--track))' }}
     >
       <button type="button" onClick={onOpen} className="flex-1 text-start min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
