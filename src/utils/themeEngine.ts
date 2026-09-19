@@ -818,7 +818,7 @@ export function generateThemeTokens(
     // against the active canvas so it never glares or sinks.
     ...signalTokens(bgHsl, inkHsl, isDark),
     // The lowest-contrast surface: dividers, rails, chart grids.
-    '--track': hslToString(mixHsl(borderHsl ?? inkHsl, bgHsl, isDark ? 0.82 : 0.86)),
+    '--track': solid(inkHsl, bgHsl, isDark ? 0.13 : 0.09),
     // Lines
     '--border': borderStr,
     '--input': inputStr,
