@@ -80,8 +80,8 @@ export default function BackButton({
       navigate(-1);
       return;
     }
-    navigate(fallback, { replace: true });
-  }, [onClick, to, fallback, navigate, location.key]);
+    navigate(fallback ?? parentPath(location.pathname), { replace: true });
+  }, [onClick, to, fallback, navigate, location.key, location.pathname]);
 
   return (
     <IconButton onClick={handleClick} aria-label={label} className={className}>
