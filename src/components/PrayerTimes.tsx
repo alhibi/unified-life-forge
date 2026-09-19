@@ -500,7 +500,7 @@ export default function PrayerTimes() {
   // ─── Render guards ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[272px]" />
+      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[240px]" />
     );
   }
   if (error) {

@@ -43,7 +43,7 @@ export default function WeatherWidget() {
   if (!data) {
     return (
       <div
-        className="w-full rounded-2xl border border-border/60 bg-card animate-pulse min-h-[7.5rem] sm:min-h-[13rem]"
+        className="w-full rounded-2xl border border-border/60 bg-card animate-pulse min-h-[8.5rem] sm:min-h-[16.5rem]"
         aria-label="جارٍ تحميل الطقس"
       />
     );
