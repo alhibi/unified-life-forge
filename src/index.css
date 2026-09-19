@@ -294,6 +294,15 @@
   align-self: stretch;
   background-color: hsl(var(--track));
 }
+/* The same 1px tone as an EDGE on an existing box. `rule-x` is a standalone
+   element (it sets its own height); these two do not touch layout, so they are
+   what a section header or a list row wants. */
+@utility rule-b {
+  border-block-end: 1px solid hsl(var(--track));
+}
+@utility rule-t {
+  border-block-start: 1px solid hsl(var(--track));
+}
 
 /* ─────────────────────────────────────────────────────────────────────
  * ONE interaction-transition utility.
