@@ -256,8 +256,9 @@ export async function hydrateReadingFromCloud(
         updateSync({ hydration: 'unloaded' });
         return;
       }
-      // Empty is authoritative. Without a server initialization marker,
-      // an empty account cannot safely be distinguished from a new one.
+      // Empty is authoritative *once the account has been initialised*:
+      // the `feedsInitialized` marker below is what separates "the user
+      // cleared their sources" from "brand-new account".
       feedsMirror = feeds ?? DEFAULT_FEEDS;
       readMirror = reads ?? [];
       if (bms) {
@@ -271,6 +272,14 @@ export async function hydrateReadingFromCloud(
       replayPending();
       hydrated = true;
       updateSync({ hydration: 'ready', error: syncState.sync === 'error' || !syncState.durable ? syncState.error : null });
+      // First-run initialisation, exactly once per account. Seeds the
+      // starter sources only when the account has never been marked,
+      // then records the marker so a deliberately emptied list is never
+      // re-seeded on the next hydration.
+      if (!prefsMirror.feedsInitialized) {
+        if (feedsMirror.length === 0) storeFeeds(DEFAULT_FEEDS);
+        storeReaderPrefs({ ...prefsMirror, feedsInitialized: true });
+      }
       // Attach realtime on first successful hydrate too (covers the
       // case where the session was already restored before this module
       // loaded, so no SIGNED_IN event will fire).
