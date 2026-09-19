@@ -181,6 +181,17 @@
      separation never becomes decoration. */
   --color-track: hsl(var(--track));
 
+  /* DATA — the categorical palette. Charts, category chips, status dots.
+     Six muted hues, themed for light and dark separately. */
+  --color-data-1: hsl(var(--data-1));
+  --color-data-2: hsl(var(--data-2));
+  --color-data-3: hsl(var(--data-3));
+  --color-data-4: hsl(var(--data-4));
+  --color-data-5: hsl(var(--data-5));
+  --color-data-6: hsl(var(--data-6));
+
+
+
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
 
