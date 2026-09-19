@@ -6,6 +6,7 @@
 - [x] Make voice pointer lifecycle deterministic and clean delayed timers.
 - [x] Serialize generic file uploads to avoid mobile memory/network spikes.
 - [x] Validate the repaired chat in the signed-in preview without sending private test content to a real contact.
+
 ## Weather redesign
 
 - [x] Build the selected Atmospheric Scene dashboard with real weather data.
@@ -16,3 +17,39 @@
 - [x] Verify type safety, weather tests, and horizontal layout constraints.
 - [ ] Validate live-data visuals on a physical Android device.
 
+## UX/UI program (P0 → P3)
+
+### P0 — foundations
+- [x] Fix the icon-library switch failing to load (Tabler/Lucide dynamic import).
+- [x] Route guards: PublicRoute / AuthenticatedRoute / AdminRoute / DevelopmentRoute.
+- [x] Protect `/german-club/review` (admin) and `/dev/material-preview` (dev only).
+- [x] Back button climbs to the parent path on deep-link entry instead of jumping home.
+- [ ] Full route audit table (auth, network, persisted state, loading/error/empty/offline, back behaviour).
+- [ ] Deep-link contract per route (entry, parent, fallback, restore).
+- [ ] Unified state system (idle/loading/partial/ready/empty/offline/error/unauthorized) via StateView.
+- [ ] Mobile touch targets ≥44px audit and fixes.
+- [ ] Portal hierarchy: compact Today → Continue → Apps → Worlds.
+- [ ] Chat stability pass on a real Android device.
+
+### P1 — experience rebuild
+- [ ] Portal recomposition and Continue section.
+- [ ] Design tokens enforcement (raw hex, radius, durations, raw buttons).
+- [ ] Typography roles (UI Arabic / Editorial Arabic / Latin UI / Mono).
+- [ ] Settings IA with an Advanced tier and value validation.
+- [ ] Wellness (hub) vs Fitness (execution) separation.
+- [ ] Reading header simplification and scroll/state restore.
+- [ ] Weather progressive disclosure and a useful no-location state.
+- [ ] Podcast player moved into the app shell.
+
+### P2 — system unification
+- [ ] Games first-run guidance instead of zeroed stats.
+- [ ] German Club: make Wortliste discoverable.
+- [ ] Knowledge / PKM / Archive / Marginalia taxonomy.
+- [ ] Crypto taxonomy review.
+- [ ] Remaining spiritual apps de-duplicated (Quran/Dhikr/Sunnah vs Mihrab).
+
+### P3 — polish
+- [ ] Motion tokens enforced by a static check.
+- [ ] Desktop composition (content + contextual rail).
+- [ ] Accessibility sweep (TalkBack Arabic, focus order, RTL keys).
+- [ ] Performance budgets and real-device measurement.
