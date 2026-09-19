@@ -60,8 +60,8 @@ function PortalFilterBarImpl({
               disabled={empty && !active}
               onClick={() => onCategoryChange(c.key)}
               className={cn(
-                'relative isolate min-w-0 flex-1 px-2 pb-2.5 pt-1.5 text-center text-mini font-semibold',
-                'transition-colors duration-normal ease-out-expo sm:text-meta',
+                'type-label relative isolate min-w-0 flex-1 px-2 pb-3 pt-2 text-center',
+                'transition-colors duration-normal ease-out-expo',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
                 empty && !active && 'opacity-40',
