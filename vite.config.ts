@@ -78,10 +78,13 @@ export default defineConfig(({ mode }) => ({
     // serves them as thousands of separate requests, so every screen paints
     // with blank gaps where icons should be and they trickle in seconds later.
     // Pre-bundling collapses them into one file that arrives with the page.
-    include: ['@phosphor-icons/react'],
-    // The alternate families stay out: they are fetched only when the user
-    // actually switches icon library.
-    exclude: ['lucide-react', '@tabler/icons-react'],
+    //
+    // The two alternate families used to sit in `exclude`, which made their
+    // on-demand `import()` resolve to a raw barrel the dev server could not
+    // serve — switching icon library threw "Failed to fetch dynamically
+    // imported module". They are pre-bundled too; the production build still
+    // code-splits them because the import is dynamic.
+    include: ['@phosphor-icons/react', 'lucide-react', '@tabler/icons-react'],
   },
   resolve: {
     alias: {

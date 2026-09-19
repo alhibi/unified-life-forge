@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import NativeShell from '@/components/NativeShell';
 import PageTransition, { NavModeContext } from '@/components/PageTransition';
 import PortalBackButton from '@/components/portal/PortalBackButton';
+import { AdminRoute, DevelopmentRoute } from '@/components/routing/RouteGuards';
 import ScrollToTop from '@/components/ScrollToTop';
 // One toast system. The Radix-based <Toaster/> used to be mounted next to
 // Sonner even though a single call site (AddPlaceSheet) used it, so the app
@@ -880,11 +881,14 @@ function AnimatedRoutes() {
                       </ErrorBoundary>
                     }
                   />
+                  {/* Content moderation console — admin role, checked server-side. */}
                   <Route
                     path="/german-club/review"
                     element={
                       <ErrorBoundary>
-                        <ContentReviewAdminPage />
+                        <AdminRoute>
+                          <ContentReviewAdminPage />
+                        </AdminRoute>
                       </ErrorBoundary>
                     }
                   />
@@ -1289,11 +1293,14 @@ function AnimatedRoutes() {
                       </ErrorBoundary>
                     }
                   />
+                  {/* Internal design playground — never reachable in production. */}
                   <Route
                     path="/dev/material-preview"
                     element={
                       <ErrorBoundary>
-                        <MaterialPreviewPage />
+                        <DevelopmentRoute>
+                          <MaterialPreviewPage />
+                        </DevelopmentRoute>
                       </ErrorBoundary>
                     }
                   />

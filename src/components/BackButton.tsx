@@ -4,6 +4,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { IconButton } from '@/components/ui/app-shell';
 import { ChevronLeft } from '@/lib/icons';
 
+/**
+ * One level up from `pathname`, or the portal when there is no level left.
+ * `/pkm/mind` → `/pkm`; `/pkm` → `/`.
+ */
+export function parentPath(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length <= 1) return '/';
+  return `/${segments.slice(0, -1).join('/')}`;
+}
+
 interface BackButtonProps {
   /**
    * Hard destination — when set, the button always navigates here
@@ -19,7 +29,9 @@ interface BackButtonProps {
   onClick?: () => void;
   /**
    * Where to land when there is no usable browser history (deep-link
-   * entry). Defaults to '/'. Has no effect when `to` or `onClick` is
+   * entry). When omitted we climb one level of the current path — a deep
+   * link to `/german-club/shelf/42` goes back to `/german-club/shelf`,
+   * not all the way home. Has no effect when `to` or `onClick` is
    * supplied.
    */
   fallback?: string;
@@ -52,7 +64,7 @@ interface BackButtonProps {
 export default function BackButton({
   to,
   onClick,
-  fallback = '/',
+  fallback,
   className,
   ariaLabel,
 }: BackButtonProps) {
@@ -78,8 +90,8 @@ export default function BackButton({
       navigate(-1);
       return;
     }
-    navigate(fallback, { replace: true });
-  }, [onClick, to, fallback, navigate, location.key]);
+    navigate(fallback ?? parentPath(location.pathname), { replace: true });
+  }, [onClick, to, fallback, navigate, location.key, location.pathname]);
 
   return (
     <IconButton onClick={handleClick} aria-label={label} className={className}>

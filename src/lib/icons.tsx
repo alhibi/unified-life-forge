@@ -137,16 +137,23 @@ export function loadIconSet(set: IconSet): void {
   if (set === 'phosphor' || loading.has(set)) return;
   loading.add(set);
   const done = () => window.dispatchEvent(new CustomEvent(LOADED_EVENT));
+  // A failed fetch (offline, stale chunk after a deploy) must not leave the set
+  // permanently "loading": phosphor keeps rendering, and the next selection or
+  // reload retries instead of showing a frozen half-loaded library.
+  const failed = () => {
+    loading.delete(set);
+    done();
+  };
   if (set === 'lucide') {
     void import('lucide-react').then((m) => {
       LucideLib = m as unknown as StrokeLib;
       done();
-    });
+    }, failed);
   } else if (set === 'tabler') {
     void import('@tabler/icons-react').then((m) => {
       TablerLib = m as unknown as TablerLibType;
       done();
-    });
+    }, failed);
   }
 }
 
