@@ -248,7 +248,7 @@ export default function TimeLedgerEntryItem({
               type="button"
               className="flex h-6 w-6 items-center justify-center rounded border transition-colors"
               style={{
-                borderColor: entry.meta.taskCompleted ? 'hsl(var(--data-1))' : 'var(--border)',
+                borderColor: entry.meta.taskCompleted ? 'hsl(var(--data-1))' : 'hsl(var(--track))',
                 backgroundColor: entry.meta.taskCompleted ? 'hsl(var(--data-1) / 0.1)' : 'transparent',
               }}
               aria-label={entry.meta.taskCompleted ? 'إلغاء الإنجاز' : 'وضع كمكتمل'}
