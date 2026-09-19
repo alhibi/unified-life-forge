@@ -6,6 +6,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { AppCard,PageShell } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { Brain,ChevronDown, ChevronRight, Eye, FileText, Hash, Pencil, Plus, Search, Sparkles, Trash } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -281,9 +282,30 @@ export default function PKM() {
                 {'جارٍ التحميل…'}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="text-mini text-muted-foreground p-6 text-center rounded-xl bg-card/50 border border-dashed border-border/50">
-                {'لا توجد ملاحظات هنا بعد.'}
-              </div>
+              debouncedQuery.trim() || tagFilter || statusFilter !== 'all' ? (
+                <StateView
+                  kind="search"
+                  compact
+                  title={'لا ملاحظة تطابق هذا التصفية'}
+                  body={'جرّب كلمة أقصر، أو أزل الوسم وحالة الملاحظة لترى القائمة كاملة.'}
+                  action={{
+                    label: 'إظهار كل الملاحظات',
+                    onClick: () => {
+                      setQuery('');
+                      setTagFilter(null);
+                      setStatusFilter('all');
+                    },
+                  }}
+                />
+              ) : (
+                <StateView
+                  kind="empty"
+                  compact
+                  title={'لا ملاحظات بعد'}
+                  body={'الملاحظات تُحفظ على جهازك أولاً، وتدعم Markdown والوسوم المتداخلة مثل #قراءة/كتب.'}
+                  action={{ label: 'ملاحظة جديدة', onClick: () => { void handleCreate(); } }}
+                />
+              )
             ) : (
               filtered.map((n) => {
                 const title = titleOf(n);
