@@ -494,12 +494,13 @@ export default function PrayerTimes() {
   // inert (no persistence to localStorage, no shake, no guide-pulse).
   const handleToggle = useCallback((_name: PrayerKey) => {}, []);
   const [showQibla, setShowQibla] = useState(false);
+  const [showOccasions, setShowOccasions] = useState(false);
   const doneCount = 0;
 
   // ─── Render guards ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[360px]" />
+      <div className="rounded-3xl bg-card border border-border p-5 text-card-foreground animate-pulse min-h-[272px]" />
     );
   }
   if (error) {
@@ -585,11 +586,38 @@ export default function PrayerTimes() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </AnimatePresence>
 
-      {/* ═══ Card 2: Hijri occasions strip ═══════════════════════════════ */}
-      <div className="app-card-bare overflow-hidden">
-        <HijriCalendarStrip language={language} t={t} />
+        {/* ── Occasions disclosure: Hijri strip, collapsed by default ──── */}
+        <div className="h-px bg-foreground/[0.06]" />
+        <button
+          type="button"
+          onClick={() => setShowOccasions((v) => !v)}
+          aria-expanded={showOccasions}
+          aria-controls="prayer-occasions-panel"
+          className="flex w-full items-center gap-2 px-[18px] py-2.5 text-start transition-colors duration-fast hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <CalendarDays className="h-3.5 w-3.5 text-primary/80" aria-hidden />
+          <span className="text-micro font-semibold text-muted-foreground">المناسبات الهجرية</span>
+          <ChevronDown
+            className={`ms-auto h-3.5 w-3.5 text-muted-foreground transition-transform duration-normal ${showOccasions ? 'rotate-180' : ''}`}
+            aria-hidden
+          />
+        </button>
+        <AnimatePresence initial={false}>
+          {showOccasions && (
+            <motion.div
+              id="prayer-occasions-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <HijriCalendarStrip language={language} t={t} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
