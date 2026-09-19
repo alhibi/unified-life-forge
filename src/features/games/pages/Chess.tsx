@@ -1547,7 +1547,7 @@ export default function ChessPage() {
     <GameShell
       title={t('games.chess')}
       icon={Crown}
-      accentColor="hsl(221, 83%, 53%)"
+      accentColor="hsl(var(--data-6))"
       rules={chessRules}
       stats={chessStats}
       options={chessOptions}
