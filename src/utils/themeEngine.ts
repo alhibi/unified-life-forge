@@ -316,6 +316,29 @@ function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl, isDark: b
  * tone is resolved against the live background so it always clears AA, and the
  * label on top is whichever of white/near-black is actually readable.
  */
+/** `r,g,b` of an HSL colour, for the shadow rgba() strings. */
+function hslToRgbTriplet(hsl: Hsl): string {
+  const hex = hslToHex(hsl);
+  return [0, 1, 2].map((i) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)).join(',');
+}
+
+/**
+ * The signal accent: one fixed orange hue that means "this is data, this is
+ * live, this changed". Tone is corrected per canvas so it holds 4.5:1 as text
+ * in light mode and stops glaring in dark mode; `soft` is the surface version
+ * (an 8–14% solid mix into the page, never a translucent overlay).
+ */
+function signalTokens(bg: Hsl, ink: Hsl, isDark: boolean): Record<string, string> {
+  const SIGNAL: Hsl = isDark ? [24, 80, 60] : [22, 72, 52];
+  const tone = ensureContrast(SIGNAL, bg, 4.5);
+  const fg = contrastRatio([0, 0, 100], tone) >= contrastRatio(ink, tone) ? [0, 0, 100] : ink;
+  return {
+    '--signal': hslToString(tone),
+    '--signal-soft': solid(tone, bg, isDark ? 0.14 : 0.1),
+    '--signal-foreground': hslToString(fg as Hsl),
+  };
+}
+
 function statusTokens(bg: Hsl): Record<string, string> {
   const WHITE: Hsl = [0, 0, 100];
   const resolve = (hue: Hsl) => {
@@ -433,6 +456,17 @@ function definePreset(
 // Twelve curated families, one per visual territory. Anything retired maps
 // through LEGACY_THEME_ALIASES so a saved preference never breaks.
 export const themePresets: ThemePreset[] = [
+  // The shipped system. Neutral foundation, graphite controls, one orange
+  // signal reserved for data and change — see `--signal` in index.css.
+  // Light is a warm off-white page with a near-white card; dark is warm
+  // graphite with an off-white ink, recalculated rather than inverted.
+  definePreset(
+    'editorial',
+    'تحريري',
+    'Editorial',
+    { bg: '#F6F4F1', surface: '#FCFBF9', ink: '#232220', accent: '#2D2D2D' },
+    { bg: '#121110', surface: '#1C1B1A', ink: '#F2EFEA', accent: '#EDE9E3' },
+  ),
   definePreset(
     'copper',
     'نُحاس معماري',
@@ -524,7 +558,8 @@ export const themePresets: ThemePreset[] = [
  * `colorTheme` from an older build still resolves to a real palette.
  */
 export const LEGACY_THEME_ALIASES: Readonly<Record<string, string>> = {
-  default: 'copper',
+  default: 'editorial',
+  neutral: 'editorial',
   silk: 'paper',
   coffee: 'clay',
   sunset: 'clay',
@@ -716,19 +751,15 @@ export function generateThemeTokens(
   const surface3 = elevate(surfHsl, isDark, 0.07);
   const overlayInk = ensureContrast(inkHsl, surface3, 4.5);
 
-  const shadowRgb = isDark ? '0,0,0' : '28,24,20';
-  const shadow1 = isDark
-    ? `0 1px 2px rgba(${shadowRgb},0.36)`
-    : `0 1px 2px rgba(${shadowRgb},0.06)`;
-  const shadow2 = isDark
-    ? `0 2px 6px rgba(${shadowRgb},0.44), 0 1px 2px rgba(${shadowRgb},0.3)`
-    : `0 2px 6px rgba(${shadowRgb},0.08), 0 1px 2px rgba(${shadowRgb},0.05)`;
-  const shadow3 = isDark
-    ? `0 8px 24px rgba(${shadowRgb},0.52), 0 2px 6px rgba(${shadowRgb},0.34)`
-    : `0 8px 24px rgba(${shadowRgb},0.1), 0 2px 6px rgba(${shadowRgb},0.06)`;
-  const shadow4 = isDark
-    ? `0 20px 48px rgba(${shadowRgb},0.6), 0 6px 14px rgba(${shadowRgb},0.4)`
-    : `0 20px 48px rgba(${shadowRgb},0.13), 0 6px 14px rgba(${shadowRgb},0.07)`;
+  const shadowRgb = isDark ? '0,0,0' : hslToRgbTriplet([inkHsl[0], Math.min(inkHsl[1], 22), 18]);
+  const contact = isDark ? [0.3, 0.32, 0.34, 0.38] : [0.045, 0.05, 0.05, 0.06];
+  const ambient = isDark ? [0.22, 0.32, 0.42, 0.5] : [0.03, 0.05, 0.07, 0.1];
+  const plane = (i: number, blurContact: string, blurAmbient: string) =>
+    `${blurContact} rgba(${shadowRgb},${contact[i]}), ${blurAmbient} rgba(${shadowRgb},${ambient[i]})`;
+  const shadow1 = plane(0, '0 1px 1.5px', '0 1px 4px');
+  const shadow2 = plane(1, '0 1px 2px', '0 4px 12px');
+  const shadow3 = plane(2, '0 2px 4px', '0 12px 28px');
+  const shadow4 = plane(3, '0 4px 8px', '0 28px 56px');
   const cardShadow = shadow1;
 
   // Published tone ladder (--theme-50 … --theme-600).
@@ -782,6 +813,12 @@ export function generateThemeTokens(
     // against the active background, so they never sink into a very light or
     // very dark palette.
     ...statusTokens(bgHsl),
+    // The single chromatic accent. Its hue is fixed so "changed / active /
+    // measured" reads identically in every palette; only its tone is resolved
+    // against the active canvas so it never glares or sinks.
+    ...signalTokens(bgHsl, inkHsl, isDark),
+    // The lowest-contrast surface: dividers, rails, chart grids.
+    '--track': solid(inkHsl, bgHsl, isDark ? 0.13 : 0.09),
     // Lines
     '--border': borderStr,
     '--input': inputStr,

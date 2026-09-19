@@ -132,6 +132,7 @@ type ColorTheme =
   | 'matcha'
   | 'nebula'
   | 'copper'
+  | 'editorial'
   | 'mint'
   | 'sandstone'
   | 'dusk'
@@ -391,11 +392,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [blackMode, setBlackModeState] = useState<boolean>(
     () => localStorage.getItem('app-black-mode') === 'true',
   );
-  const [colorTheme, setColorThemeState] = useState<ColorTheme>(
-    () =>
-      // 'copper' is the shipped Architectural Copper palette (#0D0D0F → #C9A06A).
-      (localStorage.getItem('app-color-theme') as ColorTheme) || 'copper',
-  );
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>(() => {
+    // 'editorial' is the shipped system palette: warm off-white / warm
+    // graphite with neutral controls and one orange signal accent.
+    const stored = localStorage.getItem('app-color-theme') as ColorTheme | null;
+    // One-time migration off the retired Architectural Copper default. Copper
+    // was written to storage for everyone, so a plain `|| 'editorial'` fallback
+    // would never reach an existing install. Anyone who picks copper again
+    // after the migration keeps it, because the flag is only written once.
+    if (stored === 'copper' && !localStorage.getItem('app-theme-editorial-migrated')) {
+      localStorage.setItem('app-theme-editorial-migrated', '1');
+      localStorage.setItem('app-color-theme', 'editorial');
+      return 'editorial';
+    }
+    if (!localStorage.getItem('app-theme-editorial-migrated')) {
+      localStorage.setItem('app-theme-editorial-migrated', '1');
+    }
+    return stored || 'editorial';
+  });
 
   const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
     resolveSurfaceLift(localStorage.getItem('app-surface-lift')),
@@ -607,8 +621,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-palette-style', 'neutral');
     setBlackModeState(false);
     localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('copper');
-    localStorage.setItem('app-color-theme', 'copper');
+    setColorThemeState('editorial');
+    localStorage.setItem('app-color-theme', 'editorial');
 
     setSurfaceLiftState(DEFAULT_SURFACE_LIFT);
     localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);

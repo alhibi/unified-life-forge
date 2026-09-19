@@ -45,7 +45,7 @@ export { applyRootTokens } from './rootTokens';
 
 /**
  * The four steps of the radius ladder. The shipped values live in
- * `RADIUS_PROFILE_LADDERS.graded` below — 6 / 10 / 16 / 24 at softness 1.0.
+ * `RADIUS_PROFILE_LADDERS.graded` below — 6 / 8 / 12 / 16 / 20 at softness 1.0.
  */
 export type RadiusStep = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -54,7 +54,7 @@ export type RadiusStep = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
  * identity, so the default rendering is byte-for-byte what shipped before.
  */
 const RADIUS_PROFILE_LADDERS: Record<RadiusProfile, Record<RadiusStep, number>> = {
-  graded: { xs: 4, sm: 6, md: 10, lg: 16, xl: 24 },
+  graded: { xs: 6, sm: 8, md: 12, lg: 16, xl: 20 },
   // One meaning for "rounded": every surface shares the mid radius.
   uniform: { xs: 12, sm: 12, md: 12, lg: 12, xl: 12 },
   // Crisp small controls, markedly softer large surfaces.
@@ -62,7 +62,7 @@ const RADIUS_PROFILE_LADDERS: Record<RadiusProfile, Record<RadiusStep, number>> 
 };
 
 export const RADIUS_PROFILE_OPTIONS = [
-  { id: 'graded', label: 'متدرّج', note: '٦ · ١٠ · ١٦ · ٢٤ — العلاقة الأصلية' },
+  { id: 'graded', label: 'متدرّج', note: '٦ · ٨ · ١٢ · ١٦ · ٢٠ — العلاقة المعتمدة' },
   { id: 'uniform', label: 'موحّد', note: 'نصف قطر واحد لكل الأسطح' },
   { id: 'expressive', label: 'مُعبّر', note: 'عناصر صغيرة حادّة وأسطح كبيرة ناعمة' },
 ] as const satisfies readonly { id: RadiusProfile; label: string; note: string }[];

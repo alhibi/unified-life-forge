@@ -24,17 +24,17 @@ export interface FontOption {
 
 const SANS_FALLBACK = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 
-// Inter Display is the sole typeface.
+// Inter Tight is the sole typeface: it carries the Latin glyphs with the tight,
+// editorial register the interface is built on, and IBM Plex Sans Arabic covers
+// Arabic (Inter Tight has no Arabic coverage) at a matching geometric weight.
 // We map all ID selections to this unified stack to guarantee its exclusive application.
-const INTER_DISPLAY_STACK = `'Inter', 'Inter Display', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`;
+const INTER_DISPLAY_STACK = `'Inter Tight', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`;
 
 /**
- * Headings run on a serif display face: Instrument Serif carries the Latin
- * glyphs and Amiri covers Arabic (Instrument Serif has no Arabic coverage), so
- * the "modern magazine" register holds in both scripts without a fallback jump.
+ * Titles run on the SAME family as body text. Hierarchy comes from weight,
+ * size, tracking and contrast — never from swapping in a decorative face.
  */
-export const DISPLAY_SERIF_STACK =
-  `'Instrument Serif', 'Amiri', 'IBM Plex Sans Arabic', Georgia, serif`;
+export const DISPLAY_SERIF_STACK = INTER_DISPLAY_STACK;
 
 export const FONT_OPTIONS: readonly FontOption[] = [
   {
