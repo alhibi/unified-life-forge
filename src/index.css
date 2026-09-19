@@ -697,9 +697,27 @@
     --live-glow: 32 34.1% 41%;
     --accent-highlight: 32 22.4% 86.9%;
     --disabled: 0 0.4% 52%;
+
+    /* ── Data palette ──────────────────────────────────────────────
+       The only colours allowed to carry meaning inside charts, badges,
+       categories and status dots. Muted on purpose: sage, peach, amber,
+       controlled blue, clay, slate-violet. Never used for chrome. */
+    --data-1: 158 26% 38%;
+    --data-2: 24 54% 52%;
+    --data-3: 38 56% 45%;
+    --data-4: 214 38% 46%;
+    --data-5: 348 34% 50%;
+    --data-6: 268 18% 50%;
   }
 
   .dark {
+    --data-1: 158 24% 58%;
+    --data-2: 24 52% 66%;
+    --data-3: 38 52% 62%;
+    --data-4: 214 36% 64%;
+    --data-5: 348 32% 66%;
+    --data-6: 268 18% 66%;
+
     /* The same eleven tones, resolved for the dark canvas: the planes climb
        from 25 to 200, the accent sits at 400, the ink zone runs 600 → 900.
        The theme keeps its identity across modes instead of becoming a
