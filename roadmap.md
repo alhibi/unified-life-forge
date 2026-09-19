@@ -28,7 +28,8 @@
 - [ ] Deep-link contract per route (entry, parent, fallback, restore).
 - [ ] Unified state system (idle/loading/partial/ready/empty/offline/error/unauthorized) via StateView.
 - [ ] Mobile touch targets ≥44px audit and fixes.
-- [ ] Portal hierarchy: compact Today → Continue → Apps → Worlds.
+- [x] Portal "متابعة" row: recents surfaced above the grid, hidden for new users.
+- [ ] Portal hierarchy: compact Today block (prayer + weather reserve ~38rem before the apps).
 - [ ] Chat stability pass on a real Android device.
 
 ### P1 — experience rebuild
