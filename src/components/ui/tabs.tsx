@@ -13,7 +13,7 @@ const TabsList = React.forwardRef<
     ref={ref}
     data-ui-surface="segmented-control"
     className={cn(
-      'inline-flex min-h-11 w-full items-center gap-1 rounded-md border border-border bg-muted p-1 text-muted-foreground',
+      'inline-flex min-h-11 w-full items-center gap-1 rounded-[var(--r-md)] border-0 bg-secondary/55 p-1 text-muted-foreground shadow-[inset_0_0_0_1px_hsl(var(--track))]',
       className,
     )}
     {...props}
@@ -28,7 +28,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex min-h-9 flex-1 items-center justify-center rounded-sm px-3 py-1.5 text-body font-medium transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border data-[state=active]:border-border data-[state=active]:bg-card data-[state=active]:text-foreground',
+      'inline-flex min-h-9 flex-1 items-center justify-center rounded-sm px-3 py-1.5 text-body font-medium transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[var(--shadow-control)]',
       className,
     )}
     {...props}

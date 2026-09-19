@@ -115,9 +115,9 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
   const IconComponent = () => {
     const h = cleanUrl.includes('//') ? cleanUrl.split('/')[2].toLowerCase() : '';
     if (h.includes('youtube') || h.includes('youtu.be'))
-      return <Video className="w-4 h-4 text-red-500" />;
+      return <Video className="w-4 h-4 text-destructive" />;
     if (h.includes('github')) return <Github className="w-4 h-4 text-foreground" />;
-    if (h.includes('wikipedia')) return <BookOpen className="w-4 h-4 text-blue-400" />;
+    if (h.includes('wikipedia')) return <BookOpen className="w-4 h-4 text-data-4" />;
     return <Globe className="w-4 h-4 text-[#C9A84C]" />;
   };
 

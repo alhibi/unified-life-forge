@@ -225,7 +225,7 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
             <div
               className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
                 isBestDay
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                  ? 'bg-signal/15 text-signal border border-signal/30'
                   : day.count > 0
                     ? 'bg-primary/10 text-primary border border-primary/20'
                     : 'bg-muted/30 text-muted-foreground border border-border/40'
@@ -247,7 +247,7 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
                   </span>
                 )}
                 {isBestDay && (
-                  <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-micro font-extrabold border border-amber-500/30">
+                  <span className="px-2 py-0.5 rounded-full bg-signal/10 text-signal text-micro font-extrabold border border-signal/30">
                     يومك الذهبي 👑
                   </span>
                 )}
@@ -301,12 +301,12 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
                 label="إجمالي الأنشطة"
               />
               <StatCell
-                icon={<TrendingUp className="w-4 h-4 text-emerald-400" />}
+                icon={<TrendingUp className="w-4 h-4 text-data-1" />}
                 value={percentile !== null ? `${percentile}%` : '—'}
                 label="أقوى من نسبة أيامك"
               />
               <StatCell
-                icon={<Flame className={`w-4 h-4 ${streakContext ? 'text-amber-400' : 'text-muted-foreground'}`} />}
+                icon={<Flame className={`w-4 h-4 ${streakContext ? 'text-signal' : 'text-muted-foreground'}`} />}
                 value={streakContext ? `${streakContext.runLength}` : '—'}
                 label="ضمن سلسلة يومية"
               />
@@ -317,7 +317,7 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30"
+                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-signal/10 text-signal ring-1 ring-signal/30"
               >
                 <Crown className="w-4 h-4 shrink-0" />
                 <span className="text-mini font-bold">
@@ -500,11 +500,11 @@ function EmptyDayBody({ percentile }: { percentile: number | null }) {
 }
 
 const COMPOSITION_COLORS: Record<string, string> = {
-  visits: 'bg-sky-500/70',
-  spiritual: 'bg-emerald-500/70',
-  german: 'bg-amber-500/70',
-  fitness: 'bg-lime-500/70',
-  diwan: 'bg-indigo-500/70',
-  pkm: 'bg-cyan-500/70',
-  atlas: 'bg-orange-500/70',
+  visits: 'bg-data-4/70',
+  spiritual: 'bg-data-1/70',
+  german: 'bg-signal/70',
+  fitness: 'bg-data-1/70',
+  diwan: 'bg-data-6/70',
+  pkm: 'bg-data-4/70',
+  atlas: 'bg-signal/70',
 };

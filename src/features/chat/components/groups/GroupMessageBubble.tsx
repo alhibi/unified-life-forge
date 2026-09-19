@@ -108,8 +108,8 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
               <span className={cn(
                 'text-micro px-1 py-px rounded-full font-medium',
                 sender.role === 'owner'
-                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                  : 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
+                  ? 'bg-signal/15 text-signal dark:text-signal'
+                  : 'bg-data-4/15 text-data-4 dark:text-data-4',
               )}>
                 {sender.role === 'owner' ? ('مالك') : ('مشرف')}
               </span>

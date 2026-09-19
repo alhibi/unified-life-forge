@@ -49,7 +49,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
       className="relative cursor-pointer rounded-2xl border p-5 transition-motion duration-fast active:scale-[0.99]"
       style={{
         backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}26`,
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 2px 12px -2px rgba(23, 24, 28, 0.04)',
       }}
     >
@@ -60,7 +60,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
 
           <div className="flex flex-wrap items-baseline gap-2" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
             {entry.is_separable_verb && entry.separable_prefix ? (
-              <div className="inline-flex items-baseline font-mono text-xl sm:text-2xl font-black tracking-tight text-[#17181C]">
+              <div className="inline-flex items-baseline font-mono text-xl sm:text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">
                 {/* Prefix Motion Element */}
                 <motion.span
                   animate={
@@ -68,25 +68,25 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
                       ? {
                           x: [0, 40, 0],
                           y: [0, -10, 0],
-                          color: [GERMAN_CLUB_TOKENS.prussian, '#dc2626', GERMAN_CLUB_TOKENS.prussian],
+                          color: [GERMAN_CLUB_TOKENS.prussian, 'hsl(var(--destructive))', GERMAN_CLUB_TOKENS.prussian],
                         }
                       : {}
                   }
                   transition={{ duration: 0.8, ease: 'easeInOut' }}
-                  className="text-[#17324D] underline decoration-dotted underline-offset-4"
+                  className="text-[hsl(var(--primary))] underline decoration-dotted underline-offset-4"
                 >
                   {prefix}
                 </motion.span>
                 <span>{baseVerb}</span>
               </div>
             ) : (
-              <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[#17181C]">
+              <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">
                 {entry.german_text}
               </span>
             )}
 
             {entry.ipa && (
-              <span className="text-xs font-mono text-stone-500 font-normal dir-ltr" dir="ltr">
+              <span className="text-xs font-mono text-muted-foreground font-normal dir-ltr" dir="ltr">
                 [{entry.ipa}]
               </span>
             )}
@@ -102,7 +102,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
               const audio = new Audio(entry.audio_url!);
               audio.play().catch(() => {});
             }}
-            className="p-1.5 rounded-lg border border-stone-300/60 hover:bg-stone-200/60 text-stone-600 transition-colors shrink-0"
+            className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors shrink-0"
             title="استماع للنطق"
           >
             <Volume2 className="w-4 h-4" />
@@ -112,27 +112,27 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
 
       {/* Arabic Translation Subtitle */}
       <div className="mt-2 text-start">
-        <p className="text-sm font-normal text-stone-800 leading-snug">{entry.arabic_translation}</p>
+        <p className="text-sm font-normal text-foreground leading-snug">{entry.arabic_translation}</p>
       </div>
 
       {/* Meta tags row */}
-      <div className="mt-3 flex items-center justify-between gap-2 pt-2 border-t border-stone-200/60">
+      <div className="mt-3 flex items-center justify-between gap-2 pt-2 border-t border-[hsl(var(--track))]">
         <div className="flex items-center gap-2">
           {entry.register && entry.register !== 'neutral' && (
-            <span className="text-[0.6875rem] font-medium text-stone-500 bg-stone-200/60 px-2 py-0.5 rounded-md">
+            <span className="text-[0.6875rem] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-md">
               {REGISTER_LABELS_AR[entry.register]}
             </span>
           )}
           {entry.is_separable_verb && (
-            <span className="text-[0.6875rem] font-bold text-sky-800 bg-sky-100/80 px-2 py-0.5 rounded-md flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-sky-600" />
+            <span className="text-[0.6875rem] font-bold text-data-4 bg-data-4/80 px-2 py-0.5 rounded-md flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-data-4" />
               فعل منفصل
             </span>
           )}
         </div>
 
         {entry.example_sentence_de && (
-          <span className="text-xs font-medium text-[#17324D] flex items-center gap-1 hover:underline">
+          <span className="text-xs font-medium text-[hsl(var(--primary))] flex items-center gap-1 hover:underline">
             {showExample ? 'إخفاء المثال' : 'عرض مثال بالجملة'}
             <ArrowLeft className={`w-3 h-3 transition-transform ${showExample ? 'rotate-90' : ''}`} />
           </span>
@@ -151,11 +151,11 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
             borderColor: 'rgba(23, 50, 77, 0.12)',
           }}
         >
-          <div className="text-sm font-mono font-bold text-[#17324D] leading-relaxed" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+          <div className="text-sm font-mono font-bold text-[hsl(var(--primary))] leading-relaxed" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
             {entry.example_sentence_de}
           </div>
           {entry.example_sentence_ar && (
-            <div className="mt-1.5 text-xs text-stone-600 font-normal leading-normal">
+            <div className="mt-1.5 text-xs text-muted-foreground font-normal leading-normal">
               {entry.example_sentence_ar}
             </div>
           )}

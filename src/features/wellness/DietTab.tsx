@@ -271,20 +271,20 @@ function LogRow({
         {known && (
           <div className="flex items-center gap-2.5 mt-1.5 text-micro text-muted-foreground" dir="ltr">
             <span className="inline-flex items-center gap-0.5">
-              <Flame className="w-2.5 h-2.5 text-emerald-500" />
+              <Flame className="w-2.5 h-2.5 text-data-1" />
               <span className="tabular-nums font-semibold text-foreground">{macros.kcal}</span>
               <span className="text-muted-foreground/70">{T.kcal[lang]}</span>
             </span>
             <span className="inline-flex items-center gap-0.5">
-              <Beef className="w-2.5 h-2.5 text-rose-500" />
+              <Beef className="w-2.5 h-2.5 text-data-5" />
               <span className="tabular-nums font-semibold text-foreground">{fmtG(macros.protein)}g</span>
             </span>
             <span className="inline-flex items-center gap-0.5">
-              <Wheat className="w-2.5 h-2.5 text-amber-500" />
+              <Wheat className="w-2.5 h-2.5 text-signal" />
               <span className="tabular-nums text-foreground/80">{fmtG(macros.carbs)}g</span>
             </span>
             <span className="inline-flex items-center gap-0.5">
-              <Salad className="w-2.5 h-2.5 text-cyan-500" />
+              <Salad className="w-2.5 h-2.5 text-data-4" />
               <span className="tabular-nums text-foreground/80">{fmtG(macros.fat)}g</span>
             </span>
           </div>

@@ -63,7 +63,7 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
       style={{
         boxShadow: shadowGlow,
       }}
-      className={`rounded-full border border-[#FF7A29]/70 bg-gradient-to-b from-[#2A170F] via-[#1A0E08] to-[#0D0704] hover:border-[#FF9E4A] hover:scale-105 active:scale-95 transition-motion flex items-center justify-center relative group shrink-0 cursor-pointer overflow-hidden ${sizeClasses} ${className}`}
+      className={`rounded-full border border-[hsl(var(--signal))]/70 bg-gradient-to-b from-[hsl(var(--foreground))] via-[hsl(var(--foreground))] to-[hsl(var(--foreground))] hover:border-[hsl(var(--signal))] hover:scale-105 active:scale-95 transition-motion flex items-center justify-center relative group shrink-0 cursor-pointer overflow-hidden ${sizeClasses} ${className}`}
     >
       {/* Background Fiery Glow Surface */}
       <span
@@ -76,11 +76,11 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
         style={{
           opacity: isJobRunning ? 1 : 0.75 + hungerRatio * 0.25,
           textShadow: isJobRunning
-            ? '0 0 12px #FF7A29, 0 0 20px #FF9E4A, 0 0 2px #FFFFFF'
+            ? 'var(--shadow-control)'
             : '0 0 8px rgba(255, 122, 41, 0.7)',
         }}
-        className={`font-black font-mono tracking-tighter text-[#FF9E4A] select-none relative z-10 transition-motion ${
-          isJobRunning ? 'motion-safe:animate-pulse text-amber-300 scale-110' : 'group-hover:text-amber-200'
+        className={`font-black font-mono tracking-tighter text-[hsl(var(--signal))] select-none relative z-10 transition-motion ${
+          isJobRunning ? 'motion-safe:animate-pulse text-signal scale-110' : 'group-hover:text-signal'
         }`}
       >
         D
@@ -89,14 +89,14 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
       {/* Fiery Corona / Active Flame Flicker Effect */}
       {isJobRunning && (
         <>
-          <span className="absolute inset-0 rounded-full border border-[#FF9E4A] motion-safe:animate-ping opacity-80 pointer-events-none" />
-          <span className="absolute inset-0 rounded-full bg-gradient-to-t from-[#FF7A29]/30 to-transparent motion-safe:animate-pulse pointer-events-none" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-stone-900 motion-safe:animate-bounce z-20" />
+          <span className="absolute inset-0 rounded-full border border-[hsl(var(--signal))] motion-safe:animate-ping opacity-80 pointer-events-none" />
+          <span className="absolute inset-0 rounded-full bg-gradient-to-t from-[hsl(var(--signal))]/30 to-transparent motion-safe:animate-pulse pointer-events-none" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-signal ring-2 ring-[hsl(var(--track))] motion-safe:animate-bounce z-20" />
         </>
       )}
 
       {/* Hover Tooltip Hint */}
-      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-stone-950 text-amber-100 text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-amber-500/30 pointer-events-none">
+      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-foreground text-signal text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-signal/30 pointer-events-none">
         الفرن: توليد الذكاء الاصطناعي ({currentCount}/{targetCount})
       </span>
     </button>

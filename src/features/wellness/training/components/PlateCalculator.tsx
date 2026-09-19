@@ -131,7 +131,7 @@ export default function PlateCalculator({
       )}
 
       {Math.abs(breakdown.errorKg) > 0.5 && (
-        <p className="text-micro text-amber-500" dir="ltr">
+        <p className="text-micro text-signal" dir="ltr">
           {T.cantHit[lang]} (Δ {breakdown.errorKg > 0 ? '+' : ''}{breakdown.errorKg}kg)
         </p>
       )}

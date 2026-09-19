@@ -25,9 +25,9 @@ const CONFIDENCE_STYLE: Record<
   Inference['confidence'],
   { dot: string; label: string; text: string }
 > = {
-  high: { dot: 'bg-emerald-500', label: 'استنتاج مؤكد فيزيائياً', text: 'text-emerald-400' },
-  medium: { dot: 'bg-sky-500', label: 'مؤشرات قوية', text: 'text-sky-400' },
-  low: { dot: 'bg-amber-500', label: 'قراءة أولية', text: 'text-amber-400' },
+  high: { dot: 'bg-data-1', label: 'استنتاج مؤكد فيزيائياً', text: 'text-data-1' },
+  medium: { dot: 'bg-data-4', label: 'مؤشرات قوية', text: 'text-data-4' },
+  low: { dot: 'bg-signal', label: 'قراءة أولية', text: 'text-signal' },
 };
 
 function AtmosphericInsightsPanelImpl({ snapshot }: Props) {

@@ -89,14 +89,14 @@ export default function OneRmTrendChart({
           </p>
           <p className="text-title font-bold tabular-nums text-foreground" dir="ltr">
             {current} kg
-            <span className={`text-micro ms-1.5 ${delta >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            <span className={`text-micro ms-1.5 ${delta >= 0 ? 'text-data-1' : 'text-data-5'}`}>
               {delta >= 0 ? '+' : ''}{delta.toFixed(1)} ({deltaPct >= 0 ? '+' : ''}{deltaPct.toFixed(1)}%)
             </span>
           </p>
         </div>
         <div className="text-end">
           <p className="text-micro text-muted-foreground/60 uppercase tracking-wider">{T.best[lang]}</p>
-          <p className="text-meta font-bold tabular-nums text-amber-500" dir="ltr">{best} kg</p>
+          <p className="text-meta font-bold tabular-nums text-signal" dir="ltr">{best} kg</p>
         </div>
       </div>
 

@@ -266,8 +266,8 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                     onClick={() => setShowPlate(true)}
                     className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center gap-3 active:scale-[0.99]"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center">
-                      <Dumbbell className="w-5 h-5 text-blue-500" />
+                    <div className="w-10 h-10 rounded-xl bg-data-4/15 flex items-center justify-center">
+                      <Dumbbell className="w-5 h-5 text-data-4" />
                     </div>
                     <div className="flex-1">
                       <p className="text-mini font-bold text-foreground">{T.toolPlate[lang]}</p>
@@ -461,7 +461,7 @@ function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang
               <span className="text-micro font-semibold text-foreground truncate">{def?.label[lang] ?? t.exerciseKey}</span>
               <span className="text-micro tabular-nums text-muted-foreground" dir="ltr">
                 {t.sessions} sessions
-                {e1rm != null && <span className="ms-1.5 text-amber-500">· {e1rm} kg</span>}
+                {e1rm != null && <span className="ms-1.5 text-signal">· {e1rm} kg</span>}
               </span>
             </div>
           );

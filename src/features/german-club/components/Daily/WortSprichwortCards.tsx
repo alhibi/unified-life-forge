@@ -29,7 +29,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       ? GERMAN_CLUB_TOKENS.dieRose
       : wort.gender === 'das'
       ? GERMAN_CLUB_TOKENS.dasStone
-      : '#7E7259'
+      : 'hsl(var(--data-1))'
     : null;
 
   return (
@@ -39,8 +39,8 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6 group"
       style={{
-        backgroundColor: '#FDFCF7',
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+        backgroundColor: 'hsl(var(--card))',
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
@@ -56,8 +56,8 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       <div className="relative">
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+          <Sparkles className="w-3.5 h-3.5 text-signal" />
+          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
             Wort des Tages
           </span>
         </div>
@@ -72,7 +72,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
             />
           )}
           <h3
-            className="font-black tracking-tight text-[#17181C]"
+            className="font-black tracking-tight text-[hsl(var(--foreground))]"
             style={{
               fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
               fontSize: 'clamp(1.875rem, 7vw, 2.625rem)',
@@ -83,23 +83,23 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
             {wort.wort}
           </h3>
           {wort.ipa && (
-            <span className="text-xs sm:text-sm font-mono text-stone-500 ms-1" dir="ltr">
+            <span className="text-xs sm:text-sm font-mono text-muted-foreground ms-1" dir="ltr">
               [{wort.ipa}]
             </span>
           )}
         </div>
 
         {/* Arabic translation */}
-        <p className="text-base font-semibold text-[#17181C] mb-1.5 leading-snug">{wort.arabic}</p>
+        <p className="text-base font-semibold text-[hsl(var(--foreground))] mb-1.5 leading-snug">{wort.arabic}</p>
 
         {/* Hint — the punchy line */}
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">{wort.hint_ar}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{wort.hint_ar}</p>
 
         {/* Footer — register tag (subtle) */}
         {wort.register !== 'neutral' && (
-          <div className="mt-3 pt-3 border-t border-stone-200/70 flex items-center gap-1.5">
-            <BookOpen className="w-3 h-3 text-stone-400" />
-            <span className="text-[0.625rem] font-mono text-stone-500 uppercase tracking-wider">
+          <div className="mt-3 pt-3 border-t border-[hsl(var(--track))] flex items-center gap-1.5">
+            <BookOpen className="w-3 h-3 text-muted-foreground" />
+            <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
               {wort.register === 'formal' && 'رسمي'}
               {wort.register === 'informal' && 'غير رسمي'}
               {wort.register === 'slang' && 'عامي'}
@@ -133,21 +133,21 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
       transition={{ duration: 0.5, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        backgroundColor: '#FFFDF6',
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+        backgroundColor: 'hsl(var(--card))',
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <Quote className="w-3.5 h-3.5 text-[#17324D]" />
-        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+        <Quote className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
           Sprichwort
         </span>
       </div>
 
       {/* The proverb — large */}
       <p
-        className="text-lg sm:text-xl font-bold text-[#17181C] leading-snug mb-3"
+        className="text-lg sm:text-xl font-bold text-[hsl(var(--foreground))] leading-snug mb-3"
         dir="ltr"
         style={{ unicodeBidi: 'isolate' }}
       >
@@ -155,11 +155,11 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
       </p>
 
       {/* Literal — always shown */}
-      <div className="mb-3 pb-3 border-b border-stone-200/60">
-        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-stone-500 block mb-1">
+      <div className="mb-3 pb-3 border-b border-[hsl(var(--track))]">
+        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground block mb-1">
           حرفياً
         </span>
-        <p className="text-sm text-stone-700 leading-relaxed italic">{sprichwort.literal_ar}</p>
+        <p className="text-sm text-foreground leading-relaxed italic">{sprichwort.literal_ar}</p>
       </div>
 
       {/* Real meaning — tap to reveal */}
@@ -168,19 +168,19 @@ export const SprichwortCard: React.FC<SprichwortCardProps> = ({ sprichwort, anim
         onClick={() => setRevealed((v) => !v)}
         className="w-full text-start"
       >
-        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-stone-500 block mb-1">
+        <span className="text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground block mb-1">
           {revealed ? 'المعنى' : 'المعنى — اضغط للقراءة'}
         </span>
         {revealed ? (
           <motion.p
             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm font-medium text-[#17181C] leading-relaxed"
+            className="text-sm font-medium text-[hsl(var(--foreground))] leading-relaxed"
           >
             {sprichwort.meaning_ar}
           </motion.p>
         ) : (
-          <p className="text-sm text-stone-500 leading-relaxed select-none">
+          <p className="text-sm text-muted-foreground leading-relaxed select-none">
             <span className="opacity-50">— — — — —</span>
           </p>
         )}

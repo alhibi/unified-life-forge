@@ -78,24 +78,24 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-xl rounded-3xl border border-stone-300 bg-[#EFEEE7] text-[#17181C] shadow-2xl overflow-hidden"
+          className="relative w-full max-w-xl rounded-3xl border border-[hsl(var(--track))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-2xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-stone-300/60">
+          <div className="flex items-center justify-between p-5 border-b border-[hsl(var(--track))]">
             <div className="flex items-center gap-2">
-              <Wand2 className="w-4 h-4 text-[#17324D]" />
-              <h2 className="text-base font-bold text-[#17181C] tracking-tight">
+              <Wand2 className="w-4 h-4 text-[hsl(var(--primary))]" />
+              <h2 className="text-base font-bold text-[hsl(var(--foreground))] tracking-tight">
                 Wortspaziergang
               </h2>
-              <span className="text-[0.625rem] font-mono text-stone-500 uppercase tracking-widest">
+              <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-widest">
                 · 7 خطوات
               </span>
             </div>
             <button
               type="button"
               onClick={close}
-              className="p-1.5 rounded-lg hover:bg-stone-200/60 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
               aria-label="إغلاق"
             >
               <X className="w-4 h-4" />
@@ -118,10 +118,10 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
                       aria-label={`الخطوة ${s.step}`}
                       className={`rounded-full transition-motion ${
                         i === stepIdx
-                          ? 'w-6 h-1.5 bg-[#17324D]'
+                          ? 'w-6 h-1.5 bg-[hsl(var(--primary))]'
                           : i < stepIdx
-                          ? 'w-1.5 h-1.5 bg-[#17324D]/60'
-                          : 'w-1.5 h-1.5 bg-stone-300'
+                          ? 'w-1.5 h-1.5 bg-[hsl(var(--primary))]/60'
+                          : 'w-1.5 h-1.5 bg-secondary'
                       }`}
                     />
                   ))}
@@ -132,25 +132,25 @@ export const Wortspaziergang: React.FC<WortspaziergangProps> = ({ open, onClose 
                 </AnimatePresence>
 
                 {/* Controls */}
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-stone-300/60">
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-[hsl(var(--track))]">
                   <button
                     type="button"
                     onClick={prev}
                     disabled={stepIdx === 0}
-                    className="text-xs font-bold px-3 py-2 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:hover:bg-transparent"
+                    className="text-xs font-bold px-3 py-2 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:hover:bg-transparent"
                   >
                     <ArrowRight className="w-3.5 h-3.5" />
                     رجوع
                   </button>
 
-                  <span className="text-xs font-mono text-stone-500">
+                  <span className="text-xs font-mono text-muted-foreground">
                     {stepIdx + 1} / {activeWalk.length}
                   </span>
 
                   <button
                     type="button"
                     onClick={next}
-                    className="text-xs font-bold px-3 py-2 rounded-xl bg-[#17324D] text-white hover:bg-[#12273d] transition-colors flex items-center gap-1.5"
+                    className="text-xs font-bold px-3 py-2 rounded-xl bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))] transition-colors flex items-center gap-1.5"
                   >
                     {stepIdx + 1 >= activeWalk.length ? 'إعادة' : 'الكلمة التالية'}
                     <ArrowLeft className="w-3.5 h-3.5" />
@@ -175,16 +175,16 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => (
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="w-16 h-16 mx-auto rounded-full bg-[#17324D]/10 flex items-center justify-center"
+      className="w-16 h-16 mx-auto rounded-full bg-[hsl(var(--primary))]/10 flex items-center justify-center"
     >
-      <Wand2 className="w-8 h-8 text-[#17324D]" />
+      <Wand2 className="w-8 h-8 text-[hsl(var(--primary))]" />
     </motion.div>
 
     <div>
-      <h3 className="text-xl font-black text-[#17181C] mb-1.5 tracking-tight">
+      <h3 className="text-xl font-black text-[hsl(var(--foreground))] mb-1.5 tracking-tight">
         جولة لغوية قصيرة
       </h3>
-      <p className="text-sm text-stone-600 max-w-xs mx-auto leading-relaxed">
+      <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
         سبع كلمات تتدفق معاً، من نفس العالم اللغوي ثم تقفز إلى عوالم أخرى. بدون أي التزام.
       </p>
     </div>
@@ -192,7 +192,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => (
     <button
       type="button"
       onClick={onStart}
-      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#17324D] text-white text-sm font-bold hover:bg-[#12273d] transition-colors shadow-sm"
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[hsl(var(--primary))] text-white text-sm font-bold hover:bg-[hsl(var(--primary))] transition-colors shadow-sm"
     >
       ابدأ الجولة
       <ArrowLeft className="w-4 h-4" />
@@ -232,11 +232,11 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
       {/* Step reason */}
       <div className="flex items-center gap-1.5 text-xs">
         <span className="text-base leading-none">{emoji}</span>
-        <span className="font-mono text-stone-500 uppercase tracking-wider">
+        <span className="font-mono text-muted-foreground uppercase tracking-wider">
           الخطوة {step}
         </span>
-        <span className="text-stone-300">·</span>
-        <span className="font-bold text-[#17324D]">{reason}</span>
+        <span className="text-muted-foreground">·</span>
+        <span className="font-bold text-[hsl(var(--primary))]">{reason}</span>
       </div>
 
       {/* Word */}
@@ -249,7 +249,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
             />
           )}
           <h3
-            className="font-black text-[#17181C] tracking-tight"
+            className="font-black text-[hsl(var(--foreground))] tracking-tight"
             style={{
               fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
               fontSize: 'clamp(2rem, 8vw, 2.75rem)',
@@ -263,7 +263,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
           <button
             type="button"
             onClick={speak}
-            className="p-2 rounded-xl border border-stone-300 hover:bg-stone-200 transition-colors"
+            className="p-2 rounded-xl border border-[hsl(var(--track))] hover:bg-secondary transition-colors"
             title="نطق"
             aria-label="نطق"
           >
@@ -272,14 +272,14 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
         </div>
 
         {entry.ipa && (
-          <p dir="ltr" className="text-xs font-mono text-stone-500">
+          <p dir="ltr" className="text-xs font-mono text-muted-foreground">
             [{entry.ipa}]
           </p>
         )}
       </div>
 
       {/* Arabic */}
-      <p className="text-lg font-bold text-[#17181C] leading-snug">
+      <p className="text-lg font-bold text-[hsl(var(--foreground))] leading-snug">
         {entry.arabic}
       </p>
 
@@ -288,10 +288,10 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
         <span className={`font-bold px-2 py-0.5 rounded-full border ${cefrInfo.badge_color}`}>
           {entry.cefr}
         </span>
-        <span className="px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
+        <span className="px-2 py-0.5 rounded-full bg-secondary text-foreground">
           {DictionaryWordTypeLabels[entry.word_type]}
         </span>
-        <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 flex items-center gap-1">
+        <span className="px-2 py-0.5 rounded-full bg-card text-muted-foreground flex items-center gap-1">
           <MapPin className="w-2.5 h-2.5" />
           {entry.category}
         </span>
@@ -299,14 +299,14 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
 
       {/* First example if available */}
       {entry.examples[0] && (
-        <div className="p-3 rounded-2xl bg-white/80 border border-stone-200/90">
+        <div className="p-3 rounded-2xl bg-white/80 border border-[hsl(var(--track))]">
           <p
             dir="ltr"
-            className="text-sm font-bold text-[#17324D] leading-snug"
+            className="text-sm font-bold text-[hsl(var(--primary))] leading-snug"
           >
             „{entry.examples[0].de}"
           </p>
-          <p className="text-xs text-stone-600 leading-snug mt-1">
+          <p className="text-xs text-muted-foreground leading-snug mt-1">
             {entry.examples[0].ar}
           </p>
         </div>

@@ -495,7 +495,7 @@ function renderHighlighted(text: string, q: string): React.ReactNode {
     parts.push(
       <mark
         key={key++}
-        className="bg-amber-200/60 dark:bg-amber-900/40 text-foreground rounded px-0.5"
+        className="bg-signal/60 dark:bg-signal/40 text-foreground rounded px-0.5"
       >
         {m[0]}
       </mark>,

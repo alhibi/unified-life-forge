@@ -81,7 +81,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
         <div className="flex items-start gap-2 px-3 py-2 border-b border-border/10 bg-muted/15">
           <div className={cn(
             'h-9 w-1 rounded-full shrink-0',
-            editing ? 'bg-amber-500' : 'bg-primary',
+            editing ? 'bg-signal' : 'bg-primary',
           )} />
           <div className="flex-1 min-w-0">
             <p className="text-micro uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">

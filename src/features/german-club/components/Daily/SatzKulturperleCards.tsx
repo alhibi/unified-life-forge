@@ -27,37 +27,37 @@ export const SatzCard: React.FC<SatzCardProps> = ({ satz, animate = true }) => {
       transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        backgroundColor: '#F7F9FB',
-        borderColor: `${GERMAN_CLUB_TOKENS.prussian}22`,
+        backgroundColor: 'hsl(var(--card))',
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
       <div className="flex items-center gap-2 mb-3">
-        <MessageSquareQuote className="w-3.5 h-3.5 text-[#17324D]" />
-        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+        <MessageSquareQuote className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
           Satz des Tages
         </span>
       </div>
 
       {/* The actual sentence */}
       <p
-        className="text-xl sm:text-2xl font-bold text-[#17181C] leading-snug mb-2"
+        className="text-xl sm:text-2xl font-bold text-[hsl(var(--foreground))] leading-snug mb-2"
         dir="ltr"
         style={{ unicodeBidi: 'isolate' }}
       >
         „{satz.satz}"
       </p>
 
-      <p className="text-sm font-semibold text-[#17181C] mb-3 leading-snug">{satz.arabic}</p>
+      <p className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 leading-snug">{satz.arabic}</p>
 
       {/* Context — italic small */}
-      <p className="text-xs text-stone-500 italic leading-relaxed">
+      <p className="text-xs text-muted-foreground italic leading-relaxed">
         {satz.context_ar}
       </p>
 
       {/* Register tag — minimal */}
-      <div className="mt-3 pt-3 border-t border-stone-200/60 flex items-center gap-1.5">
-        <span className="text-[0.625rem] font-mono text-stone-500 uppercase tracking-wider">
+      <div className="mt-3 pt-3 border-t border-[hsl(var(--track))] flex items-center gap-1.5">
+        <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
           {satz.register === 'formal' && 'رسمي'}
           {satz.register === 'neutral' && 'محايد'}
           {satz.register === 'informal' && 'غير رسمي'}
@@ -89,8 +89,8 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
       transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        backgroundColor: '#F9F5F0',
-        borderColor: `${GERMAN_CLUB_TOKENS.ember}33`,
+        backgroundColor: 'hsl(var(--card))',
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
@@ -105,24 +105,24 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
 
       <div className="relative">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#C9703B]">
+          <Sparkles className="w-3.5 h-3.5 text-signal" />
+          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--signal))]">
             Kulturperle
           </span>
         </div>
 
         {/* Title — German + Arabic */}
         <h3
-          className="text-lg sm:text-xl font-black text-[#17181C] leading-tight mb-1"
+          className="text-lg sm:text-xl font-black text-[hsl(var(--foreground))] leading-tight mb-1"
           dir="ltr"
           style={{ unicodeBidi: 'isolate' }}
         >
           {perle.title_de}
         </h3>
-        <p className="text-sm font-semibold text-[#17324D] mb-3 leading-snug">{perle.title_ar}</p>
+        <p className="text-sm font-semibold text-[hsl(var(--primary))] mb-3 leading-snug">{perle.title_ar}</p>
 
         {/* Body — the pearl */}
-        <p className="text-sm text-stone-700 leading-relaxed">{perle.body_ar}</p>
+        <p className="text-sm text-foreground leading-relaxed">{perle.body_ar}</p>
       </div>
     </motion.div>
   );

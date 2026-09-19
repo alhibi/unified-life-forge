@@ -78,16 +78,16 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
           transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-stone-300 bg-[#EFEEE7] text-[#17181C] shadow-2xl p-6 sm:p-8 space-y-6"
+          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-[hsl(var(--track))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-2xl p-6 sm:p-8 space-y-6"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Sticky Top Header Controls */}
-          <div className="flex items-center justify-between border-b border-stone-300/80 pb-4">
+          <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-4">
             <div className="flex items-center gap-2">
               <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${cefrInfo.badge_color}`}>
                 {cefrInfo.label_ar}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-200 text-stone-700">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-foreground">
                 {DictionaryWordTypeLabels[entry.word_type]}
               </span>
             </div>
@@ -96,19 +96,19 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
               <button
                 type="button"
                 onClick={() => toggleBookmark(entry.id)}
-                className="p-2 rounded-xl bg-stone-200/80 hover:bg-stone-300/80 text-stone-700 transition-colors"
+                className="p-2 rounded-xl bg-secondary hover:bg-secondary text-foreground transition-colors"
                 title={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
               >
                 {bookmarked ? (
-                  <BookmarkCheck className="w-5 h-5 text-amber-600 fill-amber-600" />
+                  <BookmarkCheck className="w-5 h-5 text-signal fill-signal" />
                 ) : (
-                  <Bookmark className="w-5 h-5 text-stone-600" />
+                  <Bookmark className="w-5 h-5 text-muted-foreground" />
                 )}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-xl bg-stone-200/80 hover:bg-stone-300/80 text-stone-700 transition-colors"
+                className="p-2 rounded-xl bg-secondary hover:bg-secondary text-foreground transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -125,15 +125,15 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                   title={entry.gender ? GENDER_LABELS_AR[entry.gender] : ''}
                 />
               )}
-              <h2 dir="ltr" className="text-3xl sm:text-4xl font-black text-[#17181C] tracking-tight">
+              <h2 dir="ltr" className="text-3xl sm:text-4xl font-black text-[hsl(var(--foreground))] tracking-tight">
                 {entry.german}
               </h2>
 
               <button
                 type="button"
                 onClick={() => speakText(entry.german)}
-                className={`p-2 rounded-2xl border border-stone-300 hover:bg-stone-200 transition-colors ${
-                  isPlaying ? 'bg-amber-100 border-amber-400 text-amber-800' : 'bg-white/80 text-stone-800'
+                className={`p-2 rounded-2xl border border-[hsl(var(--track))] hover:bg-secondary transition-colors ${
+                  isPlaying ? 'bg-signal border-signal text-signal' : 'bg-white/80 text-foreground'
                 }`}
                 title="نطق ألماني واضح"
               >
@@ -142,17 +142,17 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
             </div>
 
             {entry.ipa && (
-              <p dir="ltr" className="text-sm font-mono text-stone-500">
+              <p dir="ltr" className="text-sm font-mono text-muted-foreground">
                 Pronunciation: [{entry.ipa}]
               </p>
             )}
 
-            <div className="p-4 rounded-2xl bg-white/80 border border-stone-200/90">
-              <h3 className="text-xl sm:text-2xl font-bold text-stone-900 leading-relaxed">
+            <div className="p-4 rounded-2xl bg-white/80 border border-[hsl(var(--track))]">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground leading-relaxed">
                 {entry.arabic}
               </h3>
               {enrichment.categoryHintAr && (
-                <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
+                <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
                   {enrichment.categoryHintAr}
                 </p>
               )}
@@ -161,21 +161,21 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
 
           {/* Noun / Verb Detailed Grammar Forms */}
           {entry.word_type === 'noun' && entry.noun_forms && (
-            <div className="p-4 rounded-2xl bg-stone-200/60 border border-stone-300/60 space-y-2">
-              <h4 className="text-xs font-bold text-[#17324D] uppercase tracking-wider">
+            <div className="p-4 rounded-2xl bg-secondary border border-[hsl(var(--track))] space-y-2">
+              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
                 الصيغ الإعرابية والجمع (Grammatische Formen)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {entry.noun_forms.plural_form && (
                   <div>
-                    <span className="text-stone-500">الجمع (Plural):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-stone-900">{entry.noun_forms.plural_form}</strong>
+                    <span className="text-muted-foreground">الجمع (Plural):</span>{' '}
+                    <strong dir="ltr" className="font-bold text-foreground">{entry.noun_forms.plural_form}</strong>
                   </div>
                 )}
                 {entry.noun_forms.genitive_singular && (
                   <div>
-                    <span className="text-stone-500">المضاف إليه (Genitiv):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-stone-900">{entry.noun_forms.genitive_singular}</strong>
+                    <span className="text-muted-foreground">المضاف إليه (Genitiv):</span>{' '}
+                    <strong dir="ltr" className="font-bold text-foreground">{entry.noun_forms.genitive_singular}</strong>
                   </div>
                 )}
               </div>
@@ -183,27 +183,27 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           )}
 
           {entry.word_type === 'verb' && entry.verb_forms && (
-            <div className="p-4 rounded-2xl bg-stone-200/60 border border-stone-300/60 space-y-2">
-              <h4 className="text-xs font-bold text-[#17324D] uppercase tracking-wider">
+            <div className="p-4 rounded-2xl bg-secondary border border-[hsl(var(--track))] space-y-2">
+              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
                 تصريفات الفعل الرئيسية (Stammformen)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 {entry.verb_forms.present_3sg && (
                   <div>
-                    <span className="text-stone-500">المضارع (Präsens):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-stone-900">{entry.verb_forms.present_3sg}</strong>
+                    <span className="text-muted-foreground">المضارع (Präsens):</span>{' '}
+                    <strong dir="ltr" className="font-bold text-foreground">{entry.verb_forms.present_3sg}</strong>
                   </div>
                 )}
                 {entry.verb_forms.past_simple && (
                   <div>
-                    <span className="text-stone-500">الماضي البسيط (Präteritum):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-stone-900">{entry.verb_forms.past_simple}</strong>
+                    <span className="text-muted-foreground">الماضي البسيط (Präteritum):</span>{' '}
+                    <strong dir="ltr" className="font-bold text-foreground">{entry.verb_forms.past_simple}</strong>
                   </div>
                 )}
                 {entry.verb_forms.perfect && (
                   <div>
-                    <span className="text-stone-500">الماضي التام (Perfekt):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-stone-900">{entry.verb_forms.perfect}</strong>
+                    <span className="text-muted-foreground">الماضي التام (Perfekt):</span>{' '}
+                    <strong dir="ltr" className="font-bold text-foreground">{entry.verb_forms.perfect}</strong>
                   </div>
                 )}
               </div>
@@ -213,32 +213,32 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {/* Examples List */}
           {entry.examples.length > 0 && (
             <div className="space-y-3">
-              <h4 className="text-sm font-bold text-[#17181C] flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600" />
+              <h4 className="text-sm font-bold text-[hsl(var(--foreground))] flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-signal" />
                 أمثلة توضيحية من الحياة الواقعية ({entry.examples.length})
               </h4>
 
               <div className="space-y-2.5">
                 {entry.examples.map((ex, idx) => (
-                  <div key={idx} className="p-3.5 rounded-2xl bg-white border border-stone-200/80 space-y-1">
+                  <div key={idx} className="p-3.5 rounded-2xl bg-white border border-[hsl(var(--track))] space-y-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p dir="ltr" className="text-sm font-bold text-stone-900">
+                      <p dir="ltr" className="text-sm font-bold text-foreground">
                         „{ex.de}"
                       </p>
                       <button
                         type="button"
                         onClick={() => speakText(ex.de)}
-                        className="p-1 rounded-lg text-stone-500 hover:text-stone-800 transition-colors"
+                        className="p-1 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
                         title="استمع للمثال"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    <p className="text-xs text-stone-600 font-medium">
+                    <p className="text-xs text-muted-foreground font-medium">
                       „{ex.ar}"
                     </p>
                     {ex.context && (
-                      <span className="inline-block text-[0.625rem] px-2 py-0.5 rounded bg-stone-100 text-stone-500">
+                      <span className="inline-block text-[0.625rem] px-2 py-0.5 rounded bg-card text-muted-foreground">
                         السياق: {ex.context}
                       </span>
                     )}
@@ -252,16 +252,16 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {(entry.synonyms?.length || entry.antonyms?.length) ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               {entry.synonyms?.length ? (
-                <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 space-y-1">
-                  <span className="font-bold text-emerald-900">المترادفات (Synonyme):</span>
-                  <p dir="ltr" className="text-emerald-800 font-medium">{entry.synonyms.join(', ')}</p>
+                <div className="p-3 rounded-xl bg-data-1/80 border border-data-1/80 space-y-1">
+                  <span className="font-bold text-data-1">المترادفات (Synonyme):</span>
+                  <p dir="ltr" className="text-data-1 font-medium">{entry.synonyms.join(', ')}</p>
                 </div>
               ) : null}
 
               {entry.antonyms?.length ? (
-                <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-200/80 space-y-1">
-                  <span className="font-bold text-rose-900">الأضداد (Antonyme):</span>
-                  <p dir="ltr" className="text-rose-800 font-medium">{entry.antonyms.join(', ')}</p>
+                <div className="p-3 rounded-xl bg-data-5/80 border border-data-5/80 space-y-1">
+                  <span className="font-bold text-data-5">الأضداد (Antonyme):</span>
+                  <p dir="ltr" className="text-data-5 font-medium">{entry.antonyms.join(', ')}</p>
                 </div>
               ) : null}
             </div>
@@ -269,8 +269,8 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
 
           {/* Cultural & Grammatical Notes */}
           {entry.cultural_note_ar && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-amber-800">
+            <div className="p-4 rounded-2xl bg-signal border border-signal text-signal space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-xs text-signal">
                 <BookOpen className="w-4 h-4" />
                 <span>ملاحظة ثقافية واجتماعية في ألمانيا</span>
               </div>
@@ -279,8 +279,8 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           )}
 
           {entry.grammatical_note_ar && (
-            <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-sky-800">
+            <div className="p-4 rounded-2xl bg-data-4 border border-data-4 text-data-4 space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-xs text-data-4">
                 <Lightbulb className="w-4 h-4" />
                 <span>إرشاد وقاعدة لغوية</span>
               </div>
@@ -291,7 +291,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {/* Related words — same CEFR + category */}
           {enrichment.relatedWords.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#17324D] uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider flex items-center gap-1.5">
                 <Compass className="w-3.5 h-3.5" />
                 كلمات من نفس المجال ({enrichment.relatedWords.length})
               </h4>
@@ -304,16 +304,16 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                       const target = GERMAN_DICTIONARY_DATA.find((e) => e.id === w.id);
                       if (target) setSelectedEntry(target);
                     }}
-                    className="text-start p-2.5 rounded-xl bg-white border border-stone-200/60 hover:bg-stone-50 hover:border-stone-300 transition-motion group"
+                    className="text-start p-2.5 rounded-xl bg-white border border-[hsl(var(--track))] hover:bg-card hover:border-[hsl(var(--track))] transition-motion group"
                   >
                     <p
                       dir="ltr"
-                      className="text-sm font-bold text-[#17181C] group-hover:text-[#17324D] truncate"
+                      className="text-sm font-bold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] truncate"
                       style={{ unicodeBidi: 'isolate' }}
                     >
                       {w.german}
                     </p>
-                    <p className="text-xs text-stone-600 truncate">{w.arabic}</p>
+                    <p className="text-xs text-muted-foreground truncate">{w.arabic}</p>
                   </button>
                 ))}
               </div>

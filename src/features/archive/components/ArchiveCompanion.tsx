@@ -251,7 +251,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                     title="نسخ الشاهد"
                   >
                     {copiedQuoteId === ins.id ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      <Check className="w-3.5 h-3.5 text-data-1" />
                     ) : (
                       <Clipboard className="w-3.5 h-3.5 text-muted-foreground" />
                     )}

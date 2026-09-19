@@ -37,9 +37,9 @@ function formatDistance(km: number | null): string {
 }
 
 function qualityBadge(score: number): { label: string; tint: string } | null {
-  if (score >= 0.85) return { label: 'مطابقة تامة', tint: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' };
-  if (score >= 0.6) return { label: 'مطابقة قوية', tint: 'bg-sky-500/15 text-sky-600 dark:text-sky-400' };
-  if (score >= 0.3) return { label: 'مطابقة تقريبية', tint: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' };
+  if (score >= 0.85) return { label: 'مطابقة تامة', tint: 'bg-data-1/15 text-data-1 dark:text-data-1' };
+  if (score >= 0.6) return { label: 'مطابقة قوية', tint: 'bg-data-4/15 text-data-4 dark:text-data-4' };
+  if (score >= 0.3) return { label: 'مطابقة تقريبية', tint: 'bg-signal/15 text-signal dark:text-signal' };
   return null;
 }
 

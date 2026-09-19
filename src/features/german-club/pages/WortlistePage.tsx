@@ -15,12 +15,12 @@ import { useDictionaryStore } from '../useDictionaryStore';
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
 const CEFR_COLORS: Record<(typeof CEFR_LEVELS)[number], string> = {
-  A1: '#10b981',
-  A2: '#14b8a6',
-  B1: '#0ea5e9',
-  B2: '#6366f1',
-  C1: '#f59e0b',
-  C2: '#f43f5e',
+  A1: 'hsl(var(--data-1))',
+  A2: 'hsl(var(--data-1))',
+  B1: 'hsl(var(--data-4))',
+  B2: 'hsl(var(--data-6))',
+  C1: 'hsl(var(--data-3))',
+  C2: 'hsl(var(--data-5))',
 };
 
 /**
@@ -59,14 +59,14 @@ export const WortlistePage: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* App Bar */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60 bg-[#EFEEE7]/90 backdrop-blur-md">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[hsl(var(--card))]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 قائمة كلماتي
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 DEINE WORTLISTE
               </span>
             </div>
@@ -75,9 +75,9 @@ export const WortlistePage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/german-club/dictionary?tab=bookmarks')}
-            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
           >
-            <Bookmark className="w-3.5 h-3.5 text-[#17324D]" />
+            <Bookmark className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
             عرض في القاموس
           </button>
         </div>
@@ -93,20 +93,20 @@ export const WortlistePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="p-5 rounded-3xl border bg-white/60"
-                style={{ borderColor: `${GERMAN_CLUB_TOKENS.oak}33` }}
+                style={{ borderColor: 'hsl(var(--track))' }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-                  <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+                  <Sparkles className="w-3.5 h-3.5 text-signal" />
+                  <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
                     مرآة
                   </span>
                 </div>
-                <p className="text-sm text-stone-700 leading-relaxed">{summary}</p>
+                <p className="text-sm text-foreground leading-relaxed">{summary}</p>
 
                 {/* CEFR distribution as a tiny bar chart */}
                 {insights.total > 0 && (
                   <div className="mt-4">
-                    <p className="text-[0.625rem] font-mono uppercase tracking-wider text-stone-500 mb-2">
+                    <p className="text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground mb-2">
                       التوزيع حسب المستوى
                     </p>
                     <div className="flex items-end gap-1 h-10">
@@ -127,7 +127,7 @@ export const WortlistePage: React.FC = () => {
                               }}
                               title={`${lvl}: ${count} كلمة`}
                             />
-                            <span className="text-[0.625rem] font-mono font-bold text-stone-500">
+                            <span className="text-[0.625rem] font-mono font-bold text-muted-foreground">
                               {lvl}
                             </span>
                           </div>
@@ -143,7 +143,7 @@ export const WortlistePage: React.FC = () => {
                     {insights.topCategories.slice(0, 4).map((c) => (
                       <span
                         key={c.category}
-                        className="text-[0.625rem] font-medium px-2 py-0.5 rounded-full bg-stone-200/70 text-stone-700"
+                        className="text-[0.625rem] font-medium px-2 py-0.5 rounded-full bg-secondary text-foreground"
                       >
                         {c.category} · {c.count}
                       </span>
@@ -174,9 +174,9 @@ export const WortlistePage: React.FC = () => {
 
 const EmptyState: React.FC = () => (
   <div className="text-center py-16 space-y-3">
-    <Bookmark className="w-10 h-10 mx-auto text-stone-300" />
-    <h3 className="text-base font-bold text-stone-700">قائمة كلماتك فارغة</h3>
-    <p className="text-sm text-stone-500 max-w-xs mx-auto leading-relaxed">
+    <Bookmark className="w-10 h-10 mx-auto text-muted-foreground" />
+    <h3 className="text-base font-bold text-foreground">قائمة كلماتك فارغة</h3>
+    <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
       تصفّح القاموس أو الرفوف. حين تجد كلمة تستحق البقاء، احفظها. ستجدها هنا.
     </p>
   </div>
@@ -199,28 +199,28 @@ const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, sh
       animate={{ opacity: 1, y: 0 }}
       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 16 }}
       transition={{ duration: 0.25 }}
-      className="flex items-center gap-3 p-3 rounded-2xl border bg-white group hover:border-stone-400 transition-colors"
-      style={{ borderColor: `${GERMAN_CLUB_TOKENS.oak}22` }}
+      className="flex items-center gap-3 p-3 rounded-2xl border bg-white group hover:border-[hsl(var(--track))] transition-colors"
+      style={{ borderColor: 'hsl(var(--track))' }}
     >
       <button type="button" onClick={onOpen} className="flex-1 text-start min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p
             dir="ltr"
-            className="font-bold text-[#17181C] truncate"
+            className="font-bold text-[hsl(var(--foreground))] truncate"
             style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}
           >
             {entry.german}
           </p>
           {entry.ipa && (
-            <span className="text-xs font-mono text-stone-500" dir="ltr">
+            <span className="text-xs font-mono text-muted-foreground" dir="ltr">
               [{entry.ipa}]
             </span>
           )}
         </div>
-        <p className="text-xs text-stone-600 truncate">{entry.arabic}</p>
-        <div className="mt-1 flex items-center gap-1 text-[0.625rem] font-mono uppercase tracking-wider text-stone-400">
+        <p className="text-xs text-muted-foreground truncate">{entry.arabic}</p>
+        <div className="mt-1 flex items-center gap-1 text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground">
           <span>{entry.cefr}</span>
-          <span className="text-stone-300">·</span>
+          <span className="text-muted-foreground">·</span>
           <span>{entry.category}</span>
         </div>
       </button>
@@ -230,7 +230,7 @@ const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, sh
       <button
         type="button"
         onClick={onRemove}
-        className="shrink-0 text-xs font-medium text-stone-400 hover:text-rose-600 transition-colors px-2 py-1"
+        className="shrink-0 text-xs font-medium text-muted-foreground hover:text-data-5 transition-colors px-2 py-1"
         title="إزالة من القائمة"
       >
         إزالة

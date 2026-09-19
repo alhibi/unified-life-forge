@@ -40,11 +40,11 @@ interface Band {
 }
 
 const BANDS: Band[] = [
-  { to: 25,  label: 'ممتاز',     labelEn: 'excellent', gradient: 'from-emerald-400 to-emerald-500', textClass: 'text-emerald-600 dark:text-emerald-400' },
-  { to: 50,  label: 'جيد',       labelEn: 'good',      gradient: 'from-lime-400 to-emerald-500',   textClass: 'text-lime-600 dark:text-lime-400' },
-  { to: 75,  label: 'متوسط',     labelEn: 'moderate',  gradient: 'from-yellow-400 to-amber-500',   textClass: 'text-amber-600 dark:text-amber-400' },
-  { to: 100, label: 'ضعيف',      labelEn: 'poor',      gradient: 'from-orange-400 to-orange-500',  textClass: 'text-orange-600 dark:text-orange-400' },
-  { to: 150, label: 'رديء جداً', labelEn: 'very-poor', gradient: 'from-rose-500 to-rose-600',      textClass: 'text-rose-600 dark:text-rose-400' },
+  { to: 25,  label: 'ممتاز',     labelEn: 'excellent', gradient: 'from-data-1 to-data-1', textClass: 'text-data-1 dark:text-data-1' },
+  { to: 50,  label: 'جيد',       labelEn: 'good',      gradient: 'from-data-1 to-data-1',   textClass: 'text-data-1 dark:text-data-1' },
+  { to: 75,  label: 'متوسط',     labelEn: 'moderate',  gradient: 'from-signal to-signal',   textClass: 'text-signal dark:text-signal' },
+  { to: 100, label: 'ضعيف',      labelEn: 'poor',      gradient: 'from-signal to-signal',  textClass: 'text-signal dark:text-signal' },
+  { to: 150, label: 'رديء جداً', labelEn: 'very-poor', gradient: 'from-data-5 to-data-5',      textClass: 'text-data-5 dark:text-data-5' },
 ];
 
 const W = 240;
@@ -251,7 +251,7 @@ export function AQIGauge({
             </div>
             <div className="h-1 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
               <motion.div
-                className="h-full origin-left rounded-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500"
+                className="h-full origin-left rounded-full bg-gradient-to-r from-data-1 via-signal to-data-5"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: Math.max(0, Math.min(1, healthScore / 100)) }}
                 transition={{ duration: duration.reveal * 2, ease: easing.decelerate }}

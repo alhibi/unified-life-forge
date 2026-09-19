@@ -14,12 +14,11 @@ export const GenderDot: React.FC<GenderDotProps> = ({ gender, size = 10, classNa
 
   return (
     <span
-      className={`inline-block rounded-full shrink-0 align-middle transition-transform hover:scale-125 ${className}`}
+      className={`inline-block rounded-full shrink-0 align-middle ${className}`}
       style={{
         width: `${size}px`,
         height: `${size}px`,
         backgroundColor: color,
-        boxShadow: `0 0 6px ${color}66`,
       }}
       title={`الجنس: ${gender}`}
       aria-label={`الجنس: ${gender}`}

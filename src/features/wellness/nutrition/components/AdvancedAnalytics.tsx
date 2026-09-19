@@ -73,31 +73,31 @@ export default function AdvancedAnalytics({ lang }: Props) {
         </h4>
         <div className="h-4 rounded-full overflow-hidden flex bg-muted/30">
           <div
-            className="h-full bg-red-500 transition-motion duration-slow"
+            className="h-full bg-destructive transition-motion duration-slow"
             style={{ width: `${pPct || 33}%` }}
           />
           <div
-            className="h-full bg-yellow-500 transition-motion duration-slow"
+            className="h-full bg-signal transition-motion duration-slow"
             style={{ width: `${cPct || 33}%` }}
           />
           <div
-            className="h-full bg-cyan-500 transition-motion duration-slow"
+            className="h-full bg-data-4 transition-motion duration-slow"
             style={{ width: `${fPct || 34}%` }}
           />
         </div>
         <div className="grid grid-cols-3 gap-2 text-center text-micro">
           <div>
-            <span className="inline-block w-2 h-2 rounded-full bg-red-500 me-1" />
+            <span className="inline-block w-2 h-2 rounded-full bg-destructive me-1" />
             <span className="text-muted-foreground">{T.protein[lang]}</span>
             <p className="font-bold text-foreground tabular-nums">{pPct || 33}%</p>
           </div>
           <div>
-            <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 me-1" />
+            <span className="inline-block w-2 h-2 rounded-full bg-signal me-1" />
             <span className="text-muted-foreground">{T.carbs[lang]}</span>
             <p className="font-bold text-foreground tabular-nums">{cPct || 33}%</p>
           </div>
           <div>
-            <span className="inline-block w-2 h-2 rounded-full bg-cyan-500 me-1" />
+            <span className="inline-block w-2 h-2 rounded-full bg-data-4 me-1" />
             <span className="text-muted-foreground">{T.fat[lang]}</span>
             <p className="font-bold text-foreground tabular-nums">{fPct || 34}%</p>
           </div>
@@ -126,7 +126,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
                 cx="40"
                 cy="40"
                 r="34"
-                className="stroke-purple-500"
+                className="stroke-data-6"
                 strokeWidth="6"
                 fill="transparent"
                 strokeDasharray={2 * Math.PI * 34}

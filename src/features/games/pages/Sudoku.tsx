@@ -468,11 +468,11 @@ export default function SudokuPage() {
       const isPlacement = smartHint.placements.some(p => p.r === r && p.c === c);
       const isElim      = smartHint.eliminations.some(e => e.r === r && e.c === c);
       const isHighlight = smartHint.highlights.some(h => h.r === r && h.c === c);
-      if (isPlacement) return 'bg-emerald-500/30 ring-2 ring-inset ring-emerald-400';
-      if (isElim)      return 'bg-rose-500/15 ring-1 ring-inset ring-rose-400/50';
-      if (isHighlight) return 'bg-purple-500/15 ring-1 ring-inset ring-purple-400/40';
+      if (isPlacement) return 'bg-data-1/30 ring-2 ring-inset ring-data-1';
+      if (isElim)      return 'bg-data-5/15 ring-1 ring-inset ring-data-5/50';
+      if (isHighlight) return 'bg-data-6/15 ring-1 ring-inset ring-data-6/40';
     }
-    if (conflicts.has(`${r}-${c}`)) return 'bg-rose-500/15 ring-1 ring-inset ring-rose-400/40';
+    if (conflicts.has(`${r}-${c}`)) return 'bg-data-5/15 ring-1 ring-inset ring-data-5/40';
     if (!selected) {
       if (selectedNumber !== null && board[r][c] === selectedNumber) return 'bg-primary/12';
       return '';
@@ -482,8 +482,8 @@ export default function SudokuPage() {
     if (r === sr || c === sc) return 'bg-primary/6';
     if (Math.floor(r / 3) === Math.floor(sr / 3) && Math.floor(c / 3) === Math.floor(sc / 3)) return 'bg-primary/6';
     if (variant === 'x') {
-      if (onMainDiag(sr, sc) && onMainDiag(r, c)) return 'bg-purple-500/8';
-      if (onAntiDiag(sr, sc) && onAntiDiag(r, c)) return 'bg-purple-500/8';
+      if (onMainDiag(sr, sc) && onMainDiag(r, c)) return 'bg-data-6/8';
+      if (onAntiDiag(sr, sc) && onAntiDiag(r, c)) return 'bg-data-6/8';
     }
     if (board[r][c] !== null && board[sr][sc] !== null && board[r][c] === board[sr][sc]) return 'bg-primary/10';
     return '';
@@ -569,13 +569,13 @@ export default function SudokuPage() {
   const timerDisplay = (
     <div className="flex items-center gap-2">
       <button onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform">
-        {isPaused ? <Play className="w-3.5 h-3.5 text-zinc-400" /> : <Pause className="w-3.5 h-3.5 text-zinc-400" />}
+        {isPaused ? <Play className="w-3.5 h-3.5 text-muted-foreground" /> : <Pause className="w-3.5 h-3.5 text-muted-foreground" />}
       </button>
-      <div className="flex items-center gap-1 text-mini text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+      <div className="flex items-center gap-1 text-mini text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
         <Clock className="w-3 h-3" />{formatTimer(timer)}
       </div>
       {errorCount > 0 && (
-        <div className="flex items-center gap-1 text-mini text-rose-400 bg-rose-500/10 px-2 py-1 rounded-full">
+        <div className="flex items-center gap-1 text-mini text-data-5 bg-data-5/10 px-2 py-1 rounded-full">
           <X className="w-3 h-3" />{errorCount}
         </div>
       )}
@@ -586,7 +586,7 @@ export default function SudokuPage() {
     <GameShell
       title={t('games.sudoku')}
       icon={Grid3X3}
-      accentColor="hsl(199, 89%, 48%)"
+      accentColor="hsl(var(--data-4))"
       rules={sudokuRules}
       stats={sudokuStats}
       options={sudokuOptions}
@@ -594,17 +594,17 @@ export default function SudokuPage() {
     >
       {/* Variant + Daily banner */}
       {variant === 'x' && !solved && (
-        <div className="text-center py-1.5 mb-2 rounded-2xl bg-purple-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-purple-300" />
-          <span className="text-purple-200 font-bold text-micro">X-Sudoku</span>
-          <span className="text-purple-200/60 text-micro">{'القطران 1-9 أيضاً'}</span>
+        <div className="text-center py-1.5 mb-2 rounded-2xl bg-data-6/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-data-6" />
+          <span className="text-data-6 font-bold text-micro">X-Sudoku</span>
+          <span className="text-data-6/60 text-micro">{'القطران 1-9 أيضاً'}</span>
         </div>
       )}
       {isDaily && !solved && (
-        <div className="text-center py-2 mb-2 rounded-2xl bg-amber-500/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
-          <Calendar className="w-4 h-4 text-amber-300" />
-          <span className="text-amber-200 font-bold text-mini">{'تحدّي اليوم'}</span>
-          <span className="text-amber-200/60 text-mini tabular-nums">{todayKey()}</span>
+        <div className="text-center py-2 mb-2 rounded-2xl bg-signal/10 max-w-[360px] mx-auto flex items-center justify-center gap-2">
+          <Calendar className="w-4 h-4 text-signal" />
+          <span className="text-signal font-bold text-mini">{'تحدّي اليوم'}</span>
+          <span className="text-signal/60 text-mini tabular-nums">{todayKey()}</span>
         </div>
       )}
 
@@ -614,7 +614,7 @@ export default function SudokuPage() {
           <Trophy className="w-5 h-5 text-primary stroke-[1.8]" />
           <span className="text-primary font-bold">{t('sudoku.solved')}</span>
           <span className="text-primary/70 text-meta font-medium">{formatTimer(timer)}</span>
-          {hintsUsed === 0 && errorCount === 0 && <span className="text-amber-400 text-mini">★ {'إتقان'}</span>}
+          {hintsUsed === 0 && errorCount === 0 && <span className="text-signal text-mini">★ {'إتقان'}</span>}
         </motion.div>
       )}
 
@@ -744,13 +744,13 @@ export default function SudokuPage() {
           </button>
           <button onClick={handleSmartHint}
             title={'تلميح ذكي'}
-            className="w-11 h-11 rounded-full flex items-center justify-center bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 transition-colors active:scale-90">
+            className="w-11 h-11 rounded-full flex items-center justify-center bg-data-6/15 hover:bg-data-6/25 text-data-6 transition-colors active:scale-90">
             <Brain className="w-5 h-5 stroke-[1.8]" />
           </button>
           <button onClick={autoNotes ? clearAutoNotes : fillAutoNotes}
             title={'علامات تلقائية'}
             className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
-              autoNotes ? 'bg-amber-500/20 text-amber-300' : 'hover:bg-secondary text-foreground'
+              autoNotes ? 'bg-signal/20 text-signal' : 'hover:bg-secondary text-foreground'
             }`}>
             <Zap className="w-5 h-5 stroke-[1.8]" />
           </button>
@@ -776,14 +776,14 @@ export default function SudokuPage() {
               initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 30 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-sm rounded-3xl border border-purple-500/30 bg-card p-5"
+              className="w-full max-w-sm rounded-3xl border border-data-6/30 bg-card p-5"
             >
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
-                  <Brain className="w-5 h-5 text-purple-300" />
+                <div className="w-10 h-10 rounded-xl bg-data-6/20 flex items-center justify-center shrink-0">
+                  <Brain className="w-5 h-5 text-data-6" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-micro uppercase tracking-wider text-purple-300/80 font-bold">
+                  <p className="text-micro uppercase tracking-wider text-data-6/80 font-bold">
                     {'تقنية الحل'}
                   </p>
                   <h3 className="text-body font-black text-foreground">
@@ -793,7 +793,7 @@ export default function SudokuPage() {
                     {Array.from({ length: 9 }).map((_, i) => (
                       <span key={i} className={`w-1.5 h-1 rounded-full ${
                         i < TECHNIQUE_LABELS[smartHint.technique].difficulty
-                          ? 'bg-purple-400' : 'bg-zinc-700'
+                          ? 'bg-data-6' : 'bg-muted'
                       }`} />
                     ))}
                   </div>
@@ -806,20 +806,20 @@ export default function SudokuPage() {
 
               {/* Effect summary */}
               {smartHint.placements.length > 0 && (
-                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 text-micro">
-                  <p className="font-bold text-emerald-300 mb-0.5">
+                <div className="rounded-xl bg-data-1/10 border border-data-1/25 p-2.5 mb-3 text-micro">
+                  <p className="font-bold text-data-1 mb-0.5">
                     {'سيضع الرقم:'}
                   </p>
                   {smartHint.placements.map((p, i) => (
-                    <p key={i} className="text-emerald-200/90 font-mono">
+                    <p key={i} className="text-data-1/90 font-mono">
                       ({p.r + 1}, {p.c + 1}) ← <b>{p.value}</b>
                     </p>
                   ))}
                 </div>
               )}
               {smartHint.eliminations.length > 0 && (
-                <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 p-2.5 mb-3 text-micro">
-                  <p className="font-bold text-rose-300 mb-0.5">
+                <div className="rounded-xl bg-data-5/10 border border-data-5/25 p-2.5 mb-3 text-micro">
+                  <p className="font-bold text-data-5 mb-0.5">
                     {`سيلغي ${smartHint.eliminations.length} مرشحاً`}
                   </p>
                 </div>
@@ -835,7 +835,7 @@ export default function SudokuPage() {
                 {(smartHint.placements.length > 0 || smartHint.eliminations.length > 0) && (
                   <button
                     onClick={applySmartHint}
-                    className="flex-1 py-2.5 rounded-xl font-black text-purple-950 text-meta"
+                    className="flex-1 py-2.5 rounded-xl font-black text-data-6 text-meta"
                     style={{ }}
                   >
                     {'طبّقها'}

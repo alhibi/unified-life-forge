@@ -234,10 +234,10 @@ export default function NutritionExplorer() {
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             {/* Stats banner */}
-            <div className="flex items-center justify-between rounded-xl p-3 border border-emerald-500/20">
+            <div className="flex items-center justify-between rounded-xl p-3 border border-data-1/20">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  <Apple className="w-4 h-4 text-emerald-500" />
+                <div className="w-8 h-8 rounded-lg bg-data-1/20 flex items-center justify-center">
+                  <Apple className="w-4 h-4 text-data-1" />
                 </div>
                 <div>
                   <p className="text-mini text-muted-foreground">{T.title[lang]}</p>
@@ -246,7 +246,7 @@ export default function NutritionExplorer() {
                   </p>
                 </div>
               </div>
-              <Sparkles className="w-5 h-5 text-emerald-500/50" />
+              <Sparkles className="w-5 h-5 text-data-1/50" />
             </div>
 
             {/* Categories grid */}
@@ -343,7 +343,7 @@ export default function NutritionExplorer() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div>
               <h3 className="text-meta font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Heart className="w-4 h-4 text-red-500" /> {T.favorites[lang]}
+                <Heart className="w-4 h-4 text-destructive" /> {T.favorites[lang]}
               </h3>
               {favFoods.length === 0 ? (
                 <p className="text-mini text-muted-foreground text-center py-6">
@@ -364,7 +364,7 @@ export default function NutritionExplorer() {
             </div>
             <div>
               <h3 className="text-meta font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-500" /> {T.recent[lang]}
+                <Clock className="w-4 h-4 text-data-4" /> {T.recent[lang]}
               </h3>
               {recentFoods.length === 0 ? (
                 <p className="text-mini text-muted-foreground text-center py-6">{T.noRecent[lang]}</p>

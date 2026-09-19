@@ -42,20 +42,20 @@ export const DiscoveryCard: React.FC = () => {
     <section
       className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
       style={{
-        background: `linear-gradient(135deg, ${GERMAN_CLUB_TOKENS.prussian}06, ${GERMAN_CLUB_TOKENS.ember}06)`,
-        borderColor: `${GERMAN_CLUB_TOKENS.prussian}22`,
+        background: 'transparent',
+        borderColor: 'hsl(var(--track))',
         boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
       }}
     >
       {/* Top: label + wander button */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Compass className="w-3.5 h-3.5 text-[#17324D]" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[#17324D]">
+          <Compass className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
             Zufallsfund
           </span>
-          <span className="text-[0.625rem] text-stone-500">·</span>
-          <span className="text-[0.625rem] font-mono text-stone-600 uppercase tracking-wider">
+          <span className="text-[0.625rem] text-muted-foreground">·</span>
+          <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
             {reasonMeta.text}
           </span>
         </div>
@@ -88,7 +88,7 @@ export const DiscoveryCard: React.FC = () => {
           transition={{ duration: 0.22, ease: 'easeOut' }}
         >
           <h3
-            className="font-black text-[#17181C] mb-1 leading-tight"
+            className="font-black text-[hsl(var(--foreground))] mb-1 leading-tight"
             style={{
               fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
               fontSize: 'clamp(1.5rem, 6vw, 2.125rem)',
@@ -99,29 +99,29 @@ export const DiscoveryCard: React.FC = () => {
             {entry.german}
           </h3>
           {entry.ipa && (
-            <span className="text-xs font-mono text-stone-500 ms-0.5" dir="ltr">
+            <span className="text-xs font-mono text-muted-foreground ms-0.5" dir="ltr">
               [{entry.ipa}]
             </span>
           )}
 
-          <p className="text-base font-semibold text-[#17181C] mt-2 mb-1.5 leading-snug">
+          <p className="text-base font-semibold text-[hsl(var(--foreground))] mt-2 mb-1.5 leading-snug">
             {entry.arabic}
           </p>
 
           {/* Meta line — category + CEFR */}
-          <div className="flex items-center gap-1.5 flex-wrap mt-3 text-[0.625rem] font-mono text-stone-500 uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 flex-wrap mt-3 text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
             <span>{entry.category}</span>
-            <span className="text-stone-300">·</span>
+            <span className="text-muted-foreground">·</span>
             <span>{entry.cefr}</span>
-            <span className="text-stone-300">·</span>
+            <span className="text-muted-foreground">·</span>
             <span>{entry.word_type}</span>
           </div>
         </motion.div>
       </AnimatePresence>
 
       {/* Bottom hint */}
-      <div className="mt-4 pt-3 border-t border-stone-200/60 flex items-center justify-between">
-        <span className="text-xs text-stone-500 italic">
+      <div className="mt-4 pt-3 border-t border-[hsl(var(--track))] flex items-center justify-between">
+        <span className="text-xs text-muted-foreground italic">
           {reason === 'synonym' && 'كلمة بمعنى مشابه — لا تخلط بينهما'}
           {reason === 'antonym' && 'الضد تماماً — جرّب استخدامهما في جملة'}
           {reason === 'same-level' && 'في نفس مستواك — قرّب منه'}
@@ -129,7 +129,7 @@ export const DiscoveryCard: React.FC = () => {
           {reason === 'mixed' && 'عشوائية سعيدة — اضغط البوصلة لمزيد'}
           {reason === 'fresh' && 'ابدأ من هنا — اضغط البوصلة للمزيد'}
         </span>
-        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+        <Sparkles className="w-3.5 h-3.5 text-signal" />
       </div>
     </section>
   );

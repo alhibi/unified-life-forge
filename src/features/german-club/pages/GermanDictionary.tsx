@@ -73,14 +73,14 @@ export const GermanDictionary: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60 bg-[#EFEEE7]/90 backdrop-blur-md">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[hsl(var(--card))]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 القاموس الألماني-العربي
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 DEUTSCH-ARABISCHES WÖRTERBUCH
               </span>
             </div>
@@ -90,34 +90,34 @@ export const GermanDictionary: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/german-club')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-stone-300/80 text-stone-700 hover:bg-stone-200/60 transition-colors flex items-center gap-1.5"
+              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
-              <BookOpen className="w-3.5 h-3.5 text-[#17324D]" />
+              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
               المواقف اليومية
             </button>
           </div>
         </div>
 
         {/* Hero Section */}
-        <div className="relative overflow-hidden border-b border-stone-300/80 px-4 py-8 bg-gradient-to-b from-stone-200/80 via-stone-100 to-transparent">
+        <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
           <div className="max-w-4xl mx-auto space-y-3 text-center sm:text-start">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] border border-[#17324D]/20 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-signal" />
                 <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
               </div>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-200 text-stone-700 border border-stone-300 text-xs font-bold">
-                <Layers className="w-3.5 h-3.5 text-[#17324D]" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-foreground border border-[hsl(var(--track))] text-xs font-bold">
+                <Layers className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
                 <span>تصنيف أكاديمي ومعجمي مستقل عن المواقف اليومية</span>
               </div>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black text-[#17181C] tracking-tight leading-tight">
-              قاموس ومعجم <span className="text-[#17324D]">الألمانية المعاصرة</span>
+            <h2 className="text-2xl sm:text-4xl font-black text-[hsl(var(--foreground))] tracking-tight leading-tight">
+              قاموس ومعجم <span className="text-[hsl(var(--primary))]">الألمانية المعاصرة</span>
             </h2>
 
-            <p className="text-xs sm:text-base text-stone-600 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
               معجم لغوي منظم أ أبجدياً وبحسب المجالات المعجمية المستقلة (وليس حسب السيناريوهات).
               يتيح الفرز بالترتيب الأبجدي، والمستوى التعليمي (A1-C2)، وطول الكلمة، والتجميع النحوي
               مع تصفية أفعال الانفصال وحالات حروف الجر.
@@ -137,15 +137,15 @@ export const GermanDictionary: React.FC = () => {
           <AlphabetNav />
 
           {/* Tab Selection: All Words vs Bookmarks */}
-          <div className="flex items-center justify-between border-b border-stone-300/80 pb-3">
+          <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTab('all')}
                 className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion ${
                   activeTab === 'all'
-                    ? 'bg-[#17324D] text-white shadow-xs'
-                    : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
+                    ? 'bg-[hsl(var(--primary))] text-white shadow-xs'
+                    : 'bg-secondary text-foreground hover:bg-secondary'
                 }`}
               >
                 جميع الكلمات ({filteredEntries.length})
@@ -156,8 +156,8 @@ export const GermanDictionary: React.FC = () => {
                 onClick={() => setActiveTab('bookmarks')}
                 className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion flex items-center gap-1.5 ${
                   activeTab === 'bookmarks'
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
+                    ? 'bg-signal text-white shadow-xs'
+                    : 'bg-secondary text-foreground hover:bg-secondary'
                 }`}
               >
                 <BookmarkCheck className="w-3.5 h-3.5" />
@@ -165,7 +165,7 @@ export const GermanDictionary: React.FC = () => {
               </button>
             </div>
 
-            <span className="text-[0.625rem] text-stone-500 font-mono">
+            <span className="text-[0.625rem] text-muted-foreground font-mono">
               عرض {displayedEntries.length} نتيجة
             </span>
           </div>
@@ -176,15 +176,15 @@ export const GermanDictionary: React.FC = () => {
               {/* Windowed: only on-screen rows are mounted, so the DOM stays
                   flat across the full 5,000+ entry corpus. */}
               <DictionaryVirtualGrid entries={displayedEntries} onSelect={setSelectedEntry} />
-              <p className="text-xs text-stone-500 font-mono text-center">
+              <p className="text-xs text-muted-foreground font-mono text-center">
                 {displayedEntries.length.toLocaleString('en-US')} مفردة
               </p>
             </div>
           ) : (
-            <div className="p-12 text-center rounded-3xl border border-dashed border-stone-300 bg-stone-100/50 space-y-3">
-              <SearchX className="w-10 h-10 text-stone-400 mx-auto" />
-              <h3 className="text-base font-bold text-stone-800">لم يتم العثور على نتائج</h3>
-              <p className="text-xs text-stone-500 max-w-md mx-auto">
+            <div className="p-12 text-center rounded-3xl border border-dashed border-[hsl(var(--track))] bg-card space-y-3">
+              <SearchX className="w-10 h-10 text-muted-foreground mx-auto" />
+              <h3 className="text-base font-bold text-foreground">لم يتم العثور على نتائج</h3>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto">
                 جرب تغيير البحث أو إلغاء بعض الفلاتر لعرض قائمة أكبر من مفردات المعجم.
               </p>
             </div>

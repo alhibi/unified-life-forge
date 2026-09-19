@@ -143,7 +143,7 @@ export default function CaliHoldTimer({
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -10, opacity: 0 }}
-                    className="mt-3 inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-400 px-3 py-1.5 rounded-full text-micro font-bold"
+                    className="mt-3 inline-flex items-center gap-1.5 bg-signal/20 text-signal px-3 py-1.5 rounded-full text-micro font-bold"
                   >
                     <Trophy className="w-3.5 h-3.5" />
                     {T.pbBeaten[lang]}
@@ -153,7 +153,7 @@ export default function CaliHoldTimer({
                   <motion.div
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="mt-3 inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full text-micro font-bold"
+                    className="mt-3 inline-flex items-center gap-1.5 bg-data-1/20 text-data-1 px-3 py-1.5 rounded-full text-micro font-bold"
                   >
                     {T.targetReached[lang]}
                   </motion.div>
@@ -180,7 +180,7 @@ export default function CaliHoldTimer({
               <button
                 onClick={() => { onSave(sec); onClose(); }}
                 disabled={sec === 0}
-                className="px-4 h-11 rounded-full bg-emerald-500 text-white text-mini font-bold disabled:opacity-50"
+                className="px-4 h-11 rounded-full bg-data-1 text-white text-mini font-bold disabled:opacity-50"
               >
                 {T.save[lang]}
               </button>

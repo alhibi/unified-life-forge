@@ -491,7 +491,7 @@ function ExerciseBlock({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <p className="text-mini font-bold text-foreground truncate">{label}</p>
-            {!isCustom && ex.isBigLift && <span className="text-amber-500 text-micro">★</span>}
+            {!isCustom && ex.isBigLift && <span className="text-signal text-micro">★</span>}
           </div>
           {muscle && <p className="text-micro text-muted-foreground">{muscle}</p>}
           {previous && (
@@ -514,7 +514,7 @@ function ExerciseBlock({
           {!isCardio && lastSetWeight >= 30 && (
             <button
               onClick={() => onShowWarmup(label, lastSetWeight)}
-              className="w-7 h-7 rounded-lg bg-muted text-muted-foreground hover:text-orange-500 flex items-center justify-center"
+              className="w-7 h-7 rounded-lg bg-muted text-muted-foreground hover:text-signal flex items-center justify-center"
               title={T.warmup[lang]}
               aria-label={T.warmup[lang]}
             >
@@ -524,7 +524,7 @@ function ExerciseBlock({
           {!isCardio && lastSetWeight >= 25 && (
             <button
               onClick={() => onOpenPlate(lastSetWeight)}
-              className="w-7 h-7 rounded-lg bg-muted text-muted-foreground hover:text-blue-500 flex items-center justify-center"
+              className="w-7 h-7 rounded-lg bg-muted text-muted-foreground hover:text-data-4 flex items-center justify-center"
               title={T.plate[lang]}
               aria-label={T.plate[lang]}
             >

@@ -110,8 +110,8 @@ describe('German Club Feature Unit Tests', () => {
       expect(GENDER_COLORS.n_a).toBeNull();
     });
 
-    it('should have exact Prussian blue primary accent token', () => {
-      expect(GERMAN_CLUB_TOKENS.prussian).toBe('#17324D');
+    it('resolves its accent through the global theme token', () => {
+      expect(GERMAN_CLUB_TOKENS.prussian).toBe('hsl(var(--primary))');
     });
   });
 

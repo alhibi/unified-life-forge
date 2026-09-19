@@ -137,9 +137,9 @@ export default function DayCard({
                     key={source}
                     className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-micro font-medium border"
                     style={{
-                      backgroundColor: config ? `${config.color}15` : 'var(--muted)',
-                      borderColor: config ? `${config.color}40` : 'var(--border)',
-                      color: config ? config.color : 'var(--muted-foreground)',
+                      backgroundColor: config ? `hsl(${config.color} / 0.09)` : 'hsl(var(--muted))',
+                      borderColor: config ? `hsl(${config.color} / 0.28)` : 'hsl(var(--track))',
+                      color: config ? `hsl(${config.color})` : 'hsl(var(--muted-foreground))',
                     }}
                     title={`${config?.labelAr ?? source}: ${sourceEntries.length}`}
                   >
@@ -177,9 +177,9 @@ export default function DayCard({
                       label={
                         <span
                           className="flex items-center gap-1.5"
-                          style={{ color: config.color }}
+                          style={{ color: `hsl(${config.color})` }}
                         >
-                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: config.color }} />
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: `hsl(${config.color})` }} />
                           {config.labelAr} ({sourceEntries.length})
                         </span>
                       }

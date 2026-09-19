@@ -88,7 +88,7 @@ export const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
       <section className="surface-depth rounded-2xl p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-signal/10 flex items-center justify-center text-signal">
               <Award className="w-4 h-4" />
             </div>
             <h2 className="text-meta font-bold text-foreground">الأوسمة المميزة</h2>
@@ -109,7 +109,7 @@ export const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
                 className="p-3 rounded-xl bg-card border border-border/50 flex flex-col items-center text-center space-y-1.5 shadow-sm"
               >
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lead">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <Sparkles className="w-5 h-5 text-signal" />
                 </div>
                 <h3 className="text-mini font-bold text-foreground">{badge.titleAr}</h3>
                 <p className="text-micro text-muted-foreground line-clamp-1">{badge.descriptionAr}</p>

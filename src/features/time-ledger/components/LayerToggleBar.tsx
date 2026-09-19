@@ -60,7 +60,7 @@ export default function LayerToggleBar({
             type="button"
             onClick={onClearAll}
             disabled={noneEnabled}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-data-5 hover:bg-data-5/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
             aria-label="إلغاء التحديد"
             title="إلغاء التحديد"
           >
@@ -85,24 +85,24 @@ export default function LayerToggleBar({
                     : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
                 style={{
-                  backgroundColor: isEnabled ? undefined : `${layer.color}10`,
-                  borderColor: isEnabled ? 'transparent' : `${layer.color}30`,
-                  color: isEnabled ? 'var(--primary-foreground)' : layer.color,
+                  backgroundColor: isEnabled ? undefined : `hsl(${layer.color} / 0.1)`,
+                  borderColor: isEnabled ? 'transparent' : `hsl(${layer.color} / 0.3)`,
+                  color: isEnabled ? 'hsl(var(--primary-foreground))' : `hsl(${layer.color})`,
                 }}
                 aria-pressed={isEnabled}
                 title={`${layer.labelAr}: ${count} إدخال`}
               >
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: layer.color }}
+                  style={{ backgroundColor: `hsl(${layer.color})` }}
                 />
                 <span>{layer.labelAr}</span>
                 {count > 0 && (
                   <span
                     className="px-1.5 py-0.5 rounded-full text-micro font-bold tabular-nums"
                     style={{
-                      backgroundColor: isEnabled ? 'rgba(255,255,255,0.2)' : `${layer.color}20`,
-                      color: isEnabled ? 'inherit' : layer.color,
+                      backgroundColor: isEnabled ? 'hsl(var(--primary-foreground) / 0.2)' : `hsl(${layer.color} / 0.2)`,
+                      color: isEnabled ? 'inherit' : `hsl(${layer.color})`,
                     }}
                   >
                     {count}

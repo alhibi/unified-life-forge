@@ -94,91 +94,91 @@ interface HeatPalette {
 const HEAT_PALETTES: Record<ActivityCategory, HeatPalette> = {
   all: {
     steps: [
-      'bg-emerald-400/25 border border-emerald-400/30',
-      'bg-emerald-400/50 border border-emerald-400/60',
-      'bg-emerald-400/80 border border-emerald-300/80',
-      'bg-gradient-to-br from-emerald-300 to-teal-400 border border-emerald-200 shadow-[0_0_8px_rgba(52,211,153,0.55)]',
+      'bg-data-1/25 border border-data-1/30',
+      'bg-data-1/50 border border-data-1/60',
+      'bg-data-1/80 border border-data-1/80',
+      'bg-gradient-to-br from-data-1 to-data-1 border border-data-1 shadow-[0_0_8px_rgba(52,211,153,0.55)]',
     ],
     pillActive:
-      'bg-emerald-400/15 text-emerald-300 border border-emerald-400/50 shadow-[0_0_12px_rgba(52,211,153,0.18)]',
-    legendMax: 'bg-gradient-to-br from-emerald-300 to-teal-400 border border-emerald-200',
+      'bg-data-1/15 text-data-1 border border-data-1/50 shadow-[0_0_12px_rgba(52,211,153,0.18)]',
+    legendMax: 'bg-gradient-to-br from-data-1 to-data-1 border border-data-1',
   },
   visits: {
     steps: [
-      'bg-sky-400/25 border border-sky-400/30',
-      'bg-sky-400/50 border border-sky-400/60',
-      'bg-sky-400/80 border border-sky-300/80',
-      'bg-gradient-to-br from-sky-300 to-blue-500 border border-sky-200 shadow-[0_0_8px_rgba(56,189,248,0.55)]',
+      'bg-data-4/25 border border-data-4/30',
+      'bg-data-4/50 border border-data-4/60',
+      'bg-data-4/80 border border-data-4/80',
+      'bg-gradient-to-br from-data-4 to-data-4 border border-data-4 shadow-[0_0_8px_rgba(56,189,248,0.55)]',
     ],
     pillActive:
-      'bg-sky-400/15 text-sky-300 border border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.18)]',
-    legendMax: 'bg-gradient-to-br from-sky-300 to-blue-500 border border-sky-200',
+      'bg-data-4/15 text-data-4 border border-data-4/50 shadow-[0_0_12px_rgba(56,189,248,0.18)]',
+    legendMax: 'bg-gradient-to-br from-data-4 to-data-4 border border-data-4',
   },
   fitness: {
     steps: [
-      'bg-orange-400/25 border border-orange-400/30',
-      'bg-orange-400/50 border border-orange-400/60',
-      'bg-orange-400/80 border border-orange-300/80',
-      'bg-gradient-to-br from-amber-300 to-orange-500 border border-amber-200 shadow-[0_0_8px_rgba(251,146,60,0.55)]',
+      'bg-signal/25 border border-signal/30',
+      'bg-signal/50 border border-signal/60',
+      'bg-signal/80 border border-signal/80',
+      'bg-gradient-to-br from-signal to-signal border border-signal shadow-[0_0_8px_rgba(251,146,60,0.55)]',
     ],
     pillActive:
-      'bg-orange-400/15 text-orange-300 border border-orange-400/50 shadow-[0_0_12px_rgba(251,146,60,0.18)]',
-    legendMax: 'bg-gradient-to-br from-amber-300 to-orange-500 border border-amber-200',
+      'bg-signal/15 text-signal border border-signal/50 shadow-[0_0_12px_rgba(251,146,60,0.18)]',
+    legendMax: 'bg-gradient-to-br from-signal to-signal border border-signal',
   },
   german: {
     steps: [
-      'bg-indigo-400/25 border border-indigo-400/30',
-      'bg-indigo-400/50 border border-indigo-400/60',
-      'bg-indigo-400/80 border border-indigo-300/80',
-      'bg-gradient-to-br from-indigo-300 to-violet-500 border border-indigo-200 shadow-[0_0_8px_rgba(129,140,248,0.55)]',
+      'bg-data-6/25 border border-data-6/30',
+      'bg-data-6/50 border border-data-6/60',
+      'bg-data-6/80 border border-data-6/80',
+      'bg-gradient-to-br from-data-6 to-data-6 border border-data-6 shadow-[0_0_8px_rgba(129,140,248,0.55)]',
     ],
     pillActive:
-      'bg-indigo-400/15 text-indigo-300 border border-indigo-400/50 shadow-[0_0_12px_rgba(129,140,248,0.18)]',
-    legendMax: 'bg-gradient-to-br from-indigo-300 to-violet-500 border border-indigo-200',
+      'bg-data-6/15 text-data-6 border border-data-6/50 shadow-[0_0_12px_rgba(129,140,248,0.18)]',
+    legendMax: 'bg-gradient-to-br from-data-6 to-data-6 border border-data-6',
   },
   diwan: {
     steps: [
-      'bg-fuchsia-400/25 border border-fuchsia-400/30',
-      'bg-fuchsia-400/50 border border-fuchsia-400/60',
-      'bg-fuchsia-400/80 border border-fuchsia-300/80',
-      'bg-gradient-to-br from-fuchsia-300 to-pink-500 border border-fuchsia-200 shadow-[0_0_8px_rgba(232,121,249,0.55)]',
+      'bg-data-6/25 border border-data-6/30',
+      'bg-data-6/50 border border-data-6/60',
+      'bg-data-6/80 border border-data-6/80',
+      'bg-gradient-to-br from-data-6 to-data-5 border border-data-6 shadow-[0_0_8px_rgba(232,121,249,0.55)]',
     ],
     pillActive:
-      'bg-fuchsia-400/15 text-fuchsia-300 border border-fuchsia-400/50 shadow-[0_0_12px_rgba(232,121,249,0.18)]',
-    legendMax: 'bg-gradient-to-br from-fuchsia-300 to-pink-500 border border-fuchsia-200',
+      'bg-data-6/15 text-data-6 border border-data-6/50 shadow-[0_0_12px_rgba(232,121,249,0.18)]',
+    legendMax: 'bg-gradient-to-br from-data-6 to-data-5 border border-data-6',
   },
   pkm: {
     steps: [
-      'bg-cyan-400/25 border border-cyan-400/30',
-      'bg-cyan-400/50 border border-cyan-400/60',
-      'bg-cyan-400/80 border border-cyan-300/80',
-      'bg-gradient-to-br from-cyan-300 to-teal-500 border border-cyan-200 shadow-[0_0_8px_rgba(34,211,238,0.55)]',
+      'bg-data-4/25 border border-data-4/30',
+      'bg-data-4/50 border border-data-4/60',
+      'bg-data-4/80 border border-data-4/80',
+      'bg-gradient-to-br from-data-4 to-data-1 border border-data-4 shadow-[0_0_8px_rgba(34,211,238,0.55)]',
     ],
     pillActive:
-      'bg-cyan-400/15 text-cyan-300 border border-cyan-400/50 shadow-[0_0_12px_rgba(34,211,238,0.18)]',
-    legendMax: 'bg-gradient-to-br from-cyan-300 to-teal-500 border border-cyan-200',
+      'bg-data-4/15 text-data-4 border border-data-4/50 shadow-[0_0_12px_rgba(34,211,238,0.18)]',
+    legendMax: 'bg-gradient-to-br from-data-4 to-data-1 border border-data-4',
   },
   atlas: {
     steps: [
-      'bg-amber-400/25 border border-amber-400/30',
-      'bg-amber-400/50 border border-amber-400/60',
-      'bg-amber-400/80 border border-amber-300/80',
-      'bg-gradient-to-br from-amber-300 to-yellow-500 border border-amber-200 shadow-[0_0_8px_rgba(251,191,36,0.55)]',
+      'bg-signal/25 border border-signal/30',
+      'bg-signal/50 border border-signal/60',
+      'bg-signal/80 border border-signal/80',
+      'bg-gradient-to-br from-signal to-signal border border-signal shadow-[0_0_8px_rgba(251,191,36,0.55)]',
     ],
     pillActive:
-      'bg-amber-400/15 text-amber-300 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.18)]',
-    legendMax: 'bg-gradient-to-br from-amber-300 to-yellow-500 border border-amber-200',
+      'bg-signal/15 text-signal border border-signal/50 shadow-[0_0_12px_rgba(251,191,36,0.18)]',
+    legendMax: 'bg-gradient-to-br from-signal to-signal border border-signal',
   },
   spiritual: {
     steps: [
-      'bg-violet-400/25 border border-violet-400/30',
-      'bg-violet-400/50 border border-violet-400/60',
-      'bg-violet-400/80 border border-violet-300/80',
-      'bg-gradient-to-br from-violet-300 to-purple-500 border border-violet-200 shadow-[0_0_8px_rgba(167,139,250,0.55)]',
+      'bg-data-6/25 border border-data-6/30',
+      'bg-data-6/50 border border-data-6/60',
+      'bg-data-6/80 border border-data-6/80',
+      'bg-gradient-to-br from-data-6 to-data-6 border border-data-6 shadow-[0_0_8px_rgba(167,139,250,0.55)]',
     ],
     pillActive:
-      'bg-violet-400/15 text-violet-300 border border-violet-400/50 shadow-[0_0_12px_rgba(167,139,250,0.18)]',
-    legendMax: 'bg-gradient-to-br from-violet-300 to-purple-500 border border-violet-200',
+      'bg-data-6/15 text-data-6 border border-data-6/50 shadow-[0_0_12px_rgba(167,139,250,0.18)]',
+    legendMax: 'bg-gradient-to-br from-data-6 to-data-6 border border-data-6',
   },
 };
 
@@ -364,56 +364,56 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
       {/* 1. Header Overview Metrics Bar — vibrant gradient chips */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none" />
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-data-1/10 blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">إجمالي النشاطات</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-300 to-teal-500 flex items-center justify-center text-emerald-950 shadow-[0_0_12px_rgba(52,211,153,0.35)]">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-data-1 to-data-1 flex items-center justify-center text-data-1 shadow-[0_0_12px_rgba(52,211,153,0.35)]">
               <Sparkles className="w-3.5 h-3.5" />
             </span>
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-emerald-300 to-teal-400 bg-clip-text text-transparent">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-data-1 to-data-1 bg-clip-text text-transparent">
             {yearlyData.totalContributions}
           </p>
           <span className="text-micro text-muted-foreground block truncate">{rangeLabelAr}</span>
         </div>
 
         <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-orange-400/10 blur-2xl pointer-events-none" />
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-signal/10 blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">المواظبة الحالية</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-300 to-orange-500 flex items-center justify-center text-orange-950 shadow-[0_0_12px_rgba(251,146,60,0.35)]">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-signal to-signal flex items-center justify-center text-signal shadow-[0_0_12px_rgba(251,146,60,0.35)]">
               <Flame className="w-3.5 h-3.5" />
             </span>
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-amber-300 to-orange-400 bg-clip-text text-transparent">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-signal to-signal bg-clip-text text-transparent">
             {yearlyData.currentStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">سلسلة التفاعل المستمر</span>
         </div>
 
         <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-sky-400/10 blur-2xl pointer-events-none" />
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-data-4/10 blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">أطول سلسلة</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-300 to-blue-500 flex items-center justify-center text-sky-950 shadow-[0_0_12px_rgba(56,189,248,0.35)]">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-data-4 to-data-4 flex items-center justify-center text-data-4 shadow-[0_0_12px_rgba(56,189,248,0.35)]">
               <TrendingUp className="w-3.5 h-3.5" />
             </span>
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-sky-300 to-blue-400 bg-clip-text text-transparent">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-data-4 to-data-4 bg-clip-text text-transparent">
             {yearlyData.longestStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">أعلى معدل استمرارية</span>
         </div>
 
         <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-violet-400/10 blur-2xl pointer-events-none" />
+          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-data-6/10 blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">الأيام النشطة</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-300 to-purple-500 flex items-center justify-center text-violet-950 shadow-[0_0_12px_rgba(167,139,250,0.35)]">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-data-6 to-data-6 flex items-center justify-center text-data-6 shadow-[0_0_12px_rgba(167,139,250,0.35)]">
               <Calendar className="w-3.5 h-3.5" />
             </span>
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-violet-300 to-purple-400 bg-clip-text text-transparent">
+          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-data-6 to-data-6 bg-clip-text text-transparent">
             {yearlyData.activeDaysCount}
           </p>
           <span className="text-micro text-muted-foreground block truncate">
@@ -825,7 +825,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="surface-depth rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+              <div className="w-8 h-8 rounded-lg bg-data-1/10 flex items-center justify-center text-data-1">
                 <Activity className="w-4 h-4" />
               </div>
               <h3 className="text-meta font-bold text-foreground">اللياقة والتتبع</h3>
@@ -853,7 +853,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="surface-depth rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+              <div className="w-8 h-8 rounded-lg bg-signal/10 flex items-center justify-center text-signal">
                 <Languages className="w-4 h-4" />
               </div>
               <h3 className="text-meta font-bold text-foreground">النادي الألماني</h3>
@@ -871,7 +871,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               <span className="block text-micro text-muted-foreground">إتقان الأرفف</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-amber-400">{summary.surgeStreakDays}d</span>
+              <span className="text-lead font-extrabold text-signal">{summary.surgeStreakDays}d</span>
               <span className="block text-micro text-muted-foreground">سلسلة الاندفاع</span>
             </div>
           </div>
@@ -881,7 +881,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="surface-depth rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+              <div className="w-8 h-8 rounded-lg bg-data-6/10 flex items-center justify-center text-data-6">
                 <Feather className="w-4 h-4" />
               </div>
               <h3 className="text-meta font-bold text-foreground">الديوان والمكتبة</h3>
@@ -895,7 +895,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               <span className="block text-micro text-muted-foreground">قصائد محفوظة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-indigo-400">{summary.readingHours}س</span>
+              <span className="text-lead font-extrabold text-data-6">{summary.readingHours}س</span>
               <span className="block text-micro text-muted-foreground">ساعات القراءة</span>
             </div>
           </div>
@@ -905,7 +905,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="surface-depth rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+              <div className="w-8 h-8 rounded-lg bg-data-4/10 flex items-center justify-center text-data-4">
                 <BrainCircuit className="w-4 h-4" />
               </div>
               <h3 className="text-meta font-bold text-foreground">الذاكرة والملاحظات</h3>
@@ -919,7 +919,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               <span className="block text-micro text-muted-foreground">ملاحظات نشطة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-cyan-400">{summary.journalEntriesCount}</span>
+              <span className="text-lead font-extrabold text-data-4">{summary.journalEntriesCount}</span>
               <span className="block text-micro text-muted-foreground">تدوينات اليوميات</span>
             </div>
           </div>
@@ -929,7 +929,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="surface-depth rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-600/10 flex items-center justify-center text-amber-500">
+              <div className="w-8 h-8 rounded-lg bg-signal/10 flex items-center justify-center text-signal">
                 <Compass className="w-4 h-4" />
               </div>
               <h3 className="text-meta font-bold text-foreground">أطلس الأسفار</h3>
@@ -943,7 +943,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               <span className="block text-micro text-muted-foreground">بلدان مستكشفة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-amber-500">{summary.travelStampsCount}</span>
+              <span className="text-lead font-extrabold text-signal">{summary.travelStampsCount}</span>
               <span className="block text-micro text-muted-foreground">أختام سفر</span>
             </div>
           </div>
@@ -953,7 +953,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         <div className="surface-depth rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-600/10 flex items-center justify-center text-emerald-400">
+              <div className="w-8 h-8 rounded-lg bg-data-1/10 flex items-center justify-center text-data-1">
                 <HeartHandshake className="w-4 h-4" />
               </div>
               <h3 className="text-meta font-bold text-foreground">الأذكار والقرآن</h3>
@@ -967,7 +967,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               <span className="block text-micro text-muted-foreground">تسبيحة ومودّة</span>
             </div>
             <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-emerald-400">{summary.dhikrStreakDays}d</span>
+              <span className="text-lead font-extrabold text-data-1">{summary.dhikrStreakDays}d</span>
               <span className="block text-micro text-muted-foreground">سلسلة المواظبة</span>
             </div>
           </div>

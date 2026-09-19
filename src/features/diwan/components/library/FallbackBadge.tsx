@@ -31,7 +31,7 @@ export default function FallbackBadge() {
           transition={{ duration: 0.2 }}
           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-micro font-semibold ${
             kind === 'offline'
-              ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30'
+              ? 'bg-signal/15 text-signal dark:text-signal border border-signal/30'
               : 'bg-muted/60 text-muted-foreground border border-border/30'
           }`}
           role="status"

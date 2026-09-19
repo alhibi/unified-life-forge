@@ -202,7 +202,7 @@ export default function FastingLog({ lang }: Props) {
               </p>
               <div className="h-1 rounded-full bg-muted/60 overflow-hidden">
                 <div
-                  className="h-full bg-indigo-500 rounded-full transition-motion duration-slow"
+                  className="h-full bg-data-6 rounded-full transition-motion duration-slow"
                   style={{ width: `${metabolicPhase.progress * 100}%` }}
                 />
               </div>
@@ -228,7 +228,7 @@ export default function FastingLog({ lang }: Props) {
                   onClick={() => setSelectedProtocol(proto)}
                   className={`px-3 py-2 rounded-xl border text-micro font-bold text-center transition-motion ${
                     active
-                      ? 'bg-indigo-500 text-white border-indigo-500 shadow-lg shadow-indigo-500/10'
+                      ? 'bg-data-6 text-white border-data-6 shadow-lg shadow-data-6/10'
                       : 'bg-muted/30 border-border/30 text-muted-foreground'
                   }`}
                 >
@@ -243,7 +243,7 @@ export default function FastingLog({ lang }: Props) {
 
           <button
             onClick={handleStart}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-mini active:scale-98 transition-motion"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-data-6 hover:bg-data-6 text-white font-bold text-mini active:scale-98 transition-motion"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>{T.start[lang]}</span>
@@ -268,7 +268,7 @@ export default function FastingLog({ lang }: Props) {
               return (
                 <div key={log.id} className="flex items-center justify-between py-2 text-micro">
                   <div className="flex items-center gap-1.5">
-                    <Flame className="w-3.5 h-3.5 text-orange-400" />
+                    <Flame className="w-3.5 h-3.5 text-signal" />
                     <span className="font-bold text-foreground">{log.protocol || 'Custom'}</span>
                     <span className="text-muted-foreground/60">
                       (

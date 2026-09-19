@@ -132,7 +132,7 @@ export default function OptimizerPanel({
             <button
               onClick={() => { onAccept(output); reset(); onClose(); }}
               disabled={!canAccept}
-              className="flex-1 h-10 rounded-xl bg-emerald-600 text-white text-meta font-semibold active:scale-95 transition-transform disabled:opacity-50"
+              className="flex-1 h-10 rounded-xl bg-data-1 text-white text-meta font-semibold active:scale-95 transition-transform disabled:opacity-50"
             >
               {'قبول واستبدال'}
             </button>

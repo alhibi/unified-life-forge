@@ -1538,7 +1538,7 @@ export default function ChessPage() {
   ];
 
   const timerDisplay = (
-    <div className="flex items-center gap-1 text-mini text-zinc-400 bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+    <div className="flex items-center gap-1 text-mini text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
       <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
     </div>
   );
@@ -1547,7 +1547,7 @@ export default function ChessPage() {
     <GameShell
       title={t('games.chess')}
       icon={Crown}
-      accentColor="hsl(221, 83%, 53%)"
+      accentColor="hsl(var(--data-6))"
       rules={chessRules}
       stats={chessStats}
       options={chessOptions}
@@ -1592,9 +1592,9 @@ export default function ChessPage() {
             </div>
           ) : <div />}
           {openingName && (
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/12 border border-amber-500/25">
-              <span className="text-micro font-mono text-amber-300/80">{openingName.eco}</span>
-              <span className="text-micro font-bold text-amber-200">{openingName.ar}</span>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-signal/12 border border-signal/25">
+              <span className="text-micro font-mono text-signal/80">{openingName.eco}</span>
+              <span className="text-micro font-bold text-signal">{openingName.ar}</span>
             </div>
           )}
         </div>
@@ -1604,8 +1604,8 @@ export default function ChessPage() {
       <div className="max-w-[340px] mx-auto px-4 mb-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-white' : 'bg-gray-900'}`}>
-              <span className={`text-micro font-bold ${flipped ? 'text-gray-900' : 'text-white'}`}>{flipped ? 'W' : 'B'}</span>
+            <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-white' : 'bg-muted'}`}>
+              <span className={`text-micro font-bold ${flipped ? 'text-foreground' : 'text-white'}`}>{flipped ? 'W' : 'B'}</span>
             </div>
             <span className="text-mini font-medium text-foreground">
               {flipped
@@ -1616,7 +1616,7 @@ export default function ChessPage() {
           </div>
           <div className="flex items-center gap-2">
             {timeControl !== 'none' && (
-              <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'w' : 'b') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
+              <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'w' : 'b') ? 'bg-signal/20 text-signal' : 'bg-secondary/60 text-foreground/60'}`}>
                 {formatTimer(flipped ? clockW : clockB)}
               </div>
             )}
@@ -1626,9 +1626,9 @@ export default function ChessPage() {
 
       {/* Eval bar */}
       <div className="max-w-[340px] mx-auto px-4 mb-1">
-        <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden flex relative">
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden flex relative">
           <div className="h-full bg-white transition-motion duration-normal" style={{ width: `${evalPct}%` }} />
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-500/60" />
+          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-secondary0/60" />
         </div>
         <div className="flex justify-between text-micro text-muted-foreground mt-0.5 tabular-nums">
           <span>{evalScore > 0 ? `+${evalScore.toFixed(1)}` : evalScore.toFixed(1)}</span>
@@ -1691,8 +1691,8 @@ export default function ChessPage() {
       <div className="max-w-[340px] mx-auto px-4 mt-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-gray-900' : 'bg-white'}`}>
-              <span className={`text-micro font-bold ${flipped ? 'text-white' : 'text-gray-900'}`}>{flipped ? 'B' : 'W'}</span>
+            <div className={`w-6 h-6 rounded-full border-2 border-border flex items-center justify-center ${flipped ? 'bg-muted' : 'bg-white'}`}>
+              <span className={`text-micro font-bold ${flipped ? 'text-white' : 'text-foreground'}`}>{flipped ? 'B' : 'W'}</span>
             </div>
             <span className="text-mini font-medium text-foreground">
               {flipped
@@ -1703,7 +1703,7 @@ export default function ChessPage() {
           </div>
           <div className="flex items-center gap-2">
             {timeControl !== 'none' && (
-              <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'b' : 'w') ? 'bg-amber-500/20 text-amber-200' : 'bg-secondary/60 text-foreground/60'}`}>
+              <div className={`text-micro font-bold tabular-nums px-2 py-0.5 rounded-md ${game.turn === (flipped ? 'b' : 'w') ? 'bg-signal/20 text-signal' : 'bg-secondary/60 text-foreground/60'}`}>
                 {formatTimer(flipped ? clockB : clockW)}
               </div>
             )}
@@ -1714,7 +1714,7 @@ export default function ChessPage() {
       {/* Turn indicator & Timer */}
       <div className="max-w-sm mx-auto px-4 mt-4">
         <div className="flex items-center justify-center gap-3">
-          <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-gray-900'}`} />
+          <div className={`w-3 h-3 rounded-full ${game.turn === 'w' ? 'bg-white border border-border' : 'bg-muted'}`} />
           <span className="text-meta font-medium text-foreground">
             {game.turn === 'w'
               ? ('دور الأبيض')
@@ -1769,10 +1769,10 @@ export default function ChessPage() {
         </button>
 
         <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted || hintLoading}
-          className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-amber-500/15 text-amber-300 active:scale-90 transition-motion disabled:opacity-25">
+          className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-signal/15 text-signal active:scale-90 transition-motion disabled:opacity-25">
           <Lightbulb className={`w-5 h-5 ${hintLoading ? 'animate-pulse' : ''}`} />
           <span className="text-micro font-medium">{'تلميح'}</span>
-          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-micro bg-amber-500/30 rounded-full px-1">{hintCount}</span>}
+          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-micro bg-signal/30 rounded-full px-1">{hintCount}</span>}
         </button>
 
         {!gameOver && (

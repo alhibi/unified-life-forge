@@ -22,10 +22,10 @@ const CATEGORY_LABELS: Record<BadgeCategory, string> = {
 };
 
 const RARITY_COLORS: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  common: { bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/20', label: 'عادي' },
-  rare: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20', label: 'نادر' },
-  epic: { bg: 'bg-purple-500/10', text: 'text-purple-400', border: 'border-purple-500/20', label: 'ملحمي' },
-  legendary: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', label: 'أسطوري' },
+  common: { bg: 'bg-secondary0/10', text: 'text-muted-foreground', border: 'border-[hsl(var(--track))]/20', label: 'عادي' },
+  rare: { bg: 'bg-data-4/10', text: 'text-data-4', border: 'border-data-4/20', label: 'نادر' },
+  epic: { bg: 'bg-data-6/10', text: 'text-data-6', border: 'border-data-6/20', label: 'ملحمي' },
+  legendary: { bg: 'bg-signal/10', text: 'text-signal', border: 'border-signal/20', label: 'أسطوري' },
 };
 
 export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
@@ -66,7 +66,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                 key={i}
                 className={`w-8 h-8 rounded-full border flex items-center justify-center transition-motion ${
                   isFilled
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                    ? 'bg-signal/10 border-signal/30 text-signal'
                     : 'bg-muted/20 border-border/40 text-muted-foreground'
                 }`}
               >
@@ -124,7 +124,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                     }`}
                   >
                     {isUnlocked ? (
-                      <Sparkles className="w-6 h-6 text-amber-400" />
+                      <Sparkles className="w-6 h-6 text-signal" />
                     ) : (
                       <Lock className="w-5 h-5 text-muted-foreground" />
                     )}
@@ -151,7 +151,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                     onClick={() => onToggleFeaturedBadge(badge.id)}
                     className={`w-8 h-8 rounded-xl flex items-center justify-center transition-motion ${
                       isPinned
-                        ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40 scale-105'
+                        ? 'bg-signal/20 text-signal ring-1 ring-signal/40 scale-105'
                         : 'bg-muted/30 text-muted-foreground hover:text-foreground'
                     }`}
                     title={isPinned ? 'إلغاء التثبيت' : 'تثبيت في رأس الملف'}
@@ -169,7 +169,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
               {/* Progress or Unlock Stamp */}
               <div className="pt-2 border-t border-border/30 flex items-center justify-between text-micro">
                 {isUnlocked ? (
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                  <div className="flex items-center gap-1.5 text-data-1 font-bold">
                     <Check className="w-3.5 h-3.5" />
                     <span>تم الاكتساب ({badge.milestoneLabelAr})</span>
                   </div>

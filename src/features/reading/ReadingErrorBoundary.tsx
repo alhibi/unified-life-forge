@@ -169,8 +169,8 @@ function ErrorFallback({
 }) {
 
   const iconMap: Record<State['errorKind'], ReactNode> = {
-    network: <WifiOff className="h-12 w-12 text-amber-500/70" />,
-    storage: <Database className="h-12 w-12 text-orange-500/70" />,
+    network: <WifiOff className="h-12 w-12 text-signal/70" />,
+    storage: <Database className="h-12 w-12 text-signal/70" />,
     render: <AlertTriangle className="h-12 w-12 text-destructive/70" />,
     unknown: <AlertTriangle className="h-12 w-12 text-muted-foreground/50" />,
   };

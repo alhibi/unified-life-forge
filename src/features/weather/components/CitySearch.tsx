@@ -341,7 +341,7 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
                     </div>
                   )}
                   {!loading && error && (
-                    <p className="text-meta text-rose-500 py-4 px-2 text-center">{error}</p>
+                    <p className="text-meta text-data-5 py-4 px-2 text-center">{error}</p>
                   )}
                   {!loading && !error && results.length === 0 && (
                     <p className="text-meta text-muted-foreground py-4 px-2 text-center">

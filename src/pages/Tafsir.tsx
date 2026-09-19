@@ -402,11 +402,11 @@ export default function TafsirPage() {
                                   </button>
                                   {/* Copy ayah */}
                                   <button onClick={(e) => { e.stopPropagation(); copyText(ayah.text, `ayah-${ayah.number}`); }} className="w-7 h-7 rounded-lg bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-colors">
-                                    {copied === `ayah-${ayah.number}` ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                                    {copied === `ayah-${ayah.number}` ? <Check className="w-3.5 h-3.5 text-data-1" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
                                   </button>
                                   {/* Copy tafsir */}
                                   <button onClick={(e) => { e.stopPropagation(); copyText(`${ayah.text}\n\n${selectedTafsir.name}:\n${tafsirText}`, `tafsir-${ayah.number}`); }} className="w-7 h-7 rounded-lg bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-colors" title="نسخ الآية والتفسير">
-                                    {copied === `tafsir-${ayah.number}` ? <Check className="w-3.5 h-3.5 text-green-500" /> : <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />}
+                                    {copied === `tafsir-${ayah.number}` ? <Check className="w-3.5 h-3.5 text-data-1" /> : <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />}
                                   </button>
                                   {/* Navigate prev/next */}
                                   <button onClick={(e) => { e.stopPropagation(); goToPrevAyah(); }} disabled={selectedAyah === 1} className="w-7 h-7 rounded-lg bg-muted/40 hover:bg-muted/60 flex items-center justify-center transition-colors disabled:opacity-30">

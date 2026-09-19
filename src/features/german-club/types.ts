@@ -108,28 +108,30 @@ export const REJECTION_REASON_LABELS_AR: Record<GenerationJobRejection["reason"]
   low_confidence: "ثقة/جودة منخفضة",
 };
 
-// Color tokens for German Club & Furnace Console v2
+// Color tokens for German Club & Furnace Console v2.
+// Every value resolves through the global design tokens so the feature
+// follows the active theme (light/dark) instead of carrying its own palette.
 export const GERMAN_CLUB_TOKENS = {
-  paper: "#EFEEE7",
-  ink: "#17181C",
-  prussian: "#17324D",
-  oak: "#8B7E68",
-  ember: "#C9703B",
-  derBlue: "#3E6E9E",
-  dieRose: "#A15A6B",
-  dasStone: "#6B6558",
+  paper: "hsl(var(--card))",
+  ink: "hsl(var(--foreground))",
+  prussian: "hsl(var(--primary))",
+  oak: "hsl(var(--muted-foreground))",
+  ember: "hsl(var(--signal))",
+  derBlue: "hsl(var(--data-4))",
+  dieRose: "hsl(var(--data-5))",
+  dasStone: "hsl(var(--data-6))",
 } as const;
 
 export const SURGE_TOKENS = {
-  surgeCobalt: "#2D6FF2",
-  surgeEmberHot: "#FF7A29",
+  surgeCobalt: "hsl(var(--data-4))",
+  surgeEmberHot: "hsl(var(--signal))",
 } as const;
 
 export const GENDER_COLORS: Record<GermanGender, string | null> = {
   der: GERMAN_CLUB_TOKENS.derBlue,
   die: GERMAN_CLUB_TOKENS.dieRose,
   das: GERMAN_CLUB_TOKENS.dasStone,
-  plural: "#7E7259",
+  plural: "hsl(var(--data-1))",
   n_a: null,
 };
 
@@ -260,12 +262,12 @@ export const DictionaryWordTypeLabels: Record<DictionaryWordType, string> = {
 };
 
 export const CEFRLevelLabels: Record<CEFRLevel, { label_ar: string; badge_color: string }> = {
-  A1: { label_ar: "A1 — مبتدئ", badge_color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-  A2: { label_ar: "A2 — أساسي", badge_color: "bg-teal-100 text-teal-800 border-teal-300" },
-  B1: { label_ar: "B1 — متوسط", badge_color: "bg-sky-100 text-sky-800 border-sky-300" },
-  B2: { label_ar: "B2 — فوق المتوسط", badge_color: "bg-indigo-100 text-indigo-800 border-indigo-300" },
-  C1: { label_ar: "C1 — متقدم", badge_color: "bg-amber-100 text-amber-800 border-amber-300" },
-  C2: { label_ar: "C2 — طليق/متقن", badge_color: "bg-rose-100 text-rose-800 border-rose-300" },
+  A1: { label_ar: "A1 — مبتدئ", badge_color: "bg-data-1 text-data-1 border-data-1" },
+  A2: { label_ar: "A2 — أساسي", badge_color: "bg-data-1 text-data-1 border-data-1" },
+  B1: { label_ar: "B1 — متوسط", badge_color: "bg-data-4 text-data-4 border-data-4" },
+  B2: { label_ar: "B2 — فوق المتوسط", badge_color: "bg-data-6 text-data-6 border-data-6" },
+  C1: { label_ar: "C1 — متقدم", badge_color: "bg-signal text-signal border-signal" },
+  C2: { label_ar: "C2 — طليق/متقن", badge_color: "bg-data-5 text-data-5 border-data-5" },
 };
 
 export const DictionaryEntrySchema = z.object({

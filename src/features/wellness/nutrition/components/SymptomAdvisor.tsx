@@ -194,7 +194,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                   className="rounded-xl border border-border/30 bg-card p-3.5 space-y-2.5"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-lg bg-signal/10 flex items-center justify-center">
                       <Info className="w-3.5 h-3.5 text-primary" />
                     </div>
                     <h4 className="text-mini font-bold text-foreground">

@@ -494,7 +494,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             aria-label={'متصل الآن'}
-                            className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-background"
+                            className="absolute bottom-0 end-0 block h-3 w-3 rounded-full bg-data-1 ring-2 ring-background"
                           />
                         )}
                       </div>

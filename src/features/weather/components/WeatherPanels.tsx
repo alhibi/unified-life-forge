@@ -154,8 +154,8 @@ export function Metric({
         {trend && trendValue && (
           <span
             className={`shrink-0 text-[0.625rem] font-bold tabular-nums ${
-              trend === 'up' ? 'text-emerald-600 dark:text-emerald-400'
-                : trend === 'down' ? 'text-rose-600 dark:text-rose-400'
+              trend === 'up' ? 'text-data-1 dark:text-data-1'
+                : trend === 'down' ? 'text-data-5 dark:text-data-5'
                 : 'text-muted-foreground'
             }`}
           >

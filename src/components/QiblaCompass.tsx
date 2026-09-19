@@ -417,13 +417,13 @@ export default function QiblaCompass() {
                   )}
 
                   {accuracy != null && accuracy > 25 && (
-                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">
+                    <p className="text-micro text-signal text-center max-w-[30ch]">
                       {t.calibrate}
                     </p>
                   )}
 
                   {tilted && quality === 'absolute' && (
-                    <p className="text-micro text-amber-500 text-center max-w-[30ch]">{t.tilted}</p>
+                    <p className="text-micro text-signal text-center max-w-[30ch]">{t.tilted}</p>
                   )}
 
                   {quality === 'relative' && (

@@ -235,8 +235,8 @@ export default function CryptoWatchlist() {
             <h1 className="text-title font-bold text-foreground tracking-tight">قائمة العملات</h1>
             <p className="flex items-center gap-1.5 text-micro text-muted-foreground font-medium mt-0.5">
               <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inset-0 rounded-full bg-emerald-500/60 animate-ping" />
-                <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="absolute inset-0 rounded-full bg-data-1/60 animate-ping" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-data-1" />
               </span>
               تحديث حي • DEX Screener
             </p>
@@ -342,9 +342,9 @@ export default function CryptoWatchlist() {
                       onClick={() => pair && handleOpenDetail(pair)}
                       className={`group flex items-center justify-between gap-3 rounded-2xl border border-border/10 bg-card/30 backdrop-blur-sm p-3.5 hover:bg-card/50 hover:border-border/25 transition-motion relative overflow-hidden ${
                         pulseState === 'up'
-                          ? 'ring-1 ring-emerald-500/30 bg-emerald-500/5'
+                          ? 'ring-1 ring-data-1/30 bg-data-1/5'
                           : pulseState === 'down'
-                          ? 'ring-1 ring-rose-500/30 bg-rose-500/5'
+                          ? 'ring-1 ring-data-5/30 bg-data-5/5'
                           : ''
                       }`}
                     >
@@ -352,7 +352,7 @@ export default function CryptoWatchlist() {
                       <span
                         aria-hidden
                         className={`absolute inset-y-2 start-0 w-[2px] rounded-full ${
-                          isUp ? 'bg-emerald-500/50' : 'bg-rose-500/50'
+                          isUp ? 'bg-data-1/50' : 'bg-data-5/50'
                         }`}
                       />
 
@@ -408,8 +408,8 @@ export default function CryptoWatchlist() {
                               <span
                                 className={`text-micro font-bold font-plex-mono tabular-nums flex items-center gap-0.5 rounded-full px-1.5 py-[2px] ${
                                   isUp
-                                    ? 'text-emerald-500 bg-emerald-500/10'
-                                    : 'text-rose-500 bg-rose-500/10'
+                                    ? 'text-data-1 bg-data-1/10'
+                                    : 'text-data-5 bg-data-5/10'
                                 }`}
                               >
                                 {isUp ? (
@@ -435,7 +435,7 @@ export default function CryptoWatchlist() {
                             e.stopPropagation(); // prevent opening detail
                             handleRemove(item.id, item.token_symbol, item.chain_id, item.pair_address);
                           }}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground/50 opacity-70 group-hover:opacity-100 hover:border-rose-500/25 hover:bg-rose-500/10 hover:text-rose-500 transition-motion"
+                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground/50 opacity-70 group-hover:opacity-100 hover:border-data-5/25 hover:bg-data-5/10 hover:text-data-5 transition-motion"
                           title="إزالة من القائمة"
                           aria-label={`إزالة ${item.token_symbol} من القائمة`}
                         >

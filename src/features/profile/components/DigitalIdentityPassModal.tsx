@@ -210,7 +210,7 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
             {/* Ticket Top Row: Serial & Seal */}
             <div className="flex items-center justify-between text-micro font-mono border-b border-border/40 pb-2">
               <span className="text-muted-foreground">{serialNumber}</span>
-              <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+              <span className="inline-flex items-center gap-1 text-data-1 font-bold">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 VERIFIED PASS
               </span>
@@ -242,11 +242,11 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
             </div>
 
             {/* Commitment Streak Row — real unified streak */}
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-500/[0.07] border border-amber-500/20">
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-signal/[0.07] border border-signal/20">
               <span className="text-micro font-semibold text-muted-foreground">
                 سلسلة الالتزام المتواصلة
               </span>
-              <span className="inline-flex items-center gap-1.5 text-mini font-black text-amber-400 tabular-nums">
+              <span className="inline-flex items-center gap-1.5 text-mini font-black text-signal tabular-nums">
                 🔥 {unifiedStreakDays ?? 0}
                 <span className="text-micro font-bold text-muted-foreground">
                   {(unifiedStreakDays ?? 0) === 1 ? 'يوم' : 'أيام'}

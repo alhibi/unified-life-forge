@@ -28,20 +28,20 @@ export const GrammarCorner: React.FC = () => {
         style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
       >
         {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-stone-300/60">
+        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
           <div className="flex items-center gap-3">
             <BackButton />
             <div>
-              <h1 className="text-base font-bold text-stone-900 tracking-tight leading-none">
+              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 زاوية القواعد (Grammar Corner)
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[#17324D] tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
                 GRAMMATIK — DER CLUB
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#17324D]/10 text-[#17324D] text-xs font-bold">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-xs font-bold">
             <BookOpen className="w-3.5 h-3.5" />
             <span>نحو سياقي</span>
           </div>
@@ -49,10 +49,10 @@ export const GrammarCorner: React.FC = () => {
 
         <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
           <div className="space-y-1">
-            <h2 className="text-xl font-extrabold text-[#17181C]">
+            <h2 className="text-xl font-extrabold text-[hsl(var(--foreground))]">
               قواعد عملية ومصممة للواقع
             </h2>
-            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوطة بالأمثلة العملية.
             </p>
           </div>
@@ -60,7 +60,7 @@ export const GrammarCorner: React.FC = () => {
           {isLoadingGrammar ? (
             <div className="space-y-4">
               {[1, 2].map((i) => (
-                <div key={i} className="h-44 rounded-2xl bg-stone-200/60 animate-pulse" />
+                <div key={i} className="h-44 rounded-2xl bg-secondary animate-pulse" />
               ))}
             </div>
           ) : (
@@ -71,18 +71,18 @@ export const GrammarCorner: React.FC = () => {
                   className="rounded-2xl border p-6 space-y-3 transition-motion"
                   style={{
                     backgroundColor: GERMAN_CLUB_TOKENS.paper,
-                    borderColor: `${GERMAN_CLUB_TOKENS.oak}33`,
+                    borderColor: 'hsl(var(--track))',
                     boxShadow: '0 4px 16px -4px rgba(23, 24, 28, 0.04)',
                   }}
                 >
-                  <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 pb-3">
+                  <div className="flex items-start justify-between gap-3 border-b border-[hsl(var(--track))] pb-3">
                     <div>
-                      <h3 className="text-lg font-bold text-[#17181C]">
+                      <h3 className="text-lg font-bold text-[hsl(var(--foreground))]">
                         {note.title_ar}
                       </h3>
                       {note.title_de && (
                         <span
-                          className="text-xs font-mono text-[#17324D] font-semibold"
+                          className="text-xs font-mono text-[hsl(var(--primary))] font-semibold"
                           dir="ltr"
                           style={{ unicodeBidi: 'isolate' }}
                         >
@@ -91,18 +91,18 @@ export const GrammarCorner: React.FC = () => {
                       )}
                     </div>
 
-                    <span className="text-[0.6875rem] font-bold px-2.5 py-0.5 rounded bg-stone-200/70 text-stone-700">
+                    <span className="text-[0.6875rem] font-bold px-2.5 py-0.5 rounded bg-secondary text-foreground">
                       مستوى {note.difficulty_level}
                     </span>
                   </div>
 
-                  <div className="text-sm text-stone-700 leading-relaxed whitespace-pre-line font-normal">
+                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-line font-normal">
                     {note.body_md}
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-xs text-stone-500">
-                    <span className="flex items-center gap-1 text-[#17324D] font-medium">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-[hsl(var(--primary))] font-medium">
+                      <Sparkles className="w-3.5 h-3.5 text-signal" />
                       مرتبطة برفوف المواقف اليومية
                     </span>
                   </div>

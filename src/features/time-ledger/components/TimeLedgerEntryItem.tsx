@@ -108,9 +108,9 @@ export default function TimeLedgerEntryItem({
 
     if (isHabitEntry(entry)) {
       const statusColors = {
-        completed: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+        completed: 'bg-data-1/10 text-data-1 border-data-1/20',
         partial: 'bg-warning/10 text-warning border-warning/20',
-        missed: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+        missed: 'bg-data-5/10 text-data-5 border-data-5/20',
       };
       const statusLabels = {
         completed: 'مكتمل',
@@ -248,13 +248,13 @@ export default function TimeLedgerEntryItem({
               type="button"
               className="flex h-6 w-6 items-center justify-center rounded border transition-colors"
               style={{
-                borderColor: entry.meta.taskCompleted ? 'var(--emerald-500)' : 'var(--border)',
-                backgroundColor: entry.meta.taskCompleted ? 'var(--emerald-500/10)' : 'transparent',
+                borderColor: entry.meta.taskCompleted ? 'hsl(var(--data-1))' : 'hsl(var(--track))',
+                backgroundColor: entry.meta.taskCompleted ? 'hsl(var(--data-1) / 0.1)' : 'transparent',
               }}
               aria-label={entry.meta.taskCompleted ? 'إلغاء الإنجاز' : 'وضع كمكتمل'}
             >
               {entry.meta.taskCompleted ? (
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
+                <CheckCircle className="h-4 w-4 text-data-1" />
               ) : (
                 <AlertCircle className="h-4 w-4 text-muted-foreground" />
               )}
@@ -282,7 +282,7 @@ export default function TimeLedgerEntryItem({
             {entry.meta.prayerLabelAr}
           </span>
           {entry.meta.isCompleted ? (
-            <span className="flex items-center gap-1 text-micro text-emerald-500 font-medium">
+            <span className="flex items-center gap-1 text-micro text-data-1 font-medium">
               <CheckCircle className="h-3 w-3" aria-hidden />
               مكتملة
               {entry.meta.completionTime && (
@@ -292,7 +292,7 @@ export default function TimeLedgerEntryItem({
               )}
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-micro text-rose-500 font-medium">
+            <span className="flex items-center gap-1 text-micro text-data-5 font-medium">
               <AlertCircle className="h-3 w-3" aria-hidden />
               فائتة
             </span>
@@ -407,7 +407,7 @@ export default function TimeLedgerEntryItem({
                 </button>
                 <button
                   type="button"
-                  className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                  className="p-1.5 rounded-lg text-muted-foreground hover:text-data-5 hover:bg-data-5/10 transition-colors"
                   aria-label="حذف"
                 >
                   <Trash2 className="h-4 w-4" />

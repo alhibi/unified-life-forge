@@ -91,13 +91,13 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
   return (
     <>
       <Section
-        icon={<Info className="w-3.5 h-3.5 text-blue-500" />}
+        icon={<Info className="w-3.5 h-3.5 text-data-4" />}
         title={T.setup[lang]}
         items={c.setupCues.map((s) => s[lang])}
         accent="blue"
       />
       <Section
-        icon={<CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
+        icon={<CheckCircle className="w-3.5 h-3.5 text-data-1" />}
         title={T.execution[lang]}
         items={c.executionCues.map((s) => s[lang])}
         accent="emerald"
@@ -105,7 +105,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
       {c.commonMistakes.length > 0 && (
         <div className="space-y-1.5">
           <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+            <AlertTriangle className="w-3.5 h-3.5 text-signal" />
             {T.mistakes[lang]}
           </h4>
           <ul className="space-y-1.5">
@@ -114,14 +114,14 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
                 key={i}
                 className={`p-2 rounded-lg border ${
                   m.severity === 'critical'
-                    ? 'bg-rose-500/8 border-rose-500/30'
+                    ? 'bg-data-5/8 border-data-5/30'
                     : m.severity === 'warning'
-                      ? 'bg-amber-500/8 border-amber-500/30'
+                      ? 'bg-signal/8 border-signal/30'
                       : 'bg-muted/30 border-border/30'
                 }`}
               >
                 <p className={`text-mini font-semibold ${
-                  m.severity === 'critical' ? 'text-rose-500' : m.severity === 'warning' ? 'text-amber-500' : 'text-foreground'
+                  m.severity === 'critical' ? 'text-data-5' : m.severity === 'warning' ? 'text-signal' : 'text-foreground'
                 }`}>
                   {m.text[lang]}
                 </p>
@@ -131,10 +131,10 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
         </div>
       )}
 
-      <div className="bg-cyan-500/8 border border-cyan-500/30 rounded-xl p-3 flex items-start gap-2">
-        <Wind className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
+      <div className="bg-data-4/8 border border-data-4/30 rounded-xl p-3 flex items-start gap-2">
+        <Wind className="w-4 h-4 text-data-4 shrink-0 mt-0.5" />
         <div>
-          <p className="text-micro uppercase tracking-wider text-cyan-500 font-semibold mb-0.5">
+          <p className="text-micro uppercase tracking-wider text-data-4 font-semibold mb-0.5">
             {T.breathing[lang]}
           </p>
           <p className="text-mini text-foreground/90">{c.breathingCue[lang]}</p>
@@ -143,7 +143,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
 
       {c.injuryWatch && c.injuryWatch.length > 0 && (
         <Section
-          icon={<AlertTriangle className="w-3.5 h-3.5 text-rose-500" />}
+          icon={<AlertTriangle className="w-3.5 h-3.5 text-data-5" />}
           title={T.injury[lang]}
           items={c.injuryWatch.map((s) => s[lang])}
           accent="rose"
@@ -152,7 +152,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
 
       {c.prerequisites && c.prerequisites.length > 0 && (
         <Section
-          icon={<CheckCircle className="w-3.5 h-3.5 text-violet-500" />}
+          icon={<CheckCircle className="w-3.5 h-3.5 text-data-6" />}
           title={T.prerequisites[lang]}
           items={c.prerequisites.map((s) => s[lang])}
           accent="violet"
@@ -175,7 +175,7 @@ function FallbackBody({ lang }: { lang: 'ar' }) {
       <div className="bg-muted/30 border border-border/30 rounded-xl p-3">
         <p className="text-mini text-foreground">{GENERIC_WARMUP[lang]}</p>
       </div>
-      <div className="bg-rose-500/8 border border-rose-500/30 rounded-xl p-3">
+      <div className="bg-data-5/8 border border-data-5/30 rounded-xl p-3">
         <p className="text-mini text-foreground">{GENERIC_SAFETY[lang]}</p>
       </div>
     </div>

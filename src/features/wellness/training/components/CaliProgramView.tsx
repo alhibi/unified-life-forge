@@ -244,7 +244,7 @@ function CaliDetailSheet({
                 <Section title={T.prereq[lang]} body={
                   <ul className="space-y-1">
                     {program.prerequisites.map((s, i) => (
-                      <li key={i} className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 text-mini text-amber-700 dark:text-amber-400">
+                      <li key={i} className="bg-signal/10 border border-signal/30 rounded-lg p-2 text-mini text-signal dark:text-signal">
                         • {s[lang]}
                       </li>
                     ))}

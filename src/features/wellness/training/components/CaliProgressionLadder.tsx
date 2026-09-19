@@ -158,7 +158,7 @@ function StepCard({
       transition={{ delay: index * 0.04 }}
       className={`rounded-xl border p-3 transition-colors ${
         isCleared
-          ? 'bg-emerald-500/8 border-emerald-500/40'
+          ? 'bg-data-1/8 border-data-1/40'
           : isCurrent
             ? 'bg-card border-2'
             : isLocked
@@ -175,7 +175,7 @@ function StepCard({
           aria-label={isCleared ? T.cleared[lang] : T.current[lang]}
           className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-mini font-bold tabular-nums transition-colors ${
             isCleared
-              ? 'bg-emerald-500 text-white'
+              ? 'bg-data-1 text-white'
               : isLocked
                 ? 'bg-muted text-muted-foreground/60'
                 : 'bg-muted text-foreground'

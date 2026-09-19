@@ -108,15 +108,15 @@ export default function StrengthStandardsView({
  <motion.div
  initial={{ y: 10, opacity: 0 }}
  animate={{ y: 0, opacity: 1 }}
- className="rounded-2xl p-4 border border-amber-500/30"
+ className="rounded-2xl p-4 border border-signal/30"
  >
  <div className="flex items-baseline justify-between mb-2">
  <div>
- <p className="text-micro uppercase tracking-wider text-amber-600 font-semibold">{T.total[lang]}</p>
+ <p className="text-micro uppercase tracking-wider text-signal font-semibold">{T.total[lang]}</p>
  <p className="text-display font-bold tabular-nums text-foreground" dir="ltr">{total.total} kg</p>
  </div>
  <div className="text-end">
- <p className="text-micro uppercase tracking-wider text-amber-600 font-semibold">{T.wilks[lang]}</p>
+ <p className="text-micro uppercase tracking-wider text-signal font-semibold">{T.wilks[lang]}</p>
  <p className="text-lead font-bold tabular-nums text-foreground" dir="ltr">{total.wilks ?? '—'}</p>
             </div>
           </div>

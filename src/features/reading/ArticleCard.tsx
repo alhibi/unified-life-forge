@@ -300,7 +300,7 @@ export function ArticleCard({
                 )}
                 {cached && !isBookmarked && (
                   <span
-                    className="inline-flex items-center gap-0.5 text-micro text-emerald-600 dark:text-emerald-400 shrink-0"
+                    className="inline-flex items-center gap-0.5 text-micro text-data-1 dark:text-data-1 shrink-0"
                     title={'متاحة دون اتصال'}
                   >
                     <CircleCheck className="h-2.5 w-2.5" />
@@ -493,11 +493,11 @@ function SwipeBackdrop({
         style={{ opacity: markReadOpacity }}
         className={`absolute inset-y-0 ${'end-0'} w-1/2 flex items-center ${
           'justify-end pe-6'
-        } bg-emerald-500/15 ${radius}`}
+        } bg-data-1/15 ${radius}`}
       >
         {isRead
-          ? <CircleCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 rotate-180" />
-          : <CircleCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />}
+          ? <CircleCheck className="h-5 w-5 text-data-1 dark:text-data-1 rotate-180" />
+          : <CircleCheck className="h-5 w-5 text-data-1 dark:text-data-1" />}
       </motion.div>
     </>
   );

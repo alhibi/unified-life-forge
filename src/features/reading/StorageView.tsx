@@ -323,8 +323,8 @@ export function StorageView({
             <p className="text-micro uppercase tracking-wider font-bold text-muted-foreground mb-2">
               {'مدة الاحتفاظ'}
             </p>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-emerald-600 dark:text-emerald-400 text-mini font-bold">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-data-1/10 border border-data-1/20">
+              <span className="text-data-1 dark:text-data-1 text-mini font-bold">
                 {'دائم — لا تُحذف المقالات أبداً'}
               </span>
             </div>

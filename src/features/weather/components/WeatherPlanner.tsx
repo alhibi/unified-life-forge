@@ -100,19 +100,19 @@ export default function WeatherPlanner({
 
   const severityClass: Record<Severity, { wrap: string; icon: string; iconBg: string }> = {
     danger: {
-      wrap: 'bg-rose-500/8 border-rose-500/30 text-rose-700 dark:text-rose-300',
-      icon: 'text-rose-600 dark:text-rose-400',
-      iconBg: 'bg-rose-500/15',
+      wrap: 'bg-data-5/8 border-data-5/30 text-data-5 dark:text-data-5',
+      icon: 'text-data-5 dark:text-data-5',
+      iconBg: 'bg-data-5/15',
     },
     warning: {
-      wrap: 'bg-amber-500/8 border-amber-500/30 text-amber-700 dark:text-amber-300',
-      icon: 'text-amber-600 dark:text-amber-400',
-      iconBg: 'bg-amber-500/15',
+      wrap: 'bg-signal/8 border-signal/30 text-signal dark:text-signal',
+      icon: 'text-signal dark:text-signal',
+      iconBg: 'bg-signal/15',
     },
     success: {
-      wrap: 'bg-emerald-500/8 border-emerald-500/30 text-emerald-700 dark:text-emerald-300',
-      icon: 'text-emerald-600 dark:text-emerald-400',
-      iconBg: 'bg-emerald-500/15',
+      wrap: 'bg-data-1/8 border-data-1/30 text-data-1 dark:text-data-1',
+      icon: 'text-data-1 dark:text-data-1',
+      iconBg: 'bg-data-1/15',
     },
   };
 

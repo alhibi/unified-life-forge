@@ -275,7 +275,7 @@ export default function PriceChart({
           <span
             className={cn(
               'size-1.5 rounded-full',
-              isStale ? 'bg-amber-500' : 'animate-pulse bg-emerald-500'
+              isStale ? 'bg-signal' : 'animate-pulse bg-data-1'
             )}
             aria-hidden
           />
@@ -298,7 +298,7 @@ export default function PriceChart({
           <span
             className={cn(
               'flex items-center gap-1 rounded-full px-2 py-0.5 font-plex-mono text-micro font-bold tabular-nums',
-              deltaUp ? 'bg-emerald-500/12 text-emerald-500' : 'bg-rose-500/12 text-rose-500'
+              deltaUp ? 'bg-data-1/12 text-data-1' : 'bg-data-5/12 text-data-5'
             )}
             dir="ltr"
           >
@@ -481,8 +481,8 @@ export default function PriceChart({
               'flex-1 rounded-full px-2 py-1.5 text-micro font-semibold transition-colors duration-normal active:scale-95',
               range === option
                 ? isUp
-                  ? 'bg-emerald-500/12 text-emerald-500'
-                  : 'bg-rose-500/12 text-rose-500'
+                  ? 'bg-data-1/12 text-data-1'
+                  : 'bg-data-5/12 text-data-5'
                 : 'text-muted-foreground hover:bg-muted/20 hover:text-foreground'
             )}
             aria-pressed={range === option}

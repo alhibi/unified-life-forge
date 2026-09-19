@@ -111,8 +111,8 @@ export default function NutritionInsights() {
   return (
     <div className="space-y-5 pb-10">
       {/* Header */}
-      <div className="flex items-center gap-2 rounded-xl p-3 border border-purple-500/20">
-        <Sparkles className="w-5 h-5 text-purple-500" />
+      <div className="flex items-center gap-2 rounded-xl p-3 border border-data-6/20">
+        <Sparkles className="w-5 h-5 text-data-6" />
         <div>
           <p className="text-micro text-muted-foreground">{T.title[lang]}</p>
           <p className="text-mini font-bold text-foreground">

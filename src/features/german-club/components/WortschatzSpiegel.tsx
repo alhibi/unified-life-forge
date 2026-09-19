@@ -36,13 +36,13 @@ export const WortschatzSpiegel: React.FC = () => {
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl border"
       style={{
-        borderColor: `${GERMAN_CLUB_TOKENS.oak}40`,
+        borderColor: 'hsl(var(--track))',
         backgroundColor: 'rgba(255, 253, 246, 0.6)',
       }}
     >
-      <Bookmark className="w-3.5 h-3.5 text-amber-700" />
-      <span className="text-xs text-stone-600">في محفوظاتك</span>
-      <span className="text-sm font-black text-[#17324D] tabular-nums">{countWord}</span>
+      <Bookmark className="w-3.5 h-3.5 text-signal" />
+      <span className="text-xs text-muted-foreground">في محفوظاتك</span>
+      <span className="text-sm font-black text-[hsl(var(--primary))] tabular-nums">{countWord}</span>
     </motion.div>
   );
 };
