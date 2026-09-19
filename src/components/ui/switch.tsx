@@ -17,8 +17,8 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        // thumb = track 28 − 2×border 1 − 2×padding 4 = 18px; travel = 44 − 28 = 16px.
-        'pointer-events-none block size-[18px] rounded-full bg-primary-foreground transition-transform duration-fast data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 rtl:data-[state=checked]:-translate-x-4',
+        // thumb = track 28 − 2×padding 4 = 20px; travel = 44 − 20 − 8 = 16px.
+        'pointer-events-none block size-5 rounded-full bg-primary-foreground transition-transform duration-fast data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 rtl:data-[state=checked]:-translate-x-4',
       )}
     />
   </SwitchPrimitives.Root>
