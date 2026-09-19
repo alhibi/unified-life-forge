@@ -204,3 +204,24 @@ describe('reading storage account safety', () => {
     expect(storage.getReadArticles()).toEqual([]);
   });
 });
+
+describe('reading first-run feed seeding', () => {
+  it('seeds starter feeds once for a brand-new account and never again after the user empties them', async () => {
+    let storage = await import('./storage');
+    cloud.listFeeds.mockResolvedValue([]);
+    await storage.hydrateReadingFromCloud();
+    expect(storage.getStoredFeeds().length).toBeGreaterThan(0);
+    expect(cloud.replaceFeeds).toHaveBeenCalledTimes(1);
+    expect(storage.getReaderPrefs().feedsInitialized).toBe(true);
+    const marked = storage.getReaderPrefs();
+    storage.storeFeeds([]);
+    await storage.flushReadingMutations();
+    storage.resetReadingStorage();
+    vi.resetModules();
+    storage = await import('./storage');
+    cloud.listFeeds.mockResolvedValue([]);
+    cloud.loadReaderPrefs.mockResolvedValue(marked);
+    await storage.hydrateReadingFromCloud();
+    expect(storage.getStoredFeeds()).toEqual([]);
+  });
+});
