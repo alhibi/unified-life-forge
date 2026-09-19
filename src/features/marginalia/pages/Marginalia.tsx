@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { useAuth } from '@/hooks/useAuth';
 import { Link2, Loader2, Pin, Rss, Sparkles } from '@/lib/icons';
 

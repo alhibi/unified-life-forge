@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import BackButton from '@/components/BackButton';
 import SEO from '@/components/SEO';
 import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { useAuth } from '@/hooks/useAuth';
 import {
   BookOpen,
