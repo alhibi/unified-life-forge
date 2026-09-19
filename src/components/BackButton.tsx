@@ -4,6 +4,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { IconButton } from '@/components/ui/app-shell';
 import { ChevronLeft } from '@/lib/icons';
 
+/**
+ * One level up from `pathname`, or the portal when there is no level left.
+ * `/pkm/mind` → `/pkm`; `/pkm` → `/`.
+ */
+export function parentPath(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length <= 1) return '/';
+  return `/${segments.slice(0, -1).join('/')}`;
+}
+
 interface BackButtonProps {
   /**
    * Hard destination — when set, the button always navigates here
