@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
 import { findApp, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
 import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
+import PortalContinue from '@/components/portal/PortalContinue';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
 import PortalHeader from '@/components/portal/PortalHeader';
@@ -65,7 +66,14 @@ export default function Portal() {
   const navigate = useNavigate();
   const { username } = useAuth();
   const { unreadCount } = useUnreadMessages();
-  const { pinned, view, isPinned, togglePin, recordOpen, setView } = usePortalPrefs();
+  const { pinned, recents, view, isPinned, togglePin, recordOpen, setView } = usePortalPrefs();
+
+  /* Recents are stored as keys; resolve them here and drop any that no longer
+     map to a live app so a removed app can never render a dead chip. */
+  const recentApps = useMemo(
+    () => recents.map((key) => findApp(key)).filter((app): app is PortalApp => Boolean(app)),
+    [recents],
+  );
 
   /* The widgets below need coordinates; ask once, exactly like /now used to. */
   const { status: locationStatus, requestLocation } = useDeviceLocation();
