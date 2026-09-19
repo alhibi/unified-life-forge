@@ -132,6 +132,7 @@ type ColorTheme =
   | 'matcha'
   | 'nebula'
   | 'copper'
+  | 'editorial'
   | 'mint'
   | 'sandstone'
   | 'dusk'
@@ -393,8 +394,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(
     () =>
-      // 'copper' is the shipped Architectural Copper palette (#0D0D0F → #C9A06A).
-      (localStorage.getItem('app-color-theme') as ColorTheme) || 'copper',
+      // 'editorial' is the shipped system palette: warm off-white / warm
+      // graphite with neutral controls and one orange signal accent.
+      (localStorage.getItem('app-color-theme') as ColorTheme) || 'editorial',
   );
 
   const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
@@ -607,8 +609,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-palette-style', 'neutral');
     setBlackModeState(false);
     localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('copper');
-    localStorage.setItem('app-color-theme', 'copper');
+    setColorThemeState('editorial');
+    localStorage.setItem('app-color-theme', 'editorial');
 
     setSurfaceLiftState(DEFAULT_SURFACE_LIFT);
     localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);
