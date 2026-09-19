@@ -43,8 +43,7 @@ export default function WeatherWidget() {
   if (!data) {
     return (
       <div
-        className="w-full rounded-2xl border border-border/60 bg-card animate-pulse"
-        style={{ minHeight: 168 }}
+        className="w-full rounded-2xl border border-border/60 bg-card animate-pulse min-h-[7.5rem] sm:min-h-[13rem]"
         aria-label="جارٍ تحميل الطقس"
       />
     );
@@ -104,9 +103,10 @@ export default function WeatherWidget() {
         <Metric icon={Gauge} label="الضغط" value={`${Math.round(current.pressure)}`} unit="hPa" />
       </div>
 
-      {/* Hourly rail */}
+      {/* Hourly rail — sm+ only: on phones the widget stays a compact
+          now + metrics plate, and the full hourly detail lives at /weather. */}
       {hours.length > 1 && (
-        <div className="flex justify-between gap-1 px-2.5 py-2.5" dir="ltr">
+        <div className="hidden justify-between gap-1 px-2.5 py-2.5 sm:flex" dir="ltr">
           {hours.map((h) => {
             const HourIcon = iconForWeatherCode(h.weatherCode, h.isDay);
             return (
