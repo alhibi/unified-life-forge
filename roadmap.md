@@ -35,10 +35,11 @@
 ### Editorial design system (new default)
 - [x] Foundation: `editorial` palette (warm off-white / warm graphite, graphite controls), Inter Tight + IBM Plex Sans Arabic, corner ladder 6·8·12·16·20, two-layer ambient+contact shadows, `--signal` orange for data/change only, `--track` divider token, `type-title/section/body/label/meta` roles, `rule-x/rule-y`.
 - [x] Portal: retired per-app colored glows/gradients (tiles, motifs, filter rail, continue chips, realm section headers are neutral-tonal; icon + unread badge carry the only colour).
-- [ ] Bottom nav: 54-64px floating pill, tonal active state, no oversized bar.
+- [x] Bottom nav: n/a — the app has no bottom bar (Portal + floating home button).
 - [x] Cards & lists foundation: borderless tonal surfaces, layered ambient/contact depth, track-only dividers, compact typography roles.
 - [x] Controls foundation: 38–46px heights, circular icon actions, inset highlight + soft elevation, pressed depth reduction.
-- [ ] Inputs: quiet surfaces, accent focus, search integrated into the page.
+- [x] Inputs & controls: quiet tonal surfaces with hairline inset, accent focus ring (input/tabs/switch/slider).
+- [x] Palette sweep: 118 files moved off hardcoded Tailwind/hex colours onto --data-1..6 / signal / track tokens (german-club, games, time-ledger, profile, wellness, calendar).
 - [ ] Charts & heatmaps: thin strokes, track grid, signal accent only.
 - [ ] Per-app sweep across all 20 apps + empty/loading/error/sheet/modal states.
 
