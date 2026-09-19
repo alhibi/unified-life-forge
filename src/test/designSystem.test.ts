@@ -59,8 +59,11 @@ describe('design-system budgets', () => {
     // 4 net card surfaces during the premium-animations migration
     // (f02ae08e, e58adbb5). If a new screen needs another, justify it in
     // a separate audit before bumping this number again.
+    // Budget raised 352 → 367: the editorial-system colour sweep replaced
+    // bespoke `bg-stone-50`/hex surfaces with the themed `bg-card` token.
+    // These are conversions of existing surfaces, not new card patterns.
     const { total } = countMatches(/bg-card\b/g);
-    expect(total).toBeLessThanOrEqual(352);
+    expect(total).toBeLessThanOrEqual(367);
   });
 
   it('does not add new arbitrary font sizes', () => {
