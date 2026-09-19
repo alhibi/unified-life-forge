@@ -80,7 +80,7 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
             : '0 0 8px rgba(255, 122, 41, 0.7)',
         }}
         className={`font-black font-mono tracking-tighter text-[hsl(var(--signal))] select-none relative z-10 transition-motion ${
-          isJobRunning ? 'motion-safe:animate-pulse text-amber-300 scale-110' : 'group-hover:text-amber-200'
+          isJobRunning ? 'motion-safe:animate-pulse text-signal scale-110' : 'group-hover:text-signal'
         }`}
       >
         D
@@ -91,12 +91,12 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
         <>
           <span className="absolute inset-0 rounded-full border border-[hsl(var(--signal))] motion-safe:animate-ping opacity-80 pointer-events-none" />
           <span className="absolute inset-0 rounded-full bg-gradient-to-t from-[hsl(var(--signal))]/30 to-transparent motion-safe:animate-pulse pointer-events-none" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-[hsl(var(--track))] motion-safe:animate-bounce z-20" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-signal ring-2 ring-[hsl(var(--track))] motion-safe:animate-bounce z-20" />
         </>
       )}
 
       {/* Hover Tooltip Hint */}
-      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-foreground text-amber-100 text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-amber-500/30 pointer-events-none">
+      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-foreground text-signal text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-signal/30 pointer-events-none">
         الفرن: توليد الذكاء الاصطناعي ({currentCount}/{targetCount})
       </span>
     </button>

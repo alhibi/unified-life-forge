@@ -100,7 +100,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                 title={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
               >
                 {bookmarked ? (
-                  <BookmarkCheck className="w-5 h-5 text-amber-600 fill-amber-600" />
+                  <BookmarkCheck className="w-5 h-5 text-signal fill-signal" />
                 ) : (
                   <Bookmark className="w-5 h-5 text-muted-foreground" />
                 )}
@@ -133,7 +133,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                 type="button"
                 onClick={() => speakText(entry.german)}
                 className={`p-2 rounded-2xl border border-[hsl(var(--track))] hover:bg-secondary transition-colors ${
-                  isPlaying ? 'bg-amber-100 border-amber-400 text-amber-800' : 'bg-white/80 text-foreground'
+                  isPlaying ? 'bg-signal border-signal text-signal' : 'bg-white/80 text-foreground'
                 }`}
                 title="نطق ألماني واضح"
               >
@@ -214,7 +214,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {entry.examples.length > 0 && (
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-[hsl(var(--foreground))] flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-600" />
+                <Sparkles className="w-4 h-4 text-signal" />
                 أمثلة توضيحية من الحياة الواقعية ({entry.examples.length})
               </h4>
 
@@ -252,16 +252,16 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           {(entry.synonyms?.length || entry.antonyms?.length) ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               {entry.synonyms?.length ? (
-                <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 space-y-1">
-                  <span className="font-bold text-emerald-900">المترادفات (Synonyme):</span>
-                  <p dir="ltr" className="text-emerald-800 font-medium">{entry.synonyms.join(', ')}</p>
+                <div className="p-3 rounded-xl bg-data-1/80 border border-data-1/80 space-y-1">
+                  <span className="font-bold text-data-1">المترادفات (Synonyme):</span>
+                  <p dir="ltr" className="text-data-1 font-medium">{entry.synonyms.join(', ')}</p>
                 </div>
               ) : null}
 
               {entry.antonyms?.length ? (
-                <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-200/80 space-y-1">
-                  <span className="font-bold text-rose-900">الأضداد (Antonyme):</span>
-                  <p dir="ltr" className="text-rose-800 font-medium">{entry.antonyms.join(', ')}</p>
+                <div className="p-3 rounded-xl bg-data-5/80 border border-data-5/80 space-y-1">
+                  <span className="font-bold text-data-5">الأضداد (Antonyme):</span>
+                  <p dir="ltr" className="text-data-5 font-medium">{entry.antonyms.join(', ')}</p>
                 </div>
               ) : null}
             </div>
@@ -269,8 +269,8 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
 
           {/* Cultural & Grammatical Notes */}
           {entry.cultural_note_ar && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-amber-800">
+            <div className="p-4 rounded-2xl bg-signal border border-signal text-signal space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-xs text-signal">
                 <BookOpen className="w-4 h-4" />
                 <span>ملاحظة ثقافية واجتماعية في ألمانيا</span>
               </div>
@@ -279,8 +279,8 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
           )}
 
           {entry.grammatical_note_ar && (
-            <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-sky-800">
+            <div className="p-4 rounded-2xl bg-data-4 border border-data-4 text-data-4 space-y-1.5">
+              <div className="flex items-center gap-1.5 font-bold text-xs text-data-4">
                 <Lightbulb className="w-4 h-4" />
                 <span>إرشاد وقاعدة لغوية</span>
               </div>

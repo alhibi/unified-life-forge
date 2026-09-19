@@ -232,10 +232,10 @@ export const ProfileHeaderHero: React.FC<ProfileHeaderHeroProps> = ({
 
         {/* Presence & Member Since Chips */}
         <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20 text-micro font-semibold text-emerald-400">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-data-1/10 ring-1 ring-data-1/20 text-micro font-semibold text-data-1">
             <span className="relative flex w-1.5 h-1.5">
-              <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
-              <span className="relative rounded-full bg-emerald-400 w-1.5 h-1.5" />
+              <span className="absolute inset-0 rounded-full bg-data-1 animate-ping opacity-60" />
+              <span className="relative rounded-full bg-data-1 w-1.5 h-1.5" />
             </span>
             {isOnline ? 'متصل الآن' : 'نشط مؤخراً'}
           </span>

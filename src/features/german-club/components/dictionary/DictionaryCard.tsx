@@ -54,7 +54,7 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
             type="button"
             onClick={speakGerman}
             className={`p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary transition-colors ${
-              isPlaying ? 'bg-amber-100 border-amber-300 text-amber-800' : 'text-muted-foreground'
+              isPlaying ? 'bg-signal border-signal text-signal' : 'text-muted-foreground'
             }`}
             title="نطق ألماني"
           >
@@ -70,7 +70,7 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
             title={bookmarked ? 'إزالة من الحفظ' : 'حفظ الكلمة'}
           >
             {bookmarked ? (
-              <BookmarkCheck className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
+              <BookmarkCheck className="w-3.5 h-3.5 text-signal fill-signal" />
             ) : (
               <Bookmark className="w-3.5 h-3.5 text-muted-foreground" />
             )}

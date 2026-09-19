@@ -376,7 +376,7 @@ function FitnessPageInner({
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">شرب الماء اليومي</span>
-                      <span className="text-mini text-blue-500 font-mono font-bold">
+                      <span className="text-mini text-data-4 font-mono font-bold">
                         {(store.waterLogs[new Date().toISOString().split('T')[0]] || 0)} / {store.dailyWaterTargetMl} مل
                       </span>
                     </div>
@@ -384,7 +384,7 @@ function FitnessPageInner({
                     {/* Progress visual water cylinder */}
                     <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
                       <div
-                        className="h-full bg-blue-500 transition-motion duration-normal"
+                        className="h-full bg-data-4 transition-motion duration-normal"
                         style={{
                           width: `${Math.min(100, ((store.waterLogs[new Date().toISOString().split('T')[0]] || 0) / store.dailyWaterTargetMl) * 100)}%`
                         }}
@@ -399,7 +399,7 @@ function FitnessPageInner({
                         variant="outline"
                         size="sm"
                         onClick={() => store.addWater(new Date().toISOString().split('T')[0], ml)}
-                        className="flex-1 text-micro h-8 font-mono font-bold hover:bg-blue-500/10 hover:text-blue-500"
+                        className="flex-1 text-micro h-8 font-mono font-bold hover:bg-data-4/10 hover:text-data-4"
                       >
                         +{ml}ml
                       </Button>
@@ -408,7 +408,7 @@ function FitnessPageInner({
                       variant="outline"
                       size="sm"
                       onClick={() => store.resetWater(new Date().toISOString().split('T')[0])}
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500 hover:border-red-500"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:border-destructive"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
@@ -471,8 +471,8 @@ function FitnessPageInner({
                       <div className="w-full space-y-6">
                         {/* Live activity pulsing badge */}
                         <div className="flex justify-center">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-micro font-bold animate-pulse">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-destructive/10 text-destructive text-micro font-bold animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
                             جاري تتبع النشاط: {tracker.activityType === 'running' ? 'جري' : 'مشي'}
                           </span>
                         </div>
@@ -568,7 +568,7 @@ function FitnessPageInner({
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <p className="text-mini font-bold text-foreground flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-amber-500" /> وضع المحاكاة والاختبار
+                        <Sparkles className="w-4 h-4 text-signal" /> وضع المحاكاة والاختبار
                       </p>
                       <p className="text-micro text-muted-foreground">مخصص لمحاكاة أنشطة اللياقة البدنية والسرعة والمسار مباشرة بدون الخروج بالهاتف.</p>
                     </div>
@@ -680,7 +680,7 @@ function FitnessPageInner({
                         }`}
                       >
                         <span className="text-micro font-medium leading-none mb-1">{DAYS_MAP[dayKey].short}</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 opacity-80" style={{ display: dayData.isRestDay ? 'none' : 'block' }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-data-1 opacity-80" style={{ display: dayData.isRestDay ? 'none' : 'block' }} />
                         {dayData.isRestDay && <span className="text-mini text-muted-foreground/50 leading-none">راحة</span>}
                       </button>
                     );
@@ -744,7 +744,7 @@ function FitnessPageInner({
                                   <span className="text-mini font-bold text-foreground">{exercise.name}</span>
                                   <button
                                     onClick={() => store.removeExerciseFromDay(selectedDay, exercise.id)}
-                                    className="text-muted-foreground hover:text-red-500 p-1 rounded transition-colors"
+                                    className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
@@ -788,7 +788,7 @@ function FitnessPageInner({
                                           }}
                                           className={`w-6 h-6 rounded flex items-center justify-center border transition-motion active-tactile ${
                                             set.completed
-                                              ? 'bg-emerald-500 border-emerald-500 text-white'
+                                              ? 'bg-data-1 border-data-1 text-white'
                                               : 'bg-card border-border/60 text-transparent hover:border-primary'
                                           }`}
                                         >
@@ -834,7 +834,7 @@ function FitnessPageInner({
                       </div>
                     ) : (
                       <div className="text-center py-10 text-muted-foreground">
-                        <Sparkles className="w-8 h-8 text-amber-500/60 mx-auto mb-3 animate-spin" style={{ animationDuration: '3s' }} />
+                        <Sparkles className="w-8 h-8 text-signal/60 mx-auto mb-3 animate-spin" style={{ animationDuration: '3s' }} />
                         <h4 className="text-meta font-bold text-foreground">يوم استراحة واستشفاء</h4>
                         <p className="text-micro max-w-xs mx-auto mt-1 leading-relaxed">
                           الراحة جزء لا يتجزأ من بناء اللياقة. استغل هذا اليوم للنوم الكافي، وشرب المياه، والاستشفاء العضلي الفعال.
@@ -1166,7 +1166,7 @@ function FitnessPageInner({
                             <td className="py-2.5 text-end">
                               <button
                                 onClick={() => store.deleteWeightLog(log.id)}
-                                className="text-muted-foreground hover:text-red-500 transition-colors"
+                                className="text-muted-foreground hover:text-destructive transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>

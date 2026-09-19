@@ -316,7 +316,7 @@ function SkillCard({
                 <ul className="space-y-1">
                   {skill.cues[lang].map((cue, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-micro">
-                      <div className="w-1 h-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                      <div className="w-1 h-1 rounded-full bg-data-1 mt-1.5 shrink-0" />
                       <span className="text-foreground/85 leading-relaxed">{cue}</span>
                     </li>
                   ))}
@@ -328,7 +328,7 @@ function SkillCard({
                 <ul className="space-y-1">
                   {skill.mistakes[lang].map((m, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-micro">
-                      <X className="w-2.5 h-2.5 text-rose-500 mt-0.5 shrink-0" />
+                      <X className="w-2.5 h-2.5 text-data-5 mt-0.5 shrink-0" />
                       <span className="text-foreground/85 leading-relaxed">{m}</span>
                     </li>
                   ))}
@@ -337,12 +337,12 @@ function SkillCard({
 
               {/* Pro tip */}
               <div
-                className="rounded-lg p-2.5 border-s-2 bg-amber-500/5"
+                className="rounded-lg p-2.5 border-s-2 bg-signal/5"
                 style={{ borderLeftColor: '#f59e0b' }}
               >
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  <h5 className="text-micro font-semibold text-amber-600 dark:text-amber-400">{T.proTip[lang]}</h5>
+                  <Sparkles className="w-3 h-3 text-signal" />
+                  <h5 className="text-micro font-semibold text-signal dark:text-signal">{T.proTip[lang]}</h5>
                 </div>
                 <p className="text-micro text-foreground/85 leading-relaxed">
                   {skill.proTip[lang]}
@@ -513,7 +513,7 @@ function FoodCard({
                 {food.optimalTimes.map((t, i) => (
                   <span
                     key={i}
-                    className="text-micro px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 font-medium"
+                    className="text-micro px-1.5 py-0.5 rounded-full bg-data-4/10 text-data-4 dark:text-data-4 font-medium"
                   >
                     {MEAL_TIME_LABELS[t][lang]}
                   </span>
@@ -558,28 +558,28 @@ function FoodCard({
               </div>
 
               {/* Pairing */}
-              <div className="rounded-lg p-2.5 bg-emerald-500/5 border-s-2 border-emerald-500">
+              <div className="rounded-lg p-2.5 bg-data-1/5 border-s-2 border-data-1">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <Sparkles className="w-3 h-3 text-emerald-500" />
-                  <h5 className="text-micro font-semibold text-emerald-700 dark:text-emerald-400">{T.pairing[lang]}</h5>
+                  <Sparkles className="w-3 h-3 text-data-1" />
+                  <h5 className="text-micro font-semibold text-data-1 dark:text-data-1">{T.pairing[lang]}</h5>
                 </div>
                 <p className="text-micro text-foreground/85">{food.pairing[lang]}</p>
               </div>
 
               {/* Pitfall */}
-              <div className="rounded-lg p-2.5 bg-rose-500/5 border-s-2 border-rose-500">
+              <div className="rounded-lg p-2.5 bg-data-5/5 border-s-2 border-data-5">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <AlertCircle className="w-3 h-3 text-rose-500" />
-                  <h5 className="text-micro font-semibold text-rose-700 dark:text-rose-400">{T.pitfall[lang]}</h5>
+                  <AlertCircle className="w-3 h-3 text-data-5" />
+                  <h5 className="text-micro font-semibold text-data-5 dark:text-data-5">{T.pitfall[lang]}</h5>
                 </div>
                 <p className="text-micro text-foreground/85">{food.pitfall[lang]}</p>
               </div>
 
               {/* Athlete tip */}
-              <div className="rounded-lg p-2.5 bg-amber-500/5 border-s-2 border-amber-500">
+              <div className="rounded-lg p-2.5 bg-signal/5 border-s-2 border-signal">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <Trophy className="w-3 h-3 text-amber-500" />
-                  <h5 className="text-micro font-semibold text-amber-700 dark:text-amber-400">{T.athleteTip[lang]}</h5>
+                  <Trophy className="w-3 h-3 text-signal" />
+                  <h5 className="text-micro font-semibold text-signal dark:text-signal">{T.athleteTip[lang]}</h5>
                 </div>
                 <p className="text-micro text-foreground/85">{food.athleteTip[lang]}</p>
               </div>
@@ -732,9 +732,9 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                                 {fact.body[lang]}
                               </p>
                               <div className="flex items-start gap-1.5 pt-1 border-t border-border/30">
-                                <Lightbulb className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
+                                <Lightbulb className="w-3 h-3 text-signal mt-0.5 shrink-0" />
                                 <span className="text-micro text-foreground/85 leading-relaxed">
-                                  <span className="font-semibold text-amber-600 dark:text-amber-400">
+                                  <span className="font-semibold text-signal dark:text-signal">
                                     {T.action[lang]}:
                                   </span>{' '}
                                   {fact.action[lang]}
@@ -742,9 +742,9 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                               </div>
                               {fact.myth && (
                                 <div className="flex items-start gap-1.5 pt-1 border-t border-border/30">
-                                  <X className="w-3 h-3 text-rose-500 mt-0.5 shrink-0" />
+                                  <X className="w-3 h-3 text-data-5 mt-0.5 shrink-0" />
                                   <span className="text-micro text-foreground/85 leading-relaxed">
-                                    <span className="font-semibold text-rose-600 dark:text-rose-400">
+                                    <span className="font-semibold text-data-5 dark:text-data-5">
                                       {T.myth[lang]}:
                                     </span>{' '}
                                     {fact.myth[lang]}

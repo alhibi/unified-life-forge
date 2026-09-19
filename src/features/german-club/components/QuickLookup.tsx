@@ -247,7 +247,7 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
               {entry.german}
             </span>
             {isExact && (
-              <span className="text-[0.625rem] font-mono font-bold text-emerald-700 uppercase tracking-wider">
+              <span className="text-[0.625rem] font-mono font-bold text-data-1 uppercase tracking-wider">
                 مطابقة
               </span>
             )}

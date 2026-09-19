@@ -77,9 +77,9 @@ export function BadgeTelemetryPanel({
 
   const health = getHealthStatus();
   const healthConfig = {
-    healthy: { icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-400/10', label: 'ممتاز' },
-    warning: { icon: AlertCircle, color: 'text-amber-400', bg: 'bg-amber-400/10', label: 'تحتاج تحسين' },
-    critical: { icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-400/10', label: 'حرجة' },
+    healthy: { icon: CheckCircle, color: 'text-data-1', bg: 'bg-data-1/10', label: 'ممتاز' },
+    warning: { icon: AlertCircle, color: 'text-signal', bg: 'bg-signal/10', label: 'تحتاج تحسين' },
+    critical: { icon: AlertCircle, color: 'text-destructive', bg: 'bg-destructive/10', label: 'حرجة' },
     idle: { icon: Minus, color: 'text-muted-foreground', bg: 'bg-muted/10', label: 'خامل' },
   };
 
@@ -140,14 +140,14 @@ export function BadgeTelemetryPanel({
       <div className="grid grid-cols-2 gap-3 mb-5">
         <MetricCard
           icon={Activity}
-          iconColor="text-blue-400"
+          iconColor="text-data-4"
           label="إجمالي التقييمات"
           value={telemetry.evaluationCount.toLocaleString()}
           trend={telemetry.evaluationCount > 100 ? 'up' : 'neutral'}
         />
         <MetricCard
           icon={Database}
-          iconColor="text-purple-400"
+          iconColor="text-data-6"
           label="إصابات الذاكرة"
           value={telemetry.cacheHits.toLocaleString()}
           subValue={`${cacheHitRate.toFixed(1)}% معدل`}
@@ -155,7 +155,7 @@ export function BadgeTelemetryPanel({
         />
         <MetricCard
           icon={Zap}
-          iconColor="text-amber-400"
+          iconColor="text-signal"
           label="متوسط وقت التقييم"
           value={`${telemetry.averageEvaluationMs.toFixed(2)}ms`}
           subValue={telemetry.lastEvaluationMs > 0 ? `الأخير: ${telemetry.lastEvaluationMs.toFixed(2)}ms` : undefined}
@@ -163,7 +163,7 @@ export function BadgeTelemetryPanel({
         />
         <MetricCard
           icon={Gauge}
-          iconColor="text-emerald-400"
+          iconColor="text-data-1"
           label="المشتركون النشطون"
           value={telemetry.subscribersCount.toString()}
           trend={telemetry.subscribersCount > 0 ? 'up' : 'neutral'}
@@ -180,19 +180,19 @@ export function BadgeTelemetryPanel({
             label="إصابات (Cache Hits)" 
             value={telemetry.cacheHits} 
             total={telemetry.evaluationCount}
-            color="text-emerald-400"
+            color="text-data-1"
           />
           <CacheMetricRow 
             label="إخفاقات (Cache Misses)" 
             value={telemetry.cacheMisses} 
             total={telemetry.evaluationCount}
-            color="text-amber-400"
+            color="text-signal"
           />
           <CacheMetricRow 
             label="أحداث منبثقة" 
             value={telemetry.eventsEmitted} 
             total={telemetry.evaluationCount}
-            color="text-blue-400"
+            color="text-data-4"
           />
         </div>
       </div>
@@ -202,11 +202,11 @@ export function BadgeTelemetryPanel({
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="mt-4 p-3 rounded-lg bg-amber-400/10 border border-amber-400/20"
+          className="mt-4 p-3 rounded-lg bg-signal/10 border border-signal/20"
         >
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <div className="text-micro text-amber-400">
+            <AlertCircle className="w-4 h-4 text-signal mt-0.5 shrink-0" />
+            <div className="text-micro text-signal">
               <span className="font-bold">توصية:</span> معدل إصابة الذاكرة منخفض ({cacheHitRate.toFixed(1)}%). 
               فكر في زيادة TTL للذاكرة المؤقتة أو تقليل تكرار التقييم.
             </div>
@@ -233,8 +233,8 @@ function MetricCard({
   trend: 'up' | 'down' | 'neutral';
 }) {
   const trendIcons = {
-    up: <TrendingUp className="w-3 h-3 text-emerald-400" />,
-    down: <TrendingDown className="w-3 h-3 text-red-400" />,
+    up: <TrendingUp className="w-3 h-3 text-data-1" />,
+    down: <TrendingDown className="w-3 h-3 text-destructive" />,
     neutral: <Minus className="w-3 h-3 text-muted-foreground" />,
   };
 

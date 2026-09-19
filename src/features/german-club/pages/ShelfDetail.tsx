@@ -153,7 +153,7 @@ export const ShelfDetail: React.FC = () => {
                   <span className="text-xs font-bold text-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10 px-2.5 py-1 rounded-md">
                     مواقف حية
                   </span>
-                  <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
+                  <span className="text-xs font-bold text-data-1 bg-data-1 px-2.5 py-1 rounded-md">
                     محتوى متاح للجميع
                   </span>
                 </div>

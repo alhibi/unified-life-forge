@@ -54,15 +54,15 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  food: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
-  cafe: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  nature: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  park: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  beach: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
-  adventure: 'bg-red-500/15 text-red-400 border-red-500/30',
-  historic: 'bg-yellow-600/15 text-yellow-500 border-yellow-600/30',
-  museum: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
-  culture: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+  food: 'bg-signal/15 text-signal border-signal/30',
+  cafe: 'bg-signal/15 text-signal border-signal/30',
+  nature: 'bg-data-1/15 text-data-1 border-data-1/30',
+  park: 'bg-data-1/15 text-data-1 border-data-1/30',
+  beach: 'bg-data-4/15 text-data-4 border-data-4/30',
+  adventure: 'bg-destructive/15 text-destructive border-destructive/30',
+  historic: 'bg-signal/15 text-signal border-signal/30',
+  museum: 'bg-data-6/15 text-data-6 border-data-6/30',
+  culture: 'bg-data-6/15 text-data-6 border-data-6/30',
 };
 
 function categoryLabel(cat: string): string {
@@ -70,7 +70,7 @@ function categoryLabel(cat: string): string {
 }
 
 function categoryColor(cat: string): string {
-  return CATEGORY_COLORS[cat] ?? 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+  return CATEGORY_COLORS[cat] ?? 'bg-secondary0/15 text-muted-foreground border-[hsl(var(--track))]/30';
 }
 
 const PRICE_LABELS = ['مجاني', 'رخيص', 'متوسط', 'مرتفع', 'فاخر'];
@@ -314,7 +314,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
             className={cn(
               'w-8 h-8 rounded-xl flex items-center justify-center transition-motion active:scale-90',
               place.promotedPlaceId
-                ? 'bg-emerald-500/20 text-emerald-400'
+                ? 'bg-data-1/20 text-data-1'
                 : 'bg-primary/10 text-primary hover:bg-primary/20'
             )}
           >
@@ -680,11 +680,11 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
                           <Loader2 className="w-3 h-3 animate-spin text-primary shrink-0" />
                         )}
                         {t.lastRunStatus === 'done' && (
-                          <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <Check className="w-3 h-3 text-data-1 shrink-0" />
                         )}
                         {(t.lastRunStatus === 'failed' || t.lastRunStatus === 'empty') && (
                           <span
-                            className="w-2 h-2 rounded-full bg-amber-400/80 shrink-0"
+                            className="w-2 h-2 rounded-full bg-signal/80 shrink-0"
                             title={t.lastRunStatus === 'failed' ? 'فشل آخر بحث' : 'آخر بحث بلا نتائج جديدة'}
                           />
                         )}
@@ -781,7 +781,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
               >
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden" dir="ltr">
                   <div
-                    className="h-full rounded-full bg-gradient-to-l from-primary to-cyan-400 progress-fill duration-slow"
+                    className="h-full rounded-full bg-gradient-to-l from-primary to-data-4 progress-fill duration-slow"
                     style={{ '--progress': progress.pct / 100 } as CSSProperties}
                   />
                 </div>

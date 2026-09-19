@@ -861,7 +861,7 @@ function UmmahPulse() {
                   {c.nameAr}
                 </h3>
                 {c.name === 'Makkah' && (
-                  <span className="text-micro px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold">
+                  <span className="text-micro px-1.5 py-0.5 rounded-full bg-signal/15 text-signal font-bold">
                     ★ {'قبلة'}
                   </span>
                 )}
@@ -1204,7 +1204,7 @@ function UmmahPulse() {
                                 <p className="text-mini font-semibold text-foreground truncate leading-tight">
                                   {c.nameAr}
                                   {c.name === 'Makkah' && (
-                                    <span className="ms-1.5 text-micro px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 font-bold align-middle">
+                                    <span className="ms-1.5 text-micro px-1.5 py-0.5 rounded-full bg-signal/15 text-signal font-bold align-middle">
                                       ★
                                     </span>
                                   )}

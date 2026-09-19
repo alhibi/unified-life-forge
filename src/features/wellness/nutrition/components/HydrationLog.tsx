@@ -81,9 +81,9 @@ export default function HydrationLog({ lang }: Props) {
       {/* Wave container */}
       <div className="rounded-2xl p-4 bg-card border border-border/40 relative overflow-hidden flex flex-col md:flex-row items-center gap-4">
         {/* Wavy liquid shape */}
-        <div className="w-32 h-32 rounded-full border-4 border-blue-500/20 bg-blue-500/5 relative overflow-hidden shrink-0 flex items-center justify-center">
+        <div className="w-32 h-32 rounded-full border-4 border-data-4/20 bg-data-4/5 relative overflow-hidden shrink-0 flex items-center justify-center">
           <motion.div
-            className="absolute bottom-0 start-0 end-0 bg-blue-500/30"
+            className="absolute bottom-0 start-0 end-0 bg-data-4/30"
             initial={{ height: 0 }}
             animate={{ height: `${pct * 100}%` }}
             transition={{ type: 'spring', damping: 20, stiffness: 80 }}
@@ -98,7 +98,7 @@ export default function HydrationLog({ lang }: Props) {
 
         <div className="flex-1 text-center md:text-start space-y-1">
           <h4 className="text-meta font-bold text-foreground flex items-center justify-center md:justify-start gap-1.5">
-            <Droplet className="w-4 h-4 text-blue-500" />
+            <Droplet className="w-4 h-4 text-data-4" />
             {T.title[lang]}
           </h4>
           <p className="text-micro text-muted-foreground">{T.target[lang]}</p>
@@ -107,7 +107,7 @@ export default function HydrationLog({ lang }: Props) {
               <button
                 key={amt}
                 onClick={() => handleAdd(amt)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-blue-500/20 bg-blue-500/5 text-blue-500 hover:bg-blue-500/10 text-micro font-bold active:scale-95 transition-motion"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-data-4/20 bg-data-4/5 text-data-4 hover:bg-data-4/10 text-micro font-bold active:scale-95 transition-motion"
               >
                 <Plus className="w-3 h-3" />
                 <span>
@@ -132,7 +132,7 @@ export default function HydrationLog({ lang }: Props) {
             {logs.map((log) => (
               <div key={log.id} className="flex items-center justify-between py-2 text-micro">
                 <div className="flex items-center gap-1.5">
-                  <Droplet className="w-3.5 h-3.5 text-blue-400" />
+                  <Droplet className="w-3.5 h-3.5 text-data-4" />
                   <span className="font-bold text-foreground tabular-nums">
                     {log.amountMl} {T.ml[lang]}
                   </span>

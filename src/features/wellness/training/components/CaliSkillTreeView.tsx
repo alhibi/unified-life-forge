@@ -141,7 +141,7 @@ function SkillCard({
           {!unlocked ? (
             <Lock className="w-3 h-3 text-muted-foreground/60" />
           ) : isMastered ? (
-            <Award className="w-3.5 h-3.5 text-amber-500" />
+            <Award className="w-3.5 h-3.5 text-signal" />
           ) : null}
         </div>
 

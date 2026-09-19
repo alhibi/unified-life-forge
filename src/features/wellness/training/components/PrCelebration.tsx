@@ -85,12 +85,12 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                 transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.1 }}
                 className="inline-flex w-16 h-16 rounded-full bg-white items-center justify-center mb-3 "
               >
-                <Trophy className="w-9 h-9 text-amber-500" />
+                <Trophy className="w-9 h-9 text-signal" />
               </motion.div>
-              <h2 className="text-title font-bold text-amber-950 leading-tight">
+              <h2 className="text-title font-bold text-signal leading-tight">
                 {isMultiple ? T.multipleNew[lang] : T.newPr[lang]}
               </h2>
-              <p className="text-mini text-amber-900/80 mt-1">{T.niceWork[lang]}</p>
+              <p className="text-mini text-signal/80 mt-1">{T.niceWork[lang]}</p>
             </div>
 
             <div className="bg-white/95 px-4 pt-4 pb-5 space-y-2">
@@ -103,16 +103,16 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                     initial={{ x: 20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.15 + i * 0.06 }}
-                    className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between"
+                    className="bg-signal border border-signal rounded-xl p-3 flex items-center justify-between"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-mini font-bold text-foreground truncate">{label}</p>
                       <p className="text-micro text-muted-foreground mt-0.5">{T.kind[r.kind][lang]}</p>
                     </div>
                     <div className="text-end shrink-0" dir="ltr">
-                      <p className="text-body font-bold tabular-nums text-amber-600">
+                      <p className="text-body font-bold tabular-nums text-signal">
                         {r.value}
-                        <span className="text-micro text-amber-500 ms-0.5">
+                        <span className="text-micro text-signal ms-0.5">
                           {T.unit[r.unit][lang]}
                         </span>
                       </p>

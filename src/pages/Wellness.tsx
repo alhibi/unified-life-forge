@@ -391,7 +391,7 @@ export default function WellnessPage() {
               <div className="w-8 h-0.5 rounded-full bg-muted-foreground/30 mx-auto mb-2" />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <ShieldCheck className="w-4 h-4 text-data-1" />
                   <h2 className="text-mini font-medium text-foreground">{T.privacyTitle[language]}</h2>
                 </div>
                 <button onClick={() => setShowPrivacy(false)} className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center">

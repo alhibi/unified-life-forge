@@ -124,8 +124,8 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
             </span>
           )}
           {entry.is_separable_verb && (
-            <span className="text-[0.6875rem] font-bold text-sky-800 bg-sky-100/80 px-2 py-0.5 rounded-md flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-sky-600" />
+            <span className="text-[0.6875rem] font-bold text-data-4 bg-data-4/80 px-2 py-0.5 rounded-md flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-data-4" />
               فعل منفصل
             </span>
           )}

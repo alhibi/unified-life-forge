@@ -187,9 +187,9 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
 
       {/* Lightning advisory */}
       {anyLightning && (
-        <div className="mx-6 mb-5 flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/12 border border-amber-500/30">
-          <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" aria-hidden />
-          <p className="text-mini text-amber-600 dark:text-amber-300 leading-snug font-semibold">
+        <div className="mx-6 mb-5 flex items-start gap-2 px-3 py-2 rounded-lg bg-signal/12 border border-signal/30">
+          <Zap className="w-3.5 h-3.5 text-signal shrink-0 mt-0.5" aria-hidden />
+          <p className="text-mini text-signal dark:text-signal leading-snug font-semibold">
             {'نشاط برقي مرصود في البيانات — تجنب المناطق المفتوحة.'}
           </p>
         </div>

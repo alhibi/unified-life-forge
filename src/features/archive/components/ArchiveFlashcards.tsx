@@ -154,17 +154,17 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
           </div>
 
           <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mb-6">
-            <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-2">
+            <div className="bg-data-1/5 border border-data-1/20 rounded-xl p-2">
               <div className="text-micro text-muted-foreground">متمكن</div>
-              <div className="text-meta font-bold text-emerald-500">{stats.easyCount}</div>
+              <div className="text-meta font-bold text-data-1">{stats.easyCount}</div>
             </div>
-            <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-2">
+            <div className="bg-signal/5 border border-signal/20 rounded-xl p-2">
               <div className="text-micro text-muted-foreground">متوسط</div>
-              <div className="text-meta font-bold text-amber-500">{stats.medCount}</div>
+              <div className="text-meta font-bold text-signal">{stats.medCount}</div>
             </div>
-            <div className="bg-rose-500/5 border border-rose-500/20 rounded-xl p-2">
+            <div className="bg-data-5/5 border border-data-5/20 rounded-xl p-2">
               <div className="text-micro text-muted-foreground">صعب</div>
-              <div className="text-meta font-bold text-rose-500">{stats.hardCount}</div>
+              <div className="text-meta font-bold text-data-5">{stats.hardCount}</div>
             </div>
           </div>
 
@@ -239,21 +239,21 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => handleScore('hard')}
-                    className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 transition-colors"
+                    className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-data-5/30 bg-data-5/5 hover:bg-data-5/10 text-data-5 transition-colors"
                   >
                     <AlertCircle className="w-4 h-4" />
                     <span className="text-micro font-bold">صعب / لم أذكر</span>
                   </button>
                   <button
                     onClick={() => handleScore('medium')}
-                    className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-500 transition-colors"
+                    className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-signal/30 bg-signal/5 hover:bg-signal/10 text-signal transition-colors"
                   >
                     <Activity className="w-4 h-4" />
                     <span className="text-micro font-bold">متوسط التذكر</span>
                   </button>
                   <button
                     onClick={() => handleScore('easy')}
-                    className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-500 transition-colors"
+                    className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-data-1/30 bg-data-1/5 hover:bg-data-1/10 text-data-1 transition-colors"
                   >
                     <Smile className="w-4 h-4" />
                     <span className="text-micro font-bold">سهل / تذكرته</span>

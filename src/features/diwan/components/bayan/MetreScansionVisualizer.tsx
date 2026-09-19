@@ -64,7 +64,7 @@ export const MetreScansionVisualizer: React.FC<MetreScansionVisualizerProps> = (
 
               {/* Deviations */}
               {tafila.deviation && (
-                <span className="mt-1.5 text-micro bg-yellow-500/10 text-yellow-500 px-1.5 py-0.5 rounded-full font-mono">
+                <span className="mt-1.5 text-micro bg-signal/10 text-signal px-1.5 py-0.5 rounded-full font-mono">
                   {tafila.deviation}
                 </span>
               )}

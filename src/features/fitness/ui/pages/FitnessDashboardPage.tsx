@@ -41,8 +41,8 @@ export function FitnessDashboardPage() {
                {isTracking ? (
                  <>
                    <div className="mb-4">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-500 text-mini font-medium animate-pulse">
-                         <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 text-destructive text-mini font-medium animate-pulse">
+                         <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
                          نشط الآن
                       </span>
                    </div>

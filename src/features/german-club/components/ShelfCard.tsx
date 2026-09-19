@@ -87,7 +87,7 @@ export const ShelfCard: React.FC<ShelfCardProps> = ({
 
         {typeof itemCount === 'number' && (
           <span className="font-mono text-xs font-semibold text-[hsl(var(--primary))] flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-600" />
+            <Sparkles className="w-3 h-3 text-signal" />
             {itemCount} عنصر
           </span>
         )}

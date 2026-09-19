@@ -146,26 +146,26 @@ export default function ChessCareerPage() {
       {/* Player rating banner */}
       <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-purple-500/25 p-4 mb-4"
+        className="rounded-2xl border border-data-6/25 p-4 mb-4"
       >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-micro uppercase tracking-wider text-purple-200/80">
+            <p className="text-micro uppercase tracking-wider text-data-6/80">
               {'تقييمك الحالي'}
             </p>
-            <p className="text-hero font-black text-purple-200 tabular-nums">{career.rating}</p>
-            <p className="text-mini text-purple-300/80 font-bold">
+            <p className="text-hero font-black text-data-6 tabular-nums">{career.rating}</p>
+            <p className="text-mini text-data-6/80 font-bold">
               {playerTitle.ar}
             </p>
           </div>
-          <Trophy className="w-12 h-12 text-amber-400/70 stroke-[1.4]" />
+          <Trophy className="w-12 h-12 text-signal/70 stroke-[1.4]" />
         </div>
         <div className="mt-3">
-          <div className="flex items-center justify-between text-micro text-zinc-400 mb-1">
+          <div className="flex items-center justify-between text-micro text-muted-foreground mb-1">
             <span>{trophiesWon}/{BOTS.length} {'بطل سُحق'}</span>
-            {allBeaten && <span className="text-amber-300 font-bold">{'🏆 بطل العالم!'}</span>}
+            {allBeaten && <span className="text-signal font-bold">{'🏆 بطل العالم!'}</span>}
           </div>
-          <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <motion.div
               className="h-full rounded-full "
               animate={{ width: `${(trophiesWon / BOTS.length) * 100}%` }}
@@ -195,33 +195,33 @@ export default function ChessCareerPage() {
               disabled={!unlocked}
               className={`w-full text-start rounded-2xl border p-3 transition-motion ${
  isCurrent
- ? 'border-purple-400 bg-purple-500/15 ring-1 ring-purple-400/30'
+ ? 'border-data-6 bg-data-6/15 ring-1 ring-data-6/30'
  : beaten
- ? 'border-emerald-500/25 bg-emerald-500/5'
+ ? 'border-data-1/25 bg-data-1/5'
  : unlocked
- ? 'border-border/40 bg-card hover:bg-purple-500/5'
+ ? 'border-border/40 bg-card hover:bg-data-6/5'
  : 'border-border/30 bg-card/40 opacity-50 cursor-not-allowed'
  } ${unlocked ? 'active:scale-[0.98]' : ''}`}
             >
               <div className="flex items-center gap-3">
                 {/* Rank pill */}
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-display shrink-0 ${
-                  beaten ? 'bg-emerald-500/15' : isCurrent ? 'bg-purple-500/20 ring-2 ring-purple-400/40' : 'bg-white/5'
+                  beaten ? 'bg-data-1/15' : isCurrent ? 'bg-data-6/20 ring-2 ring-data-6/40' : 'bg-white/5'
                 }`}>
-                  {unlocked ? bot.emoji : <Lock className="w-4 h-4 text-zinc-500" />}
+                  {unlocked ? bot.emoji : <Lock className="w-4 h-4 text-muted-foreground" />}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={`text-micro font-mono px-1.5 py-0.5 rounded ${
-                      beaten ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/5 text-zinc-400'
+                      beaten ? 'bg-data-1/15 text-data-1' : 'bg-white/5 text-muted-foreground'
                     }`}>
                       #{idx + 1}
                     </span>
                     <h3 className="font-bold text-foreground text-meta truncate">
                       {bot.ar}
                     </h3>
-                    {beaten && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                    {beaten && <Check className="w-3.5 h-3.5 text-data-1 shrink-0" />}
                   </div>
                   <p className={`text-micro mt-0.5 line-clamp-1 ${
                     unlocked ? 'text-muted-foreground' : 'text-muted-foreground/40'
@@ -231,7 +231,7 @@ export default function ChessCareerPage() {
                 </div>
 
                 <div className="text-end shrink-0">
-                  <p className="text-mini font-bold text-purple-300 tabular-nums">{bot.elo}</p>
+                  <p className="text-mini font-bold text-data-6 tabular-nums">{bot.elo}</p>
                   {rec && (
                     <p className="text-micro text-muted-foreground tabular-nums">
                       {rec.wins}-{rec.losses}-{rec.draws}
@@ -240,7 +240,7 @@ export default function ChessCareerPage() {
                 </div>
 
                 <ChevronRight className={`w-4 h-4 ${
-                  unlocked ? 'text-foreground/60' : 'text-zinc-700'
+                  unlocked ? 'text-foreground/60' : 'text-foreground'
                 }`} />
               </div>
             </motion.button>
@@ -260,17 +260,17 @@ export default function ChessCareerPage() {
               initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 30 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-md rounded-3xl border border-purple-500/30 bg-card p-5"
+              className="w-full max-w-md rounded-3xl border border-data-6/30 bg-card p-5"
             >
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-purple-500/15 flex items-center justify-center text-hero">
+                <div className="w-16 h-16 rounded-2xl bg-data-6/15 flex items-center justify-center text-hero">
                   {selected.emoji}
                 </div>
                 <div className="flex-1">
                   <h2 className="text-title font-black text-foreground">
                     {selected.ar}
                   </h2>
-                  <p className="text-mini text-purple-300 font-bold tabular-nums">
+                  <p className="text-mini text-data-6 font-bold tabular-nums">
                     Elo {selected.elo} · {selected.style}
                   </p>
                 </div>
@@ -310,7 +310,7 @@ export default function ChessCareerPage() {
                 </button>
                 <button
                   onClick={() => startMatch(selected)}
-                  className="flex-1 py-3 rounded-xl font-black text-purple-950 text-meta flex items-center justify-center gap-1.5"
+                  className="flex-1 py-3 rounded-xl font-black text-data-6 text-meta flex items-center justify-center gap-1.5"
                   style={{ }}
                 >
                   <Swords className="w-4 h-4" />
@@ -325,13 +325,13 @@ export default function ChessCareerPage() {
       {allBeaten && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-          className="mt-5 rounded-2xl p-4 border border-amber-500/40 text-center"
+          className="mt-5 rounded-2xl p-4 border border-signal/40 text-center"
         >
-          <Sparkles className="w-7 h-7 text-amber-300 mx-auto mb-1" />
-          <p className="text-amber-300 font-black text-body">
+          <Sparkles className="w-7 h-7 text-signal mx-auto mb-1" />
+          <p className="text-signal font-black text-body">
             {'لقد هزمت كل الأبطال!'}
           </p>
-          <p className="text-mini text-amber-200/70">
+          <p className="text-mini text-signal/70">
             {'جرب البطلة عائشة على رتبة أعلى لتثبت تفوقك'}
           </p>
         </motion.div>
@@ -344,9 +344,9 @@ function StatRow({ label, v, max }: { label: string; v: number; max: number }) {
   const pct = Math.max(0, Math.min(100, (v / max) * 100));
   return (
     <div>
-      <p className="text-micro text-zinc-500 mb-0.5">{label}</p>
-      <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
-        <div className="h-full rounded-full bg-purple-400" style={{ width: `${pct}%` }} />
+      <p className="text-micro text-muted-foreground mb-0.5">{label}</p>
+      <div className="h-1 rounded-full bg-muted overflow-hidden">
+        <div className="h-full rounded-full bg-data-6" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

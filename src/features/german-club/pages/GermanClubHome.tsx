@@ -68,7 +68,7 @@ export const GermanClubHome: React.FC = () => {
               onClick={() => navigate('/german-club/dictionary')}
               className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--primary))]/30 bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 transition-colors flex items-center gap-1.5 shadow-xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <Sparkles className="w-3.5 h-3.5 text-signal" />
               القاموس الشامل
             </button>
 
@@ -87,7 +87,7 @@ export const GermanClubHome: React.FC = () => {
               className="p-1.5 rounded-xl border border-[hsl(var(--track))] text-muted-foreground hover:bg-secondary transition-colors"
               title="مراجعة المحتوى"
             >
-              <ShieldAlert className="w-4 h-4 text-amber-700" />
+              <ShieldAlert className="w-4 h-4 text-signal" />
             </button>
           </div>
         </div>
@@ -96,7 +96,7 @@ export const GermanClubHome: React.FC = () => {
         <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 sm:py-12 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
           <div className="max-w-4xl mx-auto text-center space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <Sparkles className="w-3.5 h-3.5 text-signal" />
               <span>مرجع مجاني للقراءة والاستخدام</span>
             </div>
 
@@ -118,7 +118,7 @@ export const GermanClubHome: React.FC = () => {
               >
                 <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-normal" />
                 <span>ابدأ جولة لغوية</span>
-                <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-amber-400 border border-amber-400/40 rounded-md px-1.5 py-0.5">
+                <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-signal border border-signal/40 rounded-md px-1.5 py-0.5">
                   7 خطوات
                 </span>
               </button>

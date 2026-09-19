@@ -222,7 +222,7 @@ export function PullToRefresh({
           }}
         >
           {!isOnline ? (
-            <WifiOff className="h-4 w-4 text-amber-500" />
+            <WifiOff className="h-4 w-4 text-signal" />
           ) : (
             <RefreshCw
               className={`h-4 w-4 transition-colors ${

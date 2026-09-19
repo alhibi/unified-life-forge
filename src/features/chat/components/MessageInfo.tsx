@@ -110,7 +110,7 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) =
                     icon={<Clock className="w-4 h-4" />}
                     label={'تنتهي صلاحيتها'}
                     value={fmtFull(message.expires_at)}
-                    iconClass="text-amber-500"
+                    iconClass="text-signal"
                   />
                 )}
               </div>

@@ -77,7 +77,7 @@ export function DailyRangeStrip({ days, iconFor, locale }: DailyRangeStripProps)
               <DayIcon className="w-5 h-5 text-primary" strokeWidth={1.3} />
               <div className="relative h-2 rounded-full bg-foreground/8 overflow-hidden">
                 <motion.div
-                  className="absolute inset-y-0 rounded-full bg-gradient-to-r from-sky-400/70 via-primary to-rose-400/70"
+                  className="absolute inset-y-0 rounded-full bg-gradient-to-r from-data-4/70 via-primary to-data-5/70"
                   initial={{ scaleX: 0 }}
                   animate={{
                     left: `${leftPct}%`,
@@ -90,12 +90,12 @@ export function DailyRangeStrip({ days, iconFor, locale }: DailyRangeStripProps)
                 {/* Min/max dots */}
                 <span
                   aria-hidden
-                  className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-sky-400"
+                  className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-data-4"
                   style={{ left: `${leftPct}%` }}
                 />
                 <span
                   aria-hidden
-                  className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-rose-400"
+                  className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-data-5"
                   style={{ left: `${rightPct}%` }}
                 />
               </div>

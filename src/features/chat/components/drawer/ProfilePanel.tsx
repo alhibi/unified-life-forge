@@ -97,7 +97,7 @@ export default function ProfilePanel({
             <p
               className={cn(
                 'text-mini mt-1 font-medium',
-                chat.otherPresence.isOnline ? 'text-green-500' : 'text-muted-foreground/70',
+                chat.otherPresence.isOnline ? 'text-data-1' : 'text-muted-foreground/70',
               )}
             >
               {chat.otherPresence.text}

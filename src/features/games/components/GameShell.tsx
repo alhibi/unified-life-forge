@@ -135,7 +135,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
                     <span className="w-5 h-5 rounded-full flex items-center justify-center text-micro font-bold shrink-0 mt-0.5" style={{ background: `${accentColor}20`, color: accentColor }}>
                       {i + 1}
                     </span>
-                    <p className="text-mini text-zinc-400 leading-relaxed">{rule}</p>
+                    <p className="text-mini text-muted-foreground leading-relaxed">{rule}</p>
                   </div>
                 ))}
               </div>
@@ -155,7 +155,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
                   {stats.map((s, i) => (
                     <div key={i} className="text-center py-2">
                       <p className="text-lead font-black text-white">{s.value}</p>
-                      <p className="text-micro text-zinc-500">{s.label}</p>
+                      <p className="text-micro text-muted-foreground">{s.label}</p>
                     </div>
                   ))}
                 </div>
@@ -174,7 +174,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               <div className="rounded-2xl p-4 border space-y-3" style={{ background: 'rgba(255,255,255,0.03)', borderColor: `${accentColor}15` }}>
                 {options.map(opt => (
                   <div key={opt.key}>
-                    <p className="text-micro text-zinc-500 mb-1.5">{opt.label}</p>
+                    <p className="text-micro text-muted-foreground mb-1.5">{opt.label}</p>
                     <div className="flex gap-1.5 flex-wrap">
                       {opt.choices.map(choice => (
                         <button

@@ -96,7 +96,7 @@ export const WortlistePage: React.FC = () => {
                 style={{ borderColor: 'hsl(var(--track))' }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                  <Sparkles className="w-3.5 h-3.5 text-signal" />
                   <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
                     مرآة
                   </span>
@@ -230,7 +230,7 @@ const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, sh
       <button
         type="button"
         onClick={onRemove}
-        className="shrink-0 text-xs font-medium text-muted-foreground hover:text-rose-600 transition-colors px-2 py-1"
+        className="shrink-0 text-xs font-medium text-muted-foreground hover:text-data-5 transition-colors px-2 py-1"
         title="إزالة من القائمة"
       >
         إزالة

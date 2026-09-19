@@ -105,7 +105,7 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
 
       <div className="relative">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+          <Sparkles className="w-3.5 h-3.5 text-signal" />
           <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--signal))]">
             Kulturperle
           </span>

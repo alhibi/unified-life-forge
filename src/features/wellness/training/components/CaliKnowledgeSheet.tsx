@@ -79,14 +79,14 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                 <>
                   {/* Why train it */}
                   <Section
-                    icon={<Lightbulb className="w-3.5 h-3.5 text-amber-500" />}
+                    icon={<Lightbulb className="w-3.5 h-3.5 text-signal" />}
                     title={T.why[lang]}
                     body={<p className="text-mini text-foreground/90 leading-relaxed">{card.whyTrainIt[lang]}</p>}
                   />
 
                   {/* Frequency */}
                   <Section
-                    icon={<Calendar className="w-3.5 h-3.5 text-blue-500" />}
+                    icon={<Calendar className="w-3.5 h-3.5 text-data-4" />}
                     title={T.freq[lang]}
                     body={
                       <div className="grid grid-cols-3 gap-1.5">
@@ -99,7 +99,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 
                   {/* Prerequisites */}
                   <Section
-                    icon={<CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+                    icon={<CheckCircle2 className="w-3.5 h-3.5 text-data-1" />}
                     title={T.prereq[lang]}
                     body={
                       <ul className="space-y-1">
@@ -114,13 +114,13 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 
                   {/* Warmup */}
                   <Section
-                    icon={<Zap className="w-3.5 h-3.5 text-orange-500" />}
+                    icon={<Zap className="w-3.5 h-3.5 text-signal" />}
                     title={T.warmup[lang]}
                     body={
                       <ol className="space-y-1">
                         {card.warmupSequence.map((s, i) => (
                           <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90 flex items-start gap-2">
-                            <span className="w-5 h-5 rounded-md bg-orange-500/20 text-orange-500 flex items-center justify-center shrink-0 text-micro font-bold">
+                            <span className="w-5 h-5 rounded-md bg-signal/20 text-signal flex items-center justify-center shrink-0 text-micro font-bold">
                               {i + 1}
                             </span>
                             <span>{s[lang]}</span>
@@ -132,15 +132,15 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 
                   {/* Top mistakes */}
                   <Section
-                    icon={<AlertCircle className="w-3.5 h-3.5 text-rose-500" />}
+                    icon={<AlertCircle className="w-3.5 h-3.5 text-data-5" />}
                     title={T.mistakes[lang]}
                     body={
                       <ul className="space-y-1.5">
                         {card.topMistakes.map((m, i) => (
-                          <li key={i} className="bg-card border border-rose-500/30 rounded-lg p-2 space-y-1">
-                            <p className="text-mini font-semibold text-rose-500">⚠ {m.mistake[lang]}</p>
+                          <li key={i} className="bg-card border border-data-5/30 rounded-lg p-2 space-y-1">
+                            <p className="text-mini font-semibold text-data-5">⚠ {m.mistake[lang]}</p>
                             <p className="text-micro text-foreground/85">
-                              <span className="font-semibold text-emerald-500">✓ {T.fix[lang]}: </span>
+                              <span className="font-semibold text-data-1">✓ {T.fix[lang]}: </span>
                               {m.fix[lang]}
                             </p>
                           </li>
@@ -151,7 +151,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 
                   {/* Recovery + Programming */}
                   <Section
-                    icon={<Wrench className="w-3.5 h-3.5 text-violet-500" />}
+                    icon={<Wrench className="w-3.5 h-3.5 text-data-6" />}
                     title={T.programming[lang]}
                     body={
                       <div className="space-y-1.5">
@@ -177,12 +177,12 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 
                   {/* Milestones */}
                   <Section
-                    icon={<Trophy className="w-3.5 h-3.5 text-amber-500" />}
+                    icon={<Trophy className="w-3.5 h-3.5 text-signal" />}
                     title={T.milestones[lang]}
                     body={
                       <ul className="space-y-1">
                         {card.milestones.map((s, i) => (
-                          <li key={i} className="bg-amber-500/8 border border-amber-500/30 rounded-lg p-2 text-mini text-foreground/90">
+                          <li key={i} className="bg-signal/8 border border-signal/30 rounded-lg p-2 text-mini text-foreground/90">
                             🏆 {s[lang]}
                           </li>
                         ))}

@@ -27,9 +27,9 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({ role, size = 'sm', customTitle })
       ? 'text-micro h-[15px] px-1.5'
       : 'text-micro h-[19px] px-2',
     role === 'owner'
-      ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25'
+      ? 'bg-signal/15 text-signal dark:text-signal ring-1 ring-signal/25'
       : role === 'admin'
-        ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/25'
+        ? 'bg-data-4/15 text-data-4 dark:text-data-4 ring-1 ring-data-4/25'
         : 'bg-muted/40 text-muted-foreground ring-1 ring-border/30',
   );
   const Icon = role === 'owner' ? Crown : role === 'admin' ? Shield : User;

@@ -32,10 +32,10 @@ const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 const TYPE_STYLES: Record<string, { color: string; bg: string; border: string; labelAr: string; glow: string }> = {
-  correlation: { color: 'text-violet-300', bg: 'bg-violet-500/[0.06]', border: 'border-violet-400/15', labelAr: 'ارتباط', glow: 'shadow-violet-900/10' },
-  pattern: { color: 'text-sky-300', bg: 'bg-sky-500/[0.06]', border: 'border-sky-400/15', labelAr: 'نمط', glow: 'shadow-sky-900/10' },
-  recommendation: { color: 'text-amber-300', bg: 'bg-amber-500/[0.06]', border: 'border-amber-400/15', labelAr: 'توصية', glow: 'shadow-amber-900/10' },
-  milestone: { color: 'text-emerald-300', bg: 'bg-emerald-500/[0.06]', border: 'border-emerald-400/15', labelAr: 'معلم', glow: 'shadow-emerald-900/10' },
+  correlation: { color: 'text-data-6', bg: 'bg-data-6/[0.06]', border: 'border-data-6/15', labelAr: 'ارتباط', glow: 'shadow-data-6/10' },
+  pattern: { color: 'text-data-4', bg: 'bg-data-4/[0.06]', border: 'border-data-4/15', labelAr: 'نمط', glow: 'shadow-data-4/10' },
+  recommendation: { color: 'text-signal', bg: 'bg-signal/[0.06]', border: 'border-signal/15', labelAr: 'توصية', glow: 'shadow-signal/10' },
+  milestone: { color: 'text-data-1', bg: 'bg-data-1/[0.06]', border: 'border-data-1/15', labelAr: 'معلم', glow: 'shadow-data-1/10' },
 };
 
 const CATEGORY_ICON_COMPONENTS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -89,10 +89,10 @@ export function ProfileInsightsPanel({
         transition={{ duration: 0.6 }}
         className={`surface-depth rounded-[1.75rem] p-7 md:p-8 text-center overflow-hidden relative ${className}`}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-500/[0.03] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-data-6/[0.03] via-transparent to-transparent" />
         <div className="relative z-10 flex flex-col items-center gap-4 py-10">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 flex items-center justify-center shadow-inner ring-1 ring-violet-400/10">
-            <Lightbulb className="w-8 h-8 text-violet-300/50" />
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-data-6/10 to-data-6/5 flex items-center justify-center shadow-inner ring-1 ring-data-6/10">
+            <Lightbulb className="w-8 h-8 text-data-6/50" />
           </div>
           <div>
             <h3 className="text-[1.05rem] font-extrabold text-foreground mb-1.5 tracking-tight">لا توجد رؤى متاحة حالياً</h3>
@@ -111,12 +111,12 @@ export function ProfileInsightsPanel({
       className={`surface-depth rounded-[1.75rem] p-6 md:p-7 overflow-hidden relative ${className}`}
     >
       {/* Subtle ambient gradient */}
-      <div className="absolute top-0 left-0 w-80 h-80 rounded-full bg-gradient-to-br from-violet-400/5 via-transparent to-amber-300/5 blur-3xl -translate-x-1/3 -translate-y-1/2 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-80 h-80 rounded-full bg-gradient-to-br from-data-6/5 via-transparent to-signal/5 blur-3xl -translate-x-1/3 -translate-y-1/2 pointer-events-none" />
 
       {/* Header */}
       <div className="relative z-10 flex items-start gap-4 mb-6">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 flex items-center justify-center shadow-inner ring-1 ring-violet-400/15 shrink-0">
-          <Brain className="w-5 h-5 text-violet-300" />
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-data-6/15 to-data-6/15 flex items-center justify-center shadow-inner ring-1 ring-data-6/15 shrink-0">
+          <Brain className="w-5 h-5 text-data-6" />
         </div>
         <div className="min-w-0">
           <h2 className="text-[1.1rem] font-extrabold text-foreground tracking-tight leading-tight">رؤى ذكية</h2>
@@ -175,7 +175,7 @@ export function ProfileInsightsPanel({
                         strokeWidth="3.5"
                         strokeLinecap="round"
                         strokeDasharray={`${insight.confidence * 100} 100`}
-                        className="text-violet-300 transition-motion duration-slow ease-enter"
+                        className="text-data-6 transition-motion duration-slow ease-enter"
                         style={{ filter: 'drop-shadow(0 0 6px rgba(139,92,246,0.4))' }}
                       />
                     </svg>
@@ -193,7 +193,7 @@ export function ProfileInsightsPanel({
                       {insight.titleAr}
                     </h4>
                     {insight.actionable && onActionClick && (
-                      <span className="flex items-center gap-1 text-[0.625rem] font-extrabold text-violet-300/70 opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
+                      <span className="flex items-center gap-1 text-[0.625rem] font-extrabold text-data-6/70 opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
                         <ArrowRight className="w-3 h-3 rotate-180" />
                         عرض
                       </span>

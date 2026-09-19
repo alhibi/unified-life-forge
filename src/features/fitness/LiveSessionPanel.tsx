@@ -151,9 +151,9 @@ function LiveSessionPanelImpl({
               gpsAccuracy == null
                 ? 'bg-muted-foreground/50'
                 : gpsAccuracy <= 8
-                  ? 'bg-emerald-500'
+                  ? 'bg-data-1'
                   : gpsAccuracy <= 18
-                    ? 'bg-amber-500'
+                    ? 'bg-signal'
                     : 'bg-destructive'
             }`}
           />

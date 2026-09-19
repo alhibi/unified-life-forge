@@ -132,9 +132,9 @@ export default function DeloadAdvisor({
       </div>
 
       {advice.shouldDeload && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 flex gap-2">
-          <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-micro text-amber-700 dark:text-amber-300 leading-relaxed">
+        <div className="bg-signal/10 border border-signal/30 rounded-xl p-2.5 flex gap-2">
+          <AlertTriangle className="w-3.5 h-3.5 text-signal shrink-0 mt-0.5" />
+          <p className="text-micro text-signal dark:text-signal leading-relaxed">
             {`قلّل الحجم إلى ${Math.round(advice.volumeMultiplier * 100)}% والكثافة إلى ${Math.round(advice.intensityMultiplier * 100)}% لمدة أسبوع.`}
           </p>
         </div>

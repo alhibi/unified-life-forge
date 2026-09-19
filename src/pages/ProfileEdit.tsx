@@ -797,7 +797,7 @@ export default function ProfileEditPage() {
                     onClick={() => setIsVisitorPreview(!isVisitorPreview)}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold transition-motion ${
                       isVisitorPreview
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        ? 'bg-data-1/20 text-data-1 border border-data-1/30'
                         : 'bg-primary/10 text-primary border border-primary/20'
                     }`}
                   >
@@ -863,7 +863,7 @@ export default function ProfileEditPage() {
                     onClick={() => setShowPhotoStudio(true)}
                     className="gap-2 h-auto py-3 rounded-xl font-bold"
                   >
-                    <Sliders className="w-4 h-4 text-indigo-400" />
+                    <Sliders className="w-4 h-4 text-data-6" />
                     <div className="text-start">
                       <span className="block text-micro font-bold">معالجة الصور</span>
                       <span className="block text-[0.625rem] text-muted-foreground font-normal">Photo Filter Studio</span>
@@ -879,7 +879,7 @@ export default function ProfileEditPage() {
                     }}
                     className="gap-2 h-auto py-3 rounded-xl sm:col-span-1 col-span-2 font-bold"
                   >
-                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <Sparkles className="w-4 h-4 text-signal" />
                     <div className="text-start">
                       <span className="block text-micro font-bold">رمز الحروف الأولى</span>
                       <span className="block text-[0.625rem] text-muted-foreground font-normal">Initials Stamp</span>
@@ -952,7 +952,7 @@ export default function ProfileEditPage() {
                           checkingUsername
                             ? 'text-muted-foreground'
                             : usernameAvailable
-                            ? 'text-emerald-400'
+                            ? 'text-data-1'
                             : 'text-destructive'
                         }`}
                       >

@@ -40,7 +40,7 @@ export const WortschatzSpiegel: React.FC = () => {
         backgroundColor: 'rgba(255, 253, 246, 0.6)',
       }}
     >
-      <Bookmark className="w-3.5 h-3.5 text-amber-700" />
+      <Bookmark className="w-3.5 h-3.5 text-signal" />
       <span className="text-xs text-muted-foreground">في محفوظاتك</span>
       <span className="text-sm font-black text-[hsl(var(--primary))] tabular-nums">{countWord}</span>
     </motion.div>

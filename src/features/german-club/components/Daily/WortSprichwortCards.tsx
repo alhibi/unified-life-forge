@@ -56,7 +56,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
       <div className="relative">
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+          <Sparkles className="w-3.5 h-3.5 text-signal" />
           <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
             Wort des Tages
           </span>

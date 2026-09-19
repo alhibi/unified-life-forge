@@ -103,7 +103,7 @@ export const GermanDictionary: React.FC = () => {
           <div className="max-w-4xl mx-auto space-y-3 text-center sm:text-start">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <Sparkles className="w-3.5 h-3.5 text-signal" />
                 <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
               </div>
 
@@ -156,7 +156,7 @@ export const GermanDictionary: React.FC = () => {
                 onClick={() => setActiveTab('bookmarks')}
                 className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion flex items-center gap-1.5 ${
                   activeTab === 'bookmarks'
-                    ? 'bg-amber-600 text-white shadow-xs'
+                    ? 'bg-signal text-white shadow-xs'
                     : 'bg-secondary text-foreground hover:bg-secondary'
                 }`}
               >

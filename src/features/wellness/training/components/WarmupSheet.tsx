@@ -76,7 +76,7 @@ export default function WarmupSheet({
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-orange-500" />
+                  <Flame className="w-4 h-4 text-signal" />
                   <div>
                     <h3 className="text-body font-bold text-foreground">{T.title[lang]}</h3>
                     <p className="text-micro text-muted-foreground">

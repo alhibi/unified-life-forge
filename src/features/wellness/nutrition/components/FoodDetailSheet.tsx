@@ -190,7 +190,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
                 className="p-2 rounded-full active:scale-90 transition-transform"
               >
                 <Heart
-                  className={`w-5 h-5 ${fav ? 'text-red-500 fill-red-500' : 'text-muted-foreground'}`}
+                  className={`w-5 h-5 ${fav ? 'text-destructive fill-destructive' : 'text-muted-foreground'}`}
                 />
               </button>
               <button
@@ -238,8 +238,8 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           </div>
 
           {/* ─── Nutrient Density Score ─── */}
-          <div className="flex items-center gap-3 p-3 rounded-xl border border-amber-500/20">
-            <Sparkles className="w-5 h-5 text-amber-500" />
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-signal/20">
+            <Sparkles className="w-5 h-5 text-signal" />
             <div className="flex-1">
               <p className="text-micro text-muted-foreground">{T.density[lang]}</p>
               <div className="flex items-baseline gap-1">
@@ -260,19 +260,19 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
             <div
               className={`flex items-center gap-3 p-3 rounded-xl border ${
                 food.glycemicIndex <= 35
-                  ? 'bg-emerald-500/5 border-emerald-500/20'
+                  ? 'bg-data-1/5 border-data-1/20'
                   : food.glycemicIndex <= 55
-                    ? 'bg-amber-500/5 border-amber-500/20'
-                    : 'bg-red-500/5 border-red-500/20'
+                    ? 'bg-signal/5 border-signal/20'
+                    : 'bg-destructive/5 border-destructive/20'
               }`}
             >
               <Zap
                 className={`w-5 h-5 ${
                   food.glycemicIndex <= 35
-                    ? 'text-emerald-500'
+                    ? 'text-data-1'
                     : food.glycemicIndex <= 55
-                      ? 'text-amber-500'
-                      : 'text-red-500'
+                      ? 'text-signal'
+                      : 'text-destructive'
                 }`}
               />
               <div className="flex-1">
@@ -282,10 +282,10 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
               <span
                 className={`text-micro font-semibold px-2 py-0.5 rounded-full ${
                   food.glycemicIndex <= 35
-                    ? 'bg-emerald-500/10 text-emerald-600'
+                    ? 'bg-data-1/10 text-data-1'
                     : food.glycemicIndex <= 55
-                      ? 'bg-amber-500/10 text-amber-600'
-                      : 'bg-red-500/10 text-red-600'
+                      ? 'bg-signal/10 text-signal'
+                      : 'bg-destructive/10 text-destructive'
                 }`}
               >
                 {food.glycemicIndex <= 35
@@ -368,8 +368,8 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
               <div className="space-y-1.5">
                 {food.benefits[lang].map((benefit, i) => (
                   <div key={i} className="flex items-start gap-2 text-micro">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-emerald-500 text-micro font-bold">{i + 1}</span>
+                    <div className="w-4 h-4 rounded-full bg-data-1/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-data-1 text-micro font-bold">{i + 1}</span>
                     </div>
                     <p className="text-foreground/80 leading-relaxed">{benefit}</p>
                   </div>
@@ -397,11 +397,11 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
 
           {/* ─── Allergens ─── */}
           {food.allergens.length > 0 && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/5 border border-red-500/20">
-              <Shield className="w-4 h-4 text-red-500" />
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/5 border border-destructive/20">
+              <Shield className="w-4 h-4 text-destructive" />
               <div>
-                <p className="text-micro font-semibold text-red-600">{T.allergens[lang]}</p>
-                <p className="text-micro text-red-500/80">{food.allergens.join(', ')}</p>
+                <p className="text-micro font-semibold text-destructive">{T.allergens[lang]}</p>
+                <p className="text-micro text-destructive/80">{food.allergens.join(', ')}</p>
               </div>
             </div>
           )}
@@ -424,8 +424,8 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
 
           {/* ─── Storage Tip ─── */}
           {food.storageTip && (
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
-              <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-data-4/5 border border-data-4/20">
+              <Info className="w-4 h-4 text-data-4 shrink-0 mt-0.5" />
               <p className="text-micro text-foreground/80">{food.storageTip[lang]}</p>
             </div>
           )}

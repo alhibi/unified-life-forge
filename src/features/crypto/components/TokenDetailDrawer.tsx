@@ -105,15 +105,15 @@ export default function TokenDetailDrawer({
             <span>نسبة عمليات الشراء ({ratio.buysPct}%)</span>
             <span>نسبة عمليات البيع ({ratio.sellsPct}%)</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-rose-500/20 overflow-hidden flex">
+          <div className="h-1.5 w-full rounded-full bg-data-5/20 overflow-hidden flex">
             <div
-              className="bg-emerald-500 h-full transition-motion duration-slow"
+              className="bg-data-1 h-full transition-motion duration-slow"
               style={{ width: `${ratio.buysPct}%` }}
             />
           </div>
           <div className="flex justify-between text-micro font-plex-mono tracking-tight tabular-nums font-bold mt-1">
-            <span className="text-emerald-500">▲ {pair.txns24h.buys} شراء</span>
-            <span className="text-rose-500">▼ {pair.txns24h.sells} بيع</span>
+            <span className="text-data-1">▲ {pair.txns24h.buys} شراء</span>
+            <span className="text-data-5">▼ {pair.txns24h.sells} بيع</span>
           </div>
         </div>
 

@@ -43,27 +43,27 @@ const RISK_STYLES: Record<
   { ring: string; bg: string; text: string; icon: React.ComponentType<{ className?: string }> }
 > = {
   safe: {
-    ring: 'ring-emerald-500/30',
-    bg: 'bg-emerald-500/10',
-    text: 'text-emerald-400',
+    ring: 'ring-data-1/30',
+    bg: 'bg-data-1/10',
+    text: 'text-data-1',
     icon: Sparkles,
   },
   warning: {
-    ring: 'ring-amber-500/40',
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-400',
+    ring: 'ring-signal/40',
+    bg: 'bg-signal/10',
+    text: 'text-signal',
     icon: ShieldAlert,
   },
   critical: {
-    ring: 'ring-red-500/50',
-    bg: 'bg-red-500/10',
-    text: 'text-red-400',
+    ring: 'ring-destructive/50',
+    bg: 'bg-destructive/10',
+    text: 'text-destructive',
     icon: ShieldAlert,
   },
   frozen: {
-    ring: 'ring-sky-500/40',
-    bg: 'bg-sky-500/10',
-    text: 'text-sky-400',
+    ring: 'ring-data-4/40',
+    bg: 'bg-data-4/10',
+    text: 'text-data-4',
     icon: CloudSnow,
   },
 };
@@ -80,11 +80,11 @@ function flameTier(days: number): number {
 
 const FLAME_GLOW: Record<number, string> = {
   0: 'text-muted-foreground',
-  1: 'text-orange-300 drop-shadow-[0_0_6px_rgba(253,186,116,0.35)]',
-  2: 'text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.45)]',
-  3: 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.55)]',
-  4: 'text-amber-500 drop-shadow-[0_0_14px_rgba(245,158,11,0.7)]',
-  5: 'text-red-400 drop-shadow-[0_0_18px_rgba(248,113,113,0.8)]',
+  1: 'text-signal drop-shadow-[0_0_6px_rgba(253,186,116,0.35)]',
+  2: 'text-signal drop-shadow-[0_0_8px_rgba(251,146,60,0.45)]',
+  3: 'text-signal drop-shadow-[0_0_10px_rgba(245,158,11,0.55)]',
+  4: 'text-signal drop-shadow-[0_0_14px_rgba(245,158,11,0.7)]',
+  5: 'text-destructive drop-shadow-[0_0_18px_rgba(248,113,113,0.8)]',
 };
 
 function formatMilestoneProgress(current: number, target: number): number {
@@ -161,7 +161,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
           {/* Stats cluster */}
           <div className="flex-1 grid grid-cols-3 gap-2">
             <div className="p-3 rounded-xl bg-muted/20 border border-border/40 text-center space-y-0.5">
-              <Trophy className="w-4 h-4 mx-auto text-emerald-400" />
+              <Trophy className="w-4 h-4 mx-auto text-data-1" />
               <span className="block text-lead font-extrabold text-foreground tabular-nums">
                 {unified.longestStreakDays}
               </span>
@@ -199,14 +199,14 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                 </span>
               </>
             ) : (
-              <span className="font-bold text-amber-400">
+              <span className="font-bold text-signal">
                 🏆 أتممتَ جميع معالم السلاسل — أنت أسطورة الالتزام!
               </span>
             )}
           </div>
           <div className="h-2 w-full bg-muted/40 rounded-full overflow-hidden">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-l from-amber-400 via-orange-400 to-red-400"
+              className="h-full rounded-full bg-gradient-to-l from-signal via-signal to-destructive"
               initial={{ width: 0 }}
               animate={{ width: `${milestoneProgress}%` }}
               transition={{ duration: 1, ease: 'easeOut' }}
@@ -248,7 +248,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                 key={m.category}
                 whileHover={{ y: -2 }}
                 className={`surface-depth rounded-2xl p-4 space-y-2.5 border transition-colors ${
-                  isActive ? 'border-border/60 hover:border-amber-500/40' : 'opacity-70'
+                  isActive ? 'border-border/60 hover:border-signal/40' : 'opacity-70'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -312,7 +312,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                     </div>
                   </div>
                 ) : (
-                  <div className="text-micro font-bold text-amber-400 flex items-center gap-1">
+                  <div className="text-micro font-bold text-signal flex items-center gap-1">
                     <Trophy className="w-3 h-3" /> كل المعالم مُكتملة
                   </div>
                 )}
@@ -356,7 +356,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                       transition={{ duration: 0.7, ease: 'easeOut', delay: dow * 0.05 }}
                       className={`w-full rounded-t-lg ${
                         isStrongest
-                          ? 'bg-gradient-to-t from-amber-500 to-orange-400 shadow-md shadow-amber-500/20'
+                          ? 'bg-gradient-to-t from-signal to-signal shadow-md shadow-signal/20'
                           : isWeakest
                             ? 'bg-muted/30'
                             : 'bg-primary/60'
@@ -364,7 +364,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                     />
                   </div>
                   <span
-                    className={`text-micro font-bold ${isStrongest ? 'text-amber-400' : 'text-muted-foreground'}`}
+                    className={`text-micro font-bold ${isStrongest ? 'text-signal' : 'text-muted-foreground'}`}
                   >
                     {[ 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت' ][dow]}
                   </span>
@@ -376,7 +376,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
           {rhythm.averagesByDayOfWeek.some((a) => a > 0) && (
             <p className="text-mini text-muted-foreground bg-muted/20 rounded-xl p-3 leading-relaxed">
               💡 تحليل الإيقاع:{' '}
-              <strong className="text-amber-400">{rhythm.strongestDayNameAr}</strong> هو أقوى
+              <strong className="text-signal">{rhythm.strongestDayNameAr}</strong> هو أقوى
               أيامك بمتوسط{' '}
               <strong className="text-foreground">
                 {rhythm.averagesByDayOfWeek[rhythm.strongestDayIndex]}
@@ -402,7 +402,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
           />
           <div className="relative space-y-3">
             <div className="flex items-center gap-2">
-              <Crown className="w-4 h-4 text-amber-400" />
+              <Crown className="w-4 h-4 text-signal" />
               <h3 className="text-meta font-bold text-foreground">يومك الذهبي</h3>
             </div>
 
@@ -410,7 +410,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
               <>
                 <p className="text-mini font-semibold text-foreground">{bestDay.dateFormattedAr}</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-black text-amber-400 tabular-nums">
+                  <span className="text-4xl font-black text-signal tabular-nums">
                     {bestDay.count}
                   </span>
                   <span className="text-mini text-muted-foreground">نشاط في يوم واحد</span>

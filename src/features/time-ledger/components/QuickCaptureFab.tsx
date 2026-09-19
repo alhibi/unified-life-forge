@@ -295,11 +295,11 @@ export default function QuickCaptureFab() {
                       disabled={isCreating}
                       className={`flex items-center gap-2 w-full px-4 py-3 rounded-xl border transition-colors ${
                         isRecording
-                          ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+                          ? 'bg-data-5/10 border-data-5/30 text-data-5'
                           : 'bg-muted/30 border-border/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                       }`}
                     >
-                      <Mic className={`h-5 w-5 ${isRecording ? 'animate-pulse text-rose-500' : ''}`} />
+                      <Mic className={`h-5 w-5 ${isRecording ? 'animate-pulse text-data-5' : ''}`} />
                       <span className="font-medium">{isRecording ? 'جاري التسجيل… اضغط للإيقاف' : 'ابدأ التسجيل الصوتي'}</span>
                     </button>
                     {voiceTranscript && (
@@ -313,7 +313,7 @@ export default function QuickCaptureFab() {
 
                 {/* Error */}
                 {createError && (
-                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-micro">
+                  <div className="p-3 rounded-xl bg-data-5/10 border border-data-5/30 text-data-5 text-micro">
                     {createError.message}
                   </div>
                 )}

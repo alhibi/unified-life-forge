@@ -26,7 +26,7 @@ export default function DiffViewer({
         <span
           key={i}
           className={cn(
-            s.type === 'added' && 'bg-emerald-500/15 text-emerald-500 rounded px-0.5',
+            s.type === 'added' && 'bg-data-1/15 text-data-1 rounded px-0.5',
             s.type === 'removed' && 'bg-destructive/15 text-destructive line-through rounded px-0.5',
           )}
         >

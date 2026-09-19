@@ -64,18 +64,18 @@ export default function MemoryAdventurePage() {
       {/* Progress arc */}
       <motion.div
         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-pink-500/25 bg-pink-500/5 p-4 mb-4"
+        className="rounded-2xl border border-data-5/25 bg-data-5/5 p-4 mb-4"
       >
         <div className="flex items-center justify-between mb-2">
           <div>
-            <p className="text-micro uppercase tracking-wider text-pink-200/80">
+            <p className="text-micro uppercase tracking-wider text-data-5/80">
               {'التقدم في المغامرة'}
             </p>
-            <p className="text-display font-black text-pink-200 tabular-nums">{totalStars} ★</p>
+            <p className="text-display font-black text-data-5 tabular-nums">{totalStars} ★</p>
           </div>
-          <Crown className={`w-9 h-9 ${totalStars >= maxStars ? 'text-amber-400' : 'text-pink-400/40'} stroke-[1.5]`} />
+          <Crown className={`w-9 h-9 ${totalStars >= maxStars ? 'text-signal' : 'text-data-5/40'} stroke-[1.5]`} />
         </div>
-        <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <motion.div
             className="h-full rounded-full "
             animate={{ width: `${(totalStars / maxStars) * 100}%` }}
@@ -105,29 +105,29 @@ export default function MemoryAdventurePage() {
               disabled={!unlocked}
               className={`relative w-full flex items-center gap-3 py-2 ps-1 pe-2 rounded-2xl mb-1.5 transition-motion ${
                 isCurrent
-                  ? 'bg-pink-500/15 ring-1 ring-pink-400/40'
+                  ? 'bg-data-5/15 ring-1 ring-data-5/40'
                   : stars > 0
-                    ? 'bg-emerald-500/5'
+                    ? 'bg-data-1/5'
                     : unlocked
-                      ? 'bg-card/40 hover:bg-pink-500/5'
+                      ? 'bg-card/40 hover:bg-data-5/5'
                       : 'opacity-50 cursor-not-allowed'
               } ${unlocked ? 'active:scale-[0.99]' : ''}`}
             >
               {/* Pin */}
               <div className={`relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 z-raised ${
  stage.isBoss
- ? ' ring-2 ring-amber-300/40'
+ ? ' ring-2 ring-signal/40'
  : isCurrent
- ? 'bg-pink-500 ring-2 ring-pink-300/40 '
+ ? 'bg-data-5 ring-2 ring-data-5/40 '
  : stars > 0
- ? 'bg-emerald-500/30 ring-1 ring-emerald-400/40'
+ ? 'bg-data-1/30 ring-1 ring-data-1/40'
  : unlocked
- ? 'bg-pink-500/15 ring-1 ring-pink-400/30'
- : 'bg-zinc-800'
+ ? 'bg-data-5/15 ring-1 ring-data-5/30'
+ : 'bg-muted'
  }`}>
                 {!unlocked
-                  ? <Lock className="w-4 h-4 text-zinc-500" />
-                  : <span className={`text-mini font-black ${stage.isBoss ? 'text-amber-950' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
+                  ? <Lock className="w-4 h-4 text-muted-foreground" />
+                  : <span className={`text-mini font-black ${stage.isBoss ? 'text-signal' : isCurrent ? 'text-white' : 'text-foreground'}`}>{stage.id}</span>
                 }
               </div>
 
@@ -137,7 +137,7 @@ export default function MemoryAdventurePage() {
                   <h3 className={`text-meta font-bold truncate ${unlocked ? 'text-foreground' : 'text-foreground/40'}`}>
                     {stage.ar}
                   </h3>
-                  {stage.isBoss && <Flame className="w-3 h-3 text-amber-400 shrink-0" />}
+                  {stage.isBoss && <Flame className="w-3 h-3 text-signal shrink-0" />}
                 </div>
                 {unlocked && (
                   <div className="flex items-center gap-1 mt-0.5">
@@ -154,11 +154,11 @@ export default function MemoryAdventurePage() {
                 <div className="flex gap-0.5">
                   {[1, 2, 3].map(n => (
                     <Star key={n} className={`w-3 h-3 ${
-                      n <= stars ? 'text-amber-400 fill-amber-400' : 'text-zinc-700'
+                      n <= stars ? 'text-signal fill-signal' : 'text-foreground'
                     }`} />
                   ))}
                 </div>
-                <ChevronRight className={`w-4 h-4 ${unlocked ? 'text-foreground/50' : 'text-zinc-700'}`} />
+                <ChevronRight className={`w-4 h-4 ${unlocked ? 'text-foreground/50' : 'text-foreground'}`} />
               </div>
             </motion.button>
           );
@@ -179,18 +179,18 @@ export default function MemoryAdventurePage() {
               onClick={e => e.stopPropagation()}
               className={`w-full max-w-sm rounded-3xl border p-5 ${
  selected.isBoss
- ? 'border-amber-500/40 '
- : 'border-pink-500/30 bg-card'
+ ? 'border-signal/40 '
+ : 'border-data-5/30 bg-card'
  }`}
             >
               <div className="flex items-start gap-3 mb-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-display shrink-0 ${
- selected.isBoss ? ' ' : 'bg-pink-500/20'
+ selected.isBoss ? ' ' : 'bg-data-5/20'
  }`}>
                   {selected.isBoss ? '👑' : selected.id}
                 </div>
                 <div className="flex-1">
-                  <p className="text-micro uppercase tracking-wider text-pink-300/80 font-bold">
+                  <p className="text-micro uppercase tracking-wider text-data-5/80 font-bold">
                     {`المحطة ${selected.id}`}
                     {selected.isBoss && (' · بوس')}
                   </p>
@@ -215,14 +215,14 @@ export default function MemoryAdventurePage() {
 
               {/* Best record if any */}
               {save.stars[selected.id] && (
-                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-2.5 mb-3 flex items-center justify-between text-mini">
+                <div className="rounded-xl bg-data-1/10 border border-data-1/25 p-2.5 mb-3 flex items-center justify-between text-mini">
                   <div className="flex gap-0.5">
                     {[1, 2, 3].map(n => (
-                      <Star key={n} className={`w-3.5 h-3.5 ${n <= (save.stars[selected.id] || 0) ? 'text-amber-400 fill-amber-400' : 'text-zinc-700'}`} />
+                      <Star key={n} className={`w-3.5 h-3.5 ${n <= (save.stars[selected.id] || 0) ? 'text-signal fill-signal' : 'text-foreground'}`} />
                     ))}
                   </div>
                   {save.bestTimes[selected.id] && (
-                    <span className="font-mono text-emerald-300 font-bold">
+                    <span className="font-mono text-data-1 font-bold">
                       {save.bestTimes[selected.id]}s
                     </span>
                   )}
@@ -240,8 +240,8 @@ export default function MemoryAdventurePage() {
                   onClick={() => startStage(selected)}
                   className={`flex-1 py-3 rounded-xl font-black text-meta flex items-center justify-center gap-1.5 ${
                     selected.isBoss
-                      ? 'text-amber-950'
-                      : 'text-pink-950'
+                      ? 'text-signal'
+                      : 'text-data-5'
                   }`}
                   style={{
                     background: selected.isBoss

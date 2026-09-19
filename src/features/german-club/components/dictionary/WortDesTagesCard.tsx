@@ -35,12 +35,12 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
   return (
     <div
       onClick={() => onSelect(entry)}
-      className="relative overflow-hidden rounded-3xl border-2 border-[hsl(var(--primary))]/20 p-5 sm:p-6 bg-gradient-to-br from-secondary/40 via-amber-50/40 to-secondary/40 shadow-md cursor-pointer hover:border-[hsl(var(--primary))]/40 transition-motion group"
+      className="relative overflow-hidden rounded-3xl border-2 border-[hsl(var(--primary))]/20 p-5 sm:p-6 bg-gradient-to-br from-secondary/40 via-signal/40 to-secondary/40 shadow-md cursor-pointer hover:border-[hsl(var(--primary))]/40 transition-motion group"
     >
       <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3 mb-4">
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
-            <Sparkles className="w-4 h-4 text-amber-600" />
+            <Sparkles className="w-4 h-4 text-signal" />
           </span>
           <div>
             <h3 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
@@ -61,7 +61,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
             title={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
           >
             {bookmarked ? (
-              <BookmarkCheck className="w-4 h-4 text-amber-600 fill-amber-600" />
+              <BookmarkCheck className="w-4 h-4 text-signal fill-signal" />
             ) : (
               <Bookmark className="w-4 h-4 text-muted-foreground" />
             )}
@@ -88,7 +88,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
               type="button"
               onClick={speakGerman}
               className={`p-1.5 rounded-xl border border-[hsl(var(--track))] hover:bg-secondary transition-motion ${
-                isPlaying ? 'scale-110 bg-amber-100 border-amber-400 text-amber-800' : 'text-foreground bg-white/60'
+                isPlaying ? 'scale-110 bg-signal border-signal text-signal' : 'text-foreground bg-white/60'
               }`}
               title="استمع للنطق الأصلي"
             >
@@ -125,8 +125,8 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
         )}
 
         {entry.cultural_note_ar && (
-          <div className="flex items-start gap-2 text-xs text-foreground bg-amber-50/80 p-2.5 rounded-xl border border-amber-200/80">
-            <BookOpen className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 text-xs text-foreground bg-signal/80 p-2.5 rounded-xl border border-signal/80">
+            <BookOpen className="w-4 h-4 text-signal flex-shrink-0 mt-0.5" />
             <span>{entry.cultural_note_ar}</span>
           </div>
         )}

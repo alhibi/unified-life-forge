@@ -102,7 +102,7 @@ export const GrammarCorner: React.FC = () => {
 
                   <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 text-[hsl(var(--primary))] font-medium">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <Sparkles className="w-3.5 h-3.5 text-signal" />
                       مرتبطة برفوف المواقف اليومية
                     </span>
                   </div>

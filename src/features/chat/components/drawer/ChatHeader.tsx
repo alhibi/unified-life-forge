@@ -144,7 +144,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                 {chat.otherPresence.isOnline && (
                   <span
                     aria-label={'متصل الآن'}
-                    className="absolute bottom-0 end-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background"
+                    className="absolute bottom-0 end-0 block h-2.5 w-2.5 rounded-full bg-data-1 ring-2 ring-background"
                   />
                 )}
               </div>
@@ -177,7 +177,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       className={cn(
                         'text-micro leading-tight block',
                         chat.otherPresence.isOnline
-                          ? 'text-green-500 font-medium'
+                          ? 'text-data-1 font-medium'
                           : 'text-muted-foreground/60',
                       )}
                     >

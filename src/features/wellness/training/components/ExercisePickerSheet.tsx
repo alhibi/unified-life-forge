@@ -146,7 +146,7 @@ export default function ExercisePickerSheet({
                   onClick={() => setBigOnly((b) => !b)}
                   className={`shrink-0 inline-flex items-center gap-1 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                     bigOnly
-                      ? 'bg-amber-500 text-white border-amber-500'
+                      ? 'bg-signal text-white border-signal'
                       : 'bg-card text-muted-foreground border-border/40'
                   }`}
                 >
@@ -277,7 +277,7 @@ function ExerciseRow({ exercise, lang, onPick }: { exercise: Exercise; lang: 'ar
           {e.secondary && e.secondary.length > 0 && (
             <span className="opacity-60"> · {e.secondary.map(m => MUSCLE_LABELS[m][lang]).join(', ')}</span>
           )}
-          {e.isBigLift && <span className="ms-1.5 text-amber-500">★</span>}
+          {e.isBigLift && <span className="ms-1.5 text-signal">★</span>}
         </p>
       </div>
       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

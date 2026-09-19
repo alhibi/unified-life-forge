@@ -201,7 +201,7 @@ export default function TokenSearchDrawer({
                   </span>
 
                   {added ? (
-                    <div className="flex h-8 items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2.5 text-micro font-bold text-emerald-500">
+                    <div className="flex h-8 items-center gap-1 rounded-md bg-data-1/10 border border-data-1/20 px-2.5 text-micro font-bold text-data-1">
                       <Check className="h-3 w-3 shrink-0" />
                       مضاف
                     </div>

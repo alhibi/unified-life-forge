@@ -168,13 +168,13 @@ export default function FoodComparer({ lang }: Props) {
                   {winners && (
                     <div className="mt-2 space-y-0.5">
                       {winners.protein.idx === idx && (
-                        <span className="inline-flex items-center gap-0.5 text-micro bg-red-500/10 text-red-500 font-bold px-1 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-micro bg-destructive/10 text-destructive font-bold px-1 py-0.5 rounded">
                           <Award className="w-2 h-2" />
                           {T.protein[lang]}
                         </span>
                       )}
                       {winners.fiber.idx === idx && food.nutrition.fiber > 0 && (
-                        <span className="inline-flex items-center gap-0.5 text-micro bg-emerald-500/10 text-emerald-500 font-bold px-1 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-micro bg-data-1/10 text-data-1 font-bold px-1 py-0.5 rounded">
                           <Award className="w-2 h-2" />
                           {T.fiber[lang]}
                         </span>

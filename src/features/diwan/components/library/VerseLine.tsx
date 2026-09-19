@@ -227,7 +227,7 @@ function VerseLine({
         aria-hidden
       >
         {copied && (
-          <span className="text-micro font-tajawal text-green-500 font-semibold px-1">تم النسخ</span>
+          <span className="text-micro font-tajawal text-data-1 font-semibold px-1">تم النسخ</span>
         )}
       </span>
     </motion.button>

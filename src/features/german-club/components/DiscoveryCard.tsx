@@ -129,7 +129,7 @@ export const DiscoveryCard: React.FC = () => {
           {reason === 'mixed' && 'عشوائية سعيدة — اضغط البوصلة لمزيد'}
           {reason === 'fresh' && 'ابدأ من هنا — اضغط البوصلة للمزيد'}
         </span>
-        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+        <Sparkles className="w-3.5 h-3.5 text-signal" />
       </div>
     </section>
   );

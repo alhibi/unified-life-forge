@@ -98,7 +98,7 @@ export function FullActivityMap({
     const startIcon = L.divIcon({
       className: 'custom-gps-start-marker',
       html: `
-        <div class="relative w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-md flex items-center justify-center">
+        <div class="relative w-4 h-4 rounded-full bg-data-1 border-2 border-white shadow-md flex items-center justify-center">
           <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
         </div>
       `,

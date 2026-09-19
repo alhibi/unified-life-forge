@@ -111,7 +111,7 @@ export const DoubleTapHeart = React.memo(function DoubleTapHeart({
             exit={{ scale: 0.8, opacity: 0, y: -20 }}
             transition={{ type: 'spring', damping: 10, stiffness: 200 }}
           >
-            <Heart className="w-10 h-10 text-red-500 fill-red-500 " />
+            <Heart className="w-10 h-10 text-destructive fill-destructive " />
           </motion.div>
         )}
       </AnimatePresence>
@@ -130,7 +130,7 @@ export const MessageStarBadge = React.memo(function MessageStarBadge() {
       className="inline-flex"
       aria-label={'مميزة بنجمة'}
     >
-      <Star className="h-[10px] w-[10px] text-amber-500 fill-amber-500" />
+      <Star className="h-[10px] w-[10px] text-signal fill-signal" />
     </motion.span>
   );
 });
@@ -186,7 +186,7 @@ export const SelfDestructTimer = React.memo(function SelfDestructTimer({
 
   return (
     <motion.span
-      className="inline-flex items-center gap-0.5 text-micro text-orange-500/80"
+      className="inline-flex items-center gap-0.5 text-micro text-signal/80"
       animate={{ opacity: [0.6, 1, 0.6] }}
       transition={{ duration: 2, repeat: Infinity }}
     >

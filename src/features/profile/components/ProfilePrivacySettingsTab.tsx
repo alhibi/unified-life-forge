@@ -35,11 +35,11 @@ const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
 /* ─── Design Tokens (localized for this component) ─── */
 const THEME_PRESETS: { id: string; labelAr: string; gradient: string; glow: string }[] = [
   { id: 'obsidian', labelAr: 'أوبسيديان فاخر', gradient: 'from-slate-900 via-zinc-900 to-black', glow: 'shadow-slate-400/20' },
-  { id: 'copper', labelAr: 'نحاسي ملكي', gradient: 'from-amber-950 via-amber-900 to-orange-950', glow: 'shadow-amber-300/30' },
-  { id: 'emerald', labelAr: 'زمردي هادئ', gradient: 'from-emerald-950 via-emerald-900 to-teal-950', glow: 'shadow-emerald-300/30' },
-  { id: 'amber', labelAr: 'عنبر وأصيل', gradient: 'from-amber-900 via-yellow-950 to-amber-950', glow: 'shadow-yellow-200/20' },
-  { id: 'cobalt', labelAr: 'كوبالت عميق', gradient: 'from-blue-950 via-indigo-950 to-slate-950', glow: 'shadow-blue-300/30' },
-  { id: 'velvet', labelAr: 'مخمل ليلي', gradient: 'from-fuchsia-950 via-purple-950 to-violet-950', glow: 'shadow-fuchsia-300/20' },
+  { id: 'copper', labelAr: 'نحاسي ملكي', gradient: 'from-signal via-signal to-signal', glow: 'shadow-signal/30' },
+  { id: 'emerald', labelAr: 'زمردي هادئ', gradient: 'from-data-1 via-data-1 to-data-1', glow: 'shadow-data-1/30' },
+  { id: 'amber', labelAr: 'عنبر وأصيل', gradient: 'from-signal via-signal to-signal', glow: 'shadow-signal/20' },
+  { id: 'cobalt', labelAr: 'كوبالت عميق', gradient: 'from-data-4 via-data-6 to-slate-950', glow: 'shadow-data-4/30' },
+  { id: 'velvet', labelAr: 'مخمل ليلي', gradient: 'from-data-6 via-data-6 to-data-6', glow: 'shadow-data-6/20' },
 ];
 
 /* ─── Component ─── */
@@ -117,11 +117,11 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
         className="surface-depth rounded-[1.75rem] p-6 md:p-7 space-y-5 overflow-hidden relative"
       >
         {/* Ambient decorative glow (subtle, luxury touch) */}
-        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-gradient-to-br from-amber-400/5 via-transparent to-transparent blur-3xl -translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-gradient-to-br from-signal/5 via-transparent to-transparent blur-3xl -translate-x-1/3 -translate-y-1/3 pointer-events-none" />
 
         <div className="flex items-center gap-3 relative z-10">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/30 flex items-center justify-center shadow-inner ring-1 ring-amber-400/20">
-            <Palette className="w-5 h-5 text-amber-300" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-signal/20 to-signal/30 flex items-center justify-center shadow-inner ring-1 ring-signal/20">
+            <Palette className="w-5 h-5 text-signal" />
           </div>
           <div>
             <h2 className="text-[1.05rem] font-extrabold text-foreground tracking-tight leading-tight">ثيم غلاف الملف الشخصي</h2>
@@ -143,7 +143,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 whileHover={{ y: -3 }}
                 className={`relative h-24 rounded-2xl overflow-hidden ring-1 transition-shadow duration-normal group ${
                   active
-                    ? 'ring-2 ring-amber-300/60 shadow-lg shadow-amber-900/10 scale-[1.03]'
+                    ? 'ring-2 ring-signal/60 shadow-lg shadow-signal/10 scale-[1.03]'
                     : 'ring-white/10 hover:ring-white/20 hover:shadow-xl'
                 } ${isHovered ? theme.glow : ''}`}
                 aria-label={theme.labelAr}
@@ -153,7 +153,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
 
                 {/* Decorative sparkle */}
-                <Sparkles className={`absolute top-2.5 end-2.5 w-3.5 h-3.5 transition-opacity duration-normal ${active ? 'text-amber-200/90 opacity-100' : 'text-white/20 opacity-0 group-hover:opacity-50'}`} />
+                <Sparkles className={`absolute top-2.5 end-2.5 w-3.5 h-3.5 transition-opacity duration-normal ${active ? 'text-signal/90 opacity-100' : 'text-white/20 opacity-0 group-hover:opacity-50'}`} />
 
                 {/* Label */}
                 <div className="absolute inset-x-0 bottom-2.5 px-2.5 flex flex-col items-center">
@@ -168,9 +168,9 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="absolute top-2 start-2 w-5 h-5 rounded-full bg-amber-300/20 backdrop-blur-sm flex items-center justify-center ring-1 ring-amber-200/40"
+                      className="absolute top-2 start-2 w-5 h-5 rounded-full bg-signal/20 backdrop-blur-sm flex items-center justify-center ring-1 ring-signal/40"
                     >
-                      <Check className="w-3 h-3 text-amber-200" />
+                      <Check className="w-3 h-3 text-signal" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -190,13 +190,13 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
         transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         className="surface-depth rounded-[1.75rem] p-6 md:p-7 space-y-5 overflow-hidden relative"
       >
-        <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-gradient-to-bl from-indigo-500/5 via-transparent to-transparent blur-3xl -translate-y-1/4 translate-x-1/3 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-gradient-to-bl from-data-6/5 via-transparent to-transparent blur-3xl -translate-y-1/4 translate-x-1/3 pointer-events-none" />
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 relative z-10">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-400/15 to-violet-500/20 flex items-center justify-center shadow-inner ring-1 ring-indigo-400/20 shrink-0">
-              <ShieldCheck className="w-5 h-5 text-indigo-300" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-data-6/15 to-data-6/20 flex items-center justify-center shadow-inner ring-1 ring-data-6/20 shrink-0">
+              <ShieldCheck className="w-5 h-5 text-data-6" />
             </div>
             <div>
               <h2 className="text-[1.05rem] font-extrabold text-foreground tracking-tight">الرؤية العامة للملف</h2>
@@ -210,8 +210,8 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
             onClick={() => onTogglePublic(!isPublic)}
             className={`relative overflow-hidden rounded-2xl px-5 py-2.5 text-[0.75rem] font-extrabold transition-motion duration-normal shadow-lg min-w-[120px] ${
               isPublic
-                ? 'bg-gradient-to-r from-emerald-500/15 to-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/30 shadow-emerald-900/10'
-                : 'bg-gradient-to-r from-slate-700/40 to-slate-800/50 text-slate-400 ring-1 ring-white/5 shadow-slate-900/20'
+                ? 'bg-gradient-to-r from-data-1/15 to-data-1/10 text-data-1 ring-1 ring-data-1/30 shadow-data-1/10'
+                : 'bg-gradient-to-r from-slate-700/40 to-slate-800/50 text-muted-foreground ring-1 ring-white/5 shadow-slate-900/20'
             }`}
             aria-pressed={isPublic}
           >
@@ -222,7 +222,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
             {/* Animated background shimmer */}
             <motion.div
               layoutId="public-shimmer"
-              className={`absolute inset-0 ${isPublic ? 'bg-gradient-to-r from-emerald-400/10 via-transparent to-transparent' : 'bg-gradient-to-r from-slate-600/10 via-transparent to-transparent'}`}
+              className={`absolute inset-0 ${isPublic ? 'bg-gradient-to-r from-data-1/10 via-transparent to-transparent' : 'bg-gradient-to-r from-slate-600/10 via-transparent to-transparent'}`}
               transition={{ duration: 0.5 }}
             />
           </motion.button>
@@ -249,7 +249,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               >
                 <div className="flex items-start gap-3.5">
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-normal ${
-                    active ? 'bg-indigo-500/15 text-indigo-300' : 'bg-muted/40 text-muted-foreground/60 group-hover:bg-muted/60'
+                    active ? 'bg-data-6/15 text-data-6' : 'bg-muted/40 text-muted-foreground/60 group-hover:bg-muted/60'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -264,8 +264,8 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                   aria-checked={active}
                   className={`relative w-11 h-6 rounded-full transition-motion duration-normal shadow-inner ${
                     active
-                      ? 'bg-gradient-to-r from-indigo-500/30 to-indigo-400/20 shadow-indigo-900/10 ring-1 ring-indigo-400/25'
-                      : 'bg-slate-800/60 ring-1 ring-white/5'
+                      ? 'bg-gradient-to-r from-data-6/30 to-data-6/20 shadow-data-6/10 ring-1 ring-data-6/25'
+                      : 'bg-muted/60 ring-1 ring-white/5'
                   }`}
                   whileTap={{ scaleX: 0.92 }}
                 >
@@ -278,7 +278,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                     animate={{ x: active ? 22 : 4 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     className={`absolute top-1 w-4 h-4 rounded-full shadow-md flex items-center justify-center ${
-                      active ? 'bg-gradient-to-br from-indigo-300 to-indigo-400 shadow-indigo-500/30' : 'bg-slate-500 shadow-slate-900/50'
+                      active ? 'bg-gradient-to-br from-data-6 to-data-6 shadow-data-6/30' : 'bg-secondary0 shadow-slate-900/50'
                     }`}
                   >
                     <AnimatePresence>
@@ -310,7 +310,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleReset}
-              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-bold text-muted-foreground bg-slate-800/30 hover:bg-slate-800/50 border border-white/[0.06] hover:border-white/[0.1] transition-motion duration-normal shadow-inner shadow-black/5"
+              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-bold text-muted-foreground bg-muted/30 hover:bg-muted/50 border border-white/[0.06] hover:border-white/[0.1] transition-motion duration-normal shadow-inner shadow-black/5"
             >
               <span className="flex items-center justify-center gap-2">
                 <Lock className="w-3.5 h-3.5" />
@@ -323,7 +323,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleExport}
-              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-amber-300 bg-gradient-to-br from-amber-500/10 to-amber-400/5 hover:from-amber-500/20 hover:to-amber-400/10 border border-amber-400/20 hover:border-amber-400/30 transition-motion duration-normal shadow-lg shadow-amber-900/5"
+              className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-signal bg-gradient-to-br from-signal/10 to-signal/5 hover:from-signal/20 hover:to-signal/10 border border-signal/20 hover:border-signal/30 transition-motion duration-normal shadow-lg shadow-signal/5"
             >
               <span className="flex items-center justify-center gap-2">
                 <Shield className="w-3.5 h-3.5" />
@@ -345,7 +345,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleImport}
-                className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-violet-300 bg-gradient-to-br from-violet-500/10 to-fuchsia-400/5 hover:from-violet-500/20 hover:to-fuchsia-400/10 border border-violet-400/20 hover:border-violet-400/30 transition-motion duration-normal shadow-lg shadow-violet-900/5"
+                className="flex-1 px-5 py-3 rounded-2xl text-[0.75rem] font-extrabold text-data-6 bg-gradient-to-br from-data-6/10 to-data-6/5 hover:from-data-6/20 hover:to-data-6/10 border border-data-6/20 hover:border-data-6/30 transition-motion duration-normal shadow-lg shadow-data-6/5"
               >
                 <span className="flex items-center justify-center gap-2">
                   <Sparkles className="w-3.5 h-3.5" />
@@ -364,11 +364,11 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
         transition={{ duration: 0.45, delay: 0.25 }}
         className="surface-depth rounded-[1.75rem] p-5 md:p-6 overflow-hidden relative"
       >
-        <div className="absolute top-0 left-0 w-40 h-40 rounded-full bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent blur-2xl -translate-x-1/3 -translate-y-1/4 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-40 h-40 rounded-full bg-gradient-to-br from-data-1/5 via-transparent to-transparent blur-2xl -translate-x-1/3 -translate-y-1/4 pointer-events-none" />
 
         <div className="relative z-10 flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400/15 to-teal-500/20 flex items-center justify-center shadow-inner ring-1 ring-emerald-400/20">
-            <Shield className="w-4 h-4 text-emerald-300" />
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-data-1/15 to-data-1/20 flex items-center justify-center shadow-inner ring-1 ring-data-1/20">
+            <Shield className="w-4 h-4 text-data-1" />
           </div>
           <div>
             <h3 className="text-[0.9rem] font-extrabold text-foreground">حالة الحماية الحالية</h3>
@@ -386,11 +386,11 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               key={item.label}
               className={`rounded-2xl p-3.5 text-center transition-motion duration-normal border ${
                 item.active
-                  ? 'bg-gradient-to-b from-emerald-500/[0.06] to-transparent border-emerald-400/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
-                  : 'bg-slate-800/20 border-white/[0.04] opacity-70'
+                  ? 'bg-gradient-to-b from-data-1/[0.06] to-transparent border-data-1/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+                  : 'bg-muted/20 border-white/[0.04] opacity-70'
               }`}
             >
-              <div className={`text-[0.625rem] font-bold mb-1.5 tracking-wide ${item.active ? 'text-emerald-300/80' : 'text-muted-foreground/40'}`}>
+              <div className={`text-[0.625rem] font-bold mb-1.5 tracking-wide ${item.active ? 'text-data-1/80' : 'text-muted-foreground/40'}`}>
                 {item.label}
               </div>
               <div className={`text-[0.8rem] font-extrabold ${item.active ? 'text-foreground' : 'text-muted-foreground/50'}`}>
@@ -410,7 +410,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
           ].filter(s => s.active).map(s => (
             <span
               key={s.label}
-              className="px-2.5 py-1 rounded-full text-[0.625rem] font-extrabold bg-gradient-to-r from-emerald-500/10 to-emerald-400/5 text-emerald-200/80 border border-emerald-400/15 shadow-inner shadow-emerald-900/5"
+              className="px-2.5 py-1 rounded-full text-[0.625rem] font-extrabold bg-gradient-to-r from-data-1/10 to-data-1/5 text-data-1/80 border border-data-1/15 shadow-inner shadow-data-1/5"
             >
               {s.label}
             </span>

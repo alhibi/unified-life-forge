@@ -100,10 +100,10 @@ interface ChatInputProps {
 // ─────────────────────────────────────────────────────────────────────────────
 const ATTACHMENT_OPTIONS = () =>
   [
-    { id: 'photo', icon: ImageIcon, label: 'صورة', color: 'bg-blue-500' },
-    { id: 'camera', icon: Camera, label: 'كاميرا', color: 'bg-pink-500' },
-    { id: 'file', icon: FileText, label: 'ملف', color: 'bg-purple-500' },
-    { id: 'location', icon: MapPin, label: 'موقع', color: 'bg-green-500' },
+    { id: 'photo', icon: ImageIcon, label: 'صورة', color: 'bg-data-4' },
+    { id: 'camera', icon: Camera, label: 'كاميرا', color: 'bg-data-5' },
+    { id: 'file', icon: FileText, label: 'ملف', color: 'bg-data-6' },
+    { id: 'location', icon: MapPin, label: 'موقع', color: 'bg-data-1' },
   ] as const;
 
 interface AttachmentMenuProps {
@@ -246,7 +246,7 @@ const CharacterCounter = React.memo(function CharacterCounter({ count }: { count
         isOver
           ? 'text-destructive font-bold'
           : remaining < 100
-            ? 'text-orange-500'
+            ? 'text-signal'
             : 'text-muted-foreground/50',
       )}
     >

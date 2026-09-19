@@ -60,7 +60,7 @@ export default function LayerToggleBar({
             type="button"
             onClick={onClearAll}
             disabled={noneEnabled}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-data-5 hover:bg-data-5/10 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
             aria-label="إلغاء التحديد"
             title="إلغاء التحديد"
           >

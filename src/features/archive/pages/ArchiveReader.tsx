@@ -380,7 +380,7 @@ export default function ArchiveReader() {
           part.toLowerCase() === query.toLowerCase() ? (
             <mark
               key={i}
-              className="bg-amber-400/40 text-foreground px-0.5 rounded-sm font-semibold border-b border-amber-500"
+              className="bg-signal/40 text-foreground px-0.5 rounded-sm font-semibold border-b border-signal"
             >
               {part}
             </mark>
@@ -683,7 +683,7 @@ export default function ArchiveReader() {
               style={isThemed ? { color: 'inherit' } : undefined}
             >
               {exported ? (
-                <Check className="w-4 h-4 text-emerald-500" />
+                <Check className="w-4 h-4 text-data-1" />
               ) : (
                 <Brain className="w-4 h-4" />
               )}
@@ -920,7 +920,7 @@ export default function ArchiveReader() {
                             ))}
                             <button
                               onClick={() => setPrefs((p) => ({ ...p, theme: 'custom' }))}
-                              className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion active:scale-90 bg-gradient-to-tr from-pink-300 via-purple-300 to-indigo-300 ${prefs.theme === 'custom' ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
+                              className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion active:scale-90 bg-gradient-to-tr from-data-5 via-data-6 to-data-6 ${prefs.theme === 'custom' ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
                               title="مخصصة"
                             >
                               <Pencil className="w-4 h-4 text-foreground/80" />
@@ -1019,7 +1019,7 @@ export default function ArchiveReader() {
                               )}
                               <button
                                 onClick={stopSpeaking}
-                                className="p-1.5 bg-rose-500/10 rounded-md text-rose-500"
+                                className="p-1.5 bg-data-5/10 rounded-md text-data-5"
                               >
                                 <X className="w-3.5 h-3.5" />
                               </button>
@@ -1210,10 +1210,10 @@ export default function ArchiveReader() {
                               toast.info('تم إيقاف منع النوم التلقائي للشاشة.');
                             }
                           }}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition active:scale-[0.98] ${prefs.lock ? 'bg-blue-500/10 border-blue-500/30 text-blue-500' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition active:scale-[0.98] ${prefs.lock ? 'bg-data-4/10 border-data-4/30 text-data-4' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
                         >
                           {prefs.lock ? (
-                            <Lock className="w-4 h-4 text-blue-500" />
+                            <Lock className="w-4 h-4 text-data-4" />
                           ) : (
                             <Unlock className="w-4 h-4" />
                           )}

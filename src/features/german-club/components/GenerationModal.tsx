@@ -587,7 +587,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                             <div className="flex items-center gap-2">
                               <p className="font-extrabold text-xs text-foreground truncate">{m.name}</p>
                               {m.performance?.badge_text && (
-                                <span className="text-[0.625rem] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold shrink-0 border border-amber-300">
+                                <span className="text-[0.625rem] bg-signal text-signal px-2 py-0.5 rounded-full font-bold shrink-0 border border-signal">
                                   {m.performance.badge_text}
                                 </span>
                               )}
@@ -601,7 +601,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                             <span className="text-[0.625rem] font-mono bg-card px-2 py-0.5 rounded text-foreground block font-bold">
                               {(m.context_length / 1024).toFixed(0)}k سياق
                             </span>
-                            <span className="text-[0.6875rem] font-mono text-emerald-800 block font-black">
+                            <span className="text-[0.6875rem] font-mono text-data-1 block font-black">
                               ${m.pricing?.prompt ?? 0}/1M
                             </span>
                           </div>
@@ -675,7 +675,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-extrabold text-xs">1. حسب قدرة النموذج</span>
-                      <Flame className={`w-4 h-4 ${mode === 'model_capacity' ? 'text-amber-400' : 'text-muted-foreground'}`} />
+                      <Flame className={`w-4 h-4 ${mode === 'model_capacity' ? 'text-signal' : 'text-muted-foreground'}`} />
                     </div>
                     <p className={`text-[0.6875rem] leading-relaxed ${mode === 'model_capacity' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                       يولد الموديل أقصى حصيلة ممكنة من العبارات الأصيلة وغير المكررة حتى يستنفذ أفكاره ذات الثقة العالية وتتوقف الحلقة تلقائيًا.
@@ -694,7 +694,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-extrabold text-xs">2. حسب العدد الذي اختاره انا</span>
-                      <Layers className={`w-4 h-4 ${mode === 'fixed_count' ? 'text-amber-400' : 'text-muted-foreground'}`} />
+                      <Layers className={`w-4 h-4 ${mode === 'fixed_count' ? 'text-signal' : 'text-muted-foreground'}`} />
                     </div>
                     <p className={`text-[0.6875rem] leading-relaxed ${mode === 'fixed_count' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                       تحديد عدد دقيق ومحدد مسبقًا للمفردات المراد إضافتها إلى هذا الرف دون زيادة أو نقصان.
@@ -797,10 +797,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               </div>
 
               {/* LIVE ESTIMATE SUMMARY CARD */}
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 text-xs flex items-center justify-between shadow-2xs">
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-signal/10 via-signal/5 to-transparent border border-signal/30 text-xs flex items-center justify-between shadow-2xs">
                 <div>
-                  <span className="font-extrabold text-amber-900 block">تقدير التكلفة والمخرجات:</span>
-                  <span className="text-[0.6875rem] text-amber-800 block mt-0.5">
+                  <span className="font-extrabold text-signal block">تقدير التكلفة والمخرجات:</span>
+                  <span className="text-[0.6875rem] text-signal block mt-0.5">
                     النموذج: <span className="font-bold">{selectedModel?.name}</span> • التوقع: ~{liveEstimate.estCount} عنصر أصيل
                   </span>
                 </div>
@@ -835,7 +835,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Flame className="w-5 h-5 text-amber-300" />
+                      <Flame className="w-5 h-5 text-signal" />
                       <span>ابدأ التوليد بالفرن الآن (حسب الخيارات)</span>
                     </>
                   )}
@@ -851,25 +851,25 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 <div className="flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2.5">
                     <span className="w-3 h-3 rounded-full bg-[hsl(var(--signal))] animate-ping" />
-                    <span className="font-extrabold text-xs text-amber-200">
+                    <span className="font-extrabold text-xs text-signal">
                       الفرن يعمل في الخلفية بـ OpenRouter AI...
                     </span>
                   </div>
-                  <span className="text-xs font-mono bg-white/10 px-2.5 py-1 rounded-full text-amber-300 font-black border border-white/20">
+                  <span className="text-xs font-mono bg-white/10 px-2.5 py-1 rounded-full text-signal font-black border border-white/20">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2.5 text-center text-xs relative z-10">
                   <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
-                    <span className="block text-xl font-black font-mono text-emerald-300">
+                    <span className="block text-xl font-black font-mono text-data-1">
                       {job?.entries_generated || acceptedStubs.length}
                     </span>
                     <span className="text-[0.625rem] opacity-90 font-bold">مقبول أصيل</span>
                   </div>
 
                   <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
-                    <span className="block text-xl font-black font-mono text-amber-300">
+                    <span className="block text-xl font-black font-mono text-signal">
                       {job?.entries_skipped_duplicate || 0}
                     </span>
                     <span className="text-[0.625rem] opacity-90 font-bold">مستبعد لتكراره</span>
@@ -891,7 +891,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                     <Database className="w-4 h-4 text-[hsl(var(--primary))]" />
                     <span>تغذية الرف الحية (نزول المفردات المعتمدة مباشر):</span>
                   </h4>
-                  <span className="text-[0.6875rem] font-mono text-emerald-800 font-extrabold bg-emerald-100 px-2 py-0.5 rounded-full">
+                  <span className="text-[0.6875rem] font-mono text-data-1 font-extrabold bg-data-1 px-2 py-0.5 rounded-full">
                     +{acceptedStubs.length} عنصر
                   </span>
                 </div>
@@ -932,7 +932,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   className="w-full p-3 flex items-center justify-between text-xs font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <AlertTriangle className="w-4 h-4 text-signal" />
                     <span>سجل المستبعدات والمرفوضات (أسباب الاستبعاد الحية)</span>
                     <span className="bg-secondary text-foreground font-mono px-2 py-0.5 rounded-full text-[0.625rem]">
                       {rejections.length}
@@ -953,7 +953,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                           <span className="text-foreground truncate max-w-[65%]" dir="ltr">
                             {rej.candidate_text}
                           </span>
-                          <span className="text-[0.625rem] font-sans font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
+                          <span className="text-[0.625rem] font-sans font-bold text-destructive bg-destructive px-2 py-0.5 rounded-full">
                             {REJECTION_REASON_LABELS_AR[rej.reason] || rej.reason}
                           </span>
                         </div>
@@ -978,7 +978,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           {/* STEP 4: COMPLETION SUMMARY STAGE */}
           {step === 'summary' && !isJobActive && (
             <div className="space-y-5 py-3 text-center">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 mx-auto flex items-center justify-center shadow-sm">
+              <div className="w-14 h-14 rounded-full bg-data-1 border border-data-1 text-data-1 mx-auto flex items-center justify-center shadow-sm">
                 <Check className="w-7 h-7" />
               </div>
 
@@ -995,7 +995,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               <div className="p-4 rounded-2xl bg-white border border-[hsl(var(--track))] text-xs space-y-3 text-start shadow-xs">
                 <div className="flex justify-between border-b border-[hsl(var(--track))] pb-2">
                   <span className="text-muted-foreground font-bold">إجمالي المفردات المضافة للرف:</span>
-                  <span className="font-black text-emerald-800 font-mono text-sm">
+                  <span className="font-black text-data-1 font-mono text-sm">
                     +{job?.entries_generated || acceptedStubs.length} عنصر
                   </span>
                 </div>
@@ -1032,7 +1032,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   }}
                   className="px-5 py-2.5 rounded-xl bg-[hsl(var(--primary))] text-white font-bold text-xs hover:bg-[hsl(var(--primary))] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <Sparkles className="w-4 h-4 text-signal" />
                   <span>انتقل لصفحة مراجعة واعتماد المحتوى ←</span>
                 </button>
               </div>
@@ -1040,7 +1040,7 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           )}
 
           {jobError && (
-            <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold">
+            <div className="p-3.5 rounded-2xl bg-destructive border border-destructive text-destructive text-xs font-bold">
               {jobError}
             </div>
           )}

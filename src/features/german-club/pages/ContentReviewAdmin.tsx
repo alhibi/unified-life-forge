@@ -47,26 +47,26 @@ export const ContentReviewAdmin: React.FC = () => {
               <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
                 مراجعة محتوى الذكاء الاصطناعي
               </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-amber-900 tracking-widest uppercase">
+              <span className="text-[0.625rem] font-mono font-bold text-signal tracking-widest uppercase">
                 CONTENT REVIEW & QUALITY GUARD
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/10 text-amber-900 text-xs font-bold border border-amber-800/20">
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-700" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-signal/10 text-signal text-xs font-bold border border-signal/20">
+            <ShieldAlert className="w-3.5 h-3.5 text-signal" />
             <span>حظر الهلوسة 100%</span>
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-          <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs leading-relaxed space-y-1">
+          <div className="p-4 rounded-2xl bg-signal/80 border border-signal text-signal text-xs leading-relaxed space-y-1">
             <p className="font-bold flex items-center gap-1.5 text-sm">
-              <ShieldAlert className="w-4 h-4 text-amber-700" />
+              <ShieldAlert className="w-4 h-4 text-signal" />
               مبدأ الحظر الصارم للمحتوى الموّلد:
             </p>
             <p>
-              أي مفردة أو جملة تحمل حالة <code className="bg-amber-100 px-1 rounded">ai_generated</code> تبقى مخفية ومحجوبة تماماً عن المستخدمين بفضل سياسات الأمان على قاعدة البيانات (RLS)، ولا تظهر للمستخدم إلا بعد تغيير حالتها إلى <code className="bg-amber-100 px-1 rounded">reviewed</code> أو <code className="bg-amber-100 px-1 rounded">verified</code> من هذه الصفحة.
+              أي مفردة أو جملة تحمل حالة <code className="bg-signal px-1 rounded">ai_generated</code> تبقى مخفية ومحجوبة تماماً عن المستخدمين بفضل سياسات الأمان على قاعدة البيانات (RLS)، ولا تظهر للمستخدم إلا بعد تغيير حالتها إلى <code className="bg-signal px-1 rounded">reviewed</code> أو <code className="bg-signal px-1 rounded">verified</code> من هذه الصفحة.
             </p>
           </div>
 
@@ -91,7 +91,7 @@ export const ContentReviewAdmin: React.FC = () => {
             </div>
           ) : unreviewedEntries.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground space-y-2 border-2 border-dashed border-[hsl(var(--track))] rounded-2xl p-6">
-              <Check className="w-8 h-8 mx-auto text-emerald-600" />
+              <Check className="w-8 h-8 mx-auto text-data-1" />
               <p className="text-sm font-bold text-foreground">
                 لا توجد عناصر بانتظار المراجعة!
               </p>
@@ -117,7 +117,7 @@ export const ContentReviewAdmin: React.FC = () => {
                       )}
                     </div>
 
-                    <span className="text-[0.625rem] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                    <span className="text-[0.625rem] font-bold px-2 py-0.5 rounded bg-signal text-signal">
                       Draft (مسودة)
                     </span>
                   </div>
@@ -149,7 +149,7 @@ export const ContentReviewAdmin: React.FC = () => {
                       onClick={() => handlePromote(item.id, 'verified')}
                       className="px-3 py-1.5 rounded-xl bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] text-white text-xs font-bold transition-colors flex items-center gap-1 shadow-xs"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-signal" />
                       <span>توثيق دقيق (Verified)</span>
                     </button>
                   </div>

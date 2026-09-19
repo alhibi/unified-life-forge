@@ -18,8 +18,8 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
 
   if (metrics.percentage >= 100) {
     return (
-      <div className="surface-depth rounded-2xl p-4 ring-1 ring-emerald-500/20 bg-emerald-500/[0.03] flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+      <div className="surface-depth rounded-2xl p-4 ring-1 ring-data-1/20 bg-data-1/[0.03] flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-data-1/10 flex items-center justify-center text-data-1 shrink-0">
           <Sparkles className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
@@ -94,7 +94,7 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 {item.isCompleted ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-data-1 shrink-0" />
                 ) : (
                   <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
                 )}
