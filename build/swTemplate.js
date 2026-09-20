@@ -32,6 +32,9 @@ const VERSION = '__SW_VERSION__';
 const SHELL_CACHE = `app-shell-${VERSION}`;
 const ASSET_CACHE = `app-assets-${VERSION}`;
 const FONT_CACHE = 'app-fonts-v2';
+const READING_IMAGE_CACHE = 'reading-images-v3';
+const MAX_READING_IMAGES = 500;
+const MAX_READING_MESSAGE_URLS = 300;
 
 /** Entry HTML + the JS/CSS needed for first paint. */
 const PRECACHE = __SW_PRECACHE__;
@@ -55,7 +58,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      const keep = new Set([SHELL_CACHE, ASSET_CACHE, FONT_CACHE]);
+      const keep = new Set([SHELL_CACHE, ASSET_CACHE, FONT_CACHE, READING_IMAGE_CACHE]);
       const names = await caches.keys();
       await Promise.all(
         names
@@ -72,8 +75,69 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+
+  if (event.data?.type === 'reading:precache') {
+    event.waitUntil(precacheReadingImages(event.data.urls));
+    return;
+  }
+
+  if (event.data?.type === 'reading:clear-images') {
+    event.waitUntil(caches.delete(READING_IMAGE_CACHE));
+    return;
+  }
+
+  if (event.data?.type === 'reading:estimate') {
+    event.waitUntil(replyWithReadingEstimate(event));
+  }
 });
+
+function safeReadingImageUrl(value) {
+  if (typeof value !== 'string') return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+async function precacheReadingImages(values) {
+  const urls = Array.isArray(values)
+    ? [...new Set(values.map(safeReadingImageUrl).filter(Boolean))].slice(0, MAX_READING_MESSAGE_URLS)
+    : [];
+  const cache = await caches.open(READING_IMAGE_CACHE);
+  for (const url of urls) {
+    try {
+      if (await cache.match(url)) continue;
+      const response = await fetch(url, {
+        mode: 'no-cors',
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+      });
+      if (response.ok || response.type === 'opaque') await cache.put(url, response);
+    } catch {
+      // One publisher blocking an image must not stop the rest of the queue.
+    }
+  }
+  const requests = await cache.keys();
+  const overflow = requests.slice(0, Math.max(0, requests.length - MAX_READING_IMAGES));
+  await Promise.allSettled(overflow.map((request) => cache.delete(request)));
+}
+
+async function replyWithReadingEstimate(event) {
+  const cache = await caches.open(READING_IMAGE_CACHE);
+  const payload = {
+    type: 'reading:estimate-result',
+    imageCount: (await cache.keys()).length,
+    runtimeCount: 0,
+  };
+  if (event.ports?.[0]) event.ports[0].postMessage(payload);
+  else if (event.source) event.source.postMessage(payload);
+}
 
 /** Cache-first: serve the cached copy, only hit the network on a miss. */
 async function cacheFirst(request, cacheName) {
@@ -142,6 +206,15 @@ self.addEventListener('fetch', (event) => {
 
   if (FONT_HOSTS.has(url.hostname)) {
     event.respondWith(cacheFirst(request, FONT_CACHE));
+    return;
+  }
+
+  if (request.destination === 'image') {
+    event.respondWith(
+      caches.open(READING_IMAGE_CACHE).then(async (cache) =>
+        (await cache.match(request, { ignoreVary: true })) || fetch(request),
+      ),
+    );
     return;
   }
 
