@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { supabase } from '@/integrations/supabase/client';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
 
+import {
+  invokeFetchRss,
+  listStoredArticles,
+  listStoredArticlesForSource,
+} from './api';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 import { extractArticleBody, needsContentUpgrade, plainTextLength } from './extractArticle';
 import { offlineDb } from './offlineDb';
@@ -46,9 +50,7 @@ const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
 // missing statuses surfaced as a failed refresh in the UI.
 const EDGE_BATCH_SIZE = 3;
 
-type EdgeRefreshData = {
-  statuses?: FeedStatus[];
-};
+type EdgeRefreshData = { statuses?: FeedStatus[] };
 
 /**
  * Fetch every enabled source even when a library is larger than the Edge
@@ -69,10 +71,6 @@ async function refreshFeedsInBatches(
   let completed = 0;
 
   for (const batch of batches) {
-    const nameMap: Record<string, string> = {};
-    batch.forEach((feed) => {
-      nameMap[feed.url] = feed.name;
-    });
     onProgress?.(completed, batch.length === 1 ? batch[0].name : `تحديث ${batch.length} مصادر…`);
 
     // Correlate client-side failures with edge-function logs. The same id is
@@ -84,30 +82,31 @@ async function refreshFeedsInBatches(
         : `rss-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const startedAt = Date.now();
 
-    const { data, error } = await dedupe(
-      `fetch-rss:${batch
+    let data: Awaited<ReturnType<typeof invokeFetchRss>> | null = null;
+    let requestError: unknown = null;
+    try {
+      data = await dedupe(
+        `fetch-rss:${batch
         .map((feed) => feed.url)
         .sort()
         .join('|')}`,
-      () =>
-        withRetry(
-          () =>
-            supabase.functions.invoke('fetch-rss', {
-              headers: { 'x-request-id': requestId },
-              body: {
-                urls: batch.map((feed) => feed.url),
-                limit: 25,
-                fetchFullContent: true,
-                store: true,
-                nameMap,
-              },
-            }),
+        () => withRetry(
+          () => invokeFetchRss({
+            feeds: batch,
+            limit: 25,
+            fetchFullContent: true,
+            store: true,
+            requestId,
+          }),
           { attempts: 2, baseMs: 600 },
         ),
-    );
+      );
+    } catch (error) {
+      requestError = error;
+    }
 
-    if (error) {
-      const message = error instanceof Error ? error.message : String(error);
+    if (requestError) {
+      const message = requestError instanceof Error ? requestError.message : String(requestError);
       // Leaving the reader mid-flight aborts the in-flight invoke. That is
       // normal navigation, not a failure, so it must not surface as an error in
       // the console (or in telemetry) — otherwise every route change away from
@@ -120,7 +119,7 @@ async function refreshFeedsInBatches(
       } else {
         console.error('[Reading/fetch-rss] request failed', {
           requestId,
-          serverRequestId: (data as { requestId?: string } | null)?.requestId ?? null,
+          serverRequestId: data?.requestId ?? null,
           durationMs: Date.now() - startedAt,
           feeds: batch.length,
           urls: batch.map((feed) => feed.url),
@@ -131,7 +130,7 @@ async function refreshFeedsInBatches(
       }
     }
 
-    const received = !error && Array.isArray(data?.statuses) ? (data.statuses as FeedStatus[]) : [];
+    const received = !requestError && Array.isArray(data?.statuses) ? data.statuses : [];
     const receivedByUrl = new Map(received.map((status) => [status.url, status]));
     for (const feed of batch) {
       const status = receivedByUrl.get(feed.url);
@@ -144,9 +143,9 @@ async function refreshFeedsInBatches(
           status: 'error',
           itemCount: 0,
           error:
-            error instanceof Error
-              ? error.message
-              : error
+            requestError instanceof Error
+              ? requestError.message
+              : requestError
                 ? 'تعذّر الاتصال بخدمة التحديث'
                 : 'لم تُرجع الخدمة حالة المصدر',
         });
@@ -353,39 +352,8 @@ export function useReadingData() {
     let onlineCount = 0;
     let onlineFailed = false;
     try {
-      const {
-        data,
-        count,
-        error: queryError,
-      } = await supabase
-        .from('rss_articles')
-        // List rows only — omit `full_content` (can be tens of KB per
-        // row of HTML). ArticleReader lazily fetches / extracts the
-        // body on demand when the user actually opens an article, so
-        // shipping full_content in the list payload is pure waste.
-        // Also drop `count: exact` — an unindexed COUNT over the whole
-        // table blocks the response for hundreds of ms on cold cache.
-        .select('title, link, description, pub_date, created_at, image, images, source_name')
-        .in('source_name', names)
-        .order('pub_date', { ascending: false })
-        .limit(300);
-      if (queryError) {
-        throw queryError;
-      }
-      if (data) {
-        online = data.map((r) => ({
-          title: r.title,
-          link: r.link,
-          description: r.description || '',
-          fullContent: '',
-          pubDate: r.pub_date || r.created_at || '',
-          image: r.image ?? null,
-          images: (r.images as FeedItem['images']) || [],
-          author: undefined,
-          source: r.source_name,
-        }));
-        onlineCount = count ?? online.length;
-      }
+      online = await listStoredArticles(names, 300);
+      onlineCount = online.length;
     } catch (e) {
       console.error('Reading: DB load failed', e);
       onlineFailed = true;
@@ -983,18 +951,12 @@ export function useReadingData() {
   const fetchSingleFeed = useCallback(
     async (feed: FeedSource) => {
       try {
-        const nameMap: Record<string, string> = { [feed.url]: feed.name };
-        const { data, error } = await supabase.functions.invoke('fetch-rss', {
-          body: {
-            urls: [feed.url],
-            limit: 100,
-            fetchFullContent: true,
-            store: true,
-            nameMap,
-          },
+        const responseData = await invokeFetchRss({
+          feeds: [feed],
+          limit: 100,
+          fetchFullContent: true,
+          store: true,
         });
-        if (error) throw error;
-        const responseData = typeof data === 'string' ? JSON.parse(data) : data;
         const latestStatuses: FeedStatus[] = Array.isArray(responseData?.statuses)
           ? (responseData.statuses as FeedStatus[])
           : [];
@@ -1005,7 +967,7 @@ export function useReadingData() {
             return Array.from(next.values());
           });
         }
-        const feeds = responseData?.feeds || [];
+        const feeds = responseData.feeds;
         const fresh: FeedItem[] = [];
         for (const f of feeds) {
           for (const item of f.items || []) {
@@ -1027,27 +989,10 @@ export function useReadingData() {
         // empty by design. Read the rows it just wrote instead of
         // telling the user the brand-new source has nothing.
         if (fresh.length === 0) {
-          const { data: storedRows } = await supabase
-            .from('rss_articles')
-            .select('title, link, description, pub_date, created_at, image, images, source_name')
-            .eq('source_name', feed.name)
-            .order('pub_date', { ascending: false })
-            .limit(100);
-          for (const r of storedRows ?? []) {
-            fresh.push({
-              title: r.title,
-              link: r.link,
-              description: r.description || '',
-              fullContent: '',
-              pubDate: r.pub_date || r.created_at || '',
-              image: r.image ?? null,
-              images: (r.images as FeedItem['images']) || [],
-              author: undefined,
-              source: r.source_name,
-            });
-          }
+          fresh.push(...await listStoredArticlesForSource(feed.name, 100));
         }
         if (fresh.length > 0) {
+          await offlineDb.saveArticlesBatch(fresh);
           setArticles((prev) => capArticles(mergeArticles<FeedItem>(prev, fresh)));
           toast.success(`تمت إضافة ${fresh.length} مقال من ${feed.name}`);
         } else {

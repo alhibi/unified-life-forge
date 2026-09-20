@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
 
 import { loadReaderPrefs, saveReaderPrefs } from './api';
+import type { ReaderPrefs } from './types';
 
 /** Ordering applied to the article list before rendering. */
 export type SortMode = 'newest' | 'oldest' | 'unread-first';
@@ -103,11 +104,18 @@ export function useListPrefs(): [ListPrefs, (next: Partial<ListPrefs>) => void] 
     storeListPrefs(prefs);
     if (isSupabaseConfigured) {
       loadReaderPrefs().then((curCloud) => {
-        const updated = {
-          ...(curCloud || {}),
+        const updated: ReaderPrefs = {
+          ...(curCloud ?? {
+            fontSize: 'md',
+            lineHeight: 'normal',
+            theme: 'system',
+            fontFamily: 'sans',
+            translationLang: 'ar',
+            ttsSpeed: 1,
+          }),
           listSort: prefs.sort,
         };
-        saveReaderPrefs(updated as any).catch(console.error);
+        saveReaderPrefs(updated).catch(console.error);
       }).catch(console.error);
     }
   }, [prefs]);

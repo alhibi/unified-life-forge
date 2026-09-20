@@ -16,6 +16,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 
+import {
+  extractedArticleSchema,
+  fetchRssResponseSchema,
+  type FetchRssResponse,
+} from './schemas';
 import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 
 const DEFAULT_PREFS: ReaderPrefs = {
@@ -209,4 +214,106 @@ export async function saveReaderPrefs(prefs: ReaderPrefs, expectedUserId?: strin
     { onConflict: 'user_id' },
   );
   if (error) throw error;
+}
+
+// ─── Articles + edge functions ────────────────────────────────────────
+
+interface StoredArticleRow {
+  title: string;
+  link: string;
+  description: string | null;
+  pub_date: string | null;
+  created_at: string;
+  image: string | null;
+  images: Json | null;
+  source_name: string;
+}
+
+function rowToFeedItem(row: StoredArticleRow): FeedItem {
+  const images = Array.isArray(row.images)
+    ? row.images.filter((value): value is string => typeof value === 'string')
+    : [];
+  return {
+    title: row.title,
+    link: row.link,
+    description: row.description ?? '',
+    fullContent: '',
+    pubDate: row.pub_date ?? row.created_at,
+    image: row.image,
+    images,
+    source: row.source_name,
+  };
+}
+
+export async function listStoredArticles(
+  sourceNames: ReadonlyArray<string>,
+  limit = 300,
+): Promise<FeedItem[]> {
+  if (sourceNames.length === 0) return [];
+  const { data, error } = await supabase
+    .from('rss_articles')
+    .select('title, link, description, pub_date, created_at, image, images, source_name')
+    .in('source_name', [...sourceNames])
+    .order('pub_date', { ascending: false })
+    .limit(Math.max(1, Math.min(1000, Math.floor(limit))));
+  if (error) throw error;
+  return (data ?? []).map((row) => rowToFeedItem(row as StoredArticleRow));
+}
+
+export async function listStoredArticlesForSource(
+  sourceName: string,
+  limit = 100,
+): Promise<FeedItem[]> {
+  if (!sourceName) return [];
+  const { data, error } = await supabase
+    .from('rss_articles')
+    .select('title, link, description, pub_date, created_at, image, images, source_name')
+    .eq('source_name', sourceName)
+    .order('pub_date', { ascending: false })
+    .limit(Math.max(1, Math.min(500, Math.floor(limit))));
+  if (error) throw error;
+  return (data ?? []).map((row) => rowToFeedItem(row as StoredArticleRow));
+}
+
+export async function invokeFetchRss(input: {
+  feeds: ReadonlyArray<FeedSource>;
+  limit: number;
+  fetchFullContent: boolean;
+  store: boolean;
+  requestId?: string;
+}): Promise<FetchRssResponse> {
+  const nameMap: Record<string, string> = {};
+  for (const feed of input.feeds) nameMap[feed.url] = feed.name;
+  const { data, error } = await supabase.functions.invoke('fetch-rss', {
+    headers: input.requestId ? { 'x-request-id': input.requestId } : undefined,
+    body: {
+      urls: input.feeds.map((feed) => feed.url),
+      limit: input.limit,
+      fetchFullContent: input.fetchFullContent,
+      store: input.store,
+      nameMap,
+    },
+  });
+  if (error) throw error;
+  const candidate: unknown = typeof data === 'string' ? JSON.parse(data) : data;
+  return fetchRssResponseSchema.parse(candidate);
+}
+
+export interface ExtractedArticlePayload {
+  url: string;
+  title: string;
+  siteName?: string;
+  description?: string;
+  image: string | null;
+  html: string;
+  partial?: boolean;
+  extractable?: boolean;
+}
+
+export async function invokeExtractArticle(url: string): Promise<ExtractedArticlePayload> {
+  const { data, error } = await supabase.functions.invoke('extract-article', {
+    body: { url },
+  });
+  if (error) throw error;
+  return extractedArticleSchema.parse(data);
 }

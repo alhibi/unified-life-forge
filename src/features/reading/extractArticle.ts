@@ -1,6 +1,6 @@
-import { supabase } from '@/integrations/supabase/client';
 import { dedupe, withRetry } from '@/lib/fetchRetry';
 
+import { invokeExtractArticle } from './api';
 import { isSupabaseAvailable } from './clientFetcher';
 
 /**
@@ -93,11 +93,18 @@ export async function extractArticleBody(
           if (signal?.aborted) {
             throw signal.reason ?? new Error('aborted');
           }
-          const { data, error } = await supabase.functions.invoke(
-            'extract-article',
-            { body: { url } },
-          );
-          if (error) {
+          try {
+            const data = await invokeExtractArticle(url);
+            if (!data.html && !data.image) return null;
+            return {
+              url: data.url || url,
+              title: data.title || '',
+              siteName: data.siteName,
+              description: data.description,
+              image: data.image ?? null,
+              html: data.html || '',
+            };
+          } catch (error) {
             // 4xx / 422 (unextractable) → no point retrying.
             const status = (error as { status?: number; context?: { status?: number } })
               ?.status ?? (error as { context?: { status?: number } })?.context?.status;
@@ -106,17 +113,6 @@ export async function extractArticleBody(
             }
             throw error;
           }
-          if (!data || typeof data !== 'object') return null;
-          const obj = data as Partial<ExtractedArticle>;
-          if (!obj.html && !obj.image) return null;
-          return {
-            url: obj.url || url,
-            title: obj.title || '',
-            siteName: obj.siteName,
-            description: obj.description,
-            image: obj.image ?? null,
-            html: obj.html || '',
-          };
         },
         {
           attempts: 2,
