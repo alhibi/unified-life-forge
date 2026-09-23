@@ -51,6 +51,13 @@
 - [ ] Wellness (hub) vs Fitness (execution) separation.
 - [ ] Reading header simplification and scroll/state restore.
 - [ ] Reading reliability rebuild informed by ReadYou and Capy Reader: local-first article cache, deterministic refresh queue, source identity, pagination, feed discovery, and end-to-end failure states.
+  - [x] Account-isolated IndexedDB article cache with richer-content preservation and reconciliation.
+  - [x] Bounded article-image caching integrated into the app-wide offline worker without route conflicts.
+  - [x] Central article/refresh API contracts with Zod validation and no direct reader-hook data calls.
+  - [x] Persist client-fetched and newly stored source articles into the local cache.
+  - [ ] Deterministic refresh queue with per-source backoff and cancellation.
+  - [ ] Cursor pagination beyond the initial 300 articles.
+  - [ ] Multi-stage feed discovery and typed per-source failure reporting.
 - [ ] Reading parity pass: folders/tags, per-feed retention and refresh controls, mark-read gestures, OPML fidelity, article extraction, image handling, and offline verification.
 - [ ] Weather progressive disclosure and a useful no-location state.
 - [ ] Podcast player moved into the app shell.
