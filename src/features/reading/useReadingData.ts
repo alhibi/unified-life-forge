@@ -112,7 +112,7 @@ async function refreshFeedsInBatches(
       // the console (or in telemetry) — otherwise every route change away from
       // /reading looks like a broken fetch.
       const aborted =
-        (error instanceof Error && error.name === 'AbortError') ||
+        (requestError instanceof Error && requestError.name === 'AbortError') ||
         /abort|signal is aborted|cancell?ed|Failed to fetch/i.test(message);
       if (aborted) {
         console.info('[Reading/fetch-rss] request aborted', { requestId, feeds: batch.length });

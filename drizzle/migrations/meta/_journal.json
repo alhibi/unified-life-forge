@@ -8,6 +8,13 @@
       "when": 1789832575172,
       "tag": "0000_restore_missing_sync_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790175864114,
+      "tag": "0001_scope_generation_job_reads_to_owner",
+      "breakpoints": true
     }
   ]
 }
