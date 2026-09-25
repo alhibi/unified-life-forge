@@ -193,6 +193,16 @@ async function navigationHandler(request) {
   }
 }
 
+/** Reading-article images: the dedicated image cache first, then a caller-supplied fallback. */
+async function readingImage(request, fallback) {
+  const cache = await caches.open(READING_IMAGE_CACHE);
+  const hit = await cache.match(request, { ignoreVary: true });
+  if (hit) return hit;
+  return fallback === 'shell'
+    ? staleWhileRevalidate(request, SHELL_CACHE)
+    : fetch(request);
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
@@ -209,12 +219,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (request.destination === 'image') {
-    event.respondWith(
-      caches.open(READING_IMAGE_CACHE).then(async (cache) =>
-        (await cache.match(request, { ignoreVary: true })) || fetch(request),
-      ),
-    );
+  // Article artwork lives on publisher origins and is the only cross-origin
+  // traffic this worker serves; it goes through the reading image cache.
+  if (request.destination === 'image' && url.origin !== self.location.origin) {
+    event.respondWith(readingImage(request, 'network'));
     return;
   }
 
@@ -232,6 +240,25 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(cacheFirst(request, ASSET_CACHE));
     return;
   }
+
+  // App imagery (icons, bundled pictures) is precached into the shell cache —
+  // these rules must run before any generic image handling, or offline loads
+  // would bypass the shell entirely.
+  if (
+    url.pathname.startsWith('/icons/') ||
+    url.pathname.startsWith('/data/') ||
+    url.pathname === '/manifest.json'
+  ) {
+    event.respondWith(staleWhileRevalidate(request, SHELL_CACHE));
+    return;
+  }
+
+  // Any remaining same-origin image gets a reading-cache first look, then the
+  // same shell treatment as icons, so it keeps working on later offline loads.
+  if (request.destination === 'image') {
+    event.respondWith(readingImage(request, 'shell'));
+  }
+});
 
   // `/data/` holds large static datasets that are fetched at runtime instead
   // of bundled — currently the Diwan seed corpus. They are not fingerprinted,
