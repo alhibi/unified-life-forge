@@ -244,6 +244,13 @@ self.addEventListener('fetch', (event) => {
   // App imagery (icons, bundled pictures) is precached into the shell cache —
   // these rules must run before any generic image handling, or offline loads
   // would bypass the shell entirely.
+  //
+  // `/data/` holds large static datasets that are fetched at runtime instead
+  // of bundled — currently the Diwan seed corpus. They are not fingerprinted,
+  // so cache-first would pin a stale copy forever; stale-while-revalidate
+  // serves instantly and refreshes in the background. Without this rule the
+  // Diwan demo/offline fallback would fail offline, which is precisely the
+  // situation it exists to cover.
   if (
     url.pathname.startsWith('/icons/') ||
     url.pathname.startsWith('/data/') ||
@@ -257,20 +264,5 @@ self.addEventListener('fetch', (event) => {
   // same shell treatment as icons, so it keeps working on later offline loads.
   if (request.destination === 'image') {
     event.respondWith(readingImage(request, 'shell'));
-  }
-});
-
-  // `/data/` holds large static datasets that are fetched at runtime instead
-  // of bundled — currently the Diwan seed corpus. They are not fingerprinted,
-  // so cache-first would pin a stale copy forever; stale-while-revalidate
-  // serves instantly and refreshes in the background. Without this rule the
-  // Diwan demo/offline fallback would fail offline, which is precisely the
-  // situation it exists to cover.
-  if (
-    url.pathname.startsWith('/icons/') ||
-    url.pathname.startsWith('/data/') ||
-    url.pathname === '/manifest.json'
-  ) {
-    event.respondWith(staleWhileRevalidate(request, SHELL_CACHE));
   }
 });
