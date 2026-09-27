@@ -1,5 +1,34 @@
 import { type ClassValue,clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * The type-scale utilities this project defines in `index.css`:
+ *   @utility text-micro/mini/meta/body/lead/title/display/hero { font-size … }
+ *
+ * `tailwind-merge` does not know them, so it classifies every `text-*` it
+ * cannot resolve as a COLOUR utility. Combined with `twMerge`'s
+ * last-one-wins rule inside the `text-` group, any
+ *
+ *   cn('bg-primary text-primary-foreground', 'text-meta font-semibold')
+ *
+ * loses `text-primary-foreground` — the size class is treated as a rival
+ * colour and the real one is dropped. The element then inherits the ambient
+ * foreground, which on `bg-primary` (a pale accent) lands at 1.49:1 instead of
+ * the 12.61:1 the token pair was generated for. That silently affected 191
+ * className strings across 84 files, including primary/destructive buttons.
+ *
+ * `extendTailwindMerge` teaches the merger these names, so `font-size` and
+ * `text-color` become two independent groups and both survive.
+ */
+const TYPE_SCALE = new Set(['micro', 'mini', 'meta', 'body', 'lead', 'title', 'display', 'hero']);
+
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [{ text: [...TYPE_SCALE] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

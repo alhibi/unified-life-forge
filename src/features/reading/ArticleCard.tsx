@@ -198,7 +198,7 @@ export function ArticleCard({
                 )}
                 <span className="truncate">{article.title}</span>
               </span>
-              <span className="text-micro text-muted-foreground/70 shrink-0 tabular-nums">
+              <span className="text-micro text-muted-foreground-subtle shrink-0 tabular-nums">
                 {timeAgo(article.pubDate, language)}
               </span>
               {isBookmarked && (
@@ -287,11 +287,11 @@ export function ArticleCard({
                   {article.source}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-micro text-muted-foreground/70 shrink-0">
+                <span className="text-micro text-muted-foreground-subtle shrink-0">
                   {timeAgo(article.pubDate, language)}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
-                <span className="text-micro text-muted-foreground/70 inline-flex items-center gap-0.5 shrink-0">
+                <span className="text-micro text-muted-foreground-subtle inline-flex items-center gap-0.5 shrink-0">
                   <Clock className="h-2.5 w-2.5" />
                   {`${minutes} د`}
                 </span>
@@ -366,12 +366,12 @@ export function ArticleCard({
                 <span className="text-micro font-semibold text-primary/90 truncate max-w-[45%]">
                   {article.source}
                 </span>
-                <span className="text-micro text-muted-foreground/60 shrink-0">·</span>
-                <span className="text-micro text-muted-foreground/70 shrink-0 tabular-nums">
+                <span className="text-micro text-muted-foreground-subtle shrink-0">·</span>
+                <span className="text-micro text-muted-foreground-subtle shrink-0 tabular-nums">
                   {timeAgo(article.pubDate, language)}
                 </span>
-                <span className="text-micro text-muted-foreground/60 shrink-0">·</span>
-                <span className="text-micro text-muted-foreground/70 shrink-0 tabular-nums inline-flex items-center gap-0.5">
+                <span className="text-micro text-muted-foreground-subtle shrink-0">·</span>
+                <span className="text-micro text-muted-foreground-subtle shrink-0 tabular-nums inline-flex items-center gap-0.5">
                   <Clock className="h-2.5 w-2.5" />
                   {`${minutes} د`}
                 </span>

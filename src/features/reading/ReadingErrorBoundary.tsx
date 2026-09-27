@@ -172,7 +172,7 @@ function ErrorFallback({
     network: <WifiOff className="h-12 w-12 text-signal/70" />,
     storage: <Database className="h-12 w-12 text-signal/70" />,
     render: <AlertTriangle className="h-12 w-12 text-destructive/70" />,
-    unknown: <AlertTriangle className="h-12 w-12 text-muted-foreground/50" />,
+    unknown: <AlertTriangle className="h-12 w-12 text-muted-foreground-subtle" />,
   };
 
   const titleMap: Record<State['errorKind'], { ar: string; en: string }> = {
@@ -233,7 +233,7 @@ function ErrorFallback({
 
       {/* Error details (collapsed by default) */}
       {error && (
-        <details className="text-micro text-muted-foreground/60 max-w-sm w-full">
+        <details className="text-micro text-muted-foreground-subtle max-w-sm w-full">
           <summary className="cursor-pointer hover:text-muted-foreground transition-colors">
             {'تفاصيل الخطأ'}
           </summary>
@@ -312,7 +312,7 @@ function FatalErrorFallback({
       {error && (
         <pre
           dir="ltr"
-          className="text-micro text-muted-foreground/50 max-w-xs overflow-x-auto whitespace-pre-wrap break-all font-mono p-2 rounded-lg bg-muted/20"
+          className="text-micro text-muted-foreground-subtle max-w-xs overflow-x-auto whitespace-pre-wrap break-all font-mono p-2 rounded-lg bg-muted/20"
         >
           {error.message}
         </pre>

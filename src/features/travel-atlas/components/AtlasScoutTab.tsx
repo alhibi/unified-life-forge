@@ -381,7 +381,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
       </div>
 
       {place.sources.length > 0 && (
-        <p className="text-micro text-muted-foreground/70">المصادر: {place.sources.join(' · ')}</p>
+        <p className="text-micro text-muted-foreground-subtle">المصادر: {place.sources.join(' · ')}</p>
       )}
     </motion.article>
   );
@@ -443,7 +443,7 @@ function CityBriefCard({ brief, cityName }: { brief: TargetBrief; cityName: stri
       </div>
 
       {brief.sources.length > 0 && (
-        <p className="text-micro text-muted-foreground/70">المصادر: {brief.sources.join(' · ')}</p>
+        <p className="text-micro text-muted-foreground-subtle">المصادر: {brief.sources.join(' · ')}</p>
       )}
     </motion.article>
   );
@@ -818,7 +818,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
           </div>
         ) : !activeTarget ? (
           <div className="py-16 text-center space-y-2 surface-depth rounded-2xl">
-            <Compass className="w-10 h-10 mx-auto text-muted-foreground/50" />
+            <Compass className="w-10 h-10 mx-auto text-muted-foreground-subtle" />
             <p className="text-meta font-semibold text-foreground">ابدأ بإضافة مكان مفضل</p>
             <p className="text-mini text-muted-foreground max-w-sm mx-auto leading-relaxed">
               اختر مدينة تحبها أو حلمت بزيارتها، ودع المحرك يقلّب أرجاءها ويؤلف لك دليلاً شخصياً كامل الأركان.
@@ -826,7 +826,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
           </div>
         ) : places.length === 0 ? (
           <div className="py-16 text-center space-y-2 surface-depth rounded-2xl">
-            <Sparkles className="w-10 h-10 mx-auto text-muted-foreground/50" />
+            <Sparkles className="w-10 h-10 mx-auto text-muted-foreground-subtle" />
             <p className="text-meta font-semibold text-foreground">لا نتائج بعد لهذا المكان</p>
             <p className="text-mini text-muted-foreground">شغّل محرك البحث العميق من اللوحة الجانبية</p>
           </div>

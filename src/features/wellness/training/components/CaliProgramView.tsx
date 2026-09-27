@@ -59,7 +59,7 @@ export default function CaliProgramView({
   return (
     <div className={`space-y-3 ${className}`}>
       <div>
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
           <Library className="w-3.5 h-3.5" />
           {T.title[lang]}
         </p>
@@ -170,7 +170,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
         {icon}
         <span className="text-mini font-bold tabular-nums text-foreground">{value}</span>
       </div>
-      <p className="text-micro text-muted-foreground/70 mt-0.5">{label}</p>
+      <p className="text-micro text-muted-foreground-subtle mt-0.5">{label}</p>
     </div>
   );
 }
@@ -305,7 +305,7 @@ function CaliDetailSheet({
 function Section({ title, body }: { title: string; body: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{title}</h4>
+      <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{title}</h4>
       {body}
     </div>
   );

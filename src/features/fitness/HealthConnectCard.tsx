@@ -116,7 +116,7 @@ export function HealthConnectCard({ onSynced }: Props) {
             <h3 className="text-meta font-bold text-foreground truncate">
               {platform === 'ios' ? 'Apple Health' : 'Health Connect'}
             </h3>
-            <p className="text-micro text-muted-foreground/80">
+            <p className="text-micro text-muted-foreground-subtle">
               خطوات · مسافة · سعرات · نبض · نوم · تمارين
             </p>
           </div>
@@ -196,7 +196,7 @@ export function HealthConnectCard({ onSynced }: Props) {
       )}
 
       {message && phase === 'unavailable' && (
-        <p className="text-micro text-muted-foreground/60 pt-1 border-t border-border/20 font-mono truncate">
+        <p className="text-micro text-muted-foreground-subtle pt-1 border-t border-border/20 font-mono truncate">
           {message}
         </p>
       )}

@@ -147,7 +147,7 @@ export const EditedBadge = React.memo(function EditedBadge({
     <span
       className={cn(
         'text-micro italic',
-        dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground/50',
+        dimmed ? 'text-primary-foreground/50' : 'text-muted-foreground-subtle',
       )}
     >
       {'معدّلة'}
@@ -256,7 +256,7 @@ export const MessageTicks = React.memo(
           <Clock
             className={cn(
               'h-[11px] w-[11px] animate-pulse',
-              dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+              dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground-subtle',
             )}
             aria-label={'يجري الإرسال'}
           />
@@ -303,7 +303,7 @@ export const MessageTicks = React.memo(
           <CheckCheck
             className={cn(
               'h-[11px] w-[11px]',
-              dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+              dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground-subtle',
             )}
             aria-label={'وصلت'}
           />
@@ -321,7 +321,7 @@ export const MessageTicks = React.memo(
         <Check
           className={cn(
             'h-[11px] w-[11px]',
-            dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+            dimmed ? 'text-primary-foreground/70' : 'text-muted-foreground-subtle',
           )}
           aria-label={'أُرسلت'}
         />
@@ -426,7 +426,7 @@ export const ForwardedBadge = React.memo(function ForwardedBadge({
 }) {
   return (
     <motion.div
-      className="flex items-center gap-1 mb-0.5 text-micro text-muted-foreground/80 italic"
+      className="flex items-center gap-1 mb-0.5 text-micro text-muted-foreground-subtle italic"
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
@@ -600,7 +600,7 @@ export const SeenByAvatars = React.memo(function SeenByAvatars({
         ))}
       </div>
       {extra > 0 && (
-        <span className="text-micro text-muted-foreground/60 tabular-nums">+{extra}</span>
+        <span className="text-micro text-muted-foreground-subtle tabular-nums">+{extra}</span>
       )}
     </motion.div>
   );

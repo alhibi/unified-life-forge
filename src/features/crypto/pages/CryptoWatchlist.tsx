@@ -381,7 +381,7 @@ export default function CryptoWatchlist() {
                             <span className="text-meta font-bold text-foreground tracking-tight truncate">
                               {item.token_symbol}
                             </span>
-                            <span className="text-micro uppercase tracking-[0.08em] font-bold text-muted-foreground/80 border border-border/25 px-1.5 py-[1px] rounded-full">
+                            <span className="text-micro uppercase tracking-[0.08em] font-bold text-muted-foreground-subtle border border-border/25 px-1.5 py-[1px] rounded-full">
                               {CHAIN_LABELS[item.chain_id as ChainId] || item.chain_id}
                             </span>
                           </div>
@@ -401,7 +401,7 @@ export default function CryptoWatchlist() {
                             </p>
 
                             <div className="flex items-center justify-end gap-1.5 mt-1">
-                              <span className="text-micro text-muted-foreground/80 font-plex-mono tabular-nums">
+                              <span className="text-micro text-muted-foreground-subtle font-plex-mono tabular-nums">
                                 {formatCompact(pair.volume24h)}
                               </span>
                               {/* Non-color-only indications: Icon represents trend direction */}
@@ -435,7 +435,7 @@ export default function CryptoWatchlist() {
                             e.stopPropagation(); // prevent opening detail
                             handleRemove(item.id, item.token_symbol, item.chain_id, item.pair_address);
                           }}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground/50 opacity-70 group-hover:opacity-100 hover:border-data-5/25 hover:bg-data-5/10 hover:text-data-5 transition-motion"
+                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground-subtle opacity-70 group-hover:opacity-100 hover:border-data-5/25 hover:bg-data-5/10 hover:text-data-5 transition-motion"
                           title="إزالة من القائمة"
                           aria-label={`إزالة ${item.token_symbol} من القائمة`}
                         >

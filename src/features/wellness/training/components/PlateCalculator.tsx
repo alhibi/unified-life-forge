@@ -78,7 +78,7 @@ export default function PlateCalculator({
       {/* Total + stepper */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
             {T.total[lang]}
           </p>
           <p className="text-hero font-bold tabular-nums leading-none text-foreground" dir="ltr">
@@ -139,7 +139,7 @@ export default function PlateCalculator({
       {/* Bar picker */}
       {showBarPicker && (
         <div className="border-t border-border/30 pt-3 space-y-2">
-          <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.bar[lang]}</p>
+          <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.bar[lang]}</p>
           <div className="flex gap-1.5 flex-wrap">
             {BAR_OPTIONS.map((b) => (
               <button

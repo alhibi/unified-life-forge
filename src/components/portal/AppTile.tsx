@@ -192,7 +192,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               {app.description}
             </span>
             {!list && (
-              <span className="type-meta mt-2 block font-medium uppercase tracking-[0.16em] text-muted-foreground/70">
+              <span className="type-meta mt-2 block font-medium uppercase tracking-[0.16em] text-muted-foreground-subtle">
                 {app.caption}
               </span>
             )}

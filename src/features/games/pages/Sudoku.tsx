@@ -676,7 +676,7 @@ export default function SudokuPage() {
                       {cell}
                     </span>
                   ) : cellNotes.size > 0 ? (
-                    <div className={`grid gap-0 text-micro text-muted-foreground/70 leading-none w-full h-full p-[2px] ${variant === 'mini' ? 'grid-cols-3' : 'grid-cols-3'}`}>
+                    <div className={`grid gap-0 text-micro text-muted-foreground-subtle leading-none w-full h-full p-[2px] ${variant === 'mini' ? 'grid-cols-3' : 'grid-cols-3'}`}>
                       {(variant === 'mini' ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 7, 8, 9]).map(n => (
                         <span key={n} className="flex items-center justify-center font-medium">
                           {cellNotes.has(n.toString()) ? n : ''}
@@ -709,7 +709,7 @@ export default function SudokuPage() {
                 }`}>
                 <span className="text-lead font-bold leading-none">{n}</span>
                 <span className={`text-micro mt-0.5 leading-none font-medium ${
-                  isComplete ? 'text-muted-foreground/30' : 'text-muted-foreground/60'
+                  isComplete ? 'text-muted-foreground/30' : 'text-muted-foreground-subtle'
                 }`}>
                   {remaining}
                 </span>

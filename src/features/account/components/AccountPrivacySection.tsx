@@ -122,7 +122,7 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
   return (
     <>
       <motion.div variants={item} className="space-y-1">
-        <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2">
+        <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider px-1 mb-2">
           الحساب والخصوصية
         </p>
         <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
@@ -154,7 +154,7 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
             <span className="text-mini text-muted-foreground">نهائي</span>
           </button>
         </AppCard>
-        <p className="text-micro text-muted-foreground/60 px-1 pt-1.5 leading-relaxed">
+        <p className="text-micro text-muted-foreground-subtle px-1 pt-1.5 leading-relaxed">
           التصدير يشمل ملفك الشخصي، مذكراتك، ملاحظاتك، سجلات العافية، القراءة
           والبودكاست، مع التفضيلات المحفوظة على هذا الجهاز.
         </p>

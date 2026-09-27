@@ -645,7 +645,7 @@ function Hero({
       {/* Current */}
       <div className="bg-card px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
-          <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground/80 truncate">
+          <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground-subtle truncate">
             {locationLabel}
           </span>
           <span className="text-micro font-semibold text-primary/75 shrink-0">
@@ -657,7 +657,7 @@ function Hero({
             {nameOf(currentPrayer)}
           </span>
           <span
-            className="shrink-0 pb-[3px] text-body font-medium tabular-nums leading-none text-muted-foreground/70"
+            className="shrink-0 pb-[3px] text-body font-medium tabular-nums leading-none text-muted-foreground-subtle"
             dir="ltr"
           >
             {currentPrayer?.time ?? '--:--'}
@@ -668,14 +668,14 @@ function Hero({
       {/* Next */}
       <div className="bg-muted/[0.08] px-[18px] pb-2 pt-[13px]">
         <div className="mb-[5px] flex min-h-[12px] items-center">
-          <span className="text-micro font-semibold uppercase tracking-[0.09em] text-muted-foreground/80">
+          <span className="text-micro font-semibold uppercase tracking-[0.09em] text-muted-foreground-subtle">
             {t('prayer.next')}
           </span>
         </div>
         <div className="flex items-end justify-between gap-2">
           <span className="truncate text-body font-medium leading-none">{nameOf(nextPrayer)}</span>
           <span
-            className="shrink-0 pb-[3px] text-mini font-medium tabular-nums leading-none text-muted-foreground/70"
+            className="shrink-0 pb-[3px] text-mini font-medium tabular-nums leading-none text-muted-foreground-subtle"
             dir="ltr"
           >
             {nextPrayer?.time ?? '--:--'}
@@ -903,7 +903,7 @@ function ArcStrip({
         <div className="absolute bottom-2 start-[18px] flex items-center gap-1 pointer-events-none">
           <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
           <div className="flex flex-col leading-none">
-            <span className="text-micro font-medium leading-none text-muted-foreground/70">
+            <span className="text-micro font-medium leading-none text-muted-foreground-subtle">
               {t('prayer.makruh.sunrise')}
             </span>
             <span
@@ -918,7 +918,7 @@ function ArcStrip({
       {sunsetStr && (
         <div className="absolute bottom-2 end-[18px] flex items-center gap-1 pointer-events-none">
           <div className="flex flex-col items-end leading-none">
-            <span className="text-micro font-medium leading-none text-muted-foreground/70">
+            <span className="text-micro font-medium leading-none text-muted-foreground-subtle">
               {t('prayer.makruh.sunset')}
             </span>
             <span
@@ -1026,7 +1026,7 @@ function Slab({
           <motion.span
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ type: 'spring', stiffness: 380, damping: 26 }}
-            className="inline-flex items-center justify-center w-4 h-4 rounded-full text-muted-foreground/70 group-hover:text-foreground"
+            className="inline-flex items-center justify-center w-4 h-4 rounded-full text-muted-foreground-subtle group-hover:text-foreground"
           >
             <ChevronDown size={12} weight="bold" />
           </motion.span>
@@ -1280,7 +1280,7 @@ function HijriCalendarStrip({
                 >
                   {isToday ? 'اليوم' : `${daysLeft} يوم`}
                 </span>
-                <span className="text-micro text-muted-foreground/70 tabular-nums">
+                <span className="text-micro text-muted-foreground-subtle tabular-nums">
                   {occ.hijriDay} {occ.hijriMonth}
                 </span>
               </div>

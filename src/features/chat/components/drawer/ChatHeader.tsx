@@ -152,7 +152,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                 <span className="font-semibold text-meta block truncate leading-tight flex items-center gap-1">
                   {chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername}
                   {chat.activeConv && chat.chatPrefs.isMuted(chat.activeConv.id) && (
-                    <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />
+                    <BellOff className="w-3 h-3 text-muted-foreground-subtle shrink-0" />
                   )}
                 </span>
                 <AnimatePresence mode="wait">
@@ -178,7 +178,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                         'text-micro leading-tight block',
                         chat.otherPresence.isOnline
                           ? 'text-data-1 font-medium'
-                          : 'text-muted-foreground/60',
+                          : 'text-muted-foreground-subtle',
                       )}
                     >
                       {chat.otherPresence.text}

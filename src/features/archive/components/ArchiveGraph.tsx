@@ -405,7 +405,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="ابحث في فروع شبكة المعرفة دلالياً…"
-          className="flex-1 bg-transparent outline-none text-mini placeholder:text-muted-foreground/60"
+          className="flex-1 bg-transparent outline-none text-mini placeholder:text-muted-foreground-subtle"
         />
         {searchQuery && (
           <button onClick={() => setSearchQuery('')} aria-label="مسح">

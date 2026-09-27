@@ -112,7 +112,7 @@ export default function StackAdvisor({ supplements }: Props) {
       {/* Selected nutrients chip row */}
       <div className="bg-card border border-border/40 rounded-2xl p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider">
+          <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider">
             {'تركيبتك'} ({selected.length})
           </p>
           <div className="flex gap-2">
@@ -136,7 +136,7 @@ export default function StackAdvisor({ supplements }: Props) {
         </div>
 
         {selected.length === 0 ? (
-          <p className="text-mini text-muted-foreground/70 py-2">
+          <p className="text-mini text-muted-foreground-subtle py-2">
             {'لم تختر شيئاً بعد.'}
           </p>
         ) : (
@@ -288,7 +288,7 @@ export default function StackAdvisor({ supplements }: Props) {
                     <div className="px-3.5 pb-3.5 space-y-3 border-t border-border/30 pt-3">
                       {/* Benefits */}
                       <div>
-                        <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                        <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1.5 flex items-center gap-1">
                           <Zap className="w-3 h-3" />
                           {'الفوائد'}
                         </p>
@@ -307,7 +307,7 @@ export default function StackAdvisor({ supplements }: Props) {
 
                       {/* How-to */}
                       <div className="bg-muted/30 rounded-xl p-2.5">
-                        <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-1">
+                        <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1">
                           {'الطريقة'}
                         </p>
                         <p className="text-mini text-foreground/90 leading-relaxed">
@@ -338,7 +338,7 @@ export default function StackAdvisor({ supplements }: Props) {
                       {/* Food boosters */}
                       {syn.foodBoosters && syn.foodBoosters.length > 0 && (
                         <div>
-                          <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                          <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1.5 flex items-center gap-1">
                             <Utensils className="w-3 h-3" />
                             {'أطعمة تعزز'}
                           </p>
@@ -365,7 +365,7 @@ export default function StackAdvisor({ supplements }: Props) {
       {/* Recommended foods across all full matches */}
       {recommendedFoods.length > 0 && (
         <div className="bg-card border border-border/40 rounded-2xl p-3.5">
-          <p className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-2 flex items-center gap-1">
             <Utensils className="w-3 h-3" />
             {'أضف هذه إلى يومك'}
           </p>

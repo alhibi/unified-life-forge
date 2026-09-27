@@ -214,7 +214,7 @@ export default function VoiceBubble({
             })}
           </div>
           <div className="flex items-center justify-between" dir="ltr">
-            <span className="text-micro tabular-nums text-muted-foreground/50">
+            <span className="text-micro tabular-nums text-muted-foreground-subtle">
               {isPlaying && duration
                 ? formatDur(progress * duration)
                 : duration
@@ -246,7 +246,7 @@ export default function VoiceBubble({
               <span
                 className={cn(
                   'flex items-center gap-[3px] text-micro leading-none',
-                  isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/60',
+                  isDarkBg && isMine ? 'text-primary-foreground/70' : 'text-muted-foreground-subtle',
                 )}
               >
                 {msg.edited_at && <span className="text-micro italic">{'معدّلة'}</span>}

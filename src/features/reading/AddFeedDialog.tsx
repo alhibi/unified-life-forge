@@ -335,7 +335,7 @@ function ProgressStrip({ stage, }: { stage: Stage; }) {
               {s.ar}
             </span>
             {active && (
-              <span className="ms-auto text-micro text-muted-foreground/70">
+              <span className="ms-auto text-micro text-muted-foreground-subtle">
                 {'جارٍ...'}
               </span>
             )}
@@ -517,7 +517,7 @@ function CandidateCard({
               </span>
             )}
           </div>
-          <p className="text-micro text-muted-foreground/70 truncate mt-1.5" dir="ltr">
+          <p className="text-micro text-muted-foreground-subtle truncate mt-1.5" dir="ltr">
             {c.url}
           </p>
         </div>
@@ -548,12 +548,12 @@ function CandidateCard({
           </p>
           {c.items.map((it, i) => (
             <div key={i} className="flex items-baseline gap-2">
-              <span className="text-muted-foreground/60 tabular-nums text-micro font-mono shrink-0">
+              <span className="text-muted-foreground-subtle tabular-nums text-micro font-mono shrink-0">
                 {String(i + 1).padStart(2, '0')}
               </span>
               <p className="text-mini line-clamp-1 flex-1">{it.title}</p>
               {it.pubDate && (
-                <span className="text-micro text-muted-foreground/70 shrink-0">
+                <span className="text-micro text-muted-foreground-subtle shrink-0">
                   {timeAgo(it.pubDate, language)}
                 </span>
               )}

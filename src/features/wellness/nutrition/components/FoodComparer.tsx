@@ -441,7 +441,7 @@ function MicroRow({
 
   return (
     <div className="space-y-1">
-      <div className="text-micro font-semibold text-muted-foreground/80">{label}</div>
+      <div className="text-micro font-semibold text-muted-foreground-subtle">{label}</div>
       <div className="grid grid-cols-3 gap-2">
         {Array.from({ length: 3 }).map((_, i) => {
           const food = foods[i];

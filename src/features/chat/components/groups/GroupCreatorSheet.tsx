@@ -237,7 +237,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                 autoFocus
                 dir="auto"
               />
-              <p className="text-micro text-muted-foreground/70 text-end mt-1">
+              <p className="text-micro text-muted-foreground-subtle text-end mt-1">
                 {title.length}/{MAX_TITLE_LEN}
               </p>
             </div>
@@ -255,7 +255,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                 className="w-full bg-muted/30 rounded-2xl px-4 py-2.5 text-meta outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 dir="auto"
               />
-              <p className="text-micro text-muted-foreground/70 text-end mt-1">
+              <p className="text-micro text-muted-foreground-subtle text-end mt-1">
                 {description.length}/{MAX_DESC_LEN}
               </p>
             </div>

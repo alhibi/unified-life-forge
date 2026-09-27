@@ -126,7 +126,7 @@ export default function SetRow({
         <button
           type="button"
           onClick={onRemove}
-          className="shrink-0 p-1.5 text-muted-foreground/60 hover:text-destructive"
+          className="shrink-0 p-1.5 text-muted-foreground-subtle hover:text-destructive"
           aria-label="remove"
         >
           <X className="w-3.5 h-3.5" />

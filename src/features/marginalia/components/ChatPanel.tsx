@@ -152,7 +152,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
       <div className="space-y-2 min-h-[8rem]">
         {messages.length === 0 && !streaming && (
           <AppCard className="text-center py-8 space-y-2">
-            <MessageSquareText className="w-8 h-8 mx-auto text-muted-foreground/60" />
+            <MessageSquareText className="w-8 h-8 mx-auto text-muted-foreground-subtle" />
             <p className="text-meta text-muted-foreground">
               اسأل أرشيفك: «ما الذي قرأته عن الحوافز؟» — الجواب يستند إلى مقالاتك فقط.
             </p>

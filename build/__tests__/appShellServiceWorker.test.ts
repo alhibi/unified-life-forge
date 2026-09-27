@@ -64,7 +64,10 @@ describe.runIf(hasBuild)('generated dist/sw.js', () => {
     const selfCalled = /self\.skipWaiting\(\)/g;
     const matches = code.match(selfCalled) ?? [];
     expect(matches).toHaveLength(1);
-    expect(code).toMatch(/SKIP_WAITING'\s*\)\s*self\.skipWaiting\(\)/);
+    // The guard is read as `event.data?.type === 'SKIP_WAITING'`, so the
+    // character between the closing quote and `self.skipWaiting()` is ` {`
+    // rather than `)`. Match the call site, not one exact punctuation.
+    expect(code).toMatch(/SKIP_WAITING'[\s\S]{0,40}?self\.skipWaiting\(\)/);
   });
 
   it('is valid JavaScript', () => {

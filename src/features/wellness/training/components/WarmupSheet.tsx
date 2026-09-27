@@ -95,7 +95,7 @@ export default function WarmupSheet({
 
               {/* Mobility */}
               <section className="space-y-2">
-                <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+                <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
                   <Target className="w-3.5 h-3.5" />
                   {T.mobility[lang]}
                 </h4>
@@ -137,7 +137,7 @@ export default function WarmupSheet({
 
               {/* Ramp */}
               <section className="space-y-2">
-                <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+                <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
                   <Flame className="w-3.5 h-3.5" />
                   {T.ramp[lang]}
                 </h4>
@@ -178,7 +178,7 @@ export default function WarmupSheet({
                             </span>
                           </button>
                           {s.cue && (
-                            <p className="text-micro text-muted-foreground/70 mt-0.5 ms-8">
+                            <p className="text-micro text-muted-foreground-subtle mt-0.5 ms-8">
                               {s.cue[lang]}
                             </p>
                           )}

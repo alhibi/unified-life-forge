@@ -89,7 +89,7 @@ export default function ArticlesTab() {
       {/* Section divider */}
       <motion.div variants={item} className="flex items-center gap-2 px-1 pt-1">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-micro font-semibold text-muted-foreground/70 tracking-wide">
+        <span className="text-micro font-semibold text-muted-foreground-subtle tracking-wide">
           {'المزيد'}
         </span>
         <div className="h-px flex-1 bg-border" />

@@ -693,7 +693,7 @@ export function MetricBadge({
       <span className="text-micro font-bold tabular-nums" style={{ color }}>
         {value}
       </span>
-      <span className="text-micro font-medium text-muted-foreground/70">{label}</span>
+      <span className="text-micro font-medium text-muted-foreground-subtle">{label}</span>
     </div>
   );
 }

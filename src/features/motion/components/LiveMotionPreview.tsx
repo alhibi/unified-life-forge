@@ -119,7 +119,7 @@ export default function LiveMotionPreview({ revision, navStyle }: LiveMotionPrev
         ))}
       </div>
 
-      <p className="font-mono text-micro tabular-nums text-muted-foreground/70">
+      <p className="font-mono text-micro tabular-nums text-muted-foreground-subtle">
         spring k={Math.round(Number((MOTION.spring as { stiffness?: number }).stiffness ?? 0))} · c=
         {Number((MOTION.spring as { damping?: number }).damping ?? 0).toFixed(1)} · nav=
         {Number((MOTION.navSilkEnter as { duration?: number }).duration ?? 0).toFixed(3)}s

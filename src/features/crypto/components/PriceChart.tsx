@@ -330,7 +330,7 @@ export default function PriceChart({
               {priceTicks.map((tick) => (
                 <span
                   key={tick.y}
-                  className="absolute -translate-y-1/2 font-plex-mono text-micro tabular-nums text-muted-foreground/60"
+                  className="absolute -translate-y-1/2 font-plex-mono text-micro tabular-nums text-muted-foreground-subtle"
                   style={{ top: `${(tick.y / VIEW_H) * 100}%`, left: 0 }}
                 >
                   {formatPrice(tick.value)}
@@ -379,7 +379,7 @@ export default function PriceChart({
                 y1={series.baselineY}
                 y2={series.baselineY}
                 stroke="currentColor"
-                className="text-muted-foreground/50"
+                className="text-muted-foreground-subtle"
                 strokeWidth="1"
                 strokeDasharray="2 5"
                 vectorEffect="non-scaling-stroke"
@@ -433,7 +433,7 @@ export default function PriceChart({
                   <span
                     key={`label-${tick.x}`}
                     className={cn(
-                      'absolute font-plex-mono text-micro tabular-nums text-muted-foreground/60',
+                      'absolute font-plex-mono text-micro tabular-nums text-muted-foreground-subtle',
                       !isFirst && !isLast && '-translate-x-1/2',
                       isLast && '-translate-x-full'
                     )}

@@ -191,7 +191,7 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
 
                 {meta.description && (
                   <p
-                    className="text-micro text-muted-foreground/80 leading-relaxed line-clamp-2"
+                    className="text-micro text-muted-foreground-subtle leading-relaxed line-clamp-2"
                     dir="auto"
                   >
                     {meta.description}

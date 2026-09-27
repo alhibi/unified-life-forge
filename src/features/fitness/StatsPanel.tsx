@@ -45,10 +45,10 @@ function ChartTip({ active, payload, label, unit = '' }: TooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-background/95 border border-border/40 px-3 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
-      <p className="text-micro text-muted-foreground/80 mb-0.5 font-bold">{label}</p>
+      <p className="text-micro text-muted-foreground-subtle mb-0.5 font-bold">{label}</p>
       <p className="text-mini font-bold text-foreground tabular-nums">
         {Number(payload[0].value).toLocaleString('en-US')}
-        <span className="text-micro text-muted-foreground/80 font-normal ms-1">{unit}</span>
+        <span className="text-micro text-muted-foreground-subtle font-normal ms-1">{unit}</span>
       </p>
     </div>
   );
@@ -58,7 +58,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col text-start">
       <span className="text-lead font-extrabold text-foreground tabular-nums leading-none">{value}</span>
-      <span className="text-micro text-muted-foreground/80 mt-1">{label}</span>
+      <span className="text-micro text-muted-foreground-subtle mt-1">{label}</span>
     </div>
   );
 }

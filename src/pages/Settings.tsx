@@ -238,7 +238,7 @@ export default function SettingsPage() {
                       {user.email}
                     </p>
                   ) : null}
-                  <p className="text-micro text-muted-foreground/70 mt-0.5 truncate">
+                  <p className="text-micro text-muted-foreground-subtle mt-0.5 truncate">
                     @{username} · {'تعديل الملف الشخصي'}
                   </p>
                 </button>
@@ -307,7 +307,7 @@ export default function SettingsPage() {
 
         {/* Version */}
         <motion.div variants={item} className="text-center pt-2 pb-4">
-          <p className="text-micro text-muted-foreground/50">
+          <p className="text-micro text-muted-foreground-subtle">
             {'الإصدار'} {packageJson.version}
           </p>
         </motion.div>

@@ -511,7 +511,7 @@ export default function ChatSettingsPage() {
             </Section>
           </motion.div>
 
-          <p className="text-micro text-muted-foreground/60 text-center pt-2 px-4 leading-relaxed">
+          <p className="text-micro text-muted-foreground-subtle text-center pt-2 px-4 leading-relaxed">
             <AlertTriangle className="inline w-3 h-3 me-1 -mt-0.5" />
             {'هذه الإعدادات تُحفظ تلقائياً وتُزامَن عبر أجهزتك.'}
           </p>
@@ -552,7 +552,7 @@ function ToggleRow({ icon, label, description, value, onChange, disabled }: Togg
       <div className="flex-1 min-w-0">
         <p className="text-meta font-medium text-foreground">{label}</p>
         {description && (
-          <p className="text-micro text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
+          <p className="text-micro text-muted-foreground-subtle mt-0.5 leading-snug">{description}</p>
         )}
       </div>
       <span
@@ -634,7 +634,7 @@ function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: N
         className="w-full accent-primary"
       />
       {helperAr && (
-        <p className="text-micro text-muted-foreground/70 mt-1">
+        <p className="text-micro text-muted-foreground-subtle mt-1">
           {helperAr}
         </p>
       )}
@@ -677,7 +677,7 @@ function ActionRow({ icon, label, description, onClick, disabled, danger }: Acti
           {label}
         </p>
         {description && (
-          <p className="text-micro text-muted-foreground/80 mt-0.5 leading-snug">{description}</p>
+          <p className="text-micro text-muted-foreground-subtle mt-0.5 leading-snug">{description}</p>
         )}
       </div>
     </button>

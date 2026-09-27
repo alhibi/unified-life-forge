@@ -312,7 +312,7 @@ export function SearchPanel({
             </button>
           ))}
           {restrictTo && restrictTo.length > 0 && (
-            <span className="ms-auto shrink-0 text-micro text-muted-foreground/70">
+            <span className="ms-auto shrink-0 text-micro text-muted-foreground-subtle">
               {`${restrictTo.length} مصدر مفعّل`}
             </span>
           )}
@@ -416,7 +416,7 @@ export function SearchPanel({
                   {hit.pub_date && (
                     <>
                       <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                      <span className="text-micro text-muted-foreground/70">
+                      <span className="text-micro text-muted-foreground-subtle">
                         {timeAgo(hit.pub_date, language)}
                       </span>
                     </>
@@ -491,10 +491,10 @@ function RecentSearches({
               onClick={() => onPick(entry.q)}
               className="flex-1 text-start flex items-center gap-3 py-2 ps-3 min-w-0"
             >
-              <Search className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+              <Search className="h-3.5 w-3.5 text-muted-foreground-subtle shrink-0" />
               <span className="text-meta truncate flex-1">{entry.q}</span>
               {typeof entry.hits === 'number' && entry.hits > 0 && (
-                <span className="text-micro text-muted-foreground/60 inline-flex items-center gap-1 shrink-0">
+                <span className="text-micro text-muted-foreground-subtle inline-flex items-center gap-1 shrink-0">
                   <TrendingUp className="h-2.5 w-2.5" />
                   {entry.hits}
                 </span>

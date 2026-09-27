@@ -339,11 +339,146 @@ function signalTokens(bg: Hsl, ink: Hsl, isDark: boolean): Record<string, string
   };
 }
 
-function statusTokens(bg: Hsl): Record<string, string> {
+/**
+ * Status colours (success / warning / destructive / error).
+ *
+ * The app's standard idiom for a status badge is a tinted pill:
+ *
+ *   <span class="bg-success/10 text-success">…</span>
+ *
+ * i.e. the TEXT carries the status hue and sits on a wash of that same hue
+ * over the page. Verifying the tone against the bare page — which is what this
+ * used to do — is not enough: the wash pulls the surface toward the hue, which
+ * is exactly the direction that eats contrast. A green that clears 4.5:1 on the
+ * page measured 4.31:1 on its own `bg-success/10` wash, so every green badge
+ * shipped under AA while its red siblings passed.
+ *
+ * `resolve` therefore verifies against the WORST wash the idiom can produce
+ * (a 20% mix of the tone into the page), which is the surface the label is
+ * actually drawn on. `tone` itself is still verified on the page, so a bare
+ * `text-success` on a card keeps its guarantee too.
+ */
+function statusTokens(bg: Hsl, card: Hsl): Record<string, string> {
   const WHITE: Hsl = [0, 0, 100];
   const resolve = (hue: Hsl) => {
-    const tone = ensureContrast(hue, bg, 4.5);
-    const dark: Hsl = [hue[0], Math.min(90, hue[1] + 10), 12];
+    // Three surfaces have to clear AA, and the token generator is only handed
+    // the two solid ones — the third, the wash, is produced by the caller's
+    // `bg-<status>/N` class:
+    //
+    //   1. the page  (`text-success` on the page background)
+    //   2. a card    (the same label inside any app-card)
+    //   3. the wash   (`<span class="bg-success/10 text-success">`)
+    //
+    // The wash moves the surface TOWARD the tone, so it is the binding
+    // constraint: on a light page a darker wash needs a darker green. The fix
+    // is always to walk AWAY from the page.
+    const goDarker = relativeLuminance(bg) > 0.18;
+
+    // The wash is measured the way the BROWSER composites `bg-X/N`: a straight
+    // sRGB mix. `mixHsl` reasons in OKLab, and the two disagree just enough
+    // that a tone verified against the OKLab wash measured 4.20 against the
+    // sRGB wash the user actually sees. Same alpha, same percentages,
+    // different space.
+    //
+    // Both sides stay in RGB and are compared as RGB luminance. Converting the
+    // wash back to HSL and re-deriving hex rounds each channel twice, which is
+    // enough to land a hair under a 4.5 target and skip the correction.
+    // Direct HSL -> linear-light sRGB, with NO round trip through hex.
+    //
+    // `hslToRgb` goes via `hslToHex` and `parseInt`, so each channel is
+    // rounded to an integer 0-255 and back. That rounding is enough to report
+    // a wash at 4.5 when the real value is 4.15 — the correction then stopped
+    // early and shipped a tone that measured under AA. The walk must be judged
+    // against the unrounded colour, which is also closer to what the browser
+    // composites before its own (single) rounding.
+    const toLinearRgb = (t: Hsl): Rgb => {
+      const H = t[0] / 360;
+      const S = t[1] / 100;
+      const L = t[2] / 100;
+      const hue = (p: number, q: number, x: number) => {
+        let t2 = x;
+        if (t2 < 0) t2 += 1;
+        if (t2 > 1) t2 -= 1;
+        if (t2 < 1 / 6) return p + (q - p) * 6 * t2;
+        if (t2 < 1 / 2) return q;
+        if (t2 < 2 / 3) return p + (q - p) * (2 / 3 - t2) * 6;
+        return p;
+      };
+      let r: number;
+      let g: number;
+      let b: number;
+      if (S === 0) {
+        r = L;
+        g = L;
+        b = L;
+      } else {
+        const q2 = L < 0.5 ? L * (1 + S) : L + S - L * S;
+        const p2 = 2 * L - q2;
+        r = hue(p2, q2, H + 1 / 3);
+        g = hue(p2, q2, H);
+        b = hue(p2, q2, H - 1 / 3);
+      }
+      return [r, g, b];
+    };
+
+    const pageRgb = toLinearRgb(bg);
+    const cardRgb = toLinearRgb(card);
+    const lumOfRgb = (rgb: Rgb) => {
+      const [r, g, b] = rgb.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const rgbRatio = (a: Rgb, b: Rgb) => {
+      const la = lumOfRgb(a);
+      const lb = lumOfRgb(b);
+      return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+    };
+    const washOfRgb = (fg: Rgb): Rgb =>
+      [0, 1, 2].map((i) => fg[i] * 0.2 + pageRgb[i] * 0.8) as Rgb;
+    // The margin absorbs the single rounding the browser applies when it
+    // quantises the mix to 8 bits per channel.
+    const TARGET = 4.55;
+    const clears = (t: Hsl) => {
+      const fg = toLinearRgb(t);
+      return (
+        rgbRatio(fg, pageRgb) >= TARGET &&
+        rgbRatio(fg, cardRgb) >= TARGET &&
+        rgbRatio(fg, washOfRgb(fg)) >= TARGET
+      );
+    };
+
+    let tone: Hsl = [hue[0], hue[1], hue[2]];
+
+    if (!clears(tone)) {
+      // Walk lightness away from the page until all three surfaces clear AA.
+      //
+      // The walk is expressed in HSL lightness — the same axis the token is
+      // published on and the browser paints it on. `withPerceptualL` (OKLab)
+      // looks more principled, but its steps do not map 1:1 onto the sRGB wash
+      // measured above: the walk stalled at 38.6% (wash 4.18) when the same
+      // hue at 40% measures 4.59.
+      //
+      // It starts from the raw hue rather than from `ensureContrast`'s output:
+      // that call picks its own direction from the reference luminance, and on
+      // a near-black page it walked the tone AWAY from the value that clears
+      // the wash. The direction here is explicit — away from the page.
+      const L0 = tone[2];
+      for (let step = 1; step <= 200; step++) {
+        const next = goDarker ? L0 - step * 0.5 : L0 + step * 0.5;
+        if (next < 0 || next > 100) break;
+        const cand: Hsl = [tone[0], tone[1], next];
+        if (clears(cand)) {
+          tone = cand;
+          break;
+        }
+        // keep the best-so-far in the direction that helps
+        if (goDarker ? cand[2] < tone[2] : cand[2] > tone[2]) tone = cand;
+        else break;
+      }
+    }
+
+    // Never trade away the solid-surface guarantees to win the wash.
+    tone = ensureContrast(ensureContrast(tone, bg, 4.5), card, 4.5);
+    const dark: Hsl = [tone[0], Math.min(90, tone[1] + 10), 12];
     const fg = contrastRatio(WHITE, tone) >= contrastRatio(dark, tone) ? WHITE : dark;
     return { tone: hslToString(tone), fg: hslToString(fg) };
   };
@@ -726,6 +861,22 @@ export function generateThemeTokens(
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
   const mutedFgStr = hslToString(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5));
+  // De-emphasised text that is SAFE TO USE.
+  //
+  // The app reached for `text-muted-foreground/70` to mean "less important"
+  // in ~160 places. That modifier is direction-dependent and therefore unsafe:
+  // on a light page it drags 11-13px text to 3.47:1, and on a dark page the
+  // same class sits comfortably at 4.71:1. Same class, opposite failure.
+  //
+  // This token replaces the modifier. It is contrast-verified against BOTH the
+  // page and the card surface (secondary text is drawn on each), so a caller
+  // can use it on any of the two without re-checking.
+  const mutedSubtle = ensureContrast(
+    ensureContrast(mixHsl(inkHsl, bgHsl, isDark ? 0.62 : 0.6), bgHsl, 4.5),
+    surfHsl,
+    4.5,
+  );
+  const mutedSubtleStr = hslToString(mutedSubtle);
   const disabledStr = solid(inkHsl, bgHsl, 0.46); // disabled state
 
   const accentHighlightStr = solid(accHsl, bgHsl, 0.14); // subtle accent wash
@@ -794,6 +945,9 @@ export function generateThemeTokens(
     '--secondary-foreground': secondaryFgStr,
     '--muted': mutedStr,
     '--muted-foreground': mutedFgStr,
+    // Drop-in replacement for the old `text-muted-foreground/70` idiom: same
+    // visual intent ("de-emphasised"), but contrast-correct in both modes.
+    '--muted-foreground-subtle': mutedSubtleStr,
     // shadcn contract: `accent` is a subtle interactive surface and
     // `accent-foreground` is the TEXT drawn on it — so it must be ink, not the
     // brand colour (copper-on-grey used to fail AA in hovered menu rows).
@@ -817,7 +971,7 @@ export function generateThemeTokens(
     // Status colours keep their fixed semantic hue but their TONE is resolved
     // against the active background, so they never sink into a very light or
     // very dark palette.
-    ...statusTokens(bgHsl),
+    ...statusTokens(bgHsl, surfHsl),
     // The single chromatic accent. Its hue is fixed so "changed / active /
     // measured" reads identically in every palette; only its tone is resolved
     // against the active canvas so it never glares or sinks.

@@ -96,7 +96,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
         {/* Search */}
         <div className="px-4 py-2 border-b border-border/10">
           <div className="flex items-center bg-muted/30 rounded-full px-3 h-9">
-            <Search className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+            <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
             <input
               type="text"
               value={query}
@@ -117,7 +117,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
         {/* List */}
         <div className="flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/60 gap-2">
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground-subtle gap-2">
               <Search className="w-8 h-8 opacity-30" />
               <p className="text-mini">{'لا نتائج'}</p>
             </div>

@@ -1080,7 +1080,7 @@ export default function ArchiveReader() {
                             placeholder="ابحث عن كلمة أو فقرة بالمتن..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-transparent border-0 outline-none text-mini flex-1 text-start placeholder:text-muted-foreground/60"
+                            className="bg-transparent border-0 outline-none text-mini flex-1 text-start placeholder:text-muted-foreground-subtle"
                             autoFocus
                           />
                           {searchQuery && (

@@ -569,7 +569,7 @@ function GenerationOverlay({
                           )}
                         </div>
                         <span
-                          className={`text-micro ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground/60'}`}
+                          className={`text-micro ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground-subtle'}`}
                         >
                           {STAGE_LABEL[s]}
                         </span>

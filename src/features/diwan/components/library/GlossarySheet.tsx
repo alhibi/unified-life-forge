@@ -134,7 +134,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
               {versePreview && (
                 <div className="mb-4 p-3 rounded-xl bg-muted/40 border border-border/30">
                   <div className="flex items-start gap-2">
-                    <Quote className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0 mt-1" aria-hidden="true" />
+                    <Quote className="w-3.5 h-3.5 text-muted-foreground-subtle shrink-0 mt-1" aria-hidden="true" />
                     <p
                       className="text-meta text-foreground/85 leading-[2] flex-1"
                       style={{ fontFamily: "'Amiri', serif" }}
@@ -151,7 +151,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                   <p className="text-mini text-muted-foreground">
                     لا يوجد شرح محفوظ لهذه الكلمة.
                   </p>
-                  <p className="text-micro text-muted-foreground/70 mt-2 leading-relaxed max-w-xs mx-auto">
+                  <p className="text-micro text-muted-foreground-subtle mt-2 leading-relaxed max-w-xs mx-auto">
                     سيُضاف الشرح تدريجياً مع إثراء المعجم. يمكنك تجربة الـ long-press
                     على كلمة أخرى داخل البيت.
                   </p>
@@ -171,7 +171,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                           {g.word}
                         </span>
                         {g.verse_position !== null && (
-                          <span className="text-micro text-muted-foreground/80">
+                          <span className="text-micro text-muted-foreground-subtle">
                             البيت {g.verse_position + 1}
                           </span>
                         )}

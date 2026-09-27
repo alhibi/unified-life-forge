@@ -110,7 +110,7 @@ export function TabNavigation<T extends string>({
               <span
                 className={cn(
                    'hidden text-[0.625rem] font-medium tracking-[0.06em] truncate max-w-full sm:block',
-                  active ? 'text-primary-foreground/80' : 'text-muted-foreground/80',
+                  active ? 'text-primary-foreground/80' : 'text-muted-foreground-subtle',
                 )}
               >
                 {tab.description}

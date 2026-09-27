@@ -245,7 +245,7 @@ export function StorageView({
               }}
             />
           </div>
-          <p className="text-micro text-muted-foreground/70 mt-2">
+          <p className="text-micro text-muted-foreground-subtle mt-2">
             {'يشمل الرقم المقالات المخزنة + الصور المخبأة في Service Worker.'}
           </p>
         </section>
@@ -328,7 +328,7 @@ export function StorageView({
                 {'دائم — لا تُحذف المقالات أبداً'}
               </span>
             </div>
-            <p className="text-micro text-muted-foreground/70 mt-2">
+            <p className="text-micro text-muted-foreground-subtle mt-2">
               {'كل المقالات تُحفظ للأبد. أرشيفك ينمو باستمرار ولا يُفقد أي محتوى.'}
             </p>
           </div>
@@ -416,7 +416,7 @@ function Stat({
       </div>
       <p className="text-display font-bold tabular-nums">{value}</p>
       {hint && (
-        <p className="text-micro text-muted-foreground/70 mt-0.5">{hint}</p>
+        <p className="text-micro text-muted-foreground-subtle mt-0.5">{hint}</p>
       )}
     </div>
   );

@@ -319,7 +319,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                 />
               )}
             </div>
-            <p className="text-micro text-muted-foreground/70 px-2 mt-2 leading-relaxed">
+            <p className="text-micro text-muted-foreground-subtle px-2 mt-2 leading-relaxed">
               <Shield className="inline w-3 h-3 me-1 -mt-0.5" />
               {'الحذف نهائي ولا يمكن التراجع عنه. الأعضاء سيفقدون كل الرسائل.'}
             </p>
@@ -336,7 +336,7 @@ interface SectionProps { title?: string; children: React.ReactNode }
 function Section({ title, children }: SectionProps) {
   return (
     <div className="px-4 mt-3">
-      {title && <h3 className="text-micro uppercase tracking-wider text-muted-foreground/70 px-1 mb-1.5">{title}</h3>}
+      {title && <h3 className="text-micro uppercase tracking-wider text-muted-foreground-subtle px-1 mb-1.5">{title}</h3>}
       {children}
     </div>
   );

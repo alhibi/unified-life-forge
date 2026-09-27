@@ -43,7 +43,7 @@ export default function AtlasTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={'ابحث عن عنصر...'}
-          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-meta text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/40 transition-colors ${'pe-10 ps-3'}`}
+          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-meta text-foreground placeholder:text-muted-foreground-subtle outline-none focus:border-primary/40 transition-colors ${'pe-10 ps-3'}`}
         />
       </div>
 
@@ -134,7 +134,7 @@ export default function AtlasTab() {
         )}
       </div>
 
-      <p className="text-micro text-muted-foreground/70 leading-relaxed text-center px-2 pt-2">
+      <p className="text-micro text-muted-foreground-subtle leading-relaxed text-center px-2 pt-2">
         {'تنبيه: المعلومات مرجع بيوكيميائي فقط، استشر مختصاً قبل أي بروتوكول علاجي.'}
       </p>
     </div>

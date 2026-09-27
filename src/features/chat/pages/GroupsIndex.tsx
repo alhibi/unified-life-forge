@@ -110,7 +110,7 @@ export default function GroupsIndexPage() {
         {/* Search */}
         <div className="px-4 pt-3 pb-2 shrink-0">
           <div className="flex items-center bg-muted/30 rounded-full px-3 h-10">
-            <Search className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+            <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
             <input
               type="text"
               value={query}
@@ -289,7 +289,7 @@ function GroupRow({ chat, onClick }: GroupRowProps) {
           </span>
           <span className={cn(
             'text-micro shrink-0 tabular-nums',
-            chat.unreadCount > 0 ? 'text-primary font-semibold' : 'text-muted-foreground/50',
+            chat.unreadCount > 0 ? 'text-primary font-semibold' : 'text-muted-foreground-subtle',
           )}>
             {formatTime(lastTime)}
           </span>
@@ -353,7 +353,7 @@ function EmptyState({ filter, hasAny, onNewGroup, onNewChannel }: EmptyStateProp
         <p className="text-meta font-semibold text-foreground/70">
           {'لا توجد مجموعات بعد'}
         </p>
-        <p className="text-mini text-muted-foreground/60 max-w-xs leading-relaxed">
+        <p className="text-mini text-muted-foreground-subtle max-w-xs leading-relaxed">
           {'أنشئ مجموعة لمحادثة عدة أصدقاء معاً، أو قناةً لبثّ التحديثات.'}
         </p>
       </div>

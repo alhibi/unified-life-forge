@@ -84,7 +84,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
             editing ? 'bg-signal' : 'bg-primary',
           )} />
           <div className="flex-1 min-w-0">
-            <p className="text-micro uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">
+            <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle flex items-center gap-1">
               {editing
                 ? <><Pencil className="w-3 h-3" />{'تعديل'}</>
                 : <><Reply className="w-3 h-3" />{'رد'}</>}

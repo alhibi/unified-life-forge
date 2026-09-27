@@ -343,7 +343,7 @@ export default function TimeLedgerEntryItem({
           {timeString}
         </time>
         {endTimeString && (
-          <span className="text-micro text-muted-foreground/60 font-plex-mono tabular-nums">
+          <span className="text-micro text-muted-foreground-subtle font-plex-mono tabular-nums">
             → {endTimeString}
           </span>
         )}
@@ -376,7 +376,7 @@ export default function TimeLedgerEntryItem({
                     </span>
                   ))}
                   {entry.tags.length > 4 && (
-                    <span className="px-1.5 py-0.5 rounded text-micro text-muted-foreground/60">
+                    <span className="px-1.5 py-0.5 rounded text-micro text-muted-foreground-subtle">
                       +{entry.tags.length - 4}
                     </span>
                   )}

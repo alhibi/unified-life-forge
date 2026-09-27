@@ -30,7 +30,7 @@ export function RouteThumbnail({
     return (
       <div
         style={{ height }}
-        className={`flex items-center justify-center rounded-lg border border-border/20 bg-muted/5 text-micro text-muted-foreground/60 ${className}`}
+        className={`flex items-center justify-center rounded-lg border border-border/20 bg-muted/5 text-micro text-muted-foreground-subtle ${className}`}
       >
         <span>لا مسار مسجّل</span>
       </div>

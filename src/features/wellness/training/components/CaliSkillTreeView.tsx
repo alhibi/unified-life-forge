@@ -46,7 +46,7 @@ export default function CaliSkillTreeView({
   return (
     <div className={`space-y-3 ${className}`}>
       <div>
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
           <Award className="w-3.5 h-3.5" />
           {T.title[lang]}
         </p>
@@ -139,7 +139,7 @@ function SkillCard({
             {skill.emoji}
           </div>
           {!unlocked ? (
-            <Lock className="w-3 h-3 text-muted-foreground/60" />
+            <Lock className="w-3 h-3 text-muted-foreground-subtle" />
           ) : isMastered ? (
             <Award className="w-3.5 h-3.5 text-signal" />
           ) : null}
@@ -165,10 +165,10 @@ function SkillCard({
         {unlocked && (
           <div className="mt-2 space-y-1">
             <div className="flex items-baseline justify-between text-micro">
-              <span className="text-muted-foreground/70 tabular-nums">
+              <span className="text-muted-foreground-subtle tabular-nums">
                 {progressStep < 0 ? T.notStarted[lang] : isMastered ? T.mastered[lang] : `${T.step[lang]} ${stepIdx + 1}/${totalSteps}`}
               </span>
-              <ChevronRight className="w-3 h-3 text-muted-foreground/60" />
+              <ChevronRight className="w-3 h-3 text-muted-foreground-subtle" />
             </div>
             <div className="h-1 rounded-full bg-muted/40 overflow-hidden">
               <motion.div
@@ -183,7 +183,7 @@ function SkillCard({
         )}
 
         {!unlocked && (
-          <p className="text-micro text-muted-foreground/70 mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
+          <p className="text-micro text-muted-foreground-subtle mt-2 line-clamp-2">{T.lockedHint[lang]}</p>
         )}
       </div>
     </motion.button>

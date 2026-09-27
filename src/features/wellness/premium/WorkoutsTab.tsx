@@ -323,7 +323,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
             <>
               <VolumeBars workouts={workouts} windowDays={7} lang={lang} />
               <div className="bg-card border border-border/40 rounded-xl p-3 space-y-1.5">
-                <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
                   {'مفتاح المناطق'}
                 </p>
                 <VolumeZoneLegend lang={lang} />
@@ -428,7 +428,7 @@ function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.lastSession[lang]}</p>
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.lastSession[lang]}</p>
         <span className="text-micro text-muted-foreground tabular-nums" dir="ltr">{session.date}</span>
       </div>
       {session.title && <p className="text-mini font-bold text-foreground">{session.title}</p>}
@@ -449,7 +449,7 @@ function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang
   if (top.length === 0) return null;
   return (
     <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
-      <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+      <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
         <Activity className="w-3 h-3" /> {T.topMuscles[lang]}
       </p>
       <div className="space-y-1.5">

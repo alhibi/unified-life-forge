@@ -145,7 +145,7 @@ const ChatImage: React.FC<ChatImageProps> = ({
       {/* ── Layer 2: state overlays ──────────────────────────────────── */}
       {status === 'pending' && !thumbnailDataUrl && (
         <div className="absolute inset-0 flex items-center justify-center bg-muted/15">
-          <Loader2 className="w-5 h-5 text-muted-foreground/60 animate-spin" />
+          <Loader2 className="w-5 h-5 text-muted-foreground-subtle animate-spin" />
         </div>
       )}
       {status === 'loading' && !thumbnailDataUrl && (

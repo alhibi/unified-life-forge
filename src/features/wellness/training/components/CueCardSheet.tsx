@@ -104,7 +104,7 @@ function CardBody({ c, lang }: { c: CueCard; lang: 'ar' }) {
       />
       {c.commonMistakes.length > 0 && (
         <div className="space-y-1.5">
-          <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+          <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-signal" />
             {T.mistakes[lang]}
           </h4>
@@ -187,7 +187,7 @@ function Section({
 }: { icon: React.ReactNode; title: string; items: string[]; accent: 'blue' | 'emerald' | 'amber' | 'rose' | 'violet' }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+      <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
         {icon} {title}
       </h4>
       <ul className="space-y-1.5">

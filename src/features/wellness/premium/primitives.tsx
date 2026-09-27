@@ -167,12 +167,12 @@ export function ScoreGauge({ value, zone, label, size = 160, caption }: ScoreGau
         gradient
       >
         <div className="text-center" dir="ltr">
-          <div className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</div>
+          <div className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{label}</div>
           <div className="text-hero font-bold tabular-nums leading-none mt-0.5" style={{ color }}>
             {display}
           </div>
           {caption && (
-            <div className="text-micro text-muted-foreground/80 mt-0.5">{caption}</div>
+            <div className="text-micro text-muted-foreground-subtle mt-0.5">{caption}</div>
           )}
         </div>
       </ProgressRing>
@@ -488,11 +488,11 @@ export function SectionHeader({ title, subtitle, icon: Icon, action }: SectionHe
     <div className="flex items-end justify-between gap-3 px-1">
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          {Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground/70" />}
-          <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider">{title}</p>
+          {Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground-subtle" />}
+          <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider">{title}</p>
         </div>
         {subtitle && (
-          <p className="text-micro text-muted-foreground/60 mt-0.5 leading-snug">{subtitle}</p>
+          <p className="text-micro text-muted-foreground-subtle mt-0.5 leading-snug">{subtitle}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -513,7 +513,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
   return (
     <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center space-y-2">
       <div className="w-12 h-12 rounded-2xl bg-muted/40 flex items-center justify-center mx-auto">
-        <Icon className="w-6 h-6 text-muted-foreground/50" />
+        <Icon className="w-6 h-6 text-muted-foreground-subtle" />
       </div>
       <p className="text-meta font-semibold text-foreground">{title}</p>
       {description && <p className="text-mini text-muted-foreground leading-relaxed">{description}</p>}

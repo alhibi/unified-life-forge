@@ -134,7 +134,7 @@ export default function MessageActionMenu({
                         </span>
                         <span
                           className={cn(
-                            'absolute bottom-[6px] flex items-center gap-[3px] text-micro whitespace-nowrap text-muted-foreground/50',
+                            'absolute bottom-[6px] flex items-center gap-[3px] text-micro whitespace-nowrap text-muted-foreground-subtle',
                             'left-2.5',
                           )}
                         >

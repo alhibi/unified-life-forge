@@ -174,7 +174,7 @@ const GroupMessageBubble: React.FC<GroupMessageBubbleProps> = ({ message, isMine
           <div className={cn(
             'flex items-center gap-1 justify-end mt-0.5',
             'text-micro',
-            isMine ? 'text-primary-foreground/70' : 'text-muted-foreground/70',
+            isMine ? 'text-primary-foreground/70' : 'text-muted-foreground-subtle',
           )}>
             {message.editedAt && (
               <span className="italic">{'معدّلة'}</span>

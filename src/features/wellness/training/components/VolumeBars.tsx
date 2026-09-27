@@ -112,7 +112,7 @@ function BarRow({
         <span className="inline-flex items-center gap-1 text-micro tabular-nums" style={{ color }}>
           {trendIcon}
           {Math.round(sets)} {T.setsLabel[lang]}
-          <span className="text-muted-foreground/70 ms-1">· {ZONE_LABEL[zone][lang]}</span>
+          <span className="text-muted-foreground-subtle ms-1">· {ZONE_LABEL[zone][lang]}</span>
         </span>
       </div>
       <div className="relative h-3 rounded-full bg-muted/40 overflow-hidden">
@@ -133,7 +133,7 @@ function BarRow({
         />
       </div>
       {lm && lm.mrv > 0 && (
-        <div className="flex justify-between text-micro text-muted-foreground/60 tabular-nums" dir="ltr">
+        <div className="flex justify-between text-micro text-muted-foreground-subtle tabular-nums" dir="ltr">
           <span>0</span>
           <span style={{ marginLeft: `${xPct(lm.mev)}%` }} className="-translate-x-1/2 absolute">MEV {lm.mev}</span>
           <span style={{ marginLeft: `${xPct(lm.mrv)}%` }} className="-translate-x-1/2 absolute">MRV {lm.mrv}</span>

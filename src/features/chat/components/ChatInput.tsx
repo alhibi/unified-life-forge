@@ -247,7 +247,7 @@ const CharacterCounter = React.memo(function CharacterCounter({ count }: { count
           ? 'text-destructive font-bold'
           : remaining < 100
             ? 'text-signal'
-            : 'text-muted-foreground/50',
+            : 'text-muted-foreground-subtle',
       )}
     >
       {remaining}
@@ -759,7 +759,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   emphasizeFresh={false}
                 />
               </div>
-              <span className="shrink-0 text-micro font-mono tabular-nums text-muted-foreground/70 pe-1">
+              <span className="shrink-0 text-micro font-mono tabular-nums text-muted-foreground-subtle pe-1">
                 {formatRecordingTime(recordingTime)}
               </span>
             </div>
@@ -826,7 +826,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 {formatRecordingTime(recordingTime)}
               </span>
               {!locked ? (
-                <div className="flex-1 flex items-center justify-center gap-1 text-mini text-muted-foreground/70">
+                <div className="flex-1 flex items-center justify-center gap-1 text-mini text-muted-foreground-subtle">
                   <span className={cn('inline-block transition-transform', '-rotate-180')}>‹</span>
                   <span>{'اسحب للإلغاء'}</span>
                 </div>
@@ -921,7 +921,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   'shrink-0 self-end mb-1 ms-1 w-8 h-8 rounded-full flex items-center justify-center transition-colors',
                   showEmojiPicker
                     ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground/70 active:bg-accent/40',
+                    : 'text-muted-foreground-subtle active:bg-accent/40',
                 )}
                 aria-label={'رموز تعبيرية'}
                 aria-pressed={showEmojiPicker}

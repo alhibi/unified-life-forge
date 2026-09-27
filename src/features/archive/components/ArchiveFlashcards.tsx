@@ -198,7 +198,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                     {activeCard?.question}
                   </p>
                 </div>
-                <div className="text-center text-micro text-muted-foreground/60 font-medium">
+                <div className="text-center text-micro text-muted-foreground-subtle font-medium">
                   انقر لقلب البطاقة ومعرفة الجواب 💡
                 </div>
               </AppCard>

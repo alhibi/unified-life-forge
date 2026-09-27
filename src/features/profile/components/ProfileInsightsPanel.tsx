@@ -58,7 +58,7 @@ function renderTypeIcon(type: CrossModuleInsight['type']) {
 
 function renderCategoryIcon(tab: string) {
   const Component = CATEGORY_ICON_COMPONENTS[tab] || Settings;
-  return <Component className="w-3.5 h-3.5 text-muted-foreground/70" />;
+  return <Component className="w-3.5 h-3.5 text-muted-foreground-subtle" />;
 }
 
 /* Custom decorative icons for different insight themes */
@@ -183,7 +183,7 @@ export function ProfileInsightsPanel({
                       {Math.round(insight.confidence * 100)}%
                     </span>
                   </div>
-                  <span className="text-[0.625rem] text-muted-foreground/50 font-medium">ثقة التحليل</span>
+                  <span className="text-[0.625rem] text-muted-foreground-subtle font-medium">ثقة التحليل</span>
                 </div>
 
                 {/* Text content */}
@@ -200,7 +200,7 @@ export function ProfileInsightsPanel({
                     )}
                   </div>
 
-                  <p className="text-[0.73rem] text-muted-foreground/80 font-medium leading-[1.7] mb-3">
+                  <p className="text-[0.73rem] text-muted-foreground-subtle font-medium leading-[1.7] mb-3">
                     {insight.descriptionAr}
                   </p>
 
@@ -210,7 +210,7 @@ export function ProfileInsightsPanel({
                       {insight.relatedBadges.slice(0, 4).map((badgeId: string) => (
                         <span
                           key={badgeId}
-                          className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-white/[0.04] border border-white/[0.08] text-muted-foreground/70"
+                          className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-white/[0.04] border border-white/[0.08] text-muted-foreground-subtle"
                         >
                           {badgeId.replace('badge_', '').replace(/_/g, ' ')}
                         </span>
@@ -227,7 +227,7 @@ export function ProfileInsightsPanel({
                   {insight.actionable && insight.actionTab && (
                     <div className="flex items-center gap-2 text-[0.625rem] text-muted-foreground/40 font-medium">
                       {renderCategoryIcon(insight.actionTab)}
-                      <span>انتقل إلى تبويب: <span className="text-muted-foreground/60 font-bold">{insight.actionTab}</span></span>
+                      <span>انتقل إلى تبويب: <span className="text-muted-foreground-subtle font-bold">{insight.actionTab}</span></span>
                     </div>
                   )}
                 </div>

@@ -146,13 +146,13 @@ export default function CelestialRealmsLayout({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <h3 className="type-section text-foreground">{realm.title}</h3>
-                  <span className="type-meta hidden uppercase tracking-[0.16em] text-muted-foreground/70 @[26rem]:inline">
+                  <span className="type-meta hidden uppercase tracking-[0.16em] text-muted-foreground-subtle @[26rem]:inline">
                     {realm.subtitle}
                   </span>
                 </div>
                 <p className="type-meta mt-1 text-muted-foreground">{realm.description}</p>
               </div>
-              <span className="type-meta shrink-0 tabular-nums text-muted-foreground/70">
+              <span className="type-meta shrink-0 tabular-nums text-muted-foreground-subtle">
                 {appsInRealm.length}
               </span>
             </div>

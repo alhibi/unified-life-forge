@@ -428,7 +428,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                         return next;
                       });
                     }}
-                    className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-micro font-medium transition-motion ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground/50 hover:text-muted-foreground'}`}
+                    className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-xl text-micro font-medium transition-motion ${isActive ? 'bg-muted/60 text-foreground' : 'text-muted-foreground-subtle hover:text-muted-foreground'}`}
                   >
                     <span className="w-3 h-3 rounded-full ring-1 ring-black/5" style={{ backgroundColor: relationColors[type], opacity: isActive ? 1 : 0.3 }} />
                     {label}
@@ -550,7 +550,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
           </div>
           {/* Hint text */}
           {!selected && (
-            <p className="text-micro text-muted-foreground/60 text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
+            <p className="text-micro text-muted-foreground-subtle text-center mt-1.5">اضغط على عصر للاستكشاف · أو على شاعر لرؤية علاقاته</p>
           )}
         </div>
       </div>

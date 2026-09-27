@@ -256,7 +256,7 @@ export function SuggestedFeedsView({
               onKeyDown={(e) => { if (e.key === 'Escape') clearQuery(); }}
               placeholder={'ابحث بالاسم أو النطاق أو الفئة…'}
               aria-label={'بحث في المصادر'}
-              className="w-full rounded-xl bg-accent/25 focus:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 text-meta ps-9 pe-9 py-2.5 placeholder:text-muted-foreground/70 text-foreground transition-colors"
+              className="w-full rounded-xl bg-accent/25 focus:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary/40 text-meta ps-9 pe-9 py-2.5 placeholder:text-muted-foreground-subtle text-foreground transition-colors"
               dir="auto"
             />
             {query.length > 0 && (
@@ -331,7 +331,7 @@ export function SuggestedFeedsView({
                 </>
               ) : (
                 <>
-                  <Search className="h-8 w-8 text-muted-foreground/50" />
+                  <Search className="h-8 w-8 text-muted-foreground-subtle" />
                   <p className="text-meta text-muted-foreground text-center">
                     {'لا نتائج مطابقة للبحث'}
                   </p>

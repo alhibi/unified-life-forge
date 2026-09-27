@@ -86,16 +86,16 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) =
                   iconClass="text-muted-foreground"
                 />
                 <Row
-                  icon={<CheckCheck className={cn('w-4 h-4', message.delivered_at ? 'text-foreground' : 'text-muted-foreground/50')} />}
+                  icon={<CheckCheck className={cn('w-4 h-4', message.delivered_at ? 'text-foreground' : 'text-muted-foreground-subtle')} />}
                   label={'وصلت'}
                   value={message.delivered_at ? fmtFull(message.delivered_at) : ('لم تصل بعد')}
-                  iconClass={message.delivered_at ? 'text-foreground' : 'text-muted-foreground/50'}
+                  iconClass={message.delivered_at ? 'text-foreground' : 'text-muted-foreground-subtle'}
                 />
                 <Row
-                  icon={<CheckCheck className={cn('w-4 h-4', message.read ? 'text-primary' : 'text-muted-foreground/50')} />}
+                  icon={<CheckCheck className={cn('w-4 h-4', message.read ? 'text-primary' : 'text-muted-foreground-subtle')} />}
                   label={'مقروءة'}
                   value={message.read ? ('نعم') : ('لم تُقرأ بعد')}
-                  iconClass={message.read ? 'text-primary' : 'text-muted-foreground/50'}
+                  iconClass={message.read ? 'text-primary' : 'text-muted-foreground-subtle'}
                 />
                 {message.edited_at && (
                   <Row

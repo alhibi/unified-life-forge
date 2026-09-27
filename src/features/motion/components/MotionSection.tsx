@@ -413,7 +413,7 @@ export default function MotionSection() {
           presets={NAV_DURATION_PRESETS}
           note="يطال انتقالات الشاشات وحدها، فتبقى الأزرار والقوائم بسرعتها المستقلة."
         />
-        <div className="flex items-start gap-2 text-mini leading-relaxed text-muted-foreground/80">
+        <div className="flex items-start gap-2 text-mini leading-relaxed text-muted-foreground-subtle">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
           <p>
             النمط «الحريري» لا يحرّك أي هندسة ولا يؤجّل الدخول لحظة واحدة، ولذلك هو الأثبت على ١٢٠
@@ -454,7 +454,7 @@ export default function MotionSection() {
           onChange={(value) => setScrollProfile(value as typeof scrollProfile)}
           layoutId="scrollProfileIndicator"
         />
-        <div className="flex items-start gap-2 text-mini leading-relaxed text-muted-foreground/80">
+        <div className="flex items-start gap-2 text-mini leading-relaxed text-muted-foreground-subtle">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
           <p>
             التمرير نفسه يعمل على المُركّب، فالكلفة الحقيقية هي ما يُطلب من المتصفح أثناءه: تحديد

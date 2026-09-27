@@ -84,7 +84,7 @@ export default function OneRmTrendChart({
     <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
       <div className="flex items-baseline justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
             {T.title[lang]} — {exLabel}
           </p>
           <p className="text-title font-bold tabular-nums text-foreground" dir="ltr">
@@ -95,7 +95,7 @@ export default function OneRmTrendChart({
           </p>
         </div>
         <div className="text-end">
-          <p className="text-micro text-muted-foreground/60 uppercase tracking-wider">{T.best[lang]}</p>
+          <p className="text-micro text-muted-foreground-subtle uppercase tracking-wider">{T.best[lang]}</p>
           <p className="text-meta font-bold tabular-nums text-signal" dir="ltr">{best} kg</p>
         </div>
       </div>

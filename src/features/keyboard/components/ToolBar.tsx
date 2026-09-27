@@ -219,7 +219,7 @@ export const ToolBar = memo(function ToolBar({
                 />
               ))
             ) : (
-              <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground/70">
+              <div className="flex items-center gap-1.5 px-2 text-micro text-muted-foreground-subtle">
                 <Wand2 className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>لوحة المفاتيح الذكية جاهزة...</span>
               </div>

@@ -46,7 +46,7 @@ export function SettingsSection({ title, subtitle, icon, action, children }: Set
               {title}
             </h2>
             {subtitle ? (
-              <p className="mt-0.5 text-mini text-muted-foreground/80">{subtitle}</p>
+              <p className="mt-0.5 text-mini text-muted-foreground-subtle">{subtitle}</p>
             ) : null}
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
@@ -217,7 +217,7 @@ export function SliderRow({
         <span className="min-w-0 truncate text-meta text-muted-foreground">{label}</span>
         <span className="flex shrink-0 items-baseline gap-2">
           {resolved ? (
-            <span className="font-mono text-micro tabular-nums text-muted-foreground/70">
+            <span className="font-mono text-micro tabular-nums text-muted-foreground-subtle">
               {resolved}
             </span>
           ) : null}
@@ -358,7 +358,7 @@ export function TokenInspector({ entries }: { entries: readonly InspectorEntry[]
           <div key={entry.token} className="flex items-baseline justify-between gap-3 px-3 py-2">
             <dt className="min-w-0">
               <span className="block truncate text-mini text-foreground">{entry.label}</span>
-              <span className="block truncate font-mono text-micro text-muted-foreground/70">
+              <span className="block truncate font-mono text-micro text-muted-foreground-subtle">
                 {entry.token}
               </span>
             </dt>

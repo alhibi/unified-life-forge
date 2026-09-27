@@ -495,7 +495,7 @@ function ExerciseBlock({
           </div>
           {muscle && <p className="text-micro text-muted-foreground">{muscle}</p>}
           {previous && (
-            <p className="text-micro text-muted-foreground/70 tabular-nums" dir="ltr">
+            <p className="text-micro text-muted-foreground-subtle tabular-nums" dir="ltr">
               {T.prev[lang]}: {previous.weightKg ?? '—'} kg × {previous.reps ?? '—'}
             </p>
           )}
@@ -580,7 +580,7 @@ function ExerciseBlock({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card rounded-xl p-2 text-center border border-border/30">
-      <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{label}</p>
       <p className="text-meta font-bold tabular-nums text-foreground" dir="ltr">{value}</p>
     </div>
   );

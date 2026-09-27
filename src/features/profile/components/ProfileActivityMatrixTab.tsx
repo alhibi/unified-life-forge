@@ -505,7 +505,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           <div className="inline-flex gap-2">
             {/* Weekday label column, row-aligned with the grid */}
             <div
-              className="grid shrink-0 text-[0.625rem] font-semibold text-muted-foreground/80"
+              className="grid shrink-0 text-[0.625rem] font-semibold text-muted-foreground-subtle"
               style={{
                 gridTemplateRows: `repeat(7, ${CELL_PX}px)`,
                 rowGap: `${CELL_GAP_PX}px`,
@@ -522,7 +522,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             <div className="space-y-1">
               {/* Month labels as spans over their own week columns */}
               <div
-                className="grid text-micro font-bold text-muted-foreground/80"
+                className="grid text-micro font-bold text-muted-foreground-subtle"
                 style={{ columnGap: `${CELL_GAP_PX}px` }}
               >
                 <div

@@ -426,7 +426,7 @@ export default function PodcastDetail() {
                   )}
                 </div>
                 <details className="mt-3 text-start">
-                  <summary className="text-micro text-muted-foreground/70 cursor-pointer">
+                  <summary className="text-micro text-muted-foreground-subtle cursor-pointer">
                     {'تفاصيل تقنية'}
                   </summary>
                   <p className="text-micro text-muted-foreground mt-1 break-words" dir="ltr">

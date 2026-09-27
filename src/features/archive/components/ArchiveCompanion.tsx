@@ -129,7 +129,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="اطرح سؤالاً أو اكتب كلمة للبحث الفوري دلالياً…"
-              className="flex-1 bg-transparent outline-none text-mini placeholder:text-muted-foreground/60"
+              className="flex-1 bg-transparent outline-none text-mini placeholder:text-muted-foreground-subtle"
             />
           </AppCard>
 

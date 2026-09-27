@@ -97,7 +97,7 @@ export default function ProfilePanel({
             <p
               className={cn(
                 'text-mini mt-1 font-medium',
-                chat.otherPresence.isOnline ? 'text-data-1' : 'text-muted-foreground/70',
+                chat.otherPresence.isOnline ? 'text-data-1' : 'text-muted-foreground-subtle',
               )}
             >
               {chat.otherPresence.text}
@@ -256,7 +256,7 @@ export default function ProfilePanel({
                       <p className="text-micro text-muted-foreground">{'الخلفية'}</p>
                       <p className="text-mini text-foreground font-medium">{wallpaperLabel}</p>
                     </div>
-                    <ChevronRight className={cn('w-4 h-4 text-muted-foreground/50', 'rotate-180')} />
+                    <ChevronRight className={cn('w-4 h-4 text-muted-foreground-subtle', 'rotate-180')} />
                   </button>
                 </div>
                 <button

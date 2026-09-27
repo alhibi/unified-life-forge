@@ -253,7 +253,7 @@ export default function PKM() {
           {/* tag tree */}
           {tagTree.length > 0 && (
             <div className="rounded-xl bg-card border border-border/50 p-2">
-              <div className="px-2 py-1.5 text-micro font-bold uppercase tracking-wider text-muted-foreground/70">
+              <div className="px-2 py-1.5 text-micro font-bold uppercase tracking-wider text-muted-foreground-subtle">
                 {'الوسوم'}
               </div>
               <button
@@ -326,7 +326,7 @@ export default function PKM() {
                       <div className="text-meta font-bold truncate flex-1 leading-snug">
                         {title}
                       </div>
-                      <span className="text-micro text-muted-foreground/70 shrink-0 mt-0.5">
+                      <span className="text-micro text-muted-foreground-subtle shrink-0 mt-0.5">
                         {new Date(n.updatedAt).toLocaleDateString('ar')}
                       </span>
                     </div>
@@ -438,14 +438,14 @@ function TagRow({
         {hasChildren ? (
           <button
             onClick={() => setOpen((v) => !v)}
-            className="relative w-6 h-6 flex items-center justify-center text-muted-foreground/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary rounded focus:outline-none before:absolute before:-inset-2 before:content-[\'\']"
+            className="relative w-6 h-6 flex items-center justify-center text-muted-foreground-subtle hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary rounded focus:outline-none before:absolute before:-inset-2 before:content-[\'\']"
             aria-label={open ? 'collapse' : 'expand'}
           >
             {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
         ) : (
           <span className="w-6 h-6 flex items-center justify-center shrink-0">
-            <Hash className="w-3.5 h-3.5 text-muted-foreground/50" />
+            <Hash className="w-3.5 h-3.5 text-muted-foreground-subtle" />
           </span>
         )}
         <button
@@ -458,7 +458,7 @@ function TagRow({
         >
           {node.name}
         </button>
-        <span className="text-micro text-muted-foreground/60 px-1 shrink-0">{node.count}</span>
+        <span className="text-micro text-muted-foreground-subtle px-1 shrink-0">{node.count}</span>
       </div>
       {hasChildren && open && (
         <TagTree nodes={node.children} active={active} onSelect={onSelect} depth={depth + 1} />
@@ -743,7 +743,7 @@ function Editor({
       )}
 
       {/* stats + tags footer */}
-      <div className="flex items-center gap-3 text-micro uppercase tracking-wider text-muted-foreground/60 pt-2 border-t border-border/40">
+      <div className="flex items-center gap-3 text-micro uppercase tracking-wider text-muted-foreground-subtle pt-2 border-t border-border/40">
         <span>{stats.words} {'كلمة'}</span>
         <span className="opacity-50">•</span>
         <span>{stats.chars} {'حرف'}</span>
@@ -766,7 +766,7 @@ function TagsFooter({ body, }: { body: string; }) {
   if (tags.length === 0) return null;
   return (
     <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border/40">
-      <span className="text-micro uppercase tracking-wider text-muted-foreground/60">
+      <span className="text-micro uppercase tracking-wider text-muted-foreground-subtle">
         {'الوسوم'}
       </span>
       {tags.map((t) => (

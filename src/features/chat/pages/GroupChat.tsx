@@ -320,7 +320,7 @@ export default function GroupChatPage() {
           )}
 
           {messagesQ.messages.length === 0 && !messagesQ.isLoading && (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-3 py-12">
+            <div className="flex flex-col items-center justify-center h-full text-muted-foreground-subtle gap-3 py-12">
               <MessageCircle className="w-10 h-10 opacity-30" />
               <p className="text-mini">
                 {'لا رسائل بعد. ابدأ المحادثة.'}
@@ -332,7 +332,7 @@ export default function GroupChatPage() {
             if (item.kind === 'date') {
               return (
                 <div key={item.key} className="flex justify-center py-2">
-                  <span className="text-micro uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground/80">
+                  <span className="text-micro uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground-subtle">
                     {item.label}
                   </span>
                 </div>

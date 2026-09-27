@@ -230,7 +230,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           >
             <div className="px-3 pt-2 pb-1">
               <div className="flex items-center gap-2 bg-muted/20 border border-border/20 rounded-xl px-3 h-10 focus-within:border-primary/30 transition-colors">
-                <Search className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -240,7 +240,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     onSearchChange?.(e.target.value);
                   }}
                   placeholder={'بحث في المحادثات...'}
-                  className="flex-1 bg-transparent text-meta text-foreground placeholder:text-muted-foreground/50 outline-none"
+                  className="flex-1 bg-transparent text-meta text-foreground placeholder:text-muted-foreground-subtle outline-none"
                   dir="auto"
                 />
                 {localSearch && (
@@ -377,7 +377,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     ? ('كل شيء تمت قراءته')
                     : ('لا توجد محادثات بعد')}
               </p>
-              <p className="text-mini text-muted-foreground/60">
+              <p className="text-mini text-muted-foreground-subtle">
                 {'ابدأ محادثة جديدة مع أصدقائك'}
               </p>
             </div>
@@ -385,7 +385,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         ) : filteredConversations.length === 0 && localSearch ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 px-8">
             <Search className="h-10 w-10 text-muted-foreground/20" />
-            <p className="text-meta text-center text-muted-foreground/60">
+            <p className="text-meta text-center text-muted-foreground-subtle">
               {`لا توجد نتائج لـ "${localSearch}"`}
             </p>
           </div>
@@ -395,7 +395,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               {/* Pinned section header */}
               {filteredConversations.some(c => isPinned(c.id)) && (
                 <div className="px-4 py-1.5">
-                  <span className="text-micro font-medium text-muted-foreground/60 uppercase tracking-wider">
+                  <span className="text-micro font-medium text-muted-foreground-subtle uppercase tracking-wider">
                     {'المثبتة'}
                   </span>
                 </div>
@@ -436,15 +436,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   </span>
                 );
               } else if (conv.lastMessage) {
-                if (conv.lastMessageType === 'image') previewIcon = <ImageIcon className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
-                else if (conv.lastMessageType === 'voice') previewIcon = <Mic className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
-                else if (conv.lastMessageType === 'file') previewIcon = <FileText className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
+                if (conv.lastMessageType === 'image') previewIcon = <ImageIcon className="w-3.5 h-3.5 text-muted-foreground-subtle shrink-0" />;
+                else if (conv.lastMessageType === 'voice') previewIcon = <Mic className="w-3.5 h-3.5 text-muted-foreground-subtle shrink-0" />;
+                else if (conv.lastMessageType === 'file') previewIcon = <FileText className="w-3.5 h-3.5 text-muted-foreground-subtle shrink-0" />;
 
                 const body = stripMarkers(conv.lastMessage);
                 previewBody = (
                   <>
                     {conv.lastMessageFromMe && !conv.lastMessageDeleted && (
-                      <span className="text-muted-foreground/60 shrink-0">
+                      <span className="text-muted-foreground-subtle shrink-0">
                         {'أنت: '}
                       </span>
                     )}
@@ -463,7 +463,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 <React.Fragment key={conv.id}>
                   {showUnpinnedHeader && (
                     <div className="px-4 py-1.5">
-                      <span className="text-micro font-medium text-muted-foreground/60 uppercase tracking-wider">
+                      <span className="text-micro font-medium text-muted-foreground-subtle uppercase tracking-wider">
                         {'المحادثات'}
                       </span>
                     </div>
@@ -508,11 +508,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
                             )}>
                               <HighlightText text={nameToShow} query={effectiveSearchQuery} />
                             </span>
-                            {muted && <BellOff className="w-3 h-3 text-muted-foreground/50 shrink-0" />}
+                            {muted && <BellOff className="w-3 h-3 text-muted-foreground-subtle shrink-0" />}
                           </div>
                           <span className={cn(
                             'text-micro shrink-0 tabular-nums',
-                            unread > 0 && !muted ? 'text-primary font-semibold' : 'text-muted-foreground/50'
+                            unread > 0 && !muted ? 'text-primary font-semibold' : 'text-muted-foreground-subtle'
                           )}>
                             {conv.lastMessageTime && formatTime(conv.lastMessageTime)}
                           </span>

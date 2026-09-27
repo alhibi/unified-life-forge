@@ -164,6 +164,10 @@
 
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
+  /* De-emphasised text that stays WCAG AA on the page AND on cards. Use this
+     instead of `text-muted-foreground/70`, which is contrast-safe in dark mode
+     (4.71:1) and below AA in light mode (3.47:1). */
+  --color-muted-foreground-subtle: hsl(var(--muted-foreground-subtle));
 
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));

@@ -202,7 +202,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
 function Section({ icon, title, body }: { icon?: React.ReactNode; title: string; body: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+      <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
         {icon} {title}
       </h4>
       {body}
@@ -213,7 +213,7 @@ function Section({ icon, title, body }: { icon?: React.ReactNode; title: string;
 function Mini({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div className={`rounded-lg p-1.5 text-center ${highlight ? 'bg-primary/15 border border-primary/30' : 'bg-muted/30'}`}>
-      <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{label}</p>
+      <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{label}</p>
       <p className={`text-meta font-bold tabular-nums ${highlight ? 'text-primary' : 'text-foreground'}`}>{value}</p>
     </div>
   );

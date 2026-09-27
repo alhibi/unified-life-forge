@@ -293,7 +293,7 @@ export default function CalisthenicsTab(_props: Props) {
                       className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center justify-between"
                     >
                       <div>
-                        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
                           {T.activeProgram[lang]}
                         </p>
                         <p className="text-mini font-semibold text-foreground">{T.noActiveProgram[lang]}</p>
@@ -502,7 +502,7 @@ function SuggestedNext({
       </div>
       {next && (
         <div className="bg-card/80 rounded-lg p-2 border border-border/30">
-          <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
             {T.weeksToNext[lang]}
           </p>
           <p className="text-micro font-semibold text-foreground">
@@ -569,7 +569,7 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
 
       {/* Best holds */}
       <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold inline-flex items-center gap-1">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold inline-flex items-center gap-1">
           <Timer className="w-3 h-3" /> {T.bestHolds[lang]}
         </p>
         {holdEntries.length === 0 ? (

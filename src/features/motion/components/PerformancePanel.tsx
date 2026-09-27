@@ -29,7 +29,7 @@ function Cell({ label, value, unit, hint, tone = 'default' }: CellProps) {
           : 'text-foreground';
   return (
     <div className="rounded-md bg-secondary/60 px-3 py-2.5">
-      <p className="text-micro font-medium uppercase tracking-wider text-muted-foreground/70">
+      <p className="text-micro font-medium uppercase tracking-wider text-muted-foreground-subtle">
         {label}
       </p>
       <p className={`mt-0.5 text-lead font-bold leading-tight tabular-nums ${toneClass}`}>
@@ -38,7 +38,7 @@ function Cell({ label, value, unit, hint, tone = 'default' }: CellProps) {
           <span className="ms-0.5 text-mini font-normal text-muted-foreground">{unit}</span>
         ) : null}
       </p>
-      {hint ? <p className="mt-0.5 font-mono text-micro text-muted-foreground/60">{hint}</p> : null}
+      {hint ? <p className="mt-0.5 font-mono text-micro text-muted-foreground-subtle">{hint}</p> : null}
     </div>
   );
 }
@@ -87,7 +87,7 @@ export default function PerformancePanel({ nativeHz }: { nativeHz: number | null
             {stats.fps} / {budgetHz} Hz
           </span>
           {nativeHz !== null ? (
-            <span className="text-muted-foreground/60">· الشاشة {nativeHz} Hz</span>
+            <span className="text-muted-foreground-subtle">· الشاشة {nativeHz} Hz</span>
           ) : null}
         </div>
         {mode === 'saver' ? (

@@ -185,7 +185,7 @@ export function ListHeader({
               <h3 className="text-body font-bold truncate">
                 {'إطلاع'}
               </h3>
-              <span className="text-micro text-muted-foreground/80 tabular-nums truncate">
+              <span className="text-micro text-muted-foreground-subtle tabular-nums truncate">
                 {`${articleCount} مقالة · ${unreadCount} غير مقروء`}
               </span>
             </div>
@@ -463,7 +463,7 @@ function ProgressLine({
           transition={{ duration: 0.18 }}
           className="mb-2.5 space-y-1"
         >
-          <div className="flex items-center justify-between gap-2 text-micro text-muted-foreground/80">
+          <div className="flex items-center justify-between gap-2 text-micro text-muted-foreground-subtle">
             <span className="flex items-center gap-1.5 min-w-0" dir="auto">
               {spinning && <RefreshCw className="h-3 w-3 animate-spin text-primary shrink-0" />}
               <span className="truncate">{label}</span>

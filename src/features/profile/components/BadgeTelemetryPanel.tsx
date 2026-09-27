@@ -246,7 +246,7 @@ function MetricCard({
       </div>
       <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
       <p className="text-micro text-muted-foreground">{label}</p>
-      {subValue && <p className="text-[0.625rem] text-muted-foreground/70 mt-0.5">{subValue}</p>}
+      {subValue && <p className="text-[0.625rem] text-muted-foreground-subtle mt-0.5">{subValue}</p>}
     </div>
   );
 }

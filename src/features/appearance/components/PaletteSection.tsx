@@ -240,8 +240,21 @@ function StructuralRolePreview({
     <>
       {roles.map((role) => (
         <div key={role.label} className="flex flex-col items-center gap-1 rounded-md border border-border p-2" style={{ backgroundColor: `hsl(${role.bg})` }}>
-          <span className="text-micro text-muted-foreground">{role.label}</span>
-          <span className="text-micro font-bold" style={{ color: `hsl(${role.fg})` }}>{role.label}</span>
+          {/*
+            The caption sits on the swatch's own surface, not on the page, so it
+            must use that surface's foreground. `text-muted-foreground` painted
+            the light-mode grey over the light gold `--focus-ring` and measured
+            1.49:1 — the role name was unreadable, and it is the one label that
+            tells the user what the swatch is for. `--primary-foreground` is
+            already the engine's contrast-corrected pairing for a filled
+            accent, which every one of these three roles is.
+          */}
+          <span className="text-micro opacity-80" style={{ color: `hsl(${role.fg})` }}>
+            {role.label}
+          </span>
+          <span className="text-micro font-bold" style={{ color: `hsl(${role.fg})` }}>
+            {role.label}
+          </span>
         </div>
       ))}
     </>

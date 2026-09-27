@@ -155,12 +155,12 @@ function MacroTotals({
                   <span className="text-micro text-muted-foreground ms-0.5">{suffix}</span>
                 </div>
                 {tgtLabel && (
-                  <div className="text-micro text-muted-foreground/70 mt-0.5">
+                  <div className="text-micro text-muted-foreground-subtle mt-0.5">
                     /{tgtLabel}{suffix}
                   </div>
                 )}
               </div>
-              <p className="text-micro uppercase tracking-wider font-semibold text-muted-foreground/70">
+              <p className="text-micro uppercase tracking-wider font-semibold text-muted-foreground-subtle">
                 {label}
               </p>
             </div>
@@ -168,7 +168,7 @@ function MacroTotals({
         })}
       </div>
       {targets && (
-        <p className="text-micro text-muted-foreground/70 text-center pt-1 leading-relaxed">
+        <p className="text-micro text-muted-foreground-subtle text-center pt-1 leading-relaxed">
           {totals.kcal > 0
             ? `${Math.round((totals.kcal / targets.kcal) * 100)}% ${T.ofTarget[lang]}`
             : T.add[lang]}
@@ -259,7 +259,7 @@ function LogRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <p className="text-mini font-semibold text-foreground truncate">{label}</p>
-          <span className="text-micro text-muted-foreground/60 shrink-0" dir="ltr">
+          <span className="text-micro text-muted-foreground-subtle shrink-0" dir="ltr">
             {Math.round(grams)} g
           </span>
         </div>
@@ -273,7 +273,7 @@ function LogRow({
             <span className="inline-flex items-center gap-0.5">
               <Flame className="w-2.5 h-2.5 text-data-1" />
               <span className="tabular-nums font-semibold text-foreground">{macros.kcal}</span>
-              <span className="text-muted-foreground/70">{T.kcal[lang]}</span>
+              <span className="text-muted-foreground-subtle">{T.kcal[lang]}</span>
             </span>
             <span className="inline-flex items-center gap-0.5">
               <Beef className="w-2.5 h-2.5 text-data-5" />
@@ -396,7 +396,7 @@ export default function DietTab({
                 <CalIcon className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider">
                   {T.date[lang]}
                 </p>
                 <p className="text-mini font-semibold text-foreground mt-0.5" dir="ltr">{date}</p>
@@ -510,7 +510,7 @@ export default function DietTab({
                             {f.label[lang]}
                           </span>
                           {known ? (
-                            <span className="text-micro text-muted-foreground/70 tabular-nums" dir="ltr">
+                            <span className="text-micro text-muted-foreground-subtle tabular-nums" dir="ltr">
                               {m.kcal} {T.kcal[lang]} · {fmtG(m.protein)}g P
                             </span>
                           ) : (
@@ -542,7 +542,7 @@ export default function DietTab({
       </motion.div>
 
       {/* Tiny note about portion semantics */}
-      <p className="text-micro text-muted-foreground/60 leading-relaxed text-center px-3 flex items-center justify-center gap-1">
+      <p className="text-micro text-muted-foreground-subtle leading-relaxed text-center px-3 flex items-center justify-center gap-1">
         <Info className="w-3 h-3 inline-block" />
         {'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'}
       </p>

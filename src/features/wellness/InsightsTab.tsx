@@ -115,7 +115,7 @@ export default function InsightsTab({
             animate="show"
             className="space-y-1"
           >
-            <p className="text-micro font-semibold text-muted-foreground/70 uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
+            <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
               <Icon className="w-3.5 h-3.5" />
               {KIND_LABEL[kind][lang]}
             </p>
@@ -159,7 +159,7 @@ export default function InsightsTab({
       <motion.div variants={item} initial="hidden" animate="show">
         <SoftSurface variant="flat" className="p-3.5">
           <p className="text-micro text-muted-foreground leading-relaxed">
-            <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-muted-foreground/60" />
+            <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-muted-foreground-subtle" />
             {DISCLAIMER[lang]}
           </p>
         </SoftSurface>

@@ -129,7 +129,7 @@ export default function WeatherWidget() {
                   />
                 </span>
                 <HourIcon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} aria-hidden />
-                <span className="text-micro tabular-nums text-muted-foreground/80">
+                <span className="text-micro tabular-nums text-muted-foreground-subtle">
                   {h.precipitationProbability >= 10 ? `${h.precipitationProbability}%` : '—'}
                 </span>
                 <span

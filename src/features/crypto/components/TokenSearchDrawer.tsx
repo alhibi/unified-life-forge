@@ -184,7 +184,7 @@ export default function TokenSearchDrawer({
                       <span className="text-meta font-bold text-foreground tracking-tight truncate">
                         {pair.symbol}
                       </span>
-                      <span className="text-micro uppercase tracking-wider font-semibold text-muted-foreground/80 bg-muted/40 px-1.5 py-0.5 rounded-sm shrink-0">
+                      <span className="text-micro uppercase tracking-wider font-semibold text-muted-foreground-subtle bg-muted/40 px-1.5 py-0.5 rounded-sm shrink-0">
                         {CHAIN_LABELS[pair.chainId as ChainId] || pair.chainId}
                       </span>
                     </div>

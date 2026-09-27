@@ -136,7 +136,7 @@ export default function HydrationLog({ lang }: Props) {
                   <span className="font-bold text-foreground tabular-nums">
                     {log.amountMl} {T.ml[lang]}
                   </span>
-                  <span className="text-muted-foreground/60">
+                  <span className="text-muted-foreground-subtle">
                     (
                     {new Date(log.ts).toLocaleTimeString([], {
                       hour: '2-digit',

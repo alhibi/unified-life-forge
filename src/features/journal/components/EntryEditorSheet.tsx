@@ -71,7 +71,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             onChange={(e) => setTitle(e.target.value)}
             placeholder="عنوان (اختياري)"
             maxLength={120}
-            className="w-full bg-transparent border-0 border-b border-border/60 pb-2 text-body text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/60 transition-colors"
+            className="w-full bg-transparent border-0 border-b border-border/60 pb-2 text-body text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/60 transition-colors"
           />
 
           <textarea
@@ -79,7 +79,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب ما يدور في ذهنك…"
             rows={9}
-            className="w-full bg-card/40 border border-border rounded-2xl px-4 py-3 text-body leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 resize-none transition-colors"
+            className="w-full bg-card/40 border border-border rounded-2xl px-4 py-3 text-body leading-relaxed text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/50 resize-none transition-colors"
           />
 
           <div>
@@ -121,7 +121,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="مثلاً: تأمل، عمل، عائلة"
-              className="w-full bg-card/40 border border-border rounded-xl px-4 py-2.5 text-meta text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full bg-card/40 border border-border rounded-xl px-4 py-2.5 text-meta text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/50 transition-colors"
             />
           </div>
 

@@ -302,7 +302,7 @@ function SkillCard({
                         <span className="text-micro px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">
                           {lvl.prescription[lang]}
                         </span>
-                        <span className="text-micro text-muted-foreground/70">
+                        <span className="text-micro text-muted-foreground-subtle">
                           → {lvl.progressCriteria[lang]}
                         </span>
                       </div>
@@ -876,7 +876,7 @@ export default function EncyclopediaTab() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={T.search[lang]}
-          className="w-full h-8 ps-8 pe-7 rounded-lg bg-card border border-border/40 text-micro text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/40 transition-colors"
+          className="w-full h-8 ps-8 pe-7 rounded-lg bg-card border border-border/40 text-micro text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/40 transition-colors"
         />
         {query && (
           <button

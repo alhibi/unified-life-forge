@@ -179,7 +179,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
         )}
       />
       {!ready && !error && (
-        <div className="absolute inset-0 flex items-center justify-center text-mini text-muted-foreground/70 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center text-mini text-muted-foreground-subtle pointer-events-none">
           {'جاري تحميل الرموز…'}
         </div>
       )}

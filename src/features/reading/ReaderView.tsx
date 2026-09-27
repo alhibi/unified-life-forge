@@ -627,7 +627,7 @@ function ReaderHistoryList({
                       {entry.siteName}
                     </span>
                   )}
-                  <span className="text-micro text-muted-foreground/70">
+                  <span className="text-micro text-muted-foreground-subtle">
                     {timeAgo(new Date(entry.at).toISOString(), language)}
                   </span>
                 </div>

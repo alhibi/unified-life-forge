@@ -211,7 +211,7 @@ export default function ExercisePickerSheet({
                       className={`shrink-0 text-micro font-semibold px-2 py-1 rounded-full border transition-colors ${
                         active
                           ? 'bg-foreground text-background border-foreground'
-                          : 'bg-card text-muted-foreground/80 border-border/40'
+                          : 'bg-card text-muted-foreground-subtle border-border/40'
                       }`}
                     >
                       {t === 'all' ? T.all[lang] : TYPE_LABELS[t as keyof typeof TYPE_LABELS][lang]}
@@ -223,7 +223,7 @@ export default function ExercisePickerSheet({
               {/* Recent */}
               {recentExercises.length > 0 && q.trim() === '' && muscle === 'all' && type === 'all' && (
                 <div className="space-y-1.5">
-                  <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.recent[lang]}</p>
+                  <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.recent[lang]}</p>
                   <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 scrollbar-none">
                     {recentExercises.map((e) => (
                       <button

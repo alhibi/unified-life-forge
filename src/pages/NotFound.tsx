@@ -49,7 +49,7 @@ const NotFound = () => {
           <p className="text-meta text-muted-foreground mb-1.5 max-w-sm">
             {'تعذّر إيجاد هذه الصفحة.'}
           </p>
-          <code className="text-micro text-muted-foreground/70 font-mono mb-6 break-all px-2">
+          <code className="text-micro text-muted-foreground-subtle font-mono mb-6 break-all px-2">
             {location.pathname}
           </code>
 

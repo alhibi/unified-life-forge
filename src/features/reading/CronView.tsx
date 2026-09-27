@@ -415,7 +415,7 @@ function RunRow({
           {isAlertJob
             ? ('فحص التنبيهات')
             : ('تحديث الخلاصات')}
-          <span className="text-muted-foreground/70 ms-1.5 font-normal">
+          <span className="text-muted-foreground-subtle ms-1.5 font-normal">
             {timeAgo(run.start_time, language)}
           </span>
         </p>
@@ -426,7 +426,7 @@ function RunRow({
         )}
       </div>
       {dur !== null && (
-        <span className="text-micro text-muted-foreground/70 tabular-nums shrink-0 font-mono">
+        <span className="text-micro text-muted-foreground-subtle tabular-nums shrink-0 font-mono">
           {dur < 1000 ? `${dur} ms` : `${(dur / 1000).toFixed(1)} s`}
         </span>
       )}

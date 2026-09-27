@@ -324,7 +324,7 @@ export default function TafsirPage() {
         {selectedSurah !== null && !showSurahPicker && ayahs.length > 0 && (
           <div className="relative">
             <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" value={localAyahSearch} onChange={e => setLocalAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pe-10 ps-4 py-2.5 rounded-xl bg-card border border-border/50 text-meta text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <input type="text" value={localAyahSearch} onChange={e => setLocalAyahSearch(e.target.value)} placeholder="ابحث في آيات السورة..." className="w-full pe-10 ps-4 py-2.5 rounded-xl bg-card border border-border/50 text-meta text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:ring-2 focus:ring-primary/30" />
             {localAyahSearch && <button aria-label="مسح البحث" onClick={() => { setLocalAyahSearch(''); setAyahSearch(''); }} className="absolute start-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
           </div>
         )}
@@ -335,7 +335,7 @@ export default function TafsirPage() {
             <motion.div key="surah-picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               <div className="relative">
                 <Search className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input type="text" value={localSearchQuery} onChange={e => setLocalSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pe-10 ps-4 py-3 rounded-xl bg-card border border-border/50 text-meta text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input type="text" value={localSearchQuery} onChange={e => setLocalSearchQuery(e.target.value)} placeholder="ابحث عن سورة..." className="w-full pe-10 ps-4 py-3 rounded-xl bg-card border border-border/50 text-meta text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:ring-2 focus:ring-primary/30" />
                 {localSearchQuery && <button aria-label="مسح البحث" onClick={() => { setLocalSearchQuery(''); setSearchQuery(''); }} className="absolute start-3 top-1/2 -translate-y-1/2"><X className="w-4 h-4 text-muted-foreground" /></button>}
               </div>
               <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-3 gap-2">
@@ -343,7 +343,7 @@ export default function TafsirPage() {
                   const hasBookmark = bookmarks.some(b => b.startsWith(`${index}:`));
                   return (
                     <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={`relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-xl border transition-motion group ${hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-card border-border/50 hover:bg-accent/40 hover:border-primary/30'}`}>
-                      <span className="absolute top-1.5 start-2 text-micro text-muted-foreground/60 font-mono">{index + 1}</span>
+                      <span className="absolute top-1.5 start-2 text-micro text-muted-foreground-subtle font-mono">{index + 1}</span>
                       {hasBookmark && <BookmarkCheck className="absolute top-1.5 end-1.5 w-3 h-3 text-primary" />}
                       <span className="text-mini font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>
                       <span className="text-micro text-muted-foreground">{AYAH_COUNTS[index]} آية</span>
@@ -425,7 +425,7 @@ export default function TafsirPage() {
                                   )}
                                 </div>
                                 <div className="px-4 py-2 border-t border-border/20">
-                                  <p className="text-micro text-muted-foreground/70 text-center">المصدر: alquran.cloud — {SURAHS[selectedSurah!]} : {selectedAyah}</p>
+                                  <p className="text-micro text-muted-foreground-subtle text-center">المصدر: alquran.cloud — {SURAHS[selectedSurah!]} : {selectedAyah}</p>
                                 </div>
                               </div>
                             </motion.div>

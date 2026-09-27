@@ -193,7 +193,7 @@ export default function FastingLog({ lang }: Props) {
                   <Activity className="w-3.5 h-3.5 text-primary" />
                   {metabolicPhase.title[lang]}
                 </span>
-                <span className="text-micro font-bold text-muted-foreground/80">
+                <span className="text-micro font-bold text-muted-foreground-subtle">
                   {Math.round(metabolicPhase.progress * 100)}%
                 </span>
               </div>
@@ -270,7 +270,7 @@ export default function FastingLog({ lang }: Props) {
                   <div className="flex items-center gap-1.5">
                     <Flame className="w-3.5 h-3.5 text-signal" />
                     <span className="font-bold text-foreground">{log.protocol || 'Custom'}</span>
-                    <span className="text-muted-foreground/60">
+                    <span className="text-muted-foreground-subtle">
                       (
                       {new Date(log.startedAt).toLocaleDateString([], {
                         month: 'short',

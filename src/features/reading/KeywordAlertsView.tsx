@@ -874,7 +874,7 @@ export function KeywordAlertsView({
                           </span>
                         </>
                       )}
-                      <span className="text-micro text-muted-foreground/70">
+                      <span className="text-micro text-muted-foreground-subtle">
                         {timeAgo(hit.matched_at, language)}
                       </span>
                     </div>

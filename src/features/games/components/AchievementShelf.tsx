@@ -58,7 +58,7 @@ function MedalCoin({
   return (
     <span
       aria-hidden
-      className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground/60"
+      className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground-subtle"
     >
       <Lock className="h-3.5 w-3.5" />
       {/* Remaining-progress arc hint */}

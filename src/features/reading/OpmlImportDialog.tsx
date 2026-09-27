@@ -291,7 +291,7 @@ export function OpmlImportDialog({
                     {'أو انقر لاختيار الملف من جهازك'}
                   </p>
                 </div>
-                <p className="text-micro text-muted-foreground/70">
+                <p className="text-micro text-muted-foreground-subtle">
                   .opml · .xml · ≤ 10 MB
                 </p>
                 <input

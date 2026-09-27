@@ -203,7 +203,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
         <div className="w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-2">
           <Award className="w-7 h-7 text-primary" />
         </div>
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
           {T.yourTier[lang]}
         </p>
         <p className="text-title font-bold text-foreground">
@@ -217,7 +217,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
 
       {/* Suggested programs */}
       <div className="space-y-1.5">
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
           {T.recommendedPrograms[lang]}
         </p>
         {result.suggestedPrograms.slice(0, 3).map((key) => {
@@ -234,7 +234,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
 
       {/* Per-skill placement */}
       <div className="space-y-1.5">
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
           {T.yourSkills[lang]}
         </p>
         <div className="grid grid-cols-2 gap-1.5">

@@ -165,7 +165,7 @@ function SessionRow({
           <div className="flex items-baseline gap-2">
             <Calendar className="w-3 h-3 text-muted-foreground shrink-0" />
             <span className="text-micro text-muted-foreground tabular-nums" dir="ltr">{fmtDate(session.date, lang)}</span>
-            <span className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">
+            <span className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
               {(T as Record<string, { ar: string; }>)[session.type]?.[lang] ?? session.type}
             </span>
           </div>

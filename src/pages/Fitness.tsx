@@ -545,13 +545,13 @@ function FitnessPageInner({
                         <div className="flex gap-3 justify-center pt-2">
                           <Button
                             onClick={() => tracker.startTracking('manual', 'walking')}
-                            className="rounded-xl px-6 font-bold bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
+                            className="rounded-xl px-6 font-bold bg-[hsl(100,40%,42%)] text-[hsl(30,6%,8%)] hover:bg-[hsl(100,40%,38%)]"
                           >
                             بدء تتبع مشي
                           </Button>
                           <Button
                             onClick={() => tracker.startTracking('manual', 'running')}
-                            className="rounded-xl px-6 font-bold bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
+                            className="rounded-xl px-6 font-bold bg-[hsl(100,40%,42%)] text-[hsl(30,6%,8%)] hover:bg-[hsl(100,40%,38%)]"
                           >
                             بدء تتبع جري
                           </Button>
@@ -681,7 +681,7 @@ function FitnessPageInner({
                       >
                         <span className="text-micro font-medium leading-none mb-1">{DAYS_MAP[dayKey].short}</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-data-1 opacity-80" style={{ display: dayData.isRestDay ? 'none' : 'block' }} />
-                        {dayData.isRestDay && <span className="text-mini text-muted-foreground/50 leading-none">راحة</span>}
+                        {dayData.isRestDay && <span className="text-mini text-muted-foreground-subtle leading-none">راحة</span>}
                       </button>
                     );
                   })}
@@ -752,7 +752,7 @@ function FitnessPageInner({
 
                                 {/* Exercise Sets Grid */}
                                 <div className="space-y-1.5">
-                                  <div className="grid grid-cols-4 gap-2 text-micro font-bold text-muted-foreground/80 px-1 text-center">
+                                  <div className="grid grid-cols-4 gap-2 text-micro font-bold text-muted-foreground-subtle px-1 text-center">
                                     <span>الجلسة</span>
                                     <span>الوزن (كغ)</span>
                                     <span>التكرارات</span>
@@ -761,7 +761,7 @@ function FitnessPageInner({
 
                                   {exercise.sets.map((set, setIdx) => (
                                     <div key={set.id} className="grid grid-cols-4 gap-2 items-center text-center">
-                                      <span className="text-mini font-mono font-bold text-muted-foreground/70">{setIdx + 1}</span>
+                                      <span className="text-mini font-mono font-bold text-muted-foreground-subtle">{setIdx + 1}</span>
 
                                       <input
                                         type="number"
@@ -862,7 +862,7 @@ function FitnessPageInner({
 
                   {exerciseSearch.trim().length > 0 && (
                     <Button
-                      className="w-full text-mini font-semibold h-8 rounded-lg bg-primary text-white"
+                      className="w-full text-mini font-semibold h-8 rounded-lg bg-primary text-primary-foreground"
                       onClick={() => {
                         store.addExerciseToDay(selectedDay!, exerciseSearch.trim());
                         setExerciseSearch('');
@@ -917,7 +917,7 @@ function FitnessPageInner({
                       onClick={() => setLibraryFilter(group)}
                       className={`shrink-0 px-3 py-1.5 rounded-full text-mini font-semibold border transition-motion active-tactile ${
                         libraryFilter === group
-                          ? 'bg-primary border-primary text-white'
+                          ? 'bg-primary border-primary text-primary-foreground'
                           : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
                       }`}
                     >

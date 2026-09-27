@@ -119,7 +119,7 @@ export default function AllOccasions() {
                   >
                     {monthName(monthIdx)}
                   </p>
-                  <span className="text-micro font-bold text-muted-foreground/60 tabular-nums shrink-0">
+                  <span className="text-micro font-bold text-muted-foreground-subtle tabular-nums shrink-0">
                     {monthIdx}
                   </span>
                 </div>
@@ -127,7 +127,7 @@ export default function AllOccasions() {
                   <span className="text-micro text-muted-foreground tabular-nums">
                     {count}
                   </span>
-                  <span className="text-micro text-muted-foreground/70">
+                  <span className="text-micro text-muted-foreground-subtle">
                     {'مناسبة'}
                   </span>
                   {isCurrent && (
@@ -144,7 +144,7 @@ export default function AllOccasions() {
           <h2 className="text-body font-black text-foreground">
             {monthName(selectedMonth)}
           </h2>
-          <span className="text-micro font-medium text-muted-foreground/70">
+          <span className="text-micro font-medium text-muted-foreground-subtle">
             {`${monthEvents.length} مناسبة`}
           </span>
         </div>
@@ -194,7 +194,7 @@ export default function AllOccasions() {
 
         {/* ── Events for selected day ───────────────────────────── */}
         <div className="space-y-2.5 pt-2">
-          <h3 className="text-mini font-bold text-muted-foreground/80 uppercase tracking-wider">
+          <h3 className="text-mini font-bold text-muted-foreground-subtle uppercase tracking-wider">
             {`مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`}
           </h3>
 
@@ -284,7 +284,7 @@ function EventListCard({
       <p className="text-micro text-muted-foreground leading-relaxed line-clamp-2">
         {description}
       </p>
-      <p className="text-micro text-muted-foreground/60 mt-1.5">
+      <p className="text-micro text-muted-foreground-subtle mt-1.5">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </motion.button>
@@ -372,7 +372,7 @@ function DetailContent({
         >
           {dayLabel} {monthLabel} {event.hijriYear}
         </span>
-        <span className="text-micro font-semibold text-muted-foreground/70 px-2 py-0.5 rounded bg-muted/40">
+        <span className="text-micro font-semibold text-muted-foreground-subtle px-2 py-0.5 rounded bg-muted/40">
           {typeLabel}
         </span>
         {event.isMajorHoliday && (
@@ -405,14 +405,14 @@ function DetailContent({
       )}
 
       {event.yearAh !== undefined && (
-        <p className="text-micro text-muted-foreground/70">
+        <p className="text-micro text-muted-foreground-subtle">
           {`السنة الهجرية: ${
                 event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)
               }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`}
         </p>
       )}
 
-      <p className="text-micro text-muted-foreground/60 border-t border-border/40 pt-2">
+      <p className="text-micro text-muted-foreground-subtle border-t border-border/40 pt-2">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </div>

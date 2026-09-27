@@ -155,7 +155,7 @@ export default function ArchiveHome() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ابحث في العنوان، الملخص، أو الوسوم…"
-              className="flex-1 bg-transparent outline-none text-meta placeholder:text-muted-foreground/60"
+              className="flex-1 bg-transparent outline-none text-meta placeholder:text-muted-foreground-subtle"
               style={{ fontSize: 16 }}
             />
           </AppCard>

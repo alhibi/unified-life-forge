@@ -45,7 +45,7 @@ export default function AuthGuard({
     return (
       <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center p-6 gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-mini text-muted-foreground/60 animate-pulse font-mono uppercase tracking-widest">
+        <p className="text-mini text-muted-foreground-subtle animate-pulse font-mono uppercase tracking-widest">
           {'تحقق من الأمان…'}
         </p>
       </div>

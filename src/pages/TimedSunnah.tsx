@@ -104,7 +104,7 @@ export default function TimedSunnah() {
                                 </span>
                                 {isDetailed && (
                                   <ChevronDown
-                                    className={`w-4 h-4 text-muted-foreground/60 shrink-0 transition-transform duration-fast ${isItemOpen ? 'rotate-180' : ''}`}
+                                    className={`w-4 h-4 text-muted-foreground-subtle shrink-0 transition-transform duration-fast ${isItemOpen ? 'rotate-180' : ''}`}
                                   />
                                 )}
                               </button>

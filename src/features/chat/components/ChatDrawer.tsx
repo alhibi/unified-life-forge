@@ -535,7 +535,7 @@ export default function ChatDrawer({
             {showConvSearch ? (
               <div className="flex-1 flex items-center gap-2 ms-2">
                 <div className="flex-1 flex items-center bg-muted/30 rounded-full px-3 h-9">
-                  <Search className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
                   <input
                     type="text"
                     value={convSearchQuery}
@@ -703,7 +703,7 @@ export default function ChatDrawer({
                 className="overflow-hidden border-b border-border/20 shrink-0"
               >
                 <div className="flex items-center gap-2 px-3 h-12">
-                  <Search className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
                   <input
                     type="text"
                     value={chat.chatSearchQuery}
@@ -826,14 +826,14 @@ export default function ChatDrawer({
             {chat.messages.length > 0 && (chat.hasMoreMessages || chat.loadingOlder) && (
               <div className="flex items-center justify-center py-3">
                 {chat.loadingOlder ? (
-                  <span className="text-mini text-muted-foreground/80" role="status">
+                  <span className="text-mini text-muted-foreground-subtle" role="status">
                     {'جارٍ تحميل الرسائل الأقدم…'}
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={() => { void chat.loadOlderMessages(); }}
-                    className="text-mini text-muted-foreground/80 rounded-full border border-border/40 px-3 py-1 transition-motion hover:text-foreground active:scale-[0.97]"
+                    className="text-mini text-muted-foreground-subtle rounded-full border border-border/40 px-3 py-1 transition-motion hover:text-foreground active:scale-[0.97]"
                   >
                     {'تحميل رسائل أقدم'}
                   </button>
@@ -869,7 +869,7 @@ export default function ChatDrawer({
                   <p className="text-meta font-semibold text-foreground/70">
                     {'لا توجد رسائل بعد'}
                   </p>
-                  <p className="text-mini text-muted-foreground/70 mt-1">
+                  <p className="text-mini text-muted-foreground-subtle mt-1">
                     {'أرسل رسالتك الأولى لبدء المحادثة'}
                   </p>
                 </div>
@@ -912,7 +912,7 @@ export default function ChatDrawer({
                         {/* Date separator */}
                         {showDate && (
                           <div className="flex justify-center py-4">
-                            <span className="text-micro text-muted-foreground/70 bg-background px-3 py-1 rounded-full font-medium ">
+                            <span className="text-micro text-muted-foreground-subtle bg-background px-3 py-1 rounded-full font-medium ">
                               {formatDateSeparator(msg.created_at)}
                             </span>
                           </div>
@@ -1001,7 +1001,7 @@ export default function ChatDrawer({
                                 className={cn(
                                   'overflow-hidden text-meta leading-[1.5]',
                                   msg.deleted
-                                    ? 'bg-muted/20 text-muted-foreground/50 italic'
+                                    ? 'bg-muted/20 text-muted-foreground-subtle italic'
                                     : isMine
                                       ? isDarkBg
                                         ? 'bg-primary/90 text-primary-foreground'
@@ -1151,7 +1151,7 @@ export default function ChatDrawer({
                                               'mt-1.5 flex items-center justify-end gap-[3px] text-micro leading-none',
                                               isDarkBg && isMine
                                                 ? 'text-primary-foreground/70'
-                                                : 'text-muted-foreground/60',
+                                                : 'text-muted-foreground-subtle',
                                             )}
                                             dir="ltr"
                                           >
@@ -1214,7 +1214,7 @@ export default function ChatDrawer({
                                         'mt-1 flex items-center justify-end gap-[3px] text-micro leading-none',
                                         isDarkBg && isMine
                                           ? 'text-primary-foreground/70'
-                                          : 'text-muted-foreground/60',
+                                          : 'text-muted-foreground-subtle',
                                       )}
                                       dir="ltr"
                                     >
@@ -1250,7 +1250,7 @@ export default function ChatDrawer({
                                               'inline-flex translate-y-[1px] items-center gap-[3px] align-bottom whitespace-nowrap text-micro leading-none select-none',
                                               isDarkBg && isMine
                                                 ? 'text-primary-foreground/70'
-                                                : 'text-muted-foreground/60',
+                                                : 'text-muted-foreground-subtle',
                                             )}
                                             dir="ltr"
                                           >
@@ -1487,7 +1487,7 @@ export default function ChatDrawer({
                         </div>
                         <div className="px-3 py-1.5">
                           <div
-                            className="flex items-center justify-end gap-[3px] text-micro leading-none text-muted-foreground/60"
+                            className="flex items-center justify-end gap-[3px] text-micro leading-none text-muted-foreground-subtle"
                             dir="ltr"
                           >
                             <span>{formatClockTime(new Date().toISOString())}</span>

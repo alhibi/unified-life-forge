@@ -73,7 +73,7 @@ export default function ProgramsLibraryView({
   return (
     <div className={`space-y-3 ${className}`}>
       <div>
-        <p className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold flex items-center gap-1.5">
+        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
           <Library className="w-3.5 h-3.5" />
           {T.title[lang]}
         </p>
@@ -81,7 +81,7 @@ export default function ProgramsLibraryView({
       </div>
 
       <div className="space-y-1.5">
-        <div className="flex items-center gap-1.5 text-micro text-muted-foreground/70 font-semibold">
+        <div className="flex items-center gap-1.5 text-micro text-muted-foreground-subtle font-semibold">
           <Filter className="w-3 h-3" />
           {T.experience[lang]}
         </div>
@@ -100,7 +100,7 @@ export default function ProgramsLibraryView({
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1.5 text-micro text-muted-foreground/70 font-semibold pt-1">
+        <div className="flex items-center gap-1.5 text-micro text-muted-foreground-subtle font-semibold pt-1">
           <Filter className="w-3 h-3" />
           {T.goal[lang]}
         </div>
@@ -234,7 +234,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
         {icon}
         <span className="text-mini font-bold tabular-nums text-foreground">{value}</span>
       </div>
-      <p className="text-micro text-muted-foreground/70 mt-0.5">{label}</p>
+      <p className="text-micro text-muted-foreground-subtle mt-0.5">{label}</p>
     </div>
   );
 }
@@ -284,7 +284,7 @@ function DetailSheet({
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.description[lang]}</h4>
+                <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.description[lang]}</h4>
                 <p className="text-mini text-foreground/90 leading-relaxed">{program.description[lang]}</p>
               </div>
 
@@ -295,7 +295,7 @@ function DetailSheet({
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.highlights[lang]}</h4>
+                <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.highlights[lang]}</h4>
                 <ul className="space-y-1">
                   {program.highlights.map((h, i) => (
                     <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90">
@@ -307,7 +307,7 @@ function DetailSheet({
 
               {program.prerequisites && program.prerequisites.length > 0 && (
                 <div className="space-y-1">
-                  <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.prereq[lang]}</h4>
+                  <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.prereq[lang]}</h4>
                   <ul className="space-y-1">
                     {program.prerequisites.map((h: LocalizedString, i: number) => (
                       <li key={i} className="bg-warning/10 border border-warning/30 rounded-lg p-2 text-mini text-warning">
@@ -319,7 +319,7 @@ function DetailSheet({
               )}
 
               <div className="space-y-1">
-                <h4 className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold">{T.equipment[lang]}</h4>
+                <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.equipment[lang]}</h4>
                 <div className="flex flex-wrap gap-1">
                   {program.equipment.map((eq) => (
                     <span key={eq} className="px-2 py-1 rounded-md bg-muted text-micro font-semibold text-foreground/90">
@@ -331,7 +331,7 @@ function DetailSheet({
 
               <div className="grid grid-cols-2 gap-1">
                 <div className="bg-muted/30 rounded-lg p-2">
-                  <p className="text-micro text-muted-foreground/70 uppercase tracking-wider font-semibold">{T.scheme[lang]}</p>
+                  <p className="text-micro text-muted-foreground-subtle uppercase tracking-wider font-semibold">{T.scheme[lang]}</p>
                   <p className="text-micro font-semibold text-foreground">{program.scheme[lang]}</p>
                 </div>
               </div>

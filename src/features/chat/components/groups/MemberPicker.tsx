@@ -97,7 +97,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
       {/* Search input */}
       <div className="px-1">
         <div className="flex items-center bg-muted/30 rounded-full px-3 h-10">
-          <Search className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+          <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
           <input
             type="text"
             value={query}
@@ -124,7 +124,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
       {/* Results */}
       <div className="flex-1 overflow-y-auto -mx-1">
         {query.trim().length < 2 && selectedIds.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 gap-2 py-10">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground-subtle gap-2 py-10">
             <Users className="w-9 h-9 opacity-30" />
             <p className="text-mini text-center px-6">
               {'اكتب اسم مستخدم لإضافته'}
@@ -147,7 +147,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
         )}
 
         {!search.isLoading && query.trim().length >= 2 && results.length === 0 && (
-          <div className="text-center py-8 text-mini text-muted-foreground/60">
+          <div className="text-center py-8 text-mini text-muted-foreground-subtle">
             {'لا نتائج'}
           </div>
         )}

@@ -155,7 +155,7 @@ export default function BayanDashboard() {
                     onChange={(e) => setInputText(e.target.value)}
                     rows={4}
                     placeholder="مثال: قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ ... بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ"
-                    className="w-full rounded-lg border border-border bg-background p-3 text-meta text-foreground placeholder:text-muted-foreground/60 font-amiri leading-relaxed focus:outline-none focus:border-live"
+                    className="w-full rounded-lg border border-border bg-background p-3 text-meta text-foreground placeholder:text-muted-foreground-subtle font-amiri leading-relaxed focus:outline-none focus:border-live"
                   />
                 </div>
 

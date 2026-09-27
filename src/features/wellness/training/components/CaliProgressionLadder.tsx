@@ -73,7 +73,7 @@ export default function CaliProgressionLadder({
             <h2 className="text-body font-bold text-foreground leading-tight">{skill.name[lang]}</h2>
             <p className="text-micro text-muted-foreground mt-0.5">{skill.tagline[lang]}</p>
             <div className="flex items-center gap-1 mt-2">
-              <span className="text-micro uppercase tracking-wider text-muted-foreground/70 font-semibold me-1">{T.difficulty[lang]}</span>
+              <span className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold me-1">{T.difficulty[lang]}</span>
               {Array.from({ length: 10 }, (_, i) => (
                 <span
                   key={i}
@@ -177,7 +177,7 @@ function StepCard({
             isCleared
               ? 'bg-data-1 text-white'
               : isLocked
-                ? 'bg-muted text-muted-foreground/60'
+                ? 'bg-muted text-muted-foreground-subtle'
                 : 'bg-muted text-foreground'
           }`}
           style={isCurrent && !isLocked && !isCleared ? { borderColor: accent, borderWidth: 2 } : undefined}
@@ -202,7 +202,7 @@ function StepCard({
           <p className="text-micro text-muted-foreground tabular-nums">
             <Target className="w-3 h-3 inline align-middle me-1" /> {targetText}
             {weeksToNext > 0 && (
-              <span className="ms-2 text-muted-foreground/70">~{weeksToNext} {T.weeks[lang]}</span>
+              <span className="ms-2 text-muted-foreground-subtle">~{weeksToNext} {T.weeks[lang]}</span>
             )}
           </p>
 

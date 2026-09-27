@@ -249,13 +249,13 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               >
                 <div className="flex items-start gap-3.5">
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-normal ${
-                    active ? 'bg-data-6/15 text-data-6' : 'bg-muted/40 text-muted-foreground/60 group-hover:bg-muted/60'
+                    active ? 'bg-data-6/15 text-data-6' : 'bg-muted/40 text-muted-foreground-subtle group-hover:bg-muted/60'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-[0.82rem] font-extrabold text-foreground tracking-tight">{cfg.title}</h3>
-                    <p className="text-[0.65rem] text-muted-foreground/70 font-medium leading-relaxed">{cfg.desc}</p>
+                    <p className="text-[0.65rem] text-muted-foreground-subtle font-medium leading-relaxed">{cfg.desc}</p>
                   </div>
                 </div>
 
@@ -393,7 +393,7 @@ export const ProfilePrivacySettingsTab: React.FC<ProfilePrivacySettingsTabProps>
               <div className={`text-[0.625rem] font-bold mb-1.5 tracking-wide ${item.active ? 'text-data-1/80' : 'text-muted-foreground/40'}`}>
                 {item.label}
               </div>
-              <div className={`text-[0.8rem] font-extrabold ${item.active ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+              <div className={`text-[0.8rem] font-extrabold ${item.active ? 'text-foreground' : 'text-muted-foreground-subtle'}`}>
                 {item.value}
               </div>
             </div>
