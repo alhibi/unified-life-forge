@@ -1222,9 +1222,11 @@
     background-color: hsl(var(--card) / var(--ui-material-alpha));
     border: 0;
     border-radius: var(--r-lg); /* the canonical card radius */
-    box-shadow:
-      inset 0 1px 0 hsl(var(--foreground) / 0.035),
-      var(--shadow-2);
+    /* The rim light now lives inside the elevation tokens, because it has to
+       be tuned per theme and per plane — a second hand-written highlight here
+       stacked a second inset shadow on top of the first, and the top edge went
+       from one catch-light to two at slightly different alphas. */
+    box-shadow: var(--shadow-2);
     contain: layout style;
   }
 
@@ -3300,12 +3302,12 @@ input.podcast-seek:active::-moz-range-thumb {
      Editorial system — tonal separation plus two very soft shadow layers and a
      1px inner highlight. The previous recipe (a vertical gradient fill, a 0.55
      hairline and a 10px backdrop blur) announced itself as a floating web panel
-     and cost a blur pass per tile on a grid of twenty. */
+     and cost a blur pass per tile on a grid of twenty. The highlight comes from
+     the elevation token now, so it is tuned per theme and per plane like every
+     other surface; keeping a private one here stacked a second rim on top. */
   .arch-plate {
     background-color: hsl(var(--card) / var(--ui-material-alpha));
     border: 0;
-    box-shadow:
-      inset 0 1px 0 0 hsl(var(--foreground) / 0.04),
-      var(--shadow-2);
+    box-shadow: var(--shadow-2);
   }
 }
