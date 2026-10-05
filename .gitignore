@@ -41,3 +41,6 @@ coverage
 .env
 .env.local
 .env.*.local
+
+# Audit/analysis scratch output (scripts are tracked, generated JSON is not)
+.audit/*.json

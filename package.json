@@ -13,12 +13,17 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,css,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,css,json,md}\"",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "verify": "bun run test",
+    "verify": "bun run typecheck && bun run lint && bun run lint:budget && bun run arch && bun run test && bun run build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "lint:budget": "node scripts/lint-budget.mjs"
+    "lint:budget": "node scripts/lint-budget.mjs",
+    "arch": "node scripts/arch-check.mjs",
+    "arch:write": "node scripts/arch-check.mjs --write",
+    "test:smoke": "node scripts/smoke-routes.mjs",
+    "build:budget": "node scripts/bundle-budget.mjs",
+    "build:budget:write": "node scripts/bundle-budget.mjs --write"
   },
   "dependencies": {
     "@capacitor/app": "^8",
@@ -96,6 +101,7 @@
     "lucide-react": "^1.28.0",
     "maplibre-gl": "^6.1.0",
     "next-themes": "^0.4.6",
+    "postprocessing": "^6.39.4",
     "react": "19.2.8",
     "react-day-picker": "8.10.1",
     "react-dom": "19.2.8",
@@ -109,7 +115,7 @@
     "suncalc": "^2.0.1",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "three": "^0.185.1",
+    "three": "~0.185.1",
     "vaul": "^1.1.2",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"

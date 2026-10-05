@@ -36,8 +36,22 @@ import type { CountryStamp, StampStatus } from '../types';
  * the whole world where a tap stamps a country, with no tiles to load, nothing
  * to pan, and no detail to get lost in.
  */
+/**
+ * Stable empty array, matching the `EMPTY_*` constants in `../hooks.ts`.
+ *
+ * This page previously wrote `const { data: stamps = [] } = useCountryStamps()`.
+ * A destructuring default fires on `undefined` only — never on `null`, which
+ * is exactly what this query yields when the fetch fails and the offline cache
+ * is cold. Every `stamps.filter(...)` below then threw and the route landed on
+ * the global error boundary. `?? []` covers both, and the module-level constant
+ * keeps the identity stable so the memos below are not invalidated each render
+ * — the reason `hooks.ts` uses this shape rather than an inline literal.
+ */
+const EMPTY_STAMPS: CountryStamp[] = [];
+
 export default function CountryStampsPage() {
-  const { data: stamps = [], isLoading } = useCountryStamps();
+  const { data, isLoading } = useCountryStamps();
+  const stamps = data ?? EMPTY_STAMPS;
   const setStamp = useSetCountryStamp();
   const removeStamp = useRemoveCountryStamp();
 
@@ -68,7 +82,12 @@ export default function CountryStampsPage() {
     const visited = stamps.filter((stamp) => stamp.status === 'visited').length;
     const lived = stamps.filter((stamp) => stamp.status === 'lived').length;
     const wishlist = stamps.filter((stamp) => stamp.status === 'wishlist').length;
-    const total = world?.countries.length ?? 0;
+    // `world?.countries.length` guarded only `world`: once it resolved to an
+    // object whose `countries` had not populated yet, this threw and took the
+    // whole page to the global error boundary. The `?? 0` shows the absent
+    // case was always meant to be handled — the optional chain just stopped
+    // one link short.
+    const total = world?.countries?.length ?? 0;
     // "Been there" counts living somewhere too — you have unquestionably been.
     const been = visited + lived;
     return { visited, lived, wishlist, been, total, share: total > 0 ? been / total : 0 };
