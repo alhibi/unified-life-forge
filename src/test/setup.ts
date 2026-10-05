@@ -18,6 +18,55 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 /**
+ * Browser observer APIs that jsdom does not implement.
+ *
+ * Without these, every screen that measures itself throws during mount and is
+ * swallowed by an ErrorBoundary — which made an entire surface of the app
+ * untestable rather than merely untested. The 2026-10-05 audit measured the
+ * blast radius: all seven `/settings/*` screens, `/journal`,
+ * `/travel-atlas/countries` and `/diwan/library/poets` could not be rendered
+ * by ANY spec, so no test could ever have covered them.
+ *
+ * These are inert no-op stubs on purpose. They let a component mount and reach
+ * its real logic; they deliberately do NOT simulate resize or intersection
+ * events. A spec that needs an element to actually become visible must drive
+ * the callback itself — otherwise a passing test would be asserting against a
+ * fake layout engine.
+ */
+class NoopObserver {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): [] {
+    return [];
+  }
+}
+
+if (!("ResizeObserver" in globalThis)) {
+  globalThis.ResizeObserver = NoopObserver as unknown as typeof ResizeObserver;
+}
+if (!("IntersectionObserver" in globalThis)) {
+  globalThis.IntersectionObserver =
+    NoopObserver as unknown as typeof IntersectionObserver;
+}
+
+// jsdom implements neither of these layout methods. `scrollIntoView` in
+// particular is called as a cosmetic nicety in several list views, where a
+// missing method took the whole page down.
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
+if (!Element.prototype.scrollTo) {
+  Element.prototype.scrollTo = () => {};
+}
+
+// jsdom ships `window.scrollTo` as a stub that logs "Not implemented" to the
+// console on every call. Scroll restoration runs on most route changes here,
+// which buried real failures under tens of thousands of lines of noise.
+window.scrollTo = () => {};
+window.scrollBy = () => {};
+
+/**
  * Serve `public/` over `fetch` for root-relative paths.
  *
  * Some modules load large static datasets as runtime assets instead of

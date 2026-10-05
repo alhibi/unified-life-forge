@@ -24,12 +24,31 @@ const BUDGET_FILE = path.resolve(import.meta.dirname, '../lint-budget.json');
 const write = process.argv.includes('--write');
 
 function runEslint() {
+  // Resolve the ESLint binary from node_modules rather than shelling out to a
+  // package runner. This script previously hardcoded `bunx`, which made it
+  // crash with `spawnSync bunx ENOENT` on any machine without bun — including
+  // every CI runner that had not installed it. A quality gate that cannot run
+  // outside one developer's laptop is not a gate.
+  const bin = path.resolve(
+    import.meta.dirname,
+    '../node_modules/.bin',
+    process.platform === 'win32' ? 'eslint.cmd' : 'eslint',
+  );
+
   // ESLint exits non-zero when it reports errors; we want the JSON either way.
   let stdout;
   try {
-    stdout = execFileSync('bunx', ['eslint', '.', '-f', 'json'], {
+    stdout = execFileSync(bin, ['.', '-f', 'json'], {
       encoding: 'utf8',
       maxBuffer: 256 * 1024 * 1024,
+      env: {
+        ...process.env,
+        // Type-aware linting over ~965 files exceeds the default heap and the
+        // child is SIGKILLed, which surfaces as an inscrutable `status: null`.
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=2048']
+          .filter(Boolean)
+          .join(' '),
+      },
     });
   } catch (err) {
     if (!err.stdout) throw err;

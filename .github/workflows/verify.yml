@@ -1,0 +1,126 @@
+name: verify
+
+# The 2026-10-05 audit found `renovate.json` gating automerge on three status
+# checks — "verify", "e2e" and "Enforce bundle budget" — none of which existed.
+# A required check that is never reported is not a safety net: Renovate either
+# waits forever or, depending on platform behaviour, merges unverified. The job
+# names below are therefore contractual. Renaming one silently disarms
+# dependency automerge, so change both files together or neither.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The repo is bun-first. That is also how BUILD-01 hid for so long: bun
+  # auto-installs peer dependencies, so a missing `postprocessing` entry in
+  # package.json built fine locally and failed on every other package manager.
+  # `--frozen-lockfile` plus the npm cross-check job below keeps that honest.
+  BUN_VERSION: '1.2.23'
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Lint budgets
+        run: bun run lint:budget
+
+      - name: Architecture gate
+        run: bun run arch
+
+      - name: Unit and integration tests
+        run: bun run test
+
+      - name: Build
+        run: bun run build
+
+  # BUILD-01 regression guard. `bun install` masks missing peer dependencies;
+  # this job proves package.json alone is a complete, installable manifest for
+  # a package manager that does not. Without it the bug returns silently.
+  npm-install-parity:
+    name: npm install parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install with npm (no bun peer auto-install)
+        run: npm install --legacy-peer-deps
+
+      - name: Build from package.json alone
+        run: npx vite build
+
+  bundle-budget:
+    name: Enforce bundle budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Check bundle budget
+        run: bun run build:budget
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - run: bun install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+
+      # playwright.config.ts builds and serves the production artefact itself
+      # via webServer, and runs with placeholder Supabase credentials, so this
+      # job needs no secrets and works on forks.
+      - name: Run Playwright
+        run: bun run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

@@ -7,7 +7,13 @@
       "matchUpdateTypes": ["patch", "minor"],
       "automerge": true,
       "automergeType": "pr",
-      "requiredStatusChecks": ["verify", "e2e", "Enforce bundle budget"]
+      "requiredStatusChecks": [
+        "verify",
+        "e2e",
+        "Enforce bundle budget",
+        "npm install parity"
+      ],
+      "description": "هالأسماء لازم تطابق حرفياً أسماء الوظائف بـ.github/workflows/verify.yml. قبل ما ينكتب هاد الملف بتاريخ 2026-10-05، ما كان في ولا وحدة من هالفحوصات موجودة أصلاً — يعني الـautomerge كان معلّق على فحوصات وهمية. 'npm install parity' مُضافة لأنها الحارس الوحيد ضد BUILD-01: bun بيركّب الـpeer deps تلقائياً فبيخفي النواقص بـpackage.json، وترقية تبعية ممكن تعيد نفس العطل بصمت."
     },
     {
       "matchPackageNames": ["react", "react-dom", "vite", "tailwindcss", "react-router-dom"],
