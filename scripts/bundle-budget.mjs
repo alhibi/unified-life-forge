@@ -58,6 +58,8 @@ for (const file of fs.readdirSync(DIST).filter((f) => f.endsWith('.js'))) {
 }
 
 const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
+// A chunk that trips by a few bytes must not read as "+0.0 KB".
+const deltaLabel = (n) => (n < 1024 ? `${n}B` : kb(n));
 
 if (write) {
   const out = { totalBrotli: total, chunks: measured };
@@ -79,13 +81,18 @@ const budget = JSON.parse(fs.readFileSync(BUDGET_FILE, 'utf8'));
 // A few KB of churn is normal when a dependency patch lands; a budget that
 // trips on noise gets raised reflexively and stops meaning anything.
 const TOLERANCE = 1.02;
+// The smallest chunks are measured in tens of bytes; a purely relative budget
+// would let a minifier's byte-level shuffle between environments trip them.
+// A small absolute floor keeps the gate meaningful instead of noisy.
+const FLOOR_BYTES = 64;
+const allowance = (allowed) => Math.max(allowed * TOLERANCE, allowed + FLOOR_BYTES);
 
 let failed = false;
 
-if (total > budget.totalBrotli * TOLERANCE) {
+if (total > allowance(budget.totalBrotli)) {
   failed = true;
   console.error(
-    `✗ total: ${kb(total)} exceeds budget ${kb(budget.totalBrotli)} (+${kb(total - budget.totalBrotli)})`,
+    `✗ total: ${kb(total)} exceeds budget ${kb(budget.totalBrotli)} (+${deltaLabel(total - budget.totalBrotli)})`,
   );
 }
 
@@ -97,9 +104,9 @@ for (const [name, size] of Object.entries(measured)) {
     console.warn(`! new chunk ${name} at ${kb(size)} (not in budget)`);
     continue;
   }
-  if (size > allowed * TOLERANCE) {
+  if (size > allowance(allowed)) {
     failed = true;
-    console.error(`✗ ${name}: ${kb(size)} exceeds budget ${kb(allowed)} (+${kb(size - allowed)})`);
+    console.error(`✗ ${name}: ${kb(size)} exceeds budget ${kb(allowed)} (+${deltaLabel(size - allowed)})`);
   }
 }
 
