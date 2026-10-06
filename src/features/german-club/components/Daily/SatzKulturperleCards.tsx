@@ -4,7 +4,6 @@ import React from 'react';
 import { MessageSquareQuote, Sparkles } from '@/lib/icons';
 
 import type { DailyKulturperle, DailySatz } from '../../lib/daily';
-import { GERMAN_CLUB_TOKENS } from '../../types';
 
 interface SatzCardProps {
   satz: DailySatz;

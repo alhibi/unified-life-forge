@@ -16,7 +16,9 @@
 // `useChatSettings` (in hooks/useChatSettings.ts) wraps these for React.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
+import { isSupabaseConfigured, supabase } from '@/integrations/supabase/client';
+
+import { estimateUsage } from './idbCache';
 
 // ── Shape ────────────────────────────────────────────────────────────────────
 
@@ -245,7 +247,6 @@ export async function getStorageReport(): Promise<{
   capMb: number;
   capUsageRatio: number;
 }> {
-  const { estimateUsage } = await import('./idbCache');
   const settings = CHAT_SETTINGS_DEFAULTS.storage; // capacity is informational; the live cap is wired by the hook.
   const e = await estimateUsage();
   const usageMb = Math.round((e.usage / (1024 * 1024)) * 10) / 10;

@@ -499,6 +499,131 @@ function statusTokens(bg: Hsl, card: Hsl): Record<string, string> {
   };
 }
 
+/**
+ * The data palette (sage / peach / amber / blue / rose / violet).
+ *
+ * These six are the app's only colours allowed to carry meaning inside charts,
+ * badges and category dots. They were previously hard-coded in `index.css` as
+ * two fixed HSL triples — one for light, one for dark — which meant they never
+ * responded to the active palette: switching from `editorial` to `mono` left a
+ * rose that belonged to a different theme, and nothing verified contrast.
+ *
+ * Two constraints pull against each other and both have to hold:
+ *
+ *   1. The six must stay DISTinguishable from each other. A chart that draws
+ *      two series in the same tone is worse than a chart with low-contrast
+ *      labels, so the correction may not collapse two entries together.
+ *   2. Each must be legible as TEXT. `text-data-3` appears 42 times and
+ *      `text-data-1` 99 times across the codebase, always against a page or a
+ *      card — never against a wash of itself the way a status badge is.
+ *
+ * So each tone is walked away from the page until it clears AA on BOTH the page
+ * and a card, hue and chroma preserved. Because the walk only ever moves tone,
+ * and the six hues are far apart to begin with, the series stay separable.
+ */
+function dataTokens(bg: Hsl, card: Hsl, isDark: boolean): Record<string, string> {
+  // Hue and saturation are the palette's identity — fixed, and deliberately
+  // muted. Only lightness is resolved, and only against the active surfaces.
+  const SEEDS: Array<[index: number, h: number, s: number, light: number, dark: number]> = [
+    [1, 158, 26, 38, 58],
+    [2, 24, 54, 52, 66],
+    [3, 38, 56, 45, 62],
+    [4, 214, 38, 46, 64],
+    [5, 348, 34, 50, 66],
+    [6, 268, 18, 50, 66],
+  ];
+
+  // Direct HSL → linear-light sRGB with NO hex round trip. The browser
+  // composites `bg-data-5/5` in sRGB, and `hslToRgb` goes via `hslToHex` +
+  // `parseInt`, rounding every channel to 8 bits and back — enough to certify
+  // a wash at 4.5 that really measures 4.15, which is how the memory game's
+  // rose XP bar shipped unreadable. Judge the wash unrounded, then keep a
+  // small margin for the browser's own single quantisation.
+  const toLinearRgb = (t: Hsl): Rgb => {
+    const H = t[0] / 360;
+    const S = t[1] / 100;
+    const L = t[2] / 100;
+    const hue = (p: number, q: number, x: number) => {
+      let t2 = x;
+      if (t2 < 0) t2 += 1;
+      if (t2 > 1) t2 -= 1;
+      if (t2 < 1 / 6) return p + (q - p) * 6 * t2;
+      if (t2 < 1 / 2) return q;
+      if (t2 < 2 / 3) return p + (q - p) * (2 / 3 - t2) * 6;
+      return p;
+    };
+    let r: number;
+    let g: number;
+    let b: number;
+    if (S === 0) {
+      r = L;
+      g = L;
+      b = L;
+    } else {
+      const q2 = L < 0.5 ? L * (1 + S) : L + S - L * S;
+      const p2 = 2 * L - q2;
+      r = hue(p2, q2, H + 1 / 3);
+      g = hue(p2, q2, H);
+      b = hue(p2, q2, H - 1 / 3);
+    }
+    return [r, g, b];
+  };
+
+  const pageRgb = toLinearRgb(bg);
+  const cardRgb = toLinearRgb(card);
+  const lumOfRgb = (rgb: Rgb) => {
+    const [r, g, b] = rgb.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const rgbRatio = (a: Rgb, b: Rgb) => {
+    const la = lumOfRgb(a);
+    const lb = lumOfRgb(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  };
+  // The weakest wash any caller produces is `bg-data-5/5` — a 5% mix of the
+  // tone into the page. That is the surface a memory-game card, a chart chip
+  // or a category tile is actually drawn on.
+  const washOf = (fg: Rgb): Rgb =>
+    [0, 1, 2].map((i) => fg[i] * 0.05 + pageRgb[i] * 0.95) as Rgb;
+  const TARGET = 4.55;
+
+  const out: Record<string, string> = {};
+  for (const [i, h, s, light, darkLight] of SEEDS) {
+    const seed: Hsl = [h, s, isDark ? darkLight : light];
+    const goDarker = relativeLuminance(bg) > 0.18;
+
+    const clears = (t: Hsl) => {
+      const fg = toLinearRgb(t);
+      return (
+        rgbRatio(fg, pageRgb) >= TARGET &&
+        rgbRatio(fg, cardRgb) >= TARGET &&
+        rgbRatio(fg, washOf(fg)) >= TARGET
+      );
+    };
+
+    let tone: Hsl = [seed[0], seed[1], seed[2]];
+    if (!clears(tone)) {
+      // Walk HSL lightness away from the page in half-point steps. The axis is
+      // HSL rather than OKLab because that is the axis the token is published
+      // on, so a step here is a step the user actually sees.
+      for (let step = 1; step <= 200; step += 1) {
+        const next = goDarker ? tone[2] - 0.5 : tone[2] + 0.5;
+        if (next < 0 || next > 100) break;
+        const cand: Hsl = [tone[0], tone[1], next];
+        if (clears(cand)) {
+          tone = cand;
+          break;
+        }
+        if (goDarker ? cand[2] < tone[2] : cand[2] > tone[2]) tone = cand;
+        else break;
+      }
+    }
+    // Never trade away the solid-surface guarantees to win the wash.
+    out[`--data-${i}`] = hslToString(ensureContrast(ensureContrast(tone, bg, 4.5), card, 4.5));
+  }
+  return out;
+}
+
 // Convert Hsl array to hex string
 function hslToHex([h, s, l]: Hsl): string {
   const sFrac = s / 100;
@@ -986,6 +1111,10 @@ export function generateThemeTokens(
     // against the active background, so they never sink into a very light or
     // very dark palette.
     ...statusTokens(bgHsl, surfHsl),
+    // The data palette is resolved against the same two surfaces, so a chart
+    // label or a category dot stays readable in every preset instead of only
+    // in the one whose CSS happened to be checked in.
+    ...dataTokens(bgHsl, surfHsl, isDark),
     // The single chromatic accent. Its hue is fixed so "changed / active /
     // measured" reads identically in every palette; only its tone is resolved
     // against the active canvas so it never glares or sinks.

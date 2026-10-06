@@ -66,7 +66,10 @@ type HeadingQuality = 'absolute' | 'relative' | 'none';
 function useStableDeviceHeading() {
   const [heading, setHeading] = useState<number | null>(null);
   const [quality, setQuality] = useState<HeadingQuality>('none');
-  const [supported, setSupported] = useState(false);
+  const [supported, setSupported] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return 'DeviceOrientationEvent' in window;
+  });
   const [permission, setPermission] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const [accuracy, setAccuracy] = useState<number | null>(null); // ° (lower = better)
   /** True while the device is held too steeply for the magnetometer to level. */
@@ -79,14 +82,10 @@ function useStableDeviceHeading() {
   /** Set once an Earth-referenced feed is seen; relative samples are then ignored. */
   const hasAbsoluteRef = useRef(false);
   const attachRef = useRef<(() => void) | null>(null);
-  // Track support state in a ref to avoid setState in effect
-  const supportedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const hasAPI = 'DeviceOrientationEvent' in window;
-    supportedRef.current = hasAPI;
-    setSupported(hasAPI); // Initial sync - only runs once on mount
     if (!hasAPI) return;
 
     const Ctor = (
@@ -232,20 +231,13 @@ export default function QiblaCompass() {
   const delta = Math.min(needleAngle, 360 - needleAngle);
 
   // Hysteresis on the aligned state to stop flicker around the threshold.
-  // Moved to useEffect to avoid ref access during render.
-  const [isAligned, setIsAligned] = useState(false);
-
+  // Use a ref to track previous aligned state, computed in render to avoid setState in effect.
+  const isAlignedRef = useRef(false);
+  const isAligned = heading != null && (isAlignedRef.current ? delta <= 4 : delta < 2);
+  // Update ref after computing new value (safe because we only read it next render)
   useEffect(() => {
-    if (heading != null) {
-      setIsAligned((prev) => {
-        if (!prev && delta < 2) return true;
-        if (prev && delta > 4) return false;
-        return prev;
-      });
-    } else {
-      setIsAligned(false);
-    }
-  }, [heading, delta]);
+    isAlignedRef.current = isAligned;
+  }, [isAligned]);
 
   // Lock body scroll while expanded.
   useEffect(() => {

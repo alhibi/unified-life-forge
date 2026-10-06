@@ -718,7 +718,18 @@
     /* ── Data palette ──────────────────────────────────────────────
        The only colours allowed to carry meaning inside charts, badges,
        categories and status dots. Muted on purpose: sage, peach, amber,
-       controlled blue, clay, slate-violet. Never used for chrome. */
+       controlled blue, clay, slate-violet. Never used for chrome.
+
+       The six tones are no longer declared here. They used to sit in this
+       block as two fixed HSL triples — one per mode — which meant the data
+       palette ignored the active theme entirely: pick `mono` instead of
+       `editorial` and a rose from one palette keeps shipping inside another,
+       with nothing checking whether it is still readable. themeEngine now
+       resolves them from a fixed hue/chroma seed against whichever surfaces
+       the live preset actually uses, so every preset gets a legible set.
+
+       The values below are the FALLBACK for the first paint, before the
+       engine's tokens arrive — keep them AA-clean on their own. */
     --data-1: 158 26% 38%;
     --data-2: 24 54% 52%;
     --data-3: 38 56% 45%;

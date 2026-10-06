@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Sparkles, X } from '@/lib/icons';
 
 import {
+  buildIndex,
   detectQueryLanguage,
   fuzzyMultiLangSearch,
   type IndexedEntry,
@@ -45,7 +46,6 @@ export const QuickLookup: React.FC = () => {
   const loadDictionary = useCallback(async () => {
     if (dictIndex) return;
     const { GERMAN_DICTIONARY_DATA } = await import('../lib/dictionaryData');
-    const { buildIndex } = await import('../lib/search');
     setDictIndex(buildIndex(GERMAN_DICTIONARY_DATA));
   }, [dictIndex]);
 

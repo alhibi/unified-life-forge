@@ -22,7 +22,7 @@ interface EmojiPickerProps {
  * We lazy-load the picker library and its data the first time the component
  * mounts so the initial bundle stays small.
  *
- * Wraps `@emoji-mart/react`'s `<Picker>` and adapts it to the app theme
+ * Wraps `emoji-mart`'s `<Picker>` and adapts it to the app theme
  * tokens (HSL design tokens are converted to RGB CSS vars that emoji-mart
  * understands), the active locale (ar/de) and the chat composer's onPick
  * contract.

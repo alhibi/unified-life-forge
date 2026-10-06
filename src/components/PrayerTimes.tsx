@@ -10,6 +10,7 @@ import {
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 import { MECCA_FALLBACK, useDeviceLocation } from '@/hooks/useDeviceLocation';
+import { useManaged } from '@/hooks/useManagedEffect';
 import { fetchPrayerTimings as fetchPrayerTimingsCached } from '@/hooks/usePrayerTimesCache';
 import {
   CalendarDays,
@@ -446,8 +447,8 @@ export default function PrayerTimes() {
   }, [location?.lat, location?.lng, locationStatus, requestLocation, fetchPrayers]);
 
   // Tick once per second so the arc, sun and any inside-makruh tinting stay live.
-  useEffect(() => {
-    const id = setInterval(() => {
+  useManaged((track) => {
+    track.interval(() => {
       const next = new Date();
       setNow(next);
       const stampNow = todayStamp();
@@ -457,7 +458,6 @@ export default function PrayerTimes() {
         setDoneStates(loadDoneStates(stampNow));
       }
     }, 1000);
-    return () => clearInterval(id);
   }, [stamp]);
 
   // ─── Derived values ──────────────────────────────────────────────────────

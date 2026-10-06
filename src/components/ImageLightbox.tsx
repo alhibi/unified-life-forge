@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ChevronLeft, ChevronRight, Download } from '@/lib/icons';
@@ -27,7 +27,7 @@ export default function ImageLightbox({ src, alt, open, onClose, originRect }: I
   const imgRef = useRef<HTMLImageElement>(null);
 
   // Reset zoom on open
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (open) {
       setScale(1);
       setIsZoomed(false);

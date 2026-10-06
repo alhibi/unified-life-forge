@@ -6,6 +6,17 @@ import { ArrowUpSquare, Hash, Search, X } from '@/lib/icons';
 
 import type { ArchiveDocumentSummary } from '../types';
 
+// Deterministic pseudo-random for stable initial positions across renders
+function seededRandom(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  // Normalize to 0-1
+  return (Math.abs(hash) % 10000) / 10000;
+}
+
 interface GraphNode {
   id: string; // "doc-[id]" or "tag-[tag]"
   type: 'doc' | 'tag';
@@ -47,7 +58,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
     const docNodes: GraphNode[] = items.map((doc, idx) => {
       // Circle layout initial positions to avoid overlap
       const angle = (idx / items.length) * Math.PI * 2;
-      const radius = 150 + Math.random() * 80;
+      const radius = 150 + seededRandom(doc.id) * 80;
       return {
         id: `doc-${doc.id}`,
         type: 'doc',
@@ -72,7 +83,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
 
     const tagNodes: GraphNode[] = Object.keys(tagToDocIds).map((tag, idx) => {
       const angle = (idx / Object.keys(tagToDocIds).length) * Math.PI * 2;
-      const radius = 60 + Math.random() * 40;
+      const radius = 60 + seededRandom(tag) * 40;
       return {
         id: `tag-${tag}`,
         type: 'tag',

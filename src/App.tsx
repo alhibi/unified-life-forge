@@ -4,7 +4,6 @@ import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState }
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { CommandPalette } from '@/components/CommandPalette';
-import { SkeletonPage } from '@/components/ui/skeleton';
 import EdgeSwipeBack from '@/components/EdgeSwipeBack';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import NativeShell from '@/components/NativeShell';
@@ -12,6 +11,7 @@ import PageTransition, { NavModeContext } from '@/components/PageTransition';
 import PortalBackButton from '@/components/portal/PortalBackButton';
 import { AdminRoute, DevelopmentRoute } from '@/components/routing/RouteGuards';
 import ScrollToTop from '@/components/ScrollToTop';
+import { SkeletonPage } from '@/components/ui/skeleton';
 // One toast system. The Radix-based <Toaster/> used to be mounted next to
 // Sonner even though a single call site (AddPlaceSheet) used it, so the app
 // shipped two snackbar implementations with two different looks.
@@ -555,16 +555,26 @@ function PersistentTabs({ active, mode }: { active: TabPath | null; mode: NavMod
   const lastTabRef = useRef<TabPath | null>(active);
   const [seen, setSeen] = useState<Set<TabPath>>(() => new Set(active ? [active] : []));
 
-  useEffect(() => {
+  // Track last non-null active tab for exit animation using a ref updated in layout effect
+  // This avoids reading the ref during render while still preserving the last tab for exit
+  const [lastTabForExit, setLastTabForExit] = useState<TabPath | null>(active);
+
+  useLayoutEffect(() => {
     if (active === null) return;
     lastTabRef.current = active;
+    // Update lastTabForExit for exit animation - this runs synchronously before paint
+    setLastTabForExit(active);
+  }, [active]);
+
+  useEffect(() => {
+    if (active === null) return;
     setSeen((prev) => {
       if (prev.has(active)) return prev;
       return new Set(prev).add(active);
     });
   }, [active]);
 
-  const lastTab = lastTabRef.current;
+  const lastTab = lastTabForExit;
 
   // The tab layer follows the SAME navigation character as every other page,
   // otherwise the user sees two different transitions overlap when they leave a

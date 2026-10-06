@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 
 import { AppCard } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
-import { Loader2, Plus, RefreshCw, Rss, Trash2 } from '@/lib/icons';
+import { Loader2, Plus, RefreshCw, Trash2 } from '@/lib/icons';
 
 import { marginaliaApi } from '../api';
 import type { MgSource } from '../types';
