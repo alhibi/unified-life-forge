@@ -1,6 +1,6 @@
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -9,6 +9,16 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}", "build/**/*.{test,spec}.{ts,tsx}"],
+    // The route-smoke net mounts all ~81 routes in one process and, under the
+    // current jsdom/act environment, a multi-mount run can enter a render
+    // cascade that never settles: React's own "Maximum update depth exceeded"
+    // was thrown out of @tanstack/react-virtual's measureElement for one
+    // route, and an unbroken AnimatedRoutes re-render cascade was CPU-
+    // profiled for another. Until that test-environment issue is fixed, the
+    // net is driven by its dedicated process-per-shard runner instead of
+    // `bun run test`:
+    //   bun run test:smoke  ·  SMOKE_SHARD=3/12 bun run test:smoke
+    exclude: [...configDefaults.exclude, "src/test/routes.smoke.test.tsx"],
     // On Node 22+ the runtime ships a process-wide `localStorage` backed by a
     // single on-disk store, and it is installed as a global. Concurrent test
     // FILES therefore reach the same store: one file's still-pending async work
