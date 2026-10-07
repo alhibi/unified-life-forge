@@ -36,6 +36,9 @@ const PUBLISHABLE_ENV = new Set([
   'VITE_SUPABASE_PROJECT_ID',
   'VITE_SENTRY_DSN',
   'VITE_APP_VERSION',
+  // Test-only opt-out for the RLS suite when the network cannot reach the
+  // project (read by src/test/rlsHostileClient.test.ts, never by app code).
+  'VITE_ALLOW_OFFLINE_RLS',
 ]);
 
 /** Literal credentials that must never appear in a source file. */
@@ -67,6 +70,20 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
   return out;
 }
 
+/**
+ * Comments are prose ABOUT the code, not reads of it — the module docblock in
+ * `integrations/supabase/client.ts` legitimately *names*
+ * `import.meta.env.VITE_SUPABASE_*` while explaining the rule that only that
+ * module may resolve those values. Mask comments before scanning the env
+ * reads so documentation is not mistaken for code, and leave the literal
+ * scan unmasked (a credential written into a comment is still worth failing).
+ */
+function stripComments(text: string): string {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^[ \t]*\/\/.*$/gm, '');
+}
+
 describe('client bundle secret exposure', () => {
   const files = sourceFiles(SRC);
 
@@ -80,7 +97,7 @@ describe('client bundle secret exposure', () => {
     for (const file of files) {
       // This test necessarily contains the names it bans.
       if (file.endsWith('clientSecretExposure.test.ts')) continue;
-      const text = readFileSync(file, 'utf8');
+      const text = stripComments(readFileSync(file, 'utf8'));
       for (const match of text.matchAll(/import\.meta\.env\.(VITE_[A-Z0-9_]+)/g)) {
         const name = match[1];
         if (!PUBLISHABLE_ENV.has(name)) {
