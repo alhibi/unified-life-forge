@@ -86,9 +86,12 @@ export default function PKM() {
 
   // Push debounced query string to URL search parameter 'q'
   useEffect(() => {
+    const queryVal = debouncedQuery.trim();
+    // An identical write from inside an effect re-triggers the router and the
+    // effect forever (see the guard in /mihrab for the full story).
+    if ((searchParams.get('q') ?? '') === queryVal) return;
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      const queryVal = debouncedQuery.trim();
       if (queryVal) {
         next.set('q', queryVal);
       } else {
@@ -96,7 +99,7 @@ export default function PKM() {
       }
       return next;
     }, { replace: true });
-  }, [debouncedQuery, setSearchParams]);
+  }, [debouncedQuery, searchParams, setSearchParams]);
 
   const setActiveId = (id: string | null) => {
     setSearchParams((prev) => {

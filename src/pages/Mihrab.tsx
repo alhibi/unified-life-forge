@@ -77,6 +77,11 @@ export default function MihrabPage() {
     } catch {
       /* ignore */
     }
+    // Never write an identical URL from inside an effect: the write re-renders,
+    // the effect re-runs, and the two chase each other — burning the thread
+    // and starving every timer (this loop wedged the route-smoke suite).
+    // Only replace when the param actually differs.
+    if (searchParams.get('tab') === tab) return;
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
@@ -85,7 +90,7 @@ export default function MihrabPage() {
       },
       { replace: true },
     );
-  }, [tab, setSearchParams]);
+  }, [tab, searchParams, setSearchParams]);
 
   const handleChange = useCallback((next: TabKey, dir: 1 | -1) => {
     setDirection(dir);

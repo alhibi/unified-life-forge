@@ -163,8 +163,11 @@ export default function TafsirPage() {
       nextParams.delete('ayah');
       nextParams.delete('tafsir');
     }
+    // Same guard as /mihrab and /wellness: an identical write from inside an
+    // effect re-renders and re-runs the effect, chasing itself forever.
+    if (nextParams.toString() === searchParams.toString()) return;
     setSearchParams(nextParams, { replace: true });
-  }, [selectedSurah, selectedAyah, selectedTafsir, setSearchParams]);
+  }, [selectedSurah, selectedAyah, selectedTafsir, searchParams, setSearchParams]);
 
   // ─── Fetch Ayahs ────────────────────────────────────────────────────────────
   useEffect(() => {

@@ -109,10 +109,14 @@ export default function WellnessPage() {
   // Sync tab with URL Query Parameters and localStorage
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, tab); } catch { /* noop */ }
+    // Same guard as /mihrab: writing an identical URL from inside an effect
+    // re-renders and re-runs the effect, chasing itself forever and starving
+    // every timer on the thread.
+    if (searchParams.get('tab') === tab) return;
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('tab', tab);
     setSearchParams(nextParams, { replace: true });
-  }, [tab, setSearchParams]);
+  }, [tab, searchParams, setSearchParams]);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 

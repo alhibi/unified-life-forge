@@ -1,10 +1,10 @@
 {
-  "total": 831,
+  "total": 829,
   "rules": {
     "(unknown)": 1,
     "@typescript-eslint/ban-ts-comment": 18,
     "@typescript-eslint/no-explicit-any": 237,
-    "react-hooks/exhaustive-deps": 43,
+    "react-hooks/exhaustive-deps": 41,
     "react-hooks/immutability": 19,
     "react-hooks/incompatible-library": 2,
     "react-hooks/preserve-manual-memoization": 3,
