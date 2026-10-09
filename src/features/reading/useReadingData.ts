@@ -7,6 +7,7 @@ import {
   invokeFetchRss,
   listStoredArticles,
   listStoredArticlesForSource,
+  listStoredArticlesPage,
 } from './api';
 import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 import { extractArticleBody, needsContentUpgrade, plainTextLength } from './extractArticle';
@@ -56,6 +57,9 @@ const STALE_THRESHOLD = 10 * 60 * 1000; // 10 min
 // was silently dropped server-side, so those feeds never refreshed and the
 // missing statuses surfaced as a failed refresh in the UI.
 const EDGE_BATCH_SIZE = 3;
+/** First cloud page; older rows stream in via `loadOlderArticles`. */
+const INITIAL_ARCHIVE_PAGE = 300;
+const ARCHIVE_PAGE_SIZE = 150;
 
 type EdgeRefreshData = { statuses?: FeedStatus[] };
 
@@ -234,6 +238,12 @@ export function useReadingData() {
   });
   const [statuses, setStatuses] = useState<FeedStatus[]>([]);
   const [totalInDB, setTotalInDB] = useState(0);
+  /** Keyset cursor into the cloud archive beyond the first page. */
+  const archiveCursorRef = useRef<string | null>(null);
+  const [archiveStatus, setArchiveStatus] = useState<'idle' | 'loading' | 'success' | 'error'>(
+    'idle',
+  );
+  const [hasMoreArchive, setHasMoreArchive] = useState(false);
   const [cachedLinks, setCachedLinks] = useState<ReadonlySet<string>>(() => new Set<string>());
   const [lastRefresh, setLastRefresh] = useState<string | null>(
     typeof window !== 'undefined' ? localStorage.getItem(LAST_REFRESH_KEY) : null,
@@ -366,8 +376,16 @@ export function useReadingData() {
     let onlineCount = 0;
     let onlineFailed = false;
     try {
-      online = await listStoredArticles(names, 300);
+      online = await listStoredArticles(names, INITIAL_ARCHIVE_PAGE);
       onlineCount = online.length;
+      // Re-seed the archive cursor only when nothing older is loaded yet,
+      // so a background reload never rewinds pagination the user did.
+      if (archiveCursorRef.current === null || onlineCount < INITIAL_ARCHIVE_PAGE) {
+        const oldest = online[online.length - 1]?.pubDate;
+        archiveCursorRef.current =
+          onlineCount === INITIAL_ARCHIVE_PAGE && oldest ? oldest : null;
+        setHasMoreArchive(archiveCursorRef.current !== null);
+      }
     } catch (e) {
       console.error('Reading: DB load failed', e);
       onlineFailed = true;
@@ -680,6 +698,36 @@ export function useReadingData() {
   );
 
   const refreshFeedsRef = useRef(refreshFeeds);
+
+  const archiveInFlightRef = useRef(false);
+  /** Fetch the next older page of the cloud archive (keyset, deduped). */
+  const loadOlderArticles = useCallback(async (): Promise<void> => {
+    const cursor = archiveCursorRef.current;
+    if (!cursor || archiveInFlightRef.current) return;
+    const names = feedSourcesRef.current.filter((f) => f.enabled).map((f) => f.name);
+    archiveInFlightRef.current = true;
+    setArchiveStatus('loading');
+    try {
+      const page = await listStoredArticlesPage(names, cursor, ARCHIVE_PAGE_SIZE);
+      const known = new Set(articlesRef.current.map((a) => a.link));
+      const fresh = page.items.filter((a) => !known.has(a.link));
+      // A full page with nothing new means every row shares the boundary
+      // timestamp; stop rather than loop on the same cursor forever.
+      const exhausted = page.nextCursor === null || (fresh.length === 0 && page.nextCursor === cursor);
+      archiveCursorRef.current = exhausted ? null : page.nextCursor;
+      setHasMoreArchive(!exhausted);
+      if (fresh.length > 0) {
+        setArticles((prev) => capArticles(mergeArticles<FeedItem>(prev, fresh)));
+        setTotalInDB((n) => n + fresh.length);
+      }
+      setArchiveStatus('success');
+    } catch (e) {
+      console.warn('Reading: archive page failed', e);
+      setArchiveStatus('error');
+    } finally {
+      archiveInFlightRef.current = false;
+    }
+  }, [capArticles]);
 
   // ─── Lifecycle (mount-only) ────────────────────────────────────────────
   // Initial load + adaptive auto-refresh. The interval recalculates
@@ -1522,6 +1570,9 @@ export function useReadingData() {
     prefetchProgress,
     statuses,
     totalInDB,
+    hasMoreArchive,
+    archiveStatus,
+    loadOlderArticles,
     lastRefresh,
     sourceCounts,
     cachedLinks,

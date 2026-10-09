@@ -79,6 +79,9 @@ export default function ReadingPage() {
     prefetchProgress,
     statuses,
     totalInDB,
+    hasMoreArchive,
+    archiveStatus,
+    loadOlderArticles,
     lastRefresh,
     lastError,
     sourceCounts,
@@ -516,6 +519,9 @@ export default function ReadingPage() {
           onMarkRead={markAsRead}
           onMarkUnread={markAsUnread}
           onMarkManyRead={markManyRead}
+          hasMoreRemote={hasMoreArchive}
+          remoteStatus={archiveStatus}
+          onLoadOlder={loadOlderArticles}
         />
       </PullToRefresh>
 

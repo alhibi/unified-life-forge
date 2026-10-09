@@ -73,6 +73,9 @@ export function ArticleListGrouped({
   onMarkRead,
   onMarkUnread,
   onMarkManyRead,
+  hasMoreRemote = false,
+  remoteStatus = 'idle',
+  onLoadOlder,
 }: {
   articles: FeedItem[];
   loading: boolean;
@@ -95,6 +98,10 @@ export function ArticleListGrouped({
   onMarkRead: (link: string) => void;
   onMarkUnread: (link: string) => void;
   onMarkManyRead: (links: ReadonlyArray<string>) => void;
+  /** Older cloud archive pages exist beyond what is loaded. */
+  hasMoreRemote?: boolean;
+  remoteStatus?: 'idle' | 'loading' | 'success' | 'error';
+  onLoadOlder?: () => void;
 }) {
   const scrollKey = `${filterTab}|${sourceFilter}|${prefs.sort}|${prefs.group}`;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -224,20 +231,23 @@ export function ArticleListGrouped({
   useEffect(() => {
     const sentinel = sentinelRef.current;
     const root = containerRef.current;
-    if (!sentinel || !root || !hasMore) return;
+    const canFetchRemote = hasMoreRemote && remoteStatus !== 'loading' && remoteStatus !== 'error';
+    if (!sentinel || !root || (!hasMore && !canFetchRemote)) return;
     const obs = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
-          if (e.isIntersecting) {
-            setPageSize((n) => n + PAGE_SIZE);
-          }
+          if (!e.isIntersecting) continue;
+          // Exhaust what is already in memory before asking the archive.
+          if (hasMore) setPageSize((n) => n + PAGE_SIZE);
+          else onLoadOlder?.();
         }
       },
       { root, rootMargin: '600px 0px 600px 0px' },
     );
     obs.observe(sentinel);
     return () => obs.disconnect();
-  }, [hasMore, pagedRows.length]);
+  }, [hasMore, hasMoreRemote, remoteStatus, onLoadOlder, pagedRows.length]);
+  const showSentinel = hasMore || (hasMoreRemote && remoteStatus !== 'error');
 
   // Used by context menu's mark-above/below to enumerate links.
   const visibleArticles = useMemo(
@@ -559,14 +569,25 @@ export function ArticleListGrouped({
       {bottomSpacer > 0 && <div style={{ height: bottomSpacer }} aria-hidden />}
 
       {/* Infinite-scroll sentinel + subtle loading pulse */}
-      {hasMore && (
+      {!hasMore && hasMoreRemote && remoteStatus === 'error' && (
+        <div className="py-6 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={onLoadOlder}
+            className="min-h-11 px-4 rounded-full bg-surface-1 text-micro text-muted-foreground"
+          >
+            {'تعذّر تحميل المقالات الأقدم — إعادة المحاولة'}
+          </button>
+        </div>
+      )}
+      {showSentinel && (
         <div ref={sentinelRef} className="py-6 flex items-center justify-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary/50 animate-pulse" />
           <span className="h-1.5 w-1.5 rounded-full bg-primary/40 animate-pulse [animation-delay:150ms]" />
           <span className="h-1.5 w-1.5 rounded-full bg-primary/30 animate-pulse [animation-delay:300ms]" />
         </div>
       )}
-      {!hasMore && totalArticleRows > INITIAL_PAGE_SIZE && (
+      {!hasMore && !hasMoreRemote && totalArticleRows > INITIAL_PAGE_SIZE && (
         <div className="py-8 text-center text-micro text-muted-foreground-subtle tracking-wide">
           {'— انتهت المقالات —'}
         </div>
