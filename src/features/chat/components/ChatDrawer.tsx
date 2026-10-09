@@ -1551,13 +1551,13 @@ export default function ChatDrawer({
 
           {/* ── Chat Input ── */}
           {chat.activeConv && chat.chatPrefs.isBlocked(chat.activeConv.id) ? (
-            <div className="border-t border-border/15 bg-[#111111] px-4 py-4 flex flex-col items-center justify-center gap-3 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+            <div className="border-t border-border/15 bg-background px-4 py-4 flex flex-col items-center justify-center gap-3 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
               <p className="text-mini text-muted-foreground font-medium text-center">
                 {'لقد قمت بحظر هذا المستخدم'}
               </p>
               <button
                 onClick={() => chat.chatPrefs.toggleBlocked(chat.activeConv!.id)}
-                className="px-6 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-[#C9A84C] border border-[#C9A84C]/30 text-mini font-semibold active:scale-95 transition-transform"
+                className="px-6 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-mini font-semibold active:scale-95 transition-transform"
               >
                 {'إلغاء الحظر'}
               </button>

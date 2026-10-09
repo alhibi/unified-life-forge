@@ -145,7 +145,7 @@ export function HealthConnectCard({ onSynced }: Props) {
             href={HEALTH_CONNECT_INSTALL_URL}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-white"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-primary-foreground"
           >
             <Zap className="w-3.5 h-3.5" />
             تثبيت من Play
@@ -161,7 +161,7 @@ export function HealthConnectCard({ onSynced }: Props) {
           <div className="flex gap-2">
             <button
               onClick={handleGrant}
-              className="px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-white active-tactile"
+              className="px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-primary-foreground active-tactile"
             >
               منح الأذونات
             </button>
@@ -187,7 +187,7 @@ export function HealthConnectCard({ onSynced }: Props) {
           <button
             onClick={handleSync}
             disabled={phase === 'syncing'}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-white disabled:opacity-50 active-tactile"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold bg-[hsl(var(--fitness-primary))] text-primary-foreground disabled:opacity-50 active-tactile"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${phase === 'syncing' ? 'animate-spin' : ''}`} />
             {phase === 'syncing' ? '…مزامنة' : 'مزامنة الآن'}
