@@ -35,8 +35,27 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
   });
 
   if (error) {
-    console.error('Error checking username availability:', error);
-    throw error;
+    // RPC not deployed yet (migration pending): fall back to the direct
+    // select so the check keeps working, then let the unique constraint be
+    // the final authority on save.
+    const missing =
+      error.code === '42883' ||
+      error.code === 'PGRST202' ||
+      /could not find the function|schema cache/i.test(error.message ?? '');
+    if (!missing) {
+      console.error('Error checking username availability:', error);
+      throw error;
+    }
+    const { data: row, error: fallbackError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', username.toLowerCase().trim())
+      .maybeSingle();
+    if (fallbackError) {
+      console.error('Error checking username availability:', fallbackError);
+      throw fallbackError;
+    }
+    return !row;
   }
 
   return data === true;
