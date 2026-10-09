@@ -18,15 +18,16 @@ Statuses: Open · In Progress · Fixed-in-code · Fixed-Verified · Blocked · S
 | Bundle budget | `bun run build:budget` | **Fail** — 4 chunks over | <5s | PERF-001 |
 | E2E | `bun run e2e` | Not run this slice | | Phase G |
 | Smoke | `bun run test:smoke` | Not run this slice | | Phase G |
-| Backend reachability | DNS + REST probe | **Down** — NXDOMAIN, HTTP 000; migration tool: pooler 544 / ENOTFOUND | | Blocks SEC-001/002/003 |
+| Backend reachability | DNS + REST probe | Root cause: hosted backend was **paused**. Resumed 2026-10-09 22:30 UTC; auth health 401 (reachable) | | |
+| RLS suite (live) | `bunx vitest run src/test/rlsHostileClient.test.ts` | **Pass 30/30** against live backend, no offline flag | 1.8s | anonymous read/write/RPC all denied |
 
 ## Issues
 
 | ID | Sev | Status | Location | Evidence / root cause | Fix | Guard test |
 |---|---|---|---|---|---|---|
-| SEC-001 | P0 | **Blocked** | `supabase/migrations/20261005120000_close_anon_read_leaks.sql` | In Git; application to the live database cannot be confirmed — backend unreachable. RLS hostile-client suite fails on reachability, not on a policy | Apply forward-only when backend returns, then run the suite against anonymous / owner / other-user synthetic rows | `src/test/rlsHostileClient.test.ts` |
-| SEC-002 | P1 | **Blocked** | `is_username_available` RPC | Written, client falls back to direct check; 7 apply attempts failed (ENOTFOUND) | Apply via migration tool when backend returns | — |
-| SEC-003 | P1 | Open (design ready) | `conversationsQuery.ts:33`, `useChat.ts:1545`, `lib/chat/api.ts:449` | These read **other users'** rows from `profiles`. After SEC-001, new accounts default to private and RLS hides them; `profiles_public` is `security_invoker` so it hides them too. Result once SEC-001 lands: chat partner names/avatars disappear. Columns read are not privacy-filtered fields, so there is no leak today | SECURITY DEFINER RPC returning only username/display_name/avatar for users who share a conversation or block row with the caller; switch the three consumers | Planned arch test banning `.from('profiles')` outside owner modules |
+| SEC-001 | P0 | Fixed-Verified (live) | `20261005120000_close_anon_read_leaks.sql` | Live inspection: `public read places` policy absent; places/place_photos/place_links owner-only; anon holds no grants on profiles/places/messages/conversations; profiles SELECT = owner OR conversation partner. The live state is already **stricter** than the Git file (which would allow any signed-in user to read `is_public` profiles), so the file must NOT be applied as-is | No apply. Reconcile Git with live via a forward-only migration in a later slice | RLS suite 30/30 live |
+| SEC-002 | P1 | Fixed-Verified (live) | `is_username_available` | Applied (drizzle 0002). Anonymous REST call returns `true` for an unused name | — | live curl |
+| SEC-003 | P2 | Stale (re-scoped) | chat profile reads | Live policy already lets conversation partners read each other, so chat names will not disappear. Residual: blocked-users list and forwarded-from names for non-partners may show blank | Narrow RPC for those two only | — |
 | SEC-004 | P2 | Fixed-Verified | `ImageUploadContext.tsx`, `features/archive/api.ts` | Scattered `import.meta.env.VITE_SUPABASE_*` reads; archive hardcoded a fallback host, upload could send `undefined` apikey | Import `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` from the generated client | `clientSecretExposure.test.ts` › "resolves Supabase URL/key only in the generated client module" (pass). Allowed exception: `lib/mcp/index.ts` (build-time manifest) |
 | SEC-005 | P2 | Fixed-Verified | `services/supabase/profiles.ts` | `getProfile` had zero callers and queried the wrong column (`id`) with `select('*')` | Removed | typecheck pass |
 | CHAT-001 | P1 | Fixed-in-code | `lib/chat/hooks/useChatMessages.ts` | Topic `chat:${chatId}` reused while previous `removeChannel` pending → "cannot add postgres_changes callbacks after subscribe()"; `viewerId` in deps re-subscribed on auth refresh | Unique topic per subscription, `viewerId` via ref, cleanup removes every channel | `useChatMessages.realtime.test.tsx` (pass). Live delivery check pending backend |
@@ -37,7 +38,7 @@ Statuses: Open · In Progress · Fixed-in-code · Fixed-Verified · Blocked · S
 
 ## Next exact steps
 
-1. When the backend resolves: apply SEC-001, SEC-002 → run `bun run test` without the offline flag → move to Fixed-Verified or record failures.
-2. Implement SEC-003 RPC in the same migration window, then switch consumers.
+1. Reconcile `close_anon_read_leaks.sql` with the live (stricter) policies; drop the CI offline-RLS flag once backend stays up.
+2. SEC-003 residual (blocked list / forwarded names).
 3. PERF-001 chunk investigation.
 4. Phase C auth/session flows; Phase E ADR.
