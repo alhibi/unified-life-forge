@@ -13,9 +13,9 @@ import { useJournalEntries, useJournalMutations } from '../hooks/useJournal';
 import { computeBalance, type JournalEntry, type JournalMood } from '../types';
 
 const MOOD_META: Record<JournalMood, { label: string; accent: string }> = {
-  organic:    { label: 'عاطفي',   accent: '#C8A96E' },
-  balanced:   { label: 'متوازن',  accent: '#F2E7C9' },
-  analytical: { label: 'تحليلي',  accent: '#7EB8C9' },
+  organic:    { label: 'عاطفي',   accent: 'hsl(var(--data-2))' },
+  balanced:   { label: 'متوازن',  accent: 'hsl(var(--data-3))' },
+  analytical: { label: 'تحليلي',  accent: 'hsl(var(--data-4))' },
 };
 
 function formatDate(iso: string): string {
@@ -129,9 +129,9 @@ export default function JournalHome() {
           {/* Numeric summary */}
           <motion.div variants={item}>
             <div className="grid grid-cols-3 gap-3">
-              <StatCell label="المدخلات" value={String(balance.total)} accent="#F2E7C9" />
-              <StatCell label="عاطفي" value={`${organicPct}٪`} accent="#C8A96E" />
-              <StatCell label="تحليلي" value={`${analyticalPct}٪`} accent="#7EB8C9" />
+              <StatCell label="المدخلات" value={String(balance.total)} accent="hsl(var(--data-3))" />
+              <StatCell label="عاطفي" value={`${organicPct}٪`} accent="hsl(var(--data-2))" />
+              <StatCell label="تحليلي" value={`${analyticalPct}٪`} accent="hsl(var(--data-4))" />
             </div>
           </motion.div>
         </motion.div>

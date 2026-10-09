@@ -298,7 +298,7 @@ export default function FoodComparer({ lang }: Props) {
       <AnimatePresence>
         {searchOpen && (
           <div
-            className="fixed inset-0 z-drawer bg-black/60 flex items-end justify-center"
+            className="fixed inset-0 z-drawer bg-background/60 flex items-end justify-center"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div

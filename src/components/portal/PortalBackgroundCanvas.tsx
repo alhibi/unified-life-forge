@@ -52,6 +52,14 @@ export default function PortalBackgroundCanvas() {
     const maxParticles = 40;
     const particles: Particle[] = [];
 
+    // Resolve the theme's copper accent and muted ink tint once — the particle
+    // field should follow the active palette/mode instead of a fixed colour.
+    const rootStyle = getComputedStyle(document.documentElement);
+    const accentChannels = rootStyle.getPropertyValue('--primary').trim();
+    const inkChannels = rootStyle.getPropertyValue('--muted-foreground').trim();
+    const accentColor = accentChannels ? `hsl(${accentChannels})` : 'hsl(var(--primary))';
+    const inkColor = inkChannels ? `hsl(${inkChannels})` : 'hsl(var(--muted-foreground))';
+
     // Initialize particles
     for (let i = 0; i < maxParticles; i++) {
       particles.push({
@@ -62,7 +70,7 @@ export default function PortalBackgroundCanvas() {
         speedY: -Math.random() * 0.2 - 0.05, // Upward drifting motion
         alpha: Math.random() * 0.4 + 0.1,
         alphaSpeed: (Math.random() * 0.005 + 0.002) * (Math.random() > 0.5 ? 1 : -1),
-        color: Math.random() > 0.7 ? '#B8492E' : '#8d887f', // Copper accent vs organic muted ink tint
+        color: Math.random() > 0.7 ? accentColor : inkColor, // Copper accent vs organic muted ink tint
       });
     }
 
@@ -75,9 +83,9 @@ export default function PortalBackgroundCanvas() {
         width / 2, 0, Math.max(width, height) * 0.8
       );
       // Beautiful ambient glow centered top
-      gradient.addColorStop(0, 'rgba(184, 73, 46, 0.025)'); // Copper warmth
-      gradient.addColorStop(0.5, 'rgba(138, 91, 61, 0.008)');
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      gradient.addColorStop(0, `hsl(${accentChannels || '32 34% 41%'} / 0.025)`); // Copper warmth
+      gradient.addColorStop(0.5, `hsl(${accentChannels || '32 34% 41%'} / 0.008)`);
+      gradient.addColorStop(1, 'transparent');
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
@@ -106,11 +114,12 @@ export default function PortalBackgroundCanvas() {
         // Draw particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color === '#B8492E'
-          ? `rgba(184, 73, 46, ${p.alpha})`
-          : `rgba(141, 136, 127, ${p.alpha * 0.7})`;
-        ctx.shadowBlur = p.color === '#B8492E' ? 4 : 0;
-        ctx.shadowColor = 'rgba(184, 73, 46, 0.3)';
+        const isAccent = p.color === accentColor;
+        ctx.fillStyle = isAccent
+          ? `hsl(${accentChannels || '32 34% 41%'} / ${p.alpha})`
+          : `hsl(${inkChannels || '0 0% 55%'} / ${p.alpha * 0.7})`;
+        ctx.shadowBlur = isAccent ? 4 : 0;
+        ctx.shadowColor = `hsl(${accentChannels || '32 34% 41%'} / 0.3)`;
         ctx.fill();
       }
 

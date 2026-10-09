@@ -87,8 +87,10 @@ export default function EdgeSwipeBack() {
       if (scrim) return scrim;
       const el = document.createElement('div');
       el.setAttribute('data-edge-swipe-scrim', '');
-      el.style.cssText =
-        'position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:0;';
+      const scrimHsl = getComputedStyle(document.documentElement)
+        .getPropertyValue('--scrim')
+        .trim();
+      el.style.cssText = `position:fixed;inset:0;background:hsl(${scrimHsl});opacity:0;pointer-events:none;z-index:0;`;
       document.body.appendChild(el);
       scrim = el;
       return el;

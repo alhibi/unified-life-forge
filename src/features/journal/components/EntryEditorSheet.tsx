@@ -7,9 +7,9 @@ import { Drawer, DrawerContent, DrawerDescription,DrawerTitle } from '@/componen
 import { computeWordCount, type JournalEntry, type JournalMood } from '../types';
 
 const MOODS: { id: JournalMood; label: string; hint: string; accent: string }[] = [
-  { id: 'organic', label: 'عاطفي', hint: 'مشاعر، حدس، دفء', accent: '#C8A96E' },
-  { id: 'balanced', label: 'متوازن', hint: 'بين القلب والعقل', accent: '#F2E7C9' },
-  { id: 'analytical', label: 'تحليلي', hint: 'أفكار، منطق، ترتيب', accent: '#7EB8C9' },
+  { id: 'organic', label: 'عاطفي', hint: 'مشاعر، حدس، دفء', accent: 'hsl(var(--data-2))' },
+  { id: 'balanced', label: 'متوازن', hint: 'بين القلب والعقل', accent: 'hsl(var(--data-3))' },
+  { id: 'analytical', label: 'تحليلي', hint: 'أفكار، منطق، ترتيب', accent: 'hsl(var(--data-4))' },
 ];
 
 interface Props {

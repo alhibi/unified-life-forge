@@ -67,7 +67,7 @@ export default function AuthGuard({
           className="max-w-md w-full bg-card/60 border border-border/10 rounded-2xl p-8 text-center flex flex-col items-center gap-5 shadow-2xl relative overflow-hidden"
         >
           {/* Subtle copper accent line */}
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-[#c78a4e] opacity-40" />
+          <div className="absolute top-0 inset-x-0 h-[2px] bg-primary opacity-40" />
 
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/15">
             <ShieldAlert className="w-6 h-6 text-primary" />

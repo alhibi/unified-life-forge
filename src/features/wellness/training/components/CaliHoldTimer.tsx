@@ -44,7 +44,7 @@ function vibrate(pattern: number | number[]): void {
 }
 
 export default function CaliHoldTimer({
-  open, onClose, skillName, targetSec, personalBest, onSave, lang, accent = '#0ea5e9',
+  open, onClose, skillName, targetSec, personalBest, onSave, lang, accent = 'hsl(var(--primary))',
 }: CaliHoldTimerProps) {
   const [sec, setSec] = useState(0);
   const [running, setRunning] = useState(false);
@@ -92,7 +92,7 @@ export default function CaliHoldTimer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-sheet bg-black/85 flex items-center justify-center"
+          className="fixed inset-0 z-sheet bg-[hsl(var(--scrim)/0.85)] flex items-center justify-center"
         >
           <motion.div
             initial={{ scale: 0.92 }}
@@ -103,27 +103,27 @@ export default function CaliHoldTimer({
           >
             <button
               onClick={onClose}
-              className="absolute top-0 end-0 w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center"
+              className="absolute top-0 end-0 w-9 h-9 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center"
               aria-label="close"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="text-center pt-12">
-              <p className="text-white/60 text-mini uppercase tracking-[0.2em] font-semibold mb-1">
+              <p className="text-primary-foreground/60 text-mini uppercase tracking-[0.2em] font-semibold mb-1">
                 {skillName}
               </p>
-              <p className="text-white/40 text-micro mb-3 tabular-nums" dir="ltr">
+              <p className="text-primary-foreground/40 text-micro mb-3 tabular-nums" dir="ltr">
                 {T.target[lang]}: {targetSec}s {personalBest != null && ` · ${T.pb[lang]}: ${personalBest}s`}
               </p>
 
               <div className="relative inline-flex items-center justify-center">
                 <svg width={260} height={260} className="-rotate-90">
-                  <circle cx={130} cy={130} r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={10} />
+                  <circle cx={130} cy={130} r={radius} fill="none" stroke="hsl(var(--primary-foreground) / 0.08)" strokeWidth={10} />
                   <motion.circle
                     cx={130} cy={130} r={radius}
                     fill="none"
-                    stroke={pbBeaten ? '#fbbf24' : targetReached ? '#10b981' : accent}
+                    stroke={pbBeaten ? 'hsl(var(--warning))' : targetReached ? 'hsl(var(--success))' : accent}
                     strokeWidth={10}
                     strokeLinecap="round"
                     strokeDasharray={circ}
@@ -132,8 +132,8 @@ export default function CaliHoldTimer({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-hero font-bold tabular-nums text-white leading-none" dir="ltr">{sec}</div>
-                  <div className="text-mini text-white/50 mt-1">sec</div>
+                  <div className="text-hero font-bold tabular-nums text-primary-foreground leading-none" dir="ltr">{sec}</div>
+                  <div className="text-mini text-primary-foreground/50 mt-1">sec</div>
                 </div>
               </div>
 
@@ -164,14 +164,14 @@ export default function CaliHoldTimer({
             <div className="mt-7 flex items-center justify-center gap-3">
               <button
                 onClick={() => { setSec(0); setRunning(false); milestonesHitRef.current.clear(); }}
-                className="w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center active:scale-95"
+                className="w-11 h-11 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center active:scale-95"
                 aria-label={T.reset[lang]}
               >
                 <RotateCcw className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setRunning((r) => !r)}
-                className="w-16 h-16 rounded-full text-white flex items-center justify-center active:scale-95"
+                className="w-16 h-16 rounded-full text-primary-foreground flex items-center justify-center active:scale-95"
                 style={{ background: accent }}
                 aria-label={running ? T.pause[lang] : T.start[lang]}
               >
@@ -180,7 +180,7 @@ export default function CaliHoldTimer({
               <button
                 onClick={() => { onSave(sec); onClose(); }}
                 disabled={sec === 0}
-                className="px-4 h-11 rounded-full bg-data-1 text-white text-mini font-bold disabled:opacity-50"
+                className="px-4 h-11 rounded-full bg-data-1 text-primary-foreground text-mini font-bold disabled:opacity-50"
               >
                 {T.save[lang]}
               </button>

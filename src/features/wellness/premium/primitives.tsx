@@ -119,17 +119,17 @@ export function ProgressRing({
 export type ScoreZone = 'low' | 'moderate' | 'good' | 'optimal';
 
 const ZONE_COLOR: Record<ScoreZone, string> = {
-  low:      '#f43f5e',  // rose-500 — softer than red-500
-  moderate: '#f59e0b',  // amber-500
-  good:     '#10b981',  // emerald-500
-  optimal:  '#22c55e',  // green-500
+  low:      'hsl(var(--destructive))',
+  moderate: 'hsl(var(--warning))',
+  good:     'hsl(var(--success))',
+  optimal:  'hsl(var(--primary))',
 };
 
 const ZONE_COLOR_ALT: Record<ScoreZone, string> = {
-  low:      '#fb7185',  // rose-400
-  moderate: '#fbbf24',  // amber-400
-  good:     '#34d399',  // emerald-400
-  optimal:  '#4ade80',  // green-400
+  low:      'hsl(var(--destructive) / 0.8)',
+  moderate: 'hsl(var(--warning) / 0.8)',
+  good:     'hsl(var(--success) / 0.8)',
+  optimal:  'hsl(var(--primary) / 0.8)',
 };
 
 export function zoneColor(zone: ScoreZone | null | undefined): string {
@@ -213,10 +213,10 @@ export function StatTile({
     delta == null
       ? 'hsl(var(--muted-foreground))'
       : (delta > 0) === higherIsBetter
-      ? '#10b981'
+      ? 'hsl(var(--success))'
       : delta === 0
       ? 'hsl(var(--muted-foreground))'
-      : '#ef4444';
+      : 'hsl(var(--destructive))';
   const arrow = delta == null ? '—' : delta > 0 ? '↑' : delta < 0 ? '↓' : '·';
 
   return (
@@ -364,8 +364,8 @@ export function FastingRing({ elapsedSec, targetHours, size = 200, active, proto
   const ratio = Math.max(0, Math.min(1, elapsedSec / targetSec));
   const remainingSec = Math.max(0, targetSec - elapsedSec);
   const completed = ratio >= 1;
-  const color    = completed ? '#10b981' : active ? '#a855f7' : 'hsl(var(--muted-foreground))';
-  const colorAlt = completed ? '#34d399' : active ? '#c084fc' : 'hsl(var(--muted-foreground))';
+  const color    = completed ? 'hsl(var(--success))' : active ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))';
+  const colorAlt = completed ? 'hsl(var(--success) / 0.8)' : active ? 'hsl(var(--primary) / 0.8)' : 'hsl(var(--muted-foreground))';
 
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);

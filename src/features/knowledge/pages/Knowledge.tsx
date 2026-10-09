@@ -100,11 +100,11 @@ interface DetailModalProps {
 
 // ─── CATEGORIES ───────────────────────────────────────────────────────────────
 const CATEGORIES: Category[] = [
-  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"#C8A96E", bg:"from-signal"   },
-  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"#D4A5C9", bg:"from-data-6"  },
-  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"#7EB8C9", bg:"from-data-4"     },
-  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"#C9A87E", bg:"from-muted"   },
-  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"#C97E8A", bg:"from-data-5"    },
+  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"hsl(var(--primary))", bg:"from-signal"   },
+  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"hsl(var(--data-6))", bg:"from-data-6"  },
+  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"hsl(var(--data-4))", bg:"from-data-4"     },
+  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"hsl(var(--data-2))", bg:"from-muted"   },
+  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"hsl(var(--data-5))", bg:"from-data-5"    },
 ];
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -578,13 +578,13 @@ function Grid2({ data, color: _color }: Grid2Props) {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
       {entries.map(([k, v]) => (
         <div key={k} style={{
-          background: "#0e0e0e", border: "1px solid #1c1c1c",
+          background: "hsl(var(--card))", border: "1px solid hsl(var(--border))",
           borderRadius: "8px", padding: "11px 10px",
         }}>
-          <div style={{ fontSize: "7px", color: "#484848", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "5px" }}>
+          <div style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "5px" }}>
             {k.replace(/_/g, " ")}
           </div>
-          <div style={{ fontSize: "11px", color: "#d8d8d8", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>
+          <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>
             {v}
           </div>
         </div>
@@ -608,18 +608,18 @@ function PyramidBlock({ data, color }: PyramidBlockProps) {
         const widths = ["80%", "92%", "100%"];
         return (
           <div key={l.key} style={{
-            background: "#0e0e0e", border: `1px solid ${i === 0 ? color + "30" : "#1c1c1c"}`,
+            background: "hsl(var(--card))", border: `1px solid ${i === 0 ? color + "30" : "hsl(var(--border))"}`,
             borderRadius: "8px", padding: "10px 12px",
             width: widths[i], marginLeft: i === 0 ? "auto" : i === 1 ? "auto" : "0",
             marginRight: i === 0 ? "auto" : i === 1 ? "auto" : "0",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-              <span style={{ fontSize: "7px", color: i === 0 ? color : "#444", fontFamily: "monospace", letterSpacing: "0.15em" }}>
+              <span style={{ fontSize: "7px", color: i === 0 ? color : "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.15em" }}>
                 {l.icon} {l.key.toUpperCase()}
               </span>
-              <span style={{ fontSize: "7px", color: "#333", fontFamily: "monospace" }}>{l.note}</span>
+              <span style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace" }}>{l.note}</span>
             </div>
-            <div style={{ fontSize: "11px", color: "#ccc", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.5" }}>{val}</div>
+            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.5" }}>{val}</div>
           </div>
         );
       })}
@@ -634,7 +634,7 @@ function ComponentsBlock({ data, color }: ComponentsBlockProps) {
       {Object.entries(data).map(([k, v], i) => (
         <div key={k} style={{
           display: "flex", gap: "10px", alignItems: "flex-start",
-          background: "#0e0e0e", border: "1px solid #1a1a1a",
+          background: "hsl(var(--card))", border: "1px solid hsl(var(--border))",
           borderRadius: "8px", padding: "10px 12px",
         }}>
           <div style={{
@@ -644,10 +644,10 @@ function ComponentsBlock({ data, color }: ComponentsBlockProps) {
             fontSize: "9px", color: color, fontFamily: "monospace", fontWeight: "bold"
           }}>{i + 1}</div>
           <div>
-            <div style={{ fontSize: "7px", color: "#484848", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "3px" }}>
+            <div style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "3px" }}>
               {k.replace(/_/g, " ")}
             </div>
-            <div style={{ fontSize: "11px", color: "#ccc", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>{v}</div>
+            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>{v}</div>
           </div>
         </div>
       ))}
@@ -680,7 +680,7 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
       opacity: visible ? 1 : 0, transition:"opacity 0.35s ease",
     }}>
       <div onClick={e => e.stopPropagation()} style={{
-        background:"linear-gradient(160deg, #141414 0%, #0c0c0c 60%, #0f0f0f 100%)",
+        background:"linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--background)) 60%, hsl(var(--background)) 100%)",
         border:`1px solid ${model.color}38`, borderRadius:"24px",
         width:"100%", maxWidth:"520px", maxHeight:"90vh", overflowY:"auto",
         position:"relative",
@@ -698,8 +698,8 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
         {/* Close */}
         <button onClick={handleClose} style={{
           position:"absolute", top:"16px", right:"16px", zIndex:10,
-          background:"#1a1a1a", border:"1px solid #2a2a2a", borderRadius:"50%",
-          width:"32px", height:"32px", color:"#666", fontSize:"13px",
+          background:"hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius:"50%",
+          width:"32px", height:"32px", color:"hsl(var(--muted-foreground))", fontSize:"13px",
           cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
         }}>✕</button>
 
@@ -712,8 +712,8 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
               border:`1px solid ${model.color}30`, borderRadius:"20px",
               fontSize:"8px", color:model.color, fontFamily:"monospace", letterSpacing:"0.14em"
             }}>{brand.name.toUpperCase()}</span>
-            <span style={{ color:"#333", fontSize:"9px", fontFamily:"monospace" }}>·</span>
-            <span style={{ color:"#444", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.1em" }}>
+            <span style={{ color:"hsl(var(--muted-foreground))", fontSize:"9px", fontFamily:"monospace" }}>·</span>
+            <span style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.1em" }}>
               {model.type} · {model.year}
             </span>
           </div>
@@ -722,7 +722,7 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
           <h2 style={{
             fontFamily:"'Cormorant Garamond', serif",
             fontSize:"clamp(24px,5vw,36px)", fontWeight:"300",
-            color:"#f0f0f0", lineHeight:"1.1", marginBottom:"8px"
+            color:"hsl(var(--foreground))", lineHeight:"1.1", marginBottom:"8px"
           }}>{model.name}</h2>
 
           {/* Price */}
@@ -732,21 +732,21 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
 
           {/* Story */}
           <p style={{
-            color:"#888", fontSize:"12.5px", fontFamily:"'Amiri', serif",
+            color:"hsl(var(--muted-foreground))", fontSize:"12.5px", fontFamily:"'Amiri', serif",
             lineHeight:"1.9", marginBottom:"24px",
             paddingRight:"12px", borderRight:`2px solid ${model.color}35`,
           }}>{model.story}</p>
 
           {/* Highlights */}
           <div style={{ marginBottom:"24px" }}>
-            <div style={{ fontSize:"8px", color:"#383838", fontFamily:"monospace", letterSpacing:"0.22em", marginBottom:"12px", display:"flex", alignItems:"center", gap:"8px" }}>
-              <div style={{ width:"16px", height:"1px", background:"#383838" }} />
+            <div style={{ fontSize:"8px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.22em", marginBottom:"12px", display:"flex", alignItems:"center", gap:"8px" }}>
+              <div style={{ width:"16px", height:"1px", background:"hsl(var(--muted-foreground))" }} />
               أبرز المميزات
             </div>
             {model.highlights.map((h, i) => (
               <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:"10px", marginBottom:"9px" }}>
                 <div style={{ width:"4px", height:"4px", background:model.color, borderRadius:"50%", marginTop:"6px", flexShrink:0 }} />
-                <span style={{ color:"#bbb", fontSize:"12px", fontFamily:"'Amiri', serif", lineHeight:"1.7" }}>{h}</span>
+                <span style={{ color:"hsl(var(--foreground))", fontSize:"12px", fontFamily:"'Amiri', serif", lineHeight:"1.7" }}>{h}</span>
               </div>
             ))}
           </div>
@@ -755,12 +755,12 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
           {renderContent()}
 
           {/* Bar */}
-          <div style={{ background:"#0c0c0c", border:"1px solid #1a1a1a", borderRadius:"10px", padding:"14px", marginBottom:"18px" }}>
+          <div style={{ background:"hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius:"10px", padding:"14px", marginBottom:"18px" }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
-              <span style={{ fontSize:"8px", color:"#444", fontFamily:"monospace", letterSpacing:"0.15em" }}>{model.bar.label}</span>
+              <span style={{ fontSize:"8px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.15em" }}>{model.bar.label}</span>
               <span style={{ fontSize:"11px", color:model.color, fontFamily:"monospace" }}>{model.bar.value} / 100</span>
             </div>
-            <div style={{ height:"2px", background:"#1a1a1a", borderRadius:"1px", overflow:"hidden" }}>
+            <div style={{ height:"2px", background:"hsl(var(--card))", borderRadius:"1px", overflow:"hidden" }}>
               <div style={{
                 height:"100%", background:`linear-gradient(90deg, ${model.color}55, ${model.color})`,
                 borderRadius:"1px",
@@ -800,7 +800,7 @@ export default function Knowledge() {
   const selectBrand = (id: string) => { setActiveBrand(id); setActiveModel(null); };
 
   return (
-    <div style={{ minHeight:"100vh", background:"#080808", color:"#fff", overflowX:"hidden" }} dir="rtl">
+    <div style={{ minHeight:"100vh", background:"hsl(var(--background))", color:"hsl(var(--foreground))", overflowX:"hidden" }} dir="rtl">
       <SEO
         path="/knowledge"
         title="موسوعة الرقي — معرفة منتقاة"
@@ -826,7 +826,7 @@ export default function Knowledge() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amiri:wght@400;700&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
         ::-webkit-scrollbar { width:3px; }
-        ::-webkit-scrollbar-thumb { background:#252525; border-radius:2px; }
+        ::-webkit-scrollbar-thumb { background:"hsl(var(--muted))"; border-radius:2px; }
         button { font-family:inherit; outline:none; }
         @keyframes fadeSlide { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
@@ -846,19 +846,19 @@ export default function Knowledge() {
         <div style={{ marginBottom:"clamp(28px,5vw,44px)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
             <BackButton />
-            <div style={{ fontSize:"8px", color:"#282828", fontFamily:"monospace", letterSpacing:"0.4em" }}>
+            <div style={{ fontSize:"8px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.4em" }}>
               LISSAN · قسم المعرفة
             </div>
           </div>
           <div style={{ display:"flex", alignItems:"baseline", gap:"10px", flexWrap:"wrap" }}>
-            <h1 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:"#efefef", lineHeight:"1", letterSpacing:"-0.03em" }}>
+            <h1 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:"hsl(var(--foreground))", lineHeight:"1", letterSpacing:"-0.03em" }}>
               موسوعة
             </h1>
             <span style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:cat.color, lineHeight:"1", letterSpacing:"-0.03em", fontStyle:"italic", transition:"color 0.8s ease" }}>
               الرقي
             </span>
           </div>
-          <p style={{ color:"#303030", fontSize:"11px", fontFamily:"'Amiri', serif", marginTop:"10px" }}>
+          <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:"'Amiri', serif", marginTop:"10px" }}>
             السيارات · العطور · الساعات · الأزياء · الحلويات
           </p>
         </div>
@@ -870,14 +870,14 @@ export default function Knowledge() {
             return (
               <button key={c.id} onClick={() => switchCat(c.id)} style={{
                 background: active ? `radial-gradient(ellipse at 50% 0%, ${c.color}1e, transparent 85%)` : "transparent",
-                border:`1px solid ${active ? c.color + "48" : "#1c1c1c"}`,
+                border:`1px solid ${active ? c.color + "48" : "hsl(var(--border))"}`,
                 borderRadius:"14px", padding:"clamp(12px,2.5vw,22px) 6px", cursor:"pointer",
                 transition:"all 0.4s cubic-bezier(0.23,1,0.32,1)",
                 transform: active ? "translateY(-2px)" : "translateY(0)",
               }}>
-                <div style={{ fontSize:"clamp(16px,3vw,24px)", color: active ? c.color : "#3a3a3a", marginBottom:"6px", transition:"all 0.35s", filter: active ? `drop-shadow(0 0 8px ${c.color}65)` : "none" }}>{c.icon}</div>
-                <div style={{ color: active ? "#dedede" : "#484848", fontSize:"clamp(9px,1.6vw,11px)", fontFamily:"'Amiri', serif" }}>{c.label}</div>
-                <div style={{ color: active ? c.color : "#222", fontSize:"7px", fontFamily:"monospace", letterSpacing:"0.1em", marginTop:"3px", opacity: active ? 0.8 : 1 }}>{c.labelEn}</div>
+                <div style={{ fontSize:"clamp(16px,3vw,24px)", color: active ? c.color : "hsl(var(--muted-foreground))", marginBottom:"6px", transition:"all 0.35s", filter: active ? `drop-shadow(0 0 8px ${c.color}65)` : "none" }}>{c.icon}</div>
+                <div style={{ color: active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"clamp(9px,1.6vw,11px)", fontFamily:"'Amiri', serif" }}>{c.label}</div>
+                <div style={{ color: active ? c.color : "hsl(var(--muted-foreground))", fontSize:"7px", fontFamily:"monospace", letterSpacing:"0.1em", marginTop:"3px", opacity: active ? 0.8 : 1 }}>{c.labelEn}</div>
               </button>
             );
           })}
@@ -895,7 +895,7 @@ export default function Knowledge() {
 
           {/* Brands Column */}
           <div style={{ animation:"fadeIn 0.4s ease" }}>
-            <div style={{ fontSize:"7px", color:"#2e2e2e", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"10px" }}>
+            <div style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"10px" }}>
               ─── BRANDS
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:"7px" }}>
@@ -903,28 +903,28 @@ export default function Knowledge() {
                 const sel = activeBrand === b.id;
                 return (
                   <button key={b.id} onClick={() => selectBrand(b.id)} style={{
-                    background: sel ? `linear-gradient(135deg, ${cat.color}12, ${cat.color}06)` : "#0d0d0d",
-                    border:`1px solid ${sel ? cat.color+"40" : "#181818"}`,
+                    background: sel ? `linear-gradient(135deg, ${cat.color}12, ${cat.color}06)` : "hsl(var(--card))",
+                    border:`1px solid ${sel ? cat.color+"40" : "hsl(var(--border))"}`,
                     borderRadius:"12px", padding:"14px", cursor:"pointer",
                     transition:"all 0.35s cubic-bezier(0.23,1,0.32,1)", textAlign:"right",
                   }}>
                     <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom: sel ? "0" : "7px" }}>
                       <div style={{
                         width:"34px", height:"34px", borderRadius:"8px", flexShrink:0,
-                        background: sel ? `${cat.color}16` : "#131313",
-                        border:`1px solid ${sel ? cat.color+"30" : "#202020"}`,
+                        background: sel ? `${cat.color}16` : "hsl(var(--card))",
+                        border:`1px solid ${sel ? cat.color+"30" : "hsl(var(--border))"}`,
                         display:"flex", alignItems:"center", justifyContent:"center",
-                        color: sel ? cat.color : "#3a3a3a", fontFamily:"serif", fontSize:"10px", fontWeight:"bold",
+                        color: sel ? cat.color : "hsl(var(--muted-foreground))", fontFamily:"serif", fontSize:"10px", fontWeight:"bold",
                       }}>{b.logo}</div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ color: sel ? "#eeeeee" : "#888", fontSize:"13px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500" }}>{b.name}</div>
-                        <div style={{ color:"#333", fontSize:"8px", fontFamily:"monospace" }}>{b.origin} · {b.founded}</div>
+                        <div style={{ color: sel ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"13px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500" }}>{b.name}</div>
+                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace" }}>{b.origin} · {b.founded}</div>
                       </div>
                     </div>
                     {!activeBrand && (
                       <div style={{ marginTop: "10px" }}>
                         <div style={{ color: cat.color, fontSize:"9px", fontFamily:"'Cormorant Garamond', serif", fontStyle:"italic", marginBottom:"4px", opacity:0.7 }}>{b.tagline}</div>
-                        <div style={{ color:"#383838", fontSize:"10px", fontFamily:"'Amiri', serif", lineHeight:"1.5" }}>{b.desc}</div>
+                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"10px", fontFamily:"'Amiri', serif", lineHeight:"1.5" }}>{b.desc}</div>
                       </div>
                     )}
                   </button>
@@ -938,58 +938,58 @@ export default function Knowledge() {
             <div style={{ animation:"fadeSlide 0.4s cubic-bezier(0.23,1,0.32,1)" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"14px" }}>
                 <div>
-                  <div style={{ fontSize:"7px", color:"#2e2e2e", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"3px" }}>─── {brand.name.toUpperCase()}</div>
+                  <div style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"3px" }}>─── {brand.name.toUpperCase()}</div>
                   <div style={{ fontSize:"9px", color:cat.color, fontFamily:"'Cormorant Garamond', serif", fontStyle:"italic", opacity:0.7 }}>{brand.tagline}</div>
                 </div>
                 <button onClick={() => { setActiveBrand(null); setActiveModel(null); }} style={{
-                  background:"transparent", border:"1px solid #1a1a1a", borderRadius:"7px",
-                  padding:"5px 11px", color:"#3a3a3a", fontSize:"8px", fontFamily:"monospace", cursor:"pointer",
+                  background:"transparent", border: "1px solid hsl(var(--border))", borderRadius:"7px",
+                  padding:"5px 11px", color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace", cursor:"pointer",
                 }}>رجوع ←</button>
               </div>
 
               <div style={{ display:"flex", flexDirection:"column", gap:"9px" }}>
                 {brand.models.map((m, i) => (
                   <button key={m.id} onClick={() => setActiveModel(m)} style={{
-                    background:"linear-gradient(135deg, #0f0f0f, #0c0c0c)", border:"1px solid #191919",
+                    background:"linear-gradient(135deg, hsl(var(--card)), hsl(var(--background)))", border: "1px solid hsl(var(--border))",
                     borderRadius:"13px", padding:"16px", cursor:"pointer", textAlign:"right",
                     transition:"all 0.3s cubic-bezier(0.23,1,0.32,1)", position:"relative", overflow:"hidden",
                     animation:`fadeSlide 0.4s ease ${i*0.07}s both`,
                   }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = m.color+"40"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "#191919"; e.currentTarget.style.transform = "translateY(0)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "hsl(var(--border))"; e.currentTarget.style.transform = "translateY(0)"; }}
                   >
                     {/* Corner glow */}
                     <div style={{ position:"absolute", top:0, right:0, width:"70px", height:"70px", background:`radial-gradient(circle at 80% 20%, ${m.color}15, transparent 70%)`, borderRadius:"0 13px 0 70px", pointerEvents:"none" }} />
 
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"7px" }}>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ color:"#eeeeee", fontSize:"14px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500", marginBottom:"4px" }}>{m.name}</div>
+                        <div style={{ color:"hsl(var(--foreground))", fontSize:"14px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500", marginBottom:"4px" }}>{m.name}</div>
                         <span style={{ display:"inline-block", padding:"1px 7px", background:`${m.color}16`, border:`1px solid ${m.color}30`, borderRadius:"20px", fontSize:"7px", color:m.color, fontFamily:"monospace", letterSpacing:"0.1em" }}>{m.type.toUpperCase()}</span>
                       </div>
                       <div style={{ textAlign:"left" }}>
                         <div style={{ color:cat.color, fontSize:"8px", fontFamily:"monospace", opacity:0.7 }}>{m.year}</div>
-                        <div style={{ color:"#444", fontSize:"8px", fontFamily:"monospace", marginTop:"2px" }}>{m.price.split(" ")[0]}</div>
+                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace", marginTop:"2px" }}>{m.price.split(" ")[0]}</div>
                       </div>
                     </div>
 
-                    <p style={{ color:"#484848", fontSize:"11px", fontFamily:"'Amiri', serif", lineHeight:"1.6", marginBottom:"9px" }}>
+                    <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:"'Amiri', serif", lineHeight:"1.6", marginBottom:"9px" }}>
                       {m.story.slice(0, 100)}…
                     </p>
 
                     {/* Mini bar */}
                     <div style={{ marginBottom:"8px" }}>
                       <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"4px" }}>
-                        <span style={{ fontSize:"7px", color:"#2e2e2e", fontFamily:"monospace" }}>{m.bar.label}</span>
+                        <span style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace" }}>{m.bar.label}</span>
                         <span style={{ fontSize:"7px", color:m.color, fontFamily:"monospace", opacity:0.7 }}>{m.bar.value}%</span>
                       </div>
-                      <div style={{ height:"1px", background:"#181818", borderRadius:"1px" }}>
+                      <div style={{ height:"1px", background:"hsl(var(--border))", borderRadius:"1px" }}>
                         <div style={{ height:"100%", width:`${m.bar.value}%`, background:`linear-gradient(90deg, ${m.color}44, ${m.color}88)`, borderRadius:"1px" }} />
                       </div>
                     </div>
 
                     <div style={{ display:"flex", gap:"4px", flexWrap:"wrap", marginBottom:"7px" }}>
                       {m.tags.slice(0,3).map(t => (
-                        <span key={t} style={{ padding:"1px 6px", background:"#121212", border:"1px solid #1e1e1e", borderRadius:"4px", fontSize:"7px", color:"#444", fontFamily:"monospace" }}>{t}</span>
+                        <span key={t} style={{ padding:"1px 6px", background:"hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius:"4px", fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace" }}>{t}</span>
                       ))}
                     </div>
                     <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", letterSpacing:"0.15em", opacity:0.5 }}>تفاصيل كاملة ↗</div>
@@ -1002,18 +1002,18 @@ export default function Knowledge() {
 
         {/* Empty State */}
         {!activeBrand && (
-          <div style={{ marginTop:"32px", padding:"44px 28px", border:"1px dashed #141414", borderRadius:"18px", textAlign:"center", animation:"fadeIn 0.5s ease" }}>
-            <div style={{ fontSize:"clamp(32px,7vw,48px)", color:"#161616", marginBottom:"14px" }}>{cat.icon}</div>
-            <div style={{ color:"#262626", fontSize:"12px", fontFamily:"'Amiri', serif" }}>اختر علامة تجارية للاستكشاف</div>
-            <div style={{ color:"#1c1c1c", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.2em", marginTop:"7px" }}>
+          <div style={{ marginTop:"32px", padding:"44px 28px", border: "1px dashed hsl(var(--border))", borderRadius:"18px", textAlign:"center", animation:"fadeIn 0.5s ease" }}>
+            <div style={{ fontSize:"clamp(32px,7vw,48px)", color:"hsl(var(--muted-foreground))", marginBottom:"14px" }}>{cat.icon}</div>
+            <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"12px", fontFamily:"'Amiri', serif" }}>اختر علامة تجارية للاستكشاف</div>
+            <div style={{ color:"hsl(var(--border))", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.2em", marginTop:"7px" }}>
               {catData.brands.length} BRANDS · {catData.brands.reduce((a,b) => a + b.models.length, 0)} ITEMS
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div style={{ marginTop:"52px", paddingTop:"18px", borderTop:"1px solid #0e0e0e", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:"8px" }}>
-          <div style={{ fontSize:"7px", color:"#1e1e1e", fontFamily:"monospace", letterSpacing:"0.2em" }}>LISSAN · قسم المعرفة</div>
+        <div style={{ marginTop:"52px", paddingTop:"18px", borderTop:"1px solid hsl(var(--card))", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:"8px" }}>
+          <div style={{ fontSize:"7px", color:"hsl(var(--border))", fontFamily:"monospace", letterSpacing:"0.2em" }}>LISSAN · قسم المعرفة</div>
           <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", opacity:0.35, letterSpacing:"0.15em" }}>
             {cat.labelEn.toUpperCase()} — {catData.brands.reduce((a,b) => a + b.models.length, 0)} CURATED
           </div>

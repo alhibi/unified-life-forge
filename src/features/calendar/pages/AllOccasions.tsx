@@ -244,7 +244,7 @@ function EventListCard({
   event: ResolvedIslamicEvent;
   onOpen: () => void;
 }) {
-  const accent = ACCENT[event.color] ?? '#10b981';
+  const accent = ACCENT[event.color] ?? 'hsl(var(--success))';
   const monthLabel = HIJRI_MONTHS[event.month - 1];
   const dayLabel =
     event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
@@ -337,7 +337,7 @@ function DetailContent({
 }: {
   event: ResolvedIslamicEvent;
 }) {
-  const accent = ACCENT[event.color] ?? '#10b981';
+  const accent = ACCENT[event.color] ?? 'hsl(var(--success))';
   const monthLabel = HIJRI_MONTHS[event.month - 1];
   const dayLabel =
     event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
