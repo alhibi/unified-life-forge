@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -2634,6 +2634,7 @@ export type Database = {
         Args: { fn_name: string; payload?: Json }
         Returns: number
       }
+      is_username_available: { Args: { _username: string }; Returns: boolean }
       mark_message_read: { Args: { p_message_id: string }; Returns: undefined }
       mark_messages_delivered: {
         Args: { p_conversation_id: string }

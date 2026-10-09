@@ -56,7 +56,7 @@
   - [x] Central article/refresh API contracts with Zod validation and no direct reader-hook data calls.
   - [x] Persist client-fetched and newly stored source articles into the local cache.
   - [x] Deterministic refresh queue with per-source backoff and cancellation.
-  - [ ] Apply username-availability database function (blocked: database unreachable).
+  - [x] Apply username-availability database function.
   - [x] Cursor pagination beyond the initial 300 articles.
   - [ ] Multi-stage feed discovery and typed per-source failure reporting.
 - [ ] Reading parity pass: folders/tags, per-feed retention and refresh controls, mark-read gestures, OPML fidelity, article extraction, image handling, and offline verification.

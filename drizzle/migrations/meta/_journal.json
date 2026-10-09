@@ -15,6 +15,13 @@
       "when": 1790175864114,
       "tag": "0001_scope_generation_job_reads_to_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791585111635,
+      "tag": "0002_username_availability_rpc",
+      "breakpoints": true
     }
   ]
 }
