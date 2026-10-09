@@ -9,8 +9,8 @@
     <!-- Step 50 and step 600 of the default theme scale — see
          src/utils/themeEngine.ts. These must equal --background in each mode
          or the OS chrome flashes a different colour than the app boots into. -->
-    <meta name="theme-color" content="#f1f0f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1c1827" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F4F2EF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0D0D0F" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -148,7 +148,7 @@
           // Keep the OS chrome (status bar / address bar) in step with the
           // resolved theme instead of the system preference, otherwise the
           // WebView flashes the wrong bar colour on launch.
-          var themeColor = isDark ? '#1c1827' : '#f1f0f4';
+          var themeColor = isDark ? '#0D0D0F' : '#F4F2EF';
           var metas = document.querySelectorAll('meta[name="theme-color"]');
           for (var i = 0; i < metas.length; i++) metas[i].removeAttribute('media');
           for (var j = 0; j < metas.length; j++) metas[j].setAttribute('content', themeColor);

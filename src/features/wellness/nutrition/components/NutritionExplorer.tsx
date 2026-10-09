@@ -71,13 +71,13 @@ const T = {
 };
 
 const SMART_SECTIONS = [
-  { key: 'protein', label: T.bestProtein, icon: Dumbbell, color: '#e53e3e' },
-  { key: 'fiber', label: T.highFiber, icon: Leaf, color: '#48bb78' },
-  { key: 'lowgi', label: T.lowGI, icon: TrendingUp, color: '#4299e1' },
-  { key: 'dense', label: T.nutrientDense, icon: Star, color: '#f6ad55' },
-  { key: 'antiinflam', label: T.antiInflammatory, icon: Shield, color: '#9b59b6' },
-  { key: 'brain', label: T.brainFood, icon: Brain, color: '#ed8936' },
-  { key: 'heart', label: T.heartHealthy, icon: Heart, color: '#e53e3e' },
+  { key: 'protein', label: T.bestProtein, icon: Dumbbell, color: 'hsl(var(--data-1))' },
+  { key: 'fiber', label: T.highFiber, icon: Leaf, color: 'hsl(var(--data-2))' },
+  { key: 'lowgi', label: T.lowGI, icon: TrendingUp, color: 'hsl(var(--data-3))' },
+  { key: 'dense', label: T.nutrientDense, icon: Star, color: 'hsl(var(--data-4))' },
+  { key: 'antiinflam', label: T.antiInflammatory, icon: Shield, color: 'hsl(var(--data-5))' },
+  { key: 'brain', label: T.brainFood, icon: Brain, color: 'hsl(var(--data-6))' },
+  { key: 'heart', label: T.heartHealthy, icon: Heart, color: 'hsl(var(--data-1))' },
 ] as const;
 
 export default function NutritionExplorer() {
@@ -202,25 +202,25 @@ export default function NutritionExplorer() {
             icon={Heart}
             label={T.favorites[lang]}
             onClick={() => setView('favorites')}
-            color="#e53e3e"
+            color="hsl(var(--data-1))"
           />
           <QuickPill
             icon={Clock}
             label={T.recent[lang]}
             onClick={() => setView('favorites')}
-            color="#4299e1"
+            color="hsl(var(--data-3))"
           />
           <QuickPill
             icon={Sparkles}
             label={T.smart[lang]}
             onClick={() => setView('smart')}
-            color="#9b59b6"
+            color="hsl(var(--data-5))"
           />
           <QuickPill
             icon={Filter}
             label={T.filters[lang]}
             onClick={() => setShowFilters(!showFilters)}
-            color="#48bb78"
+            color="hsl(var(--data-2))"
           />
         </div>
       )}

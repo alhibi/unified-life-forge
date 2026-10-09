@@ -251,7 +251,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
           <h3
             className="font-black text-[hsl(var(--foreground))] tracking-tight"
             style={{
-              fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
+              fontFamily: 'var(--font-body)',
               fontSize: 'clamp(2rem, 8vw, 2.75rem)',
               letterSpacing: '-0.03em',
               lineHeight: 1.05,

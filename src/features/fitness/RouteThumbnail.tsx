@@ -104,8 +104,7 @@ export function RouteThumbnail({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="text-[#B8492E] dark:text-[#B8492E]" // Fallback to copper/olive accent
-        style={{ stroke: 'var(--live, #B8492E)' }}
+        style={{ stroke: 'hsl(var(--primary))' }}
       />
 
       {/* Start Point Marker (Green dot) */}
@@ -113,7 +112,7 @@ export function RouteThumbnail({
         cx={startX.toFixed(2)}
         cy={startY.toFixed(2)}
         r="2.5"
-        fill="#10b981"
+        fill="hsl(var(--success))"
       />
 
       {/* End Point Marker (Copper/accent dot) */}
@@ -122,7 +121,7 @@ export function RouteThumbnail({
           cx={endX.toFixed(2)}
           cy={endY.toFixed(2)}
           r="2.5"
-          fill="var(--live, #B8492E)"
+          fill="hsl(var(--primary))"
         />
       )}
     </svg>

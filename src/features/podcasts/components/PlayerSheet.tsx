@@ -328,7 +328,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
             className="fixed inset-0 z-player flex items-end justify-center"
             // Solid scrim — the sheet itself paints the ambient backdrop,
             // so out here we just want a clean black wash.
-            style={{ background: 'rgba(0, 0, 0, 0.65)' }}
+            style={{ background: 'hsl(var(--scrim) / 0.65)' }}
           >
             <motion.div
               initial={{ y: '100%' }}

@@ -264,7 +264,7 @@ export default function ProfilePanel({
                   className={cn(
                     'w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-mini font-medium transition-colors active:scale-[0.98]',
                     chat.chatPrefs.isBlocked(chat.activeConv!.id)
-                      ? 'bg-primary/10 text-[#C9A84C]'
+                      ? 'bg-primary/10 text-primary'
                       : 'bg-destructive/10 text-destructive',
                   )}
                 >

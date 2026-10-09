@@ -26,16 +26,16 @@ export interface RpeRirPickerProps {
 }
 
 const RPE_DESCRIPTIONS: Record<number, { ar: string; emoji: string; color: string }> = {
-  1:  { ar: 'سهل جداً', emoji: '😴', color: '#94a3b8' },
-  2:  { ar: 'خفيف جداً', emoji: '🙂', color: '#60a5fa' },
-  3:  { ar: 'إحماء', emoji: '😊', color: '#22c55e' },
-  4:  { ar: 'مريح', emoji: '😌', color: '#10b981' },
-  5:  { ar: 'متوسط', emoji: '🙂', color: '#84cc16' },
-  6:  { ar: 'صعب قليلاً (4 RIR)', emoji: '😐', color: '#eab308' },
-  7:  { ar: 'صعب (3 RIR)', emoji: '😤', color: '#f59e0b' },
-  8:  { ar: 'صعب جداً (2 RIR)', emoji: '😣', color: '#fb923c' },
-  9:  { ar: 'قريب من الفشل (1 RIR)', emoji: '🥵', color: '#ef4444' },
-  10: { ar: 'فشل تام (0 RIR)', emoji: '🔥', color: '#dc2626' },
+  1:  { ar: 'سهل جداً', emoji: '😴', color: 'hsl(var(--sev-good))' },
+  2:  { ar: 'خفيف جداً', emoji: '🙂', color: 'hsl(var(--sev-low))' },
+  3:  { ar: 'إحماء', emoji: '😊', color: 'hsl(var(--sev-low))' },
+  4:  { ar: 'مريح', emoji: '😌', color: 'hsl(var(--sev-low))' },
+  5:  { ar: 'متوسط', emoji: '🙂', color: 'hsl(var(--sev-moderate))' },
+  6:  { ar: 'صعب قليلاً (4 RIR)', emoji: '😐', color: 'hsl(var(--sev-moderate))' },
+  7:  { ar: 'صعب (3 RIR)', emoji: '😤', color: 'hsl(var(--sev-high))' },
+  8:  { ar: 'صعب جداً (2 RIR)', emoji: '😣', color: 'hsl(var(--sev-high))' },
+  9:  { ar: 'قريب من الفشل (1 RIR)', emoji: '🥵', color: 'hsl(var(--sev-very-high))' },
+  10: { ar: 'فشل تام (0 RIR)', emoji: '🔥', color: 'hsl(var(--sev-extreme))' },
 };
 
 export default function RpeRirPicker({
@@ -81,7 +81,7 @@ export default function RpeRirPicker({
                 height: buttonSize,
                 fontSize,
                 background: bg,
-                color: active ? '#fff' : RPE_DESCRIPTIONS[Math.round(s)]?.color,
+                color: active ? 'hsl(var(--primary-foreground))' : RPE_DESCRIPTIONS[Math.round(s)]?.color,
                 border: active ? 'none' : `1px solid ${RPE_DESCRIPTIONS[Math.round(s)]?.color}40`,
               }}
             >

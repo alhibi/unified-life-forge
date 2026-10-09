@@ -55,8 +55,7 @@ interface PrayerTime {
   time: string; // "h:mm AM" — preformatted for display
   rawTimeMs: number; // epoch ms for ordering
   arcT: number; // 0..1 position on the day-arc
-  dotLight: string;
-  dotDark: string;
+  dot: string;
 }
 
 const PRAYER_KEYS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
@@ -70,29 +69,26 @@ const PRAYER_AR: Record<PrayerKey, string> = {
   Isha: 'العشاء',
 };
 
-const PRAYER_DOT_LIGHT: Record<PrayerKey, string> = {
-  Fajr: '#4a70b0',
-  Dhuhr: '#a87010',
-  Asr: '#a06020',
-  Maghrib: '#9a3828',
-  Isha: '#584898',
-};
-const PRAYER_DOT_DARK: Record<PrayerKey, string> = {
-  Fajr: '#6890d8',
-  Dhuhr: '#d4a828',
-  Asr: '#d08840',
-  Maghrib: '#e06050',
-  Isha: '#9070d0',
+// Per-prayer accent, drawn from the shared categorical data-series tokens
+// (these already adapt between light/dark, so a single map replaces the
+// old separate light/dark hex palettes).
+const PRAYER_DOT: Record<PrayerKey, string> = {
+  Fajr: 'hsl(var(--data-4))',
+  Dhuhr: 'hsl(var(--data-3))',
+  Asr: 'hsl(var(--data-2))',
+  Maghrib: 'hsl(var(--data-5))',
+  Isha: 'hsl(var(--data-6))',
 };
 
-// Makruh palette (same hexes as khushu)
-const MAKRUH_RED = '#E04030';
-const MAKRUH_BADGE_AMBER = '#FFB300';
-const MAKRUH_BADGE_RED = '#E53935';
-const MAKRUH_TINT_SOLAR = 'rgba(229, 115, 115, 0.12)'; // zawal
-const MAKRUH_TINT_HORIZON = 'rgba(255, 213, 79, 0.12)'; // sunrise/sunset
+// Makruh (disliked-time) palette — maps to the shared status tokens.
+const MAKRUH_RED = 'hsl(var(--destructive))';
+const MAKRUH_BADGE_AMBER = 'hsl(var(--warning))';
+const MAKRUH_BADGE_RED = 'hsl(var(--destructive))';
+const MAKRUH_TINT_SOLAR = 'hsl(var(--destructive) / 0.12)'; // zawal
+const MAKRUH_TINT_HORIZON = 'hsl(var(--warning) / 0.12)'; // sunrise/sunset
 
-// Sun/moon palette
+// Sun/moon palette — intrinsic astronomical colours for the day/night
+// illustration, not brand chrome; kept as literals (see unification report).
 const SUN_COLOR = '#FAC82D';
 const MOON_COLOR = '#B4A2FF';
 
@@ -388,8 +384,7 @@ export default function PrayerTimes() {
               time: formatTime12(time24, ampm),
               rawTimeMs: ms,
               arcT: tToArc(ms, solarNoonMs),
-              dotLight: PRAYER_DOT_LIGHT[key],
-              dotDark: PRAYER_DOT_DARK[key],
+              dot: PRAYER_DOT[key],
             };
           });
           setPrayers(result);
@@ -883,7 +878,7 @@ function ArcStrip({
             <>
               {/* Crescent moon: filled circle minus offset surface circle */}
               <circle cx={sunX} cy={sunY} r={6} fill={MOON_COLOR} fillOpacity={0.85} />
-              <circle cx={sunX + 2.5} cy={sunY - 1} r={5} fill={isDark ? '#0b1230' : '#ffffff'} />
+              <circle cx={sunX + 2.5} cy={sunY - 1} r={5} fill="hsl(var(--card))" />
             </>
           ) : (
             <motion.circle
@@ -938,7 +933,9 @@ function ArcStrip({
           className="absolute top-1.5 end-2 px-1.5 py-0.5 rounded text-micro font-bold tracking-wide"
           style={{
             backgroundColor:
-              currentMakruh.label === 'Zawal' ? `${MAKRUH_BADGE_RED}30` : `${MAKRUH_BADGE_AMBER}30`,
+              currentMakruh.label === 'Zawal'
+                ? 'hsl(var(--destructive) / 0.19)'
+                : 'hsl(var(--warning) / 0.19)',
             color: currentMakruh.label === 'Zawal' ? MAKRUH_BADGE_RED : MAKRUH_BADGE_AMBER,
           }}
         >
@@ -956,10 +953,10 @@ function ArcStrip({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 cursor-pointer"
-            style={{ background: 'rgba(0,0,0,0.86)' }}
+            style={{ background: 'hsl(var(--scrim) / 0.86)' }}
             onClick={() => setExpandedZone(null)}
           >
-            <p className="text-micro font-bold tracking-wide" style={{ color: '#F06045' }}>
+            <p className="text-micro font-bold tracking-wide" style={{ color: 'hsl(var(--destructive))' }}>
               {t('prayer.makruh').toUpperCase()} ·{' '}
               {t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
@@ -983,7 +980,7 @@ function Slab({
   shakeCounter,
   guideCounter,
   onToggle,
-  isDark,
+  isDark: _isDark,
   language,
   t,
 }: {
@@ -1058,7 +1055,7 @@ function Slab({
                 const isPrayed = doneStates[p.name];
                 const isNext = !isPrayed && nextToPray === p.name;
                 const isActive = p.name === activeName;
-                const dotColor = isDark ? p.dotDark : p.dotLight;
+                const dotColor = p.dot;
                 return (
                   <motion.div
                     key={p.name}
@@ -1263,7 +1260,7 @@ function HijriCalendarStrip({
         {occasions.map((occ) => {
           const daysLeft = getDaysUntil(occ.gregorianDate);
           const isToday = daysLeft === 0;
-          const accent = accentMap[occ.color] ?? '#10b981';
+          const accent = accentMap[occ.color] ?? 'hsl(var(--success))';
 
           return (
             <button

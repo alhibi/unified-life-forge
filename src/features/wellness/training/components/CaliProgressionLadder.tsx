@@ -86,7 +86,7 @@ export default function CaliProgressionLadder({
           {onShowKnowledge && (
             <button
               onClick={onShowKnowledge}
-              className="shrink-0 w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center"
+              className="shrink-0 w-9 h-9 rounded-xl bg-primary-foreground/10 flex items-center justify-center"
               aria-label={T.knowledge[lang]}
               style={{ color: skill.color }}
             >
@@ -175,7 +175,7 @@ function StepCard({
           aria-label={isCleared ? T.cleared[lang] : T.current[lang]}
           className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-mini font-bold tabular-nums transition-colors ${
             isCleared
-              ? 'bg-data-1 text-white'
+              ? 'bg-data-1 text-primary-foreground'
               : isLocked
                 ? 'bg-muted text-muted-foreground-subtle'
                 : 'bg-muted text-foreground'

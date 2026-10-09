@@ -353,7 +353,7 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/60 flex items-end sm:items-center justify-center"
+            className="fixed inset-0 z-drawer bg-background/80 flex items-end sm:items-center justify-center"
             onClick={() => setShowPlate(false)}
           >
             <motion.div
@@ -391,10 +391,10 @@ function HeroStats({
       className="rounded-2xl p-3 border border-primary/20"
     >
       <div className="grid grid-cols-4 gap-1.5">
-        <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={'جلسات'} color="#3b82f6" />
-        <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={'سلسلة'} color="#f97316" />
-        <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={'أطول'} color="#fbbf24" />
-        <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={'الأسبوع'} color="#10b981" />
+        <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={'جلسات'} color="hsl(var(--data-1))" />
+        <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={'سلسلة'} color="hsl(var(--data-2))" />
+        <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={'أطول'} color="hsl(var(--data-3))" />
+        <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={'الأسبوع'} color="hsl(var(--data-4))" />
       </div>
     </motion.div>
   );

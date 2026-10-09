@@ -286,7 +286,7 @@ function SkillCard({
                     >
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <span
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-micro font-bold text-white shrink-0"
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-micro font-bold text-primary-foreground shrink-0"
                           style={{ backgroundColor: skill.color }}
                         >
                           {i + 1}
@@ -708,7 +708,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                             >
                               <div className="flex items-start gap-2">
                                 <div
-                                  className="w-5 h-5 rounded-md flex items-center justify-center text-micro font-bold text-white shrink-0 mt-0.5"
+                                  className="w-5 h-5 rounded-md flex items-center justify-center text-micro font-bold text-primary-foreground shrink-0 mt-0.5"
                                   style={{ backgroundColor: chapter.color }}
                                 >
                                   {i + 1}
@@ -848,7 +848,7 @@ export default function EncyclopediaTab() {
               key={t.key}
               onClick={() => setSubTab(t.key)}
               className={`relative flex-1 h-8 flex items-center justify-center gap-1.5 rounded-lg transition-motion ${
-                active ? 'text-white' : 'text-muted-foreground hover:text-foreground'
+                active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {active && (

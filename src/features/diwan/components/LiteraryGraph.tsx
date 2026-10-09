@@ -367,7 +367,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   y={radius + 14}
                   textAnchor="middle"
                   className="fill-foreground text-micro font-bold pointer-events-none select-none"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {node.name}
                 </text>
@@ -462,7 +462,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                   <div className="w-5 h-5 rounded-full" style={{ backgroundColor: selected.color }} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-body text-foreground leading-tight" style={{ fontFamily: "'Amiri', serif" }}>
+                  <h3 className="font-bold text-body text-foreground leading-tight" style={{ fontFamily: 'var(--font-amiri)' }}>
                     {selected.name}
                   </h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
@@ -495,7 +495,7 @@ export default function LiteraryGraph({ onSelectPoet, initialPoetId }: Props) {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-mini font-bold text-foreground" style={{ fontFamily: "'Amiri', serif" }}>{other.name}</span>
+                            <span className="text-mini font-bold text-foreground" style={{ fontFamily: 'var(--font-amiri)' }}>{other.name}</span>
                             <span className="text-micro px-2 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">{relationLabels[l.relation.type]}</span>
                           </div>
                           <p className="text-micro text-muted-foreground leading-relaxed">{l.relation.description}</p>

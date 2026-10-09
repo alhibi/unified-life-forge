@@ -73,7 +73,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${accentColor}20` }}>
               <Icon className="w-4.5 h-4.5" style={{ color: accentColor }} />
             </div>
-            <h1 className="text-title font-black text-white truncate">{title}</h1>
+            <h1 className="text-title font-black text-foreground truncate">{title}</h1>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
@@ -154,7 +154,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
                 <div className="grid grid-cols-2 gap-3">
                   {stats.map((s, i) => (
                     <div key={i} className="text-center py-2">
-                      <p className="text-lead font-black text-white">{s.value}</p>
+                      <p className="text-lead font-black text-foreground">{s.value}</p>
                       <p className="text-micro text-muted-foreground">{s.label}</p>
                     </div>
                   ))}

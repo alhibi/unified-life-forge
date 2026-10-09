@@ -174,7 +174,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-sheet bg-black/85 flex items-center justify-center"
+        className="fixed inset-0 z-sheet bg-[hsl(var(--scrim)/0.85)] flex items-center justify-center"
       >
         <motion.div
           initial={{ scale: 0.92, opacity: 0 }}
@@ -186,7 +186,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
           {onClose && (
             <button
               onClick={onClose}
-              className="absolute top-0 end-0 w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center"
+              className="absolute top-0 end-0 w-9 h-9 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center"
               aria-label="close"
             >
               <X className="w-4 h-4" />
@@ -195,14 +195,14 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
 
           <button
             onClick={() => setMuted((m) => !m)}
-            className="absolute top-0 start-0 w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center"
+            className="absolute top-0 start-0 w-9 h-9 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center"
             aria-label="mute"
           >
             {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
 
           <div className="text-center pt-12">
-            <p className="text-white/60 text-mini uppercase tracking-[0.2em] font-semibold mb-2">
+            <p className="text-primary-foreground/60 text-mini uppercase tracking-[0.2em] font-semibold mb-2">
               {isFinished ? T.done[lang] : T.rest[lang]}
             </p>
             <div className="relative inline-flex items-center justify-center">
@@ -210,13 +210,13 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
                 <circle
                   cx={130} cy={130} r={radius}
                   fill="none"
-                  stroke="rgba(255,255,255,0.08)"
+                  stroke="hsl(var(--primary-foreground) / 0.08)"
                   strokeWidth={10}
                 />
                 <motion.circle
                   cx={130} cy={130} r={radius}
                   fill="none"
-                  stroke={isFinished ? '#10b981' : '#0ea5e9'}
+                  stroke={isFinished ? 'hsl(var(--success))' : 'hsl(var(--primary))'}
                   strokeWidth={10}
                   strokeLinecap="round"
                   strokeDasharray={circ}
@@ -225,10 +225,10 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-hero font-bold tabular-nums text-white leading-none" dir="ltr">
+                <div className="text-hero font-bold tabular-nums text-primary-foreground leading-none" dir="ltr">
                   {fmtMmSs(secLeft)}
                 </div>
-                <div className="text-micro text-white/40 mt-2 tabular-nums" dir="ltr">
+                <div className="text-micro text-primary-foreground/40 mt-2 tabular-nums" dir="ltr">
                   / {fmtMmSs(target)}
                 </div>
               </div>
@@ -238,7 +238,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
           <div className="mt-7 flex items-center justify-center gap-3">
             <button
               onClick={() => { setSecLeft(target); setRunning(false); finishedRef.current = false; }}
-              className="w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center active:scale-95"
+              className="w-11 h-11 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center active:scale-95"
               aria-label={T.reset[lang]}
             >
               <RotateCcw className="w-5 h-5" />
@@ -253,7 +253,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
             </button>
             <button
               onClick={() => { setSecLeft((s) => s + 30); setTarget((t) => t + 30); finishedRef.current = false; }}
-              className="w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center active:scale-95"
+              className="w-11 h-11 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center active:scale-95"
               aria-label={T.add[lang]}
             >
               <Plus className="w-5 h-5" />
@@ -266,7 +266,7 @@ function FullTimer({ defaultSec, autoStart = true, onComplete, onClose, lang }: 
                 key={p}
                 onClick={() => { setTarget(p); setSecLeft(p); finishedRef.current = false; }}
                 className={`px-3 py-1.5 rounded-full text-micro font-semibold transition-colors ${
-                  target === p ? 'bg-primary text-primary-foreground' : 'bg-white/10 text-white/70'
+                  target === p ? 'bg-primary text-primary-foreground' : 'bg-primary-foreground/10 text-primary-foreground/70'
                 }`}
               >
                 {fmtMmSs(p)}

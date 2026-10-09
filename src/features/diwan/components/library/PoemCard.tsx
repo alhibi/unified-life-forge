@@ -24,38 +24,38 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0, transition: { delay: Math.min(index, 12) * 0.04 } }}
-      className="border-b border-[var(--hairline)] last:border-b-0"
+      className="border-b border-border/50 last:border-b-0"
     >
       <Link
         to={`/diwan/library/poem/${poem.slug}`}
         onPointerEnter={prefetch}
         onTouchStart={prefetch}
-        className="block w-full py-4 px-1 hover:bg-[rgba(242,233,216,0.015)] active:scale-[0.99] transition-motion select-none rounded-[8px]"
+        className="block w-full py-4 px-1 hover:bg-foreground/[1.5%] active:scale-[0.99] transition-motion select-none rounded-[8px]"
       >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {/* أيقونة معينة صغيرة بلون wax */}
-            <span className="text-mini text-[var(--wax)] select-none shrink-0" aria-hidden="true">
+            <span className="text-mini text-primary select-none shrink-0" aria-hidden="true">
               ◆
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2 flex-wrap">
                 <h3
-                  className="font-bold text-meta text-[#F2E9D8] leading-tight"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  className="font-bold text-meta text-foreground leading-tight"
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {poem.title}
                 </h3>
                 {showPoet && search.poet_name && (
-                  <span className="text-micro text-[var(--wax)] font-tajawal font-medium">
+                  <span className="text-micro text-primary font-tajawal font-medium">
                     {search.poet_name}
                   </span>
                 )}
               </div>
               {poem.opening && (
                 <p
-                  className="text-mini text-[#B8AA8E]/90 leading-relaxed mt-1 line-clamp-1 truncate"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  className="text-mini text-muted-foreground/90 leading-relaxed mt-1 line-clamp-1 truncate"
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {poem.opening}
                 </p>
@@ -67,21 +67,21 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
             {/* الشارات الإضافية إذا توفرت (البحر، القافية) */}
             <div className="hidden sm:flex items-center gap-1.5 text-micro font-tajawal">
               {poem.meter && (
-                <span className="px-1.5 py-0.5 rounded-xs border border-[var(--hairline-strong)] text-[#7E7259]">
+                <span className="px-1.5 py-0.5 rounded-xs border border-border text-muted-foreground/70">
                   {poem.meter}
                 </span>
               )}
               {poem.rhyme && (
-                <span className="px-1.5 py-0.5 rounded-xs border border-[var(--hairline-strong)] text-[#7E7259]">
+                <span className="px-1.5 py-0.5 rounded-xs border border-border text-muted-foreground/70">
                   روي {poem.rhyme}
                 </span>
               )}
             </div>
 
             {poem.verses_count > 0 && (
-              <span className="text-mini text-[#7E7259] font-tajawal">
+              <span className="text-mini text-muted-foreground/70 font-tajawal">
                 {poem.verses_count} {' '}
-                <span className="text-[#7E7259]/60">{poem.verses_count === 1 ? 'بيت' : 'أبيات'}</span>
+                <span className="text-muted-foreground/70/60">{poem.verses_count === 1 ? 'بيت' : 'أبيات'}</span>
               </span>
             )}
           </div>

@@ -34,8 +34,7 @@ function VitalityBar({
   return (
     <div className="flex items-center gap-2">
       <span
-        className="text-micro tracking-[0.2em] text-[color:#F2E7C9]/55 w-[4.5rem] text-start"
-        style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+        className="text-micro font-body tracking-[0.2em] text-[color:#F2E7C9]/55 w-[4.5rem] text-start"
       >
         {label}
       </span>
@@ -46,8 +45,7 @@ function VitalityBar({
         />
       </div>
       <span
-        className="text-micro tabular-nums text-[color:#F2E7C9]/70 w-9"
-        style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+        className="text-micro font-body tabular-nums text-[color:#F2E7C9]/70 w-9"
       >
         {Math.round(value * 100)}%
       </span>
@@ -120,14 +118,12 @@ export default function MindPage() {
         </button>
         <div className="text-center pointer-events-none">
           <div
-            className="text-micro tracking-[0.35em] uppercase text-[color:#F2E7C9]/40"
-            style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+            className="text-micro font-body tracking-[0.35em] uppercase text-[color:#F2E7C9]/40"
           >
             {'العقل الحيّ'}
           </div>
           <div
-            className="text-micro text-[color:#F2E7C9]/50 mt-0.5"
-            style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+            className="text-micro font-body text-[color:#F2E7C9]/50 mt-0.5"
           >
             {stat}
           </div>
@@ -140,8 +136,7 @@ export default function MindPage() {
         <div className="flex-1 min-w-0 relative">
           {mind.loading ? (
             <div
-              className="absolute inset-0 flex items-center justify-center text-[color:#F2E7C9]/50 text-mini"
-              style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+              className="absolute inset-0 flex items-center justify-center text-[color:#F2E7C9]/50 text-mini font-body"
             >
               {'...يستيقظ'}
             </div>
@@ -162,8 +157,7 @@ export default function MindPage() {
           {!mind.loading && mind.notes.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-8">
               <p
-                className="text-center text-[color:#F2E7C9]/60 text-meta max-w-xs leading-relaxed"
-                style={{ fontFamily: '"Cormorant Garamond", serif' }}
+                className="text-center text-[color:#F2E7C9]/60 text-meta max-w-xs leading-relaxed font-display"
               >
                 {'اكتب ملاحظتك الأولى. سيبدأ هذا العقل في الوجود.'}
               </p>
@@ -182,8 +176,7 @@ export default function MindPage() {
                       <Zap className="w-4 h-4 shrink-0 text-[#FFB84D]" />
                     )}
                     <h2
-                      className="text-meta truncate text-[color:#F2E7C9]"
-                      style={{ fontFamily: '"Cormorant Garamond", serif' }}
+                      className="text-meta truncate text-[color:#F2E7C9] font-display"
                     >
                       {selectedNote.title || 'بدون عنوان'}
                     </h2>

@@ -245,8 +245,8 @@ export default function MemoryAdventurePage() {
                   }`}
                   style={{
                     background: selected.isBoss
-                      ? '#fbbf24'
-                      : '#ec4899',
+                      ? 'hsl(var(--signal))'
+                      : 'hsl(var(--data-5))',
                   }}
                 >
                   <Sparkles className="w-4 h-4" />

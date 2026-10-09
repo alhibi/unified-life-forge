@@ -90,7 +90,7 @@ export const DiscoveryCard: React.FC = () => {
           <h3
             className="font-black text-[hsl(var(--foreground))] mb-1 leading-tight"
             style={{
-              fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
+              fontFamily: 'var(--font-body)',
               fontSize: 'clamp(1.5rem, 6vw, 2.125rem)',
               letterSpacing: '-0.025em',
             }}

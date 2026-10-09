@@ -463,11 +463,11 @@ export default function ChessPuzzlePage() {
                   className="aspect-square relative flex items-center justify-center transition-colors"
                   style={{
                     background: isSel
-                      ? '#a855f7'
+                      ? 'hsl(var(--data-6))'
                       : isHint
-                        ? 'rgba(245,158,11,0.5)'
+                        ? 'hsl(var(--warning) / 0.5)'
                         : isLast
-                          ? 'rgba(168,85,247,0.25)'
+                          ? 'hsl(var(--data-6) / 0.25)'
                           : isDark ? 'hsl(265, 25%, 38%)' : 'hsl(265, 18%, 78%)',
                   }}>
                   {isLegalSq && !cell && (

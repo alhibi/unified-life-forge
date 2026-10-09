@@ -291,7 +291,7 @@ export const MessageTicks = React.memo(
           className="inline-flex"
         >
           <CheckCheck
-            className="h-[11px] w-[11px] text-[#C9A84C]"
+            className="h-[11px] w-[11px] text-primary"
             aria-label={'مقروءة'}
           />
         </motion.span>

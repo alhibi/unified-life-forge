@@ -361,7 +361,7 @@ export function SmoothBar({
             width: 16,
             height: 16,
             borderRadius: '50%',
-            background: markerColor ?? '#fff',
+            background: markerColor ?? 'hsl(var(--card))',
           }}
         />
       )}

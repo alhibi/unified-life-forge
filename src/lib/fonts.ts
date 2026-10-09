@@ -31,10 +31,10 @@ const SANS_FALLBACK = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 const INTER_DISPLAY_STACK = `'Inter Tight', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`;
 
 /**
- * Titles run on the SAME family as body text. Hierarchy comes from weight,
- * size, tracking and contrast — never from swapping in a decorative face.
+ * Architectural Copper headings: Instrument Serif carries Latin, Amiri carries
+ * Arabic. Body text stays on the sans stack above. Never give headings a sans stack.
  */
-export const DISPLAY_SERIF_STACK = INTER_DISPLAY_STACK;
+export const DISPLAY_SERIF_STACK = "'Instrument Serif', 'Amiri', Georgia, serif";
 
 export const FONT_OPTIONS: readonly FontOption[] = [
   {

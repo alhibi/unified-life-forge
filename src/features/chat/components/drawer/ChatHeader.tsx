@@ -164,7 +164,7 @@ export default function ChatHeader({ chat, BackIcon, totalUnread }: Props) {
                       exit={{ opacity: 0, y: 2 }}
                       className="flex items-center gap-1.5"
                     >
-                      <span className="text-micro text-[#C9A84C] font-semibold leading-tight">
+                      <span className="text-micro text-primary font-semibold leading-tight">
                         {`${chat.activeConv?.otherDisplayName || chat.activeConv?.otherUsername} يكتب`}
                       </span>
                       <TypingDots size={3} />

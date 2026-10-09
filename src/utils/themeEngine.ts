@@ -818,8 +818,8 @@ export const themePresets: ThemePreset[] = [
  * `colorTheme` from an older build still resolves to a real palette.
  */
 export const LEGACY_THEME_ALIASES: Readonly<Record<string, string>> = {
-  default: 'editorial',
-  neutral: 'editorial',
+  default: 'copper',
+  neutral: 'copper',
   silk: 'paper',
   coffee: 'clay',
   sunset: 'clay',

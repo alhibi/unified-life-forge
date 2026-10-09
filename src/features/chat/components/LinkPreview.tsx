@@ -118,7 +118,7 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
       return <Video className="w-4 h-4 text-destructive" />;
     if (h.includes('github')) return <Github className="w-4 h-4 text-foreground" />;
     if (h.includes('wikipedia')) return <BookOpen className="w-4 h-4 text-data-4" />;
-    return <Globe className="w-4 h-4 text-[#C9A84C]" />;
+    return <Globe className="w-4 h-4 text-primary" />;
   };
 
   return (
@@ -133,10 +133,10 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col gap-2 p-2.5 rounded-xl bg-black/40 border border-[#C9A84C]/20 w-full min-w-[240px] max-w-[340px]"
+            className="flex flex-col gap-2 p-2.5 rounded-xl bg-background/40 border border-primary/20 w-full min-w-[240px] max-w-[340px]"
           >
             <div className="flex items-center gap-2">
-              <Loader2 className="w-3.5 h-3.5 text-[#C9A84C] animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
               <div className="h-3 w-2/3 bg-muted/40 rounded animate-pulse" />
             </div>
             <div className="h-2 w-full bg-muted/20 rounded animate-pulse" />
@@ -153,25 +153,25 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ type: 'spring', damping: 20 }}
-              className="flex flex-col rounded-xl bg-black/50 hover:bg-black/70 active:scale-[0.98] transition-motion border border-[#C9A84C]/20 overflow-hidden w-full min-w-[240px] max-w-[340px] group shadow-lg"
+              className="flex flex-col rounded-xl bg-background/50 hover:bg-background/70 active:scale-[0.98] transition-motion border border-primary/20 overflow-hidden w-full min-w-[240px] max-w-[340px] group shadow-lg"
             >
               {meta.image && (
-                <div className="relative aspect-[1.91/1] w-full overflow-hidden bg-muted/10 border-b border-[#C9A84C]/10">
+                <div className="relative aspect-[1.91/1] w-full overflow-hidden bg-muted/10 border-b border-primary/10">
                   <img
                     src={meta.image}
                     alt=""
                     className="w-full h-full object-cover transition-transform duration-slow group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div className="absolute top-2 end-2 w-7 h-7 rounded-full bg-black/70 flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ExternalLink className="w-3.5 h-3.5 text-white/80" />
+                  <div className="absolute top-2 end-2 w-7 h-7 rounded-full bg-background/70 flex items-center justify-center border border-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ExternalLink className="w-3.5 h-3.5 text-foreground/80" />
                   </div>
                 </div>
               )}
 
               <div className="p-3 space-y-1.5">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-md bg-white/5 flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 rounded-md bg-foreground/5 flex items-center justify-center shrink-0">
                     {meta.logo ? (
                       <img src={meta.logo} alt="" className="w-3.5 h-3.5 object-contain" />
                     ) : (
@@ -179,13 +179,13 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
                     )}
                   </div>
                   {meta.publisher && (
-                    <span className="text-micro uppercase tracking-wider text-[#C9A84C] font-bold font-mono">
+                    <span className="text-micro uppercase tracking-wider text-primary font-bold font-mono">
                       {meta.publisher}
                     </span>
                   )}
                 </div>
 
-                <h4 className="text-mini font-bold text-foreground leading-snug line-clamp-1 group-hover:text-[#C9A84C] transition-colors">
+                <h4 className="text-mini font-bold text-foreground leading-snug line-clamp-1 group-hover:text-primary transition-colors">
                   {meta.title}
                 </h4>
 

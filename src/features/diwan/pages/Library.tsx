@@ -56,8 +56,8 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
     <div
       className={
         tab
-          ? 'rounded-[1.75rem] bg-[#16130F] px-4 py-5 font-tajawal text-[#F2E9D8] shadow-elevated selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]'
-          : 'min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]'
+          ? 'rounded-[1.75rem] bg-background px-4 py-5 font-tajawal text-foreground shadow-elevated selection:bg-primary/20 selection:text-foreground'
+          : 'min-h-screen bg-background text-foreground pb-page px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-foreground'
       }
     >
       {!tab && (
@@ -74,21 +74,21 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             <div className="mt-1 shrink-0">
               <BackButton
                 fallback="/"
-                className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-motion"
+                className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-muted-foreground active:scale-95 transition-motion"
               />
             </div>
           )}
           <div className="flex-1 min-w-0">
             {/* عنوان علوي صغير بلون wax */}
-            <p className="text-micro font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
+            <p className="text-micro font-bold tracking-[0.1em] text-primary uppercase mb-1">
               محراب · الأدب
             </p>
-            <h1 className="text-display font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
-              <LibraryIcon className="w-6 h-6 text-[var(--wax)] shrink-0" />
+            <h1 className="text-display font-bold tracking-tight text-foreground leading-tight font-amiri flex items-center gap-2">
+              <LibraryIcon className="w-6 h-6 text-primary shrink-0" />
               المكتبة الكبرى
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <p className="text-mini text-[#B8AA8E]">الموسوعة الشعرية العربية الخالدة</p>
+              <p className="text-mini text-muted-foreground">الموسوعة الشعرية العربية الخالدة</p>
               <FallbackBadge />
             </div>
           </div>
@@ -99,34 +99,34 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-[12px] border border-[var(--hairline-strong)] bg-[#1D1811] p-5 mb-5 relative overflow-hidden"
+          className="rounded-[12px] border border-border bg-card p-5 mb-5 relative overflow-hidden"
         >
           {/* علامة معينة صغيرة (◆) في الزاوية */}
-          <div className="absolute top-[12px] start-[16px] text-micro text-[var(--wax)] opacity-60">
+          <div className="absolute top-[12px] start-[16px] text-micro text-primary opacity-60">
             ◆
           </div>
 
           <div className="flex items-center gap-1.5 mb-3.5 select-none">
-            <Sparkles className="w-4 h-4 text-[var(--wax)]" />
-            <span className="text-micro font-bold text-[#7E7259] uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-micro font-bold text-muted-foreground/70 uppercase tracking-wider">
               الرقوق المحفوظة
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-2 divide-x divide-reverse divide-[var(--hairline)]">
+          <div className="grid grid-cols-3 gap-2 divide-x divide-reverse divide-border/50">
             <Stat
               label="شاعر فحل"
               value={numFmt(stats.data?.poets_count)}
-              icon={<Feather className="w-4 h-4 text-[#7E7259]" />}
+              icon={<Feather className="w-4 h-4 text-muted-foreground/70" />}
             />
             <Stat
               label="قصيدة عصماء"
               value={numFmt(stats.data?.poems_count)}
-              icon={<ScrollText className="w-4 h-4 text-[#7E7259]" />}
+              icon={<ScrollText className="w-4 h-4 text-muted-foreground/70" />}
             />
             <Stat
               label="بيت فريد"
               value={numFmt(stats.data?.verses_count)}
-              icon={<BookOpen className="w-4 h-4 text-[#7E7259]" />}
+              icon={<BookOpen className="w-4 h-4 text-muted-foreground/70" />}
             />
           </div>
         </motion.div>
@@ -137,28 +137,28 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             to="/diwan/library/search"
             label="البحث المتقدّم"
             sub="ابحث في 3 ملايين بيت"
-            icon={<Search className="w-4 h-4 text-[var(--wax)]" />}
+            icon={<Search className="w-4 h-4 text-primary" />}
             chev={ChevronRight}
           />
           <ActionLink
             to="/diwan/library/poets"
             label="شجرة الشعراء"
             sub="مرتّبون بالعصور"
-            icon={<Users className="w-4 h-4 text-[var(--wax)]" />}
+            icon={<Users className="w-4 h-4 text-primary" />}
             chev={ChevronRight}
           />
           <ActionLink
             to="/diwan/library/favorites"
             label="مفضلتي الخاصة"
             sub="المحفوظ من القصائد"
-            icon={<Heart className="w-4 h-4 text-[var(--wax)]" />}
+            icon={<Heart className="w-4 h-4 text-primary" />}
             chev={ChevronRight}
           />
           <ActionLink
             to="/diwan/bayan"
             label="البيان الإعرابي والبلاغي"
             sub="محلل عروضي وصرفي عميق"
-            icon={<Sparkles className="w-4 h-4 text-[var(--wax)]" />}
+            icon={<Sparkles className="w-4 h-4 text-primary" />}
             chev={ChevronRight}
           />
         </div>
@@ -169,20 +169,20 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
             onClick={() => setShowGraph((s) => !s)}
             className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-[12px] border transition-motion ${
               showGraph
-                ? 'bg-[var(--wax-soft)] border-[var(--wax-soft2)] text-[var(--wax)]'
-                : 'bg-[#1D1811] border-[var(--hairline-strong)] text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E]'
+                ? 'bg-primary/10 border-primary/30 text-primary'
+                : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground'
             }`}
             aria-expanded={showGraph}
           >
             <div className="flex items-center gap-3">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-motion ${showGraph ? 'bg-[var(--wax-soft2)]' : 'bg-[rgba(242,233,216,0.04)]'}`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-motion ${showGraph ? 'bg-primary/20' : 'bg-foreground/[4%]'}`}
               >
-                <Network className="w-4 h-4 text-[var(--wax)]" />
+                <Network className="w-4 h-4 text-primary" />
               </div>
               <div className="text-start">
                 <p className="font-bold text-mini leading-tight">الشجرة الأدبية للتواصل</p>
-                <p className="text-micro mt-0.5 text-[#7E7259]">
+                <p className="text-micro mt-0.5 text-muted-foreground/70">
                   صلات الشعراء وتأثيراتهم عبر القرون
                 </p>
               </div>
@@ -207,9 +207,9 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
                 <div className="mt-3">
                   <Suspense
                     fallback={
-                      <div className="w-full h-[65vh] min-h-[380px] rounded-[12px] border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2 text-[#7E7259]">
-                          <Loader2 className="w-5 h-5 animate-spin text-[var(--wax)]" />
+                      <div className="w-full h-[65vh] min-h-[380px] rounded-[12px] border border-border bg-card flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground/70">
+                          <Loader2 className="w-5 h-5 animate-spin text-primary" />
                           <span className="text-micro">جاري بسط الشجرة الأدبية…</span>
                         </div>
                       </div>
@@ -217,7 +217,7 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
                   >
                     <LiteraryGraph onSelectPoet={(id) => navigate(`/diwan/library/poet/${id}`)} />
                   </Suspense>
-                  <p className="text-micro text-[#7E7259] text-center mt-3 leading-relaxed max-w-sm mx-auto select-none">
+                  <p className="text-micro text-muted-foreground/70 text-center mt-3 leading-relaxed max-w-sm mx-auto select-none">
                     اضغط على أي شاعر لرؤية علاقاته الأدبية، أو انقر على "قصائده" لزيارة ديوانه
                     الخاص.
                   </p>
@@ -234,13 +234,13 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
 function Stat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
     <div className="text-center px-1">
-      <div className="flex items-center justify-center gap-1.5 text-[#7E7259] mb-1 select-none">
+      <div className="flex items-center justify-center gap-1.5 text-muted-foreground/70 mb-1 select-none">
         {icon}
       </div>
-      <div className="text-body font-bold text-[#F2E9D8] tabular-nums leading-tight font-amiri select-all">
+      <div className="text-body font-bold text-foreground tabular-nums leading-tight font-amiri select-all">
         {value}
       </div>
-      <div className="text-micro text-[#7E7259] mt-1 select-none font-tajawal">{label}</div>
+      <div className="text-micro text-muted-foreground/70 mt-1 select-none font-tajawal">{label}</div>
     </div>
   );
 }
@@ -261,16 +261,16 @@ function ActionLink({
   return (
     <Link
       to={to}
-      className="rounded-[12px] bg-[#1D1811] border border-[var(--hairline-strong)] px-4 py-3.5 active:scale-[0.98] hover:border-[#B8AA8E] transition-motion flex items-center gap-3.5"
+      className="rounded-[12px] bg-card border border-border px-4 py-3.5 active:scale-[0.98] hover:border-muted-foreground transition-motion flex items-center gap-3.5"
     >
-      <div className="w-9 h-9 rounded-full bg-[rgba(184,73,46,0.08)] flex items-center justify-center shrink-0 border border-[var(--wax-soft)]">
+      <div className="w-9 h-9 rounded-full bg-primary/[0.08] flex items-center justify-center shrink-0 border border-primary/10">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-bold text-mini text-[#F2E9D8] leading-tight font-tajawal">{label}</p>
-        <p className="text-micro text-[#7E7259] mt-0.5 truncate font-tajawal">{sub}</p>
+        <p className="font-bold text-mini text-foreground leading-tight font-tajawal">{label}</p>
+        <p className="text-micro text-muted-foreground/70 mt-0.5 truncate font-tajawal">{sub}</p>
       </div>
-      <Chev className="w-4 h-4 text-[#7E7259] shrink-0 opacity-60" />
+      <Chev className="w-4 h-4 text-muted-foreground/70 shrink-0 opacity-60" />
     </Link>
   );
 }

@@ -122,7 +122,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
         });
 
         pickerHostRef.current = picker;
-        applyThemeVars(picker, resolvedTheme);
+        applyThemeVars(picker);
         containerRef.current.appendChild(picker);
         setReady(true);
       } catch (e) {
@@ -156,7 +156,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
     try {
       (el as unknown as { theme?: string }).theme = resolvedTheme;
       el.setAttribute('theme', resolvedTheme);
-      applyThemeVars(el, resolvedTheme);
+      applyThemeVars(el);
     } catch {
       /* noop */
     }
@@ -210,23 +210,38 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
  * -- drop on the host
  * --font-family so labels match the app font
  */
-function applyThemeVars(host: HTMLElement, mode: 'light' | 'dark') {
+/** Converts an `H S% L%` design-token triplet (as stored in :root) to `r, g, b`. */
+function hslTokenToRgb(hsl: string): string {
+  const [h, s, l] = hsl.trim().split(/\s+/).map((v) => parseFloat(v));
+  const sFrac = s / 100;
+  const lFrac = l / 100;
+  const c = (1 - Math.abs(2 * lFrac - 1)) * sFrac;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = lFrac - c / 2;
+  const sector = Math.floor((((h % 360) + 360) % 360) / 60);
+  const table: ReadonlyArray<readonly [number, number, number]> = [
+    [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x],
+  ];
+  const [r, g, b] = table[Math.min(sector, 5)];
+  const toByte = (v: number) => Math.round((v + m) * 255);
+  return `${toByte(r)}, ${toByte(g)}, ${toByte(b)}`;
+}
+
+/**
+ * Bridges our HSL design tokens to emoji-mart's RGB CSS vars by reading the
+ * live computed values off the document root, so the picker always matches
+ * the active theme + palette instead of a hard-coded light/dark pair.
+ */
+function applyThemeVars(host: HTMLElement) {
+  const root = getComputedStyle(document.documentElement);
+  const read = (name: string) => root.getPropertyValue(name).trim();
   const styles = host.style;
-  if (mode === 'dark') {
-    styles.setProperty('--rgb-background', '20, 20, 24');
-    styles.setProperty('--rgb-color', '230, 230, 235');
-    styles.setProperty('--rgb-input', '38, 38, 44');
-    styles.setProperty('--rgb-accent', '120, 120, 130');
-    styles.setProperty('--color-border', 'rgba(255, 255, 255, 0.07)');
-    styles.setProperty('--color-border-over', 'rgba(255, 255, 255, 0.12)');
-  } else {
-    styles.setProperty('--rgb-background', '255, 255, 255');
-    styles.setProperty('--rgb-color', '24, 24, 28');
-    styles.setProperty('--rgb-input', '244, 244, 247');
-    styles.setProperty('--rgb-accent', '90, 90, 100');
-    styles.setProperty('--color-border', 'rgba(0, 0, 0, 0.06)');
-    styles.setProperty('--color-border-over', 'rgba(0, 0, 0, 0.10)');
-  }
+  styles.setProperty('--rgb-background', hslTokenToRgb(read('--background')));
+  styles.setProperty('--rgb-color', hslTokenToRgb(read('--foreground')));
+  styles.setProperty('--rgb-input', hslTokenToRgb(read('--input')));
+  styles.setProperty('--rgb-accent', hslTokenToRgb(read('--muted-foreground')));
+  styles.setProperty('--color-border', `hsl(${read('--border')} / 0.5)`);
+  styles.setProperty('--color-border-over', `hsl(${read('--border')} / 0.8)`);
   styles.setProperty('--', 'none');
   styles.setProperty('--font-family', 'inherit');
 }

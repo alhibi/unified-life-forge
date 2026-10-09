@@ -842,11 +842,11 @@ export default function MemoryGame() {
       {/* Power-ups (not in versus mode for fairness) */}
       {mode !== 'versus' && (
         <div className="flex items-center justify-center gap-1.5 mb-2">
-          <PowerUpButton icon={Eye} count={powerUps.peek} onClick={usePeek} color="#06b6d4"
+          <PowerUpButton icon={Eye} count={powerUps.peek} onClick={usePeek} color="hsl(var(--data-4))"
             label={'نظرة'} disabled={!gameStarted || solved} />
-          <PowerUpButton icon={ShuffleIcon} count={powerUps.shuffle} onClick={useShuffleU} color="#a855f7"
+          <PowerUpButton icon={ShuffleIcon} count={powerUps.shuffle} onClick={useShuffleU} color="hsl(var(--data-6))"
             label={'خلط'} disabled={!gameStarted || solved} />
-          <PowerUpButton icon={Sparkles} count={powerUps.bomb} onClick={useBomb} color="#f59e0b"
+          <PowerUpButton icon={Sparkles} count={powerUps.bomb} onClick={useBomb} color="hsl(var(--warning))"
             label={'قنبلة'} disabled={!gameStarted || solved} active={bombArmed} />
         </div>
       )}
@@ -873,14 +873,14 @@ export default function MemoryGame() {
                   style={{ transformStyle: 'preserve-3d' }}>
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center border"
                     style={{ backfaceVisibility: 'hidden',
-                      background: bombArmed ? '#f59e0b30' : 'rgba(236,72,153,0.18)',
-                      borderColor: bombArmed ? '#f59e0b66' : 'rgba(236,72,153,0.25)' }}>
+                      background: bombArmed ? 'hsl(var(--warning) / 0.19)' : 'hsl(var(--data-5) / 0.18)',
+                      borderColor: bombArmed ? 'hsl(var(--warning) / 0.4)' : 'hsl(var(--data-5) / 0.25)' }}>
                     <div className="text-data-5/40 text-display">?</div>
                   </div>
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center border"
                     style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden',
-                      background: isMatched ? 'rgba(236,72,153,0.18)' : 'rgba(255,255,255,0.04)',
-                      borderColor: isMatched ? 'rgba(236,72,153,0.4)' : 'rgba(255,255,255,0.06)' }}>
+                      background: isMatched ? 'hsl(var(--data-5) / 0.18)' : 'rgba(255,255,255,0.04)',
+                      borderColor: isMatched ? 'hsl(var(--data-5) / 0.4)' : 'rgba(255,255,255,0.06)' }}>
                     <span className={cols >= 6 ? 'text-display' : 'text-hero'}>{icon}</span>
                   </div>
                 </motion.div>
@@ -1011,8 +1011,8 @@ export default function MemoryGame() {
               <div key={def.id}
                 className="aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 border"
                 style={{
-                  background: unlocked ? 'rgba(236,72,153,0.12)' : 'rgba(255,255,255,0.02)',
-                  borderColor: unlocked ? 'rgba(236,72,153,0.35)' : 'rgba(255,255,255,0.05)',
+                  background: unlocked ? 'hsl(var(--data-5) / 0.12)' : 'rgba(255,255,255,0.02)',
+                  borderColor: unlocked ? 'hsl(var(--data-5) / 0.35)' : 'rgba(255,255,255,0.05)',
  opacity: unlocked ? 1 : 0.45,
  }}>
  <span className="text-lead leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-muted-foreground" />}</span>

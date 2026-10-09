@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 // App-wide floating mini-player.
 //
 // Direct port of Podium's `FloatingMediaPlayer.kt` — same behavior,
@@ -20,8 +19,8 @@ import type { CSSProperties } from 'react';
 //
 // We render this only when there's a current track AND the player
 // sheet isn't already open — same gating logic Podium uses.
-
 import { AnimatePresence, motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { KeyboardEvent, lazy, memo, MouseEvent, Suspense, useCallback, useState } from 'react';
 
 import {
@@ -193,16 +192,16 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                 <span
                   className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-2xl"
                   style={{
-                    background: isActive ? 'rgba(0, 0, 0, 0.35)' : 'transparent',
+                    background: isActive ? 'hsl(var(--scrim) / 0.35)' : 'transparent',
                     opacity: isActive ? 1 : 0,
                     transition: 'opacity 200ms ease',
                   }}
                   aria-hidden="true"
                 >
                   <span className="podcast-eq" data-playing="true" style={{ height: 12 }}>
-                    <span style={{ background: '#fff' }} />
-                    <span style={{ background: '#fff' }} />
-                    <span style={{ background: '#fff' }} />
+                    <span style={{ background: 'hsl(var(--primary-foreground))' }} />
+                    <span style={{ background: 'hsl(var(--primary-foreground))' }} />
+                    <span style={{ background: 'hsl(var(--primary-foreground))' }} />
                   </span>
                 </span>
               </span>

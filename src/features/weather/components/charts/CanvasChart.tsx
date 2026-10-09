@@ -79,7 +79,10 @@ const ENTRANCE_MS = 520;
 /** Resolve a CSS custom property that holds raw HSL channels into a colour. */
 function resolveColor(element: HTMLElement, varName: string, alpha = 1): string {
   const raw = getComputedStyle(element).getPropertyValue(varName).trim();
-  if (!raw) return alpha >= 1 ? '#888' : `rgba(136,136,136,${alpha})`;
+  if (!raw) {
+    const fallback = getComputedStyle(document.documentElement).getPropertyValue('--muted-foreground').trim();
+    return alpha >= 1 ? `hsl(${fallback})` : `hsl(${fallback} / ${alpha})`;
+  }
   // The theme engine stores channels ("28 42% 34%"), not full colours.
   return alpha >= 1 ? `hsl(${raw})` : `hsl(${raw} / ${alpha})`;
 }

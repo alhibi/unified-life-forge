@@ -53,7 +53,7 @@ export default function MindScene({ mind, selectedId, onSelectNote, reducedMotio
       onPointerMissed={() => onSelectNote(null)}
     >
       <color attach="background" args={[MIND_TOKENS.void]} />
-      <fog attach="fog" args={['#0A0A0A', 4.6, 8.5]} />
+      <fog attach="fog" args={[MIND_TOKENS.void, 4.6, 8.5]} />
 
       {/* Cinematic three-point rig: warm key over the cortex, cool rim on the
           chassis, soft fill under the seam. */}
