@@ -2,6 +2,7 @@
 // used to sit in between as a file that only re-exported these two symbols,
 // which made it look like the app had two Supabase clients.
 import { supabase } from '@/integrations/supabase/client';
+import { untypedSupabase } from '@/integrations/supabase/untypedClient';
 import type { Database } from '@/integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -28,18 +29,39 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  * Checks if a username is available.
  */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('username', username.toLowerCase().trim())
-    .maybeSingle();
+  // Use the SECURITY DEFINER RPC: a plain table select is blind to private
+  // profiles (RLS hides them), so taken usernames would report as available.
+  // Untyped client: the generated Database types lag behind the migration
+  // that introduces this function.
+  const { data, error } = await untypedSupabase.rpc('is_username_available', {
+    _username: username,
+  });
 
   if (error) {
-    console.error('Error checking username availability:', error);
-    throw error;
+    // RPC not deployed yet (migration pending): fall back to the direct
+    // select so the check keeps working, then let the unique constraint be
+    // the final authority on save.
+    const missing =
+      error.code === '42883' ||
+      error.code === 'PGRST202' ||
+      /could not find the function|schema cache/i.test(error.message ?? '');
+    if (!missing) {
+      console.error('Error checking username availability:', error);
+      throw error;
+    }
+    const { data: row, error: fallbackError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', username.toLowerCase().trim())
+      .maybeSingle();
+    if (fallbackError) {
+      console.error('Error checking username availability:', fallbackError);
+      throw fallbackError;
+    }
+    return !row;
   }
 
-  return !data;
+  return data === true;
 }
 
 /**
