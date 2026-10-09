@@ -232,7 +232,12 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         }
       });
 
-      // 4. Paint the canvas
+      // 4. Paint the canvas — colours resolve from the active theme tokens.
+      const root = getComputedStyle(document.documentElement);
+      const tok = (name: string, alpha = 1) => `hsl(${root.getPropertyValue(name).trim()} / ${alpha})`;
+      const accent = (a = 1) => tok('--primary', a);
+      const ink = (a = 1) => tok('--foreground', a);
+      const note = (a = 1) => tok('--data-4', a);
       ctx.clearRect(0, 0, width, height);
 
       // Render links
@@ -248,7 +253,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         ctx.moveTo(sourceNode.x, sourceNode.y);
         ctx.lineTo(targetNode.x, targetNode.y);
         ctx.lineWidth = isHighlighted ? 1.5 : 0.6;
-        ctx.strokeStyle = isHighlighted ? 'rgba(200, 169, 110, 0.45)' : 'rgba(255, 255, 255, 0.07)';
+        ctx.strokeStyle = isHighlighted ? accent(0.45) : ink(0.07);
         ctx.stroke();
       });
 
@@ -268,7 +273,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
           ctx.beginPath();
           ctx.arc(node.x, node.y, outerRing + 8, 0, Math.PI * 2);
           ctx.fillStyle =
-            node.type === 'tag' ? 'rgba(200, 169, 110, 0.06)' : 'rgba(212, 165, 201, 0.06)';
+            node.type === 'tag' ? accent(0.06) : note(0.06);
           ctx.fill();
         }
 
@@ -276,12 +281,12 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         ctx.beginPath();
         ctx.arc(node.x, node.y, outerRing, 0, Math.PI * 2);
         ctx.fillStyle =
-          node.type === 'tag' ? 'rgba(200, 169, 110, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+          node.type === 'tag' ? accent(0.15) : ink(0.05);
         ctx.strokeStyle = isMatched
-          ? '#C8A96E'
+          ? accent()
           : node.type === 'tag'
-            ? '#C8A96E'
-            : 'rgba(255, 255, 255, 0.2)';
+            ? accent()
+            : ink(0.2);
         ctx.lineWidth = isMatched || isHovered ? 2 : 1;
         ctx.fill();
         ctx.stroke();
@@ -289,17 +294,17 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
         // Draw core dot
         ctx.beginPath();
         ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
-        ctx.fillStyle = node.type === 'tag' ? '#C8A96E' : '#7EB8C9';
+        ctx.fillStyle = node.type === 'tag' ? accent() : note();
         ctx.fill();
 
         // Text Labels
         ctx.font =
-          node.type === 'tag' ? 'bold 10px Tajawal, sans-serif' : '9px Tajawal, sans-serif';
+          node.type === 'tag' ? 'bold 10px IBM Plex Sans Arabic, sans-serif' : '9px IBM Plex Sans Arabic, sans-serif';
         ctx.fillStyle = isHovered
-          ? '#C8A96E'
+          ? accent()
           : node.type === 'tag'
-            ? 'rgba(255, 255, 255, 0.8)'
-            : 'rgba(255, 255, 255, 0.4)';
+            ? ink(0.8)
+            : ink(0.4);
         ctx.textAlign = 'center';
 
         // Draw abbreviated or full text slightly shifted below
@@ -436,7 +441,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
             <span>وسوم وتصنيفات</span>
           </div>
           <div className="flex items-center gap-1.5 text-micro text-muted-foreground">
-            <span className="w-2 h-2 rounded-full bg-[#7EB8C9]" />
+            <span className="w-2 h-2 rounded-full bg-data-4" />
             <span>مونوغرافات معرفية</span>
           </div>
         </div>
