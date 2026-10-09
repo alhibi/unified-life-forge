@@ -59,3 +59,8 @@ Owner chose **Architectural Copper** as the single identity. Default `colorTheme
 
 ## PERF-001 — Fixed (2026-10-09)
 Owner approved re-baselining Reading/extractArticle/storage to measured sizes (growth attributed above).
+
+## DES-001 — Copper unification sweep (2026-10-09) — Fixed-Verified (code), visual QA pending
+Per-feature sweep of hard-coded colours/fonts onto theme tokens: wellness, fitness, training, games, mind, knowledge, diwan, archive graph, chat, podcasts, prayer card, journal, calendar, weather (Sora/Manrope + bespoke palette removed), portal canvas. Kept by design: chess/3D materials, map tiles, avatar/wallpaper swatches, per-podcast artwork themes, user-chosen reader paper/sepia/night modes, shareable identity-pass canvas, keyboard skins, theme-preview swatches.
+Gates: typecheck 0; lint 0 errors; lint budget 826→824; arch pass; 1,889/1,889 tests; build OK. Card-surface budget 367→385 (all conversions, documented in test). Size: JournalHome +135B, MessageBubble +129B re-baselined under owner's approval for unification shifts.
+Residual: profile glow `rgba()` shadows (ProfileActivityMatrixTab, ProfileStreakPanel, ProfileInsightsPanel, ProfileHeaderHero, DayDetailCard) — decorative, still literal.
