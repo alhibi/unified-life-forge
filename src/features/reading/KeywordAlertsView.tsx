@@ -179,7 +179,7 @@ export function KeywordAlertsView({
       if (chan) supabase.removeChannel(chan);
       if (burstRef.current.timer) clearTimeout(burstRef.current.timer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   /** Coalesced delivery: prefer a browser notification when granted +

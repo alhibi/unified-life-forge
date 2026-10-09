@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
