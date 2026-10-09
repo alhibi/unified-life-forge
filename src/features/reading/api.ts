@@ -260,6 +260,40 @@ export async function listStoredArticles(
   return (data ?? []).map((row) => rowToFeedItem(row as StoredArticleRow));
 }
 
+export interface StoredArticlePage {
+  items: FeedItem[];
+  /** Raw `pub_date` of the oldest row returned; null when the archive is exhausted. */
+  nextCursor: string | null;
+}
+
+/**
+ * Keyset page over the cloud archive, newest-first. `before` is the cursor
+ * from the previous page; rows sharing the boundary timestamp are re-read
+ * (`lte`) and deduplicated by link on the client so none are skipped.
+ */
+export async function listStoredArticlesPage(
+  sourceNames: ReadonlyArray<string>,
+  before: string,
+  pageSize = 100,
+): Promise<StoredArticlePage> {
+  if (sourceNames.length === 0) return { items: [], nextCursor: null };
+  const size = Math.max(1, Math.min(500, Math.floor(pageSize)));
+  const { data, error } = await supabase
+    .from('rss_articles')
+    .select('title, link, description, pub_date, created_at, image, images, source_name')
+    .in('source_name', [...sourceNames])
+    .lte('pub_date', before)
+    .order('pub_date', { ascending: false })
+    .limit(size);
+  if (error) throw error;
+  const rows = (data ?? []) as StoredArticleRow[];
+  const last = rows.length === size ? rows[rows.length - 1]?.pub_date : null;
+  return {
+    items: rows.map(rowToFeedItem),
+    nextCursor: typeof last === 'string' && last.length > 0 ? last : null,
+  };
+}
+
 export async function listStoredArticlesForSource(
   sourceName: string,
   limit = 100,

@@ -95,6 +95,10 @@ export function ArticleListGrouped({
   onMarkRead: (link: string) => void;
   onMarkUnread: (link: string) => void;
   onMarkManyRead: (links: ReadonlyArray<string>) => void;
+  /** Older cloud archive pages exist beyond what is loaded. */
+  hasMoreRemote?: boolean;
+  remoteStatus?: 'idle' | 'loading' | 'success' | 'error';
+  onLoadOlder?: () => void;
 }) {
   const scrollKey = `${filterTab}|${sourceFilter}|${prefs.sort}|${prefs.group}`;
   const containerRef = useRef<HTMLDivElement>(null);
