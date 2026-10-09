@@ -62,8 +62,12 @@ describe('design-system budgets', () => {
     // Budget raised 352 → 367: the editorial-system colour sweep replaced
     // bespoke `bg-stone-50`/hex surfaces with the themed `bg-card` token.
     // These are conversions of existing surfaces, not new card patterns.
+    // Budget raised 367 → 385 (owner-approved copper unification, Oct 2026):
+    // every new hit replaces a hard-coded hex surface (Diwan manuscript
+    // `bg-[#1D1811]`, PrCelebration `bg-white/95`) with the themed token —
+    // conversions of existing surfaces, no new card patterns.
     const { total } = countMatches(/bg-card\b/g);
-    expect(total).toBeLessThanOrEqual(367);
+    expect(total).toBeLessThanOrEqual(385);
   });
 
   it('does not add new arbitrary font sizes', () => {
