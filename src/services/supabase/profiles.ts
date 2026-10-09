@@ -2,6 +2,7 @@
 // used to sit in between as a file that only re-exported these two symbols,
 // which made it look like the app had two Supabase clients.
 import { supabase } from '@/integrations/supabase/client';
+import { untypedSupabase } from '@/integrations/supabase/untypedClient';
 import type { Database } from '@/integrations/supabase/types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -30,7 +31,9 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 export async function isUsernameAvailable(username: string): Promise<boolean> {
   // Use the SECURITY DEFINER RPC: a plain table select is blind to private
   // profiles (RLS hides them), so taken usernames would report as available.
-  const { data, error } = await supabase.rpc('is_username_available', {
+  // Untyped client: the generated Database types lag behind the migration
+  // that introduces this function.
+  const { data, error } = await untypedSupabase.rpc('is_username_available', {
     _username: username,
   });
 
