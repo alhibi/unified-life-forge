@@ -28,18 +28,18 @@ export async function getProfile(userId: string): Promise<Profile | null> {
  * Checks if a username is available.
  */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('username', username.toLowerCase().trim())
-    .maybeSingle();
+  // Use the SECURITY DEFINER RPC: a plain table select is blind to private
+  // profiles (RLS hides them), so taken usernames would report as available.
+  const { data, error } = await supabase.rpc('is_username_available', {
+    _username: username,
+  });
 
   if (error) {
     console.error('Error checking username availability:', error);
     throw error;
   }
 
-  return !data;
+  return data === true;
 }
 
 /**
