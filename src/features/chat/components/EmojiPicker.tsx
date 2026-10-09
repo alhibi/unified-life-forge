@@ -122,7 +122,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
         });
 
         pickerHostRef.current = picker;
-        applyThemeVars(picker, resolvedTheme);
+        applyThemeVars(picker);
         containerRef.current.appendChild(picker);
         setReady(true);
       } catch (e) {
@@ -156,7 +156,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onPick, compact }) => {
     try {
       (el as unknown as { theme?: string }).theme = resolvedTheme;
       el.setAttribute('theme', resolvedTheme);
-      applyThemeVars(el, resolvedTheme);
+      applyThemeVars(el);
     } catch {
       /* noop */
     }
