@@ -1,8 +1,8 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_URL } from '@/integrations/supabase/client';
 
 import type { ArchiveDepth, ArchiveDocument, ArchiveDocumentSummary, ProgressEvent } from './types';
 
-const FN_URL = `${import.meta.env.VITE_SUPABASE_URL || 'https://nmrckgzmluoavgucqvjh.supabase.co'}/functions/v1/archive-generate`;
+const FN_URL = `${SUPABASE_URL}/functions/v1/archive-generate`;
 
 export interface ModelConfig {
   outline?: string;
