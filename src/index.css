@@ -264,18 +264,18 @@
  * ───────────────────────────────────────────────────────────────────── */
 @utility type-title {
   font-family: var(--font-display);
-  font-size: calc(22px * var(--type-base-scale));
-  line-height: calc(28px * var(--type-base-scale));
-  font-weight: 600;
-  letter-spacing: -0.7px;
+  font-size: calc(24px * var(--type-base-scale));
+  line-height: calc(32px * var(--type-base-scale));
+  font-weight: 400;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 @utility type-section {
   font-family: var(--font-display);
-  font-size: calc(19px * var(--type-base-scale));
-  line-height: calc(24px * var(--type-base-scale));
-  font-weight: 600;
-  letter-spacing: -0.6px;
+  font-size: calc(20px * var(--type-base-scale));
+  line-height: calc(28px * var(--type-base-scale));
+  font-weight: 400;
+  letter-spacing: 0;
 }
 @utility type-body {
   font-family: var(--font-body);
@@ -697,8 +697,7 @@
     --text: hsl(var(--foreground));
     --text-muted: hsl(var(--muted-foreground));
     --strong: hsl(var(--foreground));
-    --font-display:
-      'Inter Tight', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+    --font-display: 'Instrument Serif', 'Amiri', Georgia, serif;
     --font-body:
       'Inter Tight', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-weight: 400;
