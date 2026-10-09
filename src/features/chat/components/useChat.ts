@@ -1542,9 +1542,7 @@ export function useChat({ open, onUnreadChange }: UseChatOptions) {
     }
     if (missing.size === 0) return;
     let cancelled = false;
-    supabase.from('profiles')
-      .select('user_id, username, display_name')
-      .in('user_id', Array.from(missing))
+    supabase.rpc('get_related_profile_cards', { _ids: Array.from(missing) })
       .then(({ data }) => {
         if (cancelled || !data) return;
         setForwardedNames(prev => {

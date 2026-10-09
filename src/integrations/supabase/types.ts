@@ -2623,6 +2623,15 @@ export type Database = {
     }
     Functions: {
       get_last_seen: { Args: { target_user_id: string }; Returns: string }
+      get_related_profile_cards: {
+        Args: { _ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          user_id: string
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
