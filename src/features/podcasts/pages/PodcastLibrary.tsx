@@ -192,7 +192,7 @@ function SubscriptionTile({
               className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-micro font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
               style={{
                 background: 'hsl(var(--live))',
-                color: '#fff',
+                color: 'hsl(var(--primary-foreground))',
               }}
             >
               {'جديد'}

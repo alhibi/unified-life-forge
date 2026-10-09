@@ -55,7 +55,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
         className="fixed inset-0 z-queue flex items-end justify-center"
-        style={{ background: 'rgba(0,0,0,0.5)' }}
+        style={{ background: 'hsl(var(--scrim) / 0.5)' }}
         onClick={onClose}
       >
         <motion.div
