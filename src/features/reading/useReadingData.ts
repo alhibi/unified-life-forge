@@ -12,6 +12,13 @@ import { fetchFeedsClientSide, isSupabaseAvailable } from './clientFetcher';
 import { extractArticleBody, needsContentUpgrade, plainTextLength } from './extractArticle';
 import { offlineDb } from './offlineDb';
 import {
+  loadBackoffState,
+  planRefresh,
+  pruneState,
+  recordOutcomes,
+  saveBackoffState,
+} from './refreshQueue';
+import {
   deleteBookmark,
   getBookmarks,
   getOfflinePrefs,
@@ -60,6 +67,7 @@ type EdgeRefreshData = { statuses?: FeedStatus[] };
 async function refreshFeedsInBatches(
   feeds: ReadonlyArray<FeedSource>,
   onProgress?: (completed: number, currentFeed: string) => void,
+  signal?: AbortSignal,
 ): Promise<{ data: EdgeRefreshData | null; failedUrls: string[] }> {
   const batches: FeedSource[][] = [];
   for (let index = 0; index < feeds.length; index += EDGE_BATCH_SIZE) {
@@ -71,6 +79,9 @@ async function refreshFeedsInBatches(
   let completed = 0;
 
   for (const batch of batches) {
+    // Cancellation is honoured between batches: an in-flight batch finishes
+    // (its result is still stored server-side) but no new work starts.
+    if (signal?.aborted) break;
     onProgress?.(completed, batch.length === 1 ? batch[0].name : `تحديث ${batch.length} مصادر…`);
 
     // Correlate client-side failures with edge-function logs. The same id is
@@ -251,6 +262,9 @@ export function useReadingData() {
     articlesRef.current = articles;
   }, [articles]);
 
+  const refreshRunRef = useRef<Promise<void> | null>(null);
+  const runAbortRef = useRef<AbortController | null>(null);
+  const pendingForcedRef = useRef<{ feeds?: ReadonlyArray<FeedSource> } | null>(null);
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoCacheTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const consecutiveFailuresRef = useRef(0);
@@ -398,10 +412,20 @@ export function useReadingData() {
   // synchronously, sidestepping the React-state-not-yet-flushed race
   // that previously caused OPML imports to miss their own new feeds
   // on the first refresh.
-  const refreshFeeds = useCallback(
-    async (silent = false, overrideFeeds?: ReadonlyArray<FeedSource>): Promise<void> => {
-      const feeds = (overrideFeeds ?? feedSourcesRef.current).filter((f) => f.enabled);
+  const runRefresh = useCallback(
+    async (
+      silent: boolean,
+      overrideFeeds: ReadonlyArray<FeedSource> | undefined,
+      signal: AbortSignal,
+    ): Promise<void> => {
+      const library = overrideFeeds ?? feedSourcesRef.current;
+      const now = Date.now();
+      const backoff = pruneState(loadBackoffState(), feedSourcesRef.current.concat(library));
+      // Silent/background runs respect each source's own backoff; a user
+      // pull or a just-added source is always attempted.
+      const { due: feeds } = planRefresh(library, backoff, now, !silent || Boolean(overrideFeeds));
       if (feeds.length === 0) return;
+      const failedOutcome = new Map<string, string | null>();
       if (!silent) setRefreshing(true);
       setSyncProgress({
         active: true,
@@ -431,11 +455,15 @@ export function useReadingData() {
                   currentFeed,
                 }));
               },
+              signal,
             );
 
             if (data) {
               const statusesArr = data.statuses || [];
               setStatuses(statusesArr);
+              for (const st of statusesArr) {
+                if (st.status === 'error') failedOutcome.set(st.url, st.error ?? null);
+              }
               const failedFeeds = feeds.filter((feed) => failedUrls.includes(feed.url));
               const successfulCount = feeds.length - failedFeeds.length;
               fallbackFeeds = failedFeeds;
@@ -474,8 +502,8 @@ export function useReadingData() {
 
         // Fallback: use direct browser retrieval only for sources the Edge
         // Function could not refresh, preserving successful server batches.
-        if (!succeeded || fallbackFeeds.length > 0) {
-          const controller = new AbortController();
+        if (!signal.aborted && (!succeeded || fallbackFeeds.length > 0)) {
+          const controller = { signal };
           const limit = 3;
           let activeRequests = 0;
           let currentIndex = 0;
@@ -501,6 +529,11 @@ export function useReadingData() {
                 return;
               }
 
+              if (signal.aborted) {
+                currentIndex = fallbackFeeds.length;
+                if (activeRequests === 0) resolvePromise();
+                return;
+              }
               const feed = fallbackFeeds[currentIndex++];
               activeRequests++;
 
@@ -523,8 +556,10 @@ export function useReadingData() {
                     successCount: prev.successCount + 1,
                   }));
                   succeeded = true;
+                  failedOutcome.delete(feed.url);
                 } else {
                   if (r?.error) failedSources.push(feed.name);
+                  failedOutcome.set(feed.url, r?.error ?? 'لا توجد عناصر');
                   setSyncProgress((prev) => ({
                     ...prev,
                     current: prev.current + 1,
@@ -533,6 +568,7 @@ export function useReadingData() {
                 }
               } catch (_e) {
                 failedSources.push(feed.name);
+                failedOutcome.set(feed.url, 'تعذّر الاتصال بالمصدر');
                 setSyncProgress((prev) => ({
                   ...prev,
                   current: prev.current + 1,
@@ -560,6 +596,21 @@ export function useReadingData() {
           }
         }
 
+        if (signal.aborted) return;
+        // Persist per-source outcomes so the next background run skips
+        // sources that are still cooling down.
+        saveBackoffState(
+          recordOutcomes(
+            backoff,
+            feeds.map((feed) => ({
+              url: feed.url,
+              ok: !failedOutcome.has(feed.url),
+              error: failedOutcome.get(feed.url) ?? null,
+            })),
+            Date.now(),
+          ),
+        );
+
         if (succeeded) {
           const now = new Date().toISOString();
           setLastRefresh(now);
@@ -584,6 +635,7 @@ export function useReadingData() {
           setConsecutiveFailures(consecutiveFailuresRef.current);
         }
       } catch (e) {
+        if (signal.aborted) return;
         console.error('Reading: refresh failed', e);
         consecutiveFailuresRef.current += 1;
         setConsecutiveFailures(consecutiveFailuresRef.current);
@@ -598,6 +650,36 @@ export function useReadingData() {
     },
     [loadFromDB, capArticles],
   );
+  const refreshFeeds = useCallback(
+    (silent = false, overrideFeeds?: ReadonlyArray<FeedSource>): Promise<void> => {
+      // Single-flight: overlapping triggers (interval, focus, online, pull)
+      // join the active run instead of racing it. A user pull that arrives
+      // during a silent run queues exactly one forced follow-up.
+      if (refreshRunRef.current) {
+        if (!silent || overrideFeeds) {
+          pendingForcedRef.current = { feeds: overrideFeeds };
+        }
+        return refreshRunRef.current;
+      }
+      const controller = new AbortController();
+      runAbortRef.current = controller;
+      const run = runRefresh(silent, overrideFeeds, controller.signal).finally(() => {
+        refreshRunRef.current = null;
+        if (runAbortRef.current === controller) runAbortRef.current = null;
+        const pending = pendingForcedRef.current;
+        pendingForcedRef.current = null;
+        if (pending && !controller.signal.aborted) {
+          void refreshFeedsRef.current(false, pending.feeds);
+        }
+      });
+      refreshRunRef.current = run;
+      return run;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const refreshFeedsRef = useRef(refreshFeeds);
 
   // ─── Lifecycle (mount-only) ────────────────────────────────────────────
   // Initial load + adaptive auto-refresh. The interval recalculates
@@ -680,6 +762,9 @@ export function useReadingData() {
 
     return () => {
       cancelled = true;
+      // Leaving the reader cancels the active refresh deterministically.
+      pendingForcedRef.current = null;
+      runAbortRef.current?.abort();
       document.removeEventListener('visibilitychange', onVisChange);
       window.removeEventListener('online', onOnline);
       if (autoRefreshRef.current) {

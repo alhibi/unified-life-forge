@@ -18,8 +18,8 @@ import type { Json } from '@/integrations/supabase/types';
 
 import {
   extractedArticleSchema,
-  fetchRssResponseSchema,
   type FetchRssResponse,
+  fetchRssResponseSchema,
 } from './schemas';
 import type { FeedItem, FeedSource, ReaderPrefs } from './types';
 

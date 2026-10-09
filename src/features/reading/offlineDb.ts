@@ -2,6 +2,7 @@ import Dexie, { type EntityTable } from 'dexie';
 
 import { currentUserId } from './api';
 import type { FeedItem } from './types';
+import { sortByPubDateDesc } from './utils';
 
 const DB_NAME = 'smarthub-reading';
 const ANONYMOUS_SCOPE = 'anonymous';
@@ -102,9 +103,7 @@ export const offlineDb = {
     if (!canUseIndexedDb()) return [];
     const scope = await activeScope();
     const records = await scopedRecords(scope);
-    return records
-      .sort((a, b) => Date.parse(b.pubDate) - Date.parse(a.pubDate))
-      .map(toArchived);
+    return sortByPubDateDesc(records).map(toArchived);
   },
 
   async countArticles(): Promise<number> {
