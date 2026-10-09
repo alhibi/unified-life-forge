@@ -31,7 +31,7 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
         <div>
           <h3
             className="font-bold text-meta text-foreground"
-            style={{ fontFamily: "'Amiri', serif" }}
+            style={{ fontFamily: 'var(--font-amiri)' }}
           >
             مسيرة {poetName}
           </h3>

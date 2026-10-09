@@ -113,7 +113,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                 </p>
                 <h3
                   className="text-title font-bold text-foreground mt-0.5 leading-tight break-words"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {word ?? '—'}
                 </h3>
@@ -137,7 +137,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                     <Quote className="w-3.5 h-3.5 text-muted-foreground-subtle shrink-0 mt-1" aria-hidden="true" />
                     <p
                       className="text-meta text-foreground/85 leading-[2] flex-1"
-                      style={{ fontFamily: "'Amiri', serif" }}
+                      style={{ fontFamily: 'var(--font-amiri)' }}
                     >
                       {versePreview}
                     </p>
@@ -166,7 +166,7 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
                       <div className="flex items-baseline justify-between gap-2 mb-1">
                         <span
                           className="text-meta font-bold text-primary"
-                          style={{ fontFamily: "'Amiri', serif" }}
+                          style={{ fontFamily: 'var(--font-amiri)' }}
                         >
                           {g.word}
                         </span>

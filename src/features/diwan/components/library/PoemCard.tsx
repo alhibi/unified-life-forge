@@ -42,7 +42,7 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
               <div className="flex items-baseline gap-2 flex-wrap">
                 <h3
                   className="font-bold text-meta text-[#F2E9D8] leading-tight"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {poem.title}
                 </h3>
@@ -55,7 +55,7 @@ export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
               {poem.opening && (
                 <p
                   className="text-mini text-[#B8AA8E]/90 leading-relaxed mt-1 line-clamp-1 truncate"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {poem.opening}
                 </p>

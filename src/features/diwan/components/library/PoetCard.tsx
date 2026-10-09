@@ -60,7 +60,7 @@ export default function PoetCard({ poet, index = 0 }: Props) {
               <div className="flex items-center gap-2">
                 <h3
                   className="font-bold text-body text-[#F2E9D8] truncate"
-                  style={{ fontFamily: "'Amiri', serif" }}
+                  style={{ fontFamily: 'var(--font-amiri)' }}
                 >
                   {poet.name_ar}
                 </h3>

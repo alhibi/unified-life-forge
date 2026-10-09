@@ -53,3 +53,9 @@ Same category as SEC-004 in three more features: `travel-atlas/scoutApi.ts` and 
 ## PERF-001 — update (2026-10-09)
 - AtlasScoutTab +214B: root cause = `lib/env.ts` got inlined into this chunk once other consumers moved off it. Removed the dependency (SEC-006) → chunk back under budget. **Fixed-Verified** (`node scripts/bundle-budget.mjs`).
 - Remaining, attributed by sourcemap: `Reading` +1.2KB = `refreshQueue.ts` + pagination in `useReadingData.ts`/`ArticleListGrouped.tsx` (READ-001); `extractArticle` +254B = `lib/fetchRetry.ts` now used for extraction retries; `storage` +104B = Zod schemas in `reading/api.ts` (mandated validation). All growth is intended feature code, nothing accidental. **Open — awaiting owner decision** to re-baseline these three numbers (budget rule forbids raising without approval).
+
+## DOC-001 — Decided (2026-10-09)
+Owner chose **Architectural Copper** as the single identity. Default `colorTheme` → `copper` with one-time migration flag `app-theme-copper-unified` (installs on auto-assigned editorial move to copper; later picks kept). Sign-out reset → copper. `--font-display` / `DISPLAY_SERIF_STACK` → Instrument Serif + Amiri; title/section roles weight 400, tracking 0. OS status-bar colours #0D0D0F / #F4F2EF. Per-feature colour/font sweep in progress (tokens only).
+
+## PERF-001 — Fixed (2026-10-09)
+Owner approved re-baselining Reading/extractArticle/storage to measured sizes (growth attributed above).

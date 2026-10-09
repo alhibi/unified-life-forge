@@ -281,7 +281,7 @@ export default function LibrarySearchPage() {
                   <div className="flex flex-wrap gap-1.5">
                     {RHYME_LETTERS.map(r => (
                       <Chip key={r} active={rhyme === r} onClick={() => setRhyme(rhyme === r ? null : r)}>
-                        <span style={{ fontFamily: "'Amiri', serif" }}>{r}</span>
+                        <span style={{ fontFamily: 'var(--font-amiri)' }}>{r}</span>
                       </Chip>
                     ))}
                   </div>
@@ -444,7 +444,7 @@ function VerseRow({
       >
         <div
           className="grid grid-cols-2 gap-3 mb-2"
-          style={{ fontFamily: "'Amiri', serif" }}
+          style={{ fontFamily: 'var(--font-amiri)' }}
         >
           <p className="text-meta text-foreground leading-[1.9] text-end">
             {renderHighlighted(verse.hemistich1, highlight)}

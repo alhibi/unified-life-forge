@@ -327,7 +327,7 @@ export default function LibraryPoemPage() {
                   : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
               }`}
             >
-              <span style={{ fontFamily: "'Amiri', serif" }}>
+              <span style={{ fontFamily: 'var(--font-amiri)' }}>
                 {tashkeel ? 'بَلا تَشْكِيل' : 'بِالتَّشْكِيلِ'}
               </span>
             </button>

@@ -74,7 +74,7 @@ export const WortCard: React.FC<WortCardProps> = ({ wort, animate = true }) => {
           <h3
             className="font-black tracking-tight text-[hsl(var(--foreground))]"
             style={{
-              fontFamily: '"Inter", "SF Pro", system-ui, sans-serif',
+              fontFamily: 'var(--font-body)',
               fontSize: 'clamp(1.875rem, 7vw, 2.625rem)',
               lineHeight: 1.1,
               letterSpacing: '-0.035em',

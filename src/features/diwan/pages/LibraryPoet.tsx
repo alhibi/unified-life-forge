@@ -147,7 +147,7 @@ export default function LibraryPoetPage() {
           {/* اسم الشاعر وعنوانه وتاريخ حياته */}
           <h2
             className="text-display font-bold text-foreground text-center leading-tight mb-2"
-            style={{ fontFamily: "'Amiri', serif" }}
+            style={{ fontFamily: 'var(--font-amiri)' }}
           >
             {p.name_ar}
           </h2>
