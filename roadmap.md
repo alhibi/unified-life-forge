@@ -57,7 +57,7 @@
   - [x] Persist client-fetched and newly stored source articles into the local cache.
   - [x] Deterministic refresh queue with per-source backoff and cancellation.
   - [ ] Apply username-availability database function (blocked: database unreachable).
-  - [ ] Cursor pagination beyond the initial 300 articles.
+  - [x] Cursor pagination beyond the initial 300 articles.
   - [ ] Multi-stage feed discovery and typed per-source failure reporting.
 - [ ] Reading parity pass: folders/tags, per-feed retention and refresh controls, mark-read gestures, OPML fidelity, article extraction, image handling, and offline verification.
 - [ ] Weather progressive disclosure and a useful no-location state.

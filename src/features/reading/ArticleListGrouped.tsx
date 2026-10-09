@@ -574,7 +574,7 @@ export function ArticleListGrouped({
           <button
             type="button"
             onClick={onLoadOlder}
-            className="min-h-11 px-4 rounded-full surface-1 text-micro text-muted-foreground"
+            className="min-h-11 px-4 rounded-full bg-surface-1 text-micro text-muted-foreground"
           >
             {'تعذّر تحميل المقالات الأقدم — إعادة المحاولة'}
           </button>
