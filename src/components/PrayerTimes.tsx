@@ -980,7 +980,7 @@ function Slab({
   shakeCounter,
   guideCounter,
   onToggle,
-  isDark,
+  isDark: _isDark,
   language,
   t,
 }: {
