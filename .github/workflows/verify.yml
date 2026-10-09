@@ -52,14 +52,8 @@ jobs:
         run: bun run arch
 
       - name: Unit and integration tests
-        # IMPORTANT: VITE_ALLOW_OFFLINE_RLS=1 is a deliberate, temporary opt-out.
-        # The RLS suite targets the production project (nmrckgzmluoavgucqvjh),
-        # which stopped resolving in public DNS (NXDOMAIN) on 2026-10-07 — the
-        # suite fails loudly by design when it cannot run, and that would keep
-        # this job red for an infrastructure outage unrelated to any commit.
-        # Remove this flag as part of re-pointing the app at a live project.
-        env:
-          VITE_ALLOW_OFFLINE_RLS: '1'
+        # The RLS suite runs against the live backend and fails loudly if it
+        # cannot reach it; no offline opt-out is set here on purpose.
         run: bun run test
 
       - name: Build

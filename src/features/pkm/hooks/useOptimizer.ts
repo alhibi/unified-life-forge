@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase,SUPABASE_URL } from '@/integrations/supabase/client';
 
 export type OptimizerMode = 'A' | 'B';
 export type OptimizerStatus =
@@ -44,7 +44,7 @@ export function useOptimizer() {
         setStatus('error');
         return;
       }
-      const url = `https://nmrckgzmluoavgucqvjh.supabase.co/functions/v1/pkm-optimize`;
+      const url = `${SUPABASE_URL}/functions/v1/pkm-optimize`;
       const res = await fetch(url, {
         method: 'POST',
         headers: {

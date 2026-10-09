@@ -42,3 +42,14 @@ Statuses: Open · In Progress · Fixed-in-code · Fixed-Verified · Blocked · S
 2. ~~SEC-003 residual~~ — closed.
 3. PERF-001 chunk investigation.
 4. Phase C auth/session flows; Phase E ADR.
+
+
+## CI-001 — Fixed-Verified (2026-10-09)
+Removed `VITE_ALLOW_OFFLINE_RLS=1` from `.github/workflows/verify.yml`. Live backend reachable; `bunx vitest run src/test/rlsHostileClient.test.ts` → 30/30 passed. The suite now fails CI if the backend is unreachable, by design.
+
+## SEC-006 — Fixed-Verified (2026-10-09)
+Same category as SEC-004 in three more features: `travel-atlas/scoutApi.ts` and `crypto/api.ts` fell back to a hard-coded backend host; `marginalia/api.ts` and `crypto/api.ts` read it through `(import.meta as any)`; `pkm/hooks/useOptimizer.ts` hard-coded it outright. All now import `SUPABASE_URL` from the generated client. New guard test in `clientSecretExposure.test.ts` fails on any hard-coded `*.supabase.co` host or indirect env read (5/5 pass). Side effect: `no-explicit-any` 237→236 (lint budget re-locked lower, 826→825).
+
+## PERF-001 — update (2026-10-09)
+- AtlasScoutTab +214B: root cause = `lib/env.ts` got inlined into this chunk once other consumers moved off it. Removed the dependency (SEC-006) → chunk back under budget. **Fixed-Verified** (`node scripts/bundle-budget.mjs`).
+- Remaining, attributed by sourcemap: `Reading` +1.2KB = `refreshQueue.ts` + pagination in `useReadingData.ts`/`ArticleListGrouped.tsx` (READ-001); `extractArticle` +254B = `lib/fetchRetry.ts` now used for extraction retries; `storage` +104B = Zod schemas in `reading/api.ts` (mandated validation). All growth is intended feature code, nothing accidental. **Open — awaiting owner decision** to re-baseline these three numbers (budget rule forbids raising without approval).

@@ -11,8 +11,7 @@
  */
 import { z } from 'zod';
 
-import { supabase } from '@/integrations/supabase/client';
-import { getEnv } from '@/lib/env';
+import { supabase,SUPABASE_URL } from '@/integrations/supabase/client';
 
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
@@ -265,7 +264,8 @@ function handleScoutEvent(
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 
-const FN_BASE = `${getEnv().VITE_SUPABASE_URL || 'https://nmrckgzmluoavgucqvjh.supabase.co'}/functions/v1`;
+// Single source of truth for the backend host (see SEC-004) — no hard-coded fallback.
+const FN_BASE = `${SUPABASE_URL}/functions/v1`;
 
 /**
  * The generated Database union predates the scout tables (migration ships
