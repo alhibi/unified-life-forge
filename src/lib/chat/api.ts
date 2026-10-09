@@ -445,10 +445,9 @@ export async function listBlockedUsers(): Promise<Array<{
   if (error) throw new Error(error.message);
   if (!blocks || blocks.length === 0) return [];
   const ids = blocks.map(b => b.blocked_id);
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('user_id, username, display_name, avatar_url')
-    .in('user_id', ids);
+  // Narrow SECURITY DEFINER read: only safe card fields, only for users the
+  // caller has blocked or shares a conversation with (private profiles stay hidden otherwise).
+  const { data: profiles } = await supabase.rpc('get_related_profile_cards', { _ids: ids });
   const profMap = new Map((profiles ?? []).map(p => [p.user_id, p]));
   return blocks.map(b => {
     const p = profMap.get(b.blocked_id);
