@@ -641,8 +641,8 @@ export default function SudokuPage() {
           {/* X-Sudoku diagonal overlay */}
           {variant === 'x' && (
             <svg className="absolute inset-0 pointer-events-none w-full h-full z-raised" preserveAspectRatio="none" viewBox="0 0 9 9">
-              <line x1="0" y1="0" x2="9" y2="9" stroke="#a855f7" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
-              <line x1="9" y1="0" x2="0" y2="9" stroke="#a855f7" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
+              <line x1="0" y1="0" x2="9" y2="9" stroke="hsl(var(--data-6))" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
+              <line x1="9" y1="0" x2="0" y2="9" stroke="hsl(var(--data-6))" strokeWidth="0.04" strokeDasharray="0.2,0.15" opacity="0.45" />
             </svg>
           )}
 

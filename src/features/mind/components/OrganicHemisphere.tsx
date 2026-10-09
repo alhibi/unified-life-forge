@@ -14,7 +14,7 @@ const UNIFORMS = {
   uTime: { value: 0 },
   uPulseSpeed: { value: 1.15 },
   uVitality: { value: 0 },
-  uColorArtery: { value: new THREE.Color('#E86A4A') },
+  uColorArtery: { value: new THREE.Color(MIND_TOKENS.vessel) },
   uColorPulse: { value: new THREE.Color(MIND_TOKENS.organicGlow) },
 };
 

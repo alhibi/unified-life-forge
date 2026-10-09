@@ -123,17 +123,15 @@ export default function MemoryTimelineRail({
                       <span className="flex-1 min-w-0">
                         <span
                           className={cn(
-                            'block text-micro leading-tight truncate',
+                            'block text-micro leading-tight truncate font-display',
                             'text-[color:#F2E7C9]/85 group-hover:text-[color:#F2E7C9]',
                           )}
-                          style={{ fontFamily: '"Cormorant Garamond", serif' }}
                         >
                           {row.note.title || 'بدون عنوان'}
                         </span>
                         {expanded && (
                           <span
-                            className="block text-micro text-[color:#F2E7C9]/40 mt-0.5"
-                            style={{ fontFamily: '"IBM Plex Mono", monospace' }}
+                            className="block text-micro font-body text-[color:#F2E7C9]/40 mt-0.5"
                           >
                             {new Date(row.note.createdAt).toLocaleDateString('ar')}
                           </span>
