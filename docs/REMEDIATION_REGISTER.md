@@ -27,7 +27,7 @@ Statuses: Open · In Progress · Fixed-in-code · Fixed-Verified · Blocked · S
 |---|---|---|---|---|---|---|
 | SEC-001 | P0 | Fixed-Verified (live) | `20261005120000_close_anon_read_leaks.sql` | Live inspection: `public read places` policy absent; places/place_photos/place_links owner-only; anon holds no grants on profiles/places/messages/conversations; profiles SELECT = owner OR conversation partner. The live state is already **stricter** than the Git file (which would allow any signed-in user to read `is_public` profiles), so the file must NOT be applied as-is | No apply. Reconcile Git with live via a forward-only migration in a later slice | RLS suite 30/30 live |
 | SEC-002 | P1 | Fixed-Verified (live) | `is_username_available` | Applied (drizzle 0002). Anonymous REST call returns `true` for an unused name | — | live curl |
-| SEC-003 | P2 | Stale (re-scoped) | chat profile reads | Live policy already lets conversation partners read each other, so chat names will not disappear. Residual: blocked-users list and forwarded-from names for non-partners may show blank | Narrow RPC for those two only | — |
+| SEC-003 | P2 | Fixed-Verified (live: anon RPC → 401; typecheck 0; 1,881 tests pass) | chat profile reads | Live policy already lets conversation partners read each other, so chat names will not disappear. Residual: blocked-users list and forwarded-from names for non-partners may show blank | `get_related_profile_cards` SECURITY DEFINER (drizzle 0003): card fields only, caller must have blocked or share a conversation; anon revoked; max 200 ids. Wired in `lib/chat/api.ts` + `useChat.ts` | anon curl 401 |
 | SEC-004 | P2 | Fixed-Verified | `ImageUploadContext.tsx`, `features/archive/api.ts` | Scattered `import.meta.env.VITE_SUPABASE_*` reads; archive hardcoded a fallback host, upload could send `undefined` apikey | Import `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` from the generated client | `clientSecretExposure.test.ts` › "resolves Supabase URL/key only in the generated client module" (pass). Allowed exception: `lib/mcp/index.ts` (build-time manifest) |
 | SEC-005 | P2 | Fixed-Verified | `services/supabase/profiles.ts` | `getProfile` had zero callers and queried the wrong column (`id`) with `select('*')` | Removed | typecheck pass |
 | CHAT-001 | P1 | Fixed-in-code | `lib/chat/hooks/useChatMessages.ts` | Topic `chat:${chatId}` reused while previous `removeChannel` pending → "cannot add postgres_changes callbacks after subscribe()"; `viewerId` in deps re-subscribed on auth refresh | Unique topic per subscription, `viewerId` via ref, cleanup removes every channel | `useChatMessages.realtime.test.tsx` (pass). Live delivery check pending backend |
@@ -39,6 +39,6 @@ Statuses: Open · In Progress · Fixed-in-code · Fixed-Verified · Blocked · S
 ## Next exact steps
 
 1. Reconcile `close_anon_read_leaks.sql` with the live (stricter) policies; drop the CI offline-RLS flag once backend stays up.
-2. SEC-003 residual (blocked list / forwarded names).
+2. ~~SEC-003 residual~~ — closed.
 3. PERF-001 chunk investigation.
 4. Phase C auth/session flows; Phase E ADR.
