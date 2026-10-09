@@ -56,7 +56,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-sheet bg-black/80 flex items-center justify-center px-4"
+          className="fixed inset-0 z-sheet bg-background/80 flex items-center justify-center px-4"
           onClick={onClose}
         >
           {/* Confetti */}
@@ -72,7 +72,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
           >
             <button
               onClick={onClose}
-              className="absolute top-3 end-3 w-8 h-8 rounded-full bg-black/15 text-white flex items-center justify-center"
+              className="absolute top-3 end-3 w-8 h-8 rounded-full bg-background/15 text-primary-foreground flex items-center justify-center"
               aria-label="close"
             >
               <X className="w-4 h-4" />
@@ -83,7 +83,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                 initial={{ scale: 0, rotate: -30 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.1 }}
-                className="inline-flex w-16 h-16 rounded-full bg-white items-center justify-center mb-3 "
+                className="inline-flex w-16 h-16 rounded-full bg-primary-foreground items-center justify-center mb-3 "
               >
                 <Trophy className="w-9 h-9 text-signal" />
               </motion.div>
@@ -93,7 +93,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
               <p className="text-mini text-signal/80 mt-1">{T.niceWork[lang]}</p>
             </div>
 
-            <div className="bg-white/95 px-4 pt-4 pb-5 space-y-2">
+            <div className="bg-card/95 px-4 pt-4 pb-5 space-y-2">
               {records.slice(0, 4).map((r, i) => {
                 const ex = resolveExercise(r.exerciseKey) as Exercise | { isCustom: true; label: { ar: string; } };
                 const label = 'isCustom' in ex && ex.isCustom ? ex.label[lang] : (ex as Exercise).label[lang];
@@ -143,7 +143,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
 
 function Confetti() {
   const pieces = Array.from({ length: 28 }, (_, i) => i);
-  const colors = ['#fde047', '#fb923c', '#f87171', '#34d399', '#60a5fa', '#a855f7'];
+  const colors = ['hsl(var(--data-1))', 'hsl(var(--data-2))', 'hsl(var(--data-3))', 'hsl(var(--data-4))', 'hsl(var(--data-5))', 'hsl(var(--data-6))'];
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {pieces.map((i) => {

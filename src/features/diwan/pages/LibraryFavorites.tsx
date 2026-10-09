@@ -24,7 +24,7 @@ export default function LibraryFavoritesPage() {
   const showAuthCallout = !sbReady || !user;
 
   return (
-    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
+    <div className="min-h-screen bg-background text-foreground pb-page px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-foreground">
       <SEO
         title="مفضّلتي — المكتبة الكبرى"
         description="القصائد التي حفظتَها في مفضّلتك."
@@ -36,20 +36,20 @@ export default function LibraryFavoritesPage() {
           <div className="mt-1 shrink-0">
             <BackButton
               fallback="/mihrab"
-              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-motion"
+              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-muted-foreground active:scale-95 transition-motion"
             />
           </div>
           <div className="flex-1 min-w-0">
             {/* عنوان علوي صغير بلون wax */}
-            <p className="text-micro font-bold tracking-[0.1em] text-[var(--wax)] uppercase mb-1">
+            <p className="text-micro font-bold tracking-[0.1em] text-primary uppercase mb-1">
               محراب · الأدب
             </p>
-            <h1 className="text-display font-bold tracking-tight text-[#F2E9D8] leading-tight font-amiri flex items-center gap-2">
-              <Heart className="w-6 h-6 text-[var(--wax)] shrink-0" fill="currentColor" />
+            <h1 className="text-display font-bold tracking-tight text-foreground leading-tight font-amiri flex items-center gap-2">
+              <Heart className="w-6 h-6 text-primary shrink-0" fill="currentColor" />
               مفضّلتي الخاصة
             </h1>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <p className="text-mini text-[#B8AA8E]">
+              <p className="text-mini text-muted-foreground">
                 {list.length > 0 && `${list.length} قصيدة محفوظة`}
               </p>
               <FallbackBadge />
@@ -62,9 +62,9 @@ export default function LibraryFavoritesPage() {
         ) : fav.isLoading ? (
           <div className="space-y-4 pt-2">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="py-4 border-b border-[var(--hairline)]">
-                <div className="h-4 bg-[rgba(242,233,216,0.08)] rounded w-1/4 animate-pulse mb-2" />
-                <div className="h-3 bg-[rgba(242,233,216,0.05)] rounded w-3/4 animate-pulse" />
+              <div key={i} className="py-4 border-b border-border/50">
+                <div className="h-4 bg-foreground/[8%] rounded w-1/4 animate-pulse mb-2" />
+                <div className="h-3 bg-foreground/[5%] rounded w-3/4 animate-pulse" />
               </div>
             ))}
           </div>
@@ -76,8 +76,8 @@ export default function LibraryFavoritesPage() {
               <PoemCard key={p.slug} poem={p} showPoet index={i} />
             ))}
             {fav.isFetching && (
-              <div className="flex items-center justify-center gap-2 py-4 text-[#7E7259] text-mini">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--wax)]" />
+              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground/70 text-mini">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
                 <span>جاري تحديث الرقوق المفضلة…</span>
               </div>
             )}
@@ -95,14 +95,14 @@ function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => 
         className="w-[64px] h-[64px] rounded-full flex items-center justify-center mb-4"
         style={{ background: 'hsl(var(--primary))' }}
       >
-        <span className="font-amiri font-bold text-display text-[#F5DFC9] leading-none select-none">
+        <span className="font-amiri font-bold text-display text-primary-foreground leading-none select-none">
           ♥
         </span>
       </div>
-      <p className="text-meta font-bold text-[#F2E9D8] font-tajawal">
+      <p className="text-meta font-bold text-foreground font-tajawal">
         المفضّلة للمستخدمين المسجَّلين
       </p>
-      <p className="text-mini text-[#B8AA8E] mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
+      <p className="text-mini text-muted-foreground mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
         {sbReady
           ? 'سجّل الدخول لتحفظ عيون الشعر وقصائدك المفضّلة وتعود إليها من أيّ جهاز.'
           : 'الاتصال بالخادم غير مُهيّأ في هذه النسخة، فلا تتوفّر المفضّلة الشخصية حالياً.'}
@@ -110,9 +110,9 @@ function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => 
       {sbReady && (
         <button
           onClick={onSignIn}
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#1D1811] border border-[var(--hairline-strong)] hover:border-[#B8AA8E] text-[#B8AA8E] hover:text-[#F2E9D8] text-mini font-bold active:scale-[0.98] transition-motion"
+          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-card border border-border hover:border-muted-foreground text-muted-foreground hover:text-foreground text-mini font-bold active:scale-[0.98] transition-motion"
         >
-          <LogIn className="w-4 h-4 text-[var(--wax)]" />
+          <LogIn className="w-4 h-4 text-primary" />
           تسجيل الدخول للمكتبة
         </button>
       )}
@@ -123,11 +123,11 @@ function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => 
 function EmptyFavorites() {
   return (
     <div className="text-center py-16 px-6 flex flex-col items-center justify-center">
-      <span className="font-amiri text-hero text-[var(--wax)] mb-3 animate-pulse select-none">
+      <span className="font-amiri text-hero text-primary mb-3 animate-pulse select-none">
         ✦
       </span>
-      <p className="text-meta font-bold text-[#F2E9D8] font-tajawal">مفضّلتك فارغة بعد</p>
-      <p className="text-mini text-[#B8AA8E] mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
+      <p className="text-meta font-bold text-foreground font-tajawal">مفضّلتك فارغة بعد</p>
+      <p className="text-mini text-muted-foreground mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
         افتح أيّ قصيدة عظيمة ثم انقر على رمز القلب في رأس الصفحة لحفظها هنا والعودة لرقوقها متى شئت.
       </p>
     </div>

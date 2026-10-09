@@ -59,7 +59,7 @@ export default function SearchBar({
 
   return (
     <div className="relative" ref={wrapRef}>
-      <Search className="absolute top-1/2 -translate-y-1/2 start-0 w-4 h-4 text-[#7E7259] pointer-events-none transition-colors" />
+      <Search className="absolute top-1/2 -translate-y-1/2 start-0 w-4 h-4 text-muted-foreground/70 pointer-events-none transition-colors" />
       <input
         type="search"
         autoFocus={autoFocus}
@@ -70,19 +70,19 @@ export default function SearchBar({
         }}
         onFocus={() => setFocused(true)}
         placeholder={placeholder}
-        className="w-full ps-7 pe-10 py-3 bg-transparent text-[#F2E9D8] placeholder-[#7E7259] focus:outline-none transition-motion font-tajawal text-meta"
+        className="w-full ps-7 pe-10 py-3 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none transition-motion font-tajawal text-meta"
         style={{
           border: 'none',
-          borderBottom: focused ? '1px solid var(--wax)' : '1px solid var(--hairline-strong)',
+          borderBottom: focused ? '1px solid hsl(var(--primary))' : '1px solid hsl(var(--border))',
         }}
       />
       {local && (
         <button
           onClick={() => setLocal('')}
-          className="absolute top-1/2 -translate-y-1/2 end-1 w-7 h-7 rounded-full bg-[rgba(242,233,216,0.06)] hover:bg-[rgba(242,233,216,0.12)] flex items-center justify-center transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 end-1 w-7 h-7 rounded-full bg-foreground/[6%] hover:bg-foreground/[12%] flex items-center justify-center transition-colors"
           aria-label="مسح البحث"
         >
-          <X className="w-3.5 h-3.5 text-[#B8AA8E]" />
+          <X className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       )}
 
@@ -93,7 +93,7 @@ export default function SearchBar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-header start-0 end-0 top-full mt-2 rounded-[14px] bg-[#1D1811] border border-[var(--hairline-strong)] overflow-hidden shadow-2xl"
+            className="absolute z-header start-0 end-0 top-full mt-2 rounded-[14px] bg-card border border-border overflow-hidden shadow-2xl"
           >
             <ul className="max-h-80 overflow-auto">
               {items.map((it) => (
@@ -108,7 +108,7 @@ export default function SearchBar({
                       setHideOnce(true);
                       setFocused(false);
                     }}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-[rgba(242,233,216,0.03)] active:bg-[rgba(242,233,216,0.06)] transition-colors border-b border-[var(--hairline)] last:border-b-0"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-foreground/[3%] active:bg-foreground/[6%] transition-colors border-b border-border/50 last:border-b-0"
                   >
                     {/* Wax Seal for Poet, Scroll icon for Poem */}
                     {it.kind === 'poet' ? (
@@ -116,30 +116,30 @@ export default function SearchBar({
                         className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: 'hsl(var(--primary))' }}
                       >
-                        <span className="font-amiri font-bold text-mini text-[#F5DFC9] leading-none select-none">
+                        <span className="font-amiri font-bold text-mini text-primary-foreground leading-none select-none">
                           {it.label.trim().charAt(0)}
                         </span>
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-lg bg-[rgba(184,73,46,0.1)] flex items-center justify-center shrink-0">
-                        <ScrollText className="w-4 h-4 text-[var(--wax)]" />
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <ScrollText className="w-4 h-4 text-primary" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-meta font-semibold text-[#F2E9D8] truncate"
+                        className="text-meta font-semibold text-foreground truncate"
                         style={{
                           fontFamily:
-                            it.kind === 'poet' ? "'Amiri', serif" : "'Tajawal', sans-serif",
+                            it.kind === 'poet' ? "var(--font-amiri)" : "var(--font-tajawal)",
                         }}
                       >
                         {it.label}
                       </p>
                       {it.sub && (
-                        <p className="text-micro text-[#B8AA8E] truncate mt-0.5">{it.sub}</p>
+                        <p className="text-micro text-muted-foreground truncate mt-0.5">{it.sub}</p>
                       )}
                     </div>
-                    <span className="text-micro text-[#7E7259] px-2 py-0.5 rounded-[5px] bg-[rgba(242,233,216,0.05)] border border-[var(--hairline)] shrink-0 font-tajawal">
+                    <span className="text-micro text-muted-foreground/70 px-2 py-0.5 rounded-[5px] bg-foreground/[5%] border border-border/50 shrink-0 font-tajawal">
                       {it.kind === 'poet' ? 'شاعر' : 'قصيدة'}
                     </span>
                   </Link>

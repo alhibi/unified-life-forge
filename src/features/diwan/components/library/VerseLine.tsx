@@ -89,7 +89,7 @@ function VerseLine({
             data-word={stripped || tok}
             className={
               has
-                ? 'underline decoration-dotted decoration-[var(--wax)]/50 underline-offset-[5px] decoration-1'
+                ? 'underline decoration-dotted decoration-primary/50 underline-offset-[5px] decoration-1'
                 : undefined
             }
           >
@@ -129,12 +129,12 @@ function VerseLine({
               data-word={stripped || tok}
               className={
                 has
-                  ? 'underline decoration-dotted decoration-[var(--wax)]/50 underline-offset-[5px] decoration-1'
+                  ? 'underline decoration-dotted decoration-primary/50 underline-offset-[5px] decoration-1'
                   : undefined
               }
             >
               {prefix}
-              <span className="text-[var(--wax)] font-bold transition-colors">
+              <span className="text-primary font-bold transition-colors">
                 {lastChar}{diacritics}
               </span>
             </span>
@@ -148,7 +148,7 @@ function VerseLine({
           data-word={stripped || tok}
           className={
             has
-              ? 'underline decoration-dotted decoration-[var(--wax)]/50 underline-offset-[5px] decoration-1'
+              ? 'underline decoration-dotted decoration-primary/50 underline-offset-[5px] decoration-1'
               : undefined
           }
         >
@@ -179,12 +179,12 @@ function VerseLine({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
       onPointerLeave={onPointerCancel}
-      className="w-full relative py-3 px-1 hover:bg-[rgba(242,233,216,0.015)] active:bg-[rgba(242,233,216,0.03)] transition-colors text-center select-none border-b border-dashed border-[var(--hairline)] last:border-b-0 flex items-center gap-3"
+      className="w-full relative py-3 px-1 hover:bg-foreground/[1.5%] active:bg-foreground/[3%] transition-colors text-center select-none border-b border-dashed border-border/50 last:border-b-0 flex items-center gap-3"
       style={{ touchAction: 'pan-y' }}
       aria-label="نسخ البيت — أو اضغط مطوّلاً على كلمة لشرحها"
     >
       {/* رقم البيت الصغير بخط Amiri على أقصى الحافة */}
-      <span className="w-6 shrink-0 text-end font-amiri text-mini text-[var(--ink-text-faint)] select-none">
+      <span className="w-6 shrink-0 text-end font-amiri text-mini text-muted-foreground/70 select-none">
         {verse.position + 1}
       </span>
 
@@ -192,7 +192,7 @@ function VerseLine({
         /* صدر وعجز بفاصل منقط (ثنية الورق) */
         <div className="flex-1 grid grid-cols-2 gap-4 items-center">
           <p
-            className="text-body text-[#F2E9D8] leading-[1.9] text-end font-amiri"
+            className="text-body text-foreground leading-[1.9] text-end font-amiri"
           >
             {renderedH1}
           </p>
@@ -207,7 +207,7 @@ function VerseLine({
             />
 
             <p
-              className="text-body text-[#F2E9D8] leading-[1.9] text-end font-amiri flex-1 pe-4"
+              className="text-body text-foreground leading-[1.9] text-end font-amiri flex-1 pe-4"
             >
               {renderedH2}
             </p>
@@ -215,7 +215,7 @@ function VerseLine({
         </div>
       ) : (
         <p
-          className="text-body text-[#F2E9D8] leading-[1.9] text-end font-amiri flex-1"
+          className="text-body text-foreground leading-[1.9] text-end font-amiri flex-1"
         >
           {renderedH1}
         </p>

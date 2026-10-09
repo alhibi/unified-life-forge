@@ -101,7 +101,7 @@ export default function ExercisePickerSheet({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-drawer bg-black/60 flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-drawer bg-background/80 flex items-end sm:items-center justify-center"
           onClick={handleClose}
         >
           <motion.div
@@ -146,7 +146,7 @@ export default function ExercisePickerSheet({
                   onClick={() => setBigOnly((b) => !b)}
                   className={`shrink-0 inline-flex items-center gap-1 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                     bigOnly
-                      ? 'bg-signal text-white border-signal'
+                      ? 'bg-signal text-primary-foreground border-signal'
                       : 'bg-card text-muted-foreground border-border/40'
                   }`}
                 >
@@ -290,13 +290,13 @@ function ExerciseRow({ exercise, lang, onPick }: { exercise: Exercise; lang: 'ar
 /* ──────────────── Equipment label exporter ──────────────── */
 
 export const EQUIPMENT_BADGE_COLOR: Record<Equipment, string> = {
-  barbell:        '#3b82f6',
-  dumbbell:       '#8b5cf6',
-  machine:        '#64748b',
-  bodyweight:     '#10b981',
-  kettlebell:     '#f97316',
-  cable:          '#06b6d4',
-  band:           '#a855f7',
-  cardio_machine: '#ef4444',
-  none:           '#94a3b8',
+  barbell:        'hsl(var(--data-1))',
+  dumbbell:       'hsl(var(--data-2))',
+  machine:        'hsl(var(--data-3))',
+  bodyweight:     'hsl(var(--data-4))',
+  kettlebell:     'hsl(var(--data-5))',
+  cable:          'hsl(var(--data-6))',
+  band:           'hsl(var(--data-2))',
+  cardio_machine: 'hsl(var(--destructive))',
+  none:           'hsl(var(--muted-foreground))',
 };

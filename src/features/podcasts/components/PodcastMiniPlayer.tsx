@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 // App-wide floating mini-player.
 //
 // Direct port of Podium's `FloatingMediaPlayer.kt` — same behavior,
@@ -20,8 +19,8 @@ import type { CSSProperties } from 'react';
 //
 // We render this only when there's a current track AND the player
 // sheet isn't already open — same gating logic Podium uses.
-
 import { AnimatePresence, motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { KeyboardEvent, lazy, memo, MouseEvent, Suspense, useCallback, useState } from 'react';
 
 import {

@@ -260,18 +260,18 @@ function FitnessPageInner({
       <div
         className="fixed top-0 left-0 right-0 h-64 pointer-events-none z-base"
         style={{
-          background: 'radial-gradient(circle at 50% 0%, hsl(100, 40%, 45%, 0.12) 0%, transparent 60%)'
+          background: 'radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.12) 0%, transparent 60%)'
         }}
       />
 
       {/* Standalone Header */}
       <header className="flex items-center justify-between py-4 relative z-10 border-b border-border/40 mb-4 px-1">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[hsl(100,40%,45%)]/15 flex items-center justify-center text-[hsl(100,40%,45%)]">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
             <Dumbbell className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-title font-bold font-cormorant-garamond tracking-wide leading-tight text-foreground">اللياقة النخبوية</h1>
+            <h1 className="text-title font-bold font-display tracking-wide leading-tight text-foreground">اللياقة النخبوية</h1>
             <p className="text-micro text-muted-foreground font-medium uppercase tracking-wider">PREMIUM LEICA WORKOUT SUITE</p>
           </div>
         </div>
@@ -313,7 +313,7 @@ function FitnessPageInner({
               {active && (
                 <motion.span
                   layoutId="active-fitness-nav-pill"
-                  className="absolute inset-0 rounded-lg bg-[hsl(100,40%,42%)] shadow-sm"
+                  className="absolute inset-0 rounded-lg bg-primary shadow-sm"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
@@ -446,7 +446,7 @@ function FitnessPageInner({
                   <div>
                     <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات المحروقة اليوم</span>
                     <div className="flex items-baseline gap-1 mt-1 mb-2">
-                      <span className="text-hero font-bold font-mono text-[hsl(100,40%,45%)] tracking-tighter tabular-nums">
+                      <span className="text-hero font-bold font-mono text-primary tracking-tighter tabular-nums">
                         {Math.floor(tracker.calories)}
                       </span>
                       <span className="text-mini text-muted-foreground">سعرة حرارية</span>
@@ -545,13 +545,13 @@ function FitnessPageInner({
                         <div className="flex gap-3 justify-center pt-2">
                           <Button
                             onClick={() => tracker.startTracking('manual', 'walking')}
-                            className="rounded-xl px-6 font-bold bg-[hsl(100,40%,42%)] text-[hsl(30,6%,8%)] hover:bg-[hsl(100,40%,38%)]"
+                            className="rounded-xl px-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90"
                           >
                             بدء تتبع مشي
                           </Button>
                           <Button
                             onClick={() => tracker.startTracking('manual', 'running')}
-                            className="rounded-xl px-6 font-bold bg-[hsl(100,40%,42%)] text-[hsl(30,6%,8%)] hover:bg-[hsl(100,40%,38%)]"
+                            className="rounded-xl px-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90"
                           >
                             بدء تتبع جري
                           </Button>
@@ -675,7 +675,7 @@ function FitnessPageInner({
                         onClick={() => setSelectedDay(dayKey)}
                         className={`flex-1 min-w-[50px] py-3 rounded-xl flex flex-col items-center border transition-motion active-tactile ${
                           selectedDay === dayKey
-                            ? 'bg-[hsl(100,40%,45%)] text-white border-primary/20'
+                            ? 'bg-primary text-primary-foreground border-primary/20'
                             : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
                         }`}
                       >
@@ -731,7 +731,7 @@ function FitnessPageInner({
                             <Button
                               size="sm"
                               onClick={() => setAddExerciseOpen(true)}
-                              className="text-mini rounded-lg bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
+                              className="text-mini rounded-lg bg-primary hover:bg-primary/90"
                             >
                               إضافة تمرين من المكتبة
                             </Button>
@@ -945,7 +945,7 @@ function FitnessPageInner({
                   <AppCard key={ex.key} className="p-4 flex flex-col justify-between hover:border-primary/30 transition-motion">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="px-2 py-0.5 rounded-full bg-[hsl(100,40%,45%)]/10 text-[hsl(100,40%,45%)] text-micro font-bold">
+                        <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-bold">
                           {MUSCLE_GROUPS_AR[ex.muscle]}
                         </span>
                         <span className="text-micro text-muted-foreground font-bold uppercase">{ex.difficulty}</span>
@@ -1029,7 +1029,7 @@ function FitnessPageInner({
                       setLogBodyFat('');
                       alert('تم تسجيل القياس بنجاح.');
                     }}
-                    className="w-full text-mini font-bold h-9 rounded-lg bg-[hsl(100,40%,42%)] hover:bg-[hsl(100,40%,38%)]"
+                    className="w-full text-mini font-bold h-9 rounded-lg bg-primary hover:bg-primary/90"
                   >
                     حفظ القياس
                   </Button>

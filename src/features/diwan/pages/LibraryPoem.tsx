@@ -155,9 +155,9 @@ export default function LibraryPoemPage() {
 
   if (poem.isLoading) {
     return (
-      <div className="min-h-screen bg-[#16130F] pt-14 px-5 flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--wax)] mb-2" />
-        <p className="text-mini text-[#7E7259] font-tajawal">
+      <div className="min-h-screen bg-background pt-14 px-5 flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
+        <p className="text-mini text-muted-foreground/70 font-tajawal">
           جاري فتح رقوق القصيدة وفض أختامها…
         </p>
       </div>
@@ -166,9 +166,9 @@ export default function LibraryPoemPage() {
 
   if (!poem.data) {
     return (
-      <div className="min-h-screen bg-[#16130F] pt-14 px-5 text-center">
+      <div className="min-h-screen bg-background pt-14 px-5 text-center">
         <BackButton fallback="/mihrab" />
-        <p className="text-[#B8AA8E] mt-8 font-tajawal">
+        <p className="text-muted-foreground mt-8 font-tajawal">
           لم يُعثر على هذه القصيدة في الدواوين المحفوظة.
         </p>
       </div>
@@ -207,7 +207,7 @@ export default function LibraryPoemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#16130F] text-[#F2E9D8] pb-page px-5 pt-14 font-tajawal selection:bg-[var(--wax-soft2)] selection:text-[#F2E9D8]">
+    <div className="min-h-screen bg-background text-foreground pb-page px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-foreground">
       <SEO
         title={`${p.title} — ${p.poet_name}`}
         description={p.opening ?? ''}
@@ -233,21 +233,21 @@ export default function LibraryPoemPage() {
           <div className="mt-1 shrink-0">
             <BackButton
               fallback="/mihrab"
-              className="w-10 h-10 rounded-full border border-[var(--hairline-strong)] bg-[#1D1811] flex items-center justify-center text-[#B8AA8E] hover:text-[#F2E9D8] hover:border-[#B8AA8E] active:scale-95 transition-motion"
+              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-muted-foreground active:scale-95 transition-motion"
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-display font-bold text-[#F2E9D8] font-amiri leading-tight">
+            <h1 className="text-display font-bold text-foreground font-amiri leading-tight">
               {p.title}
             </h1>
             <Link
               to={`/diwan/library/poet/${p.poet_slug}`}
-              className="text-mini text-[#B8AA8E] hover:text-[var(--wax)] mt-1.5 flex items-center gap-1 font-tajawal select-none"
+              className="text-mini text-muted-foreground hover:text-primary mt-1.5 flex items-center gap-1 font-tajawal select-none"
             >
-              <Feather className="w-3.5 h-3.5 text-[var(--wax)] shrink-0" />
+              <Feather className="w-3.5 h-3.5 text-primary shrink-0" />
               <span>{p.poet_name}</span>
-              {p.era_name && <span className="text-[#7E7259]">— {p.era_name}</span>}
-              <Chevron className="w-3 h-3 text-[#7E7259] shrink-0" />
+              {p.era_name && <span className="text-muted-foreground/70">— {p.era_name}</span>}
+              <Chevron className="w-3 h-3 text-muted-foreground/70 shrink-0" />
             </Link>
           </div>
           {sbReady && (
@@ -264,8 +264,8 @@ export default function LibraryPoemPage() {
               aria-label={isFavorited ? 'إزالة من المفضّلة' : 'إضافة إلى المفضّلة'}
               className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-motion active:scale-90 border ${
                 isFavorited
-                  ? 'bg-[rgba(184,73,46,0.1)] text-[var(--wax)] border-[var(--wax-soft2)]'
-                  : 'border-[var(--hairline-strong)] bg-[#1D1811] text-[#B8AA8E] hover:text-[#F2E9D8]'
+                  ? 'bg-primary/10 text-primary border-primary/30'
+                  : 'border-border bg-card text-muted-foreground hover:text-foreground'
               } disabled:opacity-60`}
             >
               <Heart
@@ -284,31 +284,31 @@ export default function LibraryPoemPage() {
         {/* Meta tags with simple borders (No fill, transparent backgrounds) */}
         <div className="flex flex-wrap items-center gap-2 mb-6">
           {p.kind && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
               {p.kind}
             </span>
           )}
           {p.meter && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
               البحر: {p.meter}
             </span>
           )}
           {p.rhyme && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
               القافية: {p.rhyme}
             </span>
           )}
-          <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-[var(--hairline-strong)] text-[#B8AA8E] font-tajawal">
+          <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
             {displayVerses.length} {displayVerses.length === 1 ? 'بيت' : 'أبيات'}
           </span>
           {approxYear && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-[var(--hairline-strong)] text-[#7E7259] font-tajawal select-none">
+            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground/70 font-tajawal select-none">
               سنة النظم: {approxYear}
             </span>
           )}
           <button
             onClick={copyAll}
-            className="ms-auto flex items-center gap-1.5 text-micro text-[var(--wax)] font-bold px-3 py-1.5 rounded-[8px] bg-[var(--wax-soft)] border border-[var(--wax-soft2)] active:scale-95 transition-motion font-tajawal"
+            className="ms-auto flex items-center gap-1.5 text-micro text-primary font-bold px-3 py-1.5 rounded-[8px] bg-primary/10 border border-primary/30 active:scale-95 transition-motion font-tajawal"
           >
             <ClipboardCopy className="w-3.5 h-3.5" />
             نسخ المخطوطة
@@ -323,8 +323,8 @@ export default function LibraryPoemPage() {
               aria-pressed={tashkeel}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-motion border ${
                 tashkeel
-                  ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
-                  : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
+                  ? 'bg-primary/10 text-primary border-primary/30'
+                  : 'bg-transparent text-muted-foreground/70 border-border hover:text-muted-foreground'
               }`}
             >
               <span style={{ fontFamily: 'var(--font-amiri)' }}>
@@ -339,8 +339,8 @@ export default function LibraryPoemPage() {
               aria-pressed={showContext}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-motion border ${
                 showContext
-                  ? 'bg-[var(--wax-soft)] text-[var(--wax)] border-[var(--wax-soft2)]'
-                  : 'bg-transparent text-[#7E7259] border-[var(--hairline-strong)] hover:text-[#B8AA8E]'
+                  ? 'bg-primary/10 text-primary border-primary/30'
+                  : 'bg-transparent text-muted-foreground/70 border-border hover:text-muted-foreground'
               }`}
             >
               <span className="font-tajawal">السياق التاريخي</span>
@@ -348,8 +348,8 @@ export default function LibraryPoemPage() {
           )}
 
           {glossaryKeys.size > 0 && (
-            <span className="flex items-center gap-1 text-micro text-[#7E7259] font-tajawal ms-auto select-none">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--wax)]" />
+            <span className="flex items-center gap-1 text-micro text-muted-foreground/70 font-tajawal ms-auto select-none">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
               <span>{glossaryKeys.size} مفردات مشروحة · اضغط مطولاً</span>
             </span>
           )}
@@ -363,10 +363,10 @@ export default function LibraryPoemPage() {
           initial="hidden"
           animate="show"
           variants={{ show: { transition: { staggerChildren: 0.02 } } }}
-          className="rounded-[14px] bg-[#1E1912] border border-[var(--hairline-strong)] p-4 sm:p-6 mb-6"
+          className="rounded-[14px] bg-card border border-border p-4 sm:p-6 mb-6"
         >
           {displayVerses.length === 0 ? (
-            <p className="text-center text-[#7E7259] py-8 text-mini font-tajawal">
+            <p className="text-center text-muted-foreground/70 py-8 text-mini font-tajawal">
               لا توجد أبيات محفوظة لهذه القصيدة بعد في رقوقنا.
             </p>
           ) : (
@@ -392,9 +392,9 @@ export default function LibraryPoemPage() {
             href={p.source_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 mb-8 flex items-center justify-center gap-1.5 text-micro text-[#7E7259] hover:text-[#B8AA8E] transition-colors font-tajawal select-none"
+            className="mt-6 mb-8 flex items-center justify-center gap-1.5 text-micro text-muted-foreground/70 hover:text-muted-foreground transition-colors font-tajawal select-none"
           >
-            <ExternalLink className="w-3.5 h-3.5 text-[var(--wax)]" />
+            <ExternalLink className="w-3.5 h-3.5 text-primary" />
             المصدر الأصلي للمخطوطة
           </a>
         )}

@@ -129,8 +129,8 @@ function CaliProgramCard({
         <span
           className="px-2 py-0.5 rounded-full text-micro font-bold uppercase shrink-0"
           style={{
-            background: p.experience === 'beginner' ? '#22c55e20' : p.experience === 'intermediate' ? '#f59e0b20' : '#ef444420',
-            color: p.experience === 'beginner' ? '#22c55e' : p.experience === 'intermediate' ? '#f59e0b' : '#ef4444',
+            background: p.experience === 'beginner' ? 'hsl(var(--success) / 0.125)' : p.experience === 'intermediate' ? 'hsl(var(--warning) / 0.125)' : 'hsl(var(--destructive) / 0.125)',
+            color: p.experience === 'beginner' ? 'hsl(var(--success))' : p.experience === 'intermediate' ? 'hsl(var(--warning))' : 'hsl(var(--destructive))',
           }}
         >
           {CALI_EXP_LABELS[p.experience][lang]}
@@ -197,7 +197,7 @@ function CaliDetailSheet({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-drawer bg-black/60 flex items-end sm:items-center justify-center"
+          className="fixed inset-0 z-drawer bg-background/80 flex items-end sm:items-center justify-center"
           onClick={onClose}
         >
           <motion.div

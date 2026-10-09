@@ -6,10 +6,10 @@ import SEO from '@/components/SEO';
 const DiwanLibraryPage = lazy(() => import('./Library'));
 
 const LibrarySkeleton = () => (
-  <div className="space-y-2 pt-1 min-h-screen bg-[#16130F] p-5">
-    <div className="h-24 rounded-xl animate-pulse bg-[#1D1811]" />
-    <div className="h-16 rounded-xl animate-pulse bg-[#1D1811]" />
-    <div className="h-20 rounded-xl animate-pulse bg-[#1D1811]" />
+  <div className="space-y-2 pt-1 min-h-screen bg-background p-5">
+    <div className="h-24 rounded-xl animate-pulse bg-card" />
+    <div className="h-16 rounded-xl animate-pulse bg-card" />
+    <div className="h-20 rounded-xl animate-pulse bg-card" />
   </div>
 );
 
