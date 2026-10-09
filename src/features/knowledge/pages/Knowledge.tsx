@@ -100,11 +100,11 @@ interface DetailModalProps {
 
 // ─── CATEGORIES ───────────────────────────────────────────────────────────────
 const CATEGORIES: Category[] = [
-  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"hsl(var(--primary))", bg:"from-signal"   },
-  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"hsl(var(--data-6))", bg:"from-data-6"  },
-  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"hsl(var(--data-4))", bg:"from-data-4"     },
-  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"hsl(var(--data-2))", bg:"from-muted"   },
-  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"hsl(var(--data-5))", bg:"from-data-5"    },
+  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"#C8A96E", bg:"from-signal"   },
+  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"#D4A5C9", bg:"from-data-6"  },
+  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"#7EB8C9", bg:"from-data-4"     },
+  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"#C9A87E", bg:"from-muted"   },
+  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"#C97E8A", bg:"from-data-5"    },
 ];
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -584,7 +584,7 @@ function Grid2({ data, color: _color }: Grid2Props) {
           <div style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "5px" }}>
             {k.replace(/_/g, " ")}
           </div>
-          <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>
+          <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: 'var(--font-display)', lineHeight: "1.4" }}>
             {v}
           </div>
         </div>
@@ -619,7 +619,7 @@ function PyramidBlock({ data, color }: PyramidBlockProps) {
               </span>
               <span style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace" }}>{l.note}</span>
             </div>
-            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.5" }}>{val}</div>
+            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: 'var(--font-display)', lineHeight: "1.5" }}>{val}</div>
           </div>
         );
       })}
@@ -647,7 +647,7 @@ function ComponentsBlock({ data, color }: ComponentsBlockProps) {
             <div style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "3px" }}>
               {k.replace(/_/g, " ")}
             </div>
-            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: "'Cormorant Garamond', serif", lineHeight: "1.4" }}>{v}</div>
+            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: 'var(--font-display)', lineHeight: "1.4" }}>{v}</div>
           </div>
         </div>
       ))}
@@ -720,7 +720,7 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
 
           {/* Name */}
           <h2 style={{
-            fontFamily:"'Cormorant Garamond', serif",
+            fontFamily:'var(--font-display)',
             fontSize:"clamp(24px,5vw,36px)", fontWeight:"300",
             color:"hsl(var(--foreground))", lineHeight:"1.1", marginBottom:"8px"
           }}>{model.name}</h2>
@@ -732,7 +732,7 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
 
           {/* Story */}
           <p style={{
-            color:"hsl(var(--muted-foreground))", fontSize:"12.5px", fontFamily:"'Amiri', serif",
+            color:"hsl(var(--muted-foreground))", fontSize:"12.5px", fontFamily:'var(--font-amiri)',
             lineHeight:"1.9", marginBottom:"24px",
             paddingRight:"12px", borderRight:`2px solid ${model.color}35`,
           }}>{model.story}</p>
@@ -746,7 +746,7 @@ function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: Deta
             {model.highlights.map((h, i) => (
               <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:"10px", marginBottom:"9px" }}>
                 <div style={{ width:"4px", height:"4px", background:model.color, borderRadius:"50%", marginTop:"6px", flexShrink:0 }} />
-                <span style={{ color:"hsl(var(--foreground))", fontSize:"12px", fontFamily:"'Amiri', serif", lineHeight:"1.7" }}>{h}</span>
+                <span style={{ color:"hsl(var(--foreground))", fontSize:"12px", fontFamily:'var(--font-amiri)', lineHeight:"1.7" }}>{h}</span>
               </div>
             ))}
           </div>
@@ -823,7 +823,7 @@ export default function Knowledge() {
         }}
       />
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Amiri:wght@400;700&display=swap');
+        
         * { box-sizing:border-box; margin:0; padding:0; }
         ::-webkit-scrollbar { width:3px; }
         ::-webkit-scrollbar-thumb { background:"hsl(var(--muted))"; border-radius:2px; }
@@ -851,14 +851,14 @@ export default function Knowledge() {
             </div>
           </div>
           <div style={{ display:"flex", alignItems:"baseline", gap:"10px", flexWrap:"wrap" }}>
-            <h1 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:"hsl(var(--foreground))", lineHeight:"1", letterSpacing:"-0.03em" }}>
+            <h1 style={{ fontFamily:'var(--font-display)', fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:"hsl(var(--foreground))", lineHeight:"1", letterSpacing:"-0.03em" }}>
               موسوعة
             </h1>
-            <span style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:cat.color, lineHeight:"1", letterSpacing:"-0.03em", fontStyle:"italic", transition:"color 0.8s ease" }}>
+            <span style={{ fontFamily:'var(--font-display)', fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:cat.color, lineHeight:"1", letterSpacing:"-0.03em", fontStyle:"italic", transition:"color 0.8s ease" }}>
               الرقي
             </span>
           </div>
-          <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:"'Amiri', serif", marginTop:"10px" }}>
+          <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:'var(--font-amiri)', marginTop:"10px" }}>
             السيارات · العطور · الساعات · الأزياء · الحلويات
           </p>
         </div>
@@ -876,7 +876,7 @@ export default function Knowledge() {
                 transform: active ? "translateY(-2px)" : "translateY(0)",
               }}>
                 <div style={{ fontSize:"clamp(16px,3vw,24px)", color: active ? c.color : "hsl(var(--muted-foreground))", marginBottom:"6px", transition:"all 0.35s", filter: active ? `drop-shadow(0 0 8px ${c.color}65)` : "none" }}>{c.icon}</div>
-                <div style={{ color: active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"clamp(9px,1.6vw,11px)", fontFamily:"'Amiri', serif" }}>{c.label}</div>
+                <div style={{ color: active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"clamp(9px,1.6vw,11px)", fontFamily:'var(--font-amiri)' }}>{c.label}</div>
                 <div style={{ color: active ? c.color : "hsl(var(--muted-foreground))", fontSize:"7px", fontFamily:"monospace", letterSpacing:"0.1em", marginTop:"3px", opacity: active ? 0.8 : 1 }}>{c.labelEn}</div>
               </button>
             );
@@ -917,14 +917,14 @@ export default function Knowledge() {
                         color: sel ? cat.color : "hsl(var(--muted-foreground))", fontFamily:"serif", fontSize:"10px", fontWeight:"bold",
                       }}>{b.logo}</div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ color: sel ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"13px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500" }}>{b.name}</div>
+                        <div style={{ color: sel ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"13px", fontFamily:'var(--font-display)', fontWeight:"500" }}>{b.name}</div>
                         <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace" }}>{b.origin} · {b.founded}</div>
                       </div>
                     </div>
                     {!activeBrand && (
                       <div style={{ marginTop: "10px" }}>
-                        <div style={{ color: cat.color, fontSize:"9px", fontFamily:"'Cormorant Garamond', serif", fontStyle:"italic", marginBottom:"4px", opacity:0.7 }}>{b.tagline}</div>
-                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"10px", fontFamily:"'Amiri', serif", lineHeight:"1.5" }}>{b.desc}</div>
+                        <div style={{ color: cat.color, fontSize:"9px", fontFamily:'var(--font-display)', fontStyle:"italic", marginBottom:"4px", opacity:0.7 }}>{b.tagline}</div>
+                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"10px", fontFamily:'var(--font-amiri)', lineHeight:"1.5" }}>{b.desc}</div>
                       </div>
                     )}
                   </button>
@@ -939,7 +939,7 @@ export default function Knowledge() {
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"14px" }}>
                 <div>
                   <div style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"3px" }}>─── {brand.name.toUpperCase()}</div>
-                  <div style={{ fontSize:"9px", color:cat.color, fontFamily:"'Cormorant Garamond', serif", fontStyle:"italic", opacity:0.7 }}>{brand.tagline}</div>
+                  <div style={{ fontSize:"9px", color:cat.color, fontFamily:'var(--font-display)', fontStyle:"italic", opacity:0.7 }}>{brand.tagline}</div>
                 </div>
                 <button onClick={() => { setActiveBrand(null); setActiveModel(null); }} style={{
                   background:"transparent", border: "1px solid hsl(var(--border))", borderRadius:"7px",
@@ -963,7 +963,7 @@ export default function Knowledge() {
 
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"7px" }}>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ color:"hsl(var(--foreground))", fontSize:"14px", fontFamily:"'Cormorant Garamond', serif", fontWeight:"500", marginBottom:"4px" }}>{m.name}</div>
+                        <div style={{ color:"hsl(var(--foreground))", fontSize:"14px", fontFamily:'var(--font-display)', fontWeight:"500", marginBottom:"4px" }}>{m.name}</div>
                         <span style={{ display:"inline-block", padding:"1px 7px", background:`${m.color}16`, border:`1px solid ${m.color}30`, borderRadius:"20px", fontSize:"7px", color:m.color, fontFamily:"monospace", letterSpacing:"0.1em" }}>{m.type.toUpperCase()}</span>
                       </div>
                       <div style={{ textAlign:"left" }}>
@@ -972,7 +972,7 @@ export default function Knowledge() {
                       </div>
                     </div>
 
-                    <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:"'Amiri', serif", lineHeight:"1.6", marginBottom:"9px" }}>
+                    <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:'var(--font-amiri)', lineHeight:"1.6", marginBottom:"9px" }}>
                       {m.story.slice(0, 100)}…
                     </p>
 
@@ -1004,7 +1004,7 @@ export default function Knowledge() {
         {!activeBrand && (
           <div style={{ marginTop:"32px", padding:"44px 28px", border: "1px dashed hsl(var(--border))", borderRadius:"18px", textAlign:"center", animation:"fadeIn 0.5s ease" }}>
             <div style={{ fontSize:"clamp(32px,7vw,48px)", color:"hsl(var(--muted-foreground))", marginBottom:"14px" }}>{cat.icon}</div>
-            <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"12px", fontFamily:"'Amiri', serif" }}>اختر علامة تجارية للاستكشاف</div>
+            <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"12px", fontFamily:'var(--font-amiri)' }}>اختر علامة تجارية للاستكشاف</div>
             <div style={{ color:"hsl(var(--border))", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.2em", marginTop:"7px" }}>
               {catData.brands.length} BRANDS · {catData.brands.reduce((a,b) => a + b.models.length, 0)} ITEMS
             </div>
