@@ -218,13 +218,11 @@ function hslTokenToRgb(hsl: string): string {
   const c = (1 - Math.abs(2 * lFrac - 1)) * sFrac;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = lFrac - c / 2;
-  let [r, g, b] = [0, 0, 0];
-  if (h < 60) [r, g, b] = [c, x, 0];
-  else if (h < 120) [r, g, b] = [x, c, 0];
-  else if (h < 180) [r, g, b] = [0, c, x];
-  else if (h < 240) [r, g, b] = [0, x, c];
-  else if (h < 300) [r, g, b] = [x, 0, c];
-  else [r, g, b] = [c, 0, x];
+  const sector = Math.floor((((h % 360) + 360) % 360) / 60);
+  const table: ReadonlyArray<readonly [number, number, number]> = [
+    [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x],
+  ];
+  const [r, g, b] = table[Math.min(sector, 5)];
   const toByte = (v: number) => Math.round((v + m) * 255);
   return `${toByte(r)}, ${toByte(g)}, ${toByte(b)}`;
 }
