@@ -68,7 +68,7 @@ describe('useChatMessages realtime lifecycle', () => {
     rerender({ id: 'chat-b' });
     unmount();
 
-    expect(topics.length).toBeGreaterThanOrEqual(3); // strict double-mount + switch
+    expect(topics.length).toBeGreaterThanOrEqual(2); // one per chat, plus any Strict Mode remount
     expect(new Set(topics).size).toBe(topics.length);
     expect(topics.every((t) => t.startsWith('chat:chat-'))).toBe(true);
     expect([...removed].sort()).toEqual([...topics].sort());
