@@ -506,7 +506,15 @@ export default function ProfileEditPage() {
         });
       }
     } catch (err: any) {
-      toast.error('حدث خطأ أثناء حفظ التعديلات');
+      const code = err?.code as string | undefined;
+      const message = String(err?.message ?? '');
+      const isUsernameTaken =
+        code === '23505' || message.includes('profiles_username');
+      toast.error(
+        isUsernameTaken
+          ? 'اسم المستخدم هذا محجوز، جرّب اسماً آخر'
+          : 'حدث خطأ أثناء حفظ التعديلات',
+      );
       console.error(err);
     } finally {
       if (isMountedRef.current) {
