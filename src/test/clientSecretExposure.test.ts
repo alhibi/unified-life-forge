@@ -136,6 +136,21 @@ describe('client bundle secret exposure', () => {
     expect(violations).toEqual([]);
   });
 
+  it('never hard-codes the backend host or reads it via getEnv/import.meta casts', () => {
+    // Hard-coded fallbacks silently pin a feature to one project and break
+    // when the app is re-pointed. Import SUPABASE_URL from the client module.
+    const violations: string[] = [];
+    for (const file of files) {
+      const rel = relative(SRC, file);
+      if (rel.startsWith(join('integrations', 'supabase'))) continue;
+      if (file.endsWith('clientSecretExposure.test.ts') || rel === join('test', 'rlsHostileClient.test.ts')) continue;
+      const text = stripComments(readFileSync(file, 'utf8'));
+      if (/https:\/\/[a-z0-9]{20}\.supabase\.co/.test(text)) violations.push(`${rel}: hard-coded host`);
+      if (/getEnv\(\)\.VITE_SUPABASE_|\(import\.meta as any\)\.env\.VITE_SUPABASE_/.test(text)) violations.push(`${rel}: indirect env read`);
+    }
+    expect(violations).toEqual([]);
+  });
+
   it('contains no hardcoded credential literal', () => {
     const violations: string[] = [];
 

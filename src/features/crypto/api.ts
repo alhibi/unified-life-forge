@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase,SUPABASE_URL } from '@/integrations/supabase/client';
 
 import {
   type ChainId,
@@ -11,9 +11,7 @@ import {
   WatchlistItemSchema,
 } from './types';
 
-const PROXY_URL = `${
-  (import.meta as any).env.VITE_SUPABASE_URL || 'https://nmrckgzmluoavgucqvjh.supabase.co'
-}/functions/v1/dexscreener-proxy`;
+const PROXY_URL = `${SUPABASE_URL}/functions/v1/dexscreener-proxy`;
 
 async function getAuthToken(): Promise<string> {
   const {

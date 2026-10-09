@@ -1,8 +1,8 @@
 {
-  "total": 826,
+  "total": 825,
   "rules": {
     "@typescript-eslint/ban-ts-comment": 18,
-    "@typescript-eslint/no-explicit-any": 237,
+    "@typescript-eslint/no-explicit-any": 236,
     "react-hooks/exhaustive-deps": 41,
     "react-hooks/immutability": 19,
     "react-hooks/incompatible-library": 2,

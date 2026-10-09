@@ -3,7 +3,7 @@
  * ingestion, discovery and chat go through edge functions because they
  * hold the model keys.
  */
-import { supabase } from '@/integrations/supabase/client';
+import { supabase,SUPABASE_URL } from '@/integrations/supabase/client';
 
 import type {
   MgArticle,
@@ -28,7 +28,7 @@ export interface MgIngestResult {
 /* eslint-disable @typescript-eslint/no-explicit-any -- mg_* tables are not in the generated types yet. */
 const db = supabase as any;
 
-const FN_BASE = `${(import.meta as any).env.VITE_SUPABASE_URL}/functions/v1`;
+const FN_BASE = `${SUPABASE_URL}/functions/v1`;
 
 async function authHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession();
