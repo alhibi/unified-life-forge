@@ -1,0 +1,41 @@
+name: تقرير خلل
+description: صف خللاً قابلاً للإعادة
+title: "[خلل] "
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: ما الذي حدث؟
+      description: وما الذي كنت تتوقع أن يحدث بدلاً منه؟
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: خطوات الإعادة
+      placeholder: |
+        1. افتح /...
+        2. اضغط ...
+        3. لاحظ ...
+    validations:
+      required: true
+  - type: input
+    id: route
+    attributes:
+      label: المسار أو الشاشة
+      placeholder: /mihrab مثلاً
+  - type: dropdown
+    id: device
+    attributes:
+      label: الجهاز
+      options:
+        - حاسوب
+        - جوال أندرويد
+        - جوال آيفون
+        - تطبيق مثبّت (PWA)
+  - type: textarea
+    id: evidence
+    attributes:
+      label: أدلة
+      description: لقطة شاشة، تسجيل، أو رسالة الخطأ من الكونسول. لا ترفق أي مفاتيح أو رموز سرية.

@@ -1,0 +1,20 @@
+name: اقتراح ميزة
+description: فكرة تستحق أن تُبنى
+title: "[ميزة] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: ما المشكلة التي تحلّها؟
+      description: صف الحاجة لا الحل — الحل الأمثل قد يختلف.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: الفكرة المقترحة
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: بدائل فكّرت فيها

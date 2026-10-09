@@ -26,7 +26,9 @@ Hold every task to a flagship/frontier-model bar of quality — not a "good enou
 ## 4. Environment & Dependencies
 - **Bun First:** Use `bun install`, `bun run build`, and `bun run test`.
 - **Node Options:** If memory issues occur during Vite builds, use `NODE_OPTIONS="--max-old-space-size=4096" bun run build`.
-- **Pre-commit Checks:** Always verify your work running `bun run verify` (which executes `typecheck`, `lint`, `lint:budget`, and `test`).
+- **Pre-commit Checks:** Always verify your work with `bun run verify` — the
+  full chain: `typecheck && lint && lint:budget && arch && test && build`.
+  A green local run is the entry ticket; CI re-runs the same chain on GitHub.
 
 ## 5. Architectural Map (Feature-Sliced Design)
 - Adhere strictly to the Feature-Sliced Design (FSD) located in `docs/architecture/`.
@@ -41,3 +43,13 @@ By reading this file, you agree to uphold these standards unconditionally in all
 - **الدالة الطرفية**: `supabase/functions/dexscreener-proxy` — عمليتان: `search` و`batch`، مع تخزين مؤقت (TTL)، قاطع دائرة يعيد بيانات قديمة بعلَم `stale`، تحديد معدّل لكل مستخدم، وتحقّق Zod للمخارج والمداخل. لا مفاتيح على العميل.
 - **قائمة الشبكات المعتمدة**: مصدر واحد فقط في `src/features/crypto/types.ts` (`SUPPORTED_CHAINS`) — لا تُكرَّر في أي مكان آخر.
 - **الأسعار**: تُنقل كسلاسل نصية من البداية للنهاية (لا تحويل إلى أرقام عائمة) لحفظ دقة العملات الصغيرة، وتُعرض بخطوط `tabular-nums`.
+
+---
+
+## البوابات وخط الأنابيب (CI/CD)
+
+- **الوظائف الأربع تعاقدية**: `verify` · `npm install parity` · `Enforce bundle budget` · `e2e` — أسماؤها في `.github/workflows/verify.yml` مربوطة حرفياً بـ`renovate.json` (الدمج التلقائي معلّق عليها). لا تُعد تسمية أي وظيفة دون تحديث الملفين معاً.
+- **الميزانيتان مجمّدتان وتنزلان فقط**: `lint-budget.json` (عدّ التحذيرات لكل قاعدة) و`bundle-budget.json` (brotli لكل قطعة، بهامش 2% + أرضية 64B). أي زيادة تفشل البوابة: أصلح لا ترفع الرقم؛ وإعادة المعايرة `--write` للانخفاض الموثّق فقط.
+- **شبكة الدخان** (كل المسارات): تُدار بعمليات منفصلة لكل شريحة عبر `bun run test:smoke`، وليست جزءاً من `bun run test` — بسبب تجمّد متعدد التركيبات في بيئة jsdom موثّق في `vitest.config.ts` وتعليقات السكربت.
+- **فحص RLS** يستهدف مشروع الإنتاج؛ يفشل بصوت عالٍ عمداً عند تعذّر الوصول (وإلا لكان فحصاً كاذباً). العلم `VITE_ALLOW_OFFLINE_RLS=1` موجود في CI مؤقتاً (موثّق في الملف نفسه) ويُزال مع إعادة توجيه التطبيق إلى مشروع حيّ.
+- **قاعدة الفحص الذاتي**: قبل أي push شغّل السلسلة كاملة محلياً — الفحص الذي لا يُشغَّل لا يحمي شيئاً.

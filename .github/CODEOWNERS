@@ -1,0 +1,9 @@
+# مالكو الملفات الحسّاسة.
+# CODEOWNERS بحد ذاته لا يلزم أحداً بشيء — الإلزام يأتي من
+# «Require review from Code Owners» في حالة الفرع، ويُفعَّل عندما تنضج
+# تدفقات المراجعة. حتى حينها يبقى الملف خريطة واضحة لملكية السطح الحسّاس.
+
+/.github/     @alhibi
+/supabase/    @alhibi
+/scripts/     @alhibi
+/e2e/         @alhibi
