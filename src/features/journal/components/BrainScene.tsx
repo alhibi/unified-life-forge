@@ -16,17 +16,40 @@ import type { JournalMoodBalance } from '../types';
  * the whole assembly grows a little as the entry count climbs (v1 growth arc).
  */
 
-const COPPER = '#C8A96E';        // warm — matches Knowledge accent
+// Material base tones are intentionally dark & bespoke for the hemisphere
+// sculpt (not screen UI surfaces), but the emissive glows follow the app's
+// shared tokens: warm copper (--primary) and the cool data hue (--data-4)
+// used elsewhere for "analytical" content.
 const ORGANIC_CORE = '#3A2418';  // deep organic base
-const COOL = '#7EB8C9';          // cool cyan — matches Watches accent
 const MECH_CORE = '#1A1F26';     // gunmetal base
+
+/** Resolve an HSL custom property to a `hsl(h, s%, l%)` string three.js can parse. */
+function resolveCssHsl(varName: string, fallback: string): string {
+  if (typeof document === 'undefined') return fallback;
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  if (!raw) return fallback;
+  const [h, s, l] = raw.split(/\s+/);
+  return `hsl(${h}, ${s}, ${l})`;
+}
+
+function useThemeHemisphereColors() {
+  return useMemo(
+    () => ({
+      copper: resolveCssHsl('--primary', '#C8A96E'),
+      cool: resolveCssHsl('--data-4', '#7EB8C9'),
+      cream: resolveCssHsl('--data-3', '#F2E7C9'),
+      background: resolveCssHsl('--background', '#080808'),
+    }),
+    [],
+  );
+}
 
 function useGrowth(total: number) {
   // Base 1.0 → grows toward ~1.35 as entries accumulate (asymptotic).
   return useMemo(() => 1 + 0.35 * (1 - 1 / (1 + total / 24)), [total]);
 }
 
-function OrganicHemisphere({ radius, intensity }: { radius: number; intensity: number }) {
+function OrganicHemisphere({ radius, intensity, copper }: { radius: number; intensity: number; copper: string }) {
   const ref = useRef<THREE.Mesh>(null);
   useFrame((_, dt) => {
     if (!ref.current) return;
@@ -42,7 +65,7 @@ function OrganicHemisphere({ radius, intensity }: { radius: number; intensity: n
       <sphereGeometry args={[1, 96, 64, 0, Math.PI]} />
       <MeshDistortMaterial
         color={ORGANIC_CORE}
-        emissive={COPPER}
+        emissive={copper}
         emissiveIntensity={0.35 + 0.5 * intensity}
         distort={0.32}
         speed={1.1}
@@ -53,7 +76,7 @@ function OrganicHemisphere({ radius, intensity }: { radius: number; intensity: n
   );
 }
 
-function MechHemisphere({ radius, intensity }: { radius: number; intensity: number }) {
+function MechHemisphere({ radius, intensity, cool }: { radius: number; intensity: number; cool: string }) {
   const geom = useMemo(() => {
     // Very low segment count → faceted low-poly panels.
     const g = new THREE.SphereGeometry(1, 14, 10, 0, Math.PI);
@@ -70,7 +93,7 @@ function MechHemisphere({ radius, intensity }: { radius: number; intensity: numb
       <mesh ref={ref} geometry={geom} scale={radius} rotation={[0, Math.PI / 2, 0]}>
         <meshStandardMaterial
           color={MECH_CORE}
-          emissive={COOL}
+          emissive={cool}
           emissiveIntensity={0.2 + 0.35 * intensity}
           roughness={0.4}
           metalness={0.75}
@@ -79,17 +102,17 @@ function MechHemisphere({ radius, intensity }: { radius: number; intensity: numb
       </mesh>
       {/* Wireframe overlay */}
       <mesh geometry={geom} scale={radius * 1.001} rotation={[0, Math.PI / 2, 0]}>
-        <meshBasicMaterial color={COOL} wireframe transparent opacity={0.18} />
+        <meshBasicMaterial color={cool} wireframe transparent opacity={0.18} />
       </mesh>
     </group>
   );
 }
 
-function Seam({ radius }: { radius: number }) {
+function Seam({ radius, cream }: { radius: number; cream: string }) {
   return (
     <mesh rotation={[Math.PI / 2, 0, 0]}>
       <torusGeometry args={[radius * 1.003, 0.008, 12, 128]} />
-      <meshBasicMaterial color="#F2E7C9" toneMapped={false} />
+      <meshBasicMaterial color={cream} toneMapped={false} />
     </mesh>
   );
 }
@@ -97,6 +120,7 @@ function Seam({ radius }: { radius: number }) {
 function BreathingAssembly({ balance }: { balance: JournalMoodBalance }) {
   const groupRef = useRef<THREE.Group>(null);
   const growth = useGrowth(balance.total);
+  const { copper, cool, cream } = useThemeHemisphereColors();
   // Organic gets more room when the ratio > 0.5; analytical gets more < 0.5.
   // Clamp so a single entry doesn't collapse the other side.
   const organicScale = 0.85 + 0.3 * balance.organicRatio;
@@ -114,9 +138,9 @@ function BreathingAssembly({ balance }: { balance: JournalMoodBalance }) {
 
   return (
     <group ref={groupRef}>
-      <OrganicHemisphere radius={organicScale} intensity={balance.organicRatio} />
-      <MechHemisphere    radius={mechScale}    intensity={1 - balance.organicRatio} />
-      <Seam radius={Math.max(organicScale, mechScale)} />
+      <OrganicHemisphere radius={organicScale} intensity={balance.organicRatio} copper={copper} />
+      <MechHemisphere    radius={mechScale}    intensity={1 - balance.organicRatio} cool={cool} />
+      <Seam radius={Math.max(organicScale, mechScale)} cream={cream} />
     </group>
   );
 }
@@ -128,21 +152,22 @@ export default function BrainScene({
   balance: JournalMoodBalance;
   reducedMotion?: boolean;
 }) {
+  const { copper, cool, cream, background } = useThemeHemisphereColors();
   return (
     <Canvas
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       camera={{ position: [0, 0, 3.1], fov: 45 }}
-      style={{ background: '#080808' }}
+      style={{ background }}
     >
-      <color attach="background" args={['#080808']} />
+      <color attach="background" args={[background]} />
       <ambientLight intensity={0.25} />
       {/* Copper key on the organic side */}
-      <pointLight position={[-2.6, 1.6, 2.4]} intensity={1.15} color={COPPER} />
+      <pointLight position={[-2.6, 1.6, 2.4]} intensity={1.15} color={copper} />
       {/* Cool rim on the mechanical side */}
-      <pointLight position={[2.6, 1.4, 2.4]} intensity={0.95} color={COOL} />
+      <pointLight position={[2.6, 1.4, 2.4]} intensity={0.95} color={cool} />
       {/* Soft under-fill */}
-      <pointLight position={[0, -2.5, 1.5]} intensity={0.3} color="#F2E7C9" />
+      <pointLight position={[0, -2.5, 1.5]} intensity={0.3} color={cream} />
 
       <Suspense fallback={null}>
         <BreathingAssembly balance={balance} />
