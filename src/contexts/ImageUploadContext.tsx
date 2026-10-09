@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef,useState } from 'react';
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/integrations/supabase/client';
 import { compressionSaving, type PreparedAsset,prepareImageForChat } from '@/lib/chat/mediaPipeline';
 
 export interface PendingUpload {
@@ -178,8 +178,8 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
     const path = `${senderId}/${conversationId}/${Date.now()}.${ext}`;
 
     const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const token = sessionData.session?.access_token || SUPABASE_PUBLISHABLE_KEY;
+    const anonKey = SUPABASE_PUBLISHABLE_KEY;
 
     const xhr = new XMLHttpRequest();
 
@@ -202,7 +202,7 @@ export function ImageUploadProvider({ children }: { children: React.ReactNode })
       xhr.timeout = 120_000;
       xhr.addEventListener('timeout', () => reject(new Error('Upload timed out')));
 
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseUrl = SUPABASE_URL;
       const url = `${supabaseUrl}/storage/v1/object/chat-files/${path}`;
 
       xhr.open('POST', url);

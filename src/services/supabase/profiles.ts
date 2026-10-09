@@ -2,28 +2,10 @@
 // used to sit in between as a file that only re-exported these two symbols,
 // which made it look like the app had two Supabase clients.
 import { supabase } from '@/integrations/supabase/client';
-import { untypedSupabase } from '@/integrations/supabase/untypedClient';
 import type { Database } from '@/integrations/supabase/types';
+import { untypedSupabase } from '@/integrations/supabase/untypedClient';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
-
-/**
- * Fetches a user profile by user ID.
- */
-export async function getProfile(userId: string): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error fetching profile:', error);
-    throw error;
-  }
-
-  return data;
-}
 
 /**
  * Checks if a username is available.

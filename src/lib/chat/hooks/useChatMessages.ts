@@ -21,7 +21,7 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { InfiniteData } from '@tanstack/react-query';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured,supabase } from '@/integrations/supabase/client';
@@ -128,15 +128,26 @@ export function useChatMessages(chatId: string | null | undefined): UseChatMessa
   }, [chatId, qc]);
 
   // ── Realtime: subscribe to the chat's INSERT/UPDATE/DELETE events ──────────
+  // viewerId only shapes how rows are merged; reading it through a ref keeps
+  // an auth refresh from tearing down and re-creating the subscription.
+  const viewerIdRef = useRef(viewerId);
+  useEffect(() => { viewerIdRef.current = viewerId; }, [viewerId]);
   useEffect(() => {
     if (!chatId || !isSupabaseConfigured) return;
-    const channel: RealtimeChannel = supabase.channel(`chat:${chatId}`);
+    // Unique topic per subscription: `supabase.channel(name)` returns the
+    // still-registered channel while a previous `removeChannel` is pending
+    // (Strict Mode double-mount, fast chat switching), and adding
+    // postgres_changes callbacks to an already-subscribed channel throws.
+    const instance = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const channel: RealtimeChannel = supabase.channel(`chat:${chatId}:${instance}`);
 
     const onInsert = (row: DbMessage) => {
-      mergeRealtimeInsert(qc, queryKey, row, viewerId);
+      mergeRealtimeInsert(qc, queryKey, row, viewerIdRef.current);
     };
     const onUpdate = (row: DbMessage) => {
-      mergeRealtimeUpdate(qc, queryKey, row, viewerId);
+      mergeRealtimeUpdate(qc, queryKey, row, viewerIdRef.current);
     };
     const onDelete = (row: DbMessage) => {
       removeFromCache(qc, queryKey, row.id);
@@ -155,8 +166,8 @@ export function useChatMessages(chatId: string | null | undefined): UseChatMessa
         (payload) => onDelete(payload.old as DbMessage))
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
-  }, [chatId, qc, queryKey, viewerId]);
+    return () => { void supabase.removeChannel(channel); };
+  }, [chatId, qc, queryKey]);
 
   // ── Public mutators (used by the send / edit / delete hooks) ───────────────
   const pushOptimistic = useCallback((m: ChatMessage) => {

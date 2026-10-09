@@ -115,6 +115,27 @@ describe('client bundle secret exposure', () => {
     ).toEqual([]);
   });
 
+  it('resolves Supabase URL/key only in the generated client module', () => {
+    // Scattered reads drifted (one fell back to a hardcoded host, another
+    // could send `undefined` as the apikey). Import SUPABASE_URL /
+    // SUPABASE_PUBLISHABLE_KEY from '@/integrations/supabase/client' instead.
+    const ALLOWED = new Set([
+      // Build-time OAuth issuer for the MCP manifest; evaluated where the
+      // runtime client cannot be imported.
+      join('lib', 'mcp', 'index.ts'),
+      join('test', 'rlsHostileClient.test.ts'),
+    ]);
+    const violations: string[] = [];
+    for (const file of files) {
+      const rel = relative(SRC, file);
+      if (rel.startsWith(join('integrations', 'supabase')) || ALLOWED.has(rel)) continue;
+      if (file.endsWith('clientSecretExposure.test.ts')) continue;
+      const text = stripComments(readFileSync(file, 'utf8'));
+      if (/import\.meta\.env\.VITE_SUPABASE_/.test(text)) violations.push(rel);
+    }
+    expect(violations).toEqual([]);
+  });
+
   it('contains no hardcoded credential literal', () => {
     const violations: string[] = [];
 
