@@ -12,7 +12,6 @@ import { expect, test } from './fixtures';
 
 const ROUTES: Array<{ path: string; titlePattern: RegExp; name: string }> = [
   { path: '/', titlePattern: /amv\.life/, name: 'portal' },
-  { path: '/now', titlePattern: /أوقات الصلاة/, name: 'now' },
   { path: '/mihrab', titlePattern: /محراب/, name: 'mihrab' },
   { path: '/settings', titlePattern: /الإعدادات/, name: 'settings' },
   { path: '/weather', titlePattern: /./, name: 'weather' },
@@ -51,6 +50,14 @@ test.describe('routing', () => {
       await expect(page).toHaveURL(/\/settings\/appearance$/);
       await expect(page.locator('#root')).not.toBeEmpty();
     }
+  });
+
+  test('the retired now path lands on the portal instead of a 404', async ({ page }) => {
+    // The dedicated /now screen was folded into the portal — the prayer card
+    // lives there now. Old links must keep working.
+    await page.goto('/now');
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator('#root')).not.toBeEmpty();
   });
 
   test('client-side navigation from the portal to settings keeps the SPA alive', async ({

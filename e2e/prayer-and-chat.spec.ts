@@ -9,21 +9,20 @@ import { expect, test } from './fixtures';
  */
 
 test.describe('prayer times', () => {
-  test('the Now screen renders prayer names, not an empty shell', async ({ page }) => {
+  test('the prayer surface renders prayer names, not an empty shell', async ({ page }) => {
+    // The dedicated /now screen was retired; old links redirect to the
+    // portal, where the prayer card lives. The card paints a skeleton until
+    // the stubbed Aladhan response / the offline adhan fallback lands, so
+    // assert with auto-waiting expectations rather than an instant count —
+    // a one-shot visibility probe samples mid-skeleton.
     await page.goto('/now');
-    await expect(page.locator('#root')).not.toBeEmpty();
+    await expect(page).toHaveURL(/\/$/);
 
-    // Prayer names come from a stubbed Aladhan response, and the app also has
-    // an offline `adhan` calculation, so at least one must be on screen
-    // regardless of which path won.
-    const names = ['الفجر', 'الظهر', 'العصر', 'المغرب', 'العشاء'];
-    const found = await Promise.all(
-      names.map((n) => page.getByText(n, { exact: false }).first().isVisible().catch(() => false)),
-    );
-    expect(
-      found.filter(Boolean).length,
-      'no prayer name was rendered on /now',
-    ).toBeGreaterThanOrEqual(3);
+    for (const name of ['الفجر', 'الظهر', 'العصر', 'المغرب', 'العشاء']) {
+      await expect(page.getByText(name, { exact: false }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+    }
   });
 
   test('prayer settings offers Sunni calculation methods', async ({ page }) => {
@@ -84,7 +83,9 @@ test.describe('settings', () => {
     await expect(page.getByText('تصدير بياناتي')).toHaveCount(0);
 
     // The sections that do not need an account must still be there. Scoped to
-    // the group heading: the label also appears on the theme row inside it.
-    await expect(page.getByRole('paragraph').filter({ hasText: 'المظهر' })).toBeVisible();
+    // the design system's group-label element: the label text also appears on
+    // the theme row inside it, and the label is a plain `app-section-label`
+    // div — not a paragraph — so a role-based locator would miss it.
+    await expect(page.locator('.app-section-label', { hasText: 'المظهر' })).toBeVisible();
   });
 });

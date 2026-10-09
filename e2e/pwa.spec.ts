@@ -50,12 +50,32 @@ test.describe('pwa', () => {
     }
   });
 
-  test('index.html declares theme-color for both colour schemes', async ({ page }) => {
+  test('index.html declares theme-color for both colour schemes', async ({ page, request }) => {
+    // Two layers, both contractual:
+    //   1. The static document declares both schemes — the pre-JS window
+    //      (splash, FOUC) is all the OS sees before scripts run.
+    //   2. The inline boot script then collapses them to ONE resolved value
+    //      so the OS chrome follows the app's theme rather than the system
+    //      preference (dark is the shipped default — see index.html). That
+    //      deliberate collapse is pinned here, because a regression would
+    //      flash the wrong bar colour on every launch.
+    const html = await (await request.get('/index.html')).text();
+    expect(html).toContain('content="#f1f0f4" media="(prefers-color-scheme: light)"');
+    expect(html).toContain('content="#1c1827" media="(prefers-color-scheme: dark)"');
+
     await page.goto('/');
-    const light = page.locator('meta[name="theme-color"][media*="light"]');
-    const dark = page.locator('meta[name="theme-color"][media*="dark"]');
-    await expect(light).toHaveAttribute('content', '#f1f0f4');
-    await expect(dark).toHaveAttribute('content', '#1c1827');
+    // The boot script collapses the static pair onto the resolved theme …
+    const staticMetas = page.locator('meta[name="theme-color"]:not([data-runtime])');
+    await expect(staticMetas).toHaveCount(2);
+    await expect(staticMetas.first()).toHaveAttribute('content', '#1c1827');
+    // …and the media attribute is gone: the resolved theme, not the OS one.
+    await expect(page.locator('meta[name="theme-color"][media]')).toHaveCount(0);
+    // …and a third runtime tag (`data-runtime`, added by syncStatusBar in
+    // src/lib/native.ts) carries the live background — it must resolve to a
+    // real colour rather than the empty default.
+    const runtime = page.locator('meta[name="theme-color"][data-runtime]');
+    await expect(runtime).toHaveCount(1);
+    expect(await runtime.getAttribute('content')).toMatch(/^#[0-9a-fA-F]{6}$/);
   });
 
   test('the generated service worker is served and carries a precache manifest', async ({

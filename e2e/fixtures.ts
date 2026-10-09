@@ -156,6 +156,29 @@ async function stubExternalNetwork(page: Page): Promise<void> {
       return route.fulfill({ status: 200, contentType: 'font/woff2', body: '' });
     }
 
+    // Supabase backend. The app's client falls back to the production project
+    // constants, and that project stopped resolving in DNS (2026-10). Letting
+    // these requests die as network errors leaves the auth client and React
+    // Query's reads pending forever — the atlas then never leaves its loading
+    // state and specs assert against skeletons. Answer like the route-smoke
+    // net does: an empty, well-formed response per API family so every query
+    // settles deterministically, signed out.
+    if (url.host.includes('supabase.co') || url.host.includes('supabase.in')) {
+      if (url.pathname.startsWith('/auth/v1/')) {
+        return route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'no session in e2e' }),
+        });
+      }
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Content-Range': '*/0', 'X-E2E-Stub': url.pathname },
+        body: url.pathname.startsWith('/storage/v1/') ? '' : '[]',
+      });
+    }
+
     // Everything else off-origin is refused loudly.
     return route.abort();
   });

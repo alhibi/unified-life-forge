@@ -37,7 +37,12 @@ test.describe('travel atlas', () => {
     await page.goto('/travel-atlas');
 
     await page.getByRole('tab', { name: 'الأماكن' }).click();
-    await expect(page.getByText(/سجّل الدخول ليكون لك أطلس|أضف مكانك الأول/)).toBeVisible();
+    // The map's floating sign-in prompt stays mounted (hidden) after the tab
+    // switch, so scope to the places tab's own empty-state element rather
+    // than matching the same sentence anywhere on the page.
+    await expect(
+      page.locator('.empty-state', { hasText: 'سجّل الدخول ليكون لك أطلس' }),
+    ).toBeVisible();
   });
 
   test('the trips route mounts and can start a plan', async ({ page }) => {
