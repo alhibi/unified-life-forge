@@ -166,60 +166,60 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-4 p-4 sm:p-5',
         )}
       >
-        {!list && (
-          <span className="portal-widget-glyph" aria-hidden>
-            <Icon className="size-full!" />
-          </span>
-        )}
-
-        {/* Inverted solid chip: ink body, material-coloured glyph. */}
-        <span
-          className={cn(
-            'relative z-10 flex shrink-0 items-center justify-center rounded-full',
-            'portal-widget-chip shadow-e1',
-            'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
-            'h-12 w-12',
-          )}
-          aria-hidden
-        >
-          <Icon className="size-6!" />
-        </span>
-
-        <span className={cn('relative z-10 min-w-0', list && 'flex-1')}>
-          <span className="flex items-center gap-1.5">
-            <span
-              className={cn(
-                'break-words text-tile-foreground',
-                list ? 'type-body font-semibold' : 'portal-widget-title',
-              )}
-            >
-              {app.label}
-            </span>
-            {pinned && <Pin className="h-3.5 w-3.5 shrink-0 text-tile-foreground" aria-hidden />}
-            {typeof badge === 'number' && badge > 0 && (
+        {!list ? (
+          <>
+            {/* Widget head: inverted chip + name; the end edge is reserved
+                for the shortcuts control that sits above the tile. */}
+            <span className="relative z-10 flex w-full items-center gap-2.5 pe-12">
               <span
-                className="flex min-w-6 items-center justify-center rounded-full bg-tile-foreground px-1.5 py-0.5 text-micro font-bold tabular-nums text-tile-surface"
-                aria-label={`${badge} غير مقروء`}
+                className="portal-widget-chip flex size-10 shrink-0 items-center justify-center rounded-full shadow-e1 transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
+                aria-hidden
               >
-                {badge > 99 ? '99+' : badge}
+                <Icon className="size-5!" />
               </span>
-            )}
-          </span>
-          <span
-            className={cn(
-              'mt-1 block text-mini font-medium text-muted-foreground',
-              !list && 'portal-widget-desc',
-            )}
-          >
-            {app.description}
-          </span>
-        </span>
+              <span className="portal-widget-title min-w-0 break-words text-tile-foreground">
+                {app.label}
+              </span>
+              {pinned && <Pin className="size-3.5! shrink-0 text-tile-foreground" aria-hidden />}
+            </span>
 
-        {list && (
-          <ChevronRight
-            className="ms-auto me-9 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
-            aria-hidden
-          />
+            {/* The face is the widget's own composition (AppTileFaces). */}
+            <span className="tile-face relative z-10 flex min-h-0 w-full flex-1 items-end">
+              <AppTileFace appKey={app.key} wide={wide} badge={badge} />
+            </span>
+          </>
+        ) : (
+          <>
+            <span
+              className="portal-widget-chip relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full shadow-e1"
+              aria-hidden
+            >
+              <Icon className="size-6!" />
+            </span>
+            <span className="relative z-10 min-w-0 flex-1">
+              <span className="flex items-center gap-1.5">
+                <span className="type-body break-words font-semibold text-tile-foreground">
+                  {app.label}
+                </span>
+                {pinned && <Pin className="h-3.5 w-3.5 shrink-0 text-tile-foreground" aria-hidden />}
+                {typeof badge === 'number' && badge > 0 && (
+                  <span
+                    className="flex min-w-6 items-center justify-center rounded-full bg-tile-foreground px-1.5 py-0.5 text-micro font-bold tabular-nums text-tile-surface"
+                    aria-label={`${badge} غير مقروء`}
+                  >
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
+              </span>
+              <span className="mt-1 block text-mini font-medium text-muted-foreground">
+                {app.description}
+              </span>
+            </span>
+            <ChevronRight
+              className="ms-auto me-9 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
+              aria-hidden
+            />
+          </>
         )}
       </Button>
 
