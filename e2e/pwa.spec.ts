@@ -28,10 +28,10 @@ test.describe('pwa', () => {
     expect(manifest.dir).toBe('rtl');
     expect(manifest.lang).toBe('ar');
 
-    // theme_color has to match the theme the app actually boots into. The
-    // default resolves to 'light' in both AppContext and the index.html FOUC
-    // guard, so a dark value here would flash on launch.
-    expect(manifest.theme_color).toBe('#f1f0f4');
+    // theme_color has to match the theme the app actually boots into.
+    // Architectural Copper is nocturnal: AppContext and the index.html FOUC
+    // guard both default to dark, so a light value here would flash on launch.
+    expect(manifest.theme_color).toBe('#0D0D0F');
 
     // Installability needs a maskable icon; Chrome warns without one.
     expect(manifest.icons.some((i) => i.purpose === 'maskable')).toBe(true);
@@ -60,14 +60,14 @@ test.describe('pwa', () => {
     //      deliberate collapse is pinned here, because a regression would
     //      flash the wrong bar colour on every launch.
     const html = await (await request.get('/index.html')).text();
-    expect(html).toContain('content="#f1f0f4" media="(prefers-color-scheme: light)"');
-    expect(html).toContain('content="#1c1827" media="(prefers-color-scheme: dark)"');
+    expect(html).toContain('content="#F4F2EF" media="(prefers-color-scheme: light)"');
+    expect(html).toContain('content="#0D0D0F" media="(prefers-color-scheme: dark)"');
 
     await page.goto('/');
     // The boot script collapses the static pair onto the resolved theme …
     const staticMetas = page.locator('meta[name="theme-color"]:not([data-runtime])');
     await expect(staticMetas).toHaveCount(2);
-    await expect(staticMetas.first()).toHaveAttribute('content', '#1c1827');
+    await expect(staticMetas.first()).toHaveAttribute('content', '#0D0D0F');
     // …and the media attribute is gone: the resolved theme, not the OS one.
     await expect(page.locator('meta[name="theme-color"][media]')).toHaveCount(0);
     // …and a third runtime tag (`data-runtime`, added by syncStatusBar in

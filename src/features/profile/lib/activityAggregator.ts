@@ -507,6 +507,18 @@ function compute365DayContributions(
   const alignedEnd = new Date(endDate);
   alignedEnd.setDate(alignedEnd.getDate() + (6 - alignedEnd.getDay()));
 
+  // Walk the grid at local NOON, never at the current time of day. Stepping
+  // `setDate(+1)` from a 02:xx wall time crosses the DST spring-forward hour
+  // (02:00 → 03:00), where that local time does not exist: the engine resolves
+  // it and the wall clock shifts +1h for every later iteration. The final
+  // `d <= alignedEnd` comparison then drops a REAL day — and when today is
+  // Saturday (the last day of the aligned week) the dropped day is today
+  // itself, so the whole matrix returned zero contributions every Saturday on
+  // a DST timezone while CI (UTC, no DST) stayed green. Noon is never inside a
+  // skipped hour, so one step is exactly one calendar day everywhere.
+  alignedStart.setHours(12, 0, 0, 0);
+  alignedEnd.setHours(12, 0, 0, 0);
+
   const windowStartISO = toLocalDateISO(startDate);
   const windowEndISO = toLocalDateISO(endDate);
   const todayISO = toLocalDateISO(today);
