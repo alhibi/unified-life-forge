@@ -175,7 +175,7 @@ function Segmented<T extends string>({
             aria-pressed={active}
           >
             {opt.icon}
-            <span className="truncate">{opt.label}</span>
+            <span className="min-w-0 text-center leading-snug">{opt.label}</span>
           </Button>
         );
       })}
