@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { PORTAL_APPS } from '@/components/portal/apps';
 import { AppTile } from '@/components/portal/AppTile';
@@ -38,6 +39,7 @@ const parse = (token: string): Hsl => {
 };
 
 export default function PaletteSection() {
+  const navigate = useNavigate();
   const {
     colorTheme,
     setColorTheme,
@@ -174,10 +176,12 @@ export default function PaletteSection() {
                   activation="click"
                   variant="ghost"
                   onClick={() => setColorTheme(entry.id as Parameters<typeof setColorTheme>[0])}
+                  aria-label={entry.name}
                   aria-pressed={active}
                   className={`h-auto min-w-0 flex-col items-stretch gap-2 rounded-card p-2 text-start ${active ? 'ring-2 ring-primary' : ''}`}
                 >
                   <span
+                    aria-hidden
                     className="flex h-16 items-center gap-2 rounded-card p-3"
                     style={{
                       backgroundColor: `hsl(${candidate['--background']})`,
@@ -222,21 +226,17 @@ export default function PaletteSection() {
               list={false}
               active={false}
               pinned={false}
-              onOpen={() => window.location.assign(app.path)}
-              onInspect={() => window.location.assign(app.path)}
+              onOpen={() => navigate(app.path)}
+              onInspect={() => navigate(app.path)}
               onFocusApp={() => undefined}
             />
           ))}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button activation="click" onClick={() => window.location.assign('/quran')}>
+          <Button activation="click" onClick={() => navigate('/quran')}>
             القرآن الكريم
           </Button>
-          <Button
-            activation="click"
-            variant="secondary"
-            onClick={() => window.location.assign('/dhikr')}
-          >
+          <Button activation="click" variant="secondary" onClick={() => navigate('/dhikr')}>
             أذكار اليوم
           </Button>
         </div>

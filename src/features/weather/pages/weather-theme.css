@@ -22,23 +22,29 @@
 }
 
 .weather-theme .weather-shell {
-  border: 1px solid hsl(var(--primary) / 0.16);
-  border-radius: var(--r-lg);
-  background: linear-gradient(145deg, hsl(var(--card) / 0.88), hsl(var(--background) / 0.97));
+  border: 0;
+  border-radius: calc(var(--r-lg) * var(--art-corner, 1));
+  background: hsl(var(--card));
   box-shadow: var(--shadow-2);
   overflow: visible;
 }
 
 .weather-theme .weather-panel {
-  border: 1px solid hsl(var(--primary) / 0.12);
+  border: 0;
   border-radius: var(--r-md);
-  background: hsl(var(--card) / 0.62);
+  background: hsl(var(--surface-2));
   box-shadow: var(--shadow-2);
 }
 
-.weather-theme .weather-sky-text { color: hsl(var(--primary)); }
-.weather-theme .weather-copper-text { color: hsl(var(--primary)); }
-.weather-theme .weather-divider { border-color: hsl(var(--foreground) / 0.09); }
+.weather-theme .weather-sky-text {
+  color: hsl(var(--primary));
+}
+.weather-theme .weather-copper-text {
+  color: hsl(var(--primary));
+}
+.weather-theme .weather-divider {
+  border-color: hsl(var(--foreground) / 0.09);
+}
 
 .weather-theme .weather-dashboard-grid {
   display: grid;
@@ -49,7 +55,7 @@
   box-shadow: var(--shadow-2);
 }
 
-.weather-theme .weather-tabs [aria-selected="true"] {
+.weather-theme .weather-tabs [aria-selected='true'] {
   box-shadow: var(--shadow-2);
 }
 
@@ -65,9 +71,9 @@
 
 .weather-theme .weather-chart-stage > *,
 .weather-theme .weather-forecast-rail {
-  border: 1px solid hsl(var(--primary) / 0.13);
+  border: 0;
   border-radius: var(--r-md);
-  background: hsl(var(--card) / 0.72);
+  background: hsl(var(--card));
   box-shadow: var(--shadow-2);
 }
 
@@ -99,25 +105,38 @@
 }
 
 .weather-theme .weather-skeleton-line {
-  background: linear-gradient(90deg, hsl(var(--foreground) / 0.04), hsl(var(--foreground) / 0.09), hsl(var(--foreground) / 0.04));
+  background: linear-gradient(
+    90deg,
+    hsl(var(--foreground) / 0.04),
+    hsl(var(--foreground) / 0.09),
+    hsl(var(--foreground) / 0.04)
+  );
   background-size: 220% 100%;
   animation: weather-shimmer calc(1800ms * var(--motion-duration-scale)) ease-in-out infinite;
 }
 
 @keyframes weather-shimmer {
-  from { background-position: 100% 0; }
-  to { background-position: -120% 0; }
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
 }
 
 /* Hide scrollbars for horizontal ribbons */
-.weather-theme .no-scrollbar::-webkit-scrollbar { display: none; }
-.weather-theme .no-scrollbar { scrollbar-width: none; }
+.weather-theme .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.weather-theme .no-scrollbar {
+  scrollbar-width: none;
+}
 
 /* ── Tab bar — pill segmented control ──────────────────────────────── */
 
 .weather-theme .tab-bar {
   background: hsl(var(--secondary));
-  
+
   border: 1px solid hsl(var(--border) / 0.35);
   box-shadow: var(--shadow-2);
 }
@@ -131,22 +150,30 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, hsl(var(--primary) / 0.08), transparent);
+  background: hsl(var(--interactive-hover));
   opacity: 0;
   transition: opacity var(--duration-fast) var(--motion-ease-enter);
 }
 
-.weather-theme .tab-btn:hover::before { opacity: 1; }
+.weather-theme .tab-btn:hover::before {
+  opacity: 1;
+}
 
 .weather-theme .tab-btn.active {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: hsl(var(--interactive-selected));
+  color: hsl(var(--interactive-selected-foreground));
   box-shadow: var(--shadow-2);
 }
 
-.weather-theme .tab-btn.active::before { opacity: 0; }
-.weather-theme .tab-btn.active .tab-icon { transform: scale(1.05); }
-.weather-theme .tab-btn .tab-icon { transition: transform var(--duration-fast) var(--motion-ease-enter); }
+.weather-theme .tab-btn.active::before {
+  opacity: 0;
+}
+.weather-theme .tab-btn.active .tab-icon {
+  transform: scale(1.05);
+}
+.weather-theme .tab-btn .tab-icon {
+  transition: transform var(--duration-fast) var(--motion-ease-enter);
+}
 
 /* ── Card grids ────────────────────────────────────────────────────── */
 
@@ -169,8 +196,12 @@
 }
 
 @media (max-width: 768px) {
-  .weather-theme .card-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .weather-theme .card-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .weather-theme .card-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .weather-theme .card-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* ── Section header + dividers ─────────────────────────────────────── */
@@ -244,7 +275,9 @@
 }
 
 .weather-theme .hero-number {
-  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-feature-settings:
+    'tnum' 1,
+    'lnum' 1;
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: 0;
 }
@@ -257,7 +290,9 @@
 }
 
 .weather-theme .tile-hover {
-  transition: transform var(--duration-fast) var(--motion-ease-enter), box-shadow var(--duration-fast) var(--motion-ease-enter);
+  transition:
+    transform var(--duration-fast) var(--motion-ease-enter),
+    box-shadow var(--duration-fast) var(--motion-ease-enter);
 }
 
 .weather-theme .tile-hover:hover {
@@ -273,7 +308,7 @@
   padding: 0.375rem;
   border-radius: var(--r-xl);
   background: hsl(var(--secondary));
-  
+
   border: 1px solid hsl(var(--border) / 0.35);
   box-shadow: var(--shadow-2);
 }
@@ -281,9 +316,9 @@
 .weather-theme .pill-bar [data-pill] {
   position: absolute;
   inset-block: 0.375rem;
-  border-radius: var(--r-lg);
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  border-radius: calc(var(--r-lg) * var(--art-corner, 1));
+  background: hsl(var(--interactive-selected));
+  color: hsl(var(--interactive-selected-foreground));
   box-shadow: var(--shadow-2);
   pointer-events: none;
   z-index: 0;
@@ -338,5 +373,7 @@
   .weather-theme .tab-pane-active {
     transition: none;
   }
-  .weather-theme .weather-skeleton-line { animation: none; }
+  .weather-theme .weather-skeleton-line {
+    animation: none;
+  }
 }

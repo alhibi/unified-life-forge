@@ -1,6 +1,6 @@
 import { applyRootTokens } from '@/lib/rootTokens';
 
-import { type ThemeArtDirection,themeArtDirection } from './themeArtDirections';
+import { type ThemeArtDirection, themeArtDirection } from './themeArtDirections';
 
 // ─── Token Architecture ─────────────────────────────────────
 // Four seed roles per mode generate coordinated surfaces, interaction roles
@@ -1207,7 +1207,7 @@ export function generateThemeTokens(
     '--track': solid(inkHsl, bgHsl, isDark ? 0.13 : 0.09),
     // Lines
     '--border': borderStr,
-    '--input': hslToString(ensureContrast(hexToHsl(modeColors.ink), surfHsl, 3.05)),
+    '--input': hslToString(ensureContrast(mixHsl(inkHsl, surfHsl, 0.38), surfHsl, 3.05)),
     '--ring': accStr,
     // Sidebar mirrors
     '--sidebar-background': bgStr,
@@ -1224,6 +1224,9 @@ export function generateThemeTokens(
     '--live-glow': accStr,
     // Extra elements
     '--card-shadow': cardShadow,
+    '--shadow-color': hslToString([inkHsl[0], Math.min(inkHsl[1], 22), 18]),
+    '--shadow-control': shadow1,
+    '--shadow-control-pressed': `inset 0 1px 2px rgba(${shadowRgb},${0.1 * art.shadow})`,
     '--accent-highlight': accentHighlightStr,
     // Planes: 0 is the page, 1 the card, 2 popovers/sheets, 3 anything that
     // floats above them (dialogs, menus, the command palette).

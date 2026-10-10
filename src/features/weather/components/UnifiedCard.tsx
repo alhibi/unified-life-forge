@@ -20,6 +20,7 @@
 
 import { type ReactNode } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export type UnifiedCardVariant = 'hero' | 'section' | 'tile' | 'inline' | 'ghost';
@@ -40,27 +41,27 @@ export interface UnifiedCardProps {
 }
 
 const variantClass: Record<UnifiedCardVariant, string> = {
-  hero:    'rounded-3xl border border-border/40',
-  section: 'rounded-2xl border border-border/40',
-  tile:    'rounded-2xl border border-border/40',
-  inline:  'rounded-xl border border-border/30',
-  ghost:   'rounded-xl',
+  hero: 'rounded-card',
+  section: 'rounded-card',
+  tile: 'rounded-card',
+  inline: 'rounded-button',
+  ghost: 'rounded-xl',
 };
 
 const paddingClass: Record<NonNullable<UnifiedCardProps['padding']>, string> = {
-  none:      'p-0',
-  tight:     'p-3',
-  default:   'p-4',
-  cozy:      'p-5',
-  spacious:  'p-6',
+  none: 'p-0',
+  tight: 'p-3',
+  default: 'p-4',
+  cozy: 'p-5',
+  spacious: 'p-6',
 };
 
 const elevatedDefault: Record<UnifiedCardVariant, boolean> = {
-  hero:    true,
+  hero: true,
   section: true,
-  tile:    true,
-  inline:  false,
-  ghost:   false,
+  tile: true,
+  inline: false,
+  ghost: false,
 };
 
 export function UnifiedCard(props: UnifiedCardProps) {
@@ -92,14 +93,16 @@ export function UnifiedCard(props: UnifiedCardProps) {
 
   if (isInteractive) {
     return (
-      <button
+      <Button
+        variant="ghost"
+        activation="click"
         type="button"
         onClick={onClick}
-        className={cardClassName}
+        className={cn(cardClassName, 'h-auto flex-col items-stretch whitespace-normal')}
         {...rest}
       >
         {children}
-      </button>
+      </Button>
     );
   }
 
@@ -120,7 +123,12 @@ export function CardDivider() {
 /** Small uppercase eyebrow label used inside card headers. */
 export function CardEyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <p className={cn('text-[0.6875rem] font-bold tracking-[0.18em] uppercase text-foreground/60 mb-1.5', className)}>
+    <p
+      className={cn(
+        'text-[0.6875rem] font-bold tracking-[0.18em] uppercase text-muted-foreground mb-1.5',
+        className,
+      )}
+    >
       {children}
     </p>
   );
@@ -130,7 +138,7 @@ export function CardEyebrow({ children, className }: { children: ReactNode; clas
 export function CardMetaPair({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-2 text-mini tabular-nums">
-      <span className="text-foreground/70 font-medium">{label}</span>
+      <span className="text-muted-foreground font-medium">{label}</span>
       <span className="text-foreground font-semibold">{value}</span>
     </div>
   );
