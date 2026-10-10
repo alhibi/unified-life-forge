@@ -582,9 +582,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Traveling *preferences* (keyboard, game themes, fitness toggle)
       // are look-and-feel; content-bearing traveling keys are excluded
       // unless this is a sign-out wipe.
-      ...TRAVELING_SETTINGS_STORAGE_KEYS.filter(
-        (k) => !USER_DATA_KEYS.includes(k),
-      ),
+      ...TRAVELING_SETTINGS_STORAGE_KEYS.filter((k) => !USER_DATA_KEYS.includes(k)),
       ...(includeUserData ? USER_DATA_KEYS : []),
     ];
     keys.forEach((k) => {
@@ -595,7 +593,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     });
     clearKeyboardRuntimeCache();
-
 
     // Re-seed default values + state.
     setLanguageState('ar');
@@ -780,12 +777,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
             : null;
         // Legacy flat mirrors may carry the advanced prefs when the row was
         // written before the versioned appearance document existed.
-        const legacyAdvancedSource: Record<string, unknown> = nestedAppearance ?? (s as unknown as Record<string, unknown>);
+        const legacyAdvancedSource: Record<string, unknown> =
+          nestedAppearance ?? (s as unknown as Record<string, unknown>);
         const hasAdvancedPreferences =
           nestedAppearance !== null ||
-          Object.keys(ADVANCED_LEGACY_KEYS).some(
-            (key) => legacyAdvancedSource[key] !== undefined,
-          );
+          Object.keys(ADVANCED_LEGACY_KEYS).some((key) => legacyAdvancedSource[key] !== undefined);
         if (hasAdvancedPreferences) {
           const advanced = sanitizeAdvancedInterfacePreferences(
             legacyAdvancedSource,
@@ -1497,9 +1493,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Dark is the default everywhere (see the boot script in index.html and
       // the initializer above); only a stored 'light' means light.
       setThemeState(localStorage.getItem('app-theme') === 'light' ? 'light' : 'dark');
-      setPaletteStyleState(
-        (localStorage.getItem('app-palette-style') as PaletteStyle) || 'tonal',
-      );
+      setPaletteStyleState((localStorage.getItem('app-palette-style') as PaletteStyle) || 'tonal');
       setBlackModeState(localStorage.getItem('app-black-mode') === 'true');
       setColorThemeState((localStorage.getItem('app-color-theme') as ColorTheme) || 'default');
       setSurfaceLiftState(resolveSurfaceLift(localStorage.getItem('app-surface-lift')));

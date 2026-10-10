@@ -299,7 +299,7 @@ function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
  */
 function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl, isDark: boolean): Hsl[] {
   return [
-    (isDark && bg[2] === 0 ? bg : elevate(bg, isDark, -0.03)), // 25  — recessed plane (wells, tracks)
+    isDark && bg[2] === 0 ? bg : elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
     bg, // 50  — page
     surface, // 100 — card
     elevate(surface, isDark, 0.035), // 200 — raised plane (popovers, sheets)
@@ -522,7 +522,12 @@ function statusTokens(bg: Hsl, card: Hsl): Record<string, string> {
  * and a card, hue and chroma preserved. Because the walk only ever moves tone,
  * and the six hues are far apart to begin with, the series stay separable.
  */
-function dataTokens(bg: Hsl, card: Hsl, isDark: boolean, art: ThemeArtDirection): Record<string, string> {
+function dataTokens(
+  bg: Hsl,
+  card: Hsl,
+  isDark: boolean,
+  art: ThemeArtDirection,
+): Record<string, string> {
   // Hue and saturation are the palette's identity — fixed, and deliberately
   // muted. Only lightness is resolved, and only against the active surfaces.
   const SEEDS: Array<[index: number, h: number, s: number, light: number, dark: number]> = [
@@ -589,7 +594,11 @@ function dataTokens(bg: Hsl, card: Hsl, isDark: boolean, art: ThemeArtDirection)
 
   const out: Record<string, string> = {};
   for (const [i, h, s, light, darkLight] of SEEDS) {
-    const seed: Hsl = [art.dataHues[i - 1] ?? h, Math.min(s, art.dataChroma), art.dataChroma === 0 ? (isDark ? 94 - i * 3 : 9 + i * 3) : isDark ? darkLight : light];
+    const seed: Hsl = [
+      art.dataHues[i - 1] ?? h,
+      Math.min(s, art.dataChroma),
+      art.dataChroma === 0 ? (isDark ? 94 - i * 3 : 9 + i * 3) : isDark ? darkLight : light,
+    ];
     const goDarker = relativeLuminance(bg) > 0.18;
 
     const clears = (t: Hsl) => {
@@ -998,7 +1007,9 @@ export function generateThemeTokens(
   const secondaryFgStr = hslToString(ensureContrast(inkHsl, secondarySurface, 4.55));
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
-  const mutedFgStr = hslToString(ensureContrast(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.55), surfHsl, 4.55));
+  const mutedFgStr = hslToString(
+    ensureContrast(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.55), surfHsl, 4.55),
+  );
   // De-emphasised text that is SAFE TO USE.
   //
   // The app reached for `text-muted-foreground/70` to mean "less important"
@@ -1053,8 +1064,16 @@ export function generateThemeTokens(
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(tone, surfHsl, art.categoryPresence * presence * (isDark ? 0.6 : 0.35));
-    const categoryContainer = mixHsl(tone, surfHsl, art.categoryPresence * presence + (isDark ? 0.08 : 0.06));
+    const categorySurface = mixHsl(
+      tone,
+      surfHsl,
+      art.categoryPresence * presence * (isDark ? 0.6 : 0.35),
+    );
+    const categoryContainer = mixHsl(
+      tone,
+      surfHsl,
+      art.categoryPresence * presence + (isDark ? 0.08 : 0.06),
+    );
     categoryContainers[`--data-${index}-surface`] = hslToString(categorySurface);
     categoryContainers[`--on-data-${index}-surface`] = hslToString(
       ensureContrast(inkHsl, categorySurface, 7),
@@ -1088,7 +1107,8 @@ export function generateThemeTokens(
   // One value per plane: the higher the surface sits, the more light its top
   // edge catches. e1 is a card resting on the page, e4 a modal over a scrim.
   const rimAlpha = [0.05, 0.07, 0.09, 0.11];
-  const rim = (i: number) => (isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i] * art.rim})` : 'none');
+  const rim = (i: number) =>
+    isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i] * art.rim})` : 'none';
 
   const plane = (i: number, blurContact: string, blurAmbient: string) =>
     `${isDark ? `${rim(i)}, ` : ''}${blurContact} rgba(${shadowRgb},${contact[i] * art.shadow}), ${blurAmbient} rgba(${shadowRgb},${ambient[i] * art.shadow})`;
@@ -1119,9 +1139,15 @@ export function generateThemeTokens(
     '--art-icon-corner': String(art.iconCorner),
     '--art-edge': String(art.edge),
     '--selected-indicator': accStr,
-    '--sun': hslToString(preset.id === 'mono' ? accHsl : ensureContrast([42, 72, isDark ? 72 : 38], surfHsl, 3.05)),
-    '--moon': hslToString(preset.id === 'mono' ? companion : ensureContrast([240, 32, isDark ? 80 : 45], surfHsl, 3.05)),
-    '--information': hslToString(ensureContrast(ensureContrast(companion, bgHsl, 4.55), surfHsl, 4.55)),
+    '--sun': hslToString(
+      preset.id === 'mono' ? accHsl : ensureContrast([42, 72, isDark ? 72 : 38], surfHsl, 3.05),
+    ),
+    '--moon': hslToString(
+      preset.id === 'mono' ? companion : ensureContrast([240, 32, isDark ? 80 : 45], surfHsl, 3.05),
+    ),
+    '--information': hslToString(
+      ensureContrast(ensureContrast(companion, bgHsl, 4.55), surfHsl, 4.55),
+    ),
     '--background': bgStr,
     '--foreground': inkStr,
     '--card': surfStr,
@@ -1170,7 +1196,13 @@ export function generateThemeTokens(
     // The single chromatic accent. Its hue is fixed so "changed / active /
     // measured" reads identically in every palette; only its tone is resolved
     // against the active canvas so it never glares or sinks.
-    ...(preset.id === 'mono' ? { '--signal': accStr, '--signal-soft': hslToString(container), '--signal-foreground': primaryFgStr } : signalTokens(bgHsl, inkHsl, isDark)),
+    ...(preset.id === 'mono'
+      ? {
+          '--signal': accStr,
+          '--signal-soft': hslToString(container),
+          '--signal-foreground': primaryFgStr,
+        }
+      : signalTokens(bgHsl, inkHsl, isDark)),
     // The lowest-contrast surface: dividers, rails, chart grids.
     '--track': solid(inkHsl, bgHsl, isDark ? 0.13 : 0.09),
     // Lines
