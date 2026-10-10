@@ -1,5 +1,11 @@
 # Roadmap
 
+## Expressive tactile redesign — October 10, 2026
+- [ ] Replace copper default with a contrasted, multi-role expressive palette in both modes and migrate the old default.
+- [ ] Rebuild shared typography, geometry, surfaces, controls, headers and overlays with tactile tonal depth.
+- [ ] Apply the new treatment to the portal and eliminate conflicting local chrome across applications.
+- [ ] Verify theme contracts, existing design tests and live screens in both modes; report remaining coverage honestly.
+
 - [x] Stop repeated unread/message-list requests while chat is open.
 - [x] Restore the missing public-key directory used by encrypted chat.
 - [x] Prevent file drops from navigating away from the app.

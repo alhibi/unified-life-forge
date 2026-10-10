@@ -27,32 +27,32 @@ export type TileIdentity = {
 
 /** One row per launcher app. Keys mirror `PORTAL_APPS[].key`. */
 const IDENTITY: Record<string, TileIdentity> = {
-  now: { accent: '32 58% 62%', motif: 'dawn' },
-  quran: { accent: '158 34% 46%', motif: 'mushaf' },
-  dhikr: { accent: '174 38% 44%', motif: 'beads' },
-  sunnah: { accent: '42 52% 52%', motif: 'arch' },
-  duas: { accent: '188 34% 46%', motif: 'beads' },
-  occasions: { accent: '28 46% 54%', motif: 'arch' },
-  wellness: { accent: '142 36% 44%', motif: 'pulse' },
-  fitness: { accent: '120 34% 44%', motif: 'pulse' },
-  journal: { accent: '10 34% 52%', motif: 'columns' },
-  weather: { accent: '204 44% 54%', motif: 'dawn' },
-  knowledge: { accent: '268 32% 58%', motif: 'orbit' },
-  pkm: { accent: '252 32% 58%', motif: 'orbit' },
-  reading: { accent: '210 28% 52%', motif: 'columns' },
-  podcasts: { accent: '198 44% 50%', motif: 'waveform' },
-  diwan: { accent: '348 38% 54%', motif: 'meter' },
-  atlas: { accent: '192 42% 48%', motif: 'contour' },
-  chat: { accent: '232 36% 60%', motif: 'bubbles' },
-  games: { accent: '300 28% 56%', motif: 'board' },
-  crypto: { accent: '96 34% 46%', motif: 'ticker' },
-  mihrab: { accent: '166 30% 48%', motif: 'arch' },
-  'german-club': { accent: '48 40% 52%', motif: 'glyph' },
-  marginalia: { accent: '280 26% 56%', motif: 'columns' },
-  'time-ledger': { accent: '216 32% 56%', motif: 'orbit' },
+  now: { accent: 'var(--data-1)', motif: 'dawn' },
+  quran: { accent: 'var(--data-1)', motif: 'mushaf' },
+  dhikr: { accent: 'var(--data-4)', motif: 'beads' },
+  sunnah: { accent: 'var(--data-2)', motif: 'arch' },
+  duas: { accent: 'var(--data-4)', motif: 'beads' },
+  occasions: { accent: 'var(--data-2)', motif: 'arch' },
+  wellness: { accent: 'var(--data-1)', motif: 'pulse' },
+  fitness: { accent: 'var(--data-1)', motif: 'pulse' },
+  journal: { accent: 'var(--data-3)', motif: 'columns' },
+  weather: { accent: 'var(--data-4)', motif: 'dawn' },
+  knowledge: { accent: 'var(--data-6)', motif: 'orbit' },
+  pkm: { accent: 'var(--data-4)', motif: 'orbit' },
+  reading: { accent: 'var(--data-4)', motif: 'columns' },
+  podcasts: { accent: 'var(--data-3)', motif: 'waveform' },
+  diwan: { accent: 'var(--data-3)', motif: 'meter' },
+  atlas: { accent: 'var(--data-4)', motif: 'contour' },
+  chat: { accent: 'var(--data-4)', motif: 'bubbles' },
+  games: { accent: 'var(--data-6)', motif: 'board' },
+  crypto: { accent: 'var(--data-1)', motif: 'ticker' },
+  mihrab: { accent: 'var(--data-1)', motif: 'arch' },
+  'german-club': { accent: 'var(--data-2)', motif: 'glyph' },
+  marginalia: { accent: 'var(--data-3)', motif: 'columns' },
+  'time-ledger': { accent: 'var(--data-4)', motif: 'orbit' },
 };
 
-const FALLBACK: TileIdentity = { accent: '32 58% 62%', motif: 'dawn' };
+const FALLBACK: TileIdentity = { accent: 'var(--primary)', motif: 'dawn' };
 
 export function getTileIdentity(key: string): TileIdentity {
   return IDENTITY[key] ?? FALLBACK;

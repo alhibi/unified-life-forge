@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { openCommandPalette } from '@/components/CommandPaletteConstants';
 import { StreakFlameBadge } from '@/components/portal/StreakFlameBadge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +41,7 @@ interface Props {
 
 /** Bare glyph control: no filled box, just the hairline rail it sits on. */
 const railBtn = cn(
-  'flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground',
+  'flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-foreground',
   'transition-[color,background-color,transform] duration-fast ease-enter',
   'hover:bg-foreground/[0.05] hover:text-foreground',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -95,27 +96,27 @@ function PortalHeaderImpl({ unreadCount }: Props) {
         {/* Brand mark: a copper hairline square with an inset copper block —
             the same two materials the plates below are milled from. */}
         <span
-          className="flex h-6 w-6 items-center justify-center rounded-sm border border-primary/55"
+          className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground"
           aria-hidden
         >
-          <span className="h-1.5 w-1.5 rounded-[1px] bg-primary" />
+          <span className="h-2 w-2 rounded-full bg-primary-foreground" />
         </span>
-        <span className="font-display text-lg leading-none tracking-[0.06em] text-foreground">
+        <span className="font-display text-lg font-bold leading-none text-foreground">
           amv<span className="text-primary">.</span>life
         </span>
       </span>
 
       <span className="ms-auto flex items-center gap-0.5">
-        <button
+        <Button variant="ghost"
           type="button"
           className={railBtn}
           onClick={openCommandPalette}
           aria-label="بحث سريع في التطبيق"
         >
           <Search className="h-[1.15rem] w-[1.15rem]" aria-hidden />
-        </button>
+        </Button>
 
-        <button
+        <Button variant="ghost"
           type="button"
           className={railBtn}
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
@@ -126,10 +127,10 @@ function PortalHeaderImpl({ unreadCount }: Props) {
           ) : (
             <Sun className="h-[1.15rem] w-[1.15rem]" aria-hidden />
           )}
-        </button>
+        </Button>
 
         {user && (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={() => navigate('/chat')}
             onMouseEnter={() => prefetchRoute('/chat')}
@@ -145,7 +146,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
                 {unreadCount > 99 ? '٩٩+' : unreadCount}
               </span>
             )}
-          </button>
+          </Button>
         )}
 
         {/* Hairline rail divider: separates navigation glyphs from identity. */}
@@ -156,12 +157,12 @@ function PortalHeaderImpl({ unreadCount }: Props) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
+            <Button variant="ghost"
               type="button"
               aria-label="الحساب والإعدادات"
               className={cn(
-                'flex h-9 w-9 items-center justify-center overflow-hidden rounded-full',
-                'border border-primary/40 text-foreground',
+                'flex h-11 w-11 items-center justify-center overflow-hidden rounded-full',
+                'bg-primary-container text-on-primary-container',
                 'transition-[border-color,box-shadow] duration-normal ease-enter',
                 'hover:border-primary/70 hover:shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]',
                 'data-[state=open]:border-primary/80 data-[state=open]:shadow-[0_0_0_3px_hsl(var(--primary)/0.16)]',
@@ -169,7 +170,7 @@ function PortalHeaderImpl({ unreadCount }: Props) {
               )}
             >
               <AvatarGlyph />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"

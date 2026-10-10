@@ -2,6 +2,7 @@ import { AnimatePresence,motion } from 'framer-motion';
 import React, { ReactNode,useEffect, useState } from 'react';
 
 import BackButton from '@/components/BackButton';
+import { Button } from '@/components/ui/button';
 import { isHapticsOff, isMuted, setHapticsOff, setMuted } from '@/features/games/utils/gameFeedback';
 import { BarChart3, Info, type LucideIcon,Settings2, Vibrate, Volume2, VolumeX } from '@/lib/icons';
 
@@ -29,7 +30,7 @@ interface GameShellProps {
   headerRight?: ReactNode;
 }
 
-export default function GameShell({ title, icon: Icon, accentColor, rules, stats, options, children, headerRight }: GameShellProps) {
+export default function GameShell({ title, icon: Icon, accentColor: _accentColor, rules, stats, options, children, headerRight }: GameShellProps) {
   const [activeTab, setActiveTab] = useState<'game' | 'rules' | 'stats' | 'options' | null>(null);
   const [muted, setMutedState] = useState<boolean>(() => isMuted());
   const [hapticsOff, setHapticsOffState] = useState<boolean>(() => isHapticsOff());
@@ -55,7 +56,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
   ];
 
   return (
-    <div className="min-h-screen pb-page pt-4" style={{ }}>
+    <div className="min-h-screen bg-background pb-page pt-4" >
       <div className="px-5">
         {/* Header — back, title, and game-feedback toggles all sit on
             a single row. Previously the back button lived on its own
@@ -70,28 +71,26 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <BackButton to="/games" />
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${accentColor}20` }}>
-              <Icon className="w-4.5 h-4.5" style={{ color: accentColor }} />
+            <div className="row-icon row-icon-md">
+              <Icon className="w-4.5 h-4.5"  />
             </div>
             <h1 className="text-title font-black text-foreground truncate">{title}</h1>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <button
+            <Button variant="ghost"
               onClick={toggleMute}
               aria-label={'كتم الصوت'}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-              style={{ background: muted ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: muted ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${muted ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
+              size="icon" aria-pressed={!muted} className={muted ? 'bg-secondary text-muted-foreground' : 'bg-primary-container text-on-primary-container'}
             >
               {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               onClick={toggleHap}
               aria-label={'اهتزاز'}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-              style={{ background: hapticsOff ? 'rgba(255,255,255,0.04)' : `${accentColor}18`, color: hapticsOff ? 'rgba(255,255,255,0.45)' : accentColor, border: `1px solid ${hapticsOff ? 'rgba(255,255,255,0.06)' : `${accentColor}30`}` }}
+              size="icon" aria-pressed={!hapticsOff} className={hapticsOff ? 'bg-secondary text-muted-foreground' : 'bg-primary-container text-on-primary-container'}
             >
               <Vibrate className="w-3.5 h-3.5" />
-            </button>
+            </Button>
             {headerRight}
           </div>
         </motion.div>
@@ -102,19 +101,15 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
             const TabIcon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
+              <Button variant="ghost"
                 key={tab.id}
                 onClick={() => setActiveTab(isActive ? null : tab.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-micro font-semibold whitespace-nowrap transition-motion"
-                style={{
-                  background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.04)',
-                  color: isActive ? accentColor : 'rgba(255,255,255,0.35)',
-                  border: `1px solid ${isActive ? `${accentColor}30` : 'rgba(255,255,255,0.06)'}`,
-                }}
+                aria-pressed={isActive} className={isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}
+
               >
                 <TabIcon className="w-3 h-3" />
                 {tab.label}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -129,10 +124,10 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden mb-4"
             >
-              <div className="rounded-2xl p-4 border space-y-2" style={{ background: 'rgba(255,255,255,0.03)', borderColor: `${accentColor}15` }}>
+              <div className="app-card space-y-2">
                 {rules.map((rule, i) => (
                   <div key={i} className="flex gap-2 items-start">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-micro font-bold shrink-0 mt-0.5" style={{ background: `${accentColor}20`, color: accentColor }}>
+                    <span className="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-micro font-bold shrink-0 mt-0.5">
                       {i + 1}
                     </span>
                     <p className="text-mini text-muted-foreground leading-relaxed">{rule}</p>
@@ -150,7 +145,7 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden mb-4"
             >
-              <div className="rounded-2xl p-4 border" style={{ background: 'rgba(255,255,255,0.03)', borderColor: `${accentColor}15` }}>
+              <div className="app-card">
                 <div className="grid grid-cols-2 gap-3">
                   {stats.map((s, i) => (
                     <div key={i} className="text-center py-2">
@@ -171,24 +166,20 @@ export default function GameShell({ title, icon: Icon, accentColor, rules, stats
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden mb-4"
             >
-              <div className="rounded-2xl p-4 border space-y-3" style={{ background: 'rgba(255,255,255,0.03)', borderColor: `${accentColor}15` }}>
+              <div className="app-card space-y-3">
                 {options.map(opt => (
                   <div key={opt.key}>
                     <p className="text-micro text-muted-foreground mb-1.5">{opt.label}</p>
                     <div className="flex gap-1.5 flex-wrap">
                       {opt.choices.map(choice => (
-                        <button
+                        <Button variant="ghost"
                           key={choice.value}
                           onClick={() => opt.onChange(choice.value)}
-                          className="px-3 py-1.5 rounded-lg text-micro font-semibold transition-motion"
-                          style={{
-                            background: opt.current === choice.value ? `${accentColor}25` : 'rgba(255,255,255,0.04)',
-                            color: opt.current === choice.value ? accentColor : 'rgba(255,255,255,0.4)',
-                            border: `1px solid ${opt.current === choice.value ? `${accentColor}40` : 'rgba(255,255,255,0.06)'}`,
-                          }}
+                          aria-pressed={opt.current === choice.value} className={opt.current === choice.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}
+
                         >
                           {choice.label}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>

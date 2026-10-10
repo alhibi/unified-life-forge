@@ -37,6 +37,7 @@ const PALETTE_STYLE_VALUES = [
   'rainbow',
 ] as const;
 const COLOR_THEME_VALUES = [
+  'expressive', 'editorial',
   'paper', 'default', 'midnight', 'rose', 'emerald', 'lavender', 'sunset',
   'ocean', 'neon', 'coffee', 'mono', 'cherry', 'gold', 'aurora', 'sakura',
   'arctic', 'volcano', 'matcha', 'nebula', 'copper', 'mint', 'sandstone',

@@ -525,12 +525,12 @@ function dataTokens(bg: Hsl, card: Hsl, isDark: boolean): Record<string, string>
   // Hue and saturation are the palette's identity — fixed, and deliberately
   // muted. Only lightness is resolved, and only against the active surfaces.
   const SEEDS: Array<[index: number, h: number, s: number, light: number, dark: number]> = [
-    [1, 158, 26, 38, 58],
-    [2, 24, 54, 52, 66],
-    [3, 38, 56, 45, 62],
-    [4, 214, 38, 46, 64],
-    [5, 348, 34, 50, 66],
-    [6, 268, 18, 50, 66],
+    [1, 158, 55, 32, 72],
+    [2, 24, 80, 40, 76],
+    [3, 12, 76, 40, 76],
+    [4, 214, 75, 42, 76],
+    [5, 348, 70, 40, 76],
+    [6, 268, 50, 42, 80],
   ];
 
   // Direct HSL → linear-light sRGB with NO hex round trip. The browser
@@ -716,6 +716,11 @@ function definePreset(
 // Twelve curated families, one per visual territory. Anything retired maps
 // through LEGACY_THEME_ALIASES so a saved preference never breaks.
 export const themePresets: ThemePreset[] = [
+  definePreset(
+    'expressive', 'نبض', 'Expressive Pulse',
+    { bg: '#EEF1F4', surface: '#FFFFFF', ink: '#172125', accent: '#356B13' },
+    { bg: '#111416', surface: '#252B2D', ink: '#F1F5F4', accent: '#C3EF79' },
+  ),
   // The shipped system. Neutral foundation, graphite controls, one orange
   // signal reserved for data and change — see `--signal` in index.css.
   // Light is a warm off-white page with a near-white card; dark is warm
@@ -818,8 +823,8 @@ export const themePresets: ThemePreset[] = [
  * `colorTheme` from an older build still resolves to a real palette.
  */
 export const LEGACY_THEME_ALIASES: Readonly<Record<string, string>> = {
-  default: 'copper',
-  neutral: 'copper',
+  default: 'expressive',
+  neutral: 'expressive',
   silk: 'paper',
   coffee: 'clay',
   sunset: 'clay',
@@ -981,8 +986,8 @@ export function generateThemeTokens(
   const lineBase = isDark ? 0.17 : 0.12;
   const borderStr = solid(inkHsl, bgHsl, lineBase); // hairline
   const inputStr = solid(inkHsl, bgHsl, lineBase + 0.1); // field outline
-  const secondaryStr = solid(inkHsl, bgHsl, isDark ? 0.14 : 0.11);
-  const secondaryFgStr = solid(inkHsl, bgHsl, 0.94); // near-ink text
+  const secondaryStr = solid(accHsl, surfHsl, isDark ? 0.12 : 0.09);
+  const secondaryFgStr = hslToString(ensureContrast(inkHsl, mixHsl(accHsl, surfHsl, isDark ? 0.12 : 0.09), 4.5)); // near-ink text
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
   const mutedFgStr = hslToString(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5));
@@ -1020,8 +1025,14 @@ export function generateThemeTokens(
 
   // Text on the accent is whichever of ink/bg is actually readable on it —
   // pale accents in dark mode used to place a near-black label on gold.
-  const primaryFgStr =
-    contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgStr : inkStr;
+  const primaryFgStr = hslToString(ensureContrast(
+    contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgHsl : inkHsl, accHsl, 4.5,
+  ));
+  const container = mixHsl(accHsl, surfHsl, isDark ? 0.28 : 0.20);
+  const containerInk = ensureContrast(inkHsl, container, 4.5);
+  const tertiary: Hsl = isDark ? [12, 84, 76] : [12, 64, 38];
+  const tertiaryColor = ensureContrast(ensureContrast(tertiary, bgHsl, 4.5), surfHsl, 4.5);
+  const tertiaryContainer = mixHsl(tertiaryColor, surfHsl, isDark ? 0.17 : 0.1);
 
   // ── Elevation ladder ───────────────────────────────────────
   // Four planes, each one a perceptual step above the last, plus the shadow
@@ -1033,8 +1044,8 @@ export function generateThemeTokens(
   const overlayInk = ensureContrast(inkHsl, surface3, 4.5);
 
   const shadowRgb = isDark ? '0,0,0' : hslToRgbTriplet([inkHsl[0], Math.min(inkHsl[1], 22), 18]);
-  const contact = isDark ? [0.3, 0.32, 0.34, 0.38] : [0.045, 0.05, 0.05, 0.06];
-  const ambient = isDark ? [0.22, 0.32, 0.42, 0.5] : [0.03, 0.05, 0.07, 0.1];
+  const contact = isDark ? [0.3, 0.32, 0.34, 0.38] : [0.07, 0.09, 0.1, 0.12];
+  const ambient = isDark ? [0.22, 0.32, 0.42, 0.5] : [0.05, 0.08, 0.1, 0.14];
 
   // Rim light. A black shadow on a near-black card is invisible, so in dark
   // mode the shadow token carries a hairline of the theme's own ink at its top
@@ -1050,7 +1061,7 @@ export function generateThemeTokens(
     isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i]})` : 'none';
 
   const plane = (i: number, blurContact: string, blurAmbient: string) =>
-    `${rim(i)}, ${blurContact} rgba(${shadowRgb},${contact[i]}), ${blurAmbient} rgba(${shadowRgb},${ambient[i]})`;
+    `${isDark ? `${rim(i)}, ` : ''}${blurContact} rgba(${shadowRgb},${contact[i]}), ${blurAmbient} rgba(${shadowRgb},${ambient[i]})`;
   const shadow1 = plane(0, '0 1px 1.5px', '0 1px 4px');
   const shadow2 = plane(1, '0 1px 2px', '0 4px 12px');
   const shadow3 = plane(2, '0 2px 4px', '0 12px 28px');
@@ -1090,14 +1101,17 @@ export function generateThemeTokens(
     // shadcn contract: `accent` is a subtle interactive surface and
     // `accent-foreground` is the TEXT drawn on it — so it must be ink, not the
     // brand colour (copper-on-grey used to fail AA in hovered menu rows).
-    '--accent': secondaryStr,
-    '--accent-foreground': hslToString(
-      ensureContrast(inkHsl, mixHsl(inkHsl, bgHsl, isDark ? 0.14 : 0.11), 4.5),
-    ),
+    '--accent': hslToString(container),
+    '--accent-foreground': hslToString(containerInk),
     // Kept for call sites that genuinely want the brand tone on that surface.
     '--accent-brand': accStr,
     '--primary': accStr,
     '--primary-foreground': primaryFgStr,
+    '--primary-container': hslToString(container),
+    '--on-primary-container': hslToString(containerInk),
+    '--tertiary': hslToString(tertiaryColor),
+    '--tertiary-container': hslToString(tertiaryContainer),
+    '--on-tertiary-container': hslToString(ensureContrast(inkHsl, tertiaryContainer, 4.5)),
     '--disabled': disabledStr,
     // Coherent state ladder consumed app-wide by controls, rows and selections.
     '--interactive-hover': hslToString(interactiveHover),
@@ -1131,7 +1145,7 @@ export function generateThemeTokens(
     '--sidebar-primary': accStr,
     '--sidebar-primary-foreground': primaryFgStr,
     '--sidebar-accent': secondaryStr,
-    '--sidebar-accent-foreground': accStr,
+    '--sidebar-accent-foreground': secondaryFgStr,
     '--sidebar-border': borderStr,
     '--sidebar-ring': accStr,
     // Live active states

@@ -4,6 +4,9 @@ import { TRAVELING_SETTINGS_ROOT } from '../travelingSettings';
 import { parseUserSettingsRoot, USER_SETTINGS_TRAVELING_KEY } from '../userSettingsRoot';
 
 describe('userSettingsRoot — the restore gate', () => {
+  it('preserves the expressive palette when restoring account settings', () => {
+    expect(parseUserSettingsRoot({ colorTheme: 'expressive' })?.colorTheme).toBe('expressive');
+  });
   it('returns null ONLY for structural corruption', () => {
       expect(parseUserSettingsRoot(null)).toBeNull();
       expect(parseUserSettingsRoot(undefined)).toBeNull();

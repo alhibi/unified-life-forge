@@ -80,7 +80,7 @@ const THEME_CATEGORIES: ThemeCategory[] = [
     id: 'classic',
     nameAr: 'الكلاسيكية والرصينة',
     nameEn: 'Classic & Ink',
-    presets: ['editorial', 'copper', 'paper', 'mono', 'obsidian'],
+    presets: ['expressive', 'editorial', 'copper', 'paper', 'mono', 'obsidian'],
   },
   {
     id: 'nature',

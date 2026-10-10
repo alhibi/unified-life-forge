@@ -54,15 +54,15 @@ export type RadiusStep = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
  * identity, so the default rendering is byte-for-byte what shipped before.
  */
 const RADIUS_PROFILE_LADDERS: Record<RadiusProfile, Record<RadiusStep, number>> = {
-  graded: { xs: 6, sm: 8, md: 12, lg: 16, xl: 20 },
+  graded: { xs: 8, sm: 12, md: 16, lg: 24, xl: 32 },
   // One meaning for "rounded": every surface shares the mid radius.
   uniform: { xs: 12, sm: 12, md: 12, lg: 12, xl: 12 },
   // Crisp small controls, markedly softer large surfaces.
-  expressive: { xs: 3, sm: 4, md: 9, lg: 20, xl: 34 },
+  expressive: { xs: 8, sm: 12, md: 20, lg: 28, xl: 40 },
 };
 
 export const RADIUS_PROFILE_OPTIONS = [
-  { id: 'graded', label: 'متدرّج', note: '٦ · ٨ · ١٢ · ١٦ · ٢٠ — العلاقة المعتمدة' },
+  { id: 'graded', label: 'متدرّج', note: '8 · 12 · 16 · 24 · 32' },
   { id: 'uniform', label: 'موحّد', note: 'نصف قطر واحد لكل الأسطح' },
   { id: 'expressive', label: 'مُعبّر', note: 'عناصر صغيرة حادّة وأسطح كبيرة ناعمة' },
 ] as const satisfies readonly { id: RadiusProfile; label: string; note: string }[];
@@ -126,14 +126,14 @@ export const DENSITY_LEVELS = [
     id: 'cozy',
     label: 'متوازن',
     note: 'الافتراضي',
-    cardPadding: 16,
-    cardPaddingCompact: 12,
-    controlHeight: 44,
-    tapSize: 44,
+    cardPadding: 20,
+    cardPaddingCompact: 16,
+    controlHeight: 48,
+    tapSize: 48,
     stackGap: 24,
     stackGapSmall: 12,
     gutter: 16,
-    rowIcon: 32,
+    rowIcon: 40,
   },
   {
     id: 'comfortable',
@@ -763,7 +763,7 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
     // control(s) = 36 · 44 · 52 — one step of 8px, the grid unit, apart.
     '--ui-button-xs-h': px(28, g.uiScale),
     '--ui-button-sm-h': px(36, g.uiScale),
-    '--ui-button-h': px(44, g.uiScale),
+    '--ui-button-h': `${g.controlHeight}px`,
     '--ui-button-lg-h': px(52, g.uiScale),
     '--ui-tap': `${g.tapSize}px`,
     '--ui-touch-min': `${g.tapSize}px`,

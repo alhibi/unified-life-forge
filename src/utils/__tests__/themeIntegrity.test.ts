@@ -18,6 +18,22 @@ function parse(token: string): Hsl {
 }
 
 describe('theme token integrity', () => {
+  it('expressive tonal containers retain readable labels in both modes', () => {
+    const preset = themePresets.find((item) => item.id === 'expressive');
+    expect(preset).toBeDefined();
+    if (!preset) return;
+    for (const dark of [false, true]) {
+      const tokens = generateThemeTokens(preset, 'tonal', dark, false);
+      for (const [surface, ink] of [
+        ['--primary', '--primary-foreground'],
+        ['--primary-container', '--on-primary-container'],
+        ['--tertiary-container', '--on-tertiary-container'],
+        ['--secondary', '--secondary-foreground'],
+      ]) {
+        expect(contrastRatio(parse(tokens[ink]), parse(tokens[surface]))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
   for (const preset of themePresets) {
     for (const isDark of [false, true]) {
       for (const isBlack of isDark ? [false, true] : [false]) {
