@@ -37,13 +37,6 @@ Hold every task to a flagship/frontier-model bar of quality — not a "good enou
 
 By reading this file, you agree to uphold these standards unconditionally in all generated outputs.
 
-## ميزة مراقبة العملات الرقمية (Crypto Watchlist)
-
-- **الجدول**: `public.crypto_watchlist` (`user_id`, `chain_id`, `pair_address`, `token_symbol`, `label`) — RLS: كل مستخدم يرى ويعدّل صفوفه فقط، مع قيد فريد على `(user_id, chain_id, pair_address)` وقيد CHECK على الشبكات المدعومة.
-- **الدالة الطرفية**: `supabase/functions/dexscreener-proxy` — عمليتان: `search` و`batch`، مع تخزين مؤقت (TTL)، قاطع دائرة يعيد بيانات قديمة بعلَم `stale`، تحديد معدّل لكل مستخدم، وتحقّق Zod للمخارج والمداخل. لا مفاتيح على العميل.
-- **قائمة الشبكات المعتمدة**: مصدر واحد فقط في `src/features/crypto/types.ts` (`SUPPORTED_CHAINS`) — لا تُكرَّر في أي مكان آخر.
-- **الأسعار**: تُنقل كسلاسل نصية من البداية للنهاية (لا تحويل إلى أرقام عائمة) لحفظ دقة العملات الصغيرة، وتُعرض بخطوط `tabular-nums`.
-
 ---
 
 ## البوابات وخط الأنابيب (CI/CD)
@@ -58,4 +51,3 @@ By reading this file, you agree to uphold these standards unconditionally in all
 ## Shared visual architecture
 - Generate theme roles in themeEngine from the complete themeArtDirections registry and geometry in interfaceScale; material recipes own mode-specific surface separation and colour-body weights while shared controls, feature chrome and portaled overlays consume one semantic contract, preserving user theme/mode/strength choices. Structural material softness interpolates opaque elevation tones, never background-dependent alpha, so saved material controls remain meaningful without washing out cards.
 <!-- LOVABLE:END -->
-- Launcher widget material is authored per app in AppTileVisuals (tone 0 = neutral widget, 1–6 = category bodies) and two-column spans come from widgetSpans; this keeps every realm a gap-free multicolour composition instead of one repeated hue.
