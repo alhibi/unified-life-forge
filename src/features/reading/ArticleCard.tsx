@@ -11,8 +11,7 @@ import { ArticleContextMenu } from './ArticleContextMenu';
 import type { Density } from './listPrefs';
 import { SourcePill } from './SourcePill';
 import type { FeedItem } from './types';
-import { sourceTone } from './sourceTone';
-import { readingMinutes, timeAgo } from './utils';
+import { readingMinutes, sourceTone, timeAgo } from './utils';
 
 const MotionButton = motion.create(Button);
 

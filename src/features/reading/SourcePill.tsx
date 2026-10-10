@@ -1,5 +1,4 @@
-import { sourceTone } from './sourceTone';
-import { sourceInitial } from './utils';
+import { sourceInitial, sourceTone } from './utils';
 
 /**
  * Source identity badge — a colored circle with the source's first
