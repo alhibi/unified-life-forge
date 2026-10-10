@@ -58,3 +58,4 @@ By reading this file, you agree to uphold these standards unconditionally in all
 ## Shared visual architecture
 - Generate theme roles in themeEngine from the complete themeArtDirections registry and geometry in interfaceScale; material recipes own mode-specific surface separation and colour-body weights while shared controls, feature chrome and portaled overlays consume one semantic contract, preserving user theme/mode/strength choices. Structural material softness interpolates opaque elevation tones, never background-dependent alpha, so saved material controls remain meaningful without washing out cards.
 <!-- LOVABLE:END -->
+- Launcher widget material is authored per app in AppTileVisuals (tone 0 = neutral widget, 1–6 = category bodies) and two-column spans come from widgetSpans; this keeps every realm a gap-free multicolour composition instead of one repeated hue.

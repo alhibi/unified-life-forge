@@ -1,5 +1,8 @@
 # Roadmap
 
+## Reference fidelity pass — October 10, 2026 (evening)
+- [x] Dark canvases now carry luminous solid widget bodies with black ink beside neutral charcoal widgets; light canvases alternate deep and bright bodies. Launcher tiles rebuilt as sculpted widgets (inverted icon chip, oversized illustrative glyph, heavy headline, per-app tone rhythm, gap-free wide/square spans). 708 targeted tests, lint budget (734), architecture and build pass.
+
 ## Reference-widget continuation — October 10, 2026
 - [x] Inspect detail/overlay tone inheritance and reader density states; unify theme-owned source badges, guard absent source metadata, remove faded read-text treatment and expose a separate full-size bookmark control.
 - [x] Verify release-click actions and keyboard navigation in 12 reader density/mode/viewport cases; inspect live weather in four mode/viewport cases and correct Arabic metric/timeline ordering. 739 targeted tests, lint budget (734), architecture and automatic build pass.
