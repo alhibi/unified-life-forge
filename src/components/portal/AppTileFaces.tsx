@@ -19,7 +19,7 @@
  * Note: the shared Button sizes every nested svg to 20px through a utility,
  * so faces state their own svg size with the important modifier.
  */
-import { memo, useEffect, useState } from 'react';
+import { memo, type ReactElement, useEffect, useState } from 'react';
 
 import { useWeatherLocation } from '@/features/weather/context/WeatherLocationContext';
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
@@ -664,7 +664,7 @@ function FallbackFace() {
   );
 }
 
-const FACES: Record<string, (props: { wide: boolean; badge?: number }) => JSX.Element> = {
+const FACES: Record<string, (props: { wide: boolean; badge?: number }) => ReactElement> = {
   quran: QuranFace,
   dhikr: DhikrFace,
   sunnah: SunnahFace,
