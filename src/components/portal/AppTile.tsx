@@ -160,7 +160,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
           list
             ? 'flex h-auto items-center gap-3 p-4'
-            : 'flex h-auto min-h-40 flex-col justify-between p-5',
+            : 'flex h-auto min-h-36 flex-col justify-between p-4',
         )}
       >
         <TileMotif motif={identity.motif} />
@@ -188,13 +188,13 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-1.5">
               <span
-                className={cn('truncate text-tile-foreground', list ? 'type-body' : 'type-section')}
+                className={cn('break-words text-tile-foreground', list ? 'type-body' : 'type-section')}
               >
                 {app.label}
               </span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="text-mini mt-1 block truncate text-tile-foreground">
+            <span className="text-mini mt-1 block text-tile-foreground">
               {app.description}
             </span>
             {!list && (

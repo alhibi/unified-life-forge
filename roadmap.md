@@ -1,5 +1,11 @@
 # Roadmap
 
+## Full theme identity overhaul — October 10, 2026
+- [ ] Inventory all 14 live themes and implement independent material recipes with central semantic roles.
+- [ ] Correct OLED, accent presence, preview measurements and saved-choice preservation.
+- [ ] Repair theme bypasses and home hierarchy without removing content or interactions.
+- [ ] Verify all theme/mode/strength/OLED combinations and inspect home captures; record limits honestly.
+
 ## Harmonized color hierarchy — October 10, 2026
 - [x] Rebalance shared surface tones and coordinated primary/secondary/tertiary roles without changing user appearance choices.
 - [x] Apply purposeful category color hierarchy to portal tiles and shared controls.
