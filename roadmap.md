@@ -1,5 +1,10 @@
 # Roadmap
 
+## Harmonized color hierarchy — October 10, 2026
+- [ ] Rebalance shared surface tones and coordinated primary/secondary/tertiary roles without changing user appearance choices.
+- [ ] Apply purposeful category color hierarchy to portal tiles and shared controls.
+- [ ] Verify palette contrast tests and review light/dark phone screenshots.
+
 ## Mobile accessibility and visual follow-up — October 10, 2026
 - [x] Measure touch targets, accessible names, focus and RTL across mobile light/dark entry pages; repair confirmed defects, retaining character-key/game-cell geometry.
 - [x] Exercise city suggestions with the custom keyboard and physical-keyboard navigation; verify Enter insertion, physical typing and Tab progression.
