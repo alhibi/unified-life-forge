@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { THEME_ART_DIRECTIONS } from '../themeArtDirections';
 import { contrastRatio, generateThemeTokens, type Hsl, themePresets } from '../themeEngine';
 const parse = (token: string): Hsl => {

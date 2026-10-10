@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-import { AppTile } from '@/components/portal/AppTile';
 import { PORTAL_APPS } from '@/components/portal/apps';
+import { AppTile } from '@/components/portal/AppTile';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { Check, Droplets, ImageIcon, Palette } from '@/lib/icons';

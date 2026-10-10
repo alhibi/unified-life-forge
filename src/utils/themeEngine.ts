@@ -1,6 +1,6 @@
 import { applyRootTokens } from '@/lib/rootTokens';
 
-import { themeArtDirection, type ThemeArtDirection } from './themeArtDirections';
+import { type ThemeArtDirection,themeArtDirection } from './themeArtDirections';
 
 // ─── Token Architecture ─────────────────────────────────────
 // Four seed roles per mode generate coordinated surfaces, interaction roles
