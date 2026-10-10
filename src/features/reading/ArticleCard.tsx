@@ -33,7 +33,6 @@ const MotionButton = motion.create(Button);
  */
 export function ArticleCard({
   article,
-  index,
   isRead,
   isBookmarked,
   cached,
