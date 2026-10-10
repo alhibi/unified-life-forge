@@ -352,7 +352,7 @@ export interface InspectorEntry {
  */
 export function TokenInspector({ entries }: { entries: readonly InspectorEntry[] }) {
   return (
-    <div className="overflow-hidden rounded-md bg-secondary/60">
+    <div className="overflow-hidden rounded-md bg-secondary">
       <dl className="divide-y">
         {entries.map((entry) => (
           <div key={entry.token} className="flex items-baseline justify-between gap-3 px-3 py-2">

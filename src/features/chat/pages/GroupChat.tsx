@@ -177,7 +177,7 @@ export default function GroupChatPage() {
   if (!chat) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
-        <MessageCircle className="w-12 h-12 text-muted-foreground/40" />
+        <MessageCircle className="w-12 h-12 text-muted-foreground-subtle" />
         <h1 className="text-lead font-semibold">{'المحادثة غير موجودة'}</h1>
         <p className="text-meta text-muted-foreground max-w-sm">
           {'ربما تم حذفها أو لم تعد عضواً فيها.'}
@@ -309,7 +309,7 @@ export default function GroupChatPage() {
                 type="button"
                 onClick={() => void messagesQ.loadOlder()}
                 disabled={messagesQ.isFetchingOlder}
-                className="text-micro font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground inline-flex items-center gap-1.5 disabled:opacity-60"
+                className="text-micro font-medium px-3 h-8 rounded-full bg-secondary text-muted-foreground inline-flex items-center gap-1.5 disabled:opacity-60"
               >
                 {messagesQ.isFetchingOlder
                   ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -332,7 +332,7 @@ export default function GroupChatPage() {
             if (item.kind === 'date') {
               return (
                 <div key={item.key} className="flex justify-center py-2">
-                  <span className="text-micro uppercase tracking-wider px-2.5 py-1 rounded-full bg-muted/30 text-muted-foreground-subtle">
+                  <span className="text-micro uppercase tracking-wider px-2.5 py-1 rounded-full bg-secondary text-muted-foreground-subtle">
                     {item.label}
                   </span>
                 </div>

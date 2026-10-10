@@ -63,7 +63,7 @@ export function ReadingBriefing({
     <section className="px-4 pt-3 pb-1" aria-label="ملخص القراءة">
       {/* Compact three-column stat strip — same information, a fraction
           of the vertical weight the old card consumed. */}
-      <div className="grid grid-cols-3 rounded-lg bg-card/40 ring-1 ring-border/40 py-2.5">
+      <div className="grid grid-cols-3 rounded-lg bg-card ring-1 ring-border/40 py-2.5">
         <BriefMetric icon={<Rss className="h-3 w-3" />} label="مصادر" value={enabledFeedCount} />
         <BriefMetric bordered icon={<Clock className="h-3 w-3" />} label="جديد اليوم" value={freshToday} />
         <BriefMetric bordered icon={<Bookmark className="h-3 w-3" />} label="محفوظ" value={bookmarksCount} />
@@ -76,17 +76,17 @@ export function ReadingBriefing({
         <button
           type="button"
           onClick={() => onOpenArticle(nextArticle)}
-          className="w-full mt-1.5 px-1 py-2 rounded-lg text-start transition-colors hover:bg-accent/20 active:bg-accent/30 flex items-center gap-1.5 text-micro"
+          className="w-full mt-1.5 px-1 py-2 rounded-lg text-start transition-colors hover:bg-interactive-hover active:bg-interactive-pressed flex items-center gap-1.5 text-micro"
           aria-label={'ابدأ القراءة من أحدث مقالة غير مقروءة'}
         >
           <Play className="h-3 w-3 text-primary" fill="currentColor" />
-          <span className="font-semibold text-primary/90">ابدأ القراءة</span>
+          <span className="font-semibold text-primary">ابدأ القراءة</span>
           <span className="w-1 h-1 rounded-full bg-border" />
-          <span className="tabular-nums text-muted-foreground/75">{`${unreadCount} غير مقروء`}</span>
+          <span className="tabular-nums text-muted-foreground">{`${unreadCount} غير مقروء`}</span>
           {unreadMinutes > 0 && (
             <>
               <span className="w-1 h-1 rounded-full bg-border" />
-              <span className="tabular-nums text-muted-foreground/75">{`~${unreadMinutes} د`}</span>
+              <span className="tabular-nums text-muted-foreground">{`~${unreadMinutes} د`}</span>
             </>
           )}
         </button>
@@ -109,7 +109,7 @@ function BriefMetric({
   return (
     <div className={`px-3 text-center ${bordered ? 'border-s border-border/40' : ''}`}>
       <p className="text-body font-bold tabular-nums leading-none">{value}</p>
-      <span className="inline-flex items-center gap-1 text-micro text-muted-foreground/75 mt-1">
+      <span className="inline-flex items-center gap-1 text-micro text-muted-foreground mt-1">
         {icon}
         {label}
       </span>

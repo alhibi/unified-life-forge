@@ -62,7 +62,7 @@ export default function QuranVirtues() {
               <motion.button
                 key={i}
                 onClick={() => handleSurahTap(i)}
-                className="relative px-2 py-2.5 rounded-lg border border-border/60 bg-secondary/40 text-mini font-semibold text-foreground hover:bg-accent/40 transition-colors text-center overflow-hidden"
+                className="relative px-2 py-2.5 rounded-lg border border-border/60 bg-secondary text-mini font-semibold text-foreground hover:bg-accent transition-colors text-center overflow-hidden"
               >
                 <AnimatePresence>
                   {tappedSurah === i && (

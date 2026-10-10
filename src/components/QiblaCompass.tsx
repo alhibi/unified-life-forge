@@ -329,7 +329,7 @@ export default function QiblaCompass() {
                   <button
                     onClick={() => setExpanded(false)}
                     aria-label={'إغلاق'}
-                    className="w-8 h-8 rounded-full bg-card/80 flex items-center justify-center"
+                    className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
@@ -424,7 +424,7 @@ export default function QiblaCompass() {
                     </p>
                   )}
 
-                  <div className="w-full rounded-2xl bg-card/60 border border-border/40 p-4 flex items-start gap-3">
+                  <div className="w-full rounded-2xl bg-secondary border border-border/40 p-4 flex items-start gap-3">
                     <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                     <p className="text-mini text-muted-foreground leading-relaxed">
                       {t.info}
@@ -455,7 +455,7 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div className="rounded-2xl bg-card/60 border border-border/40 p-3 flex flex-col gap-1">
+    <div className="rounded-2xl bg-secondary border border-border/40 p-3 flex flex-col gap-1">
       <div className="flex items-center gap-1.5 text-muted-foreground text-micro uppercase tracking-wider font-semibold">
         {icon}
         <span>{label}</span>

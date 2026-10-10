@@ -27,7 +27,7 @@ export function SourceHealthPanel() {
       subtitle={`${rows.filter((r) => r.state === 'closed').length}/${rows.length}`}
     >
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-mini text-muted-foreground bg-secondary/20 p-2.5 rounded-lg border border-border/30">
+        <div className="flex items-center justify-between text-mini text-muted-foreground bg-secondary p-2.5 rounded-lg border border-border/30">
           <span className="leading-relaxed">
             {'تعتمد هذه اللوحة على نموذج إجماع متكامل (Consensus Ensemble) يدمج 12 مصدراً عالمياً ومحلياً لتقليل نسب الخطأ والانحراف المناخي.'}
           </span>

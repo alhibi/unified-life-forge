@@ -123,16 +123,16 @@ export default function WeatherPlanner({
           <Shield className="w-5 h-5 text-primary" aria-hidden />
           {'مخطط الأنشطة والتحذيرات الذكية'}
         </h2>
-        <p className="mt-1 text-mini text-foreground/65 leading-snug">
+        <p className="mt-1 text-mini text-muted-foreground leading-snug">
           {'مدى ملاءمة الجو للأنشطة الخارجية، تخليق فيتامين د، وتحذيرات طبية'}
         </p>
       </header>
 
       <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Exercise suitability + D3 window */}
-        <div className="rounded-xl bg-background/40 border border-foreground/10 p-5 flex flex-col gap-5">
+        <div className="rounded-xl bg-secondary border border-foreground/10 p-5 flex flex-col gap-5">
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-3">
+            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
               {'مؤشر الرياضة في الهواء الطلق'}
             </p>
             <div className="flex items-center gap-5">
@@ -171,7 +171,7 @@ export default function WeatherPlanner({
                       ? 'ملائمة مقبولة'
                       : 'غير موصى بها'}
                 </p>
-                <p className="mt-1 text-mini text-foreground/65 leading-snug">
+                <p className="mt-1 text-mini text-muted-foreground leading-snug">
                   {exerciseScore >= 80
                     ? 'مثالية للجري والأنشطة المجهدة.'
                     : exerciseScore >= 50
@@ -183,18 +183,18 @@ export default function WeatherPlanner({
           </div>
 
           <div className="pt-4 border-t border-foreground/10">
-            <p className="flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-2">
+            <p className="flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-2">
               <Sun className="w-3.5 h-3.5 text-primary" aria-hidden />
               {'تخليق فيتامين د (D3 Window)'}
             </p>
-            <p className="text-mini text-foreground/80 leading-relaxed">{d3Window}</p>
+            <p className="text-mini text-foreground leading-relaxed">{d3Window}</p>
           </div>
         </div>
 
         {/* Advisories */}
-        <div className="rounded-xl bg-background/40 border border-foreground/10 p-5 flex flex-col gap-5">
+        <div className="rounded-xl bg-secondary border border-foreground/10 p-5 flex flex-col gap-5">
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-3">
+            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
               {'الإرشادات والتحذيرات الطبية'}
             </p>
             <div className="space-y-2.5">
@@ -219,7 +219,7 @@ export default function WeatherPlanner({
             </div>
           </div>
 
-          <div className="pt-4 border-t border-foreground/10 flex items-center gap-5 text-mini text-foreground/65">
+          <div className="pt-4 border-t border-foreground/10 flex items-center gap-5 text-mini text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Leaf className="w-3.5 h-3.5 text-primary" aria-hidden />
               <span>{'حبوب اللقاح:'}</span>

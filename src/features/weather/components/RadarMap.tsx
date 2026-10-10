@@ -211,7 +211,7 @@ export default function RadarMap({
           {activeLayer === 'particles' ? ('محاكي جزيئات الغلاف الحي') : ('الرادار الزمني')}
         </h2>
 
-        <div className="flex bg-background/50 border border-border/40 p-0.5 rounded-lg">
+        <div className="flex bg-secondary border border-border/40 p-0.5 rounded-lg">
           <Button variant="ghost" activation="click"
             onClick={() => setActiveLayer('particles')}
             className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
@@ -232,14 +232,14 @@ export default function RadarMap({
       </header>
 
       {/* Main Interactive Screen */}
-      <div className="relative h-64 w-full bg-background/20 overflow-hidden">
+      <div className="relative h-64 w-full bg-surface-1 overflow-hidden">
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
         {activeLayer === 'radar' && (
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {tileTemplate ? (
               <div className="app-card max-w-xs animate-fade-in text-center">
-                <div className="text-micro uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
+                <div className="text-micro uppercase tracking-widest text-primary mb-1">{'تغطية رادار حي'}</div>
                 <div className="text-meta font-bold text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
                     ? new Date(allFrames[frameIdx] * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })

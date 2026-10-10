@@ -54,18 +54,18 @@ function MetricTile({
     <div
       className={cn(
         'flex flex-col gap-1 rounded-xl px-3 py-2.5',
-        'bg-background/40 border border-foreground/8',
+        'bg-secondary border border-foreground/8',
         align === 'center' && 'items-center text-center',
         align === 'end' && 'items-end text-end',
         align === 'start' && 'items-start text-start',
       )}
     >
-      <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none">
+      <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle leading-none">
         {label}
       </span>
       <span className="text-meta font-bold text-foreground tabular-nums leading-none" dir="ltr">
         {value}
-        {unit && <span className="ms-1 text-[0.625rem] font-semibold text-foreground/55">{unit}</span>}
+        {unit && <span className="ms-1 text-[0.625rem] font-semibold text-muted-foreground-subtle">{unit}</span>}
       </span>
     </div>
   );
@@ -151,7 +151,7 @@ function ConfidenceMeter({ value }: { value: number }) {
         <CardEyebrow className="mb-0">{'ثقة الإجماع'}</CardEyebrow>
         <span className="text-meta font-bold text-foreground tabular-nums leading-none" dir="ltr">
           {value}
-          <span className="text-mini font-medium text-foreground/55 ms-0.5">٪</span>
+          <span className="text-mini font-medium text-muted-foreground-subtle ms-0.5">٪</span>
         </span>
       </div>
       <div className="h-1 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
@@ -198,13 +198,13 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
       <div className="relative z-10 flex min-h-[30rem] flex-col px-5 py-6 sm:px-8 sm:py-8">
         <div className="mb-8 flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-mini font-semibold text-foreground/55">{'الطقس في'}</p>
+            <p className="text-mini font-semibold text-muted-foreground-subtle">{'الطقس في'}</p>
             <h2 className="weather-display mt-1 truncate text-[2rem] font-semibold leading-none text-foreground">
               {locationName}
             </h2>
           </div>
-          <div className="shrink-0 rounded-md border border-foreground/10 bg-background/25 px-3 py-2 text-end">
-            <p className="text-mini text-foreground/55">{'آخر قراءة'}</p>
+          <div className="shrink-0 rounded-md border border-foreground/10 bg-secondary px-3 py-2 text-end">
+            <p className="text-mini text-muted-foreground-subtle">{'آخر قراءة'}</p>
             <p className="mt-0.5 text-mini font-semibold text-foreground tabular-nums" dir="ltr">
               {new Date(snapshot.meta.last_updated_unix).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })}
             </p>
@@ -251,7 +251,7 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
           <ConfidenceMeter value={conf} />
           {hasSpread && (
             <p
-              className="mt-2 text-mini text-foreground/55 tabular-nums"
+              className="mt-2 text-mini text-muted-foreground-subtle tabular-nums"
               dir="ltr"
             >
               {`نطاق النماذج ${Math.round(range.min)}° – ${Math.round(range.max)}°`}

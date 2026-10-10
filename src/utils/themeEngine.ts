@@ -233,7 +233,14 @@ function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
     best = candidate;
     if (contrastRatio(candidate, bg) >= target) return candidate;
   }
-  return best;
+  // Saturated middle-tone containers can exhaust the hue-preserving path
+  // before it reaches white/black (especially on OLED with strong accents).
+  // Readability takes priority: use the higher-contrast neutral endpoint,
+  // rather than returning a candidate that never met the requested ratio.
+  const darkInk: Hsl = [fg[0], 0, 0];
+  const lightInk: Hsl = [fg[0], 0, 100];
+  const endpoint = contrastRatio(darkInk, bg) >= contrastRatio(lightInk, bg) ? darkInk : lightInk;
+  return contrastRatio(best, bg) >= target ? best : endpoint;
 }
 
 /**
@@ -275,15 +282,15 @@ function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): H
  * perceptually: a 3% HSL gap is invisible on a dark canvas and glaring on a
  * pale one, so the gap is expressed in OKLab lightness instead.
  */
-function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
+function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, minimum: number): Hsl {
   const ls = perceptualL(surface);
   const lb = perceptualL(bg);
-  if (Math.abs(ls - lb) >= 0.02) return surface;
+  if (Math.abs(ls - lb) >= minimum) return surface;
   // Preserve the palette's own intent: if it wanted a card lighter than the
   // page, the correction stays lighter — it only becomes big enough to see.
   const direction = ls >= lb ? 1 : -1;
-  let L = lb + direction * (isDark ? 0.05 : 0.042);
-  if (L > 0.995 || L < 0.008) L = lb - direction * (isDark ? 0.05 : 0.042);
+  let L = lb + direction * minimum;
+  if (L > 0.995 || L < 0.008) L = lb - direction * minimum;
   return withPerceptualL(surface, L);
 }
 
@@ -730,7 +737,7 @@ export const themePresets: ThemePreset[] = [
     'expressive',
     'نبض',
     'Expressive Pulse',
-    { bg: '#EFF2F3', surface: '#FFFFFF', ink: '#20272A', accent: '#146B65' },
+    { bg: '#E0ECE9', surface: '#F6FBF8', ink: '#20272A', accent: '#146B65' },
     { bg: '#111416', surface: '#252B2D', ink: '#F1F5F4', accent: '#86D9CC' },
   ),
   // The shipped system. Neutral foundation, graphite controls, one orange
@@ -741,28 +748,28 @@ export const themePresets: ThemePreset[] = [
     'editorial',
     'تحريري',
     'Editorial',
-    { bg: '#F6F4F1', surface: '#FCFBF9', ink: '#232220', accent: '#2D2D2D' },
+    { bg: '#E5E3DF', surface: '#FAF9F6', ink: '#232220', accent: '#2D2D2D' },
     { bg: '#121110', surface: '#1C1B1A', ink: '#F2EFEA', accent: '#EDE9E3' },
   ),
   definePreset(
     'copper',
     'نُحاس معماري',
     'Architectural Copper',
-    { bg: '#F4F2EF', surface: '#FBFAF8', ink: '#17171A', accent: '#9A6B37' },
+    { bg: '#DEDCD6', surface: '#F5F2EB', ink: '#17171A', accent: '#9A6B37' },
     { bg: '#0D0D0F', surface: '#1A1A1E', ink: '#EDEBE7', accent: '#C9A06A' },
   ),
   definePreset(
     'paper',
     'ورق وحبر',
     'Paper & Ink',
-    { bg: '#EDE8DF', surface: '#FCFAF5', ink: '#272725', accent: '#874B3E' },
-    { bg: '#171614', surface: '#282622', ink: '#F1EDE3', accent: '#D5A08D' },
+    { bg: '#DFD5C4', surface: '#F7F0E2', ink: '#272725', accent: '#874B3E' },
+    { bg: '#151411', surface: '#302B23', ink: '#F1EDE3', accent: '#D5A08D' },
   ),
   definePreset(
     'mono',
     'مونوكروم',
     'Mono',
-    { bg: '#F5F5F5', surface: '#FFFFFF', ink: '#1A1A1A', accent: '#1A1A1A' },
+    { bg: '#E5E5E5', surface: '#FAFAFA', ink: '#1A1A1A', accent: '#1A1A1A' },
     { bg: '#121212', surface: '#1E1E1E', ink: '#F5F5F5', accent: '#FFFFFF' },
   ),
   definePreset(
@@ -776,56 +783,56 @@ export const themePresets: ThemePreset[] = [
     'clay',
     'طين',
     'Clay',
-    { bg: '#F5EFEA', surface: '#EBE0D6', ink: '#33251D', accent: '#A9603F' },
+    { bg: '#F3E4D9', surface: '#DFC3AF', ink: '#33251D', accent: '#A9603F' },
     { bg: '#130E0B', surface: '#211814', ink: '#F1E7DE', accent: '#CE8A62' },
   ),
   definePreset(
     'gold',
     'ذهب',
     'Gold',
-    { bg: '#F8F3E6', surface: '#F0E6CE', ink: '#2C2415', accent: '#96731C' },
+    { bg: '#F5EDDA', surface: '#E5D3A9', ink: '#2C2415', accent: '#96731C' },
     { bg: '#12100A', surface: '#211C10', ink: '#F7F0DC', accent: '#D9B441' },
   ),
   definePreset(
     'moss',
     'طحلب',
     'Moss',
-    { bg: '#EDF1EC', surface: '#DDE6DC', ink: '#1F2A22', accent: '#4A6B52' },
-    { bg: '#0B0F0C', surface: '#161E18', ink: '#E6EDE6', accent: '#7FA98A' },
+    { bg: '#E8EFE2', surface: '#C8D9BF', ink: '#1F2A22', accent: '#4A6B52' },
+    { bg: '#0D160F', surface: '#223529', ink: '#E6EDE6', accent: '#7FA98A' },
   ),
   definePreset(
     'ocean',
     'محيط',
     'Ocean',
-    { bg: '#E7EFF0', surface: '#F7FBFB', ink: '#1C3438', accent: '#146A73' },
+    { bg: '#CFE3E4', surface: '#EDF8F7', ink: '#1C3438', accent: '#146A73' },
     { bg: '#0D191C', surface: '#203338', ink: '#E8F1F2', accent: '#8FCBCD' },
   ),
   definePreset(
     'arctic',
     'قطبي',
     'Arctic',
-    { bg: '#EEF4F9', surface: '#DCE8F2', ink: '#152430', accent: '#1F6C99' },
-    { bg: '#080D12', surface: '#111C24', ink: '#E9F2F9', accent: '#63B3E0' },
+    { bg: '#EDF5FA', surface: '#C5DEEB', ink: '#152430', accent: '#1F6C99' },
+    { bg: '#0A141B', surface: '#203746', ink: '#E9F2F9', accent: '#63B3E0' },
   ),
   definePreset(
     'midnight',
     'منتصف الليل',
     'Midnight',
-    { bg: '#E6E9F0', surface: '#D2D7E5', ink: '#121E31', accent: '#2A52BE' },
+    { bg: '#E8ECF5', surface: '#C4CFE5', ink: '#121E31', accent: '#2A52BE' },
     { bg: '#080E1A', surface: '#162235', ink: '#E6E9F0', accent: '#5381E6' },
   ),
   definePreset(
     'nebula',
     'سديم',
     'Nebula',
-    { bg: '#F1EEF8', surface: '#E1DBF1', ink: '#1E1733', accent: '#5B3FD1' },
-    { bg: '#0A0812', surface: '#161125', ink: '#EDE9F8', accent: '#9E86F5' },
+    { bg: '#EEEAF7', surface: '#D2C6E9', ink: '#1E1733', accent: '#5B3FD1' },
+    { bg: '#120D1C', surface: '#30243E', ink: '#EDE9F8', accent: '#9E86F5' },
   ),
   definePreset(
     'rose',
     'روز جولد',
     'Rose Gold',
-    { bg: '#F9F1F2', surface: '#F2DFE2', ink: '#4A2A2E', accent: '#C87D88' },
+    { bg: '#F7ECEE', surface: '#E8C7CE', ink: '#4A2A2E', accent: '#C87D88' },
     { bg: '#1A0E10', surface: '#2E181C', ink: '#F9F1F2', accent: '#E2A9B1' },
   ),
 ];
@@ -947,7 +954,7 @@ export function generateThemeTokens(
   lift: SurfaceLift = 'subtle',
 ): Record<string, string> {
   const art = themeArtDirection(preset.id);
-  const presence = { neutral: 0.07, tonal: 0.16, vibrant: 0.25, expressive: 0.36 }[style] ?? 0.16;
+  const presence = { neutral: 0.14, tonal: 0.24, vibrant: 0.34, expressive: 0.44 }[style] ?? 0.24;
   const modeColors = isDark ? preset.dark : preset.light;
   const rawBg = hexToHsl(modeColors.bg);
   const rawSurface = hexToHsl(modeColors.surface);
@@ -957,7 +964,7 @@ export function generateThemeTokens(
   const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : rawBg;
   const surfaceBase: Hsl =
     isDark && isBlack
-      ? [rawSurface[0], Math.min(rawSurface[1], 14), Math.max(7, rawSurface[2] - 3)]
+      ? withPerceptualL(rawSurface, Math.max(0.24, perceptualL(rawSurface) - 0.025))
       : rawSurface;
 
   // Surface lift is a tone decision: flat sits on the page, lifted floats.
@@ -969,7 +976,7 @@ export function generateThemeTokens(
       Math.min(99, Math.max(1, surfaceBase[2] + (isDark ? liftDelta : -liftDelta))),
     ],
     bgHsl,
-    isDark,
+    art.surfaceGap[isDark ? 1 : 0],
   );
 
   // Ink must clear WCAG AA against both the page and the cards on it.
@@ -1002,7 +1009,7 @@ export function generateThemeTokens(
   // Secondary navigation is a cooler companion, not a weaker copy of primary.
   // Other saved families retain their established accent relationship.
   const companion = hexToHsl(art.companion[isDark ? 1 : 0]);
-  const secondarySurface = mixHsl(companion, surfHsl, isDark ? 0.16 : 0.11);
+  const secondarySurface = mixHsl(companion, surfHsl, art.companionPresence[isDark ? 1 : 0]);
   const secondaryStr = hslToString(secondarySurface);
   const secondaryFgStr = hslToString(ensureContrast(inkHsl, secondarySurface, 4.55));
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
@@ -1039,7 +1046,7 @@ export function generateThemeTokens(
 
   // Navigation is slightly more grounded than the page; overlays use the
   // highest elevation plane. Both receive their own contrast-corrected ink.
-  const navigation = mixHsl(surfHsl, bgHsl, isDark ? 0.58 : 0.48);
+  const navigation = secondarySurface;
   const navigationInk = ensureContrast(inkHsl, navigation, 4.5);
 
   // Text on the accent is whichever of ink/bg is actually readable on it —
@@ -1055,7 +1062,11 @@ export function generateThemeTokens(
   const containerInk = ensureContrast(inkHsl, container, 4.55);
   const tertiary = hexToHsl(art.tertiary[isDark ? 1 : 0]);
   const tertiaryColor = ensureContrast(ensureContrast(tertiary, bgHsl, 4.5), surfHsl, 4.5);
-  const tertiaryContainer = mixHsl(tertiaryColor, surfHsl, isDark ? 0.17 : 0.1);
+  const tertiaryContainer = mixHsl(
+    tertiaryColor,
+    surfHsl,
+    art.containerPresence + (isDark ? 0.1 : 0.04),
+  );
 
   // Category identity has two weights: a quiet content surface and a richer
   // icon container. Solid mixes avoid unpredictable alpha over nested surfaces.
@@ -1064,15 +1075,11 @@ export function generateThemeTokens(
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(
-      tone,
-      surfHsl,
-      art.categoryPresence * presence * (isDark ? 0.6 : 0.35),
-    );
+    const categorySurface = mixHsl(tone, surfHsl, art.categoryPresence * (0.12 + presence * 0.3));
     const categoryContainer = mixHsl(
       tone,
       surfHsl,
-      art.categoryPresence * presence + (isDark ? 0.08 : 0.06),
+      art.containerPresence + art.categoryPresence * presence + (isDark ? 0.06 : 0),
     );
     categoryContainers[`--data-${index}-surface`] = hslToString(categorySurface);
     categoryContainers[`--on-data-${index}-surface`] = hslToString(

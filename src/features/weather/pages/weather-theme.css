@@ -87,7 +87,7 @@
 
 .weather-theme .weather-premium-chart {
   border: 0;
-  background: transparent;
+  background: hsl(var(--card));
   box-shadow: var(--shadow-2);
 }
 
@@ -360,8 +360,8 @@
 /* ── Focus ring (page-wide) ─────────────────────────────────────────── */
 
 .weather-theme :focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-2);
+  outline: var(--ui-focus-width) solid hsl(var(--ring));
+  outline-offset: var(--ui-focus-offset);
   border-radius: var(--r-md);
 }
 

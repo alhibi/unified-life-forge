@@ -1,5 +1,11 @@
 # Roadmap
 
+## Color materiality overhaul — October 10, 2026
+- [x] Audit surface dilution and author richer solid material roles for all 14 themes, retaining independent mode/OLED/strength preferences.
+- [x] Replace confirmed translucent structural surfaces in shared cards/lists/overlays, weather, qibla, Quran chips, reader, podcasts, profile and appearance controls; preserve purposeful media/scrim behavior.
+- [x] Verify 168 theme/mode/strength/OLED browser cases + 24 feature route states, 28 home and 28 tile captures, desktop views, live weather and actual OLED selection; 551 targeted tests pass, lint budget 734 unchanged, architecture and automatic build pass.
+- [ ] Exhaustive remaining content-dependent alpha/contrast checks and physical-device performance/accessibility — requires representative account/media/game content and physical devices; do not claim full product AA certification.
+
 ## Full theme identity overhaul — October 10, 2026
 - [x] Inventory all 14 live themes and implement independent material recipes with central semantic roles.
 - [x] Correct OLED, accent presence, preview measurements and saved-choice preservation.

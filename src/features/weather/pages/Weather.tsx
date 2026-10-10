@@ -168,7 +168,7 @@ function StickyHeader({
             {name}
           </h1>
           <p
-            className="mt-1.5 text-micro tracking-[0.18em] uppercase text-primary/85 font-bold tabular-nums"
+            className="mt-1.5 text-micro tracking-[0.18em] uppercase text-primary font-bold tabular-nums"
             dir="ltr"
           >
             {Math.round(elevation)} m · {lat.toFixed(2)}, {lng.toFixed(2)}
@@ -303,7 +303,7 @@ export default function Weather() {
               onSelectCity={handleCitySelect}
               userLocation={activeLocation ? { lat: activeLocation.lat, lng: activeLocation.lng } : null}
             />
-            <p className="hidden text-mini text-foreground/45 sm:block" dir="ltr">
+            <p className="hidden text-mini text-muted-foreground-subtle sm:block" dir="ltr">
               {Math.round(snapshot.meta.location.elevation_m)} m · {snapshot.meta.location.lat.toFixed(2)}, {snapshot.meta.location.lng.toFixed(2)}
             </p>
           </div>

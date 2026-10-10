@@ -337,7 +337,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           </div>
 
           {/* Period / Year Selector */}
-          <div className="flex items-center gap-1.5 self-end sm:self-auto bg-secondary/50 p-1 rounded-xl">
+          <div className="flex items-center gap-1.5 self-end sm:self-auto bg-secondary p-1 rounded-xl">
             <button
               onClick={() => {
                 setSelectedYear(undefined);

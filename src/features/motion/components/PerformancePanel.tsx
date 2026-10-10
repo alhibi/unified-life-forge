@@ -28,7 +28,7 @@ function Cell({ label, value, unit, hint, tone = 'default' }: CellProps) {
           ? 'text-destructive'
           : 'text-foreground';
   return (
-    <div className="rounded-md bg-secondary/60 px-3 py-2.5">
+    <div className="rounded-md bg-secondary px-3 py-2.5">
       <p className="text-micro font-medium uppercase tracking-wider text-muted-foreground-subtle">
         {label}
       </p>

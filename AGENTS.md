@@ -56,5 +56,5 @@ By reading this file, you agree to uphold these standards unconditionally in all
 
 <!-- LOVABLE:BEGIN -->
 ## Shared visual architecture
-- Generate theme roles in themeEngine from the complete themeArtDirections registry and geometry in interfaceScale; material recipes stay independent while shared controls, feature chrome and portaled overlays consume one semantic contract, preserving user theme/mode/strength choices.
+- Generate theme roles in themeEngine from the complete themeArtDirections registry and geometry in interfaceScale; material recipes own mode-specific surface separation and colour-body weights while shared controls, feature chrome and portaled overlays consume one semantic contract, preserving user theme/mode/strength choices. Structural material softness interpolates opaque elevation tones, never background-dependent alpha, so saved material controls remain meaningful without washing out cards.
 <!-- LOVABLE:END -->
