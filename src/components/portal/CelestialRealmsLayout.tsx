@@ -29,6 +29,7 @@ interface RealmDefinition {
   subtitle: string;
   description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  tone: 1 | 2 | 4 | 6;
 }
 
 const REALMS: RealmDefinition[] = [
@@ -38,6 +39,7 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Spirit',
     description: 'للقرآن والسنة وأذكار اليوم والسكينة',
     icon: BookOpen,
+    tone: 1,
   },
   {
     key: 'mind',
@@ -45,6 +47,7 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Mind',
     description: 'لتدبر المعرفة والذاكرة الرقمية والرحلات والأدب',
     icon: Brain,
+    tone: 4,
   },
   {
     key: 'body',
@@ -52,6 +55,7 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Body',
     description: 'للعافية وتتبع اللياقة وجداول التمارين ويومياتك',
     icon: Dumbbell,
+    tone: 2,
   },
   {
     key: 'play',
@@ -59,6 +63,7 @@ const REALMS: RealmDefinition[] = [
     subtitle: 'Realm of Play',
     description: 'ألعاب شطرنج وسودوكو وتحديات بصرية ممتعة',
     icon: Gamepad2,
+    tone: 6,
   },
 ];
 
@@ -136,13 +141,15 @@ export default function CelestialRealmsLayout({
         const Icon = realm.icon;
 
         return (
-          <section key={realm.key} className="space-y-4">
+          <section key={realm.key} className="space-y-4" data-tile-tone={realm.tone}>
             {/* Section header: title, latin subtitle, one line of purpose and
                 the live count. Hierarchy comes from size, weight and spacing —
                 the four realms used to be told apart by four hardcoded Tailwind
                 hues, which is exactly what the accent budget forbids. */}
             <div className="rule-b flex items-baseline gap-3 pb-2.5">
-              <Icon className="h-[18px] w-[18px] shrink-0 self-center text-muted-foreground" aria-hidden />
+              <span className="flex size-11 shrink-0 items-center justify-center self-center rounded-2xl bg-tile-container text-tile-container-foreground">
+                <Icon className="size-5" aria-hidden />
+              </span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <h3 className="type-section text-foreground">{realm.title}</h3>
@@ -152,7 +159,7 @@ export default function CelestialRealmsLayout({
                 </div>
                 <p className="type-meta mt-1 text-muted-foreground">{realm.description}</p>
               </div>
-              <span className="type-meta shrink-0 tabular-nums text-muted-foreground-subtle">
+              <span className="type-meta flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary font-semibold tabular-nums text-secondary-foreground">
                 {appsInRealm.length}
               </span>
             </div>
