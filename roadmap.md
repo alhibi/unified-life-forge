@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Design verification rounds — October 10, 2026
-- [ ] Inspect current light/dark screens at narrow and wide widths, including overflow, text contrast, touch targets and labelled controls.
-- [ ] Investigate actionable findings in shared controls and feature screens; correct verified defects without changing functionality or increasing budgets.
-- [ ] Recheck affected interactions and run relevant tests; document measured results and remaining real-device/content limitations.
+- [x] Inspect 25 entry screens in light/dark at 424px and 1280px (100 repeat captures); no document overflow, undersized text-entry fields or mode mismatches in the repeat sweep.
+- [x] Investigate shared controls and feature screens; repair primary contrast, input sizing, reader controls/labels, chat close labels and clipped weather suggestions without budget increases.
+- [x] Recheck reader search/preferences and city autocomplete; 556 distinct targeted tests pass. Record remaining touch-target, authenticated, keyboard, offline and real-device limitations in `docs/audit/2026-10-10-expressive-design-verification.md`. Full-suite attempt timed out; not a passing full-suite result.
 
 ## Expressive tactile redesign — October 10, 2026
 - [x] Replace copper default with a contrasted, multi-role expressive palette in both modes and migrate the old default.
