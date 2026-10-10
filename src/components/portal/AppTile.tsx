@@ -192,7 +192,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               </span>
                 {pinned && <Pin className="h-3 w-3 shrink-0 text-tile-foreground" aria-hidden />}
             </span>
-            <span className="text-mini mt-1 block text-tile-foreground">
+            <span className="text-mini mt-1 block text-muted-foreground">
               {app.description}
             </span>
             {!list && (
@@ -236,12 +236,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-lg',
-          // 32px of ink, 44px of touch: the pseudo-element grows the hit area
-          // without pushing the visual chip off the tile's corner grid.
-          "after:absolute after:-inset-1.5 after:content-['']",
+          'absolute z-10 flex h-11 w-11 items-center justify-center rounded-button',
           'widget-icon-well text-tile-foreground transition-[background-color,color] duration-fast',
-          'hover:bg-tile-container',
+          'hover:bg-tile-container hover:text-tile-container-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           list ? 'end-2 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
         )}

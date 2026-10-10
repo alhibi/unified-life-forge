@@ -1161,12 +1161,23 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     --tile-container: var(--data-6-container);
     --tile-container-foreground: var(--on-data-6-container);
   }
-  /* Canonical floating surface: opaque, quiet and defined by one hairline. */
+  [data-tile-tone='1'] { --tile-muted: var(--on-data-1-muted); --tile-hover: var(--data-1-hover); --tile-pressed: var(--data-1-pressed); }
+  [data-tile-tone='2'] { --tile-muted: var(--on-data-2-muted); --tile-hover: var(--data-2-hover); --tile-pressed: var(--data-2-pressed); }
+  [data-tile-tone='3'] { --tile-muted: var(--on-data-3-muted); --tile-hover: var(--data-3-hover); --tile-pressed: var(--data-3-pressed); }
+  [data-tile-tone='4'] { --tile-muted: var(--on-data-4-muted); --tile-hover: var(--data-4-hover); --tile-pressed: var(--data-4-pressed); }
+  [data-tile-tone='5'] { --tile-muted: var(--on-data-5-muted); --tile-hover: var(--data-5-hover); --tile-pressed: var(--data-5-pressed); }
+  [data-tile-tone='6'] { --tile-muted: var(--on-data-6-muted); --tile-hover: var(--data-6-hover); --tile-pressed: var(--data-6-pressed); }
+  /* Solid widget material owns contrast-safe content and interaction roles. */
   .rich-widget {
     --foreground: var(--tile-foreground);
     --card-foreground: var(--tile-foreground);
-    --muted-foreground: var(--tile-foreground);
-    --muted-foreground-subtle: var(--tile-foreground);
+    --muted-foreground: var(--tile-muted);
+    --muted-foreground-subtle: var(--tile-muted);
+    --muted: var(--tile-hover);
+    --accent: var(--tile-hover);
+    --accent-foreground: var(--tile-foreground);
+    --interactive-hover: var(--tile-hover);
+    --interactive-pressed: var(--tile-pressed);
     --primary: var(--tile-foreground);
     --primary-foreground: var(--tile-surface);
     --secondary: var(--tile-container);
@@ -1176,8 +1187,11 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     --strong: hsl(var(--tile-foreground));
     --color-foreground: hsl(var(--tile-foreground));
     --color-card-foreground: hsl(var(--tile-foreground));
-    --color-muted-foreground: hsl(var(--tile-foreground));
-    --color-muted-foreground-subtle: hsl(var(--tile-foreground));
+    --color-muted-foreground: hsl(var(--tile-muted));
+    --color-muted-foreground-subtle: hsl(var(--tile-muted));
+    --color-muted: hsl(var(--tile-hover));
+    --color-accent: hsl(var(--tile-hover));
+    --color-accent-foreground: hsl(var(--tile-foreground));
     --color-primary: hsl(var(--tile-foreground));
     --color-primary-foreground: hsl(var(--tile-surface));
     --color-secondary: hsl(var(--tile-container));
@@ -1189,11 +1203,15 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     box-shadow: var(--shadow-1);
   }
   .rich-widget.app-card,
-  .rich-widget.surface-depth,
-  .rich-widget.app-card-pressable:hover,
-  .rich-widget.app-card-pressable:active {
+  .rich-widget.surface-depth {
     background-color: hsl(var(--tile-surface));
   }
+  .rich-widget.app-card-pressable:hover,
+  .dark .rich-widget.app-card-pressable:hover,
+  .portal-app-widget:hover { background-color: hsl(var(--tile-hover)); }
+  .rich-widget.app-card-pressable:active,
+  .dark .rich-widget.app-card-pressable:active,
+  .portal-app-widget:active { background-color: hsl(var(--tile-pressed)); }
   .widget-icon-well {
     background: hsl(var(--tile-foreground) / 0.1);
     color: hsl(var(--tile-foreground));

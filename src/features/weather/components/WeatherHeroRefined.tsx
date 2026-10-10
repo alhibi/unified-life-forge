@@ -65,7 +65,7 @@ function MetricTile({
       <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle leading-none">
         {label}
       </span>
-      <span className="text-lead font-bold text-foreground tabular-nums leading-none" dir="ltr">
+      <span className={cn('w-full whitespace-normal break-words font-bold text-foreground tabular-nums leading-snug', unit ? 'text-lead' : 'text-body')} dir={unit ? 'ltr' : 'rtl'}>
         {value}
         {unit && <span className="ms-1 text-[0.625rem] font-semibold text-muted-foreground-subtle">{unit}</span>}
       </span>
@@ -268,7 +268,7 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
         </div>
 
         {/* TERTIARY tier — compact facts along the bottom edge. */}
-        <div className="mt-6 grid grid-cols-3 gap-2">
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2">
           <MetricTile
             tone={4}
             label={'ضغط'}

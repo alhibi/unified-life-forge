@@ -41,6 +41,10 @@ describe('solid material roles across the complete catalogue', () => {
                 expect(contrastRatio(parse(t[ink]), parse(t[surface]))).toBeGreaterThanOrEqual(4.5);
               }
               for (let index = 1; index <= 6; index += 1) {
+                expect(contrastRatio(parse(t[`--on-data-${index}-muted`]), parse(t[`--data-${index}-surface`]))).toBeGreaterThanOrEqual(4.5);
+                for (const state of ['hover', 'pressed']) {
+                  expect(contrastRatio(parse(t[`--on-data-${index}-surface`]), parse(t[`--data-${index}-${state}`]))).toBeGreaterThanOrEqual(7);
+                }
                 expect(
                   contrastRatio(
                     parse(t[`--on-data-${index}-surface`]),

@@ -1111,6 +1111,15 @@ export function generateThemeTokens(
     categoryContainers[`--on-data-${index}-surface`] = hslToString(
       ensureContrast(endpointInk, categorySurface, 7.2),
     );
+    categoryContainers[`--on-data-${index}-muted`] = hslToString(
+      ensureContrast(mixHsl(endpointInk, categorySurface, 0.8), categorySurface, 4.6),
+    );
+    categoryContainers[`--data-${index}-hover`] = hslToString(
+      ensureContrast(mixHsl(endpointInk, categorySurface, 0.04), endpointInk, 7.1),
+    );
+    categoryContainers[`--data-${index}-pressed`] = hslToString(
+      ensureContrast(mixHsl(endpointInk, categorySurface, 0.08), endpointInk, 7.1),
+    );
     categoryContainers[`--data-${index}-container`] = hslToString(categoryContainer);
     categoryContainers[`--on-data-${index}-container`] = hslToString(
       ensureContrast(tone, categoryContainer, 4.55),
