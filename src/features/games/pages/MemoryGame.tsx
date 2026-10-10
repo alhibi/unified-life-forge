@@ -891,7 +891,7 @@ export default function MemoryGame() {
         <AnimatePresence>
           {isPaused && gameStarted && !solved && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 rounded-2xl flex items-center justify-center">
+              className="absolute inset-0 bg-[hsl(var(--scrim)/0.72)] rounded-2xl flex items-center justify-center">
               <button onClick={() => setIsPaused(false)} className="px-6 py-3 rounded-2xl bg-data-5 text-white font-black">
                 <Play className="w-4 h-4 inline me-1.5" />{'استئناف'}
               </button>
@@ -932,7 +932,7 @@ export default function MemoryGame() {
             <div className="flex gap-2">
               <button
                 onClick={() => navigate('/games/memory/adventure')}
-                className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-meta"
+                className="flex-1 py-2.5 rounded-xl bg-secondary text-foreground font-bold text-meta"
               >
                 {'الخريطة'}
               </button>
@@ -1077,12 +1077,12 @@ function ModeHud({
   if (mode === 'versus') {
     return (
       <div className="flex items-center justify-between px-3 mb-2 text-mini">
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'player' ? 'bg-data-5/20 text-data-5' : 'bg-white/5 text-muted-foreground'}`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'player' ? 'bg-data-5/20 text-data-5' : 'bg-secondary text-muted-foreground'}`}>
           <span className="font-black">{'أنت'}</span>
           <span className="font-mono">{versusScores.player}</span>
         </div>
         <span className="text-muted-foreground text-micro">{fmt(timer)}</span>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-data-5/20 text-data-5' : 'bg-white/5 text-muted-foreground'}`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-data-5/20 text-data-5' : 'bg-secondary text-muted-foreground'}`}>
           <span className="font-mono">{versusScores.ai}</span>
           <span className="font-black">{'الذكاء'}</span>
         </div>

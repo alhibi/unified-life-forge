@@ -1538,7 +1538,7 @@ export default function ChessPage() {
   ];
 
   const timerDisplay = (
-    <div className="flex items-center gap-1 text-mini text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+    <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary px-2.5 py-1 rounded-full tabular-nums">
       <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
     </div>
   );
@@ -1558,7 +1558,7 @@ export default function ChessPage() {
       <AnimatePresence>
         {promotionPending && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/50 flex items-center justify-center">
+            className="fixed inset-0 z-drawer bg-[hsl(var(--scrim)/0.72)] flex items-center justify-center">
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}
               className="bg-card rounded-2xl p-4">
               <p className="text-meta font-semibold text-foreground text-center mb-3">
@@ -1641,7 +1641,7 @@ export default function ChessPage() {
         <AnimatePresence>
           {!gameStarted && !gameOver && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-sticky rounded-lg bg-black/45 backdrop-blur-[2px] flex items-center justify-center mx-4"
+              className="absolute inset-0 z-sticky rounded-lg bg-[hsl(var(--scrim)/0.72)] backdrop-blur-[2px] flex items-center justify-center mx-4"
               onClick={() => { setGameStarted(true); setIsRunning(true); }}>
               <div className="flex flex-col items-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
