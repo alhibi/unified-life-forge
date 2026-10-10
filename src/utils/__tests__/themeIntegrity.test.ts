@@ -81,14 +81,18 @@ describe('theme token integrity', () => {
         it(`${label}: solid category surfaces and icon containers retain AA ink`, () => {
           const tokens = generateThemeTokens(preset, 'tonal', isDark, isBlack);
           for (let index = 1; index <= 6; index += 1) {
-            expect(contrastRatio(
-              parse(tokens[`--on-data-${index}-surface`]),
-              parse(tokens[`--data-${index}-surface`]),
-            )).toBeGreaterThanOrEqual(7);
-            expect(contrastRatio(
-              parse(tokens[`--on-data-${index}-container`]),
-              parse(tokens[`--data-${index}-container`]),
-            )).toBeGreaterThanOrEqual(4.5);
+            expect(
+              contrastRatio(
+                parse(tokens[`--on-data-${index}-surface`]),
+                parse(tokens[`--data-${index}-surface`]),
+              ),
+            ).toBeGreaterThanOrEqual(7);
+            expect(
+              contrastRatio(
+                parse(tokens[`--on-data-${index}-container`]),
+                parse(tokens[`--data-${index}-container`]),
+              ),
+            ).toBeGreaterThanOrEqual(4.5);
           }
         });
 
