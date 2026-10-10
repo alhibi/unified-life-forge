@@ -31,8 +31,8 @@ const SANS_FALLBACK = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 const INTER_DISPLAY_STACK = `'IBM Plex Sans Arabic', 'Inter Tight', ${SANS_FALLBACK}`;
 
 /**
- * Architectural Copper headings: Instrument Serif carries Latin, Amiri carries
- * Arabic. Body text stays on the sans stack above. Never give headings a sans stack.
+ * Expressive headings share the readable Arabic sans stack; hierarchy comes
+ * from the modular size ladder and weight, not the retired copper serif.
  */
 export const DISPLAY_SERIF_STACK = INTER_DISPLAY_STACK;
 
@@ -76,7 +76,7 @@ export interface FontPairing {
 export const FONT_PAIRINGS: readonly FontPairing[] = [
   {
     id: 'unified',
-    label: 'إنتر ديسبلاي الموحد',
+    label: 'IBM Plex العربي الموحد',
     note: 'خط موحد للعناوين والنصوص — التزاماً بهوية التطبيق الأنيقة',
     display: 'ibm-plex',
     body: 'ibm-plex',
