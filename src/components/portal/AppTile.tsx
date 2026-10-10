@@ -148,8 +148,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         aria-label={`${app.label} — ${app.description}`}
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
+        activation="click"
         className={cn(
-          'arch-plate group relative w-full overflow-hidden rounded-card text-start whitespace-normal text-foreground',
+          'arch-plate shadow-e2 group relative w-full overflow-hidden rounded-card text-start whitespace-normal text-foreground',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
           'hover:-translate-y-0.5 hover:bg-[hsl(var(--interactive-hover))]',
           'active:translate-y-0 active:scale-[0.985]',

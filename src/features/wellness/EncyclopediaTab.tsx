@@ -24,16 +24,39 @@ Sprout, Sun, Target,   Trophy, Wind, X, Zap,
 
 import {
 CALI_PHILOSOPHIES,
-  CALISTHENICS_ATLAS,   type CalisthenicsSkill, CATEGORY_LABELS, type SkillCategory,
+  CALISTHENICS_ATLAS as CALISTHENICS_DATA,   type CalisthenicsSkill, CATEGORY_LABELS, type SkillCategory,
 } from './calisthenicsAtlas';
 import {
-  FOOD_ATLAS, FOOD_GROUP_LABELS,   type FoodAtlasEntry, type FoodGroup,
+  FOOD_ATLAS as FOOD_DATA, FOOD_GROUP_LABELS,   type FoodAtlasEntry, type FoodGroup,
 MEAL_TIME_LABELS,
 } from './foodAtlas';
 import {
 CATEGORY_LABELS_ENC,
   type EncyclopediaCategory,
-  HEALTH_ENCYCLOPEDIA, } from './healthEncyclopedia';
+  HEALTH_ENCYCLOPEDIA as HEALTH_DATA, } from './healthEncyclopedia';
+
+import { withAlpha } from './premium/surfaces';
+
+/** Content categories keep their hue family while inheriting live contrast. */
+function atlasAccent(hex: string): string {
+  const match = /^#([\da-f]{6})$/i.exec(hex);
+  if (!match) return 'hsl(var(--primary))';
+  const value = Number.parseInt(match[1], 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  const max = Math.max(r, g, b);
+  const delta = max - Math.min(r, g, b);
+  if (delta === 0) return 'hsl(var(--muted-foreground))';
+  const rawHue = max === r ? (g - b) / delta : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+  const hue = (rawHue * 60 + 360) % 360;
+  const role = hue < 20 || hue >= 330 ? 3 : hue < 70 ? 2 : hue < 175 ? 1 : hue < 250 ? 4 : hue < 290 ? 6 : 5;
+  return `hsl(var(--data-${role}))`;
+}
+
+const CALISTHENICS_ATLAS = CALISTHENICS_DATA.map((entry) => ({ ...entry, color: atlasAccent(entry.color) }));
+const FOOD_ATLAS = FOOD_DATA.map((entry) => ({ ...entry, color: atlasAccent(entry.color) }));
+const HEALTH_ENCYCLOPEDIA = HEALTH_DATA.map((entry) => ({ ...entry, color: atlasAccent(entry.color) }));
 
 /* ═══════════════════════════════════════════════════════════════════
  *  Translations
@@ -218,7 +241,7 @@ function SkillCard({
       >
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
-          style={{ backgroundColor: `${skill.color}20`, border: `1px solid ${skill.color}40` }}
+          style={{ backgroundColor: withAlpha(skill.color, 0.12), border: `1px solid ${withAlpha(skill.color, 0.25)}` }}
         >
           {skill.emoji}
         </div>
@@ -456,7 +479,7 @@ function FoodCard({
       >
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
-          style={{ backgroundColor: `${food.color}25`, border: `1px solid ${food.color}40` }}
+          style={{ backgroundColor: withAlpha(food.color, 0.14), border: `1px solid ${withAlpha(food.color, 0.25)}` }}
         >
           {food.emoji}
         </div>
@@ -549,7 +572,7 @@ function FoodCard({
                       key={i}
                       className="text-micro px-1.5 py-0.5 rounded-md font-medium"
                       style={{
-                        backgroundColor: `${food.color}15`,
+                        backgroundColor: withAlpha(food.color, 0.08),
                         color: food.color,
                       }}
                     >
@@ -675,7 +698,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                   >
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
-                      style={{ backgroundColor: `${chapter.color}25`, border: `1px solid ${chapter.color}40` }}
+                      style={{ backgroundColor: withAlpha(chapter.color, 0.14), border: `1px solid ${withAlpha(chapter.color, 0.25)}` }}
                     >
                       {chapter.emoji}
                     </div>
@@ -724,7 +747,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                                 <span
                                   className="text-micro font-bold px-1.5 py-0.5 rounded shrink-0"
                                   style={{
-                                    backgroundColor: `${chapter.color}15`,
+                                    backgroundColor: withAlpha(chapter.color, 0.08),
                                     color: chapter.color,
                                   }}
                                 >
@@ -812,8 +835,8 @@ function MacroBox({
     <div
       className="rounded-lg p-1.5 text-center border"
       style={{
-        backgroundColor: `${color}10`,
-        borderColor: `${color}30`,
+        backgroundColor: withAlpha(color, 0.06),
+        borderColor: withAlpha(color, 0.18),
       }}
     >
       <div className="text-micro font-bold" style={{ color }}>

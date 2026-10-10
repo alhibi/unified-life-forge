@@ -41,6 +41,8 @@ export interface ButtonProps
   asChild?: boolean;
   isLoading?: boolean;
   loadingText?: string;
+  /** Preserve release-click semantics for long-press and drag affordances. */
+  activation?: 'press' | 'click';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -50,6 +52,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       asChild = false,
+      activation = 'press',
       onClick,
       onPointerDown,
       type,
@@ -71,7 +74,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
       onPointerDown?.(e);
-      if (isFormAction || asChild) return;
+      if (isFormAction || asChild || activation === 'click') return;
       if (e.button !== 0) return;
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
       if (isDisabled) return;
