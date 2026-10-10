@@ -350,7 +350,7 @@ function FitnessPageInner({
       </AnimatePresence>
 
       {/* Tab Contents */}
-      <main className="relative">
+      <section className="relative">
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div
@@ -1287,7 +1287,7 @@ function FitnessPageInner({
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </section>
     </PageShell>
   );
 }

@@ -28,9 +28,9 @@ export default function DhikrPage() {
           subtitle="حصن المسلم والتسبيح"
           backFallback="/"
         />
-        <main className="w-full">
+        <section className="w-full">
           <DhikrTab />
-        </main>
+        </section>
       </div>
     </PageShell>
   );

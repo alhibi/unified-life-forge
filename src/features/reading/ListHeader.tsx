@@ -374,10 +374,10 @@ export function ListHeader({
                       e.stopPropagation();
                       handleDeleteFolder(c.id);
                     }}
-                    className="absolute -top-1 -end-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-2 -end-2 bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                     title={'حذف'}
                   >
-                    <Trash2 className="h-2 w-2" />
+                    <Trash2 className="h-3 w-3" />
                   </button>
                 )}
               </div>
@@ -385,11 +385,11 @@ export function ListHeader({
             <button
               type="button"
               onClick={() => setShowFolderInput(!showFolderInput)}
-              className="p-1.5 rounded-full transition-motion shrink-0 text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20"
+              className="p-2 rounded-full transition-motion shrink-0 text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20"
               aria-label={'مجلد جديد'}
               title={'مجلد جديد'}
             >
-              <Plus className="h-3 w-3" />
+              <Plus className="h-3.5 w-3.5" />
             </button>
           </>
         )}

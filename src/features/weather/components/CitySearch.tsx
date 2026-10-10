@@ -22,8 +22,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import { Compass, History, Loader, Search as SearchIcon, Star, X } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 
 import { cityGeocoder } from '../engine/CityGeocoder';
 import type { CityCandidate, StoredCity } from '../types/CitySearch';
@@ -245,23 +247,26 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
       const list = trimmed.length >= 2 ? results : [];
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setHighlighted((h) => Math.min(list.length - 1, h + 1));
+        setHighlighted((h) => Math.max(0, Math.min(list.length - 1, h + 1)));
         setOpen(true);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setHighlighted((h) => Math.max(0, h - 1));
       } else if (e.key === 'Enter') {
-        if (list.length > 0 && highlighted < list.length) {
+        const selected = list[highlighted];
+        if (open && selected) {
           e.preventDefault();
-          handleSelect(list[highlighted]);
+          handleSelect(selected);
         }
       } else if (e.key === 'Escape') {
         setOpen(false);
         setQuery('');
         setResults([]);
+      } else if (e.key === 'Tab') {
+        setOpen(false);
       }
     },
-    [query, results, highlighted, handleSelect],
+    [query, results, highlighted, handleSelect, open],
   );
 
   // ── Decide what to show in the panel ───────────────────────────────
@@ -272,10 +277,13 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
     (isSearching || favourites.length > 0 || history.length > 0 || nearbySuggestions.length > 0);
 
   return (
-    <div className="relative w-full z-header" dir="rtl">
+    <div className="city-search-root relative w-full z-header" dir="rtl">
       {/* Hero input */}
       <div className="relative flex items-center group">
-        <SearchIcon className="absolute ms-3.5 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+        <SearchIcon
+          aria-hidden
+          className="pointer-events-none absolute start-3.5 z-raised w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors"
+        />
         <input
           ref={inputRef}
           type="text"
@@ -307,17 +315,20 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
           className="relative w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-meta outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-motion"
         />
         {query && (
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
+            activation="click"
             onClick={() => {
               setQuery('');
               setResults([]);
               inputRef.current?.focus();
             }}
             aria-label="مسح البحث"
-            className="absolute me-3.5 w-5 h-5 grid place-items-center rounded-full bg-foreground/10 text-foreground/60 hover:bg-foreground/20 hover:text-foreground transition-colors"
+            className="absolute end-0.5 text-muted-foreground"
           >
             <X className="w-3 h-3" />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -331,8 +342,8 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="absolute start-0 end-0 mt-2 bg-card border border-border/60 rounded-2xl overflow-hidden max-h-[420px] overflow-y-auto no-scrollbar"
+            transition={MOTION.settle}
+            className="city-search-panel absolute start-0 end-0 mt-2 bg-card border border-border/60 rounded-2xl shadow-e3 overflow-hidden max-h-[420px] overflow-y-auto"
           >
             <div className="p-2.5 space-y-3">
               {/* ── Searching state ──────────────────────────────────── */}
@@ -363,8 +374,9 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
                   {!loading && results.length > 0 && (
                     <div className="space-y-0.5">
                       {results.map((c, i) => (
-                        <div key={`${c.source}-${c.id}`} id={`${listboxId}-opt-${i}`}>
+                        <div key={`${c.source}-${c.id}`}>
                           <CitySearchResult
+                            id={`${listboxId}-opt-${i}`}
                             candidate={c}
                             highlighted={i === highlighted}
                             isFavourite={isFavourite(c.id)}
@@ -429,12 +441,15 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
                       title="عمليات البحث الأخيرة"
                       icon={<History className="w-3.5 h-3.5 text-muted-foreground" />}
                       action={
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          activation="click"
                           onClick={() => setHistory([])}
-                          className="text-[0.625rem] font-bold tracking-wide uppercase text-muted-foreground hover:text-foreground transition-colors"
+                          className="text-mini text-muted-foreground"
                         >
                           {'مسح السجل'}
-                        </button>
+                        </Button>
                       }
                     >
                       <div className="space-y-0.5">
@@ -486,9 +501,7 @@ function Section({
       <header className="flex items-center justify-between gap-2 px-2 pb-2 mb-1 border-b border-foreground/8">
         <div className="flex items-center gap-1.5">
           {icon}
-          <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55">
-            {title}
-          </span>
+          <span className="text-mini font-bold text-muted-foreground">{title}</span>
         </div>
         {action}
       </header>

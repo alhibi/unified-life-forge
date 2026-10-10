@@ -196,7 +196,7 @@ export default function ExploreMapPage() {
         path="/travel-atlas/explore"
       />
 
-      <main className="relative min-h-0 flex-1">
+      <section className="relative min-h-0 flex-1">
         <MapSurface
           controller={controller}
           snapshot={snapshot}
@@ -376,7 +376,7 @@ export default function ExploreMapPage() {
             انقر على الخريطة لتحديد نقطة وإضافتها
           </p>
         )}
-      </main>
+      </section>
 
       {formOpen && dropped && (
         <Suspense fallback={null}>

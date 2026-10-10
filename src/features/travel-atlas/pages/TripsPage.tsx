@@ -102,7 +102,7 @@ export default function TripsPage() {
         }
       />
 
-      <main className="mx-auto w-full max-w-lg pb-page pt-4">
+      <section className="mx-auto w-full max-w-lg pb-page pt-4">
         {isLoading ? (
           <div className="app-stack" aria-hidden="true">
             <div className="skeleton h-24 w-full" />
@@ -137,7 +137,7 @@ export default function TripsPage() {
             ))}
           </ul>
         )}
-      </main>
+      </section>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">

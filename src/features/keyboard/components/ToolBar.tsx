@@ -1,5 +1,6 @@
 import { memo, useCallback, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   CheckSquare,
   Clipboard,
@@ -14,7 +15,6 @@ import {
   Sparkles,
   Wand2,
 } from '@/lib/icons';
-import { haptics } from '@/lib/native';
 import { cn } from '@/lib/utils';
 
 import { chromeFeedback } from '../lib/feedback';
@@ -62,23 +62,33 @@ const SuggestionChip = memo(function SuggestionChip({
 
   if (confirming) {
     return (
-      <button
+      <Button
+        variant="ghost"
+        activation="click"
         type="button"
         onPointerDown={(e) => {
           e.preventDefault();
           onForget?.(word);
           setConfirming(false);
         }}
+        onClick={(e) => {
+          if (e.detail === 0) {
+            onForget?.(word);
+            setConfirming(false);
+          }
+        }}
         onPointerLeave={() => setConfirming(false)}
-        className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-destructive/15 px-2.5 text-mini font-medium text-destructive"
+        className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-destructive/15 px-2.5 text-mini font-medium text-destructive"
       >
         <span>نسيان «{word}»؟</span>
-      </button>
+      </Button>
     );
   }
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      activation="click"
       type="button"
       onPointerDown={(e) => {
         e.preventDefault();
@@ -86,7 +96,7 @@ const SuggestionChip = memo(function SuggestionChip({
           holdRef.current = window.setTimeout(() => {
             holdRef.current = undefined;
             setConfirming(true);
-            haptics('warning');
+            chromeFeedback();
           }, 500);
         }
       }}
@@ -98,13 +108,19 @@ const SuggestionChip = memo(function SuggestionChip({
           chromeFeedback();
         }
       }}
+      onClick={(e) => {
+        if (e.detail === 0) {
+          onSelect(word);
+          chromeFeedback();
+        }
+      }}
       onPointerCancel={clear}
       onPointerLeave={clear}
-      className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-[hsl(var(--live))] active:text-white"
+      className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))]/80 px-2.5 text-mini font-medium text-foreground transition-motion active:scale-95 active:bg-primary-container active:text-on-primary-container"
     >
       <Sparkles className="h-3 w-3 text-[hsl(var(--live))]" aria-hidden="true" />
       <span>{word}</span>
-    </button>
+    </Button>
   );
 });
 
@@ -128,72 +144,106 @@ export const ToolBar = memo(function ToolBar({
   onUndo,
 }: ToolBarProps) {
   return (
-    <div className="mb-1.5 flex h-9 items-center gap-1 border-b border-border/30 px-1 text-muted-foreground">
+    <div className="mb-1.5 flex min-h-11 flex-wrap items-center gap-1 border-b border-border/30 px-1 text-muted-foreground">
       {/* Selection Toolbar OR Smart Suggestions Bar */}
       <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto no-scrollbar">
         {hasSelection ? (
           <div className="flex items-center gap-1" dir="rtl">
             {onCut && (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 type="button"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onCut();
                   chromeFeedback();
                 }}
-                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-medium text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onCut();
+                    chromeFeedback();
+                  }
+                }}
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-medium text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
               >
                 <Scissors className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>قص</span>
-              </button>
+              </Button>
             )}
             {onCopy && (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 type="button"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onCopy();
                   chromeFeedback();
                 }}
-                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onCopy();
+                    chromeFeedback();
+                  }
+                }}
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
               >
                 <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>نسخ</span>
-              </button>
+              </Button>
             )}
             {onPaste && (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 type="button"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onPaste();
                   chromeFeedback();
                 }}
-                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onPaste();
+                    chromeFeedback();
+                  }
+                }}
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
               >
                 <CopyCheck className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>لصق</span>
-              </button>
+              </Button>
             )}
             {onSelectAll && (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 type="button"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onSelectAll();
                   chromeFeedback();
                 }}
-                className="flex h-7 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onSelectAll();
+                    chromeFeedback();
+                  }
+                }}
+                className="flex h-11 items-center gap-1 rounded-lg bg-[hsl(var(--surface-2))] px-2 text-micro font-medium text-foreground active:scale-95 hover:bg-[hsl(var(--surface-3))]"
               >
                 <CheckSquare className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>تحديد الكل</span>
-              </button>
+              </Button>
             )}
           </div>
         ) : (
           <>
             {canUndo && onUndo && (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 type="button"
                 title="تراجع"
                 aria-label="تراجع عن آخر إدخال"
@@ -202,11 +252,17 @@ export const ToolBar = memo(function ToolBar({
                   onUndo();
                   chromeFeedback();
                 }}
-                className="flex h-7 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-semibold text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onUndo();
+                    chromeFeedback();
+                  }
+                }}
+                className="flex h-11 shrink-0 items-center gap-1 rounded-lg bg-[hsl(var(--live))]/15 px-2 text-micro font-semibold text-[hsl(var(--live))] active:scale-95 hover:bg-[hsl(var(--live))]/25"
               >
                 <CornerUpLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>تراجع</span>
-              </button>
+              </Button>
             )}
 
             {suggestions.length > 0 ? (
@@ -228,10 +284,11 @@ export const ToolBar = memo(function ToolBar({
         )}
       </div>
 
-
       {/* Quick Access Tools */}
-      <div className="flex shrink-0 items-center gap-0.5">
-        <button
+      <div className="flex w-full shrink-0 items-center justify-end gap-0.5">
+        <Button
+          variant="ghost"
+          activation="click"
           type="button"
           title="رموز إسلامية"
           aria-label="رموز إسلامية"
@@ -240,15 +297,25 @@ export const ToolBar = memo(function ToolBar({
             setActivePanel(activePanel === 'islamic' ? 'none' : 'islamic');
             chromeFeedback();
           }}
+          onClick={(e) => {
+            if (e.detail === 0) {
+              setActivePanel(activePanel === 'islamic' ? 'none' : 'islamic');
+              chromeFeedback();
+            }
+          }}
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
-            activePanel === 'islamic' ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]' : 'hover:bg-[hsl(var(--surface-2))]',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            activePanel === 'islamic'
+              ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
+              : 'hover:bg-[hsl(var(--surface-2))]',
           )}
         >
           <Heart className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           type="button"
           title="الإموجي والملصقات"
           aria-label="الإموجي والملصقات"
@@ -257,15 +324,25 @@ export const ToolBar = memo(function ToolBar({
             setActivePanel(activePanel === 'emoji' ? 'none' : 'emoji');
             chromeFeedback();
           }}
+          onClick={(e) => {
+            if (e.detail === 0) {
+              setActivePanel(activePanel === 'emoji' ? 'none' : 'emoji');
+              chromeFeedback();
+            }
+          }}
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
-            activePanel === 'emoji' ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]' : 'hover:bg-[hsl(var(--surface-2))]',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            activePanel === 'emoji'
+              ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
+              : 'hover:bg-[hsl(var(--surface-2))]',
           )}
         >
           <Smile className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           type="button"
           title="حافظة النصوص"
           aria-label="حافظة النصوص"
@@ -274,33 +351,56 @@ export const ToolBar = memo(function ToolBar({
             setActivePanel(activePanel === 'clipboard' ? 'none' : 'clipboard');
             chromeFeedback();
           }}
+          onClick={(e) => {
+            if (e.detail === 0) {
+              setActivePanel(activePanel === 'clipboard' ? 'none' : 'clipboard');
+              chromeFeedback();
+            }
+          }}
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
-            activePanel === 'clipboard' ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]' : 'hover:bg-[hsl(var(--surface-2))]',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            activePanel === 'clipboard'
+              ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
+              : 'hover:bg-[hsl(var(--surface-2))]',
           )}
         >
           <Clipboard className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           type="button"
           title="وضع اليد الواحدة"
           aria-label="وضع اليد الواحدة"
           onPointerDown={(e) => {
             e.preventDefault();
-            const next = oneHandedMode === 'off' ? 'right' : oneHandedMode === 'right' ? 'left' : 'off';
+            const next =
+              oneHandedMode === 'off' ? 'right' : oneHandedMode === 'right' ? 'left' : 'off';
             setOneHandedMode(next);
             chromeFeedback();
           }}
+          onClick={(e) => {
+            if (e.detail === 0) {
+              const next =
+                oneHandedMode === 'off' ? 'right' : oneHandedMode === 'right' ? 'left' : 'off';
+              setOneHandedMode(next);
+              chromeFeedback();
+            }
+          }}
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
-            oneHandedMode !== 'off' ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]' : 'hover:bg-[hsl(var(--surface-2))]',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            oneHandedMode !== 'off'
+              ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
+              : 'hover:bg-[hsl(var(--surface-2))]',
           )}
         >
           <Columns className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           type="button"
           title="تخصيص المظهر والإعدادات"
           aria-label="تخصيص المظهر والإعدادات"
@@ -309,13 +409,21 @@ export const ToolBar = memo(function ToolBar({
             setActivePanel(activePanel === 'settings' ? 'none' : 'settings');
             chromeFeedback();
           }}
+          onClick={(e) => {
+            if (e.detail === 0) {
+              setActivePanel(activePanel === 'settings' ? 'none' : 'settings');
+              chromeFeedback();
+            }
+          }}
           className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-lg transition-colors active:scale-90',
-            activePanel === 'settings' ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]' : 'hover:bg-[hsl(var(--surface-2))]',
+            'flex h-11 w-11 items-center justify-center rounded-lg transition-colors active:scale-90',
+            activePanel === 'settings'
+              ? 'bg-[hsl(var(--live))]/20 text-[hsl(var(--live))]'
+              : 'hover:bg-[hsl(var(--surface-2))]',
           )}
         >
           <Palette className="h-4 w-4" aria-hidden="true" />
-        </button>
+        </Button>
       </div>
     </div>
   );

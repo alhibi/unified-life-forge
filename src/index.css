@@ -6,6 +6,46 @@
    by toggling `.dark` on <html>, so restore class-based dark mode. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Compact desktop chrome must not shrink actual phone hit rectangles.
+   Dense game boards and character keys retain their spatial geometry. */
+@media (max-width: 767px) {
+  button:not([data-soft-keyboard-panel] button):not([data-game-shell] button.aspect-square),
+  [role='tab']:not([data-soft-keyboard-panel] [role='tab']),
+  [role='button']:not([data-soft-keyboard-panel] [role='button']):not([data-game-shell] [role='button'].aspect-square) {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='hidden']),
+  select {
+    min-height: 44px;
+  }
+}
+
+button:focus-visible,
+[role='button']:focus-visible,
+[role='option']:focus-visible {
+  outline: var(--ui-focus-width, 2px) solid hsl(var(--ring));
+  outline-offset: var(--ui-focus-offset, 2px);
+}
+
+html[data-soft-keyboard-open='true'] .city-search-root {
+  position: fixed;
+  inset-inline: var(--ui-gutter, 16px);
+  inset-block-start: calc(env(safe-area-inset-top, 0px) + 56px);
+  inline-size: auto;
+  z-index: var(--z-index-picker);
+}
+
+html[data-soft-keyboard-open='true'] .city-search-panel {
+  position: fixed;
+  inset-inline: var(--ui-gutter, 16px);
+  inset-block-end: calc(var(--soft-keyboard-height, 0px) + 8px);
+  inset-block-start: calc(env(safe-area-inset-top, 0px) + 112px);
+  max-block-size: none;
+  margin-block-start: 0;
+  z-index: var(--z-index-picker);
+}
+
 @theme {
   --font-display: var(--font-display);
   --font-body: var(--font-body);

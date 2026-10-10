@@ -73,9 +73,7 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
             <div className="flex items-center gap-2">
               <ListMusic className="w-5 h-5 text-foreground" />
-              <h2 className="text-body font-bold text-foreground">
-                {'قائمة التشغيل'}
-              </h2>
+              <h2 className="text-body font-bold text-foreground">{'قائمة التشغيل'}</h2>
               {items.length > 0 && (
                 <span className="text-micro text-muted-foreground tabular-nums">
                   {items.length}
@@ -88,12 +86,11 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                   variant="ghost"
                   size="sm"
                   onClick={handleClear}
+                  aria-label="مسح قائمة التشغيل"
                   className="gap-1 text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">
-                    {'مسح الكل'}
-                  </span>
+                  <span className="hidden sm:inline">{'مسح الكل'}</span>
                 </Button>
               )}
               <IconButton onClick={onClose} aria-label={'إغلاق'}>
@@ -134,24 +131,30 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                             {/* Move up / down — touch-friendly replacement
                                 for HTML5 drag (which doesn't fire on mobile). */}
                             <span className="flex flex-col items-center justify-center -my-1">
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                activation="click"
                                 type="button"
                                 onClick={() => canMoveUp && player.reorderQueue(index, index - 1)}
                                 disabled={!canMoveUp}
                                 aria-label={'تحريك للأعلى'}
-                                className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 disabled:opacity-30 disabled:pointer-events-none"
+                                className="w-11 h-11 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 disabled:opacity-30 disabled:pointer-events-none"
                               >
                                 <ChevronUp className="w-3.5 h-3.5" />
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                activation="click"
                                 type="button"
                                 onClick={() => canMoveDown && player.reorderQueue(index, index + 1)}
                                 disabled={!canMoveDown}
                                 aria-label={'تحريك للأسفل'}
-                                className="w-6 h-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 disabled:opacity-30 disabled:pointer-events-none"
+                                className="w-11 h-11 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 disabled:opacity-30 disabled:pointer-events-none"
                               >
                                 <ChevronDown className="w-3.5 h-3.5" />
-                              </button>
+                              </Button>
                             </span>
 
                             {/* Index */}
@@ -180,13 +183,16 @@ export default function QueueSheet({ open, onClose }: QueueSheetProps) {
                         }
                       >
                         {/* Remove button */}
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          activation="click"
                           onClick={() => handleRemove(item.episode.id)}
                           aria-label={'إزالة'}
-                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                          className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0"
                         >
                           <X className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </AppRow>
                     );
                   })}

@@ -156,7 +156,7 @@ function PlayerSheetSeek({
             if (dragValue !== null) onSeek(dragValue);
             setDragValue(null);
           }}
-          className="relative w-full h-6 appearance-none bg-transparent podcast-seek cursor-pointer"
+          className="relative w-full h-11 appearance-none bg-transparent podcast-seek cursor-pointer"
           aria-label={ariaLabel}
           aria-valuetext={`${formatTime(shown)} من ${formatTime(total)}`}
         />

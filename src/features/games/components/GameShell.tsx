@@ -56,7 +56,7 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-page pt-4" >
+    <div data-game-shell className="min-h-dvh bg-background pb-page pt-4" >
       <div className="px-5">
         {/* Header — back, title, and game-feedback toggles all sit on
             a single row. Previously the back button lived on its own

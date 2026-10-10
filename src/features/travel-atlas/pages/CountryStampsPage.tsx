@@ -122,7 +122,7 @@ export default function CountryStampsPage() {
         sticky
       />
 
-      <main className="mx-auto w-full max-w-lg pb-page pt-4">
+      <section className="mx-auto w-full max-w-lg pb-page pt-4">
         <div className="app-stack">
           <AppCard className="p-0">
             <CountryStampMap
@@ -228,7 +228,7 @@ export default function CountryStampsPage() {
             )}
           </section>
         </div>
-      </main>
+      </section>
 
       {selected && (
         <StampSheet

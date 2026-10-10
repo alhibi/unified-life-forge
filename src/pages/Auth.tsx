@@ -325,9 +325,8 @@ export default function AuthPage() {
                   />
                   <button
                     type="button"
-                    tabIndex={-1}
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute end-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md flex items-center justify-center text-muted-foreground transition-colors hover:bg-accent"
+                    className="absolute end-0.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-md flex items-center justify-center text-muted-foreground transition-colors hover:bg-accent"
                     aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

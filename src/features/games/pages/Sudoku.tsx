@@ -568,7 +568,7 @@ export default function SudokuPage() {
 
   const timerDisplay = (
     <div className="flex items-center gap-2">
-      <button onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform">
+      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform">
         {isPaused ? <Play className="w-3.5 h-3.5 text-muted-foreground" /> : <Pause className="w-3.5 h-3.5 text-muted-foreground" />}
       </button>
       <div className="flex items-center gap-1 text-mini text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
@@ -664,7 +664,7 @@ export default function SudokuPage() {
               const borderB = thickRow ? 'border-b-[2px] border-b-foreground/15' : 'border-b border-b-border/30';
 
               return (
-                <button key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
+                <button aria-label={`صف ${ri + 1}، عمود ${ci + 1}، ${cell ?? "فارغ"}`} key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
                   className={`aspect-square flex items-center justify-center relative transition-colors duration-instant
                     ${borderR} ${borderB} ${getHighlight(ri, ci)}
                     ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}`}

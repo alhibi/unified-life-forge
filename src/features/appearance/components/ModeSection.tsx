@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 
+import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import { Contrast, Moon, Sun } from '@/lib/icons';
@@ -35,12 +36,14 @@ export default function ModeSection() {
         {themeOptions.map(({ mode, icon: Icon, label }) => {
           const isActive = theme === mode;
           return (
-            <button
+            <Button
+              variant="ghost"
+              activation="click"
               key={mode}
               type="button"
               onClick={() => setTheme(mode)}
               aria-pressed={isActive}
-              className="flex select-none flex-col items-center gap-2.5 focus:outline-none"
+              className="flex select-none flex-col items-center gap-2.5 h-auto py-2 app-focus-ring"
             >
               <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-secondary">
                 {isActive && (
@@ -64,7 +67,7 @@ export default function ModeSection() {
               >
                 {label}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>

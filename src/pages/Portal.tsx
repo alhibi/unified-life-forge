@@ -202,7 +202,7 @@ export default function Portal() {
 
       <PortalHeader unreadCount={unreadCount} />
 
-      <main className="relative z-10 mx-auto w-full max-w-6xl px-[max(1rem,env(safe-area-inset-inline-start))] pt-4 pb-page sm:px-6 lg:px-8 2xl:max-w-[88rem]">
+      <section className="relative z-10 mx-auto w-full max-w-6xl px-[max(1rem,env(safe-area-inset-inline-start))] pt-4 pb-page sm:px-6 lg:px-8 2xl:max-w-[88rem]">
         <h1 className="sr-only">amv.life — بوابتك الشخصية</h1>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,26vw,21.25rem)] lg:items-start lg:gap-8">
@@ -291,7 +291,7 @@ export default function Portal() {
             </p>
           </aside>
         </div>
-      </main>
+      </section>
 
       {/* Touch: deep links in a drawer. Same component as the side panel. */}
       <ResponsiveDrawer
