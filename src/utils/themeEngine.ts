@@ -1083,7 +1083,11 @@ export function generateThemeTokens(
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(tone, surfHsl, art.categoryPresence * (0.12 + presence * 0.3));
+    const categorySurface = mixHsl(
+      tone,
+      surfHsl,
+      Math.min(isDark ? 0.14 : 0.3, art.categoryPresence * (0.12 + presence * 0.3)),
+    );
     const categoryContainer = mixHsl(
       tone,
       surfHsl,
@@ -1140,7 +1144,7 @@ export function generateThemeTokens(
   const scaleVars: Record<string, string> = {
     '--theme-ink': inkStr,
     // The scrim carries the palette's hue so overlays belong to the theme.
-    '--scrim': hslToString([bgHsl[0], Math.min(bgHsl[1], 10), isDark ? 4 : 8]),
+    '--scrim': hslToString([rawBg[0], Math.min(rawBg[1], 10), isDark ? 4 : 8]),
   };
 
   const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl, isDark);
