@@ -160,7 +160,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           'hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100',
-          active && 'ring-2 ring-inset ring-tile-foreground',
+          active && 'ring-2 ring-inset ring-tile-foreground/25',
           list
             ? 'flex h-auto items-center gap-3 rounded-card p-4 shadow-e2'
             : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-4 p-4 sm:p-5',
