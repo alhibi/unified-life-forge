@@ -34,7 +34,6 @@ import {
 CATEGORY_LABELS_ENC,
   type EncyclopediaCategory,
   HEALTH_ENCYCLOPEDIA as HEALTH_DATA, } from './healthEncyclopedia';
-
 import { withAlpha } from './premium/surfaces';
 
 /** Content categories keep their hue family while inheriting live contrast. */
