@@ -168,7 +168,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       >
         {!list && (
           <span className="portal-widget-glyph" aria-hidden>
-            <Icon className="h-full w-full" />
+            <Icon className="size-full!" />
           </span>
         )}
 
@@ -182,7 +182,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           )}
           aria-hidden
         >
-          <Icon className="h-6 w-6" />
+          <Icon className="size-6!" />
         </span>
 
         <span className={cn('relative z-10 min-w-0', list && 'flex-1')}>
