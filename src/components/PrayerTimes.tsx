@@ -442,18 +442,21 @@ export default function PrayerTimes() {
   }, [location?.lat, location?.lng, locationStatus, requestLocation, fetchPrayers]);
 
   // Tick once per second so the arc, sun and any inside-makruh tinting stay live.
-  useManaged((track) => {
-    track.interval(() => {
-      const next = new Date();
-      setNow(next);
-      const stampNow = todayStamp();
-      if (stampNow !== stamp) {
-        // Day rolled over — reset done states
-        setStamp(stampNow);
-        setDoneStates(loadDoneStates(stampNow));
-      }
-    }, 1000);
-  }, [stamp]);
+  useManaged(
+    (track) => {
+      track.interval(() => {
+        const next = new Date();
+        setNow(next);
+        const stampNow = todayStamp();
+        if (stampNow !== stamp) {
+          // Day rolled over — reset done states
+          setStamp(stampNow);
+          setDoneStates(loadDoneStates(stampNow));
+        }
+      }, 1000);
+    },
+    [stamp],
+  );
 
   // ─── Derived values ──────────────────────────────────────────────────────
   const nowMs = now.getTime();
@@ -643,7 +646,7 @@ function Hero({
           <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground-subtle truncate">
             {locationLabel}
           </span>
-          <span className="text-micro font-semibold text-primary/75 shrink-0">
+          <span className="text-micro font-semibold text-primary shrink-0">
             {t('prayer.local')}
           </span>
         </div>
@@ -956,7 +959,10 @@ function ArcStrip({
             style={{ background: 'hsl(var(--scrim) / 0.86)' }}
             onClick={() => setExpandedZone(null)}
           >
-            <p className="text-micro font-bold tracking-wide" style={{ color: 'hsl(var(--destructive))' }}>
+            <p
+              className="text-micro font-bold tracking-wide"
+              style={{ color: 'hsl(var(--destructive))' }}
+            >
               {t('prayer.makruh').toUpperCase()} ·{' '}
               {t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
@@ -1297,7 +1303,7 @@ function HijriCalendarStrip({
           style={{ background: 'hsl(var(--primary) / 0.08)' }}
         >
           <ChevronLeft className="w-3 h-3 text-primary/70" />
-          <span className="text-micro font-bold text-primary/70 uppercase tracking-wide">
+          <span className="text-micro font-bold text-primary uppercase tracking-wide">
             {'الكل'}
           </span>
         </button>

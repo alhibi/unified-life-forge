@@ -1050,18 +1050,15 @@
     user-select: text;
   }
 
-  /* ── iOS focus-zoom guard ──
-     Safari zooms the viewport when a focused field is under 16px. The old
-     rule enforced `font-size: 16px !important` on EVERY input on EVERY
-     device, which flattened the type scale of small filters and inline
-     editors on desktop too. Now it is scoped to touch pointers, where it
-     is the only place the behaviour actually exists. */
-  @media (pointer: coarse) {
-    input,
-    textarea,
-    select {
-      font-size: 16px !important;
-    }
+  /* Text-entry controls retain the required 16px floor on every device,
+     while larger user typography settings remain effective. Non-text
+     inputs keep their own geometry. This also prevents iOS focus zoom. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not(
+      [type='hidden']
+    ),
+  textarea,
+  select {
+    font-size: max(16px, var(--fs-body)) !important;
   }
 }
 
@@ -1707,11 +1704,11 @@
     border-block-start: 1px solid hsl(var(--track));
   }
 
-  /* Canonical section heading — tiny uppercase tracking label above a group. */
+  /* Canonical expressive section heading follows the shared title scale. */
   .app-section-label {
     font-family: var(--font-display);
-    font-size: calc(20px * var(--type-base-scale));
-    line-height: calc(28px * var(--type-base-scale));
+    font-size: var(--fs-title);
+    line-height: 1.4;
     letter-spacing: 0;
     color: var(--text);
     font-weight: 600;

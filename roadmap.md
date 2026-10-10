@@ -1,5 +1,10 @@
 # Roadmap
 
+## Design verification rounds — October 10, 2026
+- [ ] Inspect current light/dark screens at narrow and wide widths, including overflow, text contrast, touch targets and labelled controls.
+- [ ] Investigate actionable findings in shared controls and feature screens; correct verified defects without changing functionality or increasing budgets.
+- [ ] Recheck affected interactions and run relevant tests; document measured results and remaining real-device/content limitations.
+
 ## Expressive tactile redesign — October 10, 2026
 - [x] Replace copper default with a contrasted, multi-role expressive palette in both modes and migrate the old default.
 - [x] Rebuild shared typography, geometry, surfaces, controls, headers and overlays with tactile tonal depth.

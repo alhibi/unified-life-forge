@@ -20,24 +20,10 @@
 // ============================================================================
 
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { StateView } from '@/components/ui/state-view';
-import {
-  Compass,
-  History,
-  Loader,
-  Search as SearchIcon,
-  Star,
-  X,
-} from '@/lib/icons';
+import { Compass, History, Loader, Search as SearchIcon, Star, X } from '@/lib/icons';
 
 import { cityGeocoder } from '../engine/CityGeocoder';
 import type { CityCandidate, StoredCity } from '../types/CitySearch';
@@ -60,8 +46,15 @@ const FAV_LIMIT = 12;
 
 function flagEmoji(countryCode?: string): string {
   if (!countryCode || countryCode.length !== 2) return '';
-  const codePoints = countryCode.toUpperCase().split('').map((c) => 127397 + c.charCodeAt(0));
-  try { return String.fromCodePoint(...codePoints); } catch { return ''; }
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map((c) => 127397 + c.charCodeAt(0));
+  try {
+    return String.fromCodePoint(...codePoints);
+  } catch {
+    return '';
+  }
 }
 
 function toCandidate(city: StoredCity, source: CityCandidate['source']): CityCandidate {
@@ -96,7 +89,9 @@ function readStored<T>(key: string, fallback: T): T {
 function writeStored<T>(key: string, value: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch { /* quota exceeded — silent */ }
+  } catch {
+    /* quota exceeded — silent */
+  }
 }
 
 export default function CitySearch({ onSelectCity, userLocation }: CitySearchProps) {
@@ -107,8 +102,12 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
   const [highlighted, setHighlighted] = useState(0);
   const [open, setOpen] = useState(false);
 
-  const [history, setHistory] = useState<StoredCity[]>(() => readStored<StoredCity[]>(HISTORY_KEY, []));
-  const [favourites, setFavourites] = useState<StoredCity[]>(() => readStored<StoredCity[]>(FAV_KEY, []));
+  const [history, setHistory] = useState<StoredCity[]>(() =>
+    readStored<StoredCity[]>(HISTORY_KEY, []),
+  );
+  const [favourites, setFavourites] = useState<StoredCity[]>(() =>
+    readStored<StoredCity[]>(FAV_KEY, []),
+  );
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listboxId = useId();
@@ -139,7 +138,10 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
   const nearbySuggestions = useMemo(() => {
     if (!userLocation) return [];
     return cityGeocoder
-      .suggestNearby({ lat: userLocation.lat, lng: userLocation.lng, radiusKm: 200, limit: 5 }, localIndex)
+      .suggestNearby(
+        { lat: userLocation.lat, lng: userLocation.lng, radiusKm: 200, limit: 5 },
+        localIndex,
+      )
       .filter((c) => c.distanceKm !== null);
   }, [userLocation, localIndex]);
 
@@ -207,26 +209,29 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
     [onSelectCity],
   );
 
-  const toggleFavourite = useCallback((city: CityCandidate, e?: React.MouseEvent | React.KeyboardEvent) => {
-    e?.stopPropagation();
-    const stored: StoredCity = {
-      id: city.id,
-      name: city.name,
-      nameAr: city.nameAr,
-      country: city.country,
-      countryCode: city.countryCode,
-      admin1: city.admin1,
-      latitude: city.latitude,
-      longitude: city.longitude,
-      elevation: city.elevation,
-      timezone: city.timezone,
-    };
-    setFavourites((prev) => {
-      const isFav = prev.some((f) => String(f.id) === stored.id);
-      if (isFav) return prev.filter((f) => String(f.id) !== stored.id);
-      return [stored, ...prev].slice(0, FAV_LIMIT);
-    });
-  }, []);
+  const toggleFavourite = useCallback(
+    (city: CityCandidate, e?: React.MouseEvent | React.KeyboardEvent) => {
+      e?.stopPropagation();
+      const stored: StoredCity = {
+        id: city.id,
+        name: city.name,
+        nameAr: city.nameAr,
+        country: city.country,
+        countryCode: city.countryCode,
+        admin1: city.admin1,
+        latitude: city.latitude,
+        longitude: city.longitude,
+        elevation: city.elevation,
+        timezone: city.timezone,
+      };
+      setFavourites((prev) => {
+        const isFav = prev.some((f) => String(f.id) === stored.id);
+        if (isFav) return prev.filter((f) => String(f.id) !== stored.id);
+        return [stored, ...prev].slice(0, FAV_LIMIT);
+      });
+    },
+    [],
+  );
 
   const isFavourite = useCallback(
     (id: string) => favourites.some((f) => String(f.id) === id),
@@ -262,12 +267,9 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
   // ── Decide what to show in the panel ───────────────────────────────
   const trimmed = query.trim();
   const isSearching = trimmed.length >= 2;
-  const showPanel = open && (
-    isSearching ||
-    favourites.length > 0 ||
-    history.length > 0 ||
-    nearbySuggestions.length > 0
-  );
+  const showPanel =
+    open &&
+    (isSearching || favourites.length > 0 || history.length > 0 || nearbySuggestions.length > 0);
 
   return (
     <div className="relative w-full z-header" dir="rtl">
@@ -278,10 +280,15 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
           ref={inputRef}
           type="text"
           role="combobox"
+          aria-label="ابحث عن مدينة، حي، أو موقع"
           aria-expanded={showPanel}
           aria-autocomplete="list"
           aria-controls={listboxId}
-          aria-activedescendant={showPanel && isSearching && results[highlighted] ? `${listboxId}-opt-${highlighted}` : undefined}
+          aria-activedescendant={
+            showPanel && isSearching && results[highlighted]
+              ? `${listboxId}-opt-${highlighted}`
+              : undefined
+          }
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -375,7 +382,10 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
               {!isSearching && (
                 <>
                   {favourites.length > 0 && (
-                    <Section title="المدن المفضلة" icon={<Star className="w-3.5 h-3.5 text-primary fill-primary" />}>
+                    <Section
+                      title="المدن المفضلة"
+                      icon={<Star className="w-3.5 h-3.5 text-primary fill-primary" />}
+                    >
                       <div className="space-y-0.5">
                         {favourites.map((c) => {
                           const cand = toCandidate(c, 'manual');
@@ -395,7 +405,10 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
                   )}
 
                   {nearbySuggestions.length > 0 && (
-                    <Section title="الأقرب إليك" icon={<Compass className="w-3.5 h-3.5 text-primary" />}>
+                    <Section
+                      title="الأقرب إليك"
+                      icon={<Compass className="w-3.5 h-3.5 text-primary" />}
+                    >
                       <div className="space-y-0.5">
                         {nearbySuggestions.map((c) => (
                           <CitySearchResult
@@ -442,9 +455,9 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
                     </Section>
                   )}
 
-                  {favourites.length === 0 && history.length === 0 && nearbySuggestions.length === 0 && (
-                    <EmptyHint />
-                  )}
+                  {favourites.length === 0 &&
+                    history.length === 0 &&
+                    nearbySuggestions.length === 0 && <EmptyHint />}
                 </>
               )}
             </div>

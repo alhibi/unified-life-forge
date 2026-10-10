@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +13,23 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
-  Archive, Bell, Bookmark, CheckCheck, ChevronLeft, Compass, FolderOpen, MoreHorizontal,
-  Newspaper, Plus, RefreshCw, Search, Settings2,
-Trash2, Type, X} from '@/lib/icons';
+  Archive,
+  Bell,
+  Bookmark,
+  CheckCheck,
+  ChevronLeft,
+  Compass,
+  FolderOpen,
+  MoreHorizontal,
+  Newspaper,
+  Plus,
+  RefreshCw,
+  Search,
+  Settings2,
+  Trash2,
+  Type,
+  X,
+} from '@/lib/icons';
 
 import { getCustomFolders, storeCustomFolders } from './foldersStorage';
 import type { ListPrefs } from './listPrefs';
@@ -130,7 +145,7 @@ export function ListHeader({
   };
 
   const handleDeleteFolder = (folder: string) => {
-    const updated = customFolders.filter(f => f !== folder);
+    const updated = customFolders.filter((f) => f !== folder);
     setCustomFolders(updated);
     storeCustomFolders(updated);
     if (categoryFilter === folder) {
@@ -148,10 +163,10 @@ export function ListHeader({
     for (const f of enabledFeeds) ids.add(f.category || 'other');
     // Ensure all custom folders and default categories are supported
     const allKnown = Array.from(new Set([...customFolders, ...ids]));
-    return allKnown.map(id => ({
+    return allKnown.map((id) => ({
       id,
       ar: id,
-      en: id.charAt(0).toUpperCase() + id.slice(1)
+      en: id.charAt(0).toUpperCase() + id.slice(1),
     }));
   }, [enabledFeeds, customFolders]);
 
@@ -164,27 +179,25 @@ export function ListHeader({
   const showCategoryRow = populatedCategories.length > 0;
 
   return (
-    <div
-      className="px-4 pt-4 pb-2 border-b border-border/40 z-raised app-sticky-header-card"
-    >
+    <div className="px-4 pt-4 pb-2 border-b border-border/40 z-raised app-sticky-header-card">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={onBack}
-            className="p-2 -ms-1 rounded-xl hover:bg-accent/50 transition-motion shrink-0"
+            className="-ms-1 shrink-0"
             aria-label={'رجوع'}
           >
             <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
-          </button>
+          </Button>
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="w-9 h-9 rounded-2xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center shrink-0">
               <Newspaper className="h-4 w-4 text-primary" />
             </span>
             <div className="flex flex-col leading-tight min-w-0">
-              <h3 className="text-body font-bold truncate">
-                {'إطلاع'}
-              </h3>
+              <h3 className="text-body font-bold truncate">{'إطلاع'}</h3>
               <span className="text-micro text-muted-foreground-subtle tabular-nums truncate">
                 {`${articleCount} مقالة · ${unreadCount} غير مقروء`}
               </span>
@@ -209,22 +222,21 @@ export function ListHeader({
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
           </IconBtn>
-          <ReadingPrefsToolbar
-            prefs={listPrefs}
-            onChange={onListPrefsChange}
-          />
+          <ReadingPrefsToolbar prefs={listPrefs} onChange={onListPrefsChange} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
+              <Button
                 type="button"
-                className="p-2.5 rounded-xl hover:bg-accent/50 transition-motion relative"
+                variant="ghost"
+                size="icon"
+                className="relative"
                 aria-label={'المزيد'}
               >
                 <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                 {unseenAlerts > 0 && (
                   <span className="absolute top-1.5 end-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
                 )}
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="w-56 rounded-2xl">
               <DropdownMenuLabel className="text-micro text-muted-foreground font-normal">
@@ -485,7 +497,6 @@ function ProgressLine({
   );
 }
 
-
 function IconBtn({
   children,
   onClick,
@@ -502,17 +513,24 @@ function IconBtn({
   'aria-label'?: string;
   title?: string;
 }) {
-  const base =
-    'p-2.5 rounded-xl transition-motion disabled:opacity-50';
+  const base = 'shrink-0 transition-motion disabled:opacity-50';
   const tone = active
     ? 'bg-primary/15 text-primary'
     : accent
       ? 'text-primary hover:bg-primary/10'
       : 'text-muted-foreground hover:bg-accent/50';
   return (
-    <button type="button" onClick={onClick} disabled={disabled} className={`${base} ${tone}`} {...rest}>
+    <Button
+      variant="ghost"
+      size="icon"
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`${base} ${tone}`}
+      {...rest}
+    >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -532,10 +550,13 @@ function Chip({
   withPill?: string;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="sm"
+      activation="click"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-mini font-medium transition-motion shrink-0 inline-flex items-center gap-1.5 ring-1 ${
+      className={`min-h-[var(--ui-touch-min)] px-3 rounded-full text-mini font-medium transition-motion shrink-0 inline-flex items-center gap-1.5 ring-1 ${
         active
           ? 'bg-primary text-primary-foreground ring-primary/30'
           : 'bg-accent/25 text-muted-foreground ring-border/30 hover:bg-accent/50 hover:text-foreground'
@@ -545,11 +566,9 @@ function Chip({
       {icon}
       {label}
       {count !== undefined && (
-        <span className={`tabular-nums ${active ? 'opacity-90' : 'opacity-60'}`}>
-          {count}
-        </span>
+        <span className={`tabular-nums ${active ? 'opacity-90' : 'opacity-60'}`}>{count}</span>
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -565,10 +584,13 @@ function CategoryChip({
   icon?: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="sm"
+      activation="click"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-micro font-semibold transition-motion shrink-0 inline-flex items-center gap-1.5 ${
+      className={`min-h-[var(--ui-touch-min)] px-3 rounded-full text-micro font-semibold transition-motion shrink-0 inline-flex items-center gap-1.5 ${
         active
           ? 'bg-foreground text-background'
           : 'bg-transparent text-muted-foreground hover:bg-accent/40 border border-border/50'
@@ -576,6 +598,6 @@ function CategoryChip({
     >
       {icon}
       {label}
-    </button>
+    </Button>
   );
 }

@@ -432,8 +432,7 @@ function statusTokens(bg: Hsl, card: Hsl): Record<string, string> {
       const lb = lumOfRgb(b);
       return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
     };
-    const washOfRgb = (fg: Rgb): Rgb =>
-      [0, 1, 2].map((i) => fg[i] * 0.2 + pageRgb[i] * 0.8) as Rgb;
+    const washOfRgb = (fg: Rgb): Rgb => [0, 1, 2].map((i) => fg[i] * 0.2 + pageRgb[i] * 0.8) as Rgb;
     // The margin absorbs the single rounding the browser applies when it
     // quantises the mix to 8 bits per channel.
     const TARGET = 4.55;
@@ -583,8 +582,7 @@ function dataTokens(bg: Hsl, card: Hsl, isDark: boolean): Record<string, string>
   // The weakest wash any caller produces is `bg-data-5/5` — a 5% mix of the
   // tone into the page. That is the surface a memory-game card, a chart chip
   // or a category tile is actually drawn on.
-  const washOf = (fg: Rgb): Rgb =>
-    [0, 1, 2].map((i) => fg[i] * 0.05 + pageRgb[i] * 0.95) as Rgb;
+  const washOf = (fg: Rgb): Rgb => [0, 1, 2].map((i) => fg[i] * 0.05 + pageRgb[i] * 0.95) as Rgb;
   const TARGET = 4.55;
 
   const out: Record<string, string> = {};
@@ -717,7 +715,9 @@ function definePreset(
 // through LEGACY_THEME_ALIASES so a saved preference never breaks.
 export const themePresets: ThemePreset[] = [
   definePreset(
-    'expressive', 'نبض', 'Expressive Pulse',
+    'expressive',
+    'نبض',
+    'Expressive Pulse',
     { bg: '#EEF1F4', surface: '#FFFFFF', ink: '#172125', accent: '#356B13' },
     { bg: '#111416', surface: '#252B2D', ink: '#F1F5F4', accent: '#C3EF79' },
   ),
@@ -960,12 +960,12 @@ export function generateThemeTokens(
 
   // Ink must clear WCAG AA against both the page and the cards on it.
   const inkHsl = ensureContrast(ensureContrast(hexToHsl(modeColors.ink), bgHsl, 7), surfHsl, 5.5);
-  // Accent obeys the chosen strength, then is corrected until it is legible
-  // as a large-text / iconography colour on the page.
+  // Primary also labels small text, so it must clear body-text AA on both
+  // the page and cards, not merely the icon/large-text threshold.
   const accHsl = ensureContrast(
-    applyAccentStrength(hexToHsl(modeColors.accent), style, isDark),
-    bgHsl,
-    3.2,
+    ensureContrast(applyAccentStrength(hexToHsl(modeColors.accent), style, isDark), bgHsl, 4.55),
+    surfHsl,
+    4.55,
   );
 
   const bgStr = hslToString(bgHsl);
@@ -987,7 +987,9 @@ export function generateThemeTokens(
   const borderStr = solid(inkHsl, bgHsl, lineBase); // hairline
   const inputStr = solid(inkHsl, bgHsl, lineBase + 0.1); // field outline
   const secondaryStr = solid(accHsl, surfHsl, isDark ? 0.12 : 0.09);
-  const secondaryFgStr = hslToString(ensureContrast(inkHsl, mixHsl(accHsl, surfHsl, isDark ? 0.12 : 0.09), 4.5)); // near-ink text
+  const secondaryFgStr = hslToString(
+    ensureContrast(inkHsl, mixHsl(accHsl, surfHsl, isDark ? 0.12 : 0.09), 4.5),
+  ); // near-ink text
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
   const mutedFgStr = hslToString(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5));
@@ -1025,10 +1027,14 @@ export function generateThemeTokens(
 
   // Text on the accent is whichever of ink/bg is actually readable on it —
   // pale accents in dark mode used to place a near-black label on gold.
-  const primaryFgStr = hslToString(ensureContrast(
-    contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgHsl : inkHsl, accHsl, 4.5,
-  ));
-  const container = mixHsl(accHsl, surfHsl, isDark ? 0.28 : 0.20);
+  const primaryFgStr = hslToString(
+    ensureContrast(
+      contrastRatio(bgHsl, accHsl) >= contrastRatio(inkHsl, accHsl) ? bgHsl : inkHsl,
+      accHsl,
+      4.5,
+    ),
+  );
+  const container = mixHsl(accHsl, surfHsl, isDark ? 0.28 : 0.2);
   const containerInk = ensureContrast(inkHsl, container, 4.5);
   const tertiary: Hsl = isDark ? [12, 84, 76] : [12, 64, 38];
   const tertiaryColor = ensureContrast(ensureContrast(tertiary, bgHsl, 4.5), surfHsl, 4.5);
@@ -1057,8 +1063,7 @@ export function generateThemeTokens(
   // One value per plane: the higher the surface sits, the more light its top
   // edge catches. e1 is a card resting on the page, e4 a modal over a scrim.
   const rimAlpha = [0.05, 0.07, 0.09, 0.11];
-  const rim = (i: number) =>
-    isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i]})` : 'none';
+  const rim = (i: number) => (isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i]})` : 'none');
 
   const plane = (i: number, blurContact: string, blurAmbient: string) =>
     `${isDark ? `${rim(i)}, ` : ''}${blurContact} rgba(${shadowRgb},${contact[i]}), ${blurAmbient} rgba(${shadowRgb},${ambient[i]})`;
@@ -1195,7 +1200,11 @@ export function getThemeScale(
   const bg = hexToHsl(mode.bg);
   const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
   const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
-  const accent = ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 3.2);
+  const accent = ensureContrast(
+    ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 4.55),
+    surface,
+    4.55,
+  );
   return buildToneLadder(bg, surface, ink, accent, isDark);
 }
 

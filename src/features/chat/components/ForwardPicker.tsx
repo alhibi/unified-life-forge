@@ -1,11 +1,12 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ChevronRight,Search, Send, X } from '@/lib/icons';
+import { Button } from '@/components/ui/button';
+import { ChevronRight, Search, Send, X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
-import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
+import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
 
 import { getMessagePreview, stripMarkers } from './chatUtils';
 import type { Conversation, Message } from './types';
@@ -26,7 +27,11 @@ function renderAvatar(username?: string, avatarUrl?: string | null) {
       {hasImage ? (
         <AvatarImage src={avatarUrl} alt={username} className="object-cover" />
       ) : isEmoji ? (
-        <AvatarImage src={getAppleEmojiUrl(avatarUrl!) || ''} alt={username} className="w-[60%] h-[60%] object-contain m-auto" />
+        <AvatarImage
+          src={getAppleEmojiUrl(avatarUrl!) || ''}
+          alt={username}
+          className="w-[60%] h-[60%] object-contain m-auto"
+        />
       ) : (
         <img src={defaultSrc} alt={username || ''} className="w-full h-full object-cover" />
       )}
@@ -39,15 +44,20 @@ function renderAvatar(username?: string, avatarUrl?: string | null) {
  * Modal sheet for selecting a target conversation to forward messages to.
  * Overlays on top of the chat drawer with a blur + slide-up animation.
  */
-const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, onClose, onForward }) => {
+const ForwardPicker: React.FC<ForwardPickerProps> = ({
+  messages,
+  conversations,
+  onClose,
+  onForward,
+}) => {
   const [query, setQuery] = useState('');
   const BackIcon = ChevronRight;
 
   const filtered = useMemo(() => {
     if (!query.trim()) return conversations;
     const q = query.toLowerCase();
-    return conversations.filter(c =>
-      (c.otherDisplayName || c.otherUsername || '').toLowerCase().includes(q)
+    return conversations.filter((c) =>
+      (c.otherDisplayName || c.otherUsername || '').toLowerCase().includes(q),
     );
   }, [conversations, query]);
 
@@ -56,21 +66,25 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         className="app-scrim z-picker"
         onClick={onClose}
       />
       <motion.div
-        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         className="absolute inset-x-0 bottom-0 z-picker-above bg-background rounded-t-3xl flex flex-col max-h-[85%] "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
         <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
-          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors">
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="إغلاق">
             <BackIcon className="w-5 h-5 text-foreground" />
-          </button>
+          </Button>
           <h2 className="text-body font-semibold">
             {`إعادة توجيه ${messages.length > 1 ? `(${messages.length})` : ''}`}
           </h2>
@@ -79,9 +93,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
         {/* Message preview */}
         {firstMsg && (
           <div className="px-4 py-2.5 border-b border-border/10 bg-muted/10">
-            <p className="text-micro text-muted-foreground mb-0.5">
-              {'رسالة محوّلة:'}
-            </p>
+            <p className="text-micro text-muted-foreground mb-0.5">{'رسالة محوّلة:'}</p>
             <p className="text-mini text-foreground/80 line-clamp-2" dir="auto">
               {stripMarkers(getMessagePreview(firstMsg))}
               {messages.length > 1 && (
@@ -95,21 +107,27 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
 
         {/* Search */}
         <div className="px-4 py-2 border-b border-border/10">
-          <div className="flex items-center bg-muted/30 rounded-full px-3 h-9">
+          <div className="flex min-h-[var(--ui-touch-min)] items-center bg-muted/30 rounded-full px-3">
             <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
             <input
               type="text"
+              aria-label="ابحث عن محادثة"
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder={'ابحث عن محادثة...'}
-              className="flex-1 bg-transparent text-meta outline-none ms-2 placeholder:text-muted-foreground/40"
+              className="min-w-0 flex-1 bg-transparent text-body outline-none ms-2 placeholder:text-muted-foreground"
               dir="auto"
               autoFocus
             />
             {query && (
-              <button onClick={() => setQuery('')} className="w-6 h-6 rounded-full flex items-center justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setQuery('')}
+                aria-label="مسح البحث"
+              >
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -123,12 +141,12 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
             </div>
           ) : (
             <div className="divide-y divide-border/10">
-              {filtered.map(conv => (
+              {filtered.map((conv) => (
                 <button
                   key={conv.id}
                   onClick={() => onForward(conv.id)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-2.5 text-start transition-colors'
+                    'w-full flex items-center gap-3 px-4 py-2.5 text-start transition-colors',
                   )}
                 >
                   {renderAvatar(conv.otherUsername, conv.otherAvatarUrl)}
@@ -137,7 +155,9 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
                       {conv.otherDisplayName || conv.otherUsername}
                     </p>
                     {conv.otherDisplayName && conv.otherDisplayName !== conv.otherUsername && (
-                      <p className="text-micro text-muted-foreground truncate">@{conv.otherUsername}</p>
+                      <p className="text-micro text-muted-foreground truncate">
+                        @{conv.otherUsername}
+                      </p>
                     )}
                   </div>
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
