@@ -954,18 +954,26 @@ export function generateThemeTokens(
   lift: SurfaceLift = 'subtle',
 ): Record<string, string> {
   const art = themeArtDirection(preset.id);
-  const presence = { neutral: 0.14, tonal: 0.24, vibrant: 0.34, expressive: 0.44 }[style] ?? 0.24;
+  const presence = { neutral: 0.22, tonal: 0.34, vibrant: 0.46, expressive: 0.58 }[style] ?? 0.24;
   const modeColors = isDark ? preset.dark : preset.light;
   const rawBg = hexToHsl(modeColors.bg);
   const rawSurface = hexToHsl(modeColors.surface);
 
   // OLED black mode keeps the palette's hue instead of collapsing to a
   // neutral #080808 whose card colour no longer belongs to the theme.
-  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : rawBg;
+  // Tonal surfaces (Material You): page and cards carry the theme's own
+  // accent body instead of near-neutral paper. Mono stays truly neutral.
+  const tintSource = hexToHsl(modeColors.accent);
+  const tintScale = art.categoryPresence === 0 ? 0 : 0.6 + presence;
+  const bgTint = (isDark ? 0.13 : 0.09) * tintScale;
+  const cardTint = (isDark ? 0.2 : 0.15) * tintScale;
+  const tintedBg = mixHsl(tintSource, rawBg, bgTint);
+  const tintedSurface = mixHsl(tintSource, rawSurface, cardTint);
+  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : tintedBg;
   const surfaceBase: Hsl =
     isDark && isBlack
-      ? withPerceptualL(rawSurface, Math.max(0.24, perceptualL(rawSurface) - 0.025))
-      : rawSurface;
+      ? withPerceptualL(tintedSurface, Math.max(0.24, perceptualL(tintedSurface) - 0.025))
+      : tintedSurface;
 
   // Surface lift is a tone decision: flat sits on the page, lifted floats.
   const liftDelta = lift === 'flat' ? -1.5 : lift === 'lifted' ? 2.5 : 0;
