@@ -879,8 +879,8 @@ export default function MemoryGame() {
                   </div>
                   <div className="absolute inset-0 rounded-2xl flex items-center justify-center border"
                     style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden',
-                      background: isMatched ? 'hsl(var(--data-5) / 0.18)' : 'rgba(255,255,255,0.04)',
-                      borderColor: isMatched ? 'hsl(var(--data-5) / 0.4)' : 'rgba(255,255,255,0.06)' }}>
+                      background: isMatched ? 'hsl(var(--data-5) / 0.18)' : 'hsl(var(--secondary))',
+                      borderColor: isMatched ? 'hsl(var(--data-5) / 0.4)' : 'hsl(var(--border))' }}>
                     <span className={cols >= 6 ? 'text-display' : 'text-hero'}>{icon}</span>
                   </div>
                 </motion.div>
@@ -1011,8 +1011,8 @@ export default function MemoryGame() {
               <div key={def.id}
                 className="aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 border"
                 style={{
-                  background: unlocked ? 'hsl(var(--data-5) / 0.12)' : 'rgba(255,255,255,0.02)',
-                  borderColor: unlocked ? 'hsl(var(--data-5) / 0.35)' : 'rgba(255,255,255,0.05)',
+                  background: unlocked ? 'hsl(var(--data-5) / 0.12)' : 'hsl(var(--secondary))',
+                  borderColor: unlocked ? 'hsl(var(--data-5) / 0.35)' : 'hsl(var(--border))',
  opacity: unlocked ? 1 : 0.45,
  }}>
  <span className="text-lead leading-none mb-0.5">{unlocked ? def.icon : <Lock className="w-3.5 h-3.5 text-muted-foreground" />}</span>
@@ -1114,8 +1114,8 @@ function ModeHud({
 
 function StatCard({ value, label }: { value: string | number; label: string }) {
   return (
-    <div className="text-center p-2 rounded-xl bg-white/4 border border-white/5">
-      <div className="text-body font-bold text-white tabular-nums">{value}</div>
+    <div className="text-center p-2 rounded-xl bg-secondary">
+      <div className="text-body font-bold text-foreground tabular-nums">{value}</div>
       <div className="text-micro text-muted-foreground">{label}</div>
     </div>
   );
@@ -1128,13 +1128,12 @@ function PowerUpButton({ icon: Icon, count, onClick, color, label, disabled, act
     <button onClick={onClick} disabled={disabled || count <= 0} title={`${label} (${count})`}
       className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-motion active:scale-90 disabled:opacity-30"
       style={{
-        background: active ? `${color}30` : `${color}14`,
-        border: `1px solid ${active ? color : `${color}40`}`,
+        background: active ? 'hsl(var(--interactive-selected))' : 'hsl(var(--secondary))',
+        border: `1px solid ${active ? color : 'hsl(var(--border))'}`, 
       }}>
       <Icon className="w-4 h-4" style={{ color }} />
       {count > 0 && (
-        <span className="absolute -bottom-1 -end-1 text-micro font-black px-1 rounded-full"
-          style={{ background: color, color: '#fff' }}>{count}</span>
+        <span className="absolute -bottom-1 -end-1 text-micro font-black px-1 rounded-full bg-primary text-primary-foreground">{count}</span>
       )}
     </button>
   );
