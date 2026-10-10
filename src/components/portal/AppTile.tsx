@@ -10,8 +10,9 @@
  *
  * Visual contract:
  *   Each tile is a solid widget body whose material tone (0 neutral, 1–6
- *   category) comes from `getTileIdentity`: an inverted icon chip, an
- *   oversized cropped glyph as illustration and a heavy headline label.
+ *   category) comes from `getTileIdentity`; its head is an inverted icon
+ *   chip plus name, and its body is the app's own composition from
+ *   AppTileFaces (live values where the app has them).
  *   The previous editorial costume — corner crop marks,
  *   "Nº 0001 / EST. 2024", the ACTIVE SEAL dot, the fake barcode, a per-tile
  *   SVG noise filter and a React-state 3D tilt — is gone: it was uniform
@@ -164,7 +165,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           active && 'ring-2 ring-inset ring-tile-foreground/25',
           list
             ? 'flex h-auto items-center gap-3 rounded-card p-4 shadow-e2'
-            : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-4 p-4 sm:p-5',
+            : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-3 p-4 sm:p-5',
         )}
       >
         {!list ? (
