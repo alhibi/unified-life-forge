@@ -89,8 +89,8 @@ const MAKRUH_TINT_HORIZON = 'hsl(var(--warning) / 0.12)'; // sunrise/sunset
 
 // Sun/moon palette — intrinsic astronomical colours for the day/night
 // illustration, not brand chrome; kept as literals (see unification report).
-const SUN_COLOR = '#FAC82D';
-const MOON_COLOR = '#B4A2FF';
+const SUN_COLOR = 'hsl(var(--sun))';
+const MOON_COLOR = 'hsl(var(--moon))';
 
 // ─── Time / parsing helpers ────────────────────────────────────────────────
 function parseHM(time?: string): number | null {
@@ -956,7 +956,7 @@ function ArcStrip({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 cursor-pointer"
-            style={{ background: 'hsl(var(--scrim) / 0.86)' }}
+            style={{ background: 'hsl(var(--overlay-surface))' }}
             onClick={() => setExpandedZone(null)}
           >
             <p
@@ -966,10 +966,10 @@ function ArcStrip({
               {t('prayer.makruh').toUpperCase()} ·{' '}
               {t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
-            <p className="mt-1 text-micro leading-[1rem] text-white/80 font-light">
+            <p className="mt-1 text-micro leading-[1rem] text-overlay-foreground font-light">
               {t(`prayer.makruh.desc.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
-            <p className="mt-2 text-micro text-white/30">{t('prayer.tapDismiss')}</p>
+            <p className="mt-2 text-micro text-overlay-foreground">{t('prayer.tapDismiss')}</p>
           </motion.div>
         )}
       </AnimatePresence>

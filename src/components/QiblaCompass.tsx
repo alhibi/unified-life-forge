@@ -309,7 +309,7 @@ export default function QiblaCompass() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setExpanded(false)}
-                className="fixed inset-0 z-drawer bg-black/70"
+                className="fixed inset-0 z-drawer bg-[hsl(var(--scrim)/0.7)]"
               />
               <motion.div
                 initial={{ y: '100%' }}

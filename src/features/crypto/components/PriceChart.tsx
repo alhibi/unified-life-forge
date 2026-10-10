@@ -218,7 +218,7 @@ export default function PriceChart({
   }, [candles, livePriceUsd, range]);
 
   const isUp = series ? series.last >= series.baseline : true;
-  const trendColor = isUp ? 'hsl(160 84% 42%)' : 'hsl(350 80% 58%)';
+  const trendColor = isUp ? 'hsl(var(--success))' : 'hsl(var(--destructive))';
   const gradientId = `chart-grad-${isUp ? 'up' : 'down'}`;
 
   const activePoint = series

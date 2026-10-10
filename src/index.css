@@ -220,6 +220,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   --color-success: hsl(var(--success));
   --color-success-foreground: hsl(var(--success-foreground));
 
+  --color-oled-black: hsl(var(--oled-black));
   --color-information: hsl(var(--information));
   --color-selected-indicator: hsl(var(--selected-indicator));
   --color-warning: hsl(var(--warning));
@@ -657,6 +658,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     --r-xs: 8px;
     --r-sm: 12px;
     --r-md: 16px;
+    --oled-black: 0 0% 0%;
     --r-lg: 24px;
     --r-xl: 32px;
     --radius: 16px;

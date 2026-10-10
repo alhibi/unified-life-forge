@@ -299,7 +299,7 @@ function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
  */
 function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl, isDark: boolean): Hsl[] {
   return [
-    elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
+    (isDark && bg[2] === 0 ? bg : elevate(bg, isDark, -0.03)), // 25  — recessed plane (wells, tracks)
     bg, // 50  — page
     surface, // 100 — card
     elevate(surface, isDark, 0.035), // 200 — raised plane (popovers, sheets)
@@ -1024,7 +1024,7 @@ export function generateThemeTokens(
   // inventing an arbitrary opacity. The ordering is intentionally monotonic.
   const interactiveHover = mixHsl(inkHsl, bgHsl, isDark ? 0.11 : 0.075);
   const interactivePressed = mixHsl(inkHsl, bgHsl, isDark ? 0.2 : 0.14);
-  const interactiveSelected = mixHsl(accHsl, surfHsl, presence + (isDark ? 0.06 : 0));
+  const interactiveSelected = mixHsl(accHsl, bgHsl, 0.18 + presence * 0.5 + (isDark ? 0.08 : 0));
 
   // Navigation is slightly more grounded than the page; overlays use the
   // highest elevation plane. Both receive their own contrast-corrected ink.
@@ -1119,13 +1119,15 @@ export function generateThemeTokens(
     '--art-icon-corner': String(art.iconCorner),
     '--art-edge': String(art.edge),
     '--selected-indicator': accStr,
+    '--sun': hslToString(preset.id === 'mono' ? accHsl : ensureContrast([42, 72, isDark ? 72 : 38], surfHsl, 3.05)),
+    '--moon': hslToString(preset.id === 'mono' ? companion : ensureContrast([240, 32, isDark ? 80 : 45], surfHsl, 3.05)),
     '--information': hslToString(ensureContrast(ensureContrast(companion, bgHsl, 4.55), surfHsl, 4.55)),
     '--background': bgStr,
     '--foreground': inkStr,
     '--card': surfStr,
     '--card-foreground': inkStr,
-    '--popover': surfStr,
-    '--popover-foreground': inkStr,
+    '--popover': hslToString(surface3),
+    '--popover-foreground': hslToString(overlayInk),
     '--secondary': secondaryStr,
     '--secondary-foreground': secondaryFgStr,
     '--muted': mutedStr,

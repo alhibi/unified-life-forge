@@ -378,8 +378,7 @@ function persistMotionPreferences(preferences: MotionPreferences): MotionPrefere
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [needsExpressiveUpgrade] = useState(() => !localStorage.getItem('app-expressive-identity-v1'));
-  const expressiveUpgradePending = useRef(needsExpressiveUpgrade);
+  const expressiveUpgradePending = useRef(false);
   // Arabic-only. Any legacy 'de' preference is coerced to 'ar' on load.
   // Do not reintroduce other locales — see src/i18n/index.ts.
   const [language, setLanguageState] = useState<Language>('ar');
@@ -396,12 +395,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() => {
     const stored = localStorage.getItem('app-color-theme') as ColorTheme | null;
-    // Owner-requested upgrade, once. Explicit subsequent choices are kept.
-    if (needsExpressiveUpgrade) {
-      localStorage.setItem('app-expressive-identity-v1', '1');
-      localStorage.setItem('app-color-theme', 'expressive');
-      return 'expressive';
-    }
     return stored || 'expressive';
   });
 
@@ -1689,6 +1682,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Enforce the single unified Zen Elite design style
       root.removeAttribute('data-md3');
       root.setAttribute('data-design-mode', 'expressive');
+      root.setAttribute('data-color-theme', preset.id);
+      root.setAttribute('data-oled', String(isDark && blackMode));
       const tokens = generateThemeTokens(
         preset,
         paletteStyle as ThemeStyle,
