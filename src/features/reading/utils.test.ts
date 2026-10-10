@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { articleKey, mergeArticles, sourceTone } from './utils';
+import { sourceTone } from './sourceTone';
+import { articleKey, mergeArticles } from './utils';
 
 describe('source material identity', () => {
   it('handles missing source metadata without crashing', () => {
