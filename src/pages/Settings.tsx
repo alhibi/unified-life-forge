@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
-import { PageShell, Section } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, PageShell, Section } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
 import { AccountPrivacySection } from '@/features/account';
@@ -71,12 +71,11 @@ export default function SettingsPage() {
   const handleResetDefaults = () => {
     setShowResetConfirm(false);
     resetToDefaults();
-    toast.success('تمت استعادة الإعدادات الافتراضية');
+    toast.success('تم استعادة الإعدادات الافتراضية');
   };
 
   const themeLabel = theme === 'dark' ? t('settings.dark') : t('settings.light');
-  const densityLabel =
-    UI_DENSITY_LABELS[uiDensity as keyof typeof UI_DENSITY_LABELS] ?? '';
+  const densityLabel = UI_DENSITY_LABELS[uiDensity as keyof typeof UI_DENSITY_LABELS] ?? '';
   const madhabLabel = MADHAB_LABELS[prayerMadhab];
 
   // Grouped settings
@@ -136,26 +135,18 @@ export default function SettingsPage() {
   const renderGroup = (title: string, items: SettingRow[]) => (
     <motion.div variants={item}>
       <Section label={title}>
-      <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
-        {items.map((si) => (
-          <button
-            key={si.key}
-            onClick={si.onClick}
-            className="flex items-center justify-between w-full px-4 py-3.5 active:bg-muted/30 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <si.icon className="w-[18px] h-[18px] text-primary stroke-[1.8]" />
-              <span className="text-meta font-medium text-foreground">{si.title}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {si.value ? (
-                <span className="text-mini text-muted-foreground">{si.value}</span>
-              ) : null}
-              <ChevronLeft className="w-4 h-4 text-muted-foreground/40 ltr:rotate-180" />
-            </div>
-          </button>
-        ))}
-      </AppCard>
+        <AppList>
+          {items.map((si) => (
+            <AppRow
+              key={si.key}
+              onClick={si.onClick}
+              leading={<si.icon className="h-5 w-5 text-primary" aria-hidden />}
+              title={si.title}
+              value={si.value}
+              chevron
+            />
+          ))}
+        </AppList>
       </Section>
     </motion.div>
   );
@@ -199,7 +190,7 @@ export default function SettingsPage() {
                 <button
                   onClick={() => navigate('/profile')}
                   aria-label="تعديل الملف الشخصي"
-                  className="relative active:scale-95 transition-transform"
+                  className="relative"
                 >
                   <div className="w-14 h-14 rounded-full flex items-center justify-center ring-2 ring-primary/20 overflow-hidden">
                     {profile?.avatar_url && profile.avatar_url.startsWith('http') ? (
@@ -228,7 +219,7 @@ export default function SettingsPage() {
                 {/* Info */}
                 <button
                   onClick={() => navigate('/profile')}
-                  className="flex-1 text-start active:opacity-70 transition-opacity min-w-0"
+                  className="flex-1 text-start min-w-0"
                 >
                   <h2 className="text-body font-bold text-foreground truncate">
                     {profile?.display_name || username || 'المستخدم'}
@@ -247,21 +238,18 @@ export default function SettingsPage() {
                 <button
                   onClick={() => setShowLogoutConfirm(true)}
                   aria-label="تسجيل الخروج"
-                  className="flex items-center gap-1.5 text-destructive/80 active:scale-90 transition-transform p-2"
+                  className="flex items-center gap-1.5 text-destructive p-2 rounded-md"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4" aria-hidden />
                 </button>
               </div>
             </AppCard>
           ) : (
-            <button
-              onClick={() => navigate('/auth')}
-              className="w-full active:scale-[0.99] transition-transform"
-            >
+            <button onClick={() => navigate('/auth')} className="w-full text-start">
               <AppCard className="p-5">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
-                    <UserCircle className="w-7 h-7 text-primary stroke-[1.5]" />
+                    <UserCircle className="w-7 h-7 text-primary" />
                   </div>
                   <div className="flex-1 text-start">
                     <h2 className="text-body font-bold text-foreground">{'تسجيل الدخول'}</h2>
@@ -269,7 +257,7 @@ export default function SettingsPage() {
                       {'احفظ إعداداتك على جميع الأجهزة'}
                     </p>
                   </div>
-                  <ChevronLeft className="w-5 h-5 text-muted-foreground/40 ltr:rotate-180" />
+                  <ChevronLeft className="w-5 h-5 text-muted-foreground-subtle" aria-hidden />
                 </div>
               </AppCard>
             </button>
@@ -287,17 +275,13 @@ export default function SettingsPage() {
         {/* Restore defaults — every preference this provider owns returns to
             its factory value (including traveling feature settings). */}
         <motion.div variants={item}>
-          <AppCard className="p-0 overflow-hidden">
-            <button
+          <AppList>
+            <AppRow
               onClick={() => setShowResetConfirm(true)}
-              className="flex w-full items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors"
-            >
-              <RotateCcw className="w-[18px] h-[18px] text-muted-foreground stroke-[1.8]" />
-              <span className="text-meta font-medium text-foreground">
-                استعادة الإعدادات الافتراضية
-              </span>
-            </button>
-          </AppCard>
+              leading={<RotateCcw className="h-5 w-5 text-muted-foreground" aria-hidden />}
+              title="استعادة الإعدادات الافتراضية"
+            />
+          </AppList>
         </motion.div>
 
         {/* Account & privacy — data export and erasure. Renders nothing
@@ -323,18 +307,12 @@ export default function SettingsPage() {
         }
       >
         <div className="flex gap-3 pt-1">
-          <button
-            onClick={() => setShowLogoutConfirm(false)}
-            className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
-          >
+          <Button variant="secondary" className="flex-1" onClick={() => setShowLogoutConfirm(false)}>
             {'إلغاء'}
-          </button>
-          <button
-            onClick={handleSignOut}
-            className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
-          >
+          </Button>
+          <Button variant="destructive" className="flex-1" onClick={handleSignOut}>
             {'تسجيل خروج'}
-          </button>
+          </Button>
         </div>
       </ResponsiveDrawer>
 
@@ -348,18 +326,16 @@ export default function SettingsPage() {
         }
       >
         <div className="flex gap-3 pt-1">
-          <button
+          <Button
+            variant="secondary"
+            className="flex-1"
             onClick={() => setShowResetConfirm(false)}
-            className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
           >
             {'إلغاء'}
-          </button>
-          <button
-            onClick={handleResetDefaults}
-            className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
-          >
+          </Button>
+          <Button variant="destructive" className="flex-1" onClick={handleResetDefaults}>
             {'استعادة'}
-          </button>
+          </Button>
         </div>
       </ResponsiveDrawer>
     </PageShell>

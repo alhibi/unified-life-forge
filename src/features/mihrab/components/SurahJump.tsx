@@ -114,7 +114,7 @@ export default function SurahJump() {
                     {surah.place === 'makkah' ? 'مكية' : 'مدنية'} · {arabicNumber(surah.ayahs)} آية
                   </span>
                 </span>
-                <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
+                <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
               </button>
             </li>
           ))}

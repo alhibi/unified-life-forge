@@ -42,7 +42,7 @@ export default function LayerToggleBar({
       <AppCard
         pressable
         onClick={() => {}}
-        className="flex items-center gap-1.5 p-1.5 bg-background/80 backdrop-blur-md border border-border/30 rounded-2xl shadow-[0_1px_3px_hsl(var(--foreground)/0.04),0_8px_24px_hsl(var(--foreground)/0.03)]"
+        className="flex items-center gap-1.5 p-1.5 bg-background border border-border/30 rounded-2xl"
       >
         {/* Select All / Clear All */}
         <div className="flex items-center gap-1">
@@ -79,9 +79,9 @@ export default function LayerToggleBar({
                 key={layer.source}
                 type="button"
                 onClick={() => onToggleLayer(layer.source)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium text-micro transition-motion duration-fast active:scale-95 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium text-micro transition-motion duration-fast whitespace-nowrap ${
                   isEnabled
-                    ? 'bg-primary text-primary-foreground shadow-[0_2px_8px_hsl(var(--primary)/0.25),0_1px_2px_hsl(var(--primary)/0.15)]'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground'
                 }`}
                 style={{

@@ -64,7 +64,7 @@ export default function AuthGuard({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-md w-full bg-card/60 border border-border/10 rounded-2xl p-8 text-center flex flex-col items-center gap-5 shadow-2xl relative overflow-hidden"
+          className="max-w-md w-full bg-card border border-border/20 rounded-2xl p-8 text-center flex flex-col items-center gap-5 relative overflow-hidden"
         >
           {/* Subtle copper accent line */}
           <div className="absolute top-0 inset-x-0 h-[2px] bg-primary opacity-40" />
@@ -84,7 +84,7 @@ export default function AuthGuard({
 
           <button
             onClick={() => navigate(`/auth?next=${encodeURIComponent(window.location.pathname)}`)}
-            className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-meta flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary/15"
+            className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-meta flex items-center justify-center gap-2"
           >
             {'تسجيل الدخول'}
             <ArrowRight className="w-4 h-4" />

@@ -2,11 +2,16 @@
  * PortalHeader — the launcher's sticky top bar.
  *
  * The bar is part of the page, not a slab bolted on top of it: it rides the
- * portal's ambient background transparently and only earns a hairline + a
- * whisper of blur once the content scrolls beneath it. Controls follow the
+ * portal's ambient background transparently and only earns a hairline + the
+ * opaque page surface once content scrolls beneath it. Controls follow the
  * Architectural Copper language — bare glyphs on a hairline-divided rail,
  * serif wordmark, copper-ringed avatar — so the header reads as the same
  * material as the plates below it.
+ *
+ * The scrolled state is a TONAL lift (opaque surface + hairline), never a
+ * frosted panel: design-system §3 bans hand-rolled backdrop blur on sticky
+ * chrome, and one opaque token keeps the header identical to every other
+ * sticky surface in the app.
  */
 import { memo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -80,9 +85,9 @@ function PortalHeaderImpl({ unreadCount }: Props) {
     <header
       className={cn(
         'sticky top-0 z-header flex h-14 items-center gap-1 px-4',
-        'transition-[background-color,border-color,backdrop-filter] duration-normal ease-enter',
+        'transition-[background-color,border-color] duration-normal ease-enter',
         lifted
-          ? 'border-b border-border/50 bg-background/72 backdrop-blur-xl backdrop-saturate-150'
+          ? 'border-b border-border/50 bg-background'
           : 'border-b border-transparent bg-transparent',
       )}
     >

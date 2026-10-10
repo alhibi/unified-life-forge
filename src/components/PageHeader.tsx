@@ -8,6 +8,11 @@ interface PageHeaderProps {
   title: ReactNode;
   /** Optional small text under the title. */
   subtitle?: ReactNode;
+  /**
+   * Small line ABOVE the title. Display variant only — the hub register,
+   * e.g. "محراب · الأدب" or "بوابة السكينة".
+   */
+  eyebrow?: ReactNode;
   /** Optional decorative icon shown before the title. */
   icon?: ReactNode;
   /** Right-side action cluster (buttons, badges, …). */
@@ -24,6 +29,16 @@ interface PageHeaderProps {
    */
   sticky?: boolean;
   /**
+   * `compact` (default) — the tool register: one row, start-aligned title,
+   *   back button, optional icon and actions. Sub-screens and settings.
+   * `display`   — the hub register: back/actions on a quiet rail, then a
+   *   large serif title centred with an optional eyebrow, subtitle and a
+   *   children slot for chip rails. Landing screens of a section.
+   */
+  variant?: 'compact' | 'display';
+  /** Display variant only: rendered under the title (chip rails, meta rows). */
+  children?: ReactNode;
+  /**
    * Extra classes for the header container. Avoid using this for
    * spacing tweaks — prefer the page-level wrapper.
    */
@@ -33,31 +48,68 @@ interface PageHeaderProps {
 /**
  * Single source of truth for page headers.
  *
- * Layout: `[ back ] [ icon ] [ title / subtitle ] [ right actions ]`
+ * Compact layout: `[ back ] [ icon ] [ title / subtitle ] [ right actions ]`
  *
  * Visual contract:
  *   • One height, from `--ui-header-h` (56px at the default header scale).
  *   • One sticky token (z-header + opaque semantic surface + hairline).
- *   • One title token (`text-title`) and one subtitle token (`text-micro`).
+ *   • One title token (`type-title`) and one subtitle token (`text-micro`).
  *   • Back-button comes from the unified `<BackButton/>` (smart back,
  *     aria-label, ghost styling).
- *
- * Migration target: every page that currently rolls its own header.
- * Adopting it is opt-in — the existing pages keep working, and pages
- * with bespoke headers (e.g. game shells, podcast player overlays)
- * can stay on their custom layout.
  */
 export default function PageHeader({
   title,
   subtitle,
+  eyebrow,
   icon,
   right,
   hideBack,
   backTo,
   backFallback,
   sticky = false,
+  variant = 'compact',
+  children,
   className,
 }: PageHeaderProps) {
+  if (variant === 'display') {
+    return (
+      <header
+        className={cn('flex flex-col pb-1', sticky && 'z-header app-sticky-header', className)}
+      >
+        <div className="flex min-h-[var(--ui-header-h)] items-center gap-2 px-4">
+          {!hideBack ? (
+            <BackButton to={backTo} fallback={backFallback} />
+          ) : (
+            <div className="h-11 w-11 shrink-0" aria-hidden="true" />
+          )}
+
+          {eyebrow != null ? (
+            <div className="min-w-0 flex-1 text-center text-micro text-muted-foreground">
+              {eyebrow}
+            </div>
+          ) : (
+            <div className="flex-1" aria-hidden="true" />
+          )}
+
+          {right ? (
+            <div className="flex shrink-0 items-center gap-2">{right}</div>
+          ) : (
+            <div className="w-11 shrink-0" aria-hidden="true" />
+          )}
+        </div>
+
+        <div className="flex flex-col items-center gap-1 px-5 pb-1 text-center">
+          <h1 className="type-display flex items-center gap-2 text-foreground">
+            {icon && <span className="inline-flex shrink-0">{icon}</span>}
+            <span className="min-w-0">{title}</span>
+          </h1>
+          {subtitle && <div className="text-mini text-muted-foreground">{subtitle}</div>}
+          {children}
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header
       className={cn(
@@ -85,7 +137,7 @@ export default function PageHeader({
         <div className="shrink-0 flex items-center gap-2">{right}</div>
       ) : !hideBack ? (
         // Optical balance — the title row visually centers between back
-        // and this 44 px placeholder. Without this, short titles pull
+        // and this 44 px placeholder. Without it, short titles pull
         // toward the start edge on wide screens, which feels off.
         <div className="w-11 shrink-0" aria-hidden="true" />
       ) : null}

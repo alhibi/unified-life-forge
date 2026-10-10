@@ -1,10 +1,14 @@
 /**
  * ProfileCard — the player's stage.
  *
- * This is the hero surface of the arcade: a layered scene (ambient gradients +
- * film-grain texture) carrying the rank emblem, the level with its exact XP
- * math, a shimmering progress bar, the last-seven-days win dots, and a season
- * sparkline rendered from the REAL monthly history the award pipeline archives.
+ * Hero surface of the arcade: the rank emblem, the level with its exact XP
+ * math, a progress bar, the last-seven-days win dots, and a season sparkline
+ * rendered from the REAL monthly history the award pipeline archives.
+ *
+ * System pass: the ambient identity gradients, film grain and the emblem
+ * halo were removed (design-system §0 bans decorative gradients, noise and
+ * glow in UI chrome). Identity is carried by the emblem itself, the primary
+ * accent and the data-bearing marks — tone and hairlines only.
  *
  * Honesty contract: every glyph traces back to ProgressionState —
  *   • win dots        ← firstWinDays + streak.lastPlayedDay
@@ -15,7 +19,7 @@
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion';
 import { memo, useEffect } from 'react';
 
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, Stat, StatGrid } from '@/components/ui/app-shell';
 import { Flame } from '@/lib/icons';
 import { EASE_OUT_QUAD } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -36,10 +40,6 @@ function localDayKey(date = new Date()): string {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
-
-/** Subtle film-grain so large flat areas never look plasticky. */
-const GRAIN =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E\")";
 
 function ProfileCardImpl({ state }: Props) {
   const reduce = useReducedMotion();
@@ -87,40 +87,17 @@ function ProfileCardImpl({ state }: Props) {
   };
 
   return (
-    <AppCard
-      as="section"
-      aria-label="ملف اللاعب"
-      className="relative overflow-hidden"
-      style={{
-        background:
-          'radial-gradient(130% 100% at 88% -12%, hsl(var(--primary) / 0.16) 0%, transparent 55%),' +
-          'radial-gradient(90% 80% at 8% 112%, hsl(var(--primary) / 0.08) 0%, transparent 58%)',
-      }}
-    >
-      {/* Grain overlay */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
-        style={{ backgroundImage: GRAIN }}
-      />
-
+    <AppCard as="section" aria-label="ملف اللاعب" className="relative overflow-hidden">
       <div className="relative p-5">
         {/* ── Identity row ── */}
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <div
-              aria-hidden
-              className="absolute inset-0 -z-10 scale-125 rounded-full opacity-50"
-              style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.22) 0%, transparent 68%)' }}
-            />
-            <RankEmblem rank={rank} size={92} />
-          </div>
+          <RankEmblem rank={rank} size={92} />
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-micro font-bold uppercase tracking-[0.18em] text-muted-foreground">المستوى</span>
+              <span className="text-micro text-muted-foreground">المستوى</span>
               <span
-                className="text-display font-black leading-none tabular-nums text-foreground"
+                className="text-display font-bold leading-none tabular-nums text-foreground"
                 dir="ltr"
               >
                 {level.level}
@@ -153,7 +130,7 @@ function ProfileCardImpl({ state }: Props) {
               )}
             </p>
 
-            {/* XP bar with a one-pass shimmer */}
+            {/* XP progress — scaleX only, no decorative shimmer */}
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted/70" dir="ltr">
               <div
                 className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-slow ease-out-expo"
@@ -164,31 +141,22 @@ function ProfileCardImpl({ state }: Props) {
                 aria-valuemax={100}
                 aria-label="التقدّم في المستوى الحالي"
               />
-              {!reduce && (
-                <motion.div
-                  aria-hidden
-                  className="relative -mt-2 h-2 w-1/3 rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                  initial={false}
-                  animate={{ x: ['-140%', '420%'] }}
-                  transition={{ duration: 2.4, ease: 'linear', repeat: Infinity, repeatDelay: 3.5, delay: 1.4 }}
-                />
-              )}
             </div>
           </div>
         </div>
 
-        {/* ── Facts strip ── */}
-        <dl className="mt-4 grid grid-cols-4 gap-2">
-          <Fact label="جولات" value={state.matches} />
-          <Fact label="نسبة الفوز" value={`${winRate}٪`} />
-          <Fact label="إنجازات" value={`${unlocked}/${ACHIEVEMENTS.length}`} />
-          <Fact label="أفضل سلسلة" value={state.streak.best} />
-        </dl>
+        {/* ── Facts strip — the canonical stat grid ── */}
+        <StatGrid cols={4} className="mt-4 border-t border-border pt-3">
+          <Stat value={state.matches} label="جولات" />
+          <Stat value={`${winRate}٪`} label="نسبة الفوز" />
+          <Stat value={`${unlocked}/${ACHIEVEMENTS.length}`} label="إنجازات" />
+          <Stat value={state.streak.best} label="أفضل سلسلة" />
+        </StatGrid>
 
         {/* ── Activity: week dots + streak sentence + season sparkline ── */}
-        <div className="mt-4 flex items-end justify-between gap-4 border-t border-border pt-3.5">
+        <div className="mt-3 flex items-end justify-between gap-4 border-t border-border pt-3.5">
           <div className="min-w-0">
-            <p className="text-micro uppercase tracking-[0.14em] text-muted-foreground">آخر ٧ أيام</p>
+            <p className="text-micro text-muted-foreground">آخر ٧ أيام</p>
             <div className="mt-1.5 flex items-center gap-1.5">
               {weekDays.map((d) => (
                 <span
@@ -222,9 +190,9 @@ function ProfileCardImpl({ state }: Props) {
             </div>
           </div>
 
-          {/* Season arc */}
+          {/* Season arc — data only: bar height encodes real monthly XP */}
           <div className="shrink-0 text-end">
-            <p className="text-micro uppercase tracking-[0.14em] text-muted-foreground">مسار الموسم</p>
+            <p className="text-micro text-muted-foreground">مسار الموسم</p>
             <div className="mt-1 flex h-10 items-end justify-end gap-1" dir="ltr">
               {seasonBars.map((b, i) => (
                 <span
@@ -242,17 +210,6 @@ function ProfileCardImpl({ state }: Props) {
         </div>
       </div>
     </AppCard>
-  );
-}
-
-function Fact({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-border/70 bg-background/30 px-2 py-2 text-center backdrop-blur-[2px]">
-      <dt className="text-micro leading-none text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-body font-bold tabular-nums leading-none text-foreground" dir="ltr">
-        {value}
-      </dd>
-    </div>
   );
 }
 

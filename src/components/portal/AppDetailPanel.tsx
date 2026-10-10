@@ -115,7 +115,7 @@ function AppDetailPanelImpl({ app, pinned, onOpenPath, onTogglePin, bare }: AppD
                     <span className="mt-0.5 block truncate text-mini text-muted-foreground">{link.note}</span>
                   </span>
                   <ChevronLeft
-                    className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180 transition-transform duration-normal ease-out-expo group-hover:-translate-x-0.5 rtl:group-hover:translate-x-0.5"
+                    className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-normal ease-out-expo group-hover:-translate-x-0.5"
                     aria-hidden
                   />
                 </button>
@@ -133,7 +133,7 @@ function AppDetailPanelImpl({ app, pinned, onOpenPath, onTogglePin, bare }: AppD
               )}
             >
               <span>{`افتح ${app.label}`}</span>
-              <ChevronLeft className="h-4 w-4 rtl:rotate-180" aria-hidden />
+              <ChevronLeft className="h-4 w-4" aria-hidden />
             </button>
 
             {bare && (

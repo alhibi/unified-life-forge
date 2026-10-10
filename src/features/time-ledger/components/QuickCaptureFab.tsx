@@ -146,7 +146,7 @@ export default function QuickCaptureFab() {
       <motion.button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 rtl:left-6 rtl:right-auto z-50 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xl hover:scale-105 active:scale-95 transition-transform"
+        className="fixed bottom-6 rtl:left-6 rtl:right-auto z-float flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground transition-motion hover:bg-primary/90"
         aria-label="التقاط سريع"
         initial={{ scale: 0, rotate: -90 }}
         animate={{ scale: 1, rotate: 0 }}
@@ -164,7 +164,7 @@ export default function QuickCaptureFab() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-end rtl:justify-start rtl:justify-end sm:items-center sm:justify-center bg-black/50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-drawer flex items-end rtl:justify-start rtl:justify-end sm:items-center sm:justify-center app-scrim p-4"
             onClick={() => setIsOpen(false)}
             role="dialog"
             aria-modal="true"
@@ -175,7 +175,7 @@ export default function QuickCaptureFab() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="w-full max-w-md bg-background rounded-2xl border border-border/30 shadow-2xl overflow-hidden"
+              className="w-full max-w-md app-overlay-surface rounded-2xl overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}

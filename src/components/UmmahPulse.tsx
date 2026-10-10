@@ -914,7 +914,7 @@ function UmmahPulse() {
               <div
                 key={key}
                 className={`rounded-lg px-1.5 py-2 text-center transition-motion ${
-                  isCurrent ? 'shadow-sm' : 'bg-muted/30'
+                  isCurrent ? 'bg-secondary' : 'bg-muted/30'
                 }`}
                 style={
                   isCurrent
@@ -965,7 +965,7 @@ function UmmahPulse() {
   return (
     <div
       dir="ltr"
-      className="relative rounded-3xl overflow-hidden border border-border/40 bg-card shadow-lg"
+      className="relative rounded-3xl overflow-hidden border border-border/40 bg-card"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2" dir={'rtl'}>
@@ -1096,7 +1096,7 @@ function UmmahPulse() {
                             onClick={() => setFilter(s)}
                             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-micro font-semibold transition-motion ${
                               active
-                                ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                                ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-card border-border/40 text-foreground hover:bg-muted/40'
                             }`}
                           >
@@ -1190,8 +1190,8 @@ function UmmahPulse() {
                             onClick={() => setSelectedCity(isSelected ? null : c.name)}
                             className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-motion text-start ${
                               isSelected
-                                ? 'bg-primary/5 border-primary/40 shadow-sm'
-                                : 'bg-card border-border/30 active:scale-[0.99]'
+                                ? 'bg-primary/5 border-primary/40'
+                                : 'bg-card border-border/30'
                             }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0 flex-1">

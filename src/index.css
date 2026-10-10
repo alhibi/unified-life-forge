@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-animate";
 
@@ -9,18 +9,25 @@
 @theme {
   --font-display: var(--font-display);
   --font-body: var(--font-body);
-  --font-cormorant: "Cormorant Garamond", serif;
-  --font-montserrat: "Montserrat", system-ui, sans-serif;
-  --font-amiri: "Amiri", serif;
-  --font-tajawal: "Tajawal", sans-serif;
+  --font-cormorant: 'Cormorant Garamond', serif;
+  --font-montserrat: 'Montserrat', system-ui, sans-serif;
+  --font-amiri: 'Amiri', serif;
+  --font-tajawal: 'Tajawal', sans-serif;
 
-  --animate-accordion-down: accordion-down calc(280ms * var(--motion-duration-scale)) var(--motion-ease-enter);
-  --animate-accordion-up: accordion-up calc(220ms * var(--motion-duration-scale)) var(--motion-ease-exit);
-  --animate-collapse-down: collapse-down calc(260ms * var(--motion-duration-scale)) var(--motion-ease-enter) both;
-  --animate-collapse-up: collapse-up calc(200ms * var(--motion-duration-scale)) var(--motion-ease-exit) both;
-  --animate-fade-in: fade-in calc(500ms * var(--motion-duration-scale)) var(--motion-ease-enter) both;
-  --animate-scale-in: scale-in calc(350ms * var(--motion-duration-scale)) var(--motion-ease-enter) both;
-  --animate-slide-up: slide-up calc(500ms * var(--motion-duration-scale)) var(--motion-ease-enter) both;
+  --animate-accordion-down: accordion-down calc(280ms * var(--motion-duration-scale))
+    var(--motion-ease-enter);
+  --animate-accordion-up: accordion-up calc(220ms * var(--motion-duration-scale))
+    var(--motion-ease-exit);
+  --animate-collapse-down: collapse-down calc(260ms * var(--motion-duration-scale))
+    var(--motion-ease-enter) both;
+  --animate-collapse-up: collapse-up calc(200ms * var(--motion-duration-scale))
+    var(--motion-ease-exit) both;
+  --animate-fade-in: fade-in calc(500ms * var(--motion-duration-scale)) var(--motion-ease-enter)
+    both;
+  --animate-scale-in: scale-in calc(350ms * var(--motion-duration-scale)) var(--motion-ease-enter)
+    both;
+  --animate-slide-up: slide-up calc(500ms * var(--motion-duration-scale)) var(--motion-ease-enter)
+    both;
 
   --ease-nav: var(--motion-ease-nav);
   --ease-enter: var(--motion-ease-enter);
@@ -194,8 +201,6 @@
   --color-data-5: hsl(var(--data-5));
   --color-data-6: hsl(var(--data-6));
 
-
-
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
 
@@ -277,6 +282,14 @@
   font-weight: 400;
   letter-spacing: 0;
 }
+@utility type-display {
+  font-family: var(--font-display);
+  font-size: calc(28px * var(--type-base-scale));
+  line-height: calc(36px * var(--type-base-scale));
+  font-weight: 400;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
 @utility type-body {
   font-family: var(--font-body);
   font-size: calc(14.5px * var(--type-base-scale));
@@ -331,9 +344,9 @@
  * easing, so every hover/press/state change in the app moves on one curve.
  * ───────────────────────────────────────────────────────────────────── */
 @utility transition-motion {
-  transition-property: transform, opacity, color, background-color, border-color,
-    outline-color, text-decoration-color, fill, stroke, box-shadow, filter,
-    backdrop-filter;
+  transition-property:
+    transform, opacity, color, background-color, border-color, outline-color, text-decoration-color,
+    fill, stroke, box-shadow, filter, backdrop-filter;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--motion-ease-enter);
 }
@@ -342,15 +355,14 @@
    generic state-change transition; these two name the *intent*, so a
    reviewer can tell arrival from manipulation by reading the class. */
 @utility transition-settle {
-  transition-property: transform, opacity, color, background-color, border-color,
-    box-shadow, filter, backdrop-filter;
+  transition-property:
+    transform, opacity, color, background-color, border-color, box-shadow, filter, backdrop-filter;
   transition-duration: var(--duration-normal);
   transition-timing-function: var(--ease-settle);
 }
 
 @utility transition-snap {
-  transition-property: transform, opacity, color, background-color, border-color,
-    box-shadow;
+  transition-property: transform, opacity, color, background-color, border-color, box-shadow;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--ease-snap);
 }
@@ -358,11 +370,21 @@
 /* Elevation utilities. Tokenized so a card lifted in light mode and the
    same card in true-black mode both read correctly without a per-component
    override. */
-@utility elevation-1 { box-shadow: var(--shadow-1); }
-@utility elevation-2 { box-shadow: var(--shadow-2); }
-@utility elevation-3 { box-shadow: var(--shadow-3); }
-@utility elevation-4 { box-shadow: var(--shadow-4); }
-@utility elevation-none { box-shadow: none; }
+@utility elevation-1 {
+  box-shadow: var(--shadow-1);
+}
+@utility elevation-2 {
+  box-shadow: var(--shadow-2);
+}
+@utility elevation-3 {
+  box-shadow: var(--shadow-3);
+}
+@utility elevation-4 {
+  box-shadow: var(--shadow-4);
+}
+@utility elevation-none {
+  box-shadow: none;
+}
 
 /* Progress fills: scaleX, never width.
    Animating `width` re-runs layout on every frame (and, inside a scroll
@@ -598,6 +620,9 @@
     --ui-stack-gap-sm: 12px;
     --ui-gutter: 16px;
     --ui-row-icon: 32px;
+    /* List-row comfort height (One UI register): 56px resting, 48px compact. */
+    --ui-row-h: 56px;
+    --ui-row-h-compact: 48px;
 
     /* The shared page / panel header height. */
     --ui-header-h: 56px;
@@ -687,19 +712,15 @@
     --shadow-elevated: var(--shadow-3);
     --shadow-intense: var(--shadow-4);
     --shadow-control:
-      inset 0 1px 0 hsl(var(--foreground) / 0.08),
-      inset 0 -1px 0 hsl(var(--background) / 0.18),
-      0 1px 2px hsl(var(--shadow-color) / 0.08),
-      0 4px 10px hsl(var(--shadow-color) / 0.06);
+      inset 0 1px 0 hsl(var(--foreground) / 0.08), inset 0 -1px 0 hsl(var(--background) / 0.18),
+      0 1px 2px hsl(var(--shadow-color) / 0.08), 0 4px 10px hsl(var(--shadow-color) / 0.06);
     --shadow-control-pressed:
-      inset 0 1px 2px hsl(var(--shadow-color) / 0.12),
-      0 1px 2px hsl(var(--shadow-color) / 0.04);
+      inset 0 1px 2px hsl(var(--shadow-color) / 0.12), 0 1px 2px hsl(var(--shadow-color) / 0.04);
     --text: hsl(var(--foreground));
     --text-muted: hsl(var(--muted-foreground));
     --strong: hsl(var(--foreground));
     --font-display: 'Instrument Serif', 'Amiri', Georgia, serif;
-    --font-body:
-      'Inter Tight', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+    --font-body: 'Inter Tight', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     --font-weight: 400;
 
     /* Active/live states — the accent, deepened just enough to stay readable
@@ -983,7 +1004,9 @@
     --text-opacity: 1;
     color: hsl(var(--foreground) / 1);
   }
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     @apply font-semibold;
   }
   small,
@@ -1290,6 +1313,100 @@
   html[data-reduced-motion='true'] .app-card-pressable:active,
   html[data-reduced-motion='true'] .surface-depth-pressable:active {
     transform: none;
+  }
+
+  /* ── Grouped list — the one way rows stack ────────────────────────
+     Nav and settings rows used to be two different objects: five separate
+     hairline cards each holding ONE row (Diwan, Mihrab, Quran…), or one
+     card with a bespoke `divide-y` and hand-written padding (Settings).
+     The list is now the surface and the row is the unit — one chrome, one
+     divider tone, one press language, one geometry, on every screen. */
+  .app-list {
+    background-color: hsl(var(--card) / var(--ui-material-alpha));
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+    contain: layout style;
+  }
+
+  .app-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    inline-size: 100%;
+    min-height: var(--ui-row-h);
+    padding: 10px var(--ui-pad-card);
+    text-align: start;
+    background-color: transparent;
+    border: 0;
+    color: var(--text);
+  }
+  .app-list-compact .app-row {
+    min-height: var(--ui-row-h-compact);
+  }
+  .app-row + .app-row {
+    border-block-start: var(--ui-divider-width) solid hsl(var(--track));
+  }
+  .app-row-interactive {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--duration-fast) var(--motion-ease-enter);
+  }
+  .app-row-interactive:hover {
+    background-color: hsl(var(--interactive-hover));
+  }
+  .app-row-interactive:active {
+    background-color: hsl(var(--interactive-pressed));
+  }
+  .app-row-danger .app-row-title,
+  .app-row-danger .app-row-value {
+    color: hsl(var(--destructive));
+  }
+
+  /* Chip rail: the leading icon plate a row, header or empty state wears.
+     Geometry from the corner ladder; tone from the role it plays. */
+  .row-icon-md {
+    width: var(--ui-tap);
+    height: var(--ui-tap);
+    border-radius: calc(var(--r-sm) * 1.5);
+  }
+  .row-icon-xl {
+    width: 56px;
+    height: 56px;
+    border-radius: calc(var(--r-sm) * 1.5);
+  }
+  .row-icon-plain {
+    background-color: hsl(var(--secondary));
+    color: var(--strong);
+  }
+  .row-icon-success {
+    background-color: hsl(var(--success) / 0.12);
+    color: hsl(var(--success));
+  }
+
+  /* Stat blocks — one anatomy for every metric cluster. */
+  .app-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--stat-cols, 3), minmax(0, 1fr));
+    gap: 4px 12px;
+  }
+  .app-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+  .app-stat-value {
+    font-size: var(--fs-display);
+    line-height: 1.15;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+  .app-stat-label {
+    font-size: var(--fs-mini);
+    line-height: 1.3;
+    color: hsl(var(--muted-foreground));
   }
 
   /* ── Sticky page / panel header chrome ────────────────────────────
@@ -2395,12 +2512,10 @@ html.theme-view-transition::view-transition-group(root) {
   animation-duration: calc(220ms * var(--motion-duration-scale));
 }
 html.theme-view-transition::view-transition-old(root) {
-  animation: theme-vt-out calc(220ms * var(--motion-duration-scale))
-    var(--motion-ease-in-out) both;
+  animation: theme-vt-out calc(220ms * var(--motion-duration-scale)) var(--motion-ease-in-out) both;
 }
 html.theme-view-transition::view-transition-new(root) {
-  animation: theme-vt-in calc(220ms * var(--motion-duration-scale))
-    var(--motion-ease-in-out) both;
+  animation: theme-vt-in calc(220ms * var(--motion-duration-scale)) var(--motion-ease-in-out) both;
 }
 /* Stacking order: the incoming theme rises over the frozen outgoing one. */
 html.theme-view-transition::view-transition-old(root),
@@ -3244,32 +3359,72 @@ input.podcast-seek:active::-moz-range-thumb {
    `animate-scale-in`, `animate-accordion-*` and `animate-collapse-*`
    resolved to non-existent animations and nothing moved. */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(calc(12px * var(--motion-amp, 1))); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(calc(12px * var(--motion-amp, 1)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes accordion-down {
-  from { height: 0; opacity: 0; }
-  to { height: var(--radix-accordion-content-height); opacity: 1; }
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
 }
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); opacity: 1; }
-  to { height: 0; opacity: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
 }
 @keyframes collapse-down {
-  from { height: 0; opacity: 0; }
-  to { height: var(--radix-collapsible-content-height); opacity: 1; }
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
 }
 @keyframes collapse-up {
-  from { height: var(--radix-collapsible-content-height); opacity: 1; }
-  to { height: 0; opacity: 0; }
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -3295,11 +3450,7 @@ input.podcast-seek:active::-moz-range-thumb {
     display: block;
     inline-size: 2.25rem;
     block-size: 1px;
-    background: linear-gradient(
-      to inline-end,
-      hsl(var(--primary) / 0.95),
-      hsl(var(--primary) / 0)
-    );
+    background: linear-gradient(to inline-end, hsl(var(--primary) / 0.95), hsl(var(--primary) / 0));
   }
 
   .arch-eyebrow {

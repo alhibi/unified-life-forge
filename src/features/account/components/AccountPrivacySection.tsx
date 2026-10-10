@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { AppCard } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
@@ -197,22 +198,24 @@ export default function AccountPrivacySection({ appName, appVersion }: Props) {
           </div>
 
           <div className="flex gap-3">
-            <button
+            <Button
+              variant="secondary"
+              className="flex-1"
               onClick={() => closeDeleteDialog(false)}
               disabled={deleting}
-              className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform disabled:opacity-60"
             >
               إلغاء
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
               onClick={handleDelete}
               disabled={!canDelete || deleting}
               aria-busy={deleting}
-              className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform disabled:opacity-40 flex items-center justify-center gap-2"
             >
               {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
               {deleting ? 'جارٍ الحذف…' : 'حذف نهائي'}
-            </button>
+            </Button>
           </div>
         </div>
       </ResponsiveDrawer>

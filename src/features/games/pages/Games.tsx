@@ -14,6 +14,7 @@ import { useMemo } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { IconChip } from '@/components/ui/app-shell';
 import { Gamepad2, Grid3X3, Puzzle, Swords } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
@@ -51,13 +52,12 @@ export default function GamesPage() {
       <PageHeader
         hideBack
         icon={
-          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-foreground">
+          <IconChip tone="plain" aria-hidden>
             <Gamepad2 className="h-5 w-5" />
-          </span>
+          </IconChip>
         }
         title="الألعاب"
         subtitle={subtitle}
-        className="px-4"
       />
 
       <motion.div

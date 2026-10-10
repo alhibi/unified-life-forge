@@ -45,7 +45,7 @@ function ContinueChip({ app, onOpen }: { app: PortalApp; onOpen: (app: PortalApp
       onPointerDown={warm}
       onFocus={warm}
       style={{ '--tile': identity.accent } as React.CSSProperties}
-      className="type-label group flex h-11 shrink-0 items-center gap-2 rounded-full bg-secondary px-3.5 text-foreground shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)] transition-[background-color,transform] duration-fast hover:bg-[hsl(var(--interactive-hover))] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="type-label group flex h-11 shrink-0 items-center gap-2 rounded-full bg-secondary px-3.5 text-foreground transition-[background-color,transform] duration-fast hover:bg-interactive-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span aria-hidden className="flex items-center justify-center text-[hsl(var(--tile))]">
         <Icon className="h-4 w-4" />
