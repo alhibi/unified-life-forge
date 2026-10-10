@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 export type UnifiedCardVariant = 'hero' | 'section' | 'tile' | 'inline' | 'ghost';
 
 export interface UnifiedCardProps {
+  tone?: 1 | 2 | 3 | 4 | 5 | 6;
   variant?: UnifiedCardVariant;
   /** Use the elevated card surface. Default true for hero/section. */
   elevated?: boolean;
@@ -67,6 +68,7 @@ const elevatedDefault: Record<UnifiedCardVariant, boolean> = {
 export function UnifiedCard(props: UnifiedCardProps) {
   const {
     variant = 'section',
+    tone,
     elevated,
     className = '',
     padding = 'default',
@@ -84,6 +86,8 @@ export function UnifiedCard(props: UnifiedCardProps) {
 
   const cardClassName = cn(
     'relative overflow-hidden',
+    tone !== undefined && 'rich-widget',
+    variant === 'tile' && 'weather-metric-widget',
     variantClass[variant],
     showElevated ? 'surface-depth' : 'app-card-flat',
     paddingClass[padding],
@@ -98,6 +102,7 @@ export function UnifiedCard(props: UnifiedCardProps) {
         activation="click"
         type="button"
         onClick={onClick}
+        data-tile-tone={tone}
         className={cn(cardClassName, 'h-auto flex-col items-stretch whitespace-normal')}
         {...rest}
       >
@@ -107,7 +112,7 @@ export function UnifiedCard(props: UnifiedCardProps) {
   }
 
   return (
-    <section className={cardClassName} {...rest}>
+    <section data-tile-tone={tone} className={cardClassName} {...rest}>
       {children}
     </section>
   );

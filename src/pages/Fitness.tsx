@@ -256,7 +256,7 @@ function FitnessPageInner({
       {/* Standalone Header */}
       <PageHeader
         title="اللياقة النخبوية"
-        subtitle="PREMIUM LEICA WORKOUT SUITE"
+        subtitle="النشاط اليومي والتمارين ومؤشرات الجسم"
         icon={
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Dumbbell className="h-5 w-5" aria-hidden />
@@ -361,13 +361,13 @@ function FitnessPageInner({
               className="space-y-6"
             >
               {/* Daily Interactive Metrics (Water, Steps, Calories) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {/* 1. Daily Hydration Log */}
-                <AppCard className="p-4 relative overflow-hidden flex flex-col justify-between">
+                <AppCard tone={4} className="col-span-2 md:col-span-1 p-5 relative overflow-hidden flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">شرب الماء اليومي</span>
-                      <span className="text-mini text-data-4 font-mono font-bold">
+                      <span className="text-mini text-foreground font-mono font-bold">
                         {(store.waterLogs[new Date().toISOString().split('T')[0]] || 0)} / {store.dailyWaterTargetMl} مل
                       </span>
                     </div>
@@ -375,7 +375,7 @@ function FitnessPageInner({
                     {/* Progress visual water cylinder */}
                     <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
                       <div
-                        className="h-full bg-data-4 transition-motion duration-normal"
+                        className="h-full bg-foreground transition-motion duration-normal"
                         style={{
                           width: `${Math.min(100, ((store.waterLogs[new Date().toISOString().split('T')[0]] || 0) / store.dailyWaterTargetMl) * 100)}%`
                         }}
@@ -408,13 +408,13 @@ function FitnessPageInner({
                 </AppCard>
 
                 {/* 2. Steps Metric (DeviceMotion based fallback) */}
-                <AppCard className="p-4 flex flex-col justify-between">
+                <AppCard tone={1} className="p-4 flex flex-col justify-between">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">النشاط الحركي اليومي</span>
                     <span className="text-micro text-primary font-bold">نشط</span>
                   </div>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-hero font-bold font-mono text-foreground tracking-tighter tabular-nums">
+                    <span className="text-title font-bold text-foreground tabular-nums">
                       {tracker.autoDetectEnabled ? 'مفعّل' : 'معطّل'}
                     </span>
                     <span className="text-mini text-muted-foreground">التتبع التلقائي</span>
@@ -434,7 +434,7 @@ function FitnessPageInner({
                 </AppCard>
 
                 {/* 3. Calories Metric (Historical totals + live tracked) */}
-                <AppCard className="p-4 flex flex-col justify-between">
+                <AppCard tone={5} className="p-4 flex flex-col justify-between">
                   <div>
                     <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات المحروقة اليوم</span>
                     <div className="flex items-baseline gap-1 mt-1 mb-2">
@@ -455,7 +455,7 @@ function FitnessPageInner({
 
               {/* Live Activity Precision Tracker Panel */}
               <Section label="تتبع الأنشطة الحية (GPS)">
-                <AppCard className="overflow-hidden">
+                <AppCard tone={6} className="overflow-hidden">
                   <div className="p-6 flex flex-col items-center justify-center text-center relative">
                     {tracker.isTracking ? (
                       <div className="w-full space-y-6">

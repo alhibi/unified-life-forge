@@ -60,7 +60,7 @@ export default function WirdCard() {
   }, [pages]);
 
   return (
-    <AppCard as="section" aria-label="ورد القرآن اليومي">
+    <AppCard tone={1} as="section" aria-label="ورد القرآن اليومي">
       <header className="flex items-start gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
           <BookOpen className="h-5 w-5" aria-hidden />

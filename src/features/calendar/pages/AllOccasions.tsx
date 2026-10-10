@@ -24,6 +24,10 @@ const ACCENT: Record<string, string> = {
   'border-s-signal': 'hsl(var(--signal))',
   'border-s-[hsl(var(--track))]': 'hsl(var(--muted-foreground))',
 };
+const OCCASION_TONE: Record<string, 1 | 2 | 3 | 4 | 5 | 6> = {
+  'border-s-data-1': 1, 'border-s-data-4': 4, 'border-s-data-6': 6,
+  'border-s-data-5': 5, 'border-s-signal': 2,
+};
 
 export default function AllOccasions() {
   const { hijri: today, todayISO, offset } = useLiveHijriDate();
@@ -75,8 +79,8 @@ export default function AllOccasions() {
         <PageHeader sticky title={'التقويم الهجري'} subtitle={'تصفح المناسبات حسب الشهر الهجري'} />
 
         {/* ── Today indicator ────────────────────────────────────── */}
-        <div className="rounded-2xl bg-primary/5 border border-primary/15 px-4 py-2.5 flex items-center justify-between">
-          <span className="text-micro font-bold uppercase tracking-wider text-primary/70">
+        <div data-tile-tone="6" className="rich-widget rounded-card p-4 flex items-center justify-between">
+          <span className="text-mini font-bold text-foreground">
             {'اليوم'}
           </span>
           <span className="text-mini font-semibold text-foreground tabular-nums">
@@ -242,7 +246,7 @@ function EventListCard({
   event: ResolvedIslamicEvent;
   onOpen: () => void;
 }) {
-  const accent = ACCENT[event.color] ?? 'hsl(var(--success))';
+  const tone = OCCASION_TONE[event.color] ?? 3;
   const monthLabel = HIJRI_MONTHS[event.month - 1];
   const dayLabel =
     event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
@@ -257,20 +261,18 @@ function EventListCard({
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.25 }}
       onClick={onOpen}
-      className="w-full text-start rounded-lg border p-3.5 transition-colors"
-      style={{ background: `${accent}10`, borderColor: `${accent}33` }}
+      data-tile-tone={tone}
+      className="rich-widget w-full text-start rounded-card p-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex items-center justify-between mb-1">
         <span
           className="text-micro font-bold uppercase tracking-wider"
-          style={{ color: accent }}
         >
           {monthLabel} {dayLabel}
         </span>
         {event.isMajorHoliday && (
           <span
-            className="text-micro font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-            style={{ background: `${accent}26`, color: accent }}
+            className="widget-icon-well text-micro font-bold px-2 py-1 rounded-button"
           >
             {'عيد'}
           </span>
@@ -356,7 +358,7 @@ function DetailContent({
         {event.isMajorHoliday && (
           <span
             className="text-micro font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-            style={{ background: `${accent}26`, color: accent }}
+            style={{ background: 'hsl(var(--secondary))', color: accent }}
           >
             {'عيد كبير'}
           </span>

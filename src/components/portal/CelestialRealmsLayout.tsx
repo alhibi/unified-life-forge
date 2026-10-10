@@ -88,7 +88,7 @@ export default function CelestialRealmsLayout({
    */
   const gridClass = list
     ? 'grid grid-cols-1 gap-2'
-    : 'grid grid-cols-1 gap-3 @[22rem]:grid-cols-2 @[40rem]:grid-cols-3 @[40rem]:gap-4 @[64rem]:grid-cols-4';
+    : 'portal-widget-grid grid grid-cols-2 gap-3 @[40rem]:grid-cols-3 @[40rem]:gap-4 @[64rem]:grid-cols-4';
 
   // If there's an active query/filter, render flat matching applications for speed and clarity
   const isSearching = query.length > 0;
@@ -146,7 +146,7 @@ export default function CelestialRealmsLayout({
                 the live count. Hierarchy comes from size, weight and spacing —
                 the four realms used to be told apart by four hardcoded Tailwind
                 hues, which is exactly what the accent budget forbids. */}
-            <div className="rule-b flex items-baseline gap-3 pb-2.5">
+            <div className="flex items-baseline gap-3 pb-1">
               <span className="flex size-11 shrink-0 items-center justify-center self-center rounded-2xl bg-tile-container text-tile-container-foreground">
                 <Icon className="size-5" aria-hidden />
               </span>

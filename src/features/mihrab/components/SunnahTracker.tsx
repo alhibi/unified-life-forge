@@ -63,7 +63,7 @@ export default function SunnahTracker() {
   const showPicker = editing || committed.length === 0;
 
   return (
-    <AppCard as="section" aria-label="متابعة السنن اليومية">
+    <AppCard tone={5} as="section" aria-label="متابعة السنن اليومية">
       <header className="flex items-baseline justify-between gap-3">
         <h2 className="text-title font-semibold text-foreground">سنن اليوم</h2>
         {committed.length > 0 && (
