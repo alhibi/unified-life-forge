@@ -124,7 +124,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       className="relative"
       style={{ '--tile': identity.accent } as React.CSSProperties}
     >
-      <Button variant="ghost"
+      <Button variant="secondary"
         ref={(el) => registerRef?.(index, el)}
         type="button"
         onClick={handleClick}

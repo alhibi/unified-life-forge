@@ -1,10 +1,11 @@
 # Roadmap
 
 ## Expressive tactile redesign — October 10, 2026
-- [ ] Replace copper default with a contrasted, multi-role expressive palette in both modes and migrate the old default.
-- [ ] Rebuild shared typography, geometry, surfaces, controls, headers and overlays with tactile tonal depth.
-- [ ] Apply the new treatment to the portal and eliminate conflicting local chrome across applications.
-- [ ] Verify theme contracts, existing design tests and live screens in both modes; report remaining coverage honestly.
+- [x] Replace copper default with a contrasted, multi-role expressive palette in both modes and migrate the old default.
+- [x] Rebuild shared typography, geometry, surfaces, controls, headers and overlays with tactile tonal depth.
+- [x] Apply shared treatment across applications, including portal, weather, game shells and wellness encyclopedia category colours. Preserve reader paper modes, media artwork and gameplay materials.
+- [x] Verify theme contracts and 1923 passing tests; inspect 25 public/account screens in light mode and 25 initial screens plus 9 explicitly selected dark-mode screens. No horizontal overflow or runtime errors observed.
+- [ ] Physical-device validation of touch, screen-reader and all content-dependent detail states — requires real device and representative content.
 
 - [x] Stop repeated unread/message-list requests while chat is open.
 - [x] Restore the missing public-key directory used by encrypted chat.
