@@ -28,9 +28,9 @@ export default function QuranPage() {
           subtitle="المصحف الشريف والتلاوة"
           backFallback="/"
         />
-        <main className="w-full">
+        <section className="w-full">
           <QuranTab />
-        </main>
+        </section>
       </div>
     </PageShell>
   );

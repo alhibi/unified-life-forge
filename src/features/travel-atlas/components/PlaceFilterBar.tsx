@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,20 +63,26 @@ export default function PlaceFilterBar({
             aria-label="البحث في الأماكن"
           />
           {filters.query.length > 0 && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              activation="click"
               type="button"
               onClick={() => patch({ query: '' })}
               aria-label="إفراغ البحث"
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute end-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </Button>
           )}
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              activation="click"
               type="button"
               className="app-icon-btn relative shrink-0 border border-border"
               aria-label="تصفية"
@@ -86,7 +93,7 @@ export default function PlaceFilterBar({
                   {activeCount}
                 </span>
               )}
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="max-h-80 min-w-56 overflow-y-auto">
             <DropdownMenuLabel>الحالة</DropdownMenuLabel>
@@ -154,7 +161,10 @@ export default function PlaceFilterBar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
+          activation="click"
           type="button"
           onClick={() => patch({ favoritesOnly: !filters.favoritesOnly })}
           aria-pressed={filters.favoritesOnly}
@@ -165,17 +175,20 @@ export default function PlaceFilterBar({
           )}
         >
           <Heart className="h-4 w-4" fill={filters.favoritesOnly ? 'currentColor' : undefined} />
-        </button>
+        </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              activation="click"
               type="button"
               className="app-icon-btn shrink-0 border border-border"
               aria-label="الترتيب"
             >
               <ArrowDownWideNarrow className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-44">
             <DropdownMenuLabel>الترتيب</DropdownMenuLabel>

@@ -67,6 +67,11 @@ export default function KeyboardProvider() {
 
   const capture = useCallback((el: EditableField) => {
     if (targetRef.current === el) return;
+    const previous = targetRef.current;
+    if (previous) {
+      if (restoreRef.current === null) previous.removeAttribute('inputmode');
+      else previous.setAttribute('inputmode', restoreRef.current);
+    }
     restoreRef.current = el.getAttribute('inputmode');
     // The OS keyboard must never appear alongside ours.
     el.setAttribute('inputmode', 'none');
@@ -77,13 +82,25 @@ export default function KeyboardProvider() {
 
   const active = available && preference === 'app';
 
+  useEffect(() => {
+    const frame = !active ? window.requestAnimationFrame(release) : null;
+    return () => {
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      release();
+    };
+  }, [active, release]);
+
   const physicalKeyboardRef = useRef(false);
 
   useEffect(() => {
     if (!active) return;
 
     // Check if the document already has an active editable target upon mounting
-    if (typeof document !== 'undefined' && document.activeElement && isSoftKeyboardTarget(document.activeElement)) {
+    if (
+      typeof document !== 'undefined' &&
+      document.activeElement &&
+      isSoftKeyboardTarget(document.activeElement)
+    ) {
       capture(document.activeElement);
     }
 
@@ -107,7 +124,8 @@ export default function KeyboardProvider() {
       if (event.target === targetRef.current) {
         // Give the panel a frame: tapping a key never really moves focus.
         window.setTimeout(() => {
-          if (document.activeElement !== targetRef.current) release();
+          if (document.activeElement !== targetRef.current &&
+              !document.activeElement?.closest('[data-soft-keyboard-panel]')) release();
         }, 80);
       }
     };
@@ -143,7 +161,10 @@ export default function KeyboardProvider() {
 
   // Keep the caret visible above the panel.
   const onHeightChange = useCallback((height: number) => {
-    document.documentElement.style.setProperty('--soft-keyboard-height', `${String(Math.round(height))}px`);
+    document.documentElement.style.setProperty(
+      '--soft-keyboard-height',
+      `${String(Math.round(height))}px`,
+    );
     const el = targetRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -152,9 +173,12 @@ export default function KeyboardProvider() {
   }, []);
 
   useEffect(() => {
-    if (target) onHeightChange(Number.parseFloat(
-      document.documentElement.style.getPropertyValue('--soft-keyboard-height') || '0',
-    ));
+    if (target)
+      onHeightChange(
+        Number.parseFloat(
+          document.documentElement.style.getPropertyValue('--soft-keyboard-height') || '0',
+        ),
+      );
   }, [target, onHeightChange]);
 
   /** Run a mutation against whichever field currently holds the caret. */
@@ -187,7 +211,6 @@ export default function KeyboardProvider() {
       onTouchStart={(event) => event.stopPropagation()}
       onFocusCapture={(event) => event.stopPropagation()}
       className="pointer-events-none fixed inset-x-0 bottom-0 z-keyboard"
-      aria-hidden={!(active && target)}
     >
       <KeyboardErrorBoundary onUseSystemKeyboard={handleUseSystemKeyboard}>
         <AnimatePresence>

@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import { memo, useMemo } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   type PlayingEpisodeMeta,
   usePodcastPlayer,
@@ -248,7 +249,9 @@ const EpisodeListItem = memo(function EpisodeListItem({
       </div>
 
       <footer className="flex items-center gap-2 mt-3">
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           onClick={handlePlay}
           disabled={!episode.audioUrl}
           aria-label={isThisPlaying ? 'Pause' : 'Play'}
@@ -269,33 +272,37 @@ const EpisodeListItem = memo(function EpisodeListItem({
               ? 'تم الاستماع'
               : isInProgress
                 ? formatRemaining(duration, playState.position, lang)
-                : formatDuration(duration) || ('تشغيل')}
+                : formatDuration(duration) || 'تشغيل'}
           </span>
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             player.addEpisodeToQueue(episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL);
           }}
           aria-label={'أضف إلى قائمة التشغيل'}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+          className="w-11 h-11 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
         >
           <ListPlus className="w-4 h-4" />
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
+          activation="click"
           onClick={handleMarkPlayed}
           aria-label={playState.played ? 'تحديد كغير مُستمَع' : 'تحديد كمُستمَع'}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+          className="w-11 h-11 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
         >
           {playState.played ? (
             <RotateCcw className="w-4 h-4" />
           ) : (
             <CheckCircle2 className="w-4 h-4" />
           )}
-        </button>
+        </Button>
       </footer>
 
       {/* Bottom progress strip for in-progress episodes. Visible only
@@ -307,10 +314,12 @@ const EpisodeListItem = memo(function EpisodeListItem({
         <div className="mt-3 -mx-1 h-1 rounded-full bg-muted/40 overflow-hidden">
           <div
             className="h-full rounded-full progress-fill duration-normal"
-            style={{
-              '--progress': progressPct / 100,
-              background: 'var(--podcast-primary, hsl(var(--primary)))',
-            } as CSSProperties}
+            style={
+              {
+                '--progress': progressPct / 100,
+                background: 'var(--podcast-primary, hsl(var(--primary)))',
+              } as CSSProperties
+            }
           />
         </div>
       )}

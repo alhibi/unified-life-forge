@@ -458,6 +458,7 @@ export default function ChessPuzzlePage() {
               );
               return (
                 <button
+                  aria-label={`${String.fromCharCode(97 + ci)}${8 - ri}، ${cell ? PIECE_GLYPH[cell.color][cell.type] : "فارغ"}`}
                   key={`${ri}-${ci}`}
                   onClick={() => handleClick(ri, ci)}
                   className="aspect-square relative flex items-center justify-center transition-colors"

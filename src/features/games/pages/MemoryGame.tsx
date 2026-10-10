@@ -769,10 +769,10 @@ export default function MemoryGame() {
       options={options}
       headerRight={
         <div className="flex items-center gap-1">
-          <button onClick={togglePause} className="w-8 h-8 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 active:scale-90 transition-transform">
+          <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 active:scale-90 transition-transform">
             {isPaused || !gameStarted ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
           </button>
-          <button onClick={() => newGame()} className="w-8 h-8 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 active:scale-90 transition-transform">
+          <button aria-label="لعبة جديدة" onClick={() => newGame()} className="w-8 h-8 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 active:scale-90 transition-transform">
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -867,7 +867,7 @@ export default function MemoryGame() {
             const isFlipped = peeking || flipped.includes(i) || matched.includes(i);
             const isMatched = matched.includes(i);
             return (
-              <button key={i} onClick={() => handleCard(i)} className="relative aspect-square">
+              <button aria-label={`بطاقة ${i + 1}، ${isMatched ? "متطابقة" : isFlipped ? icon : "مغلقة"}`} key={i} onClick={() => handleCard(i)} className="relative aspect-square">
                 <motion.div className="absolute inset-0"
                   animate={{ rotateY: isFlipped ? 180 : 0 }} transition={{ duration: 0.4 }}
                   style={{ transformStyle: 'preserve-3d' }}>

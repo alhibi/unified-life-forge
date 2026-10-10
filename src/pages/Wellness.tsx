@@ -356,7 +356,7 @@ export default function WellnessPage() {
 
         {/* ─── Content ─── */}
         <AnimatePresence mode="wait">
-          <motion.main
+          <motion.section
             key={tab}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -375,7 +375,7 @@ export default function WellnessPage() {
             >
               {renderTab()}
             </Suspense>
-          </motion.main>
+          </motion.section>
         </AnimatePresence>
       </PageShell>
 

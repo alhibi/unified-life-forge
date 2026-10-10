@@ -23,8 +23,9 @@
 // sheet isn't already open — same gating logic Podium uses.
 import { AnimatePresence, motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
-import { KeyboardEvent, lazy, memo, MouseEvent, Suspense, useCallback, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   usePodcastPlayer,
   usePodcastPlayerProgress,
@@ -59,69 +60,16 @@ function MiniProgressBar() {
     <div className="mt-1 h-[3px] rounded-full bg-foreground/10 overflow-hidden">
       <div
         className="h-full rounded-full progress-fill duration-fast"
-        style={{
-          '--progress': pct / 100,
-          background: 'var(--podcast-primary, hsl(var(--primary)))',
-        } as CSSProperties}
+        style={
+          {
+            '--progress': pct / 100,
+            background: 'var(--podcast-primary, hsl(var(--primary)))',
+          } as CSSProperties
+        }
       />
     </div>
   );
 }
-
-/**
- * Inline transport control rendered inside the outer mini-player
- * button. Modeled as `role="button"` rather than a real `<button>`
- * because nested interactive content is invalid HTML — the outer
- * mini-player is itself a button (it opens the full sheet on tap).
- *
- * Stops propagation on every activation path (click, Enter, Space)
- * so tapping a control invokes only that action; the outer "open
- * sheet" gesture is reserved for the artwork / title area.
- */
-const InlineControl = memo(function InlineControl({
-  onActivate,
-  ariaLabel,
-  size,
-  style,
-  children,
-}: {
-  onActivate: () => void;
-  ariaLabel: string;
-  size: number;
-  style?: React.CSSProperties;
-  children: React.ReactNode;
-}) {
-  const handleClick = useCallback(
-    (e: MouseEvent<HTMLSpanElement>) => {
-      e.stopPropagation();
-      onActivate();
-    },
-    [onActivate],
-  );
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLSpanElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.stopPropagation();
-        e.preventDefault();
-        onActivate();
-      }
-    },
-    [onActivate],
-  );
-  return (
-    <span
-      role="button"
-      tabIndex={0}
-      aria-label={ariaLabel}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 duration-fast cursor-pointer select-none touch-manipulation"
-      style={{ width: size, height: size, ...style }}
-    >
-      {children}
-    </span>
-  );
-});
 
 const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
   const player = usePodcastPlayer();
@@ -160,9 +108,7 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
               bottom: `calc(env(safe-area-inset-bottom, 0px) + ${FLOATING_STACK_OFFSET}px)`,
             }}
           >
-            <button
-              type="button"
-              onClick={openSheet}
+            <div
               className="pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border border-border transition-colors touch-manipulation"
               data-playing={isActive ? 'true' : 'false'}
               style={{
@@ -178,37 +124,45 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   reads more legibly at small sizes than a circular
                   thumbnail. The equalizer overlay paints over the
                   artwork while audio is playing. */}
-              <span className="relative w-12 h-12 rounded-2xl overflow-hidden bg-muted/40 shrink-0">
-                <img src={artwork} alt="" className="w-full h-full object-cover" />
-                {/* Eq overlay; passing `playing` keeps the static
+              <Button
+                variant="ghost"
+                activation="click"
+                onClick={openSheet}
+                aria-label="فتح مشغل البودكاست"
+                className="flex-1 min-w-0 h-full gap-2 p-0 text-start"
+              >
+                <span className="relative w-12 h-12 rounded-2xl overflow-hidden bg-muted/40 shrink-0">
+                  <img src={artwork} alt="" className="w-full h-full object-cover" />
+                  {/* Eq overlay; passing `playing` keeps the static
                     artwork visible whenever playback is paused. */}
-                <span
-                  className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-2xl"
-                  style={{
-                    background: isActive ? 'hsl(var(--scrim) / 0.35)' : 'transparent',
-                    opacity: isActive ? 1 : 0,
-                    transition: 'opacity 200ms ease',
-                  }}
-                  aria-hidden="true"
-                >
-                  <span className="podcast-eq" data-playing="true" style={{ height: 12 }}>
-                    <span style={{ background: 'hsl(var(--primary-foreground))' }} />
-                    <span style={{ background: 'hsl(var(--primary-foreground))' }} />
-                    <span style={{ background: 'hsl(var(--primary-foreground))' }} />
+                  <span
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none rounded-2xl"
+                    style={{
+                      background: isActive ? 'hsl(var(--scrim) / 0.35)' : 'transparent',
+                      opacity: isActive ? 1 : 0,
+                      transition: 'opacity 200ms ease',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <span className="podcast-eq" data-playing="true" style={{ height: 12 }}>
+                      <span style={{ background: 'hsl(var(--primary-foreground))' }} />
+                      <span style={{ background: 'hsl(var(--primary-foreground))' }} />
+                      <span style={{ background: 'hsl(var(--primary-foreground))' }} />
+                    </span>
                   </span>
                 </span>
-              </span>
 
-              {/* Title / subtitle / progress */}
-              <div className="flex-1 min-w-0 text-start">
-                <p className="text-mini font-bold leading-tight truncate">
-                  {player.current?.episode.title}
-                </p>
-                <p className="text-micro opacity-75 leading-tight truncate">
-                  {player.current?.podcastTitle}
-                </p>
-                <MiniProgressBar />
-              </div>
+                {/* Title / subtitle / progress */}
+                <div className="flex-1 min-w-0 text-start">
+                  <p className="text-mini font-bold leading-tight truncate">
+                    {player.current?.episode.title}
+                  </p>
+                  <p className="text-micro opacity-75 leading-tight truncate">
+                    {player.current?.podcastTitle}
+                  </p>
+                  <MiniProgressBar />
+                </div>
+              </Button>
 
               {/* Queue count badge */}
               {player.queueCount > 0 && (
@@ -218,50 +172,46 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                     background: 'var(--podcast-primary-soft, hsl(var(--primary)/0.2))',
                     color: 'var(--podcast-primary, hsl(var(--primary)))',
                   }}
-                  title={player.queueCount + ' in queue'}
+                  title={`${player.queueCount} في قائمة التشغيل`}
                 >
                   {player.queueCount > 99 ? '99+' : player.queueCount}
                 </span>
               )}
 
-              {/* Inline transport cluster: skip-back, play/pause, skip-
-                  forward. Compact (32–40px tap targets) so the title
-                  area still gets the lion's share of horizontal space.
-                  Each control has to call `stopPropagation` because the
-                  outer element is itself a button (it opens the full
-                  sheet); without it, tapping skip would also expand
-                  the sheet.
-
-                  We model the inline buttons as `role="button"` spans
-                  rather than nested `<button>` elements — nested
-                  interactive content is invalid HTML. The same pattern
-                  the original play button already used. */}
-              <InlineControl onActivate={skipBack} ariaLabel={`-${MINI_SKIP_SECONDS}s`} size={32}>
+              <Button
+                variant="ghost"
+                size="icon"
+                activation="click"
+                onClick={skipBack}
+                aria-label="رجوع 15 ثانية"
+                className="h-11 w-11 shrink-0 rounded-full"
+              >
                 <RotateCcw className="w-4 h-4" strokeWidth={2.25} />
-              </InlineControl>
-
-              <InlineControl
-                onActivate={togglePlay}
-                ariaLabel={player.isPlaying ? 'Pause' : 'Play'}
-                size={40}
-                style={{
-                  color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
-                }}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                activation="click"
+                onClick={togglePlay}
+                aria-label={player.isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
+                className="h-11 w-11 shrink-0 rounded-full text-primary"
               >
                 <Icon
                   className={`w-4 h-4 ${player.isLoading ? 'animate-spin' : ''}`}
                   fill={isActive ? 'currentColor' : 'none'}
                 />
-              </InlineControl>
-
-              <InlineControl
-                onActivate={skipForward}
-                ariaLabel={`+${MINI_SKIP_SECONDS}s`}
-                size={32}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                activation="click"
+                onClick={skipForward}
+                aria-label="تقديم 15 ثانية"
+                className="h-11 w-11 shrink-0 rounded-full"
               >
                 <RotateCw className="w-4 h-4" strokeWidth={2.25} />
-              </InlineControl>
-            </button>
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

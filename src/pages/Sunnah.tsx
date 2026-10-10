@@ -28,9 +28,9 @@ export default function SunnahPage() {
           subtitle="السنن اليومية واليوم النبوي"
           backFallback="/"
         />
-        <main className="w-full">
+        <section className="w-full">
           <SunnahTab />
-        </main>
+        </section>
       </div>
     </PageShell>
   );

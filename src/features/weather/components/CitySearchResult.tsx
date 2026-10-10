@@ -10,12 +10,14 @@
 // selection via Enter / Space and arrow-key navigation.
 // ============================================================================
 
+import { Button } from '@/components/ui/button';
 import { Building2, MapPin, Star } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import type { CityCandidate } from '../types/CitySearch';
 
 interface CitySearchResultProps {
+  id?: string;
   candidate: CityCandidate;
   highlighted: boolean;
   isFavourite: boolean;
@@ -25,8 +27,15 @@ interface CitySearchResultProps {
 
 function flagEmoji(countryCode?: string): string {
   if (!countryCode || countryCode.length !== 2) return '';
-  const codePoints = countryCode.toUpperCase().split('').map((c) => 127397 + c.charCodeAt(0));
-  try { return String.fromCodePoint(...codePoints); } catch { return ''; }
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map((c) => 127397 + c.charCodeAt(0));
+  try {
+    return String.fromCodePoint(...codePoints);
+  } catch {
+    return '';
+  }
 }
 
 function formatDistance(km: number | null): string {
@@ -37,13 +46,17 @@ function formatDistance(km: number | null): string {
 }
 
 function qualityBadge(score: number): { label: string; tint: string } | null {
-  if (score >= 0.85) return { label: 'مطابقة تامة', tint: 'bg-data-1/15 text-data-1 dark:text-data-1' };
-  if (score >= 0.6) return { label: 'مطابقة قوية', tint: 'bg-data-4/15 text-data-4 dark:text-data-4' };
-  if (score >= 0.3) return { label: 'مطابقة تقريبية', tint: 'bg-signal/15 text-signal dark:text-signal' };
+  if (score >= 0.85)
+    return { label: 'مطابقة تامة', tint: 'bg-data-1/15 text-data-1 dark:text-data-1' };
+  if (score >= 0.6)
+    return { label: 'مطابقة قوية', tint: 'bg-data-4/15 text-data-4 dark:text-data-4' };
+  if (score >= 0.3)
+    return { label: 'مطابقة تقريبية', tint: 'bg-signal/15 text-signal dark:text-signal' };
   return null;
 }
 
 export function CitySearchResult({
+  id,
   candidate,
   highlighted,
   isFavourite,
@@ -59,12 +72,13 @@ export function CitySearchResult({
 
   return (
     <div
+      id={id}
       role="option"
       aria-selected={highlighted}
       data-highlighted={highlighted || undefined}
       onClick={onSelect}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           onSelect();
         }
@@ -114,7 +128,7 @@ export function CitySearchResult({
             <span className="truncate">{subtitleParts.join(' · ')}</span>
           )}
           {candidate.elevation !== undefined && (
-            <span className="tabular-nums shrink-0 text-primary/75 font-bold">
+            <span className="tabular-nums shrink-0 text-primary font-bold">
               {`${Math.round(candidate.elevation)}م`}
             </span>
           )}
@@ -138,19 +152,22 @@ export function CitySearchResult({
             {distance}
           </span>
         )}
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
+          activation="click"
           onClick={onToggleFavourite}
           aria-label={isFavourite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
           aria-pressed={isFavourite}
           className={cn(
-            'shrink-0 w-8 h-8 grid place-items-center rounded-lg transition-colors',
+            'shrink-0 rounded-lg transition-colors',
             isFavourite
               ? 'text-primary hover:bg-primary/15'
-              : 'text-foreground/30 hover:text-primary hover:bg-foreground/8',
+              : 'text-muted-foreground hover:text-primary hover:bg-foreground/8',
           )}
         >
           <Star className={cn('w-4 h-4', isFavourite && 'fill-primary')} />
-        </button>
+        </Button>
       </div>
     </div>
   );

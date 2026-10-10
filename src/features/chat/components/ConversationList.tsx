@@ -565,6 +565,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         {filter !== 'archived' && (
           <motion.button
             ref={fabRef}
+            aria-label="محادثة جديدة"
             onClick={onNewChat}
             className="absolute bottom-6 end-5 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-raised"
             

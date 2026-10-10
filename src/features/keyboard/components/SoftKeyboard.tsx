@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,13 +12,18 @@ import {
   Keyboard,
   Languages,
 } from '@/lib/icons';
-import { haptics } from '@/lib/native';
+import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 import { copyToSystemClipboard, getClipboardHistory } from '../lib/clipboard';
 import { canUndo, getSelectionState, getWordContext, performUndo, selectAll } from '../lib/edit';
 import { getPreferredInitialLayout } from '../lib/edit';
-import { type FeedbackKind, tapFeedback, type TapFeedbackOptions } from '../lib/feedback';
+import {
+  chromeFeedback,
+  type FeedbackKind,
+  tapFeedback,
+  type TapFeedbackOptions,
+} from '../lib/feedback';
 import {
   ALEF_VARIANTS,
   caretDelta,
@@ -178,7 +184,9 @@ const Key = memo(function Key({
         />
       )}
 
-      <button
+      <Button
+        variant="ghost"
+        activation="click"
         type="button"
         aria-label={ariaLabel ?? label}
         onPointerDown={(event) => {
@@ -233,10 +241,16 @@ const Key = memo(function Key({
           // Sliding up toward the popup must not cancel the interaction.
           if (!popupOpenRef.current) clear();
         }}
+        onClick={(event) => {
+          if (event.detail === 0) {
+            onPress();
+            tapFeedback(feedbackKind ?? tone, feedback);
+          }
+        }}
         onPointerCancel={clear}
         onContextMenu={(event) => event.preventDefault()}
         className={cn(
-          'relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
+          'app-focus-ring relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
           'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-instant',
           'active:scale-[0.93] touch-none',
           // Relief comes from the palette's own elevation recipe, so a white
@@ -254,7 +268,7 @@ const Key = memo(function Key({
         )}
       >
         {children ?? label}
-      </button>
+      </Button>
     </div>
   );
 });
@@ -303,7 +317,9 @@ export default function SoftKeyboard({
       setShift(true);
     }
   }, [layout, settings.autoCapitalization, shouldAutoCap, caps]);
-  const [activePanel, setActivePanel] = useState<'none' | 'clipboard' | 'emoji' | 'islamic'>('none');
+  const [activePanel, setActivePanel] = useState<'none' | 'clipboard' | 'emoji' | 'islamic'>(
+    'none',
+  );
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [oneHandedMode, setOneHandedMode] = useState<'off' | 'left' | 'right'>(
     () => readKeyboardSettings().oneHandedMode,
@@ -317,7 +333,8 @@ export default function SoftKeyboard({
     isSensitive ? [] : getWordSuggestions(''),
   );
 
-  const editableTarget = (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) ? target : null;
+  const editableTarget =
+    target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ? target : null;
 
   const [selectionState, setSelectionState] = useState(() => getSelectionState(editableTarget));
   const [undoAvailable, setUndoAvailable] = useState(() => canUndo(editableTarget));
@@ -352,7 +369,9 @@ export default function SoftKeyboard({
       readKeyboardSettings().keyHeightPx ??
       Math.round(
         parseFloat(
-          getComputedStyle(rootRef.current ?? document.documentElement).getPropertyValue('--kb-key-h'),
+          getComputedStyle(rootRef.current ?? document.documentElement).getPropertyValue(
+            '--kb-key-h',
+          ),
         ) || 44,
       );
     gripRef.current = { startY: event.clientY, startH: current };
@@ -379,7 +398,7 @@ export default function SoftKeyboard({
       if (value !== null) writeKeyboardSettings({ keyHeightPx: value });
       return value;
     });
-    haptics('selection');
+    chromeFeedback();
   }, []);
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -477,7 +496,7 @@ export default function SoftKeyboard({
   const rows: KeyDef[][] =
     layout === 'harakat'
       ? [HARAKAT.slice(0, 6), HARAKAT.slice(6, 12)]
-      : LAYOUT_ROWS[layout as keyof typeof LAYOUT_ROWS] ?? LAYOUT_ROWS.ar;
+      : (LAYOUT_ROWS[layout as keyof typeof LAYOUT_ROWS] ?? LAYOUT_ROWS.ar);
 
   /**
    * Files a finished word into the personal dictionary together with the word
@@ -531,14 +550,7 @@ export default function SoftKeyboard({
     const newBuffer = typedBuffer.slice(0, -1);
     setTypedBuffer(newBuffer);
     updateSuggestions(newBuffer, isSensitive);
-  }, [
-    lastCorrection,
-    onBackspace,
-    onReplaceLastWord,
-    typedBuffer,
-    updateSuggestions,
-    isSensitive,
-  ]);
+  }, [lastCorrection, onBackspace, onReplaceLastWord, typedBuffer, updateSuggestions, isSensitive]);
 
   const handleSpacePress = useCallback(() => {
     const now = Date.now();
@@ -655,7 +667,7 @@ export default function SoftKeyboard({
       initial={{ y: '100%' }}
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
-      transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.7 }}
+      transition={MOTION.modalIn}
       dir="ltr"
       role="group"
       aria-label="لوحة مفاتيح التطبيق"
@@ -676,10 +688,7 @@ export default function SoftKeyboard({
       )}
     >
       {/* Settings Modal Drawer */}
-      <KeyboardSettingsModal
-        open={settingsModalOpen}
-        onOpenChange={setSettingsModalOpen}
-      />
+      <KeyboardSettingsModal open={settingsModalOpen} onOpenChange={setSettingsModalOpen} />
 
       {/* Drag grip — resize the rows to fit the thumbs */}
       <div
@@ -710,12 +719,12 @@ export default function SoftKeyboard({
           setTypedBuffer('');
           setLastCorrection(null);
           updateSuggestions('', isSensitive);
-          if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+          if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') chromeFeedback();
         }}
         onForgetSuggestion={(word) => {
           forgetLearnedWord(word);
           updateSuggestions(typedBuffer, isSensitive);
-          haptics('warning');
+          chromeFeedback();
         }}
         activePanel={activePanel}
         setActivePanel={useCallback((panel) => {
@@ -784,31 +793,46 @@ export default function SoftKeyboard({
       )}
 
       {activePanel === 'islamic' && (
-        <div className="flex h-44 w-full flex-col border-t border-border/40 bg-[hsl(var(--surface-1))]/95 p-2 backdrop-blur-xl" dir="rtl">
+        <div
+          className="flex h-44 w-full flex-col border-t border-border/40 bg-[hsl(var(--surface-1))]/95 p-2 backdrop-blur-xl"
+          dir="rtl"
+        >
           <div className="mb-2 flex items-center justify-between border-b border-border/30 pb-1 px-1">
             <span className="text-mini font-semibold text-foreground">رموز وعبارات إسلامية</span>
-            <button
+            <Button
+              variant="ghost"
+              activation="click"
               type="button"
               onClick={() => setActivePanel('none')}
               className="text-micro text-muted-foreground hover:text-foreground"
             >
               إغلاق
-            </button>
+            </Button>
           </div>
           <div className="grid grid-cols-2 gap-1.5 overflow-y-auto p-1">
             {ISLAMIC_SYMBOLS.map((sym) => (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 key={sym.ch}
                 type="button"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onInsert(sym.ch);
-                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                    chromeFeedback();
+                }}
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onInsert(sym.ch);
+                    if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                      chromeFeedback();
+                  }
                 }}
                 className="flex h-9 items-center justify-center rounded-xl border border-white/5 bg-[hsl(var(--surface-2))] px-2 text-mini font-medium text-foreground transition-motion active:scale-95 hover:bg-[hsl(var(--live))]/20"
               >
                 {sym.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -817,50 +841,85 @@ export default function SoftKeyboard({
       {/* Quick Punctuation & Navigation Strip */}
       {activePanel === 'none' && (
         <div className="mb-1.5 flex items-center gap-1">
-          <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto no-scrollbar" dir={rtl ? 'rtl' : 'ltr'}>
+          <div
+            className="flex min-w-0 flex-1 gap-1 overflow-x-auto no-scrollbar"
+            dir={rtl ? 'rtl' : 'ltr'}
+          >
             {quickStrip.map((ch) => (
-              <button
+              <Button
+                variant="ghost"
+                activation="click"
                 key={ch}
                 type="button"
                 onPointerDown={(e) => {
                   e.preventDefault();
                   onInsert(ch);
-                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                    chromeFeedback();
                 }}
-                className="h-8 min-w-8 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:scale-90 active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
+                onClick={(e) => {
+                  if (e.detail === 0) {
+                    onInsert(ch);
+                    if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                      chromeFeedback();
+                  }
+                }}
+                className="h-11 min-w-11 shrink-0 rounded-lg bg-[hsl(var(--kb-key))]/70 px-2 text-[0.9375rem] font-medium leading-none text-[hsl(var(--kb-fg-muted))] transition-transform active:scale-90 active:bg-[hsl(var(--kb-accent))] active:text-[hsl(var(--kb-accent-fg))]"
               >
                 {ch}
-              </button>
+              </Button>
             ))}
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <button
+            <Button
+              variant="ghost"
+              activation="click"
               type="button"
               aria-label="تحريك المؤشر لليمين"
               title="تحريك المؤشر لليمين"
               onPointerDown={(e) => {
                 e.preventDefault();
                 onMoveCaret(caretDelta(layout, 'right'));
-                if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+                if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                  chromeFeedback();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
+              onClick={(e) => {
+                if (e.detail === 0) {
+                  onMoveCaret(caretDelta(layout, 'right'));
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                    chromeFeedback();
+                }
+              }}
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              activation="click"
               type="button"
               aria-label="تحريك المؤشر لليسار"
               title="تحريك المؤشر لليسار"
               onPointerDown={(e) => {
                 e.preventDefault();
                 onMoveCaret(caretDelta(layout, 'left'));
-                if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+                if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                  chromeFeedback();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
+              onClick={(e) => {
+                if (e.detail === 0) {
+                  onMoveCaret(caretDelta(layout, 'left'));
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                    chromeFeedback();
+                }
+              }}
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              activation="click"
               type="button"
               aria-label="إخفاء لوحة المفاتيح"
               title="إخفاء لوحة المفاتيح"
@@ -868,10 +927,15 @@ export default function SoftKeyboard({
                 e.preventDefault();
                 onDone();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
+              onClick={(e) => {
+                if (e.detail === 0) {
+                  onDone();
+                }
+              }}
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--kb-fg-muted))] active:bg-[hsl(var(--kb-key))]"
             >
               <ChevronDown className="h-4 w-4" aria-hidden="true" />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -882,13 +946,16 @@ export default function SoftKeyboard({
           {/* Optional Top Number Row */}
           {settings.showNumberRow && letters && (
             <div className="flex gap-1">
-              {(settings.digitType === 'eastern' && layout === 'ar' ? EASTERN_NUMBER_ROW : WESTERN_NUMBER_ROW).map((key) => (
+              {(settings.digitType === 'eastern' && layout === 'ar'
+                ? EASTERN_NUMBER_ROW
+                : WESTERN_NUMBER_ROW
+              ).map((key) => (
                 <Key
                   key={key.ch}
                   label={key.ch}
                   ariaLabel={key.ch}
                   {...keyChrome}
-                  className="h-8 text-mini"
+                  className="h-9 text-mini"
                   onPress={() => onInsert(key.ch)}
                 />
               ))}
@@ -916,7 +983,10 @@ export default function SoftKeyboard({
                       setShift(true);
                     }
                   }}
-                  className={cn((shift || caps) && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))] ring-1 ring-[hsl(var(--kb-accent))]/50')}
+                  className={cn(
+                    (shift || caps) &&
+                      'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))] ring-1 ring-[hsl(var(--kb-accent))]/50',
+                  )}
                 >
                   <ArrowUp className={cn('h-5 w-5', caps && 'stroke-[2.5]')} aria-hidden="true" />
                 </Key>
@@ -939,7 +1009,9 @@ export default function SoftKeyboard({
                     onBackspace();
                     onInsert(ch);
                   }}
-                  onHold={key.alt && key.alt !== key.ch ? () => onInsert(key.alt as string) : undefined}
+                  onHold={
+                    key.alt && key.alt !== key.ch ? () => onInsert(key.alt as string) : undefined
+                  }
                 />
               ))}
 
@@ -1016,7 +1088,10 @@ export default function SoftKeyboard({
               label={'\u25CC\u064E'}
               ariaLabel="التشكيل"
               onPress={() => switchLayout(layout === 'harakat' ? 'ar' : 'harakat')}
-              className={cn(layout === 'harakat' && 'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]')}
+              className={cn(
+                layout === 'harakat' &&
+                  'bg-[hsl(var(--kb-accent))]/25 text-[hsl(var(--kb-accent))]',
+              )}
             />
 
             {/* Spacebar with Caret Drag & Long-Press 3-Way Language Switch Support */}
@@ -1032,7 +1107,8 @@ export default function SoftKeyboard({
                   // Dragging right moves caret visually right, dragging left moves caret visually left
                   onMoveCaret(caretDelta(layout, diff > 0 ? 'right' : 'left'));
                   spaceDragRef.current = { startX: e.clientX, moved: true };
-                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                    chromeFeedback();
                 }
               }}
               onPointerUp={() => {
@@ -1061,7 +1137,8 @@ export default function SoftKeyboard({
                   // Long-press spacebar triggers 3-way language cycle (ar -> en -> de -> ar)
                   const nextLayout = layout === 'ar' ? 'en' : layout === 'en' ? 'de' : 'ar';
                   switchLayout(nextLayout);
-                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off') haptics('selection');
+                  if (settings.vibrateOnKeyPress && settings.hapticIntensity !== 'off')
+                    chromeFeedback();
                 }}
                 className="w-full"
               >

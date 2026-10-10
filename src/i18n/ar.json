@@ -317,5 +317,17 @@
   "podcasts.region.worldwide": "العالم بأكمله",
   "podcasts.scope.country": "دولة واحدة",
   "podcasts.scope.region": "منطقة لغوية",
-  "podcasts.aggregating": "جاري التجميع من عدة دول..."
+  "podcasts.aggregating": "جاري التجميع من عدة دول...",
+  "podcasts.genre.techNewsSub": "أخبار تقنية",
+  "podcasts.genre.naturalHistory": "تاريخ طبيعي",
+  "podcasts.genre.mystery": "غموض",
+  "podcasts.genre.nonProfitGov": "مؤسسات غير ربحية",
+  "podcasts.genre.dailyDevotional": "تأملات يومية",
+  "podcasts.genre.investingSub": "استثمار",
+  "podcasts.genre.techPodcasts": "بودكاست تقني",
+  "podcasts.genre.documentarySub": "وثائقي",
+  "podcasts.genre.sportsCommentary": "تحليل رياضي",
+  "podcasts.genre.wilderness": "حياة برية",
+  "podcasts.genre.swimming": "سباحة",
+  "podcasts.genre.martialArts": "فنون قتالية"
 }
