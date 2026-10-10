@@ -165,21 +165,21 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           active && 'ring-2 ring-inset ring-tile-foreground/25',
           list
             ? 'flex h-auto items-center gap-3 rounded-card p-4 shadow-e2'
-            : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-3 p-4 sm:p-5',
+            : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-3 p-3.5 sm:p-5',
         )}
       >
         {!list ? (
           <>
             {/* Widget head: inverted chip + name; the end edge is reserved
                 for the shortcuts control that sits above the tile. */}
-            <span className="relative z-10 flex w-full items-center gap-2.5 pe-12">
+            <span className="relative z-10 flex w-full items-center gap-2 pe-11">
               <span
-                className="portal-widget-chip flex size-10 shrink-0 items-center justify-center rounded-full shadow-e1 transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
+                className="portal-widget-chip flex size-9 shrink-0 items-center justify-center rounded-full shadow-e1 transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
                 aria-hidden
               >
                 <Icon className="size-5!" />
               </span>
-              <span className="portal-widget-title min-w-0 break-words text-tile-foreground">
+              <span className="portal-widget-title min-w-0 text-tile-foreground">
                 {app.label}
               </span>
               {pinned && <Pin className="size-3.5! shrink-0 text-tile-foreground" aria-hidden />}
@@ -239,7 +239,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           'bg-tile-foreground/10 text-tile-foreground transition-[background-color,color] duration-fast',
           'hover:bg-tile-foreground hover:text-tile-surface',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          list ? 'end-2 top-1/2 -translate-y-1/2' : 'top-3 end-3',
+          list ? 'end-2 top-1/2 -translate-y-1/2' : 'top-2.5 end-2.5',
         )}
       >
         <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />

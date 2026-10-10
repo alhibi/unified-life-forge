@@ -24,7 +24,7 @@ import { memo, type ReactElement, useEffect, useState } from 'react';
 import { useWeatherLocation } from '@/features/weather/context/WeatherLocationContext';
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 import { iconForWeatherCode, labelForWeatherCode } from '@/features/weather/lib/conditions';
-import { Crown, MapPin, Pause, Play, Sparkles } from '@/lib/icons';
+import { MapPin, Pause, Play, Sparkles } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import { useNextPrayer } from './useNextPrayer';
@@ -108,7 +108,7 @@ function DotMatrix({ text, label }: { text: string; label: string }) {
           cy={dot.cy}
           r={cell * 0.38}
           fill="currentColor"
-          opacity={dot.on ? 1 : 0.12}
+          opacity={dot.on ? 1 : 0.1}
         />
       ))}
     </svg>
@@ -167,7 +167,7 @@ function SunnahFace() {
   const today = useMinuteClock().getDay();
   return (
     <span className="flex w-full flex-col justify-end gap-3">
-      <span className="text-mini font-semibold text-muted-foreground">سنن {WEEKDAYS[today]}</span>
+      <span className="text-mini font-semibold text-muted-foreground">سنن يوم {WEEKDAYS[today] === 'أحد' ? 'الأحد' : `ال${WEEKDAYS[today]}`}</span>
       <span className="grid w-full grid-cols-7 gap-1" aria-hidden>
         {WEEKDAYS.map((day, index) => (
           <span
@@ -358,17 +358,17 @@ function GermanFace() {
   return (
     <span className="flex w-full items-end justify-between gap-3">
       <span className="min-w-0">
-        <span className="block text-[length:calc(var(--fs-display)*1.6)] font-extrabold leading-none text-tile-foreground" dir="ltr" lang="de">
+        <span className="block text-[length:calc(var(--fs-display)*1.35)] font-extrabold leading-none text-tile-foreground" dir="ltr" lang="de">
           Hallo!
         </span>
-        <span className="mt-1 block text-title font-bold text-muted-foreground">مرحبًا</span>
+        <span className="mt-1.5 block text-body font-bold text-muted-foreground">مرحبًا</span>
       </span>
-      <span className="flex shrink-0 flex-col gap-1.5" dir="ltr" lang="de" aria-hidden>
+      <span className="flex shrink-0 gap-1.5" dir="ltr" lang="de" aria-hidden>
         {['der', 'die', 'das'].map((article, index) => (
           <span
             key={article}
             className={cn(
-              'rounded-full px-3 py-0.5 text-center text-micro font-bold',
+              'rounded-full px-2.5 py-1 text-center text-micro font-bold',
               index === 1 ? 'bg-tile-foreground text-tile-surface' : 'bg-tile-foreground/12 text-tile-foreground',
             )}
           >
@@ -391,9 +391,6 @@ function KnowledgeFace() {
           style={{ blockSize: `${height * 0.9}px`, opacity: 0.2 + (index % 3) * 0.25 }}
         />
       ))}
-      <span className="flex size-10 shrink-0 items-center justify-center self-end rounded-full bg-tile-foreground text-tile-surface">
-        <Crown className="size-5!" />
-      </span>
     </span>
   );
 }
@@ -507,7 +504,7 @@ function PodcastsFace() {
 function DiwanFace() {
   return (
     <span className="flex w-full flex-col items-center justify-end gap-1.5 text-center font-amiri text-tile-foreground" lang="ar">
-      <span className="text-body font-bold leading-snug">قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ</span>
+      <span className="text-mini font-bold leading-relaxed">قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ</span>
       <span className="flex items-center gap-2" aria-hidden>
         <span className="h-px w-8 bg-tile-foreground/40" />
         <span className="size-1.5 rounded-full bg-tile-foreground" />
