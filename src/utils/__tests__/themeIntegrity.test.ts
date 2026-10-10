@@ -30,7 +30,9 @@ describe('theme token integrity', () => {
         ['--tertiary-container', '--on-tertiary-container'],
         ['--secondary', '--secondary-foreground'],
       ]) {
-        expect(contrastRatio(parse(tokens[ink]), parse(tokens[surface]))).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(parse(tokens[ink]), parse(tokens[surface]))).toBeGreaterThanOrEqual(
+          4.5,
+        );
       }
     }
   });
@@ -47,7 +49,16 @@ describe('theme token integrity', () => {
           expect(contrastRatio(parse(t['--foreground']), bg)).toBeGreaterThanOrEqual(6.9);
           expect(contrastRatio(parse(t['--card-foreground']), card)).toBeGreaterThanOrEqual(4.5);
           expect(contrastRatio(parse(t['--muted-foreground']), bg)).toBeGreaterThanOrEqual(4.45);
-          expect(contrastRatio(parse(t['--primary']), bg)).toBeGreaterThanOrEqual(3.15);
+          for (const style of STYLES) {
+            for (const lift of ['flat', 'subtle', 'lifted'] as const) {
+              const tokens = generateThemeTokens(preset, style, isDark, isBlack, lift);
+              for (const surface of ['--background', '--card']) {
+                expect(
+                  contrastRatio(parse(tokens['--primary']), parse(tokens[surface])),
+                ).toBeGreaterThanOrEqual(4.5);
+              }
+            }
+          }
           expect(
             contrastRatio(parse(t['--primary-foreground']), parse(t['--primary'])),
           ).toBeGreaterThanOrEqual(2.5);
@@ -122,8 +133,12 @@ describe('theme token integrity', () => {
           const t = generateThemeTokens(preset, 'neutral', isDark, isBlack);
           const nav = parse(t['--navigation']);
           const overlay = parse(t['--overlay-surface']);
-          expect(contrastRatio(parse(t['--navigation-foreground']), nav)).toBeGreaterThanOrEqual(4.5);
-          expect(contrastRatio(parse(t['--overlay-foreground']), overlay)).toBeGreaterThanOrEqual(4.5);
+          expect(contrastRatio(parse(t['--navigation-foreground']), nav)).toBeGreaterThanOrEqual(
+            4.5,
+          );
+          expect(contrastRatio(parse(t['--overlay-foreground']), overlay)).toBeGreaterThanOrEqual(
+            4.5,
+          );
         });
 
         it(`${label}: the ink zone climbs in contrast`, () => {

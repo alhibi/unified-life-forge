@@ -1,12 +1,15 @@
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
 import {
-  ArrowDownAZ, ArrowDownWideNarrow, ArrowUpWideNarrow,
-  CalendarDays, LayoutGrid, List, Rows3, SlidersHorizontal,
+  ArrowDownAZ,
+  ArrowDownWideNarrow,
+  ArrowUpWideNarrow,
+  CalendarDays,
+  LayoutGrid,
+  List,
+  Rows3,
+  SlidersHorizontal,
 } from '@/lib/icons';
 
 import type { Density, GroupMode, ListPrefs, SortMode } from './listPrefs';
@@ -20,7 +23,7 @@ import type { Density, GroupMode, ListPrefs, SortMode } from './listPrefs';
  * the trigger is a single sliders icon so it doesn't crowd the
  * existing toolbar. The popover content is a tight stack of
  * segmented-button controls so the user can flick between modes
- * without scrolling. Mobile-friendly: touch targets are >= 36 px.
+ * without scrolling. Controls follow the shared touch-target floor.
  */
 export function ReadingPrefsToolbar({
   prefs,
@@ -32,19 +35,17 @@ export function ReadingPrefsToolbar({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="p-2.5 rounded-xl hover:bg-accent/50 transition-motion"
+          variant="ghost"
+          size="icon"
           aria-label={'تفضيلات العرض'}
           title={'فرز ، تجميع ، كثافة'}
         >
           <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-        </button>
+        </Button>
       </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-72 p-3 space-y-3"
-      >
+      <PopoverContent align="end" className="w-72 p-3 space-y-3">
         {/* Sort */}
         <Group label={'الترتيب'}>
           <Segmented
@@ -119,17 +120,13 @@ export function ReadingPrefsToolbar({
         <div className="pt-1 space-y-2">
           <ToggleRow
             label={'وسم تلقائي عند التمرير'}
-            description={
-              'يضع المقالة كمقروءة فور تجاوزها أعلى الشاشة'
-            }
+            description={'يضع المقالة كمقروءة فور تجاوزها أعلى الشاشة'}
             checked={prefs.autoMarkOnScroll}
             onChange={(v) => onChange({ autoMarkOnScroll: v })}
           />
           <ToggleRow
             label={'لوحان جنباً إلى جنب (للشاشات الكبيرة)'}
-            description={
-              'يعرض القارئ بجانب القائمة على الشاشات الكبيرة'
-            }
+            description={'يعرض القارئ بجانب القائمة على الشاشات الكبيرة'}
             checked={prefs.twoPaneOnDesktop}
             onChange={(v) => onChange({ twoPaneOnDesktop: v })}
           />
@@ -139,10 +136,7 @@ export function ReadingPrefsToolbar({
   );
 }
 
-function Group({
-  label,
-  children,
-}: { label: string; children: React.ReactNode }) {
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <h6 className="text-micro font-bold uppercase tracking-wide text-muted-foreground">
@@ -167,11 +161,13 @@ function Segmented<T extends string>({
       {options.map((opt) => {
         const active = opt.value === value;
         return (
-          <button
+          <Button
             key={opt.value}
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => onChange(opt.value)}
-            className={`min-h-9 px-2 rounded-lg text-micro font-medium inline-flex items-center justify-center gap-1.5 transition-motion ${
+            className={`min-h-[var(--ui-touch-min)] h-auto whitespace-normal px-2 py-1 rounded-lg text-micro font-medium inline-flex items-center justify-center gap-1.5 transition-motion ${
               active
                 ? 'bg-background text-foreground '
                 : 'text-muted-foreground hover:text-foreground'
@@ -179,8 +175,8 @@ function Segmented<T extends string>({
             aria-pressed={active}
           >
             {opt.icon}
-            <span className="truncate">{opt.label}</span>
-          </button>
+            <span className="min-w-0 text-center leading-snug">{opt.label}</span>
+          </Button>
         );
       })}
     </div>
@@ -201,16 +197,13 @@ function ToggleRow({
   return (
     <label className="flex items-start justify-between gap-3 py-1.5 cursor-pointer">
       <div className="min-w-0 flex-1">
-        <p className="text-mini font-medium text-foreground leading-tight">
-          {label}
-        </p>
+        <p className="text-mini font-medium text-foreground leading-tight">{label}</p>
         {description && (
-          <p className="text-micro text-muted-foreground mt-0.5 leading-snug">
-            {description}
-          </p>
+          <p className="text-micro text-muted-foreground mt-0.5 leading-snug">{description}</p>
         )}
       </div>
       <Switch
+        aria-label={label}
         checked={checked}
         onCheckedChange={onChange}
         className="shrink-0 mt-0.5"
