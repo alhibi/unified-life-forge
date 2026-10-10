@@ -121,7 +121,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           ? { duration: 0.12, ease: 'linear' }
           : { ...MOTION.spring, delay: Math.min(index, 6) * 0.03 }
       }
-       className={cn('relative', !list && 'portal-widget-cell')}
+      className={cn('relative', !list && 'portal-widget-cell')}
       data-tile-tone={identity.tone}
     >
       <Button
@@ -151,82 +151,75 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         data-portal-tile={app.key}
         activation="click"
         className={cn(
-          'portal-app-widget rich-widget shadow-e2 group relative w-full overflow-hidden rounded-card bg-tile-surface text-start whitespace-normal text-tile-foreground',
-          'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5',
-          'active:translate-y-0 active:scale-[0.985]',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-          active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
+          'rich-widget group relative w-full overflow-hidden bg-tile-surface text-start whitespace-normal text-tile-foreground',
+          'transition-[transform,background-color,box-shadow] duration-normal ease-out-expo',
+          'hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100',
+          active && 'ring-2 ring-inset ring-tile-foreground',
           list
-            ? 'flex h-auto items-center gap-3 p-4'
-             : 'flex h-full min-h-44 flex-col justify-between p-5',
+            ? 'flex h-auto items-center gap-3 rounded-card p-4 shadow-e2'
+            : 'portal-app-widget flex h-full flex-col items-stretch justify-between gap-4 p-4 sm:p-5',
         )}
       >
-        <TileMotif motif={identity.motif} />
+        {!list && (
+          <span className="portal-widget-glyph" aria-hidden>
+            <Icon className="h-full w-full" />
+          </span>
+        )}
 
-        <div
+        {/* Inverted solid chip: ink body, material-coloured glyph. */}
+        <span
           className={cn(
-            'relative z-10 flex w-full',
-              list ? 'items-center gap-3' : 'flex-col gap-5',
+            'relative z-10 flex shrink-0 items-center justify-center rounded-full',
+            'portal-widget-chip shadow-e1',
+            'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
+            'h-12 w-12',
           )}
+          aria-hidden
         >
-          {/* A sculpted icon well belongs to the widget's own material. */}
-          <span
-            className={cn(
-              'flex shrink-0 items-center justify-center rounded-[var(--r-md)]',
-              'widget-icon-well shadow-e1',
-              'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
-               list ? 'h-12 w-12' : 'h-12 w-12',
-            )}
-          >
-            <Icon className="h-6 w-6" aria-hidden />
-          </span>
+          <Icon className="h-6 w-6" />
+        </span>
 
-          <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5">
+        <span className={cn('relative z-10 min-w-0', list && 'flex-1')}>
+          <span className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                'break-words text-tile-foreground',
+                list ? 'type-body font-semibold' : 'portal-widget-title',
+              )}
+            >
+              {app.label}
+            </span>
+            {pinned && <Pin className="h-3.5 w-3.5 shrink-0 text-tile-foreground" aria-hidden />}
+            {typeof badge === 'number' && badge > 0 && (
               <span
-                className={cn('break-words text-tile-foreground', list ? 'type-body' : 'type-section')}
+                className="flex min-w-6 items-center justify-center rounded-full bg-tile-foreground px-1.5 py-0.5 text-micro font-bold tabular-nums text-tile-surface"
+                aria-label={`${badge} غير مقروء`}
               >
-                {app.label}
-              </span>
-                {pinned && <Pin className="h-3 w-3 shrink-0 text-tile-foreground" aria-hidden />}
-            </span>
-            <span className="text-mini mt-1 block text-muted-foreground">
-              {app.description}
-            </span>
-            {!list && (
-              <span className="type-meta mt-2 block font-medium text-tile-foreground">
-                {app.caption}
+                {badge > 99 ? '99+' : badge}
               </span>
             )}
           </span>
-
-          {list && (
-            <ChevronRight
-              className="ms-auto me-9 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
-              aria-hidden
-            />
-          )}
-        </div>
-
-        {typeof badge === 'number' && badge > 0 && (
           <span
             className={cn(
-              'absolute z-10 flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5',
-              // Unread is literally "what changed", which is what the signal
-              // accent is reserved for.
-              'bg-[hsl(var(--signal))] text-micro font-semibold tabular-nums text-[hsl(var(--signal-foreground))]',
-              list ? 'end-12 top-1/2 -translate-y-1/2' : 'top-3 end-3',
+              'mt-1 block text-mini font-medium text-muted-foreground',
+              !list && 'portal-widget-desc',
             )}
-            aria-label={`${badge} غير مقروء`}
           >
-            {badge > 99 ? '99+' : badge}
+            {app.description}
           </span>
+        </span>
+
+        {list && (
+          <ChevronRight
+            className="ms-auto me-9 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180"
+            aria-hidden
+          />
         )}
       </Button>
 
-      {/* Detail affordance */}
+      {/* Detail affordance — a real 44px control, top-end like a widget menu. */}
       <Button
         variant="ghost"
         type="button"
@@ -236,11 +229,11 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute z-10 flex h-11 w-11 items-center justify-center rounded-button',
-          'widget-icon-well text-tile-foreground transition-[background-color,color] duration-fast',
-          'hover:bg-tile-container hover:text-tile-container-foreground',
+          'absolute z-10 flex h-11 w-11 items-center justify-center rounded-full',
+          'bg-tile-foreground/10 text-tile-foreground transition-[background-color,color] duration-fast',
+          'hover:bg-tile-foreground hover:text-tile-surface',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          list ? 'end-2 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
+          list ? 'end-2 top-1/2 -translate-y-1/2' : 'top-3 end-3',
         )}
       >
         <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />
