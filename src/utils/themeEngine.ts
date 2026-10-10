@@ -954,18 +954,31 @@ export function generateThemeTokens(
   lift: SurfaceLift = 'subtle',
 ): Record<string, string> {
   const art = themeArtDirection(preset.id);
-  const presence = { neutral: 0.14, tonal: 0.24, vibrant: 0.34, expressive: 0.44 }[style] ?? 0.24;
+  const presence = { neutral: 0.22, tonal: 0.34, vibrant: 0.46, expressive: 0.58 }[style] ?? 0.24;
   const modeColors = isDark ? preset.dark : preset.light;
   const rawBg = hexToHsl(modeColors.bg);
   const rawSurface = hexToHsl(modeColors.surface);
 
   // OLED black mode keeps the palette's hue instead of collapsing to a
   // neutral #080808 whose card colour no longer belongs to the theme.
-  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : rawBg;
+  // Tonal surfaces (Material You): page and cards carry the theme's own
+  // accent body instead of near-neutral paper. Mono stays truly neutral.
+  const tintSource = hexToHsl(modeColors.accent);
+  const tintScale = art.categoryPresence === 0 ? 0 : 0.6 + presence;
+  const bgTint = (isDark ? 0.13 : 0.09) * tintScale;
+  const cardTint = (isDark ? 0.2 : 0.15) * tintScale;
+  // Tint adds chroma only; authored tone (lightness) is preserved so ink
+  // contrast and the elevation ladder keep their calibrated headroom.
+  const tintedBg = withPerceptualL(mixHsl(tintSource, rawBg, bgTint), perceptualL(rawBg));
+  const tintedSurface = withPerceptualL(
+    mixHsl(tintSource, rawSurface, cardTint),
+    perceptualL(rawSurface),
+  );
+  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : tintedBg;
   const surfaceBase: Hsl =
     isDark && isBlack
-      ? withPerceptualL(rawSurface, Math.max(0.24, perceptualL(rawSurface) - 0.025))
-      : rawSurface;
+      ? withPerceptualL(tintedSurface, Math.max(0.26, perceptualL(tintedSurface) - 0.025))
+      : tintedSurface;
 
   // Surface lift is a tone decision: flat sits on the page, lifted floats.
   const liftDelta = lift === 'flat' ? -1.5 : lift === 'lifted' ? 2.5 : 0;
@@ -1075,7 +1088,11 @@ export function generateThemeTokens(
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(tone, surfHsl, art.categoryPresence * (0.12 + presence * 0.3));
+    const categorySurface = mixHsl(
+      tone,
+      surfHsl,
+      Math.min(isDark ? 0.14 : 0.3, art.categoryPresence * (0.12 + presence * 0.3)),
+    );
     const categoryContainer = mixHsl(
       tone,
       surfHsl,
@@ -1132,7 +1149,7 @@ export function generateThemeTokens(
   const scaleVars: Record<string, string> = {
     '--theme-ink': inkStr,
     // The scrim carries the palette's hue so overlays belong to the theme.
-    '--scrim': hslToString([bgHsl[0], Math.min(bgHsl[1], 10), isDark ? 4 : 8]),
+    '--scrim': hslToString([rawBg[0], Math.min(rawBg[1], 10), isDark ? 4 : 8]),
   };
 
   const ladder = buildToneLadder(bgHsl, surfHsl, inkHsl, accHsl, isDark);
