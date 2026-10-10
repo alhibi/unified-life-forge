@@ -173,7 +173,7 @@ function SunnahFace() {
           <span
             key={day}
             className={cn(
-              'flex aspect-[3/4] items-end justify-center rounded-full pb-1 text-[0.6rem] font-bold',
+              'flex aspect-[3/4] items-end justify-center rounded-full pb-1 text-micro font-bold',
               index === today
                 ? 'bg-tile-foreground text-tile-surface'
                 : 'bg-tile-foreground/12 text-tile-foreground',

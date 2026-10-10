@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { FACE_KEYS } from './AppTileFaces';
 import { PORTAL_APPS } from './apps';
+import { FACE_KEYS } from './AppTileFaces';
 
 describe('launcher widget faces', () => {
   it('gives every launcher app its own bespoke composition', () => {
