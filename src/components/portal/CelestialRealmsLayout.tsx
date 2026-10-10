@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 import { PORTAL_APPS, type PortalApp } from '@/components/portal/apps';
 import AppTile from '@/components/portal/AppTile';
 import { usePortalPrefs } from '@/components/portal/usePortalPrefs';
+import { widgetSpans } from '@/components/portal/widgetSpans';
 import { BookOpen, Brain, Dumbbell, Gamepad2 } from '@/lib/icons';
 
 interface CelestialRealmsLayoutProps {
@@ -104,6 +105,8 @@ export default function CelestialRealmsLayout({
     return groups;
   }, [visibleApps]);
 
+  const searchSpans = useMemo(() => widgetSpans(visibleApps.length), [visibleApps.length]);
+
   if (isSearching) {
     return (
       <div className="@container space-y-4">
@@ -116,6 +119,7 @@ export default function CelestialRealmsLayout({
                 app={app}
                 index={index}
                 list={list}
+                wide={searchSpans[index]}
                 active={focusedKey === app.key}
                 pinned={isPinned(app.key)}
                 badge={app.key === 'chat' ? unreadCount : undefined}
@@ -139,6 +143,7 @@ export default function CelestialRealmsLayout({
         if (appsInRealm.length === 0) return null;
 
         const Icon = realm.icon;
+        const spans = widgetSpans(appsInRealm.length);
 
         return (
           <section key={realm.key} className="space-y-4" data-tile-tone={realm.tone}>
@@ -167,7 +172,7 @@ export default function CelestialRealmsLayout({
             {/* Realm Apps Grid */}
             <div className={gridClass}>
               <AnimatePresence initial={false} mode="popLayout">
-                {appsInRealm.map((app) => {
+                {appsInRealm.map((app, position) => {
                   // Find raw index in the master registry to keep stagger calculations correct
                   const registryIndex = PORTAL_APPS.findIndex((a) => a.key === app.key);
                   return (
@@ -176,6 +181,7 @@ export default function CelestialRealmsLayout({
                       app={app}
                       index={registryIndex !== -1 ? registryIndex : 0}
                       list={list}
+                      wide={spans[position]}
                       active={focusedKey === app.key}
                       pinned={isPinned(app.key)}
                       badge={app.key === 'chat' ? unreadCount : undefined}
