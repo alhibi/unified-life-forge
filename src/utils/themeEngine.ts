@@ -967,8 +967,13 @@ export function generateThemeTokens(
   const tintScale = art.categoryPresence === 0 ? 0 : 0.6 + presence;
   const bgTint = (isDark ? 0.13 : 0.09) * tintScale;
   const cardTint = (isDark ? 0.2 : 0.15) * tintScale;
-  const tintedBg = mixHsl(tintSource, rawBg, bgTint);
-  const tintedSurface = mixHsl(tintSource, rawSurface, cardTint);
+  // Tint adds chroma only; authored tone (lightness) is preserved so ink
+  // contrast and the elevation ladder keep their calibrated headroom.
+  const tintedBg = withPerceptualL(mixHsl(tintSource, rawBg, bgTint), perceptualL(rawBg));
+  const tintedSurface = withPerceptualL(
+    mixHsl(tintSource, rawSurface, cardTint),
+    perceptualL(rawSurface),
+  );
   const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : tintedBg;
   const surfaceBase: Hsl =
     isDark && isBlack
