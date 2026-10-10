@@ -9,9 +9,10 @@
  *     expect a launcher to behave like a home screen.
  *
  * Visual contract:
- *   Each tile derives every colour from one `--tile` accent token supplied by
- *   `getTileIdentity`, and carries a single app-specific motif (see
- *   AppTileVisuals). The previous editorial costume — corner crop marks,
+ *   Each tile is a solid widget body whose material tone (0 neutral, 1–6
+ *   category) comes from `getTileIdentity`: an inverted icon chip, an
+ *   oversized cropped glyph as illustration and a heavy headline label.
+ *   The previous editorial costume — corner crop marks,
  *   "Nº 0001 / EST. 2024", the ACTIVE SEAL dot, the fake barcode, a per-tile
  *   SVG noise filter and a React-state 3D tilt — is gone: it was uniform
  *   across apps (so it distinguished nothing) and re-rendered on every
