@@ -1,5 +1,10 @@
 # Roadmap
 
+## Color materiality overhaul — October 10, 2026
+- [ ] Audit surface dilution and author richer solid material roles for all 14 themes, retaining independent mode/OLED/strength preferences.
+- [ ] Replace confirmed translucent structural surfaces in shared controls and actual feature pages without changing media or scrim behavior.
+- [ ] Verify theme/mode/strength/OLED contrast, surface separation, real home/settings/feature views and saved settings; document remaining device/content limits.
+
 ## Full theme identity overhaul — October 10, 2026
 - [x] Inventory all 14 live themes and implement independent material recipes with central semantic roles.
 - [x] Correct OLED, accent presence, preview measurements and saved-choice preservation.
