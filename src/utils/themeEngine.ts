@@ -987,9 +987,10 @@ export function generateThemeTokens(
   const inputStr = solid(inkHsl, bgHsl, lineBase + 0.1); // field outline
   // Secondary navigation is a cooler companion, not a weaker copy of primary.
   // Other saved families retain their established accent relationship.
-  const companion: Hsl = preset.id === 'expressive'
-    ? [(accHsl[0] + 64) % 360, isDark ? 42 : 34, isDark ? 78 : 38]
-    : accHsl;
+  const companion: Hsl =
+    preset.id === 'expressive'
+      ? [(accHsl[0] + 64) % 360, isDark ? 42 : 34, isDark ? 78 : 38]
+      : accHsl;
   const secondarySurface = mixHsl(companion, surfHsl, isDark ? 0.15 : 0.12);
   const secondaryStr = hslToString(secondarySurface);
   const secondaryFgStr = hslToString(ensureContrast(inkHsl, secondarySurface, 4.55));
@@ -1053,9 +1054,13 @@ export function generateThemeTokens(
     const categorySurface = mixHsl(tone, surfHsl, isDark ? 0.085 : 0.055);
     const categoryContainer = mixHsl(tone, surfHsl, isDark ? 0.24 : 0.19);
     categoryContainers[`--data-${index}-surface`] = hslToString(categorySurface);
-    categoryContainers[`--on-data-${index}-surface`] = hslToString(ensureContrast(inkHsl, categorySurface, 7));
+    categoryContainers[`--on-data-${index}-surface`] = hslToString(
+      ensureContrast(inkHsl, categorySurface, 7),
+    );
     categoryContainers[`--data-${index}-container`] = hslToString(categoryContainer);
-    categoryContainers[`--on-data-${index}-container`] = hslToString(ensureContrast(tone, categoryContainer, 4.55));
+    categoryContainers[`--on-data-${index}-container`] = hslToString(
+      ensureContrast(tone, categoryContainer, 4.55),
+    );
   }
 
   // ── Elevation ladder ───────────────────────────────────────

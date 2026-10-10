@@ -11,11 +11,15 @@
 @media (max-width: 767px) {
   button:not([data-soft-keyboard-panel] button):not([data-game-shell] button.aspect-square),
   [role='tab']:not([data-soft-keyboard-panel] [role='tab']),
-  [role='button']:not([data-soft-keyboard-panel] [role='button']):not([data-game-shell] [role='button'].aspect-square) {
+  [role='button']:not([data-soft-keyboard-panel] [role='button']):not(
+      [data-game-shell] [role='button'].aspect-square
+    ) {
     min-height: 44px !important;
     min-width: 44px !important;
   }
-  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='hidden']),
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not(
+      [type='hidden']
+    ),
   select {
     min-height: 44px;
   }

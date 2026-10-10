@@ -58,7 +58,7 @@ const FALLBACK: TileIdentity = { accent: 'var(--primary)', motif: 'dawn' };
 export function getTileIdentity(key: string): TileIdentity {
   const identity = IDENTITY[key] ?? FALLBACK;
   const tone = identity.accent.match(/data-([1-6])/)?.[1];
-  return { ...identity, tone: tone ? Number(tone) as 1 | 2 | 3 | 4 | 5 | 6 : 1 };
+  return { ...identity, tone: tone ? (Number(tone) as 1 | 2 | 3 | 4 | 5 | 6) : 1 };
 }
 
 /* ── motifs ─────────────────────────────────────────────────────────────

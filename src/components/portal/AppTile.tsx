@@ -124,7 +124,8 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       className="relative"
       data-tile-tone={identity.tone}
     >
-      <Button variant="secondary"
+      <Button
+        variant="secondary"
         ref={(el) => registerRef?.(index, el)}
         type="button"
         onClick={handleClick}
@@ -157,7 +158,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
           active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
-          list ? 'flex h-auto items-center gap-3 p-4' : 'flex h-auto min-h-40 flex-col justify-between p-5',
+          list
+            ? 'flex h-auto items-center gap-3 p-4'
+            : 'flex h-auto min-h-40 flex-col justify-between p-5',
         )}
       >
         <TileMotif motif={identity.motif} />
@@ -184,7 +187,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
 
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-1.5">
-              <span className={cn('truncate text-tile-foreground', list ? 'type-body' : 'type-section')}>
+              <span
+                className={cn('truncate text-tile-foreground', list ? 'type-body' : 'type-section')}
+              >
                 {app.label}
               </span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
@@ -224,7 +229,8 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       </Button>
 
       {/* Detail affordance */}
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={(event) => {
           event.stopPropagation();
