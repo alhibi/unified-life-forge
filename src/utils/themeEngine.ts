@@ -233,7 +233,14 @@ function ensureContrast(fg: Hsl, bg: Hsl, target: number): Hsl {
     best = candidate;
     if (contrastRatio(candidate, bg) >= target) return candidate;
   }
-  return best;
+  // Saturated middle-tone containers can exhaust the hue-preserving path
+  // before it reaches white/black (especially on OLED with strong accents).
+  // Readability takes priority: use the higher-contrast neutral endpoint,
+  // rather than returning a candidate that never met the requested ratio.
+  const darkInk: Hsl = [fg[0], 0, 0];
+  const lightInk: Hsl = [fg[0], 0, 100];
+  const endpoint = contrastRatio(darkInk, bg) >= contrastRatio(lightInk, bg) ? darkInk : lightInk;
+  return contrastRatio(best, bg) >= target ? best : endpoint;
 }
 
 /**
