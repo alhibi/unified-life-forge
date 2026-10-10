@@ -5,7 +5,6 @@ import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import { Contrast, Moon, Sun } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
-import { INK_CSS } from '@/utils/themeEngine';
 
 import { SettingsSection } from './AppearancePrimitives';
 
@@ -75,13 +74,13 @@ export default function ModeSection() {
       <div className="flex items-center gap-3 border-t border-border pt-4">
         <span
           className="h-9 w-9 shrink-0 rounded-md border border-border"
-          style={{ backgroundColor: INK_CSS }}
+          style={{ backgroundColor: 'hsl(var(--oled-black))' }}
           aria-hidden
         />
         <div className="min-w-0 flex-1 text-start">
           <h3 className="text-body font-semibold text-foreground">الوضع الأسود</h3>
           <p className="mt-0.5 text-mini text-muted-foreground">
-            أسود مطفي موحّد لشاشات OLED — ليس أسود قاتماً
+            خلفية سوداء حقيقية مع الحفاظ على طبقات الثيم
           </p>
         </div>
         <Switch

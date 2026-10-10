@@ -1,5 +1,12 @@
 # Roadmap
 
+## Full theme identity overhaul — October 10, 2026
+- [x] Inventory all 14 live themes and implement independent material recipes with central semantic roles.
+- [x] Correct OLED, accent presence, preview measurements and saved-choice preservation.
+- [x] Repair confirmed home/weather/game/training chrome bypasses; preserve content, interactions and independent gameplay/media materials.
+- [x] Verify 168 generated mobile theme/mode/strength/OLED combinations, 28 home captures, 24 route states and saved settings; 754 distinct targeted tests, lint budget and architecture pass, automatic build OK.
+- [ ] Exhaustive content-dependent visual/accessibility sign-off across every detail, chart, media overlay and folding posture — requires representative content and physical devices; no blanket all-product compliance claim.
+
 ## Harmonized color hierarchy — October 10, 2026
 - [x] Rebalance shared surface tones and coordinated primary/secondary/tertiary roles without changing user appearance choices.
 - [x] Apply purposeful category color hierarchy to portal tiles and shared controls.

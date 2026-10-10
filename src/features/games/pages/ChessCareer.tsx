@@ -206,7 +206,7 @@ export default function ChessCareerPage() {
               <div className="flex items-center gap-3">
                 {/* Rank pill */}
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-display shrink-0 ${
-                  beaten ? 'bg-data-1/15' : isCurrent ? 'bg-data-6/20 ring-2 ring-data-6/40' : 'bg-white/5'
+                  beaten ? 'bg-data-1/15' : isCurrent ? 'bg-data-6/20 ring-2 ring-data-6/40' : 'bg-secondary'
                 }`}>
                   {unlocked ? bot.emoji : <Lock className="w-4 h-4 text-muted-foreground" />}
                 </div>
@@ -214,7 +214,7 @@ export default function ChessCareerPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={`text-micro font-mono px-1.5 py-0.5 rounded ${
-                      beaten ? 'bg-data-1/15 text-data-1' : 'bg-white/5 text-muted-foreground'
+                      beaten ? 'bg-data-1/15 text-data-1' : 'bg-secondary text-muted-foreground'
                     }`}>
                       #{idx + 1}
                     </span>
@@ -253,7 +253,7 @@ export default function ChessCareerPage() {
         {selected && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/70 flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-[hsl(var(--scrim)/0.72)] flex items-end sm:items-center justify-center p-4"
             onClick={() => setSelected(null)}
           >
             <motion.div
@@ -304,7 +304,7 @@ export default function ChessCareerPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelected(null)}
-                  className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-meta"
+                  className="flex-1 py-3 rounded-xl bg-secondary text-foreground font-bold text-meta"
                 >
                   {'إلغاء'}
                 </button>

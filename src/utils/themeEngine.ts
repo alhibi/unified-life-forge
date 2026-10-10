@@ -1,5 +1,7 @@
 import { applyRootTokens } from '@/lib/rootTokens';
 
+import { type ThemeArtDirection, themeArtDirection } from './themeArtDirections';
+
 // ─── Token Architecture ─────────────────────────────────────
 // Four seed roles per mode generate coordinated surfaces, interaction roles
 // and contrast-checked category containers. Typography is owned by fonts.ts.
@@ -32,6 +34,7 @@ export interface ThemePreset {
   name: string;
   nameEn: string;
   font: 'Inter Display';
+  artDirection: ThemeArtDirection;
   light: ThemeColorSet;
   dark: ThemeColorSet;
   // ── Legacy Compatibility ───────────────────────────────
@@ -261,7 +264,7 @@ const ACCENT_STRENGTH: Record<ThemeStyle | 'rainbow', { sat: number; lift: numbe
 
 function applyAccentStrength(accent: Hsl, style: ThemeStyle, isDark: boolean): Hsl {
   const spec = ACCENT_STRENGTH[style] ?? ACCENT_STRENGTH.tonal;
-  const sat = Math.min(96, Math.max(6, accent[1] * spec.sat));
+  const sat = Math.min(96, Math.max(0, accent[1] * spec.sat));
   const lift = isDark ? spec.lift : -spec.lift * 0.6;
   const lightness = Math.min(82, Math.max(18, accent[2] + lift));
   return [accent[0], Math.round(sat * 10) / 10, Math.round(lightness * 10) / 10];
@@ -296,7 +299,7 @@ function ensureSurfaceSeparation(surface: Hsl, bg: Hsl, isDark: boolean): Hsl {
  */
 function buildToneLadder(bg: Hsl, surface: Hsl, ink: Hsl, accent: Hsl, isDark: boolean): Hsl[] {
   return [
-    elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
+    isDark && bg[2] === 0 ? bg : elevate(bg, isDark, -0.03), // 25  — recessed plane (wells, tracks)
     bg, // 50  — page
     surface, // 100 — card
     elevate(surface, isDark, 0.035), // 200 — raised plane (popovers, sheets)
@@ -519,7 +522,12 @@ function statusTokens(bg: Hsl, card: Hsl): Record<string, string> {
  * and a card, hue and chroma preserved. Because the walk only ever moves tone,
  * and the six hues are far apart to begin with, the series stay separable.
  */
-function dataTokens(bg: Hsl, card: Hsl, isDark: boolean): Record<string, string> {
+function dataTokens(
+  bg: Hsl,
+  card: Hsl,
+  isDark: boolean,
+  art: ThemeArtDirection,
+): Record<string, string> {
   // Hue and saturation are the palette's identity — fixed, and deliberately
   // muted. Only lightness is resolved, and only against the active surfaces.
   const SEEDS: Array<[index: number, h: number, s: number, light: number, dark: number]> = [
@@ -586,7 +594,11 @@ function dataTokens(bg: Hsl, card: Hsl, isDark: boolean): Record<string, string>
 
   const out: Record<string, string> = {};
   for (const [i, h, s, light, darkLight] of SEEDS) {
-    const seed: Hsl = [h, s, isDark ? darkLight : light];
+    const seed: Hsl = [
+      art.dataHues[i - 1] ?? h,
+      Math.min(s, art.dataChroma),
+      art.dataChroma === 0 ? (isDark ? 94 - i * 3 : 9 + i * 3) : isDark ? darkLight : light,
+    ];
     const goDarker = relativeLuminance(bg) > 0.18;
 
     const clears = (t: Hsl) => {
@@ -699,6 +711,7 @@ function definePreset(
     name,
     nameEn,
     font: 'Inter Display',
+    artDirection: themeArtDirection(id),
     light,
     dark,
     scale,
@@ -742,8 +755,8 @@ export const themePresets: ThemePreset[] = [
     'paper',
     'ورق وحبر',
     'Paper & Ink',
-    { bg: '#F5F0E8', surface: '#FBF8F3', ink: '#1A1A1F', accent: '#8A5B3D' },
-    { bg: '#12110F', surface: '#1A1916', ink: '#F2E9D8', accent: '#B8492E' },
+    { bg: '#EDE8DF', surface: '#FCFAF5', ink: '#272725', accent: '#874B3E' },
+    { bg: '#171614', surface: '#282622', ink: '#F1EDE3', accent: '#D5A08D' },
   ),
   definePreset(
     'mono',
@@ -756,8 +769,8 @@ export const themePresets: ThemePreset[] = [
     'obsidian',
     'سبج',
     'Obsidian',
-    { bg: '#E6E4E2', surface: '#F0EDE9', ink: '#1A1917', accent: '#B8860B' },
-    { bg: '#0A0A0B', surface: '#151517', ink: '#F5F2EB', accent: '#D4AF37' },
+    { bg: '#E5E7E8', surface: '#F8F9F9', ink: '#202426', accent: '#535F69' },
+    { bg: '#0D1012', surface: '#24292D', ink: '#EEF1F2', accent: '#B8CBCF' },
   ),
   definePreset(
     'clay',
@@ -784,8 +797,8 @@ export const themePresets: ThemePreset[] = [
     'ocean',
     'محيط',
     'Ocean',
-    { bg: '#E0F2F1', surface: '#B2DFDB', ink: '#004D40', accent: '#00796B' },
-    { bg: '#001211', surface: '#002926', ink: '#E0F2F1', accent: '#26A69A' },
+    { bg: '#E7EFF0', surface: '#F7FBFB', ink: '#1C3438', accent: '#146A73' },
+    { bg: '#0D191C', surface: '#203338', ink: '#E8F1F2', accent: '#8FCBCD' },
   ),
   definePreset(
     'arctic',
@@ -933,13 +946,15 @@ export function generateThemeTokens(
   isBlack: boolean,
   lift: SurfaceLift = 'subtle',
 ): Record<string, string> {
+  const art = themeArtDirection(preset.id);
+  const presence = { neutral: 0.07, tonal: 0.16, vibrant: 0.25, expressive: 0.36 }[style] ?? 0.16;
   const modeColors = isDark ? preset.dark : preset.light;
   const rawBg = hexToHsl(modeColors.bg);
   const rawSurface = hexToHsl(modeColors.surface);
 
   // OLED black mode keeps the palette's hue instead of collapsing to a
   // neutral #080808 whose card colour no longer belongs to the theme.
-  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], Math.min(rawBg[1], 12), 2.5] : rawBg;
+  const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : rawBg;
   const surfaceBase: Hsl =
     isDark && isBlack
       ? [rawSurface[0], Math.min(rawSurface[1], 14), Math.max(7, rawSurface[2] - 3)]
@@ -982,21 +997,19 @@ export function generateThemeTokens(
   // fully borderless card loses its edge on a busy photo — but it no longer
   // draws the eye before the content does. Inputs stay a step stronger because
   // a field must announce that it is editable.
-  const lineBase = isDark ? 0.17 : 0.12;
+  const lineBase = art.edge + (isDark ? 0.04 : 0);
   const borderStr = solid(inkHsl, bgHsl, lineBase); // hairline
-  const inputStr = solid(inkHsl, bgHsl, lineBase + 0.1); // field outline
   // Secondary navigation is a cooler companion, not a weaker copy of primary.
   // Other saved families retain their established accent relationship.
-  const companion: Hsl =
-    preset.id === 'expressive'
-      ? [(accHsl[0] + 64) % 360, isDark ? 42 : 34, isDark ? 78 : 38]
-      : accHsl;
-  const secondarySurface = mixHsl(companion, surfHsl, isDark ? 0.15 : 0.12);
+  const companion = hexToHsl(art.companion[isDark ? 1 : 0]);
+  const secondarySurface = mixHsl(companion, surfHsl, isDark ? 0.16 : 0.11);
   const secondaryStr = hslToString(secondarySurface);
   const secondaryFgStr = hslToString(ensureContrast(inkHsl, secondarySurface, 4.55));
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
-  const mutedFgStr = hslToString(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5));
+  const mutedFgStr = hslToString(
+    ensureContrast(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.55), surfHsl, 4.55),
+  );
   // De-emphasised text that is SAFE TO USE.
   //
   // The app reached for `text-muted-foreground/70` to mean "less important"
@@ -1022,7 +1035,7 @@ export function generateThemeTokens(
   // inventing an arbitrary opacity. The ordering is intentionally monotonic.
   const interactiveHover = mixHsl(inkHsl, bgHsl, isDark ? 0.11 : 0.075);
   const interactivePressed = mixHsl(inkHsl, bgHsl, isDark ? 0.2 : 0.14);
-  const interactiveSelected = mixHsl(accHsl, bgHsl, isDark ? 0.24 : 0.16);
+  const interactiveSelected = mixHsl(accHsl, bgHsl, 0.18 + presence * 0.5 + (isDark ? 0.08 : 0));
 
   // Navigation is slightly more grounded than the page; overlays use the
   // highest elevation plane. Both receive their own contrast-corrected ink.
@@ -1038,21 +1051,29 @@ export function generateThemeTokens(
       4.5,
     ),
   );
-  const container = mixHsl(accHsl, surfHsl, isDark ? 0.28 : 0.2);
+  const container = mixHsl(accHsl, surfHsl, presence + (isDark ? 0.06 : 0));
   const containerInk = ensureContrast(inkHsl, container, 4.55);
-  const tertiary: Hsl = isDark ? [12, 84, 76] : [12, 64, 38];
+  const tertiary = hexToHsl(art.tertiary[isDark ? 1 : 0]);
   const tertiaryColor = ensureContrast(ensureContrast(tertiary, bgHsl, 4.5), surfHsl, 4.5);
   const tertiaryContainer = mixHsl(tertiaryColor, surfHsl, isDark ? 0.17 : 0.1);
 
   // Category identity has two weights: a quiet content surface and a richer
   // icon container. Solid mixes avoid unpredictable alpha over nested surfaces.
-  const categories = dataTokens(bgHsl, surfHsl, isDark);
+  const categories = dataTokens(bgHsl, surfHsl, isDark, art);
   const categoryContainers: Record<string, string> = {};
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(tone, surfHsl, isDark ? 0.085 : 0.055);
-    const categoryContainer = mixHsl(tone, surfHsl, isDark ? 0.24 : 0.19);
+    const categorySurface = mixHsl(
+      tone,
+      surfHsl,
+      art.categoryPresence * presence * (isDark ? 0.6 : 0.35),
+    );
+    const categoryContainer = mixHsl(
+      tone,
+      surfHsl,
+      art.categoryPresence * presence + (isDark ? 0.08 : 0.06),
+    );
     categoryContainers[`--data-${index}-surface`] = hslToString(categorySurface);
     categoryContainers[`--on-data-${index}-surface`] = hslToString(
       ensureContrast(inkHsl, categorySurface, 7),
@@ -1068,8 +1089,8 @@ export function generateThemeTokens(
   // that belongs to it. Depth is expressed twice — as tone AND as shadow —
   // because a dark theme reads elevation from tone and a light theme reads it
   // from the shadow.
-  const surface2 = elevate(surfHsl, isDark, 0.035);
-  const surface3 = elevate(surfHsl, isDark, 0.07);
+  const surface2 = elevate(surfHsl, isDark, art.elevation);
+  const surface3 = elevate(surfHsl, isDark, art.elevation * 2);
   const overlayInk = ensureContrast(inkHsl, surface3, 4.5);
 
   const shadowRgb = isDark ? '0,0,0' : hslToRgbTriplet([inkHsl[0], Math.min(inkHsl[1], 22), 18]);
@@ -1086,10 +1107,11 @@ export function generateThemeTokens(
   // One value per plane: the higher the surface sits, the more light its top
   // edge catches. e1 is a card resting on the page, e4 a modal over a scrim.
   const rimAlpha = [0.05, 0.07, 0.09, 0.11];
-  const rim = (i: number) => (isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i]})` : 'none');
+  const rim = (i: number) =>
+    isDark ? `inset 0 1px 0 rgba(${rimRgb},${rimAlpha[i] * art.rim})` : 'none';
 
   const plane = (i: number, blurContact: string, blurAmbient: string) =>
-    `${isDark ? `${rim(i)}, ` : ''}${blurContact} rgba(${shadowRgb},${contact[i]}), ${blurAmbient} rgba(${shadowRgb},${ambient[i]})`;
+    `${isDark ? `${rim(i)}, ` : ''}${blurContact} rgba(${shadowRgb},${contact[i] * art.shadow}), ${blurAmbient} rgba(${shadowRgb},${ambient[i] * art.shadow})`;
   const shadow1 = plane(0, '0 1px 1.5px', '0 1px 4px');
   const shadow2 = plane(1, '0 1px 2px', '0 4px 12px');
   const shadow3 = plane(2, '0 2px 4px', '0 12px 28px');
@@ -1113,12 +1135,25 @@ export function generateThemeTokens(
 
   return {
     ...scaleVars,
+    '--art-corner': String(art.corner),
+    '--art-icon-corner': String(art.iconCorner),
+    '--art-edge': String(art.edge),
+    '--selected-indicator': accStr,
+    '--sun': hslToString(
+      preset.id === 'mono' ? accHsl : ensureContrast([42, 72, isDark ? 72 : 38], surfHsl, 3.05),
+    ),
+    '--moon': hslToString(
+      preset.id === 'mono' ? companion : ensureContrast([240, 32, isDark ? 80 : 45], surfHsl, 3.05),
+    ),
+    '--information': hslToString(
+      ensureContrast(ensureContrast(companion, bgHsl, 4.55), surfHsl, 4.55),
+    ),
     '--background': bgStr,
     '--foreground': inkStr,
     '--card': surfStr,
     '--card-foreground': inkStr,
-    '--popover': surfStr,
-    '--popover-foreground': inkStr,
+    '--popover': hslToString(surface3),
+    '--popover-foreground': hslToString(overlayInk),
     '--secondary': secondaryStr,
     '--secondary-foreground': secondaryFgStr,
     '--muted': mutedStr,
@@ -1161,12 +1196,18 @@ export function generateThemeTokens(
     // The single chromatic accent. Its hue is fixed so "changed / active /
     // measured" reads identically in every palette; only its tone is resolved
     // against the active canvas so it never glares or sinks.
-    ...signalTokens(bgHsl, inkHsl, isDark),
+    ...(preset.id === 'mono'
+      ? {
+          '--signal': accStr,
+          '--signal-soft': hslToString(container),
+          '--signal-foreground': primaryFgStr,
+        }
+      : signalTokens(bgHsl, inkHsl, isDark)),
     // The lowest-contrast surface: dividers, rails, chart grids.
     '--track': solid(inkHsl, bgHsl, isDark ? 0.13 : 0.09),
     // Lines
     '--border': borderStr,
-    '--input': inputStr,
+    '--input': hslToString(ensureContrast(mixHsl(inkHsl, surfHsl, 0.38), surfHsl, 3.05)),
     '--ring': accStr,
     // Sidebar mirrors
     '--sidebar-background': bgStr,
@@ -1183,6 +1224,9 @@ export function generateThemeTokens(
     '--live-glow': accStr,
     // Extra elements
     '--card-shadow': cardShadow,
+    '--shadow-color': hslToString([inkHsl[0], Math.min(inkHsl[1], 22), 18]),
+    '--shadow-control': shadow1,
+    '--shadow-control-pressed': `inset 0 1px 2px rgba(${shadowRgb},${0.1 * art.shadow})`,
     '--accent-highlight': accentHighlightStr,
     // Planes: 0 is the page, 1 the card, 2 popovers/sheets, 3 anything that
     // floats above them (dialogs, menus, the command palette).
@@ -1220,16 +1264,11 @@ export function getThemeScale(
   style: ThemeStyle = 'neutral',
   isDark = false,
 ): Hsl[] {
-  const mode = isDark ? preset.dark : preset.light;
-  const bg = hexToHsl(mode.bg);
-  const surface = ensureSurfaceSeparation(hexToHsl(mode.surface), bg, isDark);
-  const ink = ensureContrast(hexToHsl(mode.ink), bg, 7);
-  const accent = ensureContrast(
-    ensureContrast(applyAccentStrength(hexToHsl(mode.accent), style, isDark), bg, 4.55),
-    surface,
-    4.55,
-  );
-  return buildToneLadder(bg, surface, ink, accent, isDark);
+  const tokens = generateThemeTokens(preset, style, isDark, false);
+  return SCALE_STEPS.map((step) => {
+    const [h, s, l] = tokens[`--theme-${step}`].split(' ').map(parseFloat);
+    return [h, s, l] as Hsl;
+  });
 }
 
 export function getThemeScaleColors(

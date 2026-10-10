@@ -109,14 +109,14 @@ function buildNightPaths(date: Date): string[] {
 // UI meta
 // ─────────────────────────────────────────────────────────────────────────────
 const SLOT_META: Record<PrayerSlot, { ar: string; color: string }> = {
-  fajr: { ar: 'الفجر', color: 'hsl(43, 96%, 66%)' },
-  shuruq: { ar: 'الشروق', color: 'hsl(32, 95%, 64%)' },
-  duha: { ar: 'الضحى', color: 'hsl(48, 92%, 60%)' },
-  dhuhr: { ar: 'الظهر', color: 'hsl(196, 78%, 62%)' },
-  asr: { ar: 'العصر', color: 'hsl(18, 78%, 60%)' },
-  maghrib: { ar: 'المغرب', color: 'hsl(348, 76%, 62%)' },
-  isha: { ar: 'العشاء', color: 'hsl(252, 62%, 66%)' },
-  night: { ar: 'الليل', color: 'hsl(220, 25%, 55%)' },
+  fajr: { ar: 'الفجر', color: 'hsl(var(--data-4))' },
+  shuruq: { ar: 'الشروق', color: 'hsl(var(--sun))' },
+  duha: { ar: 'الضحى', color: 'hsl(var(--data-3))' },
+  dhuhr: { ar: 'الظهر', color: 'hsl(var(--data-1))' },
+  asr: { ar: 'العصر', color: 'hsl(var(--data-2))' },
+  maghrib: { ar: 'المغرب', color: 'hsl(var(--data-5))' },
+  isha: { ar: 'العشاء', color: 'hsl(var(--data-6))' },
+  night: { ar: 'الليل', color: 'hsl(var(--muted-foreground))' },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

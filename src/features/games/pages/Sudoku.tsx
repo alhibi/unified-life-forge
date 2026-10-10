@@ -568,10 +568,10 @@ export default function SudokuPage() {
 
   const timerDisplay = (
     <div className="flex items-center gap-2">
-      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 active:scale-90 transition-transform">
+      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary active:scale-90 transition-transform">
         {isPaused ? <Play className="w-3.5 h-3.5 text-muted-foreground" /> : <Pause className="w-3.5 h-3.5 text-muted-foreground" />}
       </button>
-      <div className="flex items-center gap-1 text-mini text-muted-foreground bg-white/5 px-2.5 py-1 rounded-full tabular-nums">
+      <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary px-2.5 py-1 rounded-full tabular-nums">
         <Clock className="w-3 h-3" />{formatTimer(timer)}
       </div>
       {errorCount > 0 && (
@@ -769,7 +769,7 @@ export default function SudokuPage() {
         {smartHint && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/70 flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-[hsl(var(--scrim)/0.72)] flex items-end sm:items-center justify-center p-4"
             onClick={() => setSmartHint(null)}
           >
             <motion.div
@@ -828,7 +828,7 @@ export default function SudokuPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSmartHint(null)}
-                  className="flex-1 py-2.5 rounded-xl bg-white/5 text-foreground font-bold text-meta"
+                  className="flex-1 py-2.5 rounded-xl bg-secondary text-foreground font-bold text-meta"
                 >
                   {'فهمت'}
                 </button>

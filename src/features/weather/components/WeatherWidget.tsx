@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Button } from '@/components/ui/button';
 import { useWeatherLocation } from '@/features/weather/context/WeatherLocationContext';
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 // One WMO code vocabulary for the whole app — see features/weather/lib/conditions.
@@ -26,7 +27,9 @@ export default function WeatherWidget() {
   const hours = useMemo(() => {
     if (!data) return [];
     const now = Date.now();
-    const upcoming = data.hourly.filter((h) => h.time >= now - 30 * 60 * 1000).slice(0, HOURS_AHEAD);
+    const upcoming = data.hourly
+      .filter((h) => h.time >= now - 30 * 60 * 1000)
+      .slice(0, HOURS_AHEAD);
     if (upcoming.length === 0) return [];
     const temps = upcoming.map((h) => h.temperature);
     const min = Math.min(...temps);
@@ -58,16 +61,18 @@ export default function WeatherWidget() {
   const cond = labelForWeatherCode(current.weatherCode);
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      activation="click"
       onClick={() => navigate('/weather')}
       dir="rtl"
-      className="app-card app-card-bare app-card-pressable w-full overflow-hidden text-start"
+      className="app-card app-card-bare app-card-pressable h-auto w-full flex-col items-stretch gap-0 overflow-hidden p-0 text-start whitespace-normal"
       aria-label="فتح تفاصيل الطقس"
     >
       {/* Headline */}
       <div className="flex items-start gap-3 px-3.5 pt-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-button bg-secondary">
+          <Icon className="h-5 w-5 text-secondary-foreground" strokeWidth={1.5} />
         </span>
 
         <span className="min-w-0 flex-1">
@@ -78,15 +83,18 @@ export default function WeatherWidget() {
             >
               {temp}°
             </span>
-            <span className="truncate text-mini text-muted-foreground">{cond}</span>
+            <span className="text-mini text-muted-foreground">{cond}</span>
           </span>
-          <span className="mt-1 flex items-center gap-2 text-micro text-muted-foreground tabular-nums" dir="ltr">
+          <span
+            className="mt-1 flex items-center gap-2 text-micro text-muted-foreground tabular-nums"
+            dir="ltr"
+          >
             <span>H {hi}°</span>
             <span className="opacity-40">·</span>
             <span>L {lo}°</span>
             <span className="opacity-40">·</span>
             <span className="flex items-center gap-1">
-              <Thermometer className="h-3 w-3 text-primary" aria-hidden />
+              <Thermometer className="h-3 w-3 text-muted-foreground" aria-hidden />
               {apparent}°
             </span>
           </span>
@@ -98,7 +106,12 @@ export default function WeatherWidget() {
       {/* Metric rail */}
       <div className="mt-3 grid grid-cols-4 divide-x divide-border/50 border-y border-border/50 rtl:divide-x-reverse">
         <Metric icon={Droplets} label="الرطوبة" value={`${Math.round(current.humidity)}%`} />
-        <Metric icon={WindIcon} label="الريح" value={`${Math.round(current.windSpeed)}`} unit="كم/س" />
+        <Metric
+          icon={WindIcon}
+          label="الريح"
+          value={`${Math.round(current.windSpeed)}`}
+          unit="كم/س"
+        />
         <Metric icon={Sun} label="الأشعة" value={`${Math.round(current.uvIndex)}`} />
         <Metric icon={Gauge} label="الضغط" value={`${Math.round(current.pressure)}`} unit="hPa" />
       </div>
@@ -119,7 +132,10 @@ export default function WeatherWidget() {
                 {/* Normalised temperature track: dot height encodes the hour's
                     warmth relative to the window. */}
                 <span className="relative h-7 w-full">
-                  <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border/50" aria-hidden />
+                  <span
+                    className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border/50"
+                    aria-hidden
+                  />
                   <span
                     className={`absolute left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${
                       h.isNow ? 'bg-primary ring-2 ring-primary/25' : 'bg-primary/60'
@@ -128,7 +144,11 @@ export default function WeatherWidget() {
                     aria-hidden
                   />
                 </span>
-                <HourIcon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} aria-hidden />
+                <HourIcon
+                  className="h-3.5 w-3.5 text-muted-foreground"
+                  strokeWidth={1.5}
+                  aria-hidden
+                />
                 <span className="text-micro tabular-nums text-muted-foreground-subtle">
                   {h.precipitationProbability >= 10 ? `${h.precipitationProbability}%` : '—'}
                 </span>
@@ -142,7 +162,7 @@ export default function WeatherWidget() {
           })}
         </div>
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -160,12 +180,14 @@ function Metric({
   return (
     <span className="flex flex-col items-center gap-0.5 py-2">
       <span className="flex items-center gap-1 text-micro text-muted-foreground">
-        <Icon className="h-3 w-3 text-primary" aria-hidden />
+        <Icon className="h-3 w-3 text-muted-foreground" aria-hidden />
         {label}
       </span>
       <span className="text-mini font-semibold tabular-nums text-foreground" dir="ltr">
         {value}
-        {unit && <span className="ms-0.5 text-micro font-normal text-muted-foreground">{unit}</span>}
+        {unit && (
+          <span className="ms-0.5 text-micro font-normal text-muted-foreground">{unit}</span>
+        )}
       </span>
     </span>
   );

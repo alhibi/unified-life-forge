@@ -170,7 +170,7 @@ export default function MemoryAdventurePage() {
         {selected && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/70 flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-drawer bg-[hsl(var(--scrim)/0.72)] flex items-end sm:items-center justify-center p-4"
             onClick={() => setSelected(null)}
           >
             <motion.div
@@ -232,7 +232,7 @@ export default function MemoryAdventurePage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelected(null)}
-                  className="flex-1 py-3 rounded-xl bg-white/5 text-foreground font-bold text-meta"
+                  className="flex-1 py-3 rounded-xl bg-secondary text-foreground font-bold text-meta"
                 >
                   {'إلغاء'}
                 </button>
@@ -263,7 +263,7 @@ export default function MemoryAdventurePage() {
 
 function Pill({ emoji, label }: { emoji: string; label: string }) {
   return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5">
+    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-secondary">
       <span className="text-meta">{emoji}</span>
       <span className="text-micro font-medium text-foreground/80 truncate">{label}</span>
     </div>

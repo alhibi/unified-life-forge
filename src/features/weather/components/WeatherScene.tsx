@@ -38,10 +38,10 @@ function particlePlan(code: number): { kind: 'rain' | 'snow' | 'dust' | 'none'; 
 
 /** Hue temp based on solar elevation. Dawn/dusk: warm. Noon: cool. Night: cold. */
 function tint(elev: number | undefined, isDay: boolean): string {
-  if (!isDay) return 'hsl(225 35% 8% / 0.85)';
+  if (!isDay) return 'hsl(var(--secondary) / 0.12)';
   if (elev === undefined) return 'hsl(var(--primary) / 0.05)';
-  if (elev < 12) return 'hsl(28 65% 55% / 0.10)';
-  if (elev < 35) return 'hsl(210 50% 60% / 0.07)';
+  if (elev < 12) return 'hsl(var(--tertiary) / 0.08)';
+  if (elev < 35) return 'hsl(var(--information) / 0.06)';
   return 'hsl(var(--primary) / 0.04)';
 }
 
@@ -80,33 +80,6 @@ export function WeatherScene({
         transition={{ duration: 1.2 }}
       />
 
-      {/* Soft sun/moon glow positioned by solar azimuth (approximate). */}
-      {isDay ? (
-        <motion.div
-          className="absolute h-32 w-32 rounded-full blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, hsl(45 90% 70% / 0.45), transparent 70%)',
-            right: '-2rem',
-            top: '-2rem',
-          }}
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        />
-      ) : (
-        <motion.div
-          className="absolute h-24 w-24 rounded-full blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, hsl(220 50% 85% / 0.25), transparent 70%)',
-            right: '4rem',
-            top: '3rem',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.4 }}
-        />
-      )}
-
       {/* Particles — rain / snow / dust falling across the scene. */}
       {plan.kind !== 'none' && (
         <div className="absolute inset-0">
@@ -122,10 +95,10 @@ export function WeatherScene({
                 borderRadius: plan.kind === 'snow' ? '999px' : '1px',
                 background:
                   plan.kind === 'snow'
-                    ? 'hsl(0 0% 100% / 0.85)'
+                    ? 'hsl(var(--foreground) / 0.65)'
                     : plan.kind === 'rain'
-                      ? 'hsl(210 80% 70% / 0.6)'
-                      : 'hsl(40 40% 60% / 0.4)',
+                      ? 'hsl(var(--information) / 0.5)'
+                      : 'hsl(var(--tertiary) / 0.3)',
               }}
               initial={{ y: 0, opacity: 0 }}
               animate={{

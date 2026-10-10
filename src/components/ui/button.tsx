@@ -9,7 +9,7 @@ const buttonVariants = cva(
   // the shared focus ring, and the control radius rung (`--r-md`). A size only
   // changes height, inline padding, icon size and the type rung — never the
   // shape language.
-  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border-0 font-semibold antialiased shadow-[var(--shadow-control)] app-focus-ring disabled:pointer-events-none disabled:opacity-50 active:shadow-[var(--shadow-control-pressed)] [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border-0 font-semibold antialiased shadow-[var(--shadow-control)] app-focus-ring disabled:pointer-events-none disabled:opacity-50 active:shadow-[var(--shadow-control-pressed)] [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {

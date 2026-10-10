@@ -126,7 +126,7 @@ export default function StrengthStandardsView({
           </div>
           <div className="grid grid-cols-3 gap-1.5 mt-2">
             {total.perLift.map((p) => (
-              <div key={p.exerciseKey} className="bg-white/60 dark:bg-white/5 rounded-lg p-1.5 text-center">
+              <div key={p.exerciseKey} className="bg-secondary rounded-lg p-1.5 text-center">
                 <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
                   {p.exerciseKey === 'squat' ? ('سكوات') : p.exerciseKey === 'bench' ? ('بنش') : ('ديدليفت')}
                 </p>

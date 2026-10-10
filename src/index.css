@@ -105,8 +105,8 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   --radius-2xl: var(--r-xl);
   --radius-3xl: var(--r-xl);
   --radius-input: var(--r-md);
-  --radius-button: var(--r-md);
-  --radius-card: var(--r-lg);
+  --radius-button: calc(var(--r-md) * var(--art-corner, 1));
+  --radius-card: calc(var(--r-lg) * var(--art-corner, 1));
   --radius-section: var(--r-xl);
 
   /* The two semantic curves — see src/lib/motion.ts.
@@ -220,6 +220,9 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   --color-success: hsl(var(--success));
   --color-success-foreground: hsl(var(--success-foreground));
 
+  --color-oled-black: hsl(var(--oled-black));
+  --color-information: hsl(var(--information));
+  --color-selected-indicator: hsl(var(--selected-indicator));
   --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
 
@@ -655,6 +658,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     --r-xs: 8px;
     --r-sm: 12px;
     --r-md: 16px;
+    --oled-black: 0 0% 0%;
     --r-lg: 24px;
     --r-xl: 32px;
     --radius: 16px;
@@ -1351,7 +1355,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   .surface-depth {
     background-color: hsl(var(--card) / var(--ui-material-alpha));
     border: 0;
-    border-radius: var(--r-lg); /* the canonical card radius */
+    border-radius: calc(var(--r-lg) * var(--art-corner, 1)); /* material × user geometry */
     /* The rim light now lives inside the elevation tokens, because it has to
        be tuned per theme and per plane — a second hand-written highlight here
        stacked a second inset shadow on top of the first, and the top edge went
@@ -1587,7 +1591,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   .row-icon {
     width: var(--ui-row-icon);
     height: var(--ui-row-icon);
-    border-radius: calc(var(--r-sm) * 1.3);
+    border-radius: calc(var(--r-sm) * var(--art-icon-corner, 1.3));
     display: inline-flex;
     align-items: center;
     justify-content: center;

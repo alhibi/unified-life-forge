@@ -56,5 +56,5 @@ By reading this file, you agree to uphold these standards unconditionally in all
 
 <!-- LOVABLE:BEGIN -->
 ## Shared visual architecture
-- Generate theme roles centrally in themeEngine and geometry in interfaceScale; shared surfaces, controls and headers consume them so features and portaled overlays follow one tactile system without local palettes.
+- Generate theme roles in themeEngine from the complete themeArtDirections registry and geometry in interfaceScale; material recipes stay independent while shared controls, feature chrome and portaled overlays consume one semantic contract, preserving user theme/mode/strength choices.
 <!-- LOVABLE:END -->

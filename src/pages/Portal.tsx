@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 
 import AppDetailPanel from '@/components/portal/AppDetailPanel';
 import { findApp, PORTAL_APPS, type PortalApp, type PortalCategory } from '@/components/portal/apps';
-import PortalBackgroundCanvas from '@/components/portal/PortalBackgroundCanvas';
 import PortalContinue from '@/components/portal/PortalContinue';
 import PortalFilterBar from '@/components/portal/PortalFilterBar';
 import PortalGreeting from '@/components/portal/PortalGreeting';
@@ -198,7 +197,6 @@ export default function Portal() {
       />
 
       {/* GPU-accelerated Background Canvas */}
-      <PortalBackgroundCanvas />
 
       <PortalHeader unreadCount={unreadCount} />
 

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import {
   formatHijriDate,
@@ -89,8 +90,8 @@ const MAKRUH_TINT_HORIZON = 'hsl(var(--warning) / 0.12)'; // sunrise/sunset
 
 // Sun/moon palette — intrinsic astronomical colours for the day/night
 // illustration, not brand chrome; kept as literals (see unification report).
-const SUN_COLOR = '#FAC82D';
-const MOON_COLOR = '#B4A2FF';
+const SUN_COLOR = 'hsl(var(--sun))';
+const MOON_COLOR = 'hsl(var(--moon))';
 
 // ─── Time / parsing helpers ────────────────────────────────────────────────
 function parseHM(time?: string): number | null {
@@ -536,7 +537,7 @@ export default function PrayerTimes() {
           t={t}
         />
         {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
-        <div className="h-px bg-foreground/[0.06]" />
+        <div className="h-px bg-border" />
         <ArcStrip
           prayers={prayers}
           sunT={sunT}
@@ -553,21 +554,21 @@ export default function PrayerTimes() {
         />
 
         {/* ── Qibla disclosure: merged compass, collapsed by default ─────── */}
-        <div className="h-px bg-foreground/[0.06]" />
-        <button
+        <div className="h-px bg-border" />
+        <Button variant="ghost" activation="click"
           type="button"
           onClick={() => setShowQibla((v) => !v)}
           aria-expanded={showQibla}
           aria-controls="prayer-qibla-panel"
           className="flex w-full items-center gap-2 px-[18px] py-2.5 text-start transition-colors duration-fast hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <Compass className="h-3.5 w-3.5 text-primary/80" aria-hidden />
+          <Compass className="h-3.5 w-3.5 text-primary" aria-hidden />
           <span className="text-micro font-semibold text-muted-foreground">بوصلة القبلة</span>
           <ChevronDown
             className={`ms-auto h-3.5 w-3.5 text-muted-foreground transition-transform duration-normal ${showQibla ? 'rotate-180' : ''}`}
             aria-hidden
           />
-        </button>
+        </Button>
         <AnimatePresence initial={false}>
           {showQibla && (
             <motion.div
@@ -586,21 +587,21 @@ export default function PrayerTimes() {
         </AnimatePresence>
 
         {/* ── Occasions disclosure: Hijri strip, collapsed by default ──── */}
-        <div className="h-px bg-foreground/[0.06]" />
-        <button
+        <div className="h-px bg-border" />
+        <Button variant="ghost" activation="click"
           type="button"
           onClick={() => setShowOccasions((v) => !v)}
           aria-expanded={showOccasions}
           aria-controls="prayer-occasions-panel"
           className="flex w-full items-center gap-2 px-[18px] py-2.5 text-start transition-colors duration-fast hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <CalendarDays className="h-3.5 w-3.5 text-primary/80" aria-hidden />
+          <CalendarDays className="h-3.5 w-3.5 text-primary" aria-hidden />
           <span className="text-micro font-semibold text-muted-foreground">المناسبات الهجرية</span>
           <ChevronDown
             className={`ms-auto h-3.5 w-3.5 text-muted-foreground transition-transform duration-normal ${showOccasions ? 'rotate-180' : ''}`}
             aria-hidden
           />
-        </button>
+        </Button>
         <AnimatePresence initial={false}>
           {showOccasions && (
             <motion.div
@@ -791,7 +792,7 @@ function ArcStrip({
           d={fullPath}
           fill="none"
           stroke="currentColor"
-          strokeOpacity={0.18}
+          strokeOpacity={0.65}
           strokeWidth={1.5}
           strokeDasharray="4 6"
         />
@@ -802,7 +803,7 @@ function ArcStrip({
             d={pastPath}
             fill="none"
             stroke="hsl(var(--primary))"
-            strokeOpacity={0.55}
+            strokeOpacity={1}
             strokeWidth={2.5}
             strokeLinecap="round"
           />
@@ -850,7 +851,7 @@ function ArcStrip({
                 cy={py}
                 r={isNext ? 4 : 3.5}
                 fill="currentColor"
-                fillOpacity={isNext ? 0.8 : isPast ? 0.6 : 0.25}
+                fillOpacity={isNext ? 1 : isPast ? 0.85 : 0.7}
               />
               <text
                 x={px}
@@ -858,8 +859,7 @@ function ArcStrip({
                 textAnchor="middle"
                 fontSize={isNext ? 7.5 : 7}
                 fontWeight={isNext ? 700 : 500}
-                fill="currentColor"
-                fillOpacity={isNext ? 0.9 : 0.5}
+                fill="hsl(var(--muted-foreground))"
               >
                 {p.ar}
               </text>
@@ -956,7 +956,7 @@ function ArcStrip({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 cursor-pointer"
-            style={{ background: 'hsl(var(--scrim) / 0.86)' }}
+            style={{ background: 'hsl(var(--overlay-surface))' }}
             onClick={() => setExpandedZone(null)}
           >
             <p
@@ -966,10 +966,10 @@ function ArcStrip({
               {t('prayer.makruh').toUpperCase()} ·{' '}
               {t(`prayer.makruh.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
-            <p className="mt-1 text-micro leading-[1rem] text-white/80 font-light">
+            <p className="mt-1 text-micro leading-[1rem] text-overlay-foreground font-light">
               {t(`prayer.makruh.desc.${makruhZones[expandedZone].label.toLowerCase()}`)}
             </p>
-            <p className="mt-2 text-micro text-white/30">{t('prayer.tapDismiss')}</p>
+            <p className="mt-2 text-micro text-overlay-foreground">{t('prayer.tapDismiss')}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1022,7 +1022,7 @@ function Slab({
           transition: 'transform 120ms cubic-bezier(0.34,1.56,0.64,1), background-color 200ms ease',
         }}
       >
-        <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground/90">
+        <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground">
           {t('prayer.todaysPrayers')}
         </span>
         <span className="flex items-center gap-1.5">
@@ -1249,7 +1249,7 @@ function HijriCalendarStrip({
         {/* ALL button */}
         <button
           onClick={() => navigate('/occasions')}
-          className="flex items-center gap-0.5 text-primary/80 hover:text-primary transition-colors"
+          className="flex items-center gap-0.5 text-primary hover:text-primary transition-colors"
           aria-label={'عرض التقويم كاملاً'}
         >
           <span className="text-micro font-bold uppercase tracking-wide">{'الكل'}</span>

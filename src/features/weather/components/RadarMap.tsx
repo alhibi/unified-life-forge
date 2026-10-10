@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import { Droplets,Layers, Pause, Play, RefreshCw, Wind } from '@/lib/icons';
 
@@ -38,6 +39,17 @@ export default function RadarMap({
     if (!ctx) return;
 
     let animId: number;
+    const channels: Record<string, string> = {};
+    const refreshColors = () => {
+      const styles = getComputedStyle(document.documentElement);
+      for (const role of ['foreground', 'border', 'primary', 'information', 'tertiary']) {
+        channels[role] = styles.getPropertyValue(`--${role}`).trim();
+      }
+    };
+    refreshColors();
+    const themeObserver = new MutationObserver(refreshColors);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
+    const color = (role: string, alpha: number) => `hsl(${channels[role]} / ${alpha})`;
     let width = canvas.width = canvas.offsetWidth;
     let height = canvas.height = canvas.offsetHeight;
 
@@ -110,14 +122,14 @@ export default function RadarMap({
         }
 
         if (hasLightningNow) {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+          ctx.fillStyle = color('foreground', 0.12);
           ctx.fillRect(0, 0, width, height);
           hasLightningNow = false; // flashes only one frame
         }
       }
 
       // Draw subtle background grid/radar arcs
-      ctx.strokeStyle = 'rgba(120, 120, 120, 0.05)';
+      ctx.strokeStyle = color('border', 0.7);
       ctx.lineWidth = 1;
       const center = { x: width / 2, y: height / 2 };
       for (let r = 40; r < width; r += 50) {
@@ -129,7 +141,7 @@ export default function RadarMap({
       // Draw sweeping radar arm
       if (activeLayer === 'radar') {
         const angle = (Date.now() / 1500) % (Math.PI * 2);
-        ctx.fillStyle = 'rgba(120, 90, 60, 0.08)';
+        ctx.fillStyle = color('primary', 0.08);
         ctx.beginPath();
         ctx.moveTo(center.x, center.y);
         ctx.arc(center.x, center.y, width * 0.8, angle - 0.4, angle);
@@ -153,17 +165,17 @@ export default function RadarMap({
 
         ctx.beginPath();
         if (p.type === 'rain') {
-          ctx.strokeStyle = `rgba(14, 165, 233, ${p.alpha})`;
+          ctx.strokeStyle = color('information', p.alpha);
           ctx.lineWidth = p.size;
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p.x + p.vx * 0.8, p.y + p.vy * 0.8);
           ctx.stroke();
         } else if (p.type === 'snow') {
-          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+          ctx.fillStyle = color('foreground', p.alpha);
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          ctx.fillStyle = `rgba(180, 140, 100, ${p.alpha * 0.6})`;
+          ctx.fillStyle = color('tertiary', p.alpha * 0.6);
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
         }
@@ -177,6 +189,7 @@ export default function RadarMap({
     return () => {
       cancelAnimationFrame(animId);
       resizeObserver.disconnect();
+      themeObserver.disconnect();
     };
   }, [windSpeedKph, windDirectionDeg, precipIntensity, weatherCode, activeLayer]);
 
@@ -199,22 +212,22 @@ export default function RadarMap({
         </h2>
 
         <div className="flex bg-background/50 border border-border/40 p-0.5 rounded-lg">
-          <button
+          <Button variant="ghost" activation="click"
             onClick={() => setActiveLayer('particles')}
             className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
               activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {'الجزيئات والرياح'}
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost" activation="click"
             onClick={() => setActiveLayer('radar')}
             className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
               activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {'المسح الراداري'}
-          </button>
+          </Button>
         </div>
       </header>
 
