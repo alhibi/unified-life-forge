@@ -1092,11 +1092,22 @@ export function generateThemeTokens(
     const tone: Hsl = [h, s, l];
     // Widget material is authored independently of text-data colours. The
     // latter are contrast-corrected for page labels and make muddy surfaces
-    // when used as a wash. Pink/lilac form lighter counterpoints in dark mode.
-    const widgetLights = isDark ? [25, 29, 30, 28, 69, 70] : [79, 77, 76, 80, 82, 83];
+    // when used as a wash. Following the owner's references, chromatic themes
+    // place luminous solid bodies with black ink on the dark canvas (next to
+    // neutral charcoal widgets), and alternate deep jewel bodies (white ink)
+    // with bright bodies (black ink) on light canvases. Neutral palettes keep
+    // the grounded tonal ladder so Mono stays genuinely achromatic.
+    const neutralPalette = art.categoryPresence === 0;
+    const widgetLights = isDark
+      ? neutralPalette
+        ? [25, 29, 30, 28, 69, 70]
+        : [72, 68, 76, 72, 80, 78]
+      : neutralPalette
+        ? [79, 77, 76, 80, 82, 83]
+        : [36, 64, 32, 38, 76, 72];
     const authoredSurface: Hsl = [
       art.dataHues[index - 1] ?? tone[0],
-      art.categoryPresence === 0 ? 0 : Math.min(72, Math.max(42, art.dataChroma) + presence * 14),
+      neutralPalette ? 0 : Math.min(86, Math.max(58, art.dataChroma + 12) + presence * 16),
       widgetLights[index - 1] ?? 80,
     ];
     const endpointInk: Hsl = contrastRatio([0, 0, 100], authoredSurface) > contrastRatio([0, 0, 0], authoredSurface)
