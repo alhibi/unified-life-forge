@@ -50,7 +50,7 @@ const IDENTITY: Record<string, TileIdentity> = {
   fitness: { accent: 'var(--data-1)', tone: 1, motif: 'pulse' },
   journal: { accent: 'var(--data-5)', tone: 5, motif: 'columns' },
   // العقل — alternating colour bodies with neutral rests
-  'german-club': { accent: 'var(--data-2)', tone: 2, motif: 'glyph' },
+  'german-club': { accent: 'var(--data-1)', tone: 1, motif: 'glyph' },
   knowledge: { accent: 'var(--data-6)', tone: 0, motif: 'orbit' },
   pkm: { accent: 'var(--data-6)', tone: 6, motif: 'orbit' },
   reading: { accent: 'var(--data-4)', tone: 4, motif: 'columns' },

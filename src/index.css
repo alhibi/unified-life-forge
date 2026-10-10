@@ -1269,24 +1269,24 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   .portal-widget-glyph {
     position: absolute;
     z-index: 0;
-    inset-block-start: 3.75rem;
-    inset-inline-end: -1.5rem;
-    inline-size: 7.5rem;
-    block-size: 7.5rem;
+    inset-block-start: 2.75rem;
+    inset-inline-end: -1.75rem;
+    inline-size: 6.5rem;
+    block-size: 6.5rem;
     color: hsl(var(--tile-foreground));
-    opacity: 0.16;
+    opacity: 0.13;
     transform: rotate(-12deg);
     transition: transform var(--dur-slow, 0.4s) var(--ease-out-expo, ease-out),
       opacity var(--dur-normal, 0.25s) ease-out;
     pointer-events: none;
   }
   .portal-widget-glyph svg { inline-size: 100%; block-size: 100%; }
-  .portal-app-widget:hover .portal-widget-glyph { transform: rotate(-4deg) scale(1.06); opacity: 0.22; }
+  .portal-app-widget:hover .portal-widget-glyph { transform: rotate(-4deg) scale(1.06); opacity: 0.2; }
   .portal-widget-cell[data-wide] .portal-widget-glyph {
-    inset-block-start: 0.75rem;
-    inset-inline-end: 3.5rem;
-    inline-size: 9.5rem;
-    block-size: 9.5rem;
+    inset-block-start: 1.25rem;
+    inset-inline-end: 0.5rem;
+    inline-size: 8.5rem;
+    block-size: 8.5rem;
   }
   .portal-widget-title {
     font-size: var(--fs-display);
