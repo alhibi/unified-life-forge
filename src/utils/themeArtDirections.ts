@@ -96,7 +96,7 @@ export const THEME_ART_DIRECTIONS = {
     iconCorner: 1.05,
     edge: 0.14,
     shadow: 0.85,
-    rim: 1.4,
+    rim: 1.3,
     elevation: 0.046,
   },
   clay: {
