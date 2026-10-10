@@ -102,7 +102,7 @@ export default function AllOccasions() {
                   'relative rounded-lg border px-2.5 py-2 text-start transition-motion',
                   active
                     ? 'bg-primary/15 border-primary/40'
-                    : 'bg-secondary/50 border-border/60 hover:bg-accent/40',
+                    : 'bg-secondary border-border/60 hover:bg-accent',
                 )}
               >
                 <div className="flex items-baseline justify-between mb-0.5">
@@ -161,8 +161,8 @@ export default function AllOccasions() {
                     : isToday
                       ? 'bg-primary/8 border-primary/30'
                       : hasEvent
-                        ? 'bg-secondary/50 border-border/60'
-                        : 'bg-muted/30 border-border/30',
+                        ? 'bg-secondary border-border/60'
+                        : 'bg-muted border-border/30',
                 )}
               >
                 <span
@@ -368,7 +368,7 @@ function DetailContent({
       </p>
 
       {notes && (
-        <div className="rounded-xl border border-border/50 bg-muted/30 p-3">
+        <div className="rounded-xl border border-border/50 bg-muted p-3">
           <p className="text-micro font-bold text-muted-foreground uppercase tracking-wide mb-1">
             {'ملاحظة'}
           </p>

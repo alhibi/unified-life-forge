@@ -365,7 +365,7 @@ export default function TafsirPage() {
                 {filteredSurahs.map(({ name, index }) => {
                   const hasBookmark = bookmarks.some(b => b.startsWith(`${index}:`));
                   return (
-                    <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={cn('relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-lg border transition-motion group', hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-secondary/40 border-border/60 hover:bg-accent/40 hover:border-primary/30')}>
+                    <motion.button key={index} variants={itemAnim} onClick={() => { setSelectedSurah(index); setShowSurahPicker(false); }} className={cn('relative flex flex-col items-center gap-1 px-2 py-3.5 rounded-lg border transition-motion group', hasBookmark ? 'bg-primary/5 border-primary/20' : 'bg-secondary border-border/60 hover:bg-accent hover:border-primary/30')}>
                       <span className="absolute top-1.5 start-2 text-micro text-muted-foreground-subtle font-mono tabular-nums">{index + 1}</span>
                       {hasBookmark && <BookmarkCheck className="absolute top-1.5 end-1.5 w-3 h-3 text-primary" aria-hidden />}
                       <span className="text-mini font-bold text-foreground group-hover:text-primary transition-colors">{name}</span>

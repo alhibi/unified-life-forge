@@ -49,15 +49,15 @@ interface SimSliderProps {
 
 function SimSlider({ label, icon, min, max, step, value, unit, onChange }: SimSliderProps) {
   return (
-    <div className="rounded-xl bg-background/40 border border-foreground/10 px-4 py-3 space-y-2">
+    <div className="rounded-xl bg-secondary border border-foreground/10 px-4 py-3 space-y-2">
       <div className="flex items-center justify-between text-mini font-bold">
-        <span className="flex items-center gap-1.5 text-foreground/80">
+        <span className="flex items-center gap-1.5 text-foreground">
           <span className="text-primary [&>svg]:w-3.5 [&>svg]:h-3.5">{icon}</span>
           {label}
         </span>
         <span className="text-meta font-extralight tracking-tight tabular-nums text-foreground" dir="ltr">
           {value}
-          <span className="ms-1 text-[0.625rem] font-bold text-foreground/55">{unit}</span>
+          <span className="ms-1 text-[0.625rem] font-bold text-muted-foreground-subtle">{unit}</span>
         </span>
       </div>
       <input
@@ -88,17 +88,17 @@ function OutputCard({ label, value, unit, hint, highlight }: OutputCardProps) {
       className={`rounded-xl border p-3 flex flex-col gap-1.5 transition-colors hover:border-primary/40 ${
         highlight
           ? 'bg-primary/8 border-primary/30'
-          : 'bg-background/40 border-foreground/10'
+          : 'bg-secondary border-foreground/10'
       }`}
     >
-      <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55">
+      <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle">
         {label}
       </span>
       <div className="flex items-baseline gap-1 tabular-nums leading-none" dir="ltr">
         <span className="text-title font-extralight tracking-tight text-foreground">
           {value}
         </span>
-        {unit && <span className="text-mini font-bold text-foreground/55">{unit}</span>}
+        {unit && <span className="text-mini font-bold text-muted-foreground-subtle">{unit}</span>}
       </div>
       <span className="text-mini text-foreground/60 font-medium leading-snug">{hint}</span>
     </div>
@@ -230,8 +230,8 @@ export default function MeteorologyConsole() {
       </div>
 
       <div className="px-6 pb-6">
-        <div className="rounded-xl bg-background/40 border border-foreground/10 px-4 py-3.5">
-          <p className="flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-3">
+        <div className="rounded-xl bg-secondary border border-foreground/10 px-4 py-3.5">
+          <p className="flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
             <BookOpen className="w-3.5 h-3.5 text-primary" aria-hidden />
             {'المرجع العلمي والمعادلات'}
           </p>

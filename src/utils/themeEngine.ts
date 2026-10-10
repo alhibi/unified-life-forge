@@ -1055,7 +1055,11 @@ export function generateThemeTokens(
   const containerInk = ensureContrast(inkHsl, container, 4.55);
   const tertiary = hexToHsl(art.tertiary[isDark ? 1 : 0]);
   const tertiaryColor = ensureContrast(ensureContrast(tertiary, bgHsl, 4.5), surfHsl, 4.5);
-  const tertiaryContainer = mixHsl(tertiaryColor, surfHsl, art.containerPresence + (isDark ? 0.1 : 0.04));
+  const tertiaryContainer = mixHsl(
+    tertiaryColor,
+    surfHsl,
+    art.containerPresence + (isDark ? 0.1 : 0.04),
+  );
 
   // Category identity has two weights: a quiet content surface and a richer
   // icon container. Solid mixes avoid unpredictable alpha over nested surfaces.
@@ -1064,11 +1068,7 @@ export function generateThemeTokens(
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(
-      tone,
-      surfHsl,
-      art.categoryPresence * (0.12 + presence * 0.3),
-    );
+    const categorySurface = mixHsl(tone, surfHsl, art.categoryPresence * (0.12 + presence * 0.3));
     const categoryContainer = mixHsl(
       tone,
       surfHsl,

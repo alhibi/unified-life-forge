@@ -264,11 +264,11 @@ export default function Portal() {
             )}
 
             <div className="flex items-center gap-3 pt-4 pb-[env(safe-area-inset-bottom)]">
-              <span className="h-px flex-1 bg-border/40" aria-hidden />
+              <span className="h-px flex-1 bg-track" aria-hidden />
               <span className="text-micro font-semibold tracking-[0.14em] text-muted-foreground-subtle font-tajawal">
                 صُنِعَ بحب — عامر وأمولة
               </span>
-              <span className="h-px flex-1 bg-border/40" aria-hidden />
+              <span className="h-px flex-1 bg-track" aria-hidden />
             </div>
           </div>
 

@@ -109,14 +109,14 @@ export default function GroupsIndexPage() {
 
         {/* Search */}
         <div className="px-4 pt-3 pb-2 shrink-0">
-          <div className="flex items-center bg-muted/30 rounded-full px-3 h-10">
+          <div className="flex items-center bg-secondary rounded-full px-3 h-10">
             <Search className="w-4 h-4 text-muted-foreground-subtle shrink-0" />
             <input
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder={'ابحث في المجموعات...'}
-              className="flex-1 bg-transparent text-meta outline-none ms-2 placeholder:text-muted-foreground/40"
+              className="flex-1 bg-transparent text-meta outline-none ms-2 placeholder:text-muted-foreground"
               dir="auto"
             />
             {query && (
@@ -148,14 +148,14 @@ export default function GroupsIndexPage() {
                   'h-8 px-3.5 rounded-full text-mini font-medium transition-motion whitespace-nowrap inline-flex items-center gap-1.5',
                   active
                     ? 'bg-primary text-primary-foreground '
-                    : 'bg-muted/30 text-muted-foreground',
+                    : 'bg-secondary text-muted-foreground',
                 )}
               >
                 {tab.ar}
                 {tab.count > 0 && (
                   <span className={cn(
                     'text-micro font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1',
-                    active ? 'bg-primary-foreground/20' : 'bg-muted/50',
+                    active ? 'bg-primary-foreground/20' : 'bg-surface-2',
                   )}>
                     {tab.count}
                   </span>
@@ -297,7 +297,7 @@ function GroupRow({ chat, onClick }: GroupRowProps) {
         <div className="flex items-center justify-between gap-2 mt-0.5">
           <p className={cn(
             'text-mini truncate leading-relaxed',
-            chat.unreadCount > 0 ? 'text-foreground/75 font-medium' : 'text-muted-foreground/65',
+            chat.unreadCount > 0 ? 'text-foreground/75 font-medium' : 'text-muted-foreground',
           )} dir="auto">
             {chat.lastMessage
               ? (chat.lastMessage.deleted
