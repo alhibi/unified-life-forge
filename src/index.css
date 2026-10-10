@@ -50,6 +50,14 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   z-index: var(--z-index-picker);
 }
 
+/* Tile roles resolve at the category element, not at the document root. */
+@theme inline {
+  --color-tile-surface: hsl(var(--tile-surface));
+  --color-tile-foreground: hsl(var(--tile-foreground));
+  --color-tile-container: hsl(var(--tile-container));
+  --color-tile-container-foreground: hsl(var(--tile-container-foreground));
+}
+
 @theme {
   --font-display: var(--font-display);
   --font-body: var(--font-body);
