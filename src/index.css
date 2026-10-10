@@ -249,10 +249,6 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   --color-data-4: hsl(var(--data-4));
   --color-data-5: hsl(var(--data-5));
   --color-data-6: hsl(var(--data-6));
-  --color-tile-surface: hsl(var(--tile-surface));
-  --color-tile-foreground: hsl(var(--tile-foreground));
-  --color-tile-container: hsl(var(--tile-container));
-  --color-tile-container-foreground: hsl(var(--tile-container-foreground));
 
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
