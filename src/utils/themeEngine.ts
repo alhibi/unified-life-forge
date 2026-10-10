@@ -977,7 +977,7 @@ export function generateThemeTokens(
   const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : tintedBg;
   const surfaceBase: Hsl =
     isDark && isBlack
-      ? withPerceptualL(tintedSurface, Math.max(0.24, perceptualL(tintedSurface) - 0.025))
+      ? withPerceptualL(tintedSurface, Math.max(0.26, perceptualL(tintedSurface) - 0.025))
       : tintedSurface;
 
   // Surface lift is a tone decision: flat sits on the page, lifted floats.
