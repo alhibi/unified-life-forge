@@ -9,16 +9,16 @@ const buttonVariants = cva(
   // the shared focus ring, and the control radius rung (`--r-md`). A size only
   // changes height, inline padding, icon size and the type rung — never the
   // shape language.
-  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--r-md)] border-0 font-medium antialiased shadow-[var(--shadow-control)] app-focus-ring disabled:pointer-events-none disabled:opacity-50 active:shadow-[var(--shadow-control-pressed)] [&_svg]:pointer-events-none [&_svg]:shrink-0',
+  'app-pressable inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border-0 font-semibold antialiased shadow-[var(--shadow-control)] app-focus-ring disabled:pointer-events-none disabled:opacity-50 active:shadow-[var(--shadow-control-pressed)] [&_svg]:pointer-events-none [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+        outline: 'bg-surface-1 text-foreground ring-1 ring-inset ring-border hover:bg-accent hover:text-accent-foreground',
+        secondary: 'bg-primary-container text-on-primary-container hover:bg-accent',
+        ghost: 'shadow-none hover:bg-accent hover:text-accent-foreground',
+        link: 'shadow-none text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-[var(--ui-button-h)] px-4 text-body [&_svg]:size-5',
@@ -41,6 +41,8 @@ export interface ButtonProps
   asChild?: boolean;
   isLoading?: boolean;
   loadingText?: string;
+  /** Preserve release-click semantics for long-press and drag affordances. */
+  activation?: 'press' | 'click';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -50,6 +52,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       asChild = false,
+      activation = 'press',
       onClick,
       onPointerDown,
       type,
@@ -71,7 +74,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
       onPointerDown?.(e);
-      if (isFormAction || asChild) return;
+      if (isFormAction || asChild || activation === 'click') return;
       if (e.button !== 0) return;
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
       if (isDisabled) return;

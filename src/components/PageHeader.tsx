@@ -74,7 +74,7 @@ export default function PageHeader({
   if (variant === 'display') {
     return (
       <header
-        className={cn('flex flex-col pb-1', sticky && 'z-header app-sticky-header', className)}
+        className={cn('flex flex-col pb-4', sticky && 'z-header app-sticky-header', className)}
       >
         <div className="flex min-h-[var(--ui-header-h)] items-center gap-2 px-4">
           {!hideBack ? (
@@ -98,12 +98,12 @@ export default function PageHeader({
           )}
         </div>
 
-        <div className="flex flex-col items-center gap-1 px-5 pb-1 text-center">
+        <div className="flex flex-col items-start gap-2 px-[var(--ui-gutter)] pb-2 pt-6 text-start">
           <h1 className="type-display flex items-center gap-2 text-foreground">
             {icon && <span className="inline-flex shrink-0">{icon}</span>}
             <span className="min-w-0">{title}</span>
           </h1>
-          {subtitle && <div className="text-mini text-muted-foreground">{subtitle}</div>}
+          {subtitle && <div className="text-meta text-muted-foreground">{subtitle}</div>}
           {children}
         </div>
       </header>

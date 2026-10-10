@@ -112,6 +112,7 @@ const DEFAULT_SURFACE_LIFT: SurfaceLift = 'subtle';
 type Theme = 'light' | 'dark';
 type PaletteStyle = 'tonal' | 'vibrant' | 'expressive' | 'neutral' | 'rainbow';
 type ColorTheme =
+  | 'expressive'
   | 'paper'
   | 'default'
   | 'midnight'
@@ -377,35 +378,31 @@ function persistMotionPreferences(preferences: MotionPreferences): MotionPrefere
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const [needsExpressiveUpgrade] = useState(() => !localStorage.getItem('app-expressive-identity-v1'));
+  const expressiveUpgradePending = useRef(needsExpressiveUpgrade);
   // Arabic-only. Any legacy 'de' preference is coerced to 'ar' on load.
   // Do not reintroduce other locales — see src/i18n/index.ts.
   const [language, setLanguageState] = useState<Language>('ar');
   const [theme, setThemeState] = useState<Theme>(() => {
     const raw = localStorage.getItem('app-theme');
-    // Architectural Copper is a nocturnal system: dark is the shipped default,
-    // light is an explicit opt-in.
+    // Keep the user's explicit mode; new installations start in dark mode.
     return raw === 'light' ? 'light' : 'dark';
   });
   const [paletteStyle, setPaletteStyleState] = useState<PaletteStyle>(
-    () => (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral',
+    () => (localStorage.getItem('app-palette-style') as PaletteStyle) || 'tonal',
   );
   const [blackMode, setBlackModeState] = useState<boolean>(
     () => localStorage.getItem('app-black-mode') === 'true',
   );
   const [colorTheme, setColorThemeState] = useState<ColorTheme>(() => {
-    // Architectural Copper is the single shipped identity. A one-time
-    // migration moves installs that were auto-assigned the retired editorial
-    // default back to copper; a palette the user picks afterwards is kept,
-    // because the flag is written once.
     const stored = localStorage.getItem('app-color-theme') as ColorTheme | null;
-    if (!localStorage.getItem('app-theme-copper-unified')) {
-      localStorage.setItem('app-theme-copper-unified', '1');
-      if (!stored || stored === 'editorial') {
-        localStorage.setItem('app-color-theme', 'copper');
-        return 'copper';
-      }
+    // Owner-requested upgrade, once. Explicit subsequent choices are kept.
+    if (needsExpressiveUpgrade) {
+      localStorage.setItem('app-expressive-identity-v1', '1');
+      localStorage.setItem('app-color-theme', 'expressive');
+      return 'expressive';
     }
-    return stored || 'copper';
+    return stored || 'expressive';
   });
 
   const [surfaceLift, setSurfaceLiftState] = useState<SurfaceLift>(() =>
@@ -614,12 +611,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('app-theme', 'dark');
     // Must match the initial-state default above ('neutral'). Using a
     // different value here made sign-out change the app's look.
-    setPaletteStyleState('neutral');
-    localStorage.setItem('app-palette-style', 'neutral');
+    setPaletteStyleState('tonal');
+    localStorage.setItem('app-palette-style', 'tonal');
     setBlackModeState(false);
     localStorage.setItem('app-black-mode', 'false');
-    setColorThemeState('copper');
-    localStorage.setItem('app-color-theme', 'copper');
+    setColorThemeState('expressive');
+    localStorage.setItem('app-color-theme', 'expressive');
 
     setSurfaceLiftState(DEFAULT_SURFACE_LIFT);
     localStorage.setItem('app-surface-lift', DEFAULT_SURFACE_LIFT);
@@ -734,7 +731,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setBlackModeState(s.blackMode);
           localStorage.setItem('app-black-mode', String(s.blackMode));
         }
-        if (s.colorTheme) {
+        if (s.colorTheme && !expressiveUpgradePending.current) {
           setColorThemeState(s.colorTheme);
           localStorage.setItem('app-color-theme', s.colorTheme);
         }
@@ -1060,6 +1057,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setColorTheme = useCallback(
     (ct: ColorTheme) => {
+      expressiveUpgradePending.current = false;
       setColorThemeState(ct);
       localStorage.setItem('app-color-theme', ct);
       scheduleSave();
@@ -1507,7 +1505,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // the initializer above); only a stored 'light' means light.
       setThemeState(localStorage.getItem('app-theme') === 'light' ? 'light' : 'dark');
       setPaletteStyleState(
-        (localStorage.getItem('app-palette-style') as PaletteStyle) || 'neutral',
+        (localStorage.getItem('app-palette-style') as PaletteStyle) || 'tonal',
       );
       setBlackModeState(localStorage.getItem('app-black-mode') === 'true');
       setColorThemeState((localStorage.getItem('app-color-theme') as ColorTheme) || 'default');
@@ -1569,7 +1567,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setThemeState(value === 'light' ? 'light' : 'dark');
           break;
         case 'app-palette-style':
-          setPaletteStyleState((value as PaletteStyle) || 'neutral');
+          setPaletteStyleState((value as PaletteStyle) || 'tonal');
           break;
         case 'app-black-mode':
           setBlackModeState(value === 'true');
@@ -1690,7 +1688,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // Enforce the single unified Zen Elite design style
       root.removeAttribute('data-md3');
-      root.setAttribute('data-design-mode', 'classic');
+      root.setAttribute('data-design-mode', 'expressive');
       const tokens = generateThemeTokens(
         preset,
         paletteStyle as ThemeStyle,

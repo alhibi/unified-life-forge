@@ -53,3 +53,8 @@ By reading this file, you agree to uphold these standards unconditionally in all
 - **شبكة الدخان** (كل المسارات): تُدار بعمليات منفصلة لكل شريحة عبر `bun run test:smoke`، وليست جزءاً من `bun run test` — بسبب تجمّد متعدد التركيبات في بيئة jsdom موثّق في `vitest.config.ts` وتعليقات السكربت.
 - **فحص RLS** يستهدف مشروع الإنتاج؛ يفشل بصوت عالٍ عمداً عند تعذّر الوصول (وإلا لكان فحصاً كاذباً). لا يُضبط أي علم تخطٍّ أوفلاين في CI؛ العلم `VITE_ALLOW_OFFLINE_RLS=1` مخصّص للحاويات المحلية بلا شبكة فقط.
 - **قاعدة الفحص الذاتي**: قبل أي push شغّل السلسلة كاملة محلياً — الفحص الذي لا يُشغَّل لا يحمي شيئاً.
+
+<!-- LOVABLE:BEGIN -->
+## Shared visual architecture
+- Generate theme roles centrally in themeEngine and geometry in interfaceScale; shared surfaces, controls and headers consume them so features and portaled overlays follow one tactile system without local palettes.
+<!-- LOVABLE:END -->

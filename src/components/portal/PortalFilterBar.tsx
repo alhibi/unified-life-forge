@@ -15,6 +15,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { memo } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Grid3X3, Rows3 } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -45,14 +46,14 @@ function PortalFilterBarImpl({
       <div
         role="tablist"
         aria-label="تصنيفات التطبيقات"
-        className="flex min-w-0 flex-1 items-end gap-1 border-b border-[hsl(var(--track))]"
+        className="flex min-w-0 flex-1 items-center gap-1 rounded-full bg-secondary p-1"
       >
         {PORTAL_CATEGORIES.map((c) => {
           const active = c.key === category;
           const count = counts[c.key] ?? 0;
           const empty = count === 0;
           return (
-            <button
+            <Button variant="ghost"
               key={c.key}
               role="tab"
               type="button"
@@ -60,10 +61,10 @@ function PortalFilterBarImpl({
               disabled={empty && !active}
               onClick={() => onCategoryChange(c.key)}
               className={cn(
-                'type-label relative isolate min-w-0 flex-1 px-2 pb-3 pt-2 text-center',
+                'type-label relative isolate min-w-0 flex-1 rounded-full px-2 py-2 text-center shadow-none',
                 'transition-colors duration-normal ease-out-expo',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                active ? 'text-primary-foreground hover:text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
                 empty && !active && 'opacity-40',
               )}
             >
@@ -74,24 +75,24 @@ function PortalFilterBarImpl({
                   // bar: the rail reads as a drafted baseline, the active label
                   // is already carried by weight and contrast, and the moving
                   // element is 2px tall so it never fights the text.
-                  className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-foreground"
+                  className="absolute inset-0 rounded-full bg-primary shadow-e1"
                   transition={reduce ? { duration: 0 } : MOTION.spring}
                   aria-hidden
                 />
               )}
               <span className="relative">{c.label}</span>
-            </button>
+            </Button>
           );
         })}
       </div>
 
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => onViewChange(view === 'grid' ? 'list' : 'grid')}
           aria-label={view === 'grid' ? 'العرض كقائمة' : 'العرض كشبكة'}
           className={cn(
-            'mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary',
-            'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
+            'flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary',
+            'shadow-e1',
             'text-muted-foreground transition-colors duration-fast hover:text-foreground',
             'active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
@@ -101,7 +102,7 @@ function PortalFilterBarImpl({
           ) : (
             <Rows3 className="h-5 w-5" aria-hidden />
           )}
-        </button>
+        </Button>
     </div>
   );
 }

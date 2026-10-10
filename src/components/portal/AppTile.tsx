@@ -25,6 +25,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { forwardRef, memo, useCallback, useRef } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { ChevronRight, MoreHorizontal, Pin } from '@/lib/icons';
 import { MOTION } from '@/lib/motion';
 import { prefetchRoute } from '@/lib/routePrefetch';
@@ -123,7 +124,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       className="relative"
       style={{ '--tile': identity.accent } as React.CSSProperties}
     >
-      <button
+      <Button variant="secondary"
         ref={(el) => registerRef?.(index, el)}
         type="button"
         onClick={handleClick}
@@ -147,15 +148,16 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         aria-label={`${app.label} — ${app.description}`}
         aria-current={active ? 'true' : undefined}
         data-portal-tile={app.key}
+        activation="click"
         className={cn(
-          'arch-plate group relative w-full overflow-hidden rounded-card text-start',
+          'arch-plate shadow-e2 group relative w-full overflow-hidden rounded-card text-start whitespace-normal text-foreground',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
           'hover:-translate-y-0.5 hover:bg-[hsl(var(--interactive-hover))]',
           'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
           active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
-          list ? 'flex items-center gap-3 p-3' : 'flex min-h-[132px] flex-col justify-between p-4',
+          list ? 'flex h-auto items-center gap-3 p-4' : 'flex h-auto min-h-40 flex-col justify-between p-5',
         )}
       >
         <TileMotif motif={identity.motif} />
@@ -171,14 +173,14 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               reads as one system instead of twenty coloured badges. */}
           <span
             className={cn(
-              'flex shrink-0 items-center justify-center rounded-[10px]',
-              'bg-secondary text-[hsl(var(--tile))]',
+              'flex shrink-0 items-center justify-center rounded-[var(--r-md)]',
+              'bg-[hsl(var(--tile)/0.16)] text-[hsl(var(--tile))]',
               'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
               'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
-              list ? 'h-10 w-10' : 'h-11 w-11',
+              list ? 'h-12 w-12' : 'h-14 w-14',
             )}
           >
-            <Icon className="h-5 w-5" aria-hidden />
+            <Icon className="h-6 w-6" aria-hidden />
           </span>
 
           <span className="min-w-0 flex-1">
@@ -188,11 +190,11 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               </span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="type-meta mt-1 block truncate text-muted-foreground">
+            <span className="text-mini mt-1 block truncate text-muted-foreground">
               {app.description}
             </span>
             {!list && (
-              <span className="type-meta mt-2 block font-medium uppercase tracking-[0.16em] text-muted-foreground-subtle">
+              <span className="type-meta mt-2 block font-medium text-muted-foreground-subtle">
                 {app.caption}
               </span>
             )}
@@ -220,10 +222,10 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             {badge > 99 ? '99+' : badge}
           </span>
         )}
-      </button>
+      </Button>
 
       {/* Detail affordance */}
-      <button
+      <Button variant="ghost"
         type="button"
         onClick={(event) => {
           event.stopPropagation();
@@ -242,7 +244,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         )}
       >
         <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden />
-      </button>
+      </Button>
     </motion.div>
   );
 });

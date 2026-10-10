@@ -28,18 +28,18 @@ const SANS_FALLBACK = "system-ui, -apple-system, 'Segoe UI', sans-serif";
 // editorial register the interface is built on, and IBM Plex Sans Arabic covers
 // Arabic (Inter Tight has no Arabic coverage) at a matching geometric weight.
 // We map all ID selections to this unified stack to guarantee its exclusive application.
-const INTER_DISPLAY_STACK = `'Inter Tight', 'IBM Plex Sans Arabic', ${SANS_FALLBACK}`;
+const INTER_DISPLAY_STACK = `'IBM Plex Sans Arabic', 'Inter Tight', ${SANS_FALLBACK}`;
 
 /**
- * Architectural Copper headings: Instrument Serif carries Latin, Amiri carries
- * Arabic. Body text stays on the sans stack above. Never give headings a sans stack.
+ * Expressive headings share the readable Arabic sans stack; hierarchy comes
+ * from the modular size ladder and weight, not the retired copper serif.
  */
-export const DISPLAY_SERIF_STACK = "'Instrument Serif', 'Amiri', Georgia, serif";
+export const DISPLAY_SERIF_STACK = INTER_DISPLAY_STACK;
 
 export const FONT_OPTIONS: readonly FontOption[] = [
   {
     id: 'ibm-plex',
-    label: 'إنتر ديسبلاي (الافتراضي)',
+    label: 'IBM Plex Sans Arabic',
     family: INTER_DISPLAY_STACK,
     note: 'الخط الموحد للتطبيق بالكامل — يتميز بالوضوح والتناسق الفائق',
     display: true,
@@ -76,7 +76,7 @@ export interface FontPairing {
 export const FONT_PAIRINGS: readonly FontPairing[] = [
   {
     id: 'unified',
-    label: 'إنتر ديسبلاي الموحد',
+    label: 'IBM Plex العربي الموحد',
     note: 'خط موحد للعناوين والنصوص — التزاماً بهوية التطبيق الأنيقة',
     display: 'ibm-plex',
     body: 'ibm-plex',
@@ -117,7 +117,7 @@ export const TYPE_RATIOS = [
 export type TypeRatioId = (typeof TYPE_RATIOS)[number]['id'];
 
 export function resolveTypeRatio(value: string | null | undefined): TypeRatioId {
-  return TYPE_RATIOS.some((r) => r.id === value) ? (value as TypeRatioId) : 'compact';
+  return TYPE_RATIOS.some((r) => r.id === value) ? (value as TypeRatioId) : 'balanced';
 }
 
 // ─── Leading ────────────────────────────────────────────────
@@ -176,7 +176,7 @@ const TYPE_STEPS = [
 ] as const;
 
 /** Absolute legibility floor / ceiling in px, applied after the equation. */
-const FS_MIN_PX = 11;
+const FS_MIN_PX = 12;
 const FS_MAX_PX = 34;
 
 export type TypeStepName = (typeof TYPE_STEPS)[number]['name'];
