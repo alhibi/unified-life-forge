@@ -1,5 +1,10 @@
 # Roadmap
 
+## Reference-widget continuation — October 10, 2026
+- [x] Inspect detail/overlay tone inheritance and reader density states; unify theme-owned source badges, guard absent source metadata, remove faded read-text treatment and expose a separate full-size bookmark control.
+- [x] Verify release-click actions and keyboard navigation in 12 reader density/mode/viewport cases; inspect live weather in four mode/viewport cases and correct Arabic metric/timeline ordering. 739 targeted tests, lint budget (734), architecture and automatic build pass.
+- [ ] Exhaustive private-content overlays and physical-device/screen-reader sign-off — blocked on representative account content and physical devices; browser-local article fixtures do not establish account-data or full-product compliance.
+
 ## Reference-led widget redesign — October 10, 2026
 - [x] Recompose the shared color/material contract with multicolor widgets and calm canvases, retaining all theme choices.
 - [x] Rebuild launcher composition, prayer/weather widgets and shared feature cards/statistics around the supplied references.

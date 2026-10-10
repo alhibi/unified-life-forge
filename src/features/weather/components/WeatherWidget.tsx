@@ -88,7 +88,7 @@ export default function WeatherWidget() {
         </span>
 
         <span className="min-w-0 flex-1">
-          <span className="flex items-baseline gap-2">
+          <span className="flex flex-wrap items-baseline gap-2">
             <span
               className="text-hero font-semibold leading-none text-foreground tabular-nums"
               dir="ltr"
@@ -98,16 +98,15 @@ export default function WeatherWidget() {
             <span className="text-mini text-muted-foreground">{cond}</span>
           </span>
           <span
-            className="mt-1 flex items-center gap-2 text-micro text-muted-foreground tabular-nums"
-            dir="ltr"
+            className="mt-1 flex flex-wrap items-center gap-2 text-micro text-muted-foreground tabular-nums"
           >
-            <span>العظمى {hi}°</span>
+            <span>العظمى <bdi dir="ltr">{hi}°</bdi></span>
             <span className="opacity-40">·</span>
-            <span>الصغرى {lo}°</span>
+            <span>الصغرى <bdi dir="ltr">{lo}°</bdi></span>
             <span className="opacity-40">·</span>
             <span className="flex items-center gap-1">
               <Thermometer className="h-3 w-3 text-muted-foreground" aria-hidden />
-              {apparent}°
+              <bdi dir="ltr">{apparent}°</bdi>
             </span>
           </span>
         </span>
@@ -131,7 +130,7 @@ export default function WeatherWidget() {
       {/* Hourly rail — sm+ only: on phones the widget stays a compact
           now + metrics plate, and the full hourly detail lives at /weather. */}
       {hours.length > 1 && (
-        <div className="hidden justify-between gap-1 px-2.5 py-2.5 sm:flex" dir="ltr">
+        <div className="hidden justify-between gap-1 px-2.5 py-2.5 sm:flex">
           {hours.map((h) => {
             const HourIcon = iconForWeatherCode(h.weatherCode, h.isDay);
             return (
@@ -195,10 +194,10 @@ function Metric({
         <Icon className="h-3 w-3 text-muted-foreground" aria-hidden />
         {label}
       </span>
-      <span className="text-mini font-semibold tabular-nums text-foreground" dir="ltr">
-        {value}
+      <span className="flex flex-wrap items-baseline justify-center gap-0.5 text-mini font-semibold tabular-nums text-foreground">
+        <bdi dir="ltr">{value}</bdi>
         {unit && (
-          <span className="ms-0.5 text-micro font-normal text-muted-foreground">{unit}</span>
+          <bdi dir="auto" className="text-micro font-normal text-muted-foreground">{unit}</bdi>
         )}
       </span>
     </span>

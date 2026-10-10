@@ -1,6 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import { articleKey, mergeArticles } from './utils';
+import { articleKey, mergeArticles, sourceTone } from './utils';
+
+describe('source material identity', () => {
+  it('handles missing source metadata without crashing', () => {
+    expect(sourceTone(null)).toBe(1);
+    expect(sourceTone(undefined)).toBe(1);
+    expect(sourceTone('')).toBe(1);
+  });
+  it('keeps source identity independent of list order', () => {
+    expect(sourceTone('A')).toBe(5);
+    expect(sourceTone('B')).toBe(4);
+    expect(['B', 'A'].map(sourceTone)).toEqual([4, 5]);
+  });
+});
 
 describe('article URL identity (R13)', () => {
   it('keeps functional reference and tracking-like parameters distinct', () => {

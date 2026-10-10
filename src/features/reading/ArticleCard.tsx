@@ -1,15 +1,19 @@
 import { motion, type PanInfo,useMotionValue, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   Bookmark, BookmarkCheck, CircleCheck, Clock,
 } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 
 import { ArticleContextMenu } from './ArticleContextMenu';
 import type { Density } from './listPrefs';
 import { SourcePill } from './SourcePill';
 import type { FeedItem } from './types';
-import { readingMinutes, timeAgo } from './utils';
+import { readingMinutes, sourceTone, timeAgo } from './utils';
+
+const MotionButton = motion.create(Button);
 
 /**
  * Compact article row used inside the main list.
@@ -29,7 +33,6 @@ import { readingMinutes, timeAgo } from './utils';
  */
 export function ArticleCard({
   article,
-  index,
   isRead,
   isBookmarked,
   cached,
@@ -70,8 +73,7 @@ export function ArticleCard({
   );
   // Source identity, not row order: the same publication retains its colour
   // while sorting, filtering or marking items read.
-  const sourceSeed = Array.from(article.source).reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 0);
-  const sourceTone = ([1, 5, 4, 6] as const)[sourceSeed % 4];
+  const tone = sourceTone(article.source);
 
   // Pre-compute layout-side handlers so the JSX stays compact.
   const handleMarkRead = onMarkRead ?? (() => undefined);
@@ -179,22 +181,20 @@ export function ArticleCard({
             onDrag={onDrag}
             onDragEnd={onDragEnd}
             style={{ x }}
-            className={`relative ${isRead ? 'opacity-65' : ''}`}
+            className="relative"
           >
-            <button
+            <Button
+              variant="ghost"
+              activation="click"
               type="button"
               onClick={handleClick}
-              className={`w-full text-start px-4 py-2.5 transition-colors flex items-center gap-2.5 bg-background ${
-                isRead
-                  ? 'hover:bg-accent/15 active:bg-accent/25'
-                  : 'bg-primary/[0.03] hover:bg-primary/[0.06] active:bg-primary/[0.1]'
-              }`}
+              className="w-full min-h-11 h-auto rounded-none text-start justify-start px-4 py-2.5 transition-colors flex items-center gap-2.5 bg-background hover:bg-accent active:bg-accent"
             >
               <SourcePill name={article.source} size="sm" />
               <span
                 dir="auto"
                 className={`flex-1 min-w-0 truncate text-mini inline-flex items-center gap-1.5 ${
-                  isRead ? 'font-normal text-foreground/70' : 'font-semibold text-foreground'
+                  isRead ? 'font-normal text-muted-foreground' : 'font-semibold text-foreground'
                 }`}
               >
                 {!isRead && (
@@ -208,7 +208,7 @@ export function ArticleCard({
               {isBookmarked && (
                 <BookmarkCheck className="h-3 w-3 text-primary/70 shrink-0" />
               )}
-            </button>
+            </Button>
           </motion.div>
         </div>
       </ArticleContextMenu>
@@ -237,9 +237,11 @@ export function ArticleCard({
             isBookmarked={isBookmarked}
             rounded
           />
-          <motion.button
+          <MotionButton
+            variant="ghost"
+            activation="click"
             type="button"
-            data-tile-tone={sourceTone}
+            data-tile-tone={tone}
             drag="x"
             dragSnapToOrigin
             dragConstraints={{ left: -120, right: 120 }}
@@ -251,8 +253,8 @@ export function ArticleCard({
             style={{ x }}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.25 }}
-            className={`rich-widget relative w-full text-start rounded-card overflow-hidden transition-motion duration-normal ${
+            transition={MOTION.fade}
+            className={`rich-widget app-card-pressable relative block h-auto p-0 whitespace-normal w-full text-start rounded-card overflow-hidden transition-motion duration-normal ${
               isRead
                 ? 'font-normal'
                 : 'font-medium'
@@ -288,7 +290,7 @@ export function ArticleCard({
               )}
               <div className="flex items-center gap-2 flex-wrap">
                 <SourcePill name={article.source} size="sm" />
-                <span className="text-micro text-foreground/75 font-medium truncate max-w-[120px]">
+                <span className="text-micro text-foreground font-medium truncate max-w-[120px]">
                   {article.source}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30 shrink-0" />
@@ -301,11 +303,11 @@ export function ArticleCard({
                   {`${minutes} د`}
                 </span>
                 {isBookmarked && (
-                  <BookmarkCheck className="h-3 w-3 text-primary/60 shrink-0" />
+                  <BookmarkCheck className="h-3 w-3 text-primary shrink-0" />
                 )}
                 {cached && !isBookmarked && (
                   <span
-                    className="inline-flex items-center gap-0.5 text-micro text-data-1 dark:text-data-1 shrink-0"
+                    className="inline-flex items-center gap-0.5 text-micro text-primary shrink-0"
                     title={'متاحة دون اتصال'}
                   >
                     <CircleCheck className="h-2.5 w-2.5" />
@@ -313,7 +315,7 @@ export function ArticleCard({
                 )}
               </div>
             </div>
-          </motion.button>
+          </MotionButton>
         </div>
       </ArticleContextMenu>
     );
@@ -356,19 +358,21 @@ export function ArticleCard({
           onDrag={onDrag}
           onDragEnd={onDragEnd}
           style={{ x }}
-          className="relative bg-background"
+          className="relative bg-background flex items-start"
         >
-          <button
+          <Button
+            variant="ghost"
+            activation="click"
             type="button"
             onClick={handleClick}
-            className="w-full text-start px-4 py-4 flex gap-4 transition-colors duration-fast hover:bg-accent/10 active:bg-accent/20"
+            className="flex-1 min-w-0 h-auto whitespace-normal rounded-none text-start justify-start items-start px-4 py-4 flex gap-4 transition-colors duration-fast hover:bg-accent active:bg-accent"
           >
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 min-w-0">
+              <div className="flex items-center flex-wrap gap-1.5 min-w-0">
                 {!isRead && (
                   <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                 )}
-                <span className="text-micro font-semibold text-primary/90 truncate max-w-[45%]">
+                <span className="text-micro font-semibold text-primary truncate max-w-[45%]">
                   {article.source}
                 </span>
                 <span className="text-micro text-muted-foreground-subtle shrink-0">·</span>
@@ -385,7 +389,7 @@ export function ArticleCard({
                 )}
                 {cached && !isBookmarked && (
                   <span className="shrink-0 inline-flex" title={'متاحة دون اتصال'}>
-                    <CircleCheck className="h-3 w-3 text-primary/50" />
+                    <CircleCheck className="h-3 w-3 text-primary" />
                   </span>
                 )}
               </div>
@@ -393,7 +397,7 @@ export function ArticleCard({
               <h4
                 dir="auto"
                 className={`mt-1.5 text-meta leading-[1.4] line-clamp-2 ${
-                  isRead ? 'font-medium text-foreground/60' : 'font-bold text-foreground'
+                  isRead ? 'font-medium text-foreground' : 'font-bold text-foreground'
                 }`}
               >
                 {article.title}
@@ -402,9 +406,7 @@ export function ArticleCard({
               {article.description && (
                 <p
                   dir="auto"
-                  className={`text-mini mt-1.5 line-clamp-2 leading-[1.6] ${
-                    isRead ? 'text-muted-foreground/55' : 'text-muted-foreground/85'
-                  }`}
+                  className="text-mini mt-1.5 line-clamp-2 leading-[1.6] text-muted-foreground font-normal"
                 >
                   {article.description}
                 </p>
@@ -437,11 +439,14 @@ export function ArticleCard({
                 />
               </div>
             )}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            activation="click"
             type="button"
             onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
-            className="absolute top-3.5 end-3.5 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent/50 transition-motion"
+            className="shrink-0 mt-3 me-3 min-h-11 min-w-11"
             aria-label={
               isBookmarked
                 ? ('إلغاء الحفظ')
@@ -451,7 +456,7 @@ export function ArticleCard({
             {isBookmarked
               ? <BookmarkCheck className="h-4 w-4 text-primary" />
               : <Bookmark className="h-4 w-4 text-muted-foreground" />}
-          </button>
+          </Button>
         </motion.div>
       </div>
     </ArticleContextMenu>
