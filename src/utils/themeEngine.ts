@@ -1,9 +1,8 @@
 import { applyRootTokens } from '@/lib/rootTokens';
 
 // ─── Token Architecture ─────────────────────────────────────
-// Exactly 4 roles per mode, no exceptions.
-// Roles: bg, surface, ink, accent.
-// Font family: Inter Display (set globally as sole typeface).
+// Four seed roles per mode generate coordinated surfaces, interaction roles
+// and contrast-checked category containers. Typography is owned by fonts.ts.
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ThemeStyle = 'tonal' | 'vibrant' | 'neutral' | 'expressive';
@@ -718,8 +717,8 @@ export const themePresets: ThemePreset[] = [
     'expressive',
     'نبض',
     'Expressive Pulse',
-    { bg: '#EEF1F4', surface: '#FFFFFF', ink: '#172125', accent: '#356B13' },
-    { bg: '#111416', surface: '#252B2D', ink: '#F1F5F4', accent: '#C3EF79' },
+    { bg: '#EFF2F3', surface: '#FFFFFF', ink: '#20272A', accent: '#146B65' },
+    { bg: '#111416', surface: '#252B2D', ink: '#F1F5F4', accent: '#86D9CC' },
   ),
   // The shipped system. Neutral foundation, graphite controls, one orange
   // signal reserved for data and change — see `--signal` in index.css.
@@ -986,10 +985,14 @@ export function generateThemeTokens(
   const lineBase = isDark ? 0.17 : 0.12;
   const borderStr = solid(inkHsl, bgHsl, lineBase); // hairline
   const inputStr = solid(inkHsl, bgHsl, lineBase + 0.1); // field outline
-  const secondaryStr = solid(accHsl, surfHsl, isDark ? 0.12 : 0.09);
-  const secondaryFgStr = hslToString(
-    ensureContrast(inkHsl, mixHsl(accHsl, surfHsl, isDark ? 0.12 : 0.09), 4.5),
-  ); // near-ink text
+  // Secondary navigation is a cooler companion, not a weaker copy of primary.
+  // Other saved families retain their established accent relationship.
+  const companion: Hsl = preset.id === 'expressive'
+    ? [(accHsl[0] + 64) % 360, isDark ? 42 : 34, isDark ? 78 : 38]
+    : accHsl;
+  const secondarySurface = mixHsl(companion, surfHsl, isDark ? 0.15 : 0.12);
+  const secondaryStr = hslToString(secondarySurface);
+  const secondaryFgStr = hslToString(ensureContrast(inkHsl, secondarySurface, 4.55));
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
   const mutedFgStr = hslToString(ensureContrast(mixHsl(inkHsl, bgHsl, 0.74), bgHsl, 4.5));
@@ -1035,10 +1038,25 @@ export function generateThemeTokens(
     ),
   );
   const container = mixHsl(accHsl, surfHsl, isDark ? 0.28 : 0.2);
-  const containerInk = ensureContrast(inkHsl, container, 4.5);
+  const containerInk = ensureContrast(inkHsl, container, 4.55);
   const tertiary: Hsl = isDark ? [12, 84, 76] : [12, 64, 38];
   const tertiaryColor = ensureContrast(ensureContrast(tertiary, bgHsl, 4.5), surfHsl, 4.5);
   const tertiaryContainer = mixHsl(tertiaryColor, surfHsl, isDark ? 0.17 : 0.1);
+
+  // Category identity has two weights: a quiet content surface and a richer
+  // icon container. Solid mixes avoid unpredictable alpha over nested surfaces.
+  const categories = dataTokens(bgHsl, surfHsl, isDark);
+  const categoryContainers: Record<string, string> = {};
+  for (let index = 1; index <= 6; index += 1) {
+    const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
+    const tone: Hsl = [h, s, l];
+    const categorySurface = mixHsl(tone, surfHsl, isDark ? 0.085 : 0.055);
+    const categoryContainer = mixHsl(tone, surfHsl, isDark ? 0.24 : 0.19);
+    categoryContainers[`--data-${index}-surface`] = hslToString(categorySurface);
+    categoryContainers[`--on-data-${index}-surface`] = hslToString(ensureContrast(inkHsl, categorySurface, 7));
+    categoryContainers[`--data-${index}-container`] = hslToString(categoryContainer);
+    categoryContainers[`--on-data-${index}-container`] = hslToString(ensureContrast(tone, categoryContainer, 4.55));
+  }
 
   // ── Elevation ladder ───────────────────────────────────────
   // Four planes, each one a perceptual step above the last, plus the shadow
@@ -1133,7 +1151,8 @@ export function generateThemeTokens(
     // The data palette is resolved against the same two surfaces, so a chart
     // label or a category dot stays readable in every preset instead of only
     // in the one whose CSS happened to be checked in.
-    ...dataTokens(bgHsl, surfHsl, isDark),
+    ...categories,
+    ...categoryContainers,
     // The single chromatic accent. Its hue is fixed so "changed / active /
     // measured" reads identically in every palette; only its tone is resolved
     // against the active canvas so it never glares or sinks.

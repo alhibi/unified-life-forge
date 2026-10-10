@@ -122,7 +122,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           : { ...MOTION.spring, delay: Math.min(index, 6) * 0.03 }
       }
       className="relative"
-      style={{ '--tile': identity.accent } as React.CSSProperties}
+      data-tile-tone={identity.tone}
     >
       <Button variant="secondary"
         ref={(el) => registerRef?.(index, el)}
@@ -150,9 +150,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         data-portal-tile={app.key}
         activation="click"
         className={cn(
-          'arch-plate shadow-e2 group relative w-full overflow-hidden rounded-card text-start whitespace-normal text-foreground',
+          'shadow-e2 group relative w-full overflow-hidden rounded-card bg-tile-surface text-start whitespace-normal text-tile-foreground',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5 hover:bg-[hsl(var(--interactive-hover))]',
+          'hover:-translate-y-0.5 hover:bg-tile-container',
           'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
@@ -174,8 +174,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           <span
             className={cn(
               'flex shrink-0 items-center justify-center rounded-[var(--r-md)]',
-              'bg-[hsl(var(--tile)/0.16)] text-[hsl(var(--tile))]',
-              'shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]',
+              'bg-tile-container text-tile-container-foreground shadow-e1',
               'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
               list ? 'h-12 w-12' : 'h-14 w-14',
             )}
@@ -185,12 +184,12 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
 
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-1.5">
-              <span className={cn('truncate text-foreground', list ? 'type-body' : 'type-section')}>
+              <span className={cn('truncate text-tile-foreground', list ? 'type-body' : 'type-section')}>
                 {app.label}
               </span>
               {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
             </span>
-            <span className="text-mini mt-1 block truncate text-muted-foreground">
+            <span className="text-mini mt-1 block truncate text-tile-foreground">
               {app.description}
             </span>
             {!list && (
