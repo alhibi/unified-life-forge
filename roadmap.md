@@ -1,5 +1,9 @@
 # Roadmap
 
+## Reference-widget continuation — October 10, 2026
+- [ ] Inspect remaining detail/overlay tone inheritance and reader density states; repair verified defects without changing content or business rules.
+- [ ] Verify affected interactions, theme contrast tests and light/dark mobile and desktop views; record concrete evidence and external-device limits.
+
 ## Reference-led widget redesign — October 10, 2026
 - [x] Recompose the shared color/material contract with multicolor widgets and calm canvases, retaining all theme choices.
 - [x] Rebuild launcher composition, prayer/weather widgets and shared feature cards/statistics around the supplied references.
