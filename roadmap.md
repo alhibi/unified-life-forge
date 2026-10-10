@@ -1,5 +1,8 @@
 # Roadmap
 
+## Per-widget identity pass — October 10, 2026 (night)
+- [x] Every launcher app now has a bespoke widget composition (verse, tasbih ring, weekday pills, next-prayer bar, sentence forecast, activity rings, date card, word pair, node graph, newspaper, link map, player, verse couplet, dotted map, chat bubbles, dot-matrix clock, chess strip, candle form). Coverage test, targeted tests, lint budget and architecture gate pass.
+
 ## Reference fidelity pass — October 10, 2026 (evening)
 - [x] Dark canvases now carry luminous solid widget bodies with black ink beside neutral charcoal widgets; light canvases alternate deep and bright bodies. Launcher tiles rebuilt as sculpted widgets (inverted icon chip, oversized illustrative glyph, heavy headline, per-app tone rhythm, gap-free wide/square spans). 708 targeted tests, lint budget (734), architecture and build pass.
 
