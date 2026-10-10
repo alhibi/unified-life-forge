@@ -298,7 +298,7 @@ export default function InterfaceSection() {
       { token: '--ui-divider-alpha', label: 'شفافية الفاصل', value: String(geometry.dividerAlpha) },
       {
         token: '--ui-material-alpha',
-        label: 'شفافية السطح',
+        label: 'وزن خامة السطح',
         value: String(geometry.materialAlpha),
       },
       {
