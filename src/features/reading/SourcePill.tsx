@@ -2,8 +2,8 @@ import { sourceInitial, sourceTone } from './utils';
 
 /**
  * Source identity badge — a colored circle with the source's first
- * letter, where the hue is deterministically derived from the source
- * name. Same name → same color across sessions and devices, no extra
+ * letter, where a theme-owned material is derived from the source
+ * name. Same name → same material across sessions and devices, no extra
  * config required from the user.
  */
 export function SourcePill({
