@@ -1178,6 +1178,9 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     --accent-foreground: var(--tile-foreground);
     --interactive-hover: var(--tile-hover);
     --interactive-pressed: var(--tile-pressed);
+    --border: var(--tile-muted);
+    --input: var(--tile-muted);
+    --track: var(--tile-muted);
     --primary: var(--tile-foreground);
     --primary-foreground: var(--tile-surface);
     --secondary: var(--tile-container);
@@ -1192,6 +1195,9 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     --color-muted: hsl(var(--tile-hover));
     --color-accent: hsl(var(--tile-hover));
     --color-accent-foreground: hsl(var(--tile-foreground));
+    --color-border: hsl(var(--tile-muted));
+    --color-input: hsl(var(--tile-muted));
+    --color-track: hsl(var(--tile-muted));
     --color-primary: hsl(var(--tile-foreground));
     --color-primary-foreground: hsl(var(--tile-surface));
     --color-secondary: hsl(var(--tile-container));
