@@ -1353,7 +1353,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   .premium-card-elevated,
   .premium-card-intense,
   .surface-depth {
-    background-color: hsl(var(--card) / var(--ui-material-alpha));
+    background-color: color-mix(in oklab, hsl(var(--card)) calc(var(--ui-material-alpha) * 100%), hsl(var(--surface-2)));
     border: 0;
     border-radius: calc(var(--r-lg) * var(--art-corner, 1)); /* material × user geometry */
     /* The rim light now lives inside the elevation tokens, because it has to
@@ -1422,7 +1422,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
      The list is now the surface and the row is the unit — one chrome, one
      divider tone, one press language, one geometry, on every screen. */
   .app-list {
-    background-color: hsl(var(--card) / var(--ui-material-alpha));
+    background-color: color-mix(in oklab, hsl(var(--card)) calc(var(--ui-material-alpha) * 100%), hsl(var(--surface-2)));
     border-radius: var(--r-lg);
     box-shadow: var(--shadow-2);
     overflow: hidden;
@@ -1693,7 +1693,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     background-color: hsl(var(--scrim) / 0.72);
   }
   .app-overlay-surface {
-    background-color: hsl(var(--surface-3) / var(--ui-material-overlay-alpha));
+    background-color: color-mix(in oklab, hsl(var(--surface-3)) calc(var(--ui-material-overlay-alpha) * 100%), hsl(var(--surface-2)));
     color: hsl(var(--card-foreground));
     /* A transient surface floats over the page, so its edge is the strong
        one — it is the only thing telling the eye where the sheet ends. */
@@ -3142,7 +3142,7 @@ input.podcast-seek:active::-moz-range-thumb {
 /* MapLibre's default attribution is a white pill with its own radius and font.
    Re-skinned to the app's surface so it reads as part of the interface. */
 .travel-map .maplibregl-ctrl-attrib {
-  background-color: hsl(var(--background) / 0.86);
+  background-color: hsl(var(--surface-2));
   color: hsl(var(--muted-foreground));
   border-radius: var(--r-sm);
   font-size: var(--fs-micro);
@@ -3242,7 +3242,7 @@ input.podcast-seek:active::-moz-range-thumb {
   padding: 0.125rem 0.375rem;
   border: var(--ui-border-width) solid hsl(var(--border));
   border-radius: var(--r-sm);
-  background-color: hsl(var(--background) / 0.92);
+  background-color: hsl(var(--surface-2));
   color: hsl(var(--foreground));
   font-size: var(--fs-micro);
   line-height: 1.4;
@@ -3293,7 +3293,7 @@ input.podcast-seek:active::-moz-range-thumb {
 
 .travel-map-control {
   border: var(--ui-border-width) solid hsl(var(--border));
-  background-color: hsl(var(--background) / 0.94);
+  background-color: hsl(var(--surface-2));
 }
 
 .travel-map-control:hover {
@@ -3306,7 +3306,7 @@ input.podcast-seek:active::-moz-range-thumb {
   overflow: hidden;
   border: var(--ui-border-width) solid hsl(var(--border));
   border-radius: var(--r-md);
-  background-color: hsl(var(--background) / 0.94);
+  background-color: hsl(var(--surface-2));
 }
 
 .travel-map-control--stacked {
@@ -3568,7 +3568,7 @@ input.podcast-seek:active::-moz-range-thumb {
      the elevation token now, so it is tuned per theme and per plane like every
      other surface; keeping a private one here stacked a second rim on top. */
   .arch-plate {
-    background-color: hsl(var(--card) / var(--ui-material-alpha));
+    background-color: color-mix(in oklab, hsl(var(--card)) calc(var(--ui-material-alpha) * 100%), hsl(var(--surface-2)));
     border: 0;
     box-shadow: var(--shadow-2);
   }

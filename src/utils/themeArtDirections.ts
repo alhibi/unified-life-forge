@@ -12,6 +12,10 @@ export interface ThemeArtDirection {
   shadow: number;
   rim: number;
   elevation: number;
+  /** Authored light/dark tonal separation and solid colour-body weights. */
+  surfaceGap: readonly [light: number, dark: number];
+  companionPresence: readonly [light: number, dark: number];
+  containerPresence: number;
 }
 
 export const THEME_ART_DIRECTIONS = {
@@ -28,6 +32,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.75,
     rim: 0.7,
     elevation: 0.038,
+    surfaceGap: [.055, .07],
+    companionPresence: [.24, .28],
+    containerPresence: .14,
   },
   editorial: {
     philosophy: 'انضباط تحريري، حبر صريح وفواصل دقيقة وعمق شبه صامت.',
@@ -42,6 +49,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.24,
     rim: 0.35,
     elevation: 0.03,
+    surfaceGap: [.048, .065],
+    companionPresence: [.17, .21],
+    containerPresence: .1,
   },
   copper: {
     philosophy: 'حجر مصقول ونحاس مطفأ؛ حواف معمارية وإضاءة جانبية منضبطة.',
@@ -56,6 +66,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.7,
     rim: 1.2,
     elevation: 0.035,
+    surfaceGap: [.052, .075],
+    companionPresence: [.22, .26],
+    containerPresence: .14,
   },
   paper: {
     philosophy: 'هوامش أدبية، ورق دافئ وحبر فحمي؛ الطين علامة لا خلفية.',
@@ -70,6 +83,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.38,
     rim: 0.3,
     elevation: 0.028,
+    surfaceGap: [.06, .07],
+    companionPresence: [.22, .25],
+    containerPresence: .13,
   },
   mono: {
     philosophy: 'درجات محايدة خالصة؛ الوزن والفصل والرمز تحمل المعنى.',
@@ -84,6 +100,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.3,
     rim: 0.5,
     elevation: 0.04,
+    surfaceGap: [.055, .075],
+    companionPresence: [.18, .24],
+    containerPresence: .11,
   },
   obsidian: {
     philosophy: 'سبج مصقول، طبقات جرافيت واضحة ولمسة فضية محدودة.',
@@ -98,6 +117,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.85,
     rim: 1.3,
     elevation: 0.046,
+    surfaceGap: [.06, .085],
+    companionPresence: [.23, .28],
+    containerPresence: .12,
   },
   clay: {
     philosophy: 'كتل خزفية مطفأة؛ دفء ترابي، حواف ناعمة وفصل كثيف بلا لمعان.',
@@ -112,6 +134,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.5,
     rim: 0.2,
     elevation: 0.032,
+    surfaceGap: [.055, .075],
+    companionPresence: [.28, .3],
+    containerPresence: .17,
   },
   gold: {
     philosophy: 'عاج ومعدن معتّق؛ إبراز ذهبي موزون مع حبر داكن وفواصل رفيعة.',
@@ -126,9 +151,12 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.55,
     rim: 0.9,
     elevation: 0.034,
+    surfaceGap: [.052, .07],
+    companionPresence: [.24, .28],
+    containerPresence: .14,
   },
   moss: {
-    philosophy: 'سكينة نباتية؛ أسطح ضبابية وطبقات أوراق مع دفء حجري مقابل.',
+    philosophy: 'سكينة نباتية؛ كتل خضراء مطفأة وطبقات أوراق مع دفء حجري مقابل.',
     companion: ['#786750', '#D5C5A9'],
     tertiary: ['#705C75', '#C9B6D0'],
     dataHues: [145, 40, 20, 205, 330, 275],
@@ -140,6 +168,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.4,
     rim: 0.45,
     elevation: 0.033,
+    surfaceGap: [.055, .08],
+    companionPresence: [.28, .32],
+    containerPresence: .18,
   },
   ocean: {
     philosophy: 'هواء ساحلي وعمق بحري؛ أسطح ملحية نظيفة مع مرجان مقتصد.',
@@ -154,6 +185,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.55,
     rim: 0.6,
     elevation: 0.04,
+    surfaceGap: [.06, .08],
+    companionPresence: [.27, .3],
+    containerPresence: .17,
   },
   arctic: {
     philosophy: 'صفاء قطبي؛ أسطح جليدية محددة، فواصل باردة وأيقونات حادة.',
@@ -168,6 +202,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.25,
     rim: 1,
     elevation: 0.045,
+    surfaceGap: [.055, .08],
+    companionPresence: [.25, .3],
+    containerPresence: .15,
   },
   midnight: {
     philosophy: 'هدوء ليلي؛ مستويات زرقاء محايدة وأفعال مضيئة بلا توهج.',
@@ -182,6 +219,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.75,
     rim: 0.8,
     elevation: 0.042,
+    surfaceGap: [.06, .085],
+    companionPresence: [.24, .3],
+    containerPresence: .16,
   },
   nebula: {
     philosophy: 'عمق أثيري مطفأ؛ أسطح بنفسجية حجرية ورفيق أخضر رمادي.',
@@ -196,6 +236,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.65,
     rim: 0.6,
     elevation: 0.04,
+    surfaceGap: [.06, .08],
+    companionPresence: [.26, .3],
+    containerPresence: .17,
   },
   rose: {
     philosophy: 'لمسة حريرية، ورد معدني مطفأ وأسطح هادئة بحبر برقوقي.',
@@ -210,6 +253,9 @@ export const THEME_ART_DIRECTIONS = {
     shadow: 0.45,
     rim: 0.8,
     elevation: 0.035,
+    surfaceGap: [.055, .075],
+    companionPresence: [.26, .29],
+    containerPresence: .16,
   },
 } satisfies Record<string, ThemeArtDirection>;
 
