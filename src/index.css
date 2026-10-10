@@ -1278,7 +1278,6 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-}
   .prayer-widget-head .rich-widget { min-inline-size: 0; }
   .prayer-widget-head .rich-widget > div:last-child {
     flex-wrap: wrap;
