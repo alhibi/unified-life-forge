@@ -242,7 +242,7 @@ export function SuggestedFeedsView({
 
       {/* Advanced search + filters */}
       {available.length > 0 && (
-        <div className="flex flex-col gap-2 px-4 py-3 border-b border-border/30 bg-card/60">
+        <div className="flex flex-col gap-2 px-4 py-3 border-b border-border/30 bg-card">
           {/* Search input */}
           <div className="relative">
             <Search className="absolute top-1/2 -translate-y-1/2 start-3 h-4 w-4 text-muted-foreground pointer-events-none" />

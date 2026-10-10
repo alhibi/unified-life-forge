@@ -432,7 +432,7 @@ export function KeywordAlertsView({
 
       {/* Notification status strip (only visible when authed) */}
       {authUserId && (
-        <div className="px-4 py-2.5 border-b border-border/30 bg-card/40">
+        <div className="px-4 py-2.5 border-b border-border/30 bg-card">
         <button
           type="button"
           onClick={() => setSettingsOpen((v) => !v)}

@@ -92,7 +92,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
               className={`px-3.5 py-1.5 rounded-full text-micro font-bold whitespace-nowrap transition-motion ${
                 active
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary/60 border border-border/50 text-muted-foreground hover:text-foreground'
+                  : 'bg-secondary border border-border/50 text-muted-foreground hover:text-foreground'
               }`}
             >
               {CATEGORY_LABELS[cat]}

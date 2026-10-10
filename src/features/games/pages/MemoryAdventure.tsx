@@ -109,7 +109,7 @@ export default function MemoryAdventurePage() {
                   : stars > 0
                     ? 'bg-data-1/5'
                     : unlocked
-                      ? 'bg-card/40 hover:bg-data-5/5'
+                      ? 'bg-card hover:bg-interactive-hover'
                       : 'opacity-50 cursor-not-allowed'
               } ${unlocked ? 'active:scale-[0.99]' : ''}`}
             >

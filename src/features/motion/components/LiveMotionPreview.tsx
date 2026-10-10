@@ -90,7 +90,7 @@ export default function LiveMotionPreview({ revision, navStyle }: LiveMotionPrev
 
       {/* ── Disclosure: the non-bouncy expand ── */}
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="flex min-h-[var(--ui-touch-min)] w-full items-center justify-between gap-3 rounded-md bg-secondary/60 px-3 text-start text-meta font-medium text-foreground">
+        <CollapsibleTrigger className="flex min-h-[var(--ui-touch-min)] w-full items-center justify-between gap-3 rounded-md bg-secondary px-3 text-start text-meta font-medium text-foreground">
           <span>خانة قابلة للانسدال</span>
           <ChevronDown
             aria-hidden

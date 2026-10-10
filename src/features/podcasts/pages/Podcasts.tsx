@@ -561,7 +561,7 @@ export default function PodcastsPage() {
                   control keeps the discoverability of "tap to switch
                   country" while exposing the new region mode without
                   eating any header real estate. */}
-              <div className="flex items-center bg-secondary/60 rounded-2xl overflow-hidden h-10 shrink-0">
+              <div className="flex items-center bg-secondary rounded-2xl overflow-hidden h-10 shrink-0">
                 <button
                   type="button"
                   onClick={() => setScope((s) => (s === 'country' ? 'region' : 'country'))}
