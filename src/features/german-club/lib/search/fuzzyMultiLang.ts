@@ -63,7 +63,6 @@ export interface ScoredHit {
 /** Arabic letter-form normalization for forgiving matching. */
 const ALEF_FORMS = /[إأآا]/g;
 const YAA_FORMS = /[ىي]/g;
-const TAA_MARBUTA = /ة/g;
 const DIACRITICS = /[\u064B-\u065F\u0670]/g;
 
 /**
@@ -206,7 +205,6 @@ export function fuzzyMultiLangSearch(
   const lang = detectQueryLanguage(trimmed);
   const qLower = trimmed.toLowerCase();
   const qArabic = normalizeArabic(trimmed);
-  const qPrefix = qLower.slice(0, 3);
   const qMask = letterMask(qLower);
 
   const hits: ScoredHit[] = [];

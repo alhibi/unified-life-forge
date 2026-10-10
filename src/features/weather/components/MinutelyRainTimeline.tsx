@@ -74,7 +74,6 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
       className="relative rounded-2xl border border-border/40 surface-depth overflow-hidden"
       aria-label="مطر الدقائق القادمة"
     >
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <header className="px-6 pt-6 pb-3 flex items-end justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 font-bold text-lead leading-tight text-foreground">
@@ -160,7 +159,7 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
         {/* Tooltip */}
         {hoveredPoint && hovered !== null && (
           <div
-            className="absolute pointer-events-none px-2.5 py-1.5 rounded-lg bg-foreground text-background text-[0.625rem] font-bold shadow-lg"
+            className="absolute pointer-events-none px-2.5 py-1.5 rounded-lg bg-foreground text-background text-[0.625rem] font-bold"
             style={{
               left: `calc(${((hovered / Math.max(1, slice.length - 1)) * 100).toFixed(2)}% + 1.5rem - ${hovered * 4}px)`,
               top: `${((hoveredPoint.v ? 1 - hoveredPoint.v / maxIntensity : 1) * 100).toFixed(0)}%`,

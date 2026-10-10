@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 /**
  * LiveSessionPanel — the in-session cockpit.
  *
@@ -7,6 +6,7 @@ import type { CSSProperties } from 'react';
  * computed by the tracking engine; this component only renders them.
  */
 import { AnimatePresence, motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { lazy, memo, Suspense } from 'react';
 
 import ProgressRing from '@/components/ProgressRing';
@@ -76,7 +76,7 @@ function LiveSessionPanelImpl({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
-      className="rounded-section border-2 border-[hsl(var(--fitness-primary)/0.4)] bg-card/40 p-4 space-y-4"
+      className="app-card p-4 space-y-4 border-2 border-[hsl(var(--fitness-primary)/0.4)]"
     >
       <div className="flex items-center justify-between">
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-micro font-bold bg-[hsl(var(--fitness-primary)/0.15)] text-[hsl(var(--fitness-primary))]">

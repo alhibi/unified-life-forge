@@ -1,4 +1,4 @@
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
 import {
   Bus,
   Calendar,
@@ -72,27 +72,20 @@ export default function CountryFactsPanel({ country, places }: CountryFactsPanel
 
       <section>
         <h3 className="app-section-label">أساسيات</h3>
-        <AppCard className="p-0">
-          <ul className="divide-y divide-border">
-            {rows.map((row) => {
-              const Icon = row.icon;
-              return (
-                <li key={row.label} className="flex items-start gap-3 px-4 py-3">
-                  <Icon
-                    className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-micro uppercase tracking-[0.08em] text-muted-foreground">
-                      {row.label}
-                    </span>
-                    <span className="mt-0.5 block text-body text-foreground">{row.value}</span>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </AppCard>
+        <AppList>
+          {rows.map((row) => {
+            const Icon = row.icon;
+            return (
+              <AppRow
+                key={row.label}
+                as="div"
+                leading={<Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+                title={row.label}
+                subtitle={row.value}
+              />
+            );
+          })}
+        </AppList>
       </section>
 
       <section>

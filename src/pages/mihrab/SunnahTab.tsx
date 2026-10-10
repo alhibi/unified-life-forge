@@ -11,8 +11,9 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
+import { AppList, AppRow, IconChip } from '@/components/ui/app-shell';
 import SunnahTracker from '@/features/mihrab/components/SunnahTracker';
-import { CalendarDays, ChevronLeft, Clock, Timer } from '@/lib/icons';
+import { CalendarDays, Clock, Timer } from '@/lib/icons';
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 
 const LINKS = [
@@ -45,27 +46,26 @@ export default function SunnahTab() {
         <SunnahTracker />
       </motion.div>
 
-      <motion.div variants={item} className="space-y-2">
-        {LINKS.map((link) => {
-          const Icon = link.icon;
-          return (
-            <button
-              key={link.to}
-              type="button"
-              onClick={() => navigate(link.to)}
-              className="app-card app-card-pressable flex w-full items-center gap-3 text-start"
-            >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
-                <Icon className="h-5 w-5" aria-hidden />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-meta font-semibold text-foreground">{link.title}</span>
-                <span className="mt-0.5 block text-mini text-muted-foreground">{link.detail}</span>
-              </span>
-              <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
-            </button>
-          );
-        })}
+      <motion.div variants={item}>
+        <AppList>
+          {LINKS.map((link) => {
+            const Icon = link.icon;
+            return (
+              <AppRow
+                key={link.to}
+                onClick={() => navigate(link.to)}
+                chevron
+                leading={
+                  <IconChip tone="plain" aria-hidden>
+                    <Icon className="h-5 w-5" />
+                  </IconChip>
+                }
+                title={link.title}
+                subtitle={link.detail}
+              />
+            );
+          })}
+        </AppList>
       </motion.div>
     </motion.div>
   );

@@ -61,7 +61,7 @@ export default function DeloadAdvisor({
 
   if (!a || !ready) {
     return (
-      <div className={`bg-card border border-border/40 rounded-2xl p-4 text-center ${className}`}>
+      <div className={`app-card p-4 text-center ${className}`}>
         <Activity className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
         <p className="text-mini text-muted-foreground">{T.noData[lang]}</p>
       </div>
@@ -110,10 +110,12 @@ export default function DeloadAdvisor({
       <div className="space-y-1">
         <div className="relative h-2 rounded-full bg-muted overflow-hidden">
           {/* Zones */}
-          <div className="absolute inset-y-0 start-0" style={{ width: '40%', background: '#94a3b850' }} />
-          <div className="absolute inset-y-0" style={{ left: '40%', width: '30%', background: '#10b98150' }} />
-          <div className="absolute inset-y-0" style={{ left: '70%', width: '15%', background: '#f59e0b50' }} />
-          <div className="absolute inset-y-0" style={{ left: '85%', right: 0, background: '#ef444450' }} />
+          {/* ACWR zone bands — a data-encoding gradient of flat tint stops
+              (positions are the real zone boundaries on the metric scale). */}
+          <div className="absolute inset-y-0 start-0" style={{ width: '40%', background: 'hsl(var(--muted-foreground) / 0.3)' }} />
+          <div className="absolute inset-y-0" style={{ left: '40%', width: '30%', background: 'hsl(var(--data-1) / 0.3)' }} />
+          <div className="absolute inset-y-0" style={{ left: '70%', width: '15%', background: 'hsl(var(--data-3) / 0.3)' }} />
+          <div className="absolute inset-y-0" style={{ left: '85%', right: 0, background: 'hsl(var(--destructive) / 0.3)' }} />
           {/* Marker */}
           <motion.div
             initial={{ left: 0 }}

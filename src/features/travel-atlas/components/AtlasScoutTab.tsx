@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 /**
  * AtlasScoutTab — the AI deep-discovery surface of the Travel Atlas.
  *
@@ -13,11 +12,14 @@ import type { CSSProperties } from 'react';
  * success messages.
  */
 import { AnimatePresence, motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import {
   Check,
   Compass,
@@ -70,7 +72,7 @@ function categoryLabel(cat: string): string {
 }
 
 function categoryColor(cat: string): string {
-  return CATEGORY_COLORS[cat] ?? 'bg-secondary0/15 text-muted-foreground border-[hsl(var(--track))]/30';
+  return CATEGORY_COLORS[cat] ?? 'bg-secondary/40 text-muted-foreground border-border/50';
 }
 
 const PRICE_LABELS = ['مجاني', 'رخيص', 'متوسط', 'مرتفع', 'فاخر'];
@@ -165,7 +167,7 @@ function TargetPicker({ busy, onAdd }: TargetPickerProps) {
             aria-selected={kind === k.id}
             onClick={() => setKind(k.id)}
             className={cn(
-              'px-3 py-1.5 rounded-xl text-micro font-bold transition-motion active:scale-95',
+              'px-3 py-1.5 rounded-xl text-micro font-bold transition-motion',
               kind === k.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted/20 border border-border/50 text-muted-foreground hover:text-foreground'
@@ -194,7 +196,7 @@ function TargetPicker({ busy, onAdd }: TargetPickerProps) {
         />
         {visibleSuggestions.length > 0 && (
           <ul
-            className="absolute z-20 inset-x-0 top-full mt-1 max-h-48 divide-y divide-border overflow-y-auto rounded-card border border-border bg-background shadow-lg"
+            className="absolute z-20 inset-x-0 top-full mt-1 max-h-48 divide-y divide-border overflow-y-auto rounded-lg border border-border bg-background"
             role="listbox"
           >
             {visibleSuggestions.map((s) => (
@@ -254,7 +256,7 @@ function DossierPhoto({ place }: { place: ScoutPlace }) {
       {photo.credit && (
         <figcaption
           dir="ltr"
-          className="absolute bottom-0 end-0 max-w-[70%] truncate bg-background/70 backdrop-blur-sm px-1.5 py-0.5 text-micro text-muted-foreground"
+          className="absolute bottom-0 end-0 max-w-[70%] truncate bg-background/90 px-1.5 py-0.5 text-micro text-muted-foreground"
         >
           © {photo.credit}
         </figcaption>
@@ -280,7 +282,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="surface-depth rounded-2xl p-4 space-y-3 relative overflow-hidden"
+      className="app-card space-y-3 relative overflow-hidden"
     >
       <DossierPhoto place={place} />
 
@@ -312,7 +314,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
             title="حفظ في أطلسي"
             aria-label="حفظ في الأطلس"
             className={cn(
-              'w-8 h-8 rounded-xl flex items-center justify-center transition-motion active:scale-90',
+              'w-8 h-8 rounded-lg flex items-center justify-center transition-motion',
               place.promotedPlaceId
                 ? 'bg-data-1/20 text-data-1'
                 : 'bg-primary/10 text-primary hover:bg-primary/20'
@@ -331,7 +333,7 @@ function DossierCard({ place, index, onPromote, onDismiss, promoting }: DossierC
               onClick={() => onDismiss(place)}
               title="إخفاء"
               aria-label="إخفاء هذا المكان"
-              className="w-8 h-8 rounded-xl flex items-center justify-center bg-muted/30 text-muted-foreground hover:text-foreground transition-motion active:scale-90"
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-muted/30 text-muted-foreground hover:text-foreground transition-motion"
             >
               <X className="w-4 h-4" />
             </button>
@@ -405,7 +407,7 @@ function CityBriefCard({ brief, cityName }: { brief: TargetBrief; cityName: stri
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="surface-depth rounded-2xl p-4 space-y-3 relative overflow-hidden"
+      className="app-card space-y-3 relative overflow-hidden"
     >
       {!photo.url || (
         <figure className="relative -mx-4 -mt-4 mb-1 h-40 overflow-hidden">
@@ -415,8 +417,7 @@ function CityBriefCard({ brief, cityName }: { brief: TargetBrief; cityName: stri
             loading="lazy"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-          <figcaption className="absolute bottom-2 start-4 text-body font-extrabold text-foreground drop-shadow">
+          <figcaption className="absolute inset-x-0 bottom-0 bg-background/85 px-4 py-1 text-body font-extrabold text-foreground">
             {cityName}
           </figcaption>
         </figure>
@@ -642,7 +643,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
     <div className="grid gap-5 lg:grid-cols-[280px_1fr]" dir="rtl">
       {/* ── Rail: favorites + controls ── */}
       <aside className="space-y-4">
-        <section className="surface-depth rounded-2xl p-4 space-y-3">
+        <section className="app-card space-y-3">
           <h2 className="flex items-center gap-2 text-meta font-bold text-foreground">
             <Sparkles className="w-4 h-4 text-primary" />
             أماكني المفضلة
@@ -656,57 +657,48 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
               أضف مدينة أو دولة تحبها، وسيبحث محرك الذكاء الاصطناعي بعمق عن أجمل مطاعمها وحدائقها ومغامراتها ويدوّن كل شيء هنا.
             </p>
           ) : (
-            <ul className="space-y-1.5">
+            <AppList compact>
               {targets.map((t) => (
-                <li key={t.id}>
-                  <div
-                    className={cn(
-                      'group flex items-center justify-between gap-2 px-3 py-2 rounded-xl border transition-motion cursor-pointer',
-                      t.id === activeTargetId
-                        ? 'bg-primary/10 border-primary/40'
-                        : 'bg-muted/20 border-border/40 hover:border-border'
-                    )}
-                    onClick={() => setActiveTargetId(t.id)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && setActiveTargetId(t.id)}
-                  >
-                    <span className="min-w-0">
-                      <span className="flex items-center gap-1.5">
-                        <span className="block text-mini font-bold text-foreground truncate">
-                          {t.displayNameAr}
-                        </span>
-                        {t.lastRunStatus === 'running' && (
-                          <Loader2 className="w-3 h-3 animate-spin text-primary shrink-0" />
-                        )}
-                        {t.lastRunStatus === 'done' && (
-                          <Check className="w-3 h-3 text-data-1 shrink-0" />
-                        )}
-                        {(t.lastRunStatus === 'failed' || t.lastRunStatus === 'empty') && (
-                          <span
-                            className="w-2 h-2 rounded-full bg-signal/80 shrink-0"
-                            title={t.lastRunStatus === 'failed' ? 'فشل آخر بحث' : 'آخر بحث بلا نتائج جديدة'}
-                          />
-                        )}
-                      </span>
-                      <span className="block text-micro text-muted-foreground">
-                        {t.kind === 'city' ? '🏙️ مدينة' : '🌍 دولة'}
-                      </span>
+                <AppRow
+                  key={t.id}
+                  as="div"
+                  onClick={() => setActiveTargetId(t.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && setActiveTargetId(t.id)}
+                  className={cn('group', t.id === activeTargetId && 'bg-primary/10')}
+                  title={
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <span className="truncate">{t.displayNameAr}</span>
+                      {t.lastRunStatus === 'running' && (
+                        <Loader2 className="w-3 h-3 animate-spin text-primary shrink-0" />
+                      )}
+                      {t.lastRunStatus === 'done' && (
+                        <Check className="w-3 h-3 text-data-1 shrink-0" />
+                      )}
+                      {(t.lastRunStatus === 'failed' || t.lastRunStatus === 'empty') && (
+                        <span
+                          className="w-2 h-2 rounded-full bg-signal/80 shrink-0"
+                          title={t.lastRunStatus === 'failed' ? 'فشل آخر بحث' : 'آخر بحث بلا نتائج جديدة'}
+                        />
+                      )}
                     </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        void removeTarget(t);
-                      }}
-                      aria-label={`حذف ${t.displayNameAr}`}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive transition-motion shrink-0"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </li>
+                  }
+                  subtitle={t.kind === 'city' ? '🏙️ مدينة' : '🌍 دولة'}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void removeTarget(t);
+                    }}
+                    aria-label={`حذف ${t.displayNameAr}`}
+                    className="opacity-0 group-hover:opacity-100 w-9 h-9 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive transition-motion shrink-0"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </AppRow>
               ))}
-            </ul>
+            </AppList>
           )}
 
           <div className="pt-1 border-t border-border/30">
@@ -715,7 +707,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
         </section>
 
         {/* Scout runner */}
-        <section className="surface-depth rounded-2xl p-4 space-y-3">
+        <section className="app-card space-y-3">
           <h2 className="flex items-center gap-2 text-meta font-bold text-foreground">
             <Compass className="w-4 h-4 text-primary" />
             محرك البحث العميق
@@ -736,7 +728,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
                 onClick={() => setDepth(d.id)}
                 disabled={scouting}
                 className={cn(
-                  'flex-1 py-1.5 rounded-xl text-micro font-bold transition-motion active:scale-95 disabled:opacity-50',
+                  'flex-1 py-1.5 rounded-xl text-micro font-bold transition-motion disabled:opacity-50',
                   depth === d.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted/20 border border-border/50 text-muted-foreground hover:text-foreground'
@@ -781,7 +773,7 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
               >
                 <div className="h-1.5 rounded-full bg-muted/50 overflow-hidden" dir="ltr">
                   <div
-                    className="h-full rounded-full bg-gradient-to-l from-primary to-data-4 progress-fill duration-slow"
+                    className="h-full rounded-full bg-primary progress-fill duration-slow"
                     style={{ '--progress': progress.pct / 100 } as CSSProperties}
                   />
                 </div>
@@ -817,19 +809,19 @@ export default function AtlasScoutTab({ onPromoteToAtlas }: AtlasScoutTabProps) 
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         ) : !activeTarget ? (
-          <div className="py-16 text-center space-y-2 surface-depth rounded-2xl">
-            <Compass className="w-10 h-10 mx-auto text-muted-foreground-subtle" />
-            <p className="text-meta font-semibold text-foreground">ابدأ بإضافة مكان مفضل</p>
-            <p className="text-mini text-muted-foreground max-w-sm mx-auto leading-relaxed">
-              اختر مدينة تحبها أو حلمت بزيارتها، ودع المحرك يقلّب أرجاءها ويؤلف لك دليلاً شخصياً كامل الأركان.
-            </p>
-          </div>
+          <StateView
+            compact
+            kind="empty"
+            title="ابدأ بإضافة مكان مفضل"
+            body="اختر مدينة تحبها أو حلمت بزيارتها، ودع المحرك يقلّب أرجاءها ويؤلف لك دليلاً شخصياً كامل الأركان."
+          />
         ) : places.length === 0 ? (
-          <div className="py-16 text-center space-y-2 surface-depth rounded-2xl">
-            <Sparkles className="w-10 h-10 mx-auto text-muted-foreground-subtle" />
-            <p className="text-meta font-semibold text-foreground">لا نتائج بعد لهذا المكان</p>
-            <p className="text-mini text-muted-foreground">شغّل محرك البحث العميق من اللوحة الجانبية</p>
-          </div>
+          <StateView
+            compact
+            kind="empty"
+            title="لا نتائج بعد لهذا المكان"
+            body="شغّل محرك البحث العميق من اللوحة الجانبية ليجمع أول دفعة من الأماكن ويكتب فصول الدليل."
+          />
         ) : (
           <AnimatePresence mode="popLayout">
             {places.map((p, i) => (

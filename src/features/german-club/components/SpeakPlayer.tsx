@@ -4,7 +4,7 @@
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Square,Volume2 } from '@/lib/icons';
+import { Square, Volume2 } from '@/lib/icons';
 
 export interface SpeakPlayerProps {
   /** Lines to read out, in order. */
@@ -66,8 +66,8 @@ export const SpeakPlayer: React.FC<SpeakPlayerProps> = ({ text, variant = 'icon'
 
   const base =
     variant === 'pill'
-      ? 'shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--track))] px-2.5 py-1 text-[0.625rem] font-semibold text-muted-foreground hover:bg-secondary transition-colors'
-      : 'shrink-0 inline-flex items-center justify-center rounded-xl p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors';
+      ? 'shrink-0 inline-flex items-center gap-1.5 rounded-full border border-track px-2.5 py-1 text-micro font-semibold text-muted-foreground hover:bg-secondary transition-colors'
+      : 'app-icon-btn text-muted-foreground';
 
   return (
     <button
@@ -77,7 +77,11 @@ export const SpeakPlayer: React.FC<SpeakPlayerProps> = ({ text, variant = 'icon'
       aria-label={speaking ? 'إيقاف الاستماع' : 'استماع للنطق الألماني'}
       title={speaking ? 'إيقاف' : 'استماع'}
     >
-      {speaking ? <Square className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+      {speaking ? (
+        <Square className="h-3.5 w-3.5" aria-hidden />
+      ) : (
+        <Volume2 className="h-3.5 w-3.5" aria-hidden />
+      )}
       {variant === 'pill' && <span dir="ltr">{speaking ? 'Stop' : 'Hören'}</span>}
     </button>
   );

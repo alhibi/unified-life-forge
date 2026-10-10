@@ -1,16 +1,15 @@
 import { motion } from 'framer-motion';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
-import { BookOpen, CloudSun, Moon, MoonStar,Sun, SunDim, Sunrise, Sunset } from '@/lib/icons';
+import { AppList, IconChip, PageShell } from '@/components/ui/app-shell';
+import { BookOpen, CloudSun, Moon, MoonStar, Sun, SunDim, Sunrise, Sunset } from '@/lib/icons';
 
 interface TimeSection {
   titleAr: string;
   timeRange: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   iconColor: string;
   items: { ar: string; }[];
 }
@@ -94,57 +93,49 @@ const sections: TimeSection[] = [
   },
 ];
 
-import { pageItem as fadeItem,pageStagger as stagger } from '@/lib/motion';
+import { pageItem as fadeItem, pageStagger as stagger } from '@/lib/motion';
 
 export default function PropheticDay() {
-  const navigate = useNavigate();
-  const { dir } = useApp();
 
   return (
-    <div className="min-h-screen bg-background pb-page" dir={dir}>
+    <PageShell flush centered={false} className="px-4 pt-2">
       <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
-      {/* Header */}
-      <PageHeader sticky title={'نظرة على يوم النبي ﷺ'} className="px-4 py-3 bg-background border-b border-border" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
+        <PageHeader sticky title={'نظرة على يوم النبي ﷺ'} />
 
-      {/* Sections */}
-      <motion.div variants={stagger} initial="hidden" animate="show" className="pt-4 pb-4 space-y-6">
-        {sections.map((section, idx) => {
-          const Icon = section.icon;
-          return (
-            <motion.div key={idx} variants={fadeItem}>
-              {/* Section header - icon on start, title+time next to it */}
-              <div className="flex items-center gap-3 mb-3 px-5">
-                <div className="w-11 h-11 rounded-full bg-secondary/80 border border-border/50 flex items-center justify-center shrink-0">
-                  {/* @ts-ignore */}
-{/* @ts-ignore */}
-<Icon className={`w-5 h-5 ${section.iconColor}`} />
-                </div>
-                <div className="flex flex-col">
-                  <h2 className="text-meta font-extrabold text-foreground">{section.titleAr}</h2>
-                  <span className="text-micro text-muted-foreground mt-0.5" dir="ltr">{section.timeRange}</span>
-                </div>
-              </div>
-
-              {/* Items - card with golden top border, bullet on start */}
-              <div className="mx-5 rounded-2xl overflow-hidden border border-border/40 border-t-[2.5px] border-t-primary/40">
-                {section.items.map((item, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center gap-3 px-4 py-3.5 bg-card ${
-                      i < section.items.length - 1 ? 'border-b border-border/30' : ''
-                    }`}
-                  >
-                    <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-primary" />
-                    <p className="text-mini leading-relaxed text-foreground font-medium">
-                      {item.ar}
-                    </p>
+        {/* Sections */}
+        <motion.div variants={stagger} initial="hidden" animate="show" className="pt-2 pb-4 space-y-6">
+          {sections.map((section, idx) => {
+            const Icon = section.icon;
+            return (
+              <motion.div key={idx} variants={fadeItem}>
+                {/* Section header - icon plate on start, title + time next to it */}
+                <div className="flex items-center gap-3 mb-3">
+                  <IconChip aria-hidden>
+                    <Icon className={`h-5 w-5 ${section.iconColor}`} />
+                  </IconChip>
+                  <div className="flex flex-col">
+                    <h2 className="text-meta font-extrabold text-foreground">{section.titleAr}</h2>
+                    <span className="text-micro text-muted-foreground mt-0.5 tabular-nums" dir="ltr">{section.timeRange}</span>
                   </div>
-                ))}
-              </div>
-            </motion.div>
-          );
-        })}
-      </motion.div>
-    </div>
+                </div>
+
+                {/* Items — one grouped list per period, bullet on start */}
+                <AppList>
+                  {section.items.map((item, i) => (
+                    <div key={i} className="app-row">
+                      <span className="w-2 h-2 rounded-full shrink-0 bg-primary" aria-hidden />
+                      <p className="flex-1 text-mini leading-relaxed text-foreground font-medium">
+                        {item.ar}
+                      </p>
+                    </div>
+                  ))}
+                </AppList>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </PageShell>
   );
 }

@@ -84,7 +84,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
                 key={id}
                 type="button"
                 onClick={() => toggle(id)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 text-primary px-2 py-1 text-mini font-medium active:scale-95"
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 text-primary px-2 py-1 text-mini font-medium"
               >
                 <span className="truncate max-w-[110px]">{label}</span>
                 <X className="h-3 w-3 opacity-80" />
@@ -111,7 +111,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="w-6 h-6 rounded-full flex items-center justify-center active:bg-accent/40"
+              className="w-6 h-6 rounded-full flex items-center justify-center"
               type="button"
               aria-label={'مسح'}
             >
@@ -165,7 +165,7 @@ const MemberPicker: React.FC<MemberPickerProps> = ({ selectedIds, excludeIds = [
                   disabled={limitReached}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 text-start transition-colors',
-                    isSelected ? 'bg-primary/[0.04]' : 'active:bg-accent/40',
+                    isSelected ? 'bg-primary/[0.04]' : '',
                     limitReached && 'opacity-50 cursor-not-allowed',
                   )}
                 >

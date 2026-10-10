@@ -1,9 +1,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { AppCard, IconButton } from '@/components/ui/app-shell';
 import { ArrowLeft, Sparkles, Volume2 } from '@/lib/icons';
 
-import { GERMAN_CLUB_TOKENS, GermanEntry, REGISTER_LABELS_AR } from '../types';
+import { GermanEntry, REGISTER_LABELS_AR } from '../types';
 import { GenderDot } from './GenderDot';
 
 interface EntryCardProps {
@@ -43,124 +44,134 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
   }
 
   return (
-    <motion.div
-      layout={!shouldReduceMotion}
-      onClick={handleCardClick}
-      className="relative cursor-pointer rounded-2xl border p-5 transition-motion duration-fast active:scale-[0.99]"
-      style={{
-        backgroundColor: `${GERMAN_CLUB_TOKENS.paper}`,
-        borderColor: 'hsl(var(--track))',
-        boxShadow: '0 2px 12px -2px rgba(23, 24, 28, 0.04)',
-      }}
-    >
-      {/* Top row: Gender Dot, Headword (German), and Audio trigger */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-baseline gap-2.5 min-w-0 flex-1">
-          {entry.gender !== 'n_a' && <GenderDot gender={entry.gender} size={11} className="mt-1.5" />}
+    <motion.div layout={!shouldReduceMotion}>
+      <AppCard
+        as="div"
+        role="button"
+        tabIndex={0}
+        onClick={handleCardClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCardClick();
+          }
+        }}
+        className="cursor-pointer transition-motion"
+      >
+        {/* Top row: Gender Dot, Headword (German), and Audio trigger */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-baseline gap-2.5">
+            {entry.gender !== 'n_a' && <GenderDot gender={entry.gender} size={11} className="mt-1.5" />}
 
-          <div className="flex flex-wrap items-baseline gap-2" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-            {entry.is_separable_verb && entry.separable_prefix ? (
-              <div className="inline-flex items-baseline font-mono text-xl sm:text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">
-                {/* Prefix Motion Element */}
-                <motion.span
-                  animate={
-                    isSplitting && !shouldReduceMotion
-                      ? {
-                          x: [0, 40, 0],
-                          y: [0, -10, 0],
-                          color: [GERMAN_CLUB_TOKENS.prussian, 'hsl(var(--destructive))', GERMAN_CLUB_TOKENS.prussian],
-                        }
-                      : {}
-                  }
-                  transition={{ duration: 0.8, ease: 'easeInOut' }}
-                  className="text-[hsl(var(--primary))] underline decoration-dotted underline-offset-4"
-                >
-                  {prefix}
-                </motion.span>
-                <span>{baseVerb}</span>
-              </div>
-            ) : (
-              <span className="font-mono text-xl sm:text-2xl font-black tracking-tight text-[hsl(var(--foreground))]">
-                {entry.german_text}
-              </span>
-            )}
+            <div className="flex flex-wrap items-baseline gap-2" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+              {entry.is_separable_verb && entry.separable_prefix ? (
+                <div className="inline-flex items-baseline font-mono text-display font-black tracking-tight text-foreground">
+                  {/* Prefix Motion Element — the split is drawn with transform
+                      only; the colour stays on its accent token. */}
+                  <motion.span
+                    animate={
+                      isSplitting && !shouldReduceMotion
+                        ? {
+                            x: [0, 40, 0],
+                            y: [0, -10, 0],
+                          }
+                        : {}
+                    }
+                    transition={{ duration: 0.8, ease: 'easeInOut' }}
+                    className="text-primary underline decoration-dotted underline-offset-4"
+                  >
+                    {prefix}
+                  </motion.span>
+                  <span>{baseVerb}</span>
+                </div>
+              ) : (
+                <span className="font-mono text-display font-black tracking-tight text-foreground">
+                  {entry.german_text}
+                </span>
+              )}
 
-            {entry.ipa && (
-              <span className="text-xs font-mono text-muted-foreground font-normal dir-ltr" dir="ltr">
-                [{entry.ipa}]
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Audio trigger only — no mastered button */}
-        {entry.audio_url && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const audio = new Audio(entry.audio_url!);
-              audio.play().catch(() => {});
-            }}
-            className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors shrink-0"
-            title="استماع للنطق"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* Arabic Translation Subtitle */}
-      <div className="mt-2 text-start">
-        <p className="text-sm font-normal text-foreground leading-snug">{entry.arabic_translation}</p>
-      </div>
-
-      {/* Meta tags row */}
-      <div className="mt-3 flex items-center justify-between gap-2 pt-2 border-t border-[hsl(var(--track))]">
-        <div className="flex items-center gap-2">
-          {entry.register && entry.register !== 'neutral' && (
-            <span className="text-[0.6875rem] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-md">
-              {REGISTER_LABELS_AR[entry.register]}
-            </span>
-          )}
-          {entry.is_separable_verb && (
-            <span className="text-[0.6875rem] font-bold text-data-4 bg-data-4/80 px-2 py-0.5 rounded-md flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-data-4" />
-              فعل منفصل
-            </span>
-          )}
-        </div>
-
-        {entry.example_sentence_de && (
-          <span className="text-xs font-medium text-[hsl(var(--primary))] flex items-center gap-1 hover:underline">
-            {showExample ? 'إخفاء المثال' : 'عرض مثال بالجملة'}
-            <ArrowLeft className={`w-3 h-3 transition-transform ${showExample ? 'rotate-90' : ''}`} />
-          </span>
-        )}
-      </div>
-
-      {/* Revealed Example Sentence Block */}
-      {showExample && entry.example_sentence_de && (
-        <motion.div
-          initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
-          className="mt-3 rounded-xl p-3.5 border text-start"
-          style={{
-            backgroundColor: 'rgba(23, 50, 77, 0.04)',
-            borderColor: 'rgba(23, 50, 77, 0.12)',
-          }}
-        >
-          <div className="text-sm font-mono font-bold text-[hsl(var(--primary))] leading-relaxed" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
-            {entry.example_sentence_de}
-          </div>
-          {entry.example_sentence_ar && (
-            <div className="mt-1.5 text-xs text-muted-foreground font-normal leading-normal">
-              {entry.example_sentence_ar}
+              {entry.ipa && (
+                <span className="font-mono text-mini font-normal text-muted-foreground" dir="ltr">
+                  [{entry.ipa}]
+                </span>
+              )}
             </div>
+          </div>
+
+          {/* Audio trigger only — no mastered button */}
+          {entry.audio_url && (
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                const audio = new Audio(entry.audio_url!);
+                audio.play().catch(() => {});
+              }}
+              className="shrink-0 text-muted-foreground"
+              title="استماع للنطق"
+              aria-label="استماع للنطق"
+            >
+              <Volume2 className="h-4 w-4" aria-hidden />
+            </IconButton>
           )}
-        </motion.div>
-      )}
+        </div>
+
+        {/* Arabic Translation Subtitle */}
+        <div className="mt-2 text-start">
+          <p className="text-body font-normal leading-snug text-foreground">
+            {entry.arabic_translation}
+          </p>
+        </div>
+
+        {/* Meta tags row */}
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-track pt-2">
+          <div className="flex items-center gap-2">
+            {entry.register && entry.register !== 'neutral' && (
+              <span className="rounded-md bg-secondary px-2 py-0.5 text-micro font-medium text-muted-foreground">
+                {REGISTER_LABELS_AR[entry.register]}
+              </span>
+            )}
+            {entry.is_separable_verb && (
+              <span className="flex items-center gap-1 rounded-md bg-data-4/15 px-2 py-0.5 text-micro font-bold text-data-4">
+                <Sparkles className="h-3 w-3 text-data-4" aria-hidden />
+                فعل منفصل
+              </span>
+            )}
+          </div>
+
+          {entry.example_sentence_de && (
+            <span className="flex items-center gap-1 text-mini font-medium text-primary hover:underline">
+              {showExample ? 'إخفاء المثال' : 'عرض مثال بالجملة'}
+              <ArrowLeft
+                className={`h-3 w-3 transition-transform ${showExample ? 'rotate-90' : ''}`}
+                aria-hidden
+              />
+            </span>
+          )}
+        </div>
+
+        {/* Revealed Example Sentence Block */}
+        {showExample && entry.example_sentence_de && (
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="mt-3 rounded-lg border border-primary/15 bg-primary/5 p-3.5 text-start"
+          >
+            <div
+              className="font-mono text-body font-bold leading-relaxed text-primary"
+              dir="ltr"
+              style={{ unicodeBidi: 'isolate' }}
+            >
+              {entry.example_sentence_de}
+            </div>
+            {entry.example_sentence_ar && (
+              <div className="mt-1.5 text-mini font-normal leading-normal text-muted-foreground">
+                {entry.example_sentence_ar}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AppCard>
     </motion.div>
   );
 };

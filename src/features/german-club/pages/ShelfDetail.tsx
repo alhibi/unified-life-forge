@@ -1,15 +1,17 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import { BookOpen, Sparkles } from '@/lib/icons';
 
 import { EntryCard } from '../components/EntryCard';
 import { FurnaceButton } from '../components/FurnaceButton';
-import { GERMAN_CLUB_TOKENS, GermanRegister } from '../types';
+import { GermanRegister } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
 
 // The content furnace (generation tool) is an occasional admin-ish flow —
@@ -25,12 +27,7 @@ export const ShelfDetail: React.FC = () => {
   const [isGenerationModalOpen, setIsGenerationModalOpen] = useState<boolean>(false);
   const [activeJobStatus, setActiveJobStatus] = useState<string | null>(null);
 
-  const {
-    currentShelf,
-    entries,
-    isLoadingEntries,
-    fetchShelfEntries,
-  } = useGermanClubStore();
+  const { currentShelf, entries, isLoadingEntries, fetchShelfEntries } = useGermanClubStore();
 
   useEffect(() => {
     if (slug) {
@@ -91,135 +88,134 @@ export const ShelfDetail: React.FC = () => {
   });
 
   return (
-    <PageShell centered={false} flush>
+    <PageShell centered={false} flush className="px-4 pt-4 sm:pt-6">
       <SEO
         title={`${currentShelf?.title_ar || 'تفاصيل الرف'} — النادي الألماني`}
         description={currentShelf?.description_ar || 'عبارات ومفردات الرف الألمانية'}
         path={`/german-club/shelf/${slug || ''}`}
       />
 
-      <div
-        className="min-h-screen pb-20 transition-colors"
-        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
-      >
-        {/* Sticky App Bar */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <div className="min-w-0">
-              <h1 className="text-base font-bold text-foreground tracking-tight leading-none truncate">
-                {currentShelf?.title_ar || 'مواقف الرف'}
-              </h1>
-              {currentShelf?.title_de && (
-                <span
-                  className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-wider uppercase block truncate"
-                  dir="ltr"
-                  style={{ unicodeBidi: 'isolate' }}
-                >
-                  {currentShelf.title_de}
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
+        {/* App Bar */}
+        <PageHeader
+          title={currentShelf?.title_ar || 'مواقف الرف'}
+          subtitle={
+            currentShelf?.title_de ? (
+              <span className="font-mono" dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+                {currentShelf.title_de}
+              </span>
+            ) : undefined
+          }
+          right={
+            <>
+              {/* Furnace 'D' Button — opens the AI generation modal */}
+              {currentShelf && (
+                <FurnaceButton
+                  currentCount={entries.length}
+                  targetCount={currentShelf.target_entry_count || 25}
+                  isJobRunning={Boolean(activeJobStatus)}
+                  onClick={() => setIsGenerationModalOpen(true)}
+                />
+              )}
+
+              <Button
+                size="sm"
+                variant="secondary"
+                className="gap-1.5"
+                onClick={() => navigate('/german-club/grammar')}
+              >
+                <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden />
+                زاوية القواعد
+              </Button>
+            </>
+          }
+        />
+
+        {/* Header Info Block */}
+        {currentShelf && (
+          <section className="space-y-2 border-b border-track pb-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-primary/10 px-2.5 py-1 text-mini font-bold text-primary">
+                  مواقف حية
                 </span>
+                <span className="rounded-md bg-data-1/15 px-2.5 py-1 text-mini font-bold text-data-1">
+                  محتوى متاح للجميع
+                </span>
+              </div>
+
+              {activeJobStatus && (
+                <div className="flex items-center gap-1.5 rounded-md border border-signal/20 bg-signal/10 px-2.5 py-1 text-mini font-bold text-signal">
+                  <Sparkles className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                  <span>الفرن يعمل في الخلفية...</span>
+                </div>
               )}
             </div>
-          </div>
+            <p className="text-body leading-relaxed text-muted-foreground">
+              {currentShelf.description_ar}
+            </p>
+          </section>
+        )}
 
-          <div className="flex items-center gap-2">
-            {/* Furnace 'D' Button — opens the AI generation modal */}
-            {currentShelf && (
-              <FurnaceButton
-                currentCount={entries.length}
-                targetCount={currentShelf.target_entry_count || 25}
-                isJobRunning={Boolean(activeJobStatus)}
-                onClick={() => setIsGenerationModalOpen(true)}
-              />
-            )}
-
+        {/* Filter Bar (Registers) */}
+        <div className="scrollbar-none flex items-center gap-2 overflow-x-auto pb-1 text-mini">
+          <span className="shrink-0 font-bold text-muted-foreground">السجل اللغوي:</span>
+          {[
+            { id: 'all', label: 'الكل' },
+            { id: 'neutral', label: 'محايد' },
+            { id: 'informal', label: 'غير رسمي' },
+            { id: 'formal', label: 'رسمي' },
+            { id: 'slang', label: 'عامي / slang' },
+          ].map((tab) => (
             <button
+              key={tab.id}
               type="button"
-              onClick={() => navigate('/german-club/grammar')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
+              onClick={() => setFilterRegister(tab.id as GermanRegister | 'all')}
+              aria-pressed={filterRegister === tab.id}
+              className={`shrink-0 rounded-md border px-3 py-1.5 font-medium transition-motion ${
+                filterRegister === tab.id
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-track bg-secondary/40 text-foreground hover:bg-secondary'
+              }`}
             >
-              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-              زاوية القواعد
+              {tab.label}
             </button>
-          </div>
+          ))}
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-          {/* Header Info Block */}
-          {currentShelf && (
-            <div className="space-y-2 border-b border-[hsl(var(--track))] pb-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-[hsl(var(--primary))] bg-[hsl(var(--primary))]/10 px-2.5 py-1 rounded-md">
-                    مواقف حية
-                  </span>
-                  <span className="text-xs font-bold text-data-1 bg-data-1 px-2.5 py-1 rounded-md">
-                    محتوى متاح للجميع
-                  </span>
-                </div>
-
-                {activeJobStatus && (
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[hsl(var(--signal))] bg-[hsl(var(--signal))]/10 px-2.5 py-1 rounded-md border border-[hsl(var(--signal))]/20">
-                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                    <span>الفرن يعمل في الخلفية...</span>
-                  </div>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {currentShelf.description_ar}
-              </p>
-            </div>
-          )}
-
-          {/* Filter Bar (Registers) */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="font-bold text-muted-foreground shrink-0">السجل اللغوي:</span>
-            {[
-              { id: 'all', label: 'الكل' },
-              { id: 'neutral', label: 'محايد' },
-              { id: 'informal', label: 'غير رسمي' },
-              { id: 'formal', label: 'رسمي' },
-              { id: 'slang', label: 'عامي / slang' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setFilterRegister(tab.id as GermanRegister | 'all')}
-                className={`px-3 py-1.5 rounded-xl transition-motion shrink-0 font-medium ${
-                  filterRegister === tab.id
-                    ? 'bg-[hsl(var(--primary))] text-white shadow-xs'
-                    : 'bg-secondary text-foreground hover:bg-secondary'
-                }`}
-              >
-                {tab.label}
-              </button>
+        {/* Entries Feed */}
+        {isLoadingEntries ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-28 animate-pulse rounded-lg bg-secondary" />
             ))}
           </div>
+        ) : filteredEntries.length === 0 ? (
+          <StateView
+            kind="empty"
+            title="لا توجد عناصر مطابقة"
+            body="لا توجد عناصر في هذا الرف تنطبق عليها تصفية السجل المحدد. جرّب «الكل» أو سجلاً لغوياً آخر."
+            secondary={
+              filterRegister !== 'all' ? (
+                <Button variant="ghost" size="sm" onClick={() => setFilterRegister('all')}>
+                  إظهار كل السجلات
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <div className="space-y-4">
+            {filteredEntries.map((entry) => (
+              <EntryCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        )}
+      </div>
 
-          {/* Entries Feed */}
-          {isLoadingEntries ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-28 rounded-2xl bg-secondary animate-pulse" />
-              ))}
-            </div>
-          ) : filteredEntries.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground space-y-2">
-              <Sparkles className="w-8 h-8 mx-auto text-muted-foreground opacity-60" />
-              <p className="text-sm">لا توجد عناصر في هذا الرف تنطبق عليها تصفية السجل المحدد.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredEntries.map((entry) => (
-                <EntryCard key={entry.id} entry={entry} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Furnace Generation Modal */}
-        {currentShelf && (
-          <Suspense fallback={null}>
+      {/* Furnace Generation Modal — mounted only while open, so a reopened
+          dialog always starts from a clean wizard state. */}
+      {isGenerationModalOpen && currentShelf && (
+        <Suspense fallback={null}>
           <GenerationModal
             shelfId={currentShelf.id}
             shelfSlug={currentShelf.slug}
@@ -228,12 +224,11 @@ export const ShelfDetail: React.FC = () => {
             shelfDescriptionAr={currentShelf.description_ar}
             currentEntryCount={entries.length}
             targetCount={currentShelf.target_entry_count || 25}
-            isOpen={isGenerationModalOpen}
+            isOpen
             onClose={() => setIsGenerationModalOpen(false)}
           />
-          </Suspense>
-        )}
-      </div>
+        </Suspense>
+      )}
     </PageShell>
   );
 };

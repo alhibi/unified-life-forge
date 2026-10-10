@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 
 import { CHAIN_LABELS, type ChainId, type NormalizedPair } from '../types';
@@ -117,27 +117,24 @@ export default function TokenDetailDrawer({
           </div>
         </div>
 
-        {/* Token Details list */}
-        <div className="space-y-2 text-mini">
-          <div className="flex justify-between py-1.5 border-b border-border/10">
-            <span className="text-muted-foreground">الشبكة</span>
-            <span className="font-bold text-foreground capitalize">
+        {/* Token Details list — one grouped list, one row per attribute */}
+        <AppList compact>
+          <AppRow as="div" title="الشبكة">
+            <span className="shrink-0 font-bold text-foreground capitalize">
               {CHAIN_LABELS[pair.chainId as ChainId] || pair.chainId}
             </span>
-          </div>
-          <div className="flex justify-between py-1.5 border-b border-border/10">
-            <span className="text-muted-foreground">عنوان الزوج</span>
-            <span className="font-bold font-plex-mono text-foreground select-all tabular-nums text-micro">
+          </AppRow>
+          <AppRow as="div" title="عنوان الزوج">
+            <span className="max-w-[62%] break-all text-end font-plex-mono text-micro text-foreground select-all tabular-nums">
               {pair.pairAddress}
             </span>
-          </div>
-          <div className="flex justify-between py-1.5 border-b border-border/10">
-            <span className="text-muted-foreground">العملة الأساسية</span>
-            <span className="font-bold font-plex-mono text-foreground select-all tabular-nums text-micro">
+          </AppRow>
+          <AppRow as="div" title="العملة الأساسية">
+            <span className="max-w-[62%] break-all text-end font-plex-mono text-micro text-foreground select-all tabular-nums">
               {pair.baseTokenAddress}
             </span>
-          </div>
-        </div>
+          </AppRow>
+        </AppList>
 
         {/* External links */}
         {(pair.websites.length > 0 || pair.socials.length > 0) && (
@@ -177,7 +174,7 @@ export default function TokenDetailDrawer({
             href={`https://dexscreener.com/${pair.chainId}/${pair.pairAddress}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-muted/60 border border-border/40 hover:bg-muted text-mini font-bold text-foreground transition-motion duration-normal active:scale-95"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-muted/60 border border-border/40 hover:bg-muted text-mini font-bold text-foreground transition-motion duration-normal"
           >
             📊 فتح الصفحة الكاملة على DEX Screener
           </a>

@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 // Single-episode row used inside `PodcastDetail`.
 //
 // Modeled on Podium's `PodcastEpisodeListItem.kt`:
@@ -12,9 +11,9 @@ import type { CSSProperties } from 'react';
 // We render description HTML through DOMPurify (already a dependency
 // of this project) so feeds with markup like <a>, <em>, <p> show
 // correctly without opening an XSS hole.
-
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import { memo, useMemo } from 'react';
 
 import {
@@ -192,11 +191,15 @@ const EpisodeListItem = memo(function EpisodeListItem({
       // tinted border this gives both visual and assistive-tech cues
       // about which episode is the active one.
       aria-current={isCurrent ? 'true' : undefined}
-      className="rounded-3xl border border-border bg-card p-4"
+      className="app-card rounded-3xl p-4"
       style={{
-        // Tint the active row's border with the seed color so the
-        // currently-playing episode visually pops.
-        borderColor: isCurrent ? 'var(--podcast-primary)' : undefined,
+        // Tint the active row's edge with the seed color so the
+        // currently-playing episode visually pops. The canonical
+        // `.app-card` surface carries no border to tint, so the cue is
+        // an inset ring combined with the elevation token.
+        boxShadow: isCurrent
+          ? 'var(--shadow-2), inset 0 0 0 1.5px var(--podcast-primary)'
+          : undefined,
       }}
     >
       <header className="flex items-center gap-2 mb-2">
@@ -249,13 +252,13 @@ const EpisodeListItem = memo(function EpisodeListItem({
           onClick={handlePlay}
           disabled={!episode.audioUrl}
           aria-label={isThisPlaying ? 'Pause' : 'Play'}
-          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-mini font-semibold transition-colors active:scale-95 overflow-hidden"
+          className="relative flex items-center gap-2 ps-1.5 pe-3 py-1.5 rounded-full text-mini font-semibold transition-colors overflow-hidden"
           style={{
             background: 'var(--podcast-primary, hsl(var(--primary)))',
             color: 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
           }}
         >
-          <span className="relative w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+          <span className="relative w-7 h-7 rounded-full bg-primary-foreground/15 flex items-center justify-center">
             <PlayIcon
               className={`w-4 h-4 ${isThisLoading ? 'animate-spin' : ''}`}
               fill={isThisPlaying ? 'currentColor' : 'none'}
@@ -275,10 +278,6 @@ const EpisodeListItem = memo(function EpisodeListItem({
           onClick={(e) => {
             e.stopPropagation();
             player.addEpisodeToQueue(episode, podcastTitle, podcastImageUrl, seedH, seedS, seedL);
-            // Brief success flash handled by CSS animation
-            const el = e.currentTarget;
-            el.classList.add('scale-110');
-            setTimeout(() => el.classList.remove('scale-110'), 200);
           }}
           aria-label={'أضف إلى قائمة التشغيل'}
           className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"

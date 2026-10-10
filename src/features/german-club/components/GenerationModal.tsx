@@ -1,6 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { untypedSupabase as supabase } from '@/integrations/supabase/untypedClient';
 import {
   AlertTriangle,
@@ -16,12 +26,10 @@ import {
   RefreshCw,
   Search,
   Sparkles,
-  X,
 } from '@/lib/icons';
 
 import {
   GENDER_COLORS,
-  GERMAN_CLUB_TOKENS,
   GermanGender,
   GermanRegister,
   OpenRouterModelItem,
@@ -84,7 +92,6 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
   targetCount = 25,
   isOpen,
   onClose,
-
 }) => {
   const navigate = useNavigate();
 
@@ -115,79 +122,97 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
   const [rejections, setRejections] = useState<JobRejectionRow[]>([]);
   const [isRejectionsExpanded, setIsRejectionsExpanded] = useState<boolean>(false);
 
-  // Reset state on modal open
-  useEffect(() => {
-    if (isOpen) {
-      setStep('model_selection');
-      void fetchModels('');
-      void checkRunningJob();
-    }
-  }, [isOpen, shelfId]);
-
   // Fetch OpenRouter models with performance stats
-  const fetchModels = async (query = '') => {
-    setIsLoadingModels(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('openrouter-list-models', {
-        body: { query, shelf_id: shelfId },
-      });
+  const fetchModels = useCallback(
+    async (query = '') => {
+      setIsLoadingModels(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('openrouter-list-models', {
+          body: { query, shelf_id: shelfId },
+        });
 
-      if (!error && data?.models && Array.isArray(data.models) && data.models.length > 0) {
-        setModels(data.models);
-        if (!selectedModel) {
-          setSelectedModel(data.models[0]);
+        if (!error && data?.models && Array.isArray(data.models) && data.models.length > 0) {
+          setModels(data.models);
+          setSelectedModel((prev) => prev ?? data.models[0]);
+        } else {
+          // Fallback curated model suite if edge function fails or API key unavailable locally
+          const fallbackModels: OpenRouterModelItem[] = [
+            {
+              id: 'google/gemini-2.5-flash',
+              name: 'Google: Gemini 2.5 Flash',
+              context_length: 1048576,
+              pricing: { prompt: 0.075, completion: 0.3 },
+              performance: { badge_text: 'الأعلى كفاءة وسرعة' },
+            },
+            {
+              id: 'deepseek/deepseek-chat',
+              name: 'DeepSeek: DeepSeek V3',
+              context_length: 64000,
+              pricing: { prompt: 0.14, completion: 0.28 },
+              performance: { badge_text: 'أداء لغوي دقيق جدًا' },
+            },
+            {
+              id: 'anthropic/claude-3.5-sonnet',
+              name: 'Anthropic: Claude 3.5 Sonnet',
+              context_length: 200000,
+              pricing: { prompt: 3.0, completion: 15.0 },
+              performance: { badge_text: 'فائقة الجودة اللغوية' },
+            },
+            {
+              id: 'openai/gpt-4o-mini',
+              name: 'OpenAI: GPT-4o Mini',
+              context_length: 128000,
+              pricing: { prompt: 0.15, completion: 0.6 },
+              performance: { badge_text: 'اقتصادي ومتزن' },
+            },
+            {
+              id: 'qwen/qwen-2.5-72b-instruct',
+              name: 'Qwen: Qwen 2.5 72B Instruct',
+              context_length: 131072,
+              pricing: { prompt: 0.35, completion: 0.4 },
+              performance: { badge_text: 'ممتاز في اللغات' },
+            },
+          ];
+          setModels(fallbackModels);
+          setSelectedModel((prev) => prev ?? fallbackModels[0]);
         }
-      } else {
-        // Fallback curated model suite if edge function fails or API key unavailable locally
-        const fallbackModels: OpenRouterModelItem[] = [
-          {
-            id: 'google/gemini-2.5-flash',
-            name: 'Google: Gemini 2.5 Flash',
-            context_length: 1048576,
-            pricing: { prompt: 0.075, completion: 0.3 },
-            performance: { badge_text: 'الأعلى كفاءة وسرعة' },
-          },
-          {
-            id: 'deepseek/deepseek-chat',
-            name: 'DeepSeek: DeepSeek V3',
-            context_length: 64000,
-            pricing: { prompt: 0.14, completion: 0.28 },
-            performance: { badge_text: 'أداء لغوي دقيق جدًا' },
-          },
-          {
-            id: 'anthropic/claude-3.5-sonnet',
-            name: 'Anthropic: Claude 3.5 Sonnet',
-            context_length: 200000,
-            pricing: { prompt: 3.0, completion: 15.0 },
-            performance: { badge_text: 'فائقة الجودة اللغوية' },
-          },
-          {
-            id: 'openai/gpt-4o-mini',
-            name: 'OpenAI: GPT-4o Mini',
-            context_length: 128000,
-            pricing: { prompt: 0.15, completion: 0.6 },
-            performance: { badge_text: 'اقتصادي ومتزن' },
-          },
-          {
-            id: 'qwen/qwen-2.5-72b-instruct',
-            name: 'Qwen: Qwen 2.5 72B Instruct',
-            context_length: 131072,
-            pricing: { prompt: 0.35, completion: 0.4 },
-            performance: { badge_text: 'ممتاز في اللغات' },
-          },
-        ];
-        setModels(fallbackModels);
-        if (!selectedModel) setSelectedModel(fallbackModels[0]);
+      } catch (err) {
+        console.error('Failed to list OpenRouter models:', err);
+      } finally {
+        setIsLoadingModels(false);
       }
-    } catch (err) {
-      console.error('Failed to list OpenRouter models:', err);
-    } finally {
-      setIsLoadingModels(false);
+    },
+    [shelfId],
+  );
+
+  // Fetch accepted entries generated by this job
+  const fetchJobAcceptedEntries = useCallback(async (jId: string) => {
+    const { data } = await supabase
+      .from('german_club_entries')
+      .select('id, german_text, gender')
+      .eq('generation_job_id', jId)
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      setAcceptedStubs(data as JobAcceptedEntryStub[]);
     }
-  };
+  }, []);
+
+  // Fetch rejections for this job
+  const fetchJobRejections = useCallback(async (jId: string) => {
+    const { data } = await supabase
+      .from('generation_job_rejections')
+      .select('*')
+      .eq('job_id', jId)
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      setRejections(data as JobRejectionRow[]);
+    }
+  }, []);
 
   // Check if a job is already running for this shelf
-  const checkRunningJob = async () => {
+  const checkRunningJob = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('content_generation_jobs')
@@ -208,33 +233,17 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     } catch (err) {
       console.warn('Failed to check running job status:', err);
     }
-  };
+  }, [shelfId, fetchJobAcceptedEntries, fetchJobRejections]);
 
-  // Fetch accepted entries generated by this job
-  const fetchJobAcceptedEntries = async (jId: string) => {
-    const { data } = await supabase
-      .from('german_club_entries')
-      .select('id, german_text, gender')
-      .eq('generation_job_id', jId)
-      .order('created_at', { ascending: true });
-
-    if (data) {
-      setAcceptedStubs(data as JobAcceptedEntryStub[]);
-    }
-  };
-
-  // Fetch rejections for this job
-  const fetchJobRejections = async (jId: string) => {
-    const { data } = await supabase
-      .from('generation_job_rejections')
-      .select('*')
-      .eq('job_id', jId)
-      .order('created_at', { ascending: false });
-
-    if (data) {
-      setRejections(data as JobRejectionRow[]);
-    }
-  };
+  // Reset state on modal open. The async IIFE keeps the loaders off the
+  // effect's synchronous phase (each one sets its own loading flag), so opening
+  // the dialog never cascades renders through the parent commit.
+  useEffect(() => {
+    if (!isOpen) return;
+    void (async () => {
+      await Promise.all([fetchModels(''), checkRunningJob()]);
+    })();
+  }, [isOpen, fetchModels, checkRunningJob]);
 
   // Realtime subscription for running job, live entries, and rejections
   useEffect(() => {
@@ -419,61 +428,65 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
     }
   };
 
-
   if (!isOpen) return null;
 
-  const isJobActive = job && (job.status === 'queued' || job.status === 'running');
+  const isJobActive = Boolean(job && (job.status === 'queued' || job.status === 'running'));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs transition-motion">
-      <div
-        className="w-full max-w-2xl rounded-3xl border border-[hsl(var(--track))] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-motion relative"
-        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        className="max-h-[92vh] gap-0 overflow-y-auto p-0 sm:max-w-2xl"
+        aria-label="الفرن — وحدة التوليد بالذكاء الاصطناعي"
       >
         {/* Panel Header */}
-        <div className="px-5 py-4 border-b border-[hsl(var(--track))] flex items-center justify-between bg-secondary shrink-0">
+        <DialogHeader className="gap-0 border-b border-track bg-secondary px-5 py-4 pe-14">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(var(--foreground))] to-[hsl(var(--foreground))] border border-[hsl(var(--signal))]/60 flex items-center justify-center shadow-md shrink-0">
-              <span className="font-black font-mono text-base text-[hsl(var(--signal))] drop-shadow-xs">D</span>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-signal/60 bg-foreground">
+              <span className="font-mono text-lead font-black text-signal">D</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-extrabold text-foreground leading-tight">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <DialogTitle className="text-lead font-extrabold leading-tight text-foreground">
                   الفرن — وحدة التوليد بالذكاء الاصطناعي v2
-                </h2>
-                <span className="text-[0.625rem] font-mono font-bold bg-[hsl(var(--signal))]/15 text-[hsl(var(--signal))] px-2 py-0.5 rounded-full border border-[hsl(var(--signal))]/30">
+                </DialogTitle>
+                <span className="rounded-full border border-signal/30 bg-signal/15 px-2 py-0.5 font-mono text-micro font-bold text-signal">
                   OpenRouter API
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground font-medium mt-0.5">
-                الرف: <span className="font-bold text-[hsl(var(--primary))]">{shelfTitleAr}</span>{' '}
-                {shelfTitleDe ? `(${shelfTitleDe})` : ''} • ({currentEntryCount}/{targetCount} عنصر)
-              </p>
+              <DialogDescription className="mt-0.5 text-mini font-medium text-muted-foreground">
+                الرف: <span className="font-bold text-primary">{shelfTitleAr}</span>{' '}
+                {shelfTitleDe ? `(${shelfTitleDe})` : ''} • (
+                <span className="tabular-nums">{currentEntryCount}</span>/
+                <span className="tabular-nums">{targetCount}</span> عنصر)
+              </DialogDescription>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        </DialogHeader>
 
         {/* Wizard Progress Bar Stepper Header */}
         {!isJobActive && step !== 'summary' && (
-          <div className="px-5 py-2.5 border-b border-[hsl(var(--track))] bg-card flex items-center justify-between text-xs shrink-0">
+          <div className="flex items-center justify-between border-b border-track px-5 py-2.5 text-mini">
             <button
               type="button"
               onClick={() => setStep('model_selection')}
               className={`flex items-center gap-2 font-bold transition-motion ${
-                step === 'model_selection' ? 'text-[hsl(var(--signal))]' : 'text-muted-foreground hover:text-foreground'
+                step === 'model_selection'
+                  ? 'text-signal'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
-                step === 'model_selection' ? 'bg-[hsl(var(--signal))] text-white' : 'bg-secondary text-foreground'
-              }`}>
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full text-micro ${
+                  step === 'model_selection'
+                    ? 'bg-signal text-signal-foreground'
+                    : 'bg-secondary text-foreground'
+                }`}
+              >
                 1
               </span>
               <span>1. اختيار النموذج المقبول</span>
@@ -486,12 +499,18 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               disabled={!selectedModel}
               onClick={() => selectedModel && setStep('generation_options')}
               className={`flex items-center gap-2 font-bold transition-motion ${
-                step === 'generation_options' ? 'text-[hsl(var(--signal))]' : 'text-muted-foreground hover:text-foreground'
-              } ${!selectedModel ? 'opacity-50 cursor-not-allowed' : ''}`}
+                step === 'generation_options'
+                  ? 'text-signal'
+                  : 'text-muted-foreground hover:text-foreground'
+              } ${!selectedModel ? 'cursor-not-allowed opacity-50' : ''}`}
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[0.6875rem] ${
-                step === 'generation_options' ? 'bg-[hsl(var(--signal))] text-white' : 'bg-secondary text-foreground'
-              }`}>
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full text-micro ${
+                  step === 'generation_options'
+                    ? 'bg-signal text-signal-foreground'
+                    : 'bg-secondary text-foreground'
+                }`}
+              >
                 2
               </span>
               <span>2. نمط وضوابط التوليد</span>
@@ -500,41 +519,44 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
         )}
 
         {/* Panel Body */}
-        <div className="p-5 overflow-y-auto flex-1 space-y-5 text-sm">
+        <div className="space-y-5 p-5 text-body">
           {/* STEP 1: MODEL SELECTION STAGE */}
           {step === 'model_selection' && !isJobActive && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-[hsl(var(--signal))]" />
+                  <h3 className="flex items-center gap-2 text-body font-extrabold text-foreground">
+                    <Cpu className="h-4 w-4 text-signal" aria-hidden />
                     <span>اختر نموذج الذكاء الاصطناعي المناسب لرفك من OpenRouter:</span>
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="mt-0.5 text-mini text-muted-foreground">
                     يتم استدعاء النماذج مباشرةً بواسطة مفتاح OpenRouter مع مراقبة الأداء والتكلفة لكل 1M توكن.
                   </p>
                 </div>
-                <button
-                  type="button"
+                <IconButton
                   onClick={() => fetchModels(modelSearch)}
-                  className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors"
                   title="تحديث قائمة النماذج"
+                  aria-label="تحديث قائمة النماذج"
+                  className="shrink-0"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingModels ? 'animate-spin' : ''}`} />
-                </button>
+                  <RefreshCw
+                    className={`h-4 w-4 ${isLoadingModels ? 'animate-spin' : ''}`}
+                    aria-hidden
+                  />
+                </IconButton>
               </div>
 
               {/* Vendor Category Filter Chips */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+              <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto pb-1 text-mini">
                 {vendors.map((v) => (
                   <button
                     key={v.id}
                     type="button"
                     onClick={() => setVendorFilter(v.id)}
-                    className={`px-3 py-1 rounded-full font-bold transition-motion border shrink-0 ${
+                    className={`shrink-0 rounded-full border px-3 py-1 font-bold transition-motion ${
                       vendorFilter === v.id
-                        ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
-                        : 'bg-white/80 text-foreground border-[hsl(var(--track))] hover:bg-secondary'
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-track bg-secondary/50 text-foreground hover:bg-secondary'
                     }`}
                   >
                     {v.label}
@@ -544,15 +566,19 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* Model Search Input */}
               <div className="relative">
-                <Search className="w-4 h-4 absolute inset-s-3 top-2.5 text-muted-foreground" />
-                <input
+                <Search
+                  className="pointer-events-none absolute top-1/2 start-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
                   type="text"
                   placeholder="ابحث باسم الموديل أو المعرف (gpt-4o, gemini, claude, deepseek, qwen)..."
                   value={modelSearch}
                   onChange={(e) => {
                     setModelSearch(e.target.value);
                   }}
-                  className="w-full ps-9 pe-3 py-2 text-xs rounded-xl border border-[hsl(var(--track))] bg-white focus:outline-none focus:ring-2 focus:ring-[hsl(var(--signal))]"
+                  className="ps-9"
+                  aria-label="بحث في النماذج"
                 />
               </div>
 
@@ -560,14 +586,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {isLoadingModels ? (
                 <div className="space-y-2 py-2">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-16 rounded-2xl bg-secondary animate-pulse" />
+                    <div key={i} className="h-16 animate-pulse rounded-md bg-secondary" />
                   ))}
                 </div>
               ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto pe-1">
+                <div className="max-h-64 space-y-2 overflow-y-auto pe-1">
                   {filteredModels.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground text-xs">
-                      لا توجد نماذج تطابق بحثك الحالي.
+                    <div className="rounded-md border border-dashed border-border py-6 text-center">
+                      <p className="text-mini text-muted-foreground">
+                        لا توجد نماذج تطابق بحثك الحالي.
+                      </p>
                     </div>
                   ) : (
                     filteredModels.map((m) => {
@@ -577,31 +605,36 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                           key={m.id}
                           type="button"
                           onClick={() => setSelectedModel(m)}
-                          className={`w-full text-start p-3 rounded-2xl border transition-motion flex items-center justify-between cursor-pointer ${
+                          className={`flex w-full cursor-pointer items-center justify-between rounded-md border p-3 text-start transition-motion ${
                             isSelected
-                              ? 'bg-[hsl(var(--signal))]/10 border-[hsl(var(--signal))] ring-2 ring-[hsl(var(--signal))]/30 shadow-xs'
-                              : 'bg-white border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
+                              ? 'border-signal bg-signal/10'
+                              : 'border-track hover:bg-secondary/50'
                           }`}
                         >
-                          <div className="min-w-0 pe-3 space-y-1">
+                          <div className="min-w-0 space-y-1 pe-3">
                             <div className="flex items-center gap-2">
-                              <p className="font-extrabold text-xs text-foreground truncate">{m.name}</p>
+                              <p className="truncate text-mini font-extrabold text-foreground">
+                                {m.name}
+                              </p>
                               {m.performance?.badge_text && (
-                                <span className="text-[0.625rem] bg-signal text-signal px-2 py-0.5 rounded-full font-bold shrink-0 border border-signal">
+                                <span className="shrink-0 rounded-full border border-signal/30 bg-signal/15 px-2 py-0.5 text-micro font-bold text-signal">
                                   {m.performance.badge_text}
                                 </span>
                               )}
                             </div>
-                            <p className="text-[0.625rem] font-mono text-muted-foreground truncate" dir="ltr">
+                            <p
+                              className="truncate font-mono text-micro text-muted-foreground"
+                              dir="ltr"
+                            >
                               {m.id}
                             </p>
                           </div>
 
-                          <div className="text-end shrink-0 ps-2 space-y-0.5">
-                            <span className="text-[0.625rem] font-mono bg-card px-2 py-0.5 rounded text-foreground block font-bold">
+                          <div className="shrink-0 space-y-0.5 ps-2 text-end">
+                            <span className="block rounded bg-secondary px-2 py-0.5 font-mono text-micro font-bold tabular-nums text-foreground">
                               {(m.context_length / 1024).toFixed(0)}k سياق
                             </span>
-                            <span className="text-[0.6875rem] font-mono text-data-1 block font-black">
+                            <span className="block font-mono text-micro font-black tabular-nums text-data-1">
                               ${m.pricing?.prompt ?? 0}/1M
                             </span>
                           </div>
@@ -613,23 +646,22 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               )}
 
               {/* Model Selection Action Bar */}
-              <div className="pt-3 border-t border-[hsl(var(--track))] flex items-center justify-between">
-                <div className="text-xs">
-                  <span className="text-muted-foreground block">الموديل المحدد:</span>
-                  <span className="font-bold text-foreground font-mono text-xs truncate max-w-xs block">
+              <div className="flex items-center justify-between border-t border-track pt-3">
+                <div className="text-mini">
+                  <span className="block text-muted-foreground">الموديل المحدد:</span>
+                  <span className="block max-w-xs truncate font-mono text-mini font-bold text-foreground">
                     {selectedModel?.name || 'لم يتم الاختيار'}
                   </span>
                 </div>
 
-                <button
-                  type="button"
+                <Button
                   disabled={!selectedModel}
                   onClick={() => setStep('generation_options')}
-                  className="px-5 py-2.5 rounded-xl bg-[hsl(var(--primary))] text-white font-bold text-xs hover:bg-[hsl(var(--primary))] transition-colors shadow-xs flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="gap-2"
                 >
                   <span>التالي: تحديد نمط التوليد</span>
-                  <ArrowRight className="w-4 h-4 rotate-180" />
-                </button>
+                  <ArrowRight className="h-4 w-4 rotate-180" aria-hidden />
+                </Button>
               </div>
             </div>
           )}
@@ -637,47 +669,48 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           {/* STEP 2: GENERATION SETUP & LEVERS STAGE */}
           {step === 'generation_options' && !isJobActive && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3">
+              <div className="flex items-center justify-between border-b border-track pb-3">
                 <div>
-                  <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[hsl(var(--signal))]" />
+                  <h3 className="flex items-center gap-2 text-body font-extrabold text-foreground">
+                    <Sparkles className="h-4 w-4 text-signal" aria-hidden />
                     <span>خيارات النمط والصرامة وضوابط الإبداع:</span>
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="mt-0.5 text-mini text-muted-foreground">
                     اختر بين التوليد حسب قدرة النموذج أو تحديد عدد ثابت صارم.
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setStep('model_selection')}
-                  className="text-xs text-[hsl(var(--primary))] font-bold hover:underline"
-                >
+                <Button variant="link" size="sm" onClick={() => setStep('model_selection')}>
                   تغيير الموديل ←
-                </button>
+                </Button>
               </div>
 
               {/* 2 DISTINCT GENERATION MODES (USER REQUEST CORE REQUIREMENT) */}
               <div className="space-y-2">
-                <label className="font-extrabold text-xs text-foreground block">
+                <label className="block text-mini font-extrabold text-foreground">
                   أ) نمط التوليد المستهدف:
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {/* Option 1: Model Capacity Mode */}
                   <button
                     type="button"
                     onClick={() => setMode('model_capacity')}
-                    className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
+                    className={`relative cursor-pointer rounded-lg border p-3.5 text-start transition-motion ${
                       mode === 'model_capacity'
-                        ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] ring-2 ring-[hsl(var(--primary))]/30 shadow-md'
-                        : 'bg-white text-foreground border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-track hover:bg-secondary/50'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-extrabold text-xs">1. حسب قدرة النموذج</span>
-                      <Flame className={`w-4 h-4 ${mode === 'model_capacity' ? 'text-signal' : 'text-muted-foreground'}`} />
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="text-mini font-extrabold">1. حسب قدرة النموذج</span>
+                      <Flame
+                        className={`h-4 w-4 ${
+                          mode === 'model_capacity' ? 'text-signal' : 'text-muted-foreground'
+                        }`}
+                        aria-hidden
+                      />
                     </div>
-                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'model_capacity' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                    <p className="text-micro leading-relaxed text-muted-foreground">
                       يولد الموديل أقصى حصيلة ممكنة من العبارات الأصيلة وغير المكررة حتى يستنفذ أفكاره ذات الثقة العالية وتتوقف الحلقة تلقائيًا.
                     </p>
                   </button>
@@ -686,17 +719,22 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setMode('fixed_count')}
-                    className={`p-3.5 rounded-2xl border text-start transition-motion cursor-pointer relative ${
+                    className={`relative cursor-pointer rounded-lg border p-3.5 text-start transition-motion ${
                       mode === 'fixed_count'
-                        ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] ring-2 ring-[hsl(var(--primary))]/30 shadow-md'
-                        : 'bg-white text-foreground border-[hsl(var(--track))] hover:border-[hsl(var(--track))]'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-track hover:bg-secondary/50'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-extrabold text-xs">2. حسب العدد الذي اختاره انا</span>
-                      <Layers className={`w-4 h-4 ${mode === 'fixed_count' ? 'text-signal' : 'text-muted-foreground'}`} />
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="text-mini font-extrabold">2. حسب العدد الذي اختاره انا</span>
+                      <Layers
+                        className={`h-4 w-4 ${
+                          mode === 'fixed_count' ? 'text-signal' : 'text-muted-foreground'
+                        }`}
+                        aria-hidden
+                      />
                     </div>
-                    <p className={`text-[0.6875rem] leading-relaxed ${mode === 'fixed_count' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                    <p className="text-micro leading-relaxed text-muted-foreground">
                       تحديد عدد دقيق ومحدد مسبقًا للمفردات المراد إضافتها إلى هذا الرف دون زيادة أو نقصان.
                     </p>
                   </button>
@@ -704,17 +742,16 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
                 {/* Numeric Stepper for Fixed Count Mode */}
                 {mode === 'fixed_count' && (
-                  <div className="p-3 bg-white rounded-2xl border border-[hsl(var(--track))] text-xs flex items-center justify-between shadow-2xs mt-2">
+                  <div className="mt-2 flex items-center justify-between rounded-md border border-track bg-secondary/40 p-3 text-mini">
                     <label className="font-bold text-foreground">حدد عدد العناصر المطلوبة:</label>
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
+                      <IconButton
                         onClick={() => setFixedCount((prev) => Math.max(prev - 5, 5))}
-                        className="w-7 h-7 rounded-lg bg-secondary hover:bg-secondary font-bold text-foreground flex items-center justify-center cursor-pointer"
+                        aria-label="تقليل العدد"
                       >
-                        -
-                      </button>
-                      <input
+                        <span className="text-lead font-bold text-foreground">−</span>
+                      </IconButton>
+                      <Input
                         type="number"
                         min={1}
                         max={500}
@@ -722,16 +759,18 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         onChange={(e) =>
                           setFixedCount(Math.min(Math.max(parseInt(e.target.value) || 1, 1), 500))
                         }
-                        className="w-16 px-2 py-1 rounded-lg border border-[hsl(var(--track))] font-mono text-center font-extrabold text-foreground"
+                        className="w-16 text-center font-mono font-extrabold tabular-nums"
+                        aria-label="عدد العناصر"
                       />
-                      <button
-                        type="button"
+                      <IconButton
                         onClick={() => setFixedCount((prev) => Math.min(prev + 5, 500))}
-                        className="w-7 h-7 rounded-lg bg-secondary hover:bg-secondary font-bold text-foreground flex items-center justify-center cursor-pointer"
+                        aria-label="زيادة العدد"
                       >
-                        +
-                      </button>
-                      <span className="text-[0.6875rem] text-muted-foreground font-mono font-medium">عنصر</span>
+                        <span className="text-lead font-bold text-foreground">+</span>
+                      </IconButton>
+                      <span className="font-mono text-micro font-medium text-muted-foreground">
+                        عنصر
+                      </span>
                     </div>
                   </div>
                 )}
@@ -739,10 +778,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
 
               {/* STRICTNESS LEVEL CONTROLS */}
               <div className="space-y-2">
-                <label className="font-extrabold text-xs text-foreground block">
+                <label className="block text-mini font-extrabold text-foreground">
                   ب) حد الصرامة وتدقيق الجودة:
                 </label>
-                <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="grid grid-cols-3 gap-2 text-mini">
                   {[
                     { id: 'balanced', label: 'متوازن', score: '75%', desc: 'قبول عالي مع تصفية للتكرار' },
                     { id: 'strict', label: 'صارم جداً', score: '85%', desc: 'استبعاد العبارات الضعيفة' },
@@ -752,14 +791,17 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       key={s.id}
                       type="button"
                       onClick={() => setStrictness(s.id as StrictnessLevel)}
-                      className={`p-2.5 rounded-xl border text-center transition-motion cursor-pointer ${
+                      title={s.desc}
+                      className={`cursor-pointer rounded-md border p-2.5 text-center transition-motion ${
                         strictness === s.id
-                          ? 'bg-[hsl(var(--signal))] text-white border-[hsl(var(--signal))] font-bold shadow-xs'
-                          : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-card'
+                          ? 'border-signal bg-signal/15 font-bold'
+                          : 'border-track text-foreground hover:bg-secondary/50'
                       }`}
                     >
-                      <span className="block font-bold text-xs">{s.label}</span>
-                      <span className="text-[0.625rem] font-mono block opacity-90">{s.score} ثقة</span>
+                      <span className="block text-mini font-bold">{s.label}</span>
+                      <span className="block font-mono text-micro tabular-nums opacity-90">
+                        {s.score} ثقة
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -768,11 +810,13 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* REGISTER STEERING CHIPS */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="font-extrabold text-xs text-foreground block">
+                  <label className="block text-mini font-extrabold text-foreground">
                     ج) توجيه السجل اللغوي (اختياري):
                   </label>
                   {registerTargets.length === 0 && (
-                    <span className="text-[0.625rem] text-muted-foreground italic">ترك التنوع للموديل</span>
+                    <span className="text-micro italic text-muted-foreground">
+                      ترك التنوع للموديل
+                    </span>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -783,10 +827,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                         key={reg}
                         type="button"
                         onClick={() => toggleRegister(reg)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-motion border cursor-pointer ${
+                        className={`cursor-pointer rounded-md border px-3.5 py-1.5 text-mini font-bold transition-motion ${
                           isSelected
-                            ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
-                            : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-secondary'
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-track bg-secondary/40 text-foreground hover:bg-secondary'
                         }`}
                       >
                         {REGISTER_LABELS_AR[reg]}
@@ -797,49 +841,46 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               </div>
 
               {/* LIVE ESTIMATE SUMMARY CARD */}
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-signal/10 via-signal/5 to-transparent border border-signal/30 text-xs flex items-center justify-between shadow-2xs">
+              <div className="flex items-center justify-between rounded-lg border border-signal/30 bg-signal/10 p-4 text-mini">
                 <div>
-                  <span className="font-extrabold text-signal block">تقدير التكلفة والمخرجات:</span>
-                  <span className="text-[0.6875rem] text-signal block mt-0.5">
-                    النموذج: <span className="font-bold">{selectedModel?.name}</span> • التوقع: ~{liveEstimate.estCount} عنصر أصيل
+                  <span className="block font-extrabold text-signal">تقدير التكلفة والمخرجات:</span>
+                  <span className="mt-0.5 block text-micro text-signal">
+                    النموذج: <span className="font-bold">{selectedModel?.name}</span> • التوقع: ~
+                    <span className="tabular-nums">{liveEstimate.estCount}</span> عنصر أصيل
                   </span>
                 </div>
                 <div className="text-end font-mono">
-                  <span className="text-base font-black text-[hsl(var(--signal))] block">
+                  <span className="block text-lead font-black tabular-nums text-signal">
                     ~${liveEstimate.estCostUsd.toFixed(4)}
                   </span>
-                  <span className="text-[0.625rem] text-muted-foreground">حسب الاستهلاك الفعلي</span>
+                  <span className="text-micro text-muted-foreground">حسب الاستهلاك الفعلي</span>
                 </div>
               </div>
 
               {/* START FURNACE GENERATION BUTTON */}
-              <div className="pt-2 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep('model_selection')}
-                  className="px-4 py-3 rounded-2xl bg-secondary text-foreground font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
-                >
+              <div className="flex items-center gap-3 pt-2">
+                <Button variant="secondary" onClick={() => setStep('model_selection')}>
                   السابق
-                </button>
+                </Button>
 
-                <button
-                  type="button"
+                <Button
+                  className="flex-1 gap-2"
+                  size="lg"
                   disabled={isStartingJob}
                   onClick={handleStartGeneration}
-                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[hsl(var(--signal))] to-[hsl(var(--signal))] text-white font-black text-sm hover:from-[hsl(var(--signal))] hover:to-[hsl(var(--signal))] transition-motion shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isStartingJob ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
                       <span>جاري إطلاق شعلة الفرن...</span>
                     </>
                   ) : (
                     <>
-                      <Flame className="w-5 h-5 text-signal" />
+                      <Flame className="h-5 w-5" aria-hidden />
                       <span>ابدأ التوليد بالفرن الآن (حسب الخيارات)</span>
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -847,39 +888,39 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           {/* STEP 3: LIVE WORKING GENERATION STAGE */}
           {isJobActive && (
             <div className="space-y-5 py-2">
-              <div className="p-4 rounded-3xl bg-gradient-to-br from-[hsl(var(--foreground))] via-[hsl(var(--primary))] to-[hsl(var(--foreground))] text-white space-y-3 shadow-xl border border-[hsl(var(--signal))]/40 relative overflow-hidden">
-                <div className="flex items-center justify-between relative z-10">
+              <div className="relative space-y-3 overflow-hidden rounded-lg border border-signal/40 bg-foreground p-4 text-background">
+                <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-3 h-3 rounded-full bg-[hsl(var(--signal))] animate-ping" />
-                    <span className="font-extrabold text-xs text-signal">
+                    <span className="h-3 w-3 rounded-full bg-signal motion-safe:animate-ping" />
+                    <span className="text-mini font-extrabold text-signal">
                       الفرن يعمل في الخلفية بـ OpenRouter AI...
                     </span>
                   </div>
-                  <span className="text-xs font-mono bg-white/10 px-2.5 py-1 rounded-full text-signal font-black border border-white/20">
+                  <span className="rounded-full border border-background/20 bg-background/10 px-2.5 py-1 font-mono text-mini font-black tabular-nums text-signal">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 text-center text-xs relative z-10">
-                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
-                    <span className="block text-xl font-black font-mono text-data-1">
+                <div className="relative grid grid-cols-3 gap-2.5 text-center text-mini">
+                  <div className="rounded-md border border-background/15 bg-background/10 p-2.5">
+                    <span className="block font-mono text-xl font-black tabular-nums text-data-1">
                       {job?.entries_generated || acceptedStubs.length}
                     </span>
-                    <span className="text-[0.625rem] opacity-90 font-bold">مقبول أصيل</span>
+                    <span className="text-micro font-bold opacity-90">مقبول أصيل</span>
                   </div>
 
-                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
-                    <span className="block text-xl font-black font-mono text-signal">
+                  <div className="rounded-md border border-background/15 bg-background/10 p-2.5">
+                    <span className="block font-mono text-xl font-black tabular-nums text-signal">
                       {job?.entries_skipped_duplicate || 0}
                     </span>
-                    <span className="text-[0.625rem] opacity-90 font-bold">مستبعد لتكراره</span>
+                    <span className="text-micro font-bold opacity-90">مستبعد لتكراره</span>
                   </div>
 
-                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10">
-                    <span className="block text-xl font-black font-mono text-muted-foreground">
+                  <div className="rounded-md border border-background/15 bg-background/10 p-2.5">
+                    <span className="block font-mono text-xl font-black tabular-nums text-muted-foreground">
                       {job?.entries_discarded_low_quality || 0}
                     </span>
-                    <span className="text-[0.625rem] opacity-90 font-bold">مرفوض لضعف الثقة</span>
+                    <span className="text-micro font-bold opacity-90">مرفوض لضعف الثقة</span>
                   </div>
                 </div>
               </div>
@@ -887,19 +928,19 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               {/* LIVE SHELF ENTRY SLOTTING FEED */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-extrabold text-xs text-foreground flex items-center gap-1.5">
-                    <Database className="w-4 h-4 text-[hsl(var(--primary))]" />
+                  <h4 className="flex items-center gap-1.5 text-mini font-extrabold text-foreground">
+                    <Database className="h-4 w-4 text-primary" aria-hidden />
                     <span>تغذية الرف الحية (نزول المفردات المعتمدة مباشر):</span>
                   </h4>
-                  <span className="text-[0.6875rem] font-mono text-data-1 font-extrabold bg-data-1 px-2 py-0.5 rounded-full">
+                  <span className="rounded-full bg-data-1/15 px-2 py-0.5 font-mono text-micro font-extrabold tabular-nums text-data-1">
                     +{acceptedStubs.length} عنصر
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white border border-[hsl(var(--track))] max-h-44 overflow-y-auto flex flex-wrap gap-2 shadow-inner">
+                <div className="flex max-h-44 flex-wrap gap-2 overflow-y-auto rounded-md border border-track bg-background p-3.5">
                   {acceptedStubs.length === 0 ? (
-                    <div className="w-full text-center py-8 text-muted-foreground text-xs italic space-y-1">
-                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-[hsl(var(--signal))]" />
+                    <div className="w-full space-y-1 py-8 text-center text-mini italic text-muted-foreground">
+                      <Loader2 className="mx-auto h-5 w-5 animate-spin text-signal" aria-hidden />
                       <p>جاري صياغة الدفعة الأولى وتصفيتها بالصارمة المحددة...</p>
                     </div>
                   ) : (
@@ -908,13 +949,13 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                       return (
                         <div
                           key={item.id}
-                          className="px-3 py-1.5 rounded-xl bg-card border border-[hsl(var(--track))] text-xs flex items-center gap-2 shadow-2xs shrink-0"
+                          className="flex shrink-0 items-center gap-2 rounded-md border border-track bg-secondary/40 px-3 py-1.5 text-mini"
                         >
                           <span
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            className="h-2.5 w-2.5 shrink-0 rounded-full"
                             style={{ backgroundColor: dotColor }}
                           />
-                          <span className="font-bold text-foreground font-mono" dir="ltr">
+                          <span className="font-mono font-bold text-foreground" dir="ltr">
                             {item.german_text}
                           </span>
                         </div>
@@ -925,35 +966,42 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
               </div>
 
               {/* LIVE REJECTION REASONS FEED */}
-              <div className="border border-[hsl(var(--track))] rounded-2xl overflow-hidden bg-white/90">
+              <div className="overflow-hidden rounded-lg border border-track bg-background">
                 <button
                   type="button"
                   onClick={() => setIsRejectionsExpanded(!isRejectionsExpanded)}
-                  className="w-full p-3 flex items-center justify-between text-xs font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                  className="flex w-full cursor-pointer items-center justify-between p-3 text-mini font-bold text-foreground transition-colors hover:bg-secondary/50"
                 >
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-signal" />
+                    <AlertTriangle className="h-4 w-4 text-signal" aria-hidden />
                     <span>سجل المستبعدات والمرفوضات (أسباب الاستبعاد الحية)</span>
-                    <span className="bg-secondary text-foreground font-mono px-2 py-0.5 rounded-full text-[0.625rem]">
+                    <span className="rounded-full bg-secondary px-2 py-0.5 font-mono text-micro tabular-nums text-foreground">
                       {rejections.length}
                     </span>
                   </div>
-                  {isRejectionsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {isRejectionsExpanded ? (
+                    <ChevronUp className="h-4 w-4" aria-hidden />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" aria-hidden />
+                  )}
                 </button>
 
                 {isRejectionsExpanded && (
-                  <div className="p-3 border-t border-[hsl(var(--track))] max-h-36 overflow-y-auto space-y-1.5 text-xs font-mono">
+                  <div className="max-h-36 space-y-1.5 overflow-y-auto border-t border-track p-3 font-mono text-mini">
                     {rejections.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-3 text-[0.6875rem]">
+                      <p className="py-3 text-center text-micro text-muted-foreground">
                         لا توجد مرفوضات حتى اللحظة.
                       </p>
                     ) : (
                       rejections.map((rej) => (
-                        <div key={rej.id} className="p-1.5 rounded-lg bg-card flex items-center justify-between">
-                          <span className="text-foreground truncate max-w-[65%]" dir="ltr">
+                        <div
+                          key={rej.id}
+                          className="flex items-center justify-between rounded-md bg-secondary/40 p-1.5"
+                        >
+                          <span className="max-w-[65%] truncate text-foreground" dir="ltr">
                             {rej.candidate_text}
                           </span>
-                          <span className="text-[0.625rem] font-sans font-bold text-destructive bg-destructive px-2 py-0.5 rounded-full">
+                          <span className="rounded-full bg-destructive/15 px-2 py-0.5 font-sans text-micro font-bold text-destructive">
                             {REJECTION_REASON_LABELS_AR[rej.reason] || rej.reason}
                           </span>
                         </div>
@@ -963,14 +1011,10 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
                 )}
               </div>
 
-              <div className="pt-2 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl bg-secondary text-foreground font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
-                >
+              <div className="flex items-center justify-between gap-3 pt-2">
+                <Button variant="secondary" onClick={onClose}>
                   إغلاق (المتابعة بالخلفية)
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -978,74 +1022,69 @@ export const GenerationModal: React.FC<GenerationModalProps> = ({
           {/* STEP 4: COMPLETION SUMMARY STAGE */}
           {step === 'summary' && !isJobActive && (
             <div className="space-y-5 py-3 text-center">
-              <div className="w-14 h-14 rounded-full bg-data-1 border border-data-1 text-data-1 mx-auto flex items-center justify-center shadow-sm">
-                <Check className="w-7 h-7" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-data-1/40 bg-data-1/15 text-data-1">
+                <Check className="h-7 w-7" aria-hidden />
               </div>
 
               <div>
-                <h3 className="font-extrabold text-base text-foreground">
+                <h3 className="text-lead font-extrabold text-foreground">
                   {job?.status === 'completed' ? 'اكتملت عملة التوليد بالفرن بنجاح أصيل!' : 'توقفت مهمة التوليد'}
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="mt-1 text-mini text-muted-foreground">
                   تم صياغة واستقرار المفردات بالرف مباشرة.
                 </p>
               </div>
 
               {/* Job Summary Breakdown Box */}
-              <div className="p-4 rounded-2xl bg-white border border-[hsl(var(--track))] text-xs space-y-3 text-start shadow-xs">
-                <div className="flex justify-between border-b border-[hsl(var(--track))] pb-2">
-                  <span className="text-muted-foreground font-bold">إجمالي المفردات المضافة للرف:</span>
-                  <span className="font-black text-data-1 font-mono text-sm">
+              <div className="space-y-3 rounded-lg border border-track bg-background p-4 text-start text-mini">
+                <div className="flex justify-between border-b border-track pb-2">
+                  <span className="font-bold text-muted-foreground">إجمالي المفردات المضافة للرف:</span>
+                  <span className="font-mono text-body font-black tabular-nums text-data-1">
                     +{job?.entries_generated || acceptedStubs.length} عنصر
                   </span>
                 </div>
 
-                <div className="flex justify-between border-b border-[hsl(var(--track))] pb-2">
-                  <span className="text-muted-foreground font-bold">المستبعد (تكرار / ثقة / سجل):</span>
-                  <span className="font-extrabold text-foreground font-mono">
+                <div className="flex justify-between border-b border-track pb-2">
+                  <span className="font-bold text-muted-foreground">المستبعد (تكرار / ثقة / سجل):</span>
+                  <span className="font-mono font-extrabold tabular-nums text-foreground">
                     {(job?.entries_skipped_duplicate || 0) + (job?.entries_discarded_low_quality || 0)} عنصر
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground font-bold">التكلفة النهائية المستهلكة:</span>
-                  <span className="font-black text-[hsl(var(--signal))] font-mono">
+                  <span className="font-bold text-muted-foreground">التكلفة النهائية المستهلكة:</span>
+                  <span className="font-mono font-black tabular-nums text-signal">
                     ${(job?.estimated_cost_usd || 0).toFixed(5)} USD
                   </span>
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl bg-secondary text-foreground font-bold text-xs hover:bg-secondary transition-colors cursor-pointer"
-                >
+              <div className="flex items-center justify-between gap-3 pt-2">
+                <Button variant="secondary" onClick={onClose}>
                   تم والإغلاق
-                </button>
+                </Button>
 
-                <button
-                  type="button"
+                <Button
+                  className="gap-2"
                   onClick={() => {
                     onClose();
                     navigate('/german-club/review');
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-[hsl(var(--primary))] text-white font-bold text-xs hover:bg-[hsl(var(--primary))] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-signal" />
+                  <Sparkles className="h-4 w-4" aria-hidden />
                   <span>انتقل لصفحة مراجعة واعتماد المحتوى ←</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
           {jobError && (
-            <div className="p-3.5 rounded-2xl bg-destructive border border-destructive text-destructive text-xs font-bold">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3.5 text-mini font-bold text-destructive">
               {jobError}
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

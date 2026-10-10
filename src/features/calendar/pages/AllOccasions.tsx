@@ -1,8 +1,11 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { StateView } from '@/components/ui/state-view';
 import {
   formatGregorianDate,
   getEventsForMonth,
@@ -10,7 +13,7 @@ import {
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
-import { MOTION } from '@/lib/motion';
+import { cn } from '@/lib/utils';
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
@@ -29,14 +32,18 @@ export default function AllOccasions() {
   const [selectedDay, setSelectedDay] = useState<number>(today.day);
   const [selectedEvent, setSelectedEvent] = useState<ResolvedIslamicEvent | null>(null);
 
-  // Recompute when the day flips or the Saudi offset changes.
+  // Recompute when the day flips or the Saudi offset changes: the shared
+  // resolver anchors events to the current Hijri year by reading the live
+  // offset and the clock through its module state, so these deps are real
+  // even though the closure below does not name them.
   const byMonth = useMemo(() => {
     const map: Record<number, ResolvedIslamicEvent[]> = {};
     for (let m = 1; m <= 12; m++) map[m] = getEventsForMonth(m);
     return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todayISO, offset]);
 
-  const monthEvents = byMonth[selectedMonth] || [];
+  const monthEvents = useMemo(() => byMonth[selectedMonth] || [], [byMonth, selectedMonth]);
   const daysWithEvents = useMemo(() => {
     const set = new Set<number>();
     for (const ev of monthEvents) {
@@ -55,10 +62,7 @@ export default function AllOccasions() {
     HIJRI_MONTHS[idx - 1];
 
   return (
-    <div
-      className="min-h-screen bg-background pb-page px-4 pt-6"
-      dir={'rtl'}
-    >
+    <PageShell flush centered={false} className="px-4 pt-2">
       <SEO
         title={'التقويم الهجري — SmartHub'}
         description={
@@ -66,26 +70,16 @@ export default function AllOccasions() {
         }
         path="/occasions"
       />
-      <div className="max-w-lg mx-auto space-y-5">
+      <div className="mx-auto flex w-full max-w-lg flex-col gap-5 pb-page">
         {/* ── Header ──────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3">
-          <BackButton />
-          <div className="flex-1 min-w-0 text-end">
-            <h1 className="text-display font-black text-foreground leading-tight">
-              {'التقويم الهجري'}
-            </h1>
-            <p className="text-mini text-muted-foreground">
-              {'تصفح المناسبات حسب الشهر الهجري'}
-            </p>
-          </div>
-        </div>
+        <PageHeader sticky title={'التقويم الهجري'} subtitle={'تصفح المناسبات حسب الشهر الهجري'} />
 
         {/* ── Today indicator ────────────────────────────────────── */}
         <div className="rounded-2xl bg-primary/5 border border-primary/15 px-4 py-2.5 flex items-center justify-between">
           <span className="text-micro font-bold uppercase tracking-wider text-primary/70">
             {'اليوم'}
           </span>
-          <span className="text-mini font-semibold text-foreground">
+          <span className="text-mini font-semibold text-foreground tabular-nums">
             {today.day} {monthName(today.month)} {today.year}
           </span>
         </div>
@@ -98,24 +92,25 @@ export default function AllOccasions() {
             const active = monthIdx === selectedMonth;
             const isCurrent = monthIdx === today.month;
             return (
-              <motion.button
+              <button
                 key={monthIdx}
                 onClick={() => {
                   setSelectedMonth(monthIdx);
                   setSelectedDay(monthIdx === today.month ? today.day : 1);
                 }}
-                whileTap={{ scale: 0.96 }}
-                className={`relative rounded-xl border px-2.5 py-2 text-start transition-motion ${
+                className={cn(
+                  'relative rounded-lg border px-2.5 py-2 text-start transition-motion',
                   active
-                    ? 'bg-primary/15 border-primary/40 '
-                    : 'bg-card/60 border-border/50 hover:bg-card'
-                }`}
+                    ? 'bg-primary/15 border-primary/40'
+                    : 'bg-secondary/50 border-border/60 hover:bg-accent/40',
+                )}
               >
                 <div className="flex items-baseline justify-between mb-0.5">
                   <p
-                    className={`text-mini font-bold leading-tight truncate ${
-                      active ? 'text-primary' : 'text-foreground'
-                    }`}
+                    className={cn(
+                      'text-mini font-bold leading-tight truncate',
+                      active ? 'text-primary' : 'text-foreground',
+                    )}
                   >
                     {monthName(monthIdx)}
                   </p>
@@ -131,10 +126,10 @@ export default function AllOccasions() {
                     {'مناسبة'}
                   </span>
                   {isCurrent && (
-                    <span className="ms-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                    <span className="ms-auto w-1.5 h-1.5 rounded-full bg-primary" aria-hidden />
                   )}
                 </div>
-              </motion.button>
+              </button>
             );
           })}
         </div>
@@ -144,7 +139,7 @@ export default function AllOccasions() {
           <h2 className="text-body font-black text-foreground">
             {monthName(selectedMonth)}
           </h2>
-          <span className="text-micro font-medium text-muted-foreground-subtle">
+          <span className="text-micro font-medium text-muted-foreground-subtle tabular-nums">
             {`${monthEvents.length} مناسبة`}
           </span>
         </div>
@@ -156,38 +151,39 @@ export default function AllOccasions() {
             const isToday = selectedMonth === today.month && d === today.day;
             const isSelected = d === selectedDay;
             return (
-              <motion.button
+              <button
                 key={d}
-                whileTap={{ scale: 0.92 }}
                 onClick={() => setSelectedDay(d)}
-                className={`relative aspect-square rounded-lg border flex items-center justify-center transition-motion ${
+                className={cn(
+                  'relative aspect-square rounded-lg border flex items-center justify-center transition-motion',
                   isSelected
-                    ? 'bg-primary/20 border-primary/50 '
+                    ? 'bg-primary/20 border-primary/50'
                     : isToday
                       ? 'bg-primary/8 border-primary/30'
                       : hasEvent
-                        ? 'bg-card/70 border-border/60'
-                        : 'bg-card/30 border-border/25'
-                }`}
+                        ? 'bg-secondary/50 border-border/60'
+                        : 'bg-muted/30 border-border/30',
+                )}
               >
                 <span
-                  className={`text-mini tabular-nums ${
+                  className={cn(
+                    'text-mini tabular-nums',
                     isSelected
                       ? 'font-bold text-primary'
                       : hasEvent
                         ? 'font-semibold text-foreground'
-                        : 'font-light text-muted-foreground/55'
-                  }`}
+                        : 'font-light text-muted-foreground/55',
+                  )}
                 >
                   {d}
                 </span>
                 {hasEvent && !isSelected && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" aria-hidden />
                 )}
                 {isToday && !isSelected && (
-                  <span className="absolute top-0.5 end-0.5 w-1 h-1 rounded-full bg-primary" />
+                  <span className="absolute top-0.5 end-0.5 w-1 h-1 rounded-full bg-primary" aria-hidden />
                 )}
-              </motion.button>
+              </button>
             );
           })}
         </div>
@@ -205,11 +201,13 @@ export default function AllOccasions() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="rounded-xl border border-border/40 bg-card/40 px-4 py-5 text-center"
               >
-                <p className="text-mini text-muted-foreground">
-                  {'لا توجد مناسبات في هذا اليوم'}
-                </p>
+                <StateView
+                  kind="empty"
+                  compact
+                  title="لا مناسبات في هذا اليوم"
+                  body="لا يوجد حدث مسجَّل لهذا اليوم من هذا الشهر الهجري. اختر يومًا آخر من الشبكة، أو تنقّل بين الأشهر لترى المناسبات القادمة."
+                />
               </motion.div>
             ) : (
               dayEvents.map((ev) => (
@@ -224,12 +222,12 @@ export default function AllOccasions() {
         </div>
       </div>
 
-      {/* ── Event details modal ─────────────────────────────── */}
+      {/* ── Event details dialog ─────────────────────────────── */}
       <EventDetailDialog
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
       />
-    </div>
+    </PageShell>
   );
 }
 
@@ -259,7 +257,7 @@ function EventListCard({
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.25 }}
       onClick={onOpen}
-      className="w-full text-start rounded-xl border p-3.5 transition-colors"
+      className="w-full text-start rounded-lg border p-3.5 transition-colors"
       style={{ background: `${accent}10`, borderColor: `${accent}33` }}
     >
       <div className="flex items-center justify-between mb-1">
@@ -284,7 +282,7 @@ function EventListCard({
       <p className="text-micro text-muted-foreground leading-relaxed line-clamp-2">
         {description}
       </p>
-      <p className="text-micro text-muted-foreground-subtle mt-1.5">
+      <p className="text-micro text-muted-foreground-subtle mt-1.5 tabular-nums">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </motion.button>
@@ -299,36 +297,24 @@ function EventDetailDialog({
   onClose: () => void;
 }) {
   return (
-    <AnimatePresence>
-      {event && (
-        <motion.div
-          key="backdrop"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-drawer bg-black/60 flex items-end sm:items-center justify-center p-4"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ y: 24, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 24, opacity: 0 }}
-            transition={MOTION.spring}
- onClick={(e) => e.stopPropagation()}
- className="relative w-full max-w-md rounded-3xl bg-card border border-border/60 p-6 max-h-[85vh] overflow-y-auto"
- dir={'rtl'}
-          >
+    <Dialog open={event !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-h-[85dvh] overflow-y-auto" onClose={onClose}>
+        {event && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{event.titleAr}</DialogTitle>
+            </DialogHeader>
             <DetailContent event={event} />
             <button
               onClick={onClose}
-              className="mt-5 w-full rounded-xl bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-mini py-2.5 transition-colors"
+              className="w-full rounded-lg border border-border bg-background py-2.5 text-mini font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
             >
               {'إغلاق'}
             </button>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -341,7 +327,6 @@ function DetailContent({
   const monthLabel = HIJRI_MONTHS[event.month - 1];
   const dayLabel =
     event.day === event.endDay ? `${event.day}` : `${event.day}-${event.endDay}`;
-  const title = event.titleAr;
   const description = event.descriptionAr;
   const notes = event.notesAr;
 
@@ -352,13 +337,6 @@ function DetailContent({
       RECURRING_RITUAL: 'عبادة دورية',
       BIRTH: 'مولد',
       DEATH: 'وفاة',
-    };
-    const en: Record<string, string> = {
-      HISTORICAL: 'Historical',
-      RELIGIOUS: 'Religious',
-      RECURRING_RITUAL: 'Recurring',
-      BIRTH: 'Birth',
-      DEATH: 'Death',
     };
     return ar[event.type];
   })();
@@ -385,10 +363,6 @@ function DetailContent({
         )}
       </div>
 
-      <h3 className="text-lead font-black text-foreground leading-tight">
-        {title}
-      </h3>
-
       <p className="text-mini text-foreground/85 leading-relaxed whitespace-pre-line">
         {description}
       </p>
@@ -405,14 +379,14 @@ function DetailContent({
       )}
 
       {event.yearAh !== undefined && (
-        <p className="text-micro text-muted-foreground-subtle">
+        <p className="text-micro text-muted-foreground-subtle tabular-nums">
           {`السنة الهجرية: ${
                 event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)
               }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`}
         </p>
       )}
 
-      <p className="text-micro text-muted-foreground-subtle border-t border-border/40 pt-2">
+      <p className="text-micro text-muted-foreground-subtle border-t border-border/40 pt-2 tabular-nums">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </div>

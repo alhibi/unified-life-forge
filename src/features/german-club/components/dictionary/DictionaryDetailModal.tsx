@@ -1,6 +1,13 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Bookmark,
   BookmarkCheck,
@@ -9,7 +16,6 @@ import {
   Lightbulb,
   Sparkles,
   Volume2,
-  X,
 } from '@/lib/icons';
 
 import { GERMAN_DICTIONARY_DATA } from '../../lib/dictionaryData';
@@ -38,7 +44,6 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
   const bookmarkedIds = useDictionaryStore((s) => s.bookmarkedIds);
   const isBookmarked = (id: string) => bookmarkedIds.includes(id);
   const [isPlaying, setIsPlaying] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
 
   if (!entry) return null;
 
@@ -63,264 +68,258 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
   const enrichment = enrichEntry(entry, GERMAN_DICTIONARY_DATA, { maxRelated: 5 });
 
   return (
-    <AnimatePresence>
-      <motion.div
-        key={entry.id}
-        initial={shouldReduceMotion ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 12, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
-          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-[hsl(var(--track))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] shadow-2xl p-6 sm:p-8 space-y-6"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Sticky Top Header Controls */}
-          <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-4">
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${cefrInfo.badge_color}`}>
+    <Dialog
+      open
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
+      }}
+    >
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <div className="flex items-center justify-between gap-2 pe-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`rounded-full border px-2.5 py-1 text-mini font-bold ${cefrInfo.badge_color}`}>
                 {cefrInfo.label_ar}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-foreground">
+              <span className="rounded-full bg-secondary px-2.5 py-1 text-mini font-semibold text-foreground">
                 {DictionaryWordTypeLabels[entry.word_type]}
               </span>
             </div>
+            <IconButton
+              onClick={() => toggleBookmark(entry.id)}
+              className="text-foreground"
+              title={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
+              aria-label={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
+            >
+              {bookmarked ? (
+                <BookmarkCheck className="h-5 w-5 text-signal fill-signal" aria-hidden />
+              ) : (
+                <Bookmark className="h-5 w-5 text-muted-foreground" aria-hidden />
+              )}
+            </IconButton>
+          </div>
+          <DialogTitle className="sr-only">{entry.german}</DialogTitle>
+          <DialogDescription className="sr-only">
+            تفاصيل الكلمة: النطق، الترجمات، الصيغ النحوية والأمثلة.
+          </DialogDescription>
+        </DialogHeader>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => toggleBookmark(entry.id)}
-                className="p-2 rounded-xl bg-secondary hover:bg-secondary text-foreground transition-colors"
-                title={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
-              >
-                {bookmarked ? (
-                  <BookmarkCheck className="w-5 h-5 text-signal fill-signal" />
-                ) : (
-                  <Bookmark className="w-5 h-5 text-muted-foreground" />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-2 rounded-xl bg-secondary hover:bg-secondary text-foreground transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+        {/* Main Word Display */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {genderColor && (
+              <span
+                className="inline-block h-4 w-4 flex-shrink-0 rounded-full"
+                style={{ backgroundColor: genderColor }}
+                title={entry.gender ? GENDER_LABELS_AR[entry.gender] : ''}
+              />
+            )}
+            <h2 dir="ltr" className="text-display font-black tracking-tight text-foreground">
+              {entry.german}
+            </h2>
+
+            <IconButton
+              onClick={() => speakText(entry.german)}
+              className={isPlaying ? 'text-signal' : 'text-foreground'}
+              title="نطق ألماني واضح"
+              aria-label="نطق ألماني واضح"
+            >
+              <Volume2 className="h-5 w-5" aria-hidden />
+            </IconButton>
           </div>
 
-          {/* Main Word Display */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 flex-wrap">
-              {genderColor && (
-                <span
-                  className="w-4 h-4 rounded-full inline-block shadow-xs flex-shrink-0"
-                  style={{ backgroundColor: genderColor }}
-                  title={entry.gender ? GENDER_LABELS_AR[entry.gender] : ''}
-                />
-              )}
-              <h2 dir="ltr" className="text-3xl sm:text-4xl font-black text-[hsl(var(--foreground))] tracking-tight">
-                {entry.german}
-              </h2>
+          {entry.ipa && (
+            <p dir="ltr" className="font-mono text-body text-muted-foreground">
+              Pronunciation: [{entry.ipa}]
+            </p>
+          )}
 
-              <button
-                type="button"
-                onClick={() => speakText(entry.german)}
-                className={`p-2 rounded-2xl border border-[hsl(var(--track))] hover:bg-secondary transition-colors ${
-                  isPlaying ? 'bg-signal border-signal text-signal' : 'bg-white/80 text-foreground'
-                }`}
-                title="نطق ألماني واضح"
-              >
-                <Volume2 className="w-5 h-5" />
-              </button>
-            </div>
-
-            {entry.ipa && (
-              <p dir="ltr" className="text-sm font-mono text-muted-foreground">
-                Pronunciation: [{entry.ipa}]
+          <div className="rounded-lg border border-track bg-secondary/40 p-4">
+            <h3 className="text-title font-bold leading-relaxed text-foreground">
+              {entry.arabic}
+            </h3>
+            {enrichment.categoryHintAr && (
+              <p className="mt-1.5 text-mini leading-relaxed text-muted-foreground">
+                {enrichment.categoryHintAr}
               </p>
             )}
+          </div>
+        </div>
 
-            <div className="p-4 rounded-2xl bg-white/80 border border-[hsl(var(--track))]">
-              <h3 className="text-xl sm:text-2xl font-bold text-foreground leading-relaxed">
-                {entry.arabic}
-              </h3>
-              {enrichment.categoryHintAr && (
-                <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  {enrichment.categoryHintAr}
-                </p>
+        {/* Noun / Verb Detailed Grammar Forms */}
+        {entry.word_type === 'noun' && entry.noun_forms && (
+          <div className="space-y-2 rounded-lg border border-track bg-secondary/40 p-4">
+            <h4 className="text-mini font-bold uppercase tracking-wider text-primary">
+              الصيغ الإعرابية والجمع (Grammatische Formen)
+            </h4>
+            <div className="grid grid-cols-1 gap-3 text-mini sm:grid-cols-2">
+              {entry.noun_forms.plural_form && (
+                <div>
+                  <span className="text-muted-foreground">الجمع (Plural):</span>{' '}
+                  <strong dir="ltr" className="font-bold text-foreground">
+                    {entry.noun_forms.plural_form}
+                  </strong>
+                </div>
+              )}
+              {entry.noun_forms.genitive_singular && (
+                <div>
+                  <span className="text-muted-foreground">المضاف إليه (Genitiv):</span>{' '}
+                  <strong dir="ltr" className="font-bold text-foreground">
+                    {entry.noun_forms.genitive_singular}
+                  </strong>
+                </div>
               )}
             </div>
           </div>
+        )}
 
-          {/* Noun / Verb Detailed Grammar Forms */}
-          {entry.word_type === 'noun' && entry.noun_forms && (
-            <div className="p-4 rounded-2xl bg-secondary border border-[hsl(var(--track))] space-y-2">
-              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
-                الصيغ الإعرابية والجمع (Grammatische Formen)
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                {entry.noun_forms.plural_form && (
-                  <div>
-                    <span className="text-muted-foreground">الجمع (Plural):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-foreground">{entry.noun_forms.plural_form}</strong>
-                  </div>
-                )}
-                {entry.noun_forms.genitive_singular && (
-                  <div>
-                    <span className="text-muted-foreground">المضاف إليه (Genitiv):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-foreground">{entry.noun_forms.genitive_singular}</strong>
-                  </div>
-                )}
-              </div>
+        {entry.word_type === 'verb' && entry.verb_forms && (
+          <div className="space-y-2 rounded-lg border border-track bg-secondary/40 p-4">
+            <h4 className="text-mini font-bold uppercase tracking-wider text-primary">
+              تصريفات الفعل الرئيسية (Stammformen)
+            </h4>
+            <div className="grid grid-cols-1 gap-3 text-mini sm:grid-cols-3">
+              {entry.verb_forms.present_3sg && (
+                <div>
+                  <span className="text-muted-foreground">المضارع (Präsens):</span>{' '}
+                  <strong dir="ltr" className="font-bold text-foreground">
+                    {entry.verb_forms.present_3sg}
+                  </strong>
+                </div>
+              )}
+              {entry.verb_forms.past_simple && (
+                <div>
+                  <span className="text-muted-foreground">الماضي البسيط (Präteritum):</span>{' '}
+                  <strong dir="ltr" className="font-bold text-foreground">
+                    {entry.verb_forms.past_simple}
+                  </strong>
+                </div>
+              )}
+              {entry.verb_forms.perfect && (
+                <div>
+                  <span className="text-muted-foreground">الماضي التام (Perfekt):</span>{' '}
+                  <strong dir="ltr" className="font-bold text-foreground">
+                    {entry.verb_forms.perfect}
+                  </strong>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {entry.word_type === 'verb' && entry.verb_forms && (
-            <div className="p-4 rounded-2xl bg-secondary border border-[hsl(var(--track))] space-y-2">
-              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
-                تصريفات الفعل الرئيسية (Stammformen)
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                {entry.verb_forms.present_3sg && (
-                  <div>
-                    <span className="text-muted-foreground">المضارع (Präsens):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-foreground">{entry.verb_forms.present_3sg}</strong>
-                  </div>
-                )}
-                {entry.verb_forms.past_simple && (
-                  <div>
-                    <span className="text-muted-foreground">الماضي البسيط (Präteritum):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-foreground">{entry.verb_forms.past_simple}</strong>
-                  </div>
-                )}
-                {entry.verb_forms.perfect && (
-                  <div>
-                    <span className="text-muted-foreground">الماضي التام (Perfekt):</span>{' '}
-                    <strong dir="ltr" className="font-bold text-foreground">{entry.verb_forms.perfect}</strong>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+        {/* Examples List */}
+        {entry.examples.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="flex items-center gap-1.5 text-body font-bold text-foreground">
+              <Sparkles className="h-4 w-4 text-signal" aria-hidden />
+              أمثلة توضيحية من الحياة الواقعية ({entry.examples.length})
+            </h4>
 
-          {/* Examples List */}
-          {entry.examples.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-bold text-[hsl(var(--foreground))] flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-signal" />
-                أمثلة توضيحية من الحياة الواقعية ({entry.examples.length})
-              </h4>
-
-              <div className="space-y-2.5">
-                {entry.examples.map((ex, idx) => (
-                  <div key={idx} className="p-3.5 rounded-2xl bg-white border border-[hsl(var(--track))] space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p dir="ltr" className="text-sm font-bold text-foreground">
-                        „{ex.de}"
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => speakText(ex.de)}
-                        className="p-1 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-                        title="استمع للمثال"
-                      >
-                        <Volume2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground font-medium">
-                      „{ex.ar}"
+            <div className="space-y-2.5">
+              {entry.examples.map((ex, idx) => (
+                <div key={idx} className="space-y-1 rounded-lg border border-track p-3.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p dir="ltr" className="text-body font-bold text-foreground">
+                      „{ex.de}"
                     </p>
-                    {ex.context && (
-                      <span className="inline-block text-[0.625rem] px-2 py-0.5 rounded bg-card text-muted-foreground">
-                        السياق: {ex.context}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Synonyms & Antonyms */}
-          {(entry.synonyms?.length || entry.antonyms?.length) ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              {entry.synonyms?.length ? (
-                <div className="p-3 rounded-xl bg-data-1/80 border border-data-1/80 space-y-1">
-                  <span className="font-bold text-data-1">المترادفات (Synonyme):</span>
-                  <p dir="ltr" className="text-data-1 font-medium">{entry.synonyms.join(', ')}</p>
-                </div>
-              ) : null}
-
-              {entry.antonyms?.length ? (
-                <div className="p-3 rounded-xl bg-data-5/80 border border-data-5/80 space-y-1">
-                  <span className="font-bold text-data-5">الأضداد (Antonyme):</span>
-                  <p dir="ltr" className="text-data-5 font-medium">{entry.antonyms.join(', ')}</p>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-
-          {/* Cultural & Grammatical Notes */}
-          {entry.cultural_note_ar && (
-            <div className="p-4 rounded-2xl bg-signal border border-signal text-signal space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-signal">
-                <BookOpen className="w-4 h-4" />
-                <span>ملاحظة ثقافية واجتماعية في ألمانيا</span>
-              </div>
-              <p className="text-xs leading-relaxed">{entry.cultural_note_ar}</p>
-            </div>
-          )}
-
-          {entry.grammatical_note_ar && (
-            <div className="p-4 rounded-2xl bg-data-4 border border-data-4 text-data-4 space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-data-4">
-                <Lightbulb className="w-4 h-4" />
-                <span>إرشاد وقاعدة لغوية</span>
-              </div>
-              <p className="text-xs leading-relaxed">{entry.grammatical_note_ar}</p>
-            </div>
-          )}
-
-          {/* Related words — same CEFR + category */}
-          {enrichment.relatedWords.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider flex items-center gap-1.5">
-                <Compass className="w-3.5 h-3.5" />
-                كلمات من نفس المجال ({enrichment.relatedWords.length})
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {enrichment.relatedWords.map((w) => (
-                  <button
-                    key={w.id}
-                    type="button"
-                    onClick={() => {
-                      const target = GERMAN_DICTIONARY_DATA.find((e) => e.id === w.id);
-                      if (target) setSelectedEntry(target);
-                    }}
-                    className="text-start p-2.5 rounded-xl bg-white border border-[hsl(var(--track))] hover:bg-card hover:border-[hsl(var(--track))] transition-motion group"
-                  >
-                    <p
-                      dir="ltr"
-                      className="text-sm font-bold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] truncate"
-                      style={{ unicodeBidi: 'isolate' }}
+                    <IconButton
+                      onClick={() => speakText(ex.de)}
+                      className="text-muted-foreground"
+                      title="استمع للمثال"
+                      aria-label="استمع للمثال"
                     >
-                      {w.german}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">{w.arabic}</p>
-                  </button>
-                ))}
-              </div>
+                      <Volume2 className="h-3.5 w-3.5" aria-hidden />
+                    </IconButton>
+                  </div>
+                  <p className="text-mini font-medium text-muted-foreground">„{ex.ar}"</p>
+                  {ex.context && (
+                    <span className="inline-block rounded bg-secondary px-2 py-0.5 text-micro text-muted-foreground">
+                      السياق: {ex.context}
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+          </div>
+        )}
+
+        {/* Synonyms & Antonyms */}
+        {(entry.synonyms?.length || entry.antonyms?.length) ? (
+          <div className="grid grid-cols-1 gap-3 text-mini sm:grid-cols-2">
+            {entry.synonyms?.length ? (
+              <div className="space-y-1 rounded-md border border-data-1/30 bg-data-1/10 p-3">
+                <span className="font-bold text-data-1">المترادفات (Synonyme):</span>
+                <p dir="ltr" className="font-medium text-data-1">
+                  {entry.synonyms.join(', ')}
+                </p>
+              </div>
+            ) : null}
+
+            {entry.antonyms?.length ? (
+              <div className="space-y-1 rounded-md border border-data-5/30 bg-data-5/10 p-3">
+                <span className="font-bold text-data-5">الأضداد (Antonyme):</span>
+                <p dir="ltr" className="font-medium text-data-5">
+                  {entry.antonyms.join(', ')}
+                </p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Cultural & Grammatical Notes */}
+        {entry.cultural_note_ar && (
+          <div className="space-y-1.5 rounded-lg border border-signal/30 bg-signal/10 p-4">
+            <div className="flex items-center gap-1.5 text-mini font-bold text-signal">
+              <BookOpen className="h-4 w-4" aria-hidden />
+              <span>ملاحظة ثقافية واجتماعية في ألمانيا</span>
+            </div>
+            <p className="text-mini leading-relaxed">{entry.cultural_note_ar}</p>
+          </div>
+        )}
+
+        {entry.grammatical_note_ar && (
+          <div className="space-y-1.5 rounded-lg border border-data-4/30 bg-data-4/10 p-4">
+            <div className="flex items-center gap-1.5 text-mini font-bold text-data-4">
+              <Lightbulb className="h-4 w-4" aria-hidden />
+              <span>إرشاد وقاعدة لغوية</span>
+            </div>
+            <p className="text-mini leading-relaxed">{entry.grammatical_note_ar}</p>
+          </div>
+        )}
+
+        {/* Related words — same CEFR + category */}
+        {enrichment.relatedWords.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="flex items-center gap-1.5 text-mini font-bold uppercase tracking-wider text-primary">
+              <Compass className="h-3.5 w-3.5" aria-hidden />
+              كلمات من نفس المجال ({enrichment.relatedWords.length})
+            </h4>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+              {enrichment.relatedWords.map((w) => (
+                <AppCard
+                  key={w.id}
+                  flat
+                  as="button"
+                  onClick={() => {
+                    const target = GERMAN_DICTIONARY_DATA.find((e) => e.id === w.id);
+                    if (target) setSelectedEntry(target);
+                  }}
+                  className="text-start transition-motion hover:bg-secondary"
+                >
+                  <p
+                    dir="ltr"
+                    className="truncate text-body font-bold text-foreground transition-colors hover:text-primary"
+                    style={{ unicodeBidi: 'isolate' }}
+                  >
+                    {w.german}
+                  </p>
+                  <p className="truncate text-mini text-muted-foreground">{w.arabic}</p>
+                </AppCard>
+              ))}
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

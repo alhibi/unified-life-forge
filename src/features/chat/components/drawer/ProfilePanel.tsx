@@ -66,7 +66,7 @@ export default function ProfilePanel({
                 chat.setShowProfilePopup(false);
                 chat.setProfileTab('info');
               }}
-              className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
             >
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
@@ -109,7 +109,7 @@ export default function ProfilePanel({
             <button
               onClick={() => chat.chatPrefs.toggleMuted(chat.activeConv!.id)}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl transition-colors active:scale-95',
+                'flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl transition-colors',
                 chat.chatPrefs.isMuted(chat.activeConv.id)
                   ? 'bg-primary/10 text-primary'
                   : 'bg-muted/30 text-foreground',
@@ -127,7 +127,7 @@ export default function ProfilePanel({
             <button
               onClick={() => chat.chatPrefs.togglePinned(chat.activeConv!.id)}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl transition-colors active:scale-95',
+                'flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl transition-colors',
                 chat.chatPrefs.isPinned(chat.activeConv.id)
                   ? 'bg-primary/10 text-primary'
                   : 'bg-muted/30 text-foreground',
@@ -146,7 +146,7 @@ export default function ProfilePanel({
                 chat.setActiveConv(null);
                 chat.setShowProfilePopup(false);
               }}
-              className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-muted/30 text-foreground transition-colors active:scale-95"
+              className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-muted/30 text-foreground transition-colors"
             >
               {chat.chatPrefs.isArchived(chat.activeConv.id) ? (
                 <ArchiveRestore className="w-4 h-4" />
@@ -248,7 +248,7 @@ export default function ProfilePanel({
                     </div>
                   </div>
                   <button
-                    className="w-full flex items-center gap-3 p-3.5 active:bg-accent/30 transition-colors text-start"
+                    className="w-full flex items-center gap-3 p-3.5 transition-colors text-start"
                     onClick={() => chat.setShowWallpaperPicker(true)}
                   >
                     <WallpaperIcon className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -262,7 +262,7 @@ export default function ProfilePanel({
                 <button
                   onClick={() => chat.chatPrefs.toggleBlocked(chat.activeConv!.id)}
                   className={cn(
-                    'w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-mini font-medium transition-colors active:scale-[0.98]',
+                    'w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-mini font-medium transition-colors',
                     chat.chatPrefs.isBlocked(chat.activeConv!.id)
                       ? 'bg-primary/10 text-primary'
                       : 'bg-destructive/10 text-destructive',
@@ -275,7 +275,7 @@ export default function ProfilePanel({
                 </button>
                 <button
                   onClick={onRequestDeleteConversation}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-mini font-medium active:bg-destructive/20 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive text-mini font-medium transition-colors"
                 >
                   <Trash className="w-4 h-4" />
                   {'حذف المحادثة'}

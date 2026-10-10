@@ -57,7 +57,7 @@ export default function CaliSkillTreeView({
         <button
           onClick={() => setFilter('all')}
           className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border ${
-            filter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/40'
+            filter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border/40'
           }`}
         >
           {'الكل'}
@@ -67,7 +67,7 @@ export default function CaliSkillTreeView({
             key={c}
             onClick={() => setFilter(c)}
             className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border ${
-              filter === c ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/40'
+              filter === c ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border/40'
             }`}
           >
             {CATEGORY_LABEL[c][lang]}
@@ -119,8 +119,8 @@ function SkillCard({
       transition={{ delay }}
       onClick={onClick}
       disabled={!unlocked}
-      className={`relative text-start rounded-2xl p-3 border overflow-hidden transition-transform active:scale-[0.98] ${
-        unlocked ? 'bg-card border-border/40' : 'bg-muted/30 border-border/30'
+      className={`relative text-start rounded-2xl p-3 border overflow-hidden transition-transform ${
+        unlocked ? 'bg-background border-border/40' : 'bg-muted/30 border-border/30'
       }`}
     >
       {/* Accent halo */}

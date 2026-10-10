@@ -24,7 +24,7 @@ export default function BacklinksPanel({
           <button
             key={l.id}
             onClick={() => onOpen(l.id)}
-            className="text-mini px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 active:scale-95 transition"
+            className="text-mini px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition"
           >
             {l.title || ('بدون عنوان')}
           </button>

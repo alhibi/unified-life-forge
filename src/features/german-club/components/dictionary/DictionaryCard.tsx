@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 
-import { Bookmark, BookmarkCheck, ChevronLeft,Volume2 } from '@/lib/icons';
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { Bookmark, BookmarkCheck, ChevronLeft, Volume2 } from '@/lib/icons';
 
-import { CEFRLevelLabels, DictionaryEntry, DictionaryWordTypeLabels, GENDER_COLORS } from '../../types';
+import {
+  CEFRLevelLabels,
+  DictionaryEntry,
+  DictionaryWordTypeLabels,
+  GENDER_COLORS,
+} from '../../types';
 import { useDictionaryStore } from '../../useDictionaryStore';
 
 interface DictionaryCardProps {
@@ -35,46 +41,53 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
   const genderColor = entry.gender ? GENDER_COLORS[entry.gender] : null;
 
   return (
-    <div
+    <AppCard
+      as="div"
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(entry)}
-      className="p-4 sm:p-5 rounded-2xl border border-[hsl(var(--track))] bg-card hover:bg-white hover:shadow-md transition-motion cursor-pointer space-y-3 group"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(entry);
+        }
+      }}
+      className="group cursor-pointer space-y-3 transition-motion"
     >
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className={`text-[0.625rem] font-bold px-2 py-0.5 rounded-full border ${cefrInfo.badge_color}`}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className={`rounded-full border px-2 py-0.5 text-micro font-bold ${cefrInfo.badge_color}`}>
             {entry.cefr}
           </span>
-          <span className="text-[0.625rem] font-medium px-2 py-0.5 rounded-full bg-secondary text-foreground">
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-micro font-medium text-foreground">
             {DictionaryWordTypeLabels[entry.word_type]}
           </span>
         </div>
 
         <div className="flex items-center gap-1">
-          <button
-            type="button"
+          <IconButton
             onClick={speakGerman}
-            className={`p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary transition-colors ${
-              isPlaying ? 'bg-signal border-signal text-signal' : 'text-muted-foreground'
-            }`}
+            className={isPlaying ? 'text-signal' : 'text-muted-foreground'}
             title="نطق ألماني"
+            aria-label="نطق ألماني"
           >
-            <Volume2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
+            <Volume2 className="h-3.5 w-3.5" aria-hidden />
+          </IconButton>
+          <IconButton
             onClick={(e) => {
               e.stopPropagation();
               toggleBookmark(entry.id);
             }}
-            className="p-1.5 rounded-lg border border-[hsl(var(--track))] hover:bg-secondary text-muted-foreground transition-colors"
+            className="text-muted-foreground"
             title={bookmarked ? 'إزالة من الحفظ' : 'حفظ الكلمة'}
+            aria-label={bookmarked ? 'إزالة من الحفظ' : 'حفظ الكلمة'}
           >
             {bookmarked ? (
-              <BookmarkCheck className="w-3.5 h-3.5 text-signal fill-signal" />
+              <BookmarkCheck className="h-3.5 w-3.5 text-signal fill-signal" aria-hidden />
             ) : (
-              <Bookmark className="w-3.5 h-3.5 text-muted-foreground" />
+              <Bookmark className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
             )}
-          </button>
+          </IconButton>
         </div>
       </div>
 
@@ -82,36 +95,37 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
         <div className="flex items-baseline gap-2">
           {genderColor && (
             <span
-              className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
+              className="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full"
               style={{ backgroundColor: genderColor }}
             />
           )}
-          <h4 dir="ltr" className="text-lg sm:text-xl font-bold text-[hsl(var(--foreground))] tracking-tight group-hover:text-[hsl(var(--primary))] transition-colors">
+          <h4
+            dir="ltr"
+            className="text-title font-bold tracking-tight text-foreground transition-colors group-hover:text-primary"
+          >
             {entry.german}
           </h4>
           {entry.ipa && (
-            <span dir="ltr" className="text-xs font-mono text-muted-foreground">
+            <span dir="ltr" className="font-mono text-mini text-muted-foreground">
               [{entry.ipa}]
             </span>
           )}
         </div>
 
-        <p className="text-sm font-bold text-foreground line-clamp-1">
-          {entry.arabic}
-        </p>
+        <p className="line-clamp-1 text-body font-bold text-foreground">{entry.arabic}</p>
       </div>
 
       {entry.examples[0] && (
-        <p dir="ltr" className="text-xs text-muted-foreground truncate bg-secondary p-2 rounded-xl">
+        <p dir="ltr" className="truncate rounded-md bg-secondary/50 p-2 text-mini text-muted-foreground">
           "{entry.examples[0].de}"
         </p>
       )}
 
-      <div className="flex items-center justify-between text-[0.625rem] text-muted-foreground pt-1 border-t border-[hsl(var(--track))]">
+      <div className="flex items-center justify-between border-t border-track pt-1 text-micro text-muted-foreground">
         <span>اضغط للتفاصيل والشيوع</span>
-        <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground group-hover:-translate-x-1 transition-transform" />
+        <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:-translate-x-1" aria-hidden />
       </div>
-    </div>
+    </AppCard>
   );
 };
 

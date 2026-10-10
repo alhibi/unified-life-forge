@@ -8,6 +8,7 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Trophy, X } from '@/lib/icons';
 
 import { type Exercise,resolveExercise } from '../../exerciseCatalog';
@@ -68,7 +69,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
             exit={{ scale: 0.85, opacity: 0, y: 20 }}
             transition={{ type: 'spring', stiffness: 400, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-sm rounded-3xl overflow-hidden border border-border bg-card shadow-lg"
+            className="relative w-full max-w-sm app-card overflow-hidden p-0"
           >
             <button
               onClick={onClose}
@@ -93,7 +94,7 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
               <p className="text-mini text-signal/80 mt-1">{T.niceWork[lang]}</p>
             </div>
 
-            <div className="bg-card/95 px-4 pt-4 pb-5 space-y-2">
+            <div className="px-4 pt-4 pb-5 space-y-2">
               {records.slice(0, 4).map((r, i) => {
                 const ex = resolveExercise(r.exerciseKey) as Exercise | { isCustom: true; label: { ar: string; } };
                 const label = 'isCustom' in ex && ex.isCustom ? ex.label[lang] : (ex as Exercise).label[lang];
@@ -125,12 +126,12 @@ export default function PrCelebration({ records, open, onClose, lang }: PrCelebr
                   +{records.length - 4}
                 </p>
               )}
-              <button
+              <Button
                 onClick={onClose}
-                className="w-full py-2.5 rounded-xl bg-warning text-warning-foreground text-meta font-bold mt-2 active:scale-[0.98]"
+                className="w-full bg-warning text-warning-foreground hover:bg-warning/90 mt-2"
               >
                 {T.close[lang]}
-              </button>
+              </Button>
             </div>
           </motion.div>
         </motion.div>

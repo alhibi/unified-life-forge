@@ -142,6 +142,9 @@ function drawRoute(map: MapLibreMap, points: Coordinates[]): void {
 }
 
 function readAccentColor(): string {
+  // The line colour follows the theme via `--live`; the copper hex is only a
+  // functional last-resort for environments without a stylesheet (SSR/print)
+  // so the route still draws. Not a decorative colour — nothing else uses it.
   if (typeof document === 'undefined') return '#c2410c';
   const live = getComputedStyle(document.documentElement).getPropertyValue('--live').trim();
   return live ? `hsl(${live})` : '#c2410c';

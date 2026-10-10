@@ -96,7 +96,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
           <button
             type="button"
             onClick={editing ? onCancelEdit : onClearReply}
-            className="w-7 h-7 rounded-full flex items-center justify-center active:bg-accent/40 shrink-0 mt-0.5"
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5"
             aria-label={'إلغاء'}
           >
             <X className="w-3.5 h-3.5 text-muted-foreground" />
@@ -114,7 +114,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
             'w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0',
             showEmojiPicker
               ? 'bg-primary/15 text-primary'
-              : 'text-muted-foreground hover:text-foreground active:bg-accent/40'
+              : 'text-muted-foreground hover:text-foreground'
           )}
           tabIndex={-1}
         >
@@ -158,7 +158,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
           disabled={!canSend}
           className={cn(
             'h-10 w-10 rounded-full flex items-center justify-center transition-motion shrink-0',
-            'active:scale-90',
+            '',
             canSend
               ? 'bg-primary text-primary-foreground '
               : 'bg-muted text-muted-foreground/40',

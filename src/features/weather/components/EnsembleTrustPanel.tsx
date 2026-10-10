@@ -42,7 +42,6 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
 
   return (
     <section className="rounded-2xl border border-border/40 surface-depth overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <header className="px-6 pt-6 pb-3 flex items-end justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 font-bold text-lead leading-tight text-foreground">
@@ -73,7 +72,7 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
           </div>
           <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
             <motion.div
-              className="h-full origin-left rounded-full bg-gradient-to-r from-primary/60 via-primary to-primary"
+              className="h-full origin-left rounded-full bg-primary"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: confidence / 100 }}
               transition={{ duration: duration.reveal * 2.5, ease: easing.decelerate }}

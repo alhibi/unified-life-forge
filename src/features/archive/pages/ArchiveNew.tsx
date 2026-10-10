@@ -2,9 +2,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, PageShell } from '@/components/ui/app-shell';
+import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle, Check, ChevronDown, Sparkles, X } from '@/lib/icons';
 
 import { archiveApi, type ModelConfig } from '../api';
@@ -205,20 +206,17 @@ export default function ArchiveNew() {
         description="اقترح موضوعاً ومستوى عمقاً لتوليد مونوغراف كامل ومفهرس."
         path="/archive/new"
       />
-      <div className="flex items-center gap-3 mb-2">
-        <BackButton />
-        <h1 className="text-title font-bold text-foreground">توليد جديد</h1>
-      </div>
+      <PageHeader title={'توليد جديد'} className="mb-2" />
 
       <AppCard>
         <label className="block text-mini font-semibold text-foreground mb-2">الموضوع</label>
-        <textarea
+        <Textarea
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           disabled={running}
           placeholder="مثال: فلسفة العطور الشرقية، تاريخ الخط الكوفي، الوعي عند ابن سينا…"
           rows={3}
-          className="w-full bg-muted/40 border border-border/40 rounded-xl p-3 text-meta outline-none focus:border-primary/50 resize-none"
+          className="resize-none"
           style={{ fontSize: 16 }}
           maxLength={500}
         />
@@ -230,24 +228,21 @@ export default function ArchiveNew() {
           مستوى العمق المعرفي
         </label>
         <div className="flex flex-col gap-2">
-          {DEPTHS.map((d) => (
-            <button
-              key={d.key}
-              disabled={running}
-              onClick={() => setDepth(d.key)}
-              className={`text-start rounded-xl border p-3 transition-motion ${
-                depth === d.key
-                  ? 'border-primary/70 bg-primary/5 ring-1 ring-primary/30'
-                  : 'border-border/40 bg-muted/20 active:scale-[0.98]'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="font-bold text-foreground">{d.title}</span>
-                <span className="text-micro text-muted-foreground font-mono">{d.est}</span>
-              </div>
-              <div className="text-mini text-muted-foreground leading-relaxed">{d.subtitle}</div>
-            </button>
-          ))}
+          <AppList>
+            {DEPTHS.map((d) => (
+              <AppRow
+                key={d.key}
+                disabled={running}
+                onClick={() => setDepth(d.key)}
+                className={depth === d.key ? 'bg-primary/10' : undefined}
+                title={d.title}
+                subtitle={d.subtitle}
+                value={d.est}
+              >
+                {depth === d.key && <Check className="h-4 w-4 shrink-0 text-primary" />}
+              </AppRow>
+            ))}
+          </AppList>
         </div>
       </AppCard>
 
@@ -303,7 +298,7 @@ export default function ArchiveNew() {
         <button
           onClick={start}
           disabled={topic.trim().length < 3}
-          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold disabled:opacity-50 disabled:pointer-events-none active:scale-95 transition-transform overflow-hidden"
+          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold disabled:opacity-50 disabled:pointer-events-none transition-transform overflow-hidden"
         >
           <Sparkles className="w-4 h-4" />
           ابدأ التوليد فائق السرعة
@@ -395,7 +390,7 @@ function GenerationOverlay({
           {!isFiled && !isError && (
             <button
               onClick={onCancel}
-              className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted flex items-center justify-center active:scale-90 transition-transform"
+              className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted flex items-center justify-center transition-transform"
               aria-label="إلغاء"
             >
               <X className="w-4 h-4 text-foreground" />
@@ -430,13 +425,13 @@ function GenerationOverlay({
               <div className="w-full flex flex-col gap-2">
                 <button
                   onClick={onRetry}
-                  className="w-full rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold active:scale-95 transition-transform"
+                  className="w-full rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold transition-transform"
                 >
                   إعادة المحاولة
                 </button>
                 <button
                   onClick={onDismiss}
-                  className="w-full rounded-full bg-muted/60 text-foreground py-3 text-mini font-semibold active:scale-95 transition-transform"
+                  className="w-full rounded-full bg-muted/60 text-foreground py-3 text-mini font-semibold transition-transform"
                 >
                   إغلاق
                 </button>

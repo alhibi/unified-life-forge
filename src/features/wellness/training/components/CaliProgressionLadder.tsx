@@ -160,10 +160,10 @@ function StepCard({
         isCleared
           ? 'bg-data-1/8 border-data-1/40'
           : isCurrent
-            ? 'bg-card border-2'
+            ? 'bg-background border-2'
             : isLocked
               ? 'bg-muted/30 border-border/30 opacity-60'
-              : 'bg-card border-border/40'
+              : 'bg-background border-border/40'
       }`}
       style={isCurrent ? { borderColor: accent } : undefined}
     >

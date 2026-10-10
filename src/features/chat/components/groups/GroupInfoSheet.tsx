@@ -91,7 +91,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-nested bg-black/60"
+        className="app-scrim z-nested"
         onClick={close}
       />
       <motion.div
@@ -108,7 +108,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
           <button
             type="button"
             onClick={close}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'إغلاق'}
           >
             <BackIcon className="w-5 h-5 text-foreground" />
@@ -121,7 +121,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
           <button
             type="button"
             onClick={close}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'إغلاق'}
           >
             <X className="w-4 h-4 text-muted-foreground" />
@@ -192,7 +192,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
                 disabled={!canEdit}
                 onClick={() => canEdit && setEditingDesc(true)}
                 className={cn(
-                  'w-full flex items-start gap-3 px-4 py-3 text-start active:bg-accent/40 rounded-2xl bg-muted/15 border border-border/10',
+                  'w-full flex items-start gap-3 px-4 py-3 text-start rounded-2xl bg-muted/15 border border-border/10',
                   !canEdit && !chat.description && 'opacity-60',
                 )}
               >
@@ -239,7 +239,7 @@ const GroupInfoSheet: React.FC<GroupInfoSheetProps> = ({ isOpen, chat, onClose, 
             <button
               type="button"
               onClick={onOpenMembers}
-              className="w-full rounded-2xl bg-muted/15 border border-border/10 flex items-center gap-3 px-4 py-3 active:bg-accent/40 transition-colors"
+              className="w-full rounded-2xl bg-muted/15 border border-border/10 flex items-center gap-3 px-4 py-3 transition-colors"
             >
               <Users className="w-4 h-4 text-muted-foreground" />
               <div className="flex-1 min-w-0 text-start">
@@ -348,7 +348,7 @@ function ToggleRow({ icon, label, value, onChange }: ToggleRowProps) {
     <button
       type="button"
       onClick={() => onChange(!value)}
-      className="w-full flex items-center gap-3 px-4 py-3 active:bg-accent/30 text-start"
+      className="w-full flex items-center gap-3 px-4 py-3 text-start"
     >
       <span className="shrink-0">{icon}</span>
       <span className="flex-1 text-meta text-foreground">{label}</span>
@@ -371,7 +371,7 @@ function PermissionRow({ icon, label, value, onClick }: PermissionRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 active:bg-accent/30 text-start"
+      className="w-full flex items-center gap-3 px-4 py-3 text-start"
     >
       <span className="shrink-0">{icon}</span>
       <span className="flex-1 text-meta text-foreground">{label}</span>
@@ -386,7 +386,7 @@ function DangerRow({ icon, label, onClick }: DangerRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 active:bg-destructive/10 text-destructive text-start"
+      className="w-full flex items-center gap-3 px-4 py-3 text-destructive text-start"
     >
       <span className="shrink-0">{icon}</span>
       <span className="flex-1 text-meta font-medium">{label}</span>

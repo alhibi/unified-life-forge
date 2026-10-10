@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
 import { poemContexts } from '@/features/diwan/data/poetTimelines';
 import { Calendar, MapPin } from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 
 interface PoemContextCardProps {
   poemTitle: string;
@@ -10,9 +12,9 @@ interface PoemContextCardProps {
 }
 
 /**
- * بطاقة السياق التاريخي المصممة لتبدو كملاحظة جانبية على هامش المخطوطة.
- * تتميز بخلفية عتيقة، ميل خفيف (-0.6 درجة)، علامة معينة (◆) بلون شمع الختم فوق الحافة،
- * ونصوص دقيقة عتيقة.
+ * بطاقة السياق التاريخي — ملاحظة هامشية على القصيدة: الحدث وسنته وسياقه.
+ * في السابق كانت بطاقة تحمل ميلاً بصراحاً وعلامة ◆ وقيمًا خامًا؛ الآن
+ * سطح <AppCard> قياسي بإطار منقّط يعلن أنها ملاحظة، بلا زخرفة حوله.
  */
 export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardProps) {
   // Find matching context
@@ -22,45 +24,34 @@ export default function PoemContextCard({ poemTitle, poetId }: PoemContextCardPr
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="relative mt-4 mb-6 select-none"
-      style={{
-        transform: 'rotate(-0.6deg)',
-      }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={MOTION.settle}
+      className="mt-4 mb-6"
     >
-      {/* علامة معينة صغيرة (◆) فوق الحافة العلوية اليمنى */}
-      <div className="absolute -top-[7px] end-[24px] z-raised w-[14px] h-[14px] bg-background flex items-center justify-center text-micro text-primary leading-none select-none font-bold">
-        ◆
-      </div>
-
-      <div className="p-5 rounded-[12px] border border-dashed border-border bg-card text-muted-foreground relative">
+      <AppCard className="border border-dashed border-border">
         {/* Event Title */}
-        <div className="flex items-center gap-2 mb-2.5">
-          <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-          <p className="text-mini font-bold text-foreground font-tajawal">{ctx.event}</p>
+        <div className="mb-2.5 flex items-center gap-2">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+          <p className="font-tajawal text-mini font-bold text-foreground">{ctx.event}</p>
         </div>
 
         {/* Context description */}
-        <p className="text-mini text-muted-foreground leading-[1.85] font-tajawal ps-1">{ctx.context}</p>
+        <p className="ps-1 font-tajawal text-mini leading-[1.85] text-muted-foreground">
+          {ctx.context}
+        </p>
 
         {/* Year badge */}
         {ctx.year && (
-          <div className="flex items-center gap-1.5 mt-3 ps-1">
-            <Calendar className="w-3.5 h-3.5 text-muted-foreground/70" />
-            <span className="text-micro font-semibold text-muted-foreground/70 bg-foreground/[4%] border border-border/50 px-2.5 py-0.5 rounded-[5px] font-sans">
+          <div className="mt-3 flex items-center gap-1.5 ps-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+            <span className="rounded-sm border border-border/50 bg-muted px-2.5 py-0.5 font-sans text-micro font-semibold text-muted-foreground">
               {ctx.year}
             </span>
           </div>
         )}
-      </div>
+      </AppCard>
     </motion.div>
   );
-}
-
-// Utility to check if a poem has context available
-export function hasPoemContext(poemTitle: string, poetId: string): boolean {
-  return poemContexts.some((c) => c.poemTitle === poemTitle && c.poetId === poetId);
 }

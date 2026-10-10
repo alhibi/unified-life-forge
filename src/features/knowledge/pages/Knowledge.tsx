@@ -1,22 +1,55 @@
-import { useEffect,useState } from "react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 
-import BackButton from "@/components/BackButton";
+import PageHeader from "@/components/PageHeader";
 import SEO from "@/components/SEO";
+import { AppCard, AppList, AppRow, IconChip, PageShell } from "@/components/ui/app-shell";
+import { Button } from "@/components/ui/button";
+import ResponsiveDrawer from "@/components/ui/ResponsiveDrawer";
+import { StateView } from "@/components/ui/state-view";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+
+/**
+ * Knowledge — "موسوعة الرقي" (the curated luxury encyclopedia).
+ *
+ * System pass: the bespoke dark theatre (ambient glow, per-item hex accents,
+ * tinted gradients, the hand-rolled modal) is gone. The page now composes the
+ * shared primitives — PageHeader (display), Tabs for the five collections,
+ * AppCard for brand dossiers and model cards, AppList/AppRow for the selected
+ * brand rail, StateView for the browse prompt, ResponsiveDrawer for the model
+ * detail. Category identity is the only colour left, and it rides the six-hue
+ * data palette (index.css --data-1…6) instead of a raw hex.
+ */
 
 // ─── TYPES & INTERFACES ──────────────────────────────────────────────────────
+
+/** The six-hue categorical key from index.css (--data-1…6). A category is a
+ *  genuine data label for one of five collections, so it gets a documented
+ *  palette key instead of a decorative hex. */
+type DataTone = "data-1" | "data-2" | "data-3" | "data-4" | "data-5" | "data-6";
+
+/** Literal class pairs for each tone — dynamic `text-${tone}` strings would be
+ *  invisible to Tailwind's scanner. */
+const TONE_TEXT: Record<DataTone, string> = {
+  "data-1": "text-data-1",
+  "data-2": "text-data-2",
+  "data-3": "text-data-3",
+  "data-4": "text-data-4",
+  "data-5": "text-data-5",
+  "data-6": "text-data-6",
+};
+
 interface Category {
   id: string;
   icon: string;
   label: string;
   labelEn: string;
-  color: string;
-  bg: string;
+  tone: DataTone;
 }
 
 interface Model {
   id: string;
   name: string;
-  color: string;
   year: string;
   type: string;
   price: string;
@@ -66,45 +99,19 @@ interface CategoryData {
 
 interface ModalContentProps {
   m: Model;
-  color: string;
-}
-
-interface SectionProps {
-  title: string;
-  color: string;
-  children: React.ReactNode;
-}
-
-interface Grid2Props {
-  data?: Record<string, string>;
-  color: string;
-}
-
-interface PyramidBlockProps {
-  data?: Record<string, string>;
-  color: string;
-}
-
-interface ComponentsBlockProps {
-  data?: Record<string, string>;
-  color: string;
-}
-
-interface DetailModalProps {
-  model: Model;
-  brand: Brand;
-  catId: string;
-  catColor: string;
-  onClose: () => void;
 }
 
 // ─── CATEGORIES ───────────────────────────────────────────────────────────────
+// The five collections as categorical data: each id carries its label pair and
+// its palette tone. Hues are picked from the published data key
+// (--data-1…6 in index.css): amber for cars, violet for perfumery, blue for
+// horology, clay for fashion, rose for confiserie.
 const CATEGORIES: Category[] = [
-  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", color:"#C8A96E", bg:"from-signal"   },
-  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   color:"#D4A5C9", bg:"from-data-6"  },
-  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    color:"#7EB8C9", bg:"from-data-4"     },
-  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     color:"#C9A87E", bg:"from-muted"   },
-  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  color:"#C97E8A", bg:"from-data-5"    },
+  { id:"cars",     icon:"◈", label:"السيارات",  labelEn:"Automobiles", tone:"data-3" },
+  { id:"perfumes", icon:"◉", label:"العطور",    labelEn:"Perfumery",   tone:"data-6" },
+  { id:"watches",  icon:"◎", label:"الساعات",   labelEn:"Horology",    tone:"data-4" },
+  { id:"fashion",  icon:"◆", label:"الأزياء",   labelEn:"Fashion",     tone:"data-2" },
+  { id:"sweets",   icon:"◐", label:"الحلويات",  labelEn:"Confiserie",  tone:"data-5" },
 ];
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -119,7 +126,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"منذ 1931، تصنع بورش السيارة التي تُعيد تعريف العلاقة بين الإنسان والطريق.",
         models:[
           {
-            id:"911s", name:"911 Carrera S", color:"#C8A96E", year:"2024",
+            id:"911s", name:"911 Carrera S", year:"2024",
             type:"Sports Coupe", price:"$145,000",
             tags:["RWD","PDK 8-Speed","Sport Chrono","PASM"],
             story:"ستة عقود، قلب واحد. الـ911 لم تتغير لأنها كانت صحيحة منذ البداية. المحرك خلفي، الثقل خلفي، والشعور لا يوصف.",
@@ -130,7 +137,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"مؤشر الأداء", value:88 }
           },
           {
-            id:"taycan", name:"Taycan Turbo S", color:"#5B9BD5", year:"2024",
+            id:"taycan", name:"Taycan Turbo S", year:"2024",
             type:"Electric Sport Sedan", price:"$188,000",
             tags:["AWD","800V Architecture","Launch Control","PDCC Sport"],
             story:"ثورة هادئة. بورش أثبتت أن الكهربائي لا يعني الملل — الـTaycan يتسارع بشكل يصعب تصديقه وفرامله تعيد شحن البطارية.",
@@ -141,7 +148,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"مؤشر الأداء", value:96 }
           },
           {
-            id:"gt3rs", name:"911 GT3 RS", color:"#E85D04", year:"2023",
+            id:"gt3rs", name:"911 GT3 RS", year:"2023",
             type:"Track-Focused Homologation", price:"$225,000",
             tags:["RWD","PDK","Weissach Package","DRS Active Aero"],
             story:"هذه ليست سيارة — هذا مقاتل طائرات مع لوحات ترخيص. الأجنحة النشطة توفر ضغطاً أرضياً أعلى من وزن السيارة نفسها.",
@@ -159,7 +166,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"من مارانيلو، تخرج كل سنة بضع مئات من السيارات التي تحرك قلوب الملايين.",
         models:[
           {
-            id:"sf90", name:"SF90 Stradale", color:"#CC0000", year:"2024",
+            id:"sf90", name:"SF90 Stradale", year:"2024",
             type:"PHEV Hypercar", price:"$625,000",
             tags:["AWD","PHEV","eSSC","F1-Trac","Side Slip Control 6.0"],
             story:"فيراري الهجينة الأولى بدفع رباعي في تاريخ البيت. ثلاثة محركات كهربائية تضاف إلى V8 لينتج نظام يشبه F1.",
@@ -170,7 +177,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"مؤشر الأداء", value:100 }
           },
           {
-            id:"purosangue", name:"Purosangue V12", color:"#8B0000", year:"2023",
+            id:"purosangue", name:"Purosangue V12", year:"2023",
             type:"Sports SUV", price:"$395,000",
             tags:["AWD","V12 NA","4 Porte","Active Suspension"],
             story:"فيراري رفضت صنع SUV لعقود. حين قررت، جعلتها الأقوى في الفئة وأضافت V12 شفطاً طبيعياً لا يملكه أي SUV آخر.",
@@ -188,7 +195,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"ورشة صغيرة في أفالتيرباخ حوّلت مرسيدس إلى وحوش. كل محرك AMG يوقّعه الميكانيكي الذي بناه.",
         models:[
           {
-            id:"gt63se", name:"AMG GT 63 S E Performance", color:"#D4AF37", year:"2024",
+            id:"gt63se", name:"AMG GT 63 S E Performance", year:"2024",
             type:"PHEV Performance Sedan", price:"$165,000",
             tags:["AWD","PHEV","843hp","4MATIC+","E-Boost"],
             story:"الأقوى من AMG على الإطلاق. يجمع V8 بيتوربو مع محرك كهربائي خلفي لينتج 1,470 Nm من العزم — عزم شاحنة في جسد سيدان فاخر.",
@@ -212,7 +219,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"أقدم دار عطور فاخرة مستقلة في العالم. كل زجاجة نتيجة حرفية يدوية حقيقية.",
         models:[
           {
-            id:"aventus", name:"Aventus", color:"#D4A5C9", year:"2010",
+            id:"aventus", name:"Aventus", year:"2010",
             type:"Woody Aromatic Chypre", price:"$495 / 50ml",
             tags:["Masculine","Projection Beast","Iconic","Batch-Variable"],
             story:"أطلقه أوليفييه كريد تكريماً لنابليون. منذ 2010 وهو الأكثر نقاشاً ومبيعاً في تاريخ العطور الراقية — يختلف من دفعة لأخرى ومن جلد لآخر.",
@@ -223,7 +230,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"قوة الحضور", value:95 }
           },
           {
-            id:"virgin", name:"Virgin Island Water", color:"#7EC8E3", year:"2007",
+            id:"virgin", name:"Virgin Island Water", year:"2007",
             type:"Tropical Aquatic Fresh", price:"$410 / 50ml",
             tags:["Unisex","Beach Signature","Rum","Summer Masterpiece"],
             story:"الرحلة في زجاجة. اختلط فيها عصير الليمون والرم الكاريبي مع نسيم جوز الهند. الأقل توقعاً من كريد — والأكثر فرحاً.",
@@ -241,7 +248,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"فرانسيس كوركجيان — العطّار الذي فاز بـ Prix François Coty وهو في الثلاثينيات. MFK دار تخصصها الكمال الفرنسي الحديث.",
         models:[
           {
-            id:"br540", name:"Baccarat Rouge 540", color:"#E8B4A0", year:"2015",
+            id:"br540", name:"Baccarat Rouge 540", year:"2015",
             type:"Floral Woody Musky Amber", price:"$335 / 70ml",
             tags:["Unisex","Global Phenomenon","Compliment Magnet","Long-Lasting"],
             story:"أُنشئ أصلاً لدار Baccarat للكريستال كعطر حصري. حين طرحه MFK للعموم, أصبح الأكثر تداولاً في السوشيال ميديا — ظاهرة لا تُفسَّر.",
@@ -252,7 +259,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"الديمومة والإشعاع", value:97 }
           },
           {
-            id:"oud", name:"Oud Satin Mood", color:"#8B5A6E", year:"2015",
+            id:"oud", name:"Oud Satin Mood", year:"2015",
             type:"Floral Woody Oriental Oud", price:"$360 / 70ml",
             tags:["Unisex","Oud Gateway","Romantic","Evening"],
             story:"البوابة المثالية لعالم العود لمن يخشاه. كوركجيان أحاط العود بالفانيليا والورد حتى أصبح حضنًا دافئاً لا وحشاً.",
@@ -276,7 +283,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"الدار التي تصنع أقل من 70,000 ساعة سنوياً — وكل واحدة منها تحفة لا تُكرَّر.",
         models:[
           {
-            id:"nautilus5711", name:"Nautilus 5711/1A-011", color:"#4A9B7F", year:"2021",
+            id:"nautilus5711", name:"Nautilus 5711/1A-011", year:"2021",
             type:"Integrated Steel Bracelet", price:"$150,000–$200,000 (السوق الثانوية)",
             tags:["Discontinued","Steel GOAT","Opaline Dial","Green Bezel 2021"],
             story:"توقّفت باتيك عن إنتاجها عام 2021 — فارتفع سعرها ثلاثة أضعاف في أسبوع. اللون الأخير كان Tiffany Blue وصل في المزادات إلى $6.5 مليون.",
@@ -287,7 +294,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"ندرة الحصول عليها اليوم", value:99 }
           },
           {
-            id:"sky6002", name:"Sky Moon Tourbillon 6002G", color:"#F0E68C", year:"2019",
+            id:"sky6002", name:"Sky Moon Tourbillon 6002G", year:"2019",
             type:"Double-Sided Grand Complication", price:"$1,200,000–$1,800,000",
             tags:["Platinum","12 Complications","Double Tourbillon","Celestial Map"],
             story:"الساعة التي تُبيّن أن باتيك تصنع فناً، لا توقيتاً. وجهان، 12 وظيفة، خريطة سماء تتحرك بدقة فلكية — وسنوات عمل خلف كل قطعة.",
@@ -305,7 +312,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"AP من الدرجة الأولى في جرأة التصميم. Royal Oak، Offshore، Code 11.59 — كلها أثارت الجدل ثم أصبحت أيقونات.",
         models:[
           {
-            id:"offshore44ti", name:"Royal Oak Offshore 44 Titanium", color:"#4A90D9", year:"2022",
+            id:"offshore44ti", name:"Royal Oak Offshore 44 Titanium", year:"2022",
             type:"Sport Luxury Chronograph", price:"$38,500",
             tags:["Titanium","70hr Reserve","COSC Certified","Tapisserie"],
             story:"The Beast. ضخامة مدروسة، وحشية مضبوطة. الأوفشور 44 لمن يريد أن يُثير الاهتمام قبل أن يتكلم.",
@@ -316,7 +323,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"احتياطي الطاقة", value:85 }
           },
           {
-            id:"concept_ft", name:"Concept Flying Tourbillon GMT", color:"#1A2744", year:"2021",
+            id:"concept_ft", name:"Concept Flying Tourbillon GMT", year:"2021",
             type:"Openworked Grand Complication", price:"$380,000",
             tags:["Limited","Flying Tourbillon","GMT","Titanium","Skeletonized"],
             story:"الشفافية المطلقة. كل تروس الحركة مكشوفة خلف زجاج الصفير. الفن الميكانيكي في أعلى تجلياته — توربيون يطير دون محور سفلي.",
@@ -340,7 +347,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"لورو بيانا تملك حقوق حصرية على الڤيكونيا البيروفية وعلى Baby Cashmere الهيركاني. لا تُعلن ولا تُبرز شعارها — الخامة تتكلم.",
         models:[
           {
-            id:"vicuna_coat", name:"معطف الڤيكونيا الكامل", color:"#C9A87E", year:"2024",
+            id:"vicuna_coat", name:"معطف الڤيكونيا الكامل", year:"2024",
             type:"Ultra-Luxury Statement Outerwear", price:"$18,000 – $60,000",
             tags:["Vicuña","12 Microns","Hand-Loomed Peru","CITES Protected"],
             story:"أغلى خيط حيواني في العالم. الڤيكونيا تُقصّ مرة كل سنتين، ولا تُستأصل بالذبح — محمية بموجب اتفاقية CITES الدولية منذ 1975.",
@@ -351,7 +358,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"ندرة الخامة عالمياً", value:100 }
           },
           {
-            id:"baby_cashmere_hoodie", name:"هودي Baby Cashmere", color:"#E8DCC8", year:"2024",
+            id:"baby_cashmere_hoodie", name:"هودي Baby Cashmere", year:"2024",
             type:"Ultra-Fine Knitwear", price:"$3,200",
             tags:["Baby Cashmere","14 Microns","Hircus Goat","Seasonal"],
             story:"كشمير صغار الماعز الهيركاني قبل أول تساقط طبيعي — 14 ميكرون من النعومة الخيالية. LP تملك حقوق حصرية على هذا الخيط.",
@@ -369,7 +376,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"Hermès بدأت صانعة سروج خيل للأرستقراطية الفرنسية. اليوم كل حقيبة تُصنع بنفس فلسفة السرج — حرفي واحد، من البداية للنهاية.",
         models:[
           {
-            id:"birkin25", name:"Birkin 25 Togo Leather", color:"#BF5E3B", year:"1984 (أيقونة مستمرة)",
+            id:"birkin25", name:"Birkin 25 Togo Leather", year:"1984 (أيقونة مستمرة)",
             type:"Ultimate Status Handbag", price:"$12,000 (رسمي) — $500,000+ (مزادات)",
             tags:["Togo","Handstitched","18K Hardware","100yr Warranty"],
             story:"وُلدت في طائرة عندما التقت Jane Birkin بالرئيس التنفيذي Jean-Louis Dumas وشكت من صعوبة إيجاد حقيبة جيدة. أخرج مظروفاً ورسم عليه تصميماً.",
@@ -393,7 +400,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"تتلمذ على يد Gaston Lenôtre في سن 14. أصبح Chef Pâtissier لدى Fauchon في 24. غيّر قواعد الحلويات الفرنسية للأبد وهو في الثلاثينيات.",
         models:[
           {
-            id:"ispahan_cake", name:"Ispahan — La Tarte 20cm", color:"#E8A0B4", year:"2001 (أيقونة)",
+            id:"ispahan_cake", name:"Ispahan — La Tarte 20cm", year:"2001 (أيقونة)",
             type:"Signature Rose-Lychee-Raspberry Tarte", price:"€85 / تورتة للـ6–8",
             tags:["Signature Creation","World-Copied","Rose","Seasonal Lychee"],
             story:"ألهمته حديقة إصفهان الفارسية وشعر الرومي عن الورد. ثلاثة مكونات فقط — لكن توازنها الدقيق يتطلب 3 أيام تحضير ومهارة لا تُتعلم في كتاب.",
@@ -404,7 +411,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"دقة التحضير الفنية", value:97 }
           },
           {
-            id:"2000feuilles", name:"2000 Feuilles au Praliné", color:"#D4A56A", year:"2006",
+            id:"2000feuilles", name:"2000 Feuilles au Praliné", year:"2006",
             type:"Reimagined Mille-Feuille", price:"€75 / تورتة",
             tags:["Mille-Feuille Revolution","Praline","Caramel","Deconstructed"],
             story:"أأخذ Hermé أشهر حلوى فرنسية — Mille-Feuille — وقلبها رأساً على عقب. بدلاً من الكريمة السادة، استخدم Praline Feuilletine الذي يبقى هشاً لأيام.",
@@ -415,7 +422,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"تعقيد التقنية الفنية", value:94 }
           },
           {
-            id:"mogador_tarte", name:"Mogador — Tarte Passion-Chocolat", color:"#F4A460", year:"2005",
+            id:"mogador_tarte", name:"Mogador — Tarte Passion-Chocolat", year:"2005",
             type:"Exotic Chocolate-Passion Tarte", price:"€75 / تورتة",
             tags:["Passion Fruit","Valrhona Milk Choc 40%","Ganache","Mogador"],
             story:"Mogador — مدينة مغربية ساحلية اليوم تُعرف بالصويرة. ألهم الشيف اسم مقرونه الشهير بالشوكولاتة والباشن فروت — ثم حوّله تورتة كاملة.",
@@ -433,7 +440,7 @@ const DATA: Record<string, CategoryData> = {
         desc:"أسسها Albéric Guironnet عام 1922 بهدف واحد: تعليم العالم ما هي الشوكولاتة الحقيقية. اليوم تُدرّب 25,000 شيف سنوياً في Cité du Chocolat.",
         models:[
           {
-            id:"guanaja70", name:"Guanaja 70% — Grand Cru", color:"#3D1A00", year:"1986",
+            id:"guanaja70", name:"Guanaja 70% — Grand Cru", year:"1986",
             type:"Intense Dark Chocolate Grand Cru", price:"€25 / 250g | €180 / كغ",
             tags:["First 70%","Grand Cru","Professional Standard","1986 Pioneer"],
             story:"1986 — العالم كله يصنع شوكولاتة داكنة بنسبة 60% أو أقل. Valrhona كسرت القاعدة وأطلقت أول 70% رسمية. الصناعة كلها تبعتها بعد 10 سنوات.",
@@ -445,7 +452,7 @@ const DATA: Record<string, CategoryData> = {
             bar:{ label:"عمق الكاكاو وشدته", value:85 }
           },
           {
-            id:"dulcey32", name:"Dulcey Blond 32%", color:"#D4A017", year:"2012",
+            id:"dulcey32", name:"Dulcey Blond 32%", year:"2012",
             type:"Blonde Chocolate — 4th Category", price:"€22 / 250g",
             tags:["Happy Accident","Blonde","4th Category","Caramel Biscuit","Unique"],
             story:"2006 — الشيف Frédéric Bau نسي زجاجة شوكولاتة بيضاء في Bain-marie على حرارة منخفضة لساعات. حين عاد وجد لوناً ذهبياً ونكهة لم يتخيلها. 6 سنوات تجارب قبل الإطلاق عام 2012.",
@@ -464,90 +471,90 @@ const DATA: Record<string, CategoryData> = {
 };
 
 // ─── CATEGORY-SPECIFIC MODAL RENDERER ─────────────────────────────────────────
-function CarsModalContent({ m, color }: ModalContentProps) {
+function CarsModalContent({ m }: ModalContentProps) {
   return (
     <>
-      <Section title="أداء قياسي" color={color}>
-        <Grid2 data={m.perf} color={color} />
+      <Section title="أداء قياسي">
+        <Grid2 data={m.perf} />
       </Section>
-      <Section title="المحرك والقوة" color={color}>
-        <Grid2 data={m.engine} color={color} />
+      <Section title="المحرك والقوة">
+        <Grid2 data={m.engine} />
       </Section>
-      <Section title="الشاصي والأبعاد" color={color}>
-        <Grid2 data={m.chassis} color={color} />
+      <Section title="الشاصي والأبعاد">
+        <Grid2 data={m.chassis} />
       </Section>
     </>
   );
 }
 
-function PerfumesModalContent({ m, color }: ModalContentProps) {
+function PerfumesModalContent({ m }: ModalContentProps) {
   return (
     <>
-      <Section title="هرم الرائحة" color={color}>
-        <PyramidBlock data={m.pyramid} color={color} />
+      <Section title="هرم الرائحة">
+        <PyramidBlock data={m.pyramid} />
       </Section>
-      <Section title="شخصية العطر" color={color}>
-        <Grid2 data={m.character} color={color} />
+      <Section title="شخصية العطر">
+        <Grid2 data={m.character} />
       </Section>
-      <Section title="معلومات المعطّر" color={color}>
-        <Grid2 data={m.notes} color={color} />
+      <Section title="معلومات المعطّر">
+        <Grid2 data={m.notes} />
       </Section>
     </>
   );
 }
 
-function WatchesModalContent({ m, color }: ModalContentProps) {
+function WatchesModalContent({ m }: ModalContentProps) {
   return (
     <>
-      <Section title="الحركة الداخلية" color={color}>
-        <Grid2 data={m.movement} color={color} />
+      <Section title="الحركة الداخلية">
+        <Grid2 data={m.movement} />
       </Section>
-      <Section title="العلبة والقياسات" color={color}>
-        <Grid2 data={m.case} color={color} />
+      <Section title="العلبة والقياسات">
+        <Grid2 data={m.case} />
       </Section>
-      <Section title={m.dial ? "القرص والوجه" : m.complications ? "التعقيدات الكاملة" : "مواصفات إضافية"} color={color}>
-        <Grid2 data={m.dial || m.complications} color={color} />
+      <Section title={m.dial ? "القرص والوجه" : m.complications ? "التعقيدات الكاملة" : "مواصفات إضافية"}>
+        <Grid2 data={m.dial || m.complications} />
       </Section>
     </>
   );
 }
 
-function FashionModalContent({ m, color }: ModalContentProps) {
+function FashionModalContent({ m }: ModalContentProps) {
   return (
     <>
-      <Section title={m.fiber ? "الخامة والألياف" : m.leather ? "الجلد والخياطة" : "المادة الخام"} color={color}>
-        <Grid2 data={m.fiber || m.leather} color={color} />
+      <Section title={m.fiber ? "الخامة والألياف" : m.leather ? "الجلد والخياطة" : "المادة الخام"}>
+        <Grid2 data={m.fiber || m.leather} />
       </Section>
-      <Section title={m.craft ? "الصناعة والحرفية" : m.hardware ? "المعادن والإبازيم" : "التفاصيل"} color={color}>
-        <Grid2 data={m.craft || m.hardware} color={color} />
+      <Section title={m.craft ? "الصناعة والحرفية" : m.hardware ? "المعادن والإبازيم" : "التفاصيل"}>
+        <Grid2 data={m.craft || m.hardware} />
       </Section>
-      <Section title={m.sizing ? "الأحجام والتخصيص" : m.market ? "السوق والاستثمار" : "إضافي"} color={color}>
-        <Grid2 data={m.sizing || m.market} color={color} />
+      <Section title={m.sizing ? "الأحجام والتخصيص" : m.market ? "السوق والاستثمار" : "إضافي"}>
+        <Grid2 data={m.sizing || m.market} />
       </Section>
     </>
   );
 }
 
-function SweetsModalContent({ m, color }: ModalContentProps) {
+function SweetsModalContent({ m }: ModalContentProps) {
   return (
     <>
-      <Section title="مكونات القطعة" color={color}>
-        <ComponentsBlock data={m.components} color={color} />
+      <Section title="مكونات القطعة">
+        <ComponentsBlock data={m.components} />
       </Section>
-      <Section title="عملية التحضير" color={color}>
-        <Grid2 data={m.process} color={color} />
+      <Section title="عملية التحضير">
+        <Grid2 data={m.process} />
       </Section>
-      <Section title="التذوق والتقديم" color={color}>
-        <Grid2 data={m.tasting || m.origin_story || m.profile} color={color} />
+      <Section title="التذوق والتقديم">
+        <Grid2 data={m.tasting || m.origin_story || m.profile} />
       </Section>
       {m.technical && (
-        <Section title="التقنية والتخزين" color={color}>
-          <Grid2 data={m.technical} color={color} />
+        <Section title="التقنية والتخزين">
+          <Grid2 data={m.technical} />
         </Section>
       )}
       {m.uses && (
-        <Section title="الاستخدامات الاحترافية" color={color}>
-          <Grid2 data={m.uses} color={color} />
+        <Section title="الاستخدامات الاحترافية">
+          <Grid2 data={m.uses} />
         </Section>
       )}
     </>
@@ -555,71 +562,54 @@ function SweetsModalContent({ m, color }: ModalContentProps) {
 }
 
 // ─── SHARED SUBCOMPONENTS ──────────────────────────────────────────────────────
-function Section({ title, color, children }: SectionProps) {
+
+/** One section of the dossier: the shared section label over its content. */
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <div style={{
-        fontSize: "8px", color: color, fontFamily: "monospace",
-        letterSpacing: "0.22em", marginBottom: "10px", opacity: 0.8,
-        display: "flex", alignItems: "center", gap: "8px"
-      }}>
-        <div style={{ width: "16px", height: "1px", background: color, opacity: 0.5 }} />
-        {title.toUpperCase()}
-      </div>
+    <section>
+      <h3 className="app-section-label">{title}</h3>
       {children}
-    </div>
+    </section>
   );
 }
 
-function Grid2({ data, color: _color }: Grid2Props) {
+/** Label → value pairs on quiet tonal tiles. */
+function Grid2({ data }: { data?: Record<string, string> }) {
   if (!data) return null;
-  const entries = Object.entries(data);
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-      {entries.map(([k, v]) => (
-        <div key={k} style={{
-          background: "hsl(var(--card))", border: "1px solid hsl(var(--border))",
-          borderRadius: "8px", padding: "11px 10px",
-        }}>
-          <div style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "5px" }}>
-            {k.replace(/_/g, " ")}
-          </div>
-          <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: 'var(--font-display)', lineHeight: "1.4" }}>
-            {v}
-          </div>
+    <div className="grid grid-cols-2 gap-2">
+      {Object.entries(data).map(([k, v]) => (
+        <div key={k} className="rounded-md bg-muted/40 px-3 py-2.5">
+          <div className="text-micro text-muted-foreground">{k.replace(/_/g, " ")}</div>
+          <div className="mt-0.5 text-mini leading-relaxed text-foreground">{v}</div>
         </div>
       ))}
     </div>
   );
 }
 
-function PyramidBlock({ data, color }: PyramidBlockProps) {
+/** The olfactory pyramid, in wearing order: top → heart → base. */
+function PyramidBlock({ data }: { data?: Record<string, string> }) {
   if (!data) return null;
   const layers = [
-    { key: "رائحة القمة",  icon: "▲", note: "أول 15 دقيقة" },
-    { key: "رائحة القلب",  icon: "◆", note: "15 دقيقة – 4 ساعات" },
-    { key: "رائحة القاعدة",icon: "▼", note: "4 ساعات+" },
+    { key: "رائحة القمة", icon: "▲", note: "أول 15 دقيقة" },
+    { key: "رائحة القلب", icon: "◆", note: "15 دقيقة – 4 ساعات" },
+    { key: "رائحة القاعدة", icon: "▼", note: "4 ساعات+" },
   ];
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      {layers.map((l, i) => {
+    <div className="space-y-2">
+      {layers.map((l) => {
         const val = data[l.key];
         if (!val) return null;
-        const widths = ["80%", "92%", "100%"];
         return (
-          <div key={l.key} style={{
-            background: "hsl(var(--card))", border: `1px solid ${i === 0 ? color + "30" : "hsl(var(--border))"}`,
-            borderRadius: "8px", padding: "10px 12px",
-            width: widths[i], marginLeft: i === 0 ? "auto" : i === 1 ? "auto" : "0",
-            marginRight: i === 0 ? "auto" : i === 1 ? "auto" : "0",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-              <span style={{ fontSize: "7px", color: i === 0 ? color : "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.15em" }}>
-                {l.icon} {l.key.toUpperCase()}
+          <div key={l.key} className="rounded-md bg-muted/40 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-2 text-micro text-muted-foreground">
+              <span className="font-bold">
+                {l.icon} {l.key}
               </span>
-              <span style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace" }}>{l.note}</span>
+              <span className="tabular-nums">{l.note}</span>
             </div>
-            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: 'var(--font-display)', lineHeight: "1.5" }}>{val}</div>
+            <div className="mt-1 text-mini leading-relaxed text-foreground">{val}</div>
           </div>
         );
       })}
@@ -627,162 +617,114 @@ function PyramidBlock({ data, color }: PyramidBlockProps) {
   );
 }
 
-function ComponentsBlock({ data, color }: ComponentsBlockProps) {
+/** The numbered build order of a confection. */
+function ComponentsBlock({ data }: { data?: Record<string, string> }) {
   if (!data) return null;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <ol className="space-y-2">
       {Object.entries(data).map(([k, v], i) => (
-        <div key={k} style={{
-          display: "flex", gap: "10px", alignItems: "flex-start",
-          background: "hsl(var(--card))", border: "1px solid hsl(var(--border))",
-          borderRadius: "8px", padding: "10px 12px",
-        }}>
-          <div style={{
-            width: "22px", height: "22px", borderRadius: "6px", flexShrink: 0,
-            background: `${color}18`, border: `1px solid ${color}28`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "9px", color: color, fontFamily: "monospace", fontWeight: "bold"
-          }}>{i + 1}</div>
-          <div>
-            <div style={{ fontSize: "7px", color: "hsl(var(--muted-foreground))", fontFamily: "monospace", letterSpacing: "0.12em", marginBottom: "3px" }}>
-              {k.replace(/_/g, " ")}
-            </div>
-            <div style={{ fontSize: "11px", color: "hsl(var(--foreground))", fontFamily: 'var(--font-display)', lineHeight: "1.4" }}>{v}</div>
-          </div>
-        </div>
+        <li key={k} className="flex gap-3 rounded-md bg-muted/40 px-3 py-2.5">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-secondary text-micro font-bold tabular-nums text-foreground">
+            {i + 1}
+          </span>
+          <span className="min-w-0">
+            <span className="block text-micro text-muted-foreground">{k.replace(/_/g, " ")}</span>
+            <span className="mt-0.5 block text-mini leading-relaxed text-foreground">{v}</span>
+          </span>
+        </li>
       ))}
-    </div>
+    </ol>
   );
 }
 
-// ─── DETAIL MODAL ──────────────────────────────────────────────────────────────
-function DetailModal({ model, brand, catId, catColor: _catColor, onClose }: DetailModalProps) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { setTimeout(() => setVisible(true), 20); }, []);
-  const handleClose = () => { setVisible(false); setTimeout(onClose, 350); };
+// ─── DETAIL DRAWER ──────────────────────────────────────────────────────────────
 
+/**
+ * The full dossier for one model, on the shared transient surface
+ * (ResponsiveDrawer → bottom sheet on mobile, dialog on desktop).
+ */
+function DetailDrawer({
+  model,
+  brand,
+  catId,
+  onClose,
+}: {
+  model: Model;
+  brand: Brand;
+  catId: string;
+  onClose: () => void;
+}) {
   const renderContent = () => {
     switch (catId) {
-      case "cars":     return <CarsModalContent m={model} color={model.color} />;
-      case "perfumes": return <PerfumesModalContent m={model} color={model.color} />;
-      case "watches":  return <WatchesModalContent m={model} color={model.color} />;
-      case "fashion":  return <FashionModalContent m={model} color={model.color} />;
-      case "sweets":   return <SweetsModalContent m={model} color={model.color} />;
+      case "cars":     return <CarsModalContent m={model} />;
+      case "perfumes": return <PerfumesModalContent m={model} />;
+      case "watches":  return <WatchesModalContent m={model} />;
+      case "fashion":  return <FashionModalContent m={model} />;
+      case "sweets":   return <SweetsModalContent m={model} />;
       default:         return null;
     }
   };
 
   return (
-    <div onClick={handleClose} style={{
-      position:"fixed", inset:0, zIndex:999,
-      background:"rgba(0,0,0,0.9)", backdropFilter:"blur(24px)",
-      display:"flex", alignItems:"center", justifyContent:"center", padding:"16px",
-      opacity: visible ? 1 : 0, transition:"opacity 0.35s ease",
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background:"linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--background)) 60%, hsl(var(--background)) 100%)",
-        border:`1px solid ${model.color}38`, borderRadius:"24px",
-        width:"100%", maxWidth:"520px", maxHeight:"90vh", overflowY:"auto",
-        position:"relative",
-        transform: visible ? "translateY(0) scale(1)" : "translateY(28px) scale(0.97)",
-        transition:"all 0.45s cubic-bezier(0.23,1,0.32,1)",
-        boxShadow:`0 60px 140px ${model.color}15, 0 0 0 1px ${model.color}15 inset`,
-      }}>
-        {/* Glow top */}
-        <div style={{
-          position:"absolute", top:0, left:0, right:0, height:"150px",
-          background:`radial-gradient(ellipse at 50% -10%, ${model.color}28 0%, transparent 70%)`,
-          borderRadius:"24px 24px 0 0", pointerEvents:"none"
-        }} />
+    <ResponsiveDrawer
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      title={model.name}
+      description={`${brand.name} · ${model.type} · ${model.year}`}
+    >
+      <div className="space-y-5 px-1">
+        {/* Price — a reading, given its own line */}
+        <div className="text-lead font-semibold text-foreground tabular-nums">{model.price}</div>
 
-        {/* Close */}
-        <button onClick={handleClose} style={{
-          position:"absolute", top:"16px", right:"16px", zIndex:10,
-          background:"hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius:"50%",
-          width:"32px", height:"32px", color:"hsl(var(--muted-foreground))", fontSize:"13px",
-          cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
-        }}>✕</button>
+        {/* Story — the editorial paragraph, in the reading face */}
+        <p className="border-s-2 border-primary/40 ps-3 font-amiri text-mini leading-relaxed text-muted-foreground">
+          {model.story}
+        </p>
 
-        <div style={{ padding:"36px 26px 32px" }} dir="rtl">
-
-          {/* Breadcrumb */}
-          <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"20px", flexWrap:"wrap" }}>
-            <span style={{
-              padding:"3px 10px", background:`${model.color}15`,
-              border:`1px solid ${model.color}30`, borderRadius:"20px",
-              fontSize:"8px", color:model.color, fontFamily:"monospace", letterSpacing:"0.14em"
-            }}>{brand.name.toUpperCase()}</span>
-            <span style={{ color:"hsl(var(--muted-foreground))", fontSize:"9px", fontFamily:"monospace" }}>·</span>
-            <span style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.1em" }}>
-              {model.type} · {model.year}
-            </span>
-          </div>
-
-          {/* Name */}
-          <h2 style={{
-            fontFamily:'var(--font-display)',
-            fontSize:"clamp(24px,5vw,36px)", fontWeight:"300",
-            color:"hsl(var(--foreground))", lineHeight:"1.1", marginBottom:"8px"
-          }}>{model.name}</h2>
-
-          {/* Price */}
-          <div style={{ fontSize:"14px", color:model.color, fontFamily:"monospace", marginBottom:"20px", opacity:0.9 }}>
-            {model.price}
-          </div>
-
-          {/* Story */}
-          <p style={{
-            color:"hsl(var(--muted-foreground))", fontSize:"12.5px", fontFamily:'var(--font-amiri)',
-            lineHeight:"1.9", marginBottom:"24px",
-            paddingRight:"12px", borderRight:`2px solid ${model.color}35`,
-          }}>{model.story}</p>
-
-          {/* Highlights */}
-          <div style={{ marginBottom:"24px" }}>
-            <div style={{ fontSize:"8px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.22em", marginBottom:"12px", display:"flex", alignItems:"center", gap:"8px" }}>
-              <div style={{ width:"16px", height:"1px", background:"hsl(var(--muted-foreground))" }} />
-              أبرز المميزات
-            </div>
+        {/* Highlights */}
+        <Section title="أبرز المميزات">
+          <ul className="space-y-1.5">
             {model.highlights.map((h, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:"10px", marginBottom:"9px" }}>
-                <div style={{ width:"4px", height:"4px", background:model.color, borderRadius:"50%", marginTop:"6px", flexShrink:0 }} />
-                <span style={{ color:"hsl(var(--foreground))", fontSize:"12px", fontFamily:'var(--font-amiri)', lineHeight:"1.7" }}>{h}</span>
-              </div>
+              <li key={i} className="flex items-start gap-2 text-mini leading-relaxed text-foreground">
+                <span aria-hidden className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary" />
+                <span>{h}</span>
+              </li>
             ))}
+          </ul>
+        </Section>
+
+        {/* Category-specific content */}
+        {renderContent()}
+
+        {/* Bar — the model's own scored indicator (data, not decoration) */}
+        <div className="rounded-md bg-muted/40 px-3 py-3">
+          <div className="flex items-center justify-between text-micro text-muted-foreground">
+            <span>{model.bar.label}</span>
+            <span className="tabular-nums text-foreground">{model.bar.value} / 100</span>
           </div>
-
-          {/* Category-specific content */}
-          {renderContent()}
-
-          {/* Bar */}
-          <div style={{ background:"hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius:"10px", padding:"14px", marginBottom:"18px" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
-              <span style={{ fontSize:"8px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.15em" }}>{model.bar.label}</span>
-              <span style={{ fontSize:"11px", color:model.color, fontFamily:"monospace" }}>{model.bar.value} / 100</span>
-            </div>
-            <div style={{ height:"2px", background:"hsl(var(--card))", borderRadius:"1px", overflow:"hidden" }}>
-              <div style={{
-                height:"100%", background:`linear-gradient(90deg, ${model.color}55, ${model.color})`,
-                borderRadius:"1px",
-                width: visible ? `${model.bar.value}%` : "0%",
-                transition:"width 1.5s cubic-bezier(0.23,1,0.32,1) 0.4s",
-              }} />
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div style={{ display:"flex", flexWrap:"wrap", gap:"5px" }}>
-            {model.tags.map(t => (
-              <span key={t} style={{
-                padding:"3px 9px", background:`${model.color}10`,
-                border:`1px solid ${model.color}25`, borderRadius:"20px",
-                fontSize:"8px", color:model.color, fontFamily:"monospace", letterSpacing:"0.08em"
-              }}>{t}</span>
-            ))}
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-track">
+            <div
+              className="progress-fill h-full bg-primary"
+              style={{ "--progress": model.bar.value / 100 } as CSSProperties}
+            />
           </div>
         </div>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5">
+          {model.tags.map((t) => (
+            <span
+              key={t}
+              className="rounded-full border border-border/60 px-2 py-0.5 text-micro text-muted-foreground"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
+    </ResponsiveDrawer>
   );
 }
 
@@ -792,15 +734,23 @@ export default function Knowledge() {
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
   const [activeModel, setActiveModel] = useState<Model | null>(null);
 
-  const cat = CATEGORIES.find(c => c.id === activeCat)!;
+  const cat = CATEGORIES.find((c) => c.id === activeCat)!;
   const catData = DATA[activeCat];
-  const brand = activeBrand ? catData.brands.find(b => b.id === activeBrand) : null;
+  const brand = activeBrand ? catData.brands.find((b) => b.id === activeBrand) : null;
+  const itemsCount = catData.brands.reduce((a, b) => a + b.models.length, 0);
 
-  const switchCat = (id: string) => { setActiveCat(id); setActiveBrand(null); setActiveModel(null); };
-  const selectBrand = (id: string) => { setActiveBrand(id); setActiveModel(null); };
+  const switchCat = (id: string) => {
+    setActiveCat(id);
+    setActiveBrand(null);
+    setActiveModel(null);
+  };
+  const selectBrand = (id: string) => {
+    setActiveBrand(id);
+    setActiveModel(null);
+  };
 
   return (
-    <div style={{ minHeight:"100vh", background:"hsl(var(--background))", color:"hsl(var(--foreground))", overflowX:"hidden" }} dir="rtl">
+    <PageShell>
       <SEO
         path="/knowledge"
         title="موسوعة الرقي — معرفة منتقاة"
@@ -822,214 +772,215 @@ export default function Knowledge() {
           ],
         }}
       />
-      <style>{`
-        
-        * { box-sizing:border-box; margin:0; padding:0; }
-        ::-webkit-scrollbar { width:3px; }
-        ::-webkit-scrollbar-thumb { background:"hsl(var(--muted))"; border-radius:2px; }
-        button { font-family:inherit; outline:none; }
-        @keyframes fadeSlide { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-      `}</style>
 
-      {/* Ambient */}
-      <div style={{
-        position:"fixed", top:"-300px", left:"50%", transform:"translateX(-50%)",
-        width:"1000px", height:"600px",
-        background:`radial-gradient(ellipse, ${cat.color}0d 0%, transparent 65%)`,
-        pointerEvents:"none", transition:"background 1.4s ease", zIndex:0,
-      }} />
+      <PageHeader
+        variant="display"
+        eyebrow="LISSAN · قسم المعرفة"
+        title={
+          <>
+            موسوعة <span className="text-primary">الرقي</span>
+          </>
+        }
+        subtitle="السيارات · العطور · الساعات · الأزياء · الحلويات"
+      />
 
-      <div style={{ position:"relative", zIndex:1, maxWidth:"860px", margin:"0 auto", padding:"clamp(24px,5vw,48px) clamp(16px,4vw,32px)" }}>
+      <Tabs value={activeCat} onValueChange={switchCat}>
+        {/* The five collections — one segmented control, one selected state */}
+        <TabsList>
+          {CATEGORIES.map((c) => (
+            <TabsTrigger key={c.id} value={c.id} className="flex-col gap-1 px-1 py-2.5">
+              <span aria-hidden className={cn("text-lead leading-none", TONE_TEXT[c.tone])}>
+                {c.icon}
+              </span>
+              <span className="text-micro font-medium leading-none">{c.label}</span>
+              <span className="hidden text-[0.625rem] leading-none text-muted-foreground sm:block">
+                {c.labelEn}
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-        {/* Header */}
-        <div style={{ marginBottom:"clamp(28px,5vw,44px)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-            <BackButton />
-            <div style={{ fontSize:"8px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.4em" }}>
-              LISSAN · قسم المعرفة
-            </div>
-          </div>
-          <div style={{ display:"flex", alignItems:"baseline", gap:"10px", flexWrap:"wrap" }}>
-            <h1 style={{ fontFamily:'var(--font-display)', fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:"hsl(var(--foreground))", lineHeight:"1", letterSpacing:"-0.03em" }}>
-              موسوعة
-            </h1>
-            <span style={{ fontFamily:'var(--font-display)', fontSize:"clamp(34px,7vw,60px)", fontWeight:"300", color:cat.color, lineHeight:"1", letterSpacing:"-0.03em", fontStyle:"italic", transition:"color 0.8s ease" }}>
-              الرقي
+        <TabsContent value={activeCat} className="space-y-5">
+          {/* Divider register for the open collection */}
+          <div className="flex items-center gap-3">
+            <span className="rule-x flex-1" />
+            <span
+              className={cn("text-micro font-bold tracking-[0.28em]", TONE_TEXT[cat.tone])}
+            >
+              {cat.labelEn.toUpperCase()}
             </span>
-          </div>
-          <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:'var(--font-amiri)', marginTop:"10px" }}>
-            السيارات · العطور · الساعات · الأزياء · الحلويات
-          </p>
-        </div>
-
-        {/* Category Nav */}
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:"6px", marginBottom:"clamp(24px,4vw,40px)" }}>
-          {CATEGORIES.map(c => {
-            const active = activeCat === c.id;
-            return (
-              <button key={c.id} onClick={() => switchCat(c.id)} style={{
-                background: active ? `radial-gradient(ellipse at 50% 0%, ${c.color}1e, transparent 85%)` : "transparent",
-                border:`1px solid ${active ? c.color + "48" : "hsl(var(--border))"}`,
-                borderRadius:"14px", padding:"clamp(12px,2.5vw,22px) 6px", cursor:"pointer",
-                transition:"all 0.4s cubic-bezier(0.23,1,0.32,1)",
-                transform: active ? "translateY(-2px)" : "translateY(0)",
-              }}>
-                <div style={{ fontSize:"clamp(16px,3vw,24px)", color: active ? c.color : "hsl(var(--muted-foreground))", marginBottom:"6px", transition:"all 0.35s", filter: active ? `drop-shadow(0 0 8px ${c.color}65)` : "none" }}>{c.icon}</div>
-                <div style={{ color: active ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"clamp(9px,1.6vw,11px)", fontFamily:'var(--font-amiri)' }}>{c.label}</div>
-                <div style={{ color: active ? c.color : "hsl(var(--muted-foreground))", fontSize:"7px", fontFamily:"monospace", letterSpacing:"0.1em", marginTop:"3px", opacity: active ? 0.8 : 1 }}>{c.labelEn}</div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Divider */}
-        <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"24px" }}>
-          <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, transparent, ${cat.color}28)` }} />
-          <span style={{ color:cat.color, fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.28em", opacity:0.7 }}>{cat.labelEn.toUpperCase()}</span>
-          <div style={{ flex:1, height:"1px", background:`linear-gradient(90deg, ${cat.color}28, transparent)` }} />
-        </div>
-
-        {/* Layout */}
-        <div style={{ display:"grid", gridTemplateColumns: activeBrand ? "clamp(160px,26%,220px) 1fr" : "1fr", gap:"14px", alignItems:"start" }}>
-
-          {/* Brands Column */}
-          <div style={{ animation:"fadeIn 0.4s ease" }}>
-            <div style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"10px" }}>
-              ─── BRANDS
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:"7px" }}>
-              {catData.brands.map(b => {
-                const sel = activeBrand === b.id;
-                return (
-                  <button key={b.id} onClick={() => selectBrand(b.id)} style={{
-                    background: sel ? `linear-gradient(135deg, ${cat.color}12, ${cat.color}06)` : "hsl(var(--card))",
-                    border:`1px solid ${sel ? cat.color+"40" : "hsl(var(--border))"}`,
-                    borderRadius:"12px", padding:"14px", cursor:"pointer",
-                    transition:"all 0.35s cubic-bezier(0.23,1,0.32,1)", textAlign:"right",
-                  }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom: sel ? "0" : "7px" }}>
-                      <div style={{
-                        width:"34px", height:"34px", borderRadius:"8px", flexShrink:0,
-                        background: sel ? `${cat.color}16` : "hsl(var(--card))",
-                        border:`1px solid ${sel ? cat.color+"30" : "hsl(var(--border))"}`,
-                        display:"flex", alignItems:"center", justifyContent:"center",
-                        color: sel ? cat.color : "hsl(var(--muted-foreground))", fontFamily:"serif", fontSize:"10px", fontWeight:"bold",
-                      }}>{b.logo}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ color: sel ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))", fontSize:"13px", fontFamily:'var(--font-display)', fontWeight:"500" }}>{b.name}</div>
-                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace" }}>{b.origin} · {b.founded}</div>
-                      </div>
-                    </div>
-                    {!activeBrand && (
-                      <div style={{ marginTop: "10px" }}>
-                        <div style={{ color: cat.color, fontSize:"9px", fontFamily:'var(--font-display)', fontStyle:"italic", marginBottom:"4px", opacity:0.7 }}>{b.tagline}</div>
-                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"10px", fontFamily:'var(--font-amiri)', lineHeight:"1.5" }}>{b.desc}</div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            <span className="rule-x flex-1" />
           </div>
 
-          {/* Models Column */}
-          {activeBrand && brand && (
-            <div style={{ animation:"fadeSlide 0.4s cubic-bezier(0.23,1,0.32,1)" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"14px" }}>
-                <div>
-                  <div style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace", letterSpacing:"0.25em", marginBottom:"3px" }}>─── {brand.name.toUpperCase()}</div>
-                  <div style={{ fontSize:"9px", color:cat.color, fontFamily:'var(--font-display)', fontStyle:"italic", opacity:0.7 }}>{brand.tagline}</div>
+          <div className={cn("grid items-start gap-3", activeBrand && "md:grid-cols-[200px_1fr]")}>
+            {/* Brands column — browse cards when nothing is open, the shared
+                list rail once a brand is selected */}
+            <div className="min-w-0">
+              {activeBrand ? (
+                <AppList compact>
+                  {catData.brands.map((b) => {
+                    const sel = activeBrand === b.id;
+                    return (
+                      <AppRow
+                        key={b.id}
+                        onClick={() => selectBrand(b.id)}
+                        className={cn(sel && "bg-primary/10")}
+                        leading={
+                          <IconChip size="sm" tone="plain" className="text-micro font-bold" aria-hidden>
+                            {b.logo}
+                          </IconChip>
+                        }
+                        title={b.name}
+                        subtitle={`${b.origin} · ${b.founded}`}
+                      />
+                    );
+                  })}
+                </AppList>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {catData.brands.map((b) => (
+                    <AppCard
+                      key={b.id}
+                      as="button"
+                      pressable
+                      onClick={() => selectBrand(b.id)}
+                      className="w-full text-start"
+                    >
+                      <div className="flex items-center gap-3">
+                        <IconChip tone="plain" className="text-micro font-bold" aria-hidden>
+                          {b.logo}
+                        </IconChip>
+                        <div className="min-w-0">
+                          <div className="truncate text-body font-medium text-foreground">{b.name}</div>
+                          <div className="truncate text-micro text-muted-foreground">
+                            {b.origin} · {b.founded}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-mini italic text-muted-foreground">{b.tagline}</div>
+                      <p className="mt-1 text-mini leading-relaxed text-foreground/80">{b.desc}</p>
+                    </AppCard>
+                  ))}
                 </div>
-                <button onClick={() => { setActiveBrand(null); setActiveModel(null); }} style={{
-                  background:"transparent", border: "1px solid hsl(var(--border))", borderRadius:"7px",
-                  padding:"5px 11px", color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace", cursor:"pointer",
-                }}>رجوع ←</button>
-              </div>
+              )}
+            </div>
 
-              <div style={{ display:"flex", flexDirection:"column", gap:"9px" }}>
-                {brand.models.map((m, i) => (
-                  <button key={m.id} onClick={() => setActiveModel(m)} style={{
-                    background:"linear-gradient(135deg, hsl(var(--card)), hsl(var(--background)))", border: "1px solid hsl(var(--border))",
-                    borderRadius:"13px", padding:"16px", cursor:"pointer", textAlign:"right",
-                    transition:"all 0.3s cubic-bezier(0.23,1,0.32,1)", position:"relative", overflow:"hidden",
-                    animation:`fadeSlide 0.4s ease ${i*0.07}s both`,
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = m.color+"40"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "hsl(var(--border))"; e.currentTarget.style.transform = "translateY(0)"; }}
+            {/* Models column */}
+            {activeBrand && brand && (
+              <div className="min-w-0 space-y-3">
+                <header className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-micro font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                      {brand.name}
+                    </div>
+                    <div className="mt-0.5 text-mini italic text-muted-foreground">{brand.tagline}</div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() => {
+                      setActiveBrand(null);
+                      setActiveModel(null);
+                    }}
                   >
-                    {/* Corner glow */}
-                    <div style={{ position:"absolute", top:0, right:0, width:"70px", height:"70px", background:`radial-gradient(circle at 80% 20%, ${m.color}15, transparent 70%)`, borderRadius:"0 13px 0 70px", pointerEvents:"none" }} />
+                    رجوع ←
+                  </Button>
+                </header>
 
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"7px" }}>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ color:"hsl(var(--foreground))", fontSize:"14px", fontFamily:'var(--font-display)', fontWeight:"500", marginBottom:"4px" }}>{m.name}</div>
-                        <span style={{ display:"inline-block", padding:"1px 7px", background:`${m.color}16`, border:`1px solid ${m.color}30`, borderRadius:"20px", fontSize:"7px", color:m.color, fontFamily:"monospace", letterSpacing:"0.1em" }}>{m.type.toUpperCase()}</span>
+                <div className="space-y-3">
+                  {brand.models.map((m) => (
+                    <AppCard
+                      key={m.id}
+                      as="button"
+                      pressable
+                      onClick={() => setActiveModel(m)}
+                      className="w-full text-start"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-body font-medium text-foreground">{m.name}</span>
+                            <span className="rounded-full border border-border/60 px-2 py-0.5 text-micro uppercase tracking-[0.08em] text-muted-foreground">
+                              {m.type}
+                            </span>
+                          </div>
+                          <p className="mt-1.5 text-mini leading-relaxed text-muted-foreground">
+                            {m.story.slice(0, 100)}…
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-end">
+                          <div className="text-micro tabular-nums text-muted-foreground">{m.year}</div>
+                          <div className="mt-0.5 text-mini tabular-nums text-foreground">
+                            {m.price.split(" ")[0]}
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ textAlign:"left" }}>
-                        <div style={{ color:cat.color, fontSize:"8px", fontFamily:"monospace", opacity:0.7 }}>{m.year}</div>
-                        <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"8px", fontFamily:"monospace", marginTop:"2px" }}>{m.price.split(" ")[0]}</div>
-                      </div>
-                    </div>
 
-                    <p style={{ color:"hsl(var(--muted-foreground))", fontSize:"11px", fontFamily:'var(--font-amiri)', lineHeight:"1.6", marginBottom:"9px" }}>
-                      {m.story.slice(0, 100)}…
-                    </p>
-
-                    {/* Mini bar */}
-                    <div style={{ marginBottom:"8px" }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"4px" }}>
-                        <span style={{ fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace" }}>{m.bar.label}</span>
-                        <span style={{ fontSize:"7px", color:m.color, fontFamily:"monospace", opacity:0.7 }}>{m.bar.value}%</span>
+                      {/* The model's scored indicator — real data */}
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between text-micro text-muted-foreground">
+                          <span>{m.bar.label}</span>
+                          <span className="tabular-nums">{m.bar.value}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-track">
+                          <div
+                            className="progress-fill h-full bg-primary"
+                            style={{ "--progress": m.bar.value / 100 } as CSSProperties}
+                          />
+                        </div>
                       </div>
-                      <div style={{ height:"1px", background:"hsl(var(--border))", borderRadius:"1px" }}>
-                        <div style={{ height:"100%", width:`${m.bar.value}%`, background:`linear-gradient(90deg, ${m.color}44, ${m.color}88)`, borderRadius:"1px" }} />
-                      </div>
-                    </div>
 
-                    <div style={{ display:"flex", gap:"4px", flexWrap:"wrap", marginBottom:"7px" }}>
-                      {m.tags.slice(0,3).map(t => (
-                        <span key={t} style={{ padding:"1px 6px", background:"hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius:"4px", fontSize:"7px", color:"hsl(var(--muted-foreground))", fontFamily:"monospace" }}>{t}</span>
-                      ))}
-                    </div>
-                    <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", letterSpacing:"0.15em", opacity:0.5 }}>تفاصيل كاملة ↗</div>
-                  </button>
-                ))}
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {m.tags.slice(0, 3).map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full border border-border/60 px-2 py-0.5 text-micro text-muted-foreground"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="mt-2 text-micro tracking-[0.15em] text-muted-foreground-subtle">
+                        تفاصيل كاملة ↗
+                      </div>
+                    </AppCard>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+          </div>
+
+          {/* Browse prompt — shown until a brand opens */}
+          {!activeBrand && (
+            <StateView
+              compact
+              kind="empty"
+              title="اختر علامة تجارية للاستكشاف"
+              body={`${catData.brands.length} BRANDS · ${itemsCount} ITEMS`}
+            />
           )}
-        </div>
 
-        {/* Empty State */}
-        {!activeBrand && (
-          <div style={{ marginTop:"32px", padding:"44px 28px", border: "1px dashed hsl(var(--border))", borderRadius:"18px", textAlign:"center", animation:"fadeIn 0.5s ease" }}>
-            <div style={{ fontSize:"clamp(32px,7vw,48px)", color:"hsl(var(--muted-foreground))", marginBottom:"14px" }}>{cat.icon}</div>
-            <div style={{ color:"hsl(var(--muted-foreground))", fontSize:"12px", fontFamily:'var(--font-amiri)' }}>اختر علامة تجارية للاستكشاف</div>
-            <div style={{ color:"hsl(var(--border))", fontSize:"8px", fontFamily:"monospace", letterSpacing:"0.2em", marginTop:"7px" }}>
-              {catData.brands.length} BRANDS · {catData.brands.reduce((a,b) => a + b.models.length, 0)} ITEMS
-            </div>
-          </div>
-        )}
+          {/* Collection register */}
+          <footer className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-4">
+            <span className="text-micro tracking-[0.2em] text-muted-foreground-subtle">
+              LISSAN · قسم المعرفة
+            </span>
+            <span className="text-micro tracking-[0.15em] text-muted-foreground-subtle tabular-nums">
+              {cat.labelEn.toUpperCase()} — {itemsCount} CURATED
+            </span>
+          </footer>
+        </TabsContent>
+      </Tabs>
 
-        {/* Footer */}
-        <div style={{ marginTop:"52px", paddingTop:"18px", borderTop:"1px solid hsl(var(--card))", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:"8px" }}>
-          <div style={{ fontSize:"7px", color:"hsl(var(--border))", fontFamily:"monospace", letterSpacing:"0.2em" }}>LISSAN · قسم المعرفة</div>
-          <div style={{ fontSize:"7px", color:cat.color, fontFamily:"monospace", opacity:0.35, letterSpacing:"0.15em" }}>
-            {cat.labelEn.toUpperCase()} — {catData.brands.reduce((a,b) => a + b.models.length, 0)} CURATED
-          </div>
-        </div>
-      </div>
-
-      {/* Modal */}
+      {/* Model dossier */}
       {activeModel && brand && (
-        <DetailModal
+        <DetailDrawer
           model={activeModel}
           brand={brand}
           catId={activeCat}
-          catColor={cat.color}
           onClose={() => setActiveModel(null)}
         />
       )}
-    </div>
+    </PageShell>
   );
 }

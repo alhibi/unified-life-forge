@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import React from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
 import { MessageSquareQuote, Sparkles } from '@/lib/icons';
 
 import type { DailyKulturperle, DailySatz } from '../../lib/daily';
@@ -24,45 +25,39 @@ export const SatzCard: React.FC<SatzCardProps> = ({ satz, animate = true }) => {
       initial={animate && !shouldReduceMotion ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
-      style={{
-        backgroundColor: 'hsl(var(--card))',
-        borderColor: 'hsl(var(--track))',
-        boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
-      }}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <MessageSquareQuote className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-        <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
-          Satz des Tages
-        </span>
-      </div>
+      <AppCard as="div">
+        <div className="mb-3 flex items-center gap-2">
+          <MessageSquareQuote className="h-3.5 w-3.5 text-primary" aria-hidden />
+          <span className="font-mono text-micro font-bold uppercase tracking-widest text-primary">
+            Satz des Tages
+          </span>
+        </div>
 
-      {/* The actual sentence */}
-      <p
-        className="text-xl sm:text-2xl font-bold text-[hsl(var(--foreground))] leading-snug mb-2"
-        dir="ltr"
-        style={{ unicodeBidi: 'isolate' }}
-      >
-        „{satz.satz}"
-      </p>
+        {/* The actual sentence */}
+        <p
+          className="mb-2 text-title font-bold leading-snug text-foreground"
+          dir="ltr"
+          style={{ unicodeBidi: 'isolate' }}
+        >
+          „{satz.satz}"
+        </p>
 
-      <p className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3 leading-snug">{satz.arabic}</p>
+        <p className="mb-3 text-body font-semibold leading-snug text-foreground">{satz.arabic}</p>
 
-      {/* Context — italic small */}
-      <p className="text-xs text-muted-foreground italic leading-relaxed">
-        {satz.context_ar}
-      </p>
+        {/* Context — italic small */}
+        <p className="text-mini italic leading-relaxed text-muted-foreground">{satz.context_ar}</p>
 
-      {/* Register tag — minimal */}
-      <div className="mt-3 pt-3 border-t border-[hsl(var(--track))] flex items-center gap-1.5">
-        <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
-          {satz.register === 'formal' && 'رسمي'}
-          {satz.register === 'neutral' && 'محايد'}
-          {satz.register === 'informal' && 'غير رسمي'}
-          {satz.register === 'slang' && 'عامي'}
-        </span>
-      </div>
+        {/* Register tag — minimal */}
+        <div className="mt-3 flex items-center gap-1.5 border-t border-track pt-3">
+          <span className="font-mono text-micro uppercase tracking-wider text-muted-foreground">
+            {satz.register === 'formal' && 'رسمي'}
+            {satz.register === 'neutral' && 'محايد'}
+            {satz.register === 'informal' && 'غير رسمي'}
+            {satz.register === 'slang' && 'عامي'}
+          </span>
+        </div>
+      </AppCard>
     </motion.div>
   );
 };
@@ -86,43 +81,28 @@ export const KulturperleCard: React.FC<KulturperleCardProps> = ({ perle, animate
       initial={animate && !shouldReduceMotion ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-      className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
-      style={{
-        backgroundColor: 'hsl(var(--card))',
-        borderColor: 'hsl(var(--track))',
-        boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
-      }}
     >
-      {/* Decorative gradient */}
-      <div
-        className="absolute top-0 right-0 w-32 h-32 opacity-20 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(circle at 100% 0%, rgba(199, 112, 59, 0.4), transparent 70%)',
-        }}
-      />
-
-      <div className="relative">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-signal" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--signal))]">
+      <AppCard as="div">
+        <div className="mb-3 flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-signal" aria-hidden />
+          <span className="font-mono text-micro font-bold uppercase tracking-widest text-signal">
             Kulturperle
           </span>
         </div>
 
         {/* Title — German + Arabic */}
         <h3
-          className="text-lg sm:text-xl font-black text-[hsl(var(--foreground))] leading-tight mb-1"
+          className="mb-1 text-title font-black leading-tight text-foreground"
           dir="ltr"
           style={{ unicodeBidi: 'isolate' }}
         >
           {perle.title_de}
         </h3>
-        <p className="text-sm font-semibold text-[hsl(var(--primary))] mb-3 leading-snug">{perle.title_ar}</p>
+        <p className="mb-3 text-body font-semibold leading-snug text-primary">{perle.title_ar}</p>
 
         {/* Body — the pearl */}
-        <p className="text-sm text-foreground leading-relaxed">{perle.body_ar}</p>
-      </div>
+        <p className="text-body leading-relaxed text-foreground">{perle.body_ar}</p>
+      </AppCard>
     </motion.div>
   );
 };

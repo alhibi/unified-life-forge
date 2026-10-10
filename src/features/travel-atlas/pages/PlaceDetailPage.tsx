@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import {
   Carousel,
@@ -375,40 +375,40 @@ export default function PlaceDetailPage() {
           </section>
 
           {(duration || price || monthsLabel || place.bestTimeToVisit) && (
-            <section>
+            <section className="space-y-3">
               <h3 className="app-section-label">قبل أن تذهب</h3>
-              <AppCard className="p-0">
-                <ul className="divide-y divide-border">
-                  {monthsLabel && (
-                    <li className="px-4 py-3">
-                      <p className="text-micro uppercase tracking-[0.08em] text-muted-foreground">
-                        أفضل الأشهر
-                      </p>
-                      {/* Twelve cells, one boolean each — a data encoding, not decor. */}
-                      <ul
-                        className="mt-2 grid grid-cols-6 gap-1.5 sm:grid-cols-12"
-                        aria-label="أشهر الزيارة"
+              {monthsLabel && (
+                <AppCard>
+                  <p className="text-micro uppercase tracking-[0.08em] text-muted-foreground">
+                    أفضل الأشهر
+                  </p>
+                  {/* Twelve cells, one boolean each — a data encoding, not decor. */}
+                  <ul
+                    className="mt-2 grid grid-cols-6 gap-1.5 sm:grid-cols-12"
+                    aria-label="أشهر الزيارة"
+                  >
+                    {MONTH_SHORT.map((short, index) => (
+                      <li
+                        key={short}
+                        className="travel-month-cell"
+                        data-selected={selectedMonths.has(index + 1)}
                       >
-                        {MONTH_SHORT.map((short, index) => (
-                          <li
-                            key={short}
-                            className="travel-month-cell"
-                            data-selected={selectedMonths.has(index + 1)}
-                          >
-                            {short}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="mt-2 text-body text-foreground">{monthsLabel}</p>
-                    </li>
-                  )}
+                        {short}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-body text-foreground">{monthsLabel}</p>
+                </AppCard>
+              )}
+              {(place.bestTimeToVisit || duration || price) && (
+                <AppList>
                   {place.bestTimeToVisit && (
                     <FactRow icon={Clock} label="توقيت الزيارة" value={place.bestTimeToVisit} />
                   )}
                   {duration && <FactRow icon={Clock} label="المدة المناسبة" value={duration} />}
                   {price && <FactRow icon={PiggyBank} label="التكلفة" value={price} />}
-                </ul>
-              </AppCard>
+                </AppList>
+              )}
             </section>
           )}
 
@@ -449,44 +449,33 @@ export default function PlaceDetailPage() {
           {place.links.length > 0 && (
             <section>
               <h3 className="app-section-label">روابط</h3>
-              <AppCard className="p-0">
-                <ul className="divide-y divide-border">
-                  {place.links.map((link) => {
-                    const meta = linkKindMeta(link.kind);
-                    const LinkIcon = meta.icon;
-                    return (
-                      <li key={link.id}>
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-accent"
-                        >
-                          <LinkIcon
-                            className="h-4 w-4 shrink-0 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-body text-foreground">
-                              {link.label || meta.label}
-                            </span>
-                            <span
-                              className="block truncate text-micro text-muted-foreground"
-                              dir="ltr"
-                            >
-                              {link.url}
-                            </span>
-                          </span>
-                          <ExternalLink
-                            className="h-4 w-4 shrink-0 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </AppCard>
+              <AppList>
+                {place.links.map((link) => {
+                  const meta = linkKindMeta(link.kind);
+                  const LinkIcon = meta.icon;
+                  return (
+                    <AppRow
+                      key={link.id}
+                      as="a"
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      leading={
+                        <LinkIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      }
+                      title={link.label || meta.label}
+                      subtitle={
+                        <span dir="ltr">{link.url}</span>
+                      }
+                    >
+                      <ExternalLink
+                        className="h-4 w-4 shrink-0 text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                    </AppRow>
+                  );
+                })}
+              </AppList>
             </section>
           )}
 
@@ -501,17 +490,16 @@ export default function PlaceDetailPage() {
           {nearby.length > 0 && (
             <section>
               <h3 className="app-section-label">أماكن قريبة</h3>
-              <ul>
+              <AppList>
                 {nearby.slice(0, 6).map((other) => (
-                  <li key={other.id}>
-                    <PlaceRow
-                      place={other}
-                      distanceMeters={haversineMeters(place.coordinates, other.coordinates)}
-                      onOpen={() => navigate(`/travel-atlas/place/${other.id}`)}
-                    />
-                  </li>
+                  <PlaceRow
+                    key={other.id}
+                    place={other}
+                    distanceMeters={haversineMeters(place.coordinates, other.coordinates)}
+                    onOpen={() => navigate(`/travel-atlas/place/${other.id}`)}
+                  />
                 ))}
-              </ul>
+              </AppList>
             </section>
           )}
 
@@ -592,15 +580,12 @@ function FactRow({
   value: string;
 }) {
   return (
-    <li className="flex items-start gap-3 px-4 py-3">
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-      <span className="min-w-0 flex-1">
-        <span className="block text-micro uppercase tracking-[0.08em] text-muted-foreground">
-          {label}
-        </span>
-        <span className="mt-0.5 block text-body text-foreground">{value}</span>
-      </span>
-    </li>
+    <AppRow
+      as="div"
+      leading={<Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+      title={label}
+      subtitle={value}
+    />
   );
 }
 

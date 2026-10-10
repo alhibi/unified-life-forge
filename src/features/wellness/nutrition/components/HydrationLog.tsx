@@ -79,7 +79,7 @@ export default function HydrationLog({ lang }: Props) {
   return (
     <div className="space-y-4" dir={'rtl'}>
       {/* Wave container */}
-      <div className="rounded-2xl p-4 bg-card border border-border/40 relative overflow-hidden flex flex-col md:flex-row items-center gap-4">
+      <div className="app-card p-4 relative overflow-hidden flex flex-col md:flex-row items-center gap-4">
         {/* Wavy liquid shape */}
         <div className="w-32 h-32 rounded-full border-4 border-data-4/20 bg-data-4/5 relative overflow-hidden shrink-0 flex items-center justify-center">
           <motion.div
@@ -107,7 +107,7 @@ export default function HydrationLog({ lang }: Props) {
               <button
                 key={amt}
                 onClick={() => handleAdd(amt)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-data-4/20 bg-data-4/5 text-data-4 hover:bg-data-4/10 text-micro font-bold active:scale-95 transition-motion"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-data-4/20 bg-data-4/5 text-data-4 hover:bg-data-4/10 text-micro font-bold transition-motion"
               >
                 <Plus className="w-3 h-3" />
                 <span>
@@ -120,7 +120,7 @@ export default function HydrationLog({ lang }: Props) {
       </div>
 
       {/* Log list */}
-      <div className="rounded-2xl border border-border/30 bg-card p-3.5 space-y-2">
+      <div className="app-card app-card-flat p-3.5 space-y-2">
         <h5 className="text-micro font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
           <Calendar className="w-3.5 h-3.5" />
           {T.logHistory[lang]}
@@ -147,7 +147,7 @@ export default function HydrationLog({ lang }: Props) {
                 </div>
                 <button
                   onClick={() => handleRemove(log.id)}
-                  className="p-1 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded active:scale-90 transition-transform"
+                  className="p-1 text-destructive/60 hover:text-destructive hover:bg-destructive/10 rounded transition-transform"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>

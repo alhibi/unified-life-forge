@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { Sparkles,X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -52,20 +54,22 @@ export default function OptimizerPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-float bg-black/60 flex items-end lg:items-center lg:justify-center">
-      <div className="w-full lg:max-w-2xl bg-card rounded-t-3xl lg:rounded-3xl border border-border/60 shadow-2xl max-h-[90vh] flex flex-col">
+    <div
+      className="fixed inset-0 z-float flex items-end lg:items-center lg:justify-center"
+      style={{ background: 'hsl(var(--scrim) / 0.6)' }}
+    >
+      <div className="app-card app-card-bare w-full lg:max-w-2xl rounded-t-3xl lg:rounded-3xl max-h-[90vh] flex flex-col">
         <header className="flex items-center gap-2 p-4 border-b border-border/40">
           <Sparkles className="w-4 h-4 text-primary" />
           <h2 className="text-meta font-bold flex-1">
             {'محسِّن النص'}
           </h2>
-          <button
+          <IconButton
             onClick={() => { cancel(); reset(); onClose(); }}
-            className="h-8 w-8 rounded-full bg-background border border-border/60 flex items-center justify-center"
             aria-label={'إغلاق'}
           >
-            <X className="w-4 h-4" />
-          </button>
+            <X className="h-4 w-4" />
+          </IconButton>
         </header>
 
         <div className="p-4 flex flex-col gap-3 flex-1 overflow-hidden">
@@ -88,22 +92,19 @@ export default function OptimizerPanel({
           </div>
 
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={start}
               disabled={busy || !body.trim()}
-              className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95 transition-transform disabled:opacity-50"
+              className="flex-1"
             >
               {busy
                 ? ('جارٍ التوليد…')
                 : ('ابدأ')}
-            </button>
+            </Button>
             {busy && (
-              <button
-                onClick={cancel}
-                className="h-10 px-4 rounded-xl bg-background border border-border/60 text-meta"
-              >
+              <Button variant="outline" onClick={cancel}>
                 {'إلغاء'}
-              </button>
+              </Button>
             )}
           </div>
 
@@ -122,20 +123,20 @@ export default function OptimizerPanel({
           </div>
 
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="outline"
               onClick={() => { reset(); }}
               disabled={!output || busy}
-              className="h-10 px-4 rounded-xl bg-background border border-border/60 text-meta disabled:opacity-50"
             >
               {'تراجع'}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => { onAccept(output); reset(); onClose(); }}
               disabled={!canAccept}
-              className="flex-1 h-10 rounded-xl bg-data-1 text-white text-meta font-semibold active:scale-95 transition-transform disabled:opacity-50"
+              className="flex-1"
             >
               {'قبول واستبدال'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

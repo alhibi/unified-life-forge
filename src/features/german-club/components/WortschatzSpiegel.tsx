@@ -33,15 +33,11 @@ export const WortschatzSpiegel: React.FC = () => {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl border"
-      style={{
-        borderColor: 'hsl(var(--track))',
-        backgroundColor: 'rgba(255, 253, 246, 0.6)',
-      }}
+      className="inline-flex items-center gap-2 rounded-lg border border-track bg-secondary/40 px-3 py-1.5"
     >
-      <Bookmark className="w-3.5 h-3.5 text-signal" />
-      <span className="text-xs text-muted-foreground">في محفوظاتك</span>
-      <span className="text-sm font-black text-[hsl(var(--primary))] tabular-nums">{countWord}</span>
+      <Bookmark className="h-3.5 w-3.5 text-signal" aria-hidden />
+      <span className="text-mini text-muted-foreground">في محفوظاتك</span>
+      <span className="text-body font-black tabular-nums text-primary">{countWord}</span>
     </motion.div>
   );
 };

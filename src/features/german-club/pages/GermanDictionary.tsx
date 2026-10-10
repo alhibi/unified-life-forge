@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
-import { BookmarkCheck, BookOpen, Layers,SearchX, Sparkles } from '@/lib/icons';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BookmarkCheck, BookOpen, Layers, Sparkles } from '@/lib/icons';
 
 import { AlphabetNav } from '../components/dictionary/AlphabetNav';
 import { DictionaryDetailModal } from '../components/dictionary/DictionaryDetailModal';
 import { DictionarySearchFilters } from '../components/dictionary/DictionarySearchFilters';
 import { DictionaryVirtualGrid } from '../components/dictionary/DictionaryVirtualGrid';
 import { WortDesTagesCard } from '../components/dictionary/WortDesTagesCard';
-import {GERMAN_CLUB_TOKENS } from '../types';
+import type { DictionaryEntry } from '../types';
 import { useDictionaryStore } from '../useDictionaryStore';
 
 export const GermanDictionary: React.FC = () => {
@@ -53,143 +56,107 @@ export const GermanDictionary: React.FC = () => {
 
   const filteredEntries = getFilteredEntries();
   const wortDesTages = getWortDesTages();
+  const bookmarkedEntries = filteredEntries.filter((e) => bookmarkedIds.includes(e.id));
 
-  const displayedEntries =
-    activeTab === 'bookmarks'
-      ? filteredEntries.filter((e) => bookmarkedIds.includes(e.id))
-      : filteredEntries;
-
+  const renderList = (list: DictionaryEntry[]) =>
+    list.length > 0 ? (
+      <div className="space-y-4">
+        <p className="font-mono text-mini text-muted-foreground">
+          عرض <span className="tabular-nums">{list.length}</span> نتيجة
+        </p>
+        {/* Windowed: only on-screen rows are mounted, so the DOM stays
+            flat across the full 5,000+ entry corpus. */}
+        <DictionaryVirtualGrid entries={list} onSelect={setSelectedEntry} />
+        <p className="text-center font-mono text-mini text-muted-foreground">
+          {list.length.toLocaleString('en-US')} مفردة
+        </p>
+      </div>
+    ) : (
+      <StateView
+        kind="search"
+        title="لم يتم العثور على نتائج"
+        body="جرب تغيير البحث أو إلغاء بعض الفلاتر لعرض قائمة أكبر من مفردات المعجم."
+      />
+    );
 
   return (
-    <PageShell centered={false} flush>
+    <PageShell centered={false} flush className="px-4 pt-4 sm:pt-6">
       <SEO
         title="القاموس الألماني-العربي الشامل — النادي الألماني"
         description="معجم ضخم ودقيق للغة الألمانية يحتوي على الكلمات، العبارات، النطق، تصاريف الأفعال، وأدوات الأسماء بالألوان."
         path="/german-club/dictionary"
       />
 
-      <div
-        className="min-h-screen pb-16 transition-colors"
-        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
-      >
-        {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[hsl(var(--card))]/90 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <div>
-              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
-                القاموس الألماني-العربي
-              </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
-                DEUTSCH-ARABISCHES WÖRTERBUCH
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
+        {/* Masthead — the hub register, like the club home. */}
+        <PageHeader
+          variant="display"
+          eyebrow="DEUTSCH-ARABISCHES WÖRTERBUCH"
+          title="القاموس الألماني-العربي"
+          subtitle={
+            <>
+              قاموس ومعجم <span className="font-semibold text-primary">الألمانية المعاصرة</span>
+            </>
+          }
+          right={
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-1.5"
               onClick={() => navigate('/german-club')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
             >
-              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+              <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden />
               المواقف اليومية
-            </button>
-          </div>
-        </div>
-
-        {/* Hero Section */}
-        <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
-          <div className="max-w-4xl mx-auto space-y-3 text-center sm:text-start">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-signal" />
-                <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
-              </div>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary text-foreground border border-[hsl(var(--track))] text-xs font-bold">
-                <Layers className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-                <span>تصنيف أكاديمي ومعجمي مستقل عن المواقف اليومية</span>
-              </div>
-            </div>
-
-            <h2 className="text-2xl sm:text-4xl font-black text-[hsl(var(--foreground))] tracking-tight leading-tight">
-              قاموس ومعجم <span className="text-[hsl(var(--primary))]">الألمانية المعاصرة</span>
-            </h2>
-
-            <p className="text-xs sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
-              معجم لغوي منظم أ أبجدياً وبحسب المجالات المعجمية المستقلة (وليس حسب السيناريوهات).
-              يتيح الفرز بالترتيب الأبجدي، والمستوى التعليمي (A1-C2)، وطول الكلمة، والتجميع النحوي
-              مع تصفية أفعال الانفصال وحالات حروف الجر.
-            </p>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-          {/* Wort des Tages Showcase */}
-          <WortDesTagesCard entry={wortDesTages} onSelect={setSelectedEntry} />
-
-          {/* Search & Filter Controls */}
-          <DictionarySearchFilters />
-
-          {/* Alphabet Index Bar */}
-          <AlphabetNav />
-
-          {/* Tab Selection: All Words vs Bookmarks */}
-          <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab('all')}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion ${
-                  activeTab === 'all'
-                    ? 'bg-[hsl(var(--primary))] text-white shadow-xs'
-                    : 'bg-secondary text-foreground hover:bg-secondary'
-                }`}
-              >
-                جميع الكلمات ({filteredEntries.length})
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('bookmarks')}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-motion flex items-center gap-1.5 ${
-                  activeTab === 'bookmarks'
-                    ? 'bg-signal text-white shadow-xs'
-                    : 'bg-secondary text-foreground hover:bg-secondary'
-                }`}
-              >
-                <BookmarkCheck className="w-3.5 h-3.5" />
-                المحفوظات ({bookmarkedIds.length})
-              </button>
-            </div>
-
-            <span className="text-[0.625rem] text-muted-foreground font-mono">
-              عرض {displayedEntries.length} نتيجة
+            </Button>
+          }
+        >
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 pt-1">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-mini font-bold text-primary">
+              <Sparkles className="h-3.5 w-3.5 text-signal" aria-hidden />
+              <span>معجم المرجعية اللغوية الشاملة (A1 - C2)</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-track bg-secondary px-3 py-1 text-mini font-bold text-foreground">
+              <Layers className="h-3.5 w-3.5 text-primary" aria-hidden />
+              <span>تصنيف أكاديمي ومعجمي مستقل عن المواقف اليومية</span>
             </span>
           </div>
+        </PageHeader>
 
-          {/* Dictionary Grid */}
-          {displayedEntries.length > 0 ? (
-            <div className="space-y-4">
-              {/* Windowed: only on-screen rows are mounted, so the DOM stays
-                  flat across the full 5,000+ entry corpus. */}
-              <DictionaryVirtualGrid entries={displayedEntries} onSelect={setSelectedEntry} />
-              <p className="text-xs text-muted-foreground font-mono text-center">
-                {displayedEntries.length.toLocaleString('en-US')} مفردة
-              </p>
-            </div>
-          ) : (
-            <div className="p-12 text-center rounded-3xl border border-dashed border-[hsl(var(--track))] bg-card space-y-3">
-              <SearchX className="w-10 h-10 text-muted-foreground mx-auto" />
-              <h3 className="text-base font-bold text-foreground">لم يتم العثور على نتائج</h3>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                جرب تغيير البحث أو إلغاء بعض الفلاتر لعرض قائمة أكبر من مفردات المعجم.
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Hero paragraph */}
+        <p className="text-mini leading-relaxed text-muted-foreground">
+          معجم لغوي منظم أ أبجدياً وبحسب المجالات المعجمية المستقلة (وليس حسب السيناريوهات). يتيح
+          الفرز بالترتيب الأبجدي، والمستوى التعليمي (A1-C2)، وطول الكلمة، والتجميع النحوي مع تصفية
+          أفعال الانفصال وحالات حروف الجر.
+        </p>
+
+        {/* Wort des Tages Showcase */}
+        <WortDesTagesCard entry={wortDesTages} onSelect={setSelectedEntry} />
+
+        {/* Search & Filter Controls */}
+        <DictionarySearchFilters />
+
+        {/* Alphabet Index Bar */}
+        <AlphabetNav />
+
+        {/* Tab Selection: All Words vs Bookmarks */}
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'all' | 'bookmarks')}>
+          <TabsList aria-label="نطاق العرض">
+            <TabsTrigger value="all">
+              جميع الكلمات (<span className="tabular-nums">{filteredEntries.length}</span>)
+            </TabsTrigger>
+            <TabsTrigger value="bookmarks" className="gap-1.5">
+              <BookmarkCheck className="h-3.5 w-3.5" aria-hidden />
+              المحفوظات (<span className="tabular-nums">{bookmarkedIds.length}</span>)
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="mt-2">
+            {renderList(filteredEntries)}
+          </TabsContent>
+          <TabsContent value="bookmarks" className="mt-2">
+            {renderList(bookmarkedEntries)}
+          </TabsContent>
+        </Tabs>
 
         {/* Dictionary Word Detail Modal */}
         <DictionaryDetailModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />

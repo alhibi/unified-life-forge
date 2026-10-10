@@ -247,7 +247,7 @@ export default function ArchiveCompanion({ document }: ArchiveCompanionProps) {
                   </p>
                   <button
                     onClick={() => handleCopyQuote(ins.id, ins.text)}
-                    className="absolute top-2.5 start-2.5 w-7 h-7 rounded-lg bg-background/80 flex items-center justify-center border border-border/20 active:scale-95 opacity-0 group-hover:opacity-100 transition-motion"
+                    className="absolute top-2.5 start-2.5 w-7 h-7 rounded-lg bg-background/80 flex items-center justify-center border border-border/20 opacity-0 group-hover:opacity-100 transition-motion"
                     title="نسخ الشاهد"
                   >
                     {copiedQuoteId === ins.id ? (

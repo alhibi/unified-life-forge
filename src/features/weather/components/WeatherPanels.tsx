@@ -12,7 +12,6 @@ export interface WeatherPanelProps {
   action?: ReactNode;
   children: ReactNode;
   className?: string;
-  accentLine?: boolean;
   padding?: 'default' | 'compact' | 'none';
   elevated?: boolean;
 }
@@ -23,7 +22,6 @@ export function WeatherPanel({
   action,
   children,
   className = '',
-  accentLine = true,
   padding = 'default',
   elevated = true,
 }: WeatherPanelProps) {
@@ -34,13 +32,7 @@ export function WeatherPanel({
   };
 
   return (
-    <section className={`relative rounded-2xl ${elevated ? 'surface-depth' : 'bg-card/60'} overflow-hidden border border-border/40 ${className}`}>
-      {accentLine && (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
-        />
-      )}
+    <section className={`relative rounded-2xl ${elevated ? 'surface-depth' : 'app-card-flat'} overflow-hidden border border-border/40 ${className}`}>
       {(title || subtitle || action) && (
         <header className="flex items-end justify-between gap-3 px-5 pt-5 pb-2">
           <div className="min-w-0 flex-1">
@@ -206,7 +198,6 @@ export function GaugeTile({
 
   return (
     <div className={`group relative rounded-2xl border border-border/40 surface-depth overflow-hidden p-4 min-w-0 h-full transition-motion hover:-translate-y-0.5 hover:border-border/70 ${className}`}>
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/65 truncate">
           {label}
@@ -219,12 +210,6 @@ export function GaugeTile({
       </div>
       <div className="flex items-center gap-3">
         <svg viewBox="0 0 88 88" className="w-16 h-16 shrink-0 -rotate-90">
-          <defs>
-            <linearGradient id={`gauge-tile-grad-${label}`} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="1" />
-            </linearGradient>
-          </defs>
           <circle
             cx="44"
             cy="44"
@@ -238,7 +223,8 @@ export function GaugeTile({
             cy="44"
             r={radius}
             fill="none"
-            stroke={`url(#gauge-tile-grad-${label})`}
+            className="text-primary"
+            stroke="currentColor"
             strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={circumference}

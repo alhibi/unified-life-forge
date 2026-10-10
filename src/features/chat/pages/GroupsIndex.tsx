@@ -97,7 +97,7 @@ export default function GroupsIndexPage() {
           <button
             type="button"
             onClick={goBack}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'رجوع'}
           >
             {<ArrowRight className="w-5 h-5" />}
@@ -123,7 +123,7 @@ export default function GroupsIndexPage() {
               <button
                 type="button"
                 onClick={() => setQuery('')}
-                className="w-6 h-6 rounded-full flex items-center justify-center active:bg-accent/40"
+                className="w-6 h-6 rounded-full flex items-center justify-center"
               >
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
@@ -148,7 +148,7 @@ export default function GroupsIndexPage() {
                   'h-8 px-3.5 rounded-full text-mini font-medium transition-motion whitespace-nowrap inline-flex items-center gap-1.5',
                   active
                     ? 'bg-primary text-primary-foreground '
-                    : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
+                    : 'bg-muted/30 text-muted-foreground',
                 )}
               >
                 {tab.ar}
@@ -216,7 +216,7 @@ export default function GroupsIndexPage() {
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
                   transition={{ type: 'spring', damping: 22, stiffness: 320, delay: 0.05 }}
                   onClick={() => { setShowCreatorMenu(false); setCreatorKind('channel'); setCreatorOpen(true); }}
-                  className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
+                  className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10"
                 >
                   <Hash className="w-4 h-4 text-primary" />
                   <span className="text-mini font-semibold">{'قناة جديدة'}</span>
@@ -228,7 +228,7 @@ export default function GroupsIndexPage() {
                   exit={{ opacity: 0, y: 10, scale: 0.9 }}
                   transition={{ type: 'spring', damping: 22, stiffness: 320 }}
                   onClick={() => { setShowCreatorMenu(false); setCreatorKind('group'); setCreatorOpen(true); }}
-                  className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10 active:scale-95"
+                  className="z-raised inline-flex items-center gap-2.5 rounded-full bg-card border border-border/30 px-3.5 h-10"
                 >
                   <Users className="w-4 h-4 text-primary" />
                   <span className="text-mini font-semibold">{'مجموعة جديدة'}</span>
@@ -239,7 +239,7 @@ export default function GroupsIndexPage() {
           <button
             type="button"
             onClick={() => setShowCreatorMenu(s => !s)}
-            className="z-raised w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
+            className="z-raised w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center transition-transform"
             aria-label={'إنشاء جديد'}
           >
             <motion.span
@@ -274,7 +274,7 @@ function GroupRow({ chat, onClick }: GroupRowProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-3 px-4 py-3 transition-colors text-start active:bg-accent/40',
+        'w-full flex items-center gap-3 px-4 py-3 transition-colors text-start',
         chat.unreadCount > 0 && 'bg-primary/[0.02]',
       )}
     >

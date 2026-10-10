@@ -11,7 +11,6 @@ import {
   type IndexedEntry,
   type ScoredHit,
 } from '../lib/search';
-import { GERMAN_CLUB_TOKENS } from '../types';
 
 const MAX_SUGGESTIONS = 6;
 
@@ -29,24 +28,32 @@ const MAX_SUGGESTIONS = 6;
  *
  * Performance: ~5000 entries searched in ~10ms (single-threaded). No
  * web worker needed.
- * 
+ *
  * Dictionary data is loaded lazily on first input to keep the initial
- * bundle small.
+ * bundle small. The lazy import is kicked off from the input's own events
+ * (typing/focus), not from an effect — so opening the page never cascades a
+ * render just to warm a module that most visitors never ask for.
  */
 export const QuickLookup: React.FC = () => {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [open, setOpen] = useState(false);
   const [dictIndex, setDictIndex] = useState<readonly IndexedEntry[] | null>(null);
+  const loadingRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
 
   // Load dictionary data lazily on first input
   const loadDictionary = useCallback(async () => {
-    if (dictIndex) return;
-    const { GERMAN_DICTIONARY_DATA } = await import('../lib/dictionaryData');
-    setDictIndex(buildIndex(GERMAN_DICTIONARY_DATA));
+    if (dictIndex || loadingRef.current) return;
+    loadingRef.current = true;
+    try {
+      const { GERMAN_DICTIONARY_DATA } = await import('../lib/dictionaryData');
+      setDictIndex(buildIndex(GERMAN_DICTIONARY_DATA));
+    } finally {
+      loadingRef.current = false;
+    }
   }, [dictIndex]);
 
   // 180ms debounce — snappy but cheap on a 5000-entry index.
@@ -54,13 +61,6 @@ export const QuickLookup: React.FC = () => {
     const t = setTimeout(() => setDebounced(query), 180);
     return () => clearTimeout(t);
   }, [query]);
-
-  // Trigger dictionary load on first user input
-  useEffect(() => {
-    if (query && !dictIndex) {
-      loadDictionary();
-    }
-  }, [query, dictIndex, loadDictionary]);
 
   // Live results
   const results: ScoredHit[] = useMemo(() => {
@@ -92,26 +92,25 @@ export const QuickLookup: React.FC = () => {
   return (
     <div className="relative w-full">
       {/* Search input */}
-      <div
-        className="relative flex items-center gap-2 rounded-2xl border bg-white px-3.5 py-2.5 shadow-sm transition-motion"
-        style={{
-          borderColor: open && query ? GERMAN_CLUB_TOKENS.prussian : 'hsl(var(--track))',
-          boxShadow:
-            open && query
-              ? '0 0 0 4px rgba(23, 50, 77, 0.08), 0 4px 16px -8px rgba(23, 24, 28, 0.18)'
-              : '0 1px 0 rgba(0,0,0,0.02), 0 4px 12px -8px rgba(23,24,28,0.12)',
-        }}
-      >
-        <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+      <div className="relative">
+        <Search
+          className="pointer-events-none absolute top-1/2 start-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => {
-            setQuery(e.target.value);
+            const value = e.target.value;
+            setQuery(value);
             setOpen(true);
+            if (value && !dictIndex) void loadDictionary();
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setOpen(true);
+            if (query && !dictIndex) void loadDictionary();
+          }}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && debounced.trim()) {
@@ -123,7 +122,7 @@ export const QuickLookup: React.FC = () => {
             }
           }}
           placeholder="ابحث بكلمة أو عبارة — بالعربي أو الألماني أو الإنجليزي"
-          className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
+          className="app-control h-12 pe-10 ps-10 text-lead"
           aria-label="بحث سريع في القاموس"
           dir="auto"
         />
@@ -134,10 +133,10 @@ export const QuickLookup: React.FC = () => {
               setQuery('');
               inputRef.current?.focus();
             }}
-            className="shrink-0 p-1 rounded-md hover:bg-card text-muted-foreground transition-colors"
+            className="absolute top-1/2 end-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="مسح البحث"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="h-3.5 w-3.5" aria-hidden />
           </button>
         )}
       </div>
@@ -150,15 +149,11 @@ export const QuickLookup: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="absolute z-50 left-0 right-0 mt-1.5 rounded-2xl border bg-white overflow-hidden"
-            style={{
-              borderColor: 'hsl(var(--track))',
-              boxShadow: '0 8px 32px -12px rgba(23,24,28,0.24), 0 2px 8px -4px rgba(0,0,0,0.06)',
-            }}
+            className="glass-overlay absolute inset-x-0 z-float mt-1.5 overflow-hidden rounded-lg"
           >
             {/* Header — what we searched */}
-            <div className="flex items-center justify-between px-3.5 py-2 border-b border-[hsl(var(--track))] bg-card">
-              <div className="flex items-center gap-1.5 text-xs">
+            <div className="flex items-center justify-between border-b border-track px-3.5 py-2">
+              <div className="flex items-center gap-1.5 text-mini">
                 <span className="font-mono font-bold uppercase tracking-wider text-muted-foreground">
                   {queryLang === 'arabic'
                     ? 'بحث عربي'
@@ -168,7 +163,13 @@ export const QuickLookup: React.FC = () => {
                 </span>
                 <span className="text-muted-foreground">·</span>
                 <span className="text-muted-foreground">
-                  {totalMatches > 0 ? `${totalMatches} نتيجة` : 'لا توجد نتائج'}
+                  {totalMatches > 0 ? (
+                    <>
+                      <span className="tabular-nums">{totalMatches}</span> نتيجة
+                    </>
+                  ) : (
+                    'لا توجد نتائج'
+                  )}
                 </span>
               </div>
               {totalMatches > MAX_SUGGESTIONS && (
@@ -176,9 +177,9 @@ export const QuickLookup: React.FC = () => {
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleSeeAll}
-                  className="text-xs font-semibold text-[hsl(var(--primary))] hover:underline"
+                  className="text-mini font-semibold text-primary hover:underline"
                 >
-                  عرض الكل ({totalMatches}) ←
+                  عرض الكل (<span className="tabular-nums">{totalMatches}</span>) ←
                 </button>
               )}
             </div>
@@ -186,8 +187,12 @@ export const QuickLookup: React.FC = () => {
             {/* Results list */}
             {results.length === 0 ? (
               <div className="px-4 py-8 text-center text-muted-foreground">
-                <p className="text-sm font-medium mb-1">لا توجد نتائج لـ "{debounced}"</p>
-                <p className="text-xs text-muted-foreground">جرّب جزءاً من الكلمة، أو بالأحرف الأولى</p>
+                <p className="mb-1 text-body font-medium">
+                  لا توجد نتائج لـ &quot;{debounced}&quot;
+                </p>
+                <p className="text-mini text-muted-foreground">
+                  جرّب جزءاً من الكلمة، أو بالأحرف الأولى
+                </p>
               </div>
             ) : (
               <ul className="max-h-80 overflow-y-auto">
@@ -214,54 +219,54 @@ const ResultRow: React.FC<ResultRowProps> = ({ hit, onClick }) => {
   const isPrefix = matchedField === 'prefix';
   const isFuzzy = matchedField === 'fuzzy';
 
+  // Match strength — a small data key: exact = success, prefix = accent,
+  // fuzzy = muted, contains = track.
+  const barClass = isExact
+    ? 'bg-success'
+    : isPrefix
+      ? 'bg-primary'
+      : isFuzzy
+        ? 'bg-muted-foreground'
+        : 'bg-track';
+
   return (
     <li>
       <button
         type="button"
         onMouseDown={(e) => e.preventDefault()}
         onClick={onClick}
-        className="w-full text-start px-3.5 py-2.5 hover:bg-card transition-colors flex items-center gap-3 border-b border-[hsl(var(--track))] last:border-b-0"
+        className="flex w-full items-center gap-3 border-b border-track px-3.5 py-2.5 text-start transition-colors last:border-b-0 hover:bg-muted/60"
       >
         {/* Match strength indicator */}
-        <span
-          className="shrink-0 w-1 self-stretch rounded-full"
-          style={{
-            backgroundColor: isExact
-              ? 'hsl(var(--success))'
-              : isPrefix
-                ? GERMAN_CLUB_TOKENS.prussian
-                : isFuzzy
-                  ? 'hsl(var(--muted-foreground))'
-                  : 'hsl(var(--track))',
-          }}
-          aria-hidden="true"
-        />
+        <span className={`w-1 shrink-0 self-stretch rounded-full ${barClass}`} aria-hidden="true" />
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span
-              className={`font-bold text-[hsl(var(--foreground))] truncate ${isFuzzy ? 'italic text-muted-foreground' : ''}`}
+              className={`truncate font-bold text-foreground ${isFuzzy ? 'italic text-muted-foreground' : ''}`}
               dir="ltr"
               style={{ unicodeBidi: 'isolate' }}
             >
               {entry.german}
             </span>
             {isExact && (
-              <span className="text-[0.625rem] font-mono font-bold text-data-1 uppercase tracking-wider">
+              <span className="font-mono text-micro font-bold uppercase tracking-wider text-data-1">
                 مطابقة
               </span>
             )}
             {isFuzzy && (
-              <span className="text-[0.625rem] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+              <span className="font-mono text-micro font-bold uppercase tracking-wider text-muted-foreground">
                 قريب
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground truncate leading-snug">{entry.arabic}</p>
+          <p className="truncate text-mini leading-snug text-muted-foreground">{entry.arabic}</p>
         </div>
 
-        <Sparkles className="w-3 h-3 text-muted-foreground shrink-0" aria-hidden="true" />
+        <Sparkles className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden="true" />
       </button>
     </li>
   );
 };
+
+export default QuickLookup;

@@ -10,8 +10,11 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import { confirmDialog } from '@/lib/confirmDialog';
-import { Calendar, ChevronDown, History, Search, Trash2 } from '@/lib/icons';
+import { Calendar, ChevronDown, Search, Trash2 } from '@/lib/icons';
 
 import { type Exercise,resolveExercise } from '../../exerciseCatalog';
 import type { UUID, WorkoutSession } from '../../wellnessDb';
@@ -81,10 +84,13 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
 
   if (workouts.length === 0) {
     return (
-      <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
-        <History className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-        <p className="text-mini text-muted-foreground">{T.empty[lang]}</p>
-      </div>
+      <StateView
+        kind="empty"
+        compact
+        className={className}
+        title={T.empty[lang]}
+        body="ابدأ أول جلسة من تبويب تدريب وستظهر هنا تلقائياً."
+      />
     );
   }
 
@@ -92,12 +98,12 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
     <div className={`space-y-2 ${className}`}>
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute top-1/2 -translate-y-1/2 start-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-          <input
+          <Search className="absolute top-1/2 -translate-y-1/2 start-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" aria-hidden />
+          <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={T.search[lang]}
-            className="w-full bg-card border border-border/40 rounded-xl ps-8 pe-3 py-2 text-mini text-foreground outline-none focus:border-primary/50"
+            className="ps-8 text-mini"
           />
         </div>
       </div>
@@ -107,8 +113,9 @@ export default function HistoryList({ workouts, onDelete, lang, className = '' }
           <button
             key={t}
             onClick={() => setTypeFilter(t)}
+            aria-pressed={typeFilter === t}
             className={`shrink-0 text-micro font-semibold px-2 py-1 rounded-full border ${
-              typeFilter === t ? 'bg-foreground text-background border-foreground' : 'bg-card text-muted-foreground border-border/40'
+              typeFilter === t ? 'bg-foreground text-background border-foreground' : 'bg-background text-muted-foreground border-border/40'
             }`}
           >
             {t === 'all' ? T.all[lang] : (T as Record<string, { ar: string; }>)[t][lang]}
@@ -155,7 +162,7 @@ function SessionRow({
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card border border-border/40 rounded-xl overflow-hidden"
+      className="app-card overflow-hidden p-0"
     >
       <button
         onClick={onToggle}
@@ -218,7 +225,9 @@ function SessionRow({
                   "{session.notes}"
                 </p>
               )}
-              <button
+              <Button
+                variant="outline"
+                className="w-full mt-2 text-destructive"
                 onClick={async () => {
                   const ok = await confirmDialog({
                     message: T.confirmDelete[lang],
@@ -227,10 +236,9 @@ function SessionRow({
                   });
                   if (ok) await onDelete(session.id);
                 }}
-                className="w-full mt-2 py-2 rounded-lg bg-destructive/10 text-destructive text-micro font-semibold inline-flex items-center justify-center gap-1"
               >
-                <Trash2 className="w-3 h-3" /> {T.delete[lang]}
-              </button>
+                <Trash2 className="w-3 h-3" aria-hidden /> {T.delete[lang]}
+              </Button>
             </div>
           </motion.div>
         )}

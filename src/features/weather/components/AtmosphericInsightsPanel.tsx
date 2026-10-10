@@ -44,7 +44,6 @@ function AtmosphericInsightsPanelImpl({ snapshot }: Props) {
       className="relative rounded-2xl surface-depth overflow-hidden"
       aria-label="استنتاجات الغلاف الجوي"
     >
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
       <header className="px-4 pt-4 pb-3 flex items-end justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 font-semibold text-lead leading-none text-foreground">

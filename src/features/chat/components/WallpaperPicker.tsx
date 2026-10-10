@@ -30,12 +30,12 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
         <div className="px-4 h-14 flex items-center justify-between border-b border-border/15">
           <div className="flex items-center gap-2">
-            <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors">
+            <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors">
               <BackIcon className="w-5 h-5 text-foreground" />
             </button>
             <h2 className="text-body font-semibold">{'خلفية المحادثة'}</h2>
           </div>
-          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40">
+          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -49,7 +49,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ currentId, onClose, o
                   key={wp.id}
                   onClick={() => onPick(wp.id)}
                   className={cn(
-                    'relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-motion active:scale-95',
+                    'relative aspect-[3/4] rounded-2xl overflow-hidden border-2 transition-motion',
                     selected ? 'border-primary ' : 'border-border/15'
                   )}
                   style={{ background: wp.background }}

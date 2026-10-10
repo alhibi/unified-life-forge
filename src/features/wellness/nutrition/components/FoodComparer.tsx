@@ -151,10 +151,10 @@ export default function FoodComparer({ lang }: Props) {
           return (
             <div key={idx} className="relative flex flex-col">
               {food ? (
-                <div className="relative rounded-xl p-2.5 bg-card border border-border/40 text-center flex-1 flex flex-col justify-between">
+                <div className="relative app-card app-card-flat p-2.5 text-center flex-1 flex flex-col justify-between">
                   <button
                     onClick={() => handleRemove(idx)}
-                    className="absolute -top-1.5 -end-1.5 w-5 h-5 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive flex items-center justify-center active:scale-90 transition-transform z-raised"
+                    className="absolute -top-1.5 -end-1.5 w-5 h-5 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive flex items-center justify-center transition-transform z-raised"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -210,7 +210,7 @@ export default function FoodComparer({ lang }: Props) {
       )}
 
       {selectedFoods.length > 0 && (
-        <div className="space-y-4 rounded-2xl bg-card border border-border/40 p-3.5">
+        <div className="space-y-4 app-card p-3.5">
           {/* Macronutrients section */}
           <div className="space-y-2.5">
             <h5 className="text-micro font-bold text-muted-foreground border-b border-border/30 pb-1 uppercase tracking-wider">
@@ -220,35 +220,35 @@ export default function FoodComparer({ lang }: Props) {
               label={T.kcal[lang]}
               valueKey="kcal"
               foods={selectedFoods}
-              color="#f97316"
+              color="hsl(var(--data-2))"
               unit=""
             />
             <MacroRow
               label={T.protein[lang]}
               valueKey="protein"
               foods={selectedFoods}
-              color="#ef4444"
+              color="hsl(var(--destructive))"
               unit="g"
             />
             <MacroRow
               label={T.carbs[lang]}
               valueKey="carbs"
               foods={selectedFoods}
-              color="#eab308"
+              color="hsl(var(--data-3))"
               unit="g"
             />
             <MacroRow
               label={T.fat[lang]}
               valueKey="fat"
               foods={selectedFoods}
-              color="#06b6d4"
+              color="hsl(var(--data-4))"
               unit="g"
             />
             <MacroRow
               label={T.fiber[lang]}
               valueKey="fiber"
               foods={selectedFoods}
-              color="#10b981"
+              color="hsl(var(--data-1))"
               unit="g"
             />
           </div>
@@ -267,7 +267,7 @@ export default function FoodComparer({ lang }: Props) {
                   microKey={key}
                   type="vitamins"
                   foods={selectedFoods}
-                  color="#a855f7"
+                  color="hsl(var(--data-5))"
                   unit={MICRO_LABELS[key].unit}
                 />
               ))}
@@ -286,7 +286,7 @@ export default function FoodComparer({ lang }: Props) {
                   microKey={key}
                   type="minerals"
                   foods={selectedFoods}
-                  color="#0ea5e9"
+                  color="hsl(var(--data-4))"
                   unit={MICRO_LABELS[key].unit}
                 />
               ))}
@@ -343,7 +343,7 @@ export default function FoodComparer({ lang }: Props) {
                       className={`w-full flex items-center gap-3 p-2.5 rounded-xl text-start transition-colors ${
                         isAlreadyComp
                           ? 'opacity-40 cursor-not-allowed bg-muted/10'
-                          : 'hover:bg-muted/40 active:scale-[0.99]'
+                          : 'hover:bg-muted/40'
                       }`}
                     >
                       <span className="text-display">{food.emoji}</span>

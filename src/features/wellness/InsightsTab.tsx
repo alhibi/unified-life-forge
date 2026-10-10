@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import { Activity, AlertTriangle, Clock,Info, ShieldCheck, Sparkles, Utensils } from '@/lib/icons';
 
-import { SoftSurface, withAlpha } from './premium/surfaces';
+import { withAlpha } from './premium/surfaces';
 import StackAdvisor from './StackAdvisor';
 import { type Insight,runAllInsights } from './wellnessAnalysis';
 import { DISCLAIMER, type Lang } from './wellnessData';
@@ -75,9 +77,9 @@ export default function InsightsTab({
 
       {/* Privacy banner */}
       <motion.div variants={item} initial="hidden" animate="show">
-        <SoftSurface accent="hsl(var(--primary))" variant="mesh" intensity={0.65} className="p-4">
+        <AppCard className="p-4">
           <div className="flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden />
             <div>
               <h3 className="text-meta font-bold text-foreground">
                 {'خصوصيتك محفوظة'}
@@ -87,20 +89,17 @@ export default function InsightsTab({
               </p>
             </div>
           </div>
-        </SoftSurface>
+        </AppCard>
       </motion.div>
 
       {/* Empty state */}
       {insights.length === 0 && (
         <motion.div variants={item} initial="hidden" animate="show">
-          <SoftSurface variant="flat" className="p-8 border-dashed">
-            <div className="text-center">
-              <Info className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-meta text-muted-foreground">
-                {'لا توجد ملاحظات بعد. أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً.'}
-              </p>
-            </div>
-          </SoftSurface>
+          <StateView
+            kind="empty"
+            title="لا توجد ملاحظات بعد"
+            body="أضف مكملاتك وسجل بعض الوجبات لترى تحليلاً مبنياً على بياناتك."
+          />
         </motion.div>
       )}
 
@@ -116,19 +115,16 @@ export default function InsightsTab({
             className="space-y-1"
           >
             <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider px-1 mb-2 flex items-center gap-1.5">
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-3.5 h-3.5" aria-hidden />
               {KIND_LABEL[kind][lang]}
             </p>
             <div className="space-y-2">
               {list.map((ins) => {
                 const isWarn = ins.severity === 'warn';
-                const accent = isWarn ? '#ef4444' : 'hsl(var(--primary))';
+                const accent = isWarn ? 'hsl(var(--destructive))' : 'hsl(var(--primary))';
                 return (
-                  <SoftSurface
+                  <AppCard
                     key={ins.id}
-                    accent={accent}
-                    variant="mesh"
-                    intensity={isWarn ? 0.9 : 0.5}
                     className="p-3.5"
                   >
                     <div className="flex items-start gap-3">
@@ -136,7 +132,7 @@ export default function InsightsTab({
                         className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                         style={{ background: withAlpha(accent, 0.16), color: accent }}
                       >
-                        {isWarn ? <AlertTriangle className="w-4 h-4" /> : <Info className="w-4 h-4" />}
+                        {isWarn ? <AlertTriangle className="w-4 h-4" aria-hidden /> : <Info className="w-4 h-4" aria-hidden />}
                       </div>
                       <div className="min-w-0">
                         <h4 className="text-mini font-bold text-foreground">
@@ -147,7 +143,7 @@ export default function InsightsTab({
                         </p>
                       </div>
                     </div>
-                  </SoftSurface>
+                  </AppCard>
                 );
               })}
             </div>
@@ -157,12 +153,12 @@ export default function InsightsTab({
 
       {/* Disclaimer */}
       <motion.div variants={item} initial="hidden" animate="show">
-        <SoftSurface variant="flat" className="p-3.5">
+        <AppCard className="p-3.5">
           <p className="text-micro text-muted-foreground leading-relaxed">
-            <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-muted-foreground-subtle" />
+            <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-muted-foreground-subtle" aria-hidden />
             {DISCLAIMER[lang]}
           </p>
-        </SoftSurface>
+        </AppCard>
       </motion.div>
     </div>
   );

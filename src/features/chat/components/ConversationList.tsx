@@ -274,9 +274,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
                   'h-8 px-3.5 rounded-full text-mini font-medium whitespace-nowrap flex items-center gap-1.5 transition-motion',
                   active
                     ? 'bg-primary text-primary-foreground '
-                    : 'bg-muted/30 text-muted-foreground active:bg-muted/50'
+                    : 'bg-muted/30 text-muted-foreground'
                 )}
-                whileTap={{ scale: 0.95 }}
               >
                 {tab.labelAr}
                 {showBadge && !active && (
@@ -300,7 +299,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             onClick={handleSearchToggle}
             className={cn(
               'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
-              isSearching ? 'bg-primary/15 text-primary' : 'text-muted-foreground active:bg-muted/40'
+              isSearching ? 'bg-primary/15 text-primary' : 'text-muted-foreground'
             )}
             aria-label={'بحث'}
           >
@@ -310,7 +309,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             <button
               type="button"
               onClick={onOpenSettings}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground active:bg-muted/40 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground transition-colors"
               aria-label={'الإعدادات'}
             >
               <Settings className="w-4 h-4" />
@@ -323,8 +322,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <motion.button
         type="button"
         onClick={() => navigate('/chat/groups')}
-        className="flex items-center gap-3 px-4 py-2.5 mx-3 mb-1 rounded-2xl bg-muted/15 hover:bg-muted/25 active:bg-muted/35 border border-border/15 transition-colors text-start"
-        whileTap={{ scale: 0.98 }}
+        className="flex items-center gap-3 px-4 py-2.5 mx-3 mb-1 rounded-2xl bg-muted/15 hover:bg-muted/25 border border-border/15 transition-colors text-start"
       >
         <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
           <Users className="w-4 h-4 text-primary" />
@@ -482,7 +480,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                       onClick={() => onSelect(conv)}
                       className={cn(
                         'w-full flex items-center gap-3 px-4 py-3 transition-colors text-start bg-background',
-                        'active:bg-accent/40',
+                        '',
                         unread > 0 && !muted && 'bg-primary/[0.02]',
                         pinned && 'bg-muted/[0.04]'
                       )}

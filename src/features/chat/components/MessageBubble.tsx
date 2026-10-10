@@ -273,7 +273,6 @@ export const MessageTicks = React.memo(
           }}
           className="inline-flex items-center gap-[2px] text-destructive"
           aria-label={'إعادة المحاولة'}
-          whileTap={{ scale: 0.85 }}
           animate={{ x: [0, -2, 2, -2, 0] }}
           transition={{ duration: 0.4 }}
         >
@@ -373,7 +372,6 @@ export const ReactionPill = React.memo(
             ? 'bg-primary/15 border-primary/40 ring-1 ring-primary/20  '
             : 'bg-card border-border/20 hover:bg-muted/30',
         )}
-        whileTap={{ scale: 0.85 }}
         layout
         transition={{ type: 'spring', damping: 20, stiffness: 400 }}
         aria-label={ariaLabel}
@@ -477,7 +475,7 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
         <motion.button
           key={emoji}
           type="button"
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/40 active:scale-110 text-title"
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/40 text-title"
           onClick={(e) => {
             e.stopPropagation();
             onSelect(emoji);
@@ -485,7 +483,6 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
           initial={{ scale: 0, y: 8 }}
           animate={{ scale: 1, y: 0 }}
           transition={{ type: 'spring', damping: 14, delay: i * 0.03 }}
-          whileTap={{ scale: 1.3 }}
         >
           {emoji}
         </motion.button>
@@ -501,7 +498,6 @@ export const QuickReactionBar = React.memo(function QuickReactionBar({
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: emojis.length * 0.03 }}
-          whileTap={{ scale: 1.2 }}
           aria-label={'المزيد'}
         >
           <Sparkles className="w-4 h-4" />

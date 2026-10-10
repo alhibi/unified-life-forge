@@ -1,6 +1,10 @@
 import { AnimatePresence } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { AppCard, AppList, AppRow, IconChip, Stat, StatGrid } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import {
   Activity,
   BrainCircuit,
@@ -78,111 +82,21 @@ const CELL_GAP_PX = 3;
 const EVENTS_PER_MONTH_PAGE = 15;
 
 /**
- * Vibrant per-category heat palettes — every category carries its own hue so
- * the matrix reads like a living spectrum, not a single washed-out green.
- * Each ramp is a 4-step ladder from a faint tint to a glowing saturated cell.
+ * Density ladder — the matrix encodes volume with one tinted ramp:
+ * `--track` is the resting cell, then `primary` at rising opacity for
+ * intensity 1→4. (Was: eight per-category gradient palettes with glows.)
+ * The count itself stays in each cell's tooltip/aria-label.
  */
-interface HeatPalette {
-  /** Cell classes for intensity 1..4 */
-  steps: [string, string, string, string];
-  /** Active pill / accent classes */
-  pillActive: string;
-  /** Legend dot for the max step (no border needed) */
-  legendMax: string;
-}
+const HEAT_STEPS = ['bg-primary/25', 'bg-primary/50', 'bg-primary/75', 'bg-primary'] as const;
 
-const HEAT_PALETTES: Record<ActivityCategory, HeatPalette> = {
-  all: {
-    steps: [
-      'bg-data-1/25 border border-data-1/30',
-      'bg-data-1/50 border border-data-1/60',
-      'bg-data-1/80 border border-data-1/80',
-      'bg-gradient-to-br from-data-1 to-data-1 border border-data-1 shadow-[0_0_8px_rgba(52,211,153,0.55)]',
-    ],
-    pillActive:
-      'bg-data-1/15 text-data-1 border border-data-1/50 shadow-[0_0_12px_rgba(52,211,153,0.18)]',
-    legendMax: 'bg-gradient-to-br from-data-1 to-data-1 border border-data-1',
-  },
-  visits: {
-    steps: [
-      'bg-data-4/25 border border-data-4/30',
-      'bg-data-4/50 border border-data-4/60',
-      'bg-data-4/80 border border-data-4/80',
-      'bg-gradient-to-br from-data-4 to-data-4 border border-data-4 shadow-[0_0_8px_rgba(56,189,248,0.55)]',
-    ],
-    pillActive:
-      'bg-data-4/15 text-data-4 border border-data-4/50 shadow-[0_0_12px_rgba(56,189,248,0.18)]',
-    legendMax: 'bg-gradient-to-br from-data-4 to-data-4 border border-data-4',
-  },
-  fitness: {
-    steps: [
-      'bg-signal/25 border border-signal/30',
-      'bg-signal/50 border border-signal/60',
-      'bg-signal/80 border border-signal/80',
-      'bg-gradient-to-br from-signal to-signal border border-signal shadow-[0_0_8px_rgba(251,146,60,0.55)]',
-    ],
-    pillActive:
-      'bg-signal/15 text-signal border border-signal/50 shadow-[0_0_12px_rgba(251,146,60,0.18)]',
-    legendMax: 'bg-gradient-to-br from-signal to-signal border border-signal',
-  },
-  german: {
-    steps: [
-      'bg-data-6/25 border border-data-6/30',
-      'bg-data-6/50 border border-data-6/60',
-      'bg-data-6/80 border border-data-6/80',
-      'bg-gradient-to-br from-data-6 to-data-6 border border-data-6 shadow-[0_0_8px_rgba(129,140,248,0.55)]',
-    ],
-    pillActive:
-      'bg-data-6/15 text-data-6 border border-data-6/50 shadow-[0_0_12px_rgba(129,140,248,0.18)]',
-    legendMax: 'bg-gradient-to-br from-data-6 to-data-6 border border-data-6',
-  },
-  diwan: {
-    steps: [
-      'bg-data-6/25 border border-data-6/30',
-      'bg-data-6/50 border border-data-6/60',
-      'bg-data-6/80 border border-data-6/80',
-      'bg-gradient-to-br from-data-6 to-data-5 border border-data-6 shadow-[0_0_8px_rgba(232,121,249,0.55)]',
-    ],
-    pillActive:
-      'bg-data-6/15 text-data-6 border border-data-6/50 shadow-[0_0_12px_rgba(232,121,249,0.18)]',
-    legendMax: 'bg-gradient-to-br from-data-6 to-data-5 border border-data-6',
-  },
-  pkm: {
-    steps: [
-      'bg-data-4/25 border border-data-4/30',
-      'bg-data-4/50 border border-data-4/60',
-      'bg-data-4/80 border border-data-4/80',
-      'bg-gradient-to-br from-data-4 to-data-1 border border-data-4 shadow-[0_0_8px_rgba(34,211,238,0.55)]',
-    ],
-    pillActive:
-      'bg-data-4/15 text-data-4 border border-data-4/50 shadow-[0_0_12px_rgba(34,211,238,0.18)]',
-    legendMax: 'bg-gradient-to-br from-data-4 to-data-1 border border-data-4',
-  },
-  atlas: {
-    steps: [
-      'bg-signal/25 border border-signal/30',
-      'bg-signal/50 border border-signal/60',
-      'bg-signal/80 border border-signal/80',
-      'bg-gradient-to-br from-signal to-signal border border-signal shadow-[0_0_8px_rgba(251,191,36,0.55)]',
-    ],
-    pillActive:
-      'bg-signal/15 text-signal border border-signal/50 shadow-[0_0_12px_rgba(251,191,36,0.18)]',
-    legendMax: 'bg-gradient-to-br from-signal to-signal border border-signal',
-  },
-  spiritual: {
-    steps: [
-      'bg-data-6/25 border border-data-6/30',
-      'bg-data-6/50 border border-data-6/60',
-      'bg-data-6/80 border border-data-6/80',
-      'bg-gradient-to-br from-data-6 to-data-6 border border-data-6 shadow-[0_0_8px_rgba(167,139,250,0.55)]',
-    ],
-    pillActive:
-      'bg-data-6/15 text-data-6 border border-data-6/50 shadow-[0_0_12px_rgba(167,139,250,0.18)]',
-    legendMax: 'bg-gradient-to-br from-data-6 to-data-6 border border-data-6',
-  },
-};
+const EMPTY_CELL_CLASS = 'bg-track';
 
-const EMPTY_CELL_CLASS = 'bg-muted/25 border border-border/20';
+/** Filter rail pills — one primary accent, no per-category hues or shadows. */
+const PILL_BASE =
+  'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-motion shrink-0';
+const PILL_ACTIVE = 'bg-primary/15 text-primary border border-primary/40';
+const PILL_IDLE =
+  'border border-border/40 text-muted-foreground hover:text-foreground hover:border-border';
 
 export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> = ({
   summary: propSummary,
@@ -307,11 +221,8 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
     setSelectedCategory('all');
   };
 
-  // Intensity styling — palette follows the active category filter.
-  const activePalette = HEAT_PALETTES[selectedCategory] ?? HEAT_PALETTES.all;
-
   const getIntensityClass = (intensity: number) => {
-    if (intensity >= 1 && intensity <= 4) return activePalette.steps[intensity - 1];
+    if (intensity >= 1 && intensity <= 4) return HEAT_STEPS[intensity - 1];
     return EMPTY_CELL_CLASS;
   };
 
@@ -361,74 +272,62 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
         )}
       </AnimatePresence>
 
-      {/* 1. Header Overview Metrics Bar — vibrant gradient chips */}
+      {/* 1. Header Overview Metrics Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-data-1/10 blur-2xl pointer-events-none" />
+        <AppCard className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">إجمالي النشاطات</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-data-1 to-data-1 flex items-center justify-center text-data-1 shadow-[0_0_12px_rgba(52,211,153,0.35)]">
-              <Sparkles className="w-3.5 h-3.5" />
-            </span>
+            <Sparkles className="h-4 w-4 text-muted-foreground" aria-hidden />
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-data-1 to-data-1 bg-clip-text text-transparent">
+          <p className="text-display font-bold text-foreground tabular-nums">
             {yearlyData.totalContributions}
           </p>
           <span className="text-micro text-muted-foreground block truncate">{rangeLabelAr}</span>
-        </div>
+        </AppCard>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-signal/10 blur-2xl pointer-events-none" />
+        <AppCard className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">المواظبة الحالية</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-signal to-signal flex items-center justify-center text-signal shadow-[0_0_12px_rgba(251,146,60,0.35)]">
-              <Flame className="w-3.5 h-3.5" />
-            </span>
+            <Flame className="h-4 w-4 text-muted-foreground" aria-hidden />
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-signal to-signal bg-clip-text text-transparent">
+          <p className="text-display font-bold text-foreground tabular-nums">
             {yearlyData.currentStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">سلسلة التفاعل المستمر</span>
-        </div>
+        </AppCard>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-data-4/10 blur-2xl pointer-events-none" />
+        <AppCard className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">أطول سلسلة</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-data-4 to-data-4 flex items-center justify-center text-data-4 shadow-[0_0_12px_rgba(56,189,248,0.35)]">
-              <TrendingUp className="w-3.5 h-3.5" />
-            </span>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" aria-hidden />
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-data-4 to-data-4 bg-clip-text text-transparent">
+          <p className="text-display font-bold text-foreground tabular-nums">
             {yearlyData.longestStreakDays} يوم
           </p>
           <span className="text-micro text-muted-foreground block truncate">أعلى معدل استمرارية</span>
-        </div>
+        </AppCard>
 
-        <div className="surface-depth rounded-2xl p-4 space-y-2 relative overflow-hidden">
-          <div className="absolute -top-6 -end-6 w-20 h-20 rounded-full bg-data-6/10 blur-2xl pointer-events-none" />
+        <AppCard className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-micro text-muted-foreground">الأيام النشطة</span>
-            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-data-6 to-data-6 flex items-center justify-center text-data-6 shadow-[0_0_12px_rgba(167,139,250,0.35)]">
-              <Calendar className="w-3.5 h-3.5" />
-            </span>
+            <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden />
           </div>
-          <p className="text-2xl font-extrabold tabular-nums bg-gradient-to-l from-data-6 to-data-6 bg-clip-text text-transparent">
+          <p className="text-display font-bold text-foreground tabular-nums">
             {yearlyData.activeDaysCount}
           </p>
           <span className="text-micro text-muted-foreground block truncate">
             بمعدل {yearlyData.averageDaily} نشاط / يوم
           </span>
-        </div>
+        </AppCard>
       </div>
 
       {/* 2. GitHub-Style Contribution Heatmap Graph */}
-      <section className="surface-depth rounded-2xl p-5 space-y-4 relative overflow-hidden">
+      <AppCard as="section" className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-              <Sparkles className="w-5 h-5" />
-            </div>
+            <IconChip aria-hidden>
+              <Sparkles className="h-5 w-5" />
+            </IconChip>
             <div>
               <h2 className="text-lead font-bold text-foreground">مصفوفة النشاطات</h2>
               <p className="text-micro text-muted-foreground">
@@ -438,7 +337,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           </div>
 
           {/* Period / Year Selector */}
-          <div className="flex items-center gap-1.5 self-end sm:self-auto bg-card border border-border/50 p-1 rounded-xl">
+          <div className="flex items-center gap-1.5 self-end sm:self-auto bg-secondary/50 p-1 rounded-xl">
             <button
               onClick={() => {
                 setSelectedYear(undefined);
@@ -447,7 +346,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               aria-pressed={selectedYear === undefined}
               className={`px-3 py-1 rounded-lg text-micro font-semibold transition-motion ${
                 selectedYear === undefined
-                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -463,7 +362,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                 aria-pressed={selectedYear === year}
                 className={`px-3 py-1 rounded-lg text-micro font-semibold tabular-nums transition-motion ${
                   selectedYear === year
-                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -478,7 +377,6 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           {CATEGORY_OPTIONS.map((cat) => {
             const IconComponent = cat.icon;
             const isSelected = selectedCategory === cat.id;
-            const palette = HEAT_PALETTES[cat.id];
             return (
               <button
                 key={cat.id}
@@ -487,13 +385,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                   setSelectedDay(null);
                 }}
                 aria-pressed={isSelected}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-micro font-semibold transition-motion shrink-0 ${
-                  isSelected
-                    ? palette.pillActive
-                    : 'bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
-                }`}
+                className={`${PILL_BASE} ${isSelected ? PILL_ACTIVE : PILL_IDLE}`}
               >
-                <IconComponent className="w-3.5 h-3.5" />
+                <IconComponent className="w-3.5 h-3.5" aria-hidden />
                 <span>{cat.labelAr}</span>
               </button>
             );
@@ -505,7 +399,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           <div className="inline-flex gap-2">
             {/* Weekday label column, row-aligned with the grid */}
             <div
-              className="grid shrink-0 text-[0.625rem] font-semibold text-muted-foreground-subtle"
+              className="grid shrink-0 text-micro font-semibold text-muted-foreground-subtle"
               style={{
                 gridTemplateRows: `repeat(7, ${CELL_PX}px)`,
                 rowGap: `${CELL_GAP_PX}px`,
@@ -563,7 +457,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                         return (
                           <span
                             key={`${wIdx}-${dayOfWeek}`}
-                            className="rounded-[3px]"
+                            className="rounded-xs"
                             style={{ width: CELL_PX, height: CELL_PX }}
                           />
                         );
@@ -587,7 +481,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                           type="button"
                           onClick={() => setSelectedDay(isSelected ? null : day)}
                           style={{ width: CELL_PX, height: CELL_PX }}
-                          className={`rounded-xs transition-motion duration-fast hover:scale-125 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
+                          className={`rounded-xs transition-motion duration-fast hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
                           )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
                           title={`${day.dateFormattedAr} — ${day.count} نشاط`}
@@ -608,10 +502,10 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
           <div className="flex items-center gap-1.5" dir="ltr">
             <span>أقل</span>
             <div className={`w-3 h-3 rounded-xs ${EMPTY_CELL_CLASS}`} />
-            <div className={`w-3 h-3 rounded-xs ${activePalette.steps[0]}`} />
-            <div className={`w-3 h-3 rounded-xs ${activePalette.steps[1]}`} />
-            <div className={`w-3 h-3 rounded-xs ${activePalette.steps[2]}`} />
-            <div className={`w-3 h-3 rounded-xs ${activePalette.legendMax}`} />
+            <div className={`w-3 h-3 rounded-xs ${HEAT_STEPS[0]}`} />
+            <div className={`w-3 h-3 rounded-xs ${HEAT_STEPS[1]}`} />
+            <div className={`w-3 h-3 rounded-xs ${HEAT_STEPS[2]}`} />
+            <div className={`w-3 h-3 rounded-xs ${HEAT_STEPS[3]}`} />
             <span>أكثر</span>
           </div>
 
@@ -632,10 +526,10 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             <span className="text-micro">اضغط على أي مربع لاستعراض أنشطة اليوم المحدد</span>
           )}
         </div>
-      </section>
+      </AppCard>
 
       {/* 3. GitHub-Style Chronological Activity Stream / Feed */}
-      <section className="surface-depth rounded-2xl p-5 space-y-4">
+      <AppCard as="section" className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-lead font-bold text-foreground">سجل النشاط التفصيلي</h2>
@@ -646,14 +540,14 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
           {/* Search Box */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Search className="w-3.5 h-3.5 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="بحث في سجل الأنشطة…"
               aria-label="بحث في سجل الأنشطة"
-              className="w-full ps-8 pe-8 py-2 rounded-xl bg-card border border-border/50 text-mini text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="ps-8 pe-8"
             />
             {searchQuery && (
               <button
@@ -677,12 +571,9 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
               {selectedCategory !== 'all' &&
                 ` — ${CATEGORY_OPTIONS.find((c) => c.id === selectedCategory)?.labelAr}`}
             </span>
-            <button
-              onClick={resetFilters}
-              className="text-primary font-bold hover:underline flex items-center gap-1"
-            >
-              <RotateCcw className="w-3 h-3" /> إعادة الضبط
-            </button>
+            <Button variant="link" size="xs" className="gap-1" onClick={resetFilters}>
+              <RotateCcw className="w-3 h-3" aria-hidden /> إعادة الضبط
+            </Button>
           </div>
         )}
 
@@ -700,7 +591,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                   {/* Month Header Divider */}
                   <div className="flex items-center justify-between border-b border-border/50 pb-2">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-primary" />
+                      <Calendar className="w-4 h-4 text-primary" aria-hidden />
                       <h3 className="text-meta font-bold text-foreground">{monthKey}</h3>
                       <span className="text-micro font-semibold px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground tabular-nums">
                         {events.length} نشاط
@@ -714,11 +605,11 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                     >
                       {isCollapsed ? (
                         <>
-                          إظهار <ChevronDown className="w-3.5 h-3.5" />
+                          إظهار <ChevronDown className="w-3.5 h-3.5" aria-hidden />
                         </>
                       ) : (
                         <>
-                          طي <ChevronUp className="w-3.5 h-3.5" />
+                          طي <ChevronUp className="w-3.5 h-3.5" aria-hidden />
                         </>
                       )}
                     </button>
@@ -726,70 +617,57 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
 
                   {/* Month Events Timeline List */}
                   {!isCollapsed && (
-                    <div className="space-y-2.5 ps-5 border-s border-border/40 ms-3">
-                      {visibleEvents.map((evt) => {
-                        const IconComp = getCategoryIcon(evt.category);
-                        const evtDate = new Date(evt.timestamp);
-                        const dateFormatted = `${evtDate.getDate()} ${MONTH_NAMES_AR[evtDate.getMonth()]}`;
-                        const timeFormatted = evtDate.toLocaleTimeString('ar', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        });
+                    <div className="space-y-2">
+                      <AppList>
+                        {visibleEvents.map((evt) => {
+                          const IconComp = getCategoryIcon(evt.category);
+                          const evtDate = new Date(evt.timestamp);
+                          const dateFormatted = `${evtDate.getDate()} ${MONTH_NAMES_AR[evtDate.getMonth()]}`;
+                          const timeFormatted = evtDate.toLocaleTimeString('ar', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          });
 
-                        return (
-                          <div
-                            key={evt.id}
-                            className="relative group flex items-start justify-between gap-3 p-3 rounded-xl bg-card border border-border/40 hover:border-primary/40 transition-colors"
-                          >
-                            {/* Bullet icon node on the rail */}
-                            <div className="absolute -start-[27px] top-3.5 w-6 h-6 rounded-full bg-background border border-border/60 flex items-center justify-center text-primary group-hover:border-primary/60 transition-colors">
-                              <IconComp className="w-3 h-3" />
-                            </div>
-
-                            {/* Event Details */}
-                            <div className="space-y-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="text-meta font-bold text-foreground">
-                                  {evt.titleAr}
-                                </h4>
-                                {evt.subtitleAr && (
-                                  <span className="text-micro font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-md">
-                                    {evt.subtitleAr}
+                          return (
+                            <AppRow
+                              key={evt.id}
+                              as="div"
+                              leading={
+                                <IconChip size="sm" tone="plain" aria-hidden>
+                                  <IconComp className="w-3.5 h-3.5" />
+                                </IconChip>
+                              }
+                              title={evt.titleAr}
+                              subtitle={
+                                [evt.subtitleAr, evt.detailsAr].filter(Boolean).join(' — ') ||
+                                undefined
+                              }
+                              value={
+                                <span className="flex flex-col gap-0.5 text-end">
+                                  <span className="font-semibold text-foreground/80 tabular-nums">
+                                    {dateFormatted}
                                   </span>
-                                )}
-                              </div>
-
-                              {evt.detailsAr && (
-                                <p className="text-micro text-muted-foreground">
-                                  {evt.detailsAr}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="text-end shrink-0 space-y-0.5">
-                              <span className="block text-micro font-semibold text-foreground/80 tabular-nums">
-                                {dateFormatted}
-                              </span>
-                              <span className="block text-micro text-muted-foreground tabular-nums">
-                                {timeFormatted}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
+                                  <span className="tabular-nums">{timeFormatted}</span>
+                                </span>
+                              }
+                            />
+                          );
+                        })}
+                      </AppList>
 
                       {remaining > 0 && (
-                        <button
+                        <Button
+                          variant="secondary"
+                          className="w-full"
                           onClick={() =>
                             setExpandedMonthPages((prev) => ({
                               ...prev,
                               [monthKey]: (prev[monthKey] ?? 1) + 1,
                             }))
                           }
-                          className="w-full py-2 rounded-xl bg-muted/20 border border-border/40 text-micro font-bold text-primary hover:bg-muted/30 transition-colors"
                         >
                           إظهار {Math.min(remaining, EVENTS_PER_MONTH_PAGE)} نشاطاً إضافياً (تبقّى {remaining})
-                        </button>
+                        </Button>
                       )}
                     </div>
                   )}
@@ -798,180 +676,118 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
             })}
           </div>
         ) : (
-          <div className="text-center py-12 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center mx-auto text-muted-foreground">
-              <Search className="w-6 h-6" />
-            </div>
-            <p className="text-meta font-semibold text-foreground">لم يتم العثور على أنشطة مطابقة</p>
-            <p className="text-micro text-muted-foreground max-w-sm mx-auto">
-              جرّب تغيير فئة البحث أو اختيار فترة زمنية مختلفة لاستعراض سجل المساهمات
-            </p>
-            {hasActiveFilters && (
-              <button
-                onClick={resetFilters}
-                className="text-micro font-bold text-primary hover:underline"
-              >
-                إعادة ضبط جميع الفلاتر
-              </button>
-            )}
-          </div>
+          <StateView
+            kind="search"
+            title="لم يتم العثور على أنشطة مطابقة"
+            body="جرّب تغيير فئة البحث أو اختيار فترة زمنية مختلفة لاستعراض سجل المساهمات"
+            action={
+              hasActiveFilters
+                ? { label: 'إعادة ضبط جميع الفلاتر', onClick: resetFilters }
+                : undefined
+            }
+          />
         )}
-      </section>
-
+      </AppCard>
 
       {/* 4. Cross-Module Statistics Breakdown Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Fitness Card */}
-        <div className="surface-depth rounded-2xl p-4 space-y-3">
+        <AppCard className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-data-1/10 flex items-center justify-center text-data-1">
-                <Activity className="w-4 h-4" />
-              </div>
+              <Activity className="w-4 h-4 text-muted-foreground" aria-hidden />
               <h3 className="text-meta font-bold text-foreground">اللياقة والتتبع</h3>
             </div>
             <span className="text-micro font-bold text-muted-foreground">Fitness</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.totalDistanceKm}</span>
-              <span className="block text-micro text-muted-foreground">كم مسافة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.totalWorkouts}</span>
-              <span className="block text-micro text-muted-foreground">أنشطة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-primary">{summary.totalCalories}</span>
-              <span className="block text-micro text-muted-foreground">سعرة</span>
-            </div>
-          </div>
-        </div>
+          <StatGrid cols={3}>
+            <Stat value={summary.totalDistanceKm} label="كم مسافة" />
+            <Stat value={summary.totalWorkouts} label="أنشطة" />
+            <Stat value={summary.totalCalories} label="سعرة" />
+          </StatGrid>
+        </AppCard>
 
         {/* German Club Card */}
-        <div className="surface-depth rounded-2xl p-4 space-y-3">
+        <AppCard className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-signal/10 flex items-center justify-center text-signal">
-                <Languages className="w-4 h-4" />
-              </div>
+              <Languages className="w-4 h-4 text-muted-foreground" aria-hidden />
               <h3 className="text-meta font-bold text-foreground">النادي الألماني</h3>
             </div>
             <span className="text-micro font-bold text-muted-foreground">Der Club</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.masteredWords}</span>
-              <span className="block text-micro text-muted-foreground">مفردة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.shelfMasteryPercent}%</span>
-              <span className="block text-micro text-muted-foreground">إتقان الأرفف</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-signal">{summary.surgeStreakDays}d</span>
-              <span className="block text-micro text-muted-foreground">سلسلة الاندفاع</span>
-            </div>
-          </div>
-        </div>
+          <StatGrid cols={3}>
+            <Stat value={summary.masteredWords} label="مفردة" />
+            <Stat value={`${summary.shelfMasteryPercent}%`} label="إتقان الأرفف" />
+            <Stat value={`${summary.surgeStreakDays}d`} label="سلسلة الاندفاع" />
+          </StatGrid>
+        </AppCard>
 
         {/* Diwan Poetry Card */}
-        <div className="surface-depth rounded-2xl p-4 space-y-3">
+        <AppCard className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-data-6/10 flex items-center justify-center text-data-6">
-                <Feather className="w-4 h-4" />
-              </div>
+              <Feather className="w-4 h-4 text-muted-foreground" aria-hidden />
               <h3 className="text-meta font-bold text-foreground">الديوان والمكتبة</h3>
             </div>
             <span className="text-micro font-bold text-muted-foreground">Diwan</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.savedPoemsCount}</span>
-              <span className="block text-micro text-muted-foreground">قصائد محفوظة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-data-6">{summary.readingHours}س</span>
-              <span className="block text-micro text-muted-foreground">ساعات القراءة</span>
-            </div>
-          </div>
-        </div>
+          <StatGrid cols={2}>
+            <Stat value={summary.savedPoemsCount} label="قصائد محفوظة" />
+            <Stat value={`${summary.readingHours}س`} label="ساعات القراءة" />
+          </StatGrid>
+        </AppCard>
 
         {/* PKM & Memory Card */}
-        <div className="surface-depth rounded-2xl p-4 space-y-3">
+        <AppCard className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-data-4/10 flex items-center justify-center text-data-4">
-                <BrainCircuit className="w-4 h-4" />
-              </div>
+              <BrainCircuit className="w-4 h-4 text-muted-foreground" aria-hidden />
               <h3 className="text-meta font-bold text-foreground">الذاكرة والملاحظات</h3>
             </div>
             <span className="text-micro font-bold text-muted-foreground">PKM</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.activeNotesCount}</span>
-              <span className="block text-micro text-muted-foreground">ملاحظات نشطة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-data-4">{summary.journalEntriesCount}</span>
-              <span className="block text-micro text-muted-foreground">تدوينات اليوميات</span>
-            </div>
-          </div>
-        </div>
+          <StatGrid cols={2}>
+            <Stat value={summary.activeNotesCount} label="ملاحظات نشطة" />
+            <Stat value={summary.journalEntriesCount} label="تدوينات اليوميات" />
+          </StatGrid>
+        </AppCard>
 
         {/* Travel Atlas Card */}
-        <div className="surface-depth rounded-2xl p-4 space-y-3">
+        <AppCard className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-signal/10 flex items-center justify-center text-signal">
-                <Compass className="w-4 h-4" />
-              </div>
+              <Compass className="w-4 h-4 text-muted-foreground" aria-hidden />
               <h3 className="text-meta font-bold text-foreground">أطلس الأسفار</h3>
             </div>
             <span className="text-micro font-bold text-muted-foreground">Atlas</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.visitedCountriesCount}</span>
-              <span className="block text-micro text-muted-foreground">بلدان مستكشفة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-signal">{summary.travelStampsCount}</span>
-              <span className="block text-micro text-muted-foreground">أختام سفر</span>
-            </div>
-          </div>
-        </div>
+          <StatGrid cols={2}>
+            <Stat value={summary.visitedCountriesCount} label="بلدان مستكشفة" />
+            <Stat value={summary.travelStampsCount} label="أختام سفر" />
+          </StatGrid>
+        </AppCard>
 
         {/* Spiritual Quran & Dhikr Card */}
-        <div className="surface-depth rounded-2xl p-4 space-y-3">
+        <AppCard className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-data-1/10 flex items-center justify-center text-data-1">
-                <HeartHandshake className="w-4 h-4" />
-              </div>
+              <HeartHandshake className="w-4 h-4 text-muted-foreground" aria-hidden />
               <h3 className="text-meta font-bold text-foreground">الأذكار والقرآن</h3>
             </div>
             <span className="text-micro font-bold text-muted-foreground">Dhikr</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-foreground">{summary.totalDhikrCount}</span>
-              <span className="block text-micro text-muted-foreground">تسبيحة ومودّة</span>
-            </div>
-            <div className="p-2 rounded-xl bg-card border border-border/40">
-              <span className="text-lead font-extrabold text-data-1">{summary.dhikrStreakDays}d</span>
-              <span className="block text-micro text-muted-foreground">سلسلة المواظبة</span>
-            </div>
-          </div>
-        </div>
+          <StatGrid cols={2}>
+            <Stat value={summary.totalDhikrCount} label="تسبيحة ومودّة" />
+            <Stat value={`${summary.dhikrStreakDays}d`} label="سلسلة المواظبة" />
+          </StatGrid>
+        </AppCard>
       </div>
     </div>
   );

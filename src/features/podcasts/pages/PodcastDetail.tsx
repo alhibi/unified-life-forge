@@ -25,8 +25,11 @@ import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppList, AppRow, IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import DynamicPodcastTheme from '@/features/podcasts/components/DynamicPodcastTheme';
 import EpisodeListItem from '@/features/podcasts/components/EpisodeListItem';
 import { extractSeedColor } from '@/features/podcasts/lib/colorExtract';
@@ -306,7 +309,7 @@ export default function PodcastDetail() {
   return (
     <DynamicPodcastTheme seedH={seed?.h ?? null} seedS={seed?.s ?? null} seedL={seed?.l ?? null}>
       {(themeStyle) => (
-        <div className="min-h-screen bg-background pb-40 relative" style={themeStyle}>
+        <div className="min-h-screen bg-background pb-page relative" style={themeStyle}>
           <SEO
             title={
               displayTitle
@@ -317,69 +320,55 @@ export default function PodcastDetail() {
             path={`/podcasts/${routeId}`}
           />
 
-          {/* Backdrop: blurred full-bleed cover, fading into the page
-              background. Sits at the absolute top so the title/cover
-              float over it. */}
-          {displayImage && (
-            <div className="absolute inset-x-0 top-0 h-[280px] overflow-hidden pointer-events-none">
-              <img
-                src={displayImage}
-                alt=""
-                className="w-full h-full object-cover scale-110"
-                style={{ filter: 'blur(44px) saturate(1.35)', opacity: 0.7 }}
-                aria-hidden
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundColor: 'hsl(var(--background) / 0.88)',
-                }}
-              />
-            </div>
-          )}
+          {/* The old blurred full-bleed cover backdrop was removed in the
+              unified design-system pass — decorative blur/veils are not
+              allowed in chrome. The cover itself stays in the hero below. */}
 
-          {/* Top bar */}
-          <div className="sticky top-0 z-header px-4 pt-3 pb-2 flex items-center justify-between">
-            <BackButton />
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleShare}
-                disabled={!feed.data && !meta.data?.link}
-                aria-label={'مشاركة'}
-                title={copiedLink ? ('تم نسخ الرابط') : undefined}
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/60 hover:bg-secondary active:scale-95 transition-transform disabled:opacity-50"
-              >
-                {copiedLink ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-              </button>
-              <button
-                onClick={handleSubscribeToggle}
-                disabled={!feed.data}
-                className="flex items-center gap-1.5 h-10 px-4 rounded-full text-mini font-bold transition-colors active:scale-95 disabled:opacity-50"
-                style={{
-                  background: subscribed
-                    ? 'transparent'
-                    : 'var(--podcast-primary, hsl(var(--primary)))',
-                  color: subscribed
-                    ? 'var(--podcast-primary, hsl(var(--primary)))'
-                    : 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
-                  border: subscribed
-                    ? '1.5px solid var(--podcast-primary, hsl(var(--primary)))'
-                    : 'none',
-                }}
-              >
-                {subscribed ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                <span>
-                  {subscribed
-                    ? 'مشترك'
-                    : 'اشترك'}
-                </span>
-              </button>
-            </div>
-          </div>
+          {/* Top bar — canonical sticky page header. */}
+          <PageHeader
+            sticky
+            title={displayTitle || 'بودكاست'}
+            className="max-w-lg mx-auto"
+            right={
+              <>
+                <IconButton
+                  onClick={handleShare}
+                  disabled={!feed.data && !meta.data?.link}
+                  aria-label={'مشاركة'}
+                  title={copiedLink ? 'تم نسخ الرابط' : undefined}
+                >
+                  {copiedLink ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+                </IconButton>
+                <button
+                  onClick={handleSubscribeToggle}
+                  disabled={!feed.data}
+                  className="flex items-center gap-1.5 h-10 px-4 rounded-full text-mini font-bold transition-colors disabled:opacity-50"
+                  style={{
+                    background: subscribed
+                      ? 'transparent'
+                      : 'var(--podcast-primary, hsl(var(--primary)))',
+                    color: subscribed
+                      ? 'var(--podcast-primary, hsl(var(--primary)))'
+                      : 'var(--podcast-primary-fg, hsl(var(--primary-foreground)))',
+                    border: subscribed
+                      ? '1.5px solid var(--podcast-primary, hsl(var(--primary)))'
+                      : 'none',
+                  }}
+                >
+                  {subscribed ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  <span>
+                    {subscribed
+                      ? 'مشترك'
+                      : 'اشترك'}
+                  </span>
+                </button>
+              </>
+            }
+          />
 
           {/* Header — cover, title, author */}
           <header className="relative px-6 pt-2 pb-4 flex flex-col items-center text-center">
-            <div className="w-40 h-40 rounded-3xl overflow-hidden bg-muted/40 mb-5" style={{}}>
+            <div className="w-40 h-40 rounded-3xl overflow-hidden bg-muted/40 mb-5">
               {displayImage ? (
                 <img src={displayImage} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -405,24 +394,20 @@ export default function PodcastDetail() {
                   {'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'}
                 </p>
                 <div className="flex items-center justify-center gap-2">
-                  <button
+                  <Button
                     onClick={() => {
                       void meta.refetch();
                       void feed.refetch();
                     }}
-                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95"
                   >
                     {'إعادة المحاولة'}
-                  </button>
+                  </Button>
                   {meta.data?.link && (
-                    <a
-                      href={meta.data.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-xl bg-muted text-foreground text-meta font-semibold"
-                    >
-                      {'فتح في Apple Podcasts'}
-                    </a>
+                    <Button asChild variant="secondary">
+                      <a href={meta.data.link} target="_blank" rel="noopener noreferrer">
+                        {'فتح في Apple Podcasts'}
+                      </a>
+                    </Button>
                   )}
                 </div>
                 <details className="mt-3 text-start">
@@ -442,7 +427,7 @@ export default function PodcastDetail() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
-                className="rounded-2xl bg-card border border-border p-4"
+                className="app-card rounded-2xl p-4"
               >
                 <div
                   // When `<p>` blocks are present `line-clamp-N` doesn't
@@ -489,46 +474,41 @@ export default function PodcastDetail() {
 
             {/* Metadata rows */}
             {feed.data && (
-              <div className="rounded-2xl bg-card border border-border divide-y divide-border/40 overflow-hidden">
+              <AppList className="rounded-2xl">
                 {displayLink && (
-                  <a
+                  <AppRow
+                    as="a"
                     href={displayLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-micro text-muted-foreground">
-                        {'المصدر'}
-                      </p>
-                      <p className="text-mini truncate text-foreground">{displayLink}</p>
-                    </div>
-                  </a>
+                    leading={<ExternalLink className="h-4 w-4 text-muted-foreground" />}
+                    title={
+                      <span dir="ltr" className="block truncate">
+                        {displayLink}
+                      </span>
+                    }
+                    subtitle={'المصدر'}
+                  />
                 )}
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <Rss className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-micro text-muted-foreground">RSS</p>
-                    <p className="text-mini truncate text-foreground" dir="ltr">
+                <AppRow
+                  as="div"
+                  leading={<Rss className="h-4 w-4 text-muted-foreground" />}
+                  title={
+                    <span dir="ltr" className="block truncate">
                       {feed.data.origin}
-                    </p>
-                  </div>
-                </div>
+                    </span>
+                  }
+                  subtitle={'RSS'}
+                />
                 {feed.data.languageCode && (
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-micro text-muted-foreground">
-                        {'اللغة'}
-                      </p>
-                      <p className="text-mini uppercase text-foreground">
-                        {feed.data.languageCode}
-                      </p>
-                    </div>
-                  </div>
+                  <AppRow
+                    as="div"
+                    leading={<Globe className="h-4 w-4 text-muted-foreground" />}
+                    title={<span className="uppercase">{feed.data.languageCode}</span>}
+                    subtitle={'اللغة'}
+                  />
                 )}
-              </div>
+              </AppList>
             )}
 
             {/* Episodes section heading + controls (search & sort).
@@ -605,7 +585,7 @@ export default function PodcastDetail() {
                     <button
                       type="button"
                       onClick={() => setSortOrder((o) => (o === 'newest' ? 'oldest' : 'newest'))}
-                      className="h-9 px-3 rounded-full bg-muted/40 border border-border/40 text-mini font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
+                      className="h-9 px-3 rounded-full bg-muted/40 border border-border/40 text-mini font-semibold flex items-center gap-1.5"
                       aria-label={'تبديل الترتيب'}
                       title={
                         sortOrder === 'newest'
@@ -657,7 +637,7 @@ export default function PodcastDetail() {
                   <button
                     type="button"
                     onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="w-full py-3 rounded-2xl text-mini font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition"
+                    className="w-full py-3 rounded-2xl text-mini font-semibold border border-border/50 bg-muted/40 hover:bg-muted/60 transition"
                     style={{ color: 'var(--podcast-primary, hsl(var(--primary)))' }}
                   >
                     {`تحميل المزيد (${filteredSortedEpisodes.length - visibleCount})`}
@@ -665,21 +645,23 @@ export default function PodcastDetail() {
                 )}
                 {/* Empty filter result */}
                 {debouncedEpisodeQuery && filteredSortedEpisodes.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-meta text-muted-foreground">
-                      {'لا توجد حلقات تطابق بحثك'}
-                    </p>
-                  </div>
+                  <StateView
+                    kind="search"
+                    title={'لا توجد حلقات تطابق بحثك'}
+                    body={'جرّب كلمة أقصر أو جزءاً من عنوان الحلقة.'}
+                    compact
+                  />
                 )}
               </div>
             )}
 
             {feed.data && feed.data.episodes.length === 0 && (
-              <div className="text-center py-10">
-                <p className="text-meta text-muted-foreground">
-                  {'لا توجد حلقات منشورة بعد'}
-                </p>
-              </div>
+              <StateView
+                kind="empty"
+                title={'لا توجد حلقات منشورة بعد'}
+                body={'سيظهر هنا أول ما ينشر البودكاست حلقة جديدة.'}
+                compact
+              />
             )}
           </div>
         </div>

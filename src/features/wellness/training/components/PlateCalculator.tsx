@@ -74,7 +74,7 @@ export default function PlateCalculator({
   };
 
   return (
-    <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-4 ${className}`}>
+    <div className={`app-card p-4 space-y-4 ${className}`}>
       {/* Total + stepper */}
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -92,14 +92,14 @@ export default function PlateCalculator({
         <div className="flex items-center gap-1">
           <button
             onClick={() => updateTarget(roundToGymWeight(target - 2.5))}
-            className="w-10 h-10 rounded-xl bg-muted text-foreground flex items-center justify-center active:scale-95"
+            className="w-10 h-10 rounded-lg bg-muted text-foreground flex items-center justify-center"
             aria-label="-2.5"
           >
             <Minus className="w-4 h-4" />
           </button>
           <button
             onClick={() => updateTarget(roundToGymWeight(target + 2.5))}
-            className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95"
+            className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center"
             aria-label="+2.5"
           >
             <Plus className="w-4 h-4" />
@@ -117,6 +117,8 @@ export default function PlateCalculator({
       {groups.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {groups.map((g) => (
+            // Plate swatches use the documented IPF/Eleiko plate colour code
+            // from plateMath.ts — real-world data, not UI chrome.
             <div
               key={g.kg}
               className="px-2 py-1 rounded-lg text-micro font-bold tabular-nums flex items-center gap-1"
@@ -221,7 +223,7 @@ function BarrellSvg({
           />
           <div
             className="absolute inset-y-0 start-0 end-0 mx-auto"
-            style={{ width: '20%', background: '#9ca3af', height: '100%', borderRadius: 2 }}
+            style={{ width: '20%', background: 'hsl(var(--muted-foreground))', height: '100%', borderRadius: 2 }}
           />
         </div>
         {/* Right sleeve */}

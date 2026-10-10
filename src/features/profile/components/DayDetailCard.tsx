@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
+import { IconButton } from '@/components/ui/app-shell';
 import {
   Activity,
   Brain,
@@ -202,23 +203,9 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.28, ease: 'easeOut' }}
-        className="surface-depth rounded-2xl p-5 space-y-5 relative overflow-hidden ring-1 ring-primary/15"
+        className="app-card relative space-y-5 p-5 overflow-hidden ring-1 ring-primary/15"
         dir="rtl"
       >
-        {/* Golden aura when this is the best day */}
-        {isBestDay && (
-          <motion.div
-            aria-hidden
-            className="absolute -inset-12 pointer-events-none"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 50% 0%, rgba(245, 200, 60, 0.16), transparent 70%)',
-            }}
-            animate={{ opacity: [0.45, 0.8, 0.45] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        )}
-
         {/* ── Header: date identity + navigation ── */}
         <div className="relative flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -335,8 +322,6 @@ export const DayDetailCard: React.FC<DayDetailCardProps> = ({
                 {/* Segmented composition bar */}
                 <div className="flex h-3 w-full rounded-full overflow-hidden border border-border/30">
                   {slices.map((s, i) => {
-                    const Icon = MODULE_ICONS[s.category] || Sparkles;
-                    void Icon;
                     return (
                       <motion.div
                         key={s.category}
@@ -451,18 +436,15 @@ function NavButton({
   title: string;
 }) {
   return (
-    <button
+    <IconButton
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`w-8 h-8 rounded-xl flex items-center justify-center text-micro font-bold transition-motion ${
-        disabled
-          ? 'bg-muted/20 text-muted-foreground/40 cursor-not-allowed'
-          : 'bg-muted/20 border border-border/40 text-foreground hover:bg-muted/40 active:scale-95'
-      }`}
+      aria-label={title}
+      className={disabled ? 'opacity-40' : undefined}
     >
       {children}
-    </button>
+    </IconButton>
   );
 }
 

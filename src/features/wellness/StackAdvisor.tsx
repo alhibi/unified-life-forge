@@ -1,8 +1,11 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
-import { AlertTriangle, Check,ChevronDown, FlaskConical, Sparkles, Utensils, Zap } from '@/lib/icons';
+import { AlertTriangle, Check,ChevronDown, Sparkles, Utensils, Zap } from '@/lib/icons';
 
 import { FoodIcon } from './foodIcons';
 import {
@@ -34,6 +37,10 @@ interface Props {
  * Interactive stack picker. Lets the user select 2+ nutrients (or seed from
  * their active supplements) and see concrete benefits, warnings, timing
  * advice, and food boosters — all from the offline knowledge base.
+ *
+ * System-unification pass: cards are <AppCard>, the no-match/empty block
+ * is <StateView>, text actions are <Button>, and the per-button press
+ * scaling / `active:bg-*` overrides were dropped (global press owns it).
  */
 export default function StackAdvisor({ supplements }: Props) {
   const { language } = useApp();
@@ -100,7 +107,7 @@ export default function StackAdvisor({ supplements }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-meta font-bold text-foreground flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-primary" />
+            <Sparkles className="w-4 h-4 text-primary" aria-hidden />
             {'مستشار التركيبات'}
           </h3>
           <p className="text-micro text-muted-foreground mt-0.5">
@@ -110,27 +117,31 @@ export default function StackAdvisor({ supplements }: Props) {
       </div>
 
       {/* Selected nutrients chip row */}
-      <div className="bg-card border border-border/40 rounded-2xl p-3 space-y-2">
+      <AppCard className="p-3 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider">
             {'تركيبتك'} ({selected.length})
           </p>
           <div className="flex gap-2">
             {activeNutrients.length > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="xs"
+                className="text-primary"
                 onClick={seedFromActive}
-                className="text-micro font-semibold text-primary active:scale-95 transition-transform"
               >
                 {'من مكملاتي'}
-              </button>
+              </Button>
             )}
             {selected.length > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="xs"
+                className="text-muted-foreground"
                 onClick={clear}
-                className="text-micro font-semibold text-muted-foreground active:scale-95 transition-transform"
               >
                 {'مسح'}
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -154,15 +165,18 @@ export default function StackAdvisor({ supplements }: Props) {
           </div>
         )}
 
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
+          className="w-full mt-1"
           onClick={() => setPickerOpen((v) => !v)}
-          className="w-full mt-1 py-2 rounded-xl bg-muted/40 text-mini font-semibold text-foreground flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
         >
           {'إضافة عنصر'}
           <ChevronDown
             className={`w-3.5 h-3.5 transition-transform ${pickerOpen ? 'rotate-180' : ''}`}
+            aria-hidden
           />
-        </button>
+        </Button>
 
         <AnimatePresence>
           {pickerOpen && (
@@ -180,6 +194,7 @@ export default function StackAdvisor({ supplements }: Props) {
                     <button
                       key={n.key}
                       onClick={() => toggle(n.key)}
+                      aria-pressed={sel}
                       className={`text-micro px-2 py-1 rounded-full border transition-colors ${
                         sel
                           ? 'bg-primary/15 border-primary/40 text-primary'
@@ -194,13 +209,13 @@ export default function StackAdvisor({ supplements }: Props) {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </AppCard>
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <div className="bg-destructive/5 border border-destructive/30 rounded-2xl p-3 space-y-1.5">
+        <AppCard className="p-3 space-y-1.5 bg-destructive/5">
           <p className="text-micro font-bold text-destructive uppercase tracking-wider flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" />
+            <AlertTriangle className="w-3.5 h-3.5" aria-hidden />
             {'تحذيرات تركيبة'}
           </p>
           {warnings.map((w) => (
@@ -208,17 +223,16 @@ export default function StackAdvisor({ supplements }: Props) {
               {w.message[lang]}
             </p>
           ))}
-        </div>
+        </AppCard>
       )}
 
       {/* Matched synergies */}
       {selected.length >= 2 && matches.length === 0 && (
-        <div className="bg-card border border-dashed border-border/50 rounded-2xl p-5 text-center">
-          <FlaskConical className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-          <p className="text-mini text-muted-foreground">
-            {'لا توجد تركيبة معروفة بهذا المزيج بعد. جرّب إضافة فيتامين د، سي، أو مغنيسيوم.'}
-          </p>
-        </div>
+        <StateView
+          kind="empty"
+          title="لا توجد تركيبة معروفة بهذا المزيج بعد."
+          body="جرّب إضافة فيتامين د، سي، أو مغنيسيوم."
+        />
       )}
 
       <div className="space-y-2">
@@ -227,136 +241,132 @@ export default function StackAdvisor({ supplements }: Props) {
           const isOpen = expandedId === syn.id;
           const domain = DOMAIN_META[syn.domain];
           return (
-            <motion.div
-              key={syn.id}
-              layout
-              className={`rounded-2xl border overflow-hidden ${
-                isFull
-                  ? 'bg-primary/5 border-primary/30'
-                  : 'bg-card border-border/40'
-              }`}
-            >
-              <button
-                onClick={() => setExpandedId(isOpen ? null : syn.id)}
-                className="w-full p-3.5 text-start flex items-start gap-3 active:bg-muted/30 transition-colors"
-              >
-                <div className="w-9 h-9 rounded-xl bg-card border border-border/40 flex items-center justify-center shrink-0 text-body">
-                  {domain.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <h4 className="text-mini font-bold text-foreground">
-                      {syn.title[lang]}
-                    </h4>
-                    {isFull && (
-                      <span className="text-micro font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
-                        <Check className="w-2.5 h-2.5" />
-                        {'مكتمل'}
-                      </span>
-                    )}
+            <motion.div key={syn.id} layout>
+              <AppCard className={`overflow-hidden ${isFull ? 'bg-primary/5' : ''}`}>
+                <button
+                  onClick={() => setExpandedId(isOpen ? null : syn.id)}
+                  aria-expanded={isOpen}
+                  className="w-full p-3.5 text-start flex items-start gap-3 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-muted/40 flex items-center justify-center shrink-0 text-body">
+                    {domain.icon}
                   </div>
-                  <div className="flex items-center gap-1.5 mt-1 text-micro text-muted-foreground">
-                    <span className="px-1.5 py-0.5 rounded-full bg-muted/60">
-                      {domain.label[lang]}
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-muted/60">
-                      {EVIDENCE_LABEL[syn.evidence][lang]}
-                    </span>
-                    {!isFull && (
-                      <span className="text-warning font-semibold">
-                        {`ينقص ${missing.length}`}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <ChevronDown
-                  className={`w-4 h-4 text-muted-foreground shrink-0 mt-1.5 transition-transform ${
-                    isOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.22 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-3.5 pb-3.5 space-y-3 border-t border-border/30 pt-3">
-                      {/* Benefits */}
-                      <div>
-                        <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                          <Zap className="w-3 h-3" />
-                          {'الفوائد'}
-                        </p>
-                        <ul className="space-y-1">
-                          {syn.benefits[lang].map((b, i) => (
-                            <li
-                              key={i}
-                              className="text-mini text-foreground/90 leading-relaxed flex gap-2"
-                            >
-                              <span className="text-primary mt-1 shrink-0">●</span>
-                              <span>{b}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* How-to */}
-                      <div className="bg-muted/30 rounded-xl p-2.5">
-                        <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1">
-                          {'الطريقة'}
-                        </p>
-                        <p className="text-mini text-foreground/90 leading-relaxed">
-                          {syn.howTo[lang]}
-                        </p>
-                      </div>
-
-                      {/* Missing nutrients to complete */}
-                      {!isFull && (
-                        <div>
-                          <p className="text-micro font-bold text-warning uppercase tracking-wider mb-1.5">
-                            {'لإكمال التركيبة أضف'}
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {missing.map((k) => (
-                              <button
-                                key={k}
-                                onClick={() => toggle(k)}
-                                className="text-micro px-2 py-1 rounded-full bg-warning/10 border border-warning/40 text-warning font-semibold"
-                              >
-                                + {NUTRIENTS[k]?.label[lang] ?? k}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Food boosters */}
-                      {syn.foodBoosters && syn.foodBoosters.length > 0 && (
-                        <div>
-                          <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                            <Utensils className="w-3 h-3" />
-                            {'أطعمة تعزز'}
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {syn.foodBoosters.map((fk) => {
-                              const f = FOODS[fk];
-                              if (!f) return null;
-                              return (
-                                <FoodChip key={fk} foodKey={fk} label={f.label[lang]} />
-                              );
-                            })}
-                          </div>
-                        </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h4 className="text-mini font-bold text-foreground">
+                        {syn.title[lang]}
+                      </h4>
+                      {isFull && (
+                        <span className="text-micro font-bold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground flex items-center gap-0.5">
+                          <Check className="w-2.5 h-2.5" aria-hidden />
+                          {'مكتمل'}
+                        </span>
                       )}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <div className="flex items-center gap-1.5 mt-1 text-micro text-muted-foreground">
+                      <span className="px-1.5 py-0.5 rounded-full bg-muted/60">
+                        {domain.label[lang]}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-muted/60">
+                        {EVIDENCE_LABEL[syn.evidence][lang]}
+                      </span>
+                      {!isFull && (
+                        <span className="text-warning font-semibold">
+                          {`ينقص ${missing.length}`}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground shrink-0 mt-1.5 transition-transform ${
+                      isOpen ? 'rotate-180' : ''
+                    }`}
+                    aria-hidden
+                  />
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-3.5 pb-3.5 space-y-3 border-t border-border/30 pt-3">
+                        {/* Benefits */}
+                        <div>
+                          <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                            <Zap className="w-3 h-3" aria-hidden />
+                            {'الفوائد'}
+                          </p>
+                          <ul className="space-y-1">
+                            {syn.benefits[lang].map((b, i) => (
+                              <li
+                                key={i}
+                                className="text-mini text-foreground/90 leading-relaxed flex gap-2"
+                              >
+                                <span className="text-primary mt-1 shrink-0">●</span>
+                                <span>{b}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* How-to */}
+                        <div className="bg-muted/30 rounded-lg p-2.5">
+                          <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1">
+                            {'الطريقة'}
+                          </p>
+                          <p className="text-mini text-foreground/90 leading-relaxed">
+                            {syn.howTo[lang]}
+                          </p>
+                        </div>
+
+                        {/* Missing nutrients to complete */}
+                        {!isFull && (
+                          <div>
+                            <p className="text-micro font-bold text-warning uppercase tracking-wider mb-1.5">
+                              {'لإكمال التركيبة أضف'}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {missing.map((k) => (
+                                <button
+                                  key={k}
+                                  onClick={() => toggle(k)}
+                                  className="text-micro px-2 py-1 rounded-full bg-warning/10 border border-warning/40 text-warning font-semibold"
+                                >
+                                  + {NUTRIENTS[k]?.label[lang] ?? k}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Food boosters */}
+                        {syn.foodBoosters && syn.foodBoosters.length > 0 && (
+                          <div>
+                            <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                              <Utensils className="w-3 h-3" aria-hidden />
+                              {'أطعمة تعزز'}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {syn.foodBoosters.map((fk) => {
+                                const f = FOODS[fk];
+                                if (!f) return null;
+                                return (
+                                  <FoodChip key={fk} foodKey={fk} label={f.label[lang]} />
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </AppCard>
             </motion.div>
           );
         })}
@@ -364,9 +374,9 @@ export default function StackAdvisor({ supplements }: Props) {
 
       {/* Recommended foods across all full matches */}
       {recommendedFoods.length > 0 && (
-        <div className="bg-card border border-border/40 rounded-2xl p-3.5">
+        <AppCard className="p-3.5">
           <p className="text-micro font-bold text-muted-foreground-subtle uppercase tracking-wider mb-2 flex items-center gap-1">
-            <Utensils className="w-3 h-3" />
+            <Utensils className="w-3 h-3" aria-hidden />
             {'أضف هذه إلى يومك'}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -374,7 +384,7 @@ export default function StackAdvisor({ supplements }: Props) {
               <FoodChip key={f.key} foodKey={f.key} label={f.label[lang]} />
             ))}
           </div>
-        </div>
+        </AppCard>
       )}
     </div>
   );

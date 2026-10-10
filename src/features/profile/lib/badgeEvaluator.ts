@@ -67,9 +67,10 @@ export function evaluateProfileBadges(
 
   // Try to get cached result first
   const cached = badgeCache.read(summaryHash);
-  if (cached.valid && cached.value?.length === APP_BADGES.length) {
+  const cachedBadges = cached.value as ProfileBadge[] | undefined;
+  if (cached.valid && cachedBadges && cachedBadges.length === APP_BADGES.length) {
     // Verify cache has all badges (not partial/missing)
-    return cached.value as typeof APP_BADGES;
+    return cachedBadges;
   }
 
   // Compute badges fresh (fallback to computation)
@@ -250,7 +251,6 @@ export function evaluateProfileBadges(
 
       case 'badge_deep_work_master': {
         // Proxy: use reading hours or notes as deep work indicator
-        const target = 1;
         const current = summary.readingHours >= 1.5 ? 1 : (summary.activeNotesCount >= 5 ? 1 : 0);
         progress = current * 100;
         milestoneLabel = current ? 'جلسة 90+ دقيقة' : '0/1 جلسة';
@@ -340,8 +340,9 @@ export function evaluateProfileBadgesSession(
 ): ProfileBadge[] {
   // Use session cache (in-memory, faster, no localStorage)
   const cached = sessionBadgeCache.read('latest-eval');
-  if (cached.valid && cached.value?.length === APP_BADGES.length) {
-    return cached.value as typeof APP_BADGES;
+  const cachedBadges = cached.value as ProfileBadge[] | undefined;
+  if (cached.valid && cachedBadges && cachedBadges.length === APP_BADGES.length) {
+    return cachedBadges;
   }
 
   // Compute badges

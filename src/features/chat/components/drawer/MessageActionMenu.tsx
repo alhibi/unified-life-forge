@@ -183,7 +183,7 @@ export default function MessageActionMenu({
                             chat.toggleReaction(actionMenu.msg.id, emoji);
                             onClose();
                           }}
-                          className="text-display active:scale-125 transition-transform px-[2px]"
+                          className="text-display transition-transform px-[2px]"
                           aria-label={`React with ${emoji}`}
                         >
                           {emoji}
@@ -238,7 +238,7 @@ export default function MessageActionMenu({
                           onClose();
                           chat.inputRef.current?.focus();
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                       >
                         <Reply className="w-4 h-4 text-muted-foreground" />
                         <span className="text-mini">{'رد'}</span>
@@ -248,7 +248,7 @@ export default function MessageActionMenu({
                           chat.startForward([actionMenu.msg]);
                           onClose();
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                       >
                         <Share2 className="w-4 h-4 text-muted-foreground" />
                         <span className="text-mini">{'توجيه'}</span>
@@ -259,7 +259,7 @@ export default function MessageActionMenu({
                             chat.copyMessage(stripMarkers(actionMenu.msg.content));
                             onClose();
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                          className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                         >
                           <Copy className="w-4 h-4 text-muted-foreground" />
                           <span className="text-mini">{'نسخ النص'}</span>
@@ -273,7 +273,7 @@ export default function MessageActionMenu({
                               chat.startEditMessage(actionMenu.msg);
                               onClose();
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                            className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                           >
                             <Pencil className="w-4 h-4 text-muted-foreground" />
                             <span className="text-mini">{'تعديل'}</span>
@@ -284,7 +284,7 @@ export default function MessageActionMenu({
                           chat.pinMessage(actionMenu.msg);
                           onCloseKeepingEmojiTray();
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                       >
                         {chat.pinnedMessage?.id === actionMenu.msg.id ? (
                           <PinOff className="w-4 h-4 text-muted-foreground" />
@@ -300,7 +300,7 @@ export default function MessageActionMenu({
                           chat.toggleSelect(actionMenu.msg.id);
                           onClose();
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                        className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                       >
                         <Check className="w-4 h-4 text-muted-foreground" />
                         <span className="text-mini">{'تحديد'}</span>
@@ -312,7 +312,7 @@ export default function MessageActionMenu({
                             onShowMessageInfo(actionMenu.msg);
                             onClose();
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                          className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                         >
                           <Calendar className="w-4 h-4 text-muted-foreground" />
                           <span className="text-mini">{'معلومات الرسالة'}</span>
@@ -325,7 +325,7 @@ export default function MessageActionMenu({
                             chat.hideMessageForSelf(actionMenu.msg.id);
                             onClose();
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2 active:bg-accent/30 transition-colors text-start"
+                          className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                         >
                           <EyeOff className="w-4 h-4 text-muted-foreground" />
                           <span className="text-mini">{'حذف لي فقط'}</span>
@@ -339,7 +339,7 @@ export default function MessageActionMenu({
                               chat.deleteMessage(actionMenu.msg.id);
                               onClose();
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2 active:bg-destructive/10 transition-colors text-start"
+                            className="w-full flex items-center gap-3 px-4 py-2 transition-colors text-start"
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                             <span className="text-mini text-destructive">{'حذف للجميع'}</span>

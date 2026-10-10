@@ -5,7 +5,7 @@
 //   - يُصدر حالة المصدر (demo/offline/none) إلى fallback-status لعرض
 //     badge شفّاف للمستخدم (راجع DiwanFallbackBadge).
 
-import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import {
@@ -51,12 +51,10 @@ import type {
   DiwanLibraryStats,
   DiwanPoemDetail,
   DiwanPoemSearchResult,
-  DiwanPoemSummary,
   DiwanPoetSummary,
   DiwanSimilarPoem,
   DiwanSmartSearchItem,
   DiwanSuggestItem,
-  DiwanVerseSearchResult,
 } from './types';
 
 const STALE = 5 * 60 * 1000;
@@ -132,11 +130,22 @@ export function useDiwanStats(): UseQueryResult<DiwanLibraryStats> {
   });
 }
 
-// ─── Poets list ────────────────────────────────────────────────────────
-export function useDiwanPoets(p: PoetsListParams = {}): UseQueryResult<DiwanPoetSummary[]> {
-  return useQuery({
-    queryKey: ['diwan', 'poets', p],
-    queryFn: withFallback(() => fetchPoets(p), () => localPoets(p)),
+// ─── Poets list (infinite) ─────────────────────────────────────────────
+// كانت الصفحات تدمج كل صفحة جديدة في حالة محلية داخل useEffect —
+// دورات عرض متتالية (setState-in-effect). التراكم الآن من مسؤولية
+// useInfiniteQuery: الصفحة تقرأ data.pages وتستدعي fetchNextPage فقط.
+export function useDiwanPoets(p: Omit<PoetsListParams, 'page'> = {}) {
+  const size = p.pageSize ?? 30;
+  return useInfiniteQuery({
+    queryKey: ['diwan', 'poets', 'infinite', p],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      withFallback(
+        () => fetchPoets({ ...p, page: pageParam }),
+        () => localPoets({ ...p, page: pageParam }),
+      )(),
+    getNextPageParam: (lastPage, _pages, lastParam) =>
+      lastPage.length < size ? undefined : lastParam + 1,
     staleTime: STALE,
   });
 }
@@ -154,12 +163,20 @@ export function useDiwanPoet(slug?: string): UseQueryResult<DiwanPoetSummary | n
   });
 }
 
-// ─── Poet poems ────────────────────────────────────────────────────────
-export function useDiwanPoetPoems(p: PoetPoemsParams): UseQueryResult<DiwanPoemSummary[]> {
-  return useQuery({
-    queryKey: ['diwan', 'poet-poems', p],
-    queryFn: withFallback(() => fetchPoetPoems(p), () => localPoetPoems(p)),
+// ─── Poet poems (infinite) ─────────────────────────────────────────────
+export function useDiwanPoetPoems(p: Omit<PoetPoemsParams, 'page'>) {
+  const size = p.pageSize ?? 30;
+  return useInfiniteQuery({
+    queryKey: ['diwan', 'poet-poems', 'infinite', p],
+    initialPageParam: 0,
     enabled: !!p.poetSlug,
+    queryFn: ({ pageParam }) =>
+      withFallback(
+        () => fetchPoetPoems({ ...p, page: pageParam }),
+        () => localPoetPoems({ ...p, page: pageParam }),
+      )(),
+    getNextPageParam: (lastPage, _pages, lastParam) =>
+      lastPage.length < size ? undefined : lastParam + 1,
     staleTime: STALE,
   });
 }
@@ -177,21 +194,37 @@ export function useDiwanPoem(slug?: string): UseQueryResult<DiwanPoemDetail | nu
   });
 }
 
-// ─── Search poems ──────────────────────────────────────────────────────
-export function useDiwanSearchPoems(p: PoemSearchParams): UseQueryResult<DiwanPoemSearchResult[]> {
-  return useQuery({
-    queryKey: ['diwan', 'search-poems', p],
-    queryFn: withFallback(() => searchPoems(p), () => localSearchPoems(p)),
+// ─── Search poems (infinite) ───────────────────────────────────────────
+export function useDiwanSearchPoems(p: Omit<PoemSearchParams, 'page'>) {
+  const size = p.pageSize ?? 30;
+  return useInfiniteQuery({
+    queryKey: ['diwan', 'search-poems', 'infinite', p],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      withFallback(
+        () => searchPoems({ ...p, page: pageParam }),
+        () => localSearchPoems({ ...p, page: pageParam }),
+      )(),
+    getNextPageParam: (lastPage, _pages, lastParam) =>
+      lastPage.length < size ? undefined : lastParam + 1,
     staleTime: STALE,
   });
 }
 
-// ─── Search verses ─────────────────────────────────────────────────────
-export function useDiwanSearchVerses(p: VerseSearchParams): UseQueryResult<DiwanVerseSearchResult[]> {
-  return useQuery({
-    queryKey: ['diwan', 'search-verses', p],
-    queryFn: withFallback(() => searchVerses(p), () => localSearchVerses(p)),
+// ─── Search verses (infinite) ──────────────────────────────────────────
+export function useDiwanSearchVerses(p: Omit<VerseSearchParams, 'page'>) {
+  const size = p.pageSize ?? 30;
+  return useInfiniteQuery({
+    queryKey: ['diwan', 'search-verses', 'infinite', p],
+    initialPageParam: 0,
     enabled: !!p.q,
+    queryFn: ({ pageParam }) =>
+      withFallback(
+        () => searchVerses({ ...p, page: pageParam }),
+        () => localSearchVerses({ ...p, page: pageParam }),
+      )(),
+    getNextPageParam: (lastPage, _pages, lastParam) =>
+      lastPage.length < size ? undefined : lastParam + 1,
     staleTime: STALE,
   });
 }

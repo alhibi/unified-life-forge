@@ -13,6 +13,10 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { AppList, AppRow, IconChip } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import { Plus, Search, Star, X } from '@/lib/icons';
 
 import {
@@ -130,12 +134,12 @@ export default function ExercisePickerSheet({
 
               {/* Search */}
               <div className="relative">
-                <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <input
+                <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground pointer-events-none" aria-hidden />
+                <Input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder={T.search[lang]}
-                  className="w-full bg-card border border-border/40 rounded-xl ps-9 pe-3 py-2.5 text-body text-foreground outline-none focus:border-primary/50"
+                  className="ps-9"
                   autoFocus
                 />
               </div>
@@ -147,7 +151,7 @@ export default function ExercisePickerSheet({
                   className={`shrink-0 inline-flex items-center gap-1 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                     bigOnly
                       ? 'bg-signal text-primary-foreground border-signal'
-                      : 'bg-card text-muted-foreground border-border/40'
+                      : 'bg-background text-muted-foreground border-border/40'
                   }`}
                 >
                   <Star className="w-3 h-3" />
@@ -158,7 +162,7 @@ export default function ExercisePickerSheet({
                   className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                     showSilhouette
                       ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-card text-muted-foreground border-border/40'
+                      : 'bg-background text-muted-foreground border-border/40'
                   }`}
                 >
                   {T.byMuscle[lang]}
@@ -167,7 +171,7 @@ export default function ExercisePickerSheet({
 
               {/* Body silhouette */}
               {showSilhouette && (
-                <div className="flex justify-center bg-card border border-border/40 rounded-2xl p-2">
+                <div className="app-card app-card-flat flex justify-center p-2">
                   <BodySilhouette
                     view="both"
                     width={280}
@@ -191,7 +195,7 @@ export default function ExercisePickerSheet({
                       className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                         active
                           ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-card text-muted-foreground border-border/40'
+                          : 'bg-background text-muted-foreground border-border/40'
                       }`}
                     >
                       {m === 'all' ? T.all[lang] : MUSCLE_LABELS[m as MuscleGroup][lang]}
@@ -211,7 +215,7 @@ export default function ExercisePickerSheet({
                       className={`shrink-0 text-micro font-semibold px-2 py-1 rounded-full border transition-colors ${
                         active
                           ? 'bg-foreground text-background border-foreground'
-                          : 'bg-card text-muted-foreground-subtle border-border/40'
+                          : 'bg-background text-muted-foreground-subtle border-border/40'
                       }`}
                     >
                       {t === 'all' ? T.all[lang] : TYPE_LABELS[t as keyof typeof TYPE_LABELS][lang]}
@@ -239,20 +243,30 @@ export default function ExercisePickerSheet({
               )}
 
               {/* Results */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {filtered.length === 0 && q.trim() === '' && (
-                  <p className="text-mini text-muted-foreground text-center py-8">{T.noResults[lang]}</p>
+                  <StateView
+                    kind="search"
+                    compact
+                    title={T.noResults[lang]}
+                    body="لم يطابق البحث أي تمرين في المكتبة — جرّب كلمة أخرى."
+                  />
                 )}
-                {filtered.map((e) => (
-                  <ExerciseRow key={e.key} exercise={e} lang={lang} onPick={() => { onPick(e.key); handleClose(); }} />
-                ))}
+                {filtered.length > 0 && (
+                  <AppList>
+                    {filtered.map((e) => (
+                      <ExerciseRow key={e.key} exercise={e} lang={lang} onPick={() => { onPick(e.key); handleClose(); }} />
+                    ))}
+                  </AppList>
+                )}
                 {allowCustom && q.trim() && filtered.length === 0 && (
-                  <button
+                  <Button
+                    variant="outline"
+                    className="w-full text-primary"
                     onClick={() => { onPick(`custom:${q.trim()}`); handleClose(); }}
-                    className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 text-primary text-mini font-semibold"
                   >
                     + {T.custom[lang]}: "{q.trim()}"
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -266,24 +280,25 @@ export default function ExercisePickerSheet({
 function ExerciseRow({ exercise, lang, onPick }: { exercise: Exercise; lang: 'ar'; onPick: () => void }) {
   const e = exercise;
   return (
-    <button
+    <AppRow
       onClick={onPick}
-      className="w-full text-start rounded-xl bg-card border border-border/40 p-3 flex items-center justify-between gap-2 active:scale-[0.99] transition-transform"
-    >
-      <div className="min-w-0 flex-1">
-        <p className="text-mini font-bold text-foreground truncate">{e.label[lang]}</p>
-        <p className="text-micro text-muted-foreground mt-0.5">
+      leading={
+        <IconChip tone="plain" aria-hidden>
+          <Plus className="h-5 w-5" />
+        </IconChip>
+      }
+      title={e.label[lang]}
+      subtitle={
+        <>
           {MUSCLE_LABELS[e.primary][lang]}
           {e.secondary && e.secondary.length > 0 && (
             <span className="opacity-60"> · {e.secondary.map(m => MUSCLE_LABELS[m][lang]).join(', ')}</span>
           )}
           {e.isBigLift && <span className="ms-1.5 text-signal">★</span>}
-        </p>
-      </div>
-      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-        <Plus className="w-4 h-4 text-primary" />
-      </div>
-    </button>
+        </>
+      }
+      chevron
+    />
   );
 }
 

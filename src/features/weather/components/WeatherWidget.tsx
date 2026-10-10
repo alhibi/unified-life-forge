@@ -43,7 +43,7 @@ export default function WeatherWidget() {
   if (!data) {
     return (
       <div
-        className="w-full rounded-2xl border border-border/60 bg-card animate-pulse min-h-[8.5rem] sm:min-h-[16.5rem]"
+        className="app-card w-full animate-pulse min-h-[8.5rem] sm:min-h-[16.5rem]"
         aria-label="جارٍ تحميل الطقس"
       />
     );
@@ -61,7 +61,7 @@ export default function WeatherWidget() {
     <button
       onClick={() => navigate('/weather')}
       dir="rtl"
-      className="w-full overflow-hidden rounded-2xl border border-border/60 bg-card text-start surface-depth-pressable active:scale-[0.99]"
+      className="app-card app-card-bare app-card-pressable w-full overflow-hidden text-start"
       aria-label="فتح تفاصيل الطقس"
     >
       {/* Headline */}
@@ -92,7 +92,7 @@ export default function WeatherWidget() {
           </span>
         </span>
 
-        <ChevronLeft className="mt-1 h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
+        <ChevronLeft className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
       </div>
 
       {/* Metric rail */}

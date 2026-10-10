@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -287,22 +287,21 @@ export default function TravelAtlasPage() {
                     </Button>
                   </div>
                 ) : (
-                  <ul>
+                  <AppList>
                     {filtered.map((place) => (
-                      <li key={place.id}>
-                        <PlaceRow
-                          place={place}
-                          onOpen={() => openPlace(place)}
-                          onToggleFavorite={() =>
-                            toggleFavorite.mutate({
-                              placeId: place.id,
-                              isFavorite: !place.isFavorite,
-                            })
-                          }
-                        />
-                      </li>
+                      <PlaceRow
+                        key={place.id}
+                        place={place}
+                        onOpen={() => openPlace(place)}
+                        onToggleFavorite={() =>
+                          toggleFavorite.mutate({
+                            placeId: place.id,
+                            isFavorite: !place.isFavorite,
+                          })
+                        }
+                      />
                     ))}
-                  </ul>
+                  </AppList>
                 )}
               </section>
             </div>

@@ -1,14 +1,13 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 import { toast } from 'sonner';
 
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useUnifiedStreakDays } from '@/features/profile/lib/streakStore';
 import {
   Copy,
   Download,
   ShieldCheck,
-  Sparkles,
-  X,
 } from '@/lib/icons';
 import { getDefaultAvatarForUser } from '@/utils/defaultAvatar';
 import { getAppleEmojiUrl, isEmojiAvatarValue } from '@/utils/emojiAvatar';
@@ -56,8 +55,6 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
     return grid;
   }, [username]);
 
-  if (!isOpen) return null;
-
   const serialNumber = `#ZE-${(username || 'anon').toUpperCase()}-2026`;
   const isUrlAvatar = avatarUrl && avatarUrl.startsWith('http');
   const isEmojiAvatar = avatarUrl && isEmojiAvatarValue(avatarUrl);
@@ -81,7 +78,8 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Dark Zen luxury background
+      // The exported artwork is image data, not UI chrome — its literal
+      // palette (dark background, gold accents) is baked into the PNG.
       ctx.fillStyle = '#121212';
       ctx.fillRect(0, 0, 600, 760);
 
@@ -167,144 +165,116 @@ export const DigitalIdentityPassModal: React.FC<DigitalIdentityPassModalProps> =
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
-        onClick={onClose}
-        dir="rtl"
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        className="max-w-sm space-y-4"
+        aria-describedby={undefined}
       >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-sm rounded-3xl overflow-hidden bg-card border border-border/80 shadow-2xl relative space-y-4 p-6"
-        >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 end-4 w-8 h-8 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+        {/* Art Ticket Pass Header */}
+        <div className="text-center space-y-1">
+          <span className="text-micro font-mono tracking-widest text-primary uppercase font-bold">
+            ZEN ELITE DIGITAL IDENTITY
+          </span>
+          <DialogTitle className="text-lead font-extrabold text-foreground">
+            بطاقة العضوية الرقمية
+          </DialogTitle>
+        </div>
 
-          {/* Art Ticket Pass Header */}
-          <div className="text-center space-y-1">
-            <span className="text-micro font-mono tracking-widest text-primary uppercase font-bold">
-              ZEN ELITE DIGITAL IDENTITY
+        {/* Physical Art Ticket Container */}
+        <div className="app-card app-card-flat rounded-2xl p-5 border border-primary/20 relative overflow-hidden space-y-4">
+          {/* Ticket Top Row: Serial & Seal */}
+          <div className="flex items-center justify-between text-micro font-mono border-b border-border/40 pb-2">
+            <span className="text-muted-foreground">{serialNumber}</span>
+            <span className="inline-flex items-center gap-1 text-success font-bold">
+              <ShieldCheck className="w-3.5 h-3.5" aria-hidden />
+              VERIFIED PASS
             </span>
-            <h2 className="text-lead font-extrabold text-foreground">بطاقة العضوية الرقمية</h2>
           </div>
 
-          {/* Physical Art Ticket Container */}
-          <div className="surface-depth rounded-2xl p-5 border border-primary/20 relative overflow-hidden space-y-4 bg-gradient-to-b from-card via-card to-background">
-            {/* Background SVG Watermark */}
-            <div className="absolute -end-10 -bottom-10 opacity-5 pointer-events-none text-primary">
-              <Sparkles className="w-40 h-40" />
+          {/* User Identity Info */}
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full ring-2 ring-primary bg-secondary overflow-hidden shrink-0 flex items-center justify-center">
+              {isUrlAvatar ? (
+                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+              ) : isEmojiAvatar ? (
+                <img src={getAppleEmojiUrl(avatarUrl) || ''} alt={displayName} className="w-10 h-10" />
+              ) : (
+                <img
+                  src={getDefaultAvatarForUser(username || 'U')}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
 
-            {/* Ticket Top Row: Serial & Seal */}
-            <div className="flex items-center justify-between text-micro font-mono border-b border-border/40 pb-2">
-              <span className="text-muted-foreground">{serialNumber}</span>
-              <span className="inline-flex items-center gap-1 text-data-1 font-bold">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                VERIFIED PASS
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <h3 className="text-meta font-extrabold text-foreground truncate">{displayName}</h3>
+              <p className="text-micro font-mono text-muted-foreground" dir="ltr">
+                @{username}
+              </p>
+              <p className="text-micro font-semibold text-primary">{title || 'عضو نخبة الهدوء'}</p>
+            </div>
+          </div>
+
+          {/* Commitment Streak Row — real unified streak */}
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-signal/10 border border-signal/20">
+            <span className="text-micro font-semibold text-muted-foreground">
+              سلسلة الالتزام المتواصلة
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-mini font-black text-signal tabular-nums">
+              🔥 {unifiedStreakDays ?? 0}
+              <span className="text-micro font-bold text-muted-foreground">
+                {(unifiedStreakDays ?? 0) === 1 ? 'يوم' : 'أيام'}
               </span>
+            </span>
+          </div>
+
+          {/* Simulated Dynamic Vector QR Code & Barcode Ticket Edge */}
+          <div className="p-3 rounded-xl bg-secondary border border-border flex items-center justify-between gap-3">
+            <div className="space-y-1">
+              <span className="block text-micro font-mono text-muted-foreground">SCAN OR SHARE LINK</span>
+              <span className="block text-micro font-bold text-foreground truncate max-w-[160px]" dir="ltr">
+                {profileUrl}
+              </span>
+              <span className="block text-micro text-muted-foreground">عضوية صالحة مدى الحياة</span>
             </div>
 
-            {/* User Identity Info */}
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full ring-2 ring-primary bg-card overflow-hidden shrink-0 flex items-center justify-center shadow-md">
-                {isUrlAvatar ? (
-                  <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-                ) : isEmojiAvatar ? (
-                  <img src={getAppleEmojiUrl(avatarUrl) || ''} alt={displayName} className="w-10 h-10" />
-                ) : (
-                  <img
-                    src={getDefaultAvatarForUser(username || 'U')}
-                    alt={displayName}
-                    className="w-full h-full object-cover"
-                  />
+            {/* Vector QR Matrix SVG — literal black-on-white keeps the code scannable (data) */}
+            <div className="w-12 h-12 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center">
+              <svg viewBox="0 0 8 8" className="w-10 h-10 text-black fill-current">
+                {qrMatrix.map((row, rIdx) =>
+                  row.map((filled, cIdx) =>
+                    filled ? (
+                      <rect key={`${rIdx}-${cIdx}`} x={cIdx} y={rIdx} width="1" height="1" />
+                    ) : null
+                  )
                 )}
-              </div>
-
-              <div className="min-w-0 flex-1 space-y-0.5">
-                <h3 className="text-meta font-extrabold text-foreground truncate">{displayName}</h3>
-                <p className="text-micro font-mono text-muted-foreground" dir="ltr">
-                  @{username}
-                </p>
-                <p className="text-micro font-semibold text-primary">{title || 'عضو نخبة الهدوء'}</p>
-              </div>
-            </div>
-
-            {/* Commitment Streak Row — real unified streak */}
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-signal/[0.07] border border-signal/20">
-              <span className="text-micro font-semibold text-muted-foreground">
-                سلسلة الالتزام المتواصلة
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-mini font-black text-signal tabular-nums">
-                🔥 {unifiedStreakDays ?? 0}
-                <span className="text-micro font-bold text-muted-foreground">
-                  {(unifiedStreakDays ?? 0) === 1 ? 'يوم' : 'أيام'}
-                </span>
-              </span>
-            </div>
-
-            {/* Simulated Dynamic Vector QR Code & Barcode Ticket Edge */}
-            <div className="p-3 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between gap-3">
-              <div className="space-y-1">
-                <span className="block text-micro font-mono text-muted-foreground">SCAN OR SHARE LINK</span>
-                <span className="block text-micro font-bold text-white/90 truncate max-w-[160px]" dir="ltr">
-                  {profileUrl}
-                </span>
-                <span className="block text-micro text-muted-foreground">عضوية صالحة مدى الحياة</span>
-              </div>
-
-              {/* Vector QR Matrix SVG */}
-              <div className="w-12 h-12 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center shadow-md">
-                <svg viewBox="0 0 8 8" className="w-10 h-10 text-black fill-current">
-                  {qrMatrix.map((row, rIdx) =>
-                    row.map((filled, cIdx) =>
-                      filled ? (
-                        <rect key={`${rIdx}-${cIdx}`} x={cIdx} y={rIdx} width="1" height="1" />
-                      ) : null
-                    )
-                  )}
-                </svg>
-              </div>
+              </svg>
             </div>
           </div>
+        </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={handleDownloadPass}
-              className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-md"
-            >
-              <Download className="w-4 h-4" />
-              تحميل البطاقة
-            </button>
-            <button
-              onClick={handleCopyLink}
-              className="py-2.5 px-3 rounded-xl bg-secondary text-secondary-foreground text-mini font-semibold flex items-center justify-center gap-1 hover:bg-secondary/80 transition-colors"
-              title="نسخ الرابط"
-            >
-              <Copy className="w-4 h-4" />
-              <span className="hidden sm:inline">نسخ</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="px-3 py-2.5 rounded-xl bg-muted/40 text-muted-foreground text-mini font-semibold hover:text-foreground transition-colors"
-            >
-              إغلاق
-            </button>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        {/* Actions */}
+        <div className="flex gap-2 pt-1">
+          <Button onClick={handleDownloadPass} className="flex-1 gap-1.5">
+            <Download className="w-4 h-4" aria-hidden />
+            تحميل البطاقة
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleCopyLink}
+            className="gap-1.5"
+            title="نسخ الرابط"
+            aria-label="نسخ الرابط"
+          >
+            <Copy className="w-4 h-4" aria-hidden />
+            <span className="hidden sm:inline">نسخ</span>
+          </Button>
+          <Button variant="ghost" onClick={onClose}>
+            إغلاق
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

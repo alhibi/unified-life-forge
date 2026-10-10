@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -342,117 +342,128 @@ export default function TripDetailPage() {
                   </Suspense>
                 )}
 
-                <AppCard className="p-0">
-                  <ol className="divide-y divide-border">
-                    {day.entries.map((entry, index) => {
-                      const CategoryIcon = categoryMeta(entry.place.category).icon;
-                      return (
-                        <li key={entry.stop.id} className="flex items-center gap-2 px-3 py-2.5">
-                          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border font-mono text-micro tabular-nums text-muted-foreground">
+                <AppList>
+                  {day.entries.map((entry, index) => {
+                    const CategoryIcon = categoryMeta(entry.place.category).icon;
+                    const openPlace = () => navigate(`/travel-atlas/place/${entry.place.id}`);
+                    return (
+                      <AppRow
+                        key={entry.stop.id}
+                        as="div"
+                        onClick={openPlace}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            openPlace();
+                          }
+                        }}
+                        leading={
+                          <span className="grid h-7 w-7 place-items-center rounded-full border border-border font-mono text-micro tabular-nums text-muted-foreground">
                             {index + 1}
                           </span>
-
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/travel-atlas/place/${entry.place.id}`)}
-                            className="flex min-w-0 flex-1 items-center gap-2 text-start"
-                          >
+                        }
+                        title={
+                          <span className="flex min-w-0 items-center gap-2">
                             <CategoryIcon
                               className="h-4 w-4 shrink-0 text-muted-foreground"
                               aria-hidden="true"
                             />
-                            <span className="min-w-0">
-                              <span className="block truncate text-body text-foreground">
-                                {entry.place.nameAr}
-                              </span>
-                              {entry.place.city && (
-                                <span className="block truncate text-micro text-muted-foreground">
-                                  {entry.place.city}
-                                </span>
-                              )}
-                            </span>
+                            <span className="truncate">{entry.place.nameAr}</span>
+                          </span>
+                        }
+                        subtitle={entry.place.city || undefined}
+                      >
+                        {entry.stop.startTime && (
+                          <span
+                            className="shrink-0 font-mono text-mini tabular-nums text-muted-foreground"
+                            dir="ltr"
+                          >
+                            {entry.stop.startTime}
+                          </span>
+                        )}
+
+                        <div className="flex shrink-0 items-center">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingStop(entry);
+                            }}
+                            aria-label="وقت المحطة وملاحظتها"
+                            className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground hover:text-foreground"
+                          >
+                            <Clock className="h-4 w-4" aria-hidden="true" />
                           </button>
-
-                          {entry.stop.startTime && (
-                            <span
-                              className="shrink-0 font-mono text-mini tabular-nums text-muted-foreground"
-                              dir="ltr"
-                            >
-                              {entry.stop.startTime}
-                            </span>
-                          )}
-
-                          <div className="flex shrink-0 items-center">
-                            <button
-                              type="button"
-                              onClick={() => setEditingStop(entry)}
-                              aria-label="وقت المحطة وملاحظتها"
-                              className="grid h-9 w-9 place-items-center rounded-button text-muted-foreground hover:text-foreground"
-                            >
-                              <Clock className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveStop(day, index, -1)}
-                              disabled={index === 0}
-                              aria-label="تقديم"
-                              className={cn(
-                                'grid h-9 w-9 place-items-center rounded-button text-muted-foreground',
-                                index === 0 ? 'opacity-40' : 'hover:text-foreground',
-                              )}
-                            >
-                              <ChevronUp className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveStop(day, index, 1)}
-                              disabled={index === day.entries.length - 1}
-                              aria-label="تأخير"
-                              className={cn(
-                                'grid h-9 w-9 place-items-center rounded-button text-muted-foreground',
-                                index === day.entries.length - 1
-                                  ? 'opacity-40'
-                                  : 'hover:text-foreground',
-                              )}
-                            >
-                              <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                            </button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button
-                                  type="button"
-                                  className="grid h-9 w-9 place-items-center rounded-button text-muted-foreground hover:text-foreground"
-                                  aria-label="خيارات المحطة"
-                                >
-                                  <MoreVertical className="h-4 w-4" aria-hidden="true" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="min-w-44">
-                                {Array.from({ length: maxDay + 1 }, (_, i) => i + 1)
-                                  .filter((dayNumber) => dayNumber !== day.dayIndex)
-                                  .map((dayNumber) => (
-                                    <DropdownMenuItem
-                                      key={dayNumber}
-                                      onSelect={() => moveToDay(entry.stop, dayNumber)}
-                                    >
-                                      انقل إلى اليوم {dayNumber}
-                                    </DropdownMenuItem>
-                                  ))}
-                                <DropdownMenuItem
-                                  onSelect={() => removeStop.mutate(entry.stop.id)}
-                                  className="gap-2 text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                  أزل من الرحلة
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ol>
-                </AppCard>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveStop(day, index, -1);
+                            }}
+                            disabled={index === 0}
+                            aria-label="تقديم"
+                            className={cn(
+                              'grid h-9 w-9 place-items-center rounded-md text-muted-foreground',
+                              index === 0 ? 'opacity-40' : 'hover:text-foreground',
+                            )}
+                          >
+                            <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveStop(day, index, 1);
+                            }}
+                            disabled={index === day.entries.length - 1}
+                            aria-label="تأخير"
+                            className={cn(
+                              'grid h-9 w-9 place-items-center rounded-md text-muted-foreground',
+                              index === day.entries.length - 1
+                                ? 'opacity-40'
+                                : 'hover:text-foreground',
+                            )}
+                          >
+                            <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(e) => e.stopPropagation()}
+                                className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground hover:text-foreground"
+                                aria-label="خيارات المحطة"
+                              >
+                                <MoreVertical className="h-4 w-4" aria-hidden="true" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="min-w-44">
+                              {Array.from({ length: maxDay + 1 }, (_, i) => i + 1)
+                                .filter((dayNumber) => dayNumber !== day.dayIndex)
+                                .map((dayNumber) => (
+                                  <DropdownMenuItem
+                                    key={dayNumber}
+                                    onSelect={() => moveToDay(entry.stop, dayNumber)}
+                                  >
+                                    انقل إلى اليوم {dayNumber}
+                                  </DropdownMenuItem>
+                                ))}
+                              <DropdownMenuItem
+                                onSelect={() => removeStop.mutate(entry.stop.id)}
+                                className="gap-2 text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                أزل من الرحلة
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </AppRow>
+                    );
+                  })}
+                </AppList>
 
                 {day.entries.length > 1 && (
                   <a

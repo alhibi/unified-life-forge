@@ -100,7 +100,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-nested bg-black/60"
+        className="app-scrim z-nested"
         onClick={close}
       />
       <motion.div
@@ -122,7 +122,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
  if (step === 'fill-meta' && kind === 'group') { setStep('pick-members'); return; }
               close();
             }}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'رجوع'}
           >
             <BackIcon className="w-5 h-5 text-foreground" />
@@ -137,7 +137,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
           <button
             type="button"
             onClick={close}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'إغلاق'}
           >
             <X className="w-4 h-4 text-muted-foreground" />
@@ -183,7 +183,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                 disabled={memberIds.length === 0}
                 className={cn(
                   'w-full h-12 rounded-2xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2',
-                  'active:scale-[0.98] transition-transform',
+                  ' transition-transform',
                   memberIds.length === 0 && 'opacity-50',
                 )}
               >
@@ -199,7 +199,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
             <div className="flex flex-col items-center gap-2">
               <button
                 type="button"
-                className="relative h-24 w-24 active:scale-95 transition-transform"
+                className="relative h-24 w-24 transition-transform"
                 aria-label={'تغيير الصورة'}
                 onClick={() => { /* future: open emoji/avatar picker */ }}
               >
@@ -277,7 +277,7 @@ const GroupCreatorSheet: React.FC<GroupCreatorSheetProps> = ({ isOpen, onClose, 
                 onClick={submit}
                 className={cn(
                   'w-full h-12 rounded-2xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-2',
-                  'active:scale-[0.98] transition-transform',
+                  ' transition-transform',
                   (!title.trim() || busy) && 'opacity-60',
                 )}
               >
@@ -311,7 +311,7 @@ function KindChip({ active, onClick, icon, label }: KindChipProps) {
         'inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-mini font-medium transition-motion',
         active
           ? 'bg-primary text-primary-foreground '
-          : 'bg-muted/30 text-muted-foreground active:bg-muted/50',
+          : 'bg-muted/30 text-muted-foreground',
       )}
     >
       {icon}{label}

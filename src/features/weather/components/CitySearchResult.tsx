@@ -74,16 +74,13 @@ export function CitySearchResult({
         'relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer',
         'transition-motion duration-fast outline-none',
         highlighted
-          ? 'bg-primary/8 ring-1 ring-primary/30 shadow-[0_2px_8px_hsl(var(--primary)/0.10)]'
+          ? 'bg-primary/8 ring-1 ring-primary/30'
           : 'hover:bg-foreground/5 focus-visible:bg-foreground/5',
       )}
       dir="rtl"
     >
       {highlighted && (
-        <span
-          aria-hidden
-          className="absolute inset-y-2 start-0 w-0.5 rounded-full bg-gradient-to-b from-primary to-primary/40"
-        />
+        <span aria-hidden className="absolute inset-y-2 start-0 w-0.5 rounded-full bg-primary" />
       )}
 
       {/* Icon */}

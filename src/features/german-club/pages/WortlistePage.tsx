@@ -2,15 +2,17 @@ import { motion, useReducedMotion } from 'framer-motion';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { Bookmark, Sparkles } from '@/lib/icons';
 
 import { SpeakPlayer } from '../components/SpeakPlayer';
 import { GERMAN_DICTIONARY_DATA } from '../lib/dictionaryData';
 import { deriveInsights, summarizeInsights } from '../lib/wortliste';
-import { GERMAN_CLUB_TOKENS } from '../types';
+import type { DictionaryEntry } from '../types';
 import { useDictionaryStore } from '../useDictionaryStore';
 
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
@@ -47,87 +49,83 @@ export const WortlistePage: React.FC = () => {
   const summary = useMemo(() => summarizeInsights(insights), [insights]);
 
   return (
-    <PageShell centered={false} flush>
+    <PageShell centered={false} flush className="px-4 pt-4 sm:pt-6">
       <SEO
         title="قائمة كلماتي — النادي الألماني"
         description="الكلمات والعبارات التي حفظتها في النادي للرجوع إليها متى شئت."
         path="/german-club/wortliste"
       />
 
-      <div
-        className="min-h-screen pb-16 transition-colors"
-        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
-      >
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
         {/* App Bar */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))] bg-[hsl(var(--card))]/90 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <div>
-              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
-                قائمة كلماتي
-              </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
-                DEINE WORTLISTE
-              </span>
-            </div>
-          </div>
+        <PageHeader
+          title="قائمة كلماتي"
+          subtitle={<span className="font-mono">DEINE WORTLISTE</span>}
+          right={
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-1.5"
+              onClick={() => navigate('/german-club/dictionary?tab=bookmarks')}
+            >
+              <Bookmark className="h-3.5 w-3.5 text-primary" aria-hidden />
+              عرض في القاموس
+            </Button>
+          }
+        />
 
-          <button
-            type="button"
-            onClick={() => navigate('/german-club/dictionary?tab=bookmarks')}
-            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
-          >
-            <Bookmark className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-            عرض في القاموس
-          </button>
-        </div>
-
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-          {entries.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <>
-              {/* Insights Card — quiet mirror */}
-              <motion.section
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="p-5 rounded-3xl border bg-white/60"
-                style={{ borderColor: 'hsl(var(--track))' }}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-3.5 h-3.5 text-signal" />
-                  <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
+        {entries.length === 0 ? (
+          <StateView
+            kind="empty"
+            title="قائمة كلماتك فارغة"
+            body="تصفّح القاموس أو الرفوف. حين تجد كلمة تستحق البقاء، احفظها. ستجدها هنا."
+            action={{ label: 'إلى القاموس', onClick: () => navigate('/german-club/dictionary') }}
+          />
+        ) : (
+          <>
+            {/* Insights Card — quiet mirror */}
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <AppCard as="section" aria-label="مرآة محفوظاتك">
+                <div className="mb-3 flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-signal" aria-hidden />
+                  <span className="font-mono text-micro font-bold uppercase tracking-widest text-primary">
                     مرآة
                   </span>
                 </div>
-                <p className="text-sm text-foreground leading-relaxed">{summary}</p>
+                <p className="text-body leading-relaxed text-foreground">{summary}</p>
 
-                {/* CEFR distribution as a tiny bar chart */}
+                {/* CEFR distribution as a tiny bar chart. The bars animate on
+                    transform only (scaleY from the baseline) — height never
+                    animates, so the strip never re-runs layout. */}
                 {insights.total > 0 && (
                   <div className="mt-4">
-                    <p className="text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground mb-2">
+                    <p className="mb-2 font-mono text-micro uppercase tracking-wider text-muted-foreground">
                       التوزيع حسب المستوى
                     </p>
-                    <div className="flex items-end gap-1 h-10">
+                    <div className="flex h-10 items-end gap-1">
                       {CEFR_LEVELS.map((lvl) => {
                         const count = insights.cefrCounts[lvl] ?? 0;
                         const pct = insights.total > 0 ? count / insights.total : 0;
                         const heightPct = Math.max(pct > 0 ? 8 : 0, pct * 100);
                         return (
-                          <div key={lvl} className="flex-1 flex flex-col items-center gap-1">
+                          <div key={lvl} className="flex flex-1 flex-col items-center gap-1">
                             <motion.div
-                              initial={shouldReduceMotion ? false : { height: 0 }}
-                              animate={{ height: `${heightPct}%` }}
+                              initial={shouldReduceMotion ? false : { scaleY: 0 }}
+                              animate={{ scaleY: 1 }}
                               transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-                              className="w-full rounded-t-md"
+                              className="w-full origin-bottom rounded-t-md"
                               style={{
+                                height: `${heightPct}%`,
                                 backgroundColor: CEFR_COLORS[lvl],
                                 opacity: count === 0 ? 0.15 : 1,
                               }}
                               title={`${lvl}: ${count} كلمة`}
                             />
-                            <span className="text-[0.625rem] font-mono font-bold text-muted-foreground">
+                            <span className="font-mono text-micro font-bold text-muted-foreground">
                               {lvl}
                             </span>
                           </div>
@@ -143,99 +141,92 @@ export const WortlistePage: React.FC = () => {
                     {insights.topCategories.slice(0, 4).map((c) => (
                       <span
                         key={c.category}
-                        className="text-[0.625rem] font-medium px-2 py-0.5 rounded-full bg-secondary text-foreground"
+                        className="rounded-full bg-secondary px-2 py-0.5 text-micro font-medium text-foreground"
                       >
-                        {c.category} · {c.count}
+                        {c.category} · <span className="tabular-nums">{c.count}</span>
                       </span>
                     ))}
                   </div>
                 )}
-              </motion.section>
+              </AppCard>
+            </motion.div>
 
-              {/* The list */}
-              <section className="space-y-2">
-                {entries.map((entry) => (
-                  <WortlisteRow
-                    key={entry.id}
-                    entry={entry}
-                    onOpen={() => setSelectedEntry(entry)}
-                    onRemove={() => toggleBookmark(entry.id)}
-                    shouldReduceMotion={shouldReduceMotion}
-                  />
-                ))}
-              </section>
-            </>
-          )}
-        </div>
+            {/* The list */}
+            <AppList aria-label="الكلمات المحفوظة">
+              {entries.map((entry) => (
+                <WortlisteRow
+                  key={entry.id}
+                  entry={entry}
+                  onOpen={() => setSelectedEntry(entry)}
+                  onRemove={() => toggleBookmark(entry.id)}
+                />
+              ))}
+            </AppList>
+          </>
+        )}
       </div>
     </PageShell>
   );
 };
 
-const EmptyState: React.FC = () => (
-  <div className="text-center py-16 space-y-3">
-    <Bookmark className="w-10 h-10 mx-auto text-muted-foreground" />
-    <h3 className="text-base font-bold text-foreground">قائمة كلماتك فارغة</h3>
-    <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
-      تصفّح القاموس أو الرفوف. حين تجد كلمة تستحق البقاء، احفظها. ستجدها هنا.
-    </p>
-  </div>
-);
-
 interface WortlisteRowProps {
-  entry: ReturnType<typeof GERMAN_DICTIONARY_DATA.find>;
+  entry: DictionaryEntry;
   onOpen: () => void;
   onRemove: () => void;
-  shouldReduceMotion: boolean;
 }
 
-const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove, shouldReduceMotion }) => {
-  if (!entry) return null;
-
+const WortlisteRow: React.FC<WortlisteRowProps> = ({ entry, onOpen, onRemove }) => {
   return (
-    <motion.div
-      layout={!shouldReduceMotion}
-      initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: 16 }}
-      transition={{ duration: 0.25 }}
-      className="flex items-center gap-3 p-3 rounded-2xl border bg-white group hover:border-[hsl(var(--track))] transition-colors"
-      style={{ borderColor: 'hsl(var(--track))' }}
-    >
-      <button type="button" onClick={onOpen} className="flex-1 text-start min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p
-            dir="ltr"
-            className="font-bold text-[hsl(var(--foreground))] truncate"
-            style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}
-          >
+    <AppRow
+      as="div"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className="cursor-pointer"
+      title={
+        <span className="flex items-baseline gap-2">
+          <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>
             {entry.german}
-          </p>
+          </span>
           {entry.ipa && (
-            <span className="text-xs font-mono text-muted-foreground" dir="ltr">
+            <span className="font-mono text-mini font-normal text-muted-foreground" dir="ltr">
               [{entry.ipa}]
             </span>
           )}
-        </div>
-        <p className="text-xs text-muted-foreground truncate">{entry.arabic}</p>
-        <div className="mt-1 flex items-center gap-1 text-[0.625rem] font-mono uppercase tracking-wider text-muted-foreground">
-          <span>{entry.cefr}</span>
-          <span className="text-muted-foreground">·</span>
-          <span>{entry.category}</span>
-        </div>
-      </button>
-
+        </span>
+      }
+      subtitle={
+        <>
+          <span className="block truncate">{entry.arabic}</span>
+          <span className="mt-1 flex items-center gap-1 font-mono text-micro uppercase tracking-wider text-muted-foreground">
+            <span>{entry.cefr}</span>
+            <span>·</span>
+            <span>{entry.category}</span>
+          </span>
+        </>
+      }
+    >
       <SpeakPlayer text={[entry.german]} variant="pill" />
 
-      <button
-        type="button"
-        onClick={onRemove}
-        className="shrink-0 text-xs font-medium text-muted-foreground hover:text-data-5 transition-colors px-2 py-1"
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+        className="shrink-0 text-muted-foreground hover:text-data-5"
         title="إزالة من القائمة"
       >
         إزالة
-      </button>
-    </motion.div>
+      </Button>
+    </AppRow>
   );
 };
 

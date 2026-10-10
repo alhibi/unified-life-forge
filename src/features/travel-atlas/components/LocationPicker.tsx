@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import { Input } from '@/components/ui/input';
 import { Copy, Loader2, MapPin, Search, X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -234,30 +235,17 @@ export default function LocationPicker({
       </div>
 
       {visibleResults.length > 0 && (
-        <ul className="max-h-48 divide-y divide-border overflow-y-auto rounded-card border border-border">
+        <AppList compact className="max-h-48 overflow-y-auto">
           {visibleResults.map((result) => (
-            <li key={result.id}>
-              <button
-                type="button"
-                onClick={() => chooseResult(result)}
-                className="flex w-full items-start gap-2 px-3 py-2.5 text-start hover:bg-accent"
-              >
-                <MapPin
-                  className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <span className="min-w-0">
-                  <span className="block truncate text-body text-foreground">{result.title}</span>
-                  {result.subtitle && (
-                    <span className="block truncate text-micro text-muted-foreground">
-                      {result.subtitle}
-                    </span>
-                  )}
-                </span>
-              </button>
-            </li>
+            <AppRow
+              key={result.id}
+              onClick={() => chooseResult(result)}
+              leading={<MapPin className="h-4 w-4 text-muted-foreground" aria-hidden="true" />}
+              title={result.title}
+              subtitle={result.subtitle || undefined}
+            />
           ))}
-        </ul>
+        </AppList>
       )}
 
       <div className="relative h-64 overflow-hidden rounded-card border border-border sm:h-72">

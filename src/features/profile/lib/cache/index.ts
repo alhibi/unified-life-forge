@@ -59,7 +59,7 @@ export type CacheReadResult<T> = {
  * @param config - Optional TTL configuration in milliseconds
  * @returns Cache object with read/write/remove methods
  */
-export function createModuleCache<T = any>(
+export function createModuleCache<T = unknown>(
   moduleKey: string,
   config?: { defaultTtl?: number }
 ) {
@@ -106,7 +106,7 @@ export function createModuleCache<T = any>(
     },
 
     /** Write value to localStorage with TTL */
-    write(key: string, value: any, ttl?: number): void {
+    write(key: string, value: unknown, ttl?: number): void {
       try {
         const entry = {
           value,
@@ -156,18 +156,18 @@ export function createModuleCache<T = any>(
  * Usage: import { badgeCache, streakCache } from '../lib/cache'
  * Access: badgeCache.read('some-key'), badgeCache.write('some-key', value)
  */
-export const badgeCache = createModuleCache<any>('badges');
-export const streakCache = createModuleCache<any>('streaks');
-export const activityCache = createModuleCache<any>('activity');
-export const privacyCache = createModuleCache<any>('privacy');
-export const visitsCache = createModuleCache<any>('visits');
+export const badgeCache = createModuleCache<unknown>('badges');
+export const streakCache = createModuleCache<unknown>('streaks');
+export const activityCache = createModuleCache<unknown>('activity');
+export const privacyCache = createModuleCache<unknown>('privacy');
+export const visitsCache = createModuleCache<unknown>('visits');
 
 /**
  * Session-only (in-memory) caches - faster, non-persistent
  * Good for streaks/current session state that shouldn't persist across sessions
  * These are pure in-memory, no localStorage involvement
  */
-export function createSessionCache<T = any>(moduleKey: string) {
+export function createSessionCache<T = unknown>(moduleKey: string) {
    
   const _moduleKey = moduleKey; // Mark as used to avoid warning
 
@@ -214,7 +214,7 @@ export function createSessionCache<T = any>(moduleKey: string) {
 }
 
 /** Session caches for common modules */
-export const sessionBadgeCache = createSessionCache<any>('badges');
+export const sessionBadgeCache = createSessionCache<unknown>('badges');
 
 /**
  * Deep Cache Validation — Advanced validation with structured entry checks.
@@ -224,10 +224,10 @@ export function deepValidateCacheEntry<T>(value: unknown, timestamp: number, ttl
   const isValid = age >= 0 && age < ttlMs;
   return { value: isValid ? (value as T) : undefined, valid: isValid };
 }
-export const sessionStreakCache = createSessionCache<any>('streaks');
-export const sessionActivityCache = createSessionCache<any>('activity');
+export const sessionStreakCache = createSessionCache<unknown>('streaks');
+export const sessionActivityCache = createSessionCache<unknown>('activity');
 
 /**
  * Completion cache - 10 minute TTL for profile completion metrics
  */
-export const completionCache = createModuleCache<any>('completion', { defaultTtl: 10 * 60 * 1000 });
+export const completionCache = createModuleCache<unknown>('completion', { defaultTtl: 10 * 60 * 1000 });

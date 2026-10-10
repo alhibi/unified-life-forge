@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Bell, BellOff, BellRing, ChevronDown, ChevronLeft, ExternalLink,
@@ -351,8 +352,8 @@ export function KeywordAlertsView({
       );
       if (error) throw error;
       toast.success('تم الفحص');
-    } catch (e: any) {
-      toast.error(e?.message || ('فشل الفحص'));
+    } catch (e) {
+      toast.error((e as Error)?.message || ('فشل الفحص'));
     }
   }
 
@@ -371,7 +372,7 @@ export function KeywordAlertsView({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
@@ -507,9 +508,10 @@ export function KeywordAlertsView({
                     <span className="flex-1 text-mini font-medium">
                       {'تشغيل الإشعارات'}
                     </span>
-                    <Toggle
-                      on={notifPrefs.enabled}
-                      onChange={(v) => setNotifPrefs({ ...notifPrefs, enabled: v })}
+                    <Switch
+                      checked={notifPrefs.enabled}
+                      onCheckedChange={(v) => setNotifPrefs({ ...notifPrefs, enabled: v })}
+                      aria-label="تشغيل الإشعارات"
                     />
                   </div>
                 )}
@@ -520,9 +522,10 @@ export function KeywordAlertsView({
                     <span className="flex-1 text-mini font-medium">
                       {'صوت'}
                     </span>
-                    <Toggle
-                      on={notifPrefs.sound}
-                      onChange={(v) => setNotifPrefs({ ...notifPrefs, sound: v })}
+                    <Switch
+                      checked={notifPrefs.sound}
+                      onCheckedChange={(v) => setNotifPrefs({ ...notifPrefs, sound: v })}
+                      aria-label="صوت"
                     />
                   </div>
                 )}
@@ -908,26 +911,6 @@ export function KeywordAlertsView({
 }
 
 // ─── small UI helpers ─────────────────────────────────────────────────
-
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(!on)}
-      className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${
-        on ? 'bg-primary' : 'bg-foreground/15'
-      }`}
-      aria-pressed={on}
-    >
-      <motion.span
-        className="absolute top-0.5 w-4 h-4 rounded-full bg-white "
-        initial={false}
-        animate={{ left: on ? 'calc(100% - 1.125rem)' : '0.125rem' }}
-        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-      />
-    </button>
-  );
-}
 
 function SegButton({
   active,

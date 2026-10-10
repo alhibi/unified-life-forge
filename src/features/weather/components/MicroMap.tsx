@@ -22,7 +22,6 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
 
   return (
     <section className="relative rounded-2xl surface-depth overflow-hidden p-4">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-semibold text-lead leading-none text-foreground flex items-center gap-2">
@@ -64,7 +63,7 @@ export default function MicroMap({ lat, lng, elevationM = 0, }: MicroMapProps) {
               }}
               className="absolute -inset-4 rounded-full border border-primary/30"
             />
-            <div className="relative w-4 h-4 rounded-full bg-primary border-2 border-background flex items-center justify-center shadow-lg">
+            <div className="relative w-4 h-4 rounded-full bg-primary border-2 border-background flex items-center justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-background" />
             </div>
           </div>

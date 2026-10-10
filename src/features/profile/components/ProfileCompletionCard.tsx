@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { AppCard, IconChip } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { CheckCircle2, ChevronDown, Circle, Sparkles } from '@/lib/icons';
 
 import { ProfileCompletionMetrics } from '../types';
@@ -18,36 +20,34 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
 
   if (metrics.percentage >= 100) {
     return (
-      <div className="surface-depth rounded-2xl p-4 ring-1 ring-data-1/20 bg-data-1/[0.03] flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-data-1/10 flex items-center justify-center text-data-1 shrink-0">
-          <Sparkles className="w-5 h-5" />
-        </div>
-        <div className="flex-1 min-w-0">
+      <AppCard className="flex items-center gap-3">
+        <IconChip tone="success" aria-hidden>
+          <Sparkles className="h-5 w-5" />
+        </IconChip>
+        <div className="min-w-0 flex-1">
           <h3 className="text-meta font-bold text-foreground">الملف الشخصي مكتمل بالكامل (100%)</h3>
           <p className="text-micro text-muted-foreground mt-0.5">
             تهانينا! هويتك الرقمية موثقة ومتألقة بجميع التفاصيل.
           </p>
         </div>
-      </div>
+      </AppCard>
     );
   }
 
-  const missingItems = metrics.items.filter((item) => !item.isCompleted);
-
   return (
-    <div className="surface-depth rounded-2xl p-4 space-y-3 transition-motion">
+    <AppCard className="space-y-3">
       <div
         className="flex items-center justify-between cursor-pointer select-none"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <span className="text-meta font-extrabold text-primary">{metrics.percentage}%</span>
-          </div>
-          <div>
+          <IconChip aria-hidden>
+            <span className="text-meta font-extrabold">{metrics.percentage}%</span>
+          </IconChip>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="text-meta font-bold text-foreground">مستوى اكتمال الملف الشخصي</h3>
-              <span className="text-micro px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+              <span className="text-micro px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold tabular-nums">
                 {metrics.completedCount}/{metrics.totalCount} خطوات
               </span>
             </div>
@@ -58,13 +58,14 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
         </div>
 
         <button
-          className="w-8 h-8 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
+          className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground"
           aria-label="عرض التفاصيل"
         >
           <ChevronDown
             className={`w-4 h-4 transition-transform duration-fast ${
               isExpanded ? 'rotate-180' : ''
             }`}
+            aria-hidden
           />
         </button>
       </div>
@@ -94,9 +95,9 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 {item.isCompleted ? (
-                  <CheckCircle2 className="w-4 h-4 text-data-1 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-success shrink-0" aria-hidden />
                 ) : (
-                  <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <Circle className="w-4 h-4 text-muted-foreground shrink-0" aria-hidden />
                 )}
                 <span
                   className={`text-mini font-medium ${
@@ -110,17 +111,18 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
               </div>
 
               {!item.isCompleted && item.actionTab && (
-                <button
+                <Button
+                  variant="secondary"
+                  size="xs"
                   onClick={() => onActionClick(item.actionTab!, item.fieldKey)}
-                  className="px-2.5 py-1 rounded-md bg-primary/10 text-primary text-micro font-bold hover:bg-primary/20 transition-colors active:scale-95"
                 >
                   إكمال الآن
-                </button>
+                </Button>
               )}
             </div>
           ))}
         </motion.div>
       )}
-    </div>
+    </AppCard>
   );
 };

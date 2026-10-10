@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { AppCard } from '@/components/ui/app-shell';
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { StateView } from '@/components/ui/state-view';
 import { Check, Loader2, Plus, Search } from '@/lib/icons';
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -16,6 +17,16 @@ function useDebounce<T>(value: T, delay: number): T {
     };
   }, [value, delay]);
   return debouncedValue;
+}
+
+/** Errors here can be Error instances or PostgrestError-shaped objects —
+ *  read a string `message` off either without widening to `any`. */
+function messageOf(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    const message = (err as { message?: unknown }).message;
+    if (typeof message === 'string' && message) return message;
+  }
+  return fallback;
 }
 
 import { cryptoApi } from '../api';
@@ -55,9 +66,9 @@ export default function TokenSearchDrawer({
       try {
         const data = await cryptoApi.search(debouncedQuery);
         setResults(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('[TokenSearchDrawer] Search failed:', err);
-        setError(err.message || 'فشل البحث. يرجى التحقق من الاتصال بالشبكة.');
+        setError(messageOf(err, 'فشل البحث. يرجى التحقق من الاتصال بالشبكة.'));
       } finally {
         setLoading(false);
       }
@@ -94,7 +105,7 @@ export default function TokenSearchDrawer({
       );
       toast.success(`تمت إضافة ${pair.symbol} بنجاح إلى قائمة المراقبة.`);
       onAddSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[TokenSearchDrawer] Add failed:', err);
       toast.error('عذراً، فشل إضافة العملة إلى قائمة المراقبة.');
     } finally {
@@ -126,9 +137,9 @@ export default function TokenSearchDrawer({
             maxLength={100}
             autoFocus
           />
-          <Search className="absolute right-3.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute start-3.5 h-4 w-4 text-muted-foreground pointer-events-none" />
           {loading && (
-            <Loader2 className="absolute left-3.5 h-4 w-4 text-primary animate-spin" />
+            <Loader2 className="absolute end-3.5 h-4 w-4 text-primary animate-spin" />
           )}
         </div>
 
@@ -141,89 +152,84 @@ export default function TokenSearchDrawer({
           )}
 
           {!loading && results.length === 0 && debouncedQuery.trim() && (
-            <div className="py-8 text-center" role="status">
-              <p className="text-meta font-semibold text-foreground/80 mb-1">لا توجد نتائج</p>
-              <p className="text-mini text-muted-foreground">
-                لم نجد أي أسواق مطابقة لـ «{debouncedQuery}». جرّب رمزاً آخر.
-              </p>
-            </div>
+            <StateView
+              compact
+              kind="search"
+              title="لا توجد نتائج"
+              body={`لم نجد أي أسواق مطابقة لـ «${debouncedQuery}». جرّب رمزاً آخر أو ابحث بعنوان العقد.`}
+            />
           )}
 
-          {visibleResults.map((pair) => {
-            const added = isAlreadyAdded(pair);
-            const adding = addingId === pair.pairAddress;
+          {visibleResults.length > 0 && (
+            <AppList>
+              {visibleResults.map((pair) => {
+                const added = isAlreadyAdded(pair);
+                const adding = addingId === pair.pairAddress;
 
-            return (
-              <AppCard
-                key={`${pair.chainId}:${pair.pairAddress}`}
-                compact
-                className="flex items-center justify-between border border-border/10 bg-card/25 backdrop-blur-sm p-3 hover:bg-card/40 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  {/* Token logo fallback image */}
-                  <div className="relative h-9 w-9 rounded-full bg-muted/40 border border-border/10 flex items-center justify-center overflow-hidden shrink-0">
-                    {pair.imageUrl ? (
-                      <img
-                        src={pair.imageUrl}
-                        alt={pair.symbol}
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          // Hide broken image
-                          (e.currentTarget as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
+                return (
+                  <AppRow
+                    key={`${pair.chainId}:${pair.pairAddress}`}
+                    as="div"
+                    leading={
+                      // Token logo fallback image
+                      <span className="relative h-9 w-9 rounded-full bg-muted/40 border border-border/10 flex items-center justify-center overflow-hidden">
+                        {pair.imageUrl ? (
+                          <img
+                            src={pair.imageUrl}
+                            alt={pair.symbol}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              // Hide broken image
+                              (e.currentTarget as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <span className="text-micro font-bold text-muted-foreground">
+                            {pair.symbol.slice(0, 3)}
+                          </span>
+                        )}
+                      </span>
+                    }
+                    title={
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="truncate">{pair.symbol}</span>
+                        <span className="shrink-0 text-micro uppercase tracking-wider font-semibold text-muted-foreground-subtle bg-muted/40 px-1.5 py-0.5 rounded-sm">
+                          {CHAIN_LABELS[pair.chainId as ChainId] || pair.chainId}
+                        </span>
+                      </span>
+                    }
+                    subtitle={`${pair.name} • ${pair.dexId}`}
+                  >
+                    {/* Current formatted price */}
+                    <span className="shrink-0 text-mini font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                      ${parseFloat(pair.priceUsd) < 0.01 ? pair.priceUsd : parseFloat(pair.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                    </span>
+
+                    {added ? (
+                      <div className="flex h-8 shrink-0 items-center gap-1 rounded-md bg-data-1/10 border border-data-1/20 px-2.5 text-micro font-bold text-data-1">
+                        <Check className="h-3 w-3 shrink-0" />
+                        مضاف
+                      </div>
                     ) : (
-                      <span className="text-micro font-bold text-muted-foreground">
-                        {pair.symbol.slice(0, 3)}
-                      </span>
+                      <button
+                        type="button"
+                        disabled={adding}
+                        onClick={() => handleAdd(pair)}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground transition-motion duration-normal disabled:opacity-50"
+                        title="إضافة لقائمة المراقبة"
+                      >
+                        {adding ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                      </button>
                     )}
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-meta font-bold text-foreground tracking-tight truncate">
-                        {pair.symbol}
-                      </span>
-                      <span className="text-micro uppercase tracking-wider font-semibold text-muted-foreground-subtle bg-muted/40 px-1.5 py-0.5 rounded-sm shrink-0">
-                        {CHAIN_LABELS[pair.chainId as ChainId] || pair.chainId}
-                      </span>
-                    </div>
-                    <p className="text-micro text-muted-foreground truncate max-w-[160px] md:max-w-[200px]">
-                      {pair.name} • {pair.dexId}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {/* Current formatted price */}
-                  <span className="text-mini font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
-                    ${parseFloat(pair.priceUsd) < 0.01 ? pair.priceUsd : parseFloat(pair.priceUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
-                  </span>
-
-                  {added ? (
-                    <div className="flex h-8 items-center gap-1 rounded-md bg-data-1/10 border border-data-1/20 px-2.5 text-micro font-bold text-data-1">
-                      <Check className="h-3 w-3 shrink-0" />
-                      مضاف
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={adding}
-                      onClick={() => handleAdd(pair)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md bg-primary hover:bg-primary/95 text-primary-foreground transition-motion duration-normal active:scale-95 disabled:opacity-50"
-                      title="إضافة لقائمة المراقبة"
-                    >
-                      {adding ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Plus className="h-4 w-4" />
-                      )}
-                    </button>
-                  )}
-                </div>
-              </AppCard>
-            );
-          })}
+                  </AppRow>
+                );
+              })}
+            </AppList>
+          )}
 
           {results.length > MAX_VISIBLE_RESULTS && (
             <p className="text-micro text-muted-foreground/75 text-center mt-2">

@@ -1,4 +1,5 @@
-import { Heart, MapPin, Star } from '@/lib/icons';
+import { AppRow } from '@/components/ui/app-shell';
+import { Heart, Star } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import { categoryMeta, formatDuration, visitStatusMeta } from '../data/categories';
@@ -17,11 +18,12 @@ interface PlaceRowProps {
 }
 
 /**
- * One place as a list row.
+ * One place as a grouped-list row.
  *
- * The thumbnail carries the recognition, so it is the largest element; the status
- * ring repeats the map's colour key so the same place looks the same in both
- * views.
+ * The thumbnail carries the recognition, so it is the largest element; the
+ * status ring repeats the map's colour key so the same place looks the same in
+ * both views. The row itself opens the place (role=button so the nested
+ * favourite toggle stays valid markup).
  */
 export default function PlaceRow({
   place,
@@ -36,20 +38,31 @@ export default function PlaceRow({
   const status = visitStatusMeta(place.visitStatus);
   const duration = formatDuration(place.durationMinutes);
 
+  const meta = [
+    category.label,
+    showLocation ? place.city : null,
+    duration,
+    distanceMeters !== undefined ? formatDistance(distanceMeters) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   return (
-    <div
-      className={cn(
-        'flex items-center gap-3 border-b border-border px-1 py-3 transition-colors',
-        isActive && 'bg-accent/50',
-      )}
-    >
-      <button
-        type="button"
-        onClick={onOpen}
-        className="flex min-w-0 flex-1 items-center gap-3 text-start"
-      >
+    <AppRow
+      as="div"
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className={cn(isActive && 'bg-accent/50')}
+      leading={
         <span
-          className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-card border-2 bg-muted text-muted-foreground"
+          className="grid h-14 w-14 place-items-center overflow-hidden rounded-lg border-2 bg-muted text-muted-foreground"
           style={{ borderColor: status.color }}
         >
           {place.coverPhotoUrl ? (
@@ -64,51 +77,27 @@ export default function PlaceRow({
             <CategoryIcon className="h-5 w-5" aria-hidden="true" />
           )}
         </span>
-
-        <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-1.5">
-            <span className="min-w-0 truncate text-body font-semibold text-foreground">
-              {place.nameAr}
+      }
+      title={
+        <span className="flex items-center gap-1.5">
+          <span className="min-w-0 truncate">{place.nameAr}</span>
+          {place.rating !== null && (
+            <span className="inline-flex shrink-0 items-center gap-0.5 font-mono text-micro tabular-nums text-muted-foreground">
+              <Star className="h-3 w-3 text-[hsl(var(--live))]" fill="currentColor" />
+              {place.rating.toFixed(1)}
             </span>
-            {place.rating !== null && (
-              <span className="inline-flex shrink-0 items-center gap-0.5 font-mono text-micro tabular-nums text-muted-foreground">
-                <Star className="h-3 w-3 text-[hsl(var(--live))]" fill="currentColor" />
-                {place.rating.toFixed(1)}
-              </span>
-            )}
-          </span>
-
-          <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-micro text-muted-foreground">
-            <span>{category.label}</span>
-            {showLocation && place.city && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span className="inline-flex items-center gap-1">
-                  <MapPin className="h-3 w-3" aria-hidden="true" />
-                  {place.city}
-                </span>
-              </>
-            )}
-            {duration && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span>{duration}</span>
-              </>
-            )}
-            {distanceMeters !== undefined && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span className="font-mono tabular-nums">{formatDistance(distanceMeters)}</span>
-              </>
-            )}
-          </span>
+          )}
         </span>
-      </button>
-
+      }
+      subtitle={meta}
+    >
       {onToggleFavorite && (
         <button
           type="button"
-          onClick={onToggleFavorite}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
           aria-pressed={place.isFavorite}
           aria-label={place.isFavorite ? 'إزالة من المفضّلة' : 'أضف إلى المفضّلة'}
           className={cn(
@@ -119,6 +108,6 @@ export default function PlaceRow({
           <Heart className="h-4 w-4" fill={place.isFavorite ? 'currentColor' : undefined} />
         </button>
       )}
-    </div>
+    </AppRow>
   );
 }

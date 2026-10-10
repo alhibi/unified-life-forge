@@ -5,6 +5,7 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Calendar, ChevronRight, Clock, Library, Users, X } from '@/lib/icons';
 
 import { CALI_EXP_LABELS, CALI_PROGRAMS, caliProgramByKey, caliProgramsForExperience } from '../caliPrograms';
@@ -72,7 +73,7 @@ export default function CaliProgramView({
             key={e}
             onClick={() => setExpFilter(e)}
             className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border ${
-              expFilter === e ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/40'
+              expFilter === e ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border/40'
             }`}
           >
             {e === 'all' ? T.all[lang] : CALI_EXP_LABELS[e][lang]}
@@ -113,7 +114,7 @@ function CaliProgramCard({
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay }}
       className={`rounded-2xl p-3.5 border ${
-        isActive ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/30' : 'bg-card border-border/40'
+        isActive ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/30' : 'bg-background border-border/40'
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -235,7 +236,7 @@ function CaliDetailSheet({
               <Section title={T.highlights[lang]} body={
                 <ul className="space-y-1">
                   {program.highlights.map((h, i) => (
-                    <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini">• {h[lang]}</li>
+                    <li key={i} className="app-card app-card-flat p-2 text-mini">• {h[lang]}</li>
                   ))}
                 </ul>
               } />
@@ -267,7 +268,7 @@ function CaliDetailSheet({
                     {skillsCovered.map((s) => s ? (
                       <div
                         key={s.key}
-                        className="rounded-lg bg-card border border-border/40 p-1.5 flex items-center gap-1.5"
+                        className="app-card app-card-flat p-1.5 flex items-center gap-1.5"
                       >
                         <span className="text-meta">{s.emoji}</span>
                         <span className="text-micro font-semibold text-foreground truncate">{s.name[lang]}</span>
@@ -280,7 +281,7 @@ function CaliDetailSheet({
               <Section title={T.preview[lang]} body={
                 <div className="space-y-1.5">
                   {program.weekTemplate[0]?.sessions.slice(0, 4).map((s) => (
-                    <div key={s.key} className="bg-card border border-border/40 rounded-lg p-2.5">
+                    <div key={s.key} className="app-card app-card-flat p-2.5">
                       <p className="text-micro font-bold text-foreground">{s.name[lang]}</p>
                       <p className="text-micro text-muted-foreground tabular-nums">{s.exercises.length} {T.exercises[lang]} · {s.estMinutes} {T.minutes[lang]}</p>
                     </div>
@@ -288,12 +289,12 @@ function CaliDetailSheet({
                 </div>
               } />
 
-              <button
+              <Button
                 onClick={onStart}
-                className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                className="w-full"
               >
-                {T.start[lang]} <ChevronRight className="w-4 h-4" />
-              </button>
+                {T.start[lang]} <ChevronRight className="w-4 h-4" aria-hidden />
+              </Button>
             </div>
           </motion.div>
         </motion.div>

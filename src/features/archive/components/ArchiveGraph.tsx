@@ -433,7 +433,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
       {/* Graph Area */}
       <div
         ref={containerRef}
-        className="relative w-full rounded-2xl border border-border bg-card overflow-hidden h-[340px] md:h-[400px] cursor-grab active:cursor-grabbing"
+        className="app-card relative rounded-2xl w-full h-[340px] md:h-[400px] cursor-grab active:cursor-grabbing"
       >
         <div className="absolute top-3 end-3 z-raised flex flex-col gap-1 pointer-events-none">
           <div className="flex items-center gap-1.5 text-micro text-muted-foreground">
@@ -470,7 +470,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
             <AppCard className="relative overflow-hidden border-primary/25 bg-primary/[0.02]">
               <button
                 onClick={() => setSelectedNode(null)}
-                className="absolute top-3 start-3 w-7 h-7 rounded-full bg-muted/40 flex items-center justify-center active:scale-90 transition-transform"
+                className="absolute top-3 start-3 w-7 h-7 rounded-full bg-muted/40 flex items-center justify-center transition-transform"
                 aria-label="إغلاق"
               >
                 <X className="w-3.5 h-3.5" />
@@ -531,7 +531,7 @@ export default function ArchiveGraph({ items, onOpenDoc }: ArchiveGraphProps) {
 
                       <button
                         onClick={() => onOpenDoc(docSummary.id)}
-                        className="flex items-center gap-1 text-micro font-bold text-primary active:scale-95 transition-transform"
+                        className="flex items-center gap-1 text-micro font-bold text-primary transition-transform"
                       >
                         <span>قراءة</span>
                         <ArrowUpSquare className="w-3.5 h-3.5 rotate-90" />

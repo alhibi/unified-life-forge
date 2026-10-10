@@ -153,7 +153,7 @@ export const LinkPreview: React.FC<LinkPreviewProps> = ({ url, }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ type: 'spring', damping: 20 }}
-              className="flex flex-col rounded-xl bg-background/50 hover:bg-background/70 active:scale-[0.98] transition-motion border border-primary/20 overflow-hidden w-full min-w-[240px] max-w-[340px] group shadow-lg"
+              className="flex flex-col rounded-xl bg-background/50 hover:bg-background/70 transition-motion border border-primary/20 overflow-hidden w-full min-w-[240px] max-w-[340px] group"
             >
               {meta.image && (
                 <div className="relative aspect-[1.91/1] w-full overflow-hidden bg-muted/10 border-b border-primary/10">

@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import { ExternalLink, Loader2, Plus, Search as SearchIcon, Trash2 } from '@/lib/icons';
 
 import { marginaliaApi } from '../api';
@@ -57,41 +60,46 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
     <div className="space-y-3">
       <AppCard className="space-y-2">
         <div className="flex gap-2">
-          <input
+          <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') add(); }}
             placeholder="ألصق رابط مقال…"
             dir="ltr"
-            className="flex-1 text-body rounded-xl bg-muted/40 border border-border/40 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1"
           />
-          <button
-            type="button"
-            onClick={add}
-            disabled={adding}
-            className="shrink-0 flex items-center gap-1.5 px-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold active:scale-95 transition disabled:opacity-50"
-          >
-            {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          <Button onClick={add} disabled={adding} className="shrink-0">
+            {adding ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <Plus className="w-4 h-4" aria-hidden />}
             {adding ? 'يُحلّل…' : 'أرشِف'}
-          </button>
+          </Button>
         </div>
         <div className="relative">
-          <SearchIcon className="w-4 h-4 absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground" />
-          <input
+          <SearchIcon className="w-4 h-4 absolute top-1/2 -translate-y-1/2 end-3 text-muted-foreground pointer-events-none" aria-hidden />
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث في الأرشيف…"
-            className="w-full text-body rounded-xl bg-muted/40 border border-border/40 ps-3 pe-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="ps-3 pe-9"
           />
         </div>
       </AppCard>
 
       {filtered.length === 0 ? (
-        <AppCard className="text-center py-8">
-          <p className="text-meta text-muted-foreground">
-            {articles.length ? 'لا نتائج مطابقة' : 'الأرشيف فارغ — أضف مقالاً أو مصدراً.'}
-          </p>
-        </AppCard>
+        articles.length ? (
+          <StateView
+            kind="search"
+            compact
+            title="لا نتائج مطابقة"
+            body={`لا مقال في الأرشيف يطابق «${query.trim()}». جرّب كلمة أقصر أو ابحث في العنوان.`}
+          />
+        ) : (
+          <StateView
+            kind="empty"
+            compact
+            title="الأرشيف فارغ"
+            body="ألصق رابط مقال في الأعلى ليُحلَّل ويُضاف، أو أضف مصدر تغذية من تبويب المصادر ليبدأ الجمع تلقائياً."
+          />
+        )
       ) : filtered.map((a) => (
         <AppCard key={a.id} className="space-y-2">
           <div className="flex items-start gap-2">
@@ -106,17 +114,16 @@ const ArchivePanel: React.FC<Props> = ({ articles, onChanged }) => {
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition">
               <ExternalLink className="w-4 h-4" />
             </a>
-            <button
-              type="button"
+            <IconButton
               aria-label="حذف من الأرشيف"
               onClick={async () => {
                 try { await marginaliaApi.removeArticle(a.id); onChanged(); }
                 catch (e) { toast.error((e as Error).message); }
               }}
-              className="p-2 rounded-lg text-muted-foreground hover:text-destructive transition"
+              className="shrink-0 text-muted-foreground hover:text-destructive"
             >
-              <Trash2 className="w-4 h-4" />
-            </button>
+              <Trash2 className="w-4 h-4" aria-hidden />
+            </IconButton>
           </div>
           {a.summary && (
             <p className="text-mini leading-relaxed text-muted-foreground whitespace-pre-line line-clamp-4">

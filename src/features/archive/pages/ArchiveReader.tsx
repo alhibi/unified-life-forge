@@ -74,6 +74,10 @@ interface ReadPrefs {
 
 const DEFAULT_PREFS: ReadPrefs = {
   theme: 'default',
+  // NOTE (design system §0): the reader theme colours below are a
+  // documented content-presentation palette — the reader paints its page
+  // with them (sepia paper / night paper / custom paper), the same way a
+  // book page has its own ink. They are intentionally literal.
   customBg: '#E8F5E9', // Elegant light sage/mint green
   customFg: '#1B5E20', // Forest green text
   font: 'georgia',
@@ -142,6 +146,7 @@ function buildToc(md: string): { level: 2 | 3; text: string; id: string }[] {
   return out;
 }
 
+/** Reader page themes — see the note above: content-presentation palette. */
 const THEME_STYLES: Record<ReadTheme, React.CSSProperties> = {
   default: {},
   sepia: { background: '#f4ecd8', color: '#3b2f1f' },
@@ -203,13 +208,13 @@ function VerticalCylinderSlider({ value, min, max, onChange, icon }: VerticalCyl
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      className="relative w-12 h-36 bg-muted/60 dark:bg-muted/30 rounded-full overflow-hidden cursor-pointer active:scale-x-[1.03] transition-motion touch-none border border-border/40 shadow-inner flex flex-col justify-end"
+      className="relative w-12 h-36 bg-muted/60 dark:bg-muted/30 rounded-full overflow-hidden cursor-pointer transition-motion touch-none border border-border/40 flex flex-col justify-end"
     >
       <div
         className="w-full bg-primary/20 dark:bg-primary/30 transition-motion duration-instant flex items-center justify-center relative"
         style={{ height: `${fillPct}%` }}
       >
-        <div className="absolute top-0 inset-x-0 h-[2px] bg-primary/40 shadow-glow" />
+        <div className="absolute top-0 inset-x-0 h-[2px] bg-primary/40" />
       </div>
       <div className="absolute inset-x-0 bottom-4 flex justify-center pointer-events-none text-foreground/50 select-none">
         {icon}
@@ -717,7 +722,7 @@ export default function ArchiveReader() {
                     type="button"
                     onClick={() => setFlashcardsOpen(false)}
                     aria-label="إغلاق"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 hover:bg-muted active:scale-95 transition"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 hover:bg-muted transition"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -759,7 +764,7 @@ export default function ArchiveReader() {
                     type="button"
                     onClick={() => setCompanionOpen(false)}
                     aria-label="إغلاق"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 hover:bg-muted active:scale-95 transition"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 hover:bg-muted transition"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -848,7 +853,7 @@ export default function ArchiveReader() {
                     type="button"
                     onClick={() => setSettingsOpen(false)}
                     aria-label="إغلاق"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 hover:bg-muted active:scale-95 transition"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -862,7 +867,7 @@ export default function ArchiveReader() {
                     <div className="space-y-5">
                       {/* Active Preview */}
                       <div
-                        className="p-4 rounded-2xl border transition-motion shadow-sm"
+                        className="p-4 rounded-2xl border transition-motion"
                         style={
                           {
                             backgroundColor: activeBg,
@@ -896,6 +901,8 @@ export default function ArchiveReader() {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2 flex-1">
+                            {/* Theme swatch colours mirror the reader
+                                palette above (content presentation). */}
                             {[
                               {
                                 k: 'default' as const,
@@ -909,7 +916,7 @@ export default function ArchiveReader() {
                               <button
                                 key={k}
                                 onClick={() => setPrefs((p) => ({ ...p, theme: k }))}
-                                className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion active:scale-90 ${prefs.theme === k ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
+                                className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion ${prefs.theme === k ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
                                 style={{ backgroundColor: bg }}
                                 title={label}
                               >
@@ -920,7 +927,7 @@ export default function ArchiveReader() {
                             ))}
                             <button
                               onClick={() => setPrefs((p) => ({ ...p, theme: 'custom' }))}
-                              className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion active:scale-90 bg-gradient-to-tr from-data-5 via-data-6 to-data-6 ${prefs.theme === 'custom' ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
+                              className={`w-10 h-10 rounded-full border flex items-center justify-center relative transition-motion bg-data-6 ${prefs.theme === 'custom' ? 'ring-2 ring-primary ring-offset-2 scale-105' : 'border-border/60'}`}
                               title="مخصصة"
                             >
                               <Pencil className="w-4 h-4 text-foreground/80" />
@@ -939,7 +946,7 @@ export default function ArchiveReader() {
                                   startSpeaking(0);
                                 }
                               }}
-                              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-motion active:scale-90 ${isSpeaking ? 'bg-primary/20 border-primary text-primary animate-pulse' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
+                              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-motion ${isSpeaking ? 'bg-primary/20 border-primary text-primary animate-pulse' : 'bg-muted/50 border-transparent text-muted-foreground'}`}
                               title="القارئ الصوتي الذكي"
                             >
                               <Waves className="w-5 h-5" />
@@ -1101,7 +1108,7 @@ export default function ArchiveReader() {
                           {/* Text Customize / Go To Advanced */}
                           <button
                             onClick={() => setActiveTab('advanced')}
-                            className="col-span-2 rounded-2xl bg-muted/40 dark:bg-muted/15 p-3 border border-border/40 flex flex-col items-center justify-center gap-1 hover:bg-muted/60 transition active:scale-95 text-center min-h-[5rem]"
+                            className="col-span-2 rounded-2xl bg-muted/40 dark:bg-muted/15 p-3 border border-border/40 flex flex-col items-center justify-center gap-1 hover:bg-muted/60 transition text-center min-h-[5rem]"
                           >
                             <ALargeSmall className="w-5 h-5 text-primary" />
                             <div className="text-micro font-semibold text-foreground">
@@ -1113,7 +1120,7 @@ export default function ArchiveReader() {
                           {/* Search Button */}
                           <button
                             onClick={() => setSearchOpen(!searchOpen)}
-                            className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition active:scale-95 ${searchOpen ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
+                            className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition ${searchOpen ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
                           >
                             <Search className="w-4 h-4" />
                             <span className="text-micro mt-0.5">بحث</span>
@@ -1132,7 +1139,7 @@ export default function ArchiveReader() {
                                       : 'fade',
                               }))
                             }
-                            className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition active:scale-95 ${prefs.transitions !== 'none' ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
+                            className={`rounded-full aspect-square border flex flex-col items-center justify-center p-2.5 transition ${prefs.transitions !== 'none' ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
                           >
                             <ArrowLeftRight className="w-4 h-4" />
                             <span className="text-micro mt-0.5">تنقل</span>
@@ -1186,7 +1193,7 @@ export default function ArchiveReader() {
                               toast.info('تم إيقاف وضع القراءة بدون اتصال.');
                             }
                           }}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition active:scale-[0.98] ${prefs.offline ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition ${prefs.offline ? 'bg-primary/10 border-primary text-primary' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
                         >
                           {prefs.offline ? (
                             <Wifi className="w-4 h-4 animate-pulse" />
@@ -1210,7 +1217,7 @@ export default function ArchiveReader() {
                               toast.info('تم إيقاف منع النوم التلقائي للشاشة.');
                             }
                           }}
-                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition active:scale-[0.98] ${prefs.lock ? 'bg-data-4/10 border-data-4/30 text-data-4' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition ${prefs.lock ? 'bg-data-4/10 border-data-4/30 text-data-4' : 'bg-muted/30 border-border/30 text-muted-foreground'}`}
                         >
                           {prefs.lock ? (
                             <Lock className="w-4 h-4 text-data-4" />
@@ -1373,7 +1380,7 @@ export default function ArchiveReader() {
                           {/* Default/Start align */}
                           <button
                             onClick={() => setPrefs((p) => ({ ...p, alignment: 'default' }))}
-                            className={`p-3 rounded-2xl border text-start space-y-1 transition active:scale-[0.98] ${prefs.alignment === 'default' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
+                            className={`p-3 rounded-2xl border text-start space-y-1 transition ${prefs.alignment === 'default' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-micro font-semibold text-foreground">
@@ -1393,7 +1400,7 @@ export default function ArchiveReader() {
                           {/* Justify Align */}
                           <button
                             onClick={() => setPrefs((p) => ({ ...p, alignment: 'justify' }))}
-                            className={`p-3 rounded-2xl border text-start space-y-1 transition active:scale-[0.98] ${prefs.alignment === 'justify' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
+                            className={`p-3 rounded-2xl border text-start space-y-1 transition ${prefs.alignment === 'justify' ? 'border-primary bg-primary/5 text-primary' : 'border-border/60 text-muted-foreground'}`}
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-micro font-semibold text-foreground">
@@ -1558,7 +1565,7 @@ export default function ArchiveReader() {
                       paragraphs[spokenParagraphIndex]?.replace(/[#*`_[\]()\-+]/g, ' ').trim();
                   return (
                     <p
-                      className={`reveal mb-4 transition-motion duration-normal ${isHighlighted ? 'bg-primary/15 text-primary p-2 rounded-xl scale-[1.01] border-s-2 border-primary shadow-sm' : ''}`}
+                      className={`reveal mb-4 transition-motion duration-normal ${isHighlighted ? 'bg-primary/15 text-primary p-2 rounded-xl scale-[1.01] border-s-2 border-primary' : ''}`}
                       {...props}
                     >
                       {highlightSearch(text, searchQuery)}

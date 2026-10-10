@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppList, IconChip, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import PoemCard from '@/features/diwan/components/library/PoemCard';
 import { isSupabaseReady } from '@/features/diwan/lib/env';
@@ -11,8 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { Heart, Loader2, LogIn } from '@/lib/icons';
 
 /**
- * صفحة المفضّلة — مصممة بالكامل بنمط "المخطوطة" (Manuscript).
- * تعرض القصائد التي اختارها وحفظها المستخدم من دواوين العرب.
+ * صفحة المفضّلة — ترويسة <PageHeader> قياسية مع شارة القلب، والحالات
+ * كلها من النظام: قائمة <AppList>، وحالة فارغة <StateView>، ونداء
+ * تسجيل الدخول ببدائية الزر/الشريحة الموحّدة.
  */
 export default function LibraryFavoritesPage() {
   const navigate = useNavigate();
@@ -24,97 +28,69 @@ export default function LibraryFavoritesPage() {
   const showAuthCallout = !sbReady || !user;
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-page px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-foreground">
+    <PageShell>
       <SEO
         title="مفضّلتي — المكتبة الكبرى"
         description="القصائد التي حفظتَها في مفضّلتك."
         path="/diwan/library/favorites"
       />
-      <div className="max-w-lg mx-auto">
-        {/* Header */}
-        <div className="flex items-start gap-4 mb-6">
-          <div className="mt-1 shrink-0">
-            <BackButton
-              fallback="/mihrab"
-              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-muted-foreground active:scale-95 transition-motion"
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            {/* عنوان علوي صغير بلون wax */}
-            <p className="text-micro font-bold tracking-[0.1em] text-primary uppercase mb-1">
-              محراب · الأدب
-            </p>
-            <h1 className="text-display font-bold tracking-tight text-foreground leading-tight font-amiri flex items-center gap-2">
-              <Heart className="w-6 h-6 text-primary shrink-0" fill="currentColor" />
-              مفضّلتي الخاصة
-            </h1>
-            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <p className="text-mini text-muted-foreground">
-                {list.length > 0 && `${list.length} قصيدة محفوظة`}
-              </p>
-              <FallbackBadge />
-            </div>
-          </div>
-        </div>
 
-        {showAuthCallout ? (
-          <AuthCallout sbReady={sbReady} onSignIn={() => navigate('/auth')} />
-        ) : fav.isLoading ? (
-          <div className="space-y-4 pt-2">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="py-4 border-b border-border/50">
-                <div className="h-4 bg-foreground/[8%] rounded w-1/4 animate-pulse mb-2" />
-                <div className="h-3 bg-foreground/[5%] rounded w-3/4 animate-pulse" />
-              </div>
+      <PageHeader
+        title="مفضّلتي الخاصة"
+        subtitle={list.length > 0 ? `${list.length} قصيدة محفوظة` : undefined}
+        icon={<Heart className="h-5 w-5 text-primary" fill="currentColor" aria-hidden />}
+        right={<FallbackBadge />}
+        backFallback="/mihrab"
+      />
+
+      {showAuthCallout ? (
+        <AuthCallout sbReady={sbReady} onSignIn={() => navigate('/auth')} />
+      ) : fav.isLoading ? (
+        <div className="space-y-2 pt-1">
+          <div className="skeleton h-16 rounded-lg" />
+          <div className="skeleton h-16 rounded-lg" />
+          <div className="skeleton h-16 rounded-lg" />
+        </div>
+      ) : list.length === 0 ? (
+        <EmptyFavorites />
+      ) : (
+        <>
+          <AppList>
+            {list.map((p) => (
+              <PoemCard key={p.slug} poem={p} showPoet />
             ))}
-          </div>
-        ) : list.length === 0 ? (
-          <EmptyFavorites />
-        ) : (
-          <div className="flex flex-col">
-            {list.map((p, i) => (
-              <PoemCard key={p.slug} poem={p} showPoet index={i} />
-            ))}
-            {fav.isFetching && (
-              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground/70 text-mini">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                <span>جاري تحديث الرقوق المفضلة…</span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+          </AppList>
+          {fav.isFetching && (
+            <div className="flex items-center justify-center gap-2 text-mini text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" aria-hidden />
+              <span>جاري تحديث الرقوق المفضلة…</span>
+            </div>
+          )}
+        </>
+      )}
+    </PageShell>
   );
 }
 
 function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => void }) {
   return (
-    <div className="text-center py-16 px-6 flex flex-col items-center justify-center">
-      <div
-        className="w-[64px] h-[64px] rounded-full flex items-center justify-center mb-4"
-        style={{ background: 'hsl(var(--primary))' }}
-      >
-        <span className="font-amiri font-bold text-display text-primary-foreground leading-none select-none">
-          ♥
-        </span>
-      </div>
-      <p className="text-meta font-bold text-foreground font-tajawal">
+    <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+      <IconChip size="xl" aria-hidden>
+        <Heart className="h-6 w-6" fill="currentColor" />
+      </IconChip>
+      <p className="mt-4 font-tajawal text-meta font-bold text-foreground">
         المفضّلة للمستخدمين المسجَّلين
       </p>
-      <p className="text-mini text-muted-foreground mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
+      <p className="mx-auto mt-2 max-w-xs font-tajawal text-mini leading-relaxed text-muted-foreground">
         {sbReady
           ? 'سجّل الدخول لتحفظ عيون الشعر وقصائدك المفضّلة وتعود إليها من أيّ جهاز.'
           : 'الاتصال بالخادم غير مُهيّأ في هذه النسخة، فلا تتوفّر المفضّلة الشخصية حالياً.'}
       </p>
       {sbReady && (
-        <button
-          onClick={onSignIn}
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-card border border-border hover:border-muted-foreground text-muted-foreground hover:text-foreground text-mini font-bold active:scale-[0.98] transition-motion"
-        >
-          <LogIn className="w-4 h-4 text-primary" />
+        <Button className="mt-6" onClick={onSignIn}>
+          <LogIn className="h-4 w-4" aria-hidden />
           تسجيل الدخول للمكتبة
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -122,14 +98,10 @@ function AuthCallout({ sbReady, onSignIn }: { sbReady: boolean; onSignIn: () => 
 
 function EmptyFavorites() {
   return (
-    <div className="text-center py-16 px-6 flex flex-col items-center justify-center">
-      <span className="font-amiri text-hero text-primary mb-3 animate-pulse select-none">
-        ✦
-      </span>
-      <p className="text-meta font-bold text-foreground font-tajawal">مفضّلتك فارغة بعد</p>
-      <p className="text-mini text-muted-foreground mt-2 max-w-xs mx-auto leading-relaxed font-tajawal">
-        افتح أيّ قصيدة عظيمة ثم انقر على رمز القلب في رأس الصفحة لحفظها هنا والعودة لرقوقها متى شئت.
-      </p>
-    </div>
+    <StateView
+      kind="empty"
+      title="مفضّلتك فارغة بعد"
+      body="افتح أيّ قصيدة عظيمة ثم انقر على رمز القلب في رأس الصفحة لحفظها هنا والعودة لرقوقها متى شئت."
+    />
   );
 }

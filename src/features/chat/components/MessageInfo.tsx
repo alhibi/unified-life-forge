@@ -51,12 +51,12 @@ const MessageInfo: React.FC<MessageInfoProps> = ({ isOpen, onClose, message }) =
  >
  <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
  <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
- <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors" aria-label={'إغلاق'}>
+ <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors" aria-label={'إغلاق'}>
                 <BackIcon className="w-5 h-5 text-foreground" />
               </button>
               <h2 id="message-info-title" className="text-body font-semibold">{'معلومات الرسالة'}</h2>
               <div className="flex-1" />
-              <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40">
+              <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>

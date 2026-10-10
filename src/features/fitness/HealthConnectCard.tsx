@@ -104,7 +104,7 @@ export function HealthConnectCard({ onSynced }: Props) {
     <motion.section
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border border-border/40 rounded-2xl p-4 bg-card/40 backdrop-blur-sm space-y-3"
+      className="app-card p-4 space-y-3"
       aria-label="مزامنة بيانات الصحة"
     >
       <div className="flex items-start justify-between gap-3">

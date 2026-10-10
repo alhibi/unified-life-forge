@@ -35,8 +35,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppList, AppRow, IconButton } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import {
   fetchTopPodcasts,
@@ -109,7 +111,8 @@ function CountryDialog({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-fullscreen flex items-end sm:items-center justify-center bg-black/60"
+        className="fixed inset-0 z-fullscreen flex items-end sm:items-center justify-center"
+        style={{ background: 'hsl(var(--scrim) / 0.6)' }}
         onClick={onClose}
       >
         <motion.div
@@ -118,15 +121,15 @@ function CountryDialog({
           exit={{ y: '8%', opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
+          className="app-card app-card-bare w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
             <h2 className="text-body font-bold text-foreground">
               {'اختيار الدولة'}
             </h2>
-            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60">
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <IconButton onClick={onClose} aria-label={'إغلاق'}>
+              <X className="h-5 w-5 text-muted-foreground" />
+            </IconButton>
           </div>
           <div className="px-4 pt-3 pb-2">
             <div className="relative">
@@ -140,35 +143,38 @@ function CountryDialog({
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-2 pb-3">
-            {filtered.map((c) => {
-              const active = c.code === value;
-              const localized = c.nameAr;
-              return (
-                <button
-                  key={c.code}
-                  onClick={() => {
-                    onSelect(c.code);
-                    onClose();
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
-                >
-                  <span className="text-display leading-none" aria-hidden>
-                    {c.flag}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-meta font-semibold text-foreground truncate">{localized}</p>
-                    <p className="text-micro text-muted-foreground truncate">
-                      {c.name} · {c.code.toUpperCase()} · {c.lang}
-                    </p>
-                  </div>
-                  {active && <Check className="w-4 h-4 text-primary shrink-0" />}
-                </button>
-              );
-            })}
+            <AppList>
+              {filtered.map((c) => {
+                const active = c.code === value;
+                const localized = c.nameAr;
+                return (
+                  <AppRow
+                    key={c.code}
+                    onClick={() => {
+                      onSelect(c.code);
+                      onClose();
+                    }}
+                    className={active ? 'bg-primary/10' : undefined}
+                    leading={
+                      <span className="text-display leading-none" aria-hidden>
+                        {c.flag}
+                      </span>
+                    }
+                    title={localized}
+                    subtitle={`${c.name} · ${c.code.toUpperCase()} · ${c.lang}`}
+                  >
+                    {active && <Check className="h-4 w-4 text-primary shrink-0" />}
+                  </AppRow>
+                );
+              })}
+            </AppList>
             {filtered.length === 0 && (
-              <p className="text-center text-meta text-muted-foreground py-8">
-                {'لا توجد نتائج'}
-              </p>
+              <StateView
+                kind="search"
+                title={'لا توجد نتائج'}
+                body={'جرّب اسم دولة آخر أو رمز الدولة (مثل SA).'}
+                compact
+              />
             )}
           </div>
         </motion.div>
@@ -203,7 +209,8 @@ function RegionDialog({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="fixed inset-0 z-fullscreen flex items-end sm:items-center justify-center bg-black/60"
+        className="fixed inset-0 z-fullscreen flex items-end sm:items-center justify-center"
+        style={{ background: 'hsl(var(--scrim) / 0.6)' }}
         onClick={onClose}
       >
         <motion.div
@@ -212,43 +219,41 @@ function RegionDialog({
           exit={{ y: '8%', opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-card w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
+          className="app-card app-card-bare w-full max-w-md rounded-t-3xl sm:rounded-3xl max-h-[80vh] flex flex-col"
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
             <h2 className="text-body font-bold text-foreground">
               {'اختيار المنطقة'}
             </h2>
-            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/60">
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <IconButton onClick={onClose} aria-label={'إغلاق'}>
+              <X className="h-5 w-5 text-muted-foreground" />
+            </IconButton>
           </div>
           <div className="flex-1 overflow-y-auto px-2 py-3">
-            {podcastRegions.map((r) => {
-              const active = r.key === value;
-              return (
-                <button
-                  key={r.key}
-                  onClick={() => {
-                    onSelect(r.key);
-                    onClose();
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${active ? 'bg-primary/10' : 'hover:bg-muted/60'}`}
-                >
-                  <span className="text-display leading-none" aria-hidden>
-                    {r.flag ?? '🌐'}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-meta font-semibold text-foreground truncate">
-                      {t(r.labelKey)}
-                    </p>
-                    <p className="text-micro text-muted-foreground truncate">
-                      {r.countries.length} {'دولة'}
-                    </p>
-                  </div>
-                  {active && <Check className="w-4 h-4 text-primary shrink-0" />}
-                </button>
-              );
-            })}
+            <AppList>
+              {podcastRegions.map((r) => {
+                const active = r.key === value;
+                return (
+                  <AppRow
+                    key={r.key}
+                    onClick={() => {
+                      onSelect(r.key);
+                      onClose();
+                    }}
+                    className={active ? 'bg-primary/10' : undefined}
+                    leading={
+                      <span className="text-display leading-none" aria-hidden>
+                        {r.flag ?? '🌐'}
+                      </span>
+                    }
+                    title={t(r.labelKey)}
+                    subtitle={`${r.countries.length} {'دولة'}`}
+                  >
+                    {active && <Check className="h-4 w-4 text-primary shrink-0" />}
+                  </AppRow>
+                );
+              })}
+            </AppList>
           </div>
         </motion.div>
       </motion.div>
@@ -297,7 +302,7 @@ function PodcastCard({
   return (
     <button
       onClick={() => onOpen(podcast)}
-      className="flex flex-col gap-1.5 text-start active:scale-[0.97] transition-transform"
+      className="flex flex-col gap-1.5 text-start"
     >
       <div className="aspect-square w-full rounded-2xl overflow-hidden bg-muted/40 border border-border/40">
         {thumb ? (
@@ -532,81 +537,85 @@ export default function PodcastsPage() {
         path="/podcasts"
       />
 
-      {/* Sticky top bar — back, scope/country/region pill, search */}
-      <div className="z-header app-sticky-header border-b border-border/40">
-        <div className="max-w-lg mx-auto px-4 pt-3 pb-2 flex items-center gap-2">
-          <BackButton />
-          {/* Scope pill: tapping the icon area cycles country↔region;
-              tapping the label opens the matching picker. The two-zone
-              control keeps the discoverability of "tap to switch
-              country" while exposing the new region mode without
-              eating any header real estate. */}
-          <div className="flex items-center bg-secondary/60 rounded-2xl overflow-hidden h-10">
-            <button
-              type="button"
-              onClick={() => setScope((s) => (s === 'country' ? 'region' : 'country'))}
-              className="px-2.5 h-full flex items-center gap-1 active:scale-95 transition-transform border-e border-border/40"
-              aria-label={
-                scope === 'country'
-                  ? 'التبديل إلى وضع المنطقة'
-                  : 'التبديل إلى وضع الدولة'
-              }
-              title={scope === 'country' ? t('podcasts.scope.country') : t('podcasts.scope.region')}
-            >
-              {scope === 'country' ? (
-                <Globe className="w-4 h-4 text-foreground" />
-              ) : (
-                <Languages className="w-4 h-4 text-foreground" />
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => (scope === 'country' ? setShowCountry(true) : setShowRegion(true))}
-              className="px-2.5 h-full flex items-center gap-1.5 active:scale-95 transition-transform"
-              aria-label={
-                scope === 'country'
-                  ? 'تغيير الدولة'
-                  : 'تغيير المنطقة'
-              }
-            >
-              <span className="text-body leading-none" aria-hidden>
-                {scope === 'country' ? country.flag : (activeRegion?.flag ?? '🌐')}
-              </span>
-            </button>
-          </div>
-
-          <div className="flex-1 relative">
-            <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={'ابحث'}
-              className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-meta placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              aria-label={'بحث عن بودكاست'}
-            />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute top-1/2 -translate-y-1/2 end-2 w-6 h-6 rounded-full bg-muted-foreground/20 flex items-center justify-center"
-                aria-label={'مسح البحث'}
-              >
-                <X className="w-3.5 h-3.5 text-foreground" />
-              </button>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate('/podcasts/library')}
-            className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-secondary/60 active:scale-95 transition-transform"
-            aria-label={'مكتبتي'}
+      {/* Sticky top bar — canonical page header (display register) with the
+          scope switcher, search field and library shortcut. */}
+      <div className="z-header app-sticky-header">
+        <div className="max-w-lg mx-auto">
+          <PageHeader
+            variant="display"
+            title={'بودكاست'}
+            right={
+              <IconButton onClick={() => navigate('/podcasts/library')} aria-label={'مكتبتي'}>
+                <LibraryBig className="h-4 w-4 text-foreground" />
+                {subs.length > 0 && (
+                  <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-micro font-bold flex items-center justify-center">
+                    {subs.length > 99 ? '99+' : subs.length}
+                  </span>
+                )}
+              </IconButton>
+            }
           >
-            <LibraryBig className="w-4 h-4 text-foreground" />
-            {subs.length > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-micro font-bold flex items-center justify-center">
-                {subs.length > 99 ? '99+' : subs.length}
-              </span>
-            )}
-          </button>
+            <div className="flex items-center gap-2 w-full pt-2">
+              {/* Scope pill: tapping the icon area cycles country↔region;
+                  tapping the label opens the matching picker. The two-zone
+                  control keeps the discoverability of "tap to switch
+                  country" while exposing the new region mode without
+                  eating any header real estate. */}
+              <div className="flex items-center bg-secondary/60 rounded-2xl overflow-hidden h-10 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setScope((s) => (s === 'country' ? 'region' : 'country'))}
+                  className="px-2.5 h-full flex items-center gap-1 border-e border-border/40"
+                  aria-label={
+                    scope === 'country'
+                      ? 'التبديل إلى وضع المنطقة'
+                      : 'التبديل إلى وضع الدولة'
+                  }
+                  title={scope === 'country' ? t('podcasts.scope.country') : t('podcasts.scope.region')}
+                >
+                  {scope === 'country' ? (
+                    <Globe className="w-4 h-4 text-foreground" />
+                  ) : (
+                    <Languages className="w-4 h-4 text-foreground" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => (scope === 'country' ? setShowCountry(true) : setShowRegion(true))}
+                  className="px-2.5 h-full flex items-center gap-1.5"
+                  aria-label={
+                    scope === 'country'
+                      ? 'تغيير الدولة'
+                      : 'تغيير المنطقة'
+                  }
+                >
+                  <span className="text-body leading-none" aria-hidden>
+                    {scope === 'country' ? country.flag : (activeRegion?.flag ?? '🌐')}
+                  </span>
+                </button>
+              </div>
+
+              <div className="flex-1 relative">
+                <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={'ابحث'}
+                  className="w-full h-10 ps-9 pe-9 rounded-full bg-muted/40 border border-border/40 text-meta placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  aria-label={'بحث عن بودكاست'}
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch('')}
+                    className="absolute top-1/2 -translate-y-1/2 end-2 w-6 h-6 rounded-full bg-muted-foreground/20 flex items-center justify-center"
+                    aria-label={'مسح البحث'}
+                  >
+                    <X className="w-3.5 h-3.5 text-foreground" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </PageHeader>
         </div>
 
         {/* Genre tabs — scope-independent, both modes share the same
@@ -673,39 +682,25 @@ export default function PodcastsPage() {
             <GridSkeleton />
           </>
         ) : active.isError ? (
-          <div className="py-16 text-center">
-            <p className="text-meta font-semibold text-foreground mb-1">
-              {'تعذّر تحميل البودكاست'}
-            </p>
-            <p className="text-mini text-muted-foreground mb-4">
-              {'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'}
-            </p>
-            <button
-              onClick={() => active.refetch()}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-meta font-semibold"
-            >
-              {'إعادة المحاولة'}
-            </button>
-          </div>
+          <StateView
+            kind="error"
+            title={'تعذّر تحميل البودكاست'}
+            body={'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'}
+            action={{ label: 'إعادة المحاولة', onClick: () => active.refetch() }}
+            className="py-4"
+          />
         ) : cappedList.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-meta font-semibold text-foreground mb-1">
-              {'لا توجد نتائج'}
-            </p>
-            <p className="text-mini text-muted-foreground mb-5">
-              {isSearching
+          <StateView
+            kind={isSearching ? 'search' : 'empty'}
+            title={'لا توجد نتائج'}
+            body={
+              isSearching
                 ? `لم نجد بودكاست بعنوان "${debouncedSearch}".`
-                : 'جرّب فئة أخرى أو غيّر النطاق.'}
-            </p>
-            {isSearching && (
-              <button
-                onClick={() => setSearch('')}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95"
-              >
-                {'مسح البحث'}
-              </button>
-            )}
-          </div>
+                : 'جرّب فئة أخرى أو غيّر النطاق.'
+            }
+            action={isSearching ? { label: 'مسح البحث', onClick: () => setSearch('') } : undefined}
+            className="py-4"
+          />
         ) : (
           <>
             <motion.div
@@ -722,7 +717,7 @@ export default function PodcastsPage() {
               <button
                 type="button"
                 onClick={() => setVisibleCount((c) => Math.min(c + PAGE_STEP, cappedList.length))}
-                className="w-full mt-6 py-3 rounded-2xl text-mini font-semibold border border-border/50 bg-card/50 hover:bg-muted/40 active:scale-[0.98] transition text-primary"
+                className="w-full mt-6 py-3 rounded-2xl text-mini font-semibold border border-border/50 bg-muted/40 hover:bg-muted/60 transition text-primary"
               >
                 {`تحميل المزيد (${cappedList.length - visibleList.length})`}
               </button>

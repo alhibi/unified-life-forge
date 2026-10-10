@@ -62,7 +62,7 @@ export default function NutritionTab() {
             onClick={() => setSubTab(key)}
             className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-motion ${
               subTab === key
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-background text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >

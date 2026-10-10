@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
+import { MIND_TOKENS } from '../lib/mindTokens';
 import {
   ORGANIC_PALETTE,
   PREVIEW_STAGE,
@@ -64,16 +65,16 @@ function ChipRow({ title, values }: { title: string; values: string[] }) {
   return (
     <div className="flex items-center gap-2">
       <span
-        className="text-micro font-body tracking-[0.2em] text-[color:#F2E7C9]/45"
+        className="text-micro font-body tracking-[0.2em] text-[color:var(--m-seam)]/45"
       >
         {title}
       </span>
       <div className="flex gap-1">
         {values.map((hex) => (
           <div key={hex} className="flex flex-col items-center gap-0.5">
-            <span className="h-4 w-4 rounded-xs border border-white/15" style={{ background: hex }} />
+            <span className="h-4 w-4 rounded-xs border border-[color:var(--m-seam)]/15" style={{ background: hex }} />
             <span
-              className="text-micro font-body leading-none text-[color:#F2E7C9]/35 tabular-nums"
+              className="text-micro font-body leading-none text-[color:var(--m-seam)]/35 tabular-nums"
             >
               {hex}
             </span>
@@ -89,7 +90,17 @@ export default function MaterialPreviewPage() {
   const techno = useMemo(() => createTechnoMaterial(), []);
 
   return (
-    <div className="relative w-screen h-[100dvh] overflow-hidden" style={{ background: PREVIEW_STAGE.void }}>
+    <div
+      className="relative w-screen h-[100dvh] overflow-hidden"
+      style={
+        {
+          background: PREVIEW_STAGE.void,
+          // Overlay chrome colours come from the scene palette token,
+          // exposed as a CSS var so no raw hex class is written here.
+          '--m-seam': MIND_TOKENS.seam,
+        } as React.CSSProperties
+      }
+    >
       <Canvas
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
@@ -124,7 +135,7 @@ export default function MaterialPreviewPage() {
       {/* Judging overlay — RTL, chrome kept to hairlines. */}
       <div className="absolute top-0 inset-x-0 flex justify-center pt-[max(env(safe-area-inset-top),16px)] pointer-events-none">
         <div
-          className="text-micro font-body tracking-[0.4em] text-[color:#F2E7C9]/40 uppercase"
+          className="text-micro font-body tracking-[0.4em] text-[color:var(--m-seam)]/40 uppercase"
         >
           {'العقل الحيّ — لوحة المواد · المرحلة ١'}
         </div>
@@ -136,7 +147,7 @@ export default function MaterialPreviewPage() {
           <ChipRow title="تكنولوجي" values={[TECHNO_PALETTE.base, TECHNO_PALETTE.shadowTone, TECHNO_PALETTE.lightTone, TECHNO_PALETTE.glow, TECHNO_PALETTE.rim]} />
         </div>
         <div
-          className="text-micro font-body text-[color:#F2E7C9]/30"
+          className="text-micro font-body text-[color:var(--m-seam)]/30"
         >
           {'يمينًا عضوي · يسارًا تكنولوجي — اسحب للفحص'}
         </div>

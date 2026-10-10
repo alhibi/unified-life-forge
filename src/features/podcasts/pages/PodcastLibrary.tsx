@@ -19,8 +19,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { IconButton } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import {
   type PlayingEpisodeMeta,
   usePodcastPlayer,
@@ -41,7 +43,6 @@ import {
 import {
   ArrowDownAZ,
   Clock,
-  LibraryBig,
   MoreHorizontal,
   Play,
   RefreshCw,
@@ -105,7 +106,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
               <button
                 type="button"
                 onClick={() => playEpisode(rec)}
-                className="w-full text-start rounded-2xl overflow-hidden bg-card/70 border border-border/40 active:scale-[0.98] transition-transform"
+                className="app-card app-card-bare w-full text-start overflow-hidden"
               >
                 <div className="relative aspect-square bg-muted/40">
                   {cover && (
@@ -141,7 +142,7 @@ function ContinueListeningRow({ items }: { items: RecentEpisodeRecord[] }) {
                 type="button"
                 onClick={() => removeRecentEpisodeWithNotify(rec.episode.id)}
                 aria-label={'إزالة'}
-                className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-90 hover:opacity-100"
+                className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-background/80 text-foreground flex items-center justify-center hover:bg-background"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -174,7 +175,7 @@ function SubscriptionTile({
     <div className="relative">
       <button
         onClick={onOpen}
-        className="flex flex-col gap-1.5 text-start active:scale-[0.97] transition-transform w-full"
+        className="flex flex-col gap-1.5 text-start w-full"
       >
         <div className="aspect-square w-full rounded-2xl overflow-hidden bg-muted/40 border border-border/40 relative">
           {podcast.imageUrl ? (
@@ -186,10 +187,10 @@ function SubscriptionTile({
             />
           ) : null}
 
-          {/* Subtle glowing unplayed new episode badge on subscription card */}
+          {/* New unplayed episode badge on subscription card */}
           {hasNewEpisode && (
             <span
-              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-micro font-extrabold tracking-wider bg-primary text-primary-foreground shadow-lg animate-pulse"
+              className="absolute top-2 start-2 px-1.5 py-0.5 rounded-md text-micro font-extrabold tracking-wider"
               style={{
                 background: 'hsl(var(--live))',
                 color: 'hsl(var(--primary-foreground))',
@@ -219,7 +220,7 @@ function SubscriptionTile({
           setMenuOpen(true);
         }}
         aria-label={'خيارات'}
-        className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-black/70 text-white flex items-center justify-center opacity-90 hover:opacity-100"
+        className="absolute top-1.5 end-1.5 w-7 h-7 rounded-full bg-background/80 text-foreground flex items-center justify-center hover:bg-background"
       >
         <MoreHorizontal className="w-3.5 h-3.5" />
       </button>
@@ -230,7 +231,8 @@ function SubscriptionTile({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-black/60 flex items-end sm:items-center justify-center"
+            className="fixed inset-0 z-drawer flex items-end sm:items-center justify-center"
+            style={{ background: 'hsl(var(--scrim) / 0.6)' }}
             onClick={() => setMenuOpen(false)}
           >
             <motion.div
@@ -239,7 +241,7 @@ function SubscriptionTile({
               exit={{ y: 30, opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-3"
+              className="app-card app-card-bare w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-3"
             >
               <div className="px-2 py-3 flex items-center gap-3 border-b border-border/40 mb-2">
                 {podcast.imageUrl && (
@@ -260,7 +262,7 @@ function SubscriptionTile({
                   onUnsubscribe();
                   setMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-destructive hover:bg-destructive/10 active:scale-95 transition"
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-destructive hover:bg-destructive/10 transition"
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="text-mini font-semibold">
@@ -382,49 +384,38 @@ export default function PodcastLibrary() {
         path="/podcasts/library"
       />
 
-      <div className="z-header app-sticky-header border-b border-border/40">
-        <div className="max-w-lg mx-auto px-4 pt-3 pb-3 flex items-center gap-2">
-          <BackButton />
-          <h1 className="flex-1 text-body font-bold text-foreground">
-            {'مكتبتي'}
-          </h1>
-          <button
-            type="button"
-            onClick={handleRefreshAll}
-            disabled={isRefreshing}
-            aria-label={'تحديث الكل'}
-            className="w-10 h-10 rounded-2xl bg-secondary/60 hover:bg-secondary flex items-center justify-center transition disabled:opacity-50 active:scale-95"
-          >
-            <RefreshCw
-              className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`}
-            />
-          </button>
-          <span className="text-micro text-muted-foreground">{subs.length}</span>
-        </div>
-      </div>
+      <PageHeader
+        sticky
+        title={'مكتبتي'}
+        className="max-w-lg mx-auto"
+        right={
+          <>
+            <span className="text-micro text-muted-foreground tabular-nums">{subs.length}</span>
+            <IconButton
+              onClick={handleRefreshAll}
+              disabled={isRefreshing}
+              aria-label={'تحديث الكل'}
+            >
+              <RefreshCw
+                className={`h-4 w-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`}
+              />
+            </IconButton>
+          </>
+        }
+      />
 
       <div className="max-w-lg mx-auto px-4 pt-5">
         {/* Continue Listening rail — only renders when there's something to resume. */}
         <ContinueListeningRow items={recents} />
 
         {subs.length === 0 ? (
-          <div className="flex flex-col items-center text-center pt-10 px-6">
-            <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mb-4">
-              <LibraryBig className="w-7 h-7 text-primary" />
-            </div>
-            <p className="text-meta font-semibold text-foreground mb-1">
-              {'لا اشتراكات بعد'}
-            </p>
-            <p className="text-mini text-muted-foreground mb-5 max-w-xs">
-              {'اكتشف البودكاست واشترك بها لتظهر هنا.'}
-            </p>
-            <button
-              onClick={() => navigate('/podcasts')}
-              className="px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground text-meta font-semibold active:scale-95"
-            >
-              {'استكشاف البودكاست'}
-            </button>
-          </div>
+          <StateView
+            kind="empty"
+            title={'لا اشتراكات بعد'}
+            body={'اكتشف البودكاست واشترك بها لتظهر هنا.'}
+            action={{ label: 'استكشاف البودكاست', onClick: () => navigate('/podcasts') }}
+            className="mt-6"
+          />
         ) : (
           <>
             {/* Sort segmented control. We use a two-button toggle
@@ -440,7 +431,7 @@ export default function PodcastLibrary() {
                   onClick={() => setSortAndPersist('recent')}
                   aria-pressed={sortMode === 'recent'}
                   className={`px-2.5 h-7 rounded-full text-micro font-semibold inline-flex items-center gap-1 transition-colors ${
-                    sortMode === 'recent' ? 'bg-card  text-foreground' : 'text-muted-foreground'
+                    sortMode === 'recent' ? 'bg-background text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <Clock className="w-3 h-3" />
@@ -451,7 +442,7 @@ export default function PodcastLibrary() {
                   onClick={() => setSortAndPersist('alpha')}
                   aria-pressed={sortMode === 'alpha'}
                   className={`px-2.5 h-7 rounded-full text-micro font-semibold inline-flex items-center gap-1 transition-colors ${
-                    sortMode === 'alpha' ? 'bg-card  text-foreground' : 'text-muted-foreground'
+                    sortMode === 'alpha' ? 'bg-background text-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   <ArrowDownAZ className="w-3 h-3" />

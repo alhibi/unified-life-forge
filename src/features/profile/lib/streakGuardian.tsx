@@ -11,9 +11,6 @@
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-import {
-  assessStreakRisk,
-} from './streakEngine';
 import { streakStore } from './streakStore';
 
 const GUARDIAN_FIRED_KEY = 'amv_streak_guardian_fired_on';
@@ -87,6 +84,3 @@ export function StreakGuardianRunner() {
 
   return null;
 }
-
-// Re-export for consumers that want the raw assessor (tests etc).
-export { assessStreakRisk };

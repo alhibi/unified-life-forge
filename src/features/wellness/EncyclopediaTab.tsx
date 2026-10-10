@@ -12,6 +12,9 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo,useState } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import {
 Activity, AlertCircle, Apple, BookOpen, Brain, ChevronDown, Clock, Compass,
@@ -82,9 +85,9 @@ const T = {
 type SubTab = 'cali' | 'food' | 'wisdom';
 
 const SUB_TABS: { key: SubTab; icon: any; color: string }[] = [
-  { key: 'cali',   icon: Dumbbell, color: '#f97316' },
-  { key: 'food',   icon: Apple,    color: '#84cc16' },
-  { key: 'wisdom', icon: BookOpen, color: '#a855f7' },
+  { key: 'cali',   icon: Dumbbell, color: 'hsl(var(--data-2))' },
+  { key: 'food',   icon: Apple,    color: 'hsl(var(--data-1))' },
+  { key: 'wisdom', icon: BookOpen, color: 'hsl(var(--data-4))' },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -179,7 +182,7 @@ function CalisthenicsSection({ lang, query }: { lang: 'ar'; query: string }) {
       <div className="space-y-2">
         <AnimatePresence>
           {filtered.length === 0 ? (
-            <div className="text-center py-8 text-micro text-muted-foreground">{T.noResults[lang]}</div>
+            <StateView kind="search" compact title={T.noResults[lang]} body="جرّب كلمة بحث أخرى أو وسّع الفلاتر." />
           ) : (
             filtered.map((skill) => (
               <SkillCard
@@ -206,13 +209,12 @@ function SkillCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="rounded-xl border border-border/40 overflow-hidden"
-      style={{ backgroundColor: 'hsl(var(--card))' }}
     >
+      <AppCard className="overflow-hidden p-0">
       {/* Header */}
       <button
         onClick={onToggle}
-        className="w-full p-3 flex items-center gap-3 active:bg-muted/30 transition-colors"
+        className="w-full p-3 flex items-center gap-3 transition-colors"
       >
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
@@ -312,7 +314,7 @@ function SkillCard({
               </Section>
 
               {/* Cues */}
-              <Section icon={Lightbulb} title={T.cues[lang]} color="#10b981">
+              <Section icon={Lightbulb} title={T.cues[lang]} color="hsl(var(--data-1))">
                 <ul className="space-y-1">
                   {skill.cues[lang].map((cue, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-micro">
@@ -324,7 +326,7 @@ function SkillCard({
               </Section>
 
               {/* Mistakes */}
-              <Section icon={AlertCircle} title={T.mistakes[lang]} color="#dc2626">
+              <Section icon={AlertCircle} title={T.mistakes[lang]} color="hsl(var(--destructive))">
                 <ul className="space-y-1">
                   {skill.mistakes[lang].map((m, i) => (
                     <li key={i} className="flex items-start gap-1.5 text-micro">
@@ -337,8 +339,7 @@ function SkillCard({
 
               {/* Pro tip */}
               <div
-                className="rounded-lg p-2.5 border-s-2 bg-signal/5"
-                style={{ borderLeftColor: '#f59e0b' }}
+                className="rounded-lg p-2.5 border-s-2 border-signal bg-signal/5"
               >
                 <div className="flex items-center gap-1.5 mb-1">
                   <Sparkles className="w-3 h-3 text-signal" />
@@ -352,6 +353,7 @@ function SkillCard({
           </motion.div>
         )}
       </AnimatePresence>
+      </AppCard>
     </motion.div>
   );
 }
@@ -410,7 +412,7 @@ function FoodSection({ lang, query }: { lang: 'ar'; query: string }) {
       <div className="space-y-2">
         <AnimatePresence>
           {filtered.length === 0 ? (
-            <div className="text-center py-8 text-micro text-muted-foreground">{T.noResults[lang]}</div>
+            <StateView kind="search" compact title={T.noResults[lang]} body="جرّب كلمة بحث أخرى أو وسّع الفلاتر." />
           ) : (
             filtered.map((food) => (
               <FoodCard
@@ -435,22 +437,22 @@ function FoodCard({
     food.glycemicIndex <= 35 ? T.giLow[lang] :
     food.glycemicIndex <= 65 ? T.giMid[lang] :
     T.giHigh[lang];
-  const giColor = food.glycemicIndex == null ? '#94a3b8' :
-    food.glycemicIndex <= 35 ? '#10b981' :
-    food.glycemicIndex <= 65 ? '#f59e0b' :
-    '#ef4444';
+  const giColor = food.glycemicIndex == null ? 'hsl(var(--muted-foreground))' :
+    food.glycemicIndex <= 35 ? 'hsl(var(--data-1))' :
+    food.glycemicIndex <= 65 ? 'hsl(var(--data-3))' :
+    'hsl(var(--destructive))';
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-border/40 overflow-hidden bg-card"
     >
+      <AppCard className="overflow-hidden p-0">
       {/* Header */}
       <button
         onClick={onToggle}
-        className="w-full p-3 flex items-center gap-3 active:bg-muted/30 transition-colors"
+        className="w-full p-3 flex items-center gap-3 transition-colors"
       >
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
@@ -501,10 +503,10 @@ function FoodCard({
             <div className="px-3 pb-3 space-y-3 border-t border-border/30 pt-3">
               {/* Macros */}
               <div className="grid grid-cols-4 gap-1.5">
-                <MacroBox label={T.kcal[lang]} value={food.per100g.kcal} unit="" color="#a855f7" />
-                <MacroBox label={T.protein[lang]} value={food.per100g.protein} unit="g" color="#3b82f6" />
-                <MacroBox label={T.carbs[lang]} value={food.per100g.carbs} unit="g" color="#10b981" />
-                <MacroBox label={T.fat[lang]} value={food.per100g.fat} unit="g" color="#f59e0b" />
+                <MacroBox label={T.kcal[lang]} value={food.per100g.kcal} unit="" color="hsl(var(--data-3))" />
+                <MacroBox label={T.protein[lang]} value={food.per100g.protein} unit="g" color="hsl(var(--data-4))" />
+                <MacroBox label={T.carbs[lang]} value={food.per100g.carbs} unit="g" color="hsl(var(--data-1))" />
+                <MacroBox label={T.fat[lang]} value={food.per100g.fat} unit="g" color="hsl(var(--data-2))" />
               </div>
 
               {/* Optimal times */}
@@ -587,6 +589,7 @@ function FoodCard({
           </motion.div>
         )}
       </AnimatePresence>
+      </AppCard>
     </motion.div>
   );
 }
@@ -654,7 +657,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
       <div className="space-y-2">
         <AnimatePresence>
           {filtered.length === 0 ? (
-            <div className="text-center py-8 text-micro text-muted-foreground">{T.noResults[lang]}</div>
+            <StateView kind="search" compact title={T.noResults[lang]} body="جرّب كلمة بحث أخرى أو وسّع الفلاتر." />
           ) : (
             filtered.map((chapter) => {
               const isOpen = expanded === chapter.category;
@@ -664,11 +667,11 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                   layout
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl border border-border/40 overflow-hidden bg-card"
                 >
+                  <AppCard className="overflow-hidden p-0">
                   <button
                     onClick={() => setExpanded(isOpen ? null : chapter.category)}
-                    className="w-full p-3 flex items-center gap-3 active:bg-muted/30 transition-colors"
+                    className="w-full p-3 flex items-center gap-3 transition-colors"
                   >
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-title shrink-0"
@@ -757,6 +760,7 @@ function WisdomSection({ lang, query }: { lang: 'ar'; query: string }) {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  </AppCard>
                 </motion.div>
               );
             })
@@ -836,8 +840,8 @@ export default function EncyclopediaTab() {
   return (
     <div className="space-y-3">
       {/* Sub-tab switcher */}
-      <div
-        className="bg-card border border-border/40 rounded-xl p-1 flex items-center gap-px"
+      <AppCard
+        className="p-1 flex items-center gap-px"
         dir="ltr"
       >
         {SUB_TABS.map((t) => {
@@ -866,24 +870,25 @@ export default function EncyclopediaTab() {
             </button>
           );
         })}
-      </div>
+      </AppCard>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute top-1/2 -translate-y-1/2 start-2.5 w-3 h-3 text-muted-foreground pointer-events-none" />
-        <input
+        <Search className="absolute top-1/2 -translate-y-1/2 start-2.5 w-3 h-3 text-muted-foreground pointer-events-none" aria-hidden />
+        <Input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={T.search[lang]}
-          className="w-full h-8 ps-8 pe-7 rounded-lg bg-card border border-border/40 text-micro text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/40 transition-colors"
+          className="h-8 ps-8 pe-7 text-micro"
         />
         {query && (
           <button
             onClick={() => setQuery('')}
+            aria-label="مسح البحث"
             className="absolute top-1/2 -translate-y-1/2 end-2 w-4 h-4 rounded-full bg-muted/60 flex items-center justify-center"
           >
-            <X className="w-2.5 h-2.5 text-muted-foreground" />
+            <X className="w-2.5 h-2.5 text-muted-foreground" aria-hidden />
           </button>
         )}
       </div>

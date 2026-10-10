@@ -58,6 +58,11 @@ export default function DynamicPodcastTheme({
       // Foreground over the primary-color fill: pick white if the seed
       // is dark-ish, near-black if it's light. We only have lightness
       // here so this is a fine approximation of WCAG contrast.
+      //
+      // The two hex literals below are deliberately kept: they are
+      // computed contrast colors derived from the artwork's seed, not UI
+      // chrome, and are part of the dynamic-cover treatment the unified
+      // design system allows (see .kiro/steering/design-system.md §0).
       '--podcast-primary-fg': seedL < 55 ? '#ffffff' : '#0b0b0b',
       '--podcast-on-art': '#ffffff',
     } as unknown as CSSProperties;

@@ -7,11 +7,13 @@
  */
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import { useAuth } from '@/hooks/useAuth';
 import { Link2, Loader2, Pin, Rss, Sparkles } from '@/lib/icons';
@@ -35,6 +37,7 @@ const TABS: { key: Tab; label: string; icon: React.ComponentType<{ className?: s
 
 export default function Marginalia() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('discover');
   const [loading, setLoading] = useState(true);
   const [sources, setSources] = useState<MgSource[]>([]);
@@ -104,10 +107,13 @@ export default function Marginalia() {
     return (
       <PageShell>
         <SEO path="/marginalia" title="الهوامش" description="أرشيف قراءة شخصي يكشف الروابط الخفية بين ما تقرأ." />
-        <BackButton />
-        <AppCard className="text-center py-10">
-          <p className="text-meta text-muted-foreground">سجّل الدخول لبناء أرشيفك الشخصي.</p>
-        </AppCard>
+        <PageHeader title="الهوامش" />
+        <StateView
+          kind="empty"
+          title="أرشيفك الشخصي يحتاج حساباً"
+          body="الهوامش يحلّل ما تقرأ ويقترح روابط خفية بين مقالاتك. سجّل الدخول لتبدأ بناء الأرشيف."
+          action={{ label: 'تسجيل الدخول', onClick: () => navigate('/auth') }}
+        />
       </PageShell>
     );
   }
@@ -119,26 +125,22 @@ export default function Marginalia() {
         title="الهوامش — أرشيف قراءة يكشف الروابط"
         description="أرشيف قراءة شخصي يحلّل المقالات ويقترح روابط غير بديهية بينها، مع حوار مستند إلى أرشيفك."
       />
-      <BackButton />
+      <PageHeader
+        title="الهوامش"
+        subtitle={`${articles.length.toLocaleString('en-US')} مقالاً · ${connections.length.toLocaleString('en-US')} رابطاً`}
+      />
 
-      <header className="space-y-1 pt-1">
-        <h1 className="text-title font-black">الهوامش</h1>
-        <p className="text-mini text-muted-foreground">
-          {articles.length.toLocaleString('en-US')} مقالاً · {connections.length.toLocaleString('en-US')} رابطاً
-        </p>
-      </header>
-
-      <div className="flex bg-muted/40 rounded-xl p-1 border border-border/30 overflow-x-auto scrollbar-none gap-0.5" dir="rtl">
+      <div className="flex bg-muted/40 rounded-xl p-1 border border-border/30 overflow-x-auto scrollbar-none gap-0.5 mt-2">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             type="button"
             onClick={() => setTab(key)}
             className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-motion ${
-              tab === key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              tab === key ? 'bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3.5 h-3.5" aria-hidden />
             <span>{label}</span>
           </button>
         ))}
@@ -156,26 +158,22 @@ export default function Marginalia() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="space-y-3"
+            className="space-y-3 mt-4"
           >
             {tab === 'discover' && (
               <>
-                <button
-                  type="button"
-                  onClick={runDiscovery}
-                  disabled={discovering}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-meta font-bold active:scale-[0.98] transition disabled:opacity-60"
-                >
+                <Button className="w-full" onClick={runDiscovery} disabled={discovering}>
                   {discovering
-                    ? <><Loader2 className="w-4 h-4 animate-spin" /> يقرأ أرشيفك…</>
-                    : <><Link2 className="w-4 h-4" /> ابحث عن روابط جديدة</>}
-                </button>
+                    ? <><Loader2 className="w-4 h-4 animate-spin" aria-hidden /> يقرأ أرشيفك…</>
+                    : <><Link2 className="w-4 h-4" aria-hidden /> ابحث عن روابط جديدة</>}
+                </Button>
                 {fresh.length === 0 ? (
-                  <AppCard className="text-center py-8">
-                    <p className="text-meta text-muted-foreground">
-                      لا روابط معلّقة — أضف مقالات ثم شغّل المحرّك.
-                    </p>
-                  </AppCard>
+                  <StateView
+                    kind="empty"
+                    compact
+                    title="لا روابط معلّقة"
+                    body="أضف مقالات إلى الأرشيف ثم شغّل المحرّك: كلما اتسع الأرشيف ظهرت روابط أدقّ بين ما قرأت."
+                  />
                 ) : fresh.map((c) => (
                   <ConnectionCard
                     key={c.id}

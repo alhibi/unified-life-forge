@@ -36,7 +36,7 @@ export function SectionHeader({
     <header className={cn('flex items-end justify-between gap-4', className)}>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-3 mb-2">
-          <span aria-hidden className="inline-block w-6 h-px bg-gradient-to-r from-primary to-transparent" />
+          <span aria-hidden className="inline-block w-6 h-px bg-primary" />
           {eyebrow && (
             <span className="text-[0.625rem] font-bold tracking-[0.22em] uppercase text-primary">
               {eyebrow}

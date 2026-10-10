@@ -1,11 +1,15 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
+import { AppCard, AppList, IconButton, IconChip, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import { sunnahDetailData, SunnahDetailItem } from '@/data/sunnahDetailData';
-import { BookOpen,ChevronLeft, ChevronRight, Copy, Heart, Share2 } from '@/lib/icons';
+import { BookOpen, ChevronLeft, ChevronRight, Copy, Heart, Share2 } from '@/lib/icons';
+import { DURATION, EASE_OUT_EXPO } from '@/lib/motion';
 import { notify } from '@/lib/notify';
 
 function DetailedView({ data }: { data: { label: string; accent: string; items: SunnahDetailItem[] } }) {
@@ -14,7 +18,6 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [fontSize, setFontSize] = useState(18);
   const [direction, setDirection] = useState(0);
-  const navigate = useNavigate();
   const { dir } = useApp();
 
   const item = data.items[currentIndex];
@@ -44,105 +47,118 @@ function DetailedView({ data }: { data: { label: string; accent: string; items: 
   const canGoForward = dir === 'rtl' ? currentIndex > 0 : currentIndex < total - 1;
 
   return (
-    <div className="min-h-screen bg-background pb-page flex flex-col">
-      <div className="z-raised app-sticky-header border-b border-border">
-        <div className="flex items-center justify-between px-4 py-3">
-          <BackButton />
-          <div className="text-center">
-            <h1 className="text-lead font-bold text-foreground">{data.label}</h1>
-            <p className="text-mini text-muted-foreground">{currentIndex + 1} / {total}</p>
-          </div>
-          <div className="w-10" />
-        </div>
-        <div className="h-1 w-full bg-muted/30">
+    <PageShell flush centered={false} className="px-4">
+      <div className="mx-auto w-full max-w-lg">
+        <PageHeader sticky title={data.label} subtitle={`${currentIndex + 1} / ${total}`} />
+
+        {/* Reading progress — state, not decoration. */}
+        <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted/30">
           <div className="h-full bg-primary transition-motion duration-normal" style={{ width: `${((currentIndex + 1) / total) * 100}%` }} />
         </div>
-      </div>
 
-      <div className="flex-1 flex items-start justify-center px-4 pt-4">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full max-w-lg rounded-xl bg-card border border-border overflow-hidden">
-            <div className="h-1.5 bg-primary" />
-            <div className="px-6 pt-6 pb-3">
-              <h2 className="text-title font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
-            </div>
-            <div className="flex items-center justify-center gap-3 pb-3">
-              <button onClick={handleCopy} className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center"><Copy className="w-4 h-4 text-muted-foreground" /></button>
-              <button onClick={handleShare} className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center"><Share2 className="w-4 h-4 text-muted-foreground" /></button>
-              <button className="w-10 h-10 rounded-lg bg-muted/40 flex items-center justify-center"><Heart className="w-4 h-4 text-muted-foreground" /></button>
-            </div>
-            <div className="flex justify-center py-2"><div className="w-2 h-2 rounded-full bg-primary" /></div>
-            <div className="mx-6 border-t border-border/30" />
-            <div className="px-6 py-5">
-              <p className="text-foreground text-center leading-[1.9]" style={{ fontSize }}>{item.description}</p>
-            </div>
-            <div className="mx-6 mb-4">
-              <div className="flex items-center justify-end gap-2 px-4 py-3 rounded-xl bg-primary/10">
-                <span className="text-meta font-semibold text-primary">{item.source}</span>
-                <BookOpen className="w-4 h-4 text-primary" />
-              </div>
-            </div>
-            <div className="mx-6 mb-5 border-t border-border/30 pt-4">
-              <div className="flex items-center justify-between">
-                <button onClick={dir === 'rtl' ? goNext : goPrev} disabled={!canGoBack} className={`w-11 h-11 rounded-xl flex items-center justify-center disabled:opacity-20 ${canGoBack ? 'bg-primary/15' : 'bg-muted/40'}`}>
-                  <ChevronLeft className={`w-5 h-5 ${canGoBack ? 'text-primary' : 'text-muted-foreground'}`} />
-                </button>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setFontSize(s => Math.max(14, s - 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-meta">أ-</button>
-                  <button onClick={() => setFontSize(s => Math.min(28, s + 2))} className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground font-bold text-meta">+أ</button>
+        <div className="flex items-start justify-center pt-4">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div key={currentIndex} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.08 }} className="w-full">
+              <AppCard className="w-full overflow-hidden p-0">
+                <div className="h-1.5 bg-primary" />
+                <div className="px-6 pt-6 pb-3">
+                  <h2 className="text-title font-bold text-foreground text-center leading-relaxed" style={{ fontSize: fontSize + 2 }}>{item.title}</h2>
                 </div>
-                <button onClick={dir === 'rtl' ? goPrev : goNext} disabled={!canGoForward} className={`w-11 h-11 rounded-xl flex items-center justify-center disabled:opacity-20 ${canGoForward ? 'bg-primary/15' : 'bg-muted/40'}`}>
-                  <ChevronRight className={`w-5 h-5 ${canGoForward ? 'text-primary' : 'text-muted-foreground'}`} />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+                <div className="flex items-center justify-center gap-3 pb-3">
+                  <IconButton onClick={handleCopy} aria-label="نسخ السنة">
+                    <Copy className="h-4 w-4" aria-hidden />
+                  </IconButton>
+                  <IconButton onClick={handleShare} aria-label="مشاركة السنة">
+                    <Share2 className="h-4 w-4" aria-hidden />
+                  </IconButton>
+                  <IconButton aria-label="إضافة إلى المفضلة">
+                    <Heart className="h-4 w-4" aria-hidden />
+                  </IconButton>
+                </div>
+                <div className="flex justify-center py-2"><div className="w-2 h-2 rounded-full bg-primary" /></div>
+                <div className="mx-6 border-t border-border/30" />
+                <div className="px-6 py-5">
+                  <p className="text-foreground text-center leading-[1.9]" style={{ fontSize }}>{item.description}</p>
+                </div>
+                <div className="mx-6 mb-4">
+                  <div className="flex items-center justify-end gap-2 px-4 py-3 rounded-xl bg-primary/10">
+                    <span className="text-meta font-semibold text-primary">{item.source}</span>
+                    <BookOpen className="w-4 h-4 text-primary" aria-hidden />
+                  </div>
+                </div>
+                <div className="mx-6 mb-5 border-t border-border/30 pt-4">
+                  <div className="flex items-center justify-between">
+                    <IconButton
+                      onClick={dir === 'rtl' ? goNext : goPrev}
+                      disabled={!canGoBack}
+                      aria-label="السنة السابقة"
+                      className="disabled:opacity-40"
+                    >
+                      <ChevronLeft className="w-5 h-5" aria-hidden />
+                    </IconButton>
+                    <div className="flex items-center gap-2">
+                      <Button variant="secondary" size="icon" aria-label="تصغير حجم الخط" onClick={() => setFontSize(s => Math.max(14, s - 2))}>
+                        <span className="text-meta font-bold">أ-</span>
+                      </Button>
+                      <Button variant="secondary" size="icon" aria-label="تكبير حجم الخط" onClick={() => setFontSize(s => Math.min(28, s + 2))}>
+                        <span className="text-meta font-bold">+أ</span>
+                      </Button>
+                    </div>
+                    <IconButton
+                      onClick={dir === 'rtl' ? goPrev : goNext}
+                      disabled={!canGoForward}
+                      aria-label="السنة التالية"
+                      className="disabled:opacity-40"
+                    >
+                      <ChevronRight className="w-5 h-5" aria-hidden />
+                    </IconButton>
+                  </div>
+                </div>
+              </AppCard>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 function SimpleListView({ data }: { data: { label: string; accent: string; items: { title: string }[] } }) {
-  const navigate = useNavigate();
-  
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
-  const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } } };
+  const itemAnim = { hidden: { opacity: 0, x: 20 }, show: { opacity: 1, x: 0, transition: { duration: DURATION.slow, ease: EASE_OUT_EXPO } } };
 
   return (
-    <div className="min-h-screen bg-background pb-page">
-      <div className="z-raised app-sticky-header border-b border-border">
-        <div className="flex items-center justify-between px-4 py-3">
-          <BackButton />
-          <h1 className="text-lead font-bold text-foreground">{data.label}</h1>
-          <div className="w-10" />
+    <PageShell flush centered={false} className="px-4">
+      <div className="mx-auto w-full max-w-lg">
+        <PageHeader sticky title={data.label} />
+        <div className="flex items-center justify-end gap-3 py-5">
+          <div className="text-end">
+            <h2 className="text-body font-bold text-foreground">السنن</h2>
+            <p className="text-meta text-muted-foreground">{data.items.length} سنة</p>
+          </div>
+          <IconChip aria-hidden>
+            <BookOpen className="h-5 w-5" />
+          </IconChip>
         </div>
+        <motion.div variants={container} initial="hidden" animate="show">
+          <AppList>
+            {data.items.map((sunnah, index) => (
+              <motion.div key={index} variants={itemAnim} className="app-row">
+                <div className="flex items-center gap-2 shrink-0">
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground-subtle" aria-hidden />
+                  <Heart className="w-4 h-4 text-muted-foreground-subtle" aria-hidden />
+                </div>
+                <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{sunnah.title}</p>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
+                  <span className="text-mini font-bold text-primary tabular-nums">{index + 1}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AppList>
+        </motion.div>
       </div>
-      <div className="flex items-center justify-end gap-3 px-6 py-5">
-        <div className="text-end">
-          <h2 className="text-body font-bold text-foreground">السنن</h2>
-          <p className="text-meta text-muted-foreground">{data.items.length} سنة</p>
-        </div>
-        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-primary/10">
-          <BookOpen className="w-6 h-6 text-primary" />
-        </div>
-      </div>
-      <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5 px-4">
-        {data.items.map((sunnah, index) => (
-          <motion.div key={index} variants={itemAnim} className="flex items-center gap-3 px-4 py-4 rounded-xl bg-card border border-border">
-            <div className="flex items-center gap-2 shrink-0">
-              <ChevronLeft className="w-4 h-4 text-muted-foreground/40" />
-              <Heart className="w-4 h-4 text-muted-foreground/40" />
-            </div>
-            <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{sunnah.title}</p>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
-              <span className="text-mini font-bold text-primary">{index + 1}</span>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
+    </PageShell>
   );
 }
 
@@ -152,9 +168,15 @@ export default function SunnahDetail() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">لم يتم العثور على البيانات</p>
-      </div>
+      <PageShell centered={false} className="px-4">
+        <div className="mx-auto w-full max-w-lg pt-4">
+          <StateView
+            kind="error"
+            title="لم تُعرف هذه الفئة"
+            body="الرابط الذي وصلت منه لا يطابق أي فئة من فئات السنن المحفوظة. ارجع إلى قائمة السنن واختر فئة من هناك."
+          />
+        </div>
+      </PageShell>
     );
   }
 

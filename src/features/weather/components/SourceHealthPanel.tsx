@@ -1,5 +1,6 @@
 import { useEffect,useState } from 'react';
 
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import { ChevronDown } from '@/lib/icons';
 
 import { snapshotAllSources, type SourceHealth } from '../engine/SourceHealthMonitor';
@@ -32,32 +33,30 @@ export function SourceHealthPanel() {
           </span>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-card text-primary shrink-0 transition-transform active:scale-95"
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-border bg-secondary text-primary shrink-0"
           >
             <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
         {isExpanded && (
-          <div className="space-y-2 overflow-hidden">
+          <AppList compact>
             {rows.map((r) => (
-              <div
+              <AppRow
                 key={r.id}
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-2 text-micro border-b border-border/20 pb-2 last:border-0 last:pb-0"
-              >
-                <div className="flex items-center gap-2 min-w-0">
+                as="div"
+                leading={
                   <span
-                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${r.state === 'closed' ? 'bg-primary' : r.state === 'half_open' ? 'bg-warning' : 'bg-destructive'}`}
+                    className={`h-1.5 w-1.5 rounded-full ${r.state === 'closed' ? 'bg-primary' : r.state === 'half_open' ? 'bg-warning' : 'bg-destructive'}`}
                   />
-                  <span className="truncate text-foreground font-medium">{r.label}</span>
-                </div>
-                <span className="text-muted-foreground tabular-nums">
-                  وزن {r.effectiveWeight.toFixed(2)}
-                </span>
-                <span className="text-muted-foreground tabular-nums">{r.avgResponseMs}ms</span>
-              </div>
+                }
+                title={r.label}
+                value={`وزن ${r.effectiveWeight.toFixed(2)}`}
+              >
+                <span className="text-micro text-muted-foreground tabular-nums">{r.avgResponseMs}ms</span>
+              </AppRow>
             ))}
-          </div>
+          </AppList>
         )}
       </div>
     </WeatherPanel>

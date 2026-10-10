@@ -523,7 +523,7 @@ export default function ChatDrawer({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => onOpenChange(false)}
-                className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                 aria-label={'رجوع'}
               >
                 <BackIcon className="w-5 h-5 text-foreground" />
@@ -551,7 +551,7 @@ export default function ChatDrawer({
                     setShowConvSearch(false);
                     setConvSearchQuery('');
                   }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center active:bg-accent/40"
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
                 >
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
@@ -560,7 +560,7 @@ export default function ChatDrawer({
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => chat.chatPrefs.setSoundEnabled(!chat.chatPrefs.prefs.soundEnabled)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                   aria-label={chat.chatPrefs.prefs.soundEnabled ? 'كتم الصوت' : 'تفعيل الصوت'}
                 >
                   {chat.chatPrefs.prefs.soundEnabled ? (
@@ -571,7 +571,7 @@ export default function ChatDrawer({
                 </button>
                 <button
                   onClick={() => setShowConvSearch(true)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                   aria-label={'بحث'}
                 >
                   <Search className="w-5 h-5 text-muted-foreground" />
@@ -610,7 +610,7 @@ export default function ChatDrawer({
                 chat.setShowNewChat(false);
                 chat.setSearchUser('');
               }}
-              className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
               aria-label={'رجوع'}
             >
               <BackIcon className="w-5 h-5 text-foreground" />
@@ -659,7 +659,7 @@ export default function ChatDrawer({
                 animate={{ opacity: 1, y: 0 }}
                 onClick={chat.startConversation}
                 disabled={chat.loading}
-                className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/20 active:bg-accent/40 transition-colors disabled:opacity-60"
+                className="w-full flex items-center gap-3 p-4 rounded-2xl bg-accent/20 transition-colors disabled:opacity-60"
               >
                 {renderAvatar(
                   chat.searchResult.username,
@@ -721,20 +721,20 @@ export default function ChatDrawer({
                   <div className="flex gap-0.5 shrink-0">
                     <button
                       onClick={() => chat.navigateSearch('up')}
-                      className="w-7 h-7 rounded-full flex items-center justify-center active:bg-accent/30"
+                      className="w-7 h-7 rounded-full flex items-center justify-center"
                     >
                       <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg] text-muted-foreground" />
                     </button>
                     <button
                       onClick={() => chat.navigateSearch('down')}
-                      className="w-7 h-7 rounded-full flex items-center justify-center active:bg-accent/30"
+                      className="w-7 h-7 rounded-full flex items-center justify-center"
                     >
                       <ChevronRight className="w-3.5 h-3.5 rotate-90 text-muted-foreground" />
                     </button>
                   </div>
                   <button
                     onClick={() => chat.setShowSearch(false)}
-                    className="w-7 h-7 rounded-full flex items-center justify-center active:bg-accent/30"
+                    className="w-7 h-7 rounded-full flex items-center justify-center"
                   >
                     <X className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
@@ -750,7 +750,7 @@ export default function ChatDrawer({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="w-full border-b border-border/20 px-3 py-2 flex items-center gap-2.5 bg-accent/5 active:bg-accent/15 transition-colors text-start overflow-hidden shrink-0"
+                className="w-full border-b border-border/20 px-3 py-2 flex items-center gap-2.5 bg-accent/5 transition-colors text-start overflow-hidden shrink-0"
                 onClick={() => {
                   const el = document.getElementById(`msg-${chat.pinnedMessage!.id}`);
                   el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -774,7 +774,7 @@ export default function ChatDrawer({
                     e.stopPropagation();
                     chat.pinMessage(chat.pinnedMessage!);
                   }}
-                  className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center active:bg-muted/50"
+                  className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
                 >
                   <X className="w-3 h-3 text-muted-foreground" />
                 </button>
@@ -833,7 +833,7 @@ export default function ChatDrawer({
                   <button
                     type="button"
                     onClick={() => { void chat.loadOlderMessages(); }}
-                    className="text-mini text-muted-foreground-subtle rounded-full border border-border/40 px-3 py-1 transition-motion hover:text-foreground active:scale-[0.97]"
+                    className="text-mini text-muted-foreground-subtle rounded-full border border-border/40 px-3 py-1 transition-motion hover:text-foreground"
                   >
                     {'تحميل رسائل أقدم'}
                   </button>
@@ -1344,7 +1344,7 @@ export default function ChatDrawer({
                   aria-label={'يكتب'}
                 >
                   <div
-                    className="bg-card border border-border/15 px-3.5 py-2 shadow-sm"
+                    className="bg-card border border-border/15 px-3.5 py-2"
                     style={{ borderRadius: '18px 18px 18px 4px' }}
                   >
                     <TypingDots />
@@ -1462,14 +1462,14 @@ export default function ChatDrawer({
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => chat.imageUpload.retryUpload(upload.tempId)}
-                                  className="px-3.5 py-1.5 rounded-full bg-destructive text-white text-mini font-medium active:scale-95 transition-transform"
+                                  className="px-3.5 py-1.5 rounded-full bg-destructive text-white text-mini font-medium transition-transform"
                                 >
                                   {'إعادة المحاولة'}
                                 </button>
                                 <button
                                   onClick={() => chat.imageUpload.clearUpload(upload.tempId)}
                                   aria-label={'تجاهل'}
-                                  className="px-3.5 py-1.5 rounded-full bg-white/15 text-white text-mini font-medium active:scale-95 transition-transform"
+                                  className="px-3.5 py-1.5 rounded-full bg-white/15 text-white text-mini font-medium transition-transform"
                                 >
                                   {'تجاهل'}
                                 </button>
@@ -1509,7 +1509,6 @@ export default function ChatDrawer({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.6, y: 8 }}
                 transition={{ type: 'spring', damping: 18, stiffness: 380 }}
-                whileTap={{ scale: 0.9 }}
                 onClick={() => chat.scrollToBottom()}
                 aria-label={'الانتقال للأسفل'}
                 className={cn(
@@ -1557,7 +1556,7 @@ export default function ChatDrawer({
               </p>
               <button
                 onClick={() => chat.chatPrefs.toggleBlocked(chat.activeConv!.id)}
-                className="px-6 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-mini font-semibold active:scale-95 transition-transform"
+                className="px-6 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 text-mini font-semibold transition-transform"
               >
                 {'إلغاء الحظر'}
               </button>
@@ -1656,7 +1655,7 @@ export default function ChatDrawer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-fullscreen-above flex items-center justify-center bg-black/60 px-6"
+          className="app-scrim z-fullscreen-above flex items-center justify-center px-6"
           onClick={() => setShowDeleteConfirm(false)}
         >
           <motion.div
@@ -1665,7 +1664,7 @@ export default function ChatDrawer({
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm rounded-2xl bg-card border border-border/20 p-6 space-y-4 shadow-2xl"
+            className="app-card app-card-bare w-full max-w-sm rounded-2xl p-6 space-y-4"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
@@ -1681,7 +1680,7 @@ export default function ChatDrawer({
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
+                className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium transition-transform"
               >
                 {'إلغاء'}
               </button>
@@ -1692,7 +1691,7 @@ export default function ChatDrawer({
                   chat.setShowProfilePopup(false);
                   chat.setProfileTab('info');
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-meta font-medium active:scale-[0.98] transition-transform"
+                className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-meta font-medium transition-transform"
               >
                 {'حذف'}
               </button>

@@ -10,9 +10,10 @@
  *     arrow keys and a spring `layoutId` indicator, and the panes are
  *     SWIPEABLE (see MihrabTabs). Previously it was a 4-column grid of tiles
  *     forced to `dir="ltr"`, with no gesture and no ARIA.
- *   • The header carries state instead of decoration: Hijri date, next prayer,
- *     today's practice ring, streak and a 28-day activity strip. It used to be
- *     a `bg-primary/10` colour wash behind a 28px title.
+ *   • The masthead is now the shared <PageHeader variant="display"> with the
+ *     hijri date, next prayer, wird progress and streak as chip rails under
+ *     the title. The former bespoke AppCard header held the same state; the
+ *     system-unification pass moved it onto the one header primitive.
  *   • Each tab gained something to *do* rather than only links: a tasbih
  *     counter (Dhikr), a daily Qur'an wird plus sūrah search (Qur'an), and a
  *     self-composed sunnah checklist (Sunnah) — all persisted locally and all
@@ -24,11 +25,16 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import PageHeader from '@/components/PageHeader';
+import { useNextPrayer } from '@/components/portal/useNextPrayer';
 import SEO from '@/components/SEO';
 import { PageShell } from '@/components/ui/app-shell';
-import MihrabHeader from '@/features/mihrab/components/MihrabHeader';
+import { formatHijriDate } from '@/features/calendar/data/islamicOccasions';
+import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
 import MihrabTabs, { type MihrabTabDef } from '@/features/mihrab/components/MihrabTabs';
-import { BookOpen, Feather, HandHeart, Moon } from '@/lib/icons';
+import { usePractice } from '@/features/mihrab/lib/usePractice';
+import { BookOpen, Feather, Flame, HandHeart, Moon } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
 const QuranTab = lazy(() => import('./mihrab/QuranTab'));
 const DhikrTab = lazy(() => import('./mihrab/DhikrTab'));
@@ -63,6 +69,71 @@ function readInitialTab(urlTab: string | null): TabKey {
     /* storage blocked — fall through to the default */
   }
   return 'quran';
+}
+
+/** The masthead's state — hijri date, next prayer, wird share and streak. */
+function MihrabMasthead() {
+  const { hijri } = useLiveHijriDate();
+  const { next } = useNextPrayer();
+  const { progress, streak, recentDays } = usePractice();
+
+  const percent = Math.round(progress.overall * 100);
+
+  return (
+    <PageHeader variant="display" hideBack eyebrow="بوابة السكينة" title="محراب">
+      <div className="flex w-full flex-wrap items-center justify-center gap-2 pt-1">
+        <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-mini tabular-nums text-muted-foreground">
+          {formatHijriDate(hijri)}
+        </span>
+        {next && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-mini text-foreground">
+            {next.label} <span className="text-muted-foreground">{next.relative}</span>
+          </span>
+        )}
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-mini font-semibold tabular-nums',
+            streak.current > 0
+              ? 'border-primary/60 text-foreground'
+              : 'border-border text-muted-foreground',
+          )}
+        >
+          <Flame className="h-3.5 w-3.5" aria-hidden />
+          <span dir="ltr">{streak.current}</span>
+          يوم متتابع
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-mini tabular-nums text-muted-foreground">
+          ورد اليوم
+          <span dir="ltr" className="font-semibold text-foreground">
+            {percent}%
+          </span>
+        </span>
+      </div>
+
+      {/* 28-day activity strip. Each cell encodes one day's completion share —
+          this is data, so it keeps the accent at varying alpha (the documented
+          data-colour exception on the single-accent contract). */}
+      <div className="mt-2 flex w-full max-w-xs items-end gap-[3px]" aria-hidden>
+        {recentDays.map((day) => (
+          <span
+            key={day.key}
+            className="h-6 flex-1 rounded-xs bg-muted"
+            style={{
+              backgroundColor: day.active
+                ? `hsl(var(--primary) / ${0.28 + Math.min(1, day.progress) * 0.72})`
+                : undefined,
+            }}
+          />
+        ))}
+      </div>
+      {/* Only claim a record once one exists — "أفضل تتابع ٠ يوم" is noise. */}
+      {streak.total > 0 && (
+        <p className="mt-1.5 text-micro tabular-nums text-muted-foreground">
+          أفضل تتابع {streak.best} يوماً · {streak.total} يوماً نشِطاً في آخر ٤ أشهر
+        </p>
+      )}
+    </PageHeader>
+  );
 }
 
 export default function MihrabPage() {
@@ -114,7 +185,7 @@ export default function MihrabPage() {
       />
 
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        <MihrabHeader />
+        <MihrabMasthead />
 
         <MihrabTabs tabs={TABS} active={tab} direction={direction} onChange={handleChange}>
           <Suspense fallback={<TabSkeleton />}>

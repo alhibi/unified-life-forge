@@ -16,6 +16,8 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useCallback,useEffect, useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { confirmDialog } from '@/lib/confirmDialog';
 import {
   BookOpen, Calculator, Flame, Plus, Save,
@@ -284,7 +286,7 @@ export default function SessionPlayer({
  key={t}
  onClick={() => setDraft((d) => ({ ...d, type: t }))}
  className={`px-2.5 py-1 rounded-md text-micro font-semibold transition-colors ${
- draft.type === t ? 'bg-card text-foreground ' : 'text-muted-foreground'
+ draft.type === t ? 'bg-background text-foreground ' : 'text-muted-foreground'
                 }`}
               >
                 {(T as Record<string, { ar: string; }>)[`type_${t}`][lang]}
@@ -335,15 +337,16 @@ export default function SessionPlayer({
         )}
       </div>
 
-      <button
+      <Button
+        variant="outline"
+        className="w-full border-dashed text-primary"
         onClick={() => setPickerOpen(true)}
-        className="w-full py-2.5 rounded-xl bg-primary/10 border border-dashed border-primary/30 text-primary text-mini font-semibold flex items-center justify-center gap-1 active:scale-[0.98] transition-transform"
       >
-        <Plus className="w-4 h-4" /> {T.addExercise[lang]}
-      </button>
+        <Plus className="w-4 h-4" aria-hidden /> {T.addExercise[lang]}
+      </Button>
 
       {/* Session RPE */}
-      <div className="bg-card rounded-xl p-3 border border-border/40">
+      <div className="app-card app-card-flat p-3">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-micro font-semibold text-foreground">{T.sessionRpe[lang]}</span>
         </div>
@@ -356,29 +359,30 @@ export default function SessionPlayer({
       </div>
 
       {/* Notes */}
-      <textarea
+      <Textarea
         value={draft.notes ?? ''}
         onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))}
         rows={2}
         placeholder={`${T.notes[lang]} (${T.optional[lang]})`}
-        className="w-full bg-card border border-border/40 rounded-xl px-3 py-2.5 text-meta text-foreground outline-none focus:border-primary/50 resize-none"
+        className="resize-none text-meta"
       />
 
       {/* Actions */}
       <div className="flex gap-2">
-        <button
+        <Button
+          variant="secondary"
+          className="flex-1"
           onClick={handleCancel}
-          className="flex-1 py-2.5 rounded-xl bg-muted text-muted-foreground text-meta font-semibold"
         >
           {T.cancel[lang]}
-        </button>
-        <button
+        </Button>
+        <Button
+          className="flex-[2]"
           onClick={handleFinish}
           disabled={draft.exercises.length === 0}
-          className="flex-[2] py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-bold disabled:opacity-50 active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
         >
-          <Save className="w-4 h-4" /> {T.finish[lang]}
-        </button>
+          <Save className="w-4 h-4" aria-hidden /> {T.finish[lang]}
+        </Button>
       </div>
 
       {/* Sub-sheets */}
@@ -486,7 +490,7 @@ function ExerciseBlock({
   const lastSetWeight = entry.sets[entry.sets.length - 1]?.weightKg ?? 0;
 
   return (
-    <div className="rounded-xl bg-card border border-border/40 p-3 space-y-2.5">
+    <div className="app-card app-card-flat p-3 space-y-2.5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -559,19 +563,21 @@ function ExerciseBlock({
         ))}
       </div>
 
-      <button
+      <Button
+        variant="secondary"
+        size="sm"
+        className="w-full text-primary"
         onClick={onAddSet}
-        className="w-full py-1.5 rounded-lg bg-primary/10 text-primary text-micro font-semibold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
       >
-        <Plus className="w-3 h-3" /> {T.addSet[lang]}
-      </button>
+        <Plus className="w-3 h-3" aria-hidden /> {T.addSet[lang]}
+      </Button>
 
       {/* Per-exercise notes */}
       <input
         value={entry.notes ?? ''}
         onChange={(e) => onUpdate({ ...entry, notes: e.target.value })}
         placeholder={`${T.notes[lang]} (${T.optional[lang]})`}
-        className="w-full bg-muted/30 border border-border/30 rounded-lg px-2.5 py-1.5 text-micro text-foreground outline-none focus:border-primary/40"
+        className="app-control w-full h-9 text-mini"
       />
     </div>
   );
@@ -579,7 +585,7 @@ function ExerciseBlock({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-card rounded-xl p-2 text-center border border-border/30">
+    <div className="app-card app-card-flat p-2 text-center">
       <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{label}</p>
       <p className="text-meta font-bold tabular-nums text-foreground" dir="ltr">{value}</p>
     </div>

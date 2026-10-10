@@ -2,9 +2,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -92,17 +93,15 @@ export default function ArchiveHome() {
         description="أرشيفك الشخصي من المونوغرافات المولّدة بذكاء اصطناعي: موضوع، عمق، وقراءة نظيفة."
         path="/archive"
       />
-      <div className="flex items-center gap-3 mb-2">
-        <BackButton />
-        <h1 className="text-title font-bold text-foreground flex-1">الأرشيف المعرفي</h1>
-        <button
-          onClick={() => navigate('/archive/new')}
-          className="flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-meta font-semibold active:scale-95 transition-transform"
-        >
-          <Plus className="w-4 h-4" />
-          توليد جديد
-        </button>
-      </div>
+      <PageHeader
+        title={'الأرشيف المعرفي'}
+        right={
+          <Button size="sm" onClick={() => navigate('/archive/new')}>
+            <Plus className="h-4 w-4" />
+            توليد جديد
+          </Button>
+        }
+      />
 
       <p className="text-mini text-muted-foreground leading-relaxed mb-1">
         اقترح موضوعاً ومستوى عمق، وسيبني المحرك مخطّطاً هرمياً ثم يكتب كل قسم فرعي على حدة، ثم يحفظه
@@ -114,14 +113,14 @@ export default function ArchiveHome() {
         <div className="flex rounded-xl bg-muted/40 p-1 mb-2">
           <button
             onClick={() => setActiveTab('list')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-motion ${activeTab === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-motion ${activeTab === 'list' ? 'bg-background text-primary' : 'text-muted-foreground'}`}
           >
             <Grid3X3 className="w-3.5 h-3.5" />
             <span>الفهرس الأرشيفي</span>
           </button>
           <button
             onClick={() => setActiveTab('graph')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-motion ${activeTab === 'graph' ? 'bg-background shadow text-primary' : 'text-muted-foreground'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-mini font-semibold transition-motion ${activeTab === 'graph' ? 'bg-background text-primary' : 'text-muted-foreground'}`}
           >
             <Network className="w-3.5 h-3.5" />
             <span>الشبكة الدلالية</span>
@@ -133,12 +132,9 @@ export default function ArchiveHome() {
         <AppCard className="text-center py-10">
           <BookOpen className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
           <p className="text-meta text-muted-foreground mb-3">سجّل الدخول لتبدأ أرشيفك المعرفي.</p>
-          <button
-            onClick={() => navigate('/auth')}
-            className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-meta font-semibold"
-          >
+          <Button onClick={() => navigate('/auth')}>
             تسجيل الدخول
-          </button>
+          </Button>
         </AppCard>
       ) : loading ? (
         <div className="flex items-center justify-center py-12">
@@ -232,7 +228,7 @@ export default function ArchiveHome() {
                             e.stopPropagation();
                             handleDelete(d.id);
                           }}
-                          className="shrink-0 w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center active:scale-90 transition-transform"
+                          className="shrink-0 w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center"
                           aria-label="حذف"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-destructive" />

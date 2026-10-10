@@ -98,9 +98,9 @@ export function CronView({
       toast.success('تم تشغيل المهمة');
       // Give the run a moment to record, then refetch.
       setTimeout(() => { void load(); }, 1500);
-    } catch (e: any) {
+    } catch (e) {
       toast.error(
-        e?.message ||
+        (e as Error)?.message ||
           ('تعذّر تشغيل المهمة'),
       );
     } finally {
@@ -153,7 +153,7 @@ export function CronView({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
@@ -165,7 +165,7 @@ export function CronView({
         <button
           type="button"
           onClick={() => { void load(); }}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'تحديث'}
         >
           <RefreshCw className={`h-4 w-4 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />

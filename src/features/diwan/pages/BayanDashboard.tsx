@@ -1,36 +1,59 @@
-import { motion } from "framer-motion";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
+import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 
-import { PageShell } from "@/components/ui/app-shell";
+import PageHeader from '@/components/PageHeader';
+import { AppCard, AppList, AppRow, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import {
   SignatureAnnouncement,
   SignatureBloom,
   useSignatureMoment,
-} from "@/components/ui/signature-moment";
-import { MOTION } from "@/lib/motion";
-import { ArrowLeft, Bookmark, BookmarkCheck, BookOpen, Hash, History, Layers, Search,Sparkles } from '@/lib/icons';
+} from '@/components/ui/signature-moment';
+import { StateView } from '@/components/ui/state-view';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Bookmark,
+  BookmarkCheck,
+  BookOpen,
+  Hash,
+  History,
+  Layers,
+  Search,
+  Sparkles,
+} from '@/lib/icons';
+import { MOTION } from '@/lib/motion';
 
-import { MetreScansionVisualizer } from "../components/bayan/MetreScansionVisualizer";
-import { SyntaxTreeVisualizer } from "../components/bayan/SyntaxTreeVisualizer";
-import { useBayanStore } from "../stores/bayanStore";
+import { MetreScansionVisualizer } from '../components/bayan/MetreScansionVisualizer';
+import { SyntaxTreeVisualizer } from '../components/bayan/SyntaxTreeVisualizer';
+import { useBayanStore } from '../stores/bayanStore';
 
+type BayanTab = 'syntax' | 'morphology' | 'rhetoric' | 'prosody';
+
+/**
+ * لوحة البيان — تحليل عروضي/صرفي/بلاغي.
+ *
+ * النظام الموحّد: ترويسة <PageHeader variant="display"> بدل البانر
+ * المخصص (والهالة الضبابية blur-3xl أُزيلت)، وكل اللوحات <AppCard>،
+ * والسجل <AppList>/<AppRow>، وتبويبات التحليل <Tabs>، وحالة الانتظار
+ * <StateView>. أصناف "live" كانت غير معرّفة في الـ CSS إطلاقاً
+ * (لا تولّد أي قاعدة) فصُحّحت إلى primary.
+ */
 export default function BayanDashboard() {
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState('');
   const {
     analyzeText,
     loading,
-    error,
     activeAnalysis,
     history,
     bookmarkedAnalyses,
     bookmarkAnalysis,
     removeBookmark,
-    setActiveAnalysis
+    setActiveAnalysis,
   } = useBayanStore();
 
-  const [activeTab, setActiveTab] = useState<"syntax" | "morphology" | "rhetoric" | "prosody">("syntax");
+  const [activeTab, setActiveTab] = useState<BayanTab>('syntax');
 
   /**
    * A finished analysis is the app's second signature moment: the user waited
@@ -38,24 +61,24 @@ export default function BayanDashboard() {
    * gets a flourish.
    */
   const revealed = useSignatureMoment({
-    kind: "reveal",
-    announce: "اكتمل التحليل — النتيجة جاهزة",
+    kind: 'reveal',
+    announce: 'اكتمل التحليل — النتيجة جاهزة',
   });
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) {
-      toast.error("يرجى إدخال نص أولاً للبدء بالتحليل اللغوي");
+      toast.error('يرجى إدخال نص أولاً للبدء بالتحليل اللغوي');
       return;
     }
     const res = await analyzeText(inputText);
     if (res) {
       revealed.fire();
-      toast.success("اكتمل التحليل البلاغي والإعرابي بنجاح!");
+      toast.success('اكتمل التحليل البلاغي والإعرابي بنجاح!');
       if (res.prosody) {
-        setActiveTab("prosody");
+        setActiveTab('prosody');
       } else {
-        setActiveTab("syntax");
+        setActiveTab('syntax');
       }
     }
   };
@@ -66,376 +89,354 @@ export default function BayanDashboard() {
     if (!activeAnalysis) return;
     if (isBookmarked) {
       removeBookmark(activeAnalysis.id);
-      toast.info("تم إزالة التحليل من المحفوظات");
+      toast.info('تم إزالة التحليل من المحفوظات');
     } else {
-      const defaultTitle = activeAnalysis.inputText.slice(0, 30) + "...";
+      const defaultTitle = activeAnalysis.inputText.slice(0, 30) + '...';
       bookmarkAnalysis(activeAnalysis.id, defaultTitle);
-      toast.success("تم حفظ التحليل في المرجعية");
+      toast.success('تم حفظ التحليل في المرجعية');
     }
   };
 
-  const loadPastAnalysis = (past: typeof history[number]) => {
+  const loadPastAnalysis = (past: (typeof history)[number]) => {
     setActiveAnalysis(past);
     setInputText(past.inputText);
     if (past.prosody) {
-      setActiveTab("prosody");
+      setActiveTab('prosody');
     } else {
-      setActiveTab("syntax");
+      setActiveTab('syntax');
     }
   };
 
   return (
     <PageShell centered={false} flush>
-      <div className="min-h-screen bg-background text-foreground pb-12">
-        {/* Luxury Banner */}
-        <div className="relative border-b border-border/80 py-8 bg-surface/10 overflow-hidden">
-          {/* Ambient Glow */}
-          <div className="absolute top-0 right-1/4 w-80 h-40 bg-live/5 blur-3xl rounded-full" />
-
-          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Link to="/diwan" className="p-2 rounded-lg hover:bg-surface/80 border border-border/40 transition-motion">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <span className="text-micro uppercase font-mono tracking-wider bg-live/15 text-live px-2.5 py-0.5 rounded-full font-bold">
-                  محرك العلوم العميقة
-                </span>
-                <h1 className="text-display md:text-hero font-bold font-amiri tracking-tight mt-1">
-                  البيَانُ — التَّحْلِيلُ اللُّغَوِيُّ العَمِيقُ
-                </h1>
-                <p className="text-mini text-muted-foreground mt-0.5 font-amiri">
-                  إعراب فوري، ميزان صرفي، فحص عروضي كامل، وكشف الجمال البلاغي
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {activeAnalysis && (
-                <button
-                  onClick={handleToggleBookmark}
-                  className="px-3.5 py-2 rounded-lg border border-border bg-surface hover:border-live text-mini font-semibold flex items-center gap-2 transition-motion active-tactile"
-                >
-                  {isBookmarked ? (
-                    <>
-                      <BookmarkCheck className="w-4 h-4 text-live" />
-                      <span>محفوظ</span>
-                    </>
-                  ) : (
-                    <>
-                      <Bookmark className="w-4 h-4" />
-                      <span>حفظ التحليل</span>
-                    </>
-                  )}
-                </button>
+      <PageHeader
+        variant="display"
+        eyebrow="محرك العلوم العميقة"
+        title="البيَانُ — التَّحْلِيلُ اللُّغَوِيُّ العَمِيقُ"
+        subtitle="إعراب فوري، ميزان صرفي، فحص عروضي كامل، وكشف الجمال البلاغي"
+        backFallback="/diwan"
+        right={
+          activeAnalysis ? (
+            <Button variant="secondary" size="sm" onClick={handleToggleBookmark}>
+              {isBookmarked ? (
+                <>
+                  <BookmarkCheck className="h-4 w-4 text-primary" aria-hidden />
+                  <span>محفوظ</span>
+                </>
+              ) : (
+                <>
+                  <Bookmark className="h-4 w-4" aria-hidden />
+                  <span>حفظ التحليل</span>
+                </>
               )}
-            </div>
-          </div>
-        </div>
+            </Button>
+          ) : undefined
+        }
+      />
 
-        {/* Core Layout Grid */}
-        <div className="max-w-6xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Core Layout Grid */}
+      <div className="mx-auto mt-6 grid w-full max-w-6xl grid-cols-1 gap-6 px-4 lg:grid-cols-12">
+        {/* Left panel / Input Form */}
+        <div className="space-y-6 lg:col-span-4">
+          <AppCard>
+            <h2 className="mb-4 flex items-center gap-2 border-b border-border/50 pb-3 text-meta font-bold">
+              <Search className="h-4 w-4 text-primary" aria-hidden />
+              <span>التحليل الفوري الفائق</span>
+            </h2>
 
-          {/* Left panel / Input Form */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="p-5 rounded-2xl border border-border bg-surface shadow-sm">
-              <h2 className="text-meta font-bold border-b border-border/50 pb-3 mb-4 flex items-center gap-2">
-                <Search className="w-4 h-4 text-live" />
-                <span>التحليل الفوري الفائق</span>
-              </h2>
-
-              <form onSubmit={handleAnalyze} className="space-y-4">
-                <div>
-                  <label htmlFor="bayan-text-input" className="block text-mini text-muted-foreground mb-2">
-                    أدخل بيتاً شعرياً أو جملة عربية فصحى:
-                  </label>
-                  <textarea
-                    id="bayan-text-input"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    rows={4}
-                    placeholder="مثال: قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ ... بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ"
-                    className="w-full rounded-lg border border-border bg-background p-3 text-meta text-foreground placeholder:text-muted-foreground-subtle font-amiri leading-relaxed focus:outline-none focus:border-live"
-                  />
-                </div>
-
-                <span className="relative block">
-                  <SignatureBloom active={revealed.active} className="rounded-lg" />
-                  <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-3 px-4 rounded-lg bg-live text-white font-bold text-meta transition-motion shadow-md active-tactile disabled:opacity-50 hover:bg-live/90 flex items-center justify-center gap-2"
+            <form onSubmit={handleAnalyze} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="bayan-text-input"
+                  className="mb-2 block text-mini text-muted-foreground"
                 >
+                  أدخل بيتاً شعرياً أو جملة عربية فصحى:
+                </label>
+                <Textarea
+                  id="bayan-text-input"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  rows={4}
+                  placeholder="مثال: قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ ... بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ"
+                  className="font-amiri leading-relaxed"
+                />
+              </div>
+
+              <span className="relative block">
+                <SignatureBloom active={revealed.active} className="rounded-lg" />
+                <Button type="submit" disabled={loading} className="w-full">
                   {loading ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground"
+                      aria-hidden
+                    />
                   ) : (
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="h-4 w-4" aria-hidden />
                   )}
                   <span>ابدأ التحليل اللغوي</span>
-                  </button>
-                </span>
-                <SignatureAnnouncement text={revealed.announcement} />
-              </form>
-            </div>
+                </Button>
+              </span>
+              <SignatureAnnouncement text={revealed.announcement} />
+            </form>
+          </AppCard>
 
-            {/* Analysis History */}
-            {history.length > 0 && (
-              <div className="p-5 rounded-2xl border border-border bg-surface shadow-sm">
-                <h3 className="text-mini font-mono font-bold text-muted-foreground tracking-wider uppercase border-b border-border/50 pb-3 mb-3 flex items-center gap-2">
-                  <History className="w-4 h-4 text-live" />
-                  <span>السجل الفوري الفني</span>
-                </h3>
-                <div className="space-y-2 max-h-[250px] overflow-y-auto scrollbar-thin">
+          {/* Analysis History */}
+          {history.length > 0 && (
+            <AppCard>
+              <h3 className="mb-3 flex items-center gap-2 border-b border-border/50 pb-3 text-mini font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                <History className="h-4 w-4 text-primary" aria-hidden />
+                <span>السجل الفوري الفني</span>
+              </h3>
+              <div className="max-h-[250px] overflow-y-auto">
+                <AppList>
                   {history.map((past) => (
-                    <button
+                    <AppRow
                       key={past.id}
                       onClick={() => loadPastAnalysis(past)}
-                      className={`w-full p-2.5 rounded-lg border text-end transition-motion flex flex-col gap-1 ${
-                        activeAnalysis?.id === past.id
-                          ? "bg-live/5 border-live"
-                          : "bg-surface hover:bg-background border-border/50"
-                      }`}
-                    >
-                      <span className="text-mini font-semibold text-foreground font-amiri truncate max-w-full">
-                        {past.inputText}
-                      </span>
-                      <span className="text-micro font-mono text-muted-foreground">
-                        {new Date(past.analyzedAt).toLocaleTimeString("ar-EG")}
-                      </span>
-                    </button>
+                      className={
+                        activeAnalysis?.id === past.id ? 'bg-interactive-selected' : undefined
+                      }
+                      title={<span className="font-amiri">{past.inputText}</span>}
+                      value={
+                        <span className="font-mono">
+                          {new Date(past.analyzedAt).toLocaleTimeString('ar-EG')}
+                        </span>
+                      }
+                    />
                   ))}
-                </div>
+                </AppList>
               </div>
-            )}
-          </div>
+            </AppCard>
+          )}
+        </div>
 
-          {/* Right panel / Output Details */}
-          <div className="lg:col-span-8 space-y-6">
-            {!activeAnalysis ? (
-              <div className="p-12 text-center border border-dashed border-border/85 rounded-2xl bg-surface/20">
-                <BookOpen className="w-12 h-12 mx-auto text-muted-foreground/35 mb-4" />
-                <h3 className="text-body font-bold font-amiri text-foreground">في انتظار إدخال البيانات</h3>
-                <p className="text-mini text-muted-foreground mt-1 max-w-sm mx-auto font-amiri">
-                  أدخل جملة أو بيتاً فصيحاً لنقوم بتشريحها إعرابياً وبلاغياً وصرفياً بدقة فائقة.
-                </p>
-              </div>
-            ) : (
-              /* The result *arrives* — so it uses the SETTLE curve: a 6px rise
-                 and a fade, transform+opacity only, keyed on the analysis id so
-                 each new result lands rather than swapping in place. */
-              <motion.div
-                key={activeAnalysis.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={MOTION.settle}
-                className="space-y-6"
-              >
-
+        {/* Right panel / Output Details */}
+        <div className="space-y-6 lg:col-span-8">
+          {!activeAnalysis ? (
+            <StateView
+              kind="empty"
+              title="في انتظار إدخال البيانات"
+              body="أدخل جملة أو بيتاً فصيحاً لنقوم بتشريحها إعرابياً وبلاغياً وصرفياً بدقة فائقة."
+            />
+          ) : (
+            /* The result *arrives* — so it uses the SETTLE curve: a 6px rise
+               and a fade, transform+opacity only, keyed on the analysis id so
+               each new result lands rather than swapping in place. */
+            <motion.div
+              key={activeAnalysis.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={MOTION.settle}
+            >
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as BayanTab)}>
                 {/* Visual Tab Selectors */}
-                <div className="flex border-b border-border/50 pb-px gap-1 overflow-x-auto scrollbar-none">
+                <TabsList className="scrollbar-none overflow-x-auto">
                   {activeAnalysis.prosody && (
-                    <button
-                      onClick={() => setActiveTab("prosody")}
-                      className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
-                        activeTab === "prosody"
-                          ? "border-live text-live"
-                          : "border-transparent text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Hash className="w-4 h-4" />
-                      <span>البحور والعروض</span>
-                    </button>
+                    <TabsTrigger value="prosody">
+                      <span className="flex items-center gap-1.5">
+                        <Hash className="h-4 w-4" aria-hidden />
+                        <span>البحور والعروض</span>
+                      </span>
+                    </TabsTrigger>
                   )}
 
-                  <button
-                    onClick={() => setActiveTab("syntax")}
-                    className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
-                      activeTab === "syntax"
-                        ? "border-live text-live"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Layers className="w-4 h-4" />
-                    <span>الإعراب والتركيب (AST)</span>
-                  </button>
+                  <TabsTrigger value="syntax">
+                    <span className="flex items-center gap-1.5">
+                      <Layers className="h-4 w-4" aria-hidden />
+                      <span>الإعراب والتركيب (AST)</span>
+                    </span>
+                  </TabsTrigger>
 
-                  <button
-                    onClick={() => setActiveTab("morphology")}
-                    className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
-                      activeTab === "morphology"
-                        ? "border-live text-live"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span>الميزان الصرفي</span>
-                  </button>
+                  <TabsTrigger value="morphology">
+                    <span className="flex items-center gap-1.5">
+                      <BookOpen className="h-4 w-4" aria-hidden />
+                      <span>الميزان الصرفي</span>
+                    </span>
+                  </TabsTrigger>
 
-                  <button
-                    onClick={() => setActiveTab("rhetoric")}
-                    className={`px-4 py-2 text-mini font-bold font-mono transition-motion border-b-2 flex items-center gap-1.5 ${
-                      activeTab === "rhetoric"
-                        ? "border-live text-live"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>البيان والبلاغة</span>
-                  </button>
-                </div>
+                  <TabsTrigger value="rhetoric">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="h-4 w-4" aria-hidden />
+                      <span>البيان والبلاغة</span>
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
 
-                {/* Tab content rendering */}
-                <div className="p-1">
-
-                  {/* Tab 1: Prosody / Meter Scansion */}
-                  {activeTab === "prosody" && activeAnalysis.prosody && (
+                {/* Tab 1: Prosody / Meter Scansion */}
+                <TabsContent value="prosody">
+                  {activeTab === 'prosody' && activeAnalysis.prosody && (
                     <MetreScansionVisualizer prosody={activeAnalysis.prosody} />
                   )}
+                </TabsContent>
 
-                  {/* Tab 2: Syntax Trees */}
-                  {activeTab === "syntax" && (
-                    <div className="space-y-6">
-                      <div className="p-4 rounded-xl border border-border/40 bg-surface/20">
-                        <span className="text-micro text-muted-foreground block font-mono">نوع الجملة الرئيسية</span>
-                        <span className="text-body font-bold font-amiri text-foreground mt-1 block">
-                          {activeAnalysis.syntax.sentenceType === "verbal" ? "جملة فعلية كبرى" : "جملة اسمية كبرى"}
-                        </span>
-                      </div>
-
-                      <SyntaxTreeVisualizer
-                        ast={activeAnalysis.syntax.ast}
-                        tokens={activeAnalysis.syntax.tokens}
-                      />
-
-                      {/* Detailed Tokens Grid */}
-                      <div className="space-y-3">
-                        <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider">تشريح الإعراب التفصيلي</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {activeAnalysis.syntax.tokens.map((token, idx) => (
-                            <div key={idx} className="p-3.5 rounded-xl border border-border bg-surface flex flex-col justify-between">
-                              <div className="flex justify-between items-start gap-2 border-b border-border/30 pb-2 mb-2">
-                                <span className="text-body font-bold text-foreground font-amiri">«{token.word}»</span>
-                                <span className="text-micro font-mono bg-live/15 text-live px-2 py-0.5 rounded-full font-bold">
-                                  {token.syntacticRole}
-                                </span>
-                              </div>
-                              <p className="text-mini text-muted-foreground font-amiri leading-relaxed">
-                                {token.explanation}
-                              </p>
-                              <span className="text-micro text-live mt-2 font-mono">
-                                العلامة: {token.markerDetail}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                {/* Tab 2: Syntax Trees */}
+                <TabsContent value="syntax">
+                  <div className="space-y-6">
+                    <div className="rounded-lg border border-border/40 bg-muted/20 p-4">
+                      <span className="block font-mono text-micro text-muted-foreground">
+                        نوع الجملة الرئيسية
+                      </span>
+                      <span className="mt-1 block font-amiri text-body font-bold text-foreground">
+                        {activeAnalysis.syntax.sentenceType === 'verbal'
+                          ? 'جملة فعلية كبرى'
+                          : 'جملة اسمية كبرى'}
+                      </span>
                     </div>
-                  )}
 
-                  {/* Tab 3: Morphology */}
-                  {activeTab === "morphology" && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {activeAnalysis.morphology.tokens.map((t, idx) => (
-                          <div key={idx} className="p-4 rounded-xl border border-border bg-surface space-y-2">
-                            <div className="flex justify-between items-center border-b border-border/30 pb-2 mb-2">
-                              <span className="text-body font-bold text-foreground font-amiri">{t.word}</span>
-                              <span className="text-micro bg-live/10 text-live px-2 py-0.5 rounded-md font-mono">
-                                {t.pattern}
+                    <SyntaxTreeVisualizer
+                      ast={activeAnalysis.syntax.ast}
+                      tokens={activeAnalysis.syntax.tokens}
+                    />
+
+                    {/* Detailed Tokens Grid */}
+                    <div className="space-y-3">
+                      <h4 className="text-mini font-bold uppercase tracking-wider text-muted-foreground">
+                        تشريح الإعراب التفصيلي
+                      </h4>
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        {activeAnalysis.syntax.tokens.map((token, idx) => (
+                          <AppCard flat key={idx} className="flex flex-col justify-between p-3.5">
+                            <div className="mb-2 flex items-start justify-between gap-2 border-b border-border/30 pb-2">
+                              <span className="font-amiri text-body font-bold text-foreground">
+                                «{token.word}»
+                              </span>
+                              <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-micro font-bold text-primary">
+                                {token.syntacticRole}
                               </span>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-2 text-mini">
-                              <div>
-                                <span className="text-muted-foreground block text-micro">الجذر اللغوي</span>
-                                <span className="font-bold text-foreground font-amiri text-meta">{t.root}</span>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground block text-micro">النوع الصرفي</span>
-                                <span className="font-semibold text-foreground font-amiri">{t.derivationType || "جامد"}</span>
-                              </div>
-                            </div>
-
-                            {t.features.length > 0 && (
-                              <div className="pt-2 border-t border-border/30">
-                                <span className="text-micro text-muted-foreground block mb-1">العلل والزيادات الصرفية:</span>
-                                <div className="flex flex-wrap gap-1">
-                                  {t.features.map((f, fIdx) => (
-                                    <span key={fIdx} className="text-micro bg-muted/60 text-foreground px-1.5 py-0.5 rounded">
-                                      {f}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                            <p className="font-amiri text-mini leading-relaxed text-muted-foreground">
+                              {token.explanation}
+                            </p>
+                            <span className="mt-2 font-mono text-micro text-primary">
+                              العلامة: {token.markerDetail}
+                            </span>
+                          </AppCard>
                         ))}
                       </div>
                     </div>
-                  )}
+                  </div>
+                </TabsContent>
 
-                  {/* Tab 4: Rhetoric & Style */}
-                  {activeTab === "rhetoric" && (
-                    <div className="space-y-6">
-                      {/* Overall Eloquence Score Meter */}
-                      <div className="p-5 rounded-xl border border-border bg-surface flex items-center justify-between gap-6">
-                        <div className="space-y-1">
-                          <span className="text-mini text-muted-foreground block">مؤشر البلاغة التراكمي</span>
-                          <span className="text-hero font-black text-foreground font-mono">
-                            {activeAnalysis.rhetoric.eloquenceIndex}%
+                {/* Tab 3: Morphology */}
+                <TabsContent value="morphology">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {activeAnalysis.morphology.tokens.map((t, idx) => (
+                      <AppCard flat key={idx} className="space-y-2 p-4">
+                        <div className="mb-2 flex items-center justify-between border-b border-border/30 pb-2">
+                          <span className="font-amiri text-body font-bold text-foreground">
+                            {t.word}
                           </span>
-                          <p className="text-mini text-muted-foreground max-w-sm leading-relaxed">
-                            {activeAnalysis.rhetoric.styleCohesionSummary}
-                          </p>
+                          <span className="rounded-md bg-primary/10 px-2 py-0.5 font-mono text-micro text-primary">
+                            {t.pattern}
+                          </span>
                         </div>
 
-                        <div className="w-16 h-16 rounded-full border-4 border-live/10 border-t-live flex items-center justify-center font-mono font-bold text-meta">
-                          {activeAnalysis.rhetoric.sentenceStyle === "expressive" ? "إنشائي" : activeAnalysis.rhetoric.sentenceStyle === "informative" ? "خبري" : "مزيج"}
+                        <div className="grid grid-cols-2 gap-2 text-mini">
+                          <div>
+                            <span className="block text-micro text-muted-foreground">الجذر اللغوي</span>
+                            <span className="font-amiri text-meta font-bold text-foreground">
+                              {t.root}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="block text-micro text-muted-foreground">النوع الصرفي</span>
+                            <span className="font-amiri font-semibold text-foreground">
+                              {t.derivationType || 'جامد'}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Detected Figures of speech list */}
-                      <div className="space-y-3">
-                        <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider">الجماليات والمحسنات البيانية واللفظية</h4>
-                        {activeAnalysis.rhetoric.rhetoricalFigures.length === 0 ? (
-                          <p className="text-mini text-muted-foreground font-amiri text-center py-6">
-                            خلو نسبي من المحسنات اللفظية الكبرى المباشرة؛ يغلب عليه الأسلوب التقريري الواضح.
-                          </p>
-                        ) : (
-                          <div className="space-y-3">
-                            {activeAnalysis.rhetoric.rhetoricalFigures.map((fig) => (
-                              <div key={fig.id} className="p-4 rounded-xl border border-border bg-surface flex justify-between gap-4">
-                                <div className="space-y-1">
-                                  <span className="text-mini bg-live/10 text-live px-2 py-0.5 rounded-full font-mono font-bold">
-                                    {fig.category}
-                                  </span>
-                                  <h5 className="text-meta font-bold text-foreground font-amiri mt-1">
-                                    المقتطف: «{fig.snippet}»
-                                  </h5>
-                                  <p className="text-mini text-muted-foreground font-amiri">
-                                    {fig.description}
-                                  </p>
-                                </div>
-                                <div className="text-end flex flex-col justify-center">
-                                  <span className="text-micro text-muted-foreground block">وزن البلاغة</span>
-                                  <span className="text-lead font-mono font-black text-live">
-                                    {fig.eloquenceWeight}/10
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
+                        {t.features.length > 0 && (
+                          <div className="border-t border-border/30 pt-2">
+                            <span className="mb-1 block text-micro text-muted-foreground">
+                              العلل والزيادات الصرفية:
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {t.features.map((f, fIdx) => (
+                                <span
+                                  key={fIdx}
+                                  className="rounded bg-muted/60 px-1.5 py-0.5 text-micro text-foreground"
+                                >
+                                  {f}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
+                      </AppCard>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Tab 4: Rhetoric & Style */}
+                <TabsContent value="rhetoric">
+                  <div className="space-y-6">
+                    {/* Overall Eloquence Score Meter */}
+                    <div className="flex items-center justify-between gap-6 rounded-lg border border-border bg-muted/20 p-5">
+                      <div className="space-y-1">
+                        <span className="block text-mini text-muted-foreground">
+                          مؤشر البلاغة التراكمي
+                        </span>
+                        <span className="font-mono text-hero font-black tabular-nums text-foreground">
+                          {activeAnalysis.rhetoric.eloquenceIndex}%
+                        </span>
+                        <p className="max-w-sm text-mini leading-relaxed text-muted-foreground">
+                          {activeAnalysis.rhetoric.styleCohesionSummary}
+                        </p>
+                      </div>
+
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-primary/10 border-t-primary font-mono text-meta font-bold">
+                        {activeAnalysis.rhetoric.sentenceStyle === 'expressive'
+                          ? 'إنشائي'
+                          : activeAnalysis.rhetoric.sentenceStyle === 'informative'
+                            ? 'خبري'
+                            : 'مزيج'}
                       </div>
                     </div>
-                  )}
 
-                </div>
-
-              </motion.div>
-            )}
-          </div>
-
+                    {/* Detected Figures of speech list */}
+                    <div className="space-y-3">
+                      <h4 className="text-mini font-bold uppercase tracking-wider text-muted-foreground">
+                        الجماليات والمحسنات البيانية واللفظية
+                      </h4>
+                      {activeAnalysis.rhetoric.rhetoricalFigures.length === 0 ? (
+                        <p className="py-6 text-center font-amiri text-mini text-muted-foreground">
+                          خلو نسبي من المحسنات اللفظية الكبرى المباشرة؛ يغلب عليه الأسلوب
+                          التقريري الواضح.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {activeAnalysis.rhetoric.rhetoricalFigures.map((fig) => (
+                            <AppCard flat key={fig.id} className="flex justify-between gap-4 p-4">
+                              <div className="space-y-1">
+                                <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-mini font-bold text-primary">
+                                  {fig.category}
+                                </span>
+                                <h5 className="mt-1 font-amiri text-meta font-bold text-foreground">
+                                  المقتطف: «{fig.snippet}»
+                                </h5>
+                                <p className="font-amiri text-mini text-muted-foreground">
+                                  {fig.description}
+                                </p>
+                              </div>
+                              <div className="flex flex-col justify-center text-end">
+                                <span className="block text-micro text-muted-foreground">
+                                  وزن البلاغة
+                                </span>
+                                <span className="font-mono text-lead font-black tabular-nums text-primary">
+                                  {fig.eloquenceWeight}/10
+                                </span>
+                              </div>
+                            </AppCard>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </motion.div>
+          )}
         </div>
       </div>
     </PageShell>

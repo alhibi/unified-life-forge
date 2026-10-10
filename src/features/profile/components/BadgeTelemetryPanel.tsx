@@ -6,6 +6,7 @@
 import { motion } from 'framer-motion';
 import React, { useEffect,useState } from 'react';
 
+import { IconButton } from '@/components/ui/app-shell';
 import { 
   Activity, 
   AlertCircle,
@@ -89,7 +90,7 @@ export function BadgeTelemetryPanel({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`surface-depth rounded-2xl p-5 ${className}`}
+      className={`app-card p-5 ${className}`}
     >
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
@@ -105,21 +106,17 @@ export function BadgeTelemetryPanel({
         </div>
         
         <div className="flex items-center gap-2">
-          <button
+          <IconButton
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-2 rounded-lg bg-muted/50 hover:bg-muted/70 text-muted-foreground transition-colors"
             title="تحديث"
+            aria-label="تحديث"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={handleReset}
-            className="p-2 rounded-lg bg-muted/50 hover:bg-muted/70 text-muted-foreground transition-colors"
-            title="إعادة تعيين"
-          >
-            <TrendingDown className="w-4 h-4" />
-          </button>
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden />
+          </IconButton>
+          <IconButton onClick={handleReset} title="إعادة تعيين" aria-label="إعادة تعيين">
+            <TrendingDown className="w-4 h-4" aria-hidden />
+          </IconButton>
         </div>
       </div>
 
@@ -180,19 +177,19 @@ export function BadgeTelemetryPanel({
             label="إصابات (Cache Hits)" 
             value={telemetry.cacheHits} 
             total={telemetry.evaluationCount}
-            color="text-data-1"
+            color="hsl(var(--data-1))"
           />
           <CacheMetricRow 
             label="إخفاقات (Cache Misses)" 
             value={telemetry.cacheMisses} 
             total={telemetry.evaluationCount}
-            color="text-signal"
+            color="hsl(var(--signal))"
           />
           <CacheMetricRow 
             label="أحداث منبثقة" 
             value={telemetry.eventsEmitted} 
             total={telemetry.evaluationCount}
-            color="text-data-4"
+            color="hsl(var(--data-4))"
           />
         </div>
       </div>
@@ -246,7 +243,7 @@ function MetricCard({
       </div>
       <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
       <p className="text-micro text-muted-foreground">{label}</p>
-      {subValue && <p className="text-[0.625rem] text-muted-foreground-subtle mt-0.5">{subValue}</p>}
+      {subValue && <p className="text-micro text-muted-foreground-subtle mt-0.5">{subValue}</p>}
     </div>
   );
 }
@@ -273,7 +270,7 @@ function CacheMetricRow({
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="h-full rounded-full"
-          style={{ backgroundColor: `var(--${color.replace('text-', '').replace('-400', '-400')})` }}
+          style={{ backgroundColor: color }}
         />
       </div>
       <span className="text-micro font-mono tabular-nums text-foreground shrink-0">

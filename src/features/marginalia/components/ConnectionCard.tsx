@@ -79,7 +79,7 @@ const ConnectionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => onDiscuss(connection)}
-              className="flex items-center gap-1.5 text-mini font-bold px-3 py-1.5 rounded-lg bg-primary/10 text-primary active:scale-95 transition"
+              className="flex items-center gap-1.5 text-mini font-bold px-3 py-1.5 rounded-lg bg-primary/10 text-primary transition"
             >
               <MessageSquareText className="w-3.5 h-3.5" />
               ناقشه
@@ -89,7 +89,7 @@ const ConnectionCard: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => onPin(connection)}
-              className="flex items-center gap-1.5 text-mini font-bold px-3 py-1.5 rounded-lg bg-muted text-foreground active:scale-95 transition"
+              className="flex items-center gap-1.5 text-mini font-bold px-3 py-1.5 rounded-lg bg-muted text-foreground transition"
             >
               <Pin className="w-3.5 h-3.5" />
               ثبّت
@@ -100,7 +100,7 @@ const ConnectionCard: React.FC<Props> = ({
               type="button"
               onClick={() => onDismiss(connection)}
               aria-label="إخفاء الرابط"
-              className="ms-auto flex items-center gap-1.5 text-mini text-muted-foreground px-2 py-1.5 rounded-lg hover:text-foreground active:scale-95 transition"
+              className="ms-auto flex items-center gap-1.5 text-mini text-muted-foreground px-2 py-1.5 rounded-lg hover:text-foreground transition"
             >
               <X className="w-3.5 h-3.5" />
             </button>

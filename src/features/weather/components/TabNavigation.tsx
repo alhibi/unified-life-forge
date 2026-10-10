@@ -8,8 +8,8 @@
 //   • The active tab no longer relies on background-color fill. We render a
 //     layoutId-animated pill that *slides* between tabs — gives the bar a
 //     sense of motion and lets the eye track which tab is active.
-//   • The container is sticky with a frosted backdrop. Translucent + 12px
-//     blur so the content scrolls under it without disappearing.
+//   • The container is sticky on the opaque page surface, so the content
+//     scrolls under it while the labels stay readable.
 //   • Tab buttons have a clear hover state (subtle bg + brighter icon) so
 //     the bar feels interactive rather than static.
 //
@@ -56,7 +56,7 @@ export function TabNavigation<T extends string>({
       className={cn(
         'weather-tabs sticky top-16 z-header',
         'rounded-md border border-border/60',
-        'p-1.5 backdrop-blur-xl bg-background/90',
+        'p-1.5 bg-background',
         className,
       )}
     >
@@ -88,7 +88,6 @@ export function TabNavigation<T extends string>({
                 'relative z-10 flex flex-col items-center justify-center gap-0.5',
                 'h-auto min-h-14 px-1.5 py-2.5 rounded-sm sm:min-h-16 sm:px-3',
                 'transition-colors duration-fast',
-                'active:scale-[0.97]',
                 active
                   ? 'text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/30',

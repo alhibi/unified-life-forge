@@ -161,7 +161,7 @@ export default function NutritionExplorer() {
       {view !== 'home' && (
         <button
           onClick={handleBack}
-          className="flex items-center gap-1.5 text-meta text-primary mb-2 active:scale-95 transition-transform"
+          className="flex items-center gap-1.5 text-meta text-primary mb-2 transition-transform"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>{T.back[lang]}</span>
@@ -263,7 +263,7 @@ export default function NutritionExplorer() {
                   <button
                     key={key}
                     onClick={() => handleSmartSelect(key)}
-                    className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border/30 active:scale-95 transition-motion hover:bg-muted/60"
+                    className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-border/30 transition-motion hover:bg-muted/60"
                   >
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center"
@@ -464,7 +464,7 @@ function QuickPill({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/40 whitespace-nowrap active:scale-95 transition-motion shrink-0"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/40 whitespace-nowrap transition-motion shrink-0"
     >
       <Icon className="w-3 h-3" style={{ color }} />
       <span className="text-micro font-medium text-foreground">{label}</span>

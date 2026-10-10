@@ -262,12 +262,12 @@ export const DictionaryWordTypeLabels: Record<DictionaryWordType, string> = {
 };
 
 export const CEFRLevelLabels: Record<CEFRLevel, { label_ar: string; badge_color: string }> = {
-  A1: { label_ar: "A1 — مبتدئ", badge_color: "bg-data-1 text-data-1 border-data-1" },
-  A2: { label_ar: "A2 — أساسي", badge_color: "bg-data-1 text-data-1 border-data-1" },
-  B1: { label_ar: "B1 — متوسط", badge_color: "bg-data-4 text-data-4 border-data-4" },
-  B2: { label_ar: "B2 — فوق المتوسط", badge_color: "bg-data-6 text-data-6 border-data-6" },
-  C1: { label_ar: "C1 — متقدم", badge_color: "bg-signal text-signal border-signal" },
-  C2: { label_ar: "C2 — طليق/متقن", badge_color: "bg-data-5 text-data-5 border-data-5" },
+  A1: { label_ar: "A1 — مبتدئ", badge_color: "bg-data-1/15 text-data-1 border-data-1/30" },
+  A2: { label_ar: "A2 — أساسي", badge_color: "bg-data-1/15 text-data-1 border-data-1/30" },
+  B1: { label_ar: "B1 — متوسط", badge_color: "bg-data-4/15 text-data-4 border-data-4/30" },
+  B2: { label_ar: "B2 — فوق المتوسط", badge_color: "bg-data-6/15 text-data-6 border-data-6/30" },
+  C1: { label_ar: "C1 — متقدم", badge_color: "bg-signal/15 text-signal border-signal/30" },
+  C2: { label_ar: "C2 — طليق/متقن", badge_color: "bg-data-5/15 text-data-5 border-data-5/30" },
 };
 
 export const DictionaryEntrySchema = z.object({

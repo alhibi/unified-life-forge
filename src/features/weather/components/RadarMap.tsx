@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { IconButton } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { Droplets,Layers, Pause, Play, RefreshCw, Wind } from '@/lib/icons';
 
 interface RadarMapProps {
@@ -189,7 +191,6 @@ export default function RadarMap({
 
   return (
     <section className="relative rounded-2xl surface-depth overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
 
       <header className="p-4 pb-1 flex items-center justify-between gap-3">
         <h2 className="font-semibold text-title leading-none text-foreground flex items-center gap-2">
@@ -201,7 +202,7 @@ export default function RadarMap({
           <button
             onClick={() => setActiveLayer('particles')}
             className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
-              activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              activeLayer === 'particles' ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {'الجزيئات والرياح'}
@@ -209,7 +210,7 @@ export default function RadarMap({
           <button
             onClick={() => setActiveLayer('radar')}
             className={`px-2.5 py-1 rounded-md text-micro tracking-wider uppercase transition-motion ${
-              activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              activeLayer === 'radar' ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {'المسح الراداري'}
@@ -224,7 +225,7 @@ export default function RadarMap({
         {activeLayer === 'radar' && (
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {tileTemplate ? (
-              <div className="text-center bg-card border border-border rounded-xl p-4 max-w-xs animate-fade-in">
+              <div className="app-card max-w-xs animate-fade-in text-center">
                 <div className="text-micro uppercase tracking-widest text-primary/80 mb-1">{'تغطية رادار حي'}</div>
                 <div className="text-meta font-bold text-foreground mb-3 tabular-nums">
                   {allFrames.length > 0
@@ -232,22 +233,29 @@ export default function RadarMap({
                     : '—'}
                 </div>
                 <div className="flex items-center justify-center gap-4">
-                  <button
+                  <IconButton
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-10 h-10 rounded-full border border-border bg-secondary flex items-center justify-center text-primary active:scale-95 transition-transform"
+                    className="text-primary"
+                    aria-label={isPlaying ? 'إيقاف تشغيل الرادار' : 'تشغيل الرادار'}
                   >
                     {isPlaying ? <Pause className="w-4 h-4 fill-primary" /> : <Play className="w-4 h-4 fill-primary" />}
-                  </button>
-                  <button
+                  </IconButton>
+                  <IconButton
                     onClick={() => setFrameIdx(0)}
-                    className="w-10 h-10 rounded-full border border-border bg-secondary flex items-center justify-center text-primary active:scale-95 transition-transform"
+                    className="text-primary"
+                    aria-label="إعادة الرادار إلى البداية"
                   >
                     <RefreshCw className="w-4 h-4" />
-                  </button>
+                  </IconButton>
                 </div>
               </div>
             ) : (
-              <div className="text-mini text-muted-foreground">{'مسح الرادار غير متوفر حالياً لهذا الموقع'}</div>
+              <StateView
+                compact
+                kind="empty"
+                title="مسح الرادار غير متوفر"
+                body="لا تتوفر تغطية رادار زمنية لهذا الموقع حالياً — وضع الجزيئات والرياح يعمل مكانه."
+              />
             )}
           </div>
         )}

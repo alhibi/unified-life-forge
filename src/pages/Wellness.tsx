@@ -1,18 +1,52 @@
-import { AnimatePresence,motion } from 'framer-motion';
-import React, { lazy, Suspense,useCallback, useEffect, useState } from 'react';
+/**
+ * Wellness hub page.
+ *
+ * System-unification pass:
+ *   • The bespoke header became <PageHeader hideBack> — /wellness is a
+ *     top-level destination, so no back affordance.
+ *   • The privacy sheet and the welcome modal became <ResponsiveDrawer>
+ *     surfaces backed by AppList/AppRow: no bespoke scrim, no hand-rolled
+ *     card chrome, no duplicated close buttons.
+ *   • The section dock keeps its sliding pill, but its container is the
+ *     canonical card surface (<AppCard>) instead of a hand-written
+ *     card-chrome combo.
+ */
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import AuthGuard from '@/components/AuthGuard';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
+import {
+  AppCard,
+  AppList,
+  AppRow,
+  IconButton,
+  IconChip,
+  PageShell,
+} from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
+import { exportAll } from '@/features/wellness/wellnessDb';
+import { confirmDialog } from '@/lib/confirmDialog';
 import {
-Activity,Apple,
-  BookOpen, Brain, ChevronRight, Download, Dumbbell,
-  Library, ShieldCheck, Trash2, Utensils, X,  } from '@/lib/icons';
+  Activity,
+  Apple,
+  BookOpen,
+  Brain,
+  ChevronLeft,
+  Download,
+  Dumbbell,
+  Library,
+  LucideIcon,
+  ShieldCheck,
+  Trash2,
+  Utensils,
+} from '@/lib/icons';
 
 // ── Lazy-loaded tabs ──────────────────────────────────────────────────
 // Each tab drags in its own heavy static data (food catalog, skill tree,
@@ -30,8 +64,6 @@ const EncyclopediaTab = lazy(() => import('@/features/wellness/EncyclopediaTab')
 const NutritionTab    = lazy(() =>
   import('@/features/wellness/nutrition/components').then(m => ({ default: m.NutritionTab })),
 );
-import { exportAll } from '@/features/wellness/wellnessDb';
-import { confirmDialog } from '@/lib/confirmDialog';
 
 type TabKey =
   | 'workouts' | 'cali' | 'activity'
@@ -64,17 +96,14 @@ const T = {
   feat4: { ar: 'أطلس وموسوعة معرفية', },
   setupCta: { ar: 'استكشف الآن', },
   later: { ar: 'لاحقاً', },
-  signInRequired: { ar: 'سجّل دخولك لاستخدام قسم العافية', },
-  signInBody: {
-    ar: 'قسم العافية بالكامل مرتبط بحسابك — التمارين، التغذية، المكملات، والأهداف تُحفظ في السحابة وتتزامن عبر أجهزتك.',
-  },
-  signInCta: { ar: 'تسجيل الدخول', },
 };
+
+const FEATURE_ICONS = [Dumbbell, Dumbbell, Utensils, Library] as const;
 
 interface TabDef {
   key: TabKey;
   labelAr: string;
-  icon: any;
+  icon: LucideIcon;
   group: 0 | 1 | 2;
 }
 
@@ -120,7 +149,6 @@ export default function WellnessPage() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-
   useEffect(() => {
     if (data.loading) return;
     if (data.profile) {
@@ -135,18 +163,6 @@ export default function WellnessPage() {
     } catch { /* noop */ }
     setShowOnboarding(true);
   }, [data.loading, data.profile]);
-
-  // Close any open sheet on Escape
-  useEffect(() => {
-    if (!showPrivacy && !showOnboarding) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setShowPrivacy(false);
-      setShowOnboarding(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [showPrivacy, showOnboarding]);
 
   const dismissOnboarding = (gotoWorkouts: boolean) => {
     setShowOnboarding(false);
@@ -211,23 +227,19 @@ export default function WellnessPage() {
       case 'activity':
         return (
           <div className="p-1">
-            <AppCard className="p-6 text-center space-y-4 border-primary/20 bg-primary/5 relative overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-2">
-                <Activity className="w-7 h-7" />
-              </div>
-              <div className="space-y-1.5 relative z-10">
+            <AppCard className="p-6 text-center space-y-4">
+              <IconChip size="xl" className="mx-auto">
+                <Activity className="h-7 w-7" aria-hidden />
+              </IconChip>
+              <div className="space-y-1.5">
                 <h2 className="text-meta font-bold text-foreground">تطبيق اللياقة البدنية المتكامل</h2>
                 <p className="text-micro text-muted-foreground max-w-xs mx-auto leading-relaxed">
                   لقد تمت ترقية قسم تتبع الأنشطة ليكون تطبيقاً مستقلاً متكاملاً مليئاً بالتفاصيل العميقة وجداول التمارين الأسبوعية، مؤقتات الاستراحة، حاسبات مؤشرات الوزن وحساب حرق السعرات الحرارية الدقيق.
                 </p>
               </div>
-              <Button
-                onClick={() => navigate('/fitness')}
-                className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-mini font-bold active-tactile relative z-10"
-              >
+              <Button onClick={() => navigate('/fitness')} className="w-full">
                 افتح تطبيق اللياقة البدنية المستقل
-                <ChevronRight className="w-3.5 h-3.5 ms-1.5 inline-block rtl:rotate-180" />
+                <ChevronLeft className="h-4 w-4" aria-hidden />
               </Button>
             </AppCard>
           </div>
@@ -267,39 +279,32 @@ export default function WellnessPage() {
       fallbackTitleAr="قسم الصحة والعافية"
       fallbackDescAr="يرجى تسجيل الدخول للوصول إلى برامج التمرين والتحليلات الصحية ومزامنتها سحابياً."
     >
-      <div className="min-h-screen bg-background pb-page">
-      <SEO
-        title={'الصحة والعافية — SmartHub'}
-        description={'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'}
-        path="/wellness"
-      />
+      <PageShell className="pt-6">
+        <SEO
+          title={'الصحة والعافية — SmartHub'}
+          description={'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'}
+          path="/wellness"
+        />
 
-      <div className="max-w-lg mx-auto px-3 pt-6">
-        {/* ─── Minimal Header ─── */}
-        {/* No back button: /wellness is a top-level bottom-nav tab.
-            Showing one would conflict with the tab contract (the user
-            already has the bottom bar to switch destinations) and pull
-            them to wherever they happened to come from. The privacy
-            shortcut stays on the right. */}
-        <header className="flex items-center justify-between mb-3">
-          <h1 className="text-body font-medium tracking-tight text-foreground">
-            {T.title[language]}
-          </h1>
-          <div className="flex items-center gap-1">
-            <button
+        {/* Header — top-level destination, so no back affordance; the
+            privacy shortcut lives in the actions slot. */}
+        <PageHeader
+          title={T.title[language]}
+          hideBack
+          right={
+            <IconButton
               onClick={() => setShowPrivacy(true)}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               aria-label={T.privacy[language]}
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </header>
+              <ShieldCheck className="h-4 w-4" aria-hidden />
+            </IconButton>
+          }
+        />
 
-        {/* ─── Refined dock navigation ─── */}
-        <nav className="mb-3" aria-label="wellness sections">
-          <div
-            className="bg-card border border-border rounded-xl p-1 flex items-center gap-0.5 overflow-x-auto scrollbar-none"
+        {/* Section dock — grouped tab rail with a sliding active pill. */}
+        <nav aria-label="wellness sections">
+          <AppCard
+            className="flex items-center gap-0.5 overflow-x-auto p-1 scrollbar-none"
             dir="ltr"
           >
             {TABS.map((t, i) => {
@@ -328,7 +333,7 @@ export default function WellnessPage() {
                     {active && (
                       <motion.span
                         layoutId="wellness-dock-pill"
-                        className="absolute inset-0 rounded-lg bg-primary "
+                        className="absolute inset-0 rounded-lg bg-primary"
                         transition={{ type: 'spring', stiffness: 480, damping: 36 }}
                       />
                     )}
@@ -346,7 +351,7 @@ export default function WellnessPage() {
                 </React.Fragment>
               );
             })}
-          </div>
+          </AppCard>
         </nav>
 
         {/* ─── Content ─── */}
@@ -372,142 +377,83 @@ export default function WellnessPage() {
             </Suspense>
           </motion.main>
         </AnimatePresence>
-      </div>
+      </PageShell>
 
-      {/* ─── Privacy bottom-sheet ─── */}
-      <AnimatePresence>
-        {showPrivacy && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer flex items-end justify-center bg-background/80"
-            onClick={() => setShowPrivacy(false)}
-          >
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 34 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-xs rounded-t-2xl bg-card border-t border-border/50 p-4 pb-6 space-y-3"
-            >
-              <div className="w-8 h-0.5 rounded-full bg-muted-foreground/30 mx-auto mb-2" />
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-data-1" />
-                  <h2 className="text-mini font-medium text-foreground">{T.privacyTitle[language]}</h2>
-                </div>
-                <button onClick={() => setShowPrivacy(false)} className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center">
-                  <X className="w-3 h-3 text-muted-foreground" />
-                </button>
-              </div>
+      {/* ─── Privacy drawer ─── */}
+      <ResponsiveDrawer
+        open={showPrivacy}
+        onOpenChange={setShowPrivacy}
+        title={T.privacyTitle[language]}
+        description={T.privacyBody[language]}
+      >
+        <AppList>
+          <AppRow
+            onClick={handleExport}
+            leading={
+              <IconChip tone="plain" aria-hidden>
+                <Download className="h-5 w-5" />
+              </IconChip>
+            }
+            title={T.exportData[language]}
+          />
+          <AppRow
+            tone="danger"
+            onClick={handleWipe}
+            leading={
+              <IconChip tone="danger" aria-hidden>
+                <Trash2 className="h-5 w-5" />
+              </IconChip>
+            }
+            title={T.wipe[language]}
+          />
+        </AppList>
+      </ResponsiveDrawer>
 
-              <p className="text-micro text-muted-foreground leading-relaxed">{T.privacyBody[language]}</p>
+      {/* ─── Welcome drawer ─── */}
+      <ResponsiveDrawer
+        open={showOnboarding}
+        onOpenChange={(open) => {
+          if (!open) dismissOnboarding(false);
+        }}
+        title={T.welcomeTitle[language]}
+        description={T.welcomeBody[language]}
+      >
+        <AppList>
+          {[T.feat1[language], T.feat2[language], T.feat3[language], T.feat4[language]].map(
+            (txt, i) => {
+              const Icon = FEATURE_ICONS[i];
+              return (
+                <AppRow
+                  key={i}
+                  as="div"
+                  leading={
+                    <IconChip tone="plain" aria-hidden>
+                      <Icon className="h-5 w-5" />
+                    </IconChip>
+                  }
+                  title={txt}
+                />
+              );
+            },
+          )}
+        </AppList>
 
-              <div className="space-y-1.5">
-                <button
-                  onClick={handleExport}
-                  className="w-full py-2 rounded-xl bg-primary/10 text-primary text-micro font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
-                >
-                  <Download className="w-3 h-3" />
-                  {T.exportData[language]}
-                </button>
-                <button
-                  onClick={handleWipe}
-                  className="w-full py-2 rounded-xl bg-destructive/8 text-destructive text-micro font-medium flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform"
-                >
-                  <Trash2 className="w-3 h-3" />
-                  {T.wipe[language]}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ─── Minimal onboarding modal ─── */}
-      <AnimatePresence>
-        {showOnboarding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer flex items-center justify-center bg-background/80 px-4"
+        <div className="flex gap-3 pt-3">
+          <Button
+            variant="secondary"
+            className="flex-1"
             onClick={() => dismissOnboarding(false)}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="wellness-welcome-title"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 16 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-xs rounded-2xl bg-card border border-border/40 p-5 space-y-4"
-            >
-              <button
-                onClick={() => dismissOnboarding(false)}
-                className="absolute top-2 end-2 w-7 h-7 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted/80 transition-colors"
-                aria-label={T.close[language]}
-              >
-                <X className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
-
-              <div className="flex justify-center">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-primary" />
-                </div>
-              </div>
-
-              <div className="text-center space-y-1">
-                <h2
-                  id="wellness-welcome-title"
-                  className="text-meta font-medium text-foreground"
-                >
-                  {T.welcomeTitle[language]}
-                </h2>
-                <p className="text-micro text-muted-foreground leading-relaxed">
-                  {T.welcomeBody[language]}
-                </p>
-              </div>
-
-              <ul className="space-y-1.5">
-                {[T.feat1[language], T.feat2[language], T.feat3[language], T.feat4[language]].map(
-                  (txt, i) => {
-                    const icons = [Dumbbell, Dumbbell, Utensils, Library];
-                    const Icon = icons[i];
-                    return (
-                      <li key={i} className="flex items-center gap-2 text-micro text-foreground/80">
-                        <Icon className="w-3 h-3 text-muted-foreground shrink-0" />
-                        <span className="font-medium">{txt}</span>
-                      </li>
-                    );
-                  },
-                )}
-              </ul>
-
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={() => dismissOnboarding(false)}
-                  className="flex-1 py-2 rounded-xl bg-muted/50 text-muted-foreground text-micro font-medium hover:bg-muted/70 transition-colors"
-                >
-                  {T.later[language]}
-                </button>
-                <button
-                  onClick={() => dismissOnboarding(true)}
-                  className="flex-[2] py-2 rounded-xl bg-primary text-primary-foreground text-micro font-medium active:scale-[0.98] transition-transform"
-                >
-                  {T.setupCta[language]}
-                  <ChevronRight className="w-3 h-3 inline-block ms-0.5" />
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      </div>
+            {T.later[language]}
+          </Button>
+          <Button
+            className="flex-[2]"
+            onClick={() => dismissOnboarding(true)}
+          >
+            {T.setupCta[language]}
+          </Button>
+        </div>
+      </ResponsiveDrawer>
     </AuthGuard>
   );
 }

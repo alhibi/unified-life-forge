@@ -172,7 +172,7 @@ export function ListHeader({
           <button
             type="button"
             onClick={onBack}
-            className="p-2 -ms-1 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion shrink-0"
+            className="p-2 -ms-1 rounded-xl hover:bg-accent/50 transition-motion shrink-0"
             aria-label={'رجوع'}
           >
             <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
@@ -217,7 +217,7 @@ export function ListHeader({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion relative"
+                className="p-2.5 rounded-xl hover:bg-accent/50 transition-motion relative"
                 aria-label={'المزيد'}
               >
                 <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
@@ -373,7 +373,7 @@ export function ListHeader({
             <button
               type="button"
               onClick={() => setShowFolderInput(!showFolderInput)}
-              className="p-1.5 rounded-full transition-motion shrink-0 active:scale-95 text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20"
+              className="p-1.5 rounded-full transition-motion shrink-0 text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20"
               aria-label={'مجلد جديد'}
               title={'مجلد جديد'}
             >
@@ -503,7 +503,7 @@ function IconBtn({
   title?: string;
 }) {
   const base =
-    'p-2.5 rounded-xl active:scale-95 transition-motion disabled:opacity-50';
+    'p-2.5 rounded-xl transition-motion disabled:opacity-50';
   const tone = active
     ? 'bg-primary/15 text-primary'
     : accent
@@ -535,9 +535,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-mini font-medium transition-motion shrink-0 active:scale-95 inline-flex items-center gap-1.5 ring-1 ${
+      className={`px-3 py-1.5 rounded-full text-mini font-medium transition-motion shrink-0 inline-flex items-center gap-1.5 ring-1 ${
         active
-          ? 'bg-primary text-primary-foreground ring-primary/30 shadow-sm shadow-primary/20'
+          ? 'bg-primary text-primary-foreground ring-primary/30'
           : 'bg-accent/25 text-muted-foreground ring-border/30 hover:bg-accent/50 hover:text-foreground'
       }`}
     >
@@ -568,9 +568,9 @@ function CategoryChip({
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-micro font-semibold transition-motion shrink-0 active:scale-95 inline-flex items-center gap-1.5 ${
+      className={`px-3 py-1.5 rounded-full text-micro font-semibold transition-motion shrink-0 inline-flex items-center gap-1.5 ${
         active
-          ? 'bg-foreground text-background shadow-sm'
+          ? 'bg-foreground text-background'
           : 'bg-transparent text-muted-foreground hover:bg-accent/40 border border-border/50'
       }`}
     >

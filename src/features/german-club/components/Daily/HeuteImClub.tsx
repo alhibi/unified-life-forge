@@ -4,11 +4,7 @@ import React from 'react';
 import { Coffee } from '@/lib/icons';
 
 import { getDailyBundle } from '../../lib/daily';
-import { GERMAN_CLUB_TOKENS } from '../../types';
-import {
-  KulturperleCard,
-  SatzCard,
-} from './SatzKulturperleCards';
+import { KulturperleCard, SatzCard } from './SatzKulturperleCards';
 import { SprichwortCard, WortCard } from './WortSprichwortCards';
 
 /**
@@ -33,18 +29,10 @@ export const HeuteImClub: React.FC = () => {
         className="flex items-baseline justify-between px-1"
       >
         <div className="flex items-center gap-2">
-          <Coffee className="w-4 h-4 text-foreground" />
-          <h2
-            className="text-sm sm:text-base font-black tracking-tight text-[hsl(var(--foreground))]"
-            style={{ letterSpacing: '-0.02em' }}
-          >
-            Heute im Club
-          </h2>
+          <Coffee className="h-4 w-4 text-foreground" aria-hidden />
+          <h2 className="type-section text-foreground">Heute im Club</h2>
         </div>
-        <span
-          className="text-[0.625rem] font-mono font-bold uppercase tracking-widest"
-          style={{ color: GERMAN_CLUB_TOKENS.oak }}
-        >
+        <span className="font-mono text-micro font-bold uppercase tracking-widest text-muted-foreground">
           محتوى اليوم
         </span>
       </motion.div>

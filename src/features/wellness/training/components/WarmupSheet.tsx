@@ -9,6 +9,7 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Check, ChevronRight, Flame, Target, X } from '@/lib/icons';
 
 import type { WarmupSet } from '../types';
@@ -111,7 +112,7 @@ export default function WarmupSheet({
                             setDoneMob(next);
                           }}
                           className={`w-full flex items-start gap-3 p-2.5 rounded-xl border transition-colors ${
-                            done ? 'bg-success/10 border-success/40' : 'bg-card border-border/40'
+                            done ? 'bg-success/10 border-success/40' : 'bg-background border-border/40'
                           }`}
                         >
                           <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
@@ -158,7 +159,7 @@ export default function WarmupSheet({
                               setDoneSets(next);
                             }}
                             className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-colors ${
-                              done ? 'bg-success/10 border-success/40' : 'bg-card border-border/40'
+                              done ? 'bg-success/10 border-success/40' : 'bg-background border-border/40'
                             }`}
                           >
                             <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
@@ -189,13 +190,13 @@ export default function WarmupSheet({
                 )}
               </section>
 
-              <button
+              <Button
+                className="w-full"
                 onClick={() => { onComplete?.(); onClose(); }}
                 disabled={!allDone && sets.length > 0}
-                className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform disabled:opacity-50"
               >
-                {T.done[lang]} <ChevronRight className="w-4 h-4" />
-              </button>
+                {T.done[lang]} <ChevronRight className="w-4 h-4" aria-hidden />
+              </Button>
             </div>
           </motion.div>
         </motion.div>

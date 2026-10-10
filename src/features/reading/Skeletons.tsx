@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 
 /**
- * Skeleton placeholders for the reading list. We render 6 fake article
- * rows with a subtle staggered shimmer so loading feels deliberate
- * rather than empty. The shimmer uses a CSS gradient on transform: x
- * (no JS reflows), so it's cheap on low-end devices.
+ * Skeleton placeholders for the reading list. Six fake article rows fade in
+ * with a slight stagger so loading feels deliberate rather than empty; the
+ * pulse itself is the canonical `.skeleton` affordance (index.css), so there
+ * is no bespoke gradient sweep on the surface.
  */
 export function ArticleListSkeleton({ count = 6 }: { count?: number }) {
   return (
@@ -59,21 +59,10 @@ export function ShimmerBar({
 }) {
   return (
     <motion.div
-      className={`${widthClass} ${heightClass} ${rounded} relative overflow-hidden bg-muted/40`}
+      className={`${widthClass} ${heightClass} ${rounded} skeleton`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: delay / 1000 }}
-    >
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
-        animate={{ x: ['-100%', '100%'] }}
-        transition={{
-          duration: 1.4,
-          repeat: Infinity,
-          ease: 'linear',
-          delay: delay / 1000,
-        }}
-      />
-    </motion.div>
+    />
   );
 }

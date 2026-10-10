@@ -131,7 +131,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
         <button
           type="button"
           onClick={newThread}
-          className="shrink-0 flex items-center gap-1 text-micro font-bold px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary active:scale-95 transition"
+          className="shrink-0 flex items-center gap-1 text-micro font-bold px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary transition"
         >
           <Plus className="w-3.5 h-3.5" /> نقاش جديد
         </button>
@@ -141,7 +141,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
             type="button"
             onClick={() => { setActiveId(c.id); setMessages([]); }}
             className={`shrink-0 max-w-[9rem] truncate text-micro font-bold px-2.5 py-1.5 rounded-lg transition ${
-              activeId === c.id ? 'bg-background text-foreground shadow-sm' : 'bg-muted/50 text-muted-foreground'
+              activeId === c.id ? 'bg-background text-foreground' : 'bg-muted/50 text-muted-foreground'
             }`}
           >
             {c.title || 'بلا عنوان'}
@@ -209,7 +209,7 @@ const ChatPanel: React.FC<Props> = ({ articles, seed, onSeedConsumed }) => {
           onClick={submit}
           disabled={busy || !input.trim()}
           aria-label="إرسال"
-          className="shrink-0 p-3 rounded-2xl bg-primary text-primary-foreground active:scale-95 transition disabled:opacity-40"
+          className="shrink-0 p-3 rounded-2xl bg-primary text-primary-foreground transition disabled:opacity-40"
         >
           {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>

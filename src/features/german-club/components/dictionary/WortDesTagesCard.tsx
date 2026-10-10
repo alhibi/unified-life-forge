@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-import { Bookmark, BookmarkCheck, BookOpen,Sparkles, Volume2 } from '@/lib/icons';
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { Bookmark, BookmarkCheck, BookOpen, Sparkles, Volume2 } from '@/lib/icons';
 
 import { CEFRLevelLabels, DictionaryEntry, GENDER_COLORS } from '../../types';
 import { useDictionaryStore } from '../../useDictionaryStore';
@@ -33,104 +34,108 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
   const genderColor = entry.gender ? GENDER_COLORS[entry.gender] : null;
 
   return (
-    <div
+    <AppCard
+      as="div"
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(entry)}
-      className="relative overflow-hidden rounded-3xl border-2 border-[hsl(var(--primary))]/20 p-5 sm:p-6 bg-gradient-to-br from-secondary/40 via-signal/40 to-secondary/40 shadow-md cursor-pointer hover:border-[hsl(var(--primary))]/40 transition-motion group"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(entry);
+        }
+      }}
+      className="group cursor-pointer transition-motion"
     >
-      <div className="flex items-center justify-between border-b border-[hsl(var(--track))] pb-3 mb-4">
+      <div className="mb-4 flex items-center justify-between border-b border-track pb-3">
         <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
-            <Sparkles className="w-4 h-4 text-signal" />
+          <span className="rounded-lg bg-primary/10 p-1.5 text-primary">
+            <Sparkles className="h-4 w-4" aria-hidden />
           </span>
           <div>
-            <h3 className="text-xs font-bold text-[hsl(var(--primary))] uppercase tracking-wider">
+            <h3 className="text-mini font-bold uppercase tracking-wider text-primary">
               كلمة اليوم المميزة (Wort des Tages)
             </h3>
-            <p className="text-[0.625rem] text-muted-foreground">تم اختيارها لمستوى صياغتها وأهميتها</p>
+            <p className="text-micro text-muted-foreground">تم اختيارها لمستوى صياغتها وأهميتها</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
+          <IconButton
             onClick={(e) => {
               e.stopPropagation();
               toggleBookmark(entry.id);
             }}
-            className="p-2 rounded-xl bg-white/80 hover:bg-white text-foreground shadow-xs transition-colors"
             title={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
+            aria-label={bookmarked ? 'إزالة من المحفوظات' : 'حفظ الكلمة'}
           >
             {bookmarked ? (
-              <BookmarkCheck className="w-4 h-4 text-signal fill-signal" />
+              <BookmarkCheck className="h-4 w-4 text-signal fill-signal" aria-hidden />
             ) : (
-              <Bookmark className="w-4 h-4 text-muted-foreground" />
+              <Bookmark className="h-4 w-4 text-muted-foreground" aria-hidden />
             )}
-          </button>
+          </IconButton>
         </div>
       </div>
 
       <div className="space-y-3">
-        <div className="flex items-baseline justify-between flex-wrap gap-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="flex items-center gap-2.5">
             {genderColor && (
               <span
-                className="w-3.5 h-3.5 rounded-full inline-block shadow-xs flex-shrink-0"
+                className="inline-block h-3.5 w-3.5 flex-shrink-0 rounded-full"
                 style={{ backgroundColor: genderColor }}
                 title={entry.gender}
               />
             )}
 
-            <span dir="ltr" className="text-2xl sm:text-3xl font-extrabold text-[hsl(var(--foreground))] tracking-tight">
+            <span
+              dir="ltr"
+              className="text-hero font-extrabold tracking-tight text-foreground"
+              style={{ unicodeBidi: 'isolate' }}
+            >
               {entry.german}
             </span>
 
-            <button
-              type="button"
+            <IconButton
               onClick={speakGerman}
-              className={`p-1.5 rounded-xl border border-[hsl(var(--track))] hover:bg-secondary transition-motion ${
-                isPlaying ? 'scale-110 bg-signal border-signal text-signal' : 'text-foreground bg-white/60'
-              }`}
+              className={isPlaying ? 'text-signal' : 'text-foreground'}
               title="استمع للنطق الأصلي"
+              aria-label="استمع للنطق الأصلي"
             >
-              <Volume2 className="w-4 h-4" />
-            </button>
+              <Volume2 className="h-4 w-4" aria-hidden />
+            </IconButton>
           </div>
 
-          <span
-            className={`text-[0.625rem] font-bold px-2.5 py-1 rounded-full border ${cefrInfo.badge_color}`}
-          >
+          <span className={`rounded-full border px-2.5 py-1 text-micro font-bold ${cefrInfo.badge_color}`}>
             {cefrInfo.label_ar}
           </span>
         </div>
 
         {entry.ipa && (
-          <p dir="ltr" className="text-xs font-mono text-muted-foreground">
+          <p dir="ltr" className="font-mono text-mini text-muted-foreground">
             [{entry.ipa}]
           </p>
         )}
 
-        <p className="text-base sm:text-lg font-bold text-foreground leading-snug">
-          {entry.arabic}
-        </p>
+        <p className="text-lead font-bold leading-snug text-foreground">{entry.arabic}</p>
 
         {entry.examples[0] && (
-          <div className="p-3 rounded-2xl bg-white/70 border border-[hsl(var(--track))] space-y-1">
-            <p dir="ltr" className="text-xs font-medium text-foreground">
+          <div className="space-y-1 rounded-lg border border-track bg-secondary/40 p-3">
+            <p dir="ltr" className="text-mini font-medium text-foreground">
               "{entry.examples[0].de}"
             </p>
-            <p className="text-xs text-muted-foreground">
-              "{entry.examples[0].ar}"
-            </p>
+            <p className="text-mini text-muted-foreground">"{entry.examples[0].ar}"</p>
           </div>
         )}
 
         {entry.cultural_note_ar && (
-          <div className="flex items-start gap-2 text-xs text-foreground bg-signal/80 p-2.5 rounded-xl border border-signal/80">
-            <BookOpen className="w-4 h-4 text-signal flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 rounded-lg border border-signal/30 bg-signal/10 p-2.5 text-mini text-foreground">
+            <BookOpen className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal" aria-hidden />
             <span>{entry.cultural_note_ar}</span>
           </div>
         )}
       </div>
-    </div>
+    </AppCard>
   );
 };

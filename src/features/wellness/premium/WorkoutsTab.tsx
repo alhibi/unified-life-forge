@@ -11,11 +11,20 @@
  * Composition is intentional — each sub-tab is a self-contained component
  * exported from `training/components/`. This file is a thin orchestrator
  * that owns the active-session draft and triggers the PR detector.
+ *
+ * System-unification pass: sub-nav and cards went through <AppCard>,
+ * the plate tool is a canonical list row, the local empty state is
+ * <StateView>, the plate sheet is a <ResponsiveDrawer> and the press
+ * scaling (`active:scale-*`) was dropped — the global press rule owns it.
  */
 
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import {
   Activity, BarChart3, Calendar, Dumbbell, Flame, History,
@@ -180,33 +189,35 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
       />
 
       {/* Sub-nav */}
-      <nav className="flex gap-0.5 p-1 bg-card/80 border border-border/40 rounded-xl overflow-x-auto scrollbar-none" dir="ltr">
-        {SECTIONS.map((s) => {
-          const Icon = s.icon;
-          const active = section === s.key;
-          return (
-            <button
-              key={s.key}
-              onClick={() => setSection(s.key)}
-              aria-pressed={active}
-              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-micro font-semibold transition-colors ${
-                active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {active && (
-                <motion.span
-                  layoutId="workouts-pill"
-                  className="absolute inset-0 rounded-lg bg-primary"
-                  transition={{ type: 'spring', stiffness: 480, damping: 36 }}
-                />
-              )}
-              <span className="relative inline-flex items-center gap-1">
-                <Icon className="w-3.5 h-3.5" />
-                {s.ar}
-              </span>
-            </button>
-          );
-        })}
+      <nav aria-label="أقسام التمارين">
+        <AppCard className="flex gap-0.5 p-1 overflow-x-auto scrollbar-none" dir="ltr">
+          {SECTIONS.map((s) => {
+            const Icon = s.icon;
+            const active = section === s.key;
+            return (
+              <button
+                key={s.key}
+                onClick={() => setSection(s.key)}
+                aria-pressed={active}
+                className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-micro font-semibold transition-colors ${
+                  active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="workouts-pill"
+                    className="absolute inset-0 rounded-lg bg-primary"
+                    transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+                  />
+                )}
+                <span className="relative inline-flex items-center gap-1">
+                  <Icon className="w-3.5 h-3.5" />
+                  {s.ar}
+                </span>
+              </button>
+            );
+          })}
+        </AppCard>
       </nav>
 
       {/* Section content */}
@@ -233,49 +244,50 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                 />
               ) : (
                 <>
-                  <button
+                  <Button
+                    size="lg"
+                    className="w-full"
                     onClick={() => setShowPlayer(true)}
-                    className="w-full py-4 rounded-2xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
                   >
-                    <Play className="w-5 h-5" /> {T.startSession[lang]}
-                  </button>
+                    <Play className="w-5 h-5" aria-hidden /> {T.startSession[lang]}
+                  </Button>
 
                   {activeProgramDef && (
-                    <div className="rounded-2xl bg-primary/8 border border-primary/30 p-3 flex items-center justify-between gap-2">
+                    <AppCard className="p-3 flex items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-micro uppercase tracking-wider text-primary font-semibold">{T.programActive[lang]}</p>
                         <p className="text-mini font-bold text-foreground truncate">{activeProgramDef.name[lang]}</p>
                       </div>
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setSection('programs')}
-                        className="text-micro font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
                       >
                         {T.changeProgram[lang]}
-                      </button>
-                    </div>
+                      </Button>
+                    </AppCard>
                   )}
 
                   {workouts.length === 0 ? (
-                    <EmptyState lang={lang} />
+                    <StateView
+                      kind="empty"
+                      title={T.emptyState[lang]}
+                      body={T.emptyAfter[lang]}
+                    />
                   ) : (
                     <LastSessionCard session={workouts[0]} lang={lang} />
                   )}
 
                   {/* Plate calculator quick tool */}
-                  <button
-                    onClick={() => setShowPlate(true)}
-                    className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center gap-3 active:scale-[0.99]"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-data-4/15 flex items-center justify-center">
-                      <Dumbbell className="w-5 h-5 text-data-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-mini font-bold text-foreground">{T.toolPlate[lang]}</p>
-                      <p className="text-micro text-muted-foreground">
-                        {'احسب الأقراص لكل وزن — مرئي.'}
-                      </p>
-                    </div>
-                  </button>
+                  <AppList>
+                    <AppRow
+                      onClick={() => setShowPlate(true)}
+                      chevron
+                      leading={<Dumbbell className="h-5 w-5 text-data-4" aria-hidden />}
+                      title={T.toolPlate[lang]}
+                      subtitle={'احسب الأقراص لكل وزن — مرئي.'}
+                    />
+                  </AppList>
 
                   {workouts.length > 0 && (
                     <TopExercisesCard workouts={workouts} lang={lang} />
@@ -303,10 +315,11 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
                       <button
                         key={k}
                         onClick={() => setPickedLift(k)}
+                        aria-pressed={pickedLift === k}
                         className={`shrink-0 text-micro font-semibold px-3 py-1.5 rounded-full border ${
                           pickedLift === k
                             ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-card text-muted-foreground border-border/40'
+                            : 'bg-background text-muted-foreground border-border/40'
                         }`}
                       >
                         {EXERCISES[k]?.label[lang] ?? k}
@@ -322,12 +335,12 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
           {section === 'volume' && (
             <>
               <VolumeBars workouts={workouts} windowDays={7} lang={lang} />
-              <div className="bg-card border border-border/40 rounded-xl p-3 space-y-1.5">
+              <AppCard className="p-3 space-y-1.5">
                 <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
                   {'مفتاح المناطق'}
                 </p>
                 <VolumeZoneLegend lang={lang} />
-              </div>
+              </AppCard>
               <FrequencyHeatmap workouts={workouts} lang={lang} />
             </>
           )}
@@ -347,34 +360,13 @@ export default function WorkoutsTab({ workouts, profile, onSave, onDelete }: Pro
       />
 
       {/* Plate calculator sheet */}
-      <AnimatePresence>
-        {showPlate && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer bg-background/80 flex items-end sm:items-center justify-center"
-            onClick={() => setShowPlate(false)}
-          >
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ duration: 0.3 }}
-              className="w-full sm:max-w-md bg-background rounded-t-3xl sm:rounded-3xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-center pt-3 pb-1">
-                <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-              </div>
-              <div className="px-4 pb-6 space-y-3">
-                <h3 className="text-body font-bold text-foreground">{T.toolPlate[lang]}</h3>
-                <PlateCalculator initialKg={60} lang={lang} />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ResponsiveDrawer
+        open={showPlate}
+        onOpenChange={setShowPlate}
+        title={T.toolPlate[lang]}
+      >
+        <PlateCalculator initialKg={60} lang={lang} />
+      </ResponsiveDrawer>
     </div>
   );
 }
@@ -388,37 +380,28 @@ function HeroStats({
     <motion.div
       initial={{ y: 6, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="rounded-2xl p-3 border border-primary/20"
     >
-      <div className="grid grid-cols-4 gap-1.5">
-        <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={'جلسات'} color="hsl(var(--data-1))" />
-        <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={'سلسلة'} color="hsl(var(--data-2))" />
-        <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={'أطول'} color="hsl(var(--data-3))" />
-        <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={'الأسبوع'} color="hsl(var(--data-4))" />
-      </div>
+      <AppCard className="p-3">
+        <div className="grid grid-cols-4 gap-1.5">
+          <BubbleStat icon={<Calendar className="w-3 h-3" />} value={`${totalSessions}`} label={'جلسات'} color="hsl(var(--data-1))" />
+          <BubbleStat icon={<Flame className="w-3 h-3" />} value={`${currentStreak}d`} label={'سلسلة'} color="hsl(var(--data-2))" />
+          <BubbleStat icon={<Trophy className="w-3 h-3" />} value={`${longestStreak}d`} label={'أطول'} color="hsl(var(--data-3))" />
+          <BubbleStat icon={<TrendingUp className="w-3 h-3" />} value={`${Math.round(weekVolume / 1000)}t`} label={'الأسبوع'} color="hsl(var(--data-4))" />
+        </div>
+      </AppCard>
     </motion.div>
   );
 }
 
 function BubbleStat({ icon, value, label, color }: { icon: React.ReactNode; value: string; label: string; color: string }) {
   return (
-    <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
+    <AppCard flat className="p-1.5 text-center">
       <div className="flex items-center justify-center" style={{ color }}>
         {icon}
       </div>
       <div className="text-meta font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
       <div className="text-micro text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
-    </div>
-  );
-}
-
-function EmptyState({ lang }: { lang: 'ar' }) {
-  return (
-    <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center space-y-2">
-      <Dumbbell className="w-7 h-7 text-muted-foreground mx-auto" />
-      <p className="text-mini font-semibold text-foreground">{T.emptyState[lang]}</p>
-      <p className="text-micro text-muted-foreground">{T.emptyAfter[lang]}</p>
-    </div>
+    </AppCard>
   );
 }
 
@@ -426,7 +409,7 @@ function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar
   const vol = sessionVolumeKg(session);
   const dur = session.endedAt ? session.endedAt - session.startedAt : 0;
   return (
-    <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
+    <AppCard className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.lastSession[lang]}</p>
         <span className="text-micro text-muted-foreground tabular-nums" dir="ltr">{session.date}</span>
@@ -440,7 +423,7 @@ function LastSessionCard({ session, lang }: { session: WorkoutSession; lang: 'ar
         <span>{session.exercises.length} ex</span>
         {session.sessionRpe && <><span>·</span><span>RPE {session.sessionRpe}</span></>}
       </div>
-    </div>
+    </AppCard>
   );
 }
 
@@ -448,9 +431,9 @@ function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang
   const top = useMemo(() => topExercises(workouts, 5), [workouts]);
   if (top.length === 0) return null;
   return (
-    <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
+    <AppCard className="p-3 space-y-2">
       <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold flex items-center gap-1.5">
-        <Activity className="w-3 h-3" /> {T.topMuscles[lang]}
+        <Activity className="w-3 h-3" aria-hidden /> {T.topMuscles[lang]}
       </p>
       <div className="space-y-1.5">
         {top.map((t) => {
@@ -467,6 +450,6 @@ function TopExercisesCard({ workouts, lang }: { workouts: WorkoutSession[]; lang
           );
         })}
       </div>
-    </div>
+    </AppCard>
   );
 }

@@ -169,7 +169,7 @@ export default function FastingLog({ lang }: Props) {
             </span>
             <button
               onClick={handleEnd}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 text-micro font-bold active:scale-95 transition-motion"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 text-micro font-bold transition-motion"
             >
               <Square className="w-3 h-3 fill-current" />
               <span>{T.end[lang]}</span>
@@ -210,7 +210,7 @@ export default function FastingLog({ lang }: Props) {
           )}
         </div>
       ) : (
-        <div className="rounded-2xl p-4 bg-card border border-border/40 space-y-4">
+        <div className="app-card p-4 space-y-4">
           <div className="space-y-1">
             <h4 className="text-meta font-bold text-foreground flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-primary" />
@@ -228,7 +228,7 @@ export default function FastingLog({ lang }: Props) {
                   onClick={() => setSelectedProtocol(proto)}
                   className={`px-3 py-2 rounded-xl border text-micro font-bold text-center transition-motion ${
                     active
-                      ? 'bg-data-6 text-primary-foreground border-data-6 shadow-lg shadow-data-6/10'
+                      ? 'bg-data-6 text-primary-foreground border-data-6'
                       : 'bg-muted/30 border-border/30 text-muted-foreground'
                   }`}
                 >
@@ -243,7 +243,7 @@ export default function FastingLog({ lang }: Props) {
 
           <button
             onClick={handleStart}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-data-6 hover:bg-data-6 text-primary-foreground font-bold text-mini active:scale-98 transition-motion"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-data-6 hover:bg-data-6 text-primary-foreground font-bold text-mini transition-motion"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>{T.start[lang]}</span>
@@ -252,7 +252,7 @@ export default function FastingLog({ lang }: Props) {
       )}
 
       {/* History */}
-      <div className="rounded-2xl border border-border/30 bg-card p-3.5 space-y-2">
+      <div className="app-card app-card-flat p-3.5 space-y-2">
         <h5 className="text-micro font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
           <Check className="w-3.5 h-3.5 text-primary" />
           {T.recentFasts[lang]}

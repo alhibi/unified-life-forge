@@ -170,7 +170,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
 
           <button
             onClick={handleRestart}
-            className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-full text-mini font-semibold mx-auto active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-full text-mini font-semibold mx-auto"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>إعادة المراجعة من جديد</span>
@@ -188,7 +188,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
               {/* Front Side */}
               <AppCard
                 flat
-                className="absolute inset-0 backface-hidden w-full h-full flex flex-col justify-between border-primary/20 bg-primary/[0.01] p-5 shadow-lg select-none"
+                className="absolute inset-0 backface-hidden w-full h-full flex flex-col justify-between border-primary/20 bg-primary/[0.01] p-5 select-none"
               >
                 <div>
                   <div className="text-micro uppercase font-bold text-primary tracking-wider mb-2">
@@ -207,7 +207,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
               <AppCard
                 flat
                 style={{ transform: 'rotateY(180deg)' }}
-                className="absolute inset-0 backface-hidden w-full h-full flex flex-col justify-between border-primary/25 bg-card p-5 shadow-lg overflow-y-auto"
+                className="absolute inset-0 backface-hidden w-full h-full flex flex-col justify-between border-primary/25 p-5 overflow-y-auto"
               >
                 <div>
                   <div className="text-micro uppercase font-bold text-muted-foreground tracking-wider mb-2">
@@ -271,7 +271,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 setCurrentIndex((p) => p - 1);
                 setIsFlipped(false);
               }}
-              className="flex items-center gap-1 text-micro text-muted-foreground disabled:opacity-30 active:scale-95 transition-transform"
+              className="flex items-center gap-1 text-micro text-muted-foreground disabled:opacity-30 transition-transform"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>السابق</span>
@@ -285,7 +285,7 @@ export default function ArchiveFlashcards({ outline, onClose: _onClose }: Archiv
                 setCurrentIndex((p) => p + 1);
                 setIsFlipped(false);
               }}
-              className="flex items-center gap-1 text-micro text-muted-foreground disabled:opacity-30 active:scale-95 transition-transform"
+              className="flex items-center gap-1 text-micro text-muted-foreground disabled:opacity-30 transition-transform"
             >
               <span>التالي</span>
               <ArrowRight className="w-3.5 h-3.5" />

@@ -34,7 +34,7 @@ export function ReadingPrefsToolbar({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="p-2.5 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2.5 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'تفضيلات العرض'}
           title={'فرز ، تجميع ، كثافة'}
         >

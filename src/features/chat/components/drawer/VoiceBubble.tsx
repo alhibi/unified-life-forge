@@ -166,7 +166,7 @@ export default function VoiceBubble({
           onClick={handleToggle}
           aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل الرسالة الصوتية'}
           className={cn(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-90',
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors',
             isMine ? 'bg-primary/20' : 'bg-primary/15',
           )}
         >
@@ -229,7 +229,7 @@ export default function VoiceBubble({
                     voicePlayer.cyclePlaybackRate();
                   }}
                   className={cn(
-                    'text-micro font-bold tabular-nums px-1.5 py-[1px] rounded-full leading-none transition-colors active:scale-90',
+                    'text-micro font-bold tabular-nums px-1.5 py-[1px] rounded-full leading-none transition-colors',
                     isMine && isDarkBg
                       ? 'bg-primary-foreground/20 text-primary-foreground'
                       : 'bg-primary/15 text-primary',

@@ -81,7 +81,7 @@ export function ReaderPrefsPopover({
         ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+        className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
         aria-label={'إعدادات القراءة'}
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -170,7 +170,7 @@ export function ReaderPrefsPopover({
                   >
                     <span
                       aria-hidden
-                      className="w-4 h-4 rounded-full inline-block shadow-sm"
+                      className="w-4 h-4 rounded-full inline-block"
                       style={{
                         background:
                           t === 'sepia' ? '#f4ecd8' :

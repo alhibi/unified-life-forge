@@ -10,11 +10,19 @@
  *
  * Persists per-skill progress in localStorage. Workout completions log to
  * IndexedDB via the same `WorkoutSession` schema (mapped via skillKey).
+ *
+ * System-unification pass: sub-nav, hero and records went through
+ * <AppCard>, hub rows are canonical <AppList>/<AppRow>, CTAs are <Button>,
+ * the empty states are <StateView>, raw hexes became data tokens and the
+ * per-button press scaling was dropped (the global press rule owns it).
  */
 
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { AppCard, AppList, AppRow, IconChip } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import {
   Activity, Award, BookOpen, ChevronLeft, Flame, Library, Play,
@@ -196,33 +204,35 @@ export default function CalisthenicsTab(_props: Props) {
       />
 
       {/* Sub-nav */}
-      <nav className="flex gap-0.5 p-1 bg-card/80 border border-border/40 rounded-xl overflow-x-auto scrollbar-none" dir="ltr">
-        {SECTIONS.map((s) => {
-          const Icon = s.icon;
-          const active = section === s.key;
-          return (
-            <button
-              key={s.key}
-              onClick={() => { setSection(s.key); setPickedSkill(null); }}
-              aria-pressed={active}
-              className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-micro font-semibold transition-colors ${
-                active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {active && (
-                <motion.span
-                  layoutId="cali-pill"
-                  className="absolute inset-0 rounded-lg bg-primary"
-                  transition={{ type: 'spring', stiffness: 480, damping: 36 }}
-                />
-              )}
-              <span className="relative inline-flex items-center gap-1">
-                <Icon className="w-3.5 h-3.5" />
-                {s.ar}
-              </span>
-            </button>
-          );
-        })}
+      <nav aria-label="أقسام الكاليستنيكس">
+        <AppCard className="flex gap-0.5 p-1 overflow-x-auto scrollbar-none" dir="ltr">
+          {SECTIONS.map((s) => {
+            const Icon = s.icon;
+            const active = section === s.key;
+            return (
+              <button
+                key={s.key}
+                onClick={() => { setSection(s.key); setPickedSkill(null); }}
+                aria-pressed={active}
+                className={`relative shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-micro font-semibold transition-colors ${
+                  active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="cali-pill"
+                    className="absolute inset-0 rounded-lg bg-primary"
+                    transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+                  />
+                )}
+                <span className="relative inline-flex items-center gap-1">
+                  <Icon className="w-3.5 h-3.5" />
+                  {s.ar}
+                </span>
+              </button>
+            );
+          })}
+        </AppCard>
       </nav>
 
       <AnimatePresence mode="wait">
@@ -238,23 +248,23 @@ export default function CalisthenicsTab(_props: Props) {
             <>
               {/* No progress → assessment CTA */}
               {Object.keys(progress).length === 0 ? (
-                <div className="rounded-2xl border border-primary/30 p-4 space-y-3">
+                <AppCard className="p-4 space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
-                      <Target className="w-5 h-5 text-primary" />
-                    </div>
+                    <IconChip>
+                      <Target className="h-5 w-5" aria-hidden />
+                    </IconChip>
                     <div>
                       <p className="text-mini font-bold text-foreground">{T.startAssessment[lang]}</p>
                       <p className="text-micro text-muted-foreground">{T.noProgress[lang]}</p>
                     </div>
                   </div>
-                  <button
+                  <Button
+                    className="w-full"
                     onClick={() => setAssessmentOpen(true)}
-                    className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1.5"
                   >
-                    <Play className="w-4 h-4" /> {T.startAssessment[lang]}
-                  </button>
-                </div>
+                    <Play className="w-4 h-4" aria-hidden /> {T.startAssessment[lang]}
+                  </Button>
+                </AppCard>
               ) : (
                 <>
                   {/* Today's recommendation */}
@@ -271,7 +281,7 @@ export default function CalisthenicsTab(_props: Props) {
 
                   {/* Active program card */}
                   {activeProgramDef ? (
-                    <div className="rounded-2xl bg-primary/8 border border-primary/30 p-3 flex items-center justify-between gap-2">
+                    <AppCard className="p-3 flex items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-micro uppercase tracking-wider text-primary font-semibold">
                           {T.activeProgram[lang]}
@@ -280,41 +290,44 @@ export default function CalisthenicsTab(_props: Props) {
                           {activeProgramDef.name[lang]}
                         </p>
                       </div>
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setSection('programs')}
-                        className="text-micro font-semibold text-primary px-3 py-1.5 rounded-lg bg-primary/10"
                       >
                         {T.changeProgram[lang]}
-                      </button>
-                    </div>
+                      </Button>
+                    </AppCard>
                   ) : (
-                    <button
-                      onClick={() => setSection('programs')}
-                      className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center justify-between"
-                    >
-                      <div>
-                        <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
-                          {T.activeProgram[lang]}
-                        </p>
-                        <p className="text-mini font-semibold text-foreground">{T.noActiveProgram[lang]}</p>
-                      </div>
-                      <Library className="w-4 h-4 text-muted-foreground" />
-                    </button>
+                    <AppList>
+                      <AppRow
+                        onClick={() => setSection('programs')}
+                        chevron
+                        leading={
+                          <IconChip tone="plain" aria-hidden>
+                            <Library className="h-5 w-5" />
+                          </IconChip>
+                        }
+                        title={T.noActiveProgram[lang]}
+                        subtitle={T.activeProgram[lang]}
+                      />
+                    </AppList>
                   )}
 
                   {/* Browse skills CTA */}
-                  <button
-                    onClick={() => setSection('skills')}
-                    className="w-full text-start rounded-2xl bg-card border border-border/40 p-3 flex items-center justify-between active:scale-[0.99]"
-                  >
-                    <div>
-                      <p className="text-mini font-bold text-foreground">{T.exploreSkills[lang]}</p>
-                      <p className="text-micro text-muted-foreground">
-                        {SKILLS.length} {'مهارة من المبتدئ للنخبة'}
-                      </p>
-                    </div>
-                    <Award className="w-4 h-4 text-primary" />
-                  </button>
+                  <AppList>
+                    <AppRow
+                      onClick={() => setSection('skills')}
+                      chevron
+                      leading={
+                        <IconChip tone="plain" aria-hidden>
+                          <Award className="h-5 w-5" />
+                        </IconChip>
+                      }
+                      title={T.exploreSkills[lang]}
+                      subtitle={`${SKILLS.length} مهارة من المبتدئ للنخبة`}
+                    />
+                  </AppList>
                 </>
               )}
             </>
@@ -324,12 +337,14 @@ export default function CalisthenicsTab(_props: Props) {
             <>
               {pickedSkill ? (
                 <>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground"
                     onClick={() => setPickedSkill(null)}
-                    className="inline-flex items-center gap-1 text-micro font-semibold text-muted-foreground"
                   >
-                    <ChevronLeft className="w-4 h-4" /> {T.back[lang]}
-                  </button>
+                    <ChevronLeft className="w-4 h-4" aria-hidden /> {T.back[lang]}
+                  </Button>
                   <CaliProgressionLadder
                     skillKey={pickedSkill}
                     clearedStep={progress[pickedSkill] ?? -1}
@@ -344,12 +359,12 @@ export default function CalisthenicsTab(_props: Props) {
                     const step = s?.steps[Math.min(idx, (s?.steps.length ?? 1) - 1)];
                     if (s && step?.isHold) {
                       return (
-                        <button
+                        <Button
+                          className="w-full"
                           onClick={() => setHoldSkill({ key: pickedSkill, stepIdx: Math.max(0, Math.min((s.steps.length - 1), idx)) })}
-                          className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.98]"
                         >
-                          <Timer className="w-4 h-4" /> {T.startTimer[lang]}: {step.name[lang]}
-                        </button>
+                          <Timer className="w-4 h-4" aria-hidden /> {T.startTimer[lang]}: {step.name[lang]}
+                        </Button>
                       );
                     }
                     return null;
@@ -374,21 +389,21 @@ export default function CalisthenicsTab(_props: Props) {
           )}
 
           {section === 'assess' && (
-            <div className="rounded-2xl bg-card border border-border/40 p-4 space-y-3 text-center">
-              <div className="w-12 h-12 rounded-full bg-primary/15 mx-auto flex items-center justify-center">
-                <Target className="w-6 h-6 text-primary" />
-              </div>
+            <AppCard className="p-4 space-y-3 text-center">
+              <IconChip size="xl" className="mx-auto">
+                <Target className="h-6 w-6" aria-hidden />
+              </IconChip>
               <h3 className="text-meta font-bold text-foreground">{T.startAssessment[lang]}</h3>
               <p className="text-mini text-muted-foreground">
                 {'12 سؤال لتحديد مستواك في كل مهارة وتوصية برنامج مناسب.'}
               </p>
-              <button
+              <Button
+                className="w-full"
                 onClick={() => setAssessmentOpen(true)}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1.5"
               >
-                <Play className="w-4 h-4" /> {T.startAssessment[lang]}
-              </button>
-            </div>
+                <Play className="w-4 h-4" aria-hidden /> {T.startAssessment[lang]}
+              </Button>
+            </AppCard>
           )}
 
           {section === 'records' && <RecordsView holdPRs={holdPRs} progress={progress} lang={lang} />}
@@ -439,11 +454,11 @@ function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: nu
  <motion.div
  initial={{ opacity: 0, y: 6 }}
  animate={{ opacity: 1, y: 0 }}
- className="rounded-2xl p-3 border border-primary/30"
  >
+ <AppCard className="p-3">
  <div className="flex items-center gap-2 mb-2">
  <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
- <Flame className="w-4 h-4 text-primary" />
+ <Flame className="w-4 h-4 text-primary" aria-hidden />
  </div>
  <div>
  <h2 className="text-meta font-bold text-foreground leading-tight">{T.title[lang]}</h2>
@@ -451,21 +466,22 @@ function CaliHero({ xp, mastered, inProgress, lang }: { xp: number; mastered: nu
  </div>
  </div>
  <div className="grid grid-cols-3 gap-1.5">
- <Bubble icon={<TrendingUp className="w-3 h-3" />} value={`${xp}`} label={T.totalXp[lang]} color="#3b82f6" />
- <Bubble icon={<Award className="w-3 h-3" />} value={`${mastered}`} label={T.mastered[lang]} color="#a855f7" />
- <Bubble icon={<Activity className="w-3 h-3" />} value={`${inProgress}`} label={T.inProgress[lang]} color="#10b981" />
+ <Bubble icon={<TrendingUp className="w-3 h-3" />} value={`${xp}`} label={T.totalXp[lang]} color="hsl(var(--data-1))" />
+ <Bubble icon={<Award className="w-3 h-3" />} value={`${mastered}`} label={T.mastered[lang]} color="hsl(var(--data-3))" />
+ <Bubble icon={<Activity className="w-3 h-3" />} value={`${inProgress}`} label={T.inProgress[lang]} color="hsl(var(--data-4))" />
  </div>
+ </AppCard>
  </motion.div>
  );
 }
 
 function Bubble({ icon, value, label, color }: { icon: React.ReactNode; value: string; label: string; color: string }) {
  return (
- <div className="rounded-xl bg-card/60 border border-border/30 p-1.5 text-center">
+ <AppCard flat className="p-1.5 text-center">
  <div className="flex items-center justify-center" style={{ color }}>{icon}</div>
  <div className="text-meta font-bold leading-none mt-0.5 tabular-nums" style={{ color }}>{value}</div>
  <div className="text-micro text-muted-foreground uppercase tracking-tight mt-0.5">{label}</div>
- </div>
+ </AppCard>
  );
 }
 
@@ -482,12 +498,8 @@ function SuggestedNext({
     <motion.div
       initial={{ y: 6, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="rounded-2xl border p-3.5 space-y-2"
-      style={{
-        
-        borderColor: `${skill.color}40`,
-      }}
     >
+      <AppCard className="p-3.5 space-y-2">
       <div className="flex items-center gap-2">
         <span className="text-display">{skill.emoji}</span>
         <div className="min-w-0 flex-1">
@@ -501,31 +513,35 @@ function SuggestedNext({
         </div>
       </div>
       {next && (
-        <div className="bg-card/80 rounded-lg p-2 border border-border/30">
+        <AppCard flat className="p-2">
           <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
             {T.weeksToNext[lang]}
           </p>
           <p className="text-micro font-semibold text-foreground">
             {next.name[lang]} <span className="text-muted-foreground">· ~{weeksToNext} {'أسابيع'}</span>
           </p>
-        </div>
+        </AppCard>
       )}
       <div className="flex gap-2">
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
+          className="flex-1"
           onClick={() => onView(skill.key)}
-          className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-micro font-semibold"
         >
-          <BookOpen className="w-3 h-3 inline-block me-1" /> {'اعرض السلم'}
-        </button>
+          <BookOpen className="w-3 h-3" aria-hidden /> {'اعرض السلم'}
+        </Button>
         {cur?.isHold && (
-          <button
+          <Button
+            size="sm"
+            className="flex-1"
             onClick={() => onTrain(skill.key, stepIdx)}
-            className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-micro font-bold inline-flex items-center justify-center gap-1"
           >
-            <Timer className="w-3 h-3" /> {T.startTimer[lang]}
-          </button>
+            <Timer className="w-3 h-3" aria-hidden /> {T.startTimer[lang]}
+          </Button>
         )}
       </div>
+      </AppCard>
     </motion.div>
   );
 }
@@ -552,9 +568,9 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
     <div className="space-y-3">
       {/* Mastered skills */}
       {masteredArr.length > 0 && (
-        <div className="rounded-2xl bg-warning/10 border border-warning/30 p-3 space-y-2">
+        <AppCard className="p-3 space-y-2">
           <p className="text-micro uppercase tracking-wider text-warning font-semibold inline-flex items-center gap-1">
-            <Trophy className="w-3 h-3" /> {T.mastered[lang]}
+            <Trophy className="w-3 h-3" aria-hidden /> {T.mastered[lang]}
           </p>
           <div className="grid grid-cols-3 gap-1.5">
             {masteredArr.map((s) => (
@@ -564,16 +580,21 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
               </div>
             ))}
           </div>
-        </div>
+        </AppCard>
       )}
 
       {/* Best holds */}
-      <div className="rounded-2xl bg-card border border-border/40 p-3 space-y-2">
+      <AppCard className="p-3 space-y-2">
         <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold inline-flex items-center gap-1">
-          <Timer className="w-3 h-3" /> {T.bestHolds[lang]}
+          <Timer className="w-3 h-3" aria-hidden /> {T.bestHolds[lang]}
         </p>
         {holdEntries.length === 0 ? (
-          <p className="text-mini text-muted-foreground text-center py-3">{T.noHolds[lang]}</p>
+          <StateView
+            kind="empty"
+            compact
+            title={T.noHolds[lang]}
+            body="افتح أي مهارة ثابتة وابدأ هولد — سيُسجّل أفضل رقم هنا تلقائياً."
+          />
         ) : (
           <div className="space-y-1.5">
             {holdEntries.sort((a, b) => b.sec - a.sec).map((h) => (
@@ -591,7 +612,7 @@ function RecordsView({ holdPRs, progress, lang }: { holdPRs: Record<string, numb
             ))}
           </div>
         )}
-      </div>
+      </AppCard>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { AppCard, IconButton, IconChip } from '@/components/ui/app-shell';
 import { Check, Lock, Pin, Sparkles } from '@/lib/icons';
 
 import { APP_BADGES } from '../data/badges';
@@ -21,8 +22,9 @@ const CATEGORY_LABELS: Record<BadgeCategory, string> = {
   spiritual: 'الأذكار والروحانيات',
 };
 
+/** Rarity is a documented colour key — tokens only, no raw colours. */
 const RARITY_COLORS: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  common: { bg: 'bg-secondary0/10', text: 'text-muted-foreground', border: 'border-[hsl(var(--track))]/20', label: 'عادي' },
+  common: { bg: 'bg-secondary', text: 'text-muted-foreground', border: 'border-border', label: 'عادي' },
   rare: { bg: 'bg-data-4/10', text: 'text-data-4', border: 'border-data-4/20', label: 'نادر' },
   epic: { bg: 'bg-data-6/10', text: 'text-data-6', border: 'border-data-6/20', label: 'ملحمي' },
   legendary: { bg: 'bg-signal/10', text: 'text-signal', border: 'border-signal/20', label: 'أسطوري' },
@@ -45,11 +47,11 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
   return (
     <div className="space-y-5" dir="rtl">
       {/* Metrics Banner */}
-      <section className="surface-depth rounded-2xl p-5 flex items-center justify-between">
+      <AppCard className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lead font-bold text-foreground">خزانة الأوسمة والإنجازات</h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-extrabold">
+            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-micro font-extrabold tabular-nums">
               {unlockedCount} / {badges.length} مكتسب
             </span>
           </div>
@@ -69,13 +71,14 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                     ? 'bg-signal/10 border-signal/30 text-signal'
                     : 'bg-muted/20 border-border/40 text-muted-foreground'
                 }`}
+                aria-hidden
               >
                 <Pin className="w-4 h-4" />
               </div>
             );
           })}
         </div>
-      </section>
+      </AppCard>
 
       {/* Category Filter Pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -85,10 +88,11 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-micro font-bold whitespace-nowrap transition-motion active:scale-95 ${
+              aria-pressed={active}
+              className={`px-3.5 py-1.5 rounded-full text-micro font-bold whitespace-nowrap transition-motion ${
                 active
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'bg-card border border-border/50 text-muted-foreground hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary/60 border border-border/50 text-muted-foreground hover:text-foreground'
               }`}
             >
               {CATEGORY_LABELS[cat]}
@@ -105,30 +109,24 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
           const rarity = RARITY_COLORS[badge.rarity] || RARITY_COLORS.common;
 
           return (
-            <div
+            <AppCard
               key={badge.id}
-              className={`surface-depth rounded-2xl p-4 relative flex flex-col justify-between space-y-3 transition-motion ${
+              className={`relative flex flex-col justify-between space-y-3 border transition-motion ${
                 isUnlocked
                   ? 'border-border/60 hover:border-primary/40'
-                  : 'opacity-70 grayscale-[0.3] bg-muted/10'
+                  : 'opacity-70 bg-muted/10'
               }`}
             >
               {/* Header: Icon, Rarity Badge, Pin Toggle */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
-                      isUnlocked
-                        ? 'bg-primary/10 text-primary border border-primary/20'
-                        : 'bg-muted/40 text-muted-foreground'
-                    }`}
-                  >
+                  <IconChip tone={isUnlocked ? 'accent' : 'plain'} aria-hidden>
                     {isUnlocked ? (
-                      <Sparkles className="w-6 h-6 text-signal" />
+                      <Sparkles className="w-6 h-6" />
                     ) : (
-                      <Lock className="w-5 h-5 text-muted-foreground" />
+                      <Lock className="w-5 h-5" />
                     )}
-                  </div>
+                  </IconChip>
 
                   <div>
                     <div className="flex items-center gap-2">
@@ -147,17 +145,19 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
 
                 {/* Pin Badge Button */}
                 {isUnlocked && (
-                  <button
+                  <IconButton
                     onClick={() => onToggleFeaturedBadge(badge.id)}
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-motion ${
+                    className={
                       isPinned
-                        ? 'bg-signal/20 text-signal ring-1 ring-signal/40 scale-105'
-                        : 'bg-muted/30 text-muted-foreground hover:text-foreground'
-                    }`}
+                        ? 'bg-signal/20 text-signal ring-1 ring-signal/40'
+                        : undefined
+                    }
                     title={isPinned ? 'إلغاء التثبيت' : 'تثبيت في رأس الملف'}
+                    aria-label={isPinned ? 'إلغاء التثبيت' : 'تثبيت في رأس الملف'}
+                    aria-pressed={isPinned}
                   >
-                    <Pin className={`w-4 h-4 ${isPinned ? 'fill-current' : ''}`} />
-                  </button>
+                    <Pin className={`w-4 h-4 ${isPinned ? 'fill-current' : ''}`} aria-hidden />
+                  </IconButton>
                 )}
               </div>
 
@@ -169,8 +169,8 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
               {/* Progress or Unlock Stamp */}
               <div className="pt-2 border-t border-border/30 flex items-center justify-between text-micro">
                 {isUnlocked ? (
-                  <div className="flex items-center gap-1.5 text-data-1 font-bold">
-                    <Check className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 text-success font-bold">
+                    <Check className="w-3.5 h-3.5" aria-hidden />
                     <span>تم الاكتساب ({badge.milestoneLabelAr})</span>
                   </div>
                 ) : (
@@ -188,7 +188,7 @@ export const ProfileBadgesTab: React.FC<ProfileBadgesTabProps> = ({
                   </div>
                 )}
               </div>
-            </div>
+            </AppCard>
           );
         })}
       </div>

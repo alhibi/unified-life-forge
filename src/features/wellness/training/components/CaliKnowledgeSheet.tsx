@@ -104,7 +104,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     body={
                       <ul className="space-y-1">
                         {card.mobilityPrereqs.map((s, i) => (
-                          <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90">
+                          <li key={i} className="app-card app-card-flat p-2 text-mini text-foreground/90">
                             • {s[lang]}
                           </li>
                         ))}
@@ -119,7 +119,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     body={
                       <ol className="space-y-1">
                         {card.warmupSequence.map((s, i) => (
-                          <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90 flex items-start gap-2">
+                          <li key={i} className="app-card app-card-flat p-2 text-mini text-foreground/90 flex items-start gap-2">
                             <span className="w-5 h-5 rounded-md bg-signal/20 text-signal flex items-center justify-center shrink-0 text-micro font-bold">
                               {i + 1}
                             </span>
@@ -137,7 +137,7 @@ export default function CaliKnowledgeSheet({ open, onClose, skillKey, lang }: Ca
                     body={
                       <ul className="space-y-1.5">
                         {card.topMistakes.map((m, i) => (
-                          <li key={i} className="bg-card border border-data-5/30 rounded-lg p-2 space-y-1">
+                          <li key={i} className="app-card app-card-flat border border-data-5/30 p-2 space-y-1">
                             <p className="text-mini font-semibold text-data-5">⚠ {m.mistake[lang]}</p>
                             <p className="text-micro text-foreground/85">
                               <span className="font-semibold text-data-1">✓ {T.fix[lang]}: </span>

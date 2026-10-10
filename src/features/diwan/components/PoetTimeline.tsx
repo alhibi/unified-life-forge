@@ -1,8 +1,9 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
 
-import { eventTypeConfig,poetTimelines } from '@/features/diwan/data/poetTimelines';
-import { ChevronDown,X } from '@/lib/icons';
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { eventTypeConfig, poetTimelines } from '@/features/diwan/data/poetTimelines';
+import { ChevronDown, X } from '@/lib/icons';
 
 interface PoetTimelineProps {
   poetId: string;
@@ -10,6 +11,12 @@ interface PoetTimelineProps {
   onClose: () => void;
 }
 
+/**
+ * السيرة الزمنية للشاعر — سطور محطّات قابلة للتوسيع داخل بطاقة واحدة.
+ * ألوان أنواع المحطّات بيانات (مفتاح نوع الحدث) فتبقى كما هي؛ أما
+ * الأسطح فالآن من <AppCard> والزر الأيقوني من <IconButton> القياسي،
+ * وبلا خطوط فاصلة ميتة (كان في الشجرة عنصران بلا خلفية إطلاقاً).
+ */
 export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimelineProps) {
   const events = poetTimelines[poetId];
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -24,176 +31,176 @@ export default function PoetTimeline({ poetId, poetName, onClose }: PoetTimeline
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 30 }}
       transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-      className="w-full rounded-2xl bg-card border border-border/40 overflow-hidden "
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 ">
-        <div>
-          <h3
-            className="font-bold text-meta text-foreground"
-            style={{ fontFamily: 'var(--font-amiri)' }}
-          >
-            مسيرة {poetName}
-          </h3>
-          <p className="text-micro text-muted-foreground mt-0.5">
-            {events.length} محطّات في حياته
-          </p>
+      <AppCard className="overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 border-b border-border/30 px-4 py-3">
+          <div className="min-w-0">
+            <h3 className="truncate font-amiri text-meta font-bold text-foreground">
+              مسيرة {poetName}
+            </h3>
+            <p className="mt-0.5 text-micro text-muted-foreground">
+              {events.length} محطّات في حياته
+            </p>
+          </div>
+          <IconButton onClick={onClose} aria-label="إغلاق السيرة الزمنية">
+            <X className="h-4 w-4" aria-hidden />
+          </IconButton>
         </div>
-        <button
-          onClick={onClose}
-          className="w-8 h-8 rounded-full bg-muted/60 flex items-center justify-center active:scale-90 transition-transform"
-        >
-          <X className="w-4 h-4 text-muted-foreground" />
-        </button>
-      </div>
 
-      {/* Timeline */}
-      <div className="relative px-4 py-4">
-        {/* Vertical line */}
-        <div className="absolute top-4 bottom-4 start-[30px] w-[2px] rounded-full" />
+        {/* Timeline */}
+        <div className="px-4 py-4">
+          <div className="space-y-1">
+            {events.map((event, index) => {
+              const config = eventTypeConfig[event.type];
+              const isExpanded = expandedIndex === index;
 
-        <div className="space-y-1">
-          {events.map((event, index) => {
-            const config = eventTypeConfig[event.type];
-            const isExpanded = expandedIndex === index;
-            const isLast = index === events.length - 1;
-
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="relative"
-              >
-                <button
-                  onClick={() => setExpandedIndex(isExpanded ? null : index)}
-                  className="w-full flex items-start gap-3 ps-0 pe-1 py-2 rounded-xl hover:bg-muted/30 active:bg-muted/50 transition-colors text-start group"
-                >
-                  {/* Timeline dot */}
-                  <div className="relative z-raised flex-shrink-0 w-[14px] flex justify-center pt-1">
-                    <motion.div
-                      animate={{ scale: isExpanded ? 1.3 : 1 }}
-                      className="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center"
-                      style={{
-                        borderColor: config.color,
-                        backgroundColor: isExpanded ? config.color : 'transparent',
-                      }}
-                    >
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="w-1.5 h-1.5 rounded-full bg-white"
-                        />
-                      )}
-                    </motion.div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {/* Year badge */}
-                      <span
-                        className="text-micro font-bold px-2 py-0.5 rounded-md flex-shrink-0"
-                        style={{
-                          color: config.color,
-                          backgroundColor: `${config.color}15`,
-                        }}
-                      >
-                        {event.year}
-                      </span>
-                      {/* Icon */}
-                      <span className="text-mini">{config.icon}</span>
-                      {/* Title */}
-                      <span className="text-mini font-semibold text-foreground truncate">
-                        {event.title}
-                      </span>
-                    </div>
-
-                    {/* Description - always visible preview */}
-                    <p className={`text-micro text-muted-foreground leading-relaxed mt-1 ${isExpanded ? '' : 'line-clamp-1'}`}>
-                      {event.description}
-                    </p>
-                  </div>
-
-                  {/* Expand indicator */}
-                  <motion.div
-                    animate={{ rotate: isExpanded ? 180 : 0 }}
-                    className="flex-shrink-0 mt-1"
+              return (
+                <div key={index} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedIndex(isExpanded ? null : index)}
+                    aria-expanded={isExpanded}
+                    className="group w-full rounded-md py-2 pe-1 ps-0 text-start transition-colors duration-fast hover:bg-interactive-hover"
                   >
-                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </motion.div>
-                </button>
+                    <div className="flex items-start gap-3">
+                      {/* Timeline dot */}
+                      <div className="relative z-raised flex w-[14px] shrink-0 justify-center pt-1">
+                        <motion.div
+                          animate={{ scale: isExpanded ? 1.3 : 1 }}
+                          className="flex h-3.5 w-3.5 items-center justify-center rounded-full border-2"
+                          style={{
+                            borderColor: config.color,
+                            backgroundColor: isExpanded ? config.color : 'transparent',
+                          }}
+                        >
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="h-1.5 w-1.5 rounded-full bg-background"
+                            />
+                          )}
+                        </motion.div>
+                      </div>
 
-                {/* Expanded detail */}
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="overflow-hidden ms-[26px]"
-                    >
-                      <div
-                        className="py-2 px-3 rounded-lg mb-2 border-s-2"
-                        style={{
-                          backgroundColor: `${config.color}08`,
-                          borderColor: config.color,
-                        }}
-                      >
-                        <p className="text-mini text-foreground/80 leading-[1.8]">
-                          {event.description}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
+                      {/* Content */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          {/* Year badge */}
                           <span
-                            className="text-micro px-2 py-0.5 rounded-full font-medium"
+                            className="shrink-0 rounded-md px-2 py-0.5 text-micro font-bold tabular-nums"
                             style={{
                               color: config.color,
                               backgroundColor: `${config.color}15`,
                             }}
                           >
-                            {event.type === 'birth' ? 'ولادة' :
-                             event.type === 'death' ? 'وفاة' :
-                             event.type === 'poem' ? 'شعر' :
-                             event.type === 'political' ? 'حدث سياسي' :
-                             event.type === 'travel' ? 'ترحال' : 'محطّة'}
+                            {event.year}
+                          </span>
+                          {/* Icon */}
+                          <span className="text-mini">{config.icon}</span>
+                          {/* Title */}
+                          <span className="truncate text-mini font-semibold text-foreground">
+                            {event.title}
                           </span>
                         </div>
+
+                        {/* Description - always visible preview */}
+                        <p
+                          className={`mt-1 text-micro leading-relaxed text-muted-foreground ${
+                            isExpanded ? '' : 'line-clamp-1'
+                          }`}
+                        >
+                          {event.description}
+                        </p>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
 
-                {/* Connector to next */}
-                {!isLast && (
-                  <div className="absolute start-[30px] top-[34px] bottom-0 w-[2px]" />
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
+                      {/* Expand indicator */}
+                      <motion.div
+                        animate={{ rotate: isExpanded ? 180 : 0 }}
+                        className="mt-1 shrink-0"
+                      >
+                        <ChevronDown
+                          className={`h-3.5 w-3.5 transition-opacity ${
+                            isExpanded
+                              ? 'text-muted-foreground opacity-100'
+                              : 'text-muted-foreground opacity-0 group-hover:opacity-100'
+                          }`}
+                        />
+                      </motion.div>
+                    </div>
+                  </button>
 
-        {/* Footer stats */}
-        <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {Array.from(new Set(events.map(e => e.type))).map(type => (
-              <span key={type} className="flex items-center gap-1">
-                <span className="text-micro">{eventTypeConfig[type].icon}</span>
-                <span className="text-micro text-muted-foreground">
-                  {events.filter(e => e.type === type).length}
-                </span>
-              </span>
-            ))}
+                  {/* Expanded detail */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                        className="ms-[26px] overflow-hidden"
+                      >
+                        <div
+                          className="mb-2 rounded-lg border-s-2 px-3 py-2"
+                          style={{
+                            backgroundColor: `${config.color}08`,
+                            borderColor: config.color,
+                          }}
+                        >
+                          <p className="text-mini leading-[1.8] text-foreground/80">
+                            {event.description}
+                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <span
+                              className="rounded-full px-2 py-0.5 text-micro font-medium"
+                              style={{
+                                color: config.color,
+                                backgroundColor: `${config.color}15`,
+                              }}
+                            >
+                              {event.type === 'birth'
+                                ? 'ولادة'
+                                : event.type === 'death'
+                                  ? 'وفاة'
+                                  : event.type === 'poem'
+                                    ? 'شعر'
+                                    : event.type === 'political'
+                                      ? 'حدث سياسي'
+                                      : event.type === 'travel'
+                                        ? 'ترحال'
+                                        : 'محطّة'}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
-          {events[0]?.year && events[events.length - 1]?.year && (
-            <span className="text-micro text-muted-foreground">
-              {events[0].year} — {events[events.length - 1].year}
-            </span>
-          )}
+
+          {/* Footer stats */}
+          <div className="mt-4 flex items-center justify-between border-t border-border/30 pt-3">
+            <div className="flex items-center gap-3">
+              {Array.from(new Set(events.map((e) => e.type))).map((type) => (
+                <span key={type} className="flex items-center gap-1">
+                  <span className="text-micro">{eventTypeConfig[type].icon}</span>
+                  <span className="text-micro text-muted-foreground">
+                    {events.filter((e) => e.type === type).length}
+                  </span>
+                </span>
+              ))}
+            </div>
+            {events[0]?.year && events[events.length - 1]?.year && (
+              <span className="text-micro text-muted-foreground">
+                {events[0].year} — {events[events.length - 1].year}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      </AppCard>
     </motion.div>
   );
 }

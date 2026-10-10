@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -542,7 +542,7 @@ function ToggleRow({ icon, label, description, value, onChange, disabled }: Togg
       onClick={() => !disabled && onChange(!value)}
       disabled={disabled}
       className={cn(
-        'w-full flex items-start gap-3 px-4 py-3 active:bg-muted/30 transition-colors text-start',
+        'w-full flex items-start gap-3 px-4 py-3 transition-colors text-start',
         disabled && 'opacity-60 cursor-not-allowed',
       )}
     >
@@ -657,7 +657,7 @@ function ActionRow({ icon, label, description, onClick, disabled, danger }: Acti
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full flex items-start gap-3 px-4 py-3 active:bg-muted/30 transition-colors text-start',
+        'w-full flex items-start gap-3 px-4 py-3 transition-colors text-start',
         disabled && 'opacity-60 cursor-not-allowed',
       )}
     >

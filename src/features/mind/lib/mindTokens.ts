@@ -2,6 +2,11 @@
  * Shared Living-Mind design tokens and fold configuration.
  * Own file (not inside a component module) so components can import
  * constants without tripping fast-refresh constraints.
+ *
+ * This is the 3-D scene's own palette (consumed by NeuralConstellation,
+ * MechanicalHemisphere, SeamHardware and the Mind page chrome) — the hex
+ * values are part of the allowed living-mind visual language and are
+ * intentionally kept.
  */
 
 import { type FoldOptions,hashStringToSeed } from './brainGeometry';

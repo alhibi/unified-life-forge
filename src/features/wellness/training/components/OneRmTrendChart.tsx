@@ -12,7 +12,7 @@
 import { motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
-import { TrendingUp } from '@/lib/icons';
+import { StateView } from '@/components/ui/state-view';
 
 import { type Exercise,resolveExercise } from '../../exerciseCatalog';
 import type { WorkoutSession } from '../../wellnessDb';
@@ -50,10 +50,13 @@ export default function OneRmTrendChart({
 
   if (points.length < 2) {
     return (
-      <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
-        <TrendingUp className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-        <p className="text-mini text-muted-foreground">{T.noData[lang]}</p>
-      </div>
+      <StateView
+        kind="empty"
+        compact
+        className={className}
+        title={T.noData[lang]}
+        body="سجّل جلستين على الأقل لهذا التمرين ليُرسم منحنى التطور."
+      />
     );
   }
 
@@ -81,7 +84,7 @@ export default function OneRmTrendChart({
   const deltaPct = start > 0 ? ((delta / start) * 100) : 0;
 
   return (
-    <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
+    <div className={`app-card p-4 space-y-3 ${className}`}>
       <div className="flex items-baseline justify-between gap-2">
         <div className="min-w-0">
           <p className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">
@@ -134,7 +137,8 @@ export default function OneRmTrendChart({
         <motion.path
           d={runPath}
           fill="none"
-          stroke="#f59e0b"
+          stroke="currentColor"
+          className="text-data-3"
           strokeWidth={1.5}
           strokeDasharray="3 3"
           initial={{ pathLength: 0 }}

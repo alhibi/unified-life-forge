@@ -78,13 +78,14 @@ function flameTier(days: number): number {
   return 0;
 }
 
+/** Flame heat tier = colour step only (no drop-shadow glow). */
 const FLAME_GLOW: Record<number, string> = {
   0: 'text-muted-foreground',
-  1: 'text-signal drop-shadow-[0_0_6px_rgba(253,186,116,0.35)]',
-  2: 'text-signal drop-shadow-[0_0_8px_rgba(251,146,60,0.45)]',
-  3: 'text-signal drop-shadow-[0_0_10px_rgba(245,158,11,0.55)]',
-  4: 'text-signal drop-shadow-[0_0_14px_rgba(245,158,11,0.7)]',
-  5: 'text-destructive drop-shadow-[0_0_18px_rgba(248,113,113,0.8)]',
+  1: 'text-signal/70',
+  2: 'text-signal/80',
+  3: 'text-signal/90',
+  4: 'text-signal',
+  5: 'text-destructive',
 };
 
 function formatMilestoneProgress(current: number, target: number): number {
@@ -118,20 +119,8 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
       {/* 1. Unified Streak Hero Card                                   */}
       {/* ──────────────────────────────────────────────────────────── */}
       <section
-        className={`surface-depth rounded-2xl p-5 relative overflow-hidden ring-1 ${riskStyle.ring}`}
+        className={`app-card p-5 relative overflow-hidden ring-1 ${riskStyle.ring}`}
       >
-        {/* Ambient flame aura that intensifies with the streak tier */}
-        <motion.div
-          aria-hidden
-          className="absolute -inset-16 pointer-events-none"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.12), transparent 65%)',
-          }}
-          animate={{ opacity: [0.35 + tier * 0.08, 0.6 + tier * 0.08, 0.35 + tier * 0.08] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
         <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
           {/* Big live flame + count */}
           <div className="flex items-center gap-4 shrink-0">
@@ -140,7 +129,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-              className={`w-20 h-20 rounded-3xl bg-card border border-border/50 flex items-center justify-center shadow-lg`}
+              className={`w-20 h-20 rounded-3xl bg-secondary flex items-center justify-center`}
             >
               <Flame className={`w-10 h-10 transition-colors ${FLAME_GLOW[tier]}`} />
             </motion.div>
@@ -206,7 +195,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
           </div>
           <div className="h-2 w-full bg-muted/40 rounded-full overflow-hidden">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-l from-signal via-signal to-destructive"
+              className="h-full rounded-full bg-signal"
               initial={{ width: 0 }}
               animate={{ width: `${milestoneProgress}%` }}
               transition={{ duration: 1, ease: 'easeOut' }}
@@ -247,7 +236,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
               <motion.div
                 key={m.category}
                 whileHover={{ y: -2 }}
-                className={`surface-depth rounded-2xl p-4 space-y-2.5 border transition-colors ${
+                className={`app-card p-4 space-y-2.5 border transition-colors ${
                   isActive ? 'border-border/60 hover:border-signal/40' : 'opacity-70'
                 }`}
               >
@@ -327,7 +316,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
       {/* ──────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* Rhythm chart */}
-        <section className="surface-depth rounded-2xl p-5 space-y-4 lg:col-span-3">
+        <section className="app-card p-5 space-y-4 lg:col-span-3">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-meta font-bold text-foreground">إيقاعك الأسبوعي</h3>
@@ -356,7 +345,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
                       transition={{ duration: 0.7, ease: 'easeOut', delay: dow * 0.05 }}
                       className={`w-full rounded-t-lg ${
                         isStrongest
-                          ? 'bg-gradient-to-t from-signal to-signal shadow-md shadow-signal/20'
+                          ? 'bg-signal'
                           : isWeakest
                             ? 'bg-muted/30'
                             : 'bg-primary/60'
@@ -389,17 +378,7 @@ export const ProfileStreakPanel: React.FC<ProfileStreakPanelProps> = ({ snapshot
         </section>
 
         {/* Golden day card */}
-        <section className="surface-depth rounded-2xl p-5 space-y-3 lg:col-span-2 relative overflow-hidden">
-          <motion.div
-            aria-hidden
-            className="absolute -inset-10 pointer-events-none"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 50% 0%, rgba(245, 200, 60, 0.14), transparent 70%)',
-            }}
-            animate={{ opacity: [0.4, 0.75, 0.4] }}
-            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          />
+        <section className="app-card p-5 space-y-3 lg:col-span-2 relative overflow-hidden">
           <div className="relative space-y-3">
             <div className="flex items-center gap-2">
               <Crown className="w-4 h-4 text-signal" />

@@ -1,4 +1,4 @@
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
 import { Globe, Heart, Image as ImageIcon, MapPinned, Star, Trees } from '@/lib/icons';
 
 import { categoryMeta, MONTH_SHORT } from '../data/categories';
@@ -139,50 +139,45 @@ export default function PassportPanel({ passport, summaries, stampCount = 0 }: P
 
       <section>
         <h3 className="app-section-label">أرقام لافتة</h3>
-        <AppCard className="p-0">
-          <ul className="divide-y divide-border">
-            <FactLine label="اتساع الأطلس" value={formatDistance(passport.spanMeters)} />
-            <FactLine label="قارات لمستها" value={String(passport.continentsTouched)} />
-            <FactLine
-              label="دول زرتها فعلًا"
-              value={`${passport.countriesVisited} من ${passport.countriesTouched}`}
-            />
-            {passport.averageRating !== null && (
-              <FactLine label="متوسط تقييمك" value={passport.averageRating.toFixed(1)} />
-            )}
-            {passport.northernmost && (
-              <FactLine label="أقصى نقطة شمالًا" value={passport.northernmost.nameAr} />
-            )}
-            {passport.southernmost && (
-              <FactLine label="أقصى نقطة جنوبًا" value={passport.southernmost.nameAr} />
-            )}
-          </ul>
-        </AppCard>
+        <AppList>
+          <FactLine label="اتساع الأطلس" value={formatDistance(passport.spanMeters)} />
+          <FactLine label="قارات لمستها" value={String(passport.continentsTouched)} />
+          <FactLine
+            label="دول زرتها فعلًا"
+            value={`${passport.countriesVisited} من ${passport.countriesTouched}`}
+          />
+          {passport.averageRating !== null && (
+            <FactLine label="متوسط تقييمك" value={passport.averageRating.toFixed(1)} />
+          )}
+          {passport.northernmost && (
+            <FactLine label="أقصى نقطة شمالًا" value={passport.northernmost.nameAr} />
+          )}
+          {passport.southernmost && (
+            <FactLine label="أقصى نقطة جنوبًا" value={passport.southernmost.nameAr} />
+          )}
+        </AppList>
       </section>
 
       {summaries.length > 0 && (
         <section>
           <h3 className="app-section-label">أكثر الدول حضورًا</h3>
-          <AppCard className="p-0">
-            <ul className="divide-y divide-border">
-              {summaries.slice(0, 5).map((summary) => (
-                <li key={summary.country.id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="min-w-0 flex-1 truncate text-body text-foreground">
-                    {summary.country.nameAr}
+          <AppList>
+            {summaries.slice(0, 5).map((summary) => (
+              <AppRow
+                key={summary.country.id}
+                as="div"
+                title={summary.country.nameAr}
+                value={`${summary.visited}/${summary.total}`}
+              >
+                {summary.favorites > 0 && (
+                  <span className="inline-flex items-center gap-1 text-micro text-muted-foreground">
+                    <Heart className="h-3 w-3 text-[hsl(var(--live))]" fill="currentColor" />
+                    {summary.favorites}
                   </span>
-                  {summary.favorites > 0 && (
-                    <span className="inline-flex items-center gap-1 text-micro text-muted-foreground">
-                      <Heart className="h-3 w-3 text-[hsl(var(--live))]" fill="currentColor" />
-                      {summary.favorites}
-                    </span>
-                  )}
-                  <span className="font-mono text-mini tabular-nums text-muted-foreground">
-                    {summary.visited}/{summary.total}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </AppCard>
+                )}
+              </AppRow>
+            ))}
+          </AppList>
         </section>
       )}
 
@@ -224,10 +219,5 @@ function SplitStat({ value, label }: { value: number; label: string }) {
 }
 
 function FactLine({ label, value }: { label: string; value: string }) {
-  return (
-    <li className="flex items-center justify-between gap-3 px-4 py-3">
-      <span className="text-mini text-muted-foreground">{label}</span>
-      <span className="min-w-0 truncate text-body text-foreground">{value}</span>
-    </li>
-  );
+  return <AppRow as="div" title={label} value={value} />;
 }

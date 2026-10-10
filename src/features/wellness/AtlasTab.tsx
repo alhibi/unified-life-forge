@@ -1,6 +1,9 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import { BookOpen,ChevronDown, Search } from '@/lib/icons';
 
 import { nutrientsAtlas } from './nutrientsAtlas';
@@ -30,20 +33,20 @@ export default function AtlasTab() {
 
   return (
     <div className="space-y-3" dir={'rtl'}>
-      <div className="rounded-2xl bg-card border border-border/40 p-3 flex items-center gap-2">
-        <BookOpen className="w-4 h-4 text-primary shrink-0" />
+      <AppCard className="p-3 flex items-center gap-2">
+        <BookOpen className="w-4 h-4 text-primary shrink-0" aria-hidden />
         <p className="text-mini text-muted-foreground leading-snug">
           {'الأطلس البيوكيميائي الشامل للمغذيات الحيوية — مرجع علمي مختصر.'}
         </p>
-      </div>
+      </AppCard>
 
       <div className="relative">
-        <Search className={`absolute top-1/2 -translate-y-1/2 ${'end-3'} w-4 h-4 text-muted-foreground`} />
-        <input
+        <Search className={`absolute top-1/2 -translate-y-1/2 ${'end-3'} w-4 h-4 text-muted-foreground`} aria-hidden />
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={'ابحث عن عنصر...'}
-          className={`w-full h-11 rounded-2xl bg-card border border-border/40 text-meta text-foreground placeholder:text-muted-foreground-subtle outline-none focus:border-primary/40 transition-colors ${'pe-10 ps-3'}`}
+          className={`text-meta ${'pe-10 ps-3'}`}
         />
       </div>
 
@@ -52,10 +55,11 @@ export default function AtlasTab() {
           const open = openCat === cat.key || !!query;
           const total = cat.groups.reduce((n, g) => n + g.items.length, 0);
           return (
-            <div key={cat.key} className="rounded-2xl bg-card border border-border/40 overflow-hidden">
+            <AppCard key={cat.key} className="overflow-hidden">
               <button
                 onClick={() => setOpenCat(open && !query ? null : cat.key)}
-                className="w-full px-4 py-3 flex items-center justify-between gap-2 active:scale-[0.99] transition-transform"
+                aria-expanded={open}
+                className="w-full px-4 py-3 flex items-center justify-between gap-2"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
@@ -64,7 +68,7 @@ export default function AtlasTab() {
                 <div className="flex items-center gap-2">
                   <span className="text-micro text-muted-foreground tabular-nums">{total}</span>
                   <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" aria-hidden />
                   </motion.span>
                 </div>
               </button>
@@ -90,14 +94,15 @@ export default function AtlasTab() {
                                 <button
                                   key={id}
                                   onClick={() => setOpenItem(itOpen ? null : id)}
-                                  className="w-full text-start rounded-xl bg-accent/30 hover:bg-accent/50 border border-border/30 p-3 transition-colors"
+                                  aria-expanded={itOpen}
+                                  className="w-full text-start rounded-lg bg-accent/30 hover:bg-accent/50 border border-border/30 p-3 transition-colors"
                                 >
                                   <div className="flex items-center justify-between gap-2">
                                     <span className="text-mini font-semibold text-foreground leading-tight">
                                       {it.name}
                                     </span>
                                     <motion.span animate={{ rotate: itOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" aria-hidden />
                                     </motion.span>
                                   </div>
                                   <AnimatePresence initial={false}>
@@ -123,14 +128,16 @@ export default function AtlasTab() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </AppCard>
           );
         })}
 
         {filtered.length === 0 && (
-          <div className="rounded-2xl bg-card border border-border/40 p-6 text-center text-mini text-muted-foreground">
-            {'لا توجد نتائج'}
-          </div>
+          <StateView
+            kind="search"
+            title="لا توجد نتائج"
+            body="جرّب كلمة مختلفة أو تصفح الفئات كاملة — الأطلس يشمل كل المجموعات."
+          />
         )}
       </div>
 

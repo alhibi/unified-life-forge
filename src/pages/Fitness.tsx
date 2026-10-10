@@ -3,11 +3,13 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef,useState } from 'reac
 import { useShallow } from 'zustand/react/shallow';
 
 // UI Primitives & Layout
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, PageShell, Section } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, IconButton, PageShell, Section } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
-import { useApp } from '@/contexts/AppContext';
+import { StateView } from '@/components/ui/state-view';
 import { RouteThumbnail } from '@/features/fitness/RouteThumbnail';
 // Fitness Feature hooks & components
 import { useActivityTracking } from '@/features/fitness/useActivityTracking';
@@ -23,13 +25,11 @@ const MapFallback = ({ height }: { height: number }) => (
 // Standard Icons
 import {
   Activity,
-  BarChart3,
   Calendar,
   Check,
   Clock,
   Dumbbell,
   History,
-  Info,
   Library,
   Play,
   Plus,
@@ -143,8 +143,6 @@ function FitnessPageInner({
   setSelectedMapActivity,
   filteredExercises,
 }: FitnessPageStateProps) {
-  const { language } = useApp();
-
   // Active tracking hook (DeviceMotion/Capacitor GPS precision tracker)
   const tracker = useActivityTracking();
 
@@ -184,13 +182,11 @@ function FitnessPageInner({
 
   // Rest Timer Local states
   const [restDuration, setRestDuration] = useState<number>(0); // remaining seconds
-  const [restInitial, setRestInitial] = useState<number>(60); // configured rest duration
   const [isResting, setIsResting] = useState<boolean>(false);
   const restTimerRef = useRef<any>(null);
 
   const startRestTimer = (seconds: number) => {
     if (restTimerRef.current) clearInterval(restTimerRef.current);
-    setRestInitial(seconds);
     setRestDuration(seconds);
     setIsResting(true);
 
@@ -256,74 +252,67 @@ function FitnessPageInner({
         description="تتبع تمارينك وأنشطتك اليومية في SmartHub: جدول أسبوعي، مكتبة تمارين، حساب السعرات ومؤشرات الجسم وتتبع المسارات."
         path="/fitness"
       />
-      {/* Dynamic Ambient Glow overlay matching Zen Elite System */}
-      <div
-        className="fixed top-0 left-0 right-0 h-64 pointer-events-none z-base"
-        style={{
-          background: 'radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.12) 0%, transparent 60%)'
-        }}
-      />
 
       {/* Standalone Header */}
-      <header className="flex items-center justify-between py-4 relative z-10 border-b border-border/40 mb-4 px-1">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary">
-            <Dumbbell className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-title font-bold font-display tracking-wide leading-tight text-foreground">اللياقة النخبوية</h1>
-            <p className="text-micro text-muted-foreground font-medium uppercase tracking-wider">PREMIUM LEICA WORKOUT SUITE</p>
-          </div>
-        </div>
-
-        {/* Global Reset settings button */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => {
-            if (confirm('هل ترغب في إعادة ضبط جميع بيانات وجداول اللياقة البدنية والعودة للحالة الافتراضية؟')) {
-              store.clearAllFitnessAppData();
-            }
-          }}
-          className="h-8 w-8 text-muted-foreground hover:text-foreground active-tactile"
-        >
-          <RotateCcw className="w-4 h-4" />
-        </Button>
-      </header>
+      <PageHeader
+        title="اللياقة النخبوية"
+        subtitle="PREMIUM LEICA WORKOUT SUITE"
+        icon={
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Dumbbell className="h-5 w-5" aria-hidden />
+          </span>
+        }
+        hideBack
+        right={
+          <IconButton
+            aria-label="إعادة ضبط جميع بيانات اللياقة"
+            onClick={() => {
+              if (confirm('هل ترغب في إعادة ضبط جميع بيانات وجداول اللياقة البدنية والعودة للحالة الافتراضية؟')) {
+                store.clearAllFitnessAppData();
+              }
+            }}
+          >
+            <RotateCcw className="h-4 w-4" aria-hidden />
+          </IconButton>
+        }
+      />
 
       {/* Main Subsections Navigation Bar */}
-      <nav className="flex items-center gap-0.5 p-1 bg-card border border-border/40 rounded-xl overflow-x-auto scrollbar-none mb-6 relative z-10">
-        {[
-          { id: 'dashboard', label: 'الرئيسية', icon: Activity },
-          { id: 'timetable', label: 'جداول التمارين', icon: Calendar },
-          { id: 'library', label: 'مكتبة التمارين', icon: Library },
-          { id: 'progress', label: 'مؤشرات الجسم', icon: Scale },
-          { id: 'history', label: 'سجل الأنشطة', icon: History },
-        ].map((t) => {
-          const Icon = t.icon;
-          const active = activeTab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id)}
-              className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 transition-motion active-tactile ${
-                active ? 'text-white' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {active && (
-                <motion.span
-                  layoutId="active-fitness-nav-pill"
-                  className="absolute inset-0 rounded-lg bg-primary shadow-sm"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-1.5">
-                <Icon className="w-3.5 h-3.5" />
-                <span>{t.label}</span>
-              </span>
-            </button>
-          );
-        })}
+      <nav aria-label="أقسام اللياقة">
+        <AppCard className="flex items-center gap-0.5 p-1 overflow-x-auto scrollbar-none">
+          {[
+            { id: 'dashboard', label: 'الرئيسية', icon: Activity },
+            { id: 'timetable', label: 'جداول التمارين', icon: Calendar },
+            { id: 'library', label: 'مكتبة التمارين', icon: Library },
+            { id: 'progress', label: 'مؤشرات الجسم', icon: Scale },
+            { id: 'history', label: 'سجل الأنشطة', icon: History },
+          ].map((t) => {
+            const Icon = t.icon;
+            const active = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                aria-pressed={active}
+                className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 transition-motion ${
+                  active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="active-fitness-nav-pill"
+                    className="absolute inset-0 rounded-lg bg-primary"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-raised flex items-center gap-1.5">
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{t.label}</span>
+                </span>
+              </button>
+            );
+          })}
+        </AppCard>
       </nav>
 
       {/* Floating Rest Timer Widget */}
@@ -333,33 +322,35 @@ function FitnessPageInner({
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="fixed bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-80 z-drawer bg-card border border-primary/20 rounded-2xl shadow-xl p-4 flex items-center justify-between gap-4"
+            className="fixed bottom-6 start-4 end-4 md:end-auto md:start-6 md:w-80 z-drawer"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin flex items-center justify-center relative">
-                <Clock className="w-5 h-5 text-primary absolute" />
+            <AppCard className="p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin flex items-center justify-center relative">
+                  <Clock className="w-5 h-5 text-primary absolute" />
+                </div>
+                <div>
+                  <p className="text-micro text-primary font-bold uppercase tracking-wider">مؤقت الاستراحة والاستشفاء</p>
+                  <p className="text-title font-mono font-bold tabular-nums text-foreground">
+                    {Math.floor(restDuration / 60)}:{(restDuration % 60).toString().padStart(2, '0')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-micro text-primary font-bold uppercase tracking-wider">مؤقت الاستراحة والاستشفاء</p>
-                <p className="text-title font-mono font-bold tabular-nums text-foreground">
-                  {Math.floor(restDuration / 60)}:{(restDuration % 60).toString().padStart(2, '0')}
-                </p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => startRestTimer(restDuration + 30)}>
+                  +30ث
+                </Button>
+                <Button size="icon-sm" variant="destructive" aria-label="إيقاف المؤقت" onClick={cancelRestTimer}>
+                  <X className="w-4 h-4" aria-hidden />
+                </Button>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => startRestTimer(restDuration + 30)} className="h-8 px-2.5 text-mini">
-                +30ث
-              </Button>
-              <Button size="sm" variant="destructive" onClick={cancelRestTimer} className="h-8 w-8 p-0 flex items-center justify-center">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+            </AppCard>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Tab Contents */}
-      <main className="relative z-10">
+      <main className="relative">
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div
@@ -399,18 +390,19 @@ function FitnessPageInner({
                         variant="outline"
                         size="sm"
                         onClick={() => store.addWater(new Date().toISOString().split('T')[0], ml)}
-                        className="flex-1 text-micro h-8 font-mono font-bold hover:bg-data-4/10 hover:text-data-4"
+                        className="flex-1 font-mono font-bold"
                       >
                         +{ml}ml
                       </Button>
                     ))}
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="icon-sm"
+                      aria-label="تصفير سجل الماء"
                       onClick={() => store.resetWater(new Date().toISOString().split('T')[0])}
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:border-destructive"
+                      className="text-muted-foreground hover:text-destructive hover:border-destructive"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3.5 h-3.5" aria-hidden />
                     </Button>
                   </div>
                 </AppCard>
@@ -435,7 +427,7 @@ function FitnessPageInner({
                     variant="ghost"
                     size="sm"
                     onClick={() => tracker.toggleAutoDetect(!tracker.autoDetectEnabled)}
-                    className="mt-3 text-micro h-7 w-full border border-border/50 text-muted-foreground hover:text-foreground"
+                    className="mt-3 w-full border border-border/50 text-muted-foreground hover:text-foreground"
                   >
                     {tracker.autoDetectEnabled ? 'إيقاف تتبع الحركة' : 'تفعيل تتبع الحركة التلقائي'}
                   </Button>
@@ -463,10 +455,8 @@ function FitnessPageInner({
 
               {/* Live Activity Precision Tracker Panel */}
               <Section label="تتبع الأنشطة الحية (GPS)">
-                <AppCard className="relative overflow-hidden border-primary/20 bg-primary/5">
-                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
-                  <div className="p-6 flex flex-col items-center justify-center text-center z-base relative">
+                <AppCard className="overflow-hidden">
+                  <div className="p-6 flex flex-col items-center justify-center text-center relative">
                     {tracker.isTracking ? (
                       <div className="w-full space-y-6">
                         {/* Live activity pulsing badge */}
@@ -507,7 +497,7 @@ function FitnessPageInner({
 
                         {/* Route Line Drawing Preview in Real-time */}
                         {tracker.route.length > 1 && (
-                          <div className="h-24 bg-card/40 border border-border/20 rounded-xl p-2 flex items-center justify-center">
+                          <div className="h-24 bg-muted/10 rounded-xl p-2 flex items-center justify-center">
                             <RouteThumbnail route={tracker.route} height={80} />
                           </div>
                         )}
@@ -518,7 +508,7 @@ function FitnessPageInner({
                             variant="outline"
                             size="lg"
                             onClick={tracker.togglePause}
-                            className="flex-1 rounded-xl font-bold active-tactile"
+                            className="flex-1 font-bold"
                           >
                             {tracker.isPaused ? 'استئناف' : 'إيقاف مؤقت'}
                           </Button>
@@ -526,7 +516,7 @@ function FitnessPageInner({
                             variant="destructive"
                             size="lg"
                             onClick={tracker.stopTracking}
-                            className="flex-1 rounded-xl font-bold active-tactile"
+                            className="flex-1 font-bold"
                           >
                             إيقاف وحفظ النشاط
                           </Button>
@@ -543,16 +533,10 @@ function FitnessPageInner({
                         </p>
 
                         <div className="flex gap-3 justify-center pt-2">
-                          <Button
-                            onClick={() => tracker.startTracking('manual', 'walking')}
-                            className="rounded-xl px-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90"
-                          >
+                          <Button onClick={() => tracker.startTracking('manual', 'walking')} className="px-6 font-bold">
                             بدء تتبع مشي
                           </Button>
-                          <Button
-                            onClick={() => tracker.startTracking('manual', 'running')}
-                            className="rounded-xl px-6 font-bold bg-primary text-primary-foreground hover:bg-primary/90"
-                          >
+                          <Button onClick={() => tracker.startTracking('manual', 'running')} className="px-6 font-bold">
                             بدء تتبع جري
                           </Button>
                         </div>
@@ -564,7 +548,7 @@ function FitnessPageInner({
 
               {/* Developer / Testing Simulator Console */}
               <Section label="لوحة التحكم والمحاكاة للياقة البدنية (Simulation Console)">
-                <AppCard className="p-4 border border-border/60 bg-muted/5 space-y-4">
+                <AppCard className="p-4 space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <p className="text-mini font-bold text-foreground flex items-center gap-1.5">
@@ -577,7 +561,7 @@ function FitnessPageInner({
                         variant={tracker.isSimulated ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => tracker.setIsSimulated(!tracker.isSimulated)}
-                        className="text-micro font-bold h-8"
+                        className="font-bold"
                       >
                         {tracker.isSimulated ? 'المحاكاة مفعّلة' : 'تفعيل المحاكاة'}
                       </Button>
@@ -595,7 +579,7 @@ function FitnessPageInner({
                               variant={tracker.simulatedSpeedMultiplier === x ? 'default' : 'outline'}
                               size="xs"
                               onClick={() => tracker.setSimulatedSpeedMultiplier(x)}
-                              className="font-mono text-mini flex-1 h-7"
+                              className="font-mono flex-1"
                             >
                               {x}x
                             </Button>
@@ -616,7 +600,7 @@ function FitnessPageInner({
                               variant={tracker.motionState === m.state ? 'secondary' : 'outline'}
                               size="xs"
                               onClick={() => tracker.simulateMotion(m.state as any)}
-                              className="text-micro flex-1 h-7"
+                              className="flex-1"
                             >
                               {m.ar}
                             </Button>
@@ -631,7 +615,7 @@ function FitnessPageInner({
                             variant="outline"
                             size="xs"
                             onClick={() => tracker.triggerSimulatedTick(30)}
-                            className="font-mono text-mini flex-1 h-7"
+                            className="font-mono flex-1"
                           >
                             +30ث حركة
                           </Button>
@@ -639,7 +623,7 @@ function FitnessPageInner({
                             variant="outline"
                             size="xs"
                             onClick={() => tracker.triggerSimulatedTick(120)}
-                            className="font-mono text-mini flex-1 h-7"
+                            className="font-mono flex-1"
                           >
                             +120ث حركة
                           </Button>
@@ -673,10 +657,11 @@ function FitnessPageInner({
                       <button
                         key={dayKey}
                         onClick={() => setSelectedDay(dayKey)}
-                        className={`flex-1 min-w-[50px] py-3 rounded-xl flex flex-col items-center border transition-motion active-tactile ${
+                        aria-pressed={selectedDay === dayKey}
+                        className={`flex-1 min-w-[50px] py-3 rounded-xl flex flex-col items-center border transition-motion ${
                           selectedDay === dayKey
                             ? 'bg-primary text-primary-foreground border-primary/20'
-                            : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
+                            : 'bg-background text-muted-foreground border-border/40 hover:text-foreground'
                         }`}
                       >
                         <span className="text-micro font-medium leading-none mb-1">{DAYS_MAP[dayKey].short}</span>
@@ -725,29 +710,26 @@ function FitnessPageInner({
                     {!store.timetable[selectedDay].isRestDay ? (
                       <div className="space-y-6">
                         {store.timetable[selectedDay].exercises.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground space-y-3">
-                            <Dumbbell className="w-8 h-8 mx-auto text-muted-foreground/30 animate-pulse" />
-                            <p className="text-mini">لا توجد تمارين مضافة لليوم بعد.</p>
-                            <Button
-                              size="sm"
-                              onClick={() => setAddExerciseOpen(true)}
-                              className="text-mini rounded-lg bg-primary hover:bg-primary/90"
-                            >
-                              إضافة تمرين من المكتبة
-                            </Button>
-                          </div>
+                          <StateView
+                            kind="empty"
+                            compact
+                            title="لا توجد تمارين مضافة لليوم بعد."
+                            body="أضف تمرينك الأول من مكتبة التمارين ثم سجّل جلساتك وأوزانك مباشرة من هذا الجدول."
+                            action={{ label: 'إضافة تمرين من المكتبة', onClick: () => setAddExerciseOpen(true) }}
+                          />
                         ) : (
                           <div className="space-y-4">
                             {store.timetable[selectedDay].exercises.map((exercise) => (
                               <div key={exercise.id} className="p-4 rounded-xl border border-border/40 bg-muted/5 space-y-3">
                                 <div className="flex items-center justify-between gap-2">
                                   <span className="text-mini font-bold text-foreground">{exercise.name}</span>
-                                  <button
+                                  <IconButton
+                                    aria-label={`إزالة تمرين ${exercise.name}`}
+                                    className="h-8 w-8"
                                     onClick={() => store.removeExerciseFromDay(selectedDay, exercise.id)}
-                                    className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
+                                    <Trash2 className="w-3.5 h-3.5" aria-hidden />
+                                  </IconButton>
                                 </div>
 
                                 {/* Exercise Sets Grid */}
@@ -763,19 +745,19 @@ function FitnessPageInner({
                                     <div key={set.id} className="grid grid-cols-4 gap-2 items-center text-center">
                                       <span className="text-mini font-mono font-bold text-muted-foreground-subtle">{setIdx + 1}</span>
 
-                                      <input
+                                      <Input
                                         type="number"
                                         value={set.weightKg || ''}
                                         onChange={(e) => store.updateSetValues(selectedDay, exercise.id, setIdx, Number(e.target.value), set.reps)}
-                                        className="h-8 rounded bg-card border border-border/40 text-mini font-mono text-center focus:border-primary focus:outline-none w-full"
+                                        className="h-8 text-mini font-mono text-center tabular-nums px-1"
                                         placeholder="0"
                                       />
 
-                                      <input
+                                      <Input
                                         type="number"
                                         value={set.reps || ''}
                                         onChange={(e) => store.updateSetValues(selectedDay, exercise.id, setIdx, set.weightKg, Number(e.target.value))}
-                                        className="h-8 rounded bg-card border border-border/40 text-mini font-mono text-center focus:border-primary focus:outline-none w-full"
+                                        className="h-8 text-mini font-mono text-center tabular-nums px-1"
                                         placeholder="0"
                                       />
 
@@ -786,13 +768,14 @@ function FitnessPageInner({
                                             // Trigger rest timer only if checking off completed
                                             if (!set.completed) startRestTimer(60);
                                           }}
-                                          className={`w-6 h-6 rounded flex items-center justify-center border transition-motion active-tactile ${
+                                          aria-label={set.completed ? 'إلغاء إتمام الجلسة' : 'إتمام الجلسة'}
+                                          className={`w-6 h-6 rounded flex items-center justify-center border transition-motion ${
                                             set.completed
-                                              ? 'bg-data-1 border-data-1 text-white'
-                                              : 'bg-card border-border/60 text-transparent hover:border-primary'
+                                              ? 'bg-data-1 border-data-1 text-primary-foreground'
+                                              : 'bg-background border-border/60 text-transparent hover:border-primary'
                                           }`}
                                         >
-                                          <Check className="w-3.5 h-3.5" />
+                                          <Check className="w-3.5 h-3.5" aria-hidden />
                                         </button>
                                       </div>
                                     </div>
@@ -806,7 +789,6 @@ function FitnessPageInner({
                                     variant="outline"
                                     onClick={() => store.removeSetFromExercise(selectedDay, exercise.id, exercise.sets.length - 1)}
                                     disabled={exercise.sets.length <= 1}
-                                    className="h-7 text-micro font-semibold px-2.5"
                                   >
                                     حذف جلسة
                                   </Button>
@@ -814,7 +796,7 @@ function FitnessPageInner({
                                     size="sm"
                                     variant="outline"
                                     onClick={() => store.addSetToExercise(selectedDay, exercise.id)}
-                                    className="h-7 text-micro font-semibold px-2.5 hover:text-primary"
+                                    className="hover:text-primary"
                                   >
                                     إضافة جلسة
                                   </Button>
@@ -824,10 +806,10 @@ function FitnessPageInner({
 
                             <Button
                               variant="outline"
-                              className="w-full h-10 border-dashed rounded-xl text-mini font-bold text-muted-foreground hover:text-primary flex items-center justify-center gap-1.5"
+                              className="w-full border-dashed text-muted-foreground hover:text-primary"
                               onClick={() => setAddExerciseOpen(true)}
                             >
-                              <Plus className="w-4 h-4" /> إضافة تمرين جديد لليوم
+                              <Plus className="w-4 h-4" aria-hidden /> إضافة تمرين جديد لليوم
                             </Button>
                           </div>
                         )}
@@ -847,22 +829,22 @@ function FitnessPageInner({
 
               {/* Add Exercise Modal bottom-sheet */}
               <ResponsiveDrawer open={addExerciseOpen} onOpenChange={setAddExerciseOpen} title="إضافة تمرين إلى جدول اليوم">
-                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto">
                   {/* Search / Quick insert */}
                   <div className="relative">
-                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                    <input
+                    <Search className="absolute start-3 top-2.5 w-4 h-4 text-muted-foreground" aria-hidden />
+                    <Input
                       type="text"
                       placeholder="ابحث عن تمرين أو اكتب اسماً مخصصاً..."
                       value={exerciseSearch}
                       onChange={(e) => setExerciseSearch(e.target.value)}
-                      className="w-full h-9 rounded-xl pe-9 ps-3 bg-muted/50 border border-border/40 text-mini focus:border-primary focus:outline-none"
+                      className="ps-9"
                     />
                   </div>
 
                   {exerciseSearch.trim().length > 0 && (
                     <Button
-                      className="w-full text-mini font-semibold h-8 rounded-lg bg-primary text-primary-foreground"
+                      className="w-full"
                       onClick={() => {
                         store.addExerciseToDay(selectedDay!, exerciseSearch.trim());
                         setExerciseSearch('');
@@ -875,24 +857,21 @@ function FitnessPageInner({
 
                   <div className="space-y-2">
                     <p className="text-micro font-bold text-muted-foreground uppercase">مكتبة التمارين المتاحة</p>
-                    {STATIC_EXERCISES.map((ex) => (
-                      <button
-                        key={ex.key}
-                        onClick={() => {
-                          store.addExerciseToDay(selectedDay!, ex.name);
-                          setAddExerciseOpen(false);
-                        }}
-                        className="w-full p-3 rounded-lg border border-border/20 text-start bg-card hover:bg-muted/30 transition-colors flex justify-between items-center text-mini font-medium"
-                      >
-                        <div>
-                          <p className="text-foreground">{ex.name}</p>
-                          <p className="text-micro text-muted-foreground mt-0.5">
-                            العضلة: {MUSCLE_GROUPS_AR[ex.muscle]} | المعدات: {ex.equipment}
-                          </p>
-                        </div>
-                        <Plus className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                    ))}
+                    <AppList>
+                      {STATIC_EXERCISES.map((ex) => (
+                        <AppRow
+                          key={ex.key}
+                          onClick={() => {
+                            store.addExerciseToDay(selectedDay!, ex.name);
+                            setAddExerciseOpen(false);
+                          }}
+                          title={ex.name}
+                          subtitle={`العضلة: ${MUSCLE_GROUPS_AR[ex.muscle]} | المعدات: ${ex.equipment}`}
+                        >
+                          <Plus className="w-4 h-4 text-muted-foreground" aria-hidden />
+                        </AppRow>
+                      ))}
+                    </AppList>
                   </div>
                 </div>
               </ResponsiveDrawer>
@@ -915,10 +894,11 @@ function FitnessPageInner({
                     <button
                       key={group}
                       onClick={() => setLibraryFilter(group)}
-                      className={`shrink-0 px-3 py-1.5 rounded-full text-mini font-semibold border transition-motion active-tactile ${
+                      aria-pressed={libraryFilter === group}
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-mini font-semibold border transition-motion ${
                         libraryFilter === group
                           ? 'bg-primary border-primary text-primary-foreground'
-                          : 'bg-card text-muted-foreground border-border/40 hover:text-foreground'
+                          : 'bg-background text-muted-foreground border-border/40 hover:text-foreground'
                       }`}
                     >
                       {MUSCLE_GROUPS_AR[group]}
@@ -929,13 +909,13 @@ function FitnessPageInner({
 
               {/* Search input dictionary */}
               <div className="relative">
-                <Search className="absolute right-3 top-3 w-4 h-4 text-muted-foreground" />
-                <input
+                <Search className="absolute start-3 top-3 w-4 h-4 text-muted-foreground" aria-hidden />
+                <Input
                   type="text"
                   placeholder="ابحث في مكتبة التمارين المتاحة..."
                   value={librarySearch}
                   onChange={(e) => setLibrarySearch(e.target.value)}
-                  className="w-full h-10 rounded-xl pe-9 ps-4 bg-card border border-border/40 text-mini focus:border-primary focus:outline-none"
+                  className="ps-9"
                 />
               </div>
 
@@ -961,10 +941,12 @@ function FitnessPageInner({
                 ))}
 
                 {filteredExercises.length === 0 && (
-                  <div className="text-center py-10 col-span-full text-muted-foreground">
-                    <Info className="w-8 h-8 mx-auto text-muted-foreground/30 mb-2" />
-                    <p className="text-mini">لا توجد تمارين تطابق فلتر البحث الحالي.</p>
-                  </div>
+                  <StateView
+                    kind="search"
+                    className="col-span-full"
+                    title="لا توجد تمارين تطابق فلتر البحث الحالي."
+                    body="جرّب تغيير فلتر المجموعة العضلية أو مسح كلمة البحث لعرض كل التمارين."
+                  />
                 )}
               </div>
             </motion.div>
@@ -986,35 +968,35 @@ function FitnessPageInner({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="text-micro font-bold text-muted-foreground uppercase">الوزن (كغ)</label>
-                      <input
+                      <Input
                         type="number"
                         step="0.1"
                         placeholder="75.0"
                         value={logWeightKg}
                         onChange={(e) => setLogWeightKg(e.target.value)}
-                        className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
+                        className="font-mono tabular-nums"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-micro font-bold text-muted-foreground uppercase">نسبة الدهون % (اختياري)</label>
-                      <input
+                      <Input
                         type="number"
                         step="0.1"
                         placeholder="15.0"
                         value={logBodyFat}
                         onChange={(e) => setLogBodyFat(e.target.value)}
-                        className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
+                        className="font-mono tabular-nums"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-micro font-bold text-muted-foreground uppercase">تاريخ القياس</label>
-                    <input
+                    <Input
                       type="date"
                       value={logDate}
                       onChange={(e) => setLogDate(e.target.value)}
-                      className="w-full h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
+                      className="font-mono"
                     />
                   </div>
 
@@ -1029,7 +1011,7 @@ function FitnessPageInner({
                       setLogBodyFat('');
                       alert('تم تسجيل القياس بنجاح.');
                     }}
-                    className="w-full text-mini font-bold h-9 rounded-lg bg-primary hover:bg-primary/90"
+                    className="w-full font-bold"
                   >
                     حفظ القياس
                   </Button>
@@ -1045,12 +1027,12 @@ function FitnessPageInner({
                       <div className="space-y-1">
                         <label className="text-micro font-bold text-muted-foreground uppercase">الوزن المستهدف (كغ)</label>
                         <div className="flex gap-2">
-                          <input
+                          <Input
                             type="number"
                             step="0.1"
                             value={store.weightTargetKg}
                             onChange={(e) => store.setWeightTarget(Number(e.target.value))}
-                            className="flex-1 h-9 rounded-lg bg-muted/40 border border-border/40 text-mini font-mono px-3 focus:border-primary focus:outline-none"
+                            className="flex-1 font-mono tabular-nums"
                           />
                         </div>
                       </div>
@@ -1069,7 +1051,7 @@ function FitnessPageInner({
                         {store.weightLogs.length > 0 && (
                           <div className="flex justify-between pt-1 border-t border-border/20">
                             <span>المتبقي للهدف:</span>
-                            <span className="font-bold text-foreground font-mono">
+                            <span className="font-bold text-foreground font-mono tabular-nums">
                               {Math.max(0, store.weightLogs[store.weightLogs.length - 1].weightKg - store.weightTargetKg).toFixed(1)} كغ
                             </span>
                           </div>
@@ -1085,16 +1067,16 @@ function FitnessPageInner({
                 <AppCard className="p-5 h-[280px] flex flex-col justify-between">
                   {store.weightLogs.length > 0 ? (
                     <div className="h-full flex flex-col justify-between">
-                      {/* Premium Clean Custom SVG Area Graph instead of raw heavy charts */}
+                      {/* Lightweight custom SVG-style plot instead of heavy charts */}
                       <div className="flex-1 flex items-end justify-between h-32 relative mb-2 px-4 pt-4 border-b border-s border-border/60">
                         {/* Target line guide */}
                         <div
-                          className="absolute left-0 right-0 border-t border-dashed border-primary/40 z-base"
+                          className="absolute inset-x-0 border-t border-dashed border-primary/40"
                           style={{
                             bottom: `${Math.min(90, Math.max(10, ((store.weightTargetKg - 60) / (90 - 60)) * 100))}%`
                           }}
                         >
-                          <span className="absolute right-2 -top-4 text-mini text-primary/80 bg-card px-1 font-bold">الهدف: {store.weightTargetKg} كغ</span>
+                          <span className="absolute end-2 -top-4 text-mini text-primary/80 bg-background px-1 font-bold">الهدف: {store.weightTargetKg} كغ</span>
                         </div>
 
                         {/* Chart plot vectors scaled */}
@@ -1122,7 +1104,7 @@ function FitnessPageInner({
                                 <div className="absolute bottom-6 bg-foreground text-background text-mini font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                                   {log.weightKg} كغ ({log.date})
                                 </div>
-                                <div className="w-2.5 h-2.5 rounded-full bg-primary border-2 border-card shadow-sm group-hover:scale-125 transition-transform" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-primary border-2 border-card group-hover:scale-125 transition-transform" />
                               </div>
                             );
                           });
@@ -1136,10 +1118,12 @@ function FitnessPageInner({
                       </div>
                     </div>
                   ) : (
-                    <div className="h-full flex items-center justify-center text-muted-foreground flex-col gap-2">
-                      <BarChart3 className="w-8 h-8 text-muted-foreground/30 animate-pulse" />
-                      <p className="text-mini">لا توجد قياسات مسجلة كافية لعرض رسم بياني.</p>
-                    </div>
+                    <StateView
+                      kind="empty"
+                      compact
+                      title="لا توجد قياسات مسجلة كافية لعرض رسم بياني."
+                      body="سجّل وزنك اليومي وسيُرسم لك منحنى التقدم نحو الهدف عبر الأيام."
+                    />
                   )}
                 </AppCard>
               </Section>
@@ -1161,15 +1145,16 @@ function FitnessPageInner({
                         {store.weightLogs.map((log) => (
                           <tr key={log.id} className="hover:bg-muted/5 transition-colors">
                             <td className="py-2.5 font-mono text-muted-foreground">{log.date}</td>
-                            <td className="py-2.5 text-center font-bold text-foreground">{log.weightKg}</td>
+                            <td className="py-2.5 text-center font-bold text-foreground tabular-nums">{log.weightKg}</td>
                             <td className="py-2.5 text-center font-mono text-muted-foreground">{log.bodyFatPct ? `${log.bodyFatPct}%` : '—'}</td>
                             <td className="py-2.5 text-end">
-                              <button
+                              <IconButton
+                                aria-label={`حذف قياس ${log.date}`}
+                                className="h-8 w-8"
                                 onClick={() => store.deleteWeightLog(log.id)}
-                                className="text-muted-foreground hover:text-destructive transition-colors"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                                <Trash2 className="w-3.5 h-3.5" aria-hidden />
+                              </IconButton>
                             </td>
                           </tr>
                         ))}
@@ -1199,11 +1184,11 @@ function FitnessPageInner({
               <Section label="سجل الأنشطة والمسارات المسجلة">
                 <div className="space-y-4">
                   {tracker.activities.length === 0 ? (
-                    <AppCard className="p-8 text-center text-muted-foreground space-y-2">
-                      <History className="w-8 h-8 mx-auto text-muted-foreground/30 animate-pulse" />
-                      <p className="text-mini font-semibold">لا توجد مسارات GPS مسجلة بعد.</p>
-                      <p className="text-micro">ابدأ تتبع نشاط جديد من تبويب الرئيسية لترى مساراتك وإحصائياتك التفصيلية هنا.</p>
-                    </AppCard>
+                    <StateView
+                      kind="empty"
+                      title="لا توجد مسارات GPS مسجلة بعد."
+                      body="ابدأ تتبع نشاط جديد من تبويب الرئيسية لترى مساراتك وإحصائياتك التفصيلية هنا."
+                    />
                   ) : (
                     tracker.activities.map((act) => {
                       const hasRoute = act.route && act.route.length > 1;
@@ -1231,10 +1216,10 @@ function FitnessPageInner({
                             </div>
 
                             <div className="text-end">
-                              <p className="text-mini font-bold text-foreground">
+                              <p className="text-mini font-bold text-foreground tabular-nums">
                                 {((act.distance_meters || 0) / 1000).toFixed(2)} كم
                               </p>
-                              <p className="text-micro text-muted-foreground">
+                              <p className="text-micro text-muted-foreground tabular-nums">
                                 {Math.floor((act.duration_seconds || 0) / 60)}د {Math.floor((act.duration_seconds || 0) % 60)}ث
                               </p>
                             </div>
@@ -1248,7 +1233,7 @@ function FitnessPageInner({
                                 size="xs"
                                 variant="secondary"
                                 onClick={() => setSelectedMapActivity(act)}
-                                className="absolute bottom-2 left-2 text-micro h-6 px-2 shadow-sm"
+                                className="absolute bottom-2 end-2"
                               >
                                 عرض الخريطة التفاعلية
                               </Button>
@@ -1257,8 +1242,8 @@ function FitnessPageInner({
 
                           {/* Detailed Kilometric splits metrics */}
                           <div className="pt-3 border-t border-border/40 grid grid-cols-2 gap-3 text-micro text-muted-foreground leading-relaxed">
-                            <div>السعرات المحروقة: <span className="font-semibold text-foreground">{act.calories ? Math.floor(act.calories) : '—'} Kcal</span></div>
-                            <div>السرعة المتوسطة: <span className="font-semibold text-foreground">
+                            <div>السعرات المحروقة: <span className="font-semibold text-foreground tabular-nums">{act.calories ? Math.floor(act.calories) : '—'} Kcal</span></div>
+                            <div>السرعة المتوسطة: <span className="font-semibold text-foreground tabular-nums">
                               {act.duration_seconds && act.distance_meters
                                 ? ((act.distance_meters / act.duration_seconds) * 3.6).toFixed(1)
                                 : '—'}{' '}
@@ -1280,7 +1265,7 @@ function FitnessPageInner({
                 description="استعراض دقيق لمسار الحركة عبر نظام تحديد المواقع الجغرافي والأقمار الصناعية"
               >
                 {selectedMapActivity && (
-                  <div className="p-4 space-y-4">
+                  <div className="space-y-4">
                     <Suspense fallback={<MapFallback height={340} />}>
                       <FullActivityMap activity={selectedMapActivity} height={340} />
                     </Suspense>
@@ -1292,8 +1277,8 @@ function FitnessPageInner({
                         <p className="text-micro text-muted-foreground mt-0.5">خطوات المسار: {selectedMapActivity.route?.length || 0} إحداثية مصفاة</p>
                       </div>
                       <div className="text-end">
-                        <p className="text-mini font-bold text-primary">المسافة: {((selectedMapActivity.distance_meters || 0) / 1000).toFixed(2)} كم</p>
-                        <p className="text-micro text-muted-foreground">الوقت: {Math.floor((selectedMapActivity.duration_seconds || 0) / 60)} دقيقة</p>
+                        <p className="text-mini font-bold text-primary tabular-nums">المسافة: {((selectedMapActivity.distance_meters || 0) / 1000).toFixed(2)} كم</p>
+                        <p className="text-micro text-muted-foreground tabular-nums">الوقت: {Math.floor((selectedMapActivity.duration_seconds || 0) / 60)} دقيقة</p>
                       </div>
                     </div>
                   </div>

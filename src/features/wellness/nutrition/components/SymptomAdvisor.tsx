@@ -6,7 +6,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Check, HelpCircle, Info, Plus, Sparkles } from '@/lib/icons';
+import { StateView } from '@/components/ui/state-view';
+import { Check, Info, Plus, Sparkles } from '@/lib/icons';
 
 import { generateId, NUTRITION_DATABASE, saveMealEntry, todayStr } from '../index';
 import type { Lang, NutritionFoodItem } from '../types';
@@ -163,7 +164,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-micro font-semibold transition-motion ${
                   active
                     ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-muted-foreground border-border/40 hover:border-primary/30'
+                    : 'bg-background text-muted-foreground border-border/40 hover:border-primary/30'
                 }`}
               >
                 <span>{s.label[lang]}</span>
@@ -191,7 +192,7 @@ export default function SymptomAdvisor({ lang }: Props) {
               return (
                 <div
                   key={idx}
-                  className="rounded-xl border border-border/30 bg-card p-3.5 space-y-2.5"
+                  className="app-card app-card-flat p-3.5 space-y-2.5"
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-lg bg-signal/10 flex items-center justify-center">
@@ -220,7 +221,7 @@ export default function SymptomAdvisor({ lang }: Props) {
                           </div>
                           <button
                             onClick={() => handleQuickLog(food)}
-                            className="flex items-center gap-1 text-micro bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors active:scale-95"
+                            className="flex items-center gap-1 text-micro bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded font-bold transition-colors"
                           >
                             <Plus className="w-3 h-3" />
                             {T.quickAdd[lang]}
@@ -234,10 +235,12 @@ export default function SymptomAdvisor({ lang }: Props) {
             })}
           </motion.div>
         ) : (
-          <div className="text-center py-10 border border-dashed border-border/40 rounded-2xl bg-card">
-            <HelpCircle className="w-8 h-8 text-muted-foreground/30 mx-auto mb-1.5" />
-            <p className="text-mini text-muted-foreground">{T.subtitle[lang]}</p>
-          </div>
+          <StateView
+            kind="empty"
+            compact
+            title={T.subtitle[lang]}
+            body="سجّل أول عرض من قائمتك أعلاه لتحصل على توصيات غذائية وبروتوكول دعم."
+          />
         )}
       </AnimatePresence>
     </div>

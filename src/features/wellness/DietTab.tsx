@@ -15,11 +15,21 @@
  *     the totals.
  *   • Picker grid stays, but each card now shows its kcal/protein
  *     density at a glance.
+ *
+ * System-unification pass: cards are <AppCard>, the logged-items list is
+ * an <AppList>, empty/search states are <StateView>, the search field is
+ * <Input>, picker tiles are card-buttons, hero accents read the data
+ * tokens (no raw hex) and the per-button press scaling was dropped —
+ * the global press rule owns tactile feedback.
  */
 
 import { motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { AppCard, AppList, IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import {
 Beef, Calendar as CalIcon, Flame,
@@ -32,7 +42,7 @@ import { CATEGORY_META, categoryOf, type FoodCategory } from './foodCategories';
 import { FoodIcon } from './foodIcons';
 import { hasMacros, macroFor, macrosForDate, portionGramsFor } from './foodMacros';
 import { AnimatedNumber, ProgressRing, SectionHeader } from './premium/primitives';
-import { SoftSurface, withAlpha } from './premium/surfaces';
+import { withAlpha } from './premium/surfaces';
 import { FOOD_LIST, FOODS, type Lang } from './wellnessData';
 import type { AthleteProfile, DietLog, UUID } from './wellnessDb';
 import { todayIso } from './wellnessDb';
@@ -107,14 +117,14 @@ function MacroTotals({
     icon: any;
     suffix: string;
   }> = [
-    { key: 'kcal',    label: T.kcal[lang],    accent: '#10b981', icon: Flame, suffix: '' },
-    { key: 'protein', label: T.protein[lang], accent: '#ef4444', icon: Beef,  suffix: 'g' },
-    { key: 'carbs',   label: T.carbs[lang],   accent: '#f59e0b', icon: Wheat, suffix: 'g' },
-    { key: 'fat',     label: T.fat[lang],     accent: '#06b6d4', icon: Salad, suffix: 'g' },
+    { key: 'kcal',    label: T.kcal[lang],    accent: 'hsl(var(--data-1))', icon: Flame, suffix: '' },
+    { key: 'protein', label: T.protein[lang], accent: 'hsl(var(--data-5))', icon: Beef,  suffix: 'g' },
+    { key: 'carbs',   label: T.carbs[lang],   accent: 'hsl(var(--data-3))', icon: Wheat, suffix: 'g' },
+    { key: 'fat',     label: T.fat[lang],     accent: 'hsl(var(--data-4))', icon: Salad, suffix: 'g' },
   ];
 
   return (
-    <SoftSurface accent="hsl(var(--primary))" variant="mesh" intensity={0.7} className="p-4 space-y-3">
+    <AppCard className="p-4 space-y-3">
       <SectionHeader
         title={T.todayTotals[lang]}
         icon={Flame}
@@ -136,7 +146,7 @@ function MacroTotals({
               ? key === 'kcal' ? fmtKcal(tgt) : fmtG(tgt)
               : null;
           const overshoot = tgt != null && cur > tgt;
-          const ringColor = overshoot ? '#f59e0b' : accent;
+          const ringColor = overshoot ? 'hsl(var(--warning))' : accent;
           return (
             <div key={key} className="flex flex-col items-center gap-1.5">
               <ProgressRing
@@ -174,7 +184,7 @@ function MacroTotals({
             : T.add[lang]}
         </p>
       )}
-    </SoftSurface>
+    </AppCard>
   );
 }
 
@@ -208,7 +218,7 @@ function PortionStepper({
       <button
         type="button"
         onClick={dec}
-        className="w-5 h-5 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+        className="w-5 h-5 rounded-full flex items-center justify-center"
         style={{ color: accent }}
         aria-label="-"
       >
@@ -220,7 +230,7 @@ function PortionStepper({
       <button
         type="button"
         onClick={inc}
-        className="w-5 h-5 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+        className="w-5 h-5 rounded-full flex items-center justify-center"
         style={{ color: accent }}
         aria-label="+"
       >
@@ -237,11 +247,13 @@ function LogRow({
   lang,
   onRemove,
   onPatch,
+  divider,
 }: {
   log: DietLog;
   lang: Lang;
   onRemove: () => void;
   onPatch?: (patch: { portion: number }) => void;
+  divider?: boolean;
 }) {
   const food = FOODS[log.foodKey];
   const isCustom = log.foodKey.startsWith('custom:');
@@ -251,15 +263,15 @@ function LogRow({
   const macros = macroFor(log.foodKey, log.portion);
   const known = !isCustom && hasMacros(log.foodKey);
   const grams = portionGramsFor(log.foodKey) * log.portion;
-  const accent = '#10b981';
+  const accent = 'hsl(var(--data-1))';
 
   return (
-    <div className="flex items-start gap-2.5 p-3">
+    <div className={`flex items-start gap-2.5 p-3 ${divider ? 'app-divider-t' : ''}`}>
       <FoodIcon foodKey={log.foodKey} size={36} />
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <p className="text-mini font-semibold text-foreground truncate">{label}</p>
-          <span className="text-micro text-muted-foreground-subtle shrink-0" dir="ltr">
+          <span className="text-micro text-muted-foreground-subtle shrink-0 tabular-nums" dir="ltr">
             {Math.round(grams)} g
           </span>
         </div>
@@ -300,13 +312,13 @@ function LogRow({
           </div>
         )}
       </div>
-      <button
+      <IconButton
         onClick={onRemove}
-        className="p-1.5 rounded-lg bg-destructive/10 text-destructive active:scale-90 transition-transform shrink-0"
-        aria-label="remove"
+        className="h-8 w-8 text-destructive"
+        aria-label="حذف السجل"
       >
-        <Trash2 className="w-3.5 h-3.5" />
-      </button>
+        <Trash2 className="w-3.5 h-3.5" aria-hidden />
+      </IconButton>
     </div>
   );
 }
@@ -389,45 +401,47 @@ export default function DietTab({
 
       {/* Date picker */}
       <motion.div variants={item} initial="hidden" animate="show">
-        <SoftSurface variant="flat" className="p-3">
+        <AppCard className="p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                <CalIcon className="w-4 h-4 text-primary" />
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <CalIcon className="w-4 h-4 text-primary" aria-hidden />
               </div>
               <div>
                 <p className="text-micro font-semibold text-muted-foreground-subtle uppercase tracking-wider">
                   {T.date[lang]}
                 </p>
-                <p className="text-mini font-semibold text-foreground mt-0.5" dir="ltr">{date}</p>
+                <p className="text-mini font-semibold text-foreground mt-0.5 tabular-nums" dir="ltr">{date}</p>
               </div>
             </div>
             <AppDatePicker value={date} onChange={setDate} />
           </div>
-        </SoftSurface>
+        </AppCard>
       </motion.div>
 
       {/* Logged foods */}
       <motion.div variants={item} initial="hidden" animate="show" className="space-y-1">
         <SectionHeader title={T.meals[lang]} />
         {logsForDay.length === 0 ? (
-          <SoftSurface variant="flat" className="p-6 border-dashed">
-            <p className="text-meta text-muted-foreground text-center">{T.nothingLogged[lang]}</p>
-          </SoftSurface>
+          <StateView
+            kind="empty"
+            compact
+            title={T.nothingLogged[lang]}
+            body="اختر صنفاً من القائمة أدناه وسجّله لبدء حساب السعرات والماكروز لليوم."
+          />
         ) : (
-          <SoftSurface variant="flat" className="overflow-hidden">
-            <div className="divide-y divide-border/30">
-              {logsForDay.map((log) => (
-                <LogRow
-                  key={log.id}
-                  log={log}
-                  lang={lang}
-                  onRemove={() => onRemove(log.id)}
-                  onPatch={onPatch ? (p) => onPatch(log.id, p) : undefined}
-                />
-              ))}
-            </div>
-          </SoftSurface>
+          <AppList>
+            {logsForDay.map((log, i) => (
+              <LogRow
+                key={log.id}
+                log={log}
+                lang={lang}
+                divider={i > 0}
+                onRemove={() => onRemove(log.id)}
+                onPatch={onPatch ? (p) => onPatch(log.id, p) : undefined}
+              />
+            ))}
+          </AppList>
         )}
       </motion.div>
 
@@ -436,22 +450,23 @@ export default function DietTab({
         <SectionHeader title={T.add[lang]} icon={Sparkles} />
 
         <div className="relative">
-          <Search className="w-4 h-4 text-muted-foreground absolute top-1/2 -translate-y-1/2 start-3 pointer-events-none" />
-          <input
+          <Search className="w-4 h-4 text-muted-foreground absolute top-1/2 -translate-y-1/2 start-3 pointer-events-none" aria-hidden />
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={T.search[lang]}
-            className="w-full bg-card border border-border/40 rounded-xl ps-9 pe-3 py-2.5 text-body text-foreground outline-none focus:border-primary/50"
+            className="ps-9"
           />
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           <button
             onClick={() => setActiveCat('all')}
+            aria-pressed={activeCat === 'all'}
             className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
               activeCat === 'all'
                 ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-card text-muted-foreground border-border/40'
+                : 'bg-background text-muted-foreground border-border/40'
             }`}
           >
             {T.all[lang]}
@@ -464,10 +479,11 @@ export default function DietTab({
               <button
                 key={c}
                 onClick={() => setActiveCat(c)}
+                aria-pressed={active}
                 className={`shrink-0 flex items-center gap-1 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                   active
                     ? `${meta.bg} ${meta.color} border-current`
-                    : 'bg-card text-muted-foreground border-border/40'
+                    : 'bg-background text-muted-foreground border-border/40'
                 }`}
               >
                 <Icon className={`w-3 h-3 ${active ? '' : meta.color}`} strokeWidth={2.2} />
@@ -478,9 +494,11 @@ export default function DietTab({
         </div>
 
         {grouped.length === 0 ? (
-          <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center">
-            <p className="text-meta text-muted-foreground">{T.noResults[lang]}</p>
-          </div>
+          <StateView
+            kind="search"
+            title={T.noResults[lang]}
+            body="جرّب كلمة أخرى أو اختر فئة مختلفة من الشرائح أعلاه."
+          />
         ) : (
           <div className="space-y-4 pt-1">
             {grouped.map(([cat, foods]) => {
@@ -493,17 +511,18 @@ export default function DietTab({
                       <Icon className={`w-3.5 h-3.5 ${meta.color}`} strokeWidth={2.2} />
                     </div>
                     <h4 className="text-mini font-bold text-foreground">{meta.label[lang]}</h4>
-                    <span className="text-micro text-muted-foreground">({foods.length})</span>
+                    <span className="text-micro text-muted-foreground tabular-nums">({foods.length})</span>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {foods.map((f) => {
                       const m = macroFor(f.key, 1);
                       const known = hasMacros(f.key);
                       return (
-                        <button
+                        <AppCard
                           key={f.key}
+                          as="button"
                           onClick={() => onAdd(date, f.key)}
-                          className="bg-card border border-border/40 rounded-xl p-2.5 flex flex-col items-center gap-1 active:scale-95 transition-transform hover:border-primary/40"
+                          className="p-2.5 flex flex-col items-center gap-1 hover:border-primary/40"
                         >
                           <FoodIcon foodKey={f.key} size={36} />
                           <span className="text-micro font-medium text-foreground text-center leading-tight line-clamp-2">
@@ -516,7 +535,7 @@ export default function DietTab({
                           ) : (
                             <span className="text-micro text-muted-foreground/40">—</span>
                           )}
-                        </button>
+                        </AppCard>
                       );
                     })}
                   </div>
@@ -527,23 +546,24 @@ export default function DietTab({
         )}
 
         {query.trim() && (
-          <button
+          <Button
+            variant="outline"
+            className="w-full"
             onClick={() => {
               onAdd(date, `custom:${query.trim()}`);
               setQuery('');
             }}
-            className="w-full bg-primary/10 border border-primary/40 rounded-xl p-3 active:scale-[0.98] transition-transform"
           >
             <span className="text-mini font-semibold text-primary">
               + {`أضف "${query.trim()}" ${T.custom[lang]}`}
             </span>
-          </button>
+          </Button>
         )}
       </motion.div>
 
       {/* Tiny note about portion semantics */}
       <p className="text-micro text-muted-foreground-subtle leading-relaxed text-center px-3 flex items-center justify-center gap-1">
-        <Info className="w-3 h-3 inline-block" />
+        <Info className="w-3 h-3 inline-block" aria-hidden />
         {'القيم الغذائية تقريبية وتعتمد على حصة قياسية لكل صنف.'}
       </p>
     </div>

@@ -6,10 +6,12 @@
 // trailing edge). Lives just above the bottom navigation; tapping it
 // expands the full `PlayerSheet`.
 //
-// Visual design:
-//   • Frosted-glass surface tinted by the active podcast's seed color.
-//   • A subtle breathing  halo hints that audio is alive without
-//     fighting page content for attention.
+// Visual design (unified design-system pass):
+//   • Solid card surface (hsl(var(--card))) — the old frosted-glass
+//     treatment was retired; the dead `podcast-mini-glow` class name is
+//     gone with it (its keyframes had already been removed).
+//   • The active podcast's extracted accent (`--podcast-primary`, set by
+//     DynamicPodcastTheme) tints the progress fill and queue badge.
 //   • Square artwork (instead of a circle) so the cover art reads at
 //     a glance — modern podcast apps moved away from circular avatars
 //     for the same reason; LP/CD covers were never round.
@@ -60,9 +62,6 @@ function MiniProgressBar() {
         style={{
           '--progress': pct / 100,
           background: 'var(--podcast-primary, hsl(var(--primary)))',
-          // A faint glow at the head of the fill makes the bar read as
-          // luminous rather than flat — matches the player sheet's
-          // gradient seek bar.
         } as CSSProperties}
       />
     </div>
@@ -116,8 +115,8 @@ const InlineControl = memo(function InlineControl({
       aria-label={ariaLabel}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 active:scale-90 transition-transform duration-fast cursor-pointer select-none touch-manipulation"
-      style={{ width: size, height: size, willChange: 'transform', ...style }}
+      className="rounded-full flex items-center justify-center shrink-0 hover:bg-foreground/10 duration-fast cursor-pointer select-none touch-manipulation"
+      style={{ width: size, height: size, ...style }}
     >
       {children}
     </span>
@@ -164,18 +163,13 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
             <button
               type="button"
               onClick={openSheet}
-              className="podcast-mini-glow pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border border-border transition-colors touch-manipulation"
+              className="pointer-events-auto w-full max-w-md mx-auto flex items-center gap-2 ps-2 pe-2 rounded-full overflow-hidden border border-border transition-colors touch-manipulation"
               data-playing={isActive ? 'true' : 'false'}
               style={{
                 height: MINI_PLAYER_HEIGHT,
-                // Solid, visually rich card styling as requested by the user,
-                // abandoning the frosted-glass effect for a more substantive,
-                // "obsidian" luxury solid look.
-
                 borderColor: 'hsl(var(--border))',
                 color: 'hsl(var(--foreground))',
                 backgroundColor: 'hsl(var(--card))',
-                willChange: 'transform',
                 contain: 'layout paint',
               }}
             >
@@ -186,7 +180,6 @@ const PodcastMiniPlayer = memo(function PodcastMiniPlayer() {
                   artwork while audio is playing. */}
               <span className="relative w-12 h-12 rounded-2xl overflow-hidden bg-muted/40 shrink-0">
                 <img src={artwork} alt="" className="w-full h-full object-cover" />
-                <span className="absolute inset-0 rounded-2xl pointer-events-none" style={{}} />
                 {/* Eq overlay; passing `playing` keeps the static
                     artwork visible whenever playback is paused. */}
                 <span

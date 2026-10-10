@@ -9,7 +9,8 @@
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
-import { Award, ChevronRight, Trophy } from '@/lib/icons';
+import { StateView } from '@/components/ui/state-view';
+import { ChevronRight } from '@/lib/icons';
 
 import { EXERCISES } from '../../exerciseCatalog';
 import type { AthleteProfile, WorkoutSession } from '../../wellnessDb';
@@ -94,10 +95,13 @@ export default function StrengthStandardsView({
 
  if (!profile?.weightKg) {
  return (
- <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
- <Award className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
- <p className="text-mini text-muted-foreground">{T.noProfile[lang]}</p>
- </div>
+ <StateView
+   kind="empty"
+   compact
+   className={className}
+   title={T.noProfile[lang]}
+   body="أكمل ملفك الرياضي (الوزن والجنس) لتفعيل معايير القوة."
+ />
  );
  }
 
@@ -138,10 +142,12 @@ export default function StrengthStandardsView({
 
       {/* Per-lift cards */}
       {rows.length === 0 ? (
-        <div className="bg-card border border-border/40 rounded-2xl p-6 text-center">
-          <Trophy className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
-          <p className="text-mini text-muted-foreground">{T.noData[lang]}</p>
-        </div>
+        <StateView
+          kind="empty"
+          compact
+          title={T.noData[lang]}
+          body="سجّل جلساتك وسنقيس تقدمك نحو معايير كل رفعة."
+        />
       ) : (
         rows.map((r, i) => (
           <LiftRow key={r.key} row={r} lang={lang} delay={i * 0.04} />
@@ -177,7 +183,7 @@ function LiftRow({
       initial={{ y: 8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay }}
-      className="bg-card border border-border/40 rounded-2xl p-3 space-y-2"
+      className="app-card p-3 space-y-2"
     >
       <div className="flex items-baseline justify-between gap-2">
         <div>

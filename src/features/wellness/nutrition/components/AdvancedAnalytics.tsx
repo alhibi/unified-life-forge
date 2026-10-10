@@ -66,7 +66,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
       </div>
 
       {/* Energy split - custom chart elements */}
-      <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
+      <div className="app-card p-4 space-y-3">
         <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <TrendingUp className="w-3.5 h-3.5 text-primary" />
           {T.ratios[lang]}
@@ -105,7 +105,7 @@ export default function AdvancedAnalytics({ lang }: Props) {
       </div>
 
       {/* RDA Index */}
-      <div className="rounded-2xl border border-border/30 bg-card p-4 space-y-3">
+      <div className="app-card p-4 space-y-3">
         <h4 className="text-mini font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
           <Award className="w-3.5 h-3.5 text-primary" />
           {T.scorecard[lang]}

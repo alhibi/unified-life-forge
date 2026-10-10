@@ -1,6 +1,15 @@
 import React from 'react';
 
-import { ArrowUpDown, Filter, Layers,RotateCcw, Search, X } from '@/lib/icons';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ArrowUpDown, Filter, Layers, RotateCcw, Search, X } from '@/lib/icons';
 
 import { DICTIONARY_CATEGORIES } from '../../lib/dictionaryData';
 import {
@@ -49,36 +58,43 @@ export const DictionarySearchFilters: React.FC = () => {
     <div className="space-y-4">
       {/* Search Input */}
       <div className="relative">
-        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <input
+        <Search
+          className="pointer-events-none absolute top-1/2 start-4 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+        <Input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ابحث عن كلمة، معنى بالعربية، صيغة جمع، أو تراكيب لغوية..."
-          className="w-full pe-12 ps-10 py-3.5 rounded-2xl border border-[hsl(var(--track))] bg-white text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/30 focus:border-[hsl(var(--primary))] text-sm font-medium shadow-xs"
+          className="h-12 ps-12 pe-12 text-body font-medium"
+          aria-label="البحث في القاموس"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-xl hover:bg-secondary text-muted-foreground transition-colors"
+            className="absolute top-1/2 end-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            aria-label="مسح البحث"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" aria-hidden />
           </button>
         )}
       </div>
 
       {/* Recent Searches Chips */}
       {recentSearches.length > 0 && !searchQuery && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span className="text-muted-foreground flex-shrink-0 font-medium">عمليات بحث سابقة:</span>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-mini">
+          <span className="flex-shrink-0 font-medium text-muted-foreground">
+            عمليات بحث سابقة:
+          </span>
           {recentSearches.map((term, i) => (
             <button
               key={i}
               type="button"
               onClick={() => setSearchQuery(term)}
-              className="px-2.5 py-1 rounded-full bg-secondary hover:bg-secondary text-foreground flex-shrink-0 transition-colors"
+              className="flex-shrink-0 rounded-full bg-secondary px-2.5 py-1 text-foreground transition-colors hover:bg-secondary/70"
             >
               {term}
             </button>
@@ -86,7 +102,7 @@ export const DictionarySearchFilters: React.FC = () => {
           <button
             type="button"
             onClick={clearRecentSearches}
-            className="text-[0.625rem] text-muted-foreground hover:text-muted-foreground underline flex-shrink-0"
+            className="flex-shrink-0 text-micro text-muted-foreground underline hover:text-foreground"
           >
             مسح الكل
           </button>
@@ -95,19 +111,19 @@ export const DictionarySearchFilters: React.FC = () => {
 
       {/* Lexical Domain Categories (المجالات المعجمية) */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-[0.7rem] font-bold text-muted-foreground uppercase tracking-wider px-1">
+        <div className="flex items-center justify-between px-1 text-micro font-bold uppercase tracking-wider text-muted-foreground">
           <span className="flex items-center gap-1">
-            <Layers className="w-3 h-3 text-[hsl(var(--primary))]" />
+            <Layers className="h-3 w-3 text-primary" aria-hidden />
             التصنيف حسب المجال المعجمي والأكاديمي
           </span>
           {activeCategoryObj && activeCategoryObj.id !== 'all' && (
-            <span className="text-[hsl(var(--primary))] text-xs font-semibold">
+            <span className="text-mini font-semibold text-primary">
               {activeCategoryObj.description_ar}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="scrollbar-none flex items-center gap-2 overflow-x-auto pb-2">
           {DICTIONARY_CATEGORIES.map((cat) => {
             const isActive = selectedCategory === cat.id;
             return (
@@ -115,10 +131,10 @@ export const DictionarySearchFilters: React.FC = () => {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-motion flex-shrink-0 border ${
+                className={`flex-shrink-0 rounded-md border px-3.5 py-2 text-mini font-bold transition-motion ${
                   isActive
-                    ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
-                    : 'bg-card text-foreground border-[hsl(var(--track))] hover:bg-secondary'
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-track bg-secondary/40 text-foreground hover:bg-secondary'
                 }`}
               >
                 {cat.label_ar}
@@ -129,112 +145,129 @@ export const DictionarySearchFilters: React.FC = () => {
       </div>
 
       {/* Sorting & Advanced Grammatical Filters Controls */}
-      <div className="p-3.5 rounded-2xl border border-[hsl(var(--track))] bg-card space-y-3 text-xs">
+      <div className="space-y-3 rounded-lg border border-track bg-secondary/40 p-3.5 text-mini">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Sorting Control */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-foreground font-bold">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
+            <div className="flex items-center gap-1.5 font-bold text-foreground">
+              <ArrowUpDown className="h-3.5 w-3.5 text-primary" aria-hidden />
               <span>طريقة الفرز:</span>
             </div>
-            <select
+            <Select
               value={selectedSort}
-              onChange={(e) => setSelectedSort(e.target.value as DictionarySortOption)}
-              className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-bold focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]"
+              onValueChange={(value) => setSelectedSort(value as DictionarySortOption)}
             >
-              {Object.entries(DictionarySortOptionLabels).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-fit min-w-32" aria-label="طريقة الفرز">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(DictionarySortOptionLabels).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Reset Filters */}
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-secondary hover:bg-secondary text-foreground font-bold transition-colors flex items-center gap-1.5"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
+          <Button variant="secondary" size="sm" className="gap-1.5" onClick={resetFilters}>
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden />
             إعادة الضبط
-          </button>
+          </Button>
         </div>
 
         {/* Filter Dropdowns Grid */}
-        <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-[hsl(var(--track))]">
-          <div className="flex items-center gap-1.5 text-muted-foreground font-medium me-1">
-            <Filter className="w-3 h-3 text-[hsl(var(--primary))]" />
+        <div className="flex flex-wrap items-center gap-2 border-t border-track pt-1">
+          <div className="me-1 flex items-center gap-1.5 font-medium text-muted-foreground">
+            <Filter className="h-3 w-3 text-primary" aria-hidden />
             <span>فلترة نحوية:</span>
           </div>
 
           {/* CEFR Level Select */}
-          <select
+          <Select
             value={selectedCEFR}
-            onChange={(e) => setSelectedCEFR(e.target.value as CEFRLevel | 'all')}
-            className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-medium focus:outline-none"
+            onValueChange={(value) => setSelectedCEFR(value as CEFRLevel | 'all')}
           >
-            <option value="all">كل المستويات المعيارية (A1 - C2)</option>
-            <option value="A1">A1 — مبتدئ</option>
-            <option value="A2">A2 — أساسي</option>
-            <option value="B1">B1 — متوسط</option>
-            <option value="B2">B2 — فوق المتوسط</option>
-            <option value="C1">C1 — متقدم</option>
-            <option value="C2">C2 — طليق/متقن</option>
-          </select>
+            <SelectTrigger className="w-fit" aria-label="المستوى المعياري">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل المستويات المعيارية (A1 - C2)</SelectItem>
+              <SelectItem value="A1">A1 — مبتدئ</SelectItem>
+              <SelectItem value="A2">A2 — أساسي</SelectItem>
+              <SelectItem value="B1">B1 — متوسط</SelectItem>
+              <SelectItem value="B2">B2 — فوق المتوسط</SelectItem>
+              <SelectItem value="C1">C1 — متقدم</SelectItem>
+              <SelectItem value="C2">C2 — طليق/متقن</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Word Type Select */}
-          <select
+          <Select
             value={selectedWordType}
-            onChange={(e) => setSelectedWordType(e.target.value as DictionaryWordType | 'all')}
-            className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-medium focus:outline-none"
+            onValueChange={(value) => setSelectedWordType(value as DictionaryWordType | 'all')}
           >
-            <option value="all">كل أقسام الكلام</option>
-            <option value="noun">اسم (Nomen)</option>
-            <option value="verb">فعل (Verb)</option>
-            <option value="adjective">صفة (Adjektiv)</option>
-            <option value="adverb">ظرف (Adverb)</option>
-            <option value="preposition">حرف جر (Präposition)</option>
-            <option value="conjunction">حرف عطف (Konjunktion)</option>
-            <option value="pronoun">ضمير (Pronomen)</option>
-            <option value="expression">تعبير (Ausdruck)</option>
-            <option value="idiom">مصطلح (Redewendung)</option>
-          </select>
+            <SelectTrigger className="w-fit" aria-label="قسم الكلام">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل أقسام الكلام</SelectItem>
+              <SelectItem value="noun">اسم (Nomen)</SelectItem>
+              <SelectItem value="verb">فعل (Verb)</SelectItem>
+              <SelectItem value="adjective">صفة (Adjektiv)</SelectItem>
+              <SelectItem value="adverb">ظرف (Adverb)</SelectItem>
+              <SelectItem value="preposition">حرف جر (Präposition)</SelectItem>
+              <SelectItem value="conjunction">حرف عطف (Konjunktion)</SelectItem>
+              <SelectItem value="pronoun">ضمير (Pronomen)</SelectItem>
+              <SelectItem value="expression">تعبير (Ausdruck)</SelectItem>
+              <SelectItem value="idiom">مصطلح (Redewendung)</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Gender Select */}
-          <select
+          <Select
             value={selectedGender}
-            onChange={(e) => setSelectedGender(e.target.value as GermanGender | 'all')}
-            className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-medium focus:outline-none"
+            onValueChange={(value) => setSelectedGender(value as GermanGender | 'all')}
           >
-            <option value="all">كل الأجناس اللغوية</option>
-            <option value="der">Der (مذكر)</option>
-            <option value="die">Die (مؤنث)</option>
-            <option value="das">Das (محايد)</option>
-            <option value="plural">Plural (جمع)</option>
-          </select>
+            <SelectTrigger className="w-fit" aria-label="الجنس اللغوي">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الأجناس اللغوية</SelectItem>
+              <SelectItem value="der">Der (مذكر)</SelectItem>
+              <SelectItem value="die">Die (مؤنث)</SelectItem>
+              <SelectItem value="das">Das (محايد)</SelectItem>
+              <SelectItem value="plural">Plural (جمع)</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Preposition Case Select */}
-          <select
+          <Select
             value={selectedCase}
-            onChange={(e) => setSelectedCase(e.target.value as GrammaticalCase | 'all')}
-            className="px-2.5 py-1.5 rounded-xl border border-[hsl(var(--track))] bg-white text-foreground font-medium focus:outline-none"
+            onValueChange={(value) => setSelectedCase(value as GrammaticalCase | 'all')}
           >
-            <option value="all">كل حالات الإعراب (Fall)</option>
-            <option value="accusative">Akkusativ (منصوب)</option>
-            <option value="dative">Dativ (مجرور)</option>
-            <option value="genitive">Genitiv (مضاف إليه)</option>
-            <option value="two_way">Wechselpräposition (مزدوج)</option>
-          </select>
+            <SelectTrigger className="w-fit" aria-label="حالة الإعراب">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل حالات الإعراب (Fall)</SelectItem>
+              <SelectItem value="accusative">Akkusativ (منصوب)</SelectItem>
+              <SelectItem value="dative">Dativ (مجرور)</SelectItem>
+              <SelectItem value="genitive">Genitiv (مضاف إليه)</SelectItem>
+              <SelectItem value="two_way">Wechselpräposition (مزدوج)</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Separable Verb Toggle */}
           <button
             type="button"
             onClick={() => setOnlySeparableVerbs(!onlySeparableVerbs)}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-motion border ${
+            aria-pressed={onlySeparableVerbs}
+            className={`rounded-md border px-3 py-1.5 font-bold transition-motion ${
               onlySeparableVerbs
-                ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
-                : 'bg-white text-foreground border-[hsl(var(--track))] hover:bg-secondary'
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-track bg-secondary/40 text-foreground hover:bg-secondary'
             }`}
           >
             أفعال منفصلة فقط (Trennbare Verben)

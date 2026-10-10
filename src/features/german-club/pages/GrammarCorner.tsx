@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { AppCard, PageShell } from '@/components/ui/app-shell';
 import { BookOpen, Sparkles } from '@/lib/icons';
 
-import { GERMAN_CLUB_TOKENS } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
 
 export const GrammarCorner: React.FC = () => {
@@ -16,73 +15,50 @@ export const GrammarCorner: React.FC = () => {
   }, [fetchGrammarNotes]);
 
   return (
-    <PageShell centered={false} flush>
+    <PageShell centered={false} flush className="px-4 pt-4 sm:pt-6">
       <SEO
         title="زاوية القواعد — النادي الألماني"
         description="قواعد وتوضيحات نحوية مبسطة وموضوعية مع الأمثلة التفاعلية."
         path="/german-club/grammar"
       />
 
-      <div
-        className="min-h-screen pb-20 transition-colors"
-        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
-      >
-        {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <div>
-              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
-                زاوية القواعد (Grammar Corner)
-              </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
-                GRAMMATIK — DER CLUB
-              </span>
-            </div>
-          </div>
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
+        {/* App Bar */}
+        <PageHeader
+          title="زاوية القواعد (Grammar Corner)"
+          subtitle={<span className="font-mono">GRAMMATIK — DER CLUB</span>}
+          right={
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-mini font-bold text-primary">
+              <BookOpen className="h-3.5 w-3.5" aria-hidden />
+              <span>نحو سياقي</span>
+            </span>
+          }
+        />
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] text-xs font-bold">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>نحو سياقي</span>
-          </div>
-        </div>
+        <section className="space-y-1">
+          <h2 className="type-title text-foreground">قواعد عملية ومصممة للواقع</h2>
+          <p className="text-mini leading-relaxed text-muted-foreground">
+            توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوطة بالأمثلة العملية.
+          </p>
+        </section>
 
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-xl font-extrabold text-[hsl(var(--foreground))]">
-              قواعد عملية ومصممة للواقع
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوطة بالأمثلة العملية.
-            </p>
+        {isLoadingGrammar ? (
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-44 animate-pulse rounded-lg bg-secondary" />
+            ))}
           </div>
-
-          {isLoadingGrammar ? (
-            <div className="space-y-4">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-44 rounded-2xl bg-secondary animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {grammarNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className="rounded-2xl border p-6 space-y-3 transition-motion"
-                  style={{
-                    backgroundColor: GERMAN_CLUB_TOKENS.paper,
-                    borderColor: 'hsl(var(--track))',
-                    boxShadow: '0 4px 16px -4px rgba(23, 24, 28, 0.04)',
-                  }}
-                >
-                  <div className="flex items-start justify-between gap-3 border-b border-[hsl(var(--track))] pb-3">
+        ) : (
+          <div className="space-y-4">
+            {grammarNotes.map((note) => (
+              <AppCard key={note.id} as="section">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3 border-b border-track pb-3">
                     <div>
-                      <h3 className="text-lg font-bold text-[hsl(var(--foreground))]">
-                        {note.title_ar}
-                      </h3>
+                      <h3 className="text-title font-bold text-foreground">{note.title_ar}</h3>
                       {note.title_de && (
                         <span
-                          className="text-xs font-mono text-[hsl(var(--primary))] font-semibold"
+                          className="font-mono text-mini font-semibold text-primary"
                           dir="ltr"
                           style={{ unicodeBidi: 'isolate' }}
                         >
@@ -91,26 +67,26 @@ export const GrammarCorner: React.FC = () => {
                       )}
                     </div>
 
-                    <span className="text-[0.6875rem] font-bold px-2.5 py-0.5 rounded bg-secondary text-foreground">
+                    <span className="rounded bg-secondary px-2.5 py-0.5 text-micro font-bold text-foreground">
                       مستوى {note.difficulty_level}
                     </span>
                   </div>
 
-                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-line font-normal">
+                  <div className="whitespace-pre-line text-body font-normal leading-relaxed text-foreground">
                     {note.body_md}
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-[hsl(var(--primary))] font-medium">
-                      <Sparkles className="w-3.5 h-3.5 text-signal" />
+                  <div className="flex items-center justify-between pt-2 text-mini text-muted-foreground">
+                    <span className="flex items-center gap-1 font-medium text-primary">
+                      <Sparkles className="h-3.5 w-3.5 text-signal" aria-hidden />
                       مرتبطة برفوف المواقف اليومية
                     </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </AppCard>
+            ))}
+          </div>
+        )}
       </div>
     </PageShell>
   );

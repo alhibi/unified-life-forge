@@ -54,7 +54,7 @@ function MetricTile({
     <div
       className={cn(
         'flex flex-col gap-1 rounded-xl px-3 py-2.5',
-        'bg-background/40 backdrop-blur-sm border border-foreground/8',
+        'bg-background/40 border border-foreground/8',
         align === 'center' && 'items-center text-center',
         align === 'end' && 'items-end text-end',
         align === 'start' && 'items-start text-start',
@@ -118,10 +118,8 @@ function PrimaryTemperature({ celsius }: { celsius: number }) {
 
 function AtmosphericIcon({
   Icon,
-  isDay,
 }: {
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  isDay: boolean;
 }) {
   return (
     <motion.div
@@ -130,14 +128,6 @@ function AtmosphericIcon({
       transition={{ duration: duration.reveal, ease: easing.expo }}
       className="relative w-24 h-24 sm:w-28 sm:h-28 grid place-items-center"
     >
-      {/* Outer glow ring */}
-      <span
-        aria-hidden
-        className={cn(
-          'absolute inset-2 rounded-full blur-2xl',
-          isDay ? 'bg-primary/15' : 'bg-foreground/8',
-        )}
-      />
       {/* Halo circle */}
       <span
         aria-hidden
@@ -153,7 +143,7 @@ function AtmosphericIcon({
   );
 }
 
-/** Confidence meter with a gradient fill that sweeps in. */
+/** Confidence meter with a fill that sweeps in. */
 function ConfidenceMeter({ value }: { value: number }) {
   return (
     <div>
@@ -166,7 +156,7 @@ function ConfidenceMeter({ value }: { value: number }) {
       </div>
       <div className="h-1 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">
         <motion.div
-          className="h-full origin-left rounded-full bg-gradient-to-r from-primary/70 via-primary to-primary"
+          className="h-full origin-left rounded-full bg-primary"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: Math.max(0, Math.min(1, value / 100)) }}
           transition={{ duration: duration.reveal * 2.5, ease: easing.decelerate }}
@@ -205,12 +195,6 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
         solarElevationDeg={snapshot.solar.solar_elevation_deg}
       />
 
-      {/* Top accent gradient — sits above the scene. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent z-10"
-      />
-
       <div className="relative z-10 flex min-h-[30rem] flex-col px-5 py-6 sm:px-8 sm:py-8">
         <div className="mb-8 flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -219,7 +203,7 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
               {locationName}
             </h2>
           </div>
-          <div className="shrink-0 rounded-md border border-foreground/10 bg-background/25 px-3 py-2 text-end backdrop-blur-md">
+          <div className="shrink-0 rounded-md border border-foreground/10 bg-background/25 px-3 py-2 text-end">
             <p className="text-mini text-foreground/55">{'آخر قراءة'}</p>
             <p className="mt-0.5 text-mini font-semibold text-foreground tabular-nums" dir="ltr">
               {new Date(snapshot.meta.last_updated_unix).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })}
@@ -234,7 +218,7 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
         {/* PRIMARY tier — temperature + icon */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-3 sm:gap-8">
           <PrimaryTemperature celsius={snapshot.temperature.actual_c} />
-          <AtmosphericIcon Icon={Icon} isDay={isDay} />
+          <AtmosphericIcon Icon={Icon} />
         </div>
 
         {/* SECONDARY tier — apparent, range, spread */}

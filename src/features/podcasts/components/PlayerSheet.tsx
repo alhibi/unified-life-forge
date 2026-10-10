@@ -6,18 +6,16 @@
 // transport, and a row of secondary controls (speed, sleep timer,
 // auto-play, share, close).
 //
-// Visual design notes:
-//   • The sheet is layered over an ambient backdrop that blurs the
-//     active episode's cover art and tints it with the podcast's seed
-//     color. Two slow-drifting gradient blobs add depth without
-//     stealing focus from the controls.
-//   • The artwork itself sits inside a card that breathes (scale +
-//     pulsing rim glow) when audio is playing and visibly compresses
-//     when paused — a familiar Apple Music / Spotify cue.
-//   • Transport row uses a large gradient play button with a halo
-//     that breathes in sync with playback; the skip buttons embed
-//     their "15s" labels inside the rotation arrows so the meaning is
-//     clear at a glance.
+// Visual design notes (unified design-system pass):
+//   • The sheet sits on the canonical `card` surface. The old ambient
+//     cover backdrop (blurred artwork + tint blobs + veil) was removed:
+//     decorative blur and gradients are not allowed in UI chrome.
+//   • The episode cover itself is content and stays; the accent color
+//     extracted from it (`--podcast-primary`, set by DynamicPodcastTheme)
+//     still tints transport and popovers.
+//   • The artwork card compresses when paused; the transport keeps its
+//     large play control and the skip buttons embed their "15s" labels
+//     inside the rotation arrows.
 //   • Every animation respects `prefers-reduced-motion` (handled in
 //     `index.css`).
 
@@ -26,6 +24,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { IconButton } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import {
   usePodcastPlayer,
   usePodcastPlayerProgress,
@@ -133,7 +133,7 @@ function PlayerSheetSeek({
           />
         </div>
         <div
-          className="absolute size-3.5 -translate-x-1/2 rounded-full bg-primary shadow-[0_2px_8px_hsl(var(--background)/0.6)] ring-2 ring-background pointer-events-none"
+          className="absolute size-3.5 -translate-x-1/2 rounded-full bg-primary ring-2 ring-background pointer-events-none"
           style={{ left: `${playedPct}%` }}
         />
         <input
@@ -345,58 +345,10 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
               }}
             >
-              {/* ── Ambient backdrop ───────────────────────────────────
-                A heavily blurred copy of the cover art fills the back
-                of the sheet, tinted by two slow-drifting gradient
-                blobs in the podcast's seed color and finally hazed
-                with a card-toned veil so the foreground controls keep
-                their contrast. */}
-              <div
-                className="absolute inset-0 -z-base overflow-hidden pointer-events-none"
-                aria-hidden="true"
-              >
-                <img
-                  src={episodeArtwork}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{
-                    filter: 'blur(48px) saturate(1.4)',
-                    transform: 'scale(1.25)',
-                    opacity: 0.55,
-                  }}
-                />
-                {/* Drifting tint blobs — they pick up the seed color so
-                  the backdrop reads as "this podcast" rather than a
-                  generic out-of-focus image. */}
-                <span
-                  className="podcast-blob podcast-blob-a"
-                  style={{
-                    width: '60%',
-                    height: '60%',
-                    top: '-10%',
-                    left: '-10%',
-                    background: 'var(--podcast-primary, hsl(var(--primary)))',
-                  }}
-                />
-                <span
-                  className="podcast-blob podcast-blob-b"
-                  style={{
-                    width: '55%',
-                    height: '55%',
-                    bottom: '-15%',
-                    right: '-15%',
-                    background: 'var(--podcast-primary, hsl(var(--primary)))',
-                    opacity: 0.4,
-                  }}
-                />
-                {/* Solid luxury card veil instead of glass effect. */}
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundColor: 'hsl(var(--card) / 0.96)',
-                  }}
-                />
-              </div>
+              {/* Ambient cover backdrop (blurred artwork + tint blobs +
+                  veil) was removed in the unified design-system pass —
+                  decorative blur and gradient chrome are not allowed.
+                  The episode cover itself stays in the artwork hero. */}
 
               {/* All foreground content sits in a flex column above the
                 backdrop. `relative` lifts it onto the next stacking
@@ -404,29 +356,24 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
               <div className="relative flex flex-col flex-1 min-h-0 overflow-y-auto">
                 {/* Drag handle / header */}
                 <div className="flex items-center justify-between px-4 pt-3 pb-1">
-                  <button
-                    onClick={onClose}
-                    className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
-                    aria-label={'إغلاق'}
-                  >
-                    <ChevronDown className="w-5 h-5" />
-                  </button>
+                  <IconButton onClick={onClose} aria-label={'إغلاق'}>
+                    <ChevronDown className="h-5 w-5" />
+                  </IconButton>
                   <div className="flex items-center gap-2">
                     <EqIndicator playing={isActive} />
                     <span className="text-micro uppercase tracking-[0.14em] text-muted-foreground font-semibold">
                       {'يُشغَّل الآن'}
                     </span>
                   </div>
-                  <button
+                  <IconButton
                     onClick={() => {
                       player.close();
                       onClose();
                     }}
-                    className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-foreground/10 transition-colors"
                     aria-label={'إغلاق المشغل'}
                   >
-                    <X className="w-5 h-5" />
-                  </button>
+                    <X className="h-5 w-5" />
+                  </IconButton>
                 </div>
 
                 {/* ── Artwork ───────────────────────────────────────────
@@ -443,14 +390,6 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                     }`}
                   >
                     <img src={episodeArtwork} alt="" className="w-full h-full object-cover" />
-                    {/* Inner highlight — a 1px translucent border traces
-                      the cover's rounded corners so the artwork looks
-                      lit even on dark themes. */}
-                    <span
-                      className="absolute inset-0 rounded-3xl pointer-events-none"
-                      style={{}}
-                      aria-hidden="true"
-                    />
                   </motion.div>
                 </div>
 
@@ -570,13 +509,15 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 {player.error ? (
                   <div className="mx-6 mt-3 flex items-center justify-between gap-3 rounded-2xl border border-destructive/40 bg-destructive/10 px-3 py-2">
                     <span className="text-mini font-medium text-foreground/90">{player.error}</span>
-                    <button
+                    <Button
                       type="button"
+                      size="sm"
+                      variant="secondary"
                       onClick={() => player.retry()}
-                      className="shrink-0 h-8 px-3 rounded-full text-mini font-semibold bg-foreground/10 hover:bg-foreground/15 transition-colors"
+                      className="shrink-0"
                     >
                       إعادة المحاولة
-                    </button>
+                    </Button>
                   </div>
                 ) : player.isBuffering ? (
                   <div className="mx-6 mt-3 flex items-center justify-center gap-2 text-mini text-muted-foreground font-medium">
@@ -596,7 +537,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                 <div className="flex items-center justify-center gap-6 px-6 mt-5" dir="ltr">
                   <button
                     onClick={() => player.skip(-SKIP)}
-                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-motion"
+                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-motion"
                     aria-label={`-${SKIP}s`}
                   >
                     <RotateCcw className="w-9 h-9" strokeWidth={1.5} />
@@ -622,7 +563,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
 
                   <button
                     onClick={() => player.skip(SKIP)}
-                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center active:scale-95 transition-motion"
+                    className="relative w-14 h-14 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-motion"
                     aria-label={`+${SKIP}s`}
                   >
                     <RotateCw className="w-9 h-9" strokeWidth={1.5} />
@@ -765,7 +706,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-raised shadow-lg"
+                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-raised"
                         style={{
                           background: 'hsl(var(--card))',
                         }}
@@ -812,7 +753,7 @@ export default function PlayerSheet({ open, onClose }: PlayerSheetProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-raised shadow-lg"
+                        className="absolute bottom-full mb-2 start-4 end-4 mx-auto max-w-xs rounded-2xl border border-border p-2 z-raised"
                         style={{
                           background: 'hsl(var(--card))',
                         }}

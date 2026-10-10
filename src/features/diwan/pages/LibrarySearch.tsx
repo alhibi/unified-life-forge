@@ -1,9 +1,13 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppCard, AppList, AppRow, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EraPills from '@/features/diwan/components/library/EraPills';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import PoemCard from '@/features/diwan/components/library/PoemCard';
@@ -15,27 +19,46 @@ import {
   useDiwanSearchVerses,
 } from '@/features/diwan/lib/hooks';
 import type { DiwanPoemSearchResult, DiwanVerseSearchResult } from '@/features/diwan/lib/types';
-import { ChevronDown,Filter, History, Quote, ScrollText, Search, X } from '@/lib/icons';
+import { ChevronDown, Filter, History, Quote, ScrollText, Search, X } from '@/lib/icons';
 
 type Mode = 'poems' | 'verses';
 
 const PAGE = 30;
 
+/** دمج صفحات الاستعلام في قائمة واحدة، مع منع التكرار (نفس دلالة الدمج اليدوي السابق). */
+function flattenPages<T>(pages: T[][] | undefined, keyOf: (item: T) => string): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const page of pages ?? []) {
+    for (const item of page) {
+      const key = keyOf(item);
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(item);
+      }
+    }
+  }
+  return out;
+}
+
 /**
- * البحث المتقدم في المكتبة — وضعان:
+ * البحث المتقدّم في المكتبة — وضعان:
  *   - قصائد: q + era + meter + rhyme + kind
  *   - أبيات: q + era (للبحث عن بيت سمعته)
+ *
+ * التبديل بين الوضعين صار <Tabs> القياسي، والنتائج قائمة <AppList>
+ * واحدة لكل وضع، والحالات الفارغة <StateView>. التراكم عبر الصفحات
+ * من useInfiniteQuery بلا حالة تجميع محلية.
  */
 export default function LibrarySearchPage() {
   const [params, setParams] = useSearchParams();
 
-  const [mode, setMode]   = useState<Mode>((params.get('mode') as Mode) ?? 'poems');
-  const [q, setQ]         = useState<string>(params.get('q') ?? '');
-  const [era, setEra]     = useState<string | null>(params.get('era'));
+  const [mode, setMode] = useState<Mode>((params.get('mode') as Mode) ?? 'poems');
+  const [q, setQ] = useState<string>(params.get('q') ?? '');
+  const [era, setEra] = useState<string | null>(params.get('era'));
   const [meter, setMeter] = useState<string | null>(params.get('meter'));
   const [rhyme, setRhyme] = useState<string | null>(params.get('rhyme'));
-  const [kind, setKind]   = useState<string | null>(params.get('kind'));
-  const [page, setPage]   = useState(0);
+  const [kind, setKind] = useState<string | null>(params.get('kind'));
   const [showFilters, setShowFilters] = useState(false);
 
   const eras = useDiwanEras();
@@ -43,15 +66,23 @@ export default function LibrarySearchPage() {
   // ─── سجل البحث المحلي (آخر 8) ──────────────────────────────────────
   const HIST_KEY = 'diwan:search:history';
   const [history, setHistory] = React.useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]'); } catch { return []; }
+    try {
+      return JSON.parse(localStorage.getItem(HIST_KEY) ?? '[]');
+    } catch {
+      return [];
+    }
   });
   React.useEffect(() => {
     const term = q.trim();
     if (!term || term.length < 2) return;
     const t = setTimeout(() => {
-      setHistory(prev => {
-        const next = [term, ...prev.filter(x => x !== term)].slice(0, 8);
-        try { localStorage.setItem(HIST_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      setHistory((prev) => {
+        const next = [term, ...prev.filter((x) => x !== term)].slice(0, 8);
+        try {
+          localStorage.setItem(HIST_KEY, JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
         return next;
       });
     }, 1500);
@@ -59,82 +90,62 @@ export default function LibrarySearchPage() {
   }, [q]);
   const clearHistory = () => {
     setHistory([]);
-    try { localStorage.removeItem(HIST_KEY); } catch { /* ignore */ }
+    try {
+      localStorage.removeItem(HIST_KEY);
+    } catch {
+      /* ignore */
+    }
   };
 
-  // sync URL with state (تصفير الصفحة يتم في effect منفصل أعلاه)
+  // sync URL with state
   React.useEffect(() => {
     const next = new URLSearchParams();
     if (mode !== 'poems') next.set('mode', mode);
-    if (q)     next.set('q', q);
-    if (era)   next.set('era', era);
+    if (q) next.set('q', q);
+    if (era) next.set('era', era);
     if (meter) next.set('meter', meter);
     if (rhyme) next.set('rhyme', rhyme);
-    if (kind)  next.set('kind', kind);
+    if (kind) next.set('kind', kind);
     setParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, q, era, meter, rhyme, kind]);
 
   const poemsQuery = useDiwanSearchPoems({
-    q: q || null, era, meter, rhyme, kind, page, pageSize: PAGE,
+    q: q || null,
+    era,
+    meter,
+    rhyme,
+    kind,
+    pageSize: PAGE,
   });
   const versesQuery = useDiwanSearchVerses({
-    q: q ?? '', era, page, pageSize: PAGE,
+    q: q ?? '',
+    era,
+    pageSize: PAGE,
   });
 
-  // قوائم مُجمَّعة عبر الصفحات (نفس نمط LibraryPoets) — قبل هذا الإصلاح
-  // كانت "تحميل المزيد" تستبدل الصفحة الحالية فيرى المستخدم 30 نتيجة
-  // كحدّ أقصى رغم وجود المزيد.
-  const [poemItems,  setPoemItems]  = useState<DiwanPoemSearchResult[]>([]);
-  const [verseItems, setVerseItems] = useState<DiwanVerseSearchResult[]>([]);
-  const [reachedEndPoems,  setReachedEndPoems]  = useState(false);
-  const [reachedEndVerses, setReachedEndVerses] = useState(false);
+  // قوائم مُجمَّعة عبر الصفحات (نفس نمط LibraryPoets)
+  const poems = useMemo(
+    () => flattenPages<DiwanPoemSearchResult>(poemsQuery.data?.pages, (p) => p.slug),
+    [poemsQuery.data],
+  );
+  const verses = useMemo(
+    () =>
+      flattenPages<DiwanVerseSearchResult>(
+        versesQuery.data?.pages,
+        (v) => `${v.poem_slug}-${v.position}`,
+      ),
+    [versesQuery.data],
+  );
 
-  // إعادة تعيين عند تبدّل أيّ مدخل بحث
-  React.useEffect(() => {
-    setPage(0);
-    setPoemItems([]);
-    setVerseItems([]);
-    setReachedEndPoems(false);
-    setReachedEndVerses(false);
-  }, [mode, q, era, meter, rhyme, kind]);
-
-  // دمج صفحة poems الجديدة مع المُجمَّع
-  React.useEffect(() => {
-    if (mode !== 'poems') return;
-    const data = poemsQuery.data;
-    if (!data) return;
-    setPoemItems(prev => {
-      if (page === 0) return data;
-      const seen = new Set(prev.map(p => p.slug));
-      const merged = [...prev];
-      for (const p of data) if (!seen.has(p.slug)) merged.push(p);
-      return merged;
-    });
-    if (data.length < PAGE) setReachedEndPoems(true);
-  }, [poemsQuery.data, page, mode]);
-
-  // دمج صفحة verses الجديدة مع المُجمَّع
-  React.useEffect(() => {
-    if (mode !== 'verses') return;
-    const data = versesQuery.data;
-    if (!data) return;
-    setVerseItems(prev => {
-      if (page === 0) return data;
-      const seenKey = (v: DiwanVerseSearchResult) => `${v.poem_slug}-${v.position}`;
-      const seen = new Set(prev.map(seenKey));
-      const merged = [...prev];
-      for (const v of data) if (!seen.has(seenKey(v))) merged.push(v);
-      return merged;
-    });
-    if (data.length < PAGE) setReachedEndVerses(true);
-  }, [versesQuery.data, page, mode]);
-
-  const poems  = poemItems;
-  const verses = verseItems;
   const isFetching = mode === 'poems' ? poemsQuery.isFetching : versesQuery.isFetching;
-  const reachedEnd = mode === 'poems' ? reachedEndPoems : reachedEndVerses;
-  const hasMore = !reachedEnd && (mode === 'poems' ? poems.length > 0 : verses.length > 0);
+  const isLoading = mode === 'poems' ? poemsQuery.isLoading : versesQuery.isLoading;
+  const hasMore =
+    mode === 'poems'
+      ? poemsQuery.hasNextPage === true && poems.length > 0
+      : versesQuery.hasNextPage === true && verses.length > 0;
+  const poemsPage = Math.max(0, (poemsQuery.data?.pages.length ?? 1) - 1);
+  const versesPage = Math.max(0, (versesQuery.data?.pages.length ?? 1) - 1);
 
   const activeFilters = useMemo(() => {
     const f = [era, meter, rhyme, kind].filter(Boolean);
@@ -142,39 +153,46 @@ export default function LibrarySearchPage() {
   }, [era, meter, rhyme, kind]);
 
   const resetFilters = () => {
-    setEra(null); setMeter(null); setRhyme(null); setKind(null);
+    setEra(null);
+    setMeter(null);
+    setRhyme(null);
+    setKind(null);
   };
 
   return (
-    <div className="min-h-screen bg-background pb-page px-5 pt-14">
+    <PageShell>
       <SEO
         title="البحث المتقدّم — المكتبة الكبرى"
         description="ابحث في ملايين الأبيات وعشرات الآلاف من القصائد بمعايير مرنة."
         path="/diwan/library/search"
       />
-      <div className="max-w-lg mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <BackButton fallback="/mihrab" />
-          <div className="flex-1">
-            <h1 className="text-title font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Search className="w-5 h-5 text-primary" />
-              البحث المتقدّم
-            </h1>
-            <div className="mt-0.5">
-              <FallbackBadge />
-            </div>
-          </div>
-        </div>
 
+      <PageHeader
+        title="البحث المتقدّم"
+        icon={<Search className="h-5 w-5 text-primary" aria-hidden />}
+        right={<FallbackBadge />}
+        backFallback="/mihrab"
+      />
+
+      <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
         {/* Mode switcher */}
-        <div className="flex items-center gap-2 mb-3 p-1 rounded-xl bg-muted/40 border border-border/30">
-          <ModeBtn active={mode === 'poems'}  onClick={() => setMode('poems')}  icon={<ScrollText className="w-3.5 h-3.5" />} label="قصائد" />
-          <ModeBtn active={mode === 'verses'} onClick={() => setMode('verses')} icon={<Quote       className="w-3.5 h-3.5" />} label="أبيات" />
-        </div>
+        <TabsList>
+          <TabsTrigger value="poems">
+            <span className="flex items-center gap-2">
+              <ScrollText className="h-3.5 w-3.5" aria-hidden />
+              قصائد
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="verses">
+            <span className="flex items-center gap-2">
+              <Quote className="h-3.5 w-3.5" aria-hidden />
+              أبيات
+            </span>
+          </TabsTrigger>
+        </TabsList>
 
         {/* Search */}
-        <div className="mb-3">
+        <div className="mt-3">
           <SearchBar
             value={q}
             placeholder={mode === 'poems' ? 'ابحث في القصائد…' : 'ابحث عن بيت سمعته…'}
@@ -184,52 +202,48 @@ export default function LibrarySearchPage() {
         </div>
 
         {/* Filters bar */}
-        <div className="flex items-center gap-2 mb-3">
-          <button
-            onClick={() => setShowFilters(s => !s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-mini font-semibold transition ${
-              showFilters || activeFilters > 0
-                ? 'bg-primary/15 text-primary border border-primary/30'
-                : 'bg-muted/50 text-muted-foreground border border-transparent'
-            }`}
+        <div className="mt-3 flex items-center gap-2">
+          <Button
+            variant={showFilters || activeFilters > 0 ? 'default' : 'secondary'}
+            size="sm"
+            aria-expanded={showFilters}
+            onClick={() => setShowFilters((s) => !s)}
           >
-            <Filter className="w-3.5 h-3.5" />
+            <Filter className="h-3.5 w-3.5" aria-hidden />
             فلاتر
             {activeFilters > 0 && (
-              <span className="bg-primary text-background text-micro font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="rounded-full bg-current/20 px-1.5 text-micro font-bold tabular-nums">
                 {activeFilters}
               </span>
             )}
-          </button>
+          </Button>
           {activeFilters > 0 && (
-            <button
-              onClick={resetFilters}
-              className="flex items-center gap-1 text-micro text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-3 h-3" />
+            <Button variant="ghost" size="sm" onClick={resetFilters}>
+              <X className="h-3 w-3" aria-hidden />
               إعادة ضبط
-            </button>
+            </Button>
           )}
         </div>
 
         {/* Era pills always visible (most-used filter) */}
         {eras.data && (
-          <div className="mb-3">
+          <div className="mt-3">
             <EraPills eras={eras.data} selected={era} onSelect={setEra} />
           </div>
         )}
 
         {/* Recent searches */}
         {history.length > 0 && !q && (
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1.5">
+          <div className="mt-3">
+            <div className="mb-1.5 flex items-center justify-between">
               <p className="flex items-center gap-1 text-micro font-bold text-muted-foreground">
-                <History className="w-3 h-3" />
+                <History className="h-3 w-3" aria-hidden />
                 عمليات بحث سابقة
               </p>
               <button
+                type="button"
                 onClick={clearHistory}
-                className="text-micro text-muted-foreground hover:text-foreground"
+                className="text-micro text-muted-foreground transition-colors hover:text-foreground"
               >
                 مسح
               </button>
@@ -238,8 +252,9 @@ export default function LibrarySearchPage() {
               {history.map((h) => (
                 <button
                   key={h}
+                  type="button"
                   onClick={() => setQ(h)}
-                  className="px-2.5 py-1 rounded-full bg-muted/50 text-micro text-foreground hover:bg-muted transition"
+                  className="rounded-full bg-muted/60 px-2.5 py-1 text-micro text-foreground transition-colors hover:bg-interactive-hover"
                 >
                   {h}
                 </button>
@@ -258,11 +273,15 @@ export default function LibrarySearchPage() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="rounded-2xl bg-card border border-border/40 p-4 space-y-3 mb-4">
+              <AppCard flat className="mt-3 space-y-3 p-4">
                 <FilterRow label="البحر">
                   <div className="flex flex-wrap gap-1.5">
-                    {KNOWN_METERS.map(m => (
-                      <Chip key={m} active={meter === m} onClick={() => setMeter(meter === m ? null : m)}>
+                    {KNOWN_METERS.map((m) => (
+                      <Chip
+                        key={m}
+                        active={meter === m}
+                        onClick={() => setMeter(meter === m ? null : m)}
+                      >
                         {m}
                       </Chip>
                     ))}
@@ -270,8 +289,12 @@ export default function LibrarySearchPage() {
                 </FilterRow>
                 <FilterRow label="الغرض">
                   <div className="flex flex-wrap gap-1.5">
-                    {KNOWN_KINDS.map(k => (
-                      <Chip key={k} active={kind === k} onClick={() => setKind(kind === k ? null : k)}>
+                    {KNOWN_KINDS.map((k) => (
+                      <Chip
+                        key={k}
+                        active={kind === k}
+                        onClick={() => setKind(kind === k ? null : k)}
+                      >
                         {k}
                       </Chip>
                     ))}
@@ -279,14 +302,18 @@ export default function LibrarySearchPage() {
                 </FilterRow>
                 <FilterRow label="حرف الروي">
                   <div className="flex flex-wrap gap-1.5">
-                    {RHYME_LETTERS.map(r => (
-                      <Chip key={r} active={rhyme === r} onClick={() => setRhyme(rhyme === r ? null : r)}>
+                    {RHYME_LETTERS.map((r) => (
+                      <Chip
+                        key={r}
+                        active={rhyme === r}
+                        onClick={() => setRhyme(rhyme === r ? null : r)}
+                      >
                         <span style={{ fontFamily: 'var(--font-amiri)' }}>{r}</span>
                       </Chip>
                     ))}
                   </div>
                 </FilterRow>
-              </div>
+              </AppCard>
             </motion.div>
           )}
         </AnimatePresence>
@@ -294,79 +321,96 @@ export default function LibrarySearchPage() {
         {/* Results */}
         {!q && activeFilters === 0 ? (
           <EmptyHint mode={mode} />
-        ) : isFetching && page === 0 ? (
-          <div className="space-y-2.5">
-            {[0,1,2,3].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}
-          </div>
-        ) : mode === 'poems' ? (
-          poems.length === 0 ? (
-            <NoResults />
-          ) : (
-            <>
-              <ResultsCount total={poems.length} page={page} />
-              <div className="space-y-2.5">
-                {poems.map((p, i) => (
-                  <PoemCard key={p.slug} poem={p} showPoet index={i} />
-                ))}
-                {hasMore && <LoadMore loading={isFetching} onClick={() => setPage(p => p + 1)} />}
-              </div>
-            </>
-          )
         ) : (
-          verses.length === 0 ? (
-            <NoResults />
-          ) : (
-            <>
-              <ResultsCount total={verses.length} page={page} />
-              <div className="space-y-2">
-                {verses.map((v, i) => (
-                  <VerseRow key={`${v.poem_slug}-${v.position}`} verse={v} index={i} highlight={q} />
-                ))}
-                {hasMore && <LoadMore loading={isFetching} onClick={() => setPage(p => p + 1)} />}
-              </div>
-            </>
-          )
-        )}
+          <>
+            <TabsContent value="poems" className="mt-4">
+              {isLoading ? (
+                <div className="space-y-2.5">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="skeleton h-20 rounded-lg" />
+                  ))}
+                </div>
+              ) : poems.length === 0 ? (
+                <NoResults />
+              ) : (
+                <>
+                  <ResultsCount total={poems.length} page={poemsPage} />
+                  <AppList>
+                    {poems.map((p) => (
+                      <PoemCard key={p.slug} poem={p} showPoet />
+                    ))}
+                  </AppList>
+                  {hasMore && (
+                    <LoadMore
+                      loading={isFetching}
+                      onClick={() => void poemsQuery.fetchNextPage()}
+                    />
+                  )}
+                </>
+              )}
+            </TabsContent>
 
-      </div>
-    </div>
+            <TabsContent value="verses" className="mt-4">
+              {isLoading ? (
+                <div className="space-y-2.5">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className="skeleton h-20 rounded-lg" />
+                  ))}
+                </div>
+              ) : verses.length === 0 ? (
+                <NoResults />
+              ) : (
+                <>
+                  <ResultsCount total={verses.length} page={versesPage} />
+                  <AppList>
+                    {verses.map((v) => (
+                      <VerseRow key={`${v.poem_slug}-${v.position}`} verse={v} highlight={q} />
+                    ))}
+                  </AppList>
+                  {hasMore && (
+                    <LoadMore
+                      loading={isFetching}
+                      onClick={() => void versesQuery.fetchNextPage()}
+                    />
+                  )}
+                </>
+              )}
+            </TabsContent>
+          </>
+        )}
+      </Tabs>
+    </PageShell>
   );
 }
 
 // ─── Sub-components ────────────────────────────────────────────────────
-function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-mini font-semibold transition-motion ${
- active
- ? 'bg-card text-foreground border border-border/30'
- : 'text-muted-foreground hover:text-foreground'
- }`}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
-
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-micro font-bold text-muted-foreground mb-1.5">{label}</p>
+      <p className="mb-1.5 text-micro font-bold text-muted-foreground">{label}</p>
       {children}
     </div>
   );
 }
 
-function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-md text-micro font-medium transition ${
+      className={`rounded-md px-2.5 py-1 text-micro font-medium transition-colors ${
         active
-          ? 'bg-primary text-background'
-          : 'bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted'
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-muted/60 text-muted-foreground hover:bg-interactive-hover hover:text-foreground'
       }`}
     >
       {children}
@@ -376,35 +420,34 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
 
 function EmptyHint({ mode }: { mode: Mode }) {
   return (
-    <div className="text-center py-12">
-      <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-        {mode === 'poems'
-          ? <ScrollText className="w-6 h-6 text-primary" />
-          : <Quote className="w-6 h-6 text-primary" />}
-      </div>
-      <p className="text-meta font-semibold text-foreground">
-        {mode === 'poems' ? 'ابدأ البحث في القصائد' : 'ابحث عن بيت سمعته'}
-      </p>
-      <p className="text-micro text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
-        {mode === 'poems'
-          ? 'أدخل كلمة أو موضوعًا، أو استخدم الفلاتر لتصفية القصائد بالعصر والبحر والقافية.'
-          : 'اكتب أيّ جزء من البيت، يبحث في ملايين الأبيات ويُظهر القصيدة وصاحبها.'}
-      </p>
+    <div className="mt-4">
+      <StateView
+        kind="empty"
+        title={mode === 'poems' ? 'ابدأ البحث في القصائد' : 'ابحث عن بيت سمعته'}
+        body={
+          mode === 'poems'
+            ? 'أدخل كلمة أو موضوعاً، أو استخدم الفلاتر لتصفية القصائد بالعصر والبحر والقافية.'
+            : 'اكتب أيّ جزء من البيت، يبحث في ملايين الأبيات ويُظهر القصيدة وصاحبها.'
+        }
+      />
     </div>
   );
 }
 
 function NoResults() {
   return (
-    <div className="text-center py-10">
-      <p className="text-muted-foreground text-mini">لا نتائج. جرّب صياغة أخرى أو خفّف الفلاتر.</p>
-    </div>
+    <StateView
+      compact
+      kind="search"
+      title="لا نتائج"
+      body="لم نطابق ما بحثت عنه. جرّب صياغة أخرى أو خفّف الفلاتر."
+    />
   );
 }
 
 function ResultsCount({ total, page }: { total: number; page: number }) {
   return (
-    <p className="text-micro text-muted-foreground mb-2">
+    <p className="mb-2 text-micro tabular-nums text-muted-foreground">
       {total} نتيجة{page > 0 ? ` · صفحة ${page + 1}` : ''}
     </p>
   );
@@ -412,54 +455,47 @@ function ResultsCount({ total, page }: { total: number; page: number }) {
 
 function LoadMore({ loading, onClick }: { loading: boolean; onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={loading}
-      className="w-full mt-2 py-3 rounded-2xl bg-card border border-border/40 text-mini font-semibold text-primary hover:bg-primary/5 active:scale-[0.98] transition disabled:opacity-50 flex items-center justify-center gap-1.5"
-    >
-      {loading
-        ? 'يحمّل…'
-        : <>تحميل المزيد <ChevronDown className="w-3.5 h-3.5" /></>}
-    </button>
+    <Button variant="secondary" className="mt-2 w-full" disabled={loading} onClick={onClick}>
+      {loading ? (
+        'يحمّل…'
+      ) : (
+        <>
+          تحميل المزيد <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+        </>
+      )}
+    </Button>
   );
 }
 
 function VerseRow({
   verse,
-  index,
   highlight,
 }: {
-  verse: import('@/features/diwan/lib/types').DiwanVerseSearchResult;
-  index: number;
+  verse: DiwanVerseSearchResult;
   highlight: string;
 }) {
+  const navigate = useNavigate();
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0, transition: { delay: Math.min(index, 12) * 0.03 } }}
-    >
-      <Link
-        to={`/diwan/library/poem/${verse.poem_slug}`}
-        className="block rounded-2xl bg-card border border-border/40 p-3.5 active:scale-[0.99] transition"
-      >
-        <div
-          className="grid grid-cols-2 gap-3 mb-2"
-          style={{ fontFamily: 'var(--font-amiri)' }}
-        >
-          <p className="text-meta text-foreground leading-[1.9] text-end">
-            {renderHighlighted(verse.hemistich1, highlight)}
-          </p>
-          <p className="text-meta text-foreground leading-[1.9] text-start">
-            {renderHighlighted(verse.hemistich2 ?? '', highlight)}
-          </p>
-        </div>
-        <p className="text-micro text-muted-foreground">
-          <span className="text-primary font-semibold">{verse.poet_name}</span>
-          {' — '}
-          <span>{verse.poem_title}</span>
-        </p>
-      </Link>
-    </motion.div>
+    <AppRow
+      onClick={() => navigate(`/diwan/library/poem/${verse.poem_slug}`)}
+      chevron
+      leading={<Quote className="h-5 w-5 text-primary" aria-hidden />}
+      title={<span className="font-amiri">{renderHighlighted(verse.hemistich1, highlight)}</span>}
+      subtitle={
+        <>
+          {verse.hemistich2 && (
+            <span className="block truncate font-amiri">
+              {renderHighlighted(verse.hemistich2, highlight)}
+            </span>
+          )}
+          <span className="block truncate">
+            <span className="font-semibold text-primary">{verse.poet_name}</span>
+            {' — '}
+            <span>{verse.poem_title}</span>
+          </span>
+        </>
+      }
+    />
   );
 }
 
@@ -493,10 +529,7 @@ function renderHighlighted(text: string, q: string): React.ReactNode {
       parts.push(text.slice(lastIndex, m.index));
     }
     parts.push(
-      <mark
-        key={key++}
-        className="bg-signal/60 dark:bg-signal/40 text-foreground rounded px-0.5"
-      >
+      <mark key={key++} className="rounded bg-signal/60 px-0.5 text-foreground dark:bg-signal/40">
         {m[0]}
       </mark>,
     );

@@ -16,8 +16,12 @@ interface Props {
 }
 
 /**
- * Themed date picker matching the app's Obsidian Depth aesthetic.
+ * Themed date picker matching the app's paper & ink aesthetic.
  * Replaces the native browser date popup with an in-app calendar.
+ *
+ * System-unification pass: the popover surface comes from the shared
+ * PopoverContent chrome (no raw shadow / card overrides), press
+ * feedback is the global rule, and focus uses the shared ring.
  */
 export default function AppDatePicker({ value, onChange, className }: Props) {
   const { dir } = useApp();
@@ -37,20 +41,20 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
           className={cn(
             'inline-flex items-center gap-2 bg-muted/60 border border-border/40 rounded-lg px-3 py-1.5',
             'text-meta font-medium text-foreground outline-none transition-motion',
-            'hover:bg-muted active:scale-[0.97] duration-fast',
-            'focus-visible:ring-2 focus-visible:ring-primary/40',
+            'hover:bg-muted duration-fast',
+            'app-focus-ring',
  className,
  )}
  dir="ltr"
  >
- <CalendarIcon className="w-3.5 h-3.5 text-primary" />
+ <CalendarIcon className="w-3.5 h-3.5 text-primary" aria-hidden />
  <span className="tabular-nums">{label}</span>
  </button>
  </PopoverTrigger>
  <PopoverContent
  align="end"
  sideOffset={8}
- className="w-auto p-0 rounded-lg border-border/50 bg-card shadow-md"
+ className="w-auto p-0"
  dir={dir}
  >
  <Calendar
@@ -73,7 +77,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             caption_label: 'text-meta font-semibold text-foreground',
             nav: 'space-x-1 flex items-center',
             nav_button:
-              'h-7 w-7 rounded-full bg-secondary hover:bg-muted transition-colors active:scale-90 duration-fast flex items-center justify-center text-foreground',
+              'h-7 w-7 rounded-full bg-secondary hover:bg-muted transition-colors duration-fast flex items-center justify-center text-foreground',
             nav_button_previous: 'absolute start-1',
             nav_button_next: 'absolute end-1',
             table: 'w-full border-collapse',
@@ -84,7 +88,7 @@ export default function AppDatePicker({ value, onChange, className }: Props) {
             cell: 'relative p-0.5 text-center',
             day: cn(
               'h-9 w-9 mx-auto rounded-lg text-mini font-medium text-foreground',
-              'hover:bg-secondary transition-colors duration-fast active:scale-90',
+              'hover:bg-secondary transition-colors duration-fast',
               'aria-selected:opacity-100 tabular-nums',
             ),
             day_selected:

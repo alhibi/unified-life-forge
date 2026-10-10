@@ -1,19 +1,13 @@
 /**
  * Premium UI primitives — used by every wellness tab.
  *
- * v2 — gradient overhaul. Every layer now goes through the new
- * `surfaces` module so banding is eliminated:
- *   • PremiumCard delegates chrome to <SoftSurface>.
- *   • ProgressRing strokes use a 5-stop SVG `<linearGradient>` with
- *     a soft hue rotation — never a hard 2-stop fade.
- *   • ScoreGauge uses a multi-stop hue ring (red→amber→emerald) that
- *     reads as a continuous spectrum.
- *   • FastingRing tints active vs idle with a smooth alpha ramp.
- *   • StatTile background uses MeshGlow with low intensity so the
- *     accent never appears as a "puddle" in the corner.
- *   • HeatmapCalendar moved to a true CSS gradient cell colour with
- *     opacity bands derived from the value (perception-aligned curve).
- *   • SmoothBar (in surfaces) is the new ACWR/zone bar.
+ * Flat-surface edition. Every card-level layer goes through the same
+ * canonical chrome as the rest of the app:
+ *   • PremiumCard / SoftSurface (in surfaces) delegate to <AppCard>.
+ *   • EmptyState delegates to <StateView> so "nothing here" screens
+ *     speak one language everywhere.
+ *   • Rings, gauges, heatmaps and stat tiles keep their behaviour; they
+ *     read semantic tokens only (no raw hex, no decorative gradients).
  *
  *  The behaviour and exported names stay identical so downstream tabs
  *  don't need to change imports. AnimatedNumber + useNowSecond moved
@@ -23,6 +17,8 @@
 import { motion } from 'framer-motion';
 import React, { type ReactNode,useEffect, useId, useRef, useState } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import type { LucideIcon } from '@/lib/icons';
 
 import { SoftSurface, withAlpha } from './surfaces';
@@ -330,10 +326,11 @@ export function HeatmapCalendar({
                   onClick={() => !empty && onSelect?.(d.iso)}
                   disabled={empty}
                   title={empty ? '' : `${d.iso}`}
-                  className="rounded-[3px] shrink-0"
+                  className="shrink-0"
                   style={{
                     width: 12,
                     height: 12,
+                    borderRadius: 3,
                     background: bg,
                     outline: isToday ? `1.5px solid ${color}` : undefined,
                     outlineOffset: isToday ? 1 : 0,
@@ -509,15 +506,11 @@ export interface EmptyStateProps {
   action?: ReactNode;
 }
 
-export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
+export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="bg-card border border-dashed border-border/50 rounded-2xl p-6 text-center space-y-2">
-      <div className="w-12 h-12 rounded-2xl bg-muted/40 flex items-center justify-center mx-auto">
-        <Icon className="w-6 h-6 text-muted-foreground-subtle" />
-      </div>
-      <p className="text-meta font-semibold text-foreground">{title}</p>
-      {description && <p className="text-mini text-muted-foreground leading-relaxed">{description}</p>}
-      {action && <div className="pt-1">{action}</div>}
+    <div className="space-y-3">
+      <StateView kind="empty" compact title={title} body={description ?? ''} />
+      {action && <div className="flex justify-center">{action}</div>}
     </div>
   );
 }
@@ -537,38 +530,14 @@ export interface PremiumCardProps {
 }
 
 /**
- * Backwards-compatible wrapper that delegates to <SoftSurface>. Every
- * card across the wellness section now picks up smooth multi-stop
- * gradients + dither overlay automatically.
+ * Backwards-compatible wrapper over the canonical card surface. Every
+ * card across the wellness section renders on <AppCard> — the same
+ * chrome, radius, padding and press language as the rest of the app.
+ * The accent/gradient props stay in the signature for the call sites
+ * that still pass them; nothing decorative is rendered.
  */
-export function PremiumCard({
-  children,
-  gradient,
-  accent = 'hsl(var(--primary))',
-  intensity = 1,
-  className,
-  plain,
-}: PremiumCardProps) {
-  if (plain) {
-    return (
-      <div
-        className={`rounded-2xl border border-border/45 bg-card ${className ?? ''}`}
-      >
-        {children}
-      </div>
-    );
-  }
-  return (
-    <SoftSurface
-      accent={accent}
-      intensity={gradient ? intensity : 0}
-      variant={gradient ? 'mesh' : 'flat'}
-      dither={gradient}
-      className={className}
-    >
-      {children}
-    </SoftSurface>
-  );
+export function PremiumCard({ children, className }: PremiumCardProps) {
+  return <AppCard className={className}>{children}</AppCard>;
 }
 
 /* ─────────────────────── AnimatedNumber ─────────────────────── */

@@ -2,14 +2,16 @@ import { motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { useApp } from '@/contexts/AppContext';
+import { AppCard, IconButton, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import GlossarySheet from '@/features/diwan/components/library/GlossarySheet';
 import SimilarPoems from '@/features/diwan/components/library/SimilarPoems';
 import VerseLine from '@/features/diwan/components/library/VerseLine';
-import PoemContextCard, { hasPoemContext } from '@/features/diwan/components/PoemContextCard';
+import PoemContextCard from '@/features/diwan/components/PoemContextCard';
 import { poemContexts } from '@/features/diwan/data/poetTimelines';
 import { isSupabaseReady } from '@/features/diwan/lib/env';
 import {
@@ -20,16 +22,7 @@ import {
 } from '@/features/diwan/lib/hooks';
 import type { DiwanGlossaryEntry, DiwanVerse } from '@/features/diwan/lib/types';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ClipboardCopy,
-  ExternalLink,
-  Feather,
-  Heart,
-  Loader2,
-  Sparkles,
-} from '@/lib/icons';
+import { ClipboardCopy, ExternalLink, Feather, Heart, Loader2, Sparkles } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
 // أدوات تطبيع عربية
@@ -51,15 +44,13 @@ function stripDiacritics(s: string): string {
 }
 
 /**
- * صفحة قراءة القصيدة الكبرى — مصممة بنمط صفحة من مخطوطة (Manuscript).
- * تتميز بخلفية حبر دافئة عتيقة، وتوزيع الأبيات المقسمة على ثنية الورق،
- * ومفاتيح التحكم الفاخرة (التشكيل، السياق التاريخي)، وحرف الروي الملون ببريق الختم.
+ * صفحة قراءة القصيدة — الترويسة <PageHeader> القياسية (العنوان واسم
+ * الشاعر والقلب)، الشارات بحدود بلا تعبئة، ومفاتيح التشكيل/السياق
+ * من <Button>. ورقة الأبيات <AppCard> والحالات الفارغة <StateView>.
  */
 export default function LibraryPoemPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { dir } = useApp();
-  const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   const poem = useDiwanPoem(slug);
   const glossary = useDiwanGlossary(slug);
@@ -150,28 +141,35 @@ export default function LibraryPoemPage() {
   // معرفة هل هذه القصيدة لها سياق تاريخي بالفعل
   const hasContext = useMemo(() => {
     if (!poem.data) return false;
-    return hasPoemContext(poem.data.title, poem.data.poet_slug);
+    return poemContexts.some(
+      (c) => c.poemTitle === poem.data?.title && c.poetId === poem.data?.poet_slug,
+    );
   }, [poem.data]);
 
   if (poem.isLoading) {
     return (
-      <div className="min-h-screen bg-background pt-14 px-5 flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
-        <p className="text-mini text-muted-foreground/70 font-tajawal">
-          جاري فتح رقوق القصيدة وفض أختامها…
-        </p>
-      </div>
+      <PageShell>
+        <div className="flex min-h-[50vh] flex-col items-center justify-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden />
+          <p className="font-tajawal text-mini text-muted-foreground">
+            جاري فتح رقوق القصيدة وفض أختامها…
+          </p>
+        </div>
+      </PageShell>
     );
   }
 
   if (!poem.data) {
     return (
-      <div className="min-h-screen bg-background pt-14 px-5 text-center">
-        <BackButton fallback="/mihrab" />
-        <p className="text-muted-foreground mt-8 font-tajawal">
-          لم يُعثر على هذه القصيدة في الدواوين المحفوظة.
-        </p>
-      </div>
+      <PageShell>
+        <PageHeader title="المكتبة الكبرى" backFallback="/mihrab" />
+        <StateView
+          kind="search"
+          title="لم يُعثر على هذه القصيدة"
+          body="قد يكون الرابط قديماً أو القصيدة غير محفوظة في رقوق هذه النسخة."
+          action={{ label: 'العودة إلى المكتبة', onClick: () => navigate('/diwan/library') }}
+        />
+      </PageShell>
     );
   }
 
@@ -207,7 +205,7 @@ export default function LibraryPoemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-page px-5 pt-14 font-tajawal selection:bg-primary/20 selection:text-foreground">
+    <PageShell>
       <SEO
         title={`${p.title} — ${p.poet_name}`}
         description={p.opening ?? ''}
@@ -227,148 +225,133 @@ export default function LibraryPoemPage() {
           ...(p.opening ? { description: p.opening } : {}),
         }}
       />
-      <div className="max-w-lg mx-auto">
-        {/* Header */}
-        <div className="flex items-start gap-4 mb-5">
-          <div className="mt-1 shrink-0">
-            <BackButton
-              fallback="/mihrab"
-              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-muted-foreground active:scale-95 transition-motion"
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-display font-bold text-foreground font-amiri leading-tight">
-              {p.title}
-            </h1>
-            <Link
-              to={`/diwan/library/poet/${p.poet_slug}`}
-              className="text-mini text-muted-foreground hover:text-primary mt-1.5 flex items-center gap-1 font-tajawal select-none"
-            >
-              <Feather className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span>{p.poet_name}</span>
-              {p.era_name && <span className="text-muted-foreground/70">— {p.era_name}</span>}
-              <Chevron className="w-3 h-3 text-muted-foreground/70 shrink-0" />
-            </Link>
-          </div>
-          {sbReady && (
-            <button
-              onClick={() => {
-                if (!user) {
-                  navigate('/auth');
-                  return;
-                }
-                if (!toggleFav.isPending) toggleFav.mutate(p.id);
-              }}
-              disabled={toggleFav.isPending}
-              aria-pressed={isFavorited}
-              aria-label={isFavorited ? 'إزالة من المفضّلة' : 'إضافة إلى المفضّلة'}
-              className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-motion active:scale-90 border ${
-                isFavorited
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'border-border bg-card text-muted-foreground hover:text-foreground'
-              } disabled:opacity-60`}
-            >
-              <Heart
-                className="w-4 h-4"
-                fill={isFavorited ? 'currentColor' : 'none'}
-                strokeWidth={isFavorited ? 0 : 2}
-              />
-            </button>
-          )}
-        </div>
 
-        <div className="mb-4 flex">
-          <FallbackBadge />
-        </div>
-
-        {/* Meta tags with simple borders (No fill, transparent backgrounds) */}
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          {p.kind && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
-              {p.kind}
-            </span>
-          )}
-          {p.meter && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
-              البحر: {p.meter}
-            </span>
-          )}
-          {p.rhyme && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
-              القافية: {p.rhyme}
-            </span>
-          )}
-          <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground font-tajawal">
-            {displayVerses.length} {displayVerses.length === 1 ? 'بيت' : 'أبيات'}
-          </span>
-          {approxYear && (
-            <span className="px-2.5 py-1 rounded-[5px] text-micro font-medium border border-border text-muted-foreground/70 font-tajawal select-none">
-              سنة النظم: {approxYear}
-            </span>
-          )}
-          <button
-            onClick={copyAll}
-            className="ms-auto flex items-center gap-1.5 text-micro text-primary font-bold px-3 py-1.5 rounded-[8px] bg-primary/10 border border-primary/30 active:scale-95 transition-motion font-tajawal"
+      <PageHeader
+        title={p.title}
+        subtitle={
+          <Link
+            to={`/diwan/library/poet/${p.poet_slug}`}
+            className="inline-flex max-w-full items-center gap-1 text-muted-foreground transition-colors hover:text-primary"
           >
-            <ClipboardCopy className="w-3.5 h-3.5" />
-            نسخ المخطوطة
-          </button>
-        </div>
+            <Feather className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+            <span className="truncate">{p.poet_name}</span>
+            {p.era_name && (
+              <span className="shrink-0 text-muted-foreground-subtle">— {p.era_name}</span>
+            )}
+          </Link>
+        }
+        right={
+          <div className="flex items-center gap-2">
+            <FallbackBadge />
+            {sbReady && (
+              <IconButton
+                onClick={() => {
+                  if (!user) {
+                    navigate('/auth');
+                    return;
+                  }
+                  if (!toggleFav.isPending) toggleFav.mutate(p.id);
+                }}
+                disabled={toggleFav.isPending}
+                aria-pressed={isFavorited}
+                aria-label={isFavorited ? 'إزالة من المفضّلة' : 'إضافة إلى المفضّلة'}
+                className={isFavorited ? 'text-primary' : undefined}
+              >
+                <Heart
+                  className="h-4 w-4"
+                  fill={isFavorited ? 'currentColor' : 'none'}
+                  strokeWidth={isFavorited ? 0 : 2}
+                  aria-hidden
+                />
+              </IconButton>
+            )}
+          </div>
+        }
+        backFallback="/mihrab"
+      />
 
-        {/* Toggle Pills (بالتشكيل / السياق التاريخي) */}
-        <div className="flex flex-wrap items-center gap-2 mb-6 px-1 select-none">
-          {showTashkeelBtn && (
-            <button
-              onClick={() => setTashkeel((t) => !t)}
-              aria-pressed={tashkeel}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-motion border ${
-                tashkeel
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'bg-transparent text-muted-foreground/70 border-border hover:text-muted-foreground'
-              }`}
-            >
-              <span style={{ fontFamily: 'var(--font-amiri)' }}>
-                {tashkeel ? 'بَلا تَشْكِيل' : 'بِالتَّشْكِيلِ'}
-              </span>
-            </button>
-          )}
+      {/* Meta tags with simple borders (No fill, transparent backgrounds) */}
+      <div className="flex flex-wrap items-center gap-2">
+        {p.kind && (
+          <span className="rounded-sm border border-border px-2.5 py-1 font-tajawal text-micro font-medium text-muted-foreground">
+            {p.kind}
+          </span>
+        )}
+        {p.meter && (
+          <span className="rounded-sm border border-border px-2.5 py-1 font-tajawal text-micro font-medium text-muted-foreground">
+            البحر: {p.meter}
+          </span>
+        )}
+        {p.rhyme && (
+          <span className="rounded-sm border border-border px-2.5 py-1 font-tajawal text-micro font-medium text-muted-foreground">
+            القافية: {p.rhyme}
+          </span>
+        )}
+        <span className="rounded-sm border border-border px-2.5 py-1 font-tajawal text-micro font-medium text-muted-foreground">
+          {displayVerses.length} {displayVerses.length === 1 ? 'بيت' : 'أبيات'}
+        </span>
+        {approxYear && (
+          <span className="rounded-sm border border-border px-2.5 py-1 font-tajawal text-micro font-medium text-muted-foreground-subtle select-none">
+            سنة النظم: {approxYear}
+          </span>
+        )}
+        <Button size="xs" variant="secondary" onClick={copyAll} className="ms-auto">
+          <ClipboardCopy className="h-3.5 w-3.5" aria-hidden />
+          نسخ المخطوطة
+        </Button>
+      </div>
 
-          {hasContext && (
-            <button
-              onClick={() => setShowContext((c) => !c)}
-              aria-pressed={showContext}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-mini font-bold transition-motion border ${
-                showContext
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'bg-transparent text-muted-foreground/70 border-border hover:text-muted-foreground'
-              }`}
-            >
-              <span className="font-tajawal">السياق التاريخي</span>
-            </button>
-          )}
-
-          {glossaryKeys.size > 0 && (
-            <span className="flex items-center gap-1 text-micro text-muted-foreground/70 font-tajawal ms-auto select-none">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span>{glossaryKeys.size} مفردات مشروحة · اضغط مطولاً</span>
+      {/* Toggle Pills (بالتشكيل / السياق التاريخي) */}
+      <div className="flex flex-wrap items-center gap-2 px-1 select-none">
+        {showTashkeelBtn && (
+          <Button
+            variant={tashkeel ? 'default' : 'secondary'}
+            size="sm"
+            aria-pressed={tashkeel}
+            onClick={() => setTashkeel((t) => !t)}
+          >
+            <span style={{ fontFamily: 'var(--font-amiri)' }}>
+              {tashkeel ? 'بَلا تَشْكِيل' : 'بِالتَّشْكِيلِ'}
             </span>
-          )}
-        </div>
+          </Button>
+        )}
 
-        {/* Historical Context Card */}
-        {showContext && <PoemContextCard poemTitle={p.title} poetId={p.poet_slug} />}
+        {hasContext && (
+          <Button
+            variant={showContext ? 'default' : 'secondary'}
+            size="sm"
+            aria-pressed={showContext}
+            onClick={() => setShowContext((c) => !c)}
+          >
+            <span className="font-tajawal">السياق التاريخي</span>
+          </Button>
+        )}
 
-        {/* Verses Paper (المخطوطة) */}
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={{ show: { transition: { staggerChildren: 0.02 } } }}
-          className="rounded-[14px] bg-card border border-border p-4 sm:p-6 mb-6"
-        >
+        {glossaryKeys.size > 0 && (
+          <span className="ms-auto flex items-center gap-1 font-tajawal text-micro text-muted-foreground select-none">
+            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
+            <span>{glossaryKeys.size} مفردات مشروحة · اضغط مطولاً</span>
+          </span>
+        )}
+      </div>
+
+      {/* Historical Context Card */}
+      {showContext && <PoemContextCard poemTitle={p.title} poetId={p.poet_slug} />}
+
+      {/* Verses Paper (المخطوطة) */}
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{ show: { transition: { staggerChildren: 0.02 } } }}
+      >
+        <AppCard className="p-4 sm:p-6">
           {displayVerses.length === 0 ? (
-            <p className="text-center text-muted-foreground/70 py-8 text-mini font-tajawal">
-              لا توجد أبيات محفوظة لهذه القصيدة بعد في رقوقنا.
-            </p>
+            <StateView
+              compact
+              kind="empty"
+              title="لا أبيات محفوظة بعد"
+              body="لم تُحفظ أبيات هذه القصيدة في هذه النسخة من الرقوق. يمكنك تصفّح قصائد أخرى للشاعر أو العودة لاحقاً."
+            />
           ) : (
             <div className="space-y-1">
               {displayVerses.map((v) => (
@@ -384,24 +367,24 @@ export default function LibraryPoemPage() {
               ))}
             </div>
           )}
-        </motion.div>
+        </AppCard>
+      </motion.div>
 
-        {/* Source link */}
-        {p.source_url && (
-          <a
-            href={p.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 mb-8 flex items-center justify-center gap-1.5 text-micro text-muted-foreground/70 hover:text-muted-foreground transition-colors font-tajawal select-none"
-          >
-            <ExternalLink className="w-3.5 h-3.5 text-primary" />
-            المصدر الأصلي للمخطوطة
-          </a>
-        )}
+      {/* Source link */}
+      {p.source_url && (
+        <a
+          href={p.source_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 font-tajawal text-micro text-muted-foreground-subtle transition-colors hover:text-muted-foreground"
+        >
+          <ExternalLink className="h-3.5 w-3.5 text-primary" aria-hidden />
+          المصدر الأصلي للمخطوطة
+        </a>
+      )}
 
-        {/* Similar poems */}
-        <SimilarPoems slug={p.slug} />
-      </div>
+      {/* Similar poems */}
+      <SimilarPoems slug={p.slug} />
 
       {/* Glossary bottom-sheet */}
       <GlossarySheet
@@ -411,6 +394,6 @@ export default function LibraryPoemPage() {
         versePreview={sheetVerseTx}
         onClose={() => setSheetOpen(false)}
       />
-    </div>
+    </PageShell>
   );
 }

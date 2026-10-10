@@ -44,7 +44,7 @@ interface TooltipProps {
 function ChartTip({ active, payload, label, unit = '' }: TooltipProps) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-background/95 border border-border/40 px-3 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
+    <div className="bg-background border border-border/40 px-3 py-1.5 rounded-lg">
       <p className="text-micro text-muted-foreground-subtle mb-0.5 font-bold">{label}</p>
       <p className="text-mini font-bold text-foreground tabular-nums">
         {Number(payload[0].value).toLocaleString('en-US')}
@@ -93,7 +93,7 @@ function StatsPanelImpl({ activities, metrics, accent }: Props) {
           <TrendingUp className="w-3.5 h-3.5" style={{ color: accent }} />
           التحليلات
         </h3>
-        <div className="inline-flex rounded-full border border-border/40 bg-card/30 p-0.5">
+        <div className="inline-flex rounded-full border border-border/40 bg-muted/40 p-0.5">
           {RANGES.map((r) => (
             <button
               key={r.days}
@@ -135,7 +135,7 @@ function StatsPanelImpl({ activities, metrics, accent }: Props) {
             </button>
           ))}
         </div>
-        <div className="h-32 w-full border border-border/20 bg-card/10 rounded-xl p-1.5">
+        <div className="h-32 w-full border border-border/20 bg-muted/10 rounded-xl p-1.5">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={series} margin={{ top: 4, right: 4, left: 4, bottom: 2 }}>
               <defs>
@@ -169,21 +169,21 @@ function StatsPanelImpl({ activities, metrics, accent }: Props) {
 
       {/* Streaks */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-border/30 bg-card/25 p-3">
+        <div className="app-card app-card-flat p-3">
           <span className="text-micro text-muted-foreground block">سلسلة حالية</span>
           <span className="text-body font-extrabold tabular-nums text-foreground">
             {streaks.current}
             <span className="text-micro font-normal text-muted-foreground ms-1">يوم</span>
           </span>
         </div>
-        <div className="rounded-xl border border-border/30 bg-card/25 p-3">
+        <div className="app-card app-card-flat p-3">
           <span className="text-micro text-muted-foreground block">أطول سلسلة</span>
           <span className="text-body font-extrabold tabular-nums text-foreground">
             {streaks.longest}
             <span className="text-micro font-normal text-muted-foreground ms-1">يوم</span>
           </span>
         </div>
-        <div className="rounded-xl border border-border/30 bg-card/25 p-3">
+        <div className="app-card app-card-flat p-3">
           <span className="text-micro text-muted-foreground block">أيام نشطة</span>
           <span className="text-body font-extrabold tabular-nums text-foreground">
             {summary.activeDays}
@@ -193,7 +193,7 @@ function StatsPanelImpl({ activities, metrics, accent }: Props) {
       </div>
 
       {/* Personal records */}
-      <div className="rounded-section border border-border/30 bg-card/25 p-4 space-y-3">
+      <div className="app-card app-card-flat p-4 space-y-3">
         <h4 className="text-micro font-bold text-foreground inline-flex items-center gap-1.5">
           <Trophy className="w-3.5 h-3.5" style={{ color: accent }} />
           أرقامك القياسية

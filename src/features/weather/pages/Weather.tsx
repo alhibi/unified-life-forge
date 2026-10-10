@@ -160,7 +160,7 @@ function StickyHeader({
   isRefreshing: boolean;
 }) {
   return (
-    <div className="z-float border-b border-border/40 backdrop-blur-md bg-background/80 app-sticky-header">
+    <div className="z-float app-sticky-header">
       <div className="px-4 py-3 flex items-center gap-3">
         <BackButton />
         <div className="flex-1 min-w-0 text-center">
@@ -179,7 +179,6 @@ function StickyHeader({
           size="icon"
           onClick={onRefresh}
           aria-label={'تحديث الطقس'}
-          className="border-border/60 bg-card/80 backdrop-blur-sm hover:bg-card hover:border-border/80"
         >
           <RefreshCw className={`w-4 h-4 text-primary ${isRefreshing ? 'animate-spin' : ''}`} />
         </Button>

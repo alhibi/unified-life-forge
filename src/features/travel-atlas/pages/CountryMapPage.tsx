@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppList } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Info, List, Map as MapIcon, MapPinned, Plus } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -173,23 +174,22 @@ export default function CountryMapPage() {
                 onAdd={() => setFormOpen(true)}
               />
             ) : (
-              <ul>
+              <AppList>
                 {places.map((place) => (
-                  <li key={place.id}>
-                    <PlaceRow
-                      place={place}
-                      onOpen={() => openDetails(place)}
-                      onToggleFavorite={() =>
-                        toggleFavorite.mutate({
-                          placeId: place.id,
-                          isFavorite: !place.isFavorite,
-                        })
-                      }
-                      showLocation
-                    />
-                  </li>
+                  <PlaceRow
+                    key={place.id}
+                    place={place}
+                    onOpen={() => openDetails(place)}
+                    onToggleFavorite={() =>
+                      toggleFavorite.mutate({
+                        placeId: place.id,
+                        isFavorite: !place.isFavorite,
+                      })
+                    }
+                    showLocation
+                  />
                 ))}
-              </ul>
+              </AppList>
             )}
 
             {places.length > 0 && (

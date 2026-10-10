@@ -255,7 +255,7 @@ export function SearchPanel({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
@@ -362,7 +362,7 @@ export function SearchPanel({
             <button
               type="button"
               onClick={() => setRetryNonce((n) => n + 1)}
-              className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-mini font-medium transition-colors active:scale-95"
+              className="mt-1 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-mini font-medium transition-colors"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               {'إعادة المحاولة'}

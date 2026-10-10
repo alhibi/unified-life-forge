@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { AppCard, AppList, AppRow, IconChip } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import {
   Award,
   ExternalLink,
@@ -56,25 +58,25 @@ export const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
   return (
     <div className="space-y-5" dir="rtl">
       {/* 1. Bio & Personal Statement */}
-      <section className="surface-depth rounded-2xl p-5 space-y-3">
+      <AppCard className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <User className="w-4 h-4" />
-            </div>
+            <IconChip size="sm" aria-hidden>
+              <User className="h-4 w-4" />
+            </IconChip>
             <h2 className="text-meta font-bold text-foreground">التعريف الشخصي</h2>
           </div>
-          <button
-            onClick={onEditClick}
-            className="text-micro font-semibold text-primary hover:underline flex items-center gap-1"
-          >
-            <Pencil className="w-3 h-3" />
+          <Button variant="ghost" size="xs" className="gap-1" onClick={onEditClick}>
+            <Pencil className="h-3 w-3" aria-hidden />
             تعديل
-          </button>
+          </Button>
         </div>
 
         {bio ? (
-          <p className="text-meta leading-relaxed text-foreground/90 bg-muted/20 p-4 rounded-xl border border-border/30 italic font-serif" dir="auto">
+          <p
+            className="text-meta leading-relaxed text-foreground/90 bg-muted/20 p-4 rounded-lg border border-border/30 italic font-serif"
+            dir="auto"
+          >
             "{bio}"
           </p>
         ) : (
@@ -82,122 +84,124 @@ export const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
             لم تقم بإضافة نبذة شخصية بعد. انقر على تعديل لإضافة نبذتك.
           </p>
         )}
-      </section>
+      </AppCard>
 
       {/* 2. Featured Badges Showcase */}
-      <section className="surface-depth rounded-2xl p-5 space-y-3">
+      <AppCard className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-signal/10 flex items-center justify-center text-signal">
-              <Award className="w-4 h-4" />
-            </div>
+            <IconChip size="sm" aria-hidden>
+              <Award className="h-4 w-4" />
+            </IconChip>
             <h2 className="text-meta font-bold text-foreground">الأوسمة المميزة</h2>
           </div>
-          <button
-            onClick={onNavigateToBadges}
-            className="text-micro font-semibold text-primary hover:underline flex items-center gap-1"
-          >
+          <Button variant="ghost" size="xs" onClick={onNavigateToBadges}>
             عرض الكل ({APP_BADGES.length})
-          </button>
+          </Button>
         </div>
 
         {pinnedBadges.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {pinnedBadges.map((badge) => (
-              <div
+              <AppCard
+                flat
+                compact
                 key={badge.id}
-                className="p-3 rounded-xl bg-card border border-border/50 flex flex-col items-center text-center space-y-1.5 shadow-sm"
+                className="flex flex-col items-center text-center space-y-1.5"
               >
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lead">
-                  <Sparkles className="w-5 h-5 text-signal" />
-                </div>
+                <IconChip aria-hidden>
+                  <Sparkles className="h-5 w-5" />
+                </IconChip>
                 <h3 className="text-mini font-bold text-foreground">{badge.titleAr}</h3>
                 <p className="text-micro text-muted-foreground line-clamp-1">{badge.descriptionAr}</p>
-              </div>
+              </AppCard>
             ))}
           </div>
         ) : (
-          <div className="p-4 rounded-xl bg-muted/20 border border-border/30 text-center space-y-2">
+          <div className="p-4 rounded-lg bg-muted/20 border border-border/30 text-center space-y-2">
             <p className="text-mini text-muted-foreground">
               يمكنك تثبيت حتى 3 أوسمة في أعلى ملفك الشخصي لإبراز إنجازاتك.
             </p>
-            <button
-              onClick={onNavigateToBadges}
-              className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-micro font-bold hover:bg-primary/20 transition-colors"
-            >
+            <Button variant="secondary" size="xs" onClick={onNavigateToBadges}>
               اختر أوسمتك المميزة
-            </button>
+            </Button>
           </div>
         )}
-      </section>
+      </AppCard>
 
       {/* 3. Identity Details & External Web */}
-      <section className="surface-depth rounded-2xl p-5 space-y-4">
+      <AppCard className="space-y-4">
         <h2 className="text-meta font-bold text-foreground flex items-center gap-2">
-          <Globe className="w-4 h-4 text-primary" />
+          <Globe className="w-4 h-4 text-primary" aria-hidden />
           التفاصيل المهنية والربط الرقمي
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {title && (
-            <div className="p-3 rounded-xl bg-card border border-border/40 space-y-0.5">
-              <span className="text-micro font-semibold text-muted-foreground">المسمى / الشغف</span>
-              <p className="text-mini font-bold text-foreground">{title}</p>
-            </div>
-          )}
+        <AppList>
+          {title && <AppRow as="div" title="المسمى / الشغف" value={title} />}
 
           {location && (
-            <div className="p-3 rounded-xl bg-card border border-border/40 space-y-0.5">
-              <span className="text-micro font-semibold text-muted-foreground">الموقع / المدينة</span>
-              <p className="text-mini font-bold text-foreground flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-primary" />
-                {location}
-              </p>
-            </div>
+            <AppRow
+              as="div"
+              title="الموقع / المدينة"
+              value={
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-primary" aria-hidden />
+                  {location}
+                </span>
+              }
+            />
           )}
 
           {websiteUrl && (
-            <div className="p-3 rounded-xl bg-card border border-border/40 space-y-0.5 sm:col-span-2">
-              <span className="text-micro font-semibold text-muted-foreground">الموقع الشخصي</span>
-              <a
-                href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-mini font-bold text-primary hover:underline flex items-center gap-1 truncate"
-                dir="ltr"
-              >
-                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                {websiteUrl}
-              </a>
-            </div>
+            <AppRow
+              as="a"
+              href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
+              target="_blank"
+              rel="noreferrer"
+              leading={
+                <IconChip size="sm" tone="plain" aria-hidden>
+                  <ExternalLink className="h-4 w-4" />
+                </IconChip>
+              }
+              title="الموقع الشخصي"
+              value={
+                <span dir="ltr" className="truncate">
+                  {websiteUrl}
+                </span>
+              }
+            />
           )}
-        </div>
+        </AppList>
 
-        {/* Social Links Grid */}
+        {/* Social Links */}
         {socialItems.length > 0 && (
           <div className="pt-2 border-t border-border/30 space-y-2">
             <span className="text-micro font-bold text-muted-foreground">حسابات التواصل والتفاعل</span>
-            <div className="flex flex-wrap gap-2">
+            <AppList>
               {socialItems.map((s) => {
                 const IconComp = s.icon;
                 const fullUrl = s.value?.startsWith('http') ? s.value : `${s.prefix}${s.value}`;
                 return (
-                  <a
+                  <AppRow
                     key={s.key}
+                    as="a"
                     href={fullUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-border/50 text-mini font-medium text-foreground hover:bg-muted/40 transition-colors"
-                  >
-                    <IconComp className="w-4 h-4 text-primary" />
-                    <span dir="ltr">@{s.value}</span>
-                  </a>
+                    leading={
+                      <IconChip size="sm" tone="plain" aria-hidden>
+                        <IconComp className="h-4 w-4" />
+                      </IconChip>
+                    }
+                    title={s.label}
+                    value={<span dir="ltr">@{s.value}</span>}
+                  />
                 );
               })}
-            </div>
+            </AppList>
           </div>
         )}
-      </section>
+      </AppCard>
     </div>
   );
 };

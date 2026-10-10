@@ -1,8 +1,9 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { IconChip } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
-import { Check, ImagePlus, Sliders, X } from '@/lib/icons';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Check, ImagePlus, Sliders } from '@/lib/icons';
 
 export interface PhotoStudioModalProps {
   isOpen: boolean;
@@ -41,6 +42,9 @@ const PHOTO_FILTERS: PhotoFilterOption[] = [
   { id: 'cinema-contrast', labelAr: 'تباين سينمائي' },
 ];
 
+const OPTION_IDLE = 'border border-border bg-transparent text-muted-foreground hover:text-foreground';
+const OPTION_ACTIVE = 'border border-primary/50 bg-primary/10 text-primary';
+
 export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
   isOpen,
   onClose,
@@ -67,6 +71,9 @@ export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
     }
   }, [initialImageFile]);
 
+  // Canvas masking / filtering pixels are the actual image product this studio
+  // exports — the drawing logic (frames, filters, zoom) is intentionally kept
+  // exactly as it was. Only the chrome around it moved to the design system.
   useEffect(() => {
     if (!imageSrc || !canvasRef.current) return;
 
@@ -151,8 +158,6 @@ export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
     img.src = imageSrc;
   }, [imageSrc, selectedFrame, selectedFilter, zoom]);
 
-  if (!isOpen) return null;
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -175,146 +180,131 @@ export const PhotoStudioModal: React.FC<PhotoStudioModalProps> = ({
   };
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto" dir="rtl">
-        <motion.div
-          initial={{ scale: 0.94, opacity: 0, y: 12 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.94, opacity: 0, y: 12 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-          className="relative w-full max-w-lg bg-card border border-border/80 rounded-3xl shadow-2xl overflow-hidden my-auto flex flex-col max-h-[90vh]"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-border/50">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <Sliders className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-lead font-extrabold text-foreground">استوديو معالجة الصورة الشخصية</h2>
-                <p className="text-micro text-muted-foreground">تأطير الصورة الشخصية وتطبيق الفلاتر الحديثة</p>
-              </div>
-            </div>
-
-            <button
-              onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-muted/40 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[90vh] max-w-lg flex-col gap-0 overflow-hidden p-0">
+        {/* Header */}
+        <div className="flex items-center gap-2.5 border-b border-border p-5 pe-16">
+          <IconChip aria-hidden>
+            <Sliders className="h-5 w-5" />
+          </IconChip>
+          <div className="min-w-0">
+            <DialogTitle className="text-lead font-bold text-foreground">
+              استوديو معالجة الصورة الشخصية
+            </DialogTitle>
+            <DialogDescription className="text-micro text-muted-foreground">
+              تأطير الصورة الشخصية وتطبيق الفلاتر الحديثة
+            </DialogDescription>
           </div>
+        </div>
 
-          {/* Content Body */}
-          <div className="p-6 overflow-y-auto space-y-5 flex-1">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-            />
+        {/* Content Body */}
+        <div className="flex-1 space-y-5 overflow-y-auto p-6">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
 
-            <div className="flex flex-col items-center justify-center surface-depth rounded-2xl p-6 relative">
-              {imageSrc ? (
-                <div className="relative w-48 h-48 rounded-2xl bg-card ring-2 ring-primary/30 shadow-2xl overflow-hidden flex items-center justify-center">
-                  <canvas ref={canvasRef} className="w-full h-full object-contain" />
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <ImagePlus className="w-7 h-7" />
-                  </div>
-                  <p className="text-mini font-semibold text-muted-foreground">اختر صورة من جهازك لتخصيصها</p>
-                  <Button onClick={() => fileInputRef.current?.click()} size="sm" className="gap-2">
-                    رفع صورة جديدة
-                  </Button>
-                </div>
-              )}
-
-              {imageSrc && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-3 gap-1.5 text-micro text-muted-foreground hover:text-foreground"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <ImagePlus className="w-3.5 h-3.5" />
-                  تغيير الصورة
+          <div className="flex flex-col items-center justify-center rounded-lg bg-muted/30 p-6">
+            {imageSrc ? (
+              <div className="relative flex h-48 w-48 items-center justify-center overflow-hidden rounded-2xl bg-secondary ring-1 ring-border">
+                <canvas ref={canvasRef} className="h-full w-full object-contain" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center space-y-3 py-10 text-center">
+                <IconChip aria-hidden>
+                  <ImagePlus className="h-6 w-6" />
+                </IconChip>
+                <p className="text-mini font-semibold text-muted-foreground">اختر صورة من جهازك لتخصيصها</p>
+                <Button onClick={() => fileInputRef.current?.click()} size="sm" className="gap-2">
+                  رفع صورة جديدة
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
 
             {imageSrc && (
-              <>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-micro font-semibold text-muted-foreground">
-                    <span>درجة التقريب (Zoom)</span>
-                    <span>{Math.round(zoom * 100)}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="2"
-                    step="0.05"
-                    value={zoom}
-                    onChange={(e) => setZoom(parseFloat(e.target.value))}
-                    className="w-full accent-primary"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-mini font-bold text-foreground">شكل الإطار والقص</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {PHOTO_FRAMES.map((frame) => (
-                      <button
-                        key={frame.id}
-                        onClick={() => setSelectedFrame(frame.id)}
-                        className={`p-2.5 rounded-xl text-micro font-semibold transition-motion ${
-                          selectedFrame === frame.id
-                            ? 'bg-primary/10 ring-2 ring-primary text-primary'
-                            : 'bg-card border border-border/50 text-muted-foreground'
-                        }`}
-                      >
-                        {frame.labelAr}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-mini font-bold text-foreground">فلتر النغمة البصرية</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {PHOTO_FILTERS.map((filter) => (
-                      <button
-                        key={filter.id}
-                        onClick={() => setSelectedFilter(filter.id)}
-                        className={`p-2.5 rounded-xl text-micro font-semibold transition-motion ${
-                          selectedFilter === filter.id
-                            ? 'bg-primary/10 ring-2 ring-primary text-primary'
-                            : 'bg-card border border-border/50 text-muted-foreground'
-                        }`}
-                      >
-                        {filter.labelAr}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-3 gap-1.5 text-micro text-muted-foreground hover:text-foreground"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImagePlus className="h-3.5 w-3.5" aria-hidden />
+                تغيير الصورة
+              </Button>
             )}
           </div>
 
-          {/* Footer */}
-          <div className="p-5 border-t border-border/50 flex items-center justify-end gap-3">
-            <Button variant="outline" onClick={onClose} className="rounded-xl font-semibold">
-              إلغاء
-            </Button>
-            <Button onClick={handleApply} disabled={!imageSrc} className="gap-2 px-6 rounded-xl font-bold shadow-lg">
-              <Check className="w-4 h-4" />
-              تأكيد الصورة
-            </Button>
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+          {imageSrc && (
+            <>
+              <div className="space-y-2">
+                <div className="flex justify-between text-micro font-semibold text-muted-foreground">
+                  <span>درجة التقريب (Zoom)</span>
+                  <span className="tabular-nums">{Math.round(zoom * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="2"
+                  step="0.05"
+                  value={zoom}
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  className="w-full accent-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-mini font-bold text-foreground">شكل الإطار والقص</label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {PHOTO_FRAMES.map((frame) => (
+                    <button
+                      key={frame.id}
+                      onClick={() => setSelectedFrame(frame.id)}
+                      aria-pressed={selectedFrame === frame.id}
+                      className={`rounded-xl p-2.5 text-micro font-semibold transition-motion ${
+                        selectedFrame === frame.id ? OPTION_ACTIVE : OPTION_IDLE
+                      }`}
+                    >
+                      {frame.labelAr}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-mini font-bold text-foreground">فلتر النغمة البصرية</label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {PHOTO_FILTERS.map((filter) => (
+                    <button
+                      key={filter.id}
+                      onClick={() => setSelectedFilter(filter.id)}
+                      aria-pressed={selectedFilter === filter.id}
+                      className={`rounded-xl p-2.5 text-micro font-semibold transition-motion ${
+                        selectedFilter === filter.id ? OPTION_ACTIVE : OPTION_IDLE
+                      }`}
+                    >
+                      {filter.labelAr}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-border p-5">
+          <Button variant="outline" onClick={onClose}>
+            إلغاء
+          </Button>
+          <Button onClick={handleApply} disabled={!imageSrc} className="gap-2">
+            <Check className="h-4 w-4" aria-hidden />
+            تأكيد الصورة
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

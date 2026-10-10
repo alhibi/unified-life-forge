@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 import type { MindEvent,MindNote } from '../hooks/useMindState';
+import { MIND_TOKENS } from '../lib/mindTokens';
 
 type Row =
   | { kind: 'year'; year: number }
@@ -64,10 +65,10 @@ export default function MemoryTimelineRail({
         expanded ? 'w-[260px]' : 'w-[88px]',
       )}
     >
-      <div className="h-full rounded-2xl border border-white/10 bg-black/80 flex flex-col overflow-hidden">
+      <div className="h-full rounded-2xl border border-[color:var(--m-seam)]/10 bg-[color:var(--m-void)]/80 flex flex-col overflow-hidden">
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="text-micro tracking-[0.2em] uppercase text-[color:#F2E7C9]/60 px-3 py-2 text-start hover:text-[color:#F2E7C9]/90 transition-colors"
+          className="text-micro tracking-[0.2em] uppercase text-[color:var(--m-seam)]/60 px-3 py-2 text-start hover:text-[color:var(--m-seam)]/90 transition-colors"
         >
           {expanded ? 'طيّ' : 'الذاكرة'}
         </button>
@@ -93,7 +94,7 @@ export default function MemoryTimelineRail({
                   }}
                 >
                   {row.kind === 'year' ? (
-                    <div className="text-micro tracking-[0.25em] uppercase text-[color:#C9A84C]/50 px-3 pt-2">
+                    <div className="text-micro tracking-[0.25em] uppercase text-[color:var(--m-thread)]/50 px-3 pt-2">
                       {row.year}
                     </div>
                   ) : row.kind === 'note' ? (
@@ -108,7 +109,7 @@ export default function MemoryTimelineRail({
                         'w-full border-s-2 text-start px-3 py-1.5 flex items-center gap-2 group transition-colors',
                         activeIds.includes(row.note.id)
                           ? 'border-primary bg-primary/10'
-                          : 'border-transparent hover:bg-white/[0.04]',
+                          : 'border-transparent hover:bg-[color:var(--m-seam)]/[0.04]',
                       )}
                     >
                       <span
@@ -117,21 +118,24 @@ export default function MemoryTimelineRail({
                           activeIds.includes(row.note.id) && 'scale-125 ring-2 ring-primary/30',
                         )}
                         style={{
-                          background: row.note.hemisphere === 'organic' ? '#FFC9A0' : '#C9A84C',
+                          background:
+                            row.note.hemisphere === 'organic'
+                              ? MIND_TOKENS.organicGlow
+                              : MIND_TOKENS.thread,
                         }}
                       />
                       <span className="flex-1 min-w-0">
                         <span
                           className={cn(
                             'block text-micro leading-tight truncate font-display',
-                            'text-[color:#F2E7C9]/85 group-hover:text-[color:#F2E7C9]',
+                            'text-[color:var(--m-seam)]/85 group-hover:text-[color:var(--m-seam)]',
                           )}
                         >
                           {row.note.title || 'بدون عنوان'}
                         </span>
                         {expanded && (
                           <span
-                            className="block text-micro font-body text-[color:#F2E7C9]/40 mt-0.5"
+                            className="block text-micro font-body text-[color:var(--m-seam)]/40 mt-0.5"
                           >
                             {new Date(row.note.createdAt).toLocaleDateString('ar')}
                           </span>
@@ -146,9 +150,9 @@ export default function MemoryTimelineRail({
                       title={row.event.summary}
                       className="w-full flex items-center gap-2 px-3 py-1 group"
                     >
-                      <span className="w-1 h-1 rounded-full shrink-0 bg-[color:#F2E7C9]" />
+                      <span className="w-1 h-1 rounded-full shrink-0 bg-[color:var(--m-seam)]" />
                       {expanded && (
-                        <span className="flex-1 text-micro text-[color:#F2E7C9]/50 truncate italic">
+                        <span className="flex-1 text-micro text-[color:var(--m-seam)]/50 truncate italic">
                           {row.event.summary}
                         </span>
                       )}

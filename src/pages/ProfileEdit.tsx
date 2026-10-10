@@ -4,8 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import SEO from '@/components/SEO';
+import { AppList, AppRow, IconChip } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { AvatarStudioModal } from '@/features/profile/components/AvatarStudioModal';
 import { BadgeTelemetryPanel } from '@/features/profile/components/BadgeTelemetryPanel';
 import { DigitalIdentityPassModal } from '@/features/profile/components/DigitalIdentityPassModal';
@@ -27,7 +31,6 @@ import { PrivacySettings, SocialLinks } from '@/features/profile/types';
 import { useAuth } from '@/hooks/useAuth';
 import { usePersistentSection } from '@/hooks/usePersistentDraft';
 import {
-  AlertTriangle,
   Check,
   Eye,
   Github,
@@ -56,6 +59,27 @@ const PROFILE_TABS: readonly ProfileTab[] = [
   'insights',
   'telemetry',
 ];
+
+/** Visual order of the tab rail (persistence order stays PROFILE_TABS). */
+const TAB_ORDER: readonly ProfileTab[] = [
+  'overview',
+  'activity',
+  'badges',
+  'insights',
+  'telemetry',
+  'edit',
+  'privacy',
+];
+
+const TAB_LABELS: Record<ProfileTab, string> = {
+  overview: 'التعريف',
+  activity: 'سجل النشاط',
+  badges: 'الأوسمة',
+  insights: 'رؤى',
+  telemetry: 'أداء',
+  edit: 'تعديل الهوية',
+  privacy: 'الخصوصية',
+};
 
 export default function ProfileEditPage() {
   const { user, loading, username: authUsername, profile, refreshProfile, signOut } = useAuth();
@@ -229,20 +253,6 @@ export default function ProfileEditPage() {
       setUsernameAvailable(true);
     }
   }, [user, loading, profile, authUsername, navigate, draftKey]);
-
-  // Sync active cover theme from state
-  const activeCoverCss = useMemo(() => {
-    const themes = [
-      { id: 'obsidian', css: 'linear-gradient(135deg, #111113 0%, #1a1a1e 100%)' },
-      { id: 'copper', css: 'linear-gradient(135deg, #2b1a17 0%, #4a2820 100%)' },
-      { id: 'emerald', css: 'linear-gradient(135deg, #0e271d 0%, #184232 100%)' },
-      { id: 'amber', css: 'linear-gradient(135deg, #2f2110 0%, #4f361a 100%)' },
-      { id: 'cobalt', css: 'linear-gradient(135deg, #101c2e 0%, #1d2f4a 100%)' },
-      { id: 'velvet', css: 'linear-gradient(135deg, #221226 0%, #381b3f 100%)' },
-    ];
-    const theme = themes.find((t) => t.id === coverThemeId);
-    return theme ? theme.css : themes[0].css;
-  }, [coverThemeId]);
 
   // Compute dirty flag
   const isDirty = useMemo(() => {
@@ -612,7 +622,7 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-36 relative overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen bg-background pb-page relative overflow-x-hidden" dir="rtl">
       <SEO
         title="الملف الشخصي والخصوصية — SmartHub"
         description="أدر ملفك الشخصي في SmartHub: الصورة والاسم والنبذة، شارات الإنجاز، إعدادات الخصوصية ومتابعة نشاطك."
@@ -628,8 +638,6 @@ export default function ProfileEditPage() {
         statusText={statusText}
         statusEmoji={statusEmoji}
         completionPercentage={completionMetrics.percentage}
-        activeCoverCss={activeCoverCss}
-        coverThemeId={coverThemeId}
         isUploadingAvatar={uploading}
         onAvatarClick={() => {
           setActiveTab('edit');
@@ -650,92 +658,23 @@ export default function ProfileEditPage() {
         />
 
         {/* Dynamic Tab Selector Bar */}
-        <div className="flex items-center gap-1 bg-card border border-border/50 p-1.5 rounded-2xl overflow-x-auto no-scrollbar shadow-sm">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'overview'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            التعريف
-          </button>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ProfileTab)}>
+          <TabsList className="flex w-full overflow-x-auto no-scrollbar">
+            {TAB_ORDER.map((tab) => (
+              <TabsTrigger key={tab} value={tab} className="min-w-[90px] flex-none">
+                {TAB_LABELS[tab]}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-          <button
-            onClick={() => setActiveTab('activity')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'activity'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+          {/* Tab Views */}
+          <TabsContent value={activeTab} className="mt-5">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            سجل النشاط
-          </button>
-
-          <button
-            onClick={() => setActiveTab('badges')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'badges'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            الأوسمة
-          </button>
-
-          <button
-            onClick={() => setActiveTab('insights')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'insights'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            رؤى
-          </button>
-
-          <button
-            onClick={() => setActiveTab('telemetry')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'telemetry'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            أداء
-          </button>
-
-          <button
-            onClick={() => setActiveTab('edit')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'edit'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            تعديل الهوية
-          </button>
-
-          <button
-            onClick={() => setActiveTab('privacy')}
-            className={`flex-1 min-w-[90px] py-2 rounded-xl text-micro font-bold transition-motion ${
-              activeTab === 'privacy'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            الخصوصية
-          </button>
-        </div>
-
-        {/* Tab Views */}
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
           {activeTab === 'overview' && (
             <ProfileOverviewTab
               bio={bio}
@@ -795,26 +734,24 @@ export default function ProfileEditPage() {
           {activeTab === 'edit' && (
             <div className="space-y-5">
               {/* Real-time Interactive Live Preview Banner */}
-              <div className="surface-depth rounded-2xl p-4 border border-primary/20 space-y-3 bg-gradient-to-r from-card via-card to-primary/5">
+              <div className="app-card p-4 border border-primary/20 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
+                    <Sparkles className="w-4 h-4 text-primary" aria-hidden />
                     <span className="text-meta font-extrabold text-foreground">المعاينة الحية للبروفايل</span>
                   </div>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    className="gap-1.5"
                     onClick={() => setIsVisitorPreview(!isVisitorPreview)}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-micro font-bold transition-motion ${
-                      isVisitorPreview
-                        ? 'bg-data-1/20 text-data-1 border border-data-1/30'
-                        : 'bg-primary/10 text-primary border border-primary/20'
-                    }`}
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="w-3.5 h-3.5" aria-hidden />
                     <span>{isVisitorPreview ? 'معاينة كزائر' : 'معاينة شخصية'}</span>
-                  </button>
+                  </Button>
                 </div>
 
-                <div className="p-3 rounded-xl bg-card border border-border/40 flex items-center gap-3">
+                <div className="p-3 rounded-lg bg-muted/20 border border-border/40 flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full ring-2 ring-primary bg-background overflow-hidden shrink-0 flex items-center justify-center">
                     {selectedAvatar.startsWith('http') || selectedAvatar.startsWith('data:') ? (
                       <img src={selectedAvatar} alt="Preview" className="w-full h-full object-cover" />
@@ -837,7 +774,7 @@ export default function ProfileEditPage() {
               </div>
 
               {/* Avatar Studio Creation Pathways */}
-              <section className="surface-depth rounded-2xl p-5 space-y-4">
+              <section className="app-card p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-meta font-bold text-foreground">استوديو الصور والهوية الرمزية</h2>
@@ -857,24 +794,24 @@ export default function ProfileEditPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowAvatarStudio(true)}
-                    className="gap-2 h-auto py-3 rounded-xl border-primary/30 hover:bg-primary/10 text-primary font-bold"
+                    className="gap-2 h-auto py-3 border-primary/30 hover:bg-primary/10 text-primary font-bold"
                   >
-                    <Wand2 className="w-4 h-4" />
+                    <Wand2 className="w-4 h-4" aria-hidden />
                     <div className="text-start">
                       <span className="block text-micro font-bold">استوديو المتجهات</span>
-                      <span className="block text-[0.625rem] text-muted-foreground font-normal">Vector Avatar Studio</span>
+                      <span className="block text-micro text-muted-foreground font-normal">Vector Avatar Studio</span>
                     </div>
                   </Button>
 
                   <Button
                     variant="outline"
                     onClick={() => setShowPhotoStudio(true)}
-                    className="gap-2 h-auto py-3 rounded-xl font-bold"
+                    className="gap-2 h-auto py-3 font-bold"
                   >
-                    <Sliders className="w-4 h-4 text-data-6" />
+                    <Sliders className="w-4 h-4 text-data-6" aria-hidden />
                     <div className="text-start">
                       <span className="block text-micro font-bold">معالجة الصور</span>
-                      <span className="block text-[0.625rem] text-muted-foreground font-normal">Photo Filter Studio</span>
+                      <span className="block text-micro text-muted-foreground font-normal">Photo Filter Studio</span>
                     </div>
                   </Button>
 
@@ -885,12 +822,12 @@ export default function ProfileEditPage() {
                       setSelectedAvatar(initialsDataUri);
                       toast.success('تم إنشاء صورة الحروف الأولى بنجاح');
                     }}
-                    className="gap-2 h-auto py-3 rounded-xl sm:col-span-1 col-span-2 font-bold"
+                    className="gap-2 h-auto py-3 sm:col-span-1 col-span-2 font-bold"
                   >
-                    <Sparkles className="w-4 h-4 text-signal" />
+                    <Sparkles className="w-4 h-4 text-signal" aria-hidden />
                     <div className="text-start">
                       <span className="block text-micro font-bold">رمز الحروف الأولى</span>
-                      <span className="block text-[0.625rem] text-muted-foreground font-normal">Initials Stamp</span>
+                      <span className="block text-micro text-muted-foreground font-normal">Initials Stamp</span>
                     </div>
                   </Button>
                 </div>
@@ -905,10 +842,11 @@ export default function ProfileEditPage() {
                         <button
                           key={animal.id}
                           onClick={() => setSelectedAvatar(animal.emoji)}
+                          aria-pressed={isSelected}
                           className={`relative flex flex-col items-center gap-1 py-2.5 rounded-xl transition-motion ${
                             isSelected
-                              ? 'bg-primary/10 ring-2 ring-primary scale-[1.03]'
-                              : 'bg-muted/30 ring-1 ring-border/40 active:scale-95'
+                              ? 'bg-primary/10 ring-2 ring-primary'
+                              : 'bg-muted/30 ring-1 ring-border/40'
                           }`}
                         >
                           <img
@@ -931,7 +869,7 @@ export default function ProfileEditPage() {
               </section>
 
               {/* Username & Handle */}
-              <section className="surface-depth rounded-2xl p-5 space-y-4">
+              <section className="app-card p-5 space-y-4">
                 <h2 className="text-meta font-bold text-foreground">اسم المستخدم والهوية الرقمية</h2>
 
                 <div className="space-y-2">
@@ -960,7 +898,7 @@ export default function ProfileEditPage() {
                           checkingUsername
                             ? 'text-muted-foreground'
                             : usernameAvailable
-                            ? 'text-data-1'
+                            ? 'text-success'
                             : 'text-destructive'
                         }`}
                       >
@@ -986,7 +924,7 @@ export default function ProfileEditPage() {
               </section>
 
               {/* Title, Location & Bio */}
-              <section className="surface-depth rounded-2xl p-5 space-y-4">
+              <section className="app-card p-5 space-y-4">
                 <h2 className="text-meta font-bold text-foreground">المسمى، الموقع والتعريف الشخصي</h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1013,21 +951,21 @@ export default function ProfileEditPage() {
 
                 <div className="space-y-2">
                   <label className="text-mini font-semibold text-muted-foreground">النبذة التعريفية</label>
-                  <textarea
+                  <Textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     placeholder="اكتب نبذة موجزة تعبر عن شغفك واهتماماتك…"
                     maxLength={200}
                     rows={3}
                     dir="auto"
-                    className="w-full rounded-xl border border-input bg-background px-3 py-2 text-meta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    className="resize-none"
                   />
                   <p className="text-micro text-muted-foreground text-end">{bio.length}/200</p>
                 </div>
               </section>
 
               {/* Status & Emoji */}
-              <section className="surface-depth rounded-2xl p-5 space-y-4">
+              <section className="app-card p-5 space-y-4">
                 <h2 className="text-meta font-bold text-foreground">الحالة الحالية والرمز التعبيري</h2>
 
                 <div className="flex gap-2">
@@ -1048,7 +986,7 @@ export default function ProfileEditPage() {
               </section>
 
               {/* Website & Social Links */}
-              <section className="surface-depth rounded-2xl p-5 space-y-4">
+              <section className="app-card p-5 space-y-4">
                 <h2 className="text-meta font-bold text-foreground">الموقع الشخصي وحسابات التواصل</h2>
 
                 <div className="space-y-2">
@@ -1114,26 +1052,24 @@ export default function ProfileEditPage() {
               </section>
 
               {/* Danger Zone: Log Out */}
-              <section className="rounded-2xl border border-destructive/20 bg-destructive/[0.04] p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-destructive/10 flex items-center justify-center">
-                    <LogOut className="w-[18px] h-[18px] text-destructive" />
-                  </div>
-                  <div>
-                    <h2 className="text-meta font-bold text-foreground">تسجيل الخروج</h2>
-                    <p className="text-micro text-muted-foreground">إنهاء الجلسة بأمان على هذا الجهاز</p>
-                  </div>
-                </div>
-                <button
+              <AppList>
+                <AppRow
+                  tone="danger"
                   onClick={() => setShowLogoutConfirm(true)}
-                  className="w-full py-2.5 rounded-xl bg-destructive/10 text-destructive text-mini font-semibold active:scale-[0.98] transition-transform"
-                >
-                  تسجيل الخروج
-                </button>
-              </section>
+                  leading={
+                    <IconChip tone="danger" aria-hidden>
+                      <LogOut className="h-4 w-4" />
+                    </IconChip>
+                  }
+                  title="تسجيل الخروج"
+                  subtitle="إنهاء الجلسة بأمان على هذا الجهاز"
+                />
+              </AppList>
             </div>
           )}
         </motion.div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Floating Save Bar when dirty */}
@@ -1147,7 +1083,7 @@ export default function ProfileEditPage() {
             className="fixed inset-x-0 bottom-4 z-float px-4 pointer-events-none"
           >
             <div className="max-w-lg mx-auto pointer-events-auto">
-              <div className="surface-depth rounded-2xl px-4 py-3 flex items-center gap-3 shadow-2xl ring-1 ring-primary/30">
+              <div className="app-card px-4 py-3 flex items-center gap-3 ring-1 ring-primary/30">
                 <span className="text-mini text-foreground font-semibold flex-1 truncate">
                   لديك تغييرات غير محفوظة في ملفك
                 </span>
@@ -1205,50 +1141,21 @@ export default function ProfileEditPage() {
       />
 
       {/* Logout confirmation */}
-      <AnimatePresence>
-        {showLogoutConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-drawer flex items-center justify-center bg-black/60 px-6 backdrop-blur-sm"
-            onClick={() => setShowLogoutConfirm(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 space-y-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                </div>
-                <h3 className="text-lead font-bold text-foreground">تسجيل الخروج</h3>
-              </div>
-              <p className="text-meta text-muted-foreground leading-relaxed">
-                هل أنت تأكد من إغلاق الجلسة؟ سيتم حفظ كافة التغييرات المسجلة بحسابك.
-              </p>
-              <div className="flex gap-3 pt-1">
-                <button
-                  onClick={() => setShowLogoutConfirm(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-secondary text-secondary-foreground text-meta font-medium active:scale-[0.98] transition-transform"
-                >
-                  إلغاء
-                </button>
-                <button
-                  onClick={handleSignOut}
-                  className="flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-meta font-medium active:scale-[0.98] transition-transform"
-                >
-                  تأكيد الخروج
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ResponsiveDrawer
+        open={showLogoutConfirm}
+        onOpenChange={setShowLogoutConfirm}
+        title="تسجيل الخروج"
+        description="هل أنت تأكد من إغلاق الجلسة؟ سيتم حفظ كافة التغييرات المسجلة بحسابك."
+      >
+        <div className="flex gap-3 pt-1">
+          <Button variant="secondary" className="flex-1" onClick={() => setShowLogoutConfirm(false)}>
+            إلغاء
+          </Button>
+          <Button variant="destructive" className="flex-1" onClick={handleSignOut}>
+            تأكيد الخروج
+          </Button>
+        </div>
+      </ResponsiveDrawer>
     </div>
   );
 }

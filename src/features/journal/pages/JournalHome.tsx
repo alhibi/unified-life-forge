@@ -1,9 +1,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { Pencil, Plus, Trash2 } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 
@@ -74,30 +75,24 @@ export default function JournalHome() {
   const saving = create.isPending || update.isPending;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground pb-16">
+    <div dir="rtl" className="min-h-screen bg-background text-foreground pb-page">
       <SEO
         title="مذكرتي — دفتر يومي يعكس توازنك"
         description="مذكرة شخصية تعكس التوازن بين الحدس والتحليل، مع مشهد ثلاثي الأبعاد ينمو مع كل مدخلة."
         path="/journal"
       />
 
-      {/* Header */}
-      <div className="z-sticky app-sticky-header border-b border-border/60">
-        <div className="mx-auto max-w-lg px-5 py-3 flex items-center justify-between">
-          <BackButton fallback="/" />
-          <h1 className="text-meta tracking-[0.24em] text-muted-foreground uppercase">
-            مذكرتي
-          </h1>
-          <button
-            type="button"
-            onClick={openNew}
-            aria-label="مدخلة جديدة"
-            className="h-10 w-10 rounded-2xl bg-card/70 border border-border flex items-center justify-center text-primary hover:bg-card active:scale-95 transition"
-          >
-            <Plus className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
+      {/* Header — canonical sticky page header. */}
+      <PageHeader
+        sticky
+        title={'مذكرتي'}
+        className="max-w-lg mx-auto"
+        right={
+          <IconButton onClick={openNew} aria-label="مدخلة جديدة">
+            <Plus className="h-5 w-5 text-primary" />
+          </IconButton>
+        }
+      />
 
       <div className="mx-auto max-w-lg px-5 pt-4 space-y-6">
         {/* Hero — the brain */}
@@ -108,16 +103,18 @@ export default function JournalHome() {
           className="space-y-4"
         >
           <motion.div variants={item}>
-            <div className="relative rounded-[28px] overflow-hidden border border-border/70">
+            <div className="relative rounded-xl overflow-hidden border border-border/70">
               <div className="aspect-[4/3] w-full">
                 <BrainScene balance={balance} reducedMotion={!!reduced} />
               </div>
-              {/* Overlay caption */}
+              {/* Overlay caption — sits on the always-dark brain scene, so it
+                  uses the light `primary-foreground` token rather than
+                  raw white. */}
               <div className="absolute inset-x-0 bottom-0 px-5 py-3 bg-background/85">
-                <div className="text-micro tracking-[0.24em] uppercase text-white/70">
+                <div className="text-micro tracking-[0.24em] uppercase text-primary-foreground/70">
                   ذهنك اليوم
                 </div>
-                <div className="text-white/95 text-meta mt-0.5">
+                <div className="text-primary-foreground/95 text-meta mt-0.5">
                   {balance.total === 0
                     ? 'ابدأ أول مدخلة لترى كيف يتشكّل.'
                     : `${balance.total} مدخلة · ${organicPct}٪ عاطفي · ${analyticalPct}٪ تحليلي`}
@@ -154,24 +151,12 @@ export default function JournalHome() {
           )}
 
           {!isLoading && entries.length === 0 && (
-            <AppCard>
-              <div className="text-center py-8 space-y-3">
-                <div className="text-foreground text-meta">
-                  مذكرتك فارغة — بعدُ.
-                </div>
-                <div className="text-muted-foreground text-mini leading-relaxed">
-                  كل مدخلة تُغذّي أحد نصفَي الذهن أعلاه. اكتب فكرة، مشاعر، أو ملاحظة.
-                </div>
-                <button
-                  type="button"
-                  onClick={openNew}
-                  className="inline-flex items-center gap-2 mt-2 rounded-xl bg-primary text-primary-foreground px-4 py-2 text-meta"
-                >
-                  <Plus className="h-4 w-4" />
-                  ابدأ الآن
-                </button>
-              </div>
-            </AppCard>
+            <StateView
+              kind="empty"
+              title={'مذكرتك فارغة — بعدُ.'}
+              body={'كل مدخلة تُغذّي أحد نصفَي الذهن أعلاه. اكتب فكرة، مشاعر، أو ملاحظة.'}
+              action={{ label: 'ابدأ الآن', onClick: openNew }}
+            />
           )}
 
           <motion.ul
@@ -212,7 +197,7 @@ export default function JournalHome() {
                             {e.tags.map((t) => (
                               <span
                                 key={t}
-                                className="text-micro px-2 py-0.5 rounded-full bg-card border border-border text-muted-foreground"
+                                className="text-micro px-2 py-0.5 rounded-full bg-secondary/60 border border-border text-muted-foreground"
                               >
                                 #{t}
                               </span>
@@ -260,7 +245,7 @@ export default function JournalHome() {
 
 function StatCell({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card/40 px-3 py-3 text-center">
+    <div className="app-card app-card-bare rounded-2xl px-3 py-3 text-center">
       <div
         className="mx-auto mb-2 h-1.5 w-6 rounded-full"
         style={{ background: accent, opacity: 0.8 }}

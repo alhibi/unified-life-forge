@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -91,43 +92,34 @@ export default function AddToTripDialog({ open, onOpenChange, place }: AddToTrip
             trips.length > 0 && (
               <div className="space-y-2">
                 <Label>رحلاتك</Label>
-                <ul className="max-h-48 space-y-1.5 overflow-y-auto">
+                <AppList compact className="max-h-48 overflow-y-auto">
                   {trips.map((trip) => {
                     const isActive = selectedTripId === trip.id;
                     return (
-                      <li key={trip.id}>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedTripId(isActive ? null : trip.id)}
-                          aria-pressed={isActive}
-                          className={cn(
-                            'flex w-full items-center gap-2 rounded-card border px-3 py-2.5 text-start transition-colors',
-                            isActive
-                              ? 'border-[hsl(var(--live))] bg-[hsl(var(--live)/0.1)]'
-                              : 'border-border hover:bg-accent',
-                          )}
-                        >
+                      <AppRow
+                        key={trip.id}
+                        aria-pressed={isActive}
+                        onClick={() => setSelectedTripId(isActive ? null : trip.id)}
+                        className={cn(isActive && 'bg-[hsl(var(--live)/0.1)]')}
+                        leading={
                           <Luggage
-                            className="h-4 w-4 shrink-0 text-muted-foreground"
+                            className="h-4 w-4 text-muted-foreground"
                             aria-hidden="true"
                           />
-                          <span className="min-w-0 flex-1 truncate text-body text-foreground">
-                            {trip.title}
-                          </span>
-                          <span className="shrink-0 font-mono text-micro tabular-nums text-muted-foreground">
-                            {trip.stops.length}
-                          </span>
-                          {isActive && (
-                            <Check
-                              className="h-4 w-4 shrink-0 text-[hsl(var(--live))]"
-                              aria-hidden="true"
-                            />
-                          )}
-                        </button>
-                      </li>
+                        }
+                        title={trip.title}
+                        value={trip.stops.length}
+                      >
+                        {isActive && (
+                          <Check
+                            className="h-4 w-4 shrink-0 text-[hsl(var(--live))]"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </AppRow>
                     );
                   })}
-                </ul>
+                </AppList>
               </div>
             )
           )}

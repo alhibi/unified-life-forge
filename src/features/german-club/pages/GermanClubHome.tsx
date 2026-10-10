@@ -1,9 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { AppList, IconButton, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { StateView } from '@/components/ui/state-view';
 import { BookOpen, ShieldAlert, Sparkles, Wand2 } from '@/lib/icons';
 
 import { HeuteImClub } from '../components/Daily/HeuteImClub';
@@ -12,7 +14,7 @@ import { QuickLookup } from '../components/QuickLookup';
 import { ShelfCard } from '../components/ShelfCard';
 import { WortschatzSpiegel } from '../components/WortschatzSpiegel';
 import { Wortspaziergang } from '../components/Wortspaziergang';
-import { GERMAN_CLUB_TOKENS, GermanShelf } from '../types';
+import { GermanShelf } from '../types';
 import { useGermanClubStore } from '../useGermanClubStore';
 
 // The content furnace (generation tool) is an occasional admin-ish flow —
@@ -23,11 +25,7 @@ const GenerationModal = lazy(() =>
 
 export const GermanClubHome: React.FC = () => {
   const navigate = useNavigate();
-  const {
-    shelves,
-    isLoadingShelves,
-    fetchShelves,
-  } = useGermanClubStore();
+  const { shelves, isLoadingShelves, fetchShelves } = useGermanClubStore();
 
   const [selectedFurnaceShelf, setSelectedFurnaceShelf] = useState<GermanShelf | null>(null);
   const [spaziergangOpen, setSpaziergangOpen] = useState(false);
@@ -37,152 +35,130 @@ export const GermanClubHome: React.FC = () => {
   }, [fetchShelves]);
 
   return (
-    <PageShell centered={false} flush>
+    <PageShell centered={false} flush className="px-4 pt-4 sm:pt-6">
       <SEO
         title="النادي الألماني (Der Club) — مرجع المواقف الواقعية"
         description="مرجع لغوي ألماني/عربي مرتب حسب المواقف اليومية بألوان الأجناس وتفسير الأفعال المنفصلة."
         path="/german-club"
       />
 
-      <div
-        className="min-h-screen pb-20 transition-colors"
-        style={{ backgroundColor: GERMAN_CLUB_TOKENS.paper, color: GERMAN_CLUB_TOKENS.ink }}
-      >
-        {/* Sticky App Bar Header */}
-        <div className="app-sticky-header z-30 px-4 py-3 flex items-center justify-between border-b border-[hsl(var(--track))]">
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <div>
-              <h1 className="text-base font-bold text-foreground tracking-tight leading-none">
-                النادي الألماني
-              </h1>
-              <span className="text-[0.625rem] font-mono font-bold text-[hsl(var(--primary))] tracking-widest uppercase">
-                DER CLUB — AMV
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => navigate('/german-club/dictionary')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--primary))]/30 bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 transition-colors flex items-center gap-1.5 shadow-xs"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-signal" />
-              القاموس الشامل
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate('/german-club/grammar')}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[hsl(var(--track))] text-foreground hover:bg-secondary transition-colors flex items-center gap-1.5"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-              زاوية القواعد
-            </button>
-
-            <button
-              type="button"
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
+        {/* Masthead — the hub register: back rail, centred serif title, and
+            the club's two secondary destinations as a chip rail. */}
+        <PageHeader
+          variant="display"
+          eyebrow="DER CLUB — AMV"
+          title="النادي الألماني"
+          subtitle="الألمانية بالمواقف الحية — مرجع مجاني للقراءة والاستخدام"
+          right={
+            <IconButton
               onClick={() => navigate('/german-club/review')}
-              className="p-1.5 rounded-xl border border-[hsl(var(--track))] text-muted-foreground hover:bg-secondary transition-colors"
               title="مراجعة المحتوى"
+              aria-label="مراجعة المحتوى"
             >
-              <ShieldAlert className="w-4 h-4 text-signal" />
-            </button>
+              <ShieldAlert className="h-5 w-5 text-signal" aria-hidden />
+            </IconButton>
+          }
+        >
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 pt-1">
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => navigate('/german-club/dictionary')}
+            >
+              <Sparkles className="h-3.5 w-3.5" aria-hidden />
+              القاموس الشامل
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-1.5"
+              onClick={() => navigate('/german-club/grammar')}
+            >
+              <BookOpen className="h-3.5 w-3.5" aria-hidden />
+              زاوية القواعد
+            </Button>
           </div>
-        </div>
+        </PageHeader>
 
-        {/* Hero Section */}
-        <div className="relative overflow-hidden border-b border-[hsl(var(--track))] px-4 py-8 sm:py-12 bg-gradient-to-b from-secondary/40 via-secondary/40 to-transparent">
-          <div className="max-w-4xl mx-auto text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-signal" />
-              <span>مرجع مجاني للقراءة والاستخدام</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-[hsl(var(--foreground))] tracking-tight leading-tight">
-              الألمانية <span className="text-[hsl(var(--primary))]">بالمواقف الحية</span>
-            </h2>
-
-            <p className="text-xs sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              رفوف مرتبة بالحالات اليومية — من طلب القهوة إلى مواقف العمل والقطارات.
-              مع توضيح أجناس الأسماء بالألوان وتفكيك الأفعال المنفصلة حركةً.
-            </p>
-
-            {/* Wortspaziergang CTA — the hero action */}
-            <div className="pt-3 flex flex-col items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setSpaziergangOpen(true)}
-                className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[hsl(var(--primary))] text-white text-sm font-bold hover:bg-[hsl(var(--primary))] active:scale-[0.98] transition-motion shadow-md hover:shadow-lg"
-              >
-                <Wand2 className="w-4 h-4 group-hover:rotate-12 transition-transform duration-normal" />
-                <span>ابدأ جولة لغوية</span>
-                <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-signal border border-signal/40 rounded-md px-1.5 py-0.5">
-                  7 خطوات
-                </span>
-              </button>
-
-              <WortschatzSpiegel />
-            </div>
-          </div>
-        </div>
-
-        {/* Gender Color Code Legend */}
-        <div className="max-w-4xl mx-auto px-4 py-4 my-2">
-          <div className="p-3.5 rounded-2xl border border-[hsl(var(--track))] bg-card flex flex-wrap items-center justify-between gap-3 text-xs">
-            <span className="font-bold text-foreground flex items-center gap-1.5">
-              <span>رمزية ألوان أجناس الأسماء:</span>
+        {/* Hero paragraph + the word-walk CTA */}
+        <section className="flex flex-col items-center gap-3 text-center">
+          <p className="max-w-md text-mini leading-relaxed text-muted-foreground">
+            رفوف مرتبة بالحالات اليومية — من طلب القهوة إلى مواقف العمل والقطارات. مع توضيح أجناس
+            الأسماء بالألوان وتفكيك الأفعال المنفصلة حركةً.
+          </p>
+          <Button
+            size="lg"
+            className="gap-2.5"
+            onClick={() => setSpaziergangOpen(true)}
+          >
+            <Wand2 className="h-4 w-4" aria-hidden />
+            <span>ابدأ جولة لغوية</span>
+            <span className="rounded-md border border-signal/40 px-1.5 py-0.5 font-mono text-micro font-bold uppercase tracking-widest text-signal">
+              7 خطوات
             </span>
-            <div className="flex items-center gap-4 flex-wrap font-medium">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--primary))] shadow-xs" />
-                <span>Der (مذكر)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--data-5))] shadow-xs" />
-                <span>Die (مؤنث)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--data-6))] shadow-xs" />
-                <span>Das (محايد)</span>
-              </div>
+          </Button>
+
+          <WortschatzSpiegel />
+        </section>
+
+        {/* Gender colour code legend — the swatches follow GENDER_COLORS, the
+            same keys the entry dots use, so the legend cannot drift from the
+            cards it explains. */}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-track px-3.5 py-3 text-mini">
+          <span className="flex items-center gap-1.5 font-bold text-foreground">
+            <span>رمزية ألوان أجناس الأسماء:</span>
+          </span>
+          <div className="flex flex-wrap items-center gap-4 font-medium">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-data-4" aria-hidden />
+              <span>Der (مذكر)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-data-5" aria-hidden />
+              <span>Die (مؤنث)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-data-6" aria-hidden />
+              <span>Das (محايد)</span>
             </div>
           </div>
         </div>
 
         {/* Quick Lookup — live multi-language search */}
-        <div className="max-w-3xl mx-auto px-4 pt-2 pb-1">
-          <QuickLookup />
-        </div>
+        <QuickLookup />
 
         {/* Discovery — random word with reason */}
-        <div className="max-w-3xl mx-auto px-4 pt-2 pb-1">
-          <DiscoveryCard />
-        </div>
+        <DiscoveryCard />
 
         {/* Heute im Club — daily content */}
-        <div className="max-w-3xl mx-auto px-4 pt-4 pb-2">
-          <HeuteImClub />
-        </div>
+        <HeuteImClub />
 
         {/* Main Shelf Wall */}
-        <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-bold text-[hsl(var(--foreground))]">
-              رفوف المواقف اليومية ({shelves.length})
-            </h3>
-            <span className="text-xs text-muted-foreground">اختر الرف لتصفح محتواه</span>
-          </div>
+        <section aria-label="رفوف المواقف اليومية">
+          <header className="mb-2 flex items-baseline justify-between gap-3 px-1">
+            <h2 className="type-section text-foreground">
+              رفوف المواقف اليومية (<span className="tabular-nums">{shelves.length}</span>)
+            </h2>
+            <p className="text-mini text-muted-foreground">اختر الرف لتصفح محتواه</p>
+          </header>
 
           {isLoadingShelves ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-36 rounded-2xl bg-secondary animate-pulse" />
+                <div key={i} className="h-16 animate-pulse rounded-lg bg-secondary" />
               ))}
             </div>
+          ) : shelves.length === 0 ? (
+            <StateView
+              kind="empty"
+              title="لا توجد رفوف بعد"
+              body="لم تُحمَّل رفوف المواقف من الخادم. تحقق من اتصالك ثم أعد المحاولة."
+              action={{ label: 'إعادة المحاولة', onClick: () => fetchShelves() }}
+              compact
+            />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <AppList>
               {shelves.map((shelf) => (
                 <ShelfCard
                   key={shelf.id}
@@ -194,24 +170,24 @@ export const GermanClubHome: React.FC = () => {
                   onClick={() => navigate(`/german-club/shelf/${shelf.slug}`)}
                 />
               ))}
-            </div>
+            </AppList>
           )}
-        </div>
+        </section>
 
-        {/* Furnace Generation Modal when triggered from home shelf cards */}
+        {/* Furnace Generation Modal when triggered from home shelf rows */}
         {selectedFurnaceShelf && (
           <Suspense fallback={null}>
-          <GenerationModal
-            shelfId={selectedFurnaceShelf.id}
-            shelfSlug={selectedFurnaceShelf.slug}
-            shelfTitleAr={selectedFurnaceShelf.title_ar}
-            shelfTitleDe={selectedFurnaceShelf.title_de}
-            shelfDescriptionAr={selectedFurnaceShelf.description_ar}
-            currentEntryCount={0}
-            targetCount={selectedFurnaceShelf.target_entry_count || 25}
-            isOpen={Boolean(selectedFurnaceShelf)}
-            onClose={() => setSelectedFurnaceShelf(null)}
-          />
+            <GenerationModal
+              shelfId={selectedFurnaceShelf.id}
+              shelfSlug={selectedFurnaceShelf.slug}
+              shelfTitleAr={selectedFurnaceShelf.title_ar}
+              shelfTitleDe={selectedFurnaceShelf.title_de}
+              shelfDescriptionAr={selectedFurnaceShelf.description_ar}
+              currentEntryCount={0}
+              targetCount={selectedFurnaceShelf.target_entry_count || 25}
+              isOpen={Boolean(selectedFurnaceShelf)}
+              onClose={() => setSelectedFurnaceShelf(null)}
+            />
           </Suspense>
         )}
 

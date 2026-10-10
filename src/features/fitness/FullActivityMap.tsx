@@ -3,6 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { StateView } from '@/components/ui/state-view';
 import { MapPin } from '@/lib/icons';
 
 import type { FitnessActivity, RoutePoint } from './types';
@@ -15,9 +16,28 @@ export interface FullActivityMapProps {
 }
 
 /**
+ * Resolves a theme token (stored as bare HSL triples) to a concrete CSS
+ * colour string. Leaflet paints SVG attributes, so `hsl(var(--…))` cannot
+ * be used directly there — this reads the live token value instead, which
+ * keeps the route/brand colour theme-aware without a raw hex. The literal
+ * is only a last-resort fallback for environments without the tokens
+ * (SSR/tests).
+ */
+function tokenColor(name: string, fallback = 'hsl(15 63% 45%)'): string {
+  if (typeof window === 'undefined') return fallback;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v ? `hsl(${v})` : fallback;
+}
+
+/**
  * FullActivityMap: An interactive, production-grade map component built on Leaflet
- * with OpenStreetMap tiles. It features auto-fitting bounds, premium custom SVG markers
- * for start/end positions, and an adaptive dark mode overlay aligned with the Zen Elite style.
+ * with OpenStreetMap tiles. It features auto-fitting bounds, custom SVG markers
+ * for start/end positions, and an adaptive dark mode overlay.
+ *
+ * System-unification pass: decorative chrome around the map is gone — no
+ * backdrop blur, no shadows, no raw hexes (route colour + markers read the
+ * semantic tokens), and the no-route placeholder is the shared <StateView>.
+ * The map itself is untouched.
  */
 export function FullActivityMap({
   activity,
@@ -85,9 +105,9 @@ export function FullActivityMap({
     // Convert RoutePoints to Leaflet LatLng coordinate tuples [number, number]
     const coordinates = pts.map((p) => [p.lat, p.lng] as L.LatLngTuple);
 
-    // Draw the main route polyline
+    // Draw the main route polyline (colour follows the live brand token)
     const polyline = L.polyline(coordinates, {
-      color: '#B8492E', // Live copper/olive accent color
+      color: tokenColor('--primary'),
       weight: 4,
       opacity: 0.85,
       lineCap: 'round',
@@ -98,8 +118,8 @@ export function FullActivityMap({
     const startIcon = L.divIcon({
       className: 'custom-gps-start-marker',
       html: `
-        <div class="relative w-4 h-4 rounded-full bg-data-1 border-2 border-white shadow-md flex items-center justify-center">
-          <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+        <div class="relative w-4 h-4 rounded-full bg-data-1 border-2 border-background flex items-center justify-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-background"></div>
         </div>
       `,
       iconSize: [16, 16],
@@ -110,9 +130,9 @@ export function FullActivityMap({
       className: 'custom-gps-end-marker',
       html: `
         <div class="relative w-5 h-5 flex items-center justify-center">
-          <div class="absolute inset-0 rounded-full bg-[#B8492E]/30 animate-ping"></div>
-          <div class="relative w-4 h-4 rounded-full bg-[#B8492E] border-2 border-white shadow-md flex items-center justify-center animate-pulse">
-            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+          <div class="absolute inset-0 rounded-full bg-primary/30 animate-ping"></div>
+          <div class="relative w-4 h-4 rounded-full bg-primary border-2 border-background flex items-center justify-center animate-pulse">
+            <div class="w-1.5 h-1.5 rounded-full bg-background"></div>
           </div>
         </div>
       `,
@@ -155,12 +175,14 @@ export function FullActivityMap({
 
   if (!pts || pts.length === 0) {
     return (
-      <div
-        style={{ height }}
-        className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/40 bg-muted/5 text-muted-foreground ${className}`}
-      >
-        <MapPin className="w-8 h-8 text-muted-foreground/40 mb-2 animate-bounce" />
-        <span className="text-mini font-medium">لا توجد بيانات مسار لعرضها</span>
+      <div style={{ height }} className={`flex ${className}`}>
+        <StateView
+          kind="empty"
+          compact
+          className="flex-1"
+          title="لا توجد بيانات مسار لعرضها"
+          body="سجّل نشاطاً مزوّداً بمسار GPS لعرضه هنا على الخريطة."
+        />
       </div>
     );
   }
@@ -180,8 +202,8 @@ export function FullActivityMap({
       />
 
       {/* Floating coordinates badge */}
-      <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md border border-border/40 px-2.5 py-1 rounded-xl pointer-events-none z-10 flex items-center gap-1.5 shadow-sm">
-        <MapPin className="w-3.5 h-3.5 text-primary" />
+      <div className="absolute top-3 start-3 bg-background border border-border/40 px-2.5 py-1 rounded-lg pointer-events-none z-raised flex items-center gap-1.5">
+        <MapPin className="w-3.5 h-3.5 text-primary" aria-hidden />
         <span className="font-bold text-micro text-foreground Montserrat tabular-nums">
           {pts[0].lat.toFixed(4)}, {pts[0].lng.toFixed(4)}
         </span>

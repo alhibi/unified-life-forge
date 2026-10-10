@@ -11,8 +11,6 @@
 //   ghost    — transparent wrapper with only a header. For list-like layouts.
 //
 // Every variant shares:
-//   • a 1px accent line at the top (decorative, optional)
-//   • rounded-2xl corners (16px) — hero gets rounded-3xl (24px)
 //   • the app's `surface-depth` utility when elevated=true
 //   • semantic HTML — section as the default
 //
@@ -28,9 +26,7 @@ export type UnifiedCardVariant = 'hero' | 'section' | 'tile' | 'inline' | 'ghost
 
 export interface UnifiedCardProps {
   variant?: UnifiedCardVariant;
-  /** Top accent line — on by default for hero/section, off for tile/inline. */
-  accent?: boolean;
-  /** Use the elevated surface-depth background. Default true for hero/section. */
+  /** Use the elevated card surface. Default true for hero/section. */
   elevated?: boolean;
   /** Custom className for layout overrides. */
   className?: string;
@@ -67,18 +63,9 @@ const elevatedDefault: Record<UnifiedCardVariant, boolean> = {
   ghost:   false,
 };
 
-const accentDefault: Record<UnifiedCardVariant, boolean> = {
-  hero:    true,
-  section: true,
-  tile:    false,
-  inline:  false,
-  ghost:   false,
-};
-
 export function UnifiedCard(props: UnifiedCardProps) {
   const {
     variant = 'section',
-    accent,
     elevated,
     className = '',
     padding = 'default',
@@ -88,32 +75,19 @@ export function UnifiedCard(props: UnifiedCardProps) {
   } = props;
 
   const isInteractive = typeof onClick === 'function';
-  const showAccent = accent ?? accentDefault[variant];
   const showElevated = elevated ?? elevatedDefault[variant];
 
   const interactiveClass = isInteractive
-    ? 'text-start w-full active:scale-[0.985] transition-transform cursor-pointer hover:border-border/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40'
+    ? 'text-start w-full transition-motion cursor-pointer hover:border-border/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40'
     : '';
 
   const cardClassName = cn(
     'relative overflow-hidden',
     variantClass[variant],
-    showElevated ? 'surface-depth' : 'bg-card/60',
+    showElevated ? 'surface-depth' : 'app-card-flat',
     paddingClass[padding],
     interactiveClass,
     className,
-  );
-
-  const inner = (
-    <>
-      {showAccent && (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
-        />
-      )}
-      {children}
-    </>
   );
 
   if (isInteractive) {
@@ -124,28 +98,23 @@ export function UnifiedCard(props: UnifiedCardProps) {
         className={cardClassName}
         {...rest}
       >
-        {inner}
+        {children}
       </button>
     );
   }
 
   return (
     <section className={cardClassName} {...rest}>
-      {inner}
+      {children}
     </section>
   );
 }
 
 /* ── Helpers used across the feature ───────────────────────────────────── */
 
-/** Thin divider inside a card — runs from edge to edge with a fade. */
+/** Thin divider inside a card — a quiet 1px tonal rule. */
 export function CardDivider() {
-  return (
-    <div
-      aria-hidden
-      className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -mx-4 my-3"
-    />
-  );
+  return <div aria-hidden className="rule-x -mx-4 my-3" />;
 }
 
 /** Small uppercase eyebrow label used inside card headers. */

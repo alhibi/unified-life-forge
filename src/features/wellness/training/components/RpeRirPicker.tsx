@@ -74,7 +74,6 @@ export default function RpeRirPicker({
               onClick={() => onChange(s)}
               onMouseEnter={() => setHover(s)}
               onMouseLeave={() => setHover(null)}
-              whileTap={{ scale: 0.92 }}
               className="shrink-0 rounded-lg flex items-center justify-center font-bold tabular-nums"
               style={{
                 width: buttonSize,

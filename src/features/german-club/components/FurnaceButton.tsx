@@ -11,9 +11,13 @@ interface FurnaceButtonProps {
 
 /**
  * Furnace Ember Button ("الفرن — حرف D الملتهب")
- * A deep circular instrument button featuring a burning/flaming ember 'D' symbol.
- * The outer glow intensity dynamically derives from the shelf's real fill ratio (hunger ratio).
- * Pulsates and flickers with intense fiery flame energy when an active AI generation job is running.
+ * A deep circular instrument button featuring the ember 'D' glyph.
+ *
+ * Emphasis follows the design contract, not decoration: one accent colour
+ * (signal) + size + a hairline border carry the identity. The hunger ratio
+ * (1 - current/target, clamped) still drives the button, but through the
+ * allowed channels only — the glyph's opacity, the border alpha and the
+ * running pulse (transform/opacity). No glow, no gradient, no inset shadow.
  */
 export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
   currentCount = 0,
@@ -29,28 +33,19 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
     return Math.min(Math.max(ratio, 0.25), 1.0);
   }, [currentCount, targetCount]);
 
-  // Size dimensions map
+  // Size map — every size keeps the 44px minimum touch target; the steps
+  // change the glyph rung and the largest outer ring.
   const sizeClasses = useMemo(() => {
     switch (size) {
       case 'sm':
-        return 'w-7 h-7 text-xs';
+        return 'h-11 w-11 text-meta';
       case 'lg':
-        return 'w-11 h-11 text-base';
+        return 'h-12 w-12 text-title';
       case 'md':
       default:
-        return 'w-9 h-9 text-sm';
+        return 'h-11 w-11 text-lead';
     }
   }, [size]);
-
-  // Dynamic box shadow and flaming halo
-  const shadowGlow = useMemo(() => {
-    if (isJobRunning) {
-      return '0 0 20px rgba(255, 122, 41, 0.9), 0 0 35px rgba(201, 112, 59, 0.6), inset 0 0 10px rgba(255, 200, 50, 0.8)';
-    }
-    const spread = Math.round(hungerRatio * 16);
-    const alpha = (0.3 + hungerRatio * 0.55).toFixed(2);
-    return `0 0 ${spread}px rgba(201, 112, 59, ${alpha}), inset 0 0 6px rgba(255, 122, 41, 0.25)`;
-  }, [hungerRatio, isJobRunning]);
 
   return (
     <button
@@ -61,42 +56,35 @@ export const FurnaceButton: React.FC<FurnaceButtonProps> = ({
       }}
       title={`الفرن (OpenRouter AI) — نسبة الاحتياج: ${Math.round(hungerRatio * 100)}% (${currentCount}/${targetCount})`}
       style={{
-        boxShadow: shadowGlow,
+        // One accent colour, one channel: the border opacity tracks the real
+        // fill ratio. No glow — a hairline whose weight says how hungry the
+        // shelf is.
+        borderColor: isJobRunning
+          ? 'hsl(var(--signal))'
+          : `hsl(var(--signal) / ${(0.35 + hungerRatio * 0.55).toFixed(2)})`,
       }}
-      className={`rounded-full border border-[hsl(var(--signal))]/70 bg-gradient-to-b from-[hsl(var(--foreground))] via-[hsl(var(--foreground))] to-[hsl(var(--foreground))] hover:border-[hsl(var(--signal))] hover:scale-105 active:scale-95 transition-motion flex items-center justify-center relative group shrink-0 cursor-pointer overflow-hidden ${sizeClasses} ${className}`}
+      className={`rounded-full border bg-foreground transition-motion motion-safe:hover:scale-105 flex items-center justify-center relative group shrink-0 cursor-pointer overflow-hidden ${sizeClasses} ${className}`}
     >
-      {/* Background Fiery Glow Surface */}
+      {/* Ember core symbol "D" */}
       <span
-        style={{ opacity: isJobRunning ? 0.9 : 0.4 + hungerRatio * 0.5 }}
-        className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,122,41,0.45)_0%,rgba(201,112,59,0.15)_60%,transparent_100%)] pointer-events-none"
-      />
-
-      {/* Flaming Core Symbol "D" */}
-      <span
-        style={{
-          opacity: isJobRunning ? 1 : 0.75 + hungerRatio * 0.25,
-          textShadow: isJobRunning
-            ? 'var(--shadow-control)'
-            : '0 0 8px rgba(255, 122, 41, 0.7)',
-        }}
-        className={`font-black font-mono tracking-tighter text-[hsl(var(--signal))] select-none relative z-10 transition-motion ${
-          isJobRunning ? 'motion-safe:animate-pulse text-signal scale-110' : 'group-hover:text-signal'
+        style={{ opacity: isJobRunning ? 1 : 0.75 + hungerRatio * 0.25 }}
+        className={`font-black font-mono tracking-tighter text-signal select-none relative z-raised transition-motion ${
+          isJobRunning ? 'motion-safe:animate-pulse scale-110' : 'group-hover:scale-105'
         }`}
       >
         D
       </span>
 
-      {/* Fiery Corona / Active Flame Flicker Effect */}
+      {/* Active job signal — a real running state, drawn as opacity/transform only. */}
       {isJobRunning && (
         <>
-          <span className="absolute inset-0 rounded-full border border-[hsl(var(--signal))] motion-safe:animate-ping opacity-80 pointer-events-none" />
-          <span className="absolute inset-0 rounded-full bg-gradient-to-t from-[hsl(var(--signal))]/30 to-transparent motion-safe:animate-pulse pointer-events-none" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-signal ring-2 ring-[hsl(var(--track))] motion-safe:animate-bounce z-20" />
+          <span className="absolute inset-0 rounded-full border border-signal motion-safe:animate-ping opacity-80 pointer-events-none" />
+          <span className="absolute -end-1 -top-1 h-2.5 w-2.5 rounded-full bg-signal ring-2 ring-track motion-safe:animate-bounce z-raised" />
         </>
       )}
 
-      {/* Hover Tooltip Hint */}
-      <span className="absolute bottom-full mb-2 hidden group-hover:block z-50 bg-foreground text-signal text-[0.625rem] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-xl border border-signal/30 pointer-events-none">
+      {/* Hover tooltip hint */}
+      <span className="absolute bottom-full mb-2 hidden group-hover:block z-float bg-foreground text-signal text-micro font-bold py-1 px-2.5 rounded-lg whitespace-nowrap border border-signal/30 pointer-events-none">
         الفرن: توليد الذكاء الاصطناعي ({currentCount}/{targetCount})
       </span>
     </button>

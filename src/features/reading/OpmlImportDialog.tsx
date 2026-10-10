@@ -204,7 +204,7 @@ export function OpmlImportDialog({
         className="fixed inset-0 z-drawer flex items-end sm:items-center justify-center"
       >
         <div
-          className="absolute inset-0 bg-black/60"
+          className="app-scrim"
           onClick={() => stage !== 'importing' && onClose()}
         />
         <motion.div

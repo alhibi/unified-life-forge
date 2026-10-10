@@ -3,9 +3,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Link, useSearchParams } from 'react-router-dom';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard,PageShell } from '@/components/ui/app-shell';
+import { AppCard,AppList,AppRow,PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { StateView } from '@/components/ui/state-view';
 import { Brain,ChevronDown, ChevronRight, Eye, FileText, Hash, Pencil, Plus, Search, Sparkles, Trash } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -186,34 +188,33 @@ export default function PKM() {
         description={'دفتر ملاحظات محلي بوسم متداخل، بحث فوري، وحفظ آمن على جهازك.'}
         path="/pkm"
       />
-      <div className="flex items-center gap-2">
-        <BackButton />
-        <h1 className="text-lead font-bold flex-1 truncate">
-          {'مذكّرتي'}
-        </h1>
-        <Link
-          to="/pkm/mind"
-          className="h-9 w-9 rounded-full bg-card border border-border/60 flex items-center justify-center active:scale-95 transition-transform"
-          aria-label={'العقل الحيّ'}
-          title={'العقل الحيّ'}
-        >
-          <Brain className="w-4 h-4 text-primary" />
-        </Link>
-        <button
-          onClick={() => setListOpen((v) => !v)}
-          className="lg:hidden h-9 px-3 rounded-full bg-card border border-border/60 text-mini font-medium active:scale-95 transition-transform"
-          aria-label={'القائمة'}
-        >
-          {listOpen ? ('المحرر') : ('القائمة')}
-        </button>
-        <button
-          onClick={handleCreate}
-          className="h-9 px-3 rounded-full bg-primary text-primary-foreground text-mini font-semibold flex items-center gap-1 active:scale-95 transition-transform"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          {'جديد'}
-        </button>
-      </div>
+      <PageHeader
+        title={'مذكّرتي'}
+        right={
+          <>
+            <Link
+              to="/pkm/mind"
+              className="app-icon-btn"
+              aria-label={'العقل الحيّ'}
+              title={'العقل الحيّ'}
+            >
+              <Brain className="h-4 w-4 text-primary" />
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setListOpen((v) => !v)}
+              className="lg:hidden"
+            >
+              {listOpen ? ('المحرر') : ('القائمة')}
+            </Button>
+            <Button size="sm" onClick={handleCreate}>
+              <Plus className="h-3.5 w-3.5" />
+              {'جديد'}
+            </Button>
+          </>
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-[300px_1fr]">
         {/* SIDEBAR */}
@@ -226,12 +227,13 @@ export default function PKM() {
           {/* search */}
           <label className="relative block">
             <Search className="absolute top-1/2 -translate-y-1/2 start-3 w-4 h-4 text-muted-foreground" />
-            <input
+            <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={'ابحث في ملاحظاتك…'}
-              className="w-full h-10 rounded-xl bg-card border border-border/60 ps-9 pe-3 text-meta outline-none focus:border-primary/60"
+              className="h-10 ps-9 pe-3 text-meta"
               style={{ fontSize: 16 }}
+              aria-label={'ابحث في ملاحظاتك'}
             />
           </label>
 
@@ -245,7 +247,7 @@ export default function PKM() {
                   'relative h-9 px-4 rounded-full text-mini font-semibold border transition-motion focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-[\'\']',
                   statusFilter === s
                     ? 'bg-primary/15 border-primary/40 text-primary'
-                    : 'bg-card border-border/50 text-muted-foreground hover:text-foreground hover:border-border/80',
+                    : 'bg-background border-border/50 text-muted-foreground hover:text-foreground hover:border-border/80',
                 )}
               >
                 {L[s]}
@@ -255,7 +257,7 @@ export default function PKM() {
 
           {/* tag tree */}
           {tagTree.length > 0 && (
-            <div className="rounded-xl bg-card border border-border/50 p-2">
+            <div className="app-card app-card-bare rounded-xl p-2">
               <div className="px-2 py-1.5 text-micro font-bold uppercase tracking-wider text-muted-foreground-subtle">
                 {'الوسوم'}
               </div>
@@ -310,37 +312,18 @@ export default function PKM() {
                 />
               )
             ) : (
-              filtered.map((n) => {
-                const title = titleOf(n);
-                const excerpt = excerptOf(n);
-                return (
-                  <button
+              <AppList>
+                {filtered.map((n) => (
+                  <AppRow
                     key={n.id}
                     onClick={() => { setActiveId(n.id); setPreview(false); setListOpen(false); }}
-                    className={cn(
-                      'text-start rounded-xl border p-3.5 transition-colors active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none',
-                      activeId === n.id
-                        ? 'bg-primary/10 border-primary/40'
-                        : 'bg-card border-border/50 hover:border-border',
-                    )}
-                    title={title}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="text-meta font-bold truncate flex-1 leading-snug">
-                        {title}
-                      </div>
-                      <span className="text-micro text-muted-foreground-subtle shrink-0 mt-0.5">
-                        {new Date(n.updatedAt).toLocaleDateString('ar')}
-                      </span>
-                    </div>
-                    {excerpt && (
-                      <div className="text-mini text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed" title={excerpt}>
-                        {excerpt}
-                      </div>
-                    )}
-                  </button>
-                );
-              })
+                    className={activeId === n.id ? 'bg-primary/10' : undefined}
+                    title={titleOf(n)}
+                    subtitle={excerptOf(n) || undefined}
+                    value={new Date(n.updatedAt).toLocaleDateString('ar')}
+                  />
+                ))}
+              </AppList>
             )}
           </div>
         </aside>
@@ -644,7 +627,7 @@ function Editor({
   }, [body]);
 
   const toolbarBtn =
-    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-mini font-semibold text-foreground/80 hover:text-foreground active:scale-95 transition-motion flex items-center justify-center';
+    'h-8 min-w-8 px-2 rounded-lg bg-background/60 hover:bg-accent border border-border/40 text-mini font-semibold text-foreground/80 hover:text-foreground transition-motion flex items-center justify-center';
 
   return (
     <AppCard className="flex flex-col gap-3 min-h-[60vh]">
@@ -662,7 +645,7 @@ function Editor({
         <div className="flex-1" />
         <button
           onClick={onTogglePreview}
-          className="h-8 px-3 rounded-full bg-background border border-border/60 text-mini font-medium flex items-center gap-1.5 active:scale-95 transition-transform"
+          className="h-8 px-3 rounded-full bg-background border border-border/60 text-mini font-medium flex items-center gap-1.5"
           aria-label={preview ? ('تحرير') : ('معاينة')}
         >
           {preview ? <Pencil className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -670,7 +653,7 @@ function Editor({
         </button>
         <button
           onClick={onOptimize}
-          className="h-8 px-3 rounded-full bg-primary/10 border border-primary/30 text-primary text-mini font-semibold flex items-center gap-1.5 active:scale-95 transition-transform"
+          className="h-8 px-3 rounded-full bg-primary/10 border border-primary/30 text-primary text-mini font-semibold flex items-center gap-1.5"
           aria-label={'محسِّن النص'}
         >
           <Sparkles className="w-3.5 h-3.5" />

@@ -57,7 +57,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-picker bg-black/60"
+        className="app-scrim z-picker"
         onClick={onClose}
       />
       <motion.div
@@ -68,7 +68,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
       >
         <div className="mx-auto w-10 h-1 rounded-full bg-border/40 mt-2 mb-1" />
         <div className="px-4 h-14 flex items-center gap-2 border-b border-border/15">
-          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40 transition-colors">
+          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors">
             <BackIcon className="w-5 h-5 text-foreground" />
           </button>
           <h2 className="text-body font-semibold">
@@ -107,7 +107,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
               autoFocus
             />
             {query && (
-              <button onClick={() => setQuery('')} className="w-6 h-6 rounded-full flex items-center justify-center active:bg-accent/40">
+              <button onClick={() => setQuery('')} className="w-6 h-6 rounded-full flex items-center justify-center">
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             )}
@@ -128,7 +128,7 @@ const ForwardPicker: React.FC<ForwardPickerProps> = ({ messages, conversations, 
                   key={conv.id}
                   onClick={() => onForward(conv.id)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-2.5 text-start active:bg-accent/40 transition-colors'
+                    'w-full flex items-center gap-3 px-4 py-2.5 text-start transition-colors'
                   )}
                 >
                   {renderAvatar(conv.otherUsername, conv.otherAvatarUrl)}

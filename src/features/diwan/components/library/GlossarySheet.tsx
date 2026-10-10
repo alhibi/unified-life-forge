@@ -1,14 +1,16 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef } from 'react';
 
+import { AppCard, IconButton } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import type { DiwanGlossaryEntry } from '@/features/diwan/lib/types';
-import { BookOpen, Quote,X } from '@/lib/icons';
+import { BookOpen, Quote, X } from '@/lib/icons';
 
 interface Props {
   open: boolean;
-  word: string | null;            // الكلمة الملموسة بالضبط (للعنوان)
-  entries: DiwanGlossaryEntry[];  // المعاني المطابقة (قد تكون فارغة)
-  versePreview?: string;          // نصّ البيت كاملاً (للسياق)
+  word: string | null; // الكلمة الملموسة بالضبط (للعنوان)
+  entries: DiwanGlossaryEntry[]; // المعاني المطابقة (قد تكون فارغة)
+  versePreview?: string; // نصّ البيت كاملاً (للسياق)
   onClose: () => void;
 }
 
@@ -16,10 +18,12 @@ interface Props {
  * Bottom-sheet يعرض شرح كلمة من معجم القصيدة.
  *
  * • يفتح عند long-press على كلمة في `LibraryPoem`.
- * • إن لم يُعثر على معنى، يُظهر حالة فارغة لطيفة (لا حاجة لتعطيل
- *   long-press على الكلمات غير المُفهرسة لأن المستخدم قد يكتشف).
+ * • إن لم يُعثر على معنى، تُعرض حالة فارغة قياسية (StateView).
  * • a11y: dialog مودال حقيقي مع focus trap بسيط، إغلاق بـ Escape،
  *   ورُجوع التركيز إلى العنصر الذي فتح الشيت بعد الإغلاق.
+ *
+ * السطح الآن من طبقة النظام: `.app-scrim` للتعتيم و`.app-overlay-surface`
+ * لسطح المحتوى — لا تعتيم أسود خام ولا ظل ولا blur محلي.
  */
 export default function GlossarySheet({ open, word, entries, versePreview, onClose }: Props) {
   const sheetRef = useRef<HTMLDivElement | null>(null);
@@ -73,14 +77,14 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — النظام: scrim الوحيد المعتمد */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-drawer bg-black/60"
+            className="app-scrim z-drawer"
             aria-hidden="true"
           />
 
@@ -94,91 +98,75 @@ export default function GlossarySheet({ open, word, entries, versePreview, onClo
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-            className="fixed inset-x-0 bottom-0 z-drawer max-h-[78vh] overflow-hidden rounded-t-3xl bg-card border-t border-border/40 "
+            className="app-overlay-surface fixed inset-x-0 bottom-0 z-drawer max-h-[78vh] overflow-hidden rounded-t-xl rounded-b-none"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
             {/* Drag handle */}
             <div className="flex justify-center pt-2.5 pb-1" aria-hidden="true">
-              <span className="block w-10 h-1 rounded-full bg-muted-foreground/30" />
+              <span className="app-drawer-handle bg-muted-foreground/30" />
             </div>
 
             {/* Header */}
-            <div className="px-5 pt-1 pb-3 flex items-start gap-3 border-b border-border/30">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0" aria-hidden="true">
-                <BookOpen className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-micro font-semibold text-muted-foreground tracking-wider uppercase">
+            <div className="flex items-start gap-3 border-b border-border/30 px-5 pt-1 pb-3">
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
+                aria-hidden="true"
+              >
+                <BookOpen className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">
                   المعجم
                 </p>
-                <h3
-                  className="text-title font-bold text-foreground mt-0.5 leading-tight break-words"
-                  style={{ fontFamily: 'var(--font-amiri)' }}
-                >
+                <h3 className="mt-0.5 break-words font-amiri text-title font-bold text-foreground">
                   {word ?? '—'}
                 </h3>
               </div>
-              <button
-                ref={closeBtnRef}
-                onClick={onClose}
-                aria-label="إغلاق المعجم"
-                className="w-8 h-8 rounded-full bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 focus:outline-none focus:ring-2 focus:ring-primary/40"
-              >
-                <X className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-              </button>
+              <IconButton ref={closeBtnRef} onClick={onClose} aria-label="إغلاق المعجم">
+                <X className="h-4 w-4" aria-hidden="true" />
+              </IconButton>
             </div>
 
             {/* Body */}
-            <div className="px-5 py-4 overflow-y-auto" style={{ maxHeight: 'calc(78vh - 120px)' }}>
+            <div className="overflow-y-auto px-5 py-4" style={{ maxHeight: 'calc(78vh - 120px)' }}>
               {/* Verse preview */}
               {versePreview && (
-                <div className="mb-4 p-3 rounded-xl bg-muted/40 border border-border/30">
-                  <div className="flex items-start gap-2">
-                    <Quote className="w-3.5 h-3.5 text-muted-foreground-subtle shrink-0 mt-1" aria-hidden="true" />
-                    <p
-                      className="text-meta text-foreground/85 leading-[2] flex-1"
-                      style={{ fontFamily: 'var(--font-amiri)' }}
-                    >
-                      {versePreview}
-                    </p>
-                  </div>
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-border/30 bg-muted/40 p-3">
+                  <Quote
+                    className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground-subtle"
+                    aria-hidden="true"
+                  />
+                  <p className="flex-1 font-amiri text-meta leading-[2] text-foreground/85">
+                    {versePreview}
+                  </p>
                 </div>
               )}
 
               {/* Entries */}
               {entries.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-mini text-muted-foreground">
-                    لا يوجد شرح محفوظ لهذه الكلمة.
-                  </p>
-                  <p className="text-micro text-muted-foreground-subtle mt-2 leading-relaxed max-w-xs mx-auto">
-                    سيُضاف الشرح تدريجياً مع إثراء المعجم. يمكنك تجربة الـ long-press
-                    على كلمة أخرى داخل البيت.
-                  </p>
-                </div>
+                <StateView
+                  compact
+                  kind="empty"
+                  title="لا يوجد شرح محفوظ لهذه الكلمة"
+                  body="سيُضاف الشرح تدريجياً مع إثراء المعجم. يمكنك تجربة الضغط المطوّل على كلمة أخرى داخل البيت."
+                />
               ) : (
                 <ul className="space-y-2.5">
                   {entries.map((g, i) => (
-                    <li
-                      key={`${g.word}-${i}`}
-                      className="rounded-xl bg-card border border-border/30 p-3"
-                    >
-                      <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <span
-                          className="text-meta font-bold text-primary"
-                          style={{ fontFamily: 'var(--font-amiri)' }}
-                        >
-                          {g.word}
-                        </span>
-                        {g.verse_position !== null && (
-                          <span className="text-micro text-muted-foreground-subtle">
-                            البيت {g.verse_position + 1}
+                    <li key={`${g.word}-${i}`}>
+                      <AppCard flat className="p-3">
+                        <div className="mb-1 flex items-baseline justify-between gap-2">
+                          <span className="font-amiri text-meta font-bold text-primary">
+                            {g.word}
                           </span>
-                        )}
-                      </div>
-                      <p className="text-mini text-foreground/85 leading-relaxed">
-                        {g.meaning}
-                      </p>
+                          {g.verse_position !== null && (
+                            <span className="text-micro text-muted-foreground-subtle">
+                              البيت {g.verse_position + 1}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-mini leading-relaxed text-foreground/85">{g.meaning}</p>
+                      </AppCard>
                     </li>
                   ))}
                 </ul>

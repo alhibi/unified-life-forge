@@ -262,7 +262,7 @@ export default function PriceChart({
   }, [series]);
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border/10 bg-gradient-to-b from-muted/10 to-transparent">
+    <section className="app-card app-card-bare relative overflow-hidden border border-border/10">
       {/* Header — identity, live price and delta */}
       <header className="px-4 pt-4 text-end" dir="rtl">
         <div className="mb-1 flex items-center justify-end gap-1.5 text-micro text-muted-foreground">
@@ -449,7 +449,7 @@ export default function PriceChart({
             {hoverIndex !== null && activePoint && (
               <div className="pointer-events-none absolute inset-y-0 left-[4.25rem] right-0 z-20">
                 <div
-                  className="absolute top-1 -translate-x-1/2 rounded-xl border border-border/20 bg-background/90 px-2.5 py-1.5 text-center shadow-lg backdrop-blur"
+                  className="absolute top-1 -translate-x-1/2 rounded-lg border border-border/40 bg-popover px-2.5 py-1.5 text-center"
                   style={{
                     left: `${Math.min(Math.max((activePoint.x / VIEW_W) * 100, 12), 88)}%`,
                   }}
@@ -478,7 +478,7 @@ export default function PriceChart({
               setRange(option);
             }}
             className={cn(
-              'flex-1 rounded-full px-2 py-1.5 text-micro font-semibold transition-colors duration-normal active:scale-95',
+              'flex-1 rounded-full px-2 py-1.5 text-micro font-semibold transition-colors duration-normal',
               range === option
                 ? isUp
                   ? 'bg-data-1/12 text-data-1'

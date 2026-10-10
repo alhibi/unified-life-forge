@@ -219,19 +219,23 @@ export default function PrayerSettings() {
         </motion.div>
 
         {/* Hybrid note */}
-        <motion.div variants={item} className="flex gap-3 rounded-2xl bg-primary/5 border border-primary/15 p-4">
-          <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-          <p className="text-mini text-muted-foreground leading-relaxed">
-            {'يستخدم التطبيق نظاماً هجيناً: حساب رسمي عبر الإنترنت مع توقيت محلي احتياطي عبر معادلات فلكية، ليعمل بدقة في جميع دول العالم وحتى دون اتصال.'}
-          </p>
+        <motion.div variants={item}>
+          <AppCard className="flex gap-3">
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden />
+            <p className="text-mini text-muted-foreground leading-relaxed">
+              {'يستخدم التطبيق نظاماً هجيناً: حساب رسمي عبر الإنترنت مع توقيت محلي احتياطي عبر معادلات فلكية، ليعمل بدقة في جميع دول العالم وحتى دون اتصال.'}
+            </p>
+          </AppCard>
         </motion.div>
 
         {/* Info note */}
-        <motion.div variants={item} className="flex gap-3 rounded-2xl bg-primary/5 border border-primary/15 p-4">
-          <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-          <p className="text-mini text-muted-foreground leading-relaxed">
-            {'يختلف مذهب الأحناف عن غيره في وقت صلاتي العصر والعشاء؛ فيتأخر عن غيره نحو 30 دقيقة في العصر، ونحو 12 دقيقة في العشاء، بحسب اختلاف البلدان والفصول.'}
-          </p>
+        <motion.div variants={item}>
+          <AppCard className="flex gap-3">
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden />
+            <p className="text-mini text-muted-foreground leading-relaxed">
+              {'يختلف مذهب الأحناف عن غيره في وقت صلاتي العصر والعشاء؛ فيتأخر عن غيره نحو 30 دقيقة في العصر، ونحو 12 دقيقة في العشاء، بحسب اختلاف البلدان والفصول.'}
+            </p>
+          </AppCard>
         </motion.div>
 
         {/* High Latitude Adjustment Methods */}
@@ -360,7 +364,7 @@ export default function PrayerSettings() {
         <motion.div variants={item} className="pt-2">
           <button
             onClick={resetDefaults}
-            className="w-full py-3.5 rounded-2xl bg-destructive/10 text-destructive font-semibold text-meta active:scale-[0.98] transition-transform flex items-center justify-center gap-2 hover:bg-destructive/15"
+            className="w-full py-3.5 rounded-2xl bg-destructive/10 text-destructive font-semibold text-meta transition-colors flex items-center justify-center gap-2 hover:bg-destructive/15"
           >
             <RotateCcw className="w-4 h-4" />
             {'العودة للإعدادات الافتراضية'}

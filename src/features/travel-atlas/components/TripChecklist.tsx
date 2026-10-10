@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { AppCard } from '@/components/ui/app-shell';
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -65,8 +65,8 @@ export default function TripChecklist({ tripId, items }: TripChecklistProps) {
   return (
     <div className="app-stack-sm">
       {items.length > 0 && (
-        <AppCard className="p-0">
-          <p className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+        <>
+          <p className="flex items-center justify-between gap-2 px-1">
             <span className="text-body text-foreground">جهّزت</span>
             <span className="font-mono text-mini tabular-nums text-muted-foreground">
               {doneCount} / {items.length}
@@ -76,55 +76,71 @@ export default function TripChecklist({ tripId, items }: TripChecklistProps) {
           {grouped.map((group) => {
             const Icon = group.meta.icon;
             return (
-              <section key={group.meta.value}>
-                <h4 className="flex items-center gap-2 border-b border-border bg-muted/40 px-4 py-2 text-micro uppercase tracking-[0.08em] text-muted-foreground">
+              <section key={group.meta.value} className="app-stack-sm">
+                <h4 className="flex items-center gap-2 px-1 text-micro uppercase tracking-[0.08em] text-muted-foreground">
                   <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                   {group.meta.label}
                 </h4>
-                <ul className="divide-y divide-border">
-                  {group.entries.map((item) => (
-                    <li key={item.id} className="flex items-center gap-2 px-3 py-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setDone.mutate({ itemId: item.id, isDone: !item.isDone })}
+                <AppList compact>
+                  {group.entries.map((item) => {
+                    const toggleDone = () =>
+                      setDone.mutate({ itemId: item.id, isDone: !item.isDone });
+                    return (
+                      <AppRow
+                        key={item.id}
+                        as="div"
+                        onClick={toggleDone}
+                        role="button"
                         aria-pressed={item.isDone}
-                        className="flex min-w-0 flex-1 items-center gap-3 py-1.5 text-start"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleDone();
+                          }
+                        }}
+                        leading={
+                          <span
+                            className={cn(
+                              'grid h-6 w-6 place-items-center rounded-sm border',
+                              item.isDone
+                                ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))] text-background'
+                                : 'border-border text-transparent',
+                            )}
+                            aria-hidden="true"
+                          >
+                            <Check className="h-4 w-4" />
+                          </span>
+                        }
+                        title={
+                          <span
+                            className={cn(
+                              item.isDone ? 'text-muted-foreground line-through' : 'text-foreground',
+                            )}
+                          >
+                            {item.label}
+                          </span>
+                        }
                       >
-                        <span
-                          className={cn(
-                            'grid h-6 w-6 shrink-0 place-items-center rounded-sm border',
-                            item.isDone
-                              ? 'border-[hsl(var(--live))] bg-[hsl(var(--live))] text-background'
-                              : 'border-border text-transparent',
-                          )}
-                          aria-hidden="true"
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeItem.mutate(item.id);
+                          }}
+                          aria-label={`حذف ${item.label}`}
+                          className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-muted-foreground hover:text-destructive"
                         >
-                          <Check className="h-4 w-4" />
-                        </span>
-                        <span
-                          className={cn(
-                            'min-w-0 truncate text-body',
-                            item.isDone ? 'text-muted-foreground line-through' : 'text-foreground',
-                          )}
-                        >
-                          {item.label}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeItem.mutate(item.id)}
-                        aria-label={`حذف ${item.label}`}
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-button text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </AppRow>
+                    );
+                  })}
+                </AppList>
               </section>
             );
           })}
-        </AppCard>
+        </>
       )}
 
       <div className="flex items-center gap-2">

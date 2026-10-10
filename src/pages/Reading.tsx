@@ -525,7 +525,7 @@ export default function ReadingPage() {
         />
       </PullToRefresh>
 
-      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-micro text-muted-foreground">
+      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-micro text-muted-foreground tabular-nums">
         <button
           type="button"
           onClick={() => setView('storage')}
@@ -567,7 +567,7 @@ export default function ReadingPage() {
 
   return (
     <ReadingErrorBoundary lang={language}>
-    <div className="min-h-screen bg-background flex flex-col pb-20">
+    <div className="min-h-screen bg-background flex flex-col pb-page">
       <SEO
         title={'إطلاع — قارئ الأخبار — SmartHub'}
         description={'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'}

@@ -138,7 +138,6 @@ const AttachmentMenu = React.memo(function AttachmentMenu({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: i * 0.05, type: 'spring', damping: 15 }}
-              whileTap={{ scale: 0.9 }}
             >
               <div
                 className={cn('w-11 h-11 rounded-full flex items-center justify-center', opt.color)}
@@ -199,7 +198,7 @@ const MentionSuggestionList = React.memo(function MentionSuggestionList({
           <motion.button
             key={user.userId}
             type="button"
-            className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-muted/30 active:bg-muted/40 transition-colors text-start"
+            className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-muted/30 transition-colors text-start"
             onClick={() => onSelect(user.username)}
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
@@ -608,7 +607,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   onClick={clearStagedImages}
                   aria-label={'مسح جميع الصور'}
-                  className="text-micro text-destructive font-medium px-2 py-0.5 rounded-full active:bg-destructive/10 transition-colors"
+                  className="text-micro text-destructive font-medium px-2 py-0.5 rounded-full transition-colors"
                 >
                   {'مسح الكل'}
                 </button>
@@ -632,7 +631,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   aria-label={'إضافة صور'}
-                  className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/30 flex items-center justify-center active:bg-accent/20 transition-colors"
+                  className="shrink-0 w-16 h-16 rounded-xl border-2 border-dashed border-border/30 flex items-center justify-center transition-colors"
                 >
                   <Plus className="w-5 h-5 text-muted-foreground" />
                 </button>
@@ -665,7 +664,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   onClick={cancelEdit}
                   aria-label={'إلغاء التعديل'}
-                  className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors"
+                  className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center transition-colors"
                 >
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
@@ -703,7 +702,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <button
                   onClick={() => setReplyTo(null)}
                   aria-label={'إلغاء الرد'}
-                  className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center active:bg-muted/60 transition-colors"
+                  className="shrink-0 w-9 h-9 -m-1.5 rounded-full flex items-center justify-center transition-colors"
                 >
                   <X className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
@@ -730,7 +729,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onClick={discardPreview}
               disabled={uploadingVoice}
               aria-label={'تجاهل التسجيل'}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors disabled:opacity-40 disabled:pointer-events-none"
+              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 transition-colors disabled:opacity-40 disabled:pointer-events-none"
             >
               <Trash2 className="w-5 h-5 text-destructive" />
             </motion.button>
@@ -739,7 +738,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 onClick={togglePreviewPlay}
                 aria-label={previewPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 active:scale-90 transition-transform"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 transition-transform"
               >
                 {previewPlaying ? (
                   <Pause className="w-4 h-4 text-primary" />
@@ -797,7 +796,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <motion.button
                 onClick={stopAndCancel}
                 aria-label={'إلغاء التسجيل'}
-                className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 active:bg-destructive/20 transition-colors"
+                className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-destructive/10 transition-colors"
               >
                 <Trash2 className="w-5 h-5 text-destructive" />
               </motion.button>
@@ -890,7 +889,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 'shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-colors self-end',
                 showAttachMenu
                   ? 'bg-primary/15 text-primary'
-                  : 'active:bg-accent/40 text-muted-foreground',
+                  : ' text-muted-foreground',
               )}
               aria-label={'مرفق'}
             >
@@ -921,7 +920,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                   'shrink-0 self-end mb-1 ms-1 w-8 h-8 rounded-full flex items-center justify-center transition-colors',
                   showEmojiPicker
                     ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground-subtle active:bg-accent/40',
+                    : 'text-muted-foreground-subtle',
                 )}
                 aria-label={'رموز تعبيرية'}
                 aria-pressed={showEmojiPicker}
@@ -1025,7 +1024,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <div ref={micWrapperRef} className="shrink-0 self-end">
                 <motion.button
                   type="button"
-                  className="h-10 w-10 rounded-full flex items-center justify-center text-muted-foreground active:bg-accent/30 transition-colors"
+                  className="h-10 w-10 rounded-full flex items-center justify-center text-muted-foreground transition-colors"
                   onPointerDown={handleMicPointerDown}
                   onContextMenu={(e) => e.preventDefault()}
 

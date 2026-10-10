@@ -29,6 +29,7 @@ import {
   useState,
 } from 'react';
 
+import { StateView } from '@/components/ui/state-view';
 import {
   Compass,
   History,
@@ -272,10 +273,6 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
     <div className="relative w-full z-header" dir="rtl">
       {/* Hero input */}
       <div className="relative flex items-center group">
-        <span
-          aria-hidden
-          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/8 via-primary/3 to-primary/8 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"
-        />
         <SearchIcon className="absolute ms-3.5 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
         <input
           ref={inputRef}
@@ -300,7 +297,7 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
           }}
           onKeyDown={handleKeyDown}
           placeholder={'ابحث عن مدينة، حي، أو موقع…'}
-          className="relative w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-meta outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-motion shadow-sm"
+          className="relative w-full ps-10 pe-10 py-3 rounded-2xl bg-card border border-border/60 text-foreground placeholder:text-muted-foreground text-meta outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-motion"
         />
         {query && (
           <button
@@ -328,7 +325,7 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="absolute start-0 end-0 mt-2 bg-card/95 backdrop-blur-md border border-border/60 rounded-2xl shadow-2xl overflow-hidden max-h-[420px] overflow-y-auto no-scrollbar"
+            className="absolute start-0 end-0 mt-2 bg-card border border-border/60 rounded-2xl overflow-hidden max-h-[420px] overflow-y-auto no-scrollbar"
           >
             <div className="p-2.5 space-y-3">
               {/* ── Searching state ──────────────────────────────────── */}
@@ -341,12 +338,20 @@ export default function CitySearch({ onSelectCity, userLocation }: CitySearchPro
                     </div>
                   )}
                   {!loading && error && (
-                    <p className="text-meta text-data-5 py-4 px-2 text-center">{error}</p>
+                    <StateView
+                      compact
+                      kind="error"
+                      title="تعذر الاتصال بخدمة البحث"
+                      body="تحقق من اتصالك بالإنترنت ثم أعد كتابة اسم المدينة."
+                    />
                   )}
                   {!loading && !error && results.length === 0 && (
-                    <p className="text-meta text-muted-foreground py-4 px-2 text-center">
-                      {'لا توجد نتائج مطابقة.'}
-                    </p>
+                    <StateView
+                      compact
+                      kind="search"
+                      title="لا توجد نتائج مطابقة"
+                      body="جرّب كتابة الاسم بلغة أخرى، أو بالإنجليزية، أو اختر مدينة من المفضلة أو الأقرب إليك."
+                    />
                   )}
                   {!loading && results.length > 0 && (
                     <div className="space-y-0.5">
@@ -481,14 +486,11 @@ function Section({
 
 function EmptyHint() {
   return (
-    <div className="px-4 py-8 text-center space-y-2">
-      <Compass className="w-7 h-7 mx-auto text-foreground/30" />
-      <p className="text-meta text-foreground/65 font-bold leading-snug">
-        {'ابحث عن أي مدينة في العالم.'}
-      </p>
-      <p className="text-mini text-foreground/50 leading-relaxed">
-        {'حاول "بغداد"، "الرياض"، "Berlin"، أو "القاهرة".'}
-      </p>
-    </div>
+    <StateView
+      compact
+      kind="empty"
+      title="ابحث عن أي مدينة في العالم."
+      body={'حاول "بغداد"، "الرياض"، "Berlin"، أو "القاهرة".'}
+    />
   );
 }

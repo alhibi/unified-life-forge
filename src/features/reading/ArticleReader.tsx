@@ -471,7 +471,7 @@ export function ArticleReader({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-current/10 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
@@ -488,7 +488,7 @@ export function ArticleReader({
           <button
             type="button"
             onClick={onToggleBookmark}
-            className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-motion"
+            className="p-2 rounded-xl hover:bg-current/10 transition-motion"
             aria-label={
               isBookmarked
                 ? ('إلغاء الحفظ')
@@ -503,7 +503,7 @@ export function ArticleReader({
           <button
             type="button"
             onClick={onShare}
-            className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-motion"
+            className="p-2 rounded-xl hover:bg-current/10 transition-motion"
             aria-label={'مشاركة'}
           >
             <Share2 className="h-4 w-4 opacity-70" />
@@ -511,7 +511,7 @@ export function ArticleReader({
           <button
             type="button"
             onClick={onCopy}
-            className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-motion"
+            className="p-2 rounded-xl hover:bg-current/10 transition-motion"
             aria-label={'نسخ الرابط'}
           >
             <Copy className="h-4 w-4 opacity-70" />
@@ -520,7 +520,7 @@ export function ArticleReader({
             href={safeHref(article.link)}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-xl hover:bg-current/10 active:scale-95 transition-motion inline-flex items-center justify-center"
+            className="p-2 rounded-xl hover:bg-current/10 transition-motion inline-flex items-center justify-center"
             aria-label={'فتح الرابط الأصلي'}
           >
             <ExternalLink className="h-4 w-4 opacity-70" />
@@ -636,7 +636,7 @@ export function ArticleReader({
               <div
                 dir={dirAttr}
                 className="prose prose-sm dark:prose-invert max-w-none
-                  [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_img]:max-h-[460px] [&_img]:object-cover [&_img]:shadow-md
+                  [&_img]:rounded-2xl [&_img]:my-6 [&_img]:w-full [&_img]:max-h-[460px] [&_img]:object-cover
                   [&_a]:text-primary [&_a]:no-underline [&_a]:font-bold [&_a:hover]:underline
                   [&_h1]:text-display [&_h2]:text-title [&_h3]:text-lead [&_h1,&_h2,&_h3]:font-bold [&_h1,&_h2,&_h3]:mt-8 [&_h1,&_h2,&_h3]:mb-3
                   [&_p]:mb-5 [&_p]:leading-relaxed
@@ -709,7 +709,7 @@ export function ArticleReader({
                         <button
                           type="button"
                           onClick={onManualUpgrade}
-                          className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-semibold hover:opacity-90 active:scale-95 transition-motion inline-flex items-center gap-1.5"
+                          className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-semibold hover:opacity-90 transition-motion inline-flex items-center gap-1.5"
                         >
                           <FileText className="h-3.5 w-3.5" />
                           {'جلب المقال الكامل'}
@@ -736,7 +736,7 @@ export function ArticleReader({
             href={safeHref(article.link)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-8 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-meta font-semibold hover:bg-primary/20 active:scale-[0.98] transition-motion"
+            className="inline-flex items-center gap-2 mt-8 px-5 py-3 rounded-2xl bg-primary/10 text-primary text-meta font-semibold hover:bg-primary/20 transition-motion"
           >
             {'المصدر الأصلي'}
             <ExternalLink className="h-3.5 w-3.5" />

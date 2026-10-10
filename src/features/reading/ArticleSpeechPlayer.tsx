@@ -1,6 +1,7 @@
 import React, { useEffect, useRef,useState } from 'react';
 import { toast } from 'sonner';
 
+import { AppCard } from '@/components/ui/app-shell';
 import { ChevronRight,Pause, Play, RotateCcw, Volume2 } from '@/lib/icons';
 
 interface ArticleSpeechPlayerProps {
@@ -176,7 +177,7 @@ export function ArticleSpeechPlayer({
   // surface is stable; the play handler explains the limitation.
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-card border border-border/50 rounded-2xl shadow-sm">
+    <AppCard className="flex flex-col gap-2 p-3">
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
@@ -192,7 +193,7 @@ export function ArticleSpeechPlayer({
           <button
             type="button"
             onClick={handlePlayPause}
-            className={`p-2 rounded-xl transition-motion active:scale-95 ${
+            className={`p-2 rounded-xl transition-motion ${
               isPlaying && !isPaused
                 ? 'bg-primary/20 text-primary'
                 : 'bg-primary text-primary-foreground hover:opacity-90'
@@ -206,7 +207,7 @@ export function ArticleSpeechPlayer({
             <button
               type="button"
               onClick={handleStop}
-              className="p-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-motion active:scale-95"
+              className="p-2 rounded-xl bg-destructive/10 hover:bg-destructive/15 text-destructive transition-motion"
               title={'إيقاف كامل'}
             >
               <RotateCcw className="h-4 w-4" />
@@ -246,6 +247,6 @@ export function ArticleSpeechPlayer({
           </select>
         </div>
       )}
-    </div>
+    </AppCard>
   );
 }

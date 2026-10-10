@@ -102,7 +102,7 @@ export function ManageFeedsView({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
@@ -114,7 +114,7 @@ export function ManageFeedsView({
         <button
           type="button"
           onClick={() => setShowOpmlDialog(true)}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'استيراد OPML'}
           title={'استيراد OPML'}
         >
@@ -123,7 +123,7 @@ export function ManageFeedsView({
         <button
           type="button"
           onClick={handleOpmlExport}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'تصدير OPML'}
           title={'تصدير OPML'}
         >
@@ -132,7 +132,7 @@ export function ManageFeedsView({
         <button
           type="button"
           onClick={onSuggested}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'مقترحات'}
         >
           <Star className="h-4 w-4 text-muted-foreground" />

@@ -17,6 +17,7 @@
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { AppList, AppRow, IconChip } from '@/components/ui/app-shell';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +38,6 @@ import {
   Building,
   Car,
   Check,
-  ChevronLeft,
   CloudRain,
   Copy,
   DoorOpen,
@@ -59,7 +59,9 @@ import {
 import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import { notify } from '@/lib/notify';
 
-const iconMap: Record<string, React.ElementType> = {
+type IconComponent = typeof Moon;
+
+const iconMap: Record<string, IconComponent> = {
   Moon,
   Sun,
   Plane,
@@ -146,7 +148,7 @@ function DuaDialog({
 
 function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
   const [open, setOpen] = useState(false);
-  const Icon = (iconMap[dua.icon] || Star) as React.ComponentType<any>;
+  const Icon = iconMap[dua.icon] || Star;
 
   return (
     <>
@@ -194,31 +196,25 @@ function NawawiDialogs({
             <DialogTitle>الأربعون النووية</DialogTitle>
             <DialogDescription>{`${nawawiHadiths.length} حديثاً`}</DialogDescription>
           </DialogHeader>
-          <ul className="space-y-1.5">
+          <AppList compact>
             {nawawiHadiths.map((hadith) => (
-              <li key={hadith.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onListOpenChange(false);
-                    onSelect(hadith);
-                  }}
-                  className="flex min-h-11 w-full items-center gap-3 rounded-md p-2 text-start transition-colors duration-fast hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border text-micro font-semibold tabular-nums text-muted-foreground">
-                    {hadith.id}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-meta font-semibold text-foreground">{hadith.title}</span>
-                    <span className="block truncate text-mini text-muted-foreground" dir="rtl">
-                      {hadith.text.slice(0, 70)}…
-                    </span>
-                  </span>
-                  <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
-                </button>
-              </li>
+              <AppRow
+                key={hadith.id}
+                onClick={() => {
+                  onListOpenChange(false);
+                  onSelect(hadith);
+                }}
+                chevron
+                leading={
+                  <IconChip size="sm" tone="plain" aria-hidden>
+                    <span className="text-micro font-semibold tabular-nums">{hadith.id}</span>
+                  </IconChip>
+                }
+                title={hadith.title}
+                subtitle={`${hadith.text.slice(0, 70)}…`}
+              />
             ))}
-          </ul>
+          </AppList>
         </DialogContent>
       </Dialog>
 
@@ -258,21 +254,21 @@ export default function DhikrTab() {
           <DhikrCounter />
         </motion.div>
 
-        <motion.button
-          variants={item}
-          type="button"
-          onClick={() => setShowNawawiList(true)}
-          className="app-card app-card-pressable flex w-full items-center gap-3 text-start"
-        >
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
-            <BookOpen className="h-5 w-5" aria-hidden />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-meta font-semibold text-foreground">الأربعون النووية</span>
-            <span className="mt-0.5 block text-mini text-muted-foreground">{`${nawawiHadiths.length} حديثاً نبوياً`}</span>
-          </span>
-          <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
-        </motion.button>
+        <motion.div variants={item}>
+          <AppList>
+            <AppRow
+              onClick={() => setShowNawawiList(true)}
+              chevron
+              leading={
+                <IconChip tone="plain" aria-hidden>
+                  <BookOpen className="h-5 w-5" />
+                </IconChip>
+              }
+              title="الأربعون النووية"
+              subtitle={`${nawawiHadiths.length} حديثاً نبوياً`}
+            />
+          </AppList>
+        </motion.div>
 
         <motion.section variants={item} aria-label="أدعية متكررة">
           <p className="app-section-label mb-2">أدعية متكررة</p>
@@ -285,28 +281,25 @@ export default function DhikrTab() {
 
         <motion.section variants={item} aria-label="أقسام الأدعية">
           <p className="app-section-label mb-2">أقسام الأدعية</p>
-          <div className="space-y-2">
+          <AppList>
             {duaCategories.map((cat) => {
-              const Icon = (iconMap[cat.icon] || Star) as React.ComponentType<any>;
+              const Icon = iconMap[cat.icon] || Star;
               return (
-                <button
+                <AppRow
                   key={cat.id}
-                  type="button"
                   onClick={() => setOpenCat(cat)}
-                  className="app-card app-card-compact app-card-pressable flex w-full items-center gap-3 text-start"
-                >
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground">
-                    <Icon className="h-5 w-5" aria-hidden />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-meta font-semibold text-foreground">{cat.titleAr}</span>
-                    <span className="mt-0.5 block text-mini text-muted-foreground">{`${cat.duas.length} دعاء`}</span>
-                  </span>
-                  <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden />
-                </button>
+                  chevron
+                  leading={
+                    <IconChip tone="plain" aria-hidden>
+                      <Icon className="h-5 w-5" />
+                    </IconChip>
+                  }
+                  title={cat.titleAr}
+                  subtitle={`${cat.duas.length} دعاء`}
+                />
               );
             })}
-          </div>
+          </AppList>
         </motion.section>
       </motion.div>
 

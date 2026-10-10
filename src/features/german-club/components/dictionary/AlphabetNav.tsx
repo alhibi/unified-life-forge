@@ -12,14 +12,14 @@ const AlphabetNavImpl: React.FC = () => {
   const setSelectedLetter = useDictionaryStore((s) => s.setSelectedLetter);
 
   return (
-    <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-none text-xs font-mono">
+    <div className="scrollbar-none flex items-center gap-1 overflow-x-auto pb-2 font-mono text-mini">
       <button
         type="button"
         onClick={() => setSelectedLetter('all')}
-        className={`px-3 py-1.5 rounded-xl font-bold transition-motion flex-shrink-0 border ${
+        className={`flex h-11 flex-shrink-0 items-center justify-center rounded-md border px-3 font-bold transition-motion ${
           selectedLetter === 'all'
-            ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))]'
-            : 'bg-secondary text-foreground border-[hsl(var(--track))] hover:bg-secondary'
+            ? 'border-primary bg-primary text-primary-foreground'
+            : 'border-track bg-secondary/40 text-foreground hover:bg-secondary'
         }`}
       >
         الكل (A-Z)
@@ -32,10 +32,10 @@ const AlphabetNavImpl: React.FC = () => {
             key={letter}
             type="button"
             onClick={() => setSelectedLetter(letter)}
-            className={`w-8 h-8 rounded-xl font-bold transition-motion flex items-center justify-center flex-shrink-0 border ${
+            className={`flex h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-md border font-bold transition-motion ${
               isActive
-                ? 'bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-xs'
-                : 'bg-card text-foreground border-[hsl(var(--track))] hover:bg-secondary'
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-track bg-secondary/40 text-foreground hover:bg-secondary'
             }`}
           >
             {letter}

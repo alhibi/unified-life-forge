@@ -59,7 +59,6 @@ function ConfidenceFloorBannerImpl({ snapshot, hideWhenHealthy = false }: Props)
       aria-live="polite"
       className={`relative rounded-2xl surface-depth overflow-hidden p-4 ring-1 ${ringClass.split(' ')[0]} ${SEVERITY_BG[result.severity]}`}
     >
-      <span aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 h-px ${ringClass.split(' ')[1] ?? ''}`} />
       <header className="flex items-center gap-2 mb-2">
         <Icon className={`w-5 h-5 shrink-0 ${ringClass.split(' ')[1] ?? ''}`} aria-hidden />
         <h2 className="font-semibold text-title leading-none">

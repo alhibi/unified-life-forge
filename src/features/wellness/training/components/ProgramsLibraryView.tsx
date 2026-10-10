@@ -8,6 +8,7 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useMemo, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Calendar, ChevronRight, Clock, Filter, Library, Users, X } from '@/lib/icons';
 
 import {
@@ -93,7 +94,7 @@ export default function ProgramsLibraryView({
               className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                 expFilter === e
                   ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-card text-muted-foreground border-border/40'
+                  : 'bg-background text-muted-foreground border-border/40'
               }`}
             >
               {e === 'all' ? T.all[lang] : EXPERIENCE_LABELS[e][lang]}
@@ -112,7 +113,7 @@ export default function ProgramsLibraryView({
               className={`shrink-0 text-micro font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
                 goalFilter === g
                   ? 'bg-foreground text-background border-foreground'
-                  : 'bg-card text-muted-foreground border-border/40'
+                  : 'bg-background text-muted-foreground border-border/40'
               }`}
             >
               {g === 'all' ? T.all[lang] : GOAL_LABELS[g][lang]}
@@ -168,7 +169,7 @@ function ProgramCard({
       className={`rounded-2xl p-3.5 border transition-motion ${
         isActive
           ? 'bg-primary/10 border-primary/40 ring-1 ring-primary/30'
-          : 'bg-card border-border/40'
+          : 'bg-background border-border/40'
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -185,8 +186,8 @@ function ProgramCard({
           <span
             className="px-2 py-0.5 rounded-full text-micro font-bold uppercase"
             style={{
-              background: p.experience === 'beginner' ? '#22c55e20' : p.experience === 'intermediate' ? '#f59e0b20' : '#ef444420',
-              color: p.experience === 'beginner' ? '#22c55e' : p.experience === 'intermediate' ? '#f59e0b' : '#ef4444',
+              background: p.experience === 'beginner' ? 'hsl(var(--data-1) / 0.13)' : p.experience === 'intermediate' ? 'hsl(var(--data-3) / 0.13)' : 'hsl(var(--destructive) / 0.13)',
+              color: p.experience === 'beginner' ? 'hsl(var(--data-1))' : p.experience === 'intermediate' ? 'hsl(var(--data-3))' : 'hsl(var(--destructive))',
             }}
           >
             {EXPERIENCE_LABELS[p.experience][lang]}
@@ -208,20 +209,21 @@ function ProgramCard({
       </div>
 
       <div className="flex gap-1.5">
-        <button
+        <Button
+          variant="secondary"
+          className="flex-1"
           onClick={onDetails}
-          className="flex-1 py-2 rounded-xl bg-muted text-muted-foreground text-micro font-semibold"
         >
           {T.details[lang]}
-        </button>
-        <button
+        </Button>
+        <Button
+          className="flex-1"
           onClick={onStart}
-          className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-micro font-bold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
           disabled={isActive}
           style={{ opacity: isActive ? 0.5 : 1 }}
         >
-          {T.start[lang]} <ChevronRight className="w-3 h-3" />
-        </button>
+          {T.start[lang]} <ChevronRight className="w-3 h-3" aria-hidden />
+        </Button>
       </div>
     </motion.div>
   );
@@ -298,7 +300,7 @@ function DetailSheet({
                 <h4 className="text-micro uppercase tracking-wider text-muted-foreground-subtle font-semibold">{T.highlights[lang]}</h4>
                 <ul className="space-y-1">
                   {program.highlights.map((h, i) => (
-                    <li key={i} className="bg-card border border-border/40 rounded-lg p-2 text-mini text-foreground/90">
+                    <li key={i} className="app-card app-card-flat p-2 text-mini text-foreground/90">
                       • {h[lang]}
                     </li>
                   ))}
@@ -336,12 +338,12 @@ function DetailSheet({
                 </div>
               </div>
 
-              <button
+              <Button
+                className="w-full"
                 onClick={onStart}
-                className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1.5 active:scale-[0.98]"
               >
-                {T.start[lang]} <ChevronRight className="w-4 h-4" />
-              </button>
+                {T.start[lang]} <ChevronRight className="w-4 h-4" aria-hidden />
+              </Button>
             </div>
           </motion.div>
         </motion.div>

@@ -187,7 +187,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
             <div className="flex items-center gap-2">
               <button
                 onClick={handleToggleFav}
-                className="p-2 rounded-full active:scale-90 transition-transform"
+                className="p-2 rounded-full transition-transform"
               >
                 <Heart
                   className={`w-5 h-5 ${fav ? 'text-destructive fill-destructive' : 'text-muted-foreground'}`}
@@ -195,7 +195,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
               </button>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full bg-muted active:scale-90 transition-transform"
+                className="p-2 rounded-full bg-muted transition-transform"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -208,11 +208,11 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
           <div className="bg-muted/30 rounded-2xl p-4">
             <h3 className="text-mini font-semibold text-muted-foreground mb-3">{T.macros[lang]}</h3>
             <div className="grid grid-cols-5 gap-2 text-center">
-              <MacroItem label={T.kcal[lang]} value={n.kcal} unit="" color="#f97316" />
-              <MacroItem label={T.protein[lang]} value={n.protein} unit="g" color="#ef4444" />
-              <MacroItem label={T.carbs[lang]} value={n.carbs} unit="g" color="#eab308" />
-              <MacroItem label={T.fat[lang]} value={n.fat} unit="g" color="#06b6d4" />
-              <MacroItem label={T.fiber[lang]} value={n.fiber} unit="g" color="#22c55e" />
+              <MacroItem label={T.kcal[lang]} value={n.kcal} unit="" color="hsl(var(--data-2))" />
+              <MacroItem label={T.protein[lang]} value={n.protein} unit="g" color="hsl(var(--destructive))" />
+              <MacroItem label={T.carbs[lang]} value={n.carbs} unit="g" color="hsl(var(--data-3))" />
+              <MacroItem label={T.fat[lang]} value={n.fat} unit="g" color="hsl(var(--data-4))" />
+              <MacroItem label={T.fiber[lang]} value={n.fiber} unit="g" color="hsl(var(--data-1))" />
             </div>
             {/* Extended macros */}
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/30 text-micro">
@@ -309,7 +309,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
                     value={value}
                     unit={meta?.unit || ''}
                     rdaPct={rdaPct}
-                    color="#8b5cf6"
+                    color="hsl(var(--data-5))"
                   />
                 ))}
               </div>
@@ -341,7 +341,7 @@ export default function FoodDetailSheet({ food, lang, onClose, onAddToLog: _onAd
                     value={value}
                     unit={meta?.unit || ''}
                     rdaPct={rdaPct}
-                    color="#0ea5e9"
+                    color="hsl(var(--data-4))"
                   />
                 ))}
               </div>

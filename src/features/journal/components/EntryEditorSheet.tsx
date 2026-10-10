@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerDescription,DrawerTitle } from '@/components/ui/drawer';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 import { computeWordCount, type JournalEntry, type JournalMood } from '../types';
 
@@ -74,12 +76,12 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             className="w-full bg-transparent border-0 border-b border-border/60 pb-2 text-body text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/60 transition-colors"
           />
 
-          <textarea
+          <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="اكتب ما يدور في ذهنك…"
             rows={9}
-            className="w-full bg-card/40 border border-border rounded-2xl px-4 py-3 text-body leading-relaxed text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/50 resize-none transition-colors"
+            className="resize-none leading-relaxed"
           />
 
           <div>
@@ -96,8 +98,8 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
                     onClick={() => setMood(m.id)}
                     className={`rounded-2xl border px-3 py-3 text-center transition-motion ${
                       active
-                        ? 'border-primary/60 bg-card'
-                        : 'border-border bg-card/30 hover:bg-card/60'
+                        ? 'border-primary/60 bg-background'
+                        : 'border-border bg-background/40 hover:bg-background/70'
                     }`}
                   >
                     <div
@@ -116,12 +118,12 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             <div className="text-micro uppercase tracking-[0.18em] text-muted-foreground mb-2">
               وسوم
             </div>
-            <input
+            <Input
               type="text"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="مثلاً: تأمل، عمل، عائلة"
-              className="w-full bg-card/40 border border-border rounded-xl px-4 py-2.5 text-meta text-foreground placeholder:text-muted-foreground-subtle focus:outline-none focus:border-primary/50 transition-colors"
+              className="py-2.5 text-meta"
             />
           </div>
 
@@ -138,7 +140,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
               type="button"
               onClick={submit}
               disabled={!canSubmit}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 rounded-xl px-6"
+              className="px-6"
             >
               {saving ? 'جارٍ الحفظ…' : entry ? 'حفظ التعديلات' : 'حفظ المدخلة'}
             </Button>

@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -199,47 +199,32 @@ export default function CountryStampsPage() {
                   : 'لم تسجّل أي دولة بعد — انقر على الخريطة أو ابحث عن دولة.'}
               </p>
             ) : (
-              <AppCard className="p-0">
-                <ul className="divide-y divide-border">
-                  {matches.slice(0, 60).map((country) => {
-                    const stamp = stampByIso.get(country.iso);
-                    return (
-                      <li key={country.iso}>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(country)}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-accent"
-                        >
-                          <span
-                            className={cn(
-                              'h-2.5 w-2.5 shrink-0 rounded-full border',
-                              stamp ? 'border-transparent' : 'border-border',
-                            )}
-                            style={
-                              stamp ? { backgroundColor: stampColor(stamp.status) } : undefined
-                            }
-                            aria-hidden="true"
-                          />
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-body text-foreground">
-                              {country.ar}
-                            </span>
-                            <span className="block truncate text-micro text-muted-foreground">
-                              {country.cont}
-                              {stamp?.firstYear ? ` · ${stamp.firstYear}` : ''}
-                            </span>
-                          </span>
-                          {stamp && (
-                            <span className="shrink-0 text-micro text-muted-foreground">
-                              {stampStatusMeta(stamp.status).label}
-                            </span>
+              <AppList>
+                {matches.slice(0, 60).map((country) => {
+                  const stamp = stampByIso.get(country.iso);
+                  return (
+                    <AppRow
+                      key={country.iso}
+                      onClick={() => setSelected(country)}
+                      leading={
+                        <span
+                          className={cn(
+                            'h-2.5 w-2.5 rounded-full border',
+                            stamp ? 'border-transparent' : 'border-border',
                           )}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </AppCard>
+                          style={
+                            stamp ? { backgroundColor: stampColor(stamp.status) } : undefined
+                          }
+                          aria-hidden="true"
+                        />
+                      }
+                      title={country.ar}
+                      subtitle={`${country.cont}${stamp?.firstYear ? ` · ${stamp.firstYear}` : ''}`}
+                      value={stamp ? stampStatusMeta(stamp.status).label : undefined}
+                    />
+                  );
+                })}
+              </AppList>
             )}
           </section>
         </div>

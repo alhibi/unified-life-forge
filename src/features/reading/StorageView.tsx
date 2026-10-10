@@ -193,7 +193,7 @@ export function StorageView({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'رجوع'}
         >
           <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
@@ -205,7 +205,7 @@ export function StorageView({
         <button
           type="button"
           onClick={reload}
-          className="p-2 rounded-xl hover:bg-accent/50 active:scale-95 transition-motion"
+          className="p-2 rounded-xl hover:bg-accent/50 transition-motion"
           aria-label={'تحديث'}
         >
           <RefreshCw className="h-4 w-4 text-muted-foreground" />
@@ -459,7 +459,7 @@ function ToggleRow({
         }`}
       >
         <motion.span
-          className="absolute top-0.5 w-4 h-4 rounded-full bg-white "
+          className="absolute top-0.5 w-4 h-4 rounded-full bg-primary-foreground"
           initial={false}
           animate={{ left: on ? 'calc(100% - 1.125rem)' : '0.125rem' }}
           transition={{ type: 'spring', stiffness: 500, damping: 32 }}

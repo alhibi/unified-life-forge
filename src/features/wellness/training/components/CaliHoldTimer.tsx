@@ -164,14 +164,14 @@ export default function CaliHoldTimer({
             <div className="mt-7 flex items-center justify-center gap-3">
               <button
                 onClick={() => { setSec(0); setRunning(false); milestonesHitRef.current.clear(); }}
-                className="w-11 h-11 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center active:scale-95"
+                className="w-11 h-11 rounded-full bg-primary-foreground/10 text-primary-foreground flex items-center justify-center"
                 aria-label={T.reset[lang]}
               >
                 <RotateCcw className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setRunning((r) => !r)}
-                className="w-16 h-16 rounded-full text-primary-foreground flex items-center justify-center active:scale-95"
+                className="w-16 h-16 rounded-full text-primary-foreground flex items-center justify-center"
                 style={{ background: accent }}
                 aria-label={running ? T.pause[lang] : T.start[lang]}
               >

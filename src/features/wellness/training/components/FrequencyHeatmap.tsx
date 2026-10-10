@@ -31,7 +31,17 @@ const T = {
 const DAYS_AR = ['أ', 'إ', 'ث', 'أ', 'خ', 'ج', 'س'];
 const DAYS_DE = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
-const COLORS = ['#1e293b22', '#10b98140', '#10b98180', '#10b981c0', '#10b981'];
+/**
+ * Hm06: Heat intensity ramp — a data-encoding colour key (no decorative
+ * use), expressed with semantic tokens so it follows the theme.
+ */
+const COLORS = [
+  'hsl(var(--muted-foreground) / 0.13)',
+  'hsl(var(--data-1) / 0.25)',
+  'hsl(var(--data-1) / 0.5)',
+  'hsl(var(--data-1) / 0.75)',
+  'hsl(var(--data-1))',
+];
 
 export default function FrequencyHeatmap({
   workouts,
@@ -84,7 +94,7 @@ export default function FrequencyHeatmap({
   const cellGap = 2;
 
   return (
-    <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
+    <div className={`app-card p-4 space-y-3 ${className}`}>
       <div>
         <h3 className="text-mini font-bold text-foreground">{T.title[lang]}</h3>
         <p className="text-micro text-muted-foreground">{T.desc[lang]}</p>
@@ -108,10 +118,10 @@ export default function FrequencyHeatmap({
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: wi * 0.005 }}
-                  className="rounded-[2px]"
                   style={{
                     width: cellSize,
                     height: cellSize,
+                    borderRadius: 2,
                     background: COLORS[cell.level],
                   }}
                   title={`${cell.date} — ${Math.round(cell.volume)} kg`}
@@ -127,7 +137,7 @@ export default function FrequencyHeatmap({
         <span className="text-micro text-muted-foreground">{T.none[lang]}</span>
         <div className="flex items-center gap-[2px]">
           {COLORS.map((c, i) => (
-            <span key={i} className="rounded-[2px]" style={{ width: cellSize, height: cellSize, background: c }} />
+            <span key={i} style={{ width: cellSize, height: cellSize, borderRadius: 2, background: c }} />
           ))}
         </div>
         <span className="text-micro text-muted-foreground">{T.intense[lang]}</span>

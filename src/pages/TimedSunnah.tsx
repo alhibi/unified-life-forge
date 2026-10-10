@@ -1,17 +1,16 @@
-import { AnimatePresence,motion } from 'framer-motion';
-import React, { useState } from 'react'; 
-import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppCard, IconChip, PageShell } from '@/components/ui/app-shell';
 import { useApp } from '@/contexts/AppContext';
 import { sunnahDetailData } from '@/data/sunnahDetailData';
-import { BookOpen,Calendar, ChevronDown, Cloud, CloudSun, Copy, Moon, Sun } from '@/lib/icons';
+import { BookOpen, Calendar, ChevronDown, Cloud, CloudSun, Copy, Moon, Sun } from '@/lib/icons';
 import { notify } from '@/lib/notify';
 
 export default function TimedSunnah() {
-  const navigate = useNavigate();
-  const { t, dir } = useApp();
+  const { t } = useApp();
   const [openCatId, setOpenCatId] = useState<string | null>(null);
   const [openItemKey, setOpenItemKey] = useState<string | null>(null);
 
@@ -39,124 +38,125 @@ export default function TimedSunnah() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-page">
+    <PageShell flush centered={false} className="px-4 pt-2">
       <SEO title="السنن المؤقتة — SmartHub" description="السنن المرتبطة بأوقات الصلاة اليومية مصنفة في تسع فئات." path="/section/timed-sunnah" />
-      {/* Header */}
-      <PageHeader sticky title={t('timed.title')} className="px-4 py-3 bg-background border-b border-border" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
+        <PageHeader sticky title={t('timed.title')} />
 
-      {/* Accordion List */}
-      <div className="flex flex-col gap-2 p-4">
-        {categories.map((cat) => {
-          const data = sunnahDetailData[cat.id];
-          const isCatOpen = openCatId === cat.id;
-          const count = data?.items?.length || 0;
-          const catLabel = t(cat.labelKey);
+        {/* Accordion List */}
+        <div className="flex flex-col gap-2">
+          {categories.map((cat) => {
+            const data = sunnahDetailData[cat.id];
+            const isCatOpen = openCatId === cat.id;
+            const count = data?.items?.length || 0;
+            const catLabel = t(cat.labelKey);
 
-          return (
-            <div key={cat.id} className="rounded-2xl bg-card/80 border border-border/40 overflow-hidden">
-              <button
-                onClick={() => toggleCat(cat.id)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
-              >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary/10">
-                  <cat.icon className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 text-start">
-                  <span className="text-meta font-bold text-foreground">{catLabel}</span>
-                  <span className="text-mini text-muted-foreground mx-2">
-                    {count} {t('timed.sunnah')}
-                  </span>
-                </div>
-                <ChevronDown
-                  className={`w-5 h-5 text-muted-foreground transition-transform duration-fast ${isCatOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
+            return (
+              <AppCard key={cat.id} className="overflow-hidden p-0">
+                <button
+                  onClick={() => toggleCat(cat.id)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
+                >
+                  <IconChip aria-hidden>
+                    <cat.icon className="h-5 w-5" />
+                  </IconChip>
+                  <div className="flex-1 text-start">
+                    <span className="text-meta font-bold text-foreground">{catLabel}</span>
+                    <span className="text-mini text-muted-foreground mx-2">
+                      {count} {t('timed.sunnah')}
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className={`w-5 h-5 text-muted-foreground transition-transform duration-fast ${isCatOpen ? 'rotate-180' : ''}`}
+                    aria-hidden
+                  />
+                </button>
 
-              <AnimatePresence initial={false}>
-                {isCatOpen && data && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <div className="border-t border-border/30 px-3 py-2">
-                      <div className="flex flex-col gap-1">
-                        {data.items.map((item, i) => {
-                          const itemKey = `${cat.id}-${i}`;
-                          const isItemOpen = openItemKey === itemKey;
-                          const isDetailed = data.type === 'detailed' && 'description' in item;
-                          const desc = 'description' in item ? (item as any).description : '';
-                          const src = 'source' in item ? (item as any).source : '';
+                <AnimatePresence initial={false}>
+                  {isCatOpen && data && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-border/30 px-3 py-2">
+                        <div className="flex flex-col gap-1">
+                          {data.items.map((item, i) => {
+                            const itemKey = `${cat.id}-${i}`;
+                            const isItemOpen = openItemKey === itemKey;
+                            const isDetailed = data.type === 'detailed' && 'description' in item;
+                            const desc = 'description' in item ? item.description : '';
+                            const src = 'source' in item ? item.source : '';
 
-                          return (
-                            <div key={i} className="rounded-xl overflow-hidden">
-                              <button
-                                onClick={() => isDetailed ? toggleItem(itemKey) : undefined}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${isDetailed ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
-                              >
-                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-micro font-bold shrink-0 bg-primary/15 text-primary">
-                                  {i + 1}
-                                </span>
-                                <span className="flex-1 text-meta text-foreground leading-relaxed line-clamp-2">
-                                  {item.title}
-                                </span>
-                                {isDetailed && (
-                                  <ChevronDown
-                                    className={`w-4 h-4 text-muted-foreground-subtle shrink-0 transition-transform duration-fast ${isItemOpen ? 'rotate-180' : ''}`}
-                                  />
-                                )}
-                              </button>
+                            return (
+                              <div key={i} className="rounded-xl overflow-hidden">
+                                <button
+                                  onClick={() => isDetailed ? toggleItem(itemKey) : undefined}
+                                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-start ${isDetailed ? 'hover:bg-accent/20 cursor-pointer' : ''}`}
+                                >
+                                  <span className="w-6 h-6 rounded-full flex items-center justify-center text-micro font-bold shrink-0 bg-primary/15 text-primary tabular-nums">
+                                    {i + 1}
+                                  </span>
+                                  <span className="flex-1 text-meta text-foreground leading-relaxed line-clamp-2">
+                                    {item.title}
+                                  </span>
+                                  {isDetailed && (
+                                    <ChevronDown
+                                      className={`w-4 h-4 text-muted-foreground-subtle shrink-0 transition-transform duration-fast ${isItemOpen ? 'rotate-180' : ''}`}
+                                      aria-hidden
+                                    />
+                                  )}
+                                </button>
 
-                              <AnimatePresence initial={false}>
-                                {isItemOpen && isDetailed && (
-                                  <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.15, ease: 'easeInOut' }}
-                                    className="overflow-hidden"
-                                  >
-                                    <div className="px-4 pb-3 me-9 ms-9">
-                                      <p className="text-meta text-muted-foreground leading-relaxed mb-3">
-                                        {desc}
-                                      </p>
+                                <AnimatePresence initial={false}>
+                                  {isItemOpen && isDetailed && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: 'auto', opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.15, ease: 'easeInOut' }}
+                                      className="overflow-hidden"
+                                    >
+                                      <div className="px-4 pb-3 me-9 ms-9">
+                                        <p className="text-meta text-muted-foreground leading-relaxed mb-3">
+                                          {desc}
+                                        </p>
 
-                                      <div className="flex items-center gap-1.5 mb-3">
-                                        <BookOpen className="w-3.5 h-3.5 shrink-0 text-primary" />
-                                        <span className="text-mini font-medium text-primary">
-                                          {src}
-                                        </span>
+                                        <div className="flex items-center gap-1.5 mb-3">
+                                          <BookOpen className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden />
+                                          <span className="text-mini font-medium text-primary">
+                                            {src}
+                                          </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <button
+                                            onClick={() => copyText(`${item.title}\n${desc}\n${src}`)}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
+                                          >
+                                            <Copy className="w-3.5 h-3.5 text-muted-foreground" aria-hidden />
+                                            <span className="text-mini text-muted-foreground">نسخ</span>
+                                          </button>
+                                        </div>
                                       </div>
-
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <button
-                                          onClick={() => copyText(`${item.title}\n${desc}\n${src}`)}
-                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
-                                        >
-                                          <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                                          <span className="text-mini text-muted-foreground">{dir === 'rtl' ? 'نسخ' : 'Copy'}</span>
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </div>
-                          );
-                        })}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </AppCard>
+            );
+          })}
+        </div>
       </div>
-
-
-    </div>
+    </PageShell>
   );
 }

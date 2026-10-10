@@ -16,6 +16,7 @@
 
 import { memo, useEffect, useMemo, useState } from 'react';
 
+import { AppList, AppRow } from '@/components/ui/app-shell';
 import { CheckCircle2, ShieldAlert, ShieldCheck, ShieldQuestion } from '@/lib/icons';
 
 import { skillReport } from '../engine/ConsensusSkillTracker';
@@ -62,17 +63,14 @@ const TRUST_ICON: Record<TrustLevel, typeof CheckCircle2> = {
 function FieldRow({ field }: { field: FieldTrust }) {
   const Icon = TRUST_ICON[field.trust];
   return (
-    <div className={`flex items-center justify-between rounded-lg px-3 py-2 ${TRUST_BG[field.trust]} border border-border/30`}>
-      <div className="flex items-center gap-2">
-        <Icon className={`w-4 h-4 shrink-0 ${TRUST_RING[field.trust].split(' ')[1] ?? ''}`} aria-hidden />
-        <span className="text-mini font-medium">{FIELD_LABEL_AR[field.field] ?? field.field}</span>
-      </div>
-      <div className="flex items-center gap-3 text-mini text-muted-foreground tabular-nums">
-        <span>{field.samples} عينة</span>
-        <span>انحراف {field.bias.toFixed(1)}</span>
-        <span>MAE {field.mae.toFixed(2)}</span>
-      </div>
-    </div>
+    <AppRow
+      as="div"
+      leading={
+        <Icon className={`w-4 h-4 ${TRUST_RING[field.trust].split(' ')[1] ?? ''}`} aria-hidden />
+      }
+      title={FIELD_LABEL_AR[field.field] ?? field.field}
+      value={`${field.samples} عينة · انحراف ${field.bias.toFixed(1)} · MAE ${field.mae.toFixed(2)}`}
+    />
   );
 }
 
@@ -92,11 +90,11 @@ function SourceRow({ trust }: { trust: SourceTrust }) {
         </span>
       </header>
       <p className="text-mini text-muted-foreground">{trust.reason}</p>
-      <div className="space-y-1.5">
+      <AppList compact>
         {trust.fields.map((f) => (
           <FieldRow key={f.field} field={f} />
         ))}
-      </div>
+      </AppList>
     </div>
   );
 }
@@ -136,7 +134,6 @@ function VerificationPanelImpl({ lat, lng }: Props) {
 
   return (
     <section className="relative rounded-2xl surface-depth overflow-hidden p-4 space-y-3">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/40" />
       <header className="flex items-center justify-between gap-3">
         <div>
           <h2 className="font-semibold text-title leading-none text-foreground flex items-center gap-2">
@@ -149,7 +146,7 @@ function VerificationPanelImpl({ lat, lng }: Props) {
         </div>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-mini px-3 py-1.5 rounded-lg border border-border bg-card text-primary shrink-0 transition-transform active:scale-95"
+          className="text-mini px-3 py-1.5 rounded-lg border border-border bg-secondary text-primary shrink-0"
         >
           {isExpanded ? 'طي الكل' : `اعرض ${summary.total}`}
         </button>

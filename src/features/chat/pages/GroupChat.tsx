@@ -240,7 +240,7 @@ export default function GroupChatPage() {
           <button
             type="button"
             onClick={goBack}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'رجوع'}
           >
             {<ArrowRight className="w-5 h-5" />}
@@ -276,7 +276,7 @@ export default function GroupChatPage() {
           <button
             type="button"
             onClick={() => setShowMembers(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'الأعضاء'}
           >
             <Users className="w-4.5 h-4.5 text-muted-foreground" />
@@ -284,7 +284,7 @@ export default function GroupChatPage() {
           <button
             type="button"
             onClick={() => setShowInfo(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'معلومات'}
           >
             <Info className="w-4.5 h-4.5 text-muted-foreground" />
@@ -309,7 +309,7 @@ export default function GroupChatPage() {
                 type="button"
                 onClick={() => void messagesQ.loadOlder()}
                 disabled={messagesQ.isFetchingOlder}
-                className="text-micro font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground active:bg-muted/50 inline-flex items-center gap-1.5 disabled:opacity-60"
+                className="text-micro font-medium px-3 h-8 rounded-full bg-muted/30 text-muted-foreground inline-flex items-center gap-1.5 disabled:opacity-60"
               >
                 {messagesQ.isFetchingOlder
                   ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -492,7 +492,7 @@ function ActionMenuOverlay({ state, onClose, isMine, onReply, onEdit, onCopy, on
               key={emoji}
               type="button"
               onClick={() => { onReact(msg, emoji); onClose(); }}
-              className="text-display w-10 h-10 rounded-full active:scale-90 transition-transform"
+              className="text-display w-10 h-10 rounded-full transition-transform"
             >
               {emoji}
             </button>
@@ -500,7 +500,7 @@ function ActionMenuOverlay({ state, onClose, isMine, onReply, onEdit, onCopy, on
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center active:bg-accent/40 text-muted-foreground"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground"
             aria-label={'إغلاق'}
           >
             <Smile className="w-4 h-4" />
@@ -554,7 +554,7 @@ function ActionRow({ icon, label, onClick, disabled, danger }: ActionRowProps) {
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full flex items-center gap-3 px-4 h-11 text-start text-meta active:bg-accent/40 transition-colors',
+        'w-full flex items-center gap-3 px-4 h-11 text-start text-meta transition-colors',
         danger ? 'text-destructive' : 'text-foreground',
         disabled && 'opacity-50',
       )}

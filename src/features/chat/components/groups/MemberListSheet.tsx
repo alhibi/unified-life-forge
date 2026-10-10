@@ -67,7 +67,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="absolute inset-0 z-nested bg-black/60"
+        className="app-scrim z-nested"
         onClick={close}
       />
       <motion.div
@@ -84,7 +84,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
  <button
  type="button"
  onClick={() => view === 'add' ? setView('list') : close()}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'رجوع'}
           >
             <BackIcon className="w-5 h-5 text-foreground" />
@@ -104,7 +104,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
           <button
             type="button"
             onClick={close}
-            className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+            className="w-9 h-9 rounded-full flex items-center justify-center"
             aria-label={'إغلاق'}
           >
             <X className="w-4 h-4 text-muted-foreground" />
@@ -117,7 +117,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
               <button
                 type="button"
                 onClick={() => setView('add')}
-                className="w-full flex items-center gap-3 px-4 py-3 active:bg-accent/40 transition-colors text-start"
+                className="w-full flex items-center gap-3 px-4 py-3 transition-colors text-start"
               >
                 <div className="h-10 w-10 rounded-full bg-primary/12 flex items-center justify-center text-primary">
                   <UserPlus className="w-5 h-5" />
@@ -175,7 +175,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
             <>
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="absolute inset-0 z-deep bg-black/55"
+                className="app-scrim z-deep"
                 onClick={() => setConfirm(null)}
               />
               <motion.div
@@ -207,7 +207,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
                   <button
                     type="button"
                     onClick={() => setConfirm(null)}
-                    className="flex-1 h-11 rounded-xl bg-muted/30 text-foreground text-meta font-medium active:scale-[0.98]"
+                    className="flex-1 h-11 rounded-xl bg-muted/30 text-foreground text-meta font-medium"
                   >
                     {'إلغاء'}
                   </button>
@@ -220,7 +220,7 @@ const MemberListSheet: React.FC<MemberListSheetProps> = ({ isOpen, chat, onClose
                       setConfirm(null);
                     }}
                     className={cn(
-                      'flex-1 h-11 rounded-xl text-meta font-semibold active:scale-[0.98]',
+                      'flex-1 h-11 rounded-xl text-meta font-semibold',
                       confirm.kind === 'remove'
                         ? 'bg-destructive text-destructive-foreground'
                         : 'bg-primary text-primary-foreground',
@@ -296,7 +296,7 @@ function MemberRow({ member, isMe, canManage, callerRole, onPromote, onDemote, o
         <button
           type="button"
           onClick={() => setOpen(o => !o)}
-          className="w-9 h-9 rounded-full flex items-center justify-center active:bg-accent/40"
+          className="w-9 h-9 rounded-full flex items-center justify-center"
           aria-label={'إجراءات'}
  >
  <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
@@ -341,7 +341,7 @@ function RowAction({ icon, label, onClick, danger }: RowActionProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'w-full flex items-center gap-2 px-3 h-10 text-start text-mini active:bg-accent/40',
+        'w-full flex items-center gap-2 px-3 h-10 text-start text-mini',
         danger ? 'text-destructive' : 'text-foreground',
       )}
     >

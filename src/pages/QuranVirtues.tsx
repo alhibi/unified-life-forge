@@ -1,10 +1,11 @@
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppList, PageShell } from '@/components/ui/app-shell';
 import { BookOpen, Sparkles } from '@/lib/icons';
+import { pageItem as itemAnim, pageStagger as container } from '@/lib/motion';
 
 // أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
 const surahNames = [
@@ -31,11 +32,8 @@ const quranVirtues = [
   'أن البيت الذي يقرأ فيه القرآن تحصل فيه الخيرات والبركات ويحفظ الله تعالى أهل هذا البيت من كل سوء',
 ];
 
-import { pageItem as itemAnim,pageStagger as container } from '@/lib/motion';
-
 export default function QuranVirtues() {
   const [tappedSurah, setTappedSurah] = useState<number | null>(null);
-  const navigate = useNavigate();
 
   const handleSurahTap = (i: number) => {
     setTappedSurah(i);
@@ -43,17 +41,18 @@ export default function QuranVirtues() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-page" dir="rtl">
+    <PageShell flush centered={false} className="px-4 pt-2">
       <SEO title="فضائل القرآن الكريم — SmartHub" description="فضائل تلاوة وحفظ القرآن الكريم وأهل القرآن مع سور مختارة." path="/section/quran-virtues" />
-      {/* Header */}
-      <PageHeader sticky title="فضائل القرآن" className="px-4 py-3 bg-background border-b border-border" />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
+        {/* Header */}
+        <PageHeader sticky title="فضائل القرآن" />
 
-      <div className="px-4 pt-5 space-y-5">
+        <div className="pt-2 space-y-5">
         {/* Section 1: فضل سور القرآن */}
         <div className="space-y-4">
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" />
+            <BookOpen className="w-5 h-5 text-primary" aria-hidden />
             <h2 className="text-body font-bold text-foreground">فضل سور القرآن</h2>
           </div>
 
@@ -62,9 +61,8 @@ export default function QuranVirtues() {
             {surahNames.map((name, i) => (
               <motion.button
                 key={i}
-                
                 onClick={() => handleSurahTap(i)}
-                className="relative px-2 py-2.5 rounded-xl bg-card border border-border/50 text-mini font-semibold text-foreground hover:bg-accent/40 transition-colors text-center overflow-hidden"
+                className="relative px-2 py-2.5 rounded-lg border border-border/60 bg-secondary/40 text-mini font-semibold text-foreground hover:bg-accent/40 transition-colors text-center overflow-hidden"
               >
                 <AnimatePresence>
                   {tappedSurah === i && (
@@ -72,7 +70,7 @@ export default function QuranVirtues() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-card text-mini text-muted-foreground font-bold"
+                      className="absolute inset-0 flex items-center justify-center bg-secondary text-mini text-muted-foreground font-bold"
                     >
                       قريباً
                     </motion.span>
@@ -87,7 +85,7 @@ export default function QuranVirtues() {
         {/* Divider with dot */}
         <div className="flex items-center gap-0 py-1">
           <div className="h-px flex-1 bg-border/40" />
-          <div className="w-2 h-2 rounded-full bg-primary mx-2" />
+          <div className="w-2 h-2 rounded-full bg-primary mx-2" aria-hidden />
           <div className="h-px flex-1 bg-border/40" />
         </div>
 
@@ -95,28 +93,31 @@ export default function QuranVirtues() {
         <div className="space-y-4">
           {/* Title - icon right, text left */}
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
+            <Sparkles className="w-5 h-5 text-primary" aria-hidden />
             <h2 className="text-body font-bold text-foreground">فضائل القرآن</h2>
           </div>
 
-          <motion.div variants={container} initial="hidden" animate="show" className="flex flex-col gap-2.5">
-            {quranVirtues.map((virtue, index) => (
-              <motion.div
-                key={index}
-                variants={itemAnim}
-                className="flex items-center gap-3 px-4 py-4 rounded-2xl bg-card border border-border/50"
-              >
-                {/* Number on the right (first in RTL) */}
-                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
-                  <span className="text-meta font-bold text-primary">{index + 1}</span>
-                </div>
-                {/* Text */}
-                <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{virtue}</p>
-              </motion.div>
-            ))}
+          <motion.div variants={container} initial="hidden" animate="show">
+            <AppList>
+              {quranVirtues.map((virtue, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemAnim}
+                  className="app-row items-center"
+                >
+                  {/* Number on the right (first in RTL) */}
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
+                    <span className="text-meta font-bold text-primary tabular-nums">{index + 1}</span>
+                  </div>
+                  {/* Text */}
+                  <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{virtue}</p>
+                </motion.div>
+              ))}
+            </AppList>
           </motion.div>
         </div>
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

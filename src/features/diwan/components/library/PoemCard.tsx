@@ -1,92 +1,47 @@
-import { motion } from 'framer-motion';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
+import { AppRow } from '@/components/ui/app-shell';
 import { useDiwanPrefetch } from '@/features/diwan/lib/hooks';
-import type { DiwanPoemSearchResult,DiwanPoemSummary } from '@/features/diwan/lib/types';
+import type { DiwanPoemSearchResult, DiwanPoemSummary } from '@/features/diwan/lib/types';
+import { ScrollText } from '@/lib/icons';
 
 interface Props {
   poem: DiwanPoemSummary | DiwanPoemSearchResult;
   showPoet?: boolean;
-  index?: number;
 }
 
 /**
- * بطاقة القصيدة المصممة بنمط صفوف "المخطوطة" (Manuscript).
- * تعرض القصيدة كسطر فاخر مفصول بخط دافئ، مع علامة معينة صغيرة (◆) بلون شمع الختم.
+ * صفّ قصيدة داخل قائمة مجمَّعة <AppList>. كان سطرًا داخل بطاقة مخطوطة
+ * مخصصة؛ الآن صف قياسي من نظام القوائم — الفواصل والضغط والهندسة يديرها
+ * <AppRow> الموحّد، ويبقى التسبيق (prefetch) على اللمس/المرور.
  */
-export default function PoemCard({ poem, showPoet, index = 0 }: Props) {
+export default function PoemCard({ poem, showPoet }: Props) {
   const search = poem as DiwanPoemSearchResult;
+  const navigate = useNavigate();
   const { prefetchPoem } = useDiwanPrefetch();
   const prefetch = () => prefetchPoem(poem.slug);
 
+  const subtitle =
+    showPoet && search.poet_name
+      ? poem.opening
+        ? `${search.poet_name} · ${poem.opening}`
+        : search.poet_name
+      : poem.opening ?? undefined;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0, transition: { delay: Math.min(index, 12) * 0.04 } }}
-      className="border-b border-border/50 last:border-b-0"
-    >
-      <Link
-        to={`/diwan/library/poem/${poem.slug}`}
-        onPointerEnter={prefetch}
-        onTouchStart={prefetch}
-        className="block w-full py-4 px-1 hover:bg-foreground/[1.5%] active:scale-[0.99] transition-motion select-none rounded-[8px]"
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            {/* أيقونة معينة صغيرة بلون wax */}
-            <span className="text-mini text-primary select-none shrink-0" aria-hidden="true">
-              ◆
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline gap-2 flex-wrap">
-                <h3
-                  className="font-bold text-meta text-foreground leading-tight"
-                  style={{ fontFamily: 'var(--font-amiri)' }}
-                >
-                  {poem.title}
-                </h3>
-                {showPoet && search.poet_name && (
-                  <span className="text-micro text-primary font-tajawal font-medium">
-                    {search.poet_name}
-                  </span>
-                )}
-              </div>
-              {poem.opening && (
-                <p
-                  className="text-mini text-muted-foreground/90 leading-relaxed mt-1 line-clamp-1 truncate"
-                  style={{ fontFamily: 'var(--font-amiri)' }}
-                >
-                  {poem.opening}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 shrink-0">
-            {/* الشارات الإضافية إذا توفرت (البحر، القافية) */}
-            <div className="hidden sm:flex items-center gap-1.5 text-micro font-tajawal">
-              {poem.meter && (
-                <span className="px-1.5 py-0.5 rounded-xs border border-border text-muted-foreground/70">
-                  {poem.meter}
-                </span>
-              )}
-              {poem.rhyme && (
-                <span className="px-1.5 py-0.5 rounded-xs border border-border text-muted-foreground/70">
-                  روي {poem.rhyme}
-                </span>
-              )}
-            </div>
-
-            {poem.verses_count > 0 && (
-              <span className="text-mini text-muted-foreground/70 font-tajawal">
-                {poem.verses_count} {' '}
-                <span className="text-muted-foreground/70/60">{poem.verses_count === 1 ? 'بيت' : 'أبيات'}</span>
-              </span>
-            )}
-          </div>
-        </div>
-      </Link>
-    </motion.div>
+    <AppRow
+      onClick={() => navigate(`/diwan/library/poem/${poem.slug}`)}
+      onPointerEnter={prefetch}
+      onTouchStart={prefetch}
+      chevron
+      leading={<ScrollText className="h-5 w-5 text-primary" aria-hidden />}
+      title={poem.title}
+      subtitle={subtitle}
+      value={
+        poem.verses_count > 0
+          ? `${poem.verses_count} ${poem.verses_count === 1 ? 'بيت' : 'أبيات'}`
+          : undefined
+      }
+    />
   );
 }

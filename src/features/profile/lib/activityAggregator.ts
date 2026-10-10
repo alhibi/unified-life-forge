@@ -23,6 +23,41 @@ const MONTH_NAMES_AR = [
   'ديسمبر',
 ];
 
+/** Shapes of the raw localStorage payloads this aggregator reads (written by other modules). */
+interface RawFitnessActivity {
+  distance_meters?: number;
+  distanceMeters?: number;
+  calories_burned_est?: number;
+  caloriesBurnedEst?: number;
+  created_at?: string;
+  timestamp?: number;
+  type?: string;
+}
+
+interface RawNote {
+  category?: string;
+  type?: string;
+  createdAt?: string;
+  title?: string;
+}
+
+interface RawCountryStamp {
+  countryCode?: string;
+  country?: string;
+  iso_code?: string;
+}
+
+interface RawTravelStamp extends RawCountryStamp {
+  isoCode?: string;
+  visitedOn?: string;
+}
+
+interface RawDiwanBookmark {
+  timestamp?: number;
+  savedAt?: number;
+  title?: string;
+}
+
 /**
  * Creates a cache key based on the parameters
  */
@@ -77,12 +112,12 @@ function computeProfileActivitySummary(): ProfileActivitySummary {
       if (Array.isArray(activities)) {
         totalWorkouts = activities.length;
         const totalDistMeters = activities.reduce(
-          (acc: number, act: any) => acc + (act.distance_meters || act.distanceMeters || 0),
+          (acc: number, act: RawFitnessActivity) => acc + (act.distance_meters || act.distanceMeters || 0),
           0
         );
         totalDistanceKm = Math.round((totalDistMeters / 100) / 10);
         totalCalories = activities.reduce(
-          (acc: number, act: any) => acc + (act.calories_burned_est || act.caloriesBurnedEst || 0),
+          (acc: number, act: RawFitnessActivity) => acc + (act.calories_burned_est || act.caloriesBurnedEst || 0),
           0
         );
       }
@@ -154,7 +189,7 @@ function computeProfileActivitySummary(): ProfileActivitySummary {
       if (Array.isArray(parsed)) {
         activeNotesCount = parsed.length;
         journalEntriesCount = parsed.filter(
-          (n: any) => n.category === 'journal' || n.type === 'journal'
+          (n: RawNote) => n.category === 'journal' || n.type === 'journal'
         ).length;
       }
     }
@@ -172,7 +207,7 @@ function computeProfileActivitySummary(): ProfileActivitySummary {
       const parsed = JSON.parse(atlasRaw);
       if (Array.isArray(parsed)) {
         travelStampsCount = parsed.length;
-        const uniqueCountries = new Set(parsed.map((s: any) => s.countryCode || s.country || s.iso_code));
+        const uniqueCountries = new Set(parsed.map((s: RawCountryStamp) => s.countryCode || s.country || s.iso_code));
         visitedCountriesCount = uniqueCountries.size;
       }
     }
@@ -340,7 +375,7 @@ function compute365DayContributions(
       const parsed = JSON.parse(fitnessRaw);
       const activities = parsed?.state?.activities || parsed || [];
       if (Array.isArray(activities)) {
-        activities.forEach((act: any) => {
+        activities.forEach((act: RawFitnessActivity) => {
           const ts = act.created_at ? new Date(act.created_at).getTime() : act.timestamp || Date.now();
           const distKm = act.distance_meters ? (act.distance_meters / 1000).toFixed(1) : '1.5';
           addActivity(
@@ -364,8 +399,8 @@ function compute365DayContributions(
     const germanRaw = localStorage.getItem('german-club-storage') || localStorage.getItem('german_mastered_words');
     if (germanRaw) {
       const parsed = JSON.parse(germanRaw);
-      const mastered = parsed?.state?.masteredEntryIds || {};
-      Object.entries(mastered).forEach(([id, ts]: [string, any]) => {
+      const mastered: Record<string, unknown> = parsed?.state?.masteredEntryIds || {};
+      Object.entries(mastered).forEach(([id, ts]) => {
         const timestamp = typeof ts === 'number' ? ts : Date.now();
         addActivity(
           timestamp,
@@ -387,8 +422,8 @@ function compute365DayContributions(
     const bayanRaw = localStorage.getItem('bayan-store') || localStorage.getItem('diwan_saved_poems');
     if (bayanRaw) {
       const parsed = JSON.parse(bayanRaw);
-      const bookmarks = parsed?.state?.bookmarkedAnalyses || {};
-      Object.entries(bookmarks).forEach(([slug, poem]: [string, any]) => {
+      const bookmarks: Record<string, RawDiwanBookmark> = parsed?.state?.bookmarkedAnalyses || {};
+      Object.entries(bookmarks).forEach(([slug, poem]) => {
         const ts = poem?.timestamp || poem?.savedAt || Date.now();
         addActivity(
           ts,
@@ -411,7 +446,7 @@ function compute365DayContributions(
     if (pkmRaw) {
       const parsed = JSON.parse(pkmRaw);
       if (Array.isArray(parsed)) {
-        parsed.forEach((note: any) => {
+        parsed.forEach((note: RawNote) => {
           const ts = note.createdAt ? new Date(note.createdAt).getTime() : Date.now();
           addActivity(
             ts,
@@ -435,7 +470,7 @@ function compute365DayContributions(
     if (atlasRaw) {
       const parsed = JSON.parse(atlasRaw);
       if (Array.isArray(parsed)) {
-        parsed.forEach((stamp: any) => {
+        parsed.forEach((stamp: RawTravelStamp) => {
           const ts = stamp.visitedOn ? new Date(stamp.visitedOn).getTime() : Date.now();
           addActivity(
             ts,

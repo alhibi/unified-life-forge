@@ -10,9 +10,9 @@ interface Props {
 }
 
 /**
- * تبويبات العصور المصممة بنمط "المخطوطة" (Manuscript).
- * صف أفقي قابل للتمرير، كل تبويب نص + عدّاد صغير، بدون خلفية،
- * مع خط سفلي بلون شمع الختم (wax) تحت النشط.
+ * تبويبات العصور — صف أفقي قابل للتمرير، كل تبويب نصّ + عدّاد اختياري،
+ * والنشط تحته خط بلون الإبراز الوحيد. كانت الألوان تُكتب خامًا
+ * (متغيّرات ink وwax وقيم rgba)؛ الآن كلها من التوكنز الدلالية.
  *
  * Counts come from `era.poets_count`, which only the local fallback provides.
  * This component used to import the 610-poem seed corpus directly to compute
@@ -23,41 +23,30 @@ interface Props {
 export default function EraPills({ eras, selected, onSelect, showAll = true }: Props) {
   const totalPoets = eras.reduce((sum, era) => sum + (era.poets_count ?? 0), 0);
   const getPoetsCount = (eraId: string | null): number =>
-    eraId === null ? totalPoets : (eras.find(e => e.id === eraId)?.poets_count ?? 0);
+    eraId === null ? totalPoets : (eras.find((e) => e.id === eraId)?.poets_count ?? 0);
+
+  const tabClass = (active: boolean) =>
+    `relative flex items-center gap-1.5 border-b-2 pb-3 text-meta font-medium transition-motion ${
+      active
+        ? 'border-primary text-foreground'
+        : 'border-transparent text-muted-foreground hover:text-foreground'
+    }`;
+
+  const badgeClass = (active: boolean) =>
+    `rounded-full px-1.5 py-0.5 font-sans text-micro tabular-nums transition-motion ${
+      active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+    }`;
 
   return (
-    <div
-      className="overflow-x-auto -mx-5 px-5 pb-2 scrollbar-none"
-      role="group"
-      aria-label="تبويبات العصور الأدبية"
-    >
-      <div className="flex items-center gap-6 min-w-max border-b border-[var(--hairline)]">
+    <div className="scrollbar-none -mx-5 overflow-x-auto px-5 pb-2" role="group" aria-label="تبويبات العصور الأدبية">
+      <div className="flex min-w-max items-center gap-6 border-b border-border">
         {showAll && (
-          <button
-            type="button"
-            onClick={() => onSelect(null)}
-            aria-pressed={selected === null}
-            className="relative pb-3 text-meta font-medium transition-motion flex items-center gap-1.5 focus:outline-none focus-visible:text-[var(--ink-text)]"
-            style={{
-              color: selected === null ? 'var(--ink-text)' : 'var(--ink-text-dim)',
-              borderBottom: selected === null ? '2px solid var(--wax)' : '2px solid transparent',
-            }}
-          >
+          <button type="button" onClick={() => onSelect(null)} aria-pressed={selected === null} className={tabClass(selected === null)}>
             <span className="font-tajawal">الكلّ</span>
-            {totalPoets > 0 && (
-              <span
-                className="text-micro px-1.5 py-0.5 rounded-full font-sans transition-motion"
-                style={{
-                  backgroundColor: selected === null ? 'var(--wax-soft)' : 'rgba(242,233,216,0.05)',
-                  color: selected === null ? 'var(--wax)' : 'var(--ink-text-faint)',
-                }}
-              >
-                {totalPoets}
-              </span>
-            )}
+            {totalPoets > 0 && <span className={badgeClass(selected === null)}>{totalPoets}</span>}
           </button>
         )}
-        {eras.map(era => {
+        {eras.map((era) => {
           const active = selected === era.id;
           const count = getPoetsCount(era.id);
           return (
@@ -67,24 +56,10 @@ export default function EraPills({ eras, selected, onSelect, showAll = true }: P
               onClick={() => onSelect(active ? null : era.id)}
               aria-pressed={active}
               aria-label={`عصر ${era.name_ar}`}
-              className="relative pb-3 text-meta font-medium transition-motion flex items-center gap-1.5 focus:outline-none focus-visible:text-[var(--ink-text)]"
-              style={{
-                color: active ? 'var(--ink-text)' : 'var(--ink-text-dim)',
-                borderBottom: active ? '2px solid var(--wax)' : '2px solid transparent',
-              }}
+              className={tabClass(active)}
             >
               <span className="font-tajawal">{era.name_ar}</span>
-              {count > 0 && (
-                <span
-                  className="text-micro px-1.5 py-0.5 rounded-full font-sans transition-motion"
-                  style={{
-                    backgroundColor: active ? 'var(--wax-soft)' : 'rgba(242,233,216,0.05)',
-                    color: active ? 'var(--wax)' : 'var(--ink-text-faint)',
-                  }}
-                >
-                  {count}
-                </span>
-              )}
+              {count > 0 && <span className={badgeClass(active)}>{count}</span>}
             </button>
           );
         })}

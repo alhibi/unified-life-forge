@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { AppCard } from '@/components/ui/app-shell';
 import { ArrowLeftRight,Languages, Loader2 } from '@/lib/icons';
 
 interface ArticleTranslatorProps {
@@ -141,7 +142,7 @@ export function ArticleTranslator({
   };
 
   return (
-    <div className="flex items-center justify-between gap-2 p-3 bg-card border border-border/50 rounded-2xl shadow-sm">
+    <AppCard className="flex items-center justify-between gap-2 p-3">
       <div className="flex items-center gap-2 text-mini font-semibold text-muted-foreground">
         <Languages className="h-4 w-4 text-primary" />
         <span>{'ترجمة المقال'}</span>
@@ -171,7 +172,7 @@ export function ArticleTranslator({
               type="button"
               onClick={handleTranslate}
               disabled={translating}
-              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 active:scale-95 transition-motion inline-flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 transition-motion inline-flex items-center gap-1.5"
             >
               {translating ? (
                 <>
@@ -190,12 +191,12 @@ export function ArticleTranslator({
           <button
             type="button"
             onClick={handleReset}
-            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-mini font-bold active:scale-95 transition-motion"
+            className="px-3 py-1.5 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-mini font-bold transition-motion"
           >
             {'عرض النص الأصلي'}
           </button>
         )}
       </div>
-    </div>
+    </AppCard>
   );
 }

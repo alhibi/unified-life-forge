@@ -192,7 +192,7 @@ function Section({
       </h4>
       <ul className="space-y-1.5">
         {items.map((s, i) => (
-          <li key={i} className="bg-card border border-border/40 rounded-lg p-2">
+          <li key={i} className="app-card app-card-flat p-2">
             <p className="text-mini text-foreground/90 leading-relaxed">{s}</p>
           </li>
         ))}

@@ -1,16 +1,28 @@
 /**
- * Profile Insights Panel — Deep Enhanced Visual Design
- * ----------------------------------------------------
- * Luxury dark analytics panel with animated confidence rings,
- * staggered motion entry, refined typography, and deep shadow layers.
+ * Profile Insights Panel — cross-module insight cards.
+ *
+ * Was a "luxury dark analytics panel": glow rings, gradient washes,
+ * blur-3xl ambience and drop-shadow filters. Now each insight is a flat
+ * card; the insight *type* stays a documented colour key (data-* tokens),
+ * and the confidence ring still encodes the real percentage it always did.
  */
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 
+import { AppCard, IconChip } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import {
-  Activity, ArrowRight, Brain, Compass,   Flame, Lightbulb, Settings,
-Sparkles,
-  Target, TrendingUp, Trophy, Users, Zap} from '@/lib/icons';
+  Activity,
+  ArrowRight,
+  Brain,
+  Lightbulb,
+  Settings,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
+} from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
 import { CrossModuleInsight, generateCrossModuleInsights } from '../lib/badgeStore';
 import { ProfileCompletionMetrics } from '../lib/profileCompletionEngine';
@@ -31,11 +43,12 @@ const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
   milestone: Target,
 };
 
-const TYPE_STYLES: Record<string, { color: string; bg: string; border: string; labelAr: string; glow: string }> = {
-  correlation: { color: 'text-data-6', bg: 'bg-data-6/[0.06]', border: 'border-data-6/15', labelAr: 'ارتباط', glow: 'shadow-data-6/10' },
-  pattern: { color: 'text-data-4', bg: 'bg-data-4/[0.06]', border: 'border-data-4/15', labelAr: 'نمط', glow: 'shadow-data-4/10' },
-  recommendation: { color: 'text-signal', bg: 'bg-signal/[0.06]', border: 'border-signal/15', labelAr: 'توصية', glow: 'shadow-signal/10' },
-  milestone: { color: 'text-data-1', bg: 'bg-data-1/[0.06]', border: 'border-data-1/15', labelAr: 'معلم', glow: 'shadow-data-1/10' },
+/** Insight type colour key — data-* tokens label the category, not decor. */
+const TYPE_STYLES: Record<string, { color: string; bg: string; border: string; labelAr: string }> = {
+  correlation: { color: 'text-data-6', bg: 'bg-data-6/10', border: 'border-data-6/20', labelAr: 'ارتباط' },
+  pattern: { color: 'text-data-4', bg: 'bg-data-4/10', border: 'border-data-4/20', labelAr: 'نمط' },
+  recommendation: { color: 'text-signal', bg: 'bg-signal/10', border: 'border-signal/20', labelAr: 'توصية' },
+  milestone: { color: 'text-data-1', bg: 'bg-data-1/10', border: 'border-data-1/20', labelAr: 'معلم' },
 };
 
 const CATEGORY_ICON_COMPONENTS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -45,29 +58,10 @@ const CATEGORY_ICON_COMPONENTS: Record<string, React.ComponentType<{ className?:
   social: Users,
 };
 
-function renderTypeIcon(type: CrossModuleInsight['type']) {
-  const IconComponent = TYPE_ICONS[type] || Brain;
-  const style = TYPE_STYLES[type] || TYPE_STYLES.correlation;
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[0.625rem] font-extrabold ${style.color} ${style.bg} border ${style.border} backdrop-blur-sm`}>
-      <IconComponent className="w-3 h-3" />
-      <span>{style.labelAr}</span>
-    </span>
-  );
-}
-
 function renderCategoryIcon(tab: string) {
   const Component = CATEGORY_ICON_COMPONENTS[tab] || Settings;
-  return <Component className="w-3.5 h-3.5 text-muted-foreground-subtle" />;
+  return <Component className="w-3.5 h-3.5 text-muted-foreground-subtle" aria-hidden />;
 }
-
-/* Custom decorative icons for different insight themes */
-const DECOR_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  correlation: Compass,
-  pattern: Flame,
-  recommendation: Sparkles,
-  milestone: Trophy,
-};
 
 export function ProfileInsightsPanel({
   summary,
@@ -78,164 +72,145 @@ export function ProfileInsightsPanel({
 }: ProfileInsightsPanelProps) {
   const insights = useMemo(
     () => generateCrossModuleInsights(summary, badges, completionMetrics),
-    [summary, badges, completionMetrics.byCategory]
+    [summary, badges, completionMetrics]
   );
 
   if (insights.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className={`surface-depth rounded-[1.75rem] p-7 md:p-8 text-center overflow-hidden relative ${className}`}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-data-6/[0.03] via-transparent to-transparent" />
-        <div className="relative z-10 flex flex-col items-center gap-4 py-10">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-data-6/10 to-data-6/5 flex items-center justify-center shadow-inner ring-1 ring-data-6/10">
-            <Lightbulb className="w-8 h-8 text-data-6/50" />
-          </div>
-          <div>
-            <h3 className="text-[1.05rem] font-extrabold text-foreground mb-1.5 tracking-tight">لا توجد رؤى متاحة حالياً</h3>
-            <p className="text-[0.75rem] text-muted-foreground font-medium">استمر في بناء نشاطك عبر الوحدات المختلفة — الرؤى الذكية ستظهر مع ازدياد البيانات</p>
-          </div>
-        </div>
-      </motion.div>
+      <StateView
+        kind="empty"
+        title="لا توجد رؤى متاحة حالياً"
+        body="استمر في بناء نشاطك عبر الوحدات المختلفة — الرؤى الذكية ستظهر مع ازدياد البيانات"
+        className={className}
+      />
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`surface-depth rounded-[1.75rem] p-6 md:p-7 overflow-hidden relative ${className}`}
-    >
-      {/* Subtle ambient gradient */}
-      <div className="absolute top-0 left-0 w-80 h-80 rounded-full bg-gradient-to-br from-data-6/5 via-transparent to-signal/5 blur-3xl -translate-x-1/3 -translate-y-1/2 pointer-events-none" />
-
+    <AppCard className={cn('space-y-5', className)}>
       {/* Header */}
-      <div className="relative z-10 flex items-start gap-4 mb-6">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-data-6/15 to-data-6/15 flex items-center justify-center shadow-inner ring-1 ring-data-6/15 shrink-0">
-          <Brain className="w-5 h-5 text-data-6" />
-        </div>
+      <div className="flex items-start gap-3">
+        <IconChip aria-hidden>
+          <Brain className="w-5 h-5" />
+        </IconChip>
         <div className="min-w-0">
-          <h2 className="text-[1.1rem] font-extrabold text-foreground tracking-tight leading-tight">رؤى ذكية</h2>
-          <p className="text-[0.7rem] text-muted-foreground font-medium leading-relaxed">تحليلات وارتباطات من نشاطك عبر الوحدات المختلفة</p>
+          <h2 className="text-title font-bold text-foreground">رؤى ذكية</h2>
+          <p className="text-mini text-muted-foreground">تحليلات وارتباطات من نشاطك عبر الوحدات المختلفة</p>
         </div>
       </div>
 
       {/* Insights List */}
-      <div className="space-y-3 relative z-10">
+      <div className="space-y-3">
         {insights.map((insight: CrossModuleInsight, index: number) => {
           const style = TYPE_STYLES[insight.type] || TYPE_STYLES.correlation;
-          const DecorIcon = DECOR_ICONS[insight.type] || Brain;
+          const TypeIcon = TYPE_ICONS[insight.type] || Brain;
+          const actionable = Boolean(insight.actionable && onActionClick);
           return (
             <motion.div
               key={`${insight.type}-${index}-${insight.titleAr}`}
               initial={{ opacity: 0, x: -24, scale: 0.97 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{
-                delay: index * 0.08,
-                duration: 0.45,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className={`group relative p-5 rounded-2xl border transition-motion duration-normal hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/10 ${style.bg} ${style.border}`}
-              onClick={() => insight.actionable && onActionClick?.(insight.actionTab || 'overview')}
-              style={{ cursor: insight.actionable && onActionClick ? 'pointer' : 'default' }}
+              transition={{ delay: index * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             >
-              {/* Top-right decorative icon */}
-              <DecorIcon className="absolute top-4 end-4 w-10 h-10 text-white/[0.03] rotate-[12deg]" />
+              <AppCard
+                flat
+                pressable={actionable}
+                onClick={actionable ? () => onActionClick?.(insight.actionTab || 'overview') : undefined}
+                className={cn('group relative space-y-3', actionable && 'cursor-pointer')}
+              >
+                {/* Type badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-micro font-extrabold border ${style.color} ${style.bg} ${style.border}`}
+                  >
+                    <TypeIcon className="w-3 h-3" aria-hidden />
+                    <span>{style.labelAr}</span>
+                  </span>
 
-              {/* Type badge */}
-              <div className="absolute top-4 start-4">
-                {renderTypeIcon(insight.type)}
-              </div>
-
-              {/* Main content */}
-              <div className="flex gap-4 mt-10">
-                {/* Confidence ring */}
-                <div className="flex flex-col items-center gap-2 shrink-0">
-                  <div className="relative w-14 h-14">
-                    {/* Background ring */}
-                    <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
-                      <circle
-                        cx="28" cy="28" r="24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3.5"
-                        className="text-white/[0.06]"
-                      />
-                    </svg>
-                    {/* Progress ring */}
-                    <svg className="absolute inset-0 w-14 h-14 -rotate-90" viewBox="0 0 56 56">
-                      <circle
-                        cx="28" cy="28" r="24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        strokeDasharray={`${insight.confidence * 100} 100`}
-                        className="text-data-6 transition-motion duration-slow ease-enter"
-                        style={{ filter: 'drop-shadow(0 0 6px rgba(139,92,246,0.4))' }}
-                      />
-                    </svg>
-                    <span className="absolute inset-0 flex items-center justify-center text-[0.75rem] font-extrabold text-foreground tracking-tight">
-                      {Math.round(insight.confidence * 100)}%
+                  {actionable && (
+                    <span className="flex items-center gap-1 text-micro font-extrabold text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
+                      <ArrowRight className="w-3 h-3 rotate-180" aria-hidden />
+                      عرض
                     </span>
-                  </div>
-                  <span className="text-[0.625rem] text-muted-foreground-subtle font-medium">ثقة التحليل</span>
+                  )}
                 </div>
 
-                {/* Text content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-2.5">
-                    <h4 className="text-[0.9rem] font-extrabold text-foreground tracking-tight leading-snug">
-                      {insight.titleAr}
-                    </h4>
-                    {insight.actionable && onActionClick && (
-                      <span className="flex items-center gap-1 text-[0.625rem] font-extrabold text-data-6/70 opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0 whitespace-nowrap">
-                        <ArrowRight className="w-3 h-3 rotate-180" />
-                        عرض
+                {/* Main content */}
+                <div className="flex gap-4">
+                  {/* Confidence ring — encodes the analysis confidence percentage */}
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <div className="relative w-14 h-14">
+                      <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56" aria-hidden>
+                        <circle
+                          cx="28" cy="28" r="24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3.5"
+                          className="text-track"
+                        />
+                      </svg>
+                      <svg className="absolute inset-0 w-14 h-14 -rotate-90" viewBox="0 0 56 56" aria-hidden>
+                        <circle
+                          cx="28" cy="28" r="24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          strokeDasharray={`${insight.confidence * 100} 100`}
+                          className="text-primary transition-motion duration-slow ease-enter"
+                        />
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-mini font-extrabold text-foreground tabular-nums">
+                        {Math.round(insight.confidence * 100)}%
                       </span>
+                    </div>
+                    <span className="text-micro text-muted-foreground">ثقة التحليل</span>
+                  </div>
+
+                  {/* Text content */}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <h4 className="text-body font-bold text-foreground leading-snug">{insight.titleAr}</h4>
+
+                    <p className="text-mini text-muted-foreground leading-relaxed">
+                      {insight.descriptionAr}
+                    </p>
+
+                    {/* Related badges */}
+                    {insight.relatedBadges.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {insight.relatedBadges.slice(0, 4).map((badgeId: string) => (
+                          <span
+                            key={badgeId}
+                            className="px-2 py-0.5 rounded-full text-micro font-bold bg-secondary text-muted-foreground"
+                          >
+                            {badgeId.replace('badge_', '').replace(/_/g, ' ')}
+                          </span>
+                        ))}
+                        {insight.relatedBadges.length > 4 && (
+                          <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-secondary text-muted-foreground">
+                            +{insight.relatedBadges.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Action hint */}
+                    {insight.actionable && insight.actionTab && (
+                      <div className="flex items-center gap-2 text-micro text-muted-foreground">
+                        {renderCategoryIcon(insight.actionTab)}
+                        <span>
+                          انتقل إلى تبويب:{' '}
+                          <span className="text-foreground font-bold">{insight.actionTab}</span>
+                        </span>
+                      </div>
                     )}
                   </div>
-
-                  <p className="text-[0.73rem] text-muted-foreground-subtle font-medium leading-[1.7] mb-3">
-                    {insight.descriptionAr}
-                  </p>
-
-                  {/* Related badges */}
-                  {insight.relatedBadges.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {insight.relatedBadges.slice(0, 4).map((badgeId: string) => (
-                        <span
-                          key={badgeId}
-                          className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-white/[0.04] border border-white/[0.08] text-muted-foreground-subtle"
-                        >
-                          {badgeId.replace('badge_', '').replace(/_/g, ' ')}
-                        </span>
-                      ))}
-                      {insight.relatedBadges.length > 4 && (
-                        <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-white/[0.03] border border-white/[0.06] text-muted-foreground/40">
-                          +{insight.relatedBadges.length - 4}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Action hint */}
-                  {insight.actionable && insight.actionTab && (
-                    <div className="flex items-center gap-2 text-[0.625rem] text-muted-foreground/40 font-medium">
-                      {renderCategoryIcon(insight.actionTab)}
-                      <span>انتقل إلى تبويب: <span className="text-muted-foreground-subtle font-bold">{insight.actionTab}</span></span>
-                    </div>
-                  )}
                 </div>
-              </div>
+              </AppCard>
             </motion.div>
           );
         })}
       </div>
-    </motion.div>
+    </AppCard>
   );
 }

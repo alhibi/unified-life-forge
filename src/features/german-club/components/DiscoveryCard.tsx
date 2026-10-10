@@ -1,10 +1,10 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
 import { Compass, Sparkles } from '@/lib/icons';
 
 import { discoverRandom, type DiscoveryResult } from '../lib/discovery';
-import { GERMAN_CLUB_TOKENS } from '../types';
 
 const REASON_LABEL: Record<DiscoveryResult['reason'], { text: string; emoji: string }> = {
   fresh: { text: 'اكتشاف جديد', emoji: '✨' },
@@ -39,23 +39,16 @@ export const DiscoveryCard: React.FC = () => {
   const reasonMeta = REASON_LABEL[reason];
 
   return (
-    <section
-      className="relative overflow-hidden rounded-3xl border p-5 sm:p-6"
-      style={{
-        background: 'transparent',
-        borderColor: 'hsl(var(--track))',
-        boxShadow: '0 1px 0 rgba(0,0,0,0.02), 0 8px 24px -16px rgba(23,24,28,0.18)',
-      }}
-    >
+    <AppCard as="section">
       {/* Top: label + wander button */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Compass className="w-3.5 h-3.5 text-[hsl(var(--primary))]" />
-          <span className="text-[0.625rem] font-mono font-bold uppercase tracking-widest text-[hsl(var(--primary))]">
+          <Compass className="h-3.5 w-3.5 text-primary" aria-hidden />
+          <span className="font-mono text-micro font-bold uppercase tracking-widest text-primary">
             Zufallsfund
           </span>
-          <span className="text-[0.625rem] text-muted-foreground">·</span>
-          <span className="text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
+          <span className="text-micro text-muted-foreground">·</span>
+          <span className="font-mono text-micro uppercase tracking-wider text-muted-foreground">
             {reasonMeta.text}
           </span>
         </div>
@@ -63,18 +56,12 @@ export const DiscoveryCard: React.FC = () => {
         <motion.button
           type="button"
           onClick={handleWander}
-          whileTap={shouldReduceMotion ? undefined : { scale: 0.92, rotate: -90 }}
           whileHover={shouldReduceMotion ? undefined : { rotate: 15 }}
           transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-          className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center border bg-white"
-          style={{
-            borderColor: GERMAN_CLUB_TOKENS.prussian,
-            color: GERMAN_CLUB_TOKENS.prussian,
-            boxShadow: '0 2px 8px -2px rgba(23, 50, 77, 0.18)',
-          }}
+          className="app-icon-btn shrink-0"
           aria-label="كلمة عشوائية جديدة"
         >
-          <Compass className="w-4 h-4" />
+          <Compass className="h-4 w-4" />
         </motion.button>
       </div>
 
@@ -87,29 +74,21 @@ export const DiscoveryCard: React.FC = () => {
           exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, x: -12 }}
           transition={{ duration: 0.22, ease: 'easeOut' }}
         >
-          <h3
-            className="font-black text-[hsl(var(--foreground))] mb-1 leading-tight"
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 'clamp(1.5rem, 6vw, 2.125rem)',
-              letterSpacing: '-0.025em',
-            }}
-            dir="ltr"
-          >
+          <h3 className="text-hero font-black leading-tight text-foreground" dir="ltr">
             {entry.german}
           </h3>
           {entry.ipa && (
-            <span className="text-xs font-mono text-muted-foreground ms-0.5" dir="ltr">
+            <span className="ms-0.5 font-mono text-mini text-muted-foreground" dir="ltr">
               [{entry.ipa}]
             </span>
           )}
 
-          <p className="text-base font-semibold text-[hsl(var(--foreground))] mt-2 mb-1.5 leading-snug">
+          <p className="mb-1.5 mt-2 text-lead font-semibold leading-snug text-foreground">
             {entry.arabic}
           </p>
 
           {/* Meta line — category + CEFR */}
-          <div className="flex items-center gap-1.5 flex-wrap mt-3 text-[0.625rem] font-mono text-muted-foreground uppercase tracking-wider">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 font-mono text-micro uppercase tracking-wider text-muted-foreground">
             <span>{entry.category}</span>
             <span className="text-muted-foreground">·</span>
             <span>{entry.cefr}</span>
@@ -120,8 +99,8 @@ export const DiscoveryCard: React.FC = () => {
       </AnimatePresence>
 
       {/* Bottom hint */}
-      <div className="mt-4 pt-3 border-t border-[hsl(var(--track))] flex items-center justify-between">
-        <span className="text-xs text-muted-foreground italic">
+      <div className="mt-4 flex items-center justify-between border-t border-track pt-3">
+        <span className="text-mini italic text-muted-foreground">
           {reason === 'synonym' && 'كلمة بمعنى مشابه — لا تخلط بينهما'}
           {reason === 'antonym' && 'الضد تماماً — جرّب استخدامهما في جملة'}
           {reason === 'same-level' && 'في نفس مستواك — قرّب منه'}
@@ -129,8 +108,10 @@ export const DiscoveryCard: React.FC = () => {
           {reason === 'mixed' && 'عشوائية سعيدة — اضغط البوصلة لمزيد'}
           {reason === 'fresh' && 'ابدأ من هنا — اضغط البوصلة للمزيد'}
         </span>
-        <Sparkles className="w-3.5 h-3.5 text-signal" />
+        <Sparkles className="h-3.5 w-3.5 text-signal" aria-hidden />
       </div>
-    </section>
+    </AppCard>
   );
 };
+
+export default DiscoveryCard;

@@ -62,14 +62,14 @@ export default function VolumeBars({
 
   if (data.length === 0) {
     return (
-      <div className={`bg-card border border-border/40 rounded-2xl p-6 text-center ${className}`}>
+      <div className={`app-card p-6 text-center ${className}`}>
         <p className="text-mini text-muted-foreground">{T.noData[lang]}</p>
       </div>
     );
   }
 
   return (
-    <div className={`bg-card border border-border/40 rounded-2xl p-4 space-y-3 ${className}`}>
+    <div className={`app-card p-4 space-y-3 ${className}`}>
       <h3 className="text-mini font-bold text-foreground">{T.title[lang]}</h3>
       <div className="space-y-2">
         {data.map((row, i) => (

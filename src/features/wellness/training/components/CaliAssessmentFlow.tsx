@@ -8,6 +8,7 @@
 import { AnimatePresence,motion } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Award, Check, ChevronLeft, ChevronRight, X } from '@/lib/icons';
 
 import {
@@ -147,7 +148,7 @@ export default function CaliAssessmentFlow({ open, onClose, onComplete, lang }: 
                             className={`w-full text-start p-3 rounded-xl border transition-colors flex items-center justify-between gap-2 ${
                               selected
                                 ? 'bg-primary/15 border-primary text-foreground'
-                                : 'bg-card border-border/40 text-foreground'
+                                : 'bg-background border-border/40 text-foreground'
                             }`}
                           >
                             <span className="text-mini leading-snug">{opt.label[lang]}</span>
@@ -211,7 +212,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
         </p>
       </div>
 
-      <p className="text-mini text-foreground/85 leading-relaxed bg-card border border-border/40 rounded-xl p-3">
+      <p className="text-mini text-foreground/85 leading-relaxed app-card app-card-flat p-3">
         {TIER_RECOMMENDATION[result.tier][lang]}
       </p>
 
@@ -224,7 +225,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
           const p = caliProgramByKey(key);
           if (!p) return null;
           return (
-            <div key={key} className="rounded-xl bg-card border border-border/40 p-3">
+            <div key={key} className="app-card app-card-flat p-3">
               <p className="text-mini font-bold text-foreground">{p.name[lang]}</p>
               <p className="text-micro text-muted-foreground line-clamp-2 mt-0.5">{p.description[lang]}</p>
             </div>
@@ -243,7 +244,7 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
             if (!skill) return null;
             const stepName = idx >= 0 ? skill.steps[Math.min(idx, skill.steps.length - 1)]?.name[lang] : T.noStarted[lang];
             return (
-              <div key={key} className="bg-card border border-border/40 rounded-lg p-2">
+              <div key={key} className="app-card app-card-flat p-2">
                 <p className="text-micro text-muted-foreground">{skill.name[lang]}</p>
                 <p className="text-micro font-bold text-foreground line-clamp-1">{stepName}</p>
               </div>
@@ -252,12 +253,12 @@ function ResultPanel({ result, onApply, lang }: { result: AssessmentResult; onAp
         </div>
       </div>
 
-      <button
+      <Button
         onClick={onApply}
-        className="w-full py-3 rounded-xl bg-primary text-primary-foreground text-meta font-bold inline-flex items-center justify-center gap-1 active:scale-[0.98]"
+        className="w-full"
       >
-        {T.applyResults[lang]} <ChevronRight className="w-4 h-4" />
-      </button>
+        {T.applyResults[lang]} <ChevronRight className="w-4 h-4" aria-hidden />
+      </Button>
     </motion.div>
   );
 }

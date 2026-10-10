@@ -2,7 +2,6 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { DictionaryEntry } from '../../types';
-
 import { DictionaryCard } from './DictionaryCard';
 
 /**

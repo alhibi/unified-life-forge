@@ -28,6 +28,9 @@
 
 import React, { type ReactNode } from 'react';
 
+import { AppCard } from '@/components/ui/app-shell';
+import { cn } from '@/lib/utils';
+
 /* ─────────────────────────── Color helpers ─────────────────────────── */
 
 /** Robust HSL var or hex/rgb passthrough — returns rgba with given alpha. */
@@ -212,28 +215,12 @@ export interface SoftSurfaceProps {
 }
 
 /**
- * The new building block for every wellness card. Stacks in this order
- * (back → front):
- *
- *   1. base color (solid card)
- *   2. SoftWash or MeshGlow (accent halo)
- *   3. DitherLayer (noise overlay, ~2.5% opacity)
- *   4. children (always on top, fully opaque)
- *
- *  Because every layer is rendered with sub-pixel-stable parameters
- *  and `transform: translateZ(0)` on the root, the GPU compositor
- *  promotes the whole card to its own layer — no banding seams when
- *  the parent scrolls.
+ * The canonical card surface. The decorative layers (wash, mesh, dither,
+ * glass lip) are gone — `<AppCard>` owns the chrome and reads the same
+ * tokens as every other card in the app. Props stay in the signature for
+ * API compatibility with the tabs that still pass them.
  */
 export function SoftSurface({
-  base = 'hsl(var(--card))',
-  accent = 'hsl(var(--primary))',
-  intensity = 1,
-  variant = 'mesh',
-  highlight = true,
-  dither = true,
-  radius = '1rem',
-  border = true,
   className,
   children,
   onClick,
@@ -241,42 +228,23 @@ export function SoftSurface({
   ariaLabel,
   as = 'div',
 }: SoftSurfaceProps) {
-  const Tag: any = as === 'button' ? 'button' : 'div';
-  const accentWeight = Math.round(8 + Math.max(0, Math.min(1, intensity)) * 12);
-  const borderColor =
-    border && variant !== 'flat'
-      ? `color-mix(in srgb, ${accent} ${accentWeight}%, hsl(var(--border)))`
-      : 'hsl(var(--border) / 0.6)';
-
+  if (as === 'button') {
+    return (
+      <AppCard
+        as="button"
+        onClick={onClick}
+        role={role}
+        aria-label={ariaLabel}
+        className={cn('text-start w-full block', className)}
+      >
+        {children}
+      </AppCard>
+    );
+  }
   return (
-    <Tag
-      onClick={onClick}
-      role={role}
-      aria-label={ariaLabel}
-      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
-      style={{
-        background: base,
-        borderRadius: radius,
-        border: border ? `1px solid ${borderColor}` : undefined,
-        transform: 'translateZ(0)',
-        WebkitFontSmoothing: 'antialiased',
-      }}
-    >
-      {/* Accent layer */}
-      {variant === 'mesh' && intensity > 0 && <MeshGlow a={accent} intensity={intensity} />}
-      {variant === 'wash' && intensity > 0 && <SoftWash color={accent} intensity={intensity} />}
-
-      {/* Top highlight — 1px gradient hairline gives a subtle "glass" lip */}
-      {highlight && (
-        <div aria-hidden className="absolute inset-x-0 top-0 h-px pointer-events-none" style={{}} />
-      )}
-
-      {/* Dither — sits above gradient, below content */}
-      {dither && <DitherLayer opacity={0.025} />}
-
-      {/* Content */}
-      <div className="relative">{children}</div>
-    </Tag>
+    <AppCard onClick={onClick} role={role} aria-label={ariaLabel} className={className}>
+      {children}
+    </AppCard>
   );
 }
 
@@ -401,38 +369,22 @@ export interface GlassSurfaceProps {
 }
 
 /**
- * A flat semantic surface kept under the legacy name for API compatibility.
- * Accent is expressed through a restrained hairline border, never blur.
+ * A flat semantic surface kept under the legacy name for API compatibility —
+ * it delegates to the canonical <AppCard> chrome. Accent/highlight proofs
+ * stay in the signature but no blur, gradient or shadow is rendered.
  */
-export function GlassSurface({
-  accent = 'hsl(var(--primary))',
-  frost = 0.8,
-  highlight = true,
-  children,
-  className,
-  onClick,
-  as = 'div',
-}: GlassSurfaceProps) {
-  const Tag: any = as === 'button' ? 'button' : 'div';
-  const accentWeight = Math.round(6 + Math.max(0, Math.min(1, frost)) * 6);
-  const borderColor = highlight
-    ? `color-mix(in srgb, ${accent} ${accentWeight}%, hsl(var(--border)))`
-    : 'hsl(var(--border) / 0.6)';
-
+export function GlassSurface({ children, className, onClick, as = 'div' }: GlassSurfaceProps) {
+  if (as === 'button') {
+    return (
+      <AppCard as="button" onClick={onClick} className={cn('text-start w-full block', className)}>
+        {children}
+      </AppCard>
+    );
+  }
   return (
-    <Tag
-      onClick={onClick}
-      data-ui-surface="card"
-      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
-      style={{
-        background: 'hsl(var(--card))',
-        borderRadius: '1rem',
-        border: `1px solid ${borderColor}`,
-        transform: 'translateZ(0)',
-      }}
-    >
-      <div className="relative">{children}</div>
-    </Tag>
+    <AppCard onClick={onClick} className={className}>
+      {children}
+    </AppCard>
   );
 }
 
@@ -475,36 +427,22 @@ export interface AuroraCardProps {
 }
 
 /**
- * Premium card with an aurora-style glow background. Perfect for
- * hero sections, score displays, and feature highlights.
+ * Premium card kept under the legacy name — delegates to <AppCard>.
+ * The aurora palette/intensity props stay in the signature for call
+ * sites that still pass them; no glow layer is rendered.
  */
-export function AuroraCard({
-  colors = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'],
-  intensity = 0.8,
-  children,
-  className,
-  onClick,
-  as = 'div',
-}: AuroraCardProps) {
-  const Tag: any = as === 'button' ? 'button' : 'div';
-
+export function AuroraCard({ children, className, onClick, as = 'div' }: AuroraCardProps) {
+  if (as === 'button') {
+    return (
+      <AppCard as="button" onClick={onClick} className={cn('text-start w-full block', className)}>
+        {children}
+      </AppCard>
+    );
+  }
   return (
-    <Tag
-      onClick={onClick}
-      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
-      style={{
-        background: 'hsl(var(--card))',
-        borderRadius: '1rem',
-        border: '1px solid hsl(var(--border) / 0.6)',
-        transform: 'translateZ(0)',
-      }}
-    >
-      <AuroraGlow colors={colors} intensity={intensity} />
-      {/* Top edge highlight */}
-      <div aria-hidden className="absolute inset-x-0 top-0 h-px pointer-events-none" style={{}} />
-      <DitherLayer opacity={0.02} />
-      <div className="relative">{children}</div>
-    </Tag>
+    <AppCard onClick={onClick} className={className}>
+      {children}
+    </AppCard>
   );
 }
 
@@ -522,35 +460,23 @@ export interface ElevatedCardProps {
 }
 
 /**
- * Material-like elevated card with a coloured ambient shadow. The
- *  is split into two layers: one tight (definition) and one
- * spread (ambient glow) — looks realistic on both light/dark themes.
+ * Elevated card kept under the legacy name — delegates to <AppCard>.
+ * The elevation/accent props stay in the signature for call sites that
+ * still pass them; the ambient coloured shadow is gone (depth comes from
+ * the canonical surface + hairline, never from shadows).
  */
-export function ElevatedCard({
-  accent = 'hsl(var(--primary))',
-  elevation = 2,
-  children,
-  className,
-  onClick,
-  as = 'div',
-}: ElevatedCardProps) {
-  const Tag: any = as === 'button' ? 'button' : 'div';
-
-  const borderAlpha = 0.34 + elevation * 0.06;
-
+export function ElevatedCard({ children, className, onClick, as = 'div' }: ElevatedCardProps) {
+  if (as === 'button') {
+    return (
+      <AppCard as="button" onClick={onClick} className={cn('text-start w-full block', className)}>
+        {children}
+      </AppCard>
+    );
+  }
   return (
-    <Tag
-      onClick={onClick}
-      className={`relative overflow-hidden ${onClick ? 'text-start w-full block' : ''} ${className ?? ''}`}
-      style={{
-        background: 'hsl(var(--card))',
-        borderRadius: '1rem',
-        border: `1px solid ${withAlpha(accent, borderAlpha)}`,
-        transform: 'translateZ(0)',
-      }}
-    >
-      <div className="relative">{children}</div>
-    </Tag>
+    <AppCard onClick={onClick} className={className}>
+      {children}
+    </AppCard>
   );
 }
 
@@ -568,38 +494,15 @@ export interface ShimmerBorderProps {
 }
 
 /**
- * A subtle animated gradient border that hints at premium status.
- * Uses a conic-gradient background on a pseudo-wrapper. The animation
- * is pure CSS (keyframe rotation) so it's zero-cost on GPU.
+ * Flat bordered container kept under the legacy name — delegates to
+ * <AppCard>. The shimmer animation and conic gradient are gone; the
+ * colour/width props stay in the signature for call sites that pass them.
  */
-export function ShimmerBorder({
-  colors = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'],
-  width = 1,
-  children,
-  className,
-  radius = '1rem',
-}: ShimmerBorderProps) {
-  // Gradients disabled — render a flat bordered container instead.
-  const borderColor = colors[0] ?? 'hsl(var(--border))';
+export function ShimmerBorder({ children, className, radius }: ShimmerBorderProps) {
   return (
-    <div
-      className={`relative ${className ?? ''}`}
-      style={{
-        borderRadius: radius,
-        padding: width,
-        background: borderColor,
-      }}
-    >
-      <div
-        className="relative overflow-hidden"
-        style={{
-          borderRadius: `calc(${radius} - ${width}px)`,
-          background: 'hsl(var(--card))',
-        }}
-      >
-        {children}
-      </div>
-    </div>
+    <AppCard className={className} style={{ borderRadius: radius }}>
+      {children}
+    </AppCard>
   );
 }
 

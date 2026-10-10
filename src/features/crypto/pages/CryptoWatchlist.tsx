@@ -2,9 +2,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { AppList, AppRow, IconButton, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 import { useConservingInterval } from '@/hooks/useConserve';
 import {
@@ -14,6 +15,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from '@/lib/icons';
+import { cn } from '@/lib/utils';
 
 import { cryptoApi } from '../api';
 import TokenDetailDrawer from '../components/TokenDetailDrawer';
@@ -227,54 +229,47 @@ export default function CryptoWatchlist() {
         path="/crypto"
       />
 
-      {/* Header bar */}
-      <div className="flex items-center justify-between gap-3 mb-5">
-        <div className="flex items-center gap-3 min-w-0">
-          <BackButton />
-          <div className="min-w-0">
-            <h1 className="text-title font-bold text-foreground tracking-tight">قائمة العملات</h1>
-            <p className="flex items-center gap-1.5 text-micro text-muted-foreground font-medium mt-0.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inset-0 rounded-full bg-data-1/60 animate-ping" />
-                <span className="relative h-1.5 w-1.5 rounded-full bg-data-1" />
-              </span>
-              تحديث حي • DEX Screener
-            </p>
-          </div>
-        </div>
+      {/* Header — the shared page header owns the back button, title row and
+          the action cluster; the live tick rides in the subtitle slot. */}
+      <PageHeader
+        title="قائمة العملات"
+        subtitle={
+          <span className="flex items-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inset-0 rounded-full bg-data-1/60 animate-ping" />
+              <span className="relative h-1.5 w-1.5 rounded-full bg-data-1" />
+            </span>
+            تحديث حي • DEX Screener
+          </span>
+        }
+        right={
+          <>
+            {/* Manual Refresh Button */}
+            <IconButton
+              disabled={refreshing || loading}
+              onClick={() => loadData(true)}
+              title="تحديث الأسعار"
+              aria-label="تحديث الأسعار"
+            >
+              <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin text-primary')} />
+            </IconButton>
 
-        <div className="flex items-center gap-2">
-          {/* Manual Refresh Button */}
-          <button
-            type="button"
-            disabled={refreshing || loading}
-            onClick={() => loadData(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm text-muted-foreground hover:text-foreground active:scale-95 disabled:opacity-50 transition-motion"
-            title="تحديث الأسعار"
-            aria-label="تحديث الأسعار"
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
-          </button>
-
-          {/* Add Coin Button */}
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            className="flex h-10 gap-2 items-center rounded-2xl bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-4 shadow-sm active:scale-95 transition-motion text-mini"
-          >
-            <Plus className="h-4 w-4" />
-            إضافة عملة
-          </button>
-        </div>
-      </div>
+            {/* Add Coin Button */}
+            <Button onClick={() => setSearchOpen(true)} className="gap-2 font-bold">
+              <Plus className="h-4 w-4" />
+              إضافة عملة
+            </Button>
+          </>
+        }
+      />
 
       {/* Main content body */}
-      <div className="space-y-3">
+      <div>
         {loading ? (
           // Elegant skeleton loading state
           <div className="space-y-3" role="status" aria-label="تحميل قائمة العملات">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse h-16 w-full rounded-xl bg-card/20 border border-border/10 p-3 flex items-center justify-between">
+              <div key={i} className="animate-pulse h-16 w-full rounded-lg bg-muted/20 border border-border/10 p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 rounded-full bg-muted/40 shrink-0" />
                   <div className="space-y-1.5">
@@ -316,8 +311,8 @@ export default function CryptoWatchlist() {
           />
 
         ) : (
-          // Watchlisted token entries
-          <div className="space-y-2.5">
+          // Watchlisted token entries — one grouped list, one row per token.
+          <AppList>
             <AnimatePresence initial={false}>
               {watchlist.map((item) => {
                 // Find matching live pair data
@@ -337,28 +332,28 @@ export default function CryptoWatchlist() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.25 }}
                   >
-                    <AppCard
-                      pressable
+                    <AppRow
+                      as="div"
                       onClick={() => pair && handleOpenDetail(pair)}
-                      className={`group flex items-center justify-between gap-3 rounded-2xl border border-border/10 bg-card/30 backdrop-blur-sm p-3.5 hover:bg-card/50 hover:border-border/25 transition-motion relative overflow-hidden ${
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === ' ') && pair) {
+                          e.preventDefault();
+                          handleOpenDetail(pair);
+                        }
+                      }}
+                      className={cn(
+                        'relative',
                         pulseState === 'up'
                           ? 'ring-1 ring-data-1/30 bg-data-1/5'
                           : pulseState === 'down'
-                          ? 'ring-1 ring-data-5/30 bg-data-5/5'
-                          : ''
-                      }`}
-                    >
-                      {/* Trend hairline on the leading edge */}
-                      <span
-                        aria-hidden
-                        className={`absolute inset-y-2 start-0 w-[2px] rounded-full ${
-                          isUp ? 'bg-data-1/50' : 'bg-data-5/50'
-                        }`}
-                      />
-
-                      <div className="flex items-center gap-3 min-w-0">
-                        {/* Fallback image */}
-                        <div className="relative h-10 w-10 rounded-full bg-muted/30 border border-border/20 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                            ? 'ring-1 ring-data-5/30 bg-data-5/5'
+                            : '',
+                      )}
+                      leading={
+                        // Fallback image
+                        <span className="relative h-10 w-10 rounded-full bg-muted/30 border border-border/20 flex items-center justify-center overflow-hidden">
                           {pair?.imageUrl ? (
                             <img
                               src={pair.imageUrl}
@@ -373,44 +368,48 @@ export default function CryptoWatchlist() {
                               {item.token_symbol.slice(0, 3)}
                             </span>
                           )}
-                        </div>
-
-                        {/* Symbolic identifiers */}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-meta font-bold text-foreground tracking-tight truncate">
-                              {item.token_symbol}
-                            </span>
-                            <span className="text-micro uppercase tracking-[0.08em] font-bold text-muted-foreground-subtle border border-border/25 px-1.5 py-[1px] rounded-full">
-                              {CHAIN_LABELS[item.chain_id as ChainId] || item.chain_id}
-                            </span>
-                          </div>
-                          <p className="text-micro text-muted-foreground truncate max-w-[130px] md:max-w-[200px] mt-0.5">
-                            {item.label || (pair ? pair.name : 'جاري التحميل...')}
-                          </p>
-                        </div>
-                      </div>
+                        </span>
+                      }
+                      title={
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          <span className="truncate">{item.token_symbol}</span>
+                          <span className="shrink-0 text-micro uppercase tracking-[0.08em] font-bold text-muted-foreground-subtle border border-border/25 px-1.5 py-px rounded-full">
+                            {CHAIN_LABELS[item.chain_id as ChainId] || item.chain_id}
+                          </span>
+                        </span>
+                      }
+                      subtitle={item.label || (pair ? pair.name : 'جاري التحميل...')}
+                    >
+                      {/* Trend hairline on the leading edge */}
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'absolute inset-y-2 start-0 w-[2px] rounded-full',
+                          isUp ? 'bg-data-1/50' : 'bg-data-5/50',
+                        )}
+                      />
 
                       {/* Financial parameters */}
-                      <div className="flex items-center gap-2.5 shrink-0">
+                      <span className="flex shrink-0 items-center gap-2.5">
                         {pair ? (
-                          <div className="text-end">
+                          <span className="flex flex-col items-end">
                             {/* Monospaced, tabular numerals for prices */}
-                            <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
+                            <span className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums">
                               {formatPrice(pair.priceUsd)}
-                            </p>
+                            </span>
 
-                            <div className="flex items-center justify-end gap-1.5 mt-1">
+                            <span className="mt-1 flex items-center justify-end gap-1.5">
                               <span className="text-micro text-muted-foreground-subtle font-plex-mono tabular-nums">
                                 {formatCompact(pair.volume24h)}
                               </span>
                               {/* Non-color-only indications: Icon represents trend direction */}
                               <span
-                                className={`text-micro font-bold font-plex-mono tabular-nums flex items-center gap-0.5 rounded-full px-1.5 py-[2px] ${
+                                className={cn(
+                                  'flex items-center gap-0.5 rounded-full px-1.5 py-[2px] text-micro font-bold font-plex-mono tabular-nums',
                                   isUp
                                     ? 'text-data-1 bg-data-1/10'
-                                    : 'text-data-5 bg-data-5/10'
-                                }`}
+                                    : 'text-data-5 bg-data-5/10',
+                                )}
                               >
                                 {isUp ? (
                                   <TrendingUp className="h-3 w-3 shrink-0" />
@@ -419,13 +418,13 @@ export default function CryptoWatchlist() {
                                 )}
                                 {Math.abs(priceChg).toFixed(2)}%
                               </span>
-                            </div>
-                          </div>
+                            </span>
+                          </span>
                         ) : (
-                          <div className="text-end animate-pulse space-y-1">
-                            <div className="h-4 w-16 bg-muted/40 rounded ms-auto" />
-                            <div className="h-3 w-10 bg-muted/40 rounded ms-auto" />
-                          </div>
+                          <span className="flex animate-pulse flex-col items-end gap-1">
+                            <span className="h-4 w-16 bg-muted/40 rounded" />
+                            <span className="h-3 w-10 bg-muted/40 rounded" />
+                          </span>
                         )}
 
                         {/* Separate Explicit Remove Action */}
@@ -435,19 +434,19 @@ export default function CryptoWatchlist() {
                             e.stopPropagation(); // prevent opening detail
                             handleRemove(item.id, item.token_symbol, item.chain_id, item.pair_address);
                           }}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/10 text-muted-foreground-subtle opacity-70 group-hover:opacity-100 hover:border-data-5/25 hover:bg-data-5/10 hover:text-data-5 transition-motion"
+                          className="flex h-9 w-9 items-center justify-center rounded-md border border-border/10 text-muted-foreground-subtle opacity-70 hover:border-data-5/25 hover:bg-data-5/10 hover:text-data-5 hover:opacity-100 transition-motion"
                           title="إزالة من القائمة"
                           aria-label={`إزالة ${item.token_symbol} من القائمة`}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
-                      </div>
-                    </AppCard>
+                      </span>
+                    </AppRow>
                   </motion.div>
                 );
               })}
             </AnimatePresence>
-          </div>
+          </AppList>
         )}
       </div>
 

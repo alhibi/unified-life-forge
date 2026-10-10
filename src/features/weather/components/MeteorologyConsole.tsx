@@ -147,7 +147,6 @@ export default function MeteorologyConsole() {
 
   return (
     <section className="rounded-2xl border border-border/40 surface-depth overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <header className="px-6 pt-6 pb-4">
         <h2 className="flex items-center gap-2 font-bold text-lead leading-tight text-foreground">
           <Sliders className="w-5 h-5 text-primary" aria-hidden />

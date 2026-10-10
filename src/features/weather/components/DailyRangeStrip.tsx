@@ -41,7 +41,6 @@ export function DailyRangeStrip({ days, iconFor, locale }: DailyRangeStripProps)
 
   return (
     <section className="relative overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <header className="px-5 pt-5 pb-4 flex items-end justify-between gap-3">
         <div>
           <h2 className="flex items-center gap-2 font-bold text-lead leading-tight text-foreground">

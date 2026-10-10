@@ -70,7 +70,7 @@ export default function SetRow({
               onChange={(e) => onChange({ durationSec: Math.max(0, parseInt(e.target.value, 10) || 0) * 60 })}
               placeholder={'دقيقة'}
               aria-label={T.duration[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="app-control flex-1 min-w-0 h-9 px-2 text-meta tabular-nums"
             />
             <input
               type="number"
@@ -80,7 +80,7 @@ export default function SetRow({
               onChange={(e) => onChange({ distanceKm: parseFloat(e.target.value) || 0 })}
               placeholder="km"
               aria-label={T.distance[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="app-control flex-1 min-w-0 h-9 px-2 text-meta tabular-nums"
             />
           </>
         ) : (
@@ -93,7 +93,7 @@ export default function SetRow({
               onChange={(e) => onChange({ weightKg: parseFloat(e.target.value) || 0 })}
               placeholder={suggestion?.weightKg != null ? `${suggestion.weightKg}` : 'kg'}
               aria-label={T.weight[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="app-control flex-1 min-w-0 h-9 px-2 text-meta tabular-nums"
             />
             <span className="text-mini text-muted-foreground">×</span>
             <input
@@ -103,7 +103,7 @@ export default function SetRow({
               onChange={(e) => onChange({ reps: parseInt(e.target.value, 10) || 0 })}
               placeholder={suggestion?.reps != null ? `${suggestion.reps}` : T.reps[lang]}
               aria-label={T.reps[lang]}
-              className="flex-1 min-w-0 bg-card border border-border/40 rounded-lg px-2 py-1.5 text-meta tabular-nums text-foreground focus:outline-none focus:border-primary/40"
+              className="app-control flex-1 min-w-0 h-9 px-2 text-meta tabular-nums"
             />
           </>
         )}
