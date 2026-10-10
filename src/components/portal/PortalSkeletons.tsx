@@ -29,7 +29,7 @@ export function AppTileSkeleton({ list = false }: { list?: boolean }) {
     <div
       className={cn(
         'rounded-card border border-border/60 bg-muted/30',
-        list ? 'flex items-center gap-3 p-3' : 'flex min-h-[132px] flex-col justify-between p-4',
+        list ? 'flex items-center gap-3 p-3' : 'portal-widget-cell flex min-h-44 flex-col justify-between p-5',
       )}
       aria-hidden
     >
@@ -52,7 +52,7 @@ export function AppTileSkeleton({ list = false }: { list?: boolean }) {
 export function PortalRealmsSkeleton({ list = false }: { list?: boolean }) {
   const gridClass = list
     ? 'grid grid-cols-1 gap-2'
-    : 'grid grid-cols-1 gap-3 @[22rem]:grid-cols-2 @[40rem]:grid-cols-3 @[40rem]:gap-4 @[64rem]:grid-cols-4';
+    : 'portal-widget-grid grid grid-cols-2 gap-3 @[40rem]:grid-cols-3 @[40rem]:gap-4 @[64rem]:grid-cols-4';
 
   return (
     <div className="@container space-y-8" role="status" aria-label="جارٍ تحميل التطبيقات">
@@ -88,7 +88,7 @@ export function PortalRealmsSkeleton({ list = false }: { list?: boolean }) {
  */
 export function PortalTodayWidgetsSkeleton() {
   return (
-    <SkeletonGroup className="space-y-3" label="جارٍ تحميل ودجات اليوم">
+    <SkeletonGroup className="portal-today-grid grid items-start gap-4" label="جارٍ تحميل ودجات اليوم">
       {/* Prayer times */}
       <div className="min-h-[21rem] space-y-4 rounded-3xl border border-border/60 bg-muted/20 p-4 sm:min-h-[19rem]">
         <div className="flex items-center justify-between gap-3">

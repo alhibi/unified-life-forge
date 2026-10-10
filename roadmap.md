@@ -1,5 +1,11 @@
 # Roadmap
 
+## Reference-led widget redesign — October 10, 2026
+- [x] Recompose the shared color/material contract with multicolor widgets and calm canvases, retaining all theme choices.
+- [x] Rebuild launcher composition, prayer/weather widgets and shared feature cards/statistics around the supplied references.
+- [x] Verify 168 computed browser theme/mode/strength/OLED cases, 22 feature route states, live prayer/weather, paper theme persistence and keyboard/counter actions; 716 targeted tests pass, lint budget unchanged, architecture and automatic build pass.
+- [ ] Exhaustive account-content and physical-device visual sign-off for every detail/overlay — blocked on representative private content and physical devices; current checks are not full-product accessibility certification.
+
 ## Color materiality overhaul — October 10, 2026
 - [x] Audit surface dilution and author richer solid material roles for all 14 themes, retaining independent mode/OLED/strength preferences.
 - [x] Replace confirmed translucent structural surfaces in shared cards/lists/overlays, weather, qibla, Quran chips, reader, podcasts, profile and appearance controls; preserve purposeful media/scrim behavior.

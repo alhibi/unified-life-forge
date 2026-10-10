@@ -27,6 +27,9 @@ import { cn } from "@/lib/utils";
  *  genuine data label for one of five collections, so it gets a documented
  *  palette key instead of a decorative hex. */
 type DataTone = "data-1" | "data-2" | "data-3" | "data-4" | "data-5" | "data-6";
+const WIDGET_TONE: Record<DataTone, 1 | 2 | 3 | 4 | 5 | 6> = {
+  "data-1": 1, "data-2": 2, "data-3": 3, "data-4": 4, "data-5": 5, "data-6": 6,
+};
 
 /** Literal class pairs for each tone — dynamic `text-${tone}` strings would be
  *  invisible to Tailwind's scanner. */
@@ -841,6 +844,7 @@ export default function Knowledge() {
                   {catData.brands.map((b) => (
                     <AppCard
                       key={b.id}
+                      tone={WIDGET_TONE[cat.tone]}
                       as="button"
                       pressable
                       onClick={() => selectBrand(b.id)}
@@ -891,6 +895,7 @@ export default function Knowledge() {
                   {brand.models.map((m) => (
                     <AppCard
                       key={m.id}
+                      tone={WIDGET_TONE[cat.tone]}
                       as="button"
                       pressable
                       onClick={() => setActiveModel(m)}

@@ -63,7 +63,7 @@ export default function SunnahTracker() {
   const showPicker = editing || committed.length === 0;
 
   return (
-    <AppCard as="section" aria-label="متابعة السنن اليومية">
+    <AppCard tone={5} as="section" aria-label="متابعة السنن اليومية">
       <header className="flex items-baseline justify-between gap-3">
         <h2 className="text-title font-semibold text-foreground">سنن اليوم</h2>
         {committed.length > 0 && (
@@ -184,7 +184,7 @@ export default function SunnahTracker() {
                       ? 'border-primary bg-primary font-semibold text-primary-foreground'
                       : suggested
                         ? 'border-primary/50 text-foreground hover:bg-muted/60'
-                        : 'border-border text-muted-foreground hover:text-foreground',
+                         : 'border-primary/30 text-muted-foreground hover:text-foreground',
                   )}
                 >
                   {isCommitted ? <Check className="h-3 w-3" aria-hidden /> : <Plus className="h-3 w-3" aria-hidden />}

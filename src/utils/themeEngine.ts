@@ -961,17 +961,19 @@ export function generateThemeTokens(
 
   // OLED black mode keeps the palette's hue instead of collapsing to a
   // neutral #080808 whose card colour no longer belongs to the theme.
-  // Tonal surfaces (Material You): page and cards carry the theme's own
-  // accent body instead of near-neutral paper. Mono stays truly neutral.
+  // Calm canvases support independent coloured widgets. Never spread one
+  // accent hue across the page and every content surface.
   const tintSource = hexToHsl(modeColors.accent);
   const tintScale = art.categoryPresence === 0 ? 0 : 0.6 + presence;
-  const bgTint = (isDark ? 0.13 : 0.09) * tintScale;
-  const cardTint = (isDark ? 0.2 : 0.15) * tintScale;
+  const bgTint = 0.015 * tintScale;
+  const cardTint = 0.025 * tintScale;
   // Tint adds chroma only; authored tone (lightness) is preserved so ink
   // contrast and the elevation ladder keep their calibrated headroom.
-  const tintedBg = withPerceptualL(mixHsl(tintSource, rawBg, bgTint), perceptualL(rawBg));
+  const canvasBase: Hsl = [rawBg[0], Math.min(rawBg[1], isDark ? 12 : 8), rawBg[2]];
+  const contentBase: Hsl = [rawSurface[0], Math.min(rawSurface[1], isDark ? 10 : 7), rawSurface[2]];
+  const tintedBg = withPerceptualL(mixHsl(tintSource, canvasBase, bgTint), perceptualL(rawBg));
   const tintedSurface = withPerceptualL(
-    mixHsl(tintSource, rawSurface, cardTint),
+    mixHsl(tintSource, contentBase, cardTint),
     perceptualL(rawSurface),
   );
   const bgHsl: Hsl = isDark && isBlack ? [rawBg[0], 0, 0] : tintedBg;
@@ -1088,11 +1090,18 @@ export function generateThemeTokens(
   for (let index = 1; index <= 6; index += 1) {
     const [h, s, l] = categories[`--data-${index}`].split(' ').map(parseFloat);
     const tone: Hsl = [h, s, l];
-    const categorySurface = mixHsl(
-      tone,
-      surfHsl,
-      Math.min(isDark ? 0.14 : 0.3, art.categoryPresence * (0.12 + presence * 0.3)),
-    );
+    // Widget material is authored independently of text-data colours. The
+    // latter are contrast-corrected for page labels and make muddy surfaces
+    // when used as a wash. Pink/lilac form lighter counterpoints in dark mode.
+    const widgetLights = isDark ? [25, 29, 30, 28, 69, 70] : [79, 77, 76, 80, 82, 83];
+    const authoredSurface: Hsl = [
+      art.dataHues[index - 1] ?? tone[0],
+      art.categoryPresence === 0 ? 0 : Math.min(72, Math.max(42, art.dataChroma) + presence * 14),
+      widgetLights[index - 1] ?? 80,
+    ];
+    const endpointInk: Hsl = contrastRatio([0, 0, 100], authoredSurface) > contrastRatio([0, 0, 0], authoredSurface)
+      ? [0, 0, 100] : [0, 0, 0];
+    const categorySurface = ensureContrast(authoredSurface, endpointInk, 7.1);
     const categoryContainer = mixHsl(
       tone,
       surfHsl,
@@ -1100,7 +1109,16 @@ export function generateThemeTokens(
     );
     categoryContainers[`--data-${index}-surface`] = hslToString(categorySurface);
     categoryContainers[`--on-data-${index}-surface`] = hslToString(
-      ensureContrast(inkHsl, categorySurface, 7),
+      ensureContrast(endpointInk, categorySurface, 7.2),
+    );
+    categoryContainers[`--on-data-${index}-muted`] = hslToString(
+      ensureContrast(mixHsl(endpointInk, categorySurface, 0.8), categorySurface, 4.6),
+    );
+    categoryContainers[`--data-${index}-hover`] = hslToString(
+      ensureContrast(mixHsl(endpointInk, categorySurface, 0.04), endpointInk, 7.1),
+    );
+    categoryContainers[`--data-${index}-pressed`] = hslToString(
+      ensureContrast(mixHsl(endpointInk, categorySurface, 0.08), endpointInk, 7.1),
     );
     categoryContainers[`--data-${index}-container`] = hslToString(categoryContainer);
     categoryContainers[`--on-data-${index}-container`] = hslToString(

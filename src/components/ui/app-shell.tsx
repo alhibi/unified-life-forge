@@ -55,6 +55,8 @@ export function PageShell({
 }
 
 interface AppCardProps extends DivProps {
+  /** Coordinated coloured widget body; omitted for reading/form surfaces. */
+  tone?: 1 | 2 | 3 | 4 | 5 | 6;
   /** Tighter padding (p-3) — use for list rows. */
   compact?: boolean;
   /** No inset chrome — for nested cards inside another AppCard. */
@@ -72,14 +74,16 @@ type AppCardElementProps = DivProps & {
 
 /** Canonical card surface — replaces every bespoke bg-card/rounded-2xl/border combo. */
 export const AppCard = React.forwardRef<HTMLDivElement, AppCardProps>(
-  ({ compact, flat, pressable, as = 'div', className, ...rest }, ref) => {
+  ({ compact, flat, pressable, tone, as = 'div', className, ...rest }, ref) => {
     const Comp = as as unknown as React.ComponentType<AppCardElementProps>;
     return (
       <Comp
         ref={ref}
         data-ui-surface="card"
+        data-tile-tone={tone}
         className={cn(
           'app-card',
+          tone !== undefined && 'rich-widget',
           compact && 'app-card-compact',
           flat && 'app-card-flat',
           pressable && 'app-card-pressable',

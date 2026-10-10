@@ -31,7 +31,7 @@ const IDENTITY: Record<string, TileIdentity> = {
   now: { accent: 'var(--data-1)', motif: 'dawn' },
   quran: { accent: 'var(--data-1)', motif: 'mushaf' },
   dhikr: { accent: 'var(--data-4)', motif: 'beads' },
-  sunnah: { accent: 'var(--data-2)', motif: 'arch' },
+  sunnah: { accent: 'var(--data-5)', motif: 'arch' },
   duas: { accent: 'var(--data-4)', motif: 'beads' },
   occasions: { accent: 'var(--data-2)', motif: 'arch' },
   wellness: { accent: 'var(--data-1)', motif: 'pulse' },
@@ -287,7 +287,7 @@ export const TileMotif = memo(function TileMotif({ motif }: { motif: MotifKey })
       // Ink, not the app colour, and a third of the previous opacity: the motif
       // is a watermark that tells apps apart on a second glance, never a
       // coloured wash competing with the label.
-      className="pointer-events-none absolute inset-0 overflow-hidden text-foreground opacity-[0.05] transition-opacity duration-normal group-hover:opacity-[0.08] dark:opacity-[0.06] dark:group-hover:opacity-[0.09]"
+      className="portal-widget-motif pointer-events-none absolute overflow-hidden text-tile-foreground opacity-20 transition-opacity duration-normal group-hover:opacity-30"
       aria-hidden
     >
       <MotifComponent motif={motif} />

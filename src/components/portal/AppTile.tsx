@@ -121,7 +121,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           ? { duration: 0.12, ease: 'linear' }
           : { ...MOTION.spring, delay: Math.min(index, 6) * 0.03 }
       }
-      className="relative"
+       className={cn('relative', !list && 'portal-widget-cell')}
       data-tile-tone={identity.tone}
     >
       <Button
@@ -151,16 +151,16 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         data-portal-tile={app.key}
         activation="click"
         className={cn(
-          'shadow-e2 group relative w-full overflow-hidden rounded-card bg-tile-surface text-start whitespace-normal text-tile-foreground',
+          'portal-app-widget rich-widget shadow-e2 group relative w-full overflow-hidden rounded-card bg-tile-surface text-start whitespace-normal text-tile-foreground',
           'transition-[transform,border-color,background-color,box-shadow] duration-normal ease-out-expo',
-          'hover:-translate-y-0.5 hover:bg-tile-container',
+          'hover:-translate-y-0.5',
           'active:translate-y-0 active:scale-[0.985]',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
           active && 'ring-1 ring-inset ring-[hsl(var(--tile)/0.45)]',
           list
             ? 'flex h-auto items-center gap-3 p-4'
-            : 'flex h-auto min-h-36 flex-col justify-between p-4',
+             : 'flex h-full min-h-44 flex-col justify-between p-5',
         )}
       >
         <TileMotif motif={identity.motif} />
@@ -168,18 +168,16 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         <div
           className={cn(
             'relative z-10 flex w-full',
-            list ? 'items-center gap-3' : 'flex-col gap-3',
+              list ? 'items-center gap-3' : 'flex-col gap-5',
           )}
         >
-          {/* The app's colour survives in exactly one place: the glyph. The
-              chip itself is a neutral tonal well, so a grid of twenty apps
-              reads as one system instead of twenty coloured badges. */}
+          {/* A sculpted icon well belongs to the widget's own material. */}
           <span
             className={cn(
               'flex shrink-0 items-center justify-center rounded-[var(--r-md)]',
-              'bg-tile-container text-tile-container-foreground shadow-e1',
+              'widget-icon-well shadow-e1',
               'transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none',
-              list ? 'h-12 w-12' : 'h-14 w-14',
+               list ? 'h-12 w-12' : 'h-12 w-12',
             )}
           >
             <Icon className="h-6 w-6" aria-hidden />
@@ -192,13 +190,13 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
               >
                 {app.label}
               </span>
-              {pinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />}
+                {pinned && <Pin className="h-3 w-3 shrink-0 text-tile-foreground" aria-hidden />}
             </span>
-            <span className="text-mini mt-1 block text-tile-foreground">
+            <span className="text-mini mt-1 block text-muted-foreground">
               {app.description}
             </span>
             {!list && (
-              <span className="type-meta mt-2 block font-medium text-muted-foreground-subtle">
+              <span className="type-meta mt-2 block font-medium text-tile-foreground">
                 {app.caption}
               </span>
             )}
@@ -238,12 +236,9 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute z-10 flex h-8 w-8 items-center justify-center rounded-lg',
-          // 32px of ink, 44px of touch: the pseudo-element grows the hit area
-          // without pushing the visual chip off the tile's corner grid.
-          "after:absolute after:-inset-1.5 after:content-['']",
-          'text-muted-foreground opacity-60 transition-[opacity,background-color,color] duration-fast',
-          'hover:bg-secondary hover:text-foreground hover:opacity-100',
+          'absolute z-10 flex h-11 w-11 items-center justify-center rounded-button',
+          'widget-icon-well text-tile-foreground transition-[background-color,color] duration-fast',
+          'hover:bg-tile-container hover:text-tile-container-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           list ? 'end-2 top-1/2 -translate-y-1/2' : 'bottom-2 end-2',
         )}

@@ -70,28 +70,28 @@ export default function TokenDetailDrawer({
 
         {/* High Density Metric Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <AppCard compact className="bg-muted/10 border border-border/5">
+          <AppCard tone={4} compact>
             <span className="text-micro text-muted-foreground font-semibold">القيمة السوقية</span>
             <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.marketCap ? formatCompact(pair.marketCap) : '-'}
             </p>
           </AppCard>
 
-          <AppCard compact className="bg-muted/10 border border-border/5">
+          <AppCard tone={6} compact>
             <span className="text-micro text-muted-foreground font-semibold">التقييم المخفف بالكامل (FDV)</span>
             <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.fdv ? formatCompact(pair.fdv) : '-'}
             </p>
           </AppCard>
 
-          <AppCard compact className="bg-muted/10 border border-border/5">
+          <AppCard tone={1} compact>
             <span className="text-micro text-muted-foreground font-semibold">السيولة</span>
             <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.liquidityUsd ? formatCompact(pair.liquidityUsd) : '-'}
             </p>
           </AppCard>
 
-          <AppCard compact className="bg-muted/10 border border-border/5">
+          <AppCard tone={5} compact>
             <span className="text-micro text-muted-foreground font-semibold">حجم التداول (24 ساعة)</span>
             <p className="text-meta font-bold font-plex-mono text-foreground tracking-tight tabular-nums mt-0.5">
               {pair.volume24h ? formatCompact(pair.volume24h) : '-'}

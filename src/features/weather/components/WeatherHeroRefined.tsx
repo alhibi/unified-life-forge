@@ -40,11 +40,13 @@ import { WeatherScene } from './WeatherScene';
 
 /** Single micro-metric tile used in the tertiary tier. */
 function MetricTile({
+  tone,
   label,
   value,
   unit,
   align = 'start',
 }: {
+  tone: 1 | 2 | 3 | 4 | 5 | 6;
   label: string;
   value: string | number;
   unit?: string;
@@ -52,9 +54,9 @@ function MetricTile({
 }) {
   return (
     <div
+      data-tile-tone={tone}
       className={cn(
-        'flex flex-col gap-1 rounded-xl px-3 py-2.5',
-        'bg-secondary border border-foreground/8',
+        'rich-widget flex flex-col gap-3 rounded-card p-4',
         align === 'center' && 'items-center text-center',
         align === 'end' && 'items-end text-end',
         align === 'start' && 'items-start text-start',
@@ -63,7 +65,7 @@ function MetricTile({
       <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle leading-none">
         {label}
       </span>
-      <span className="text-meta font-bold text-foreground tabular-nums leading-none" dir="ltr">
+      <span className={cn('w-full whitespace-normal break-words font-bold text-foreground tabular-nums leading-snug', unit ? 'text-lead' : 'text-body')} dir={unit ? 'ltr' : 'rtl'}>
         {value}
         {unit && <span className="ms-1 text-[0.625rem] font-semibold text-muted-foreground-subtle">{unit}</span>}
       </span>
@@ -266,18 +268,21 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
         </div>
 
         {/* TERTIARY tier — compact facts along the bottom edge. */}
-        <div className="mt-6 grid grid-cols-3 gap-2">
+        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2">
           <MetricTile
+            tone={4}
             label={'ضغط'}
             value={Math.round(snapshot.pressure.msl_hpa).toString()}
             unit="hPa"
           />
           <MetricTile
+            tone={6}
             label={'ميل'}
             value={snapshot.pressure.tendency_label}
             align="center"
           />
           <MetricTile
+            tone={1}
             label={'مطر ٦س'}
             value={snapshot.precipitation.accumulation_6h_mm.toFixed(1)}
             unit="mm"

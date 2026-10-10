@@ -68,6 +68,10 @@ export function ArticleCard({
     article.fullContent || article.description || article.title,
     language,
   );
+  // Source identity, not row order: the same publication retains its colour
+  // while sorting, filtering or marking items read.
+  const sourceSeed = Array.from(article.source).reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 0);
+  const sourceTone = ([1, 5, 4, 6] as const)[sourceSeed % 4];
 
   // Pre-compute layout-side handlers so the JSX stays compact.
   const handleMarkRead = onMarkRead ?? (() => undefined);
@@ -235,6 +239,7 @@ export function ArticleCard({
           />
           <motion.button
             type="button"
+            data-tile-tone={sourceTone}
             drag="x"
             dragSnapToOrigin
             dragConstraints={{ left: -120, right: 120 }}
@@ -247,10 +252,10 @@ export function ArticleCard({
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.02, 0.3), duration: 0.25 }}
-            className={`relative w-full text-start rounded-2xl bg-card overflow-hidden transition-motion duration-normal border ${
+            className={`rich-widget relative w-full text-start rounded-card overflow-hidden transition-motion duration-normal ${
               isRead
-                ? 'opacity-70 border-border/40 hover:bg-accent/5'
-                : 'border-primary/20 bg-card hover:bg-accent/5 hover:border-primary/30'
+                ? 'font-normal'
+                : 'font-medium'
             }`}
           >
             {article.image && (
@@ -268,7 +273,7 @@ export function ArticleCard({
               <h4
                 dir="auto"
                 className={`text-meta leading-snug line-clamp-2 flex items-start gap-1.5 ${
-                  isRead ? 'font-normal text-foreground/75' : 'font-semibold text-foreground'
+                  isRead ? 'font-normal text-foreground' : 'font-semibold text-foreground'
                 }`}
               >
                 {!isRead && (

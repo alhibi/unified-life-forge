@@ -8,6 +8,17 @@ const parse = (token: string): Hsl => {
 };
 
 describe('solid material roles across the complete catalogue', () => {
+  it('uses distinct solid widget families instead of tinting every card with one accent', () => {
+    const preset = themePresets.find((theme) => theme.id === 'expressive');
+    expect(preset).toBeDefined();
+    if (!preset) throw new Error('Missing expressive theme');
+    for (const dark of [false, true]) {
+      const t = generateThemeTokens(preset, 'tonal', dark, false);
+      const surfaces = [1, 4, 5, 6].map((i) => parse(t[`--data-${i}-surface`]));
+      expect(new Set(surfaces.map(([h]) => Math.round(h))).size).toBe(4);
+      for (const [, saturation] of surfaces) expect(saturation).toBeGreaterThan(40);
+    }
+  });
   for (const preset of themePresets) {
     for (const dark of [false, true]) {
       for (const oled of dark ? [false, true] : [false]) {
@@ -30,6 +41,10 @@ describe('solid material roles across the complete catalogue', () => {
                 expect(contrastRatio(parse(t[ink]), parse(t[surface]))).toBeGreaterThanOrEqual(4.5);
               }
               for (let index = 1; index <= 6; index += 1) {
+                expect(contrastRatio(parse(t[`--on-data-${index}-muted`]), parse(t[`--data-${index}-surface`]))).toBeGreaterThanOrEqual(4.5);
+                for (const state of ['hover', 'pressed']) {
+                  expect(contrastRatio(parse(t[`--on-data-${index}-surface`]), parse(t[`--data-${index}-${state}`]))).toBeGreaterThanOrEqual(7);
+                }
                 expect(
                   contrastRatio(
                     parse(t[`--on-data-${index}-surface`]),

@@ -529,7 +529,7 @@ export default function PrayerTimes() {
       className="space-y-4"
     >
       {/* ═══ Card 1: Prayer hero + 1dp separator + day arc — merged ══════ */}
-      <div className="app-card-bare relative overflow-hidden">
+      <div className="prayer-widget app-card-bare relative overflow-hidden">
         <Hero
           currentPrayer={currentPrayer}
           nextPrayer={nextPrayer}
@@ -640,9 +640,9 @@ function Hero({
   const nameOf = (p?: PrayerTime) => (p ? t(`prayer.${p.name.toLowerCase()}`) : '—');
 
   return (
-    <div className="grid grid-cols-2 divide-x divide-foreground/[0.08]">
+    <div className="prayer-widget-head grid grid-cols-2 gap-2 p-3">
       {/* Current */}
-      <div className="bg-card px-[18px] pb-2 pt-[13px]">
+      <div data-tile-tone="1" className="rich-widget rounded-card p-4">
         <div className="mb-[5px] flex min-h-[12px] items-center justify-between gap-2">
           <span className="text-micro font-semibold tracking-[0.09em] uppercase text-muted-foreground-subtle truncate">
             {locationLabel}
@@ -665,13 +665,13 @@ function Hero({
       </div>
 
       {/* Next */}
-      <div className="bg-muted/[0.08] px-[18px] pb-2 pt-[13px]">
+      <div data-tile-tone="2" className="rich-widget rounded-card p-4">
         <div className="mb-[5px] flex min-h-[12px] items-center">
           <span className="text-micro font-semibold uppercase tracking-[0.09em] text-muted-foreground-subtle">
             {t('prayer.next')}
           </span>
         </div>
-        <div className="flex items-end justify-between gap-2">
+        <div className="flex flex-wrap items-end justify-between gap-2">
           <span className="truncate text-body font-medium leading-none">{nameOf(nextPrayer)}</span>
           <span
             className="shrink-0 pb-[3px] text-mini font-medium tabular-nums leading-none text-muted-foreground-subtle"

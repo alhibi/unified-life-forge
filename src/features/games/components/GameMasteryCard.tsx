@@ -36,7 +36,7 @@ interface Props {
 
 const MAX_TIER = MASTERY_THRESHOLDS.length - 1;
 
-function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Props) {
+function GameMasteryCardImpl({ game, mastery, stats, icon: Icon }: Props) {
   const navigate = useNavigate();
 
   const winRate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : null;
@@ -47,12 +47,12 @@ function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Pro
     : null;
 
   return (
-    <AppCard as="section" aria-label={game.label} className="relative overflow-hidden">
+    <AppCard tone={game.id === 'sudoku' ? 4 : game.id === 'chess' ? 6 : 5} as="section" aria-label={game.label} className="relative overflow-hidden">
       <div className="relative">
         {/* Header */}
         <div className="flex items-start gap-3">
           <IconChip
-            style={{ background: identity.tint, color: identity.accent }}
+            className="widget-icon-well"
             aria-hidden
           >
             <Icon className="h-5 w-5" />
@@ -62,8 +62,7 @@ function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Pro
             <div className="flex items-center gap-2">
               <h2 className="truncate text-title text-foreground">{game.label}</h2>
               <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-micro font-bold"
-                style={{ background: identity.tint, color: identity.accent }}
+                className="widget-icon-well shrink-0 rounded-full px-2 py-0.5 text-micro font-bold"
               >
                 {mastery.label}
               </span>
@@ -84,11 +83,7 @@ function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Pro
                 return (
                   <span
                     key={tierNum}
-                    className={cn('h-3 w-1.5 rounded-full transition-colors')}
-                    style={{
-                      background: filled ? identity.accent : 'transparent',
-                      border: `1px solid ${filled ? identity.accent : 'var(--border)'}`,
-                    }}
+                    className={cn('h-3 w-1.5 rounded-full border border-foreground transition-colors', filled && 'bg-foreground')}
                     aria-hidden
                   />
                 );
@@ -157,15 +152,10 @@ function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Pro
                 onClick={() => navigate(mode.path)}
                 onMouseEnter={() => prefetchRoute(mode.path)}
                 className={cn(
-                  'flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-micro font-bold',
+                  'widget-icon-well flex min-h-11 shrink-0 items-center gap-1 rounded-full px-3 py-2 text-mini font-bold',
                   'transition-motion hover:bg-interactive-hover',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 )}
-                style={{
-                  background: played ? identity.tint : 'transparent',
-                  borderColor: played ? identity.line : 'var(--border)',
-                  color: played ? identity.accent : 'var(--muted-foreground)',
-                }}
               >
                 {!played && (
                   <span aria-hidden className="opacity-70">

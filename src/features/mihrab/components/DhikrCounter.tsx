@@ -102,7 +102,7 @@ export default function DhikrCounter() {
   }, [activeId, count, countDhikr, roundComplete, target]);
 
   return (
-    <AppCard as="section" aria-label="عدّاد الذكر" className="p-0">
+    <AppCard tone={6} as="section" aria-label="عدّاد الذكر" className="p-0">
       {/* Pinned dhikr selector */}
       <div className="flex gap-1.5 overflow-x-auto border-b border-border p-3 scrollbar-none">
         {pinned.map((t) => {

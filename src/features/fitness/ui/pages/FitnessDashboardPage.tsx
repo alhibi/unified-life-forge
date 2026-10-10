@@ -22,21 +22,20 @@ export function FitnessDashboardPage() {
       </div>
       <Section tight>
          <div className="grid grid-cols-3 gap-3 mb-6">
-            <AppCard className="p-3 text-center flex flex-col gap-1">
+             <AppCard tone={1} className="p-3 text-center flex flex-col gap-3">
                <span className="text-muted-foreground text-mini font-medium uppercase tracking-wider">المسافة (كم)</span>
                <span className="text-display font-montserrat tabular-nums text-primary font-medium">{(todayDistance / 1000).toFixed(2)}</span>
             </AppCard>
-            <AppCard className="p-3 text-center flex flex-col gap-1">
+             <AppCard tone={5} className="p-3 text-center flex flex-col gap-3">
                <span className="text-muted-foreground text-mini font-medium uppercase tracking-wider">السعرات</span>
                <span className="text-display font-montserrat tabular-nums font-medium">{Math.floor(todayCalories)}</span>
             </AppCard>
-            <AppCard className="p-3 text-center flex flex-col gap-1">
+             <AppCard tone={4} className="p-3 text-center flex flex-col gap-3">
                <span className="text-muted-foreground text-mini font-medium uppercase tracking-wider">الدقائق</span>
                <span className="text-display font-montserrat tabular-nums font-medium">{totalDurationMin}</span>
             </AppCard>
          </div>
-         <AppCard className="relative overflow-hidden border-primary/20 bg-primary/5">
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <AppCard tone={2} className="relative overflow-hidden">
             <div className="p-6 flex flex-col items-center justify-center text-center z-base relative">
                {isTracking ? (
                  <>

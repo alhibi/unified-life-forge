@@ -45,10 +45,21 @@ export default function WeatherWidget() {
 
   if (!data) {
     return (
-      <div
-        className="app-card w-full animate-pulse min-h-[8.5rem] sm:min-h-[16.5rem]"
-        aria-label="جارٍ تحميل الطقس"
-      />
+      <Button
+        variant="ghost"
+        activation="click"
+        onClick={() => navigate('/weather')}
+        data-tile-tone="4"
+        className="rich-widget weather-now-widget app-card h-auto w-full flex-col items-start gap-5 text-start"
+        aria-label="فتح تفاصيل الطقس"
+      >
+        <span className="flex w-full items-center justify-between">
+          <span className="text-title font-semibold">الطقس</span>
+          <Sun className="h-8 w-8" aria-hidden />
+        </span>
+        <span className="text-meta">بانتظار بيانات الطقس</span>
+        <span className="ms-auto"><ChevronLeft className="h-5 w-5" aria-hidden /></span>
+      </Button>
     );
   }
 
@@ -66,19 +77,20 @@ export default function WeatherWidget() {
       activation="click"
       onClick={() => navigate('/weather')}
       dir="rtl"
-      className="app-card app-card-bare app-card-pressable h-auto w-full flex-col items-stretch gap-0 overflow-hidden p-0 text-start whitespace-normal"
+      data-tile-tone="4"
+      className="weather-now-widget rich-widget app-card app-card-bare app-card-pressable h-auto w-full flex-col items-stretch gap-0 overflow-hidden p-0 text-start whitespace-normal"
       aria-label="فتح تفاصيل الطقس"
     >
       {/* Headline */}
-      <div className="flex items-start gap-3 px-3.5 pt-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-button bg-secondary">
-          <Icon className="h-5 w-5 text-secondary-foreground" strokeWidth={1.5} />
+      <div className="flex items-start gap-4 p-5">
+        <span className="widget-icon-well flex h-14 w-14 shrink-0 items-center justify-center">
+          <Icon className="h-8 w-8" strokeWidth={1.5} />
         </span>
 
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline gap-2">
             <span
-              className="text-hero font-extralight leading-none tracking-tight text-foreground tabular-nums"
+              className="text-hero font-semibold leading-none text-foreground tabular-nums"
               dir="ltr"
             >
               {temp}°
@@ -89,9 +101,9 @@ export default function WeatherWidget() {
             className="mt-1 flex items-center gap-2 text-micro text-muted-foreground tabular-nums"
             dir="ltr"
           >
-            <span>H {hi}°</span>
+            <span>العظمى {hi}°</span>
             <span className="opacity-40">·</span>
-            <span>L {lo}°</span>
+            <span>الصغرى {lo}°</span>
             <span className="opacity-40">·</span>
             <span className="flex items-center gap-1">
               <Thermometer className="h-3 w-3 text-muted-foreground" aria-hidden />
@@ -104,7 +116,7 @@ export default function WeatherWidget() {
       </div>
 
       {/* Metric rail */}
-      <div className="mt-3 grid grid-cols-4 divide-x divide-border/50 border-y border-border/50 rtl:divide-x-reverse">
+      <div className="grid grid-cols-4 gap-2 px-3 pb-3">
         <Metric icon={Droplets} label="الرطوبة" value={`${Math.round(current.humidity)}%`} />
         <Metric
           icon={WindIcon}
@@ -178,7 +190,7 @@ function Metric({
   unit?: string;
 }) {
   return (
-    <span className="flex flex-col items-center gap-0.5 py-2">
+    <span className="widget-icon-well flex min-w-0 flex-col items-center gap-2 px-1 py-3">
       <span className="flex items-center gap-1 text-micro text-muted-foreground">
         <Icon className="h-3 w-3 text-muted-foreground" aria-hidden />
         {label}
