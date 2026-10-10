@@ -19,46 +19,56 @@
 
 import { type MotifKey } from './Motif';
 
+/** 0 = neutral charcoal/paper widget; 1–6 = the theme's solid category bodies. */
+export type TileTone = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 export type TileIdentity = {
   /** `H S% L%` triplet — consumed as `hsl(var(--tile) / a)`. */
   accent: string;
-  tone?: 1 | 2 | 3 | 4 | 5 | 6;
+  /**
+   * Widget material. Tones are authored per app so every realm reads as a
+   * coordinated multicolour composition with neutral counterweights — never
+   * one hue repeated across a whole section.
+   */
+  tone: TileTone;
   motif: MotifKey;
 };
 
 /** One row per launcher app. Keys mirror `PORTAL_APPS[].key`. */
 const IDENTITY: Record<string, TileIdentity> = {
-  now: { accent: 'var(--data-1)', motif: 'dawn' },
-  quran: { accent: 'var(--data-1)', motif: 'mushaf' },
-  dhikr: { accent: 'var(--data-4)', motif: 'beads' },
-  sunnah: { accent: 'var(--data-5)', motif: 'arch' },
-  duas: { accent: 'var(--data-4)', motif: 'beads' },
-  occasions: { accent: 'var(--data-2)', motif: 'arch' },
-  wellness: { accent: 'var(--data-1)', motif: 'pulse' },
-  fitness: { accent: 'var(--data-1)', motif: 'pulse' },
-  journal: { accent: 'var(--data-3)', motif: 'columns' },
-  weather: { accent: 'var(--data-4)', motif: 'dawn' },
-  knowledge: { accent: 'var(--data-6)', motif: 'orbit' },
-  pkm: { accent: 'var(--data-4)', motif: 'orbit' },
-  reading: { accent: 'var(--data-4)', motif: 'columns' },
-  podcasts: { accent: 'var(--data-3)', motif: 'waveform' },
-  diwan: { accent: 'var(--data-3)', motif: 'meter' },
-  atlas: { accent: 'var(--data-4)', motif: 'contour' },
-  chat: { accent: 'var(--data-4)', motif: 'bubbles' },
-  games: { accent: 'var(--data-6)', motif: 'board' },
-  crypto: { accent: 'var(--data-1)', motif: 'ticker' },
-  mihrab: { accent: 'var(--data-1)', motif: 'arch' },
-  'german-club': { accent: 'var(--data-2)', motif: 'glyph' },
-  marginalia: { accent: 'var(--data-3)', motif: 'columns' },
-  'time-ledger': { accent: 'var(--data-4)', motif: 'orbit' },
+  now: { accent: 'var(--data-1)', tone: 1, motif: 'dawn' },
+  // الروح — lilac feature, charcoal, pink, coral
+  quran: { accent: 'var(--data-6)', tone: 6, motif: 'mushaf' },
+  dhikr: { accent: 'var(--data-1)', tone: 0, motif: 'beads' },
+  sunnah: { accent: 'var(--data-5)', tone: 5, motif: 'arch' },
+  mihrab: { accent: 'var(--data-2)', tone: 2, motif: 'arch' },
+  duas: { accent: 'var(--data-4)', tone: 4, motif: 'beads' },
+  occasions: { accent: 'var(--data-2)', tone: 2, motif: 'arch' },
+  // الجسد — blue feature, charcoal, green, pink
+  weather: { accent: 'var(--data-4)', tone: 4, motif: 'dawn' },
+  wellness: { accent: 'var(--data-1)', tone: 0, motif: 'pulse' },
+  fitness: { accent: 'var(--data-1)', tone: 1, motif: 'pulse' },
+  journal: { accent: 'var(--data-5)', tone: 5, motif: 'columns' },
+  // العقل — alternating colour bodies with neutral rests
+  'german-club': { accent: 'var(--data-1)', tone: 1, motif: 'glyph' },
+  knowledge: { accent: 'var(--data-6)', tone: 0, motif: 'orbit' },
+  pkm: { accent: 'var(--data-6)', tone: 6, motif: 'orbit' },
+  reading: { accent: 'var(--data-4)', tone: 4, motif: 'columns' },
+  marginalia: { accent: 'var(--data-3)', tone: 0, motif: 'columns' },
+  podcasts: { accent: 'var(--data-5)', tone: 5, motif: 'waveform' },
+  diwan: { accent: 'var(--data-3)', tone: 3, motif: 'meter' },
+  atlas: { accent: 'var(--data-1)', tone: 1, motif: 'contour' },
+  chat: { accent: 'var(--data-4)', tone: 0, motif: 'bubbles' },
+  'time-ledger': { accent: 'var(--data-6)', tone: 6, motif: 'orbit' },
+  // اللعب
+  games: { accent: 'var(--data-2)', tone: 2, motif: 'board' },
+  crypto: { accent: 'var(--data-1)', tone: 0, motif: 'ticker' },
 };
 
-const FALLBACK: TileIdentity = { accent: 'var(--primary)', motif: 'dawn' };
+const FALLBACK: TileIdentity = { accent: 'var(--primary)', tone: 1, motif: 'dawn' };
 
 export function getTileIdentity(key: string): TileIdentity {
-  const identity = IDENTITY[key] ?? FALLBACK;
-  const tone = identity.accent.match(/data-([1-6])/)?.[1];
-  return { ...identity, tone: tone ? (Number(tone) as 1 | 2 | 3 | 4 | 5 | 6) : 1 };
+  return IDENTITY[key] ?? FALLBACK;
 }
 
 /* ── motifs ─────────────────────────────────────────────────────────────

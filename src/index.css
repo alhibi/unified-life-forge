@@ -1119,6 +1119,18 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
 }
 
 @layer components {
+  /* Neutral charcoal/paper widget material. Aliases resolve on the root so a
+     neutral tile can rebind the page roles without a custom-property cycle. */
+  :root {
+    --neutral-tile-surface: var(--surface-2);
+    --neutral-tile-ink: var(--foreground);
+    --neutral-tile-muted: var(--muted-foreground);
+    --neutral-tile-hover: var(--interactive-hover);
+    --neutral-tile-pressed: var(--interactive-pressed);
+    --neutral-tile-container: var(--secondary);
+    --neutral-tile-container-ink: var(--secondary-foreground);
+    --neutral-tile-accent: var(--primary);
+  }
   [data-tile-tone] {
     --tile: var(--data-1);
     --tile-surface: var(--data-1-surface);
@@ -1167,6 +1179,16 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   [data-tile-tone='4'] { --tile-muted: var(--on-data-4-muted); --tile-hover: var(--data-4-hover); --tile-pressed: var(--data-4-pressed); }
   [data-tile-tone='5'] { --tile-muted: var(--on-data-5-muted); --tile-hover: var(--data-5-hover); --tile-pressed: var(--data-5-pressed); }
   [data-tile-tone='6'] { --tile-muted: var(--on-data-6-muted); --tile-hover: var(--data-6-hover); --tile-pressed: var(--data-6-pressed); }
+  [data-tile-tone='0'] {
+    --tile: var(--neutral-tile-accent);
+    --tile-surface: var(--neutral-tile-surface);
+    --tile-foreground: var(--neutral-tile-ink);
+    --tile-muted: var(--neutral-tile-muted);
+    --tile-hover: var(--neutral-tile-hover);
+    --tile-pressed: var(--neutral-tile-pressed);
+    --tile-container: var(--neutral-tile-container);
+    --tile-container-foreground: var(--neutral-tile-container-ink);
+  }
   /* Solid widget material owns contrast-safe content and interaction roles. */
   .rich-widget {
     --foreground: var(--tile-foreground);
@@ -1223,23 +1245,68 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     color: hsl(var(--tile-foreground));
     border-radius: var(--r-md);
   }
+  /* Launcher widgets — reference-led composition: sculpted square bodies,
+     an inverted solid icon chip, an oversized cropped glyph as illustration
+     and a heavy label as the widget's headline. Every fifth cell is a wide
+     feature widget so the grid never reads as a uniform list of buttons. */
   .portal-widget-grid { grid-auto-flow: row; }
-  .portal-widget-cell:nth-child(5n + 1) { grid-column: span 2; }
-  .portal-widget-cell:last-child:nth-child(even) { grid-column: span 2; }
-  .portal-widget-cell:nth-child(5n + 1) .portal-app-widget {
-    min-block-size: 10rem;
+  @container (min-width: 40rem) { .portal-widget-grid { grid-auto-flow: row dense; } }
+  .portal-widget-cell[data-wide] { grid-column: span 2; }
+  .portal-app-widget {
+    isolation: isolate;
+    border-radius: calc(var(--r-xl) * var(--art-corner, 1));
+    min-block-size: 11.5rem;
+    box-shadow: var(--shadow-2);
   }
-  .portal-widget-motif {
-    inset-block-start: 1rem;
-    inset-inline-end: 1rem;
-    inline-size: 40%;
-    block-size: 5rem;
+  .portal-widget-cell[data-wide] .portal-app-widget {
+    min-block-size: 10.5rem;
   }
-  .portal-app-widget { isolation: isolate; }
   .portal-app-widget > div { position: relative; }
-  .portal-app-widget .portal-widget-motif { position: absolute; }
-  .portal-widget-cell:not(:nth-child(5n + 1)) .portal-app-widget .type-meta {
-    font-size: var(--fs-mini);
+  .portal-widget-chip {
+    background: hsl(var(--tile-foreground));
+    color: hsl(var(--tile-surface));
+  }
+  .portal-widget-glyph {
+    position: absolute;
+    z-index: 0;
+    inset-block-start: 2.75rem;
+    inset-inline-end: -1.75rem;
+    inline-size: 6.5rem;
+    block-size: 6.5rem;
+    color: hsl(var(--tile-foreground));
+    opacity: 0.13;
+    transform: rotate(-12deg);
+    transition: transform var(--dur-slow, 0.4s) var(--ease-out-expo, ease-out),
+      opacity var(--dur-normal, 0.25s) ease-out;
+    pointer-events: none;
+  }
+  .portal-widget-glyph svg { inline-size: 100%; block-size: 100%; }
+  .portal-app-widget:hover .portal-widget-glyph { transform: rotate(-4deg) scale(1.06); opacity: 0.2; }
+  .portal-widget-cell[data-wide] .portal-widget-glyph {
+    inset-block-start: 1.25rem;
+    inset-inline-end: 0.5rem;
+    inline-size: 8.5rem;
+    block-size: 8.5rem;
+  }
+  .portal-widget-title {
+    font-size: var(--fs-display);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .portal-widget-cell[data-wide] .portal-widget-title {
+    font-size: calc(var(--fs-display) * 1.3);
+  }
+  .portal-widget-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portal-widget-glyph { transition: none; }
+    .portal-widget-glyph svg { inline-size: 100%; block-size: 100%; }
+  .portal-app-widget:hover .portal-widget-glyph { transform: rotate(-12deg); }
   }
   .prayer-widget-head .rich-widget { min-inline-size: 0; }
   .prayer-widget-head .rich-widget > div:last-child {
