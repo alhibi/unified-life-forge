@@ -1761,6 +1761,24 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     color: hsl(var(--on-primary-container));
     flex-shrink: 0;
   }
+  /* Reference widgets: every list row owns a coloured icon body, cycling the
+     six category tones so grouped lists read as multicolour, never one hue. */
+  .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success, .row-icon-plain) {
+    --row-tone: var(--data-1-surface);
+    --row-tone-ink: var(--on-data-1-surface);
+    background-color: hsl(var(--row-tone));
+    color: hsl(var(--row-tone-ink));
+    border-radius: 9999px;
+  }
+  .app-list > .app-row:nth-child(6n + 2) .row-icon { --row-tone: var(--data-4-surface); --row-tone-ink: var(--on-data-4-surface); }
+  .app-list > .app-row:nth-child(6n + 3) .row-icon { --row-tone: var(--data-5-surface); --row-tone-ink: var(--on-data-5-surface); }
+  .app-list > .app-row:nth-child(6n + 4) .row-icon { --row-tone: var(--data-6-surface); --row-tone-ink: var(--on-data-6-surface); }
+  .app-list > .app-row:nth-child(6n + 5) .row-icon { --row-tone: var(--data-2-surface); --row-tone-ink: var(--on-data-2-surface); }
+  .app-list > .app-row:nth-child(6n) .row-icon { --row-tone: var(--data-3-surface); --row-tone-ink: var(--on-data-3-surface); }
+  .rich-widget .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success, .row-icon-plain) {
+    background-color: hsl(var(--tile-foreground));
+    color: hsl(var(--tile-surface));
+  }
   .row-icon-danger {
     background-color: hsl(var(--destructive) / 0.12);
     color: hsl(var(--destructive));
