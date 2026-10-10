@@ -1245,23 +1245,69 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
     color: hsl(var(--tile-foreground));
     border-radius: var(--r-md);
   }
-  .portal-widget-grid { grid-auto-flow: row; }
+  /* Launcher widgets — reference-led composition: sculpted square bodies,
+     an inverted solid icon chip, an oversized cropped glyph as illustration
+     and a heavy label as the widget's headline. Every fifth cell is a wide
+     feature widget so the grid never reads as a uniform list of buttons. */
+  .portal-widget-grid { grid-auto-flow: row dense; }
   .portal-widget-cell:nth-child(5n + 1) { grid-column: span 2; }
   .portal-widget-cell:last-child:nth-child(even) { grid-column: span 2; }
-  .portal-widget-cell:nth-child(5n + 1) .portal-app-widget {
-    min-block-size: 10rem;
+  .portal-app-widget {
+    isolation: isolate;
+    border-radius: calc(var(--r-xl) * var(--art-corner, 1));
+    min-block-size: 11.5rem;
+    box-shadow: var(--shadow-2);
   }
-  .portal-widget-motif {
-    inset-block-start: 1rem;
-    inset-inline-end: 1rem;
-    inline-size: 40%;
-    block-size: 5rem;
+  .portal-widget-cell:nth-child(5n + 1) .portal-app-widget,
+  .portal-widget-cell:last-child:nth-child(even) .portal-app-widget {
+    min-block-size: 10.5rem;
   }
-  .portal-app-widget { isolation: isolate; }
   .portal-app-widget > div { position: relative; }
-  .portal-app-widget .portal-widget-motif { position: absolute; }
-  .portal-widget-cell:not(:nth-child(5n + 1)) .portal-app-widget .type-meta {
-    font-size: var(--fs-mini);
+  .portal-widget-chip {
+    background: hsl(var(--tile-foreground));
+    color: hsl(var(--tile-surface));
+  }
+  .portal-widget-glyph {
+    position: absolute;
+    z-index: 0;
+    inset-block-end: -1.75rem;
+    inset-inline-start: -1.25rem;
+    inline-size: 8.5rem;
+    block-size: 8.5rem;
+    color: hsl(var(--tile-foreground));
+    opacity: 0.11;
+    transform: rotate(-12deg);
+    transition: transform var(--dur-slow, 0.4s) var(--ease-out-expo, ease-out),
+      opacity var(--dur-normal, 0.25s) ease-out;
+    pointer-events: none;
+  }
+  .portal-app-widget:hover .portal-widget-glyph { transform: rotate(-4deg) scale(1.06); opacity: 0.16; }
+  .portal-widget-cell:nth-child(5n + 1) .portal-widget-glyph,
+  .portal-widget-cell:last-child:nth-child(even) .portal-widget-glyph {
+    inset-block-end: -2.5rem;
+    inset-inline-start: 0.5rem;
+    inline-size: 11rem;
+    block-size: 11rem;
+  }
+  .portal-widget-title {
+    font-size: var(--fs-display);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .portal-widget-cell:nth-child(5n + 1) .portal-widget-title,
+  .portal-widget-cell:last-child:nth-child(even) .portal-widget-title {
+    font-size: calc(var(--fs-display) * 1.3);
+  }
+  .portal-widget-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portal-widget-glyph { transition: none; }
+    .portal-app-widget:hover .portal-widget-glyph { transform: rotate(-12deg); }
   }
   .prayer-widget-head .rich-widget { min-inline-size: 0; }
   .prayer-widget-head .rich-widget > div:last-child {
