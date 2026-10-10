@@ -1763,19 +1763,20 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   }
   /* Reference widgets: every list row owns a coloured icon body, cycling the
      six category tones so grouped lists read as multicolour, never one hue. */
-  .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success, .row-icon-plain) {
+  .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success) {
     --row-tone: var(--data-1-surface);
     --row-tone-ink: var(--on-data-1-surface);
     background-color: hsl(var(--row-tone));
     color: hsl(var(--row-tone-ink));
     border-radius: 9999px;
   }
+  .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success) svg { color: inherit; }
   .app-list > .app-row:nth-child(6n + 2) .row-icon { --row-tone: var(--data-4-surface); --row-tone-ink: var(--on-data-4-surface); }
   .app-list > .app-row:nth-child(6n + 3) .row-icon { --row-tone: var(--data-5-surface); --row-tone-ink: var(--on-data-5-surface); }
   .app-list > .app-row:nth-child(6n + 4) .row-icon { --row-tone: var(--data-6-surface); --row-tone-ink: var(--on-data-6-surface); }
   .app-list > .app-row:nth-child(6n + 5) .row-icon { --row-tone: var(--data-2-surface); --row-tone-ink: var(--on-data-2-surface); }
   .app-list > .app-row:nth-child(6n) .row-icon { --row-tone: var(--data-3-surface); --row-tone-ink: var(--on-data-3-surface); }
-  .rich-widget .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success, .row-icon-plain) {
+  .rich-widget .app-list > .app-row .row-icon:not(.row-icon-danger, .row-icon-success) {
     background-color: hsl(var(--tile-foreground));
     color: hsl(var(--tile-surface));
   }
