@@ -11,11 +11,15 @@
 @media (max-width: 767px) {
   button:not([data-soft-keyboard-panel] button):not([data-game-shell] button.aspect-square),
   [role='tab']:not([data-soft-keyboard-panel] [role='tab']),
-  [role='button']:not([data-soft-keyboard-panel] [role='button']):not([data-game-shell] [role='button'].aspect-square) {
+  [role='button']:not([data-soft-keyboard-panel] [role='button']):not(
+      [data-game-shell] [role='button'].aspect-square
+    ) {
     min-height: 44px !important;
     min-width: 44px !important;
   }
-  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='hidden']),
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not(
+      [type='hidden']
+    ),
   select {
     min-height: 44px;
   }
@@ -44,6 +48,14 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   max-block-size: none;
   margin-block-start: 0;
   z-index: var(--z-index-picker);
+}
+
+/* Tile roles resolve at the category element, not at the document root. */
+@theme inline {
+  --color-tile-surface: hsl(var(--tile-surface));
+  --color-tile-foreground: hsl(var(--tile-foreground));
+  --color-tile-container: hsl(var(--tile-container));
+  --color-tile-container-foreground: hsl(var(--tile-container-foreground));
 }
 
 @theme {
@@ -1103,6 +1115,48 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
 }
 
 @layer components {
+  [data-tile-tone] {
+    --tile: var(--data-1);
+    --tile-surface: var(--data-1-surface);
+    --tile-foreground: var(--on-data-1-surface);
+    --tile-container: var(--data-1-container);
+    --tile-container-foreground: var(--on-data-1-container);
+  }
+  [data-tile-tone='2'] {
+    --tile: var(--data-2);
+    --tile-surface: var(--data-2-surface);
+    --tile-foreground: var(--on-data-2-surface);
+    --tile-container: var(--data-2-container);
+    --tile-container-foreground: var(--on-data-2-container);
+  }
+  [data-tile-tone='3'] {
+    --tile: var(--data-3);
+    --tile-surface: var(--data-3-surface);
+    --tile-foreground: var(--on-data-3-surface);
+    --tile-container: var(--data-3-container);
+    --tile-container-foreground: var(--on-data-3-container);
+  }
+  [data-tile-tone='4'] {
+    --tile: var(--data-4);
+    --tile-surface: var(--data-4-surface);
+    --tile-foreground: var(--on-data-4-surface);
+    --tile-container: var(--data-4-container);
+    --tile-container-foreground: var(--on-data-4-container);
+  }
+  [data-tile-tone='5'] {
+    --tile: var(--data-5);
+    --tile-surface: var(--data-5-surface);
+    --tile-foreground: var(--on-data-5-surface);
+    --tile-container: var(--data-5-container);
+    --tile-container-foreground: var(--on-data-5-container);
+  }
+  [data-tile-tone='6'] {
+    --tile: var(--data-6);
+    --tile-surface: var(--data-6-surface);
+    --tile-foreground: var(--on-data-6-surface);
+    --tile-container: var(--data-6-container);
+    --tile-container-foreground: var(--on-data-6-container);
+  }
   /* Canonical floating surface: opaque, quiet and defined by one hairline. */
   .glass-overlay {
     background-color: hsl(var(--popover));

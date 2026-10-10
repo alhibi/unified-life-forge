@@ -22,6 +22,7 @@ import { type MotifKey } from './Motif';
 export type TileIdentity = {
   /** `H S% L%` triplet — consumed as `hsl(var(--tile) / a)`. */
   accent: string;
+  tone?: 1 | 2 | 3 | 4 | 5 | 6;
   motif: MotifKey;
 };
 
@@ -55,7 +56,9 @@ const IDENTITY: Record<string, TileIdentity> = {
 const FALLBACK: TileIdentity = { accent: 'var(--primary)', motif: 'dawn' };
 
 export function getTileIdentity(key: string): TileIdentity {
-  return IDENTITY[key] ?? FALLBACK;
+  const identity = IDENTITY[key] ?? FALLBACK;
+  const tone = identity.accent.match(/data-([1-6])/)?.[1];
+  return { ...identity, tone: tone ? (Number(tone) as 1 | 2 | 3 | 4 | 5 | 6) : 1 };
 }
 
 /* ── motifs ─────────────────────────────────────────────────────────────
