@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Mobile accessibility and visual follow-up — October 10, 2026
-- [ ] Measure touch targets, accessible names, focus and RTL across mobile light/dark pages; repair confirmed defects.
-- [ ] Exercise city suggestions with the custom keyboard and physical-keyboard navigation.
-- [ ] Capture remaining public subpages and interactive states in both modes; verify corrections and document unavailable private/device checks.
+- [x] Measure touch targets, accessible names, focus and RTL across mobile light/dark entry pages; repair confirmed defects, retaining character-key/game-cell geometry.
+- [x] Exercise city suggestions with the custom keyboard and physical-keyboard navigation; verify Enter insertion, physical typing and Tab progression.
+- [x] Capture 61 static routes in both modes, review screenshots and recheck signed-in profile/chat/wellness; document content-dependent and physical-device limits.
 
 ## Design verification rounds — October 10, 2026
 - [x] Inspect 25 entry screens in light/dark at 424px and 1280px (100 repeat captures); no document overflow, undersized text-entry fields or mode mismatches in the repeat sweep.
