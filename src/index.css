@@ -1179,6 +1179,16 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   [data-tile-tone='4'] { --tile-muted: var(--on-data-4-muted); --tile-hover: var(--data-4-hover); --tile-pressed: var(--data-4-pressed); }
   [data-tile-tone='5'] { --tile-muted: var(--on-data-5-muted); --tile-hover: var(--data-5-hover); --tile-pressed: var(--data-5-pressed); }
   [data-tile-tone='6'] { --tile-muted: var(--on-data-6-muted); --tile-hover: var(--data-6-hover); --tile-pressed: var(--data-6-pressed); }
+  [data-tile-tone='0'] {
+    --tile: var(--neutral-tile-accent);
+    --tile-surface: var(--neutral-tile-surface);
+    --tile-foreground: var(--neutral-tile-ink);
+    --tile-muted: var(--neutral-tile-muted);
+    --tile-hover: var(--neutral-tile-hover);
+    --tile-pressed: var(--neutral-tile-pressed);
+    --tile-container: var(--neutral-tile-container);
+    --tile-container-foreground: var(--neutral-tile-container-ink);
+  }
   /* Solid widget material owns contrast-safe content and interaction roles. */
   .rich-widget {
     --foreground: var(--tile-foreground);
