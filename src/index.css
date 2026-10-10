@@ -1119,6 +1119,18 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
 }
 
 @layer components {
+  /* Neutral charcoal/paper widget material. Aliases resolve on the root so a
+     neutral tile can rebind the page roles without a custom-property cycle. */
+  :root {
+    --neutral-tile-surface: var(--surface-2);
+    --neutral-tile-ink: var(--foreground);
+    --neutral-tile-muted: var(--muted-foreground);
+    --neutral-tile-hover: var(--interactive-hover);
+    --neutral-tile-pressed: var(--interactive-pressed);
+    --neutral-tile-container: var(--secondary);
+    --neutral-tile-container-ink: var(--secondary-foreground);
+    --neutral-tile-accent: var(--primary);
+  }
   [data-tile-tone] {
     --tile: var(--data-1);
     --tile-surface: var(--data-1-surface);
