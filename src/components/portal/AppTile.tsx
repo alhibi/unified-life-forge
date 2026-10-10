@@ -32,7 +32,7 @@ import { prefetchRoute } from '@/lib/routePrefetch';
 import { cn } from '@/lib/utils';
 
 import type { PortalApp } from './apps';
-import { getTileIdentity, TileMotif } from './AppTileVisuals';
+import { getTileIdentity } from './AppTileVisuals';
 
 const LONG_PRESS_MS = 420;
 
