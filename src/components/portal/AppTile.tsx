@@ -42,6 +42,8 @@ export interface AppTileProps {
   index: number;
   /** Grid or single-column list presentation. */
   list: boolean;
+  /** Feature widget spanning two grid columns (see `widgetSpans`). */
+  wide?: boolean;
   /** The app whose detail panel is currently shown. */
   active: boolean;
   pinned: boolean;
@@ -55,7 +57,7 @@ export interface AppTileProps {
 }
 
 const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImpl(
-  { app, index, list, active, pinned, badge, onOpen, onInspect, onFocusApp, registerRef },
+  { app, index, list, wide = false, active, pinned, badge, onOpen, onInspect, onFocusApp, registerRef },
   forwardedRef,
 ) {
   const reduce = useReducedMotion();
@@ -124,6 +126,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
       }
       className={cn('relative', !list && 'portal-widget-cell')}
       data-tile-tone={identity.tone}
+      data-wide={!list && wide ? '' : undefined}
     >
       <Button
         variant="secondary"

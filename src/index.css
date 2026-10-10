@@ -1250,6 +1250,7 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
      and a heavy label as the widget's headline. Every fifth cell is a wide
      feature widget so the grid never reads as a uniform list of buttons. */
   .portal-widget-grid { grid-auto-flow: row; }
+  @container (min-width: 40rem) { .portal-widget-grid { grid-auto-flow: row dense; } }
   .portal-widget-cell[data-wide] { grid-column: span 2; }
   .portal-app-widget {
     isolation: isolate;
