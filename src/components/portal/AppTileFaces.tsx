@@ -19,7 +19,7 @@
  * Note: the shared Button sizes every nested svg to 20px through a utility,
  * so faces state their own svg size with the important modifier.
  */
-import { memo, type ReactElement, useEffect, useState } from 'react';
+import { createElement, useEffect, useState } from 'react';
 
 import { useWeatherLocation } from '@/features/weather/context/WeatherLocationContext';
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
@@ -29,8 +29,7 @@ import { cn } from '@/lib/utils';
 
 import { useNextPrayer } from './useNextPrayer';
 
-export interface AppTileFaceProps {
-  appKey: string;
+export interface FaceProps {
   wide: boolean;
   /** Live unread count for the chat widget. */
   badge?: number;
@@ -120,7 +119,7 @@ const WEEKDAYS = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خم�
 
 /* ── faces ───────────────────────────────────────────────────────────── */
 
-function QuranFace() {
+export function QuranFace() {
   return (
     <span className="flex w-full flex-col justify-end gap-2">
       <span className="font-amiri text-[length:var(--fs-display)] leading-relaxed text-tile-foreground" lang="ar">
@@ -136,7 +135,7 @@ function QuranFace() {
   );
 }
 
-function DhikrFace() {
+export function DhikrFace() {
   const beads = 33;
   return (
     <span className="relative flex w-full items-center justify-center">
@@ -163,7 +162,7 @@ function DhikrFace() {
   );
 }
 
-function SunnahFace() {
+export function SunnahFace() {
   const today = useMinuteClock().getDay();
   return (
     <span className="flex w-full flex-col justify-end gap-3">
@@ -187,7 +186,7 @@ function SunnahFace() {
   );
 }
 
-function MihrabFace() {
+export function MihrabFace() {
   const { next } = useNextPrayer();
   if (!next) {
     return (
@@ -228,7 +227,7 @@ function MihrabFace() {
   );
 }
 
-function WeatherFace() {
+export function WeatherFace() {
   const { selectedCoords } = useWeatherLocation();
   const { data } = useWeatherData('ar', selectedCoords);
   if (!data) {
@@ -241,7 +240,6 @@ function WeatherFace() {
     );
   }
   const temp = Math.round(data.current.temperature);
-  const Icon = iconForWeatherCode(data.current.weatherCode, data.current.isDay);
   const city = data.city ?? selectedCoords?.name ?? null;
   return (
     <span className="flex w-full items-end justify-between gap-3">
@@ -255,12 +253,15 @@ function WeatherFace() {
         .<br />
         <span className="text-tile-foreground">{labelForWeatherCode(data.current.weatherCode)}.</span>
       </span>
-      <Icon className="size-14! shrink-0 text-tile-foreground" aria-hidden />
+      {createElement(iconForWeatherCode(data.current.weatherCode, data.current.isDay), {
+        className: 'size-14! shrink-0 text-tile-foreground',
+        'aria-hidden': true,
+      })}
     </span>
   );
 }
 
-function WellnessFace() {
+export function WellnessFace() {
   const rings = [44, 32, 20];
   const sweep = [0.78, 0.6, 0.86];
   return (
@@ -295,7 +296,7 @@ function WellnessFace() {
   );
 }
 
-function FitnessFace() {
+export function FitnessFace() {
   return (
     <span className="flex w-full flex-col justify-end gap-2">
       <svg viewBox="0 0 200 70" preserveAspectRatio="none" className="h-20! w-full!" aria-hidden>
@@ -330,7 +331,7 @@ function FitnessFace() {
   );
 }
 
-function JournalFace() {
+export function JournalFace() {
   const now = useMinuteClock();
   const month = new Intl.DateTimeFormat('ar', { month: 'long' }).format(now);
   const weekday = new Intl.DateTimeFormat('ar', { weekday: 'long' }).format(now);
@@ -354,7 +355,7 @@ function JournalFace() {
   );
 }
 
-function GermanFace() {
+export function GermanFace() {
   return (
     <span className="flex w-full items-end justify-between gap-3">
       <span className="min-w-0">
@@ -380,7 +381,7 @@ function GermanFace() {
   );
 }
 
-function KnowledgeFace() {
+export function KnowledgeFace() {
   const spines = [70, 92, 58, 84, 100, 66, 78];
   return (
     <span className="flex w-full items-end gap-1.5" aria-hidden>
@@ -395,7 +396,7 @@ function KnowledgeFace() {
   );
 }
 
-function PkmFace() {
+export function PkmFace() {
   const nodes = [
     { x: 30, y: 30, r: 9 },
     { x: 92, y: 18, r: 6 },
@@ -433,7 +434,7 @@ function PkmFace() {
   );
 }
 
-function ReadingFace() {
+export function ReadingFace() {
   return (
     <span className="flex w-full flex-col justify-end gap-2" aria-hidden>
       <span className="font-amiri text-title font-bold leading-none text-tile-foreground">الموجز</span>
@@ -455,7 +456,7 @@ function ReadingFace() {
   );
 }
 
-function MarginaliaFace() {
+export function MarginaliaFace() {
   return (
     <svg viewBox="0 0 160 100" className="h-auto! w-full!" aria-hidden>
       <rect x="4" y="8" width="64" height="40" rx="12" fill="currentColor" opacity="0.18" />
@@ -473,7 +474,7 @@ function MarginaliaFace() {
   );
 }
 
-function PodcastsFace() {
+export function PodcastsFace() {
   const bars = Array.from({ length: 28 }, (_, i) => 18 + Math.abs(Math.sin(i * 0.9) * 62) + (i % 3) * 6);
   return (
     <span className="flex w-full items-center gap-3">
@@ -501,7 +502,7 @@ function PodcastsFace() {
   );
 }
 
-function DiwanFace() {
+export function DiwanFace() {
   return (
     <span className="flex w-full flex-col items-center justify-end gap-1.5 text-center font-amiri text-tile-foreground" lang="ar">
       <span className="text-mini font-bold leading-relaxed">قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ</span>
@@ -515,7 +516,7 @@ function DiwanFace() {
   );
 }
 
-function AtlasFace() {
+export function AtlasFace() {
   const cols = 14;
   const rows = 7;
   // A coarse dotted continent silhouette: the mask is drawn by distance to
@@ -542,7 +543,7 @@ function AtlasFace() {
   );
 }
 
-function ChatFace({ badge }: { badge?: number }) {
+export function ChatFace({ badge }: FaceProps) {
   const unread = typeof badge === 'number' ? badge : 0;
   return (
     <span className="flex w-full flex-col justify-end gap-2">
@@ -562,7 +563,7 @@ function ChatFace({ badge }: { badge?: number }) {
   );
 }
 
-function TimeLedgerFace() {
+export function TimeLedgerFace() {
   const now = useMinuteClock();
   const text = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const day = new Intl.DateTimeFormat('ar', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
@@ -578,7 +579,7 @@ function TimeLedgerFace() {
 
 const CHESS_ROW = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
 
-function GamesFace() {
+export function GamesFace() {
   return (
     <span className="flex w-full items-end justify-between gap-4">
       <span className="grid w-3/5 grid-cols-8 overflow-hidden rounded-[var(--r-md)]" dir="ltr" aria-hidden>
@@ -614,7 +615,7 @@ function GamesFace() {
   );
 }
 
-function CryptoFace() {
+export function CryptoFace() {
   // Pure form: candle silhouettes without axes or values.
   const candles = [
     [40, 70],
@@ -653,41 +654,10 @@ function CryptoFace() {
   );
 }
 
-function FallbackFace() {
+export function FallbackFace() {
   return (
     <span className="flex w-full items-end justify-end">
       <Sparkles className="size-10! text-tile-foreground opacity-60" aria-hidden />
     </span>
   );
 }
-
-const FACES: Record<string, (props: { wide: boolean; badge?: number }) => ReactElement> = {
-  quran: QuranFace,
-  dhikr: DhikrFace,
-  sunnah: SunnahFace,
-  mihrab: MihrabFace,
-  weather: WeatherFace,
-  wellness: WellnessFace,
-  fitness: FitnessFace,
-  journal: JournalFace,
-  'german-club': GermanFace,
-  knowledge: KnowledgeFace,
-  pkm: PkmFace,
-  reading: ReadingFace,
-  marginalia: MarginaliaFace,
-  podcasts: PodcastsFace,
-  diwan: DiwanFace,
-  atlas: AtlasFace,
-  chat: ChatFace,
-  'time-ledger': TimeLedgerFace,
-  games: GamesFace,
-  crypto: CryptoFace,
-};
-
-/** Keys that own a bespoke face — exported for the registry coverage test. */
-export const FACE_KEYS = Object.keys(FACES);
-
-export const AppTileFace = memo(function AppTileFace({ appKey, wide, badge }: AppTileFaceProps) {
-  const Face = FACES[appKey] ?? FallbackFace;
-  return <Face wide={wide} badge={badge} />;
-});

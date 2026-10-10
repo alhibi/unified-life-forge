@@ -34,7 +34,7 @@ import { prefetchRoute } from '@/lib/routePrefetch';
 import { cn } from '@/lib/utils';
 
 import type { PortalApp } from './apps';
-import { AppTileFace } from './AppTileFaces';
+import { AppTileFace } from './appTileFaceRegistry';
 import { getTileIdentity } from './AppTileVisuals';
 
 const LONG_PRESS_MS = 420;
