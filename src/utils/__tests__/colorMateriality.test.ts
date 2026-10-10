@@ -16,7 +16,9 @@ describe('solid material roles across the complete catalogue', () => {
           for (const strength of ['neutral', 'tonal', 'vibrant', 'expressive'] as const) {
             for (const lift of ['flat', 'subtle', 'lifted'] as const) {
               const t = generateThemeTokens(preset, strength, dark, oled, lift);
-              expect(contrastRatio(parse(t['--card']), parse(t['--background']))).toBeGreaterThan(1.1);
+              expect(contrastRatio(parse(t['--card']), parse(t['--background']))).toBeGreaterThan(
+                1.1,
+              );
               for (const [surface, ink] of [
                 ['--secondary', '--secondary-foreground'],
                 ['--navigation', '--navigation-foreground'],
@@ -28,8 +30,18 @@ describe('solid material roles across the complete catalogue', () => {
                 expect(contrastRatio(parse(t[ink]), parse(t[surface]))).toBeGreaterThanOrEqual(4.5);
               }
               for (let index = 1; index <= 6; index += 1) {
-                expect(contrastRatio(parse(t[`--on-data-${index}-surface`]), parse(t[`--data-${index}-surface`]))).toBeGreaterThanOrEqual(7);
-                expect(contrastRatio(parse(t[`--on-data-${index}-container`]), parse(t[`--data-${index}-container`]))).toBeGreaterThanOrEqual(4.5);
+                expect(
+                  contrastRatio(
+                    parse(t[`--on-data-${index}-surface`]),
+                    parse(t[`--data-${index}-surface`]),
+                  ),
+                ).toBeGreaterThanOrEqual(7);
+                expect(
+                  contrastRatio(
+                    parse(t[`--on-data-${index}-container`]),
+                    parse(t[`--data-${index}-container`]),
+                  ),
+                ).toBeGreaterThanOrEqual(4.5);
               }
               if (oled) {
                 expect(parse(t['--background'])[2]).toBe(0);
