@@ -33,9 +33,9 @@ export function useAdmin(): { isAdmin: boolean; isLoading: boolean } {
           if (!error && data) {
             setIsAdmin(true);
           } else {
-            // Also check app user metadata if admin flag is set
-            const isMetaAdmin = user!.user_metadata?.role === 'admin' || user!.app_metadata?.role === 'admin';
-            setIsAdmin(Boolean(isMetaAdmin));
+            // Only the server-side role table grants admin; user metadata is
+            // editable by the user and must never be trusted.
+            setIsAdmin(false);
           }
           setIsLoading(false);
         }

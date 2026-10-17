@@ -120,7 +120,7 @@ export function sanitizeRssHtml(html: string): string {
   // Custom cleanup for ads, layout empty tags and generic trackers
   const stripped = clean
     .replace(/class="[^"]*?(?:ad-|ads-|advertisement|tracker|banner)[^"]*?"/gi, '')
-    .replace(/<p>\s*?(?:&nbsp;|\s)*?\s*?<\/p>/gi, '') // clean empty paragraphs
+    .replace(/<p>(?:&nbsp;|\s)*<\/p>/gi, '') // clean empty paragraphs
     .trim();
 
   return pruneBoilerplate(stripped).trim();

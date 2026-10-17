@@ -155,8 +155,10 @@ serve(async (req) => {
         register_targets: registerTargets,
       })
       .eq("id", jobId)
+      .eq("triggered_by", userId)
       .select("*")
       .maybeSingle();
+    if (!runningJob) return jsonResponse({ error: "job_not_found" }, 404);
 
     // 2. Schedule the background task
     const bgTask = processGenerationJob({
