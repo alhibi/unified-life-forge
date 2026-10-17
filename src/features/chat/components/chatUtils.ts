@@ -4,11 +4,11 @@ import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { readableFileName } from '@/lib/chat/imageMeta';
 
-/** Short-lived links so removed members lose file access quickly. */
-const SIGNED_URL_TTL_SECONDS = 300;
-
 import { onAppleEmojiReady,renderTextWithAppleEmoji } from './appleEmoji';
 import type { Message } from './types';
+
+/** Short-lived links so removed members lose file access quickly. */
+const SIGNED_URL_TTL_SECONDS = 300;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Date / time formatters
