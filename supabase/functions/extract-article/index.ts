@@ -4,7 +4,7 @@ import {
   corsHeaders,
   isSafeUrl,
   jsonResponse,
-  optionalUser,
+  requireUser,
   scrapeArticle,
 } from "../_shared/rss-utils.ts";
 
@@ -26,12 +26,9 @@ serve(async (req) => {
   if (req.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
-  // Read-only scraper — anonymous callers are welcome. Historically this
-  // gate fired for every signed-out browser because the bearer is the
-  // project anon key, not a session JWT, so `auth.getUser(anonKey)`
-  // always rejects with 401 and the UI surfaced a generic
-  // "Edge Function returned a non-2xx status code".
-  await optionalUser(req);
+  // Sign-in required: the reader makes the server fetch outside sites.
+  const auth = await requireUser(req);
+  if (!auth.ok) return jsonResponse({ error: auth.error }, auth.status);
 
   let body: { url?: unknown };
   try {

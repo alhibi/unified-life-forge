@@ -995,7 +995,14 @@ serve(async (req) => {
   // but only authenticated users (or the service role) may persist rows
   // to rss_articles / rss_feed_meta. We downgrade `store` silently when
   // no valid bearer is presented.
+  // Sign-in required: feed fetching makes the server contact outside sites.
   const auth = await requireUser(req);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ error: auth.error }), {
+      status: auth.status,
+      headers: jsonHeaders,
+    });
+  }
   const authed = auth.ok;
 
   try {

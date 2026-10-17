@@ -1,8 +1,6 @@
 project_id = "nmrckgzmluoavgucqvjh"
 
-# RSS fetching is harmless (public feeds, SSRF-filtered URLs). We accept
-# anonymous callers so guests can refresh feeds; the handler still
-# requires a valid user for `store=true` writes.
+# JWT verified in code: signed-in users only (owner decision Oct 2026).
 [functions.fetch-rss]
 verify_jwt = false
 
@@ -13,8 +11,6 @@ verify_jwt = false
 [functions.search-articles]
 verify_jwt = false
 
-# Reader View accepts anonymous callers: the function only scrapes a
-# public URL and never touches the database. Keeping JWT verification
-# on caused signed-out browsers to receive a generic non-2xx error.
+# Reader View: JWT verified in code; signed-in users only.
 [functions.extract-article]
 verify_jwt = false
