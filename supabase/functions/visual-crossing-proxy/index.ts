@@ -4,6 +4,7 @@
 // climatology fields the app needs.
 
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 import { z } from 'npm:zod@3';
 
 const QuerySchema = z.object({
@@ -14,6 +15,20 @@ const QuerySchema = z.object({
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Sign-in required: each call spends the paid weather allowance.
+  const authHeader = req.headers.get('Authorization') ?? '';
+  const token = authHeader.toLowerCase().startsWith('bearer ') ? authHeader.slice(7).trim() : '';
+  const authClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!);
+  const { data: claims, error: claimsError } = token
+    ? await authClient.auth.getClaims(token)
+    : { data: null, error: new Error('missing') };
+  if (claimsError || !claims?.claims?.sub) {
+    return new Response(
+      JSON.stringify({ error: 'unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
   }
 
   const apiKey = Deno.env.get('VISUAL_CROSSING_API_KEY');
