@@ -760,6 +760,9 @@ async function storeArticles(
       const batch = toUpsert.slice(i, i + 50);
       const { error } = await sb.from("rss_articles").upsert(batch, {
         onConflict: "link",
+        // Never overwrite an existing shared article: a caller-supplied feed
+        // may only add new links, not rewrite what other readers see.
+        ignoreDuplicates: true,
       });
       if (error) return { ok: false, storedCount, error: error.message };
       storedCount += batch.length;

@@ -70,11 +70,11 @@ export const getSignedFileUrl = async (fileUrl: string): Promise<string> => {
     const match = fileUrl.match(/chat-files\/(.+?)(?:\?|$)/);
     if (!match) return fileUrl;
     const path = decodeURIComponent(match[1]);
-    const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, 3600);
+    const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
     return error ? fileUrl : data.signedUrl;
   }
 
-  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(fileUrl, 3600);
+  const { data, error } = await supabase.storage.from('chat-files').createSignedUrl(fileUrl, SIGNED_URL_TTL_SECONDS);
   return error ? '' : data.signedUrl;
 };
 
