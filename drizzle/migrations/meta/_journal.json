@@ -29,6 +29,13 @@
       "when": 1791585365886,
       "tag": "0003_related_profile_cards_rpc",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792236534395,
+      "tag": "0004_tighten_avatars_and_model_stats",
+      "breakpoints": true
     }
   ]
 }
