@@ -43,13 +43,13 @@ const MINUTELY_FIELDS = ['precipitation', 'rain', 'snowfall'].join(',');
 /** Open-Meteo returns wall-clock times in the *location's* timezone with no
  *  offset. `new Date(t)` would read them in the device's timezone, shifting
  *  every hour for any city outside it. Anchor them with the reported offset. */
-function locationTimeToUnix(t: string, offsetSeconds: number): number {
+export function locationTimeToUnix(t: string, offsetSeconds: number): number {
   const iso = t.length === 10 ? `${t}T00:00` : t;
   return Date.parse(`${iso}Z`) - offsetSeconds * 1000;
 }
 
 /** Index of the hourly slot containing "now"; hourly arrays start at local midnight. */
-function currentHourIndex(times: string[] | undefined, offsetSeconds: number, now = Date.now()): number {
+export function currentHourIndex(times: string[] | undefined, offsetSeconds: number, now = Date.now()): number {
   if (!times?.length) return 0;
   let idx = 0;
   for (let i = 0; i < times.length; i += 1) {
