@@ -21,6 +21,10 @@ export class VisualCrossingAdapter extends BaseAdapter {
   override readonly meta = SOURCE_REGISTRY['visual-crossing'];
 
   override async fetchPartial(ctx: AdapterContext): Promise<PartialSnapshot> {
+    // The proxy is sign-in only; skip the call for guests instead of
+    // producing a guaranteed 401. Climatology is optional enrichment.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) return {};
     const { data, error } = await supabase.functions.invoke<VCProxyResp>(
       'visual-crossing-proxy',
       { body: { lat: ctx.lat, lng: ctx.lng } },
