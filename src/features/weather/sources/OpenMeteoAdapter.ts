@@ -10,6 +10,7 @@ import { type AdapterContext,BaseAdapter, safeJson } from './BaseAdapter';
 interface OMResponse {
   latitude: number; longitude: number; elevation: number;
   timezone: string;
+  utc_offset_seconds?: number;
   current?: Record<string, number>;
   hourly?: Record<string, (number | null)[]> & { time: string[] };
   daily?:  Record<string, (number | null)[]> & { time: string[] };
@@ -39,6 +40,24 @@ const DAILY_FIELDS = [
 
 const MINUTELY_FIELDS = ['precipitation', 'rain', 'snowfall'].join(',');
 
+/** Open-Meteo returns wall-clock times in the *location's* timezone with no
+ *  offset. `new Date(t)` would read them in the device's timezone, shifting
+ *  every hour for any city outside it. Anchor them with the reported offset. */
+export function locationTimeToUnix(t: string, offsetSeconds: number): number {
+  const iso = t.length === 10 ? `${t}T00:00` : t;
+  return Date.parse(`${iso}Z`) - offsetSeconds * 1000;
+}
+
+/** Index of the hourly slot containing "now"; hourly arrays start at local midnight. */
+export function currentHourIndex(times: string[] | undefined, offsetSeconds: number, now = Date.now()): number {
+  if (!times?.length) return 0;
+  let idx = 0;
+  for (let i = 0; i < times.length; i += 1) {
+    if (locationTimeToUnix(times[i], offsetSeconds) <= now) idx = i; else break;
+  }
+  return idx;
+}
+
 export class OpenMeteoAdapter extends BaseAdapter {
   override readonly id: SourceId = 'open-meteo';
   override readonly meta = SOURCE_REGISTRY['open-meteo'];
@@ -64,12 +83,14 @@ export class OpenMeteoAdapter extends BaseAdapter {
     const h = r.hourly;
     const d = r.daily;
 
-    const soil0 = h?.soil_moisture_0_to_1cm?.[0] ?? null;
-    const soil1 = h?.soil_moisture_1_to_3cm?.[0] ?? null;
-    const soil3 = h?.soil_moisture_3_to_9cm?.[0] ?? null;
-    const soil9 = h?.soil_moisture_9_to_27cm?.[0] ?? null;
-    const soilT0 = h?.soil_temperature_0cm?.[0] ?? null;
-    const soilT6 = h?.soil_temperature_6cm?.[0] ?? null;
+    const off = r.utc_offset_seconds ?? 0;
+    const ni = currentHourIndex(h?.time, off);
+    const soil0 = h?.soil_moisture_0_to_1cm?.[ni] ?? null;
+    const soil1 = h?.soil_moisture_1_to_3cm?.[ni] ?? null;
+    const soil3 = h?.soil_moisture_3_to_9cm?.[ni] ?? null;
+    const soil9 = h?.soil_moisture_9_to_27cm?.[ni] ?? null;
+    const soilT0 = h?.soil_temperature_0cm?.[ni] ?? null;
+    const soilT6 = h?.soil_temperature_6cm?.[ni] ?? null;
 
     return {
       meta: {
@@ -115,8 +136,8 @@ export class OpenMeteoAdapter extends BaseAdapter {
         uv_max_today: d?.uv_index_max?.[0] ?? 0,
       },
       instability: {
-        cape_jkg: h?.cape?.[0] ?? null,
-        lifted_index: h?.lifted_index?.[0] ?? null,
+        cape_jkg: h?.cape?.[ni] ?? null,
+        lifted_index: h?.lifted_index?.[ni] ?? null,
       },
     };
   }
@@ -126,16 +147,22 @@ export class OpenMeteoAdapter extends BaseAdapter {
     const h = r.hourly;
     const d = r.daily;
     const m = r.minutely_15;
+    const off = r.utc_offset_seconds ?? 0;
+    const toUnix = (t: string) => locationTimeToUnix(t, off);
+    const start = currentHourIndex(h?.time, off);
 
-    const minutely = m?.time?.slice(0, 4).map((t, i) => ({
-      timestamp_unix: new Date(t).getTime(),
-      precip_mm_hr: (m.precipitation?.[i] ?? 0) * 4, // 15-min → hr
+    const mStart = Math.max(0, currentHourIndex(m?.time, off));
+    const minutely = m?.time?.slice(mStart, mStart + 4).map((t, k) => ({
+      timestamp_unix: toUnix(t),
+      precip_mm_hr: (m.precipitation?.[mStart + k] ?? 0) * 4, // 15-min → hr
       precip_probability_percent: 0,
       lightning_proximity_km: null,
     })) ?? [];
 
-    const hourly: HourlyEntry[] = (h?.time ?? []).slice(0, 48).map((t, i) => ({
-      timestamp_unix: new Date(t).getTime(),
+    const hourly: HourlyEntry[] = (h?.time ?? []).slice(start, start + 48).map((t, k) => {
+      const i = start + k;
+      return {
+      timestamp_unix: toUnix(t),
       temperature_c: h!.temperature_2m?.[i] ?? 0,
       apparent_c:    h!.apparent_temperature?.[i] ?? 0,
       precip_mm:     h!.precipitation?.[i] ?? 0,
@@ -149,13 +176,14 @@ export class OpenMeteoAdapter extends BaseAdapter {
       weather_code: h!.weather_code?.[i] ?? 0,
       is_day: Boolean(h!.is_day?.[i]),
       confidence_percent: 80,
-    }));
+    };
+    });
 
-    const extendedHourly: ExtendedHourlyEntry[] = (h?.time ?? []).slice(48, 168).map((t, i) => {
-      const absIdx = 48 + i;
-      const hourOffset = absIdx;
+    const extendedHourly: ExtendedHourlyEntry[] = (h?.time ?? []).slice(start + 48, start + 168).map((t, i) => {
+      const absIdx = start + 48 + i;
+      const hourOffset = 48 + i;
       return {
-        timestamp_unix: new Date(t).getTime(),
+        timestamp_unix: toUnix(t),
         temperature_c: h!.temperature_2m?.[absIdx] ?? 0,
         precip_mm:     h!.precipitation?.[absIdx] ?? 0,
         wind_kph:      h!.wind_speed_10m?.[absIdx] ?? 0,
@@ -166,7 +194,7 @@ export class OpenMeteoAdapter extends BaseAdapter {
     });
 
     const daily: DailyEntry[] = (d?.time ?? []).slice(0, 14).map((t, i) => ({
-      date_unix: new Date(t).getTime(),
+      date_unix: toUnix(t),
       high_c: d!.temperature_2m_max?.[i] ?? 0,
       low_c:  d!.temperature_2m_min?.[i] ?? 0,
       precip_mm: d!.precipitation_sum?.[i] ?? 0,

@@ -42,17 +42,17 @@ export class NOAAAdapter extends BaseAdapter {
     if (!p) return {};
     const tC = p.temperatureUnit === 'F' ? (p.temperature - 32) * 5 / 9 : p.temperature;
     const speedMatch = p.windSpeed?.match(/(\d+)/);
-    const speedMph = speedMatch ? Number(speedMatch[1]) : 0;
+    const speedMph = speedMatch ? Number(speedMatch[1]) : null;
     return {
       temperature: { actual_c: tC } as PartialSnapshot['temperature'],
       wind: {
-        speed_kph: speedMph * 1.60934,
-        speed_ms: (speedMph * 1.60934) / 3.6,
+        speed_kph: speedMph != null ? speedMph * 1.60934 : undefined,
+        speed_ms: speedMph != null ? (speedMph * 1.60934) / 3.6 : undefined,
       } as PartialSnapshot['wind'],
       precipitation: {
-        probability_percent: p.probabilityOfPrecipitation?.value ?? 0,
+        probability_percent: p.probabilityOfPrecipitation?.value ?? undefined,
       } as PartialSnapshot['precipitation'],
-      moisture: { relative_humidity_percent: p.relativeHumidity?.value ?? 0 } as PartialSnapshot['moisture'],
+      moisture: { relative_humidity_percent: p.relativeHumidity?.value ?? undefined } as PartialSnapshot['moisture'],
     };
   }
 }
