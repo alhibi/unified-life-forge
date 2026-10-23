@@ -59,7 +59,8 @@ export class MetNorwayAdapter extends BaseAdapter {
         cloud_cover_high_percent: inst.cloud_area_fraction_high,
         fog_probability_percent: inst.fog_area_fraction,
       } as PartialSnapshot['sky'],
-      solar: { uv_index: inst.ultraviolet_index_clear_sky ?? 0 } as PartialSnapshot['solar'],
+      // `ultraviolet_index_clear_sky` is a cloud-free ceiling, not the actual UV
+      // index; feeding it to the ensemble would overstate UV on cloudy days.
     };
   }
 }
