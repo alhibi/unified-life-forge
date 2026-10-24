@@ -345,9 +345,21 @@ export interface ExtractedArticlePayload {
 }
 
 export async function invokeExtractArticle(url: string): Promise<ExtractedArticlePayload> {
+  // The extractor is sign-in only. Without a live session, return an empty
+  // payload so the reader keeps the feed text instead of hitting a 401.
+  const empty: ExtractedArticlePayload = extractedArticleSchema.parse({ url, title: '', image: null, html: '' });
+  const { data: sessionData } = await supabase.auth.getSession();
+  const session = sessionData.session;
+  if (!session || (session.expires_at != null && session.expires_at * 1000 <= Date.now())) {
+    return empty;
+  }
   const { data, error } = await supabase.functions.invoke('extract-article', {
     body: { url },
   });
-  if (error) throw error;
+  if (error) {
+    const status = (error as { context?: { status?: number } }).context?.status;
+    if (status === 401) return empty;
+    throw error;
+  }
   return extractedArticleSchema.parse(data);
 }
