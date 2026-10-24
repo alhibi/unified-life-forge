@@ -17,7 +17,6 @@
  * `strokeWidth`, `fill`, `weight`) and adapts them per-library so existing
  * call sites keep working unchanged.
  */
-import * as PhosMod from '@phosphor-icons/react';
 import { type Icon as PhosphorIcon, IconContext, type IconProps } from '@phosphor-icons/react';
 import {
   createContext,
@@ -31,6 +30,8 @@ import {
 } from 'react';
 
 import { useApp } from '@/contexts/AppContext';
+
+import * as PhosMod from './phosphorIcons';
 
 export type IconSet = 'phosphor' | 'lucide' | 'tabler';
 
@@ -2241,5 +2242,128 @@ export const ZoomOut = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProp
   },
 ) as unknown as PhosphorIcon;
 
-/* Fallback: unmapped lucide-style names keep resolving from lucide. */
-export * from 'lucide-react';
+/* ------------------------------------------------------------------------- */
+/*  Additional names feature modules still import                            */
+/* ------------------------------------------------------------------------- */
+/*
+ * These used to resolve through `export * from 'lucide-react'`. That single
+ * line pulled the whole Lucide barrel into the graph, so every first paint
+ * downloaded a second icon family it never rendered. Each name below is now
+ * mapped to a distinct glyph in all three libraries, like every other alias,
+ * and the icon-coverage test keeps it that way.
+ */
+export const Battery = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Battery(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'BatteryMedium', l: 'Battery', t: 'IconBattery' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Layout = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Layout(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'GridFour', l: 'Layout', t: 'IconLayoutDashboard' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const MessageSquare = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MessageSquare(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'ChatCentered', l: 'MessageSquare', t: 'IconMessage' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const MessageSquareQuote = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function MessageSquareQuote(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'ChatCenteredText', l: 'MessageSquareQuote', t: 'IconMessages' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Cpu = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Cpu(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Cpu', l: 'Cpu', t: 'IconCpu' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Wand2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Wand2(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'MagicWand', l: 'Wand2', t: 'IconWand' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const ArrowUpDown = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ArrowUpDown(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Swap', l: 'ArrowUpDown', t: 'IconArrowsSort' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const CheckSquare = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CheckSquare(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'CheckSquare', l: 'CheckSquare', t: 'IconCheckbox' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Columns = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Columns(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Columns', l: 'Columns', t: 'IconColumns' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const CopyCheck = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CopyCheck(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'CopySimple', l: 'CopyCheck', t: 'IconCopyCheck' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const CornerUpLeft = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CornerUpLeft(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'ArrowElbowUpLeft', l: 'CornerUpLeft', t: 'IconCornerLeftUp' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Scissors = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Scissors(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Scissors', l: 'Scissors', t: 'IconScissors' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const BrainCircuit = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function BrainCircuit(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Circuitry', l: 'BrainCircuit', t: 'IconCircuitBulb' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const HeartHandshake = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function HeartHandshake(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Handshake', l: 'HeartHandshake', t: 'IconFriends' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const QrCode = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function QrCode(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'QrCode', l: 'QrCode', t: 'IconQrcode' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Edit2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Edit2(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'NotePencil', l: 'SquarePen', t: 'IconEdit' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const PlayCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function PlayCircle(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'PlayCircle', l: 'CirclePlay', t: 'IconPlayerPlayFilled' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const PlusCircle = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function PlusCircle(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'PlusCircle', l: 'CirclePlus', t: 'IconCirclePlus' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Building2 = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Building2(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'BuildingOffice', l: 'Building2', t: 'IconBuildingSkyscraper' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const ShieldX = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ShieldX(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Prohibit', l: 'ShieldX', t: 'IconShieldX' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const CalendarRange = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function CalendarRange(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'CalendarBlank', l: 'CalendarRange', t: 'IconCalendarStats' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const Atom = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function Atom(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'Atom', l: 'Atom', t: 'IconAtom' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;
+export const ShieldQuestion = /*#__PURE__*/ forwardRef<SVGSVGElement, IconComponentProps>(
+  function ShieldQuestion(props, ref) {
+    return <IconSlot ref={ref} names={{ p: 'ShieldStar', l: 'ShieldQuestion', t: 'IconShieldQuestion' }} {...props} />;
+  },
+) as unknown as PhosphorIcon;

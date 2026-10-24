@@ -411,7 +411,12 @@ export default function PrayerTimes() {
   // permission prompt; we just react to whatever the hook hands us.
   // Cross-tab updates and `locationUpdated` events are handled inside the
   // hook itself — no per-component listeners needed.
-  const { location, status: locationStatus, requestLocation } = useDeviceLocation();
+  const {
+    location,
+    status: locationStatus,
+    isFallback: locationIsFallback,
+    requestLocation,
+  } = useDeviceLocation();
 
   // Track if we've already fetched for the current location to avoid
   // redundant fetches when the effect re-runs due to fetchPrayers reference
@@ -534,6 +539,13 @@ export default function PrayerTimes() {
           currentPrayer={currentPrayer}
           nextPrayer={nextPrayer}
           locationLabel={locationName || t('prayer.locationFallback')}
+          /* Denied/unavailable requests also leave `location` populated —
+             with MECCA_FALLBACK — so testing the object alone labelled Makkah
+             as «محلي». `isFallback` distinguishes the fallback from a cached
+             fix that survived a failed refresh. */
+          sourceLabel={
+            location && !locationIsFallback ? t('prayer.local') : t('prayer.fallback')
+          }
           t={t}
         />
         {/* 1dp horizontal separator at ~6% alpha (matches reference) */}
@@ -626,11 +638,13 @@ function Hero({
   currentPrayer,
   nextPrayer,
   locationLabel,
+  sourceLabel,
   t,
 }: {
   currentPrayer?: PrayerTime;
   nextPrayer?: PrayerTime;
   locationLabel: string;
+  sourceLabel: string;
   t: (key: string) => string;
 }) {
   // The card used to print the raw API keys ("Fajr", "Isha") and the English
@@ -648,7 +662,7 @@ function Hero({
             {locationLabel}
           </span>
           <span className="text-micro font-semibold text-primary shrink-0">
-            {t('prayer.local')}
+            {sourceLabel}
           </span>
         </div>
         <div className="flex items-end justify-between gap-2">

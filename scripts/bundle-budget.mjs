@@ -38,7 +38,11 @@ if (!fs.existsSync(DIST)) {
  * builds would make every budget entry miss on the first content change, so we
  * strip the hash and key on the stable chunk name.
  */
-const stableName = (file) => file.replace(/-[A-Za-z0-9_-]{8,}\.js$/, '.js');
+// Rollup hashes are exactly 8 characters. The old `{8,}` was greedy: it ate
+// `-lucide-BF45vI-N` and collapsed `icons-lucide`, `icons-tabler` and `icons`
+// into one "icons.js" key, so ~2.8 MB of lazy icon chunks were gated by a
+// single entry that was larger than any one of them. Strip exactly the hash.
+const stableName = (file) => file.replace(/-[A-Za-z0-9_-]{8}\.js$/, '.js');
 
 const brotli = (buf) =>
   zlib.brotliCompressSync(buf, {

@@ -64,3 +64,36 @@ Owner approved re-baselining Reading/extractArticle/storage to measured sizes (g
 Per-feature sweep of hard-coded colours/fonts onto theme tokens: wellness, fitness, training, games, mind, knowledge, diwan, archive graph, chat, podcasts, prayer card, journal, calendar, weather (Sora/Manrope + bespoke palette removed), portal canvas. Kept by design: chess/3D materials, map tiles, avatar/wallpaper swatches, per-podcast artwork themes, user-chosen reader paper/sepia/night modes, shareable identity-pass canvas, keyboard skins, theme-preview swatches.
 Gates: typecheck 0; lint 0 errors; lint budget 826→824; arch pass; 1,889/1,889 tests; build OK. Card-surface budget 367→385 (all conversions, documented in test). Size: JournalHome +135B, MessageBubble +129B re-baselined under owner's approval for unification shifts.
 Residual: profile glow `rgba()` shadows (ProfileActivityMatrixTab, ProfileStreakPanel, ProfileInsightsPanel, ProfileHeaderHero, DayDetailCard) — decorative, still literal.
+
+## Refinement audit — 2026-10-24 (Bun 1.3.3, HEAD working tree)
+
+Scope: product-level audit of the launcher, prayer card, journal, keyboard
+interaction, icon pipeline and bundle gates. Everything below was reproduced
+in this worktree before the fix and re-tested after it.
+
+| ID | Sev | Status | Location | Evidence / root cause | Fix | Guard |
+|---|---|---|---|---|---|---|
+| AUD-001 | P1 | Fixed-Verified | `src/lib/icons.tsx`, `src/lib/phosphorIcons.ts`, `vite.config.ts` | `import * as Phosphor` defeated tree-shaking; `export * from 'lucide-react'` pulled a second icon family into every first paint; Lucide/Tabler shared one lazy chunk, so selecting Lucide downloaded Tabler too | Explicit 263-glyph Phosphor barrel; 23 missing aliases mapped across all three sets; one chunk per alternate set | `iconCoverage.test.ts` (no namespace/wildcard import, every glyph registered); Playwright network log loads only the selected set |
+| AUD-002 | P1 | Fixed-Verified | `bundle-budget.json`, `scripts/bundle-budget.mjs` | Hash regex `{8,}` was greedy and collapsed `icons`, `icons-lucide`, `icons-tabler` into one `icons.js` key (980 KB) — larger than any real chunk, so the gate could not see a regression in one of them | Strip exactly an 8-char hash; split budget keys; recalibrated total **down** 3,232 → 2,854 KB | `bun run build:budget` (242 chunks, 2,854.2 KB) |
+| AUD-003 | P1 | Fixed-Verified | `src/App.tsx`, `JournalHome.tsx`, `EntryEditorSheet.tsx` | Signed-out visitors could compose a journal entry that the API rejected with `not_authenticated`; the sheet closed as if saved and the text was lost. Save/delete failures produced no message | `/journal` gated before the query mounts; save/delete keep the sheet and draft on failure with an explicit toast | Playwright: guard renders signed out; stubbed insert succeeds, persists across reload, and a 500 keeps the draft + shows the error |
+| AUD-004 | P1 | Fixed-Verified | `src/index.css`, `EntryEditorSheet.tsx` | The in-app keyboard is a body portal above drawers; on 390×844 it covered 424 px of the journal sheet, including the submit row | While `data-soft-keyboard-open` is set, every drawer sits at `bottom: var(--soft-keyboard-height)` with a matching max height; the editor scrolls and pins its action row | Playwright geometry: keyboard 420–844, drawer 0–420, save button visible at 327–375 and hit-tested as the button |
+| AUD-005 | P2 | Fixed-Verified | `PrayerTimes.tsx`, `useDeviceLocation.ts`, `i18n/ar.json` | When geolocation was denied, the hook stores MECCA_FALLBACK in `location`, so the mere presence of coordinates made the card claim «محلي» for Makkah | Hook now exposes `isFallback` separately; a cached fix that survives a denied refresh stays محلي, while MECCA_FALLBACK renders افتراضي | `useDeviceLocation.test.ts` (4 cases: denied→fallback, cached→local, granted→local, unavailable→fallback); Playwright DOM renders «مكة المكرمة افتراضي» with no cache and «الرياض محلي» with a cached fix |
+| AUD-006 | P2 | Fixed-Verified | `JournalHome.tsx` | `BrainScene` (WebGL) was imported eagerly on a text-first route, inflating the journal chunk | `React.lazy` + `Suspense` placeholder | `bundle-budget.json` chunk key; build + route audit |
+
+Gates on this tree: `typecheck` 0 errors · `lint` 0 errors/731 warnings
+(budget 731) · `lint:budget` pass · `arch` pass · `test` 141 files / 2,077
+tests pass · live `rlsHostileClient` 30/30 pass · `build` pass · bundle budget
+pass. One entry was recalibrated upward: `BayanDashboard` 21.4 → 21.9 KB
+(a HEAD-only build measures 21.8 KB, so this slice adds ~0.1 KB of
+compression-boundary drift; total still fell ~380 KB). Route audit: 14 core routes × mobile 390 / desktop 1440 — no console
+errors, no page errors, no document-level horizontal overflow.
+
+Performance (local `vite preview`, cold context, 390×844, best of 2):
+home LCP 368–404 ms, 669 KB encoded JS, 111 requests. Loading Lucide adds only
+its own 166 KB; Tabler adds 517 KB; default Phosphor adds 0.
+
+Residual / not claimed: a live journal insert against the hosted Supabase
+project was not run (no test account); persistence was verified against a
+stubbed PostgREST that implements the same rows, and the RLS suite proves the
+anonymous boundary. `bun run e2e` and `test:smoke` were not run as suites; the
+targeted Playwright checks above cover the changed surfaces.

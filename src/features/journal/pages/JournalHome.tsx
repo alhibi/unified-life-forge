@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
@@ -7,11 +7,14 @@ import { AppCard, IconButton } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
 import { Pencil, Plus, Trash2 } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import { notify } from '@/lib/notify';
 
-import BrainScene from '../components/BrainScene';
 import EntryEditorSheet from '../components/EntryEditorSheet';
 import { useJournalEntries, useJournalMutations } from '../hooks/useJournal';
 import { computeBalance, type JournalEntry, type JournalMood } from '../types';
+
+/** The 3D scene owns a WebGL renderer; keep it off the route's first chunk. */
+const BrainScene = lazy(() => import('../components/BrainScene'));
 
 const MOOD_META: Record<JournalMood, { label: string; accent: string }> = {
   organic:    { label: 'عاطفي',   accent: 'hsl(var(--data-2))' },
@@ -43,6 +46,13 @@ function excerpt(text: string, max = 180): string {
  * hemispheres) reflects the mood balance of the writer's entries, and a
  * quiet timeline below tracks every reflection.
  */
+/**
+ * The journal is account-backed: entries live in `journal_entries`, scoped to
+ * the signed-in user by RLS. Rendering the editor for a signed-out visitor
+ * produced a form that accepted a whole entry and then rejected the write with
+ * `not_authenticated` — no message, no retry, and the text was lost. The route
+ * is gated in App.tsx before this component (and its journal query) mounts.
+ */
 export default function JournalHome() {
   const reduced = useReducedMotion();
   const { data: entries = [], isLoading } = useJournalEntries();
@@ -58,18 +68,28 @@ export default function JournalHome() {
   const openEdit = (entry: JournalEntry) => { setEditing(entry); setEditorOpen(true); };
 
   const handleSubmit = async (v: { title: string; content: string; mood: JournalMood; tags: string[] }) => {
-    if (editing) {
-      await update.mutateAsync({ id: editing.id, patch: v });
-    } else {
-      await create.mutateAsync(v);
+    try {
+      if (editing) {
+        await update.mutateAsync({ id: editing.id, patch: v });
+      } else {
+        await create.mutateAsync(v);
+      }
+      setEditorOpen(false);
+      setEditing(null);
+    } catch {
+      // Keep the sheet open with the draft intact: a network blip must never
+      // look like a successful save, and the user must be able to retry.
+      notify.error({ ar: 'تعذّر حفظ المدخلة. حاول مرة أخرى.', en: 'Could not save the entry. Try again.' });
     }
-    setEditorOpen(false);
-    setEditing(null);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('حذف هذه المدخلة نهائياً؟')) return;
-    await remove.mutateAsync(id);
+    try {
+      await remove.mutateAsync(id);
+    } catch {
+      notify.error({ ar: 'تعذّر حذف المدخلة. حاول مرة أخرى.', en: 'Could not delete the entry. Try again.' });
+    }
   };
 
   const saving = create.isPending || update.isPending;
@@ -105,7 +125,9 @@ export default function JournalHome() {
           <motion.div variants={item}>
             <div className="relative rounded-xl overflow-hidden border border-border/70">
               <div className="aspect-[4/3] w-full">
-                <BrainScene balance={balance} reducedMotion={!!reduced} />
+                <Suspense fallback={<div className="h-full w-full bg-muted/20" aria-hidden />}>
+                  <BrainScene balance={balance} reducedMotion={!!reduced} />
+                </Suspense>
               </div>
               {/* Overlay caption — sits on the always-dark brain scene, so it
                   uses the light `primary-foreground` token rather than

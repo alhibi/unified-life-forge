@@ -37,12 +37,16 @@ export default defineConfig(({ mode }) => ({
             ) {
               return 'vendor';
             }
-            if (
-              id.includes('lucide-react') ||
-              id.includes('@tabler/icons-react') ||
-              id.includes('hugeicons-react')
-            ) {
-              // One chunk per alternate icon library, loaded on demand.
+            if (id.includes('lucide-react')) {
+              // One chunk per alternate icon library, loaded on demand. They
+              // used to share `icons-alt`, so choosing Lucide also downloaded
+              // Tabler's entire glyph set for no reason.
+              return 'icons-lucide';
+            }
+            if (id.includes('@tabler/icons-react')) {
+              return 'icons-tabler';
+            }
+            if (id.includes('hugeicons-react')) {
               return 'icons-alt';
             }
             if (id.includes('framer-motion')) {

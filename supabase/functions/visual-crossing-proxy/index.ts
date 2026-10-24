@@ -3,8 +3,8 @@
 // reads VISUAL_CROSSING_API_KEY from the secret store and returns only the
 // climatology fields the app needs.
 
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { z } from 'npm:zod@3';
 
 const QuerySchema = z.object({

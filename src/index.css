@@ -50,6 +50,15 @@ html[data-soft-keyboard-open='true'] .city-search-panel {
   z-index: var(--z-index-picker);
 }
 
+/* The in-app keyboard is a body portal painted above everything, including
+   drawers. A form sheet must move above it — otherwise its fields and submit
+   row are physically under the keys. Applies only while the keyboard is open;
+   closed sheets keep their own max-height. */
+html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
+  bottom: var(--soft-keyboard-height, 0px);
+  max-block-size: calc(100dvh - var(--soft-keyboard-height, 0px));
+}
+
 /* Tile roles resolve at the category element, not at the document root. */
 @theme inline {
   --color-tile-surface: hsl(var(--tile-surface));

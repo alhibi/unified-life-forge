@@ -22,12 +22,12 @@ import { useCallback, useRef, useState } from 'react';
 
 import ProgressRing from '@/components/ProgressRing';
 import { AnimatedNumber } from '@/components/ui/animated-number';
+import { AppCard } from '@/components/ui/app-shell';
 import {
   SignatureAnnouncement,
   SignatureBloom,
   useSignatureMoment,
 } from '@/components/ui/signature-moment';
-import { AppCard } from '@/components/ui/app-shell';
 import { Minus, Pin, RotateCcw } from '@/lib/icons';
 import { DURATION } from '@/lib/motion';
 import { cn } from '@/lib/utils';

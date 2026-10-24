@@ -141,6 +141,7 @@
   "prayer.am": "ص",
   "prayer.pm": "م",
   "prayer.local": "محلي",
+  "prayer.fallback": "افتراضي",
   "prayer.locationFallback": "موقعك",
   "prayer.todaysPrayers": "صلوات اليوم",
   "prayer.of": "من",

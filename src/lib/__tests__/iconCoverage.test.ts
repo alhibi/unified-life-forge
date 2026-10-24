@@ -12,6 +12,10 @@ import * as Lucide from 'lucide-react';
 import { describe, expect, it } from 'vitest';
 
 const SOURCE = fs.readFileSync(path.resolve(__dirname, '../icons.tsx'), 'utf8');
+const PHOSPHOR_BARREL = fs.readFileSync(
+  path.resolve(__dirname, '../phosphorIcons.ts'),
+  'utf8',
+);
 const ENTRY =
   /function (\w+)\(props, ref\) \{\s*return\s+<?IconSlot ref=\{ref\} names=\{\{ p: '([^']+)', l: '([^']+)', t: '([^']+)' \}\}/g;
 
@@ -64,6 +68,25 @@ const has = (lib: object, name: string) => name in lib;
 describe('icon libraries', () => {
   it('declares a meaningful number of aliases', () => {
     expect(entries.length).toBeGreaterThan(80);
+  });
+
+  /*
+   * The expensive mistake this guards against: a namespace import of Phosphor
+   * (or a wildcard re-export of Lucide) defeats tree-shaking and ships the
+   * whole 3.5 MB library to first paint. See phosphorIcons.ts.
+   */
+  it('never pulls an icon library in by namespace or wildcard', () => {
+    expect(SOURCE).not.toMatch(/import\s+\*\s+as\s+\w+\s+from\s+'@phosphor-icons\/react'/);
+    expect(SOURCE).not.toMatch(/^\s*export\s+\*\s+from\s+'lucide-react'/m);
+    expect(SOURCE).toMatch(/from '\.\/phosphorIcons'/);
+  });
+
+  it('registers every phosphor glyph in the explicit barrel', () => {
+    const registered = new Set(
+      [...PHOSPHOR_BARREL.matchAll(/^\s{2}(\w+),$/gm)].map((m) => m[1]),
+    );
+    const missing = entries.filter((e) => !registered.has(e.p)).map((e) => e.p);
+    expect(missing).toEqual([]);
   });
 
   it('resolves every glyph in phosphor', () => {

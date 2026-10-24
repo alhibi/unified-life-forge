@@ -55,13 +55,20 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent dir="rtl" className="max-h-[90vh] bg-background border-t border-border">
+      {/*
+        The keyboard is a separate portal above the drawer. index.css lifts
+        every bottom sheet above it while `data-soft-keyboard-open` is set, so
+        this content is the form that scrolls — not the sheet under the keys.
+      */}
+      <DrawerContent dir="rtl" className="max-h-[90vh] border-t border-border bg-background">
         <VisuallyHidden>
           <DrawerTitle>محرر المذكرة</DrawerTitle>
           <DrawerDescription>إضافة أو تعديل مدخلة في مذكرتي</DrawerDescription>
         </VisuallyHidden>
 
-        <div className="mx-auto w-full max-w-lg px-5 pb-8 pt-5 space-y-5 overflow-y-auto">
+        {/* The scroller owns the remaining height (flex-1 + min-h-0) so the
+            action row is reachable at the end of the form on short screens. */}
+        <div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col gap-5 overflow-y-auto px-5 pb-8 pt-5 overscroll-contain">
           <div className="flex items-center justify-between">
             <h2 className="text-lead text-foreground">{entry ? 'تعديل مدخلة' : 'مدخلة جديدة'}</h2>
             <span className="text-micro text-muted-foreground tracking-wider">{words} كلمة</span>
@@ -127,7 +134,10 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          {/* Sticky action row: on a 390×844 screen the form is taller than the
+              sheet whether the keyboard is open or closed. Saving must not
+              depend on discovering that the sheet scrolls. */}
+          <div className="sticky bottom-0 z-10 -mx-5 flex items-center justify-end gap-3 border-t border-border/60 bg-background px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
             <Button
               type="button"
               variant="ghost"

@@ -67,10 +67,18 @@ const POSITION_OPTIONS: PositionOptions = {
 export const MECCA_FALLBACK: DeviceCoords = { lat: 21.4225, lng: 39.8262 };
 
 // ── Module-level singleton state ─────────────────────────────────────────
-type Listener = (loc: DeviceCoords | null, status: DeviceLocationStatus) => void;
+type Listener = (
+  loc: DeviceCoords | null,
+  status: DeviceLocationStatus,
+  isFallback: boolean,
+) => void;
 
 let currentLocation: DeviceCoords | null = null;
 let currentStatus: DeviceLocationStatus = 'idle';
+// True while `currentLocation` holds MECCA_FALLBACK instead of a real fix.
+// `location` alone cannot say this: after a denial the hook stores the
+// fallback *in* `location` so consumers still have usable coordinates.
+let currentIsFallback = false;
 let bootstrapped = false;
 const listeners = new Set<Listener>();
 
@@ -78,12 +86,17 @@ let inflightRequest: Promise<DeviceCoords | null> | null = null;
 let inflightTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function emit() {
-  for (const l of listeners) l(currentLocation, currentStatus);
+  for (const l of listeners) l(currentLocation, currentStatus, currentIsFallback);
 }
 
-function setState(loc: DeviceCoords | null, status: DeviceLocationStatus) {
+function setState(
+  loc: DeviceCoords | null,
+  status: DeviceLocationStatus,
+  isFallback = currentIsFallback,
+) {
   currentLocation = loc;
   currentStatus = status;
+  currentIsFallback = isFallback;
   emit();
 }
 
@@ -117,7 +130,7 @@ function onSameTabUpdate() {
       currentStatus === 'requesting' || currentStatus === 'granted'
         ? currentStatus
         : 'cached';
-    setState(cached, status);
+    setState(cached, status, false);
   }
 }
 
@@ -129,7 +142,7 @@ function bootstrap() {
   if (bootstrapped) return;
   bootstrapped = true;
   const cached = readCached();
-  if (cached) setState(cached, 'cached');
+  if (cached) setState(cached, 'cached', false);
   if (typeof window !== 'undefined') {
     window.addEventListener(UPDATE_EVENT, onSameTabUpdate);
     window.addEventListener('storage', onCrossTabStorage);
@@ -153,7 +166,11 @@ export function requestDeviceLocation(): Promise<DeviceCoords | null> {
   if (inflightRequest) return inflightRequest;
 
   if (typeof navigator === 'undefined' || !navigator.geolocation) {
-    setState(currentLocation ?? MECCA_FALLBACK, 'unavailable');
+    setState(
+      currentLocation ?? MECCA_FALLBACK,
+      'unavailable',
+      currentLocation ? currentIsFallback : true,
+    );
     return Promise.resolve(currentLocation);
   }
 
@@ -162,14 +179,18 @@ export function requestDeviceLocation(): Promise<DeviceCoords | null> {
   inflightRequest = new Promise<DeviceCoords | null>((resolve) => {
     let settled = false;
 
-    const finish = (loc: DeviceCoords | null, status: DeviceLocationStatus) => {
+    const finish = (
+      loc: DeviceCoords | null,
+      status: DeviceLocationStatus,
+      isFallback: boolean,
+    ) => {
       if (settled) return;
       settled = true;
       if (inflightTimeout) {
         clearTimeout(inflightTimeout);
         inflightTimeout = null;
       }
-      setState(loc, status);
+      setState(loc, status, isFallback);
       resolve(loc);
     };
 
@@ -177,7 +198,11 @@ export function requestDeviceLocation(): Promise<DeviceCoords | null> {
     // (notably mobile Safari with a corrupted permission DB). Hard timeout
     // ensures consumers never wait forever.
     inflightTimeout = setTimeout(() => {
-      finish(currentLocation ?? MECCA_FALLBACK, 'denied');
+      finish(
+        currentLocation ?? MECCA_FALLBACK,
+        'denied',
+        currentLocation ? currentIsFallback : true,
+      );
     }, REQUEST_TIMEOUT_MS);
 
     navigator.geolocation.getCurrentPosition(
@@ -187,13 +212,17 @@ export function requestDeviceLocation(): Promise<DeviceCoords | null> {
           lng: pos.coords.longitude,
         };
         persist(loc);
-        finish(loc, 'granted');
+        finish(loc, 'granted', false);
         try {
           window.dispatchEvent(new Event(UPDATE_EVENT));
         } catch { /* ignore */ }
       },
       () => {
-        finish(currentLocation ?? MECCA_FALLBACK, 'denied');
+        finish(
+          currentLocation ?? MECCA_FALLBACK,
+          'denied',
+          currentLocation ? currentIsFallback : true,
+        );
       },
       POSITION_OPTIONS,
     );
@@ -211,9 +240,14 @@ export function requestDeviceLocation(): Promise<DeviceCoords | null> {
 export function getCurrentDeviceLocation(): {
   location: DeviceCoords | null;
   status: DeviceLocationStatus;
+  isFallback: boolean;
 } {
   bootstrap();
-  return { location: currentLocation, status: currentStatus };
+  return {
+    location: currentLocation,
+    status: currentStatus,
+    isFallback: currentIsFallback,
+  };
 }
 
 // ── React hook ───────────────────────────────────────────────────────────
@@ -222,6 +256,8 @@ export interface UseDeviceLocationResult {
   location: DeviceCoords | null;
   /** Where we are in the request lifecycle — see `DeviceLocationStatus`. */
   status: DeviceLocationStatus;
+  /** True when `location` is MECCA_FALLBACK, not a device/cached fix. */
+  isFallback: boolean;
   /** Trigger a fresh OS-level permission prompt + position read. */
   requestLocation: () => Promise<DeviceCoords | null>;
 }
@@ -232,22 +268,33 @@ export function useDeviceLocation(): UseDeviceLocationResult {
   const [snapshot, setSnapshot] = useState<{
     loc: DeviceCoords | null;
     status: DeviceLocationStatus;
+    isFallback: boolean;
   }>(() => {
     bootstrap();
-    return { loc: currentLocation, status: currentStatus };
+    return {
+      loc: currentLocation,
+      status: currentStatus,
+      isFallback: currentIsFallback,
+    };
   });
 
   useEffect(() => {
-    const listener: Listener = (loc, status) => setSnapshot({ loc, status });
+    const listener: Listener = (loc, status, isFallback) =>
+      setSnapshot({ loc, status, isFallback });
     listeners.add(listener);
     // Catch any updates that happened between render and effect commit.
-    setSnapshot({ loc: currentLocation, status: currentStatus });
+    setSnapshot({
+      loc: currentLocation,
+      status: currentStatus,
+      isFallback: currentIsFallback,
+    });
     return () => { listeners.delete(listener); };
   }, []);
 
   return {
     location: snapshot.loc,
     status: snapshot.status,
+    isFallback: snapshot.isFallback,
     requestLocation: requestDeviceLocation,
   };
 }

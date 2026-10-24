@@ -1,6 +1,7 @@
-import { cleanup, render } from '@testing-library/react';
 import fs from 'node:fs';
 import path from 'node:path';
+
+import { cleanup, render } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 /**

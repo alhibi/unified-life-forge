@@ -43,6 +43,10 @@ import { registerDataPrefetch, registerRoute } from '@/lib/routePrefetch';
 // Opt-in dual-pane workspace. Lazy so react-resizable-panels stays out of
 // the entry chunk for the 99% of sessions that never enable it.
 const SplitWorkspace = lazy(() => import('@/components/SplitWorkspace'));
+// Only /journal and /wellness need the sign-in gate, and both are lazy
+// routes; keeping it out of the entry chunk leaves the launcher's budget
+// untouched for visitors who never open either one.
+const AuthGuard = lazy(() => import('@/components/AuthGuard'));
 // The in-app keyboard carries its own layouts/theme tables and only ever
 // mounts on coarse-pointer touch devices — load it off the critical path.
 const KeyboardProvider = lazy(() => import('@/features/keyboard/KeyboardProvider'));
@@ -914,7 +918,15 @@ function AnimatedRoutes() {
                     path="/journal"
                     element={
                       <ErrorBoundary>
-                        <JournalPage />
+                        {/* Account-backed: gate before the journal query mounts,
+                            otherwise a signed-out visitor can compose an entry
+                            that the API rejects with `not_authenticated`. */}
+                        <AuthGuard
+                          fallbackTitleAr="سجّل الدخول إلى مذكرتك"
+                          fallbackDescAr="مذكرتك خاصة بحسابك وتُحفظ فيه لتصل إليها من أي جهاز. سجّل الدخول لتبدأ الكتابة."
+                        >
+                          <JournalPage />
+                        </AuthGuard>
                       </ErrorBoundary>
                     }
                   />
