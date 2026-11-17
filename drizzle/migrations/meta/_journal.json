@@ -36,6 +36,13 @@
       "when": 1792236534395,
       "tag": "0004_tighten_avatars_and_model_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794957998331,
+      "tag": "0005_tighten_rpc_and_catalog_access",
+      "breakpoints": true
     }
   ]
 }
