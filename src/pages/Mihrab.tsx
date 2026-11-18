@@ -119,7 +119,7 @@ function MihrabMasthead() {
       <div
         className="mt-2 flex w-full max-w-xs items-end gap-[3px]"
         role="img"
-        aria-label="نشاط الورد في آخر 28 يوماً"
+        aria-label="نشاط الورد اليومي"
       >
         {recentDays.map((day) => (
           <span
@@ -134,7 +134,7 @@ function MihrabMasthead() {
         ))}
       </div>
       <p className="w-full max-w-xs text-micro text-muted-foreground-subtle">
-        آخر 28 يوماً · كل عمود يوم واحد
+        آخر 28 يوماً
       </p>
       {/* Only claim a record once one exists — "أفضل تتابع ٠ يوم" is noise. */}
       {streak.total > 0 && (
