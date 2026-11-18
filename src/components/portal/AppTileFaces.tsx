@@ -230,7 +230,12 @@ export function MihrabFace() {
 export function WeatherFace() {
   const { selectedCoords } = useWeatherLocation();
   const { data } = useWeatherData('ar', selectedCoords);
-  if (!data) {
+  // A snapshot with 0 hPa is the engine's "no location" placeholder, not a
+  // reading. The primary weather plate already refuses to render it; the
+  // widget-grid tile must follow the same truth or it invents "0° صافٍ" for a
+  // user who has not chosen a city (QA ticket on the frozen portal).
+  const hasReading = Boolean(data && data.current && data.current.pressure > 0);
+  if (!hasReading || !data || !data.current) {
     return (
       <span className="flex w-full items-end">
         <span className="text-title font-bold leading-snug text-muted-foreground">
@@ -547,7 +552,7 @@ export function ChatFace({ badge }: FaceProps) {
   const unread = typeof badge === 'number' ? badge : 0;
   return (
     <span className="flex w-full flex-col justify-end gap-2">
-      <span className="me-auto max-w-[85%] rounded-[var(--r-md)] rounded-es-sm bg-tile-foreground/12 px-3 py-2 text-mini font-semibold text-tile-foreground">
+      <span className="me-auto max-w-[85%] rounded-md rounded-es-sm bg-tile-foreground/12 px-3 py-2 text-mini font-semibold text-tile-foreground">
         السلام عليكم
       </span>
       <span className="ms-auto flex items-center gap-2 rounded-md rounded-ee-sm bg-tile-container px-3 py-2 text-mini font-bold text-tile-container-foreground">
@@ -582,7 +587,7 @@ const CHESS_ROW = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
 export function GamesFace() {
   return (
     <span className="flex w-full items-end justify-between gap-4">
-      <span className="grid w-3/5 grid-cols-8 overflow-hidden rounded-[var(--r-md)]" dir="ltr" aria-hidden>
+      <span className="grid w-3/5 grid-cols-8 overflow-hidden rounded-md" dir="ltr" aria-hidden>
         {Array.from({ length: 16 }, (_, i) => {
           const dark = (Math.floor(i / 8) + (i % 8)) % 2 === 1;
           return (

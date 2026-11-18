@@ -592,6 +592,9 @@ function FactRow({
 function DetailSkeleton() {
   return (
     <div className="page-shell page-shell-flush">
+      {/* The loading state also carries the route's one semantic heading: a
+          route must never be h1-less while its data resolves. */}
+      <h1 className="sr-only">مكان في أطلس الرحلات</h1>
       <div className="flex h-[var(--ui-header-h)] items-center gap-3 border-b border-border px-4">
         <div className="skeleton h-11 w-11 rounded-md" />
         <div className="skeleton h-5 w-40" />

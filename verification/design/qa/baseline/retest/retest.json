@@ -1,0 +1,135 @@
+{
+ "tripDialog": {
+  "error": "ReferenceError: document is not defined"
+ },
+ "germanModal": {
+  "open": {
+   "dialog": {
+    "title": "B2 — فوق المتوسطاسم (Nomen)Systematische Entwicklu",
+    "rect": {
+     "x": 16,
+     "y": 42,
+     "w": 347,
+     "h": 760
+    }
+   },
+   "active": "BUTTON",
+   "bodyOverflow": "hidden"
+  },
+  "after": {
+   "dialog": false,
+   "active": "BODY \"DEUTSCH-ARABISCHES WÖRTER\"",
+   "bodyOverflow": "visible"
+  }
+ },
+ "motionOsNone": {
+  "reducedMotion": "no-preference",
+  "before": {
+   "attr": "false",
+   "src": "none",
+   "stored": "false",
+   "os": false,
+   "td": "0.12s, 0.12s"
+  },
+  "clicked": {
+   "ok": true,
+   "checkedBefore": "false"
+  },
+  "after": {
+   "attr": "true",
+   "src": "app",
+   "stored": "false",
+   "td": "0.001s"
+  }
+ },
+ "motionOsReduce": {
+  "reducedMotion": "reduce",
+  "before": {
+   "attr": "true",
+   "src": "os",
+   "stored": "false",
+   "os": true,
+   "td": "0.001s"
+  },
+  "clicked": {
+   "ok": true,
+   "checkedBefore": "false"
+  },
+  "after": {
+   "attr": "true",
+   "src": "both",
+   "stored": "false",
+   "td": "0.001s"
+  }
+ },
+ "mihrabTabpanel": {
+  "tabindex": "0",
+  "focusVisible": true,
+  "outline": "none 3px rgb(241, 245, 244)",
+  "boxShadow": "none"
+ },
+ "dock_/games": {
+  "found": true,
+  "rect": {
+   "x": 319,
+   "y": 784,
+   "w": 44,
+   "h": 44
+  },
+  "opacity": "1",
+  "dataAttr": "visible",
+  "overlaps": []
+ },
+ "dock_/settings/motion": {
+  "found": true,
+  "rect": {
+   "x": 319,
+   "y": 784,
+   "w": 44,
+   "h": 44
+  },
+  "opacity": "1",
+  "dataAttr": "visible",
+  "overlaps": []
+ },
+ "dock_/diwan": {
+  "found": true,
+  "rect": {
+   "x": 319,
+   "y": 784,
+   "w": 44,
+   "h": 44
+  },
+  "opacity": "1",
+  "dataAttr": "visible",
+  "overlaps": []
+ },
+ "authNow": {
+  "kbOpen": false,
+  "kbTop": null,
+  "password": {
+   "y": 432,
+   "bottom": 478,
+   "h": 46
+  },
+  "submit": {
+   "y": 506,
+   "bottom": 554,
+   "h": 48
+  },
+  "submitOccluded": {
+   "inKb": false,
+   "tag": "span"
+  },
+  "passwordOccluded": {
+   "inKb": false,
+   "tag": "input"
+  },
+  "active": "INPUT",
+  "smallTargets": {
+   "total": 0,
+   "inKb": 0,
+   "outKb": []
+  }
+ }
+}

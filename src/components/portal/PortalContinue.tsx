@@ -60,10 +60,7 @@ function PortalContinueImpl({ apps, onOpen }: PortalContinueProps) {
 
   return (
     <section aria-labelledby="portal-continue-h" className="relative z-raised">
-      <h2
-        id="portal-continue-h"
-        className="type-meta mb-3 font-medium tracking-[0.14em] text-muted-foreground"
-      >
+      <h2 id="portal-continue-h" className="mb-3 text-meta font-semibold text-muted-foreground">
         متابعة
       </h2>
       <div

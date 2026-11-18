@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { PORTAL_APPS } from '@/components/portal/apps';
@@ -38,6 +37,76 @@ const parse = (token: string): Hsl => {
   return [h, s, l];
 };
 
+/**
+ * A miniature of the real interface, drawn only from the family's own generated
+ * tokens — background, card, ink, accent, data colour and its authored corner
+ * radius. It is deliberately not a swatch pair: a family is recognisable by how
+ * its surfaces, ink and geometry behave together (D2), so the preview shows a
+ * top bar, a card row and a primary action inside the family's material.
+ */
+function ThemePreview({
+  tokens,
+  corner,
+}: {
+  tokens: Record<string, string>;
+  corner: number;
+}) {
+  return (
+    <span
+      aria-hidden
+      className="flex h-[74px] w-full flex-col justify-between overflow-hidden p-2"
+      style={{
+        backgroundColor: `hsl(${tokens['--background']})`,
+        borderRadius: `calc(var(--r-md) * ${corner})`,
+      }}
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span
+          className="h-1.5 w-9 rounded-full"
+          style={{ backgroundColor: `hsl(${tokens['--foreground']})`, opacity: 0.45 }}
+        />
+        <span
+          className="h-2 w-2 rounded-full"
+          style={{ backgroundColor: `hsl(${tokens['--primary']})` }}
+        />
+      </span>
+      <span
+        className="flex items-center gap-1.5 px-1.5 py-1"
+        style={{
+          backgroundColor: `hsl(${tokens['--card']})`,
+          borderRadius: `calc(var(--r-sm) * ${corner})`,
+          boxShadow: tokens['--shadow-1'],
+        }}
+      >
+        <span
+          className="h-1.5 w-8 rounded-full"
+          style={{ backgroundColor: `hsl(${tokens['--foreground']})`, opacity: 0.8 }}
+        />
+        <span
+          className="ms-auto h-1.5 w-4 rounded-full"
+          style={{ backgroundColor: `hsl(${tokens['--muted-foreground']})`, opacity: 0.7 }}
+        />
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span
+          className="h-4 flex-1"
+          style={{
+            backgroundColor: `hsl(${tokens['--primary']})`,
+            borderRadius: `calc(var(--r-xs) * ${corner})`,
+          }}
+        />
+        <span
+          className="h-4 w-4"
+          style={{
+            backgroundColor: `hsl(${tokens['--data-3']})`,
+            borderRadius: `calc(var(--r-xs) * ${corner})`,
+          }}
+        />
+      </span>
+    </span>
+  );
+}
+
 export default function PaletteSection() {
   const navigate = useNavigate();
   const {
@@ -50,16 +119,6 @@ export default function PaletteSection() {
     surfaceLift,
   } = useApp();
   const resolved = resolveThemeId(colorTheme);
-  const categoryOf = (id: string) =>
-    Math.max(
-      0,
-      CATEGORIES.findIndex((category) => category.ids.includes(id)),
-    );
-  const [category, setCategory] = useState(() => categoryOf(resolved));
-  useEffect(() => {
-    const timer = window.setTimeout(() => setCategory(categoryOf(resolved)), 0);
-    return () => window.clearTimeout(timer);
-  }, [resolved]);
   const preset = themePresets.find((candidate) => candidate.id === resolved);
   const tokens = preset
     ? generateThemeTokens(
@@ -143,73 +202,58 @@ export default function PaletteSection() {
           ))}
         </div>
       </SettingsSection>
-      <SettingsSection title="الثيمات" icon={<Palette className="h-4 w-4" aria-hidden />}>
-        <div className="flex gap-1 border-b border-border pb-3">
-          {CATEGORIES.map((entry, index) => (
-            <Button
-              key={entry.label}
-              activation="click"
-              variant={category === index ? 'tonal' : 'ghost'}
-              aria-pressed={category === index}
-              onClick={() => setCategory(index)}
-              className="min-w-0 flex-1 px-1 text-meta"
-            >
-              {entry.label}
-            </Button>
+      <SettingsSection
+        title="الثيمات"
+        subtitle="أربع عشرة عائلة — كل معاينة مرسومة من رموز العائلة نفسها التي ستحصل عليها"
+        icon={<Palette className="h-4 w-4" aria-hidden />}
+      >
+        <div className="space-y-5">
+          {CATEGORIES.map((group) => (
+            <div key={group.label} className="space-y-2">
+              <h3 className="text-mini font-semibold text-muted-foreground-subtle">
+                {group.label}
+              </h3>
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {themePresets
+                  .filter((entry) => group.ids.includes(entry.id))
+                  .map((entry) => {
+                    const candidate = generateThemeTokens(
+                      entry,
+                      paletteStyle as ThemeStyle,
+                      theme === 'dark',
+                      blackMode,
+                      surfaceLift,
+                    );
+                    const active = resolved === entry.id;
+                    return (
+                      <Button
+                        key={entry.id}
+                        activation="click"
+                        variant="ghost"
+                        onClick={() =>
+                          setColorTheme(entry.id as Parameters<typeof setColorTheme>[0])
+                        }
+                        aria-label={entry.name}
+                        aria-pressed={active}
+                        className={`h-auto min-w-0 flex-col items-stretch gap-2 rounded-card p-1.5 text-start ${
+                          active ? 'ring-2 ring-primary' : ''
+                        }`}
+                      >
+                        <ThemePreview tokens={candidate} corner={themeArtDirection(entry.id).corner} />
+                        <span className="flex items-center justify-between gap-1 pe-1 ps-1 pb-0.5">
+                          <span className="min-w-0 truncate text-mini font-medium text-foreground">
+                            {entry.name}
+                          </span>
+                          {active ? (
+                            <Check className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+                          ) : null}
+                        </span>
+                      </Button>
+                    );
+                  })}
+              </div>
+            </div>
           ))}
-        </div>
-        <div className="grid grid-cols-2 gap-3 pt-4">
-          {themePresets
-            .filter((entry) => CATEGORIES[category]?.ids.includes(entry.id))
-            .map((entry) => {
-              const candidate = generateThemeTokens(
-                entry,
-                paletteStyle as ThemeStyle,
-                theme === 'dark',
-                blackMode,
-                surfaceLift,
-              );
-              const active = resolved === entry.id;
-              return (
-                <Button
-                  key={entry.id}
-                  activation="click"
-                  variant="ghost"
-                  onClick={() => setColorTheme(entry.id as Parameters<typeof setColorTheme>[0])}
-                  aria-label={entry.name}
-                  aria-pressed={active}
-                  className={`h-auto min-w-0 flex-col items-stretch gap-2 rounded-card p-2 text-start ${active ? 'ring-2 ring-primary' : ''}`}
-                >
-                  <span
-                    aria-hidden
-                    className="flex h-16 items-center gap-2 rounded-card p-3"
-                    style={{
-                      backgroundColor: `hsl(${candidate['--background']})`,
-                      borderRadius: `calc(var(--r-lg) * ${themeArtDirection(entry.id).corner})`,
-                    }}
-                  >
-                    <span
-                      className="flex h-10 flex-1 items-center justify-center rounded-button text-meta font-bold"
-                      style={{
-                        backgroundColor: `hsl(${candidate['--card']})`,
-                        color: `hsl(${candidate['--foreground']})`,
-                        boxShadow: candidate['--shadow-1'],
-                      }}
-                    >
-                      أب
-                    </span>
-                    <span
-                      className="h-7 w-7 rounded-button"
-                      style={{ backgroundColor: `hsl(${candidate['--primary']})` }}
-                    />
-                  </span>
-                  <span className="flex items-center justify-between gap-1 whitespace-normal text-meta text-foreground">
-                    {entry.name}
-                    {active && <Check className="h-4 w-4 text-primary" aria-hidden />}
-                  </span>
-                </Button>
-              );
-            })}
         </div>
       </SettingsSection>
       <SettingsSection

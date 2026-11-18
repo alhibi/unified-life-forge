@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -10,6 +9,7 @@ import SEO from '@/components/SEO';
 import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import ChatSignedOutSurface from '@/features/chat/components/ChatSignedOut';
 import DeviceKeyCard from '@/features/chat/components/DeviceKeyCard';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -21,7 +21,7 @@ import {
   AlertTriangle, Bell, BellOff, CheckCircle2,
 ChevronDown, Database, Download,   Eye, EyeOff, FileText, Globe, Image as ImageIcon, Mic,
 Palette, RefreshCcw, RotateCcw,
-  Send, ShieldOff, Smartphone, Trash2,   Type, Upload, Vibrate as VibrateIcon,
+  Send, ShieldCheck, ShieldOff, Smartphone, Trash2,   Type, Upload, Vibrate as VibrateIcon,
 Volume2, } from '@/lib/icons';
 import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -46,7 +46,6 @@ import { getAppleEmojiUrl,isEmojiAvatarValue } from '@/utils/emojiAvatar';
  */
 export default function ChatSettingsPage() {
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
 
   const cs = useChatSettings();
   const { blocked, isLoading: blockedLoading } = useBlockedUsers();
@@ -64,11 +63,42 @@ export default function ChatSettingsPage() {
 
   if (authLoading) return <Skeleton />;
   if (!user) {
+    // Settings belong to an account, so the signed-out state earns the same
+    // page identity and product-surface composition as the rest of the domain.
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center px-6 text-center gap-4">
-        <h1 className="text-title font-bold">{'سجّل الدخول'}</h1>
-        <Button onClick={() => navigate('/auth')}>{'تسجيل الدخول'}</Button>
-      </div>
+      <ChatSignedOutSurface
+        title="إعدادات المحادثات"
+        subtitle="تطبَّق على جميع المحادثات"
+        backFallback="/chat"
+        heroTitle="إعداداتك تُحفظ مع حسابك"
+        heroBody="الخصوصية والإشعارات والتخزين والمظهر تُزامَن عبر أجهزتك، وتعود كما تركتها عند الدخول من جهاز آخر."
+        points={[
+          {
+            icon: <ShieldCheck aria-hidden />,
+            title: 'الخصوصية',
+            body: 'آخر ظهور وإيصالات القراءة، من يمكنه رؤية وصفك، وحظر المستخدمين غير المعروفين.',
+          },
+          {
+            icon: <Bell aria-hidden />,
+            title: 'الإشعارات',
+            body: 'أصوات واهتزاز وإشعارات سطح المكتب، وإخفاء معاينة الرسالة، ووضع هدوء بساعات محددة.',
+          },
+          {
+            icon: <Database aria-hidden />,
+            title: 'التخزين والنسخ الاحتياطي',
+            body: 'سعة الذاكرة المؤقتة، مدة الاحتفاظ بالرسائل، وتصدير محادثاتك وإعداداتك كملف JSON.',
+          },
+          {
+            icon: <Palette aria-hidden />,
+            title: 'المظهر والسلوك',
+            body: 'حجم الخط والكثافة، تجميع الفقاعات، وإرسال بضغطة Enter.',
+          },
+        ]}
+        signInLabel="تسجيل الدخول"
+        guestLabel="استكشف دون حساب"
+        guestTo="/"
+        footnote="بدون حساب لا توجد إعدادات دردشة لحفظها؛ يبقى ما تخصّصه في بقية التطبيق محفوظاً على هذا الجهاز."
+      />
     );
   }
 

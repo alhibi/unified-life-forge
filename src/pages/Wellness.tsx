@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { StateView } from '@/components/ui/state-view';
 import { useApp } from '@/contexts/AppContext';
 import { useWellnessData } from '@/features/wellness/useWellnessData';
 import { exportAll } from '@/features/wellness/wellnessDb';
@@ -276,8 +277,53 @@ export default function WellnessPage() {
 
   return (
     <AuthGuard
-      fallbackTitleAr="قسم الصحة والعافية"
-      fallbackDescAr="يرجى تسجيل الدخول للوصول إلى برامج التمرين والتحليلات الصحية ومزامنتها سحابياً."
+      fallback={(signIn) => (
+        // Canonical gated composition (A/B contract): the route keeps its own
+        // identity instead of collapsing into a lone centred card, explains
+        // what lives behind the gate, and offers one quiet sign-in step.
+        <PageShell width="workspace" className="pt-6">
+          <SEO
+            title={'العافية — تسجيل الدخول مطلوب'}
+            description={'قسم الصحة والعافية: تمارين، كاليستنيكس، تغذية، أطلس وموسوعة — يتطلب حساباً لمزامنة بياناتك.'}
+            path="/wellness"
+          />
+          <PageHeader title={T.title[language]} hideBack />
+          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+            <AppCard className="p-2 sm:p-3">
+              <StateView
+                kind="auth"
+                title="هذا القسم يعمل على حسابك"
+                body="برامج التمرين، الكاليستنيكس، سجل الطعام والتحليلات تُزامن سحابياً حتى تجدها على كل أجهزتك."
+                action={{ label: 'تسجيل الدخول', onClick: signIn }}
+                secondary="بيانات العافية محمية بصلاحيات صارمة — لا يراها أحد غيرك."
+                className="border-0 bg-transparent"
+              />
+            </AppCard>
+            <AppCard className="p-5">
+              <h2 className="text-title font-semibold text-foreground">ماذا ستجد داخل القسم؟</h2>
+              <ul className="mt-4 space-y-4">
+                {[
+                  { icon: Dumbbell, title: 'برامج التمارين', body: 'جداول أسبوعية، مؤقتات استراحة وتسجيل أرقامك القياسية.' },
+                  { icon: Apple, title: 'التغذية وسجل الطعام', body: 'ماكروز، ماء، صيام، وأطلس غذائي لآلاف الأطعمة.' },
+                  { icon: Brain, title: 'التحليلات والمعرفة', body: 'مؤشرات تقدمك، إرشادات المكملات، وموسوعة صحية.' },
+                ].map(({ icon: Icon, title, body }) => (
+                  <li key={title} className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-4 w-4" aria-hidden />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-meta font-semibold text-foreground">{title}</span>
+                      <span className="mt-0.5 block text-mini leading-relaxed text-muted-foreground">
+                        {body}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </AppCard>
+          </div>
+        </PageShell>
+      )}
     >
       <PageShell width="workspace" className="pt-6">
         <SEO

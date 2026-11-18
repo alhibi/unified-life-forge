@@ -27,7 +27,6 @@ interface CelestialRealmsLayoutProps {
 interface RealmDefinition {
   key: string;
   title: string;
-  subtitle: string;
   description: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   tone: 1 | 2 | 4 | 6;
@@ -37,7 +36,6 @@ const REALMS: RealmDefinition[] = [
   {
     key: 'spirit',
     title: 'محراب الروح',
-    subtitle: 'Realm of Spirit',
     description: 'للقرآن والسنة وأذكار اليوم والسكينة',
     icon: BookOpen,
     tone: 1,
@@ -45,7 +43,6 @@ const REALMS: RealmDefinition[] = [
   {
     key: 'mind',
     title: 'ديوان الفكر',
-    subtitle: 'Realm of Mind',
     description: 'لتدبر المعرفة والذاكرة الرقمية والرحلات والأدب',
     icon: Brain,
     tone: 4,
@@ -53,7 +50,6 @@ const REALMS: RealmDefinition[] = [
   {
     key: 'body',
     title: 'ميدان الجسد',
-    subtitle: 'Realm of Body',
     description: 'للعافية وتتبع اللياقة وجداول التمارين ويومياتك',
     icon: Dumbbell,
     tone: 2,
@@ -61,7 +57,6 @@ const REALMS: RealmDefinition[] = [
   {
     key: 'play',
     title: 'فسحة الروح',
-    subtitle: 'Realm of Play',
     description: 'ألعاب شطرنج وسودوكو وتحديات بصرية ممتعة',
     icon: Gamepad2,
     tone: 6,
@@ -147,24 +142,22 @@ export default function CelestialRealmsLayout({
 
         return (
           <section key={realm.key} className="space-y-4" data-tile-tone={realm.tone}>
-            {/* Section header: title, latin subtitle, one line of purpose and
-                the live count. Hierarchy comes from size, weight and spacing —
-                the four realms used to be told apart by four hardcoded Tailwind
-                hues, which is exactly what the accent budget forbids. */}
-            <div className="flex items-baseline gap-3 pb-1">
-              <span className="flex size-11 shrink-0 items-center justify-center self-center rounded-2xl bg-tile-container text-tile-container-foreground">
-                <Icon className="size-5" aria-hidden />
+            {/* Section header: a quiet realm label, one line of purpose and the
+                count. The realm is a *grouping*, not a title competing with the
+                page: its label sits one step below the launcher headline so the
+                app faces below stay the primary content. The English realm
+                subtitle is gone — Arabic is the only interface language (D3). */}
+            <div className="flex items-center gap-2.5 pb-1">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-tile-container text-tile-container-foreground">
+                <Icon className="size-4" aria-hidden />
               </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2">
-                  <h3 className="type-section text-foreground">{realm.title}</h3>
-                  <span className="type-meta hidden uppercase tracking-[0.16em] text-muted-foreground-subtle @[26rem]:inline">
-                    {realm.subtitle}
-                  </span>
-                </div>
-                <p className="type-meta mt-1 text-muted-foreground">{realm.description}</p>
+              <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2">
+                <h3 className="text-meta font-semibold text-foreground">{realm.title}</h3>
+                <p className="min-w-0 truncate text-mini text-muted-foreground">
+                  {realm.description}
+                </p>
               </div>
-              <span className="type-meta flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary font-semibold tabular-nums text-secondary-foreground">
+              <span className="shrink-0 text-mini tabular-nums text-muted-foreground">
                 {appsInRealm.length}
               </span>
             </div>

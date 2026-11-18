@@ -1,0 +1,66 @@
+{
+ "capturedAt": "2026-11-18T18:11:54.753Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/fitness",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/e-data/390x844/expressive-dark/fitness.png",
+    "/Users/amer/ulf-design/verification/design/after/e-data/390x844/expressive-dark/fitness--full.png"
+   ],
+   "status": 200,
+   "h1": "اللياقة النخبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/fitness",
+   "viewport": "768x1024",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/e-data/768x1024/expressive-dark/fitness.png",
+    "/Users/amer/ulf-design/verification/design/after/e-data/768x1024/expressive-dark/fitness--full.png"
+   ],
+   "status": 200,
+   "h1": "اللياقة النخبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/fitness",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/e-data/1440x900/expressive-dark/fitness.png",
+    "/Users/amer/ulf-design/verification/design/after/e-data/1440x900/expressive-dark/fitness--full.png"
+   ],
+   "status": 200,
+   "h1": "اللياقة النخبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

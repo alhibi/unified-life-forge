@@ -1,0 +1,94 @@
+{
+ "capturedAt": "2026-11-18T18:10:31.106Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/games/sudoku",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/390x844/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/390x844/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess/puzzles",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/390x844/expressive-dark/games_chess_puzzles.png",
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/390x844/expressive-dark/games_chess_puzzles--full.png"
+   ],
+   "status": 200,
+   "h1": "ألغاز الشطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/sudoku",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/1440x900/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/1440x900/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess/puzzles",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/1440x900/expressive-dark/games_chess_puzzles.png",
+    "/Users/amer/ulf-design/verification/design/after/g-spatial/1440x900/expressive-dark/games_chess_puzzles--full.png"
+   ],
+   "status": 200,
+   "h1": "ألغاز الشطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  }
+ ]
+}

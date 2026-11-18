@@ -1,0 +1,576 @@
+{
+ "/auth": {
+  "path": "/auth",
+  "h1s": [
+   {
+    "text": "تسجيل الدخول",
+    "rect": {
+     "x": 40,
+     "y": 178,
+     "w": 300,
+     "h": 33,
+     "bottom": 211
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": {
+   "text": "دخول",
+   "rect": {
+    "x": 40,
+    "y": 486,
+    "w": 300,
+    "h": 52,
+    "bottom": 538
+   },
+   "disabled": true,
+   "visibleBottom": true
+  },
+  "inputs": [
+   {
+    "type": "text",
+    "label": "أدخل اسم المستخدم",
+    "rect": {
+     "x": 40,
+     "y": 296,
+     "w": 300,
+     "h": 46,
+     "bottom": 342
+    }
+   },
+   {
+    "type": "password",
+    "label": "••••••••",
+    "rect": {
+     "x": 40,
+     "y": 420,
+     "w": 300,
+     "h": 46,
+     "bottom": 466
+    }
+   }
+  ],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  }
+ },
+ "/profile": {
+  "path": "/profile",
+  "h1s": [
+   {
+    "text": "الملف الشخصي",
+    "rect": {
+     "x": 68,
+     "y": 8,
+     "w": 240,
+     "h": 28,
+     "bottom": 36
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": {
+   "text": "تسجيل الدخول",
+   "rect": {
+    "x": 112,
+    "y": 348,
+    "w": 156,
+    "h": 48,
+    "bottom": 396
+   },
+   "disabled": false,
+   "visibleBottom": true
+  },
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [
+   {
+    "role": "status",
+    "title": "سجّل الدخول إلى ملفك الشخصي",
+    "body": "صورة الملف والنبذة والروابط وسجل النشاط تُحفظ في حسابك. سجّل الدخول لترى ملفك أو"
+   }
+  ],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  }
+ },
+ "/journal": {
+  "path": "/journal",
+  "h1s": [
+   {
+    "text": "مذكرتي",
+    "rect": {
+     "x": 276,
+     "y": 80,
+     "w": 87,
+     "h": 43,
+     "bottom": 123
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": {
+   "text": "تسجيل الدخول",
+   "rect": {
+    "x": 112,
+    "y": 428,
+    "w": 156,
+    "h": 48,
+    "bottom": 476
+   },
+   "disabled": false,
+   "visibleBottom": true
+  },
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [
+   {
+    "role": "status",
+    "title": "سجّل الدخول إلى مذكرتك",
+    "body": "مذكرتك خاصة بحسابك وتُحفظ فيه لتصل إليها من أي جهاز. سجّل الدخول لتبدأ الكتابة."
+   }
+  ],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  }
+ },
+ "/settings/theme": {
+  "path": "/settings/appearance",
+  "h1s": [
+   {
+    "text": "المظهر",
+    "rect": {
+     "x": 68,
+     "y": 8,
+     "w": 192,
+     "h": 28,
+     "bottom": 36
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  }
+ },
+ "/settings/font": {
+  "path": "/settings/appearance",
+  "h1s": [
+   {
+    "text": "المظهر",
+    "rect": {
+     "x": 68,
+     "y": 8,
+     "w": 192,
+     "h": 28,
+     "bottom": 36
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  }
+ },
+ "/games/memory": {
+  "path": "/games/memory",
+  "h1s": [
+   {
+    "text": "أزواج الذاكرة",
+    "rect": {
+     "x": 72,
+     "y": 18,
+     "w": 210,
+     "h": 28,
+     "bottom": 46
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  }
+ },
+ "/games/sudoku": {
+  "path": "/games/sudoku",
+  "h1s": [
+   {
+    "text": "سودوكو",
+    "rect": {
+     "x": 72,
+     "y": 18,
+     "w": 210,
+     "h": 28,
+     "bottom": 46
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "cells": {
+   "count": 81,
+   "min": 42
+  }
+ },
+ "/german-club/grammar": {
+  "path": "/german-club/grammar",
+  "h1s": [
+   {
+    "text": "زاوية القواعد",
+    "rect": {
+     "x": 16,
+     "y": 8,
+     "w": 292,
+     "h": 28,
+     "bottom": 36
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "h1Wrap": {
+   "scrollWidth": 292,
+   "clientWidth": 292,
+   "height": 28,
+   "width": 292,
+   "lineClamp": "2"
+  }
+ },
+ "/podcasts/1": {
+  "path": "/podcasts/1",
+  "h1s": [
+   {
+    "text": "بودكاست",
+    "rect": {
+     "x": 163,
+     "y": 18,
+     "w": 145,
+     "h": 28,
+     "bottom": 46
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [
+   {
+    "role": "alert",
+    "title": "تعذّر تحميل البودكاست",
+    "body": "قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفح"
+   }
+  ],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "h1Detail": [
+   {
+    "text": "بودكاست",
+    "html": "<h1 class=\"line-clamp-2 text-balance text-title font-semibold text-foreground [overflow-wrap:break-word]\">بودكاست</h1>"
+   }
+  ]
+ },
+ "/travel-atlas/place/1": {
+  "path": "/travel-atlas/place/1",
+  "h1s": [
+   {
+    "text": "مكان في أطلس الرحلات",
+    "rect": {
+     "x": 363,
+     "y": -1,
+     "w": 1,
+     "h": 1,
+     "bottom": 0
+    },
+    "visible": false
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": null,
+  "inputs": [],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 390,
+   "h": 844
+  },
+  "place": {
+   "headingTexts": [
+    "H1:مكان في أطلس الرحلات"
+   ],
+   "pageHeader": false,
+   "titleEl": [
+    "h1"
+   ]
+  }
+ },
+ "/auth@1440": {
+  "path": "/auth",
+  "h1s": [
+   {
+    "text": "تسجيل الدخول",
+    "rect": {
+     "x": 195,
+     "y": 203,
+     "w": 352,
+     "h": 33,
+     "bottom": 237
+    },
+    "visible": true
+   }
+  ],
+  "h1Count": 1,
+  "keyboardOpen": false,
+  "kbHeight": "",
+  "submit": {
+   "text": "دخول",
+   "rect": {
+    "x": 195,
+    "y": 516,
+    "w": 352,
+    "h": 52,
+    "bottom": 568
+   },
+   "disabled": true,
+   "visibleBottom": true
+  },
+  "inputs": [
+   {
+    "type": "text",
+    "label": "أدخل اسم المستخدم",
+    "rect": {
+     "x": 195,
+     "y": 322,
+     "w": 352,
+     "h": 48,
+     "bottom": 370
+    }
+   },
+   {
+    "type": "password",
+    "label": "••••••••",
+    "rect": {
+     "x": 195,
+     "y": 448,
+     "w": 352,
+     "h": 48,
+     "bottom": 496
+    }
+   }
+  ],
+  "bodyOverflow": "visible",
+  "dock": false,
+  "dockAttr": "hidden",
+  "dialog": false,
+  "states": [],
+  "viewport": {
+   "w": 1440,
+   "h": 900
+  }
+ },
+ "dock": {
+  "/journal": {
+   "first": {
+    "dock": false,
+    "attr": "hidden",
+    "scrollY": 0
+   },
+   "scrolled": {
+    "dock": true,
+    "attr": "visible",
+    "rect": {
+     "x": 319,
+     "y": 784,
+     "w": 44,
+     "h": 44
+    }
+   }
+  },
+  "/games/memory": {
+   "first": {
+    "dock": false,
+    "attr": "hidden",
+    "scrollY": 0
+   },
+   "scrolled": {
+    "dock": false,
+    "attr": "hidden",
+    "rect": null
+   }
+  },
+  "/chat": {
+   "first": {
+    "dock": false,
+    "attr": "hidden",
+    "scrollY": 0
+   },
+   "scrolled": {
+    "dock": false,
+    "attr": "hidden",
+    "rect": null
+   }
+  },
+  "/travel-atlas": {
+   "first": {
+    "dock": false,
+    "attr": "hidden",
+    "scrollY": 0
+   },
+   "scrolled": {
+    "dock": false,
+    "attr": "hidden",
+    "rect": null
+   }
+  },
+  "/settings/appearance": {
+   "first": {
+    "dock": false,
+    "attr": "hidden",
+    "scrollY": 0
+   },
+   "scrolled": {
+    "dock": true,
+    "attr": "visible",
+    "rect": {
+     "x": 319,
+     "y": 784,
+     "w": 44,
+     "h": 44
+    }
+   }
+  }
+ },
+ "keyboardToggle": {
+  "before": {
+   "kbOpen": false,
+   "dock": false,
+   "attr": "hidden"
+  },
+  "opened": {
+   "error": "TimeoutError: locator.click: Timeout 4000ms exceeded.\nCall log:\n  - waiting for locator('button[aria-label=\"لوحة المفاتيح الذكية\"]').first()\n"
+  },
+  "closed": null
+ },
+ "dialogFocusReturn": {
+  "tripDialog": {
+   "open": {
+    "dialog": true,
+    "activeInDialog": true,
+    "bodyOverflow": "hidden"
+   },
+   "closed": {
+    "dialog": false,
+    "active": "BODY",
+    "bodyOverflow": "visible"
+   }
+  },
+  "galleryTriggers": [
+   "افتح حواراً"
+  ],
+  "gallery": {
+   "open": {
+    "dialog": true,
+    "active": "BUTTON"
+   },
+   "closed": {
+    "dialog": false,
+    "active": "BUTTON \"افتح حواراً\""
+   }
+  }
+ }
+}

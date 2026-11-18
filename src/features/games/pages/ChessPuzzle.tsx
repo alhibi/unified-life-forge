@@ -380,7 +380,6 @@ export default function ChessPuzzlePage() {
     'الألغاز تتنوع: مات سريع، شوكات، تضحيات، تثبيت...',
   ];
 
-  const totalSolved = Object.values(stats.themesSolved).reduce((a, b) => a + b, 0);
   const statsArr = [
     { label: 'تقييم', value: stats.rating },
     { label: 'محلولة', value: stats.solved },
@@ -440,9 +439,11 @@ export default function ChessPuzzlePage() {
       </div>
 
       {/* Board */}
-      <div className="max-w-[340px] mx-auto px-2 relative">
+      {/* Board bled to the phone width: at 390 the 8×8 grid then clears the
+          44px target floor on its own (390/8 ≈ 48px per square). */}
+      <div className="relative -mx-[var(--ui-gutter)] mb-4 sm:mx-auto sm:max-w-[420px]">
         <div className="rounded-lg overflow-hidden">
-          <div className="grid grid-cols-8">
+          <div className="grid grid-cols-8 gap-px">
             {rows.map(ri => cols.map(ci => {
               const isDark = (ri + ci) % 2 === 1;
               const cell = board[ri][ci];
@@ -459,6 +460,7 @@ export default function ChessPuzzlePage() {
               return (
                 <button
                   aria-label={`${String.fromCharCode(97 + ci)}${8 - ri}، ${cell ? PIECE_GLYPH[cell.color][cell.type] : "فارغ"}`}
+                  data-touch-exempt="board-cell"
                   key={`${ri}-${ci}`}
                   onClick={() => handleClick(ri, ci)}
                   className="aspect-square relative flex items-center justify-center transition-colors"
@@ -548,7 +550,7 @@ export default function ChessPuzzlePage() {
           <span className="text-micro font-bold">{'الحل'}</span>
         </button>
         <button onClick={nextPuzzle}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-data-6 text-white">
+          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-primary text-primary-foreground">
           <ArrowRight className="w-4 h-4" />
           <span className="text-micro font-bold">{'التالي'}</span>
         </button>

@@ -1,0 +1,293 @@
+[
+ {
+  "check": "login sheet 390x844: no auto keyboard + fields/CTA visible",
+  "pass": true,
+  "detail": {
+   "keyboardOpen": false,
+   "h1": [
+    "تسجيل الدخول"
+   ],
+   "user": {
+    "y": 296,
+    "bottom": 342,
+    "w": 300,
+    "h": 46
+   },
+   "pass": {
+    "y": 420,
+    "bottom": 466,
+    "w": 300,
+    "h": 46
+   },
+   "submit": {
+    "y": 486,
+    "bottom": 538,
+    "w": 300,
+    "h": 52
+   },
+   "submitVisible": true,
+   "vh": 844
+  },
+  "shots": [
+   "verification/design/qa/final/shots/login-390.png"
+  ]
+ },
+ {
+  "check": "login 390: CTA enables after filling credentials",
+  "pass": true,
+  "detail": {
+   "enabled": true
+  },
+  "shots": []
+ },
+ {
+  "check": "login sheet 1440x900: no auto keyboard + fields/CTA visible",
+  "pass": true,
+  "detail": {
+   "keyboardOpen": false,
+   "h1": [
+    "تسجيل الدخول"
+   ],
+   "user": {
+    "y": 322,
+    "bottom": 370,
+    "w": 352,
+    "h": 48
+   },
+   "pass": {
+    "y": 448,
+    "bottom": 496,
+    "w": 352,
+    "h": 48
+   },
+   "submit": {
+    "y": 516,
+    "bottom": 568,
+    "w": 352,
+    "h": 52
+   },
+   "submitVisible": true,
+   "vh": 900
+  },
+  "shots": [
+   "verification/design/qa/final/shots/login-1440.png"
+  ]
+ },
+ {
+  "check": "login 1440: CTA enables after filling credentials",
+  "pass": true,
+  "detail": {
+   "enabled": true
+  },
+  "shots": []
+ },
+ {
+  "check": "journal gate: h1 + auth state + CTA, no keyboard",
+  "pass": true,
+  "detail": {
+   "h1": [
+    "مذكرتي"
+   ],
+   "stateTitles": [
+    "سجّل الدخول إلى مذكرتك"
+   ],
+   "loginCta": true,
+   "keyboardOpen": false,
+   "overflow": -11
+  },
+  "shots": [
+   "verification/design/qa/final/shots/journal-gate-390.png"
+  ]
+ },
+ {
+  "check": "portal first viewport 360x800: identity + today content, no overflow",
+  "pass": true,
+  "detail": {
+   "h1": "amv.life — بوابتك الشخصية",
+   "weatherZeroTiles": [],
+   "weatherPrompt": true,
+   "h1Visible": true,
+   "overflow": -11,
+   "hasPrayer": true,
+   "hasDate": true,
+   "firstScreenText": "amv.life amv.life — بوابتك الشخصية الأربعاء · 18 نوفمبر · 9 جمادى الآخرة 1448 طاب مساؤك فَابْسُطْ يَدَيْكَ إِلَى الرَّحْمَنِ تَبْتَهِلُ الصلاة موقعك افتراضي العشاء 7:08 م الصلاة القادمة الفجر 5:14 ص الفجر الظهر العصر الم",
+   "scrollHeight": 4392
+  },
+  "shots": [
+   "verification/design/qa/final/shots/portal-360.png"
+  ]
+ },
+ {
+  "check": "portal 360: no-location weather shows prompt, no 0°/0%/0 hPa/0 m/s tiles",
+  "pass": true,
+  "detail": {
+   "weatherZeroTiles": [],
+   "weatherPrompt": true
+  },
+  "shots": [
+   "verification/design/qa/final/shots/portal-360.png"
+  ]
+ },
+ {
+  "check": "portal first viewport 390x844: identity + today content, no overflow",
+  "pass": true,
+  "detail": {
+   "h1": "amv.life — بوابتك الشخصية",
+   "weatherZeroTiles": [],
+   "weatherPrompt": true,
+   "h1Visible": true,
+   "overflow": -11,
+   "hasPrayer": true,
+   "hasDate": true,
+   "firstScreenText": "amv.life amv.life — بوابتك الشخصية الأربعاء · 18 نوفمبر · 9 جمادى الآخرة 1448 طاب مساؤك فَابْسُطْ يَدَيْكَ إِلَى الرَّحْمَنِ تَبْتَهِلُ الصلاة موقعك افتراضي العشاء 7:08 م الصلاة القادمة الفجر 5:14 ص الفجر الظهر العصر الم",
+   "scrollHeight": 4351
+  },
+  "shots": [
+   "verification/design/qa/final/shots/portal-390.png"
+  ]
+ },
+ {
+  "check": "portal 390: no-location weather shows prompt, no 0°/0%/0 hPa/0 m/s tiles",
+  "pass": true,
+  "detail": {
+   "weatherZeroTiles": [],
+   "weatherPrompt": true
+  },
+  "shots": [
+   "verification/design/qa/final/shots/portal-390.png"
+  ]
+ },
+ {
+  "check": "crypto-empty 390: real state copy, no raw error, no overflow",
+  "pass": true,
+  "detail": {
+   "text": "مراقب العملات قائمة العملات تحديث حي تلقائي · DEX Screener تعذّر جلب الأسعار خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة. إعادة المحاولة تتحدّث الأسعار تلقائياً كل 30 ثانية عند عودة الخدمة. ماذا تعرض القائمة؟ كل ما تحتاجه لمتابعة أداء العملات التي تهمّك، في مكان واحد. السعر اللحظي سعر الزوج واتجاهه خلال 24 ساعة، يُحدَّث تلقائياً كل 30 ثانية. حركة مفهومة تغيّر السعر مع حجم التداول، ليتميّز الاتجاه الحقيقي من الوميض العابر. التفاصيل عند الطلب افتح أي عملة لترى السيولة والرسم السعري الكامل في لوحة التفاصيل.",
+   "states": [
+    {
+     "role": "alert",
+     "title": "تعذّر جلب الأسعار",
+     "body": "خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة."
+    }
+   ],
+   "rawError": false,
+   "overflow": -11
+  },
+  "shots": [
+   "verification/design/qa/final/shots/crypto-empty-390.png"
+  ]
+ },
+ {
+  "check": "weather-empty 390: real state copy, no raw error, no overflow",
+  "pass": true,
+  "detail": {
+   "text": "الطقس لوحة الأرصاد الجوية اختر موقعاً للبدء أين تريد قراءة الطقس؟ اسمح بالوصول إلى موقعك أو ابحث عن مدينتك، وسنعرض الحالة الآن، توقع الساعات القادمة، جودة الهواء والرياح — كلها في لوحة واحدة. استخدم موقعي الحالي لن نطلب موقعك إلا الآن. يمكنك دائماً البحث عن مدينة بدلاً من ذلك. أو ابحث عن مدينة ماذا تجد هنا؟ قياسات محلية دقيقة، لا أرقام عامة: الحالة الآن درجة الحرارة، الإحساس الفعلي، المدى اليومي وحالة السماء. الساعات القادمة توقع حراري وهطول للساعات المقبلة، مع توقيت الشروق والغروب. جودة الهواء والرياح مؤشر تلوث الهواء، سرعة الرياح واتجاهها، وثقة الإجماع في الأرقام.",
+   "states": [],
+   "rawError": false,
+   "overflow": -11
+  },
+  "shots": [
+   "verification/design/qa/final/shots/weather-empty-390.png"
+  ]
+ },
+ {
+  "check": "travel-atlas-fallback 390: real state copy, no raw error, no overflow",
+  "pass": true,
+  "detail": {
+   "text": "أطلس الرحلات دليلك السياحي الشخصي الخريطة الأماكن الاستكشاف الذكي سجلّي خريطة تفصيلية خريطة البلدان الخريطة في وضع مبسّط بلاطات الخريطة المباشرة لم تصل. نعرض أطلسك من الذاكرة: كل نقطة دولة، وكل دولة تفتح تفاصيلها. انقر على دولة لتفتحها زرتها عشت فيها في القائمة لم تُسجّل لم تُسجّل دولة بعد — أضف مكانًا واحدًا ليظهر على الخريطة. أضف مكانًا الخريطة المباشرة تعود تلقائيًا عند عودة الاتصال.",
+   "states": [],
+   "rawError": false,
+   "overflow": -11
+  },
+  "shots": [
+   "verification/design/qa/final/shots/travel-atlas-fallback-390.png"
+  ]
+ },
+ {
+  "check": "chess 360x640: h1 + primary action visible and >=44px, no overflow",
+  "pass": false,
+  "detail": {
+   "h1": [
+    "شطرنج"
+   ],
+   "overflow": -11,
+   "primary": {
+    "text": "لعبة جديدة",
+    "rect": {
+     "x": 30,
+     "y": 676,
+     "w": 288,
+     "h": 44,
+     "bottom": 720
+    },
+    "disabled": false
+   },
+   "buttonCount": 10,
+   "smallButtons": 0
+  },
+  "shots": [
+   "verification/design/qa/final/shots/chess-360.png"
+  ]
+ },
+ {
+  "check": "dialog-trip-focus-return: focus trap + scroll lock + focus return + unlock",
+  "pass": true,
+  "detail": {
+   "open": {
+    "dialog": true,
+    "activeInDialog": true,
+    "locked": true
+   },
+   "closed": {
+    "dialog": false,
+    "activeText": "رحلة جديدة",
+    "activeTag": "BUTTON",
+    "unlocked": true
+   }
+  },
+  "shots": [
+   "verification/design/qa/final/shots/dialog-trip-focus-return.png"
+  ]
+ },
+ {
+  "check": "dialog-gallery-focus-return: focus trap + scroll lock + focus return + unlock",
+  "pass": true,
+  "detail": {
+   "open": {
+    "dialog": true,
+    "activeInDialog": true,
+    "locked": true
+   },
+   "closed": {
+    "dialog": false,
+    "activeText": "افتح حواراً",
+    "activeTag": "BUTTON",
+    "unlocked": true
+   }
+  },
+  "shots": [
+   "verification/design/qa/final/shots/dialog-gallery-focus-return.png"
+  ]
+ },
+ {
+  "check": "keyboard toggle opens then fully closes (state/height/panel/label agree)",
+  "pass": true,
+  "detail": {
+   "open": {
+    "attr": "true",
+    "height": "424px",
+    "panelVisible": true
+   },
+   "closed": {
+    "attr": null,
+    "height": "0px",
+    "panelVisible": false,
+    "label": [
+     "فتح لوحة المفاتيح للتجربة"
+    ]
+   }
+  },
+  "shots": [
+   "verification/design/qa/final/shots/keyboard-close.png"
+  ]
+ }
+]

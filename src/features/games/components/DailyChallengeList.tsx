@@ -118,8 +118,8 @@ function DailyChallengeListImpl({ challenges }: Props) {
                     {definition.title}
                   </span>
                   <span
-                    className="shrink-0 rounded-sm px-1.5 py-px text-micro font-medium"
-                    style={{ background: identity.tint, color: identity.accent }}
+                    className="shrink-0 rounded-sm px-1.5 py-px text-micro font-medium text-foreground"
+                    style={{ background: identity.tint }}
                   >
                     {CHALLENGE_KIND_LABEL[definition.kind]}
                   </span>

@@ -27,7 +27,7 @@ const buttonVariants = cva(
       },
       size: {
         default: 'h-[var(--ui-button-h)] px-4 text-body [&_svg]:size-5',
-        xs: 'h-[var(--ui-button-xs-h)] rounded-[var(--r-sm)] px-3 text-mini [&_svg]:size-4',
+        xs: 'h-[var(--ui-button-xs-h)] rounded-sm px-3 text-mini [&_svg]:size-4',
         sm: 'h-[var(--ui-button-sm-h)] px-3 text-meta [&_svg]:size-4',
         lg: 'h-[var(--ui-button-lg-h)] px-6 text-lead [&_svg]:size-5',
         icon: 'h-[var(--ui-button-h)] w-[var(--ui-button-h)] rounded-full p-0 [&_svg]:size-5',

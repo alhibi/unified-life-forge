@@ -98,13 +98,20 @@ import { pageItem as fadeItem, pageStagger as stagger } from '@/lib/motion';
 export default function PropheticDay() {
 
   return (
-    <PageShell flush centered={false} className="px-4 pt-2">
+    <PageShell
+      header={
+        <PageHeader
+          variant="display"
+          title={'نظرة على يوم النبي ﷺ'}
+          subtitle="ثماني فترات من الفجر إلى الفجر، وما ورد في كل فترة"
+          backFallback="/sunnah"
+        />
+      }
+    >
       <SEO title="اليوم النبوي — هدي النبي ﷺ — SmartHub" description="يوم النبي ﷺ مقسماً إلى ثماني فترات مع السنن والأذكار المتعلقة بكل فترة." path="/section/prophetic-day" />
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        <PageHeader sticky title={'نظرة على يوم النبي ﷺ'} />
 
         {/* Sections */}
-        <motion.div variants={stagger} initial="hidden" animate="show" className="pt-2 pb-4 space-y-6">
+        <motion.div variants={stagger} initial="hidden" animate="show" className="pb-4 space-y-6">
           {sections.map((section, idx) => {
             const Icon = section.icon;
             return (
@@ -114,8 +121,8 @@ export default function PropheticDay() {
                   <IconChip aria-hidden>
                     <Icon className={`h-5 w-5 ${section.iconColor}`} />
                   </IconChip>
-                  <div className="flex flex-col">
-                    <h2 className="text-meta font-bold text-foreground">{section.titleAr}</h2>
+                  <div className="flex min-w-0 flex-col">
+                    <h2 className="type-section text-foreground">{section.titleAr}</h2>
                     <span className="text-micro text-muted-foreground mt-0.5 tabular-nums" dir="ltr">{section.timeRange}</span>
                   </div>
                 </div>
@@ -123,9 +130,9 @@ export default function PropheticDay() {
                 {/* Items — one grouped list per period, bullet on start */}
                 <AppList>
                   {section.items.map((item, i) => (
-                    <div key={i} className="app-row">
-                      <span className="w-2 h-2 rounded-full shrink-0 bg-primary" aria-hidden />
-                      <p className="flex-1 text-mini leading-relaxed text-foreground font-medium">
+                    <div key={i} className="app-row items-start">
+                      <span className="mt-2 w-1.5 h-1.5 rounded-full shrink-0 bg-primary" aria-hidden />
+                      <p className="flex-1 text-body leading-relaxed text-foreground">
                         {item.ar}
                       </p>
                     </div>
@@ -135,7 +142,6 @@ export default function PropheticDay() {
             );
           })}
         </motion.div>
-      </div>
     </PageShell>
   );
 }

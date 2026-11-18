@@ -1,0 +1,146 @@
+{
+ "capturedAt": "2026-11-18T18:09:04.389Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/chat",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/390x844/expressive-dark/chat.png"
+   ],
+   "status": 200,
+   "h1": "الدردشة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/groups",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/390x844/expressive-dark/chat_groups.png"
+   ],
+   "status": 200,
+   "h1": "المجموعات والقنوات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/settings",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/390x844/expressive-dark/chat_settings.png"
+   ],
+   "status": 200,
+   "h1": "إعدادات المحادثات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/390x844/expressive-dark/chat_g_00000000-0000-0000-0000-000000000000.png"
+   ],
+   "status": 200,
+   "h1": "المحادثة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/chat",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/1440x900/expressive-dark/chat.png"
+   ],
+   "status": 200,
+   "h1": "الدردشة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/groups",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/1440x900/expressive-dark/chat_groups.png"
+   ],
+   "status": 200,
+   "h1": "المجموعات والقنوات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/settings",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/1440x900/expressive-dark/chat_settings.png"
+   ],
+   "status": 200,
+   "h1": "إعدادات المحادثات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/f-comms/1440x900/expressive-dark/chat_g_00000000-0000-0000-0000-000000000000.png"
+   ],
+   "status": 200,
+   "h1": "المحادثة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  }
+ ]
+}

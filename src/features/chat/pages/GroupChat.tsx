@@ -4,10 +4,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
+import { AppCard, PageShell } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
-import { useApp } from '@/contexts/AppContext';
 import { useAppleEmojiReady } from '@/features/chat/components/appleEmoji';
+import ChatSignedOutSurface from '@/features/chat/components/ChatSignedOut';
 import { formatDateSeparator } from '@/features/chat/components/chatUtils';
 import { QUICK_EMOJIS } from '@/features/chat/components/constants';
 import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
@@ -25,8 +27,8 @@ isAdmin as roleIsAdmin,
   useChats, useChatScroll, useChatSettings,
 useComposer, useDraft,   useTypingIndicator, } from '@/lib/chat';
 import {
-  ArrowLeft, ArrowRight, Copy as CopyIcon, EyeOff, Info,   Loader2, MessageCircle,
-Pencil, Reply, Smile,
+  ArrowLeft, ArrowRight, Bell, Copy as CopyIcon, EyeOff, Info,   Loader2, MessageCircle,
+Pencil, Reply, ShieldCheck, Smile,
 Trash2, Users, } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -53,7 +55,6 @@ import { cn } from '@/lib/utils';
 export default function GroupChatPage() {
   const params = useParams<{ chatId: string }>();
   const chatId = params.chatId ?? null;
-  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat/groups');
@@ -100,6 +101,22 @@ export default function GroupChatPage() {
   // Other sheets
   const [showInfo, setShowInfo] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
+
+  // Browser connectivity, so an offline composer says "offline" instead of
+  // letting a send look like a server failure.
+  const [online, setOnline] = useState(() =>
+    typeof navigator === 'undefined' ? true : navigator.onLine,
+  );
+  useEffect(() => {
+    const goOnline = () => setOnline(true);
+    const goOffline = () => setOnline(false);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => {
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, []);
 
   // Mark read on enter + when new messages arrive while at the bottom
   useEffect(() => {
@@ -168,33 +185,59 @@ export default function GroupChatPage() {
   }
   if (!user) {
     return (
-      <div className="flex min-h-dvh flex-col bg-background">
-        <h1 className="sr-only">المحادثة</h1>
-        <StateView
-        bare
-        kind="empty"
-        className="min-h-dvh"
-        title={'سجّل الدخول للوصول'}
-        body={'المحادثة الجماعية تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة.'}
-        action={{ label: t('auth.signIn'), onClick: () => navigate('/auth') }}
+      <>
+        <SEO
+          title={'المحادثة — SmartHub'}
+          description={'محادثة جماعية في SmartHub.'}
+          path={'/chat/g/' + (chatId ?? '')}
         />
-      </div>
+        <ChatSignedOutSurface
+          title="المحادثة"
+          subtitle="مساحة خاصة بأعضاء هذه المحادثة"
+          backFallback="/chat"
+          heroTitle="هذه المحادثة خاصة بأعضائها"
+          heroBody="إن كنت عضواً في هذه المجموعة أو القناة، سجّل الدخول لعرض الرسائل ومتابعتها. الحساب يحفظ عضويتك ورسائلك عبر الأجهزة."
+          points={[
+            {
+              icon: <Users aria-hidden />,
+              title: 'العضوية تحدد الوصول',
+              body: 'تظهر المحادثة لأعضائها فقط، وتُضبط صلاحية النشر بحسب دورك فيها.',
+            },
+            {
+              icon: <ShieldCheck aria-hidden />,
+              title: 'خصوصية الرسائل',
+              body: 'إيصالات القراءة وما يظهر للآخرين تحت سيطرتك من الإعدادات.',
+            },
+            {
+              icon: <Bell aria-hidden />,
+              title: 'لا تفوتك الرسائل',
+              body: 'الإشعارات وعدّاد غير المقروء يعودان كما هما عند الدخول من أي جهاز.',
+            },
+          ]}
+          signInLabel="تسجيل الدخول"
+          guestLabel="العودة إلى البوابة"
+          guestTo="/"
+          footnote="إن وصلت إلى هذا الرابط من دعوة، فسجّل الدخول بالحساب الذي دُعيت به لتظهر لك المحادثة."
+        />
+      </>
     );
   }
   if (!chat) {
     return (
-      <div className="flex min-h-dvh flex-col bg-background">
-        <h1 className="sr-only">المحادثة</h1>
-        <StateView
-        bare
-        kind="empty"
-        className="min-h-dvh"
-        icon={<MessageCircle className="h-5 w-5" aria-hidden />}
-        title={'المحادثة غير موجودة'}
-        body={'ربما تم حذفها أو لم تعد عضواً فيها.'}
-        action={{ label: 'رجوع', onClick: goBack }}
-        />
-      </div>
+      <PageShell
+        header={<PageHeader title="المحادثة" backFallback="/chat" />}
+      >
+        <AppCard>
+          <StateView
+            bare
+            kind="empty"
+            icon={<MessageCircle className="h-5 w-5" aria-hidden />}
+            title={'المحادثة غير موجودة'}
+            body={'ربما تم حذفها أو لم تعد عضواً فيها.'}
+            action={{ label: 'رجوع', onClick: goBack }}
+          />
+        </AppCard>
+      </PageShell>
     );
   }
 
@@ -399,6 +442,17 @@ export default function GroupChatPage() {
             </motion.button>
           )}
         </AnimatePresence>
+
+        {/* ── Offline notice: the composer stays usable, the network state is
+            named so a failed send is not mistaken for a data error. ────── */}
+        {!online && (
+          <div
+            role="status"
+            className="border-t border-border/15 bg-warning/10 px-4 py-2 text-center text-mini leading-relaxed text-warning"
+          >
+            {'لا يوجد اتصال — يمكنك متابعة الكتابة، وستظهر علامة إعادة المحاولة إن لم تُرسل الرسالة.'}
+          </div>
+        )}
 
         {/* ── Composer ───────────────────────────────────────────────── */}
         <GroupComposer

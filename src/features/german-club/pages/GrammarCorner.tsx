@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppCard, PageShell } from '@/components/ui/app-shell';
-import { BookOpen, Sparkles } from '@/lib/icons';
+import { Sparkles } from '@/lib/icons';
 
 import { useGermanClubStore } from '../useGermanClubStore';
 
@@ -23,27 +23,18 @@ export const GrammarCorner: React.FC = () => {
       />
 
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
-        {/* App Bar */}
+        {/* App Bar — one Arabic h1, one subtitle line. The German register is
+            isolated LTR inside that same line (never a second title slot) and
+            the status chip lives in the page body, so the compact header stays
+            one rail at 360px. */}
         <PageHeader
-          title={
-            // Isolate the German half so the PageHeader's RTL truncation
-            // clips it as a run instead of leaving a stray "(r…".
-            <>
-              زاوية القواعد{' '}
-              <span dir="ltr" lang="de" className="inline-block">
-                (Grammar Corner)
-              </span>
-            </>
-          }
+          title="زاوية القواعد"
           subtitle={
-            <span className="font-mono" dir="ltr" lang="de">
-              GRAMMATIK — DER CLUB
-            </span>
-          }
-          right={
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-mini font-bold text-primary">
-              <BookOpen className="h-3.5 w-3.5" aria-hidden />
-              <span>نحو سياقي</span>
+            <span>
+              {'قواعد نحوية مبسطة · '}
+              <span dir="ltr" lang="de" className="font-mono">
+                Grammatik
+              </span>
             </span>
           }
         />

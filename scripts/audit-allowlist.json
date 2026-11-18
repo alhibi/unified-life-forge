@@ -1,0 +1,18 @@
+{
+  "entries": [
+    {
+      "id": "X9-sudoku-board-cells",
+      "routes": [
+        "/games/sudoku"
+      ],
+      "checks": [
+        "smallTargets"
+      ],
+      "selector": "button[data-touch-exempt=\"board-cell\"]",
+      "reason": "X9 dense board cells: a 9x9 logical grid at 390px gives 43.3px max per cell, physically below the 44px floor. Cells are the only elements carrying data-touch-exempt=\"board-cell\"; pointer and keyboard play preserved; no other small control exists on the route.",
+      "owner": "g-spatial",
+      "doc": "docs/design-system/visual-exceptions.md#x9",
+      "test": "e2e/games-control-bar.spec.ts + strict audit stale-selector guard"
+    }
+  ]
+}

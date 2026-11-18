@@ -1,0 +1,16 @@
+import { chromium } from '@playwright/test';
+const P={'app-theme':'dark','app-color-theme':'expressive','app-palette-style':'tonal','app-black-mode':'false','app-surface-lift':'subtle','app-ui-density':'cozy','app-content-width':'standard','app-reduced-motion':'true'};
+const browser=await chromium.launch();
+const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,locale:'ar',timezoneId:'Asia/Riyadh',reducedMotion:'reduce',colorScheme:'dark'});
+await ctx.addInitScript((p)=>{for(const[k,v]of Object.entries(p))localStorage.setItem(k,v)},P);
+const page=await ctx.newPage();
+const errs=[];page.on('pageerror',e=>errs.push(String(e).slice(0,160)));page.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,160));});
+await page.route('**/*',(r)=>{const h=new URL(r.request().url()).hostname;if(h==='127.0.0.1'||h==='localhost'||h.endsWith('googleapis.com')||h.endsWith('gstatic.com'))return r.continue();return r.abort();});
+await page.goto('http://127.0.0.1:5199/dev/design-system',{waitUntil:'domcontentloaded'});
+const snap=async()=>page.evaluate(()=>({t:performance.now(),h1:[...document.querySelectorAll('h1')].map(h=>h.textContent.trim().slice(0,40)),h1Count:document.querySelectorAll('h1').length,bodyStart:(document.body.innerText||'').replace(/\s+/g,' ').trim().slice(0,120),rootChildren:document.getElementById('root')?.children.length}));
+const s900=await (async()=>{await page.waitForTimeout(900);return snap();})();
+const s3000=await (async()=>{await page.waitForTimeout(2100);return snap();})();
+const s8000=await (async()=>{await page.waitForTimeout(5000);return snap();})();
+await page.screenshot({path:'verification/design/qa/final/contrast-verify/dev-design-system-390.png',animations:'disabled'});
+console.log(JSON.stringify({s900,s3000,s8000,errs:errs.slice(0,4)},null,1));
+await ctx.close();await browser.close();

@@ -1,0 +1,138 @@
+[
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-01.jpg",
+  "items": [
+   "portal-nav/root",
+   "portal-nav/browse",
+   "portal-nav/index",
+   "portal-nav/now",
+   "portal-nav/games",
+   "portal-nav/chat",
+   "portal-nav/mihrab",
+   "portal-nav/diwan"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-02.jpg",
+  "items": [
+   "portal-nav/weather",
+   "portal-nav/travel-atlas",
+   "spiritual/quran",
+   "spiritual/tafsir",
+   "spiritual/dhikr",
+   "spiritual/sunnah",
+   "spiritual/mihrab_prayer-guide",
+   "spiritual/section_prophetic-day"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-03.jpg",
+  "items": [
+   "spiritual/section_quran-virtues",
+   "spiritual/section_timed-sunnah",
+   "spiritual/section_timed-sunnah_1",
+   "spiritual/section_untimed-sunnah",
+   "spiritual/knowledge",
+   "spiritual/journal",
+   "spiritual/reading",
+   "spiritual/marginalia"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-04.jpg",
+  "items": [
+   "editorial-library/diwan_library",
+   "editorial-library/diwan_library_search",
+   "editorial-library/diwan_library_poets",
+   "editorial-library/diwan_library_poet_test-slug",
+   "editorial-library/diwan_library_poem_test-slug",
+   "editorial-library/diwan_library_favorites",
+   "editorial-library/diwan_bayan",
+   "editorial-library/archive"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-05.jpg",
+  "items": [
+   "editorial-library/archive_new",
+   "editorial-library/archive_1",
+   "editorial-library/pkm",
+   "editorial-library/pkm_mind",
+   "audio-german/podcasts",
+   "audio-german/podcasts_1",
+   "audio-german/podcasts_library",
+   "audio-german/podcasts_history"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-06.jpg",
+  "items": [
+   "audio-german/german-club",
+   "audio-german/german-club_dictionary",
+   "audio-german/german-club_grammar",
+   "audio-german/german-club_review",
+   "audio-german/german-club_shelf_test-slug",
+   "audio-german/german-club_wortliste",
+   "data/wellness",
+   "data/fitness"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-07.jpg",
+  "items": [
+   "data/crypto",
+   "data/time-ledger",
+   "data/occasions",
+   "travel/travel-atlas_explore",
+   "travel/travel-atlas_countries",
+   "travel/travel-atlas_trips",
+   "travel/travel-atlas_trips_1",
+   "travel/travel-atlas_place_1"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-08.jpg",
+  "items": [
+   "travel/travel-atlas_DE",
+   "games/games_chess",
+   "games/games_chess_career",
+   "games/games_chess_puzzles",
+   "games/games_memory",
+   "games/games_memory_adventure",
+   "games/games_sudoku",
+   "chat/chat_g_00000000-0000-0000-0000-000000000000"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-09.jpg",
+  "items": [
+   "chat/chat_groups",
+   "chat/chat_settings",
+   "settings-auth/auth",
+   "settings-auth/profile",
+   "settings-auth/settings",
+   "settings-auth/settings_appearance",
+   "settings-auth/settings_interface",
+   "settings-auth/settings_theme"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-10.jpg",
+  "items": [
+   "settings-auth/settings_font",
+   "settings-auth/settings_keyboard",
+   "settings-auth/settings_motion",
+   "settings-auth/settings_prayer",
+   "settings-auth/settings_profile",
+   "settings-auth/dev_design-system",
+   "settings-auth/dev_material-preview",
+   "settings-auth/.lovable_oauth_consent"
+  ]
+ },
+ {
+  "sheet": "verification/design/qa/baseline/contact-sheets/sheet-11.jpg",
+  "items": [
+   "misc/duas"
+  ]
+ }
+]

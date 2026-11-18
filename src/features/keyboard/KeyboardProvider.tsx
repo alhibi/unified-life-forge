@@ -27,11 +27,20 @@ import {
 /**
  * Mounts the app keyboard globally.
  *
- * Every text field in the product gets it for free: we listen at the document
- * level, suppress the OS keyboard on the focused field with `inputmode="none"`,
- * and drive the field through native value setters so React state stays the
- * single source of truth. Fields opt out with `data-soft-keyboard="off"`
- * (individually, or on any ancestor).
+ * Opening policy - explicit opt-in only.
+ *
+ * The in-app keyboard is an alternative writing surface, not an automatic
+ * replacement for the operating-system keyboard. It opens exclusively through
+ * an explicit affordance (the SoftKeyboardToggle component or the
+ * 'soft-keyboard:request-open' window event). It never opens merely because a
+ * text field received focus: on a login sheet that put a full keyboard on top
+ * of the password field and the primary action before the user had decided to
+ * use it. When the app keyboard is not open the field keeps its native
+ * inputmode, so the platform keyboard remains the zero-surprise default.
+ *
+ * Closing behaviour: Done, Escape, blur, a physical keypress or a preference
+ * switch back to 'system' all release the panel and restore the field's
+ * original inputmode.
  */
 export default function KeyboardProvider() {
   const [preference, setPreference] = useState<SoftKeyboardPreference>(() =>
@@ -42,6 +51,10 @@ export default function KeyboardProvider() {
   const targetRef = useRef<EditableField | null>(null);
   /** inputMode we borrowed from the field, restored on release. */
   const restoreRef = useRef<string | null>(null);
+  /** Last editable field that held focus - the toggle's default target. */
+  const lastFieldRef = useRef<EditableField | null>(null);
+  /** Timestamp of the last close, used to drop same-click reopen requests. */
+  const lastReleaseRef = useRef(0);
   const [available] = useState(() => supportsSoftKeyboard());
 
   useEffect(() => {
@@ -53,6 +66,10 @@ export default function KeyboardProvider() {
   }, []);
 
   const release = useCallback(() => {
+    // A click that closes the panel can also fire a stray open request in the
+    // same interaction (QA-SL-1). Remember the release so an immediately
+    // following request is treated as the tail of that click, not a reopen.
+    lastReleaseRef.current = typeof performance !== 'undefined' ? performance.now() : 0;
     const el = targetRef.current;
     if (el) {
       if (restoreRef.current === null) el.removeAttribute('inputmode');
@@ -82,6 +99,31 @@ export default function KeyboardProvider() {
 
   const active = available && preference === 'app';
 
+  /** Resolve the field an explicit open request should attach to. */
+  const resolveTarget = useCallback((requested?: HTMLElement | null): EditableField | null => {
+    if (requested && isSoftKeyboardTarget(requested)) return requested as EditableField;
+    const focused = typeof document !== 'undefined' ? document.activeElement : null;
+    if (focused && isSoftKeyboardTarget(focused)) return focused as EditableField;
+    return lastFieldRef.current;
+  }, []);
+
+  const openFor = useCallback(
+    (requested?: HTMLElement | null) => {
+      if (!available || !active) return;
+      const now = typeof performance !== 'undefined' ? performance.now() : 0;
+      // Swallow an open request that is the tail of the click that just closed
+      // the panel (~same task); a deliberate reopen happens later than this.
+      if (lastReleaseRef.current > 0 && now - lastReleaseRef.current < 120) return;
+      const el = resolveTarget(requested);
+      if (!el) return;
+      // Focus first: the field must own the caret before we suppress the OS
+      // keyboard, otherwise the platform panel and ours can stack.
+      el.focus({ preventScroll: false });
+      capture(el);
+    },
+    [active, available, capture, resolveTarget],
+  );
+
   useEffect(() => {
     const frame = !active ? window.requestAnimationFrame(release) : null;
     return () => {
@@ -90,36 +132,49 @@ export default function KeyboardProvider() {
     };
   }, [active, release]);
 
-  const physicalKeyboardRef = useRef(false);
+  // Explicit open/close requests from any surface that owns a keyboard toggle.
+  useEffect(() => {
+    const onRequestOpen = (event: Event) => {
+      const detail = (event as CustomEvent<{ element?: HTMLElement | null }>).detail;
+      openFor(detail?.element ?? null);
+    };
+    const onRequestClose = () => release();
+    window.addEventListener('soft-keyboard:request-open', onRequestOpen);
+    window.addEventListener('soft-keyboard:request-close', onRequestClose);
+    return () => {
+      window.removeEventListener('soft-keyboard:request-open', onRequestOpen);
+      window.removeEventListener('soft-keyboard:request-close', onRequestClose);
+    };
+  }, [openFor, release]);
+
+  // Publish open state so toggle affordances can render pressed correctly.
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('soft-keyboard:state', {
+        detail: { open: Boolean(target), available, preference },
+      }),
+    );
+  }, [target, available, preference]);
 
   useEffect(() => {
     if (!active) return;
 
-    // Check if the document already has an active editable target upon mounting
-    if (
-      typeof document !== 'undefined' &&
-      document.activeElement &&
-      isSoftKeyboardTarget(document.activeElement)
-    ) {
-      capture(document.activeElement);
-    }
-
-    const onPointerDown = (event: PointerEvent) => {
-      physicalKeyboardRef.current = false;
-      const node = event.target;
-      if (isSoftKeyboardTarget(node)) capture(node);
-    };
-    const onMouseDown = (event: MouseEvent) => {
-      physicalKeyboardRef.current = false;
-      const node = event.target;
-      if (isSoftKeyboardTarget(node)) capture(node);
-    };
     const onFocusIn = (event: FocusEvent) => {
-      if (physicalKeyboardRef.current) return;
       const node = event.target;
-      if (isSoftKeyboardTarget(node)) capture(node);
-      else if (!(node as HTMLElement | null)?.closest?.('[data-soft-keyboard-panel]')) release();
+      if (isSoftKeyboardTarget(node)) {
+        lastFieldRef.current = node as EditableField;
+        return;
+      }
+      // Keyboard is open and focus moved outside both the field and the
+      // panel: release so the next field starts from the native state.
+      if (
+        targetRef.current
+        && !(node as HTMLElement | null)?.closest?.('[data-soft-keyboard-panel]')
+      ) {
+        release();
+      }
     };
+
     const onFocusOut = (event: FocusEvent) => {
       if (event.target === targetRef.current) {
         // Give the panel a frame: tapping a key never really moves focus.
@@ -129,41 +184,38 @@ export default function KeyboardProvider() {
         }, 80);
       }
     };
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && targetRef.current) {
         targetRef.current.blur();
         return;
       }
-      // If keydown event is trusted, character-producing, and does not originate from within the soft keyboard panel,
-      // it means input is coming from an external physical / Bluetooth keyboard.
+      // A trusted, character-producing key that did not originate in the soft
+      // keyboard panel means a physical/Bluetooth keyboard is in use: hand the
+      // field back to it instead of keeping our panel open.
       const targetNode = event.target as HTMLElement | null;
       const isFromSoftKbPanel = targetNode?.closest?.('[data-soft-keyboard-panel]');
       if (event.isTrusted && !isFromSoftKbPanel && targetRef.current && event.key.length === 1) {
-        physicalKeyboardRef.current = true;
-        // Suppress soft keyboard so physical keyboard and soft keyboard don't overlap
         release();
       }
     };
 
-    document.addEventListener('pointerdown', onPointerDown, true);
-    document.addEventListener('mousedown', onMouseDown, true);
     document.addEventListener('focusin', onFocusIn);
     document.addEventListener('focusout', onFocusOut);
     document.addEventListener('keydown', onKeyDown, true);
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown, true);
-      document.removeEventListener('mousedown', onMouseDown, true);
       document.removeEventListener('focusin', onFocusIn);
       document.removeEventListener('focusout', onFocusOut);
       document.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [active, capture, release]);
+  }, [active, release]);
 
-  // Keep the caret visible above the panel.
+  // Keep the caret visible above the panel. If the focused field would sit
+  // under the panel, scroll it into view instead of letting the panel cover it.
   const onHeightChange = useCallback((height: number) => {
     document.documentElement.style.setProperty(
       '--soft-keyboard-height',
-      `${String(Math.round(height))}px`,
+      String(Math.round(height)) + 'px',
     );
     const el = targetRef.current;
     if (!el) return;

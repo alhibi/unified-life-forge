@@ -18,10 +18,14 @@ test.describe('prayer times', () => {
     await page.goto('/now');
     await expect(page).toHaveURL(/\/$/);
 
+    // The portal renders the same name in both the responsive inline card and
+    // the wide prayer surface; only one of them is visible at a given width, so
+    // assert that at least one visible instance exists instead of pinning the
+    // first DOM match (which is the hidden variant on phones).
     for (const name of ['الفجر', 'الظهر', 'العصر', 'المغرب', 'العشاء']) {
-      await expect(page.getByText(name, { exact: false }).first()).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(
+        page.getByText(name, { exact: false }).filter({ visible: true }).first(),
+      ).toBeVisible({ timeout: 15_000 });
     }
   });
 
@@ -82,10 +86,12 @@ test.describe('settings', () => {
     await expect(page.getByText('حذف الحساب')).toHaveCount(0);
     await expect(page.getByText('تصدير بياناتي')).toHaveCount(0);
 
-    // The sections that do not need an account must still be there. Scoped to
-    // the design system's group-label element: the label text also appears on
-    // the theme row inside it, and the label is a plain `app-section-label`
-    // div — not a paragraph — so a role-based locator would miss it.
-    await expect(page.locator('.app-section-label', { hasText: 'المظهر' })).toBeVisible();
+    // The sections that do not need an account must still be there. The
+    // settings console was regrouped into titled regions (G4): assert the
+    // signed-out console exposes the appearance group and its first real row.
+    await expect(page.getByRole('heading', { name: 'المظهر والواجهة' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /المظهر والألوان والخطوط/ }),
+    ).toBeVisible();
   });
 });

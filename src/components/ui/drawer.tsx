@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Drawer as DrawerPrimitive } from 'vaul';
 
+import { useOverlayFocusReturn } from '@/components/ui/overlay-focus-return';
 import { cn } from '@/lib/utils';
 
 // Escape key handler for drawers
@@ -47,6 +48,10 @@ const DrawerContent = React.forwardRef<
   }
 >(({ className, children, onClose, autoFocus = true, ...props }, ref) => {
   const drawerContentRef = React.useRef<HTMLDivElement>(null);
+  // A controlled drawer (open/onOpenChange, no DrawerTrigger) loses focus to
+  // <body> on close because vaul/Radix focus a null trigger ref. Restore the
+  // opener; trigger-opened drawers are unchanged.
+  const { captureOpener, handleCloseAutoFocus } = useOverlayFocusReturn(onClose);
 
   // Handle Escape key to close drawer
   useEscapeKey(() => {
@@ -78,16 +83,12 @@ const DrawerContent = React.forwardRef<
           className,
         )}
         onOpenAutoFocus={(e) => {
+          captureOpener();
           if (!autoFocus) {
             e.preventDefault();
           }
         }}
-        onCloseAutoFocus={() => {
-          // Radix (inside vaul) restores focus to the trigger by default.
-          // Preventing it here left focus on <body> after close
-          // (DESIGN.md §10 C: focus returns to a logical place).
-          onClose?.();
-        }}
+        onCloseAutoFocus={handleCloseAutoFocus}
         {...props}
       >
         <button

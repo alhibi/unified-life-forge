@@ -40,6 +40,8 @@ import { cn } from '@/lib/utils';
 export function ReadingPageHeader({
   articleCount,
   unreadCount,
+  loading = false,
+  online = true,
   showSearch,
   setShowSearch,
   refreshing,
@@ -56,6 +58,9 @@ export function ReadingPageHeader({
 }: {
   articleCount: number;
   unreadCount: number;
+  /** First paint: the count line is not a fact yet, so it states what is happening. */
+  loading?: boolean;
+  online?: boolean;
   showSearch: boolean;
   setShowSearch: (v: boolean) => void;
   refreshing: boolean;
@@ -75,7 +80,16 @@ export function ReadingPageHeader({
       variant="compact"
       sticky={sticky}
       title={'إطلاع'}
-      subtitle={`${articleCount} مقالة · ${unreadCount} غير مقروء`}
+      // Counts are evidence, not decoration: never print "0 مقالة" while the
+      // archive is still opening, and name the offline condition when it is
+      // the reason the list is quiet.
+      subtitle={
+        loading && articleCount === 0
+          ? 'جارٍ تحميل المقالات…'
+          : !online
+            ? `${articleCount} مقالة محفوظة · بدون اتصال`
+            : `${articleCount} مقالة · ${unreadCount} غير مقروء`
+      }
       hideBack={hideBack}
       // List view keeps the previous behaviour: back leaves Reading for the
       // portal. The sub-view state machine keeps its own back stack.
@@ -91,20 +105,6 @@ export function ReadingPageHeader({
             className={cn(showSearch && 'bg-primary/15 text-primary')}
           >
             <Search className="h-4 w-4" aria-hidden />
-          </IconButton>
-
-          <IconButton
-            type="button"
-            onClick={onRefresh}
-            disabled={refreshing}
-            aria-label={'تحديث'}
-            title={'تحديث الآن'}
-            className="disabled:opacity-50"
-          >
-            <RefreshCw
-              className={cn('h-4 w-4', refreshing && 'animate-spin text-primary')}
-              aria-hidden
-            />
           </IconButton>
 
           <DropdownMenu>
@@ -123,6 +123,17 @@ export function ReadingPageHeader({
               <DropdownMenuLabel className="text-micro text-muted-foreground font-normal">
                 {'إجراءات'}
               </DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={onRefresh}
+                disabled={refreshing}
+                className="rounded-lg gap-2.5"
+              >
+                <RefreshCw
+                  className={cn('h-4 w-4 text-muted-foreground', refreshing && 'animate-spin text-primary')}
+                  aria-hidden
+                />
+                <span>{refreshing ? 'جاري التحديث…' : 'تحديث الآن'}</span>
+              </DropdownMenuItem>
               {unreadCount > 0 && (
                 <DropdownMenuItem onClick={onMarkAllRead} className="rounded-lg gap-2.5">
                   <CheckCheck className="h-4 w-4 text-muted-foreground" />

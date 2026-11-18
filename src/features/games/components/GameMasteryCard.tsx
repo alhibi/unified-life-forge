@@ -15,7 +15,7 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AppCard, IconChip } from '@/components/ui/app-shell';
+import { AppCard } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Star } from '@/lib/icons';
 import { prefetchRoute } from '@/lib/routePrefetch';
@@ -36,7 +36,7 @@ interface Props {
 
 const MAX_TIER = MASTERY_THRESHOLDS.length - 1;
 
-function GameMasteryCardImpl({ game, mastery, stats, icon: Icon }: Props) {
+function GameMasteryCardImpl({ game, mastery, stats, icon: Icon, identity }: Props) {
   const navigate = useNavigate();
 
   const winRate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : null;
@@ -48,21 +48,30 @@ function GameMasteryCardImpl({ game, mastery, stats, icon: Icon }: Props) {
 
   return (
     <AppCard tone={game.id === 'sudoku' ? 4 : game.id === 'chess' ? 6 : 5} as="section" aria-label={game.label} className="relative overflow-hidden">
+      {/* Game identity rail — the documented X5 accent key (game colour), not
+          decoration: it is how sudoku/chess/memory are told apart at a glance. */}
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-1"
+        style={{ background: identity.accent }}
+      />
       <div className="relative">
         {/* Header */}
         <div className="flex items-start gap-3">
-          <IconChip
-            className="widget-icon-well"
+          <span
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-md"
+            style={{ background: identity.tint, color: identity.accent }}
             aria-hidden
           >
             <Icon className="h-5 w-5" />
-          </IconChip>
+          </span>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="truncate text-title text-foreground">{game.label}</h2>
+              <h2 className="line-clamp-2 text-balance text-title text-foreground">{game.label}</h2>
               <span
-                className="widget-icon-well shrink-0 rounded-full px-2 py-0.5 text-micro font-bold"
+                className="shrink-0 rounded-full px-2 py-0.5 text-micro font-bold text-foreground"
+                style={{ background: identity.tint }}
               >
                 {mastery.label}
               </span>

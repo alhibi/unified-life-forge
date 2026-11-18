@@ -2,6 +2,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
+import { useOverlayFocusReturn } from '@/components/ui/overlay-focus-return';
 import { X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -60,23 +61,31 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = 'right', className, children, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <SheetPrimitive.Content
-      ref={ref}
-      data-ui-surface="sheet"
-      className={cn(sheetVariants({ side }), className)}
-      {...props}
-    >
-      {children}
-      <SheetPrimitive.Close className="app-overlay-close absolute end-2 top-2 disabled:pointer-events-none">
-        <X className="h-4 w-4" />
-        <span className="sr-only">إغلاق</span>
-      </SheetPrimitive.Close>
-    </SheetPrimitive.Content>
-  </SheetPortal>
-));
+>(({ side = 'right', className, children, ...props }, ref) => {
+  // Controlled sheets (open state, no SheetTrigger) otherwise drop focus to
+  // <body> on close; restore the opener while keeping trigger behaviour.
+  const { captureOpener, handleCloseAutoFocus } = useOverlayFocusReturn();
+
+  return (
+    <SheetPortal>
+      <SheetOverlay />
+      <SheetPrimitive.Content
+        ref={ref}
+        data-ui-surface="sheet"
+        className={cn(sheetVariants({ side }), className)}
+        onOpenAutoFocus={() => captureOpener()}
+        onCloseAutoFocus={handleCloseAutoFocus}
+        {...props}
+      >
+        {children}
+        <SheetPrimitive.Close className="app-overlay-close absolute end-2 top-2 disabled:pointer-events-none">
+          <X className="h-4 w-4" />
+          <span className="sr-only">إغلاق</span>
+        </SheetPrimitive.Close>
+      </SheetPrimitive.Content>
+    </SheetPortal>
+  );
+});
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

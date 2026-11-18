@@ -141,9 +141,13 @@ export function ListHeader({
 
   const showCategoryRow = populatedCategories.length > 0;
   const canDeleteActiveFolder = customFolders.includes(categoryFilter);
+  // With no articles yet (first load / failure / brand-new account) a rail of
+  // zero-count source chips is noise: it looks like a filter UI with nothing
+  // to filter. Keep the rail for the states where it can act on content.
+  const showFilterRail = articleCount > 0 || bookmarksCount > 0;
 
   return (
-    <div className="pt-1 pb-2 app-divider-b">
+    <div className={showFilterRail ? 'pt-1 pb-2 app-divider-b' : 'pt-1 pb-1'}>
       <AnimatePresence>
         {showSearch && (
           <motion.div
@@ -195,6 +199,7 @@ export function ListHeader({
           sources. Merging the two previous rows removes the clipped,
           stacked look while keeping every control reachable. The display
           preferences sit outside the rail so they never scroll away. */}
+      {showFilterRail && (
       <div className="flex items-center gap-1.5">
         <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-0.5">
           <Chip
@@ -278,6 +283,7 @@ export function ListHeader({
         )}
         <ReadingPrefsToolbar prefs={listPrefs} onChange={onListPrefsChange} />
       </div>
+      )}
 
       <AnimatePresence>
         {showFolderInput && (

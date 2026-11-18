@@ -1,0 +1,294 @@
+[
+ {
+  "route": "/browse",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "مقالات ومصادر ومحفوظات",
+    "element": "span.mt-0.5.block"
+   }
+  ]
+ },
+ {
+  "route": "/chat",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "استكشف دون حساب",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "العودة إلى البوابة",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/chat/groups",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "استكشف دون حساب",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/chat/settings",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "استكشف دون حساب",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/dev/design-system",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 1.88,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "--ui-scale",
+    "element": "span.block.truncate"
+   }
+  ]
+ },
+ {
+  "route": "/games/chess/puzzles",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 1.88,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 700,
+    "text": "التالي",
+    "element": "span.text-micro.font-bold"
+   }
+  ]
+ },
+ {
+  "route": "/games/memory",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "الخطوة الأولى",
+    "element": "span.text-micro.font-semibold"
+   }
+  ]
+ },
+ {
+  "route": "/occasions",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 1.88,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "مناسبة",
+    "element": "span.text-micro.text-muted-foreground-subtle"
+   },
+   {
+    "ratio": 2.66,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "10",
+    "element": "span.text-micro.text-muted-foreground"
+   },
+   {
+    "ratio": 1.88,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 700,
+    "text": "10",
+    "element": "span.text-micro.font-bold"
+   }
+  ]
+ },
+ {
+  "route": "/browse",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "مقالات ومصادر ومحفوظات",
+    "element": "span.mt-0.5.block"
+   }
+  ]
+ },
+ {
+  "route": "/chat",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "استكشف دون حساب",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "العودة إلى البوابة",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/chat/groups",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "استكشف دون حساب",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/chat/settings",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "استكشف دون حساب",
+    "element": "button.app-focus-ring.text-mini"
+   }
+  ]
+ },
+ {
+  "route": "/dev/design-system",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 3.24,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "--ui-scale",
+    "element": "span.block.truncate"
+   }
+  ]
+ },
+ {
+  "route": "/games",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.14,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 700,
+    "text": "بلا رتبة",
+    "element": "span.shrink-0.rounded-full"
+   },
+   {
+    "ratio": 4.23,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 500,
+    "text": "مشاركة",
+    "element": "span.shrink-0.rounded-sm"
+   }
+  ]
+ },
+ {
+  "route": "/games/memory",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "الخطوة الأولى",
+    "element": "span.text-micro.font-semibold"
+   }
+  ]
+ },
+ {
+  "route": "/occasions",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 3.24,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "مناسبة",
+    "element": "span.text-micro.text-muted-foreground-subtle"
+   },
+   {
+    "ratio": 4.41,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 400,
+    "text": "10",
+    "element": "span.text-micro.text-muted-foreground"
+   },
+   {
+    "ratio": 3.24,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 700,
+    "text": "10",
+    "element": "span.text-micro.font-bold"
+   }
+  ]
+ }
+]

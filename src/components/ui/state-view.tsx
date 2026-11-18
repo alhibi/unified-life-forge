@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { AlertTriangle, Archive, RefreshCcw, Search, WifiOff } from '@/lib/icons';
+import { AlertTriangle, Archive, RefreshCcw, Search, ShieldCheck, WifiOff } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 /**
@@ -15,25 +15,36 @@ import { cn } from '@/lib/utils';
  * ║ optional and there is no default copy to fall back on.              ║
  * ╚════════════════════════════════════════════════════════════════════╝
  *
- * Four kinds, because they need genuinely different tones:
+ * Five kinds, because they need genuinely different tones:
  *
  *   'empty'   nothing yet, and that is normal → invite the first action.
  *   'search'  the query matched nothing → suggest a narrower/wider query.
  *   'offline' we know the network is gone → promise recovery, never blame.
  *   'error'   something actually failed → say what we know, offer a retry.
+ *   'auth'    the surface is gated behind sign-in → explain what it is and
+ *             what stays local, then offer one quiet sign-in step. It is an
+ *             invitation, not a failure: it never renders a retry glyph and
+ *             never uses the error tone.
+ *
+ * Page-level composition for 'auth' (see AuthGuard's `fallback` slot): keep
+ * the route's PageShell + PageHeader identity, render this state inside a
+ * bounded AppCard, and offer "تسجيل الدخول" as the action with a secondary
+ * escape back to the portal. Do not auto-redirect and never autofocus on a
+ * coarse pointer.
  *
  * Layout note: the block reserves its own height (`min-h`) so swapping a
  * loading skeleton for a state view — or a state view for real content — does
  * not shift the page around it.
  */
 
-export type StateKind = 'empty' | 'search' | 'offline' | 'error';
+export type StateKind = 'empty' | 'search' | 'offline' | 'error' | 'auth';
 
 const ICONS: Record<StateKind, typeof Archive> = {
   empty: Archive,
   search: Search,
   offline: WifiOff,
   error: AlertTriangle,
+  auth: ShieldCheck,
 };
 
 /** States whose action is a retry, so the RefreshCcw glyph is the default. */
@@ -44,6 +55,7 @@ const TONE: Record<StateKind, string> = {
   search: 'text-secondary-muted',
   offline: 'text-primary',
   error: 'text-destructive',
+  auth: 'text-primary',
 };
 
 export interface StateViewProps {

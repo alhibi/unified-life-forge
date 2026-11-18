@@ -13,7 +13,14 @@ import {
   type ResolvedIslamicEvent,
 } from '@/features/calendar/data/islamicOccasions';
 import { useLiveHijriDate } from '@/features/calendar/hooks/useLiveHijriDate';
+import { CalendarDays } from '@/lib/icons';
 import { cn } from '@/lib/utils';
+
+const GREGORIAN_TODAY = new Intl.DateTimeFormat('ar', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+});
 
 // Accent palette for occasion cards (mirrors PrayerTimes.tsx accents).
 const ACCENT: Record<string, string> = {
@@ -78,13 +85,20 @@ export default function AllOccasions() {
         {/* ── Header ──────────────────────────────────────────────── */}
         <PageHeader sticky title={'التقويم الهجري'} subtitle={'تصفح المناسبات حسب الشهر الهجري'} />
 
-        {/* ── Today indicator ────────────────────────────────────── */}
-        <div data-tile-tone="6" className="rich-widget rounded-card p-4 flex items-center justify-between">
-          <span className="text-mini font-bold text-foreground">
-            {'اليوم'}
-          </span>
-          <span className="text-mini font-semibold text-foreground tabular-nums">
-            {today.day} {monthName(today.month)} {today.year}
+        {/* ── Today: the page's anchor. One date read at a glance, with the
+            Gregorian line underneath; no decorative colour fill. ── */}
+        <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
+          <div className="min-w-0">
+            <p className="text-micro font-semibold text-muted-foreground">اليوم</p>
+            <p className="mt-1 text-title font-bold tabular-nums text-foreground">
+              {today.day} {monthName(today.month)} {today.year}
+            </p>
+            <p className="mt-1 text-mini text-muted-foreground">
+              <span dir="rtl">{GREGORIAN_TODAY.format(new Date())}</span>
+            </p>
+          </div>
+          <span className="row-icon shrink-0" aria-hidden>
+            <CalendarDays className="h-5 w-5" />
           </span>
         </div>
 
@@ -118,15 +132,15 @@ export default function AllOccasions() {
                   >
                     {monthName(monthIdx)}
                   </p>
-                  <span className="text-micro font-bold text-muted-foreground-subtle tabular-nums shrink-0">
+                  <span className="text-micro font-bold text-secondary-muted tabular-nums shrink-0">
                     {monthIdx}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="text-micro text-muted-foreground tabular-nums">
+                  <span className="text-micro text-secondary-muted tabular-nums">
                     {count}
                   </span>
-                  <span className="text-micro text-muted-foreground-subtle">
+                  <span className="text-micro text-secondary-muted">
                     {'مناسبة'}
                   </span>
                   {isCurrent && (
@@ -143,7 +157,7 @@ export default function AllOccasions() {
           <h2 className="text-body font-bold text-foreground">
             {monthName(selectedMonth)}
           </h2>
-          <span className="text-micro font-medium text-muted-foreground-subtle tabular-nums">
+          <span className="text-micro font-medium text-secondary-muted tabular-nums">
             {`${monthEvents.length} مناسبة`}
           </span>
         </div>
@@ -158,43 +172,67 @@ export default function AllOccasions() {
               <button
                 key={d}
                 onClick={() => setSelectedDay(d)}
+                aria-pressed={isSelected}
+                aria-label={isToday ? `${d} — اليوم` : `${d}`}
                 className={cn(
-                  'relative aspect-square rounded-lg border flex items-center justify-center transition-motion',
+                  'relative flex aspect-square items-center justify-center rounded-lg border transition-motion focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   isSelected
-                    ? 'bg-primary/20 border-primary/50'
+                    ? 'border-primary bg-primary'
                     : isToday
-                      ? 'bg-primary/8 border-primary/30'
+                      ? 'border-primary bg-primary/10'
                       : hasEvent
-                        ? 'bg-secondary border-border/60'
-                        : 'bg-muted border-border/30',
+                        ? 'border-border/60 bg-secondary'
+                        : 'border-border/30 bg-muted',
                 )}
               >
                 <span
                   className={cn(
                     'text-mini tabular-nums',
                     isSelected
-                      ? 'font-bold text-primary'
-                      : hasEvent
-                        ? 'font-semibold text-foreground'
-                        : 'font-light text-muted-foreground/55',
+                      ? 'font-bold text-primary-foreground'
+                      : isToday
+                        ? 'font-bold text-primary'
+                        : hasEvent
+                          ? 'font-semibold text-foreground'
+                          : 'font-light text-muted-foreground/55',
                   )}
                 >
                   {d}
                 </span>
-                {hasEvent && !isSelected && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60" aria-hidden />
-                )}
-                {isToday && !isSelected && (
-                  <span className="absolute top-0.5 end-0.5 w-1 h-1 rounded-full bg-primary" aria-hidden />
+                {hasEvent && (
+                  <span
+                    className={cn(
+                      'absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full',
+                      isSelected ? 'bg-primary-foreground' : 'bg-primary/70',
+                    )}
+                    aria-hidden
+                  />
                 )}
               </button>
             );
           })}
         </div>
 
+        {/* Legend — the grid encodes three states; name them instead of
+            leaving the dots unexplained. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-1 text-micro text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="h-4 w-4 rounded-full border-2 border-primary" aria-hidden />
+            اليوم
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-1 w-1 rounded-full bg-primary" aria-hidden />
+            مناسبة
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-4 w-4 rounded bg-primary" aria-hidden />
+            اليوم المحدد
+          </span>
+        </div>
+
         {/* ── Events for selected day ───────────────────────────── */}
         <div className="space-y-2.5 pt-2">
-          <h3 className="text-mini font-bold text-muted-foreground-subtle uppercase tracking-wider">
+          <h3 className="text-meta font-semibold text-foreground">
             {`مناسبات ${selectedDay} ${HIJRI_MONTHS[selectedMonth - 1]}`}
           </h3>
 
@@ -209,8 +247,9 @@ export default function AllOccasions() {
                 <StateView
                   kind="empty"
                   compact
+                  bare
                   title="لا مناسبات في هذا اليوم"
-                  body="لا يوجد حدث مسجَّل لهذا اليوم من هذا الشهر الهجري. اختر يومًا آخر من الشبكة، أو تنقّل بين الأشهر لترى المناسبات القادمة."
+                  body="لا يوجد حدث مسجَّل لهذا اليوم من الشهر الهجري. اختر يوماً آخر من الشبكة، أو تنقّل بين الأشهر لترى المناسبات القادمة."
                 />
               </motion.div>
             ) : (
@@ -265,9 +304,7 @@ function EventListCard({
       className="rich-widget w-full text-start rounded-card p-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="flex items-center justify-between mb-1">
-        <span
-          className="text-micro font-bold uppercase tracking-wider"
-        >
+        <span className="text-micro font-semibold text-muted-foreground">
           {monthLabel} {dayLabel}
         </span>
         {event.isMajorHoliday && (
@@ -284,7 +321,7 @@ function EventListCard({
       <p className="text-micro text-muted-foreground leading-relaxed line-clamp-2">
         {description}
       </p>
-      <p className="text-micro text-muted-foreground-subtle mt-1.5 tabular-nums">
+      <p className="text-micro text-secondary-muted mt-1.5 tabular-nums">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </motion.button>
@@ -346,21 +383,18 @@ function DetailContent({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 flex-wrap">
-        <span
-          className="text-micro font-bold uppercase tracking-wider"
-          style={{ color: accent }}
-        >
+        <span className="text-micro font-semibold" style={{ color: accent }}>
           {dayLabel} {monthLabel} {event.hijriYear}
         </span>
-        <span className="text-micro font-semibold text-muted-foreground-subtle px-2 py-0.5 rounded bg-muted/40">
+        <span className="text-micro font-semibold text-secondary-muted px-2 py-0.5 rounded bg-muted/40">
           {typeLabel}
         </span>
         {event.isMajorHoliday && (
           <span
-            className="text-micro font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+            className="rounded px-1.5 py-0.5 text-micro font-semibold"
             style={{ background: 'hsl(var(--secondary))', color: accent }}
           >
-            {'عيد كبير'}
+            عيد كبير
           </span>
         )}
       </div>
@@ -381,14 +415,14 @@ function DetailContent({
       )}
 
       {event.yearAh !== undefined && (
-        <p className="text-micro text-muted-foreground-subtle tabular-nums">
+        <p className="text-micro text-secondary-muted tabular-nums">
           {`السنة الهجرية: ${
                 event.yearAh > 0 ? event.yearAh : Math.abs(event.yearAh)
               }${event.yearAh < 0 ? ' قبل الهجرة' : ' هـ'}`}
         </p>
       )}
 
-      <p className="text-micro text-muted-foreground-subtle border-t border-border/40 pt-2 tabular-nums">
+      <p className="text-micro text-secondary-muted border-t border-border/40 pt-2 tabular-nums">
         {formatGregorianDate(event.gregorianDate, 'ar')}
       </p>
     </div>

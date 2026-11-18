@@ -33,7 +33,7 @@ export default function DiwanPage() {
         description="آلاف الشعراء وعشرات الآلاف من القصائد عبر العصور: الجاهلي، الأموي، العباسي، الأندلسي وما بعدها."
         path="/diwan"
       />
-      <DiwanLibraryPage tab={false} />
+      <DiwanLibraryPage tab={false} variant="hub" />
     </Suspense>
   );
 }

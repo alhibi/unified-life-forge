@@ -1,0 +1,250 @@
+{
+ "capturedAt": "2026-11-18T17:30:53.807Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/crypto",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/crypto/",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/weather",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/weather.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/weather--full.png"
+   ],
+   "status": 200,
+   "h1": "الطقس",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/fitness",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/fitness.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/fitness--full.png"
+   ],
+   "status": 200,
+   "h1": "اللياقة النخبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/time-ledger",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/time-ledger.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/time-ledger--full.png"
+   ],
+   "status": 200,
+   "h1": "سِجل الزمن",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/wellness",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/wellness.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/wellness--full.png"
+   ],
+   "status": 200,
+   "h1": "قسم الصحة والعافية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/pkm/mind",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/pkm_mind.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/390x844/expressive-dark/pkm_mind--full.png"
+   ],
+   "status": 200,
+   "h1": "العقل الحيّ",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/crypto",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/crypto/",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/weather",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/weather.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/weather--full.png"
+   ],
+   "status": 200,
+   "h1": "الطقس",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/fitness",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/fitness.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/fitness--full.png"
+   ],
+   "status": 200,
+   "h1": "اللياقة النخبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/wellness",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/wellness.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/wellness--full.png"
+   ],
+   "status": 200,
+   "h1": "قسم الصحة والعافية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/time-ledger",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/time-ledger.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/time-ledger--full.png"
+   ],
+   "status": 200,
+   "h1": "سِجل الزمن",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/pkm/mind",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/pkm_mind.png",
+    "/Users/amer/ulf-design/verification/design/before/e-data/1440x900/expressive-dark/pkm_mind--full.png"
+   ],
+   "status": 200,
+   "h1": "العقل الحيّ",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

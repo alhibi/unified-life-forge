@@ -9,11 +9,19 @@
 /* Compact desktop chrome must not shrink actual phone hit rectangles.
    Dense game boards and character keys retain their spatial geometry. */
 @media (max-width: 767px) {
-  button:not([data-soft-keyboard-panel] button):not([data-game-shell] button.aspect-square),
+  /* The 44px floor applies to the *hit rectangle*, not to every painted
+     geometry. A switch is a 28px track with an invisible 44px ::after hit
+     area already (see ui/switch.tsx), so forcing min-height on the root
+     stretched the track into a 44px blob on every phone — the visual defect
+     review caught in settings. Switches, game-board cells and soft-keyboard
+     keys are excluded; everything else keeps the plain 44px floor. */
+  button:not([data-soft-keyboard-panel] button):not([data-game-shell] button.aspect-square):not(
+      [role='switch']
+    ),
   [role='tab']:not([data-soft-keyboard-panel] [role='tab']),
   [role='button']:not([data-soft-keyboard-panel] [role='button']):not(
       [data-game-shell] [role='button'].aspect-square
-    ) {
+    ):not([role='switch']) {
     min-height: 44px !important;
     min-width: 44px !important;
   }
@@ -696,6 +704,17 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
 
     /* The shared page / panel header height. */
     --ui-header-h: 56px;
+
+    /* ── Floating return-to-portal dock (PortalBackButton) ────────────
+       One physical footprint, declared once: the dock is an icon button of
+       --ui-dock-size sitting --ui-dock-offset above the home indicator, and
+       every scrollable page reserves --ui-dock-inset at the bottom so the
+       last row can always be scrolled clear of it. Kept in sync with
+       src/lib/layout.ts (FLOATING_DOCK_SIZE / FLOATING_DOCK_OFFSET), which
+       the podcast mini-player uses to stack above the same rail. */
+    --ui-dock-size: 44px;
+    --ui-dock-offset: 16px;
+    --ui-dock-inset: 4.5rem;
 
     /* The single content column. */
     --ui-content-max: 512px;
@@ -1961,8 +1980,8 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
     /* Clears the floating header — follows the header-height preference. */
     padding-top: var(--ui-header-h);
     padding-bottom: calc(
-      4.5rem + var(--ui-safe-extra) + env(safe-area-inset-bottom, 0px)
-    ); /* 72px + user inset + device inset */
+      var(--ui-dock-inset) + var(--ui-safe-extra) + env(safe-area-inset-bottom, 0px)
+    ); /* reserved dock rail + user inset + device inset */
     padding-inline: var(--ui-gutter);
   }
   .page-shell-flush {
@@ -1975,7 +1994,25 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
      nothing more. Replaces the ad-hoc `pb-24` / `pb-28` / `pb-32` that were
      each guessing at the height of a bottom nav that no longer exists. */
   .pb-page {
-    padding-bottom: calc(4.5rem + var(--ui-safe-extra) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(
+      var(--ui-dock-inset) + var(--ui-safe-extra) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  /* The one floating navigation chip: a 44px icon button parked in the
+     bottom-start corner, above the home indicator. Geometry lives here so
+     the component owns behaviour only; `inset-inline-start` keeps it on the
+     reading-start edge in both directions (right in RTL, left in LTR).
+     Hidden states (keyboard open, immersive surface, before the page has
+     scrolled) are enforced by PortalBackButton, which also publishes
+     `data-portal-dock` on <html> for other floating surfaces to stack on. */
+  .portal-dock {
+    position: fixed;
+    inset-inline-start: var(--ui-gutter);
+    inset-block-end: calc(env(safe-area-inset-bottom, 0px) + var(--ui-dock-offset));
+    inline-size: var(--ui-dock-size);
+    block-size: var(--ui-dock-size);
+    z-index: var(--z-index-float);
   }
   .page-shell-inner {
     /* The single content column. Tailwind's `max-w-lg` resolves to the same

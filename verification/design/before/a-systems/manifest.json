@@ -1,0 +1,420 @@
+{
+ "capturedAt": "2026-11-18T17:31:24.458Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/crypto",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/root.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/root--full.png"
+   ],
+   "status": 200,
+   "h1": "amv.life — بوابتك الشخصية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/games_memory.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/games_memory--full.png"
+   ],
+   "status": 200,
+   "h1": "أزواج الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/sudoku",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/grammar",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/german-club_grammar.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/german-club_grammar--full.png"
+   ],
+   "status": 200,
+   "h1": "زاوية القواعد (Grammar Corner)",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/podcasts/1",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/podcasts_1.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/podcasts_1--full.png"
+   ],
+   "status": 200,
+   "h1": "بودكاست",
+   "h1Count": 2,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/settings/theme",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/settings_theme.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/settings_theme--full.png"
+   ],
+   "status": 200,
+   "h1": "المظهر",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/auth",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/auth.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/auth--full.png"
+   ],
+   "status": 200,
+   "h1": "تسجيل الدخول",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/chat.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/chat--full.png"
+   ],
+   "status": 200,
+   "h1": "الدردشة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/root.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/root--full.png"
+   ],
+   "status": 200,
+   "h1": "amv.life — بوابتك الشخصية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/crypto",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/games_memory.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/games_memory--full.png"
+   ],
+   "status": 200,
+   "h1": "أزواج الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/place/1",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/travel-atlas_place_1.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/390x844/expressive-dark/travel-atlas_place_1--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/sudoku",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/podcasts/1",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/podcasts_1.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/podcasts_1--full.png"
+   ],
+   "status": 200,
+   "h1": "بودكاست",
+   "h1Count": 2,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/grammar",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/german-club_grammar.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/german-club_grammar--full.png"
+   ],
+   "status": 200,
+   "h1": "زاوية القواعد (Grammar Corner)",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/settings/theme",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/settings_theme.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/settings_theme--full.png"
+   ],
+   "status": 200,
+   "h1": "المظهر",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/auth",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/auth.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/auth--full.png"
+   ],
+   "status": 200,
+   "h1": "تسجيل الدخول",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/chat.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/chat--full.png"
+   ],
+   "status": 200,
+   "h1": "الدردشة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas/place/1",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/travel-atlas_place_1.png",
+    "/Users/amer/ulf-design/verification/design/before/a-systems/1440x900/expressive-dark/travel-atlas_place_1--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  }
+ ]
+}

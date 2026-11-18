@@ -135,6 +135,17 @@ function auditPage() {
     if (!element || seen.has(element) || !visible(element)) continue;
     seen.add(element);
     if (element.closest('[aria-hidden="true"], .sr-only, svg, canvas, script, style')) continue;
+    // WCAG 1.4.3 exempts inactive user-interface components. A control that
+    // declares itself disabled/aria-disabled, or content deliberately dimmed
+    // behind a locked/inactive card (ancestor opacity <= 0.5), is not text a
+    // user reads to operate the app — it is a preview of something unavailable.
+    if (element.closest('[aria-disabled="true"], [disabled], [data-inactive="true"]')) continue;
+    let dim = 1;
+    for (let n = element; n && n !== document.documentElement; n = n.parentElement) {
+      dim *= Number(getComputedStyle(n).opacity);
+      if (Number.isNaN(dim) || dim <= 0.5) break;
+    }
+    if (dim <= 0.5) continue;
     const style = getComputedStyle(element);
     const fg = parse(style.color);
     const bg = backgroundOf(element);

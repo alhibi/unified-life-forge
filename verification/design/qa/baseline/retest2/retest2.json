@@ -1,0 +1,156 @@
+{
+ "tripDialog": {
+  "focusables": [
+   {
+    "tag": "input",
+    "ph": "مثال: أسبوع في جورجيا",
+    "aria": null,
+    "text": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "ph": null,
+    "aria": null,
+    "text": "",
+    "disabled": false
+   },
+   {
+    "tag": "input",
+    "ph": null,
+    "aria": null,
+    "text": "",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "ph": null,
+    "aria": null,
+    "text": "إلغاء",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "ph": null,
+    "aria": null,
+    "text": "أنشئ",
+    "disabled": false
+   },
+   {
+    "tag": "button",
+    "ph": null,
+    "aria": null,
+    "text": "إغلاق",
+    "disabled": false
+   }
+  ],
+  "tabSequence": [
+   "input",
+   "input",
+   "input",
+   "input",
+   "input",
+   "input",
+   "input",
+   "input"
+  ],
+  "esc150": "body \"رحلاتيخطّط من أماكنك\"",
+  "esc850": {
+   "active": "body",
+   "dialog": false,
+   "bodyOverflow": "visible"
+  },
+  "afterCancel": {
+   "active": "body",
+   "dialog": false,
+   "bodyOverflow": "visible"
+  }
+ },
+ "motionPersistence": {
+  "before": {
+   "attr": "false",
+   "stored": null
+  },
+  "toggled": {
+   "attr": "true",
+   "src": "app",
+   "stored": "{\"schemaVersion\":1,\"navStyle\":\"silk\",\"easingProfile\":\"silk\",\"scrollProfile\":\"silk\",\"overlayStyle\":\"fade\",\"navDuration\":1,\"listStagger\":1,\"pressFeedback\":1,\"reduceMotion\":true,\"gestureBack\":true,\"gestureSensitivity\":1,\"adaptivePerformance\":true,\"compositorHints\":true}"
+  },
+  "reloaded": {
+   "attr": "true",
+   "src": "app",
+   "stored": "{\"schemaVersion\":1,\"navStyle\":\"silk\",\"easingProfile\":\"silk\",\"scrollProfile\":\"silk\",\"overlayStyle\":\"fade\",\"navDuration\":1,\"listStagger\":1,\"pressFeedback\":1,\"reduceMotion\":true,\"gestureBack\":true,\"gestureSensitivity\":1,\"adaptivePerformance\":true,\"compositorHints\":true}"
+  }
+ },
+ "auth_390": {
+  "initial": {
+   "kbOpen": false,
+   "active": "INPUT",
+   "toggles": []
+  },
+  "opened": {
+   "error": "TimeoutError: locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator('button[aria-label=\"لوحة المفاتيح الذكية\"]').first()\n"
+  }
+ },
+ "auth_1440": {
+  "initial": {
+   "kbOpen": false,
+   "active": "INPUT",
+   "toggles": []
+  },
+  "opened": {
+   "error": "TimeoutError: locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator('button[aria-label=\"لوحة المفاتيح الذكية\"]').first()\n"
+  }
+ },
+ "gamesLightShare": {
+  "found": true,
+  "text": "مشاركة",
+  "tag": "span",
+  "cls": "shrink-0 rounded-sm px-1.5 py-px text-micro font-medium",
+  "color": "rgb(156, 191, 232)",
+  "bgComputed": "rgba(156, 191, 232, 0.12)",
+  "stack": [
+   {
+    "r": 156,
+    "g": 191,
+    "b": 232,
+    "a": 0.12
+   },
+   {
+    "r": 16,
+    "g": 20,
+    "b": 22,
+    "a": 1
+   }
+  ],
+  "ratio": 7.79,
+  "fontSize": "12px",
+  "weight": "500",
+  "rect": {
+   "x": 114,
+   "y": 1391,
+   "w": 45,
+   "h": 21
+  }
+ },
+ "germanReview": {
+  "h1": [
+   "تسجيل الدخول"
+  ],
+  "kbOpen": false,
+  "dialog": false,
+  "smallTargets": 0
+ },
+ "grammarTiming": {
+  "early": {
+   "text": "زاوية القواعد GRAMMATIK — DER CLUB (Grammar Corner) نحو سياقي قواعد عملية ومصممة للواقع توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوط",
+   "cards": 2,
+   "scrollHeight": 844
+  },
+  "late": {
+   "text": "زاوية القواعد GRAMMATIK — DER CLUB (Grammar Corner) نحو سياقي قواعد عملية ومصممة للواقع توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوط",
+   "cards": 2,
+   "scrollHeight": 844
+  }
+ }
+}

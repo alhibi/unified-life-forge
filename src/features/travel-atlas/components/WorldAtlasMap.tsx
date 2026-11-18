@@ -9,10 +9,11 @@ import {
   writeMapStyleId,
 } from '../lib/mapPreferences';
 import type { CountrySummary } from '../lib/stats';
-import type { Coordinates, TravelPlace } from '../types';
+import type { Coordinates, CountryStamp, TravelPlace } from '../types';
+import AtlasFallbackSurface from './map/AtlasFallbackSurface';
 import CountryBubbleOverlay from './map/CountryBubbleOverlay';
 import MapControls from './map/MapControls';
-import MapSurface from './map/MapSurface';
+import MapSurface, { type MapSurfaceState } from './map/MapSurface';
 import MarkerOverlay from './map/MarkerOverlay';
 import { useMapController } from './map/useMapController';
 import { useVisibleMarkers } from './map/useVisibleMarkers';
@@ -22,6 +23,11 @@ interface WorldAtlasMapProps {
   places: TravelPlace[];
   onSelectCountry: (summary: CountrySummary) => void;
   onSelectPlace: (place: TravelPlace) => void;
+  /** Opens a country by ISO — the offline poster navigates by geography. */
+  onSelectCountryIso?: (isoCode: string) => void;
+  /** Opens the add-place sheet from the designed empty map state. */
+  onAddPlace?: () => void;
+  stamps?: CountryStamp[];
   unsupportedFallback?: ReactNode;
 }
 
@@ -35,16 +41,24 @@ const COUNTRY_VIEW_MAX_ZOOM = 4.6;
  * The atlas overview — a globe you can spin, with one bubble per country you have
  * saved something in. Keeping it a real map rather than a list of names is the
  * point: the shape of someone's travelling shows up immediately.
+ *
+ * When the live map cannot paint (offline, blocked tiles, no WebGL) the surface
+ * falls back to the designed dotted atlas. The toolbar goes with it: offering
+ * zoom and projection buttons over a static poster would be dead controls.
  */
 export default function WorldAtlasMap({
   summaries,
   places,
   onSelectCountry,
   onSelectPlace,
+  onSelectCountryIso,
+  onAddPlace,
+  stamps,
   unsupportedFallback,
 }: WorldAtlasMapProps) {
   const [styleId, setStyleId] = useState<MapStyleId>(readMapStyleId);
   const [globe, setGlobe] = useState<boolean>(readGlobeEnabled);
+  const [surface, setSurface] = useState<'live' | 'fallback'>('live');
 
   const [initialCamera] = useState(() => ({
     initialCenter: [30, 22] as Coordinates,
@@ -86,45 +100,59 @@ export default function WorldAtlasMap({
     if (fitted) controller.fitBounds(fitted, 5);
   }, [controller, places, snapshot.isReady]);
 
+  const renderFallback = useCallback(
+    (state: MapSurfaceState) => (
+      <AtlasFallbackSurface
+        variant="world"
+        state={state}
+        stamps={stamps}
+        summaries={summaries}
+        places={places}
+        onSelectCountry={onSelectCountryIso}
+        onSelectPlace={onSelectPlace}
+        onAddPlace={onAddPlace}
+        onRetry={() => controller.retry()}
+      />
+    ),
+    [controller, onAddPlace, onSelectCountryIso, onSelectPlace, places, stamps, summaries],
+  );
+
   return (
     <MapSurface
       controller={controller}
       snapshot={snapshot}
       unsupportedFallback={unsupportedFallback}
+      fallback={renderFallback}
+      onSurfaceStateChange={setSurface}
     >
-      {showCountries ? (
-        <CountryBubbleOverlay
-          map={snapshot.map}
-          isGlobe={globe}
-          summaries={summaries}
-          onSelect={onSelectCountry}
-        />
-      ) : (
-        <MarkerOverlay
-          map={snapshot.map}
-          isGlobe={globe}
-          items={items}
-          showLabels={showLabels}
-          onSelectPlace={onSelectPlace}
-          onExpandCluster={(cluster) => controller.fitBounds(cluster.bounds, 15)}
-        />
-      )}
+      {surface === 'live' && (
+        <>
+          {showCountries ? (
+            <CountryBubbleOverlay
+              map={snapshot.map}
+              isGlobe={globe}
+              summaries={summaries}
+              onSelect={onSelectCountry}
+            />
+          ) : (
+            <MarkerOverlay
+              map={snapshot.map}
+              isGlobe={globe}
+              items={items}
+              showLabels={showLabels}
+              onSelectPlace={onSelectPlace}
+              onExpandCluster={(cluster) => controller.fitBounds(cluster.bounds, 15)}
+            />
+          )}
 
-      <MapControls
-        controller={controller}
-        styleId={styleId}
-        onStyleChange={changeStyle}
-        globe={{ enabled: globe, onToggle: toggleGlobe }}
-        onFrameAll={places.length > 0 ? frameAll : undefined}
-      />
-
-      {showCountries && summaries.length > 0 && (
-        <p
-          className="pointer-events-none absolute inset-x-3 bottom-3 mx-auto max-w-xs rounded-card border border-border bg-background/95 px-3 py-2 text-center text-micro text-muted-foreground"
-          dir="rtl"
-        >
-          حجم الدائرة يعبّر عن عدد الأماكن — اقترب لتظهر الأماكن نفسها
-        </p>
+          <MapControls
+            controller={controller}
+            styleId={styleId}
+            onStyleChange={changeStyle}
+            globe={{ enabled: globe, onToggle: toggleGlobe }}
+            onFrameAll={places.length > 0 ? frameAll : undefined}
+          />
+        </>
       )}
     </MapSurface>
   );

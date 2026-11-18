@@ -67,21 +67,35 @@ export default function GamesPage() {
           <ProfileCard state={state} />
         </motion.div>
 
+        {/* The three games are the page's real subject, so they come before the
+            daily list instead of after it — on a phone the arcade is reachable
+            without scrolling past a challenge card. Each plate keeps its own
+            identity rail; the wide layout is a game shelf, not a dashboard
+            stack. */}
+        <motion.section variants={item} aria-labelledby="games-arcade-heading">
+          <header className="mb-2 flex items-baseline justify-between gap-3 px-1">
+            <h2 id="games-arcade-heading" className="type-section text-foreground">
+              الألعاب
+            </h2>
+            <p className="text-mini text-muted-foreground">اختر ملعبك</p>
+          </header>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {GAMES.map((game) => (
+              <GameMasteryCard
+                key={game.id}
+                game={game}
+                mastery={mastery(game.id)}
+                stats={state.mastery[game.id]}
+                icon={GAME_ICONS[game.id]}
+                identity={GAME_IDENTITY[game.id]}
+              />
+            ))}
+          </div>
+        </motion.section>
+
         <motion.div variants={item}>
           <DailyChallengeList challenges={challenges} />
         </motion.div>
-
-        {GAMES.map((game) => (
-          <motion.div key={game.id} variants={item}>
-            <GameMasteryCard
-              game={game}
-              mastery={mastery(game.id)}
-              stats={state.mastery[game.id]}
-              icon={GAME_ICONS[game.id]}
-              identity={GAME_IDENTITY[game.id]}
-            />
-          </motion.div>
-        ))}
 
         <motion.div variants={item}>
           <AchievementShelf state={state} />

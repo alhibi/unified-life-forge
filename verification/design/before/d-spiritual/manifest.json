@@ -1,0 +1,410 @@
+{
+ "capturedAt": "2026-11-18T17:29:50.763Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/mihrab/prayer-guide",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/mihrab_prayer-guide.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/mihrab_prayer-guide--full.png"
+   ],
+   "status": 200,
+   "h1": "دليل الصلاة وأوقاتها",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/mihrab",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/mihrab.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/mihrab--full.png"
+   ],
+   "status": 200,
+   "h1": "محراب",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/quran",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/quran.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/quran--full.png"
+   ],
+   "status": 200,
+   "h1": "القرآن الكريم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/tafsir",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/tafsir.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/tafsir--full.png"
+   ],
+   "status": 200,
+   "h1": "التفسير",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dhikr",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/dhikr.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/dhikr--full.png"
+   ],
+   "status": 200,
+   "h1": "الذكر والأذكار",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/duas",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/duas.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/duas--full.png"
+   ],
+   "status": 200,
+   "h1": "محراب",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/sunnah",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/sunnah.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/sunnah--full.png"
+   ],
+   "status": 200,
+   "h1": "السنة النبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/timed-sunnah",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_timed-sunnah.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_timed-sunnah--full.png"
+   ],
+   "status": 200,
+   "h1": "السنن الموقوتة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/timed-sunnah/fajr",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_timed-sunnah_fajr.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_timed-sunnah_fajr--full.png"
+   ],
+   "status": 200,
+   "h1": "الفجر",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/untimed-sunnah",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_untimed-sunnah.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_untimed-sunnah--full.png"
+   ],
+   "status": 200,
+   "h1": "السنن غير الموقوتة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/prophetic-day",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_prophetic-day.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_prophetic-day--full.png"
+   ],
+   "status": 200,
+   "h1": "نظرة على يوم النبي ﷺ",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/quran-virtues",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_quran-virtues.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/390x844/expressive-dark/section_quran-virtues--full.png"
+   ],
+   "status": 200,
+   "h1": "فضائل القرآن",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/mihrab",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/mihrab.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/mihrab--full.png"
+   ],
+   "status": 200,
+   "h1": "محراب",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/mihrab/prayer-guide",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/mihrab_prayer-guide.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/mihrab_prayer-guide--full.png"
+   ],
+   "status": 200,
+   "h1": "دليل الصلاة وأوقاتها",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/quran",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/quran.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/quran--full.png"
+   ],
+   "status": 200,
+   "h1": "القرآن الكريم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/tafsir",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/tafsir.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/tafsir--full.png"
+   ],
+   "status": 200,
+   "h1": "التفسير",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dhikr",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/dhikr.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/dhikr--full.png"
+   ],
+   "status": 200,
+   "h1": "الذكر والأذكار",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/duas",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/duas.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/duas--full.png"
+   ],
+   "status": 200,
+   "h1": "محراب",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/sunnah",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/sunnah.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/sunnah--full.png"
+   ],
+   "status": 200,
+   "h1": "السنة النبوية",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/timed-sunnah",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_timed-sunnah.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_timed-sunnah--full.png"
+   ],
+   "status": 200,
+   "h1": "السنن الموقوتة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/timed-sunnah/fajr",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_timed-sunnah_fajr.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_timed-sunnah_fajr--full.png"
+   ],
+   "status": 200,
+   "h1": "الفجر",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/prophetic-day",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_prophetic-day.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_prophetic-day--full.png"
+   ],
+   "status": 200,
+   "h1": "نظرة على يوم النبي ﷺ",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/untimed-sunnah",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_untimed-sunnah.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_untimed-sunnah--full.png"
+   ],
+   "status": 200,
+   "h1": "السنن غير الموقوتة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/section/quran-virtues",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_quran-virtues.png",
+    "/Users/amer/ulf-design/verification/design/before/d-spiritual/1440x900/expressive-dark/section_quran-virtues--full.png"
+   ],
+   "status": 200,
+   "h1": "فضائل القرآن",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

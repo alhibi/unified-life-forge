@@ -1,0 +1,14 @@
+import { chromium } from '@playwright/test';
+const PROFILE={'app-theme':'dark','app-color-theme':'expressive','app-palette-style':'tonal','app-black-mode':'false','app-surface-lift':'subtle','app-ui-density':'cozy','app-content-width':'standard','app-reduced-motion':'true'};
+const browser=await chromium.launch();
+const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,locale:'ar',timezoneId:'Asia/Riyadh',reducedMotion:'reduce',colorScheme:'dark'});
+await ctx.addInitScript((p)=>{for(const[k,v]of Object.entries(p))localStorage.setItem(k,v)},PROFILE);
+const page=await ctx.newPage();
+await page.route('**/*',(r)=>{const h=new URL(r.request().url()).hostname;if(h==='127.0.0.1'||h==='localhost'||h.endsWith('googleapis.com')||h.endsWith('gstatic.com'))return r.continue();return r.abort();});
+await page.goto('http://127.0.0.1:5199/',{waitUntil:'domcontentloaded'});await page.waitForTimeout(3000);
+const cellData=await page.evaluate(()=>{const cells=[...document.querySelectorAll('.portal-widget-cell')];const el=cells[14];if(!el)return null;el.scrollIntoView({block:'center'});const r=el.getBoundingClientRect();return {text:(el.textContent||'').replace(/\s+/g,' ').trim(),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},visible:r.width>2&&r.height>2,html:el.outerHTML.slice(0,600)};});
+await page.waitForTimeout(700);
+const rectNow=await page.evaluate(()=>{const el=[...document.querySelectorAll('.portal-widget-cell')][14];if(!el)return null;const r=el.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)};});
+await page.screenshot({path:'verification/design/qa/final-prep/portal-weather-zero-tile.png',animations:'disabled',clip:{x:0,y:Math.max(0,rectNow.y-80),width:390,height:Math.min(600,Math.max(220,rectNow.h+120))}});
+console.log(JSON.stringify({cellData,rectNow},null,1));
+await ctx.close();await browser.close();

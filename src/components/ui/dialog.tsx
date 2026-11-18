@@ -1,6 +1,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as React from 'react';
 
+import { useOverlayFocusReturn } from '@/components/ui/overlay-focus-return';
 import { X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -49,6 +50,10 @@ const DialogContent = React.forwardRef<
   }
 >(({ className, children, onClose, autoFocus = true, ...props }, ref) => {
   const dialogContentRef = React.useRef<HTMLDivElement>(null);
+  // Controlled dialogs have no DialogTrigger, so Radix's trigger-based focus
+  // restore lands on <body>; the hook restores the opener instead. Trigger
+  // dialogs keep Radix's behaviour untouched.
+  const { captureOpener, handleCloseAutoFocus } = useOverlayFocusReturn(onClose);
 
   // Handle Escape key to close dialog
   useEscapeKey(() => {
@@ -85,17 +90,12 @@ const DialogContent = React.forwardRef<
           className,
         )}
         onOpenAutoFocus={(e) => {
+          captureOpener();
           if (!autoFocus) {
             e.preventDefault();
           }
         }}
-        onCloseAutoFocus={() => {
-          // Radix restores focus to the element that opened the dialog by
-          // default. Preventing it here left focus on <body> after close
-          // (DESIGN.md §10 C: focus returns to a logical place). Keep the
-          // onClose callback, drop the prevention.
-          onClose?.();
-        }}
+        onCloseAutoFocus={handleCloseAutoFocus}
         {...props}
       >
         {children}

@@ -1,0 +1,44 @@
+[
+ {
+  "route": "/auth",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 1.69,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "تم",
+    "element": "span.flex.items-center"
+   }
+  ]
+ },
+ {
+  "route": "/german-club/review",
+  "mode": "dark",
+  "findings": [
+   {
+    "ratio": 1.69,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 600,
+    "text": "تم",
+    "element": "span.flex.items-center"
+   }
+  ]
+ },
+ {
+  "route": "/games",
+  "mode": "light",
+  "findings": [
+   {
+    "ratio": 4.23,
+    "minimum": 4.5,
+    "size": 12,
+    "weight": 500,
+    "text": "مشاركة",
+    "element": "span.shrink-0.rounded-sm"
+   }
+  ]
+ }
+]

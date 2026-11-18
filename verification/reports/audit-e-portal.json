@@ -1,0 +1,36 @@
+[
+ {
+  "route": "/",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ }
+]

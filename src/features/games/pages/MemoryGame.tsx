@@ -134,7 +134,6 @@ function levelFromXp(xp: number): number {
   while (xp >= need) { xp -= need; lvl++; need = 100 * lvl; }
   return lvl;
 }
-function xpForNextLevel(level: number): number { return 100 * level; }
 function xpProgress(stats: MemoryStats): { current: number; need: number; pct: number } {
   let xp = stats.xp; let lvl = 1; let need = 100;
   while (xp >= need) { xp -= need; lvl++; need = 100 * lvl; }
@@ -769,10 +768,10 @@ export default function MemoryGame() {
       options={options}
       headerRight={
         <div className="flex items-center gap-1">
-          <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 transition-transform">
+          <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-11 h-11 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 transition-transform">
             {isPaused || !gameStarted ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
           </button>
-          <button aria-label="لعبة جديدة" onClick={() => newGame()} className="w-8 h-8 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 transition-transform">
+          <button aria-label="لعبة جديدة" onClick={() => newGame()} className="w-11 h-11 rounded-lg flex items-center justify-center bg-data-5/15 text-data-5 transition-transform">
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
         </div>

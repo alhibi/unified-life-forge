@@ -7,6 +7,7 @@ import { AppList, AppRow } from '@/components/ui/app-shell';
 import { Input } from '@/components/ui/input';
 import { ArrowRight, Copy, Loader2, MapPin, Navigation, Plus, Search, X } from '@/lib/icons';
 
+import AtlasFallbackSurface from '../components/map/AtlasFallbackSurface';
 import MapControls from '../components/map/MapControls';
 import MapSurface from '../components/map/MapSurface';
 import MarkerOverlay from '../components/map/MarkerOverlay';
@@ -72,6 +73,8 @@ export default function ExploreMapPage() {
     };
   });
   const { controller, snapshot } = useMapController({ ...initialCamera, styleId, globe: false });
+  // Tracks whether the live canvas or the designed atlas fallback is visible.
+  const [mapSurface, setMapSurface] = useState<'live' | 'fallback'>('live');
 
   const { items, showLabels } = useVisibleMarkers(snapshot.map, places);
 
@@ -201,6 +204,19 @@ export default function ExploreMapPage() {
         <MapSurface
           controller={controller}
           snapshot={snapshot}
+          onSurfaceStateChange={setMapSurface}
+          fallback={(state) => (
+            <AtlasFallbackSurface
+              variant="explore"
+              state={state}
+              places={places}
+              onSelectCountry={(isoCode) => navigate(`/travel-atlas/${isoCode}`)}
+              onSelectPlace={(place) => navigate(`/travel-atlas/place/${place.id}`)}
+              onBrowseCountries={() => navigate('/travel-atlas/countries')}
+              onBrowseTrips={() => navigate('/travel-atlas/trips')}
+              onRetry={() => controller.retry()}
+            />
+          )}
           unsupportedFallback={
             <div className="grid h-full place-items-center px-6 text-center">
               <p className="text-body text-muted-foreground">
@@ -222,15 +238,17 @@ export default function ExploreMapPage() {
             onExpandCluster={(cluster) => controller.fitBounds(cluster.bounds, 16)}
           />
 
-          <MapControls
-            controller={controller}
-            styleId={styleId}
-            onStyleChange={(next) => {
-              setStyleId(next);
-              writeMapStyleId(next);
-            }}
-            className="travel-map-controls--below-search"
-          />
+          {mapSurface === 'live' && (
+            <MapControls
+              controller={controller}
+              styleId={styleId}
+              onStyleChange={(next) => {
+                setStyleId(next);
+                writeMapStyleId(next);
+              }}
+              className="travel-map-controls--below-search"
+            />
+          )}
         </MapSurface>
 
         {/* Search sits over the canvas: this screen has no page header, so the
@@ -288,7 +306,7 @@ export default function ExploreMapPage() {
           )}
         </div>
 
-        {selectedPlace && (
+        {selectedPlace && mapSurface === 'live' && (
           <PlacePeekCard
             place={selectedPlace}
             onOpenDetails={() => navigate(`/travel-atlas/place/${selectedPlace.id}`)}
@@ -302,7 +320,7 @@ export default function ExploreMapPage() {
           />
         )}
 
-        {dropped && !selectedPlace && (
+        {dropped && !selectedPlace && mapSurface === 'live' && (
           <aside
             className="absolute inset-x-3 bottom-3 mx-auto max-w-md overflow-hidden rounded-section border border-border bg-background animate-slide-up"
             dir="rtl"
@@ -369,9 +387,11 @@ export default function ExploreMapPage() {
           </aside>
         )}
 
-        {!dropped && !selectedPlace && (
+        {!dropped && !selectedPlace && mapSurface === 'live' && (
+          // Clear of the floating portal dock in the bottom-start corner: the
+          // chip starts 80px in so the dock never sits on its first word.
           <p
-            className="pointer-events-none absolute inset-x-3 bottom-3 mx-auto max-w-xs rounded-card border border-border bg-background/95 px-3 py-2 text-center text-micro text-muted-foreground"
+            className="pointer-events-none absolute bottom-3 start-20 end-3 mx-auto max-w-xs rounded-card border border-border bg-background/95 px-3 py-2 text-center text-micro text-muted-foreground"
             dir="rtl"
           >
             انقر على الخريطة لتحديد نقطة وإضافتها

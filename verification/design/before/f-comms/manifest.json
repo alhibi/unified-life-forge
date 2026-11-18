@@ -1,0 +1,390 @@
+{
+ "capturedAt": "2026-11-18T17:28:36.844Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/chat/groups",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat_groups.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat_groups--full.png"
+   ],
+   "status": 200,
+   "h1": "المجموعات والقنوات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat--full.png"
+   ],
+   "status": 200,
+   "h1": "الدردشة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/settings",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat_settings.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat_settings--full.png"
+   ],
+   "status": 200,
+   "h1": "سجّل الدخول",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat_g_00000000-0000-0000-0000-000000000000.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/chat_g_00000000-0000-0000-0000-000000000000--full.png"
+   ],
+   "status": 200,
+   "h1": "المحادثة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club--full.png"
+   ],
+   "status": 200,
+   "h1": "النادي الألماني",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/dictionary",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_dictionary.png"
+   ],
+   "status": 200,
+   "h1": "القاموس الألماني-العربي",
+   "h1Count": 1,
+   "overflow": -11,
+   "error": "Error: page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot",
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/german-club/grammar",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_grammar.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_grammar--full.png"
+   ],
+   "status": 200,
+   "h1": "زاوية القواعد (Grammar Corner)",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/review",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_review.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_review--full.png"
+   ],
+   "status": 200,
+   "h1": "تسجيل الدخول",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/german-club/shelf/test-slug",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_shelf_test-slug.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_shelf_test-slug--full.png"
+   ],
+   "status": 200,
+   "h1": "مواقف الرف",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/wortliste",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_wortliste.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/german-club_wortliste--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة كلماتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/settings/keyboard",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/settings_keyboard.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/390x844/expressive-dark/settings_keyboard--full.png"
+   ],
+   "status": 200,
+   "h1": "لوحة المفاتيح",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat--full.png"
+   ],
+   "status": 200,
+   "h1": "الدردشة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/groups",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat_groups.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat_groups--full.png"
+   ],
+   "status": 200,
+   "h1": "المجموعات والقنوات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/settings",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat_settings.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat_settings--full.png"
+   ],
+   "status": 200,
+   "h1": "سجّل الدخول",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat_g_00000000-0000-0000-0000-000000000000.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/chat_g_00000000-0000-0000-0000-000000000000--full.png"
+   ],
+   "status": 200,
+   "h1": "المحادثة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club--full.png"
+   ],
+   "status": 200,
+   "h1": "النادي الألماني",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/dictionary",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_dictionary.png"
+   ],
+   "status": 200,
+   "h1": "القاموس الألماني-العربي",
+   "h1Count": 1,
+   "overflow": -11,
+   "error": "Error: page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot",
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/german-club/grammar",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_grammar.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_grammar--full.png"
+   ],
+   "status": 200,
+   "h1": "زاوية القواعد (Grammar Corner)",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/review",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_review.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_review--full.png"
+   ],
+   "status": 200,
+   "h1": "تسجيل الدخول",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/german-club/wortliste",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_wortliste.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_wortliste--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة كلماتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/german-club/shelf/test-slug",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_shelf_test-slug.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/german-club_shelf_test-slug--full.png"
+   ],
+   "status": 200,
+   "h1": "مواقف الرف",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/settings/keyboard",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/settings_keyboard.png",
+    "/Users/amer/ulf-design/verification/design/before/f-comms/1440x900/expressive-dark/settings_keyboard--full.png"
+   ],
+   "status": 200,
+   "h1": "لوحة المفاتيح",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

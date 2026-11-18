@@ -1,24 +1,51 @@
 import { motion } from 'framer-motion';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import SEO from '@/components/SEO';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowRight,ShieldAlert } from '@/lib/icons';
 
+/** Canonical sign-in action: signs in, then returns to the current path. */
+export type AuthSignIn = () => void;
+
+type AuthGuardFallback = React.ReactNode | ((signIn: AuthSignIn) => React.ReactNode);
+
 interface AuthGuardProps {
   children: React.ReactNode;
   fallbackTitleAr?: string;
   fallbackDescAr?: string;
+  /**
+   * Replace the built-in centred signed-out card. Use it when the gated route
+   * should keep its own page identity (PageShell + PageHeader + a bounded
+   * card with `<StateView kind="auth" />`) instead of a full-viewport card:
+   *
+   *   <AuthGuard fallback={(signIn) => (
+   *     <PageShell header={<PageHeader title="…" />}>
+   *       <AppCard><StateView kind="auth" … action={{ label: 'تسجيل الدخول', onClick: signIn }} /></AppCard>
+   *     </PageShell>
+   *   )}>
+   *
+   * A plain node is accepted for simple overrides. The session-expiry handling
+   * and the loading gate stay owned by this component either way.
+   */
+  fallback?: AuthGuardFallback;
 }
 
 export default function AuthGuard({
   children,
   fallbackTitleAr = 'تسجيل الدخول مطلوب',
   fallbackDescAr = 'يرجى تسجيل الدخول للوصول إلى هذا القسم ومزامنة بياناتك بأمان.',
+  fallback,
 }: AuthGuardProps) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Canonical sign-in destination, including the return path. Exposed to the
+  // `fallback` render prop so gated pages never hand-roll the query string.
+  const signIn = useCallback<AuthSignIn>(() => {
+    navigate(`/auth?next=${encodeURIComponent(window.location.pathname)}`);
+  }, [navigate]);
 
   // Handle session expiration toast notification centrally
   useEffect(() => {
@@ -53,6 +80,12 @@ export default function AuthGuard({
   }
 
   if (!user) {
+    // Page-owned gated surface: the page keeps its own identity and SEO. The
+    // render prop receives the one canonical sign-in action.
+    if (fallback !== undefined) {
+      return <>{typeof fallback === 'function' ? fallback(signIn) : fallback}</>;
+    }
+
     return (
       <div dir={'rtl'} className="min-h-[100dvh] bg-background flex items-center justify-center p-6">
         <SEO
@@ -83,7 +116,7 @@ export default function AuthGuard({
           </div>
 
           <button
-            onClick={() => navigate(`/auth?next=${encodeURIComponent(window.location.pathname)}`)}
+            onClick={signIn}
             className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-meta flex items-center justify-center gap-2"
           >
             {'تسجيل الدخول'}

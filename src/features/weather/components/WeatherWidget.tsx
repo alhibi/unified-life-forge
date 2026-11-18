@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,16 @@ import { useWeatherLocation } from '@/features/weather/context/WeatherLocationCo
 import { useWeatherData } from '@/features/weather/hooks/useWeatherData';
 // One WMO code vocabulary for the whole app — see features/weather/lib/conditions.
 import { iconForWeatherCode, labelForWeatherCode } from '@/features/weather/lib/conditions';
-import { ChevronLeft, Droplets, Gauge, Sun, Thermometer, Wind as WindIcon } from '@/lib/icons';
+import { useDeviceLocation } from '@/hooks/useDeviceLocation';
+import {
+  ChevronLeft,
+  Droplets,
+  Gauge,
+  MapPin,
+  Sun,
+  Thermometer,
+  Wind as WindIcon,
+} from '@/lib/icons';
 
 const HOURS_AHEAD = 8;
 
@@ -22,7 +31,32 @@ const HOURS_AHEAD = 8;
 export default function WeatherWidget() {
   const navigate = useNavigate();
   const { selectedCoords } = useWeatherLocation();
+  const {
+    location: deviceLocation,
+    isFallback,
+    status: locationStatus,
+    requestLocation,
+  } = useDeviceLocation();
   const { data } = useWeatherData('ar', selectedCoords);
+  const [requesting, setRequesting] = useState(false);
+
+  // A place is "resolved" only when it is the weather context's chosen city or
+  // a real device fix — the Mecca fallback is not the user's place.
+  const hasResolvedLocation = Boolean(selectedCoords) || Boolean(deviceLocation && !isFallback);
+  // A weather snapshot only carries real readings; a 0 hPa pressure is the
+  // engine's empty placeholder, never a plausible measurement, so it must not
+  // be rendered as data.
+  const hasReadings = Boolean(data) && (data?.current.pressure ?? 0) > 0;
+
+  const handleUseMyLocation = async () => {
+    if (requesting) return;
+    setRequesting(true);
+    try {
+      await requestLocation();
+    } finally {
+      setRequesting(false);
+    }
+  };
 
   const hours = useMemo(() => {
     if (!data) return [];
@@ -43,7 +77,55 @@ export default function WeatherWidget() {
     }));
   }, [data]);
 
-  if (!data) {
+  // No resolved location — never a plate of zeros: one line + one real step.
+  if (!hasResolvedLocation) {
+    return (
+      <div
+        dir="rtl"
+        data-tile-tone="4"
+        className="weather-now-widget rich-widget app-card h-auto w-full p-4 text-start"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-meta font-semibold text-foreground">طقس موقعك</p>
+            <p className="mt-1 text-mini leading-relaxed text-muted-foreground">
+              {locationStatus === 'denied' || isFallback
+                ? 'لم نتمكن من قراءة موقعك. حدّده لعرض الحرارة والرياح في بطاقة اليوم.'
+                : 'حدّد موقعك لعرض الحرارة والرطوبة والرياح هنا.'}
+            </p>
+          </div>
+          <Sun className="h-8 w-8 shrink-0 text-primary" aria-hidden />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            activation="click"
+            onClick={() => void handleUseMyLocation()}
+            isLoading={requesting}
+            loadingText="نقرأ موقعك…"
+            className="gap-1.5"
+          >
+            <MapPin className="h-4 w-4" aria-hidden />
+            تحديد موقعي
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            activation="click"
+            onClick={() => navigate('/weather')}
+            className="gap-1.5"
+          >
+            صفحة الطقس
+            <ChevronLeft className="h-4 w-4" aria-hidden />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Location resolved but readings are still loading (or the engine returned
+  // its empty placeholder): show a waiting plate, never zeros.
+  if (!data || !hasReadings) {
     return (
       <Button
         variant="ghost"
@@ -57,7 +139,7 @@ export default function WeatherWidget() {
           <span className="text-title font-semibold">الطقس</span>
           <Sun className="h-8 w-8" aria-hidden />
         </span>
-        <span className="text-meta">بانتظار بيانات الطقس</span>
+        <span className="text-meta">جارٍ تحديث قراءات الطقس…</span>
         <span className="ms-auto"><ChevronLeft className="h-5 w-5" aria-hidden /></span>
       </Button>
     );

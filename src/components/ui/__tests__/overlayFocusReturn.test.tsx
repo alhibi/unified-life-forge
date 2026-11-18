@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import * as React from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import {
@@ -89,6 +90,52 @@ function SheetExample() {
   );
 }
 
+/**
+ * The controlled pattern: open state lives in the page, there is no
+ * DialogTrigger / SheetTrigger. Radix's default close handler focuses a null
+ * trigger ref after preventing the focus-scope restore, so without the shared
+ * focus-return hook focus lands on <body> (QA-SL-3, /travel-atlas/trips and
+ * /german-club/dictionary).
+ */
+function ControlledDialogExample() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        رحلة جديدة
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent onClose={() => setOpen(false)}>
+          <DialogHeader>
+            <DialogTitle>رحلة جديدة</DialogTitle>
+            <DialogDescription>وصف قصير.</DialogDescription>
+          </DialogHeader>
+          <button type="button">حفظ</button>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+function ControlledSheetExample() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        تفاصيل الكلمة
+      </button>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>تفاصيل الكلمة</SheetTitle>
+            <SheetDescription>وصف قصير.</SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+}
+
 async function closeWithEscape() {
   fireEvent.keyDown(document, { key: 'Escape' });
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -112,6 +159,32 @@ describe('overlay focus return', () => {
 
     await closeWithEscape();
     await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('returns focus to the opener when a controlled Dialog (no trigger) closes', async () => {
+    render(<ControlledDialogExample />);
+    const opener = screen.getByRole('button', { name: 'رحلة جديدة' });
+
+    act(() => opener.focus());
+    expect(opener).toHaveFocus();
+
+    fireEvent.click(opener);
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    await closeWithEscape();
+    await waitFor(() => expect(opener).toHaveFocus());
+  });
+
+  it('returns focus to the opener when a controlled Sheet (no trigger) closes', async () => {
+    render(<ControlledSheetExample />);
+    const opener = screen.getByRole('button', { name: 'تفاصيل الكلمة' });
+
+    act(() => opener.focus());
+    fireEvent.click(opener);
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    await closeWithEscape();
+    await waitFor(() => expect(opener).toHaveFocus());
   });
 
   it('returns focus to the trigger when an AlertDialog is cancelled', async () => {

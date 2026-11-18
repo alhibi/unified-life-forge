@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import SEO from '@/components/SEO';
 import { Button } from '@/components/ui/button';
-import { StateView } from '@/components/ui/state-view';
-import { useApp } from '@/contexts/AppContext';
+import ChatSignedOutSurface from '@/features/chat/components/ChatSignedOut';
 import { formatTime } from '@/features/chat/components/chatUtils';
 import GroupAvatar from '@/features/chat/components/groups/GroupAvatar';
 const GroupCreatorSheet = lazy(() => import('@/features/chat/components/groups/GroupCreatorSheet'));
@@ -31,7 +30,6 @@ import { cn } from '@/lib/utils';
  *     ~10 chats.
  */
 export default function GroupsIndexPage() {
-  const { t } = useApp();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const goBack = useSmartBack('/chat');
@@ -69,20 +67,44 @@ export default function GroupsIndexPage() {
     return <Skeleton />;
   }
   if (!user) {
-    // Signed-out is a page, not a floating slab: it keeps a real h1 so the
-    // route announces itself and shares the chat surface's identity.
+    // Same signed-out product surface as /chat: real page identity, what the
+    // account unlocks here, and an honest guest path back into the app.
     return (
-      <div className="flex min-h-dvh flex-col bg-background">
-        <h1 className="sr-only">المجموعات والقنوات</h1>
-        <StateView
-          bare
-          kind="empty"
-          className="min-h-dvh"
-          title={'سجّل الدخول للوصول'}
-          body={'المجموعات والقنوات تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة.'}
-          action={{ label: t('auth.signIn'), onClick: () => navigate('/auth') }}
+      <>
+        <SEO
+          title={'المجموعات والقنوات — SmartHub'}
+          description={'المجموعات والقنوات في دردشة SmartHub.'}
+          path="/chat/groups"
         />
-      </div>
+        <ChatSignedOutSurface
+          title="المجموعات والقنوات"
+          subtitle="مساحات جماعية داخل الدردشة"
+          backFallback="/chat"
+          heroTitle="مجموعات للمحادثة وقنوات للبثّ"
+          heroBody="اجمع الأصدقاء في مجموعة، أو أنشئ قناة يتابعها من يهمّه التحديث. تحتاج عضوية حساب لحفظ عضويتك ورسائلك."
+          points={[
+            {
+              icon: <Users aria-hidden />,
+              title: 'مجموعات للمحادثة',
+              body: 'ادعُ أعضاءك ورتّب الأدوار بين المالك والمشرف والعضو.',
+            },
+            {
+              icon: <Hash aria-hidden />,
+              title: 'قنوات للبثّ',
+              body: 'انشر التحديثات لمن يتابع، مع تحديد من يستطيع النشر.',
+            },
+            {
+              icon: <Search aria-hidden />,
+              title: 'بحث وتصفية',
+              body: 'ابحث بالاسم أو الوصف، وافصل بين المجموعات والقنوات في نظرة واحدة.',
+            },
+          ]}
+          signInLabel="تسجيل الدخول"
+          guestLabel="استكشف دون حساب"
+          guestTo="/"
+          footnote="بدون حساب لا يمكن الانضمام إلى مجموعة أو قناة؛ بقية التطبيق متاح للتصفّح."
+        />
+      </>
     );
   }
 

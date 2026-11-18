@@ -42,7 +42,7 @@ export function SettingsSection({ title, subtitle, icon, action, children }: Set
         <div className="flex items-start gap-3">
           {icon ? <span className="row-icon">{icon}</span> : null}
           <div className="min-w-0 flex-1 text-start">
-            <h2 className="text-meta font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="text-meta font-semibold text-muted-foreground">
               {title}
             </h2>
             {subtitle ? (

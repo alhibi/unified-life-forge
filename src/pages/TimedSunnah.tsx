@@ -25,6 +25,11 @@ export default function TimedSunnah() {
     { id: 'friday', labelKey: 'timed.friday', icon: Calendar },
   ];
 
+  const totalSunnah = categories.reduce(
+    (sum, cat) => sum + (sunnahDetailData[cat.id]?.items?.length ?? 0),
+    0,
+  );
+
   const toggleCat = (id: string) => {
     setOpenCatId(prev => prev === id ? null : id);
     setOpenItemKey(null);
@@ -38,13 +43,25 @@ export default function TimedSunnah() {
   };
 
   return (
-    <PageShell flush centered={false} className="px-4 pt-2">
+    <PageShell
+      header={
+        <PageHeader
+          variant="display"
+          title={t('timed.title')}
+          subtitle={
+            String(categories.length) +
+            ' فئات · ' +
+            String(totalSunnah) +
+            ' سنة مرتبطة بأوقات الصلاة'
+          }
+          backFallback="/sunnah"
+        />
+      }
+    >
       <SEO title="السنن المؤقتة — SmartHub" description="السنن المرتبطة بأوقات الصلاة اليومية مصنفة في تسع فئات." path="/section/timed-sunnah" />
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        <PageHeader sticky title={t('timed.title')} />
 
-        {/* Accordion List */}
-        <div className="flex flex-col gap-2">
+      {/* Accordion List */}
+      <div className="flex flex-col gap-2">
           {categories.map((cat) => {
             const data = sunnahDetailData[cat.id];
             const isCatOpen = openCatId === cat.id;
@@ -54,8 +71,10 @@ export default function TimedSunnah() {
             return (
               <AppCard key={cat.id} className="overflow-hidden p-0">
                 <button
+                  type="button"
                   onClick={() => toggleCat(cat.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
+                  aria-expanded={isCatOpen}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20 app-focus-ring"
                 >
                   <IconChip aria-hidden>
                     <cat.icon className="h-5 w-5" />
@@ -155,7 +174,6 @@ export default function TimedSunnah() {
               </AppCard>
             );
           })}
-        </div>
       </div>
     </PageShell>
   );

@@ -4,16 +4,19 @@ import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppList, AppRow, IconButton, PageShell } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, IconButton, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
+import { SkeletonList } from '@/components/ui/skeleton';
 import { StateView } from '@/components/ui/state-view';
 import { useConservingInterval } from '@/hooks/useConserve';
 import {
+  Activity,
   Plus,
   RefreshCw,
   Trash2,
   TrendingDown,
   TrendingUp,
+  Waves,
 } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +24,55 @@ import { cryptoApi } from '../api';
 import TokenDetailDrawer from '../components/TokenDetailDrawer';
 import TokenSearchDrawer from '../components/TokenSearchDrawer';
 import { CHAIN_LABELS, type ChainId, type NormalizedPair, type WatchlistItem } from '../types';
+
+/**
+ * What a watchlist gives the user. Rendered beside the empty/offline states so
+ * the screen answers "and then what?" instead of leaving a void under the
+ * message; every line describes real behaviour of this page.
+ */
+const WATCHLIST_BENEFITS = [
+  {
+    icon: Activity,
+    title: 'السعر اللحظي',
+    body: 'سعر الزوج واتجاهه خلال 24 ساعة، يُحدَّث تلقائياً كل 30 ثانية.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'حركة مفهومة',
+    body: 'تغيّر السعر مع حجم التداول، ليتميّز الاتجاه الحقيقي من الوميض العابر.',
+  },
+  {
+    icon: Waves,
+    title: 'التفاصيل عند الطلب',
+    body: 'افتح أي عملة لترى السيولة والرسم السعري الكامل في لوحة التفاصيل.',
+  },
+] as const;
+
+function WatchlistGuide() {
+  return (
+    <AppCard className="p-5">
+      <h2 className="text-title font-semibold text-foreground">ماذا تعرض القائمة؟</h2>
+      <p className="mt-1 text-mini leading-relaxed text-muted-foreground">
+        كل ما تحتاجه لمتابعة أداء العملات التي تهمّك، في مكان واحد.
+      </p>
+      <ul className="mt-4 space-y-4">
+        {WATCHLIST_BENEFITS.map(({ icon: Icon, title, body }) => (
+          <li key={title} className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Icon className="h-4 w-4" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-meta font-semibold text-foreground">{title}</span>
+              <span className="mt-0.5 block text-mini leading-relaxed text-muted-foreground">
+                {body}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </AppCard>
+  );
+}
 
 export default function CryptoWatchlist() {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
@@ -221,6 +273,19 @@ export default function CryptoWatchlist() {
     return `$${val.toLocaleString()}`;
   };
 
+  // Presentation-only aggregates over data already in state: they answer
+  // "how is my list doing?" before the user reads individual rows.
+  const gainersCount = pairsData.filter((p) => parseFloat(p.priceChange24h) >= 0).length;
+  const losersCount = pairsData.length - gainersCount;
+  const watchlistLabel =
+    watchlist.length === 1
+      ? 'عملة واحدة في قائمتك'
+      : watchlist.length === 2
+        ? 'عملتان في قائمتك'
+        : watchlist.length >= 3 && watchlist.length <= 10
+          ? `${watchlist.length} عملات في قائمتك`
+          : `${watchlist.length} عملة في قائمتك`;
+
   return (
     <PageShell width="workspace">
       <SEO
@@ -229,90 +294,114 @@ export default function CryptoWatchlist() {
         path="/crypto"
       />
 
-      {/* Header — the shared page header owns the back button, title row and
-          the action cluster; the live tick rides in the subtitle slot. */}
+      {/* Header — the display register keeps the title on its own row so it can
+          never be truncated by the action cluster on narrow phones; the live
+          tick rides in the subtitle slot and refresh stays the only header
+          action. "Add coin" is a content action with its own slot below. */}
       <PageHeader
+        variant="display"
+        eyebrow="مراقب العملات"
         title="قائمة العملات"
         subtitle={
           <span className="flex items-center gap-1.5">
-            <span className="relative flex h-1.5 w-1.5">
+            <span className="relative flex h-1.5 w-1.5" aria-hidden>
               <span className="absolute inset-0 rounded-full bg-data-1/60 animate-ping" />
               <span className="relative h-1.5 w-1.5 rounded-full bg-data-1" />
             </span>
-            تحديث حي • DEX Screener
+            <span>تحديث حي تلقائي</span>
+            <span className="text-muted-foreground-subtle" aria-hidden>·</span>
+            <span dir="ltr">DEX Screener</span>
           </span>
         }
         right={
-          <>
-            {/* Manual Refresh Button */}
-            <IconButton
-              disabled={refreshing || loading}
-              onClick={() => loadData(true)}
-              title="تحديث الأسعار"
-              aria-label="تحديث الأسعار"
-            >
-              <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin text-primary')} />
-            </IconButton>
-
-            {/* Add Coin Button */}
-            <Button onClick={() => setSearchOpen(true)} className="gap-2 font-bold">
-              <Plus className="h-4 w-4" />
-              إضافة عملة
-            </Button>
-          </>
+          <IconButton
+            disabled={refreshing || loading}
+            onClick={() => loadData(true)}
+            title="تحديث الأسعار"
+            aria-label="تحديث الأسعار"
+          >
+            <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin text-primary')} />
+          </IconButton>
         }
       />
 
-      {/* Main content body */}
+      {/* Content states — each state is composed to the size of its message
+          and action, with the "what this page gives" panel beside it on wide
+          screens so the page never ends in an unexplained void. */}
       <div>
         {loading ? (
-          // Elegant skeleton loading state
-          <div className="space-y-3" role="status" aria-label="تحميل قائمة العملات">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse h-16 w-full rounded-lg bg-muted/20 border border-border/10 p-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-muted/40 shrink-0" />
-                  <div className="space-y-1.5">
-                    <div className="h-4 w-16 bg-muted/40 rounded" />
-                    <div className="h-3 w-24 bg-muted/40 rounded" />
-                  </div>
-                </div>
-                <div className="space-y-1.5 text-end">
-                  <div className="h-4 w-20 bg-muted/40 rounded ms-auto" />
-                  <div className="h-3 w-12 bg-muted/40 rounded ms-auto" />
-                </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3" aria-hidden>
+              <div className="space-y-2">
+                <div className="h-4 w-32 animate-pulse rounded bg-muted/40" />
+                <div className="h-3 w-48 animate-pulse rounded bg-muted/25" />
               </div>
-            ))}
+              <div className="h-12 w-28 animate-pulse rounded-lg bg-muted/30" />
+            </div>
+            <AppList>
+              <SkeletonList rows={4} rowHeight={64} className="px-4" />
+            </AppList>
           </div>
         ) : error && watchlist.length === 0 ? (
           // Offline and "the price service failed" are different problems and
           // deserve different sentences: one is the user's connection and will
           // fix itself, the other is ours and needs a retry.
-          <StateView
-            kind={navigator.onLine ? 'error' : 'offline'}
-            title={navigator.onLine ? 'تعذّر جلب الأسعار' : 'لا يوجد اتصال بالإنترنت'}
-            body={
-              navigator.onLine
-                ? 'خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة.'
-                : 'أسعار العملات تحتاج اتصالاً مباشراً. قائمتك محفوظة، وستُحدَّث الأسعار تلقائياً عند عودة الاتصال.'
-            }
-            action={{
-              label: 'إعادة المحاولة',
-              onClick: () => void loadData(true),
-              pending: refreshing,
-            }}
-          />
+          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+            <StateView
+              kind={navigator.onLine ? 'error' : 'offline'}
+              compact
+              title={navigator.onLine ? 'تعذّر جلب الأسعار' : 'لا يوجد اتصال بالإنترنت'}
+              body={
+                navigator.onLine
+                  ? 'خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة.'
+                  : 'أسعار العملات تحتاج اتصالاً مباشراً. قائمتك محفوظة، وستُحدَّث الأسعار تلقائياً عند عودة الاتصال.'
+              }
+              action={{
+                label: 'إعادة المحاولة',
+                onClick: () => void loadData(true),
+                pending: refreshing,
+              }}
+              secondary="تتحدّث الأسعار تلقائياً كل 30 ثانية عند عودة الخدمة."
+            />
+            <WatchlistGuide />
+          </div>
         ) : watchlist.length === 0 ? (
-          <StateView
-            kind="empty"
-            title="قائمة المراقبة فارغة"
-            body="لم تُضِف أي عملة بعد. ابحث عن زوج تداول لتتابع سعره الحيّ وتغيّره خلال 24 ساعة في مكان واحد."
-            action={{ label: 'ابحث عن عملة', onClick: () => setSearchOpen(true) }}
-          />
-
+          <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+            <StateView
+              kind="empty"
+              compact
+              title="لا عملات في قائمتك بعد"
+              body="أضف أول زوج تداول لتتابع سعره الحيّ وتغيّره خلال 24 ساعة وحجم التداول في مكان واحد."
+              action={{
+                label: 'ابحث عن عملة',
+                onClick: () => setSearchOpen(true),
+                icon: <Plus className="h-3.5 w-3.5" />,
+              }}
+              secondary="قائمة المراقبة محفوظة في حسابك وتظهر على كل أجهزتك."
+            />
+            <WatchlistGuide />
+          </div>
         ) : (
-          // Watchlisted token entries — one grouped list, one row per token.
-          <AppList>
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-meta font-semibold text-foreground">{watchlistLabel}</p>
+                <p className="mt-0.5 text-mini text-muted-foreground">
+                  {pairsData.length > 0
+                    ? `${gainersCount} مرتفعة · ${losersCount} منخفضة خلال 24 ساعة`
+                    : 'الأسعار الحية غير متاحة الآن؛ قائمتك كما هي.'}
+                </p>
+              </div>
+              <Button
+                onClick={() => setSearchOpen(true)}
+                className="w-full shrink-0 gap-2 font-bold sm:w-auto"
+              >
+                <Plus className="h-4 w-4" />
+                إضافة عملة
+              </Button>
+            </div>
+            {/* Watchlisted token entries — one grouped list, one row per token. */}
+            <AppList>
             <AnimatePresence initial={false}>
               {watchlist.map((item) => {
                 // Find matching live pair data
@@ -446,7 +535,8 @@ export default function CryptoWatchlist() {
                 );
               })}
             </AnimatePresence>
-          </AppList>
+            </AppList>
+          </div>
         )}
       </div>
 

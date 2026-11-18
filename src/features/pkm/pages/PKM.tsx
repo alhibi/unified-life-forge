@@ -9,7 +9,7 @@ import { AppCard,AppList,AppRow,PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StateView } from '@/components/ui/state-view';
-import { Brain,ChevronDown, ChevronRight, Eye, FileText, Hash, Pencil, Plus, Search, Sparkles, Trash } from '@/lib/icons';
+import { Brain,ChevronDown, ChevronRight, Eye, Hash, Pencil, Plus, Search, Sparkles, Trash } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 
 import BacklinksPanel from '../components/BacklinksPanel';
@@ -32,10 +32,6 @@ type StatusFilter = NoteStatus | 'all';
 const STATUS_LABEL_AR: Record<StatusFilter, string> = {
   all: 'الكل', draft: 'مسودات', active: 'نشِطة', archived: 'مؤرشفة',
 };
-const STATUS_LABEL_DE: Record<StatusFilter, string> = {
-  all: 'Alle', draft: 'Entwürfe', active: 'Aktiv', archived: 'Archiviert',
-};
-
 function titleOf(n: LocalNote): string {
   if (n.title.trim()) return n.title;
   const firstLine = n.contentMd.split('\n').find((l) => l.trim())?.replace(/^#+\s*/, '').trim();
@@ -200,14 +196,6 @@ export default function PKM() {
             >
               <Brain className="h-4 w-4 text-primary" />
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setListOpen((v) => !v)}
-              className="lg:hidden"
-            >
-              {listOpen ? ('المحرر') : ('القائمة')}
-            </Button>
             <Button size="sm" onClick={handleCreate}>
               <Plus className="h-3.5 w-3.5" />
               {'جديد'}
@@ -215,6 +203,17 @@ export default function PKM() {
           </>
         }
       />
+
+      {/* Mobile-only list/editor switch — kept out of the compact header so the
+          header rail stays at two actions (invariant from the shell contract). */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setListOpen((v) => !v)}
+        className="mb-3 w-full lg:hidden"
+      >
+        {listOpen ? ('عرض المحرر') : ('عرض القائمة')}
+      </Button>
 
       <div className="grid gap-4 lg:grid-cols-[300px_1fr]">
         {/* SIDEBAR */}
@@ -231,8 +230,7 @@ export default function PKM() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={'ابحث في ملاحظاتك…'}
-              className="h-10 ps-9 pe-3 text-meta"
-              style={{ fontSize: 16 }}
+              className="ps-9 pe-3 text-meta"
               aria-label={'ابحث في ملاحظاتك'}
             />
           </label>
@@ -356,19 +354,12 @@ export default function PKM() {
               />
             </>
           ) : (
-            <AppCard className="p-10 text-center flex flex-col items-center gap-3 border-dashed">
-              <FileText className="w-10 h-10 text-muted-foreground/40" />
-              <p className="text-meta text-muted-foreground">
-                {'اختر ملاحظة أو أنشئ واحدة جديدة.'}
-              </p>
-              <button
-                onClick={handleCreate}
-                className="mt-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-meta font-semibold flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                {'ملاحظة جديدة'}
-              </button>
-            </AppCard>
+            <StateView
+              kind="empty"
+              title={'لا ملاحظة مفتوحة'}
+              body={'اختر ملاحظة من القائمة لتقرأها وتحرّرها، أو ابدأ ملاحظة جديدة تُحفظ على جهازك أولاً.'}
+              action={{ label: 'ملاحظة جديدة', onClick: () => { void handleCreate(); } }}
+            />
           )}
         </section>
       </div>

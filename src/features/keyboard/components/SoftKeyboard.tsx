@@ -250,7 +250,7 @@ const Key = memo(function Key({
         onPointerCancel={clear}
         onContextMenu={(event) => event.preventDefault()}
         className={cn(
-          'app-focus-ring relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-[var(--r-md)]',
+          'app-focus-ring relative flex h-[var(--kb-key-h)] w-full select-none items-center justify-center rounded-md',
           'text-[1.125rem] font-medium leading-none transition-[transform,background-color,filter] duration-instant',
           ' touch-none',
           // Relief comes from the palette's own elevation recipe, so a white

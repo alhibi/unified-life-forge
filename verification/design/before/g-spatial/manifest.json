@@ -1,0 +1,580 @@
+{
+ "capturedAt": "2026-11-18T17:29:17.729Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/travel-atlas/explore",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_explore.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_explore--full.png"
+   ],
+   "status": 200,
+   "h1": "استكشف — أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/countries",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_countries.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_countries--full.png"
+   ],
+   "status": 200,
+   "h1": "خريطة البلدان",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas/trips",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_trips.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_trips--full.png"
+   ],
+   "status": 200,
+   "h1": "رحلاتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/trips/1",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_trips_1.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_trips_1--full.png"
+   ],
+   "status": 200,
+   "h1": "رحلاتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas/DE",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_DE.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_DE--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games--full.png"
+   ],
+   "status": 200,
+   "h1": "الألعاب",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/place/1",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_place_1.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/travel-atlas_place_1--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_chess.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_chess--full.png"
+   ],
+   "status": 200,
+   "h1": "شطرنج",
+   "h1Count": 1,
+   "overflow": null,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess/puzzles",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_chess_puzzles.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_chess_puzzles--full.png"
+   ],
+   "status": 200,
+   "h1": "ألغاز الشطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess/career",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_chess_career.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_chess_career--full.png"
+   ],
+   "status": 200,
+   "h1": "مسيرة الشطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/sudoku",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_memory.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_memory--full.png"
+   ],
+   "status": 200,
+   "h1": "أزواج الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory/adventure",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_memory_adventure.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/games_memory_adventure--full.png"
+   ],
+   "status": 200,
+   "h1": "مغامرة الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/settings/motion",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/settings_motion.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/390x844/expressive-dark/settings_motion--full.png"
+   ],
+   "status": 200,
+   "h1": "منصة الحركة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/explore",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_explore.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_explore--full.png"
+   ],
+   "status": 200,
+   "h1": "استكشف — أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/countries",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_countries.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_countries--full.png"
+   ],
+   "status": 200,
+   "h1": "خريطة البلدان",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas/trips",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_trips.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_trips--full.png"
+   ],
+   "status": 200,
+   "h1": "رحلاتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/trips/1",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_trips_1.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_trips_1--full.png"
+   ],
+   "status": 200,
+   "h1": "رحلاتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas/DE",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_DE.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_DE--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games--full.png"
+   ],
+   "status": 200,
+   "h1": "الألعاب",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/travel-atlas/place/1",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_place_1.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/travel-atlas_place_1--full.png"
+   ],
+   "status": 200,
+   "h1": "أطلس الرحلات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess/puzzles",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_chess_puzzles.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_chess_puzzles--full.png"
+   ],
+   "status": 200,
+   "h1": "ألغاز الشطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess/career",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_chess_career.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_chess_career--full.png"
+   ],
+   "status": 200,
+   "h1": "مسيرة الشطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/chess",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_chess.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_chess--full.png"
+   ],
+   "status": 200,
+   "h1": "شطرنج",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/sudoku",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_memory.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_memory--full.png"
+   ],
+   "status": 200,
+   "h1": "أزواج الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory/adventure",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_memory_adventure.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/games_memory_adventure--full.png"
+   ],
+   "status": 200,
+   "h1": "مغامرة الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/settings/motion",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/settings_motion.png",
+    "/Users/amer/ulf-design/verification/design/before/g-spatial/1440x900/expressive-dark/settings_motion--full.png"
+   ],
+   "status": 200,
+   "h1": "منصة الحركة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

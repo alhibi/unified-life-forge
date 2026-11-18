@@ -1,8 +1,25 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { AppCard, AppList, AppRow, IconChip, Section } from '@/components/ui/app-shell';
+import { Input } from '@/components/ui/input';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { Switch } from '@/components/ui/switch';
-import { Keyboard, Palette, Sparkles, Trash2, Volume2, Wand2 } from '@/lib/icons';
+import {
+  ALargeSmall,
+  Clipboard,
+  Gauge,
+  HandHeart,
+  Keyboard,
+  Languages,
+  LayoutGrid,
+  Palette,
+  SlidersHorizontal,
+  Sparkles,
+  Trash2,
+  Vibrate,
+  Volume2,
+  Wand2,
+} from '@/lib/icons';
 
 import { resetFeedbackThrottle, tapFeedback } from '../lib/feedback';
 import { clearLearnedDictionary, getDictionaryStats } from '../lib/prediction';
@@ -18,7 +35,8 @@ import {
 } from '../lib/preference';
 import { deleteSnippet, getSnippets,resetSnippets, saveSnippet, type Snippet } from '../lib/snippets';
 import { playKeyClickSound } from '../lib/sound';
-import { keyboardSwatch } from '../lib/theme';
+import { keyboardPaletteVars, keyboardSwatch } from '../lib/theme';
+import SoftKeyboardToggle from './SoftKeyboardToggle';
 
 interface KeyboardSettingsModalProps {
   open: boolean;
@@ -34,6 +52,17 @@ const THEME_OPTIONS: ReadonlyArray<{ id: KeyboardTheme; label: string }> = [
   { id: 'emerald', label: 'زمردي' },
   { id: 'sapphire', label: 'أزرق ياقوتي' },
 ];
+
+/** Compact names for the 4-up swatch grid; the full label stays in the title. */
+const THEME_SHORT_LABELS: Record<KeyboardTheme, string> = {
+  'gboard-dark': 'داكن',
+  'gboard-light': 'فاتح',
+  oled: 'OLED',
+  'luxury-gold': 'ذهبي',
+  sand: 'رملي',
+  emerald: 'زمردي',
+  sapphire: 'ياقوتي',
+};
 
 const TONE_OPTIONS: ReadonlyArray<{ id: SoundTone; label: string }> = [
   { id: 'default', label: 'ناعم كلاسيك' },
@@ -62,11 +91,16 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
   const [snippets, setSnippets] = useState<Snippet[]>([]);
   const [draft, setDraft] = useState({ trigger: '', text: '' });
 
-  // Read the local stores only while the sheet is actually open.
+  // Read the local stores only while the sheet is actually open. Deferred to
+  // the next task so the effect does not synchronously cascade a second render
+  // (react-hooks/set-state-in-effect); the sheet paints its skeleton first.
   useEffect(() => {
     if (!open) return;
-    setStats(getDictionaryStats());
-    setSnippets(getSnippets());
+    const id = window.setTimeout(() => {
+      setStats(getDictionaryStats());
+      setSnippets(getSnippets());
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [open]);
 
   const update = (patch: Partial<KeyboardSettings>) => {
@@ -445,49 +479,389 @@ export function KeyboardSettingsModal({ open, onOpenChange }: KeyboardSettingsMo
 }
 
 /**
- * Settings Row Component for Keyboard Settings page.
+ * Settings surface for the keyboard page.
+ *
+ * The page is the one place a person decides how writing works: whether the
+ * in-app keyboard is used at all, what its surface looks like, how it behaves
+ * on a phone, and where the advanced sheet lives. Every control here writes
+ * through the same `writeKeyboardSettings` store the soft keyboard reads, so
+ * there is no second copy of a preference and no control without a consumer.
  */
 export default function KeyboardSetting() {
   const [settings, setSettings] = useState<KeyboardSettings>(() => readKeyboardSettings());
   const [modalOpen, setModalOpen] = useState(false);
+  const [snippetCount, setSnippetCount] = useState(() => getSnippets().length);
   const [touch] = useState(() => supportsSoftKeyboard());
+  const demoRef = useRef<HTMLInputElement | null>(null);
+
+  // The advanced sheet writes the same store; resync when it closes so the
+  // quick controls never show a stale value.
+  useEffect(() => {
+    if (modalOpen) return;
+    setSettings(readKeyboardSettings());
+    setSnippetCount(getSnippets().length);
+  }, [modalOpen]);
 
   if (!touch) return null;
 
+  const update = (patch: Partial<KeyboardSettings>) => {
+    setSettings(writeKeyboardSettings(patch));
+  };
+  const enabled = settings.preference === 'app';
+  const themeLabel = THEME_OPTIONS.find((t) => t.id === settings.theme)?.label ?? '';
+  const heightLabel = HEIGHT_OPTIONS.find((h) => h.id === settings.keyHeight && settings.keyHeightPx === null)?.label
+    ?? (settings.keyHeightPx !== null ? String(settings.keyHeightPx) + ' نقطة' : 'طبيعي');
+
   return (
     <>
-      <div className="arch-plate flex items-center gap-3 rounded-[var(--r-lg)] p-4">
-        <span className="row-icon">
-          <Keyboard className="h-4 w-4" aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-meta text-foreground font-medium">لوحة مفاتيح التطبيق الذكية</p>
-          <p className="text-micro text-muted-foreground">
-            تجربة احترافية شبيهة بـ Google Keyboard: اقتراحات ذكية، حافظة نصوص، إموجي، وتشكيل
+      <Section label={'التشغيل'}>
+        <AppCard>
+          <div className="flex items-start gap-3">
+            <IconChip tone="accent">
+              <Keyboard className="h-4 w-4" aria-hidden />
+            </IconChip>
+            <div className="min-w-0 flex-1">
+              <p className="text-meta font-semibold text-foreground">لوحة مفاتيح التطبيق الذكية</p>
+              <p className="text-mini leading-relaxed text-muted-foreground">
+                اقتراحات عربية، حافظة نصوص، إموجي وتشكيل — بديل كامل للوحة النظام داخل التطبيق.
+              </p>
+            </div>
+            <Switch
+              checked={enabled}
+              onCheckedChange={(next) => update({ preference: next ? 'app' : 'system' })}
+              aria-label={'تفعيل لوحة مفاتيح التطبيق'}
+            />
+          </div>
+          <p className="mt-3 border-t border-track pt-3 text-mini leading-relaxed text-muted-foreground">
+            {enabled
+              ? 'مفعّلة. لا تفتح تلقائياً عند لمس حقل: تُفتح من زر اللوحة، فلا تغطي الحقل ولا زر الإجراء الأساسي.'
+              : 'معطّلة. تُستخدم لوحة النظام في كل الحقول؛ يمكنك تفعيلها في أي وقت.'}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {settings.preference === 'app' && (
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="rounded-lg bg-[hsl(var(--surface-2))] px-2.5 py-1.5 text-micro font-semibold text-foreground hover:bg-[hsl(var(--live))]/20"
+        </AppCard>
+      </Section>
+
+      <Section label={'سطح اللوحة'}>
+        <AppCard>
+          <KeyboardSurfacePreview theme={settings.theme} />
+          <div className="mt-3 grid gap-2.5">
+            <div className="flex items-center gap-2">
+              <Input
+                ref={demoRef}
+                type="text"
+                placeholder={'جرّب الكتابة هنا…'}
+                aria-label={'تجربة لوحة المفاتيح'}
+                className={'flex-1 text-body'}
+              />
+              <SoftKeyboardToggle target={demoRef} label={'فتح لوحة المفاتيح للتجربة'} />
+            </div>
+            <p className="text-micro leading-relaxed text-muted-foreground">
+              المعاينة تعرض السمة المختارة. زر اللوحة يفتحها للحقل — ولا شيء آخر يفتحها.
+            </p>
+          </div>
+
+          <div className="mt-4 border-t border-track pt-3">
+            <p className="mb-2 text-micro font-semibold text-foreground">السمة</p>
+            <div className="grid grid-cols-4 gap-2">
+              {THEME_OPTIONS.map((theme) => {
+                const active = settings.theme === theme.id;
+                const [surface, accent] = keyboardSwatch(theme.id);
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => update({ theme: theme.id })}
+                    aria-pressed={active}
+                    title={theme.label}
+                    className={
+                      'app-pressable app-focus-ring flex min-h-11 flex-col items-stretch justify-center gap-1 rounded-sm border p-1.5 text-micro font-medium transition-motion '
+                      + (active
+                        ? 'border-primary text-foreground'
+                        : 'border-track bg-secondary text-secondary-muted hover:text-foreground')
+                    }
+                  >
+                    <span className="flex h-6 items-end gap-1 rounded-xs p-1" style={{ background: surface }} aria-hidden>
+                      <span className="h-2 flex-1 rounded-[2px] bg-white/25" />
+                      <span className="h-2 flex-1 rounded-[2px] bg-white/25" />
+                      <span className="h-2 flex-1 rounded-[2px]" style={{ background: accent }} />
+                    </span>
+                    <span className="truncate">{THEME_SHORT_LABELS[theme.id]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </AppCard>
+      </Section>
+
+      <Section label={'التخطيط واللمس'}>
+        <AppCard className={'p-0'}>
+          <div className={'divide-y divide-track'}>
+            <QuickControlRow
+              icon={<LayoutGrid className="h-4 w-4" aria-hidden />}
+              title={'سطر الأرقام'}
+              description={'عرض صف الأرقام دائماً فوق الحروف'}
             >
-              تخصيص
-            </button>
-          )}
-          <Switch
-            checked={settings.preference === 'app'}
-            onCheckedChange={(next) => {
-              const updated = writeKeyboardSettings({ preference: next ? 'app' : 'system' });
-              setSettings(updated);
-            }}
-            aria-label="لوحة مفاتيح التطبيق"
+              <Switch
+                checked={settings.showNumberRow}
+                onCheckedChange={(next) => update({ showNumberRow: next })}
+                aria-label={'سطر الأرقام'}
+              />
+            </QuickControlRow>
+
+            <QuickControlRow
+              icon={<ALargeSmall className="h-4 w-4" aria-hidden />}
+              title={'شكل الأرقام'}
+            >
+              <SegmentedChoice
+                label={'شكل الأرقام'}
+                value={settings.digitType}
+                options={[{ id: 'western', label: '123' }, { id: 'eastern', label: '١٢٣' }]}
+                onChange={(next) => update({ digitType: next as KeyboardSettings['digitType'] })}
+              />
+            </QuickControlRow>
+
+            <QuickControlRow
+              icon={<HandHeart className="h-4 w-4" aria-hidden />}
+              title={'الكتابة بيد واحدة'}
+              description={'يُقرب اللوحة إلى جانب الإبهام'}
+            >
+              <SegmentedChoice
+                label={'الكتابة بيد واحدة'}
+                value={settings.oneHandedMode}
+                options={[
+                  { id: 'off', label: 'معطّل' },
+                  { id: 'left', label: 'يسار' },
+                  { id: 'right', label: 'يمين' },
+                ]}
+                onChange={(next) => update({ oneHandedMode: next as KeyboardSettings['oneHandedMode'] })}
+              />
+            </QuickControlRow>
+
+            <QuickControlRow
+              icon={<Gauge className="h-4 w-4" aria-hidden />}
+              title={'ارتفاع المفاتيح'}
+              description={'الارتفاع الحالي: ' + heightLabel}
+            >
+              <SegmentedChoice
+                label={'ارتفاع المفاتيح'}
+                value={settings.keyHeightPx === null ? settings.keyHeight : ''}
+                options={HEIGHT_OPTIONS.map((h) => ({ id: h.id, label: h.label }))}
+                onChange={(next) => update({ keyHeight: next as KeyboardHeight, keyHeightPx: null })}
+              />
+            </QuickControlRow>
+
+            <QuickControlRow
+              icon={<Languages className="h-4 w-4" aria-hidden />}
+              title={'لغات اللوحة'}
+              description={'عربية وإنجليزية (تبديل من مقبض اللغة داخل اللوحة)'}
+            >
+              <span className={'text-mini text-muted-foreground'}>AR / EN</span>
+            </QuickControlRow>
+          </div>
+        </AppCard>
+      </Section>
+
+      <Section label={'الصوت والاهتزاز'}>
+        <AppCard className={'p-0'}>
+          <div className={'divide-y divide-track'}>
+            <QuickControlRow
+              icon={<Volume2 className="h-4 w-4" aria-hidden />}
+              title={'صوت المفاتيح'}
+              description={'نقرة مسموعة عند الكتابة'}
+            >
+              <Switch
+                checked={settings.soundOnClick}
+                onCheckedChange={(next) => update({ soundOnClick: next, soundEnabled: next })}
+                aria-label={'صوت المفاتيح'}
+              />
+            </QuickControlRow>
+            <QuickControlRow
+              icon={<Vibrate className="h-4 w-4" aria-hidden />}
+              title={'اهتزاز اللمس'}
+              description={'تغذية راجعة لمسية عند كل مفتاح'}
+            >
+              <SegmentedChoice
+                label={'شدة الاهتزاز'}
+                value={settings.vibrateOnKeyPress ? settings.hapticIntensity : 'off'}
+                options={HAPTIC_OPTIONS.map((h) => ({ id: h.id, label: h.label }))}
+                onChange={(next) => {
+                  if (next === 'off') {
+                    update({ vibrateOnKeyPress: false, hapticIntensity: 'off' });
+                    return;
+                  }
+                  update({ vibrateOnKeyPress: true, hapticIntensity: next as HapticIntensity });
+                  resetFeedbackThrottle();
+                  tapFeedback('letter', {
+                    enabled: true,
+                    intensity: next as HapticIntensity,
+                    soundEnabled: false,
+                    soundVolume: 0,
+                    soundTone: settings.soundTone,
+                  });
+                }}
+              />
+            </QuickControlRow>
+          </div>
+        </AppCard>
+      </Section>
+
+      <Section label={'العبارات والاختصارات'}>
+        <AppList>
+          <AppRow
+            leading={<IconChip><Wand2 className="h-4 w-4" aria-hidden /></IconChip>}
+            title={'اختصارات النص'}
+            subtitle={'عبارات قصيرة تُوسَّع تلقائياً عند المسافة'}
+            value={snippetCount + ' محفوظة'}
+            chevron
+            onClick={() => setModalOpen(true)}
           />
-        </div>
-      </div>
+          <AppRow
+            leading={<IconChip><Clipboard className="h-4 w-4" aria-hidden /></IconChip>}
+            title={'الحافظة النصية'}
+            subtitle={'حفظ النصوص المنسوخة لإعادة استخدامها من اللوحة'}
+            value={settings.clipboardEnabled ? 'مفعّلة' : 'معطّلة'}
+            chevron
+            onClick={() => setModalOpen(true)}
+          />
+        </AppList>
+      </Section>
+
+      <Section label={'الإعدادات الكاملة'}>
+        <AppList>
+          <AppRow
+            leading={<IconChip><SlidersHorizontal className="h-4 w-4" aria-hidden /></IconChip>}
+            title={'تخصيص اللوحة'}
+            subtitle={'السمة، الارتفاع الدقيق، الأصوات، الاقتراحات، القاموس الشخصي والتشكيل'}
+            value={themeLabel + ' · ' + heightLabel}
+            chevron
+            onClick={() => setModalOpen(true)}
+          />
+        </AppList>
+      </Section>
 
       <KeyboardSettingsModal open={modalOpen} onOpenChange={setModalOpen} />
     </>
+  );
+}
+
+/** One labelled line inside the quick-control surfaces. */
+function QuickControlRow({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={'flex flex-wrap items-center gap-3 px-4 py-3'}>
+      <span className={'shrink-0 text-primary [&>svg]:h-[18px] [&>svg]:w-[18px]'}>{icon}</span>
+      <div className={'min-w-0 flex-1'}>
+        <p className={'text-meta font-medium text-foreground'}>{title}</p>
+        {description && (
+          <p className={'text-micro leading-snug text-muted-foreground'}>{description}</p>
+        )}
+      </div>
+      <div className={'shrink-0'}>{children}</div>
+    </div>
+  );
+}
+
+/** Compact radio group for the quick controls; 44px tall targets. */
+function SegmentedChoice({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: ReadonlyArray<{ id: string; label: string }>;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <div role={'group'} aria-label={label} className={'flex flex-wrap items-center justify-end gap-1.5'}>
+      {options.map((option) => {
+        const active = option.id === value;
+        return (
+          <button
+            key={option.id}
+            type={'button'}
+            onClick={() => onChange(option.id)}
+            aria-pressed={active}
+            className={
+              'app-pressable app-focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-3 text-mini font-semibold transition-motion '
+              + (active
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-secondary-muted hover:text-foreground')
+            }
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Read-only preview of the keyboard surface with the selected palette.
+ *
+ * Decorative by design (aria-hidden): it previews the material a person just
+ * picked, it is not a second input. Colours come from the keyboard palette
+ * registry — the same source every key in the real panel reads (X5).
+ */
+function KeyboardSurfacePreview({ theme }: { theme: KeyboardTheme }) {
+  const row = ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح'];
+  const row2 = ['ش', 'س', 'ي', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ك'];
+  const row3 = ['ئ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ'];
+  return (
+    <div
+      aria-hidden
+      className={'rounded-md p-2'}
+      style={{ ...keyboardPaletteVars(theme), backgroundColor: 'hsl(var(--kb-bg))' }}
+    >
+      <div className={'mb-1 flex gap-1'}>
+        {row.map((key) => (
+          <span
+            key={key}
+            className={'flex h-8 flex-1 items-center justify-center rounded-sm bg-[hsl(var(--kb-key))] text-mini font-medium text-[hsl(var(--kb-fg))] shadow-[var(--kb-key-shadow)]'}
+          >
+            {key}
+          </span>
+        ))}
+      </div>
+      <div className={'mb-1 flex gap-1'}>
+        {row2.map((key) => (
+          <span
+            key={key}
+            className={'flex h-8 flex-1 items-center justify-center rounded-sm bg-[hsl(var(--kb-key))] text-mini font-medium text-[hsl(var(--kb-fg))] shadow-[var(--kb-key-shadow)]'}
+          >
+            {key}
+          </span>
+        ))}
+      </div>
+      <div className={'flex gap-1'}>
+        <span className={'flex h-8 flex-[1.6] items-center justify-center rounded-sm bg-[hsl(var(--kb-key-mod))] text-micro text-[hsl(var(--kb-fg-muted))]'}>⇧</span>
+        {row3.map((key) => (
+          <span
+            key={key}
+            className={'flex h-8 flex-1 items-center justify-center rounded-sm bg-[hsl(var(--kb-key))] text-mini font-medium text-[hsl(var(--kb-fg))] shadow-[var(--kb-key-shadow)]'}
+          >
+            {key}
+          </span>
+        ))}
+        <span className={'flex h-8 flex-[1.6] items-center justify-center rounded-sm bg-[hsl(var(--kb-key-mod))] text-micro text-[hsl(var(--kb-fg-muted))]'}>⌫</span>
+      </div>
+      <div className={'mt-1 flex gap-1'}>
+        <span className={'flex h-8 flex-[1.2] items-center justify-center rounded-sm bg-[hsl(var(--kb-key-mod))] text-micro text-[hsl(var(--kb-fg-muted))]'}>123</span>
+        <span className={'flex h-8 flex-[1.2] items-center justify-center rounded-sm bg-[hsl(var(--kb-key-mod))] text-micro text-[hsl(var(--kb-fg-muted))]'}>🌐</span>
+        <span className={'flex h-8 flex-[4] items-center justify-center rounded-sm bg-[hsl(var(--kb-key))] text-micro text-[hsl(var(--kb-fg-muted))]'}>مسافة</span>
+        <span className={'flex h-8 flex-[1.6] items-center justify-center rounded-sm bg-[hsl(var(--kb-accent))] text-micro font-semibold text-[hsl(var(--kb-accent-fg))]'}>تم</span>
+      </div>
+    </div>
   );
 }

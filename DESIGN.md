@@ -5,7 +5,8 @@
 > `AGENTS.md`. إذا تعارض أي ملف آخر مع هذه الوثيقة، فهذه الوثيقة هي الصحيحة والملف
 > الآخر يحتاج تصحيحاً — لا العكس.
 
-آخر مراجعة: 2026-11-18 · المراجعة المرجعية: `7e34f503` · مالك القرار: Principal Design Systems.
+آخر مراجعة: 2026-11-18 (حملة المرحلة التالية) · الأساس: `design-refoundation` `22fa7b2c` · مالك القرار: Principal Design Systems.
+مرجع التنفيذ والتحقق: `docs/design-system/next-phase-execution.md` · `docs/design-system/verification.md`.
 
 ---
 
@@ -332,6 +333,10 @@ InterfaceScale (الشكل)      ThemeEngine (اللون)        Motion (الس�
   (طيّ/لوحي)، **1440×900**، **1920×1080**.
 - `min-height: 100dvh` (لا `100vh`)، `env(safe-area-inset-*)`، `--kb-inset`
   للوحة المفاتيح، و`--ui-safe-extra` لتفضيل المستخدم.
+- **مسند الإياب العائم:** زر واحد 44×44 في `.portal-dock` على
+  `inset-inline-start`، يظهر فقط بعد مغادرة أول شاشة، ويختفي على الأسطح
+  الغامرة (الألعاب/الخريطة/المحادثة/لوحة المفاتيح) وعند فتح الكيبورد. كل حاوية
+  تمرير تحجز `--ui-dock-inset` عبر `.pb-page` حتى لا يغطي الزر آخر صف.
 - الحاويات: `overflow-x-clip` للسكرول مع ترويسة لاصقة؛ لا `overflow-hidden` يكسر
   `sticky`.
 - الشبكات: أحادية العمود حتى `md` (768)، ثم عمودان فقط عندما يسمح المحتوى؛
@@ -479,10 +484,16 @@ node scripts/capture-design.mjs --out verification/design/after
 ### أدوات التحقق البصري
 
 - `bun run audit:routes` — يفتح **كل** المسارات في Chromium على 390 و1440،
-  ويقيس: تجاوز أفقي، سقوط على ErrorBoundary، غياب `h1`، تسريب اتجاه LTR،
-  وأهداف لمس أقل من 44px، ويحفظ لقطة 390 لكل مسار سليم.
-- `bun run audit:contrast
+  ويقيس ويفشل عند: تجاوز أفقي، سقوط على ErrorBoundary، عدد `h1` ≠ 1، تسريب
+  اتجاه LTR، أهداف لمس أقل من 44px غير المستثناة، عناوين مقصوصة، عنصر عائم
+  يغطي عنصر تحكم، وأي `pageerror` مسجّل. الاستثناءات في
+  `scripts/audit-allowlist.json` بمحدد وسبب ومالك؛ أي استثناء لا يطابق شيئاً
+  يُفشل التدقيق. قائمة الأعلام: `--routes`، `--workers`، `--json-out`، `--no-shots`.
+- `bun run audit:contrast` — تباين النص المركّب فعلياً على 20 مساراً × وضعين.
 - `bun run capture:design` — مصفوفة قبل/بعد عبر عروض/أوضاع/ثيمات.
+
+> خطة التنفيذ الحالية وحالة كل دفعة: `docs/design-system/next-phase-execution.md`.
+> تدفّقات A/B/C لكل مجال: `docs/design-system/interaction-states.md`.
 
 - لقطات قبل/بعد في `verification/design/` بعروض 360/768/1440 وثيمات مختارة.
 

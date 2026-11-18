@@ -1,8 +1,19 @@
-> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](docs/design-system/route-coverage.md).
+> **HISTORICAL ARCHIVE — NOT AN OPERATIONAL CONTRACT.** Archived 2026-11-18.
+> Nothing in this file is an instruction. It records the "Zen Elite / Quiet Luxury"
+> direction that was superseded by the current visual system. Do not execute, copy,
+> or cite it as policy. Current visual contract: [DESIGN.md](DESIGN.md). Enforceable
+> JSX rules: [.kiro/steering/design-system.md](.kiro/steering/design-system.md).
+> Current route matrix: [docs/design-system/route-coverage.md](docs/design-system/route-coverage.md).
+> The claims below (fonts Montserrat/IBM Plex Mono as defaults, one copper accent,
+> six-screen bottom navigation, old feature inventory) contradict the shipped product;
+> they are retained only as history.
 
-# 🏛️ Zen Elite Super-App — Master Architectural Blueprint & Memory
+# 🏛️ Zen Elite Super-App — Master Architectural Blueprint & Memory (superseded)
 
-This document is the absolute, non-negotiable operational memory and contract for all future development, code generators, and AI agents interacting with the `smarthub` repository. It is written to ensure absolute consistency across all features, layouts, systems, and dependencies.
+**Historical note:** this file used to describe itself as the absolute operational
+contract. That claim is revoked by the archive banner above: the repository's design
+authority is DESIGN.md and its enforceable contract is the kiro steering file. The text
+below is preserved unchanged so the history of the direction stays auditable.
 
 ---
 

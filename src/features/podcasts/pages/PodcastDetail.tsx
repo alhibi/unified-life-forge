@@ -368,9 +368,11 @@ export default function PodcastDetail() {
                 <div className="w-full h-full skeleton" />
               )}
             </div>
-            <h1 className="text-display font-bold leading-tight max-w-md text-foreground">
+            {/* The route's single h1 is the PageHeader title; this in-cover
+                heading is the same words at display size, so it is an h2. */}
+            <h2 className="text-display font-bold leading-tight max-w-md text-foreground">
               {displayTitle || <span className="inline-block h-7 w-48 skeleton rounded-md" />}
-            </h1>
+            </h2>
             {displayAuthor && (
               <p className="text-meta text-foreground/70 mt-1.5 font-semibold">{displayAuthor}</p>
             )}
@@ -379,14 +381,12 @@ export default function PodcastDetail() {
           {/* Body */}
           <div className="relative space-y-4">
             {error && !feed.data && (
-              <div className="rounded-2xl bg-destructive/10 border border-destructive/30 p-5 text-center">
-                <p className="text-meta font-bold text-foreground mb-1.5">
-                  {'تعذّر تحميل البودكاست'}
-                </p>
-                <p className="text-mini text-muted-foreground mb-4 leading-relaxed">
-                  {'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'}
-                </p>
-                <div className="flex items-center justify-center gap-2">
+              <StateView
+                kind="error"
+                title={'تعذّر تحميل البودكاست'}
+                body={'قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً.'}
+                actions={
+                  <div className="flex items-center justify-center gap-2">
                   <Button
                     onClick={() => {
                       void meta.refetch();
@@ -402,8 +402,10 @@ export default function PodcastDetail() {
                       </a>
                     </Button>
                   )}
-                </div>
-                <details className="mt-3 text-start">
+                  </div>
+                }
+              >
+                <details className="mt-1 text-start">
                   <summary className="text-micro text-muted-foreground-subtle cursor-pointer">
                     {'تفاصيل تقنية'}
                   </summary>
@@ -411,7 +413,7 @@ export default function PodcastDetail() {
                     {(error as Error).message}
                   </p>
                 </details>
-              </div>
+              </StateView>
             )}
 
             {/* Description card */}

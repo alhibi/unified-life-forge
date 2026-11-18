@@ -1,0 +1,45 @@
+{
+ "keyboardToggle": {
+  "labels": [
+   "رجوع",
+   "تفعيل لوحة مفاتيح التطبيق",
+   "فتح لوحة المفاتيح للتجربة",
+   "سطر الأرقام",
+   "صوت المفاتيح"
+  ],
+  "before": {
+   "kbOpen": false,
+   "dock": false
+  },
+  "opened": {
+   "kbOpen": true,
+   "height": "424px",
+   "labels": [
+    "إغلاق لوحة المفاتيح",
+    "إخفاء لوحة المفاتيح"
+   ],
+   "dock": false,
+   "bodyOverflow": "visible"
+  },
+  "closed": {
+   "kbOpen": true,
+   "height": "0px",
+   "active": "تجربة لوحة المفاتيح",
+   "dock": false
+  },
+  "error": null
+ },
+ "authForm": {
+  "before": {
+   "disabled": true,
+   "kbOpen": false
+  },
+  "after": {
+   "disabled": false,
+   "kbOpen": false,
+   "submitBottom": 538,
+   "vh": 844,
+   "active": "INPUT"
+  }
+ }
+}

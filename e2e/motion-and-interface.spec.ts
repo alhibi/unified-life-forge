@@ -64,7 +64,7 @@ test.describe('interface platform (/settings/interface)', () => {
     }
   });
 
-  test('a preset rewrites geometry, and the token inspector agrees', async ({ page }) => {
+  test('a preset rewrites geometry on the document root', async ({ page }) => {
     const before = await readVar(page, '--ui-pad-card');
 
     // "كثيف" is the densest preset: 0.9 scale, 0.75 spacing, compact density.
@@ -75,12 +75,11 @@ test.describe('interface platform (/settings/interface)', () => {
     const stackGap = Number.parseFloat(await readVar(page, '--ui-stack-gap'));
     expect(padding).toBeLessThan(Number.parseFloat(before));
 
-    // The inspector prints the literal token values, so it must match the DOM.
-    const inspectorPadding = await page
-      .locator('dt', { hasText: '--ui-pad-card' })
-      .locator('xpath=following-sibling::dd[1]')
-      .innerText();
-    expect(inspectorPadding.trim()).toBe(`${padding}px`);
+    // The raw inspector moved out of user settings into the reference gallery,
+    // which is a development-only surface (not reachable from a production
+    // build), so this e2e proves the instrument itself writes the contract and
+    // the inspector's dt/dd rendering is covered by its component test.
+    expect(padding).toBeLessThan(Number.parseFloat(before));
     expect(stackGap).toBeGreaterThan(0);
   });
 
@@ -267,6 +266,9 @@ test.describe('motion platform (/settings/motion)', () => {
   });
 
   test('the live frame monitor reports real measurements', async ({ page }) => {
+    // The performance meter lives behind the one "متقدم" disclosure (the
+    // default view stays calm); expand it before reading the real meter.
+    await page.getByRole('button', { name: /متقدم/ }).click();
     await expect
       .poll(
         async () =>
@@ -294,6 +296,8 @@ test.describe('motion platform (/settings/motion)', () => {
     expect(zeta).toBeGreaterThanOrEqual(0.99);
 
     // Switching to the expressive family is the only way to get a rebound.
+    // The easing family now lives inside the "متقدم" disclosure.
+    await page.getByRole('button', { name: /متقدم/ }).click();
     await section(page, 'منحنى التسارع')
       .getByRole('button', { name: 'مُعبّر', exact: true })
       .click();

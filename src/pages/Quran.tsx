@@ -1,14 +1,74 @@
-import React from 'react';
+/**
+ * /quran — the Qur'an entry surface.
+ *
+ * Reading-first: the page is the muṣḥaf index (114 real sūrahs, locally known
+ * counts and revelation place), with one resume affordance when the reader has
+ * a saved position. It is NOT a duplicate of the Mihrab → Qur'an tab: that tab
+ * owns the daily practice (wird commitment, streak, quick jump); this route
+ * owns "which sūrah do I read now".
+ *
+ * Scripture is never rendered on this surface — the reader is /tafsir. The
+ * index stays a quiet reference column: search, then rows, then a total line.
+ */
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { AppList, AppRow, IconChip, PageShell } from '@/components/ui/app-shell';
+import SurahIndexList from '@/features/mihrab/components/SurahIndexList';
+import { SURAH_INDEX } from '@/features/mihrab/data/surahIndex';
+import { arabicDigits } from '@/features/mihrab/lib/arabicDigits';
+import { RotateCcw } from '@/lib/icons';
 
-import QuranTab from './mihrab/QuranTab';
+interface LastTafsirPosition {
+  surah: number;
+  ayah: number | null;
+  tafsirId: string;
+}
+
+/** The reader's saved position (the reader owns the key; this is read-only). */
+function readLastPosition(): LastTafsirPosition | null {
+  try {
+    const raw = localStorage.getItem('tafsir-state');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.surah === 'number') return parsed as LastTafsirPosition;
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export default function QuranPage() {
+  const navigate = useNavigate();
+  // Read once on mount: leaving the page unmounts it, so there is nothing to
+  // keep in sync with the reader.
+  const [lastPos] = useState<LastTafsirPosition | null>(readLastPosition);
+
+  // The reader's URL contract is 0-based internally (?surah=0 = Al-Fātiḥah).
+  const openSurah = (surahNumber: number) =>
+    navigate('/tafsir?surah=' + String(surahNumber - 1));
+  const resume = () => {
+    if (!lastPos) return;
+    const params = new URLSearchParams({ surah: String(lastPos.surah) });
+    if (lastPos.ayah) params.set('ayah', String(lastPos.ayah));
+    navigate('/tafsir?' + params.toString());
+  };
+
+  const lastSurah = lastPos ? SURAH_INDEX[lastPos.surah] : null;
+
   return (
-    <PageShell flush centered={false} className="px-4 pt-2">
+    <PageShell
+      header={
+        <PageHeader
+          variant="display"
+          hideBack
+          title="القرآن الكريم"
+          subtitle="فهرس السور — اختر سورة لتلاوتها وتفسيرها"
+        />
+      }
+    >
       <SEO
         title="القرآن الكريم — المصحف الشريف والتلاوة"
         description="تلاوة القرآن الكريم، الحفظ والورد اليومي وتفسير الآيات الكريمة."
@@ -22,16 +82,26 @@ export default function QuranPage() {
         }}
       />
 
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        <PageHeader
-          title="القرآن الكريم"
-          subtitle="المصحف الشريف والتلاوة"
-          backFallback="/"
-        />
-        <section className="w-full">
-          <QuranTab />
-        </section>
-      </div>
+      {lastPos && lastSurah && (
+        <AppList aria-label="متابعة القراءة">
+          <AppRow
+            onClick={resume}
+            chevron
+            leading={
+              <IconChip tone="plain" aria-hidden>
+                <RotateCcw className="h-5 w-5" />
+              </IconChip>
+            }
+            title="متابعة القراءة"
+            subtitle={
+              lastSurah.name +
+              (lastPos.ayah ? ' — الآية ' + arabicDigits(lastPos.ayah) : '')
+            }
+          />
+        </AppList>
+      )}
+
+      <SurahIndexList onSelect={openSurah} showTotal />
     </PageShell>
   );
 }

@@ -1,0 +1,399 @@
+[
+ {
+  "route": "/chat",
+  "mode": "dark",
+  "text": "استكشف دون حساب",
+  "found": true,
+  "tag": "button",
+  "cls": "app-focus-ring text-mini font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground",
+  "color": "rgb(175, 179, 179)",
+  "bg": [
+   93,
+   105,
+   115
+  ],
+  "stack": [
+   {
+    "r": 93,
+    "g": 105,
+    "b": 115,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 2.66,
+  "ratioEffective": 2.66,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "600",
+  "rect": {
+   "x": 139,
+   "y": 374
+  }
+ },
+ {
+  "route": "/chat",
+  "mode": "light",
+  "text": "استكشف دون حساب",
+  "found": true,
+  "tag": "button",
+  "cls": "app-focus-ring text-mini font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground",
+  "color": "rgb(77, 84, 86)",
+  "bg": [
+   186,
+   197,
+   207
+  ],
+  "stack": [
+   {
+    "r": 186,
+    "g": 197,
+    "b": 207,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 4.41,
+  "ratioEffective": 4.41,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "600",
+  "rect": {
+   "x": 139,
+   "y": 374
+  }
+ },
+ {
+  "route": "/browse",
+  "mode": "dark",
+  "text": "مقالات ومصادر ومحفوظات",
+  "found": true,
+  "tag": "span",
+  "cls": "mt-0.5 block text-mini leading-snug text-muted-foreground",
+  "color": "rgb(175, 179, 179)",
+  "bg": [
+   93,
+   105,
+   115
+  ],
+  "stack": [
+   {
+    "r": 93,
+    "g": 105,
+    "b": 115,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 2.66,
+  "ratioEffective": 2.66,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "400",
+  "rect": {
+   "x": 29,
+   "y": 206
+  }
+ },
+ {
+  "route": "/occasions",
+  "mode": "dark",
+  "text": "مناسبة",
+  "found": true,
+  "tag": "span",
+  "cls": "text-micro text-muted-foreground-subtle",
+  "color": "rgb(146, 150, 151)",
+  "bg": [
+   93,
+   105,
+   115
+  ],
+  "stack": [
+   {
+    "r": 93,
+    "g": 105,
+    "b": 115,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 1.88,
+  "ratioEffective": 1.88,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "400",
+  "rect": {
+   "x": 309,
+   "y": 227
+  }
+ },
+ {
+  "route": "/occasions",
+  "mode": "light",
+  "text": "مناسبة",
+  "found": true,
+  "tag": "span",
+  "cls": "text-micro text-muted-foreground-subtle",
+  "color": "rgb(97, 104, 106)",
+  "bg": [
+   186,
+   197,
+   207
+  ],
+  "stack": [
+   {
+    "r": 186,
+    "g": 197,
+    "b": 207,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 3.24,
+  "ratioEffective": 3.24,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "400",
+  "rect": {
+   "x": 309,
+   "y": 227
+  }
+ },
+ {
+  "route": "/occasions",
+  "mode": "dark",
+  "text": "10",
+  "found": true,
+  "tag": "span",
+  "cls": "text-micro text-muted-foreground tabular-nums",
+  "color": "rgb(175, 179, 179)",
+  "bg": [
+   93,
+   105,
+   115
+  ],
+  "stack": [
+   {
+    "r": 93,
+    "g": 105,
+    "b": 115,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 2.66,
+  "ratioEffective": 2.66,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "400",
+  "rect": {
+   "x": 101,
+   "y": 360
+  }
+ },
+ {
+  "route": "/games/memory",
+  "mode": "dark",
+  "text": "الخطوة الأولى",
+  "found": true,
+  "tag": "span",
+  "cls": "text-micro font-semibold text-muted-foreground leading-tight line-clamp-2",
+  "color": "rgb(175, 179, 179)",
+  "bg": [
+   93,
+   105,
+   115
+  ],
+  "stack": [
+   {
+    "r": 93,
+    "g": 105,
+    "b": 115,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 2.66,
+  "ratioEffective": 1.61,
+  "ancestorOpacity": 0.45,
+  "dimmedBy": "div.aspect-square.rounded-xl",
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "600",
+  "rect": {
+   "x": 305,
+   "y": 891
+  }
+ },
+ {
+  "route": "/games/chess/puzzles",
+  "mode": "dark",
+  "text": "التالي",
+  "found": true,
+  "tag": "span",
+  "cls": "text-micro font-bold",
+  "color": "rgb(255, 255, 255)",
+  "bg": [
+   204,
+   179,
+   230
+  ],
+  "stack": [
+   {
+    "r": 204,
+    "g": 179,
+    "b": 230,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 1.88,
+  "ratioEffective": 1.88,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "700",
+  "rect": {
+   "x": 81,
+   "y": 655
+  }
+ },
+ {
+  "route": "/games",
+  "mode": "light",
+  "text": "بلا رتبة",
+  "found": true,
+  "tag": "span",
+  "cls": "shrink-0 rounded-full px-2 py-0.5 text-micro font-bold",
+  "color": "rgb(40, 100, 169)",
+  "bg": [
+   202,
+   215,
+   231
+  ],
+  "stack": [
+   {
+    "r": 40,
+    "g": 100,
+    "b": 169,
+    "a": 0.12
+   },
+   {
+    "r": 224,
+    "g": 231,
+    "b": 240,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 4.14,
+  "ratioEffective": 4.14,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "700",
+  "rect": {
+   "x": 162,
+   "y": 590
+  }
+ },
+ {
+  "route": "/games",
+  "mode": "light",
+  "text": "مشاركة",
+  "found": true,
+  "tag": "span",
+  "cls": "shrink-0 rounded-sm px-1.5 py-px text-micro font-medium",
+  "color": "rgb(40, 100, 169)",
+  "bg": [
+   206,
+   218,
+   225
+  ],
+  "stack": [
+   {
+    "r": 40,
+    "g": 100,
+    "b": 169,
+    "a": 0.12
+   },
+   {
+    "r": 229,
+    "g": 234,
+    "b": 233,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 4.23,
+  "ratioEffective": 4.23,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "500",
+  "rect": {
+   "x": 114,
+   "y": 1391
+  }
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "mode": "dark",
+  "text": "العودة إلى البوابة",
+  "found": true,
+  "tag": "button",
+  "cls": "app-focus-ring text-mini font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground",
+  "color": "rgb(175, 179, 179)",
+  "bg": [
+   93,
+   105,
+   115
+  ],
+  "stack": [
+   {
+    "r": 93,
+    "g": 105,
+    "b": 115,
+    "a": 1
+   }
+  ],
+  "ratioNoOpacity": 2.66,
+  "ratioEffective": 2.66,
+  "ancestorOpacity": 1,
+  "dimmedBy": null,
+  "gradient": false,
+  "disabled": false,
+  "elOpacity": 1,
+  "fontSize": "12px",
+  "weight": "600",
+  "rect": {
+   "x": 152,
+   "y": 374
+  }
+ }
+]

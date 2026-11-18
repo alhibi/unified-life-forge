@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppCard, AppList, PageShell } from '@/components/ui/app-shell';
-import { BookOpen, ChevronDown, Clock, Compass } from '@/lib/icons';
+import { Button } from '@/components/ui/button';
+import { BookOpen, ChevronDown, ChevronLeft, Clock, Compass } from '@/lib/icons';
 
 /**
  * /mihrab/prayer-guide — long-form, SEO-targeted educational guide
@@ -99,7 +100,16 @@ export default function PrayerGuide() {
       ];
 
   return (
-    <PageShell flush centered={false} className="px-4 pt-2">
+    <PageShell
+      header={
+        <PageHeader
+          sticky
+          title="دليل الصلاة وأوقاتها"
+          icon={<BookOpen className="w-5 h-5 text-primary" aria-hidden />}
+          backFallback="/mihrab"
+        />
+      }
+    >
       <SEO
         title={title}
         description={description}
@@ -107,17 +117,9 @@ export default function PrayerGuide() {
         type="article"
         jsonLd={jsonLd}
       />
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        <PageHeader
-          sticky
-          title="دليل الصلاة وأوقاتها"
-          icon={<BookOpen className="w-5 h-5 text-primary" aria-hidden />}
-          backFallback="/mihrab"
-        />
-
-        <article className="pt-2 space-y-8 text-foreground/90 leading-relaxed text-meta">
+      <article className="space-y-8 text-body leading-loose text-foreground">
           <section aria-labelledby="intro-h">
-            <h2 id="intro-h" className="text-body font-bold mb-2 text-foreground">
+            <h2 id="intro-h" className="type-section mb-2 text-foreground">
               {'مقدمة'}
             </h2>
             <p>
@@ -126,7 +128,7 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="five-h">
-            <h2 id="five-h" className="text-body font-bold mb-3 text-foreground flex items-center gap-2">
+            <h2 id="five-h" className="type-section mb-3 flex items-center gap-2 text-foreground">
               <Clock className="w-4 h-4 text-primary" aria-hidden />
               {'الصلوات الخمس'}
             </h2>
@@ -141,7 +143,7 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="calc-h">
-            <h2 id="calc-h" className="text-body font-bold mb-2 text-foreground">
+            <h2 id="calc-h" className="type-section mb-2 text-foreground">
               {'كيف تُحسب أوقات الصلاة فلكيًا؟'}
             </h2>
             <p>
@@ -150,7 +152,7 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="methods-h">
-            <h2 id="methods-h" className="text-body font-bold mb-3 text-foreground">
+            <h2 id="methods-h" className="type-section mb-3 text-foreground">
               {'طرق الحساب الشائعة'}
             </h2>
             <AppList role="list">
@@ -167,7 +169,7 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="qibla-h">
-            <h2 id="qibla-h" className="text-body font-bold mb-2 text-foreground flex items-center gap-2">
+            <h2 id="qibla-h" className="type-section mb-2 flex items-center gap-2 text-foreground">
               <Compass className="w-4 h-4 text-primary" aria-hidden />
               {'اتجاه القبلة'}
             </h2>
@@ -177,7 +179,7 @@ export default function PrayerGuide() {
           </section>
 
           <section aria-labelledby="faq-h">
-            <h2 id="faq-h" className="text-body font-bold mb-3 text-foreground">
+            <h2 id="faq-h" className="type-section mb-3 text-foreground">
               {'الأسئلة الشائعة'}
             </h2>
             <div className="space-y-3">
@@ -195,22 +197,21 @@ export default function PrayerGuide() {
 
           <section aria-labelledby="cta-h">
             <AppCard>
-              <h2 id="cta-h" className="text-meta font-bold text-foreground mb-1">
+              <h2 id="cta-h" className="text-title font-bold text-foreground mb-1">
                 {'جرّب أوقات الصلاة في مدينتك'}
               </h2>
               <p className="text-mini text-muted-foreground mb-3">
                 {'يحسب SmartHub أوقاتك تلقائيًا من موقعك ويتيح لك اختيار طريقة الحساب التي تتبعها.'}
               </p>
-              <Link
-                to="/settings/prayer"
-                className="inline-block text-mini font-bold text-primary hover:underline"
-              >
-                {'إعدادات الصلاة ←'}
-              </Link>
+              <Button asChild variant="outline">
+                <Link to="/settings/prayer">
+                  {'إعدادات الصلاة'}
+                  <ChevronLeft className="h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
             </AppCard>
           </section>
-        </article>
-      </div>
+      </article>
     </PageShell>
   );
 }
