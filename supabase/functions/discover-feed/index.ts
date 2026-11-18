@@ -5,10 +5,10 @@ import {
   decodeEntities,
   extractMeta,
   extractTitle,
-  fetchWithRetry,
   isSafeUrl,
   jsonResponse,
   requireUser,
+  safeFetch,
   stripText,
   USER_AGENT,
 } from "../_shared/rss-utils.ts";
@@ -115,7 +115,7 @@ async function probeFeed(
 > {
   if (!isSafeUrl(url)) return { url, ok: false };
   try {
-    const res = await fetchWithRetry(
+    const res = await safeFetch(
       url,
       {
         headers: {
@@ -126,7 +126,6 @@ async function probeFeed(
         redirect: "follow",
       },
       PARSE_TIMEOUT_MS,
-      0,
     );
     if (!res.ok) return { url, ok: false };
     if (!isSafeUrl(res.url)) return { url, ok: false };
@@ -303,7 +302,7 @@ serve(async (req) => {
   let pageDescription: string;
   let pageImage: string;
   try {
-    const res = await fetchWithRetry(
+    const res = await safeFetch(
       normalized,
       {
         headers: {
@@ -314,7 +313,6 @@ serve(async (req) => {
         redirect: "follow",
       },
       FETCH_TIMEOUT_MS,
-      0,
     );
     if (!res.ok) {
       return jsonResponse(
@@ -355,7 +353,19 @@ serve(async (req) => {
   // Run declared first (highest signal), then probes. Both in parallel
   // but limited to keep latency bounded — enough headroom for the 18
   // probe paths plus a couple of declared feeds to all run together.
-  const candidatesToCheck = [...declaredFeeds, ...probedPaths].slice(0, 22);
+  // Bound every follow-up request to the site the caller submitted: declared
+  // <link> feeds pointing at unrelated hosts are dropped, so a page cannot
+  // steer this function at arbitrary third-party destinations.
+  const siteHost = new URL(normalized).hostname.toLowerCase();
+  const sameSite = (u: string): boolean => {
+    try {
+      const h = new URL(u).hostname.toLowerCase();
+      return (h === siteHost || h.endsWith(`.${siteHost}`) || siteHost.endsWith(`.${h}`)) && isSafeUrl(u);
+    } catch {
+      return false;
+    }
+  };
+  const candidatesToCheck = [...declaredFeeds, ...probedPaths].filter(sameSite).slice(0, 22);
   const results = await Promise.all(candidatesToCheck.map(probeFeed));
   const ok = results.filter((r) => r.ok);
 
