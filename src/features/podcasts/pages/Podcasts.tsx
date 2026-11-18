@@ -272,7 +272,9 @@ function PoweredByApplePodcasts() {
       href="https://www.apple.com/legal/internet-services/itunes/appstorebadges/"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-micro font-semibold hover:bg-primary/20 transition-colors"
+      // Standalone attribution badge (not an inline sentence link), so it
+      // owns a full 44px touch target rather than a 31px pill.
+      className="inline-flex min-h-[var(--ui-touch-min)] items-center gap-1.5 px-3 rounded-full bg-primary/15 text-primary text-micro font-semibold hover:bg-primary/20 transition-colors"
     >
       <Info className="w-3 h-3" />
       <span>{'مدعوم من Apple Podcasts'}</span>

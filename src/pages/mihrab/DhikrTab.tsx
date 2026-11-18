@@ -128,13 +128,16 @@ function DuaDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{`${duas.length} دعاء`}</DialogDescription>
         </DialogHeader>
-        <div className="space-y-2">
+        <div>
           {duas.map((dua) => (
-            <div key={dua.id} className="rounded-md border border-border p-3">
+            <div
+              key={dua.id}
+              className="border-t border-track py-3 first:border-t-0 first:pt-1"
+            >
               <p className="text-lead leading-loose text-foreground" dir="rtl" style={SCRIPTURE_STYLE}>
                 {dua.text}
               </p>
-              <div className="mt-2 flex items-center justify-between gap-2">
+              <div className="mt-1 flex items-center justify-between gap-2">
                 <span className="min-w-0 truncate text-mini text-muted-foreground">{dua.source ?? ''}</span>
                 <CopyButton text={dua.text} label="نسخ الدعاء" />
               </div>
@@ -146,24 +149,23 @@ function DuaDialog({
   );
 }
 
-function FrequentDuaCard({ dua }: { dua: FrequentDua }) {
+function FrequentDuaRow({ dua }: { dua: FrequentDua }) {
   const [open, setOpen] = useState(false);
   const Icon = iconMap[dua.icon] || Star;
 
   return (
     <>
-      <button
-        type="button"
+      <AppRow
         onClick={() => setOpen(true)}
-        className="flex min-h-11 flex-col items-center gap-1.5 rounded-md p-2 transition-colors duration-fast hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <span className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-foreground">
-          <Icon className="h-5 w-5" aria-hidden />
-        </span>
-        <span className="line-clamp-2 w-16 text-center text-micro font-medium leading-tight text-foreground">
-          {dua.titleAr}
-        </span>
-      </button>
+        chevron
+        leading={
+          <IconChip tone="plain" aria-hidden>
+            <Icon className="h-5 w-5" />
+          </IconChip>
+        }
+        title={dua.titleAr}
+        subtitle={dua.source ?? `${(dua.extras?.length ?? 0) + 1} صيغة`}
+      />
       <DuaDialog
         open={open}
         onOpenChange={setOpen}
@@ -271,16 +273,16 @@ export default function DhikrTab() {
         </motion.div>
 
         <motion.section variants={item} aria-label="أدعية متكررة">
-          <p className="app-section-label mb-2">أدعية متكررة</p>
-          <div className="grid grid-cols-4 gap-1">
+          <h2 className="app-section-label">أدعية متكررة</h2>
+          <AppList>
             {frequentDuas.map((dua) => (
-              <FrequentDuaCard key={dua.id} dua={dua} />
+              <FrequentDuaRow key={dua.id} dua={dua} />
             ))}
-          </div>
+          </AppList>
         </motion.section>
 
         <motion.section variants={item} aria-label="أقسام الأدعية">
-          <p className="app-section-label mb-2">أقسام الأدعية</p>
+          <h2 className="app-section-label">أقسام الأدعية</h2>
           <AppList>
             {duaCategories.map((cat) => {
               const Icon = iconMap[cat.icon] || Star;

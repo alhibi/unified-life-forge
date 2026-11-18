@@ -1,0 +1,30 @@
+{
+  "ticket": "QA-SL-3",
+  "owner": "a-systems",
+  "capturedAt": "2026-11-18T18:21:08.669Z",
+  "fix": "src/components/ui/overlay-focus-return.ts wired into DialogContent, DrawerContent, SheetContent, AlertDialogContent",
+  "probes": {
+    "travel-atlas/trips": {
+      "opener": "BUTTON «رحلة جديدة»",
+      "dialogOpened": true,
+      "afterEscape": {
+        "tag": "BUTTON",
+        "text": "رحلة جديدة",
+        "isBody": false
+      },
+      "dialogGone": true
+    },
+    "german-club/dictionary": {
+      "opener": "DIV[role=button] word card «كلمة اليوم المميزة (Wort des Tages)»",
+      "dialogOpened": true,
+      "afterEscape": {
+        "tag": "DIV",
+        "role": "button",
+        "text": "كلمة اليوم المميزة (Wort des Tages)تم اختيار",
+        "isBody": false
+      },
+      "dialogGone": true
+    }
+  },
+  "unitTests": "src/components/ui/__tests__/overlayFocusReturn.test.tsx — 7 passed (5 existing trigger flows unchanged + 2 new controlled Dialog/Sheet). Red-green: with the restore disabled the 2 new specs fail, the 5 trigger specs still pass."
+}

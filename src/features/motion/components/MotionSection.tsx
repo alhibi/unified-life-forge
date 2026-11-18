@@ -1,25 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import type { FpsCap } from '@/contexts/AppContext';
 import { useApp } from '@/contexts/AppContext';
 import {
   ChoiceRow,
-  type InspectorEntry,
   SegmentedControl,
   SettingsSection,
   SliderRow,
   ToggleRow,
-  TokenInspector,
 } from '@/features/appearance';
 import {
   Activity,
+  ChevronDown,
   Compass,
   Gauge,
   Info,
   Layers,
   RefreshCcw,
   Rows3,
+  SlidersHorizontal,
   Sparkles,
   Target,
   Timer,
@@ -45,7 +46,7 @@ import {
   setSignatureSoundEnabled,
 } from '@/lib/signatureSound';
 
-import LiveMotionPreview from './LiveMotionPreview';
+import LiveMotionPreview, { OverlayMotionPreview } from './LiveMotionPreview';
 import PerformancePanel from './PerformancePanel';
 
 const SPEED_PRESETS = [
@@ -286,63 +287,6 @@ export default function MotionSection() {
   const budgetHz = fpsCap === 'auto' ? (nativeHz ?? 60) : fpsCap;
   const capExceedsPanel = typeof fpsCap === 'number' && nativeHz !== null && fpsCap > nativeHz + 5;
 
-  const inspectorEntries: readonly InspectorEntry[] = useMemo(
-    () => [
-      { token: '--motion-scale', label: 'مضاعف المدد', value: (1 / motionSpeed).toFixed(3) },
-      { token: '--motion-nav-scale', label: 'مضاعف الانتقال', value: navDuration.toFixed(2) },
-      { token: '--motion-amp', label: 'مضاعف المسافة', value: motionAmplitude.toFixed(2) },
-      { token: '--motion-bounce', label: 'نسبة الارتداد', value: springBounce.toFixed(2) },
-      { token: '--motion-stagger', label: 'إيقاع القوائم', value: listStagger.toFixed(2) },
-      {
-        token: '--motion-press-strength',
-        label: 'قوة الضغط',
-        value: pressFeedback.toFixed(2),
-      },
-      {
-        token: '--motion-push',
-        label: 'مدّة الدفع',
-        value: `${Math.round(300 * (1 / motionSpeed) * navDuration)}ms`,
-      },
-      {
-        token: '--motion-modal-in',
-        label: 'دخول الطبقة',
-        value: `${Math.round(320 * (1 / motionSpeed))}ms`,
-      },
-      { token: 'data-nav-style', label: 'نمط الانتقال', value: navStyle },
-      { token: 'data-overlay-style', label: 'نمط الطبقات', value: overlayStyle },
-      { token: 'data-scroll-profile', label: 'طابع التمرير', value: scrollProfile },
-      {
-        token: 'data-reduced-motion',
-        label: 'تقليل الحركة',
-        value: reduceMotion ? 'true (app)' : 'يتبع النظام',
-      },
-      {
-        token: 'data-compositor-hints',
-        label: 'تلميحات المُركّب',
-        value: String(compositorHints),
-      },
-      {
-        token: 'requestAnimationFrame',
-        label: 'حد الإطارات',
-        value: fpsCap === 'auto' ? 'غير مقيّد' : `${fpsCap} Hz`,
-      },
-    ],
-    [
-      motionSpeed,
-      navDuration,
-      motionAmplitude,
-      springBounce,
-      listStagger,
-      pressFeedback,
-      navStyle,
-      overlayStyle,
-      scrollProfile,
-      reduceMotion,
-      compositorHints,
-      fpsCap,
-    ],
-  );
-
   return (
     <>
       {/* ── 1. Complete characters + live preview ──────────────────── */}
@@ -422,48 +366,6 @@ export default function MotionSection() {
         </div>
       </SettingsSection>
 
-      {/* ── 3. Easing family ──────────────────────────────────────── */}
-      <SettingsSection
-        title="منحنى التسارع"
-        subtitle="عائلة المنحنيات التي يتحدّث بها التطبيق كله"
-        icon={<Activity className="h-4 w-4" aria-hidden />}
-      >
-        <ChoiceRow
-          label="العائلة"
-          options={EASING_CHOICES}
-          value={easingProfile}
-          onChange={(value) => setEasingProfile(value as typeof easingProfile)}
-          layoutId="easingProfileIndicator"
-        />
-        <p className="text-micro text-muted-foreground">
-          تصل هذه العائلة إلى framer-motion و Radix و vaul و sonner وردّ الضغط الأصلي في اللحظة
-          نفسها. واختيار «حرير» يمنع أي تجاوز حتى لو كان مؤشّر الارتداد مرفوعاً.
-        </p>
-      </SettingsSection>
-
-      {/* ── 4. Scrolling ──────────────────────────────────────────── */}
-      <SettingsSection
-        title="نعومة التمرير"
-        subtitle="ما يحدث للإطار أثناء اندفاع الإصبع"
-        icon={<Rows3 className="h-4 w-4" aria-hidden />}
-      >
-        <ChoiceRow
-          label="الطابع"
-          options={SCROLL_CHOICES}
-          value={scrollProfile}
-          onChange={(value) => setScrollProfile(value as typeof scrollProfile)}
-          layoutId="scrollProfileIndicator"
-        />
-        <div className="flex items-start gap-2 text-mini leading-relaxed text-muted-foreground-subtle">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-          <p>
-            التمرير نفسه يعمل على المُركّب، فالكلفة الحقيقية هي ما يُطلب من المتصفح أثناءه: تحديد
-            العنصر تحت الإصبع، وحساب حالة التحويم، وآلاف انتقالات الألوان في قائمة طويلة. الطابع
-            الحريري يعلّقها ويستعيدها فوراً عند أول لمسة، فلا تُفقَد أي نقرة.
-          </p>
-        </div>
-      </SettingsSection>
-
       {/* ── 5. Transient surfaces ─────────────────────────────────── */}
       <SettingsSection
         title="الطبقات العائمة"
@@ -477,6 +379,7 @@ export default function MotionSection() {
           onChange={(value) => setOverlayStyle(value as typeof overlayStyle)}
           layoutId="overlayStyleIndicator"
         />
+        <OverlayMotionPreview revision={revision} />
         <p className="text-micro text-muted-foreground">
           تحتفظ الأوراق السفلية والأدراج بانزلاقها من حافتها دائماً — ورقة لا تأتي من حافة تتوقّف عن
           أن تُقرأ كورقة. يطال هذا الإعداد ما ظهوره زخرفي فقط.
@@ -529,69 +432,6 @@ export default function MotionSection() {
           presets={BOUNCE_PRESETS}
           note="نسبة التخميد: صفر يعني استقراراً جافاً بلا تجاوز. لا يعمل إلا مع عائلة «مُعبّر»."
         />
-      </SettingsSection>
-
-      {/* ── 7. Rhythm and touch ──────────────────────────────────── */}
-      <SettingsSection
-        title="الإيقاع والضغط"
-        subtitle="تتابع ظهور القوائم، ومقدار حركة الضغط"
-        icon={<Timer className="h-4 w-4" aria-hidden />}
-      >
-        <SliderRow
-          label="إيقاع ظهور القوائم"
-          valueLabel={percent(listStagger)}
-          resolved={`${Math.round(50 * listStagger * (1 / motionSpeed))}ms لكل عنصر`}
-          value={listStagger}
-          min={MIN_LIST_STAGGER}
-          max={MAX_LIST_STAGGER}
-          step={0.1}
-          onChange={setListStagger}
-          presets={STAGGER_PRESETS}
-          note="التأخير بين كل عنصر والذي يليه في مداخل الصفحات. صفر يعني ظهوراً واحداً فورياً."
-        />
-        <SliderRow
-          label="قوة ردّ الضغط"
-          valueLabel={percent(pressFeedback)}
-          resolved="يُضرب في عمق الضغط"
-          value={pressFeedback}
-          min={MIN_PRESS_FEEDBACK}
-          max={MAX_PRESS_FEEDBACK}
-          step={0.05}
-          onChange={setPressFeedback}
-          presets={PRESS_PRESETS}
-          note="عند صفر يتوقّف الزرّ عن التحرّك تماماً، ويبقى تغيّر اللون وحده كدليل على الضغط."
-        />
-      </SettingsSection>
-
-      {/* ── 8. Gesture ───────────────────────────────────────────── */}
-      <SettingsSection
-        title="إيماءة الرجوع"
-        subtitle="السحب من حافة الشاشة للرجوع خطوة"
-        icon={<Target className="h-4 w-4" aria-hidden />}
-      >
-        <ToggleRow
-          id="gesture-back"
-          label="تمكين السحب من الحافة"
-          note="يعمل داخل التطبيق المثبَّت وعلى أندرويد، حيث لا يوفّره المتصفح"
-          checked={gestureBack}
-          onCheckedChange={setGestureBack}
-        />
-        {gestureBack ? (
-          <SliderRow
-            label="الحساسية"
-            valueLabel={percent(gestureSensitivity)}
-            resolved={`${Math.round(24 * gestureSensitivity)}px حافة · ${Math.round(
-              80 / gestureSensitivity,
-            )}px التزام`}
-            value={gestureSensitivity}
-            min={MIN_GESTURE_SENSITIVITY}
-            max={MAX_GESTURE_SENSITIVITY}
-            step={0.1}
-            onChange={setGestureSensitivity}
-            presets={GESTURE_PRESETS}
-            note="الأعلى يوسّع شريط الحافة ويقلّل المسافة المطلوبة؛ الأدنى يطلب سحبة متعمّدة طويلة."
-          />
-        ) : null}
       </SettingsSection>
 
       {/* ── 9. Frame budget ──────────────────────────────────────── */}
@@ -659,6 +499,128 @@ export default function MotionSection() {
         </div>
       </SettingsSection>
 
+      {/* ── Advanced: fine controls behind one disclosure. ── */}
+      <Collapsible className="app-card">
+        <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between gap-3 text-start">
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="row-icon">
+              <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-section font-semibold text-foreground">متقدم</span>
+              <span className="block text-micro text-muted-foreground">
+                منحنى التسارع، التمرير، الإيقاع، الإيماءة، ومقاييس الأداء
+              </span>
+            </span>
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-6 pt-4">
+      {/* ── 3. Easing family ──────────────────────────────────────── */}
+      <SettingsSection
+        title="منحنى التسارع"
+        subtitle="عائلة المنحنيات التي يتحدّث بها التطبيق كله"
+        icon={<Activity className="h-4 w-4" aria-hidden />}
+      >
+        <ChoiceRow
+          label="العائلة"
+          options={EASING_CHOICES}
+          value={easingProfile}
+          onChange={(value) => setEasingProfile(value as typeof easingProfile)}
+          layoutId="easingProfileIndicator"
+        />
+        <p className="text-micro text-muted-foreground">
+          تصل هذه العائلة إلى framer-motion و Radix و vaul و sonner وردّ الضغط الأصلي في اللحظة
+          نفسها. واختيار «حرير» يمنع أي تجاوز حتى لو كان مؤشّر الارتداد مرفوعاً.
+        </p>
+      </SettingsSection>
+
+      {/* ── 4. Scrolling ──────────────────────────────────────────── */}
+      <SettingsSection
+        title="نعومة التمرير"
+        subtitle="ما يحدث للإطار أثناء اندفاع الإصبع"
+        icon={<Rows3 className="h-4 w-4" aria-hidden />}
+      >
+        <ChoiceRow
+          label="الطابع"
+          options={SCROLL_CHOICES}
+          value={scrollProfile}
+          onChange={(value) => setScrollProfile(value as typeof scrollProfile)}
+          layoutId="scrollProfileIndicator"
+        />
+        <div className="flex items-start gap-2 text-mini leading-relaxed text-muted-foreground-subtle">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <p>
+            التمرير نفسه يعمل على المُركّب، فالكلفة الحقيقية هي ما يُطلب من المتصفح أثناءه: تحديد
+            العنصر تحت الإصبع، وحساب حالة التحويم، وآلاف انتقالات الألوان في قائمة طويلة. الطابع
+            الحريري يعلّقها ويستعيدها فوراً عند أول لمسة، فلا تُفقَد أي نقرة.
+          </p>
+        </div>
+      </SettingsSection>
+
+      {/* ── 7. Rhythm and touch ──────────────────────────────────── */}
+      <SettingsSection
+        title="الإيقاع والضغط"
+        subtitle="تتابع ظهور القوائم، ومقدار حركة الضغط"
+        icon={<Timer className="h-4 w-4" aria-hidden />}
+      >
+        <SliderRow
+          label="إيقاع ظهور القوائم"
+          valueLabel={percent(listStagger)}
+          resolved={`${Math.round(50 * listStagger * (1 / motionSpeed))}ms لكل عنصر`}
+          value={listStagger}
+          min={MIN_LIST_STAGGER}
+          max={MAX_LIST_STAGGER}
+          step={0.1}
+          onChange={setListStagger}
+          presets={STAGGER_PRESETS}
+          note="التأخير بين كل عنصر والذي يليه في مداخل الصفحات. صفر يعني ظهوراً واحداً فورياً."
+        />
+        <SliderRow
+          label="قوة ردّ الضغط"
+          valueLabel={percent(pressFeedback)}
+          resolved="يُضرب في عمق الضغط"
+          value={pressFeedback}
+          min={MIN_PRESS_FEEDBACK}
+          max={MAX_PRESS_FEEDBACK}
+          step={0.05}
+          onChange={setPressFeedback}
+          presets={PRESS_PRESETS}
+          note="عند صفر يتوقّف الزرّ عن التحرّك تماماً، ويبقى تغيّر اللون وحده كدليل على الضغط."
+        />
+      </SettingsSection>
+
+      {/* ── 8. Gesture ───────────────────────────────────────────── */}
+      <SettingsSection
+        title="إيماءة الرجوع"
+        subtitle="السحب من حافة الشاشة للرجوع خطوة"
+        icon={<Target className="h-4 w-4" aria-hidden />}
+      >
+        <ToggleRow
+          id="gesture-back"
+          label="تمكين السحب من الحافة"
+          note="يعمل داخل التطبيق المثبَّت وعلى أندرويد، حيث لا يوفّره المتصفح"
+          checked={gestureBack}
+          onCheckedChange={setGestureBack}
+        />
+        {gestureBack ? (
+          <SliderRow
+            label="الحساسية"
+            valueLabel={percent(gestureSensitivity)}
+            resolved={`${Math.round(24 * gestureSensitivity)}px حافة · ${Math.round(
+              80 / gestureSensitivity,
+            )}px التزام`}
+            value={gestureSensitivity}
+            min={MIN_GESTURE_SENSITIVITY}
+            max={MAX_GESTURE_SENSITIVITY}
+            step={0.1}
+            onChange={setGestureSensitivity}
+            presets={GESTURE_PRESETS}
+            note="الأعلى يوسّع شريط الحافة ويقلّل المسافة المطلوبة؛ الأدنى يطلب سحبة متعمّدة طويلة."
+          />
+        ) : null}
+      </SettingsSection>
+
       {/* ── 10. Measurement ──────────────────────────────────────── */}
       <SettingsSection
         title="مقاييس الأداء الحيّة"
@@ -668,24 +630,17 @@ export default function MotionSection() {
         <PerformancePanel nativeHz={nativeHz} />
       </SettingsSection>
 
-      {/* ── 11. What it compiles to ──────────────────────────────── */}
-      <SettingsSection
-        title="مفتّش الحركة"
-        subtitle="القيم والسمات المكتوبة على جذر المستند الآن"
-        icon={<Gauge className="h-4 w-4" aria-hidden />}
-        action={
-          <Button type="button" variant="outline" size="sm" onClick={resetMotionPreferences}>
-            <RefreshCcw aria-hidden />
-            إعادة الضبط
-          </Button>
-        }
-      >
-        <TokenInspector entries={inspectorEntries} />
-        <p className="text-micro text-muted-foreground">
-          كل مدّة في ملف الأنماط مكتوبة على هيئة ‎calc(base × var(--motion-scale))‎، ولهذا يكفي
-          تغيير رقم واحد على الجذر لإعادة توقيت كل حركة في التطبيق على الإطار التالي.
-        </p>
-      </SettingsSection>
+          <div className="app-divider-t flex flex-wrap items-center justify-between gap-3 pt-4">
+            <p className="min-w-0 flex-1 text-micro text-muted-foreground">
+              إعادة الضبط تعيد كل قيم الحركة إلى افتراضيات النظام — دون لمس الثيم أو الخط.
+            </p>
+            <Button type="button" variant="outline" size="sm" onClick={resetMotionPreferences}>
+              <RefreshCcw aria-hidden />
+              إعادة الضبط
+            </Button>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </>
   );
 }

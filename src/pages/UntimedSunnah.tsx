@@ -37,15 +37,28 @@ export default function UntimedSunnah() {
   };
 
   const categories = Object.entries(untimedSunnahData);
+  const totalSunnah = categories.reduce((sum, [, cat]) => sum + cat.items.length, 0);
 
   return (
-    <PageShell flush centered={false} className="px-4 pt-2">
+    <PageShell
+      header={
+        <PageHeader
+          variant="display"
+          title="السنن غير الموقوتة"
+          subtitle={
+            String(categories.length) +
+            ' فئات · ' +
+            String(totalSunnah) +
+            ' سنة عامة في اليوم'
+          }
+          backFallback="/sunnah"
+        />
+      }
+    >
       <SEO title="السنن غير المؤقتة — SmartHub" description="سنن نبوية عامة غير مرتبطة بوقت محدد، قابلة للحفظ في الحافظة." path="/section/untimed-sunnah" />
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        <PageHeader sticky title="السنن غير الموقوتة" />
 
-        {/* Accordion List */}
-        <div className="flex flex-col gap-2">
+      {/* Accordion List */}
+      <div className="flex flex-col gap-2">
           {categories.map(([id, cat]) => {
             const Icon = iconMap[cat.icon] || Star;
             const isCatOpen = openCatId === id;
@@ -53,8 +66,10 @@ export default function UntimedSunnah() {
             return (
               <AppCard key={id} className="overflow-hidden p-0">
                 <button
+                  type="button"
                   onClick={() => toggleCat(id)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20"
+                  aria-expanded={isCatOpen}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-accent/20 app-focus-ring"
                 >
                   <IconChip aria-hidden>
                     <Icon className="h-5 w-5" />
@@ -132,6 +147,7 @@ export default function UntimedSunnah() {
 
                                         <div className="flex items-center gap-2 flex-wrap">
                                           <button
+                                            type="button"
                                             onClick={() => copyText(`${item.title}\n${item.description}\n${item.source || ''}`)}
                                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors"
                                           >
@@ -154,7 +170,6 @@ export default function UntimedSunnah() {
               </AppCard>
             );
           })}
-        </div>
       </div>
     </PageShell>
   );

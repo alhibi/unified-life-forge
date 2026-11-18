@@ -17,6 +17,7 @@ import { PhotoStudioModal } from '@/features/profile/components/PhotoStudioModal
 import { ProfileActivityMatrixTab } from '@/features/profile/components/ProfileActivityMatrixTab';
 import { ProfileBadgesTab } from '@/features/profile/components/ProfileBadgesTab';
 import { ProfileCompletionCard } from '@/features/profile/components/ProfileCompletionCard';
+import { ProfileGate } from '@/features/profile/components/ProfileGate';
 import { ProfileHeaderHero } from '@/features/profile/components/ProfileHeaderHero';
 import { ProfileInsightsPanel } from '@/features/profile/components/ProfileInsightsPanel';
 import { ProfileOverviewTab } from '@/features/profile/components/ProfileOverviewTab';
@@ -165,10 +166,9 @@ export default function ProfileEditPage() {
   // Load profile data into state
   useEffect(() => {
     if (loading) return;
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+    // Signed-out visitors are not bounced away: the route renders ProfileGate
+    // below (its own header + real state), so a gated page keeps its identity.
+    if (!user) return;
 
     if (profile) {
       const u = profile.username || authUsername || '';
@@ -620,6 +620,9 @@ export default function ProfileEditPage() {
     toast.success('تم تسجيل الخروج بنجاح');
     navigate('/', { replace: true });
   };
+
+  // Gated route: keep the page's own identity instead of redirecting to /auth.
+  if (!loading && !user) return <ProfileGate loading={loading} />;
 
   return (
     <div className="min-h-dvh bg-background pb-page relative overflow-x-hidden" dir="rtl">

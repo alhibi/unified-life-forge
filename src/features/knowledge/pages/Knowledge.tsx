@@ -27,10 +27,6 @@ import { cn } from "@/lib/utils";
  *  genuine data label for one of five collections, so it gets a documented
  *  palette key instead of a decorative hex. */
 type DataTone = "data-1" | "data-2" | "data-3" | "data-4" | "data-5" | "data-6";
-const WIDGET_TONE: Record<DataTone, 1 | 2 | 3 | 4 | 5 | 6> = {
-  "data-1": 1, "data-2": 2, "data-3": 3, "data-4": 4, "data-5": 5, "data-6": 6,
-};
-
 /** Literal class pairs for each tone — dynamic `text-${tone}` strings would be
  *  invisible to Tailwind's scanner. */
 const TONE_TEXT: Record<DataTone, string> = {
@@ -778,7 +774,7 @@ export default function Knowledge() {
 
       <PageHeader
         variant="display"
-        eyebrow="LISSAN · قسم المعرفة"
+        eyebrow="قسم المعرفة"
         title={
           <>
             موسوعة <span className="text-primary">الرقي</span>
@@ -796,9 +792,7 @@ export default function Knowledge() {
                 {c.icon}
               </span>
               <span className="text-micro font-medium leading-none">{c.label}</span>
-              <span className="hidden text-micro leading-none text-muted-foreground sm:block">
-                {c.labelEn}
-              </span>
+
             </TabsTrigger>
           ))}
         </TabsList>
@@ -807,10 +801,8 @@ export default function Knowledge() {
           {/* Divider register for the open collection */}
           <div className="flex items-center gap-3">
             <span className="rule-x flex-1" />
-            <span
-              className={cn("text-micro font-bold tracking-[0.28em]", TONE_TEXT[cat.tone])}
-            >
-              {cat.labelEn.toUpperCase()}
+            <span className={cn("text-micro font-bold", TONE_TEXT[cat.tone])}>
+              {cat.label}
             </span>
             <span className="rule-x flex-1" />
           </div>
@@ -844,7 +836,6 @@ export default function Knowledge() {
                   {catData.brands.map((b) => (
                     <AppCard
                       key={b.id}
-                      tone={WIDGET_TONE[cat.tone]}
                       as="button"
                       pressable
                       onClick={() => selectBrand(b.id)}
@@ -895,7 +886,6 @@ export default function Knowledge() {
                   {brand.models.map((m) => (
                     <AppCard
                       key={m.id}
-                      tone={WIDGET_TONE[cat.tone]}
                       as="button"
                       pressable
                       onClick={() => setActiveModel(m)}
@@ -961,7 +951,7 @@ export default function Knowledge() {
               compact
               kind="empty"
               title="اختر علامة تجارية للاستكشاف"
-              body={`${catData.brands.length} BRANDS · ${itemsCount} ITEMS`}
+              body={`${catData.brands.length} علامة تجارية · ${itemsCount.toLocaleString('ar-EG')} طرازاً في هذه المجموعة.`}
             />
           )}
 

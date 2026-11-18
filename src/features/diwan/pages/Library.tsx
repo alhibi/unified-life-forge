@@ -4,15 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import {
-  AppCard,
-  AppList,
-  AppRow,
-  IconChip,
-  PageShell,
-  Stat,
-  StatGrid,
-} from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, IconChip, PageShell } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
 import { useDiwanStats } from '@/features/diwan/lib/hooks';
 import {
@@ -38,6 +31,13 @@ interface Props {
    * الافتراضي عبر الراوتر هو page-mode.
    */
   tab?: boolean;
+  /**
+   * `hub` is the /diwan gateway (identity + entry points), `index` is
+   * /diwan/library (the catalog itself). They share one data wiring and one
+   * set of primitives; only the register of the header and the first entry
+   * differ, so the two routes stop rendering the identical screen.
+   */
+  variant?: 'hub' | 'index';
 }
 
 const QUICK_ACTIONS = [
@@ -53,46 +53,88 @@ const QUICK_ACTIONS = [
  * الآن: <PageHeader variant="display"> للترويسة، و<AppList>/<AppRow>
  * للوصول السريع، و<StatGrid> للإحصاءات — والنصوص والمسارات كما هي.
  */
-export default function DiwanLibraryPage({ tab = false }: Props) {
+export default function DiwanLibraryPage({ tab = false, variant = 'index' }: Props) {
   const navigate = useNavigate();
   const stats = useDiwanStats();
   const [showGraph, setShowGraph] = useState(false);
+  const isHub = variant === 'hub';
 
   const numFmt = (n: number | undefined) =>
     typeof n === 'number' ? n.toLocaleString('ar-EG') : '—';
+
+  const actions = isHub
+    ? [
+        {
+          to: '/diwan/library',
+          icon: LibraryIcon,
+          label: 'المكتبة الكبرى',
+          sub: 'فهرس الشعر والشعراء والعصور',
+        },
+        ...QUICK_ACTIONS,
+      ]
+    : QUICK_ACTIONS;
 
   const content = (
     <>
       <PageHeader
         variant="display"
-        eyebrow="محراب · الأدب"
+        eyebrow={isHub ? 'الأدب · الديوان' : 'الديوان · المكتبة'}
         icon={<LibraryIcon className="h-6 w-6 text-primary" aria-hidden />}
-        title="المكتبة الكبرى"
-        subtitle="الموسوعة الشعرية العربية الخالدة"
+        title={isHub ? 'الديوان العربي' : 'المكتبة الكبرى'}
+        subtitle={
+          isHub
+            ? 'بوابة الشعر العربي الخالد: اقرأ، وابحث، وتتبّع أثر الشعراء'
+            : 'فهرس الشعر والشعراء والعصور'
+        }
         hideBack={tab}
         backFallback="/"
       >
         <FallbackBadge />
       </PageHeader>
 
-      {/* Stats — الرقوق المحفوظة */}
-      <AppCard>
-        <div className="mb-3.5 flex items-center gap-1.5">
-          <Sparkles className="h-4 w-4 text-primary" aria-hidden />
-          <span className="text-micro font-bold uppercase tracking-wider text-muted-foreground">
-            الرقوق المحفوظة
+      {isHub && (
+        <p className="text-meta leading-relaxed text-muted-foreground">
+          {'المكتبة ليست شبكة بطاقات: هنا يُحفظ البيت، ويُقرأ الشاعر، ويُتتبّع العصر. اختر مدخلك من الفهرس أدناه.'}
+        </p>
+      )}
+
+      {/* Register — الرقوق المحفوظة. Editorial line, not a KPI deck: three
+          numbers read as one sentence so the poetry stays the loudest thing. */}
+      <section aria-labelledby="diwan-register" className="border-y border-border/60 py-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 id="diwan-register" className="app-section-label">
+            {'الرقوق المحفوظة'}
+          </h2>
+          <span className="text-micro text-muted-foreground">
+            {stats.isLoading ? 'جارٍ الإحصاء…' : 'نسخة محلية'}
           </span>
         </div>
-        <StatGrid cols={3}>
-          <Stat value={numFmt(stats.data?.poets_count)} label="شاعر فحل" />
-          <Stat value={numFmt(stats.data?.poems_count)} label="قصيدة عصماء" />
-          <Stat value={numFmt(stats.data?.verses_count)} label="بيت فريد" />
-        </StatGrid>
-      </AppCard>
+        {stats.isError ? (
+          <StateView
+            compact
+            kind="error"
+            className="my-2"
+            title={'تعذّر جمع إحصاءات المكتبة'}
+            body={'القراءة والبحث يعملان من النسخة المحلية؛ الأرقام وحدها لم تصل.'}
+            action={{ label: 'إعادة المحاسبة', onClick: () => void stats.refetch() }}
+          />
+        ) : (
+          <p className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-meta text-muted-foreground">
+            <span className="text-title font-bold tabular-nums text-foreground">{numFmt(stats.data?.verses_count)}</span>
+            <span>{'بيتاً'}</span>
+            <span aria-hidden className="text-border">{'·'}</span>
+            <span className="text-title font-bold tabular-nums text-foreground">{numFmt(stats.data?.poems_count)}</span>
+            <span>{'قصيدة'}</span>
+            <span aria-hidden className="text-border">{'·'}</span>
+            <span className="text-title font-bold tabular-nums text-foreground">{numFmt(stats.data?.poets_count)}</span>
+            <span>{'شاعراً'}</span>
+          </p>
+        )}
+      </section>
 
-      {/* Quick actions */}
+      {/* Entry points */}
       <AppList>
-        {QUICK_ACTIONS.map((action) => {
+        {actions.map((action) => {
           const Icon = action.icon;
           return (
             <AppRow
@@ -181,7 +223,11 @@ export default function DiwanLibraryPage({ tab = false }: Props) {
   return (
     <PageShell>
       <SEO
-        title="المكتبة الكبرى — الديوان العربي الكلاسيكي"
+        title={
+          isHub
+            ? 'الديوان العربي — بوابة الشعر الكلاسيكي'
+            : 'المكتبة الكبرى — الديوان العربي الكلاسيكي'
+        }
         description="آلاف الشعراء وعشرات الآلاف من القصائد عبر العصور: الجاهلي، الأموي، العباسي، الأندلسي وما بعدها."
         path="/diwan/library"
       />

@@ -11,6 +11,10 @@ import {
   useSignatureMoment,
 } from '@/components/ui/signature-moment';
 import { StateView } from '@/components/ui/state-view';
+
+/** The Imru' al-Qais opening line — real verse, used as the worked example. */
+const BAYAN_EXAMPLE =
+  'قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ ... بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -157,7 +161,7 @@ export default function BayanDashboard() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   rows={4}
-                  placeholder="مثال: قِفَا نَبْكِ مِنْ ذِكْرَى حَبِيبٍ وَمَنْزِلِ ... بِسِقْطِ اللِّوَى بَيْنَ الدَّخُولِ فَحَوْمَلِ"
+                  placeholder={`مثال: ${BAYAN_EXAMPLE}`}
                   className="font-amiri leading-relaxed"
                 />
               </div>
@@ -215,8 +219,17 @@ export default function BayanDashboard() {
           {!activeAnalysis ? (
             <StateView
               kind="empty"
-              title="في انتظار إدخال البيانات"
-              body="أدخل جملة أو بيتاً فصيحاً لنقوم بتشريحها إعرابياً وبلاغياً وصرفياً بدقة فائقة."
+              compact
+              bare
+              title="لم يُحلَّل نصّ بعد"
+              body="التحليل يظهر هنا بعد الإدخال: إعراب، ميزان صرفي، بحر عروضي، وكشف بلاغي."
+              action={{
+                label: 'جرّب بيتاً مثالاً',
+                onClick: () => {
+                  setInputText(BAYAN_EXAMPLE);
+                  document.getElementById('bayan-text-input')?.focus();
+                },
+              }}
             />
           ) : (
             /* The result *arrives* — so it uses the SETTLE curve: a 6px rise

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, AppList, AppRow, PageShell, Section } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
 import { useApp } from '@/contexts/AppContext';
@@ -132,9 +132,18 @@ export default function SettingsPage() {
     onClick: () => void;
   };
 
-  const renderGroup = (title: string, items: SettingRow[]) => (
+  /**
+   * One settings group. The label is a real heading one step below the page
+   * title — the previous <Section> label rendered at title scale, so "المظهر"
+   * competed with the page's own h1 and the row titles lost their anchor.
+   */
+  const renderGroup = (title: string, description: string, items: SettingRow[]) => (
     <motion.div variants={item}>
-      <Section label={title}>
+      <section aria-label={title} className="space-y-3">
+        <div>
+          <h2 className="text-meta font-semibold text-muted-foreground">{title}</h2>
+          <p className="mt-1 text-mini text-muted-foreground-subtle">{description}</p>
+        </div>
         <AppList>
           {items.map((si) => (
             <AppRow
@@ -147,7 +156,7 @@ export default function SettingsPage() {
             />
           ))}
         </AppList>
-      </Section>
+      </section>
     </motion.div>
   );
 
@@ -258,11 +267,11 @@ export default function SettingsPage() {
           )}
         </motion.div>
 
-        {/* Appearance Group */}
-        {renderGroup('المظهر', appearanceItems)}
+        {/* Display & motion */}
+        {renderGroup('المظهر والواجهة', 'الشكل والألوان والخط والحركة والإدخال', appearanceItems)}
 
-        {/* Prayer Group */}
-        {renderGroup('الصلاة', prayerItems)}
+        {/* Prayer */}
+        {renderGroup('الصلاة', 'طريقة حساب المواقيت والمذهب الفقهي', prayerItems)}
 
         {/* Language picker retired — Arabic-only app. */}
 

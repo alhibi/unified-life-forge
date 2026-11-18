@@ -31,7 +31,6 @@ import {
   Layers,
   Maximize2,
   Rows3,
-  Save,
   SlidersHorizontal,
   Target,
   Type,
@@ -64,16 +63,13 @@ import type { SurfaceLift } from '@/utils/themeEngine';
 import {
   type ChoiceOption,
   ChoiceRow,
-  type InspectorEntry,
   SegmentedControl,
   type SegmentedOption,
   SettingsSection,
   SliderRow,
   ToggleRow,
-  TokenInspector,
 } from './AppearancePrimitives';
 import InterfacePreview from './interface/InterfacePreview';
-import InterfaceProfiles from './interface/InterfaceProfiles';
 
 const LIFT_OPTIONS: { id: SurfaceLift; label: string }[] = [
   { id: 'flat', label: 'مسطح' },
@@ -163,7 +159,6 @@ export default function InterfaceSection() {
     safeAreaExtra,
     setSafeAreaExtra,
     applyAdvancedInterfacePreferences,
-    resetInterfacePreferences,
   } = useApp();
 
   const activeDensity = resolveDensity(uiDensity);
@@ -268,64 +263,6 @@ export default function InterfaceSection() {
     if (option) setSurfaceLift(option.id);
   };
 
-  const inspectorEntries: readonly InspectorEntry[] = useMemo(
-    () => [
-      { token: '--ui-scale', label: 'مقياس الواجهة', value: String(geometry.uiScale) },
-      {
-        token: '--ui-spacing-scale',
-        label: 'مضاعف المساحات',
-        value: String(geometry.spacingScale),
-      },
-      {
-        token: '--r-sm / --r-xl',
-        label: 'سلّم الأنصاف',
-        value: `${geometry.radius.sm}px … ${geometry.radius.xl}px`,
-      },
-      { token: '--ui-pad-card', label: 'حشو البطاقة', value: `${geometry.cardPadding}px` },
-      { token: '--ui-stack-gap', label: 'مسافة المكدّس', value: `${geometry.stackGap}px` },
-      { token: '--ui-gutter', label: 'هامش الصفحة', value: `${geometry.gutter}px` },
-      { token: '--ui-control-h', label: 'ارتفاع العنصر', value: `${geometry.controlHeight}px` },
-      { token: '--ui-touch-min', label: 'أصغر هدف لمس', value: `${geometry.tapSize}px` },
-      { token: '--ui-row-icon', label: 'أيقونة الصفّ', value: `${geometry.rowIcon}px` },
-      { token: '--ui-header-h', label: 'ارتفاع الرأس', value: `${geometry.headerHeight}px` },
-      {
-        token: '--ui-content-max',
-        label: 'عرض المحتوى',
-        value: geometry.contentMax === null ? '100%' : `${geometry.contentMax}px`,
-      },
-      { token: '--ui-border-width', label: 'سماكة الحدّ', value: `${geometry.borderWidth}px` },
-      { token: '--ui-border-alpha', label: 'شفافية الحدّ', value: String(geometry.borderAlpha) },
-      { token: '--ui-divider-alpha', label: 'شفافية الفاصل', value: String(geometry.dividerAlpha) },
-      {
-        token: '--ui-material-alpha',
-        label: 'وزن خامة السطح',
-        value: String(geometry.materialAlpha),
-      },
-      {
-        token: '--ui-interaction-scale',
-        label: 'مقياس الضغط',
-        value: String(geometry.pressScale),
-      },
-      {
-        token: '--ui-interaction-offset',
-        label: 'إزاحة الضغط',
-        value: `${geometry.pressOffset}px`,
-      },
-      { token: '--ui-icon-stroke', label: 'ثقل الأيقونة', value: String(geometry.iconStroke) },
-      {
-        token: '--ui-focus-width',
-        label: 'حلقة التركيز',
-        value: `${geometry.focusWidth}px / ${geometry.focusOffset}px`,
-      },
-      {
-        token: '--ui-scrollbar-size',
-        label: 'شريط التمرير',
-        value: `${geometry.scrollbarSize}px`,
-      },
-      { token: '--ui-safe-extra', label: 'هامش سفلي إضافي', value: `${geometry.safeAreaExtra}px` },
-    ],
-    [geometry],
-  );
 
   return (
     <>
@@ -715,26 +652,7 @@ export default function InterfaceSection() {
         />
       </SettingsSection>
 
-      {/* ── 12. What it all compiles to ────────────────────────────── */}
-      <SettingsSection
-        title="مفتّش الرموز"
-        subtitle="القيم الحقيقية المكتوبة على جذر المستند الآن"
-        icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />}
-      >
-        <TokenInspector entries={inspectorEntries} />
-        <p className="text-micro text-muted-foreground">
-          كل قيمة أعلاه خاصية CSS مخصّصة تقرأها أدوات التطبيق المشتركة، ولذلك يصل الإعداد الواحد إلى
-          كل الشاشات في اللحظة نفسها.
-        </p>
-      </SettingsSection>
-
       {/* ── 13. Portable profiles ──────────────────────────────────── */}
-      <InterfaceProfiles
-        capture={() => settings as unknown as InterfaceProfileSettings}
-        apply={applyCompleteSettings}
-        reset={resetInterfacePreferences}
-        icon={<Save className="h-4 w-4" aria-hidden />}
-      />
     </>
   );
 }

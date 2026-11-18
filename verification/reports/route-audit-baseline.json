@@ -1,0 +1,738 @@
+[
+ {
+  "route": "/chat",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الدردشة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/groups",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المجموعات والقنوات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/settings",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجّل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المحادثة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "النادي الألماني",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/dictionary",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "القاموس الألماني-العربي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "input.app-control.flex.h-12",
+    "controlText": "البحث في القاموس",
+    "overlap": 1519
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/review",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "1"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "2"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "3"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "4"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "5"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "6"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "7"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "8"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "9"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "0"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ض"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ص"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ث"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ق"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ف"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "غ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ع"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ه"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "خ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ح"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ج"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "د"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ش"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "س"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ي"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ب"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ل"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ا"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ت"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ن"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "م"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ك"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ط"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "أحرف بديلة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ئ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ء"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ؤ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ر"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "لا"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ى"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "و"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ز"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ظ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "حذف"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "تبديل الأرقام والرموز"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "تبديل اللغة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "التشكيل"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "علامة ترقيم"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "لوحة مفاتيح النظام"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "div.pointer-events-none.fixed.inset-x-0",
+    "control": "input.app-control.ps-9.pe-11",
+    "controlText": "كلمة المرور",
+    "overlap": 12940
+   },
+   {
+    "floating": "div.pointer-events-none.fixed.inset-x-0",
+    "control": "button.absolute.end-0.5.top-1/2",
+    "controlText": "إظهار كلمة المرور",
+    "overlap": 1936
+   },
+   {
+    "floating": "div.pointer-events-none.fixed.inset-x-0",
+    "control": "button.text-body.text-muted-foreground.transition-colors",
+    "controlText": "ليس لديك حساب؟ إنشاء حساب جديد",
+    "overlap": 10434
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:50",
+   "float-overlap:3"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/grammar",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "زاوية القواعد (Grammar Corner)",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [
+   {
+    "selector": "h1.text-title.font-semibold.text-foreground",
+    "text": "زاوية القواعد (Grammar Corner)",
+    "scrollWidth": 312,
+    "clientWidth": 194
+   }
+  ],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "clipped-headings:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/wortliste",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة كلماتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/shelf/test-slug",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مواقف الرف",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الدردشة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/keyboard",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "لوحة المفاتيح",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/groups",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المجموعات والقنوات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/settings",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجّل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المحادثة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "النادي الألماني",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/dictionary",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "القاموس الألماني-العربي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/grammar",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "زاوية القواعد (Grammar Corner)",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/review",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "div.pointer-events-none.fixed.inset-x-0",
+    "control": "input.app-control.ps-9.pe-11",
+    "controlText": "كلمة المرور",
+    "overlap": 14432
+   },
+   {
+    "floating": "div.pointer-events-none.fixed.inset-x-0",
+    "control": "button.absolute.end-0.5.top-1/2",
+    "controlText": "إظهار كلمة المرور",
+    "overlap": 1638
+   },
+   {
+    "floating": "div.pointer-events-none.fixed.inset-x-0",
+    "control": "button.text-body.text-muted-foreground.transition-colors",
+    "controlText": "ليس لديك حساب؟ إنشاء حساب جديد",
+    "overlap": 6069
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:3"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/wortliste",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة كلماتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/shelf/test-slug",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مواقف الرف",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/keyboard",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "لوحة المفاتيح",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ }
+]

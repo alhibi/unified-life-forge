@@ -153,6 +153,7 @@ export class MapController {
       if (this.options.globe) this.applyProjection(true);
       this.patch({ map, isReady: true, error: null });
     });
+
     map.on('error', (event: { error?: { message?: string; status?: number } }) => {
       // Individual tile 404s are normal at the edge of coverage and must not
       // put an error banner over a working map.
@@ -197,6 +198,31 @@ export class MapController {
     if (this.options.globe === globe) return;
     this.options = { ...this.options, globe };
     this.applyProjection(globe);
+  }
+
+  /**
+   * Re-requests the current style after a tile/style failure.
+   *
+   * The designed fallback offers exactly one recovery action; it has to be a
+   * real one. Re-applying the same style makes MapLibre re-fetch the style and
+   * its tiles. It is a no-op when the map was never constructed (the page then
+   * keeps the fallback and the next mount retries on its own).
+   */
+  retry(): void {
+    const map = this.instance;
+    if (!map) return;
+    const entry = mapStyleEntry(this.options.styleId);
+    this.patch({ error: null });
+    map.setStyle(entry.style as string | StyleSpecification);
+    // 'load' only fires for the first style. After a retry the map is usable
+    // again when it reaches 'idle' (style parsed AND the requested tiles
+    // settled); resolving on 'styledata' alone would trade the designed
+    // fallback for a half-painted map.
+    map.once('idle', () => this.patch({ map, isReady: true, error: null }));
+    if (this.options.globe) {
+      map.once('styledata', () => this.applyProjection(true));
+      this.styleReloadTimer = window.setTimeout(() => this.applyProjection(true), 200);
+    }
   }
 
   get styleId(): MapStyleId {

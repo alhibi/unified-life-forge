@@ -123,17 +123,27 @@ export default function PageHeader({
         // `--header-pad`: 0 inside a PageShell (the shell already owns the
         // gutter, so the header aligns with card edges) and the gutter when the
         // header is mounted on its own full-bleed surface.
-        'app-page-header flex min-h-[var(--ui-header-h)] items-center gap-2 px-[var(--header-pad,var(--ui-gutter))] py-2',
+        //
+        // The header is a wrapping rail, not a fixed 56px row. A page may pass
+        // a crowded action cluster (a game clock + pause + mute + board), and
+        // on a 390px phone that cluster used to crush the title below its own
+        // word width — the h1 was then ellipsised to a sliver (seen on
+        // /games/sudoku and /games/memory). Now the start rail (back + title)
+        // keeps a readable floor and the whole action cluster wraps to a second
+        // rail instead of squeezing the page identity away.
+        'app-page-header flex min-h-[var(--ui-header-h)] flex-wrap items-center gap-x-2 gap-y-1 px-[var(--header-pad,var(--ui-gutter))] py-2',
         sticky && 'z-header app-sticky-header',
         className,
       )}
     >
-      {!hideBack && <BackButton to={backTo} fallback={backFallback} />}
+      <div className="flex min-w-0 flex-auto items-center gap-2">
+        {!hideBack && <BackButton to={backTo} fallback={backFallback} />}
 
-      <div className="flex-1 min-w-0 flex items-center gap-2">
         {icon && <span className="shrink-0 inline-flex">{icon}</span>}
-        <div className="min-w-0">
-          <h1 className="text-title font-semibold text-foreground truncate">{title}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="line-clamp-2 text-balance text-title font-semibold text-foreground [overflow-wrap:break-word]">
+            {title}
+          </h1>
           {subtitle && (
             <div className="mt-0.5 text-micro text-muted-foreground truncate">{subtitle}</div>
           )}
@@ -141,12 +151,12 @@ export default function PageHeader({
       </div>
 
       {right ? (
-        <div className="shrink-0 flex items-center gap-2">{right}</div>
+        <div className="ms-auto flex shrink-0 flex-wrap items-center justify-end gap-2">{right}</div>
       ) : !hideBack ? (
         // Optical balance — the title row visually centers between back
         // and this 44 px placeholder. Without it, short titles pull
         // toward the start edge on wide screens, which feels off.
-        <div className="w-11 shrink-0" aria-hidden="true" />
+        <div className="ms-auto w-11 shrink-0" aria-hidden="true" />
       ) : null}
     </header>
   );

@@ -103,7 +103,7 @@ function onAntiDiag(r: number, c: number) { return r + c === 8; }
 // ============================================================================
 export default function SudokuPage() {
   const { t, } = useApp();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   // URL-driven mode: /games/sudoku?mode=x|classic|daily&difficulty=hard.
   // The hub's mode cards link here; the page honors the deep link once on
@@ -361,7 +361,6 @@ export default function SudokuPage() {
   // the player can choose to apply or just learn from it. So it doesn't burn
   // hint credit; instead we increment `smartHintsViewed` for the stats panel.
   const [smartHint, setSmartHint] = useState<SolverHint | null>(null);
-  const [smartHintsViewed, setSmartHintsViewed] = useState(0);
 
   const handleSmartHint = () => {
     if (isPaused || solved) return;
@@ -378,7 +377,6 @@ export default function SudokuPage() {
       return;
     }
     setSmartHint(hint);
-    setSmartHintsViewed(n => n + 1);
     playSfx('hint'); vibrate(20);
   };
 
@@ -568,7 +566,7 @@ export default function SudokuPage() {
 
   const timerDisplay = (
     <div className="flex items-center gap-2">
-      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary transition-transform">
+      <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-11 h-11 rounded-full flex items-center justify-center bg-secondary transition-transform">
         {isPaused ? <Play className="w-3.5 h-3.5 text-muted-foreground" /> : <Pause className="w-3.5 h-3.5 text-muted-foreground" />}
       </button>
       <div className="flex items-center gap-1 text-mini text-secondary-muted bg-secondary px-2.5 py-1 rounded-full tabular-nums">
@@ -618,16 +616,32 @@ export default function SudokuPage() {
         </motion.div>
       )}
 
-      {/* Board */}
-      <div className="max-w-[360px] mx-auto mb-4 relative">
+      {/* Board — bled to the full phone width so the 81 cells are as large as
+          the viewport can make them; cells stay inside the X9 dense-grid
+          exception (see docs/design-system/visual-exceptions.md). */}
+      <div className="relative -mx-[var(--ui-gutter)] mb-4 sm:mx-auto sm:max-w-[420px]">
         <AnimatePresence>
           {(!gameStarted || isPaused) && !solved && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-sticky rounded-2xl bg-card flex items-center justify-center"
+              className="absolute inset-0 z-sticky overflow-hidden rounded-2xl bg-card"
               onClick={!gameStarted ? startGame : togglePause}
             >
-              <div className="flex flex-col items-center gap-3">
+              {/* The board itself stays visible as a quiet 9×9 frame: the start
+                  state is the game's shape, not an empty grey panel. */}
+              <div aria-hidden className="grid h-full w-full grid-cols-9">
+                {Array.from({ length: 81 }, (_, index) => (
+                  <span
+                    key={index}
+                    className={[
+                      'border-e border-b border-border',
+                      (index % 9) % 3 === 2 ? 'border-e-2 border-e-muted-foreground/40' : '',
+                      Math.floor(index / 9) % 3 === 2 ? 'border-b-2 border-b-muted-foreground/40' : '',
+                    ].join(' ')}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                 <Play className="w-10 h-10 text-primary stroke-[1.5]" />
                 <span className="text-muted-foreground font-medium text-meta">
                   {!gameStarted ? ('اضغط للبدء') : ('اضغط للمتابعة')}
@@ -646,12 +660,11 @@ export default function SudokuPage() {
             </svg>
           )}
 
-          <div className={`grid ${variant === 'mini' ? 'grid-cols-6' : 'grid-cols-9'}`}>
+          <div className={`grid gap-px ${variant === 'mini' ? 'grid-cols-6' : 'grid-cols-9'}`}>
             {board.map((row, ri) => row.map((cell, ci) => {
               const isOrig = original.has(`${ri}-${ci}`);
               const hasError = errors.has(`${ri}-${ci}`);
               const cellNotes = notes[ri][ci];
-              const boxW = variant === 'mini' ? 3 : 3;
               const last = variant === 'mini' ? 5 : 8;
               // Mini 6×6 boxes are 2 rows × 3 cols; classic is 3×3.
               const thickCol = variant === 'mini'
@@ -664,7 +677,7 @@ export default function SudokuPage() {
               const borderB = thickRow ? 'border-b-[2px] border-b-foreground/15' : 'border-b border-b-border/30';
 
               return (
-                <button aria-label={`صف ${ri + 1}، عمود ${ci + 1}، ${cell ?? "فارغ"}`} key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
+                <button aria-label={`صف ${ri + 1}، عمود ${ci + 1}، ${cell ?? "فارغ"}`} data-touch-exempt="board-cell" key={`${ri}-${ci}`} onClick={() => handleCellClick(ri, ci)}
                   className={`aspect-square flex items-center justify-center relative transition-colors duration-instant
                     ${borderR} ${borderB} ${getHighlight(ri, ci)}
                     ${!solved && !isPaused ? 'cursor-pointer active:bg-primary/15' : ''}`}
@@ -692,7 +705,7 @@ export default function SudokuPage() {
       </div>
 
       {/* Number pad */}
-      <div className="max-w-[360px] mx-auto space-y-3">
+      <div className="-mx-[var(--ui-gutter)] space-y-3 sm:mx-auto sm:max-w-[420px]">
         <div className={`grid gap-1 ${variant === 'mini' ? 'grid-cols-6' : 'grid-cols-9'}`}>
           {(variant === 'mini' ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 7, 8, 9]).map(n => {
             const remaining = numberCounts[n];

@@ -25,30 +25,30 @@
       content="SmartHub تطبيق عربي متكامل يجمع أوقات الصلاة، القرآن، الأذكار، التقويم الهجري، الطقس، المحادثات، الألعاب والأخبار في مكان واحد."
     />
     <!-- ── Web fonts ───────────────────────────────────────────────────
-         This used to be THREE stylesheet requests covering nine families
-         (Inter, Noto Sans Arabic, Cormorant Garamond and Amiri were each
-         requested more than once, and Cormorant was ALSO self-hosted via
-         @fontsource in main.tsx).
+         ONE request, and only the families the app can render.
 
-         Now: one request, and only the families the app can actually
-         select — see src/lib/fonts.ts, which is the single source of
-         truth for the font picker. Weights are limited to 400–700
-         because the weight slider no longer offers 300.
-           • IBM Plex Sans Arabic — default UI face
-           • Cairo / Tajawal / Readex Pro — alternative UI faces
-           • Amiri — Quran / poetry serif
-           • IBM Plex Mono — tabular numerals (clock, tables)
-         Cormorant Garamond + Montserrat stay self-hosted in main.tsx. -->
+         `src/lib/fonts.ts` is the single source of truth and maps every
+         user font pick to the same functional pair (DESIGN.md D4):
+           • IBM Plex Sans Arabic — the Arabic UI face (400–700)
+           • Inter Tight — the Latin UI face (400–700)
+           • Amiri — editorial material for Quran / poetry surfaces only
+           • Tajawal — editorial material for Diwan labels only
+         Weights stop at 400 because the weight slider no longer offers 300
+         (there is no Arabic 300 face to load).
+
+         Deliberately NOT requested here: Cairo and Readex Pro (retired
+         alternative UI faces with zero consumers), Instrument Serif (never
+         used), and IBM Plex Mono (`font-plex-mono` has no Tailwind theme
+         entry, so the utility emits nothing). Cormorant Garamond,
+         Montserrat and Outfit remain `@fontsource` packages in
+         package.json but are no longer imported by any entry point, so the
+         app never loads them. Do not add a family here without a consumer
+         in src/lib/fonts.ts or an editorial surface that names it. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&family=Readex+Pro:wght@400;500;600&family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-    />
-    <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&family=Tajawal:wght@400;500;700&family=Readex+Pro:wght@400;500;600&family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap"
     />
     <meta name="author" content="SmartHub" />
     <meta property="og:type" content="website" />

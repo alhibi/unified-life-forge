@@ -181,14 +181,22 @@ export default function TravelAtlasPage() {
         onValueChange={(value) => setTab(value as AtlasTab)}
         className="flex min-h-0 flex-1 flex-col"
       >
-        <TabsList className="mx-4 mt-3 shrink-0 self-start">
-          <TabsTrigger value="world">الخريطة</TabsTrigger>
-          <TabsTrigger value="places">الأماكن</TabsTrigger>
-          <TabsTrigger value="scout" className="gap-1">
+        {/* One row, never wrapped: a 4-way pill that breaks its labels onto two
+            lines reads as two rows of navigation. The row scrolls instead. */}
+        <TabsList className="mx-4 mt-3 shrink-0 self-start overflow-x-auto scrollbar-hide">
+          <TabsTrigger value="world" className="flex-none px-2 text-mini whitespace-nowrap">
+            الخريطة
+          </TabsTrigger>
+          <TabsTrigger value="places" className="flex-none px-2 text-mini whitespace-nowrap">
+            الأماكن
+          </TabsTrigger>
+          <TabsTrigger value="scout" className="flex-none gap-1 px-2 text-mini whitespace-nowrap">
             <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
             الاستكشاف الذكي
           </TabsTrigger>
-          <TabsTrigger value="passport">سجلّي</TabsTrigger>
+          <TabsTrigger value="passport" className="flex-none px-2 text-mini whitespace-nowrap">
+            سجلّي
+          </TabsTrigger>
         </TabsList>
 
         {/* The map is ALWAYS mounted.
@@ -199,48 +207,66 @@ export default function TravelAtlasPage() {
             invitation; the prompt now floats over it.
             Keeping it mounted across tab switches also preserves the camera,
             which Radix would otherwise discard by unmounting the panel. */}
-        <div className={cn('relative mt-3 min-h-0 flex-1', tab !== 'world' && 'hidden')}>
-          <Suspense fallback={<div className="skeleton h-full rounded-none" />}>
-            <WorldAtlasMap
-              summaries={summaries}
-              places={places}
-              onSelectCountry={openCountry}
-              onSelectPlace={openPlace}
-              unsupportedFallback={
-                <div className="grid h-full place-items-center px-6 text-center">
-                  <p className="text-body text-muted-foreground">
-                    الخريطة غير مدعومة على هذا الجهاز — استعرض أماكنك من تبويب «الأماكن».
-                  </p>
-                </div>
-              }
-            />
-          </Suspense>
-
-          {!isLoading && places.length === 0 && (
-            <FirstRunPrompt isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
-          )}
-
-          <nav
-            className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-2"
-            aria-label="خرائط أخرى"
-          >
-            <button
-              type="button"
-              onClick={() => navigate('/travel-atlas/explore')}
-              className="inline-flex h-11 items-center gap-1.5 rounded-button border border-border bg-background px-3 text-mini text-foreground"
+        <div className={cn('mt-3 flex min-h-0 flex-1 flex-col', tab !== 'world' && 'hidden')}>
+          {/*
+            Tools, not detail. The two other map surfaces used to float over the
+            canvas in the bottom corner, where they collided with the portal dock
+            and the place sheet. They belong in a calm strip above the map, and
+            the legend explains the bubble size in that same strip.
+          */}
+          <div className="flex shrink-0 items-center gap-2 px-[var(--ui-gutter)] pb-2">
+            <nav
+              className="flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-hide"
+              aria-label="خرائط أخرى"
             >
-              <Search className="h-4 w-4" aria-hidden="true" />
-              خريطة تفصيلية
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/travel-atlas/countries')}
-              className="inline-flex h-11 items-center gap-1.5 rounded-button border border-border bg-background px-3 text-mini text-foreground"
-            >
-              <Globe className="h-4 w-4" aria-hidden="true" />
-              خريطة البلدان
-            </button>
-          </nav>
+              <button
+                type="button"
+                onClick={() => navigate('/travel-atlas/explore')}
+                className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-button border border-border bg-background px-3 text-mini text-foreground"
+              >
+                <Search className="h-4 w-4" aria-hidden="true" />
+                خريطة تفصيلية
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/travel-atlas/countries')}
+                className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-button border border-border bg-background px-3 text-mini text-foreground"
+              >
+                <Globe className="h-4 w-4" aria-hidden="true" />
+                خريطة البلدان
+              </button>
+            </nav>
+            {summaries.length > 0 && (
+              <p className="ms-auto hidden shrink-0 text-micro text-muted-foreground sm:block">
+                حجم الدائرة = عدد الأماكن
+              </p>
+            )}
+          </div>
+
+          <div className="relative min-h-0 flex-1">
+            <Suspense fallback={<div className="skeleton h-full rounded-none" />}>
+              <WorldAtlasMap
+                summaries={summaries}
+                places={places}
+                stamps={stamps}
+                onSelectCountry={openCountry}
+                onSelectPlace={openPlace}
+                onAddPlace={() => setFormOpen(true)}
+                onSelectCountryIso={(isoCode) => navigate(`/travel-atlas/${isoCode}`)}
+                unsupportedFallback={
+                  <div className="grid h-full place-items-center px-6 text-center">
+                    <p className="text-body text-muted-foreground">
+                      الخريطة غير مدعومة على هذا الجهاز — استعرض أماكنك من تبويب «الأماكن».
+                    </p>
+                  </div>
+                }
+              />
+            </Suspense>
+
+            {!isLoading && places.length === 0 && (
+              <FirstRunPrompt isSignedIn={Boolean(user)} onAdd={() => setFormOpen(true)} />
+            )}
+          </div>
         </div>
 
         <TabsContent value="places" className="min-h-0 flex-1 overflow-y-auto px-[var(--ui-gutter)] pb-page">
@@ -398,8 +424,9 @@ function CountryCard({ summary, onOpen }: { summary: CountrySummary; onOpen: () 
  */
 function FirstRunPrompt({ isSignedIn, onAdd }: { isSignedIn: boolean; onAdd: () => void }) {
   return (
-    // Sits above the map-switch buttons, clear of the toolbar in the top corner.
-    <div className="pointer-events-none absolute inset-x-3 bottom-20 flex justify-center">
+    // Sits over the map itself, clear of the toolbar strip above and the
+    // floating map controls on the inline-end edge.
+    <div className="pointer-events-none absolute inset-x-3 bottom-4 flex justify-center">
       <AppCard className="pointer-events-auto max-w-sm text-center">
         {isSignedIn ? (
           <>

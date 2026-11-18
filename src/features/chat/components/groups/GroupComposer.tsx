@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import type { ChatMessage } from '@/lib/chat';
 import { Pencil,Reply, Send, Smile, X } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -96,7 +98,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
           <button
             type="button"
             onClick={editing ? onCancelEdit : onClearReply}
-            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
             aria-label={'إلغاء'}
           >
             <X className="w-3.5 h-3.5 text-muted-foreground" />
@@ -111,7 +113,7 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
           aria-label={'الرموز التعبيرية'}
           aria-pressed={showEmojiPicker}
           className={cn(
-            'w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0',
+            'flex h-11 w-11 items-center justify-center rounded-full transition-colors shrink-0',
             showEmojiPicker
               ? 'bg-primary/15 text-primary'
               : 'text-muted-foreground hover:text-foreground'
@@ -121,8 +123,10 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
           <Smile className="w-5 h-5" />
         </button>
 
-        <div className="flex-1 min-w-0 bg-muted/30 rounded-2xl">
-          <textarea
+        <div className="flex-1 min-w-0 bg-muted/30 rounded-lg">
+          {/* Shared Textarea: the same field chrome as every other input. The
+              pill look comes from the wrapper, not from a forked control. */}
+          <Textarea
             ref={inputRef}
             value={text}
             onChange={(e) => { onTextChange(e.target.value); onTyping(); }}
@@ -140,33 +144,33 @@ const GroupComposer: React.FC<GroupComposerProps> = ({ text, onTextChange, onSen
             }}
             rows={1}
             placeholder={'اكتب رسالة...'}
+            aria-label={'نص الرسالة'}
+            enterKeyHint={enterToSend ? 'send' : 'enter'}
+            autoComplete={'off'}
             className={cn(
-              'w-full bg-transparent outline-none resize-none px-4 py-2.5',
+              'min-h-11 max-h-[140px] resize-none border-0 bg-transparent px-4 py-2.5',
               'text-meta leading-snug placeholder:text-muted-foreground/40',
-              'max-h-[140px]',
+              'focus-visible:ring-0 focus-visible:ring-offset-0',
             )}
             dir="auto"
           />
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={() => {
             onSend();
             if (showEmojiPicker) setShowEmojiPicker(false);
           }}
           disabled={!canSend}
-          className={cn(
-            'h-10 w-10 rounded-full flex items-center justify-center transition-motion shrink-0',
-            '',
-            canSend
-              ? 'bg-primary text-primary-foreground '
-              : 'bg-muted text-muted-foreground/40',
-          )}
+          isLoading={isSending}
+          loadingText={'يُرسل…'}
           aria-label={'إرسال'}
+          className={'shrink-0 gap-1.5 px-3'}
         >
-          <Send className="w-4 h-4 -mt-px" />
-        </button>
+          <Send className="w-4 h-4" aria-hidden />
+          <span className={'text-mini font-semibold'}>إرسال</span>
+        </Button>
       </div>
 
       {/* Emoji picker (collapsible) */}

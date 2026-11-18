@@ -564,6 +564,8 @@ export default function ReadingPage() {
     <ReadingPageHeader
       articleCount={articles.length}
       unreadCount={unreadCount}
+      loading={loading}
+      online={isOnline}
       showSearch={showSearch}
       setShowSearch={toggleSearch}
       refreshing={refreshing}

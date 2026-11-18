@@ -12,9 +12,11 @@ import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { PageShell } from '@/components/ui/app-shell';
+import { AppCard, AppList, AppRow, IconChip, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
+import { SkeletonList } from '@/components/ui/skeleton';
 import { StateView } from '@/components/ui/state-view';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { Link2, Loader2, Pin, Rss, Sparkles } from '@/lib/icons';
 
@@ -105,60 +107,118 @@ export default function Marginalia() {
 
   if (!user) {
     return (
-      <PageShell>
+      <PageShell
+        header={
+          <PageHeader
+            variant="display"
+            eyebrow="القراءة · الهوامش"
+            title="الهوامش"
+            subtitle="أرشيف قراءة شخصي يكشف الروابط الخفية بين ما تقرأ"
+          />
+        }
+      >
         <SEO path="/marginalia" title="الهوامش" description="أرشيف قراءة شخصي يكشف الروابط الخفية بين ما تقرأ." />
-        <PageHeader title="الهوامش" />
-        <StateView
-          kind="empty"
-          title="أرشيفك الشخصي يحتاج حساباً"
-          body="الهوامش يحلّل ما تقرأ ويقترح روابط خفية بين مقالاتك. سجّل الدخول لتبدأ بناء الأرشيف."
-          action={{ label: 'تسجيل الدخول', onClick: () => navigate('/auth') }}
-        />
+
+        <div className="app-stack">
+          <p className="text-meta leading-relaxed text-muted-foreground">
+            {'الهوامش لا يحفظ المقالات فقط: يقرأ ما وصل إلى أرشيفك ويقترح روابط غير بديهية بينه، ويجيب عن أسئلتك من داخل أرشيفك — كل ذلك خاص بحسابك.'}
+          </p>
+
+          <AppCard>
+          <StateView
+            kind="auth"
+            bare
+            title="أرشيفك الشخصي يحتاج حساباً"
+            body="سجّل الدخول لتبدأ بناء الأرشيف؛ مقالاتك وروابطك ومثبّتاتك تبقى مرتبطة بحسابك."
+            actions={
+              <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+                <Button onClick={() => navigate('/auth')}>{'تسجيل الدخول'}</Button>
+                <Button variant="ghost" onClick={() => navigate('/')}>
+                  {'العودة إلى البوابة'}
+                </Button>
+              </div>
+            }
+          />
+          </AppCard>
+
+          <section aria-labelledby="marginalia-surfaces" className="space-y-2">
+            <h2 id="marginalia-surfaces" className="app-section-label text-start">
+              {'أربع واجهات داخل الأرشيف'}
+            </h2>
+            <AppList compact>
+              <AppRow
+                as="div"
+                leading={<IconChip tone="plain" aria-hidden><Link2 className="h-4 w-4" /></IconChip>}
+                title="الروابط"
+                subtitle="اقتراحات صلة بين مقالين لم تُفكّر بجمعهما."
+              />
+              <AppRow
+                as="div"
+                leading={<IconChip tone="plain" aria-hidden><Sparkles className="h-4 w-4" /></IconChip>}
+                title="الأرشيف"
+                subtitle="مقالاتك المحلّلة، جاهزة للتصفّح والربط."
+              />
+              <AppRow
+                as="div"
+                leading={<IconChip tone="plain" aria-hidden><Rss className="h-4 w-4" /></IconChip>}
+                title="الحوار والمصادر"
+                subtitle="اسأل أرشيفك، وأضف المصادر التي تغذّيه."
+              />
+            </AppList>
+          </section>
+        </div>
       </PageShell>
     );
   }
 
   return (
-    <PageShell>
+    <PageShell
+      header={
+        <PageHeader
+          variant="display"
+          eyebrow="القراءة · الهوامش"
+          title="الهوامش"
+          subtitle={
+            loading && articles.length === 0
+              ? 'جارٍ فتح أرشيف قراءتك…'
+              : `${articles.length.toLocaleString('ar-EG')} مقالاً · ${connections.length.toLocaleString('ar-EG')} رابطاً`
+          }
+        />
+      }
+    >
       <SEO
         path="/marginalia"
         title="الهوامش — أرشيف قراءة يكشف الروابط"
         description="أرشيف قراءة شخصي يحلّل المقالات ويقترح روابط غير بديهية بينها، مع حوار مستند إلى أرشيفك."
       />
-      <PageHeader
-        title="الهوامش"
-        subtitle={`${articles.length.toLocaleString('en-US')} مقالاً · ${connections.length.toLocaleString('en-US')} رابطاً`}
-      />
 
-      <div className="flex bg-muted/40 rounded-xl p-1 border border-border/30 overflow-x-auto scrollbar-none gap-0.5 mt-2">
-        {TABS.map(({ key, label, icon: Icon }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setTab(key)}
-            className={`shrink-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-micro font-bold transition-motion ${
-              tab === key ? 'bg-background text-foreground' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Icon className="w-3.5 h-3.5" aria-hidden />
-            <span>{label}</span>
-          </button>
-        ))}
-      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+        <TabsList>
+          {TABS.map(({ key, label }) => (
+            <TabsTrigger key={key} value={key} className="px-1.5">
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        <div className="mt-4" role="status" aria-busy="true">
+          <h2 className="type-section text-foreground">{'جارٍ فتح أرشيفك'}</h2>
+          <p className="mb-3 mt-1 text-mini leading-relaxed text-muted-foreground">
+            {'نقرأ مقالاتك وروابطك المحفوظة. لا شيء يُحذف إن طال التحميل.'}
+          </p>
+          <SkeletonList rows={3} />
         </div>
       ) : (
-        <AnimatePresence mode="wait">
+        <TabsContent value={tab} className="mt-4">
+          <AnimatePresence mode="wait">
           <motion.div
             key={tab}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="space-y-3 mt-4"
+            className="space-y-3"
           >
             {tab === 'discover' && (
               <>
@@ -230,8 +290,10 @@ export default function Marginalia() {
 
             {tab === 'sources' && <SourcesPanel sources={sources} onChanged={reload} />}
           </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
+        </TabsContent>
       )}
+      </Tabs>
     </PageShell>
   );
 }

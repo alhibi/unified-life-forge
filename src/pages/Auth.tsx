@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import SEO from '@/components/SEO';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/integrations/supabase/client';
-import { ArrowRight, Eye, EyeOff, Lock, Shield, UserCircle, X } from '@/lib/icons';
+import { ArrowRight, BookOpen, Eye, EyeOff, Lock, Shield, UserCircle, X } from '@/lib/icons';
 
 /**
  * Translate a Supabase auth error into a localized, actionable message.
@@ -103,8 +104,13 @@ export default function AuthPage() {
   const strength = useMemo(() => scorePassword(password), [password]);
 
   useEffect(() => {
-    // Auto-focus on mount and when switching between login/signup for a
-    // smoother first interaction.
+    // Auto-focus is a desktop courtesy, not a mobile one: on a coarse pointer
+    // it pops the on-screen keyboard over the form before the person has even
+    // chosen a field, hiding the password input and the submit button. Gate it
+    // on a real hover/fine-pointer capability and let touch users tap.
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!fine) return;
     const t = window.setTimeout(() => usernameRef.current?.focus(), 250);
     return () => window.clearTimeout(t);
   }, [isLogin]);
@@ -193,243 +199,292 @@ export default function AuthPage() {
 
   return (
     <div
-      dir={'rtl'}
-      className="min-h-dvh w-full flex items-center justify-center bg-background text-foreground px-[var(--ui-gutter)] py-4 relative overflow-hidden"
+      dir="rtl"
+      className="min-h-dvh w-full bg-background text-foreground"
     >
       <SEO
-        title="تسجيل الدخول — SmartHub"
-        description="تسجيل الدخول أو إنشاء حساب للوصول إلى المزامنة السحابية والإعدادات الشخصية."
+        title="تسجيل الدخول — amv.life"
+        description="سجّل الدخول أو أنشئ حساباً لحفظ صلواتك وقراءتك وإعداداتك على كل أجهزتك."
         path="/auth"
       />
 
-      {/* Close / back-to-home affordance - 44x44px target size */}
-      <button
-        type="button"
-        aria-label={'إغلاق'}
-        onClick={() => navigate('/')}
-        className="app-icon-btn absolute top-6 start-6 z-sticky"
-      >
-        <X className="w-5 h-5 text-muted-foreground" />
-      </button>
+      <div className="mx-auto flex min-h-dvh w-full max-w-[var(--ui-workspace-max)] flex-col px-[var(--ui-gutter)] py-5">
+        {/* Page identity row: the auth screen is a page, not a card in a void. */}
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2.5">
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+              aria-hidden
+            >
+              <span className="h-2.5 w-2.5 rounded-full bg-primary-foreground" />
+            </span>
+            <span className="font-display text-title font-bold leading-none text-foreground">
+              amv<span className="text-primary">.</span>life
+            </span>
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="إغلاق والعودة إلى البوابة"
+            onClick={() => navigate('/')}
+          >
+            <X className="h-5 w-5 text-muted-foreground" aria-hidden />
+          </Button>
+        </div>
 
-      <motion.div
-        className="relative w-full max-w-md"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div data-ui-surface="card" className="app-card-bare relative overflow-hidden">
-          {/* Top accent bar */}
-          <div className="h-1 w-full bg-primary" />
-
-          {/* Success flash overlay */}
-          <AnimatePresence>
-            {success && (
-              <motion.div
-                className="absolute inset-0 flex items-center justify-center bg-background/95 z-raised"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <motion.div
-                  initial={{ scale: 0.4, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', damping: 12, stiffness: 220 }}
-                  className="w-16 h-16 rounded-full flex items-center justify-center bg-primary/10 border border-primary/40"
-                >
-                  <Shield className="w-7 h-7 text-primary" />
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="p-8 md:p-10">
-            {/* Header */}
-            <div className="mb-8 text-center">
-              <AnimatePresence mode="wait">
-                <motion.h1
-                  key={isLogin ? 'in' : 'up'}
-                  className="text-display font-bold text-foreground mb-2"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {isLogin ? 'تسجيل الدخول' : 'إنشاء حساب'}
-                </motion.h1>
-              </AnimatePresence>
-              <p className="text-body text-muted-foreground">
-                {isLogin ? 'مرحباً بك مجدداً' : 'ابدأ رحلتك في SmartHub'}
-              </p>
-            </div>
-
-            {!isSupabaseConfigured && (
-              <div className="mb-5 rounded-md border border-warning/30 bg-warning/10 p-3 text-mini leading-relaxed text-warning">
+        <div className="grid flex-1 items-center gap-8 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-16">
+          {/* What the account is for. Real product truth, no fake statistics. */}
+          <section aria-labelledby="auth-why" className="hidden min-w-0 lg:block">
+            <h2 id="auth-why" className="type-display max-w-[22ch] text-balance text-foreground">
+              يوم واحد، حساب واحد، على كل أجهزتك
+            </h2>
+            <p className="mt-3 max-w-[48ch] text-body leading-relaxed text-muted-foreground">
+              حساب amv.life يحفظ صلواتك وتقدّم قراءتك وتفضيلاتك، ثم يعيدها لك على
+              أي جهاز — بينما يبقى كل ما هو محلي على هذا الجهاز نفسه.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
                 {
-                  'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة.'
-                }
-              </div>
-            )}
+                  icon: Lock,
+                  title: 'يُحفظ تقدّمك في حسابك',
+                  body: 'صلواتك وقراءتك ووردك وتفضيلات المظهر تصل معك إلى أي جهاز.',
+                },
+                {
+                  icon: Shield,
+                  title: 'خصوصية أولاً',
+                  body: 'لا تُشارك بياناتك مع أحد، ويمكنك تصديرها أو حذفها من الإعدادات متى شئت.',
+                },
+                {
+                  icon: BookOpen,
+                  title: 'يعمل بلا حساب أيضاً',
+                  body: 'يمكنك متابعة البوابة وكل الأدوات محلياً، ثم تسجيل الدخول عند الحاجة للمزامنة.',
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.title} className="flex items-start gap-3">
+                    <span className="row-icon shrink-0" aria-hidden>
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-meta font-semibold text-foreground">
+                        {item.title}
+                      </span>
+                      <span className="mt-0.5 block text-mini leading-relaxed text-muted-foreground">
+                        {item.body}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
 
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-              {/* Username */}
-              <div>
-                <label className="block text-body font-semibold text-primary mb-2">
-                  {'اسم المستخدم'}
-                </label>
-                <div className="relative group">
-                  <UserCircle className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
-                  <input
-                    ref={usernameRef}
-                    type="text"
-                    value={username}
-                    onChange={(e) =>
-                      setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 32))
-                    }
-                    placeholder={'أدخل اسم المستخدم'}
-                    className="app-control ps-9 pe-4 text-body"
-                    autoComplete="username"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    inputMode="text"
-                    dir="ltr"
-                    disabled={loading || success}
-                    aria-label={'اسم المستخدم'}
-                  />
-                </div>
-                <p className="text-micro mt-1.5 text-muted-foreground">
-                  {'أحرف إنجليزية وأرقام فقط'}
+          {/* Credential surface. */}
+          <div className="mx-auto w-full max-w-[26rem] lg:mx-0">
+            <div data-ui-surface="card" className="app-card relative overflow-hidden p-6 md:p-8">
+              <div className="mb-6">
+                <h1 className="text-display font-bold text-foreground">
+                  {isLogin ? 'تسجيل الدخول' : 'إنشاء حساب'}
+                </h1>
+                <p className="mt-1.5 text-meta text-muted-foreground">
+                  {isLogin ? 'مرحباً بعودتك — أكمل من حيث توقفت.' : 'ابدأ حساباً يحفظ يومك على كل أجهزتك.'}
                 </p>
               </div>
 
-              {/* Password */}
-              <div>
-                <label className="block text-body font-semibold text-primary mb-2">
-                  {'كلمة المرور'}
-                </label>
-                <div className="relative group">
-                  <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value.slice(0, 128))}
-                    onKeyDown={handleKey}
-                    onKeyUp={handleKey}
-                    placeholder={'••••••••'}
-                    className="app-control ps-9 pe-11 text-body"
-                    autoComplete={isLogin ? 'current-password' : 'new-password'}
-                    dir="ltr"
-                    disabled={loading || success}
-                    aria-label={'كلمة المرور'}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute end-0.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-md flex items-center justify-center text-muted-foreground transition-colors hover:bg-accent"
-                    aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+              {!isSupabaseConfigured && (
+                <div className="mb-5 rounded-md border border-warning/30 bg-warning/10 p-3 text-mini leading-relaxed text-warning">
+                  {
+                    'وضع محلي: الخادم غير مُهيأ، فتُحفظ حساباتك على هذا الجهاز فقط (مشفّرة) ولن تتم المزامنة.'
+                  }
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                {/* Username */}
+                <div>
+                  <label htmlFor="auth-username" className="mb-2 block text-body font-semibold text-primary">
+                    اسم المستخدم
+                  </label>
+                  <div className="relative">
+                    <UserCircle
+                      className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <input
+                      ref={usernameRef}
+                      id="auth-username"
+                      type="text"
+                      value={username}
+                      onChange={(e) =>
+                        setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 32))
+                      }
+                      placeholder="أدخل اسم المستخدم"
+                      className="app-control ps-9 pe-4 text-body"
+                      autoComplete="username"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      inputMode="text"
+                      dir="ltr"
+                      disabled={loading || success}
+                    />
+                  </div>
+                  <p className="mt-1.5 text-micro text-muted-foreground">
+                    أحرف إنجليزية وأرقام فقط
+                  </p>
                 </div>
 
-                {/* Caps Lock indicator */}
-                <AnimatePresence>
-                  {capsLock && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      className="text-micro mt-1.5 text-warning"
-                    >
-                      {'Caps Lock مفعّل'}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-
-                {/* Strength meter — signup only */}
-                <AnimatePresence>
-                  {!isLogin && password.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="mt-3 flex items-center gap-1.5">
-                        {[0, 1, 2, 3].map((i) => (
-                          <div
-                            key={i}
-                            className="h-1 flex-1 rounded-full transition-colors duration-normal"
-                            style={{
-                              backgroundColor:
-                                strength > i ? strengthColors[strength] : 'hsl(var(--muted))',
-                            }}
-                          />
-                        ))}
-                        <span
-                          className="text-micro font-medium min-w-[54px] text-end"
-                          style={{ color: strengthColors[strength] }}
-                        >
-                          {strengthLabels[strength]['ar']}
-                        </span>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={!canSubmit}
-                className="relative w-full bg-primary text-primary-foreground font-bold py-3 rounded-md overflow-hidden transition-colors duration-fast disabled:opacity-60 disabled:cursor-not-allowed mt-2"
-              >
-                <span className="relative z-raised inline-flex items-center justify-center gap-2">
-                  {loading ? (
-                    <span
-                      className="animate-spin w-4 h-4 border-2 rounded-full"
-                      style={{
-                        borderColor: 'hsl(var(--primary-foreground) / 0.35)',
-                        borderTopColor: 'hsl(var(--primary-foreground))',
-                      }}
+                {/* Password */}
+                <div>
+                  <label htmlFor="auth-password" className="mb-2 block text-body font-semibold text-primary">
+                    كلمة المرور
+                  </label>
+                  <div className="relative">
+                    <Lock
+                      className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                      aria-hidden
                     />
-                  ) : (
+                    <input
+                      id="auth-password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value.slice(0, 128))}
+                      onKeyDown={handleKey}
+                      onKeyUp={handleKey}
+                      placeholder="••••••••"
+                      className="app-control ps-9 pe-11 text-body"
+                      autoComplete={isLogin ? 'current-password' : 'new-password'}
+                      dir="ltr"
+                      disabled={loading || success}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute end-0.5 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
+                    </button>
+                  </div>
+
+                  <AnimatePresence>
+                    {capsLock && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="mt-1.5 text-micro text-warning"
+                      >
+                        Caps Lock مفعّل
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+
+                  <AnimatePresence>
+                    {!isLogin && password.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-3 flex items-center gap-1.5">
+                          {[0, 1, 2, 3].map((i) => (
+                            <div
+                              key={i}
+                              className="h-1 flex-1 rounded-full transition-colors duration-normal"
+                              style={{
+                                backgroundColor:
+                                  strength > i ? strengthColors[strength] : 'hsl(var(--muted))',
+                              }}
+                            />
+                          ))}
+                          <span
+                            className="min-w-[54px] text-end text-micro font-medium"
+                            style={{ color: strengthColors[strength] }}
+                          >
+                            {strengthLabels[strength]['ar']}
+                          </span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={!canSubmit}
+                  isLoading={loading}
+                  loadingText={isLogin ? 'جارٍ الدخول…' : 'جارٍ إنشاء الحساب…'}
+                >
+                  {!loading && (
                     <>
                       {isLogin ? 'دخول' : 'إنشاء الحساب'}
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden />
                     </>
                   )}
-                </span>
-              </button>
-            </form>
+                </Button>
+              </form>
 
-            {/* Toggle mode */}
-            <div className="mt-8 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  if (loading || success) return;
-                  setIsLogin(!isLogin);
-                  setPassword('');
-                }}
-                className="text-body text-muted-foreground transition-colors"
-              >
-                {isLogin ? 'ليس لديك حساب؟ ' : 'لديك حساب؟ '}
-                <span className="font-semibold text-primary underline underline-offset-4">
-                  {isLogin ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
-                </span>
-              </button>
+              <div className="mt-6 border-t border-border/60 pt-4">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="min-h-11 w-full"
+                  disabled={loading || success}
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setPassword('');
+                  }}
+                >
+                  {isLogin ? 'ليس لديك حساب؟ إنشاء حساب جديد' : 'لديك حساب؟ تسجيل الدخول'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="mt-1 min-h-11 w-full"
+                  disabled={loading || success}
+                  onClick={() => navigate('/')}
+                >
+                  متابعة كزائر — البوابة تعمل بدون حساب
+                </Button>
+              </div>
+
+              <p className="mt-4 flex items-center justify-center gap-2 text-micro text-muted-foreground">
+                <Shield className="h-3.5 w-3.5" aria-hidden />
+                جميع البيانات مشفّرة ومحمية
+              </p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Privacy caption */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-micro text-muted-foreground">
-          <Shield className="w-3 h-3" />
-          <span>{'جميع البيانات مشفرة ومحمية'}</span>
-        </div>
-      </motion.div>
+      {/* Success flash — keeps the A→C transition visible before the route changes. */}
+      <AnimatePresence>
+        {success && (
+          <motion.div
+            className="fixed inset-0 z-overlay flex items-center justify-center bg-background/95"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="status"
+            aria-live="polite"
+          >
+            <motion.div
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 220 }}
+              className="flex h-16 w-16 items-center justify-center rounded-full border border-primary/40 bg-primary/10"
+            >
+              <Shield className="h-7 w-7 text-primary" aria-hidden />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

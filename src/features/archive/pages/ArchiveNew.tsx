@@ -1,12 +1,27 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppCard, AppList, AppRow, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { StateView } from '@/components/ui/state-view';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertCircle, Check, ChevronDown, Sparkles, X } from '@/lib/icons';
+import {
+  AlertCircle,
+  Check,
+  ChevronDown,
+  Sparkles,
+} from '@/lib/icons';
 
 import { archiveApi, type ModelConfig } from '../api';
 import type { ArchiveDepth, ProgressEvent } from '../types';
@@ -70,6 +85,8 @@ const DEPTH_AUTO_MODELS: Record<ArchiveDepth, ModelConfig> = {
   deepest: { outline: 'gemini-2.5-pro', expansion: 'gemini-2.5-pro', synthesis: 'gemini-2.5-pro' },
 };
 
+const AUTO = '__auto__';
+
 type StageKey =
   | 'idle'
   | 'research'
@@ -111,9 +128,12 @@ const STAGE_HEADLINE: Record<PipelineStage, string> = {
   filed: 'اكتمل بنجاح — يتم فتح الأرشيف الآن',
 };
 
+const MIN_TOPIC = 3;
+
 export default function ArchiveNew() {
   const navigate = useNavigate();
   const [topic, setTopic] = useState('');
+  const [touched, setTouched] = useState(false);
   const [depth, setDepth] = useState<ArchiveDepth>('standard');
   const [stage, setStage] = useState<StageKey>('idle');
   const [message, setMessage] = useState('');
@@ -124,9 +144,16 @@ export default function ArchiveNew() {
   const abortRef = useRef<AbortController | null>(null);
 
   const running = stage !== 'idle' && stage !== 'error' && stage !== 'filed';
+  const trimmedTopic = topic.trim();
+  const topicValid = trimmedTopic.length >= MIN_TOPIC;
+  const showTopicError = touched && topic.length > 0 && !topicValid;
+  const selectedDepth = DEPTHS.find((d) => d.key === depth);
 
   async function start() {
-    if (!topic.trim() || topic.trim().length < 3) return;
+    if (!topicValid) {
+      setTouched(true);
+      return;
+    }
     setError(null);
     setStage('outline');
     setMessage('تصميم الهيكل…');
@@ -141,7 +168,7 @@ export default function ArchiveNew() {
       (Object.keys(models) as (keyof ModelConfig)[]).forEach((k) => {
         if (models[k]) overrides[k] = models[k];
       });
-      for await (const ev of archiveApi.generate(topic.trim(), depth, overrides, ctrl.signal)) {
+      for await (const ev of archiveApi.generate(trimmedTopic, depth, overrides, ctrl.signal)) {
         applyEvent(ev);
       }
     } catch (e: unknown) {
@@ -206,104 +233,157 @@ export default function ArchiveNew() {
         description="اقترح موضوعاً ومستوى عمقاً لتوليد مونوغراف كامل ومفهرس."
         path="/archive/new"
       />
-      <PageHeader title={'توليد جديد'} className="mb-2" />
+      <PageHeader
+        title={'توليد جديد'}
+        subtitle={'من موضوع واحد إلى مونوغراف مفهرس برقم أرشيفي'}
+      />
 
-      <AppCard>
-        <label className="block text-mini font-semibold text-foreground mb-2">الموضوع</label>
-        <Textarea
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          disabled={running}
-          placeholder="مثال: فلسفة العطور الشرقية، تاريخ الخط الكوفي، الوعي عند ابن سينا…"
-          rows={3}
-          className="resize-none"
-          style={{ fontSize: 16 }}
-          maxLength={500}
-        />
-        <div className="text-micro text-muted-foreground mt-1 text-end">{topic.length}/500</div>
-      </AppCard>
+      <div className="app-stack" aria-busy={running || undefined}>
+        <p className="text-meta leading-relaxed text-muted-foreground">
+          {'اكتب موضوعاً محدّداً بما يكفي ليتفرّع إلى فصول: كلما كان أوضح، كان الهيكل أدقّ والكتابة أعمق.'}
+        </p>
 
-      <AppCard>
-        <label className="block text-mini font-semibold text-foreground mb-3">
-          مستوى العمق المعرفي
-        </label>
-        <div className="flex flex-col gap-2">
-          <AppList>
-            {DEPTHS.map((d) => (
-              <AppRow
-                key={d.key}
-                disabled={running}
-                onClick={() => setDepth(d.key)}
-                className={depth === d.key ? 'bg-primary/10' : undefined}
-                title={d.title}
-                subtitle={d.subtitle}
-                value={d.est}
-              >
-                {depth === d.key && <Check className="h-4 w-4 shrink-0 text-primary" />}
-              </AppRow>
-            ))}
-          </AppList>
-        </div>
-      </AppCard>
-
-      <AppCard>
-        <button
-          onClick={() => setShowModels(!showModels)}
-          disabled={running}
-          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-mini font-semibold text-foreground hover:bg-muted/40 transition-motion"
-        >
-          <span>⚙️ إعدادات النماذج والذكاء الاصطناعي</span>
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${showModels ? 'rotate-180' : ''}`}
+        <AppCard>
+          <Label htmlFor="archive-topic" className="mb-2 block text-mini font-semibold text-foreground">
+            {'الموضوع'}
+          </Label>
+          <Textarea
+            id="archive-topic"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            onBlur={() => setTouched(true)}
+            disabled={running}
+            placeholder="مثال: فلسفة العطور الشرقية، تاريخ الخط الكوفي، الوعي عند ابن سينا…"
+            rows={3}
+            className="resize-none"
+            maxLength={500}
+            aria-invalid={showTopicError || undefined}
+            aria-describedby="archive-topic-hint"
           />
-        </button>
-
-        {showModels && (
-          <div className="mt-3 space-y-3 pt-3 border-t border-border/20">
-            {(['outline', 'expansion', 'synthesis'] as const).map((stage) => (
-              <div key={stage}>
-                <label className="block text-mini font-semibold text-foreground mb-2 capitalize">
-                  {stage === 'outline' && '📋 نموذج الهيكل والبحث'}
-                  {stage === 'expansion' && '✍️ نموذج التوسيع والكتابة'}
-                  {stage === 'synthesis' && '🏷️ نموذج التلخيص والوسوم'}
-                </label>
-                <select
-                  value={models[stage] || ''}
-                  onChange={(e) => setModels({ ...models, [stage]: e.target.value })}
-                  disabled={running}
-                  className="w-full bg-muted/40 border border-border/40 rounded-lg p-2 text-mini outline-none focus:border-primary/50"
-                >
-                  <option value="">تلقائي — {DEPTH_AUTO_MODELS[depth][stage]}</option>
-                  {AVAILABLE_MODELS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-
-            <button
-              onClick={() => setModels(DEFAULT_MODELS)}
-              disabled={running}
-              className="w-full text-mini text-muted-foreground hover:text-foreground transition-colors py-2 border-t border-border/20 mt-2 pt-2"
+          <div className="mt-1 flex items-start justify-between gap-3">
+            <p
+              id="archive-topic-hint"
+              className={`min-h-4 text-micro leading-relaxed ${showTopicError ? 'text-destructive' : 'text-muted-foreground'}`}
+              aria-live="polite"
             >
-              إعادة تعيين للإعدادات الافتراضية
-            </button>
+              {showTopicError ? (
+                <span className="inline-flex items-center gap-1">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  {'الموضوع قصير جداً — أضف كلمة أوضح حتى يبدأ المحرك.'}
+                </span>
+              ) : (
+                `اكتب ${MIN_TOPIC} أحرف على الأقل.`
+              )}
+            </p>
+            <span className="text-micro tabular-nums text-muted-foreground shrink-0">
+              {topic.length}/500
+            </span>
           </div>
-        )}
-      </AppCard>
+        </AppCard>
 
-      {stage === 'idle' && (
-        <button
-          onClick={start}
-          disabled={topic.trim().length < 3}
-          className="group relative w-full flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold disabled:opacity-50 disabled:pointer-events-none transition-transform overflow-hidden"
-        >
-          <Sparkles className="w-4 h-4" />
-          ابدأ التوليد فائق السرعة
-        </button>
-      )}
+        <AppCard>
+          <h2 className="mb-1 text-mini font-semibold text-foreground">{'مستوى العمق المعرفي'}</h2>
+          <p className="mb-3 text-micro leading-relaxed text-muted-foreground">
+            {'العمق يحدّد عدد الفصول وحجم المستند ووقت التوليد — لا يمكن تغييره بعد البدء.'}
+          </p>
+          <AppList>
+            {DEPTHS.map((d) => {
+              const selected = depth === d.key;
+              return (
+                <AppRow
+                  key={d.key}
+                  disabled={running}
+                  onClick={() => setDepth(d.key)}
+                  className={selected ? 'bg-primary/10' : undefined}
+                  title={d.title}
+                  subtitle={d.subtitle}
+                  value={d.est}
+                >
+                  {selected && <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden />}
+                </AppRow>
+              );
+            })}
+          </AppList>
+        </AppCard>
+
+        <AppCard>
+          <button
+            type="button"
+            onClick={() => setShowModels(!showModels)}
+            disabled={running}
+            aria-expanded={showModels}
+            className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/40 bg-muted/20 p-3 text-start text-mini font-semibold text-foreground transition-motion hover:bg-muted/40 app-focus-ring disabled:opacity-60"
+          >
+            <span>{'إعدادات النماذج والذكاء الاصطناعي'}</span>
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 transition-transform ${showModels ? 'rotate-180' : ''}`}
+              aria-hidden
+            />
+          </button>
+
+          {showModels && (
+            <div className="mt-3 space-y-3 border-t border-border/20 pt-3">
+              {(['outline', 'expansion', 'synthesis'] as const).map((key) => (
+                <div key={key} className="space-y-2">
+                  <Label htmlFor={`archive-model-${key}`} className="text-mini font-semibold">
+                    {key === 'outline' && 'نموذج الهيكل والبحث'}
+                    {key === 'expansion' && 'نموذج التوسيع والكتابة'}
+                    {key === 'synthesis' && 'نموذج التلخيص والوسوم'}
+                  </Label>
+                  <Select
+                    value={models[key] || AUTO}
+                    onValueChange={(v) =>
+                      setModels({ ...models, [key]: v === AUTO ? '' : v })
+                    }
+                    disabled={running}
+                  >
+                    <SelectTrigger id={`archive-model-${key}`} className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={AUTO}>
+                        {`تلقائي — ${DEPTH_AUTO_MODELS[depth][key]}`}
+                      </SelectItem>
+                      {AVAILABLE_MODELS.map((m) => (
+                        <SelectItem key={m} value={m}>
+                          {m}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={() => setModels(DEFAULT_MODELS)}
+                disabled={running}
+              >
+                {'إعادة تعيين للإعدادات الافتراضية'}
+              </Button>
+            </div>
+          )}
+        </AppCard>
+
+        <div className="space-y-2">
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={start}
+            disabled={!topicValid || running}
+            isLoading={running}
+            loadingText="جارٍ التوليد…"
+          >
+            <Sparkles className="h-4 w-4" aria-hidden />
+            {'ابدأ التوليد'}
+          </Button>
+          <p className="text-center text-micro tabular-nums text-muted-foreground">
+            {selectedDepth ? `الوقت المتوقّع ${selectedDepth.est}` : null}
+          </p>
+        </div>
+      </div>
 
       <GenerationOverlay
         open={running || stage === 'filed' || stage === 'error'}
@@ -311,12 +391,12 @@ export default function ArchiveNew() {
         message={message}
         progress={progress}
         percent={stagePercent}
-        topic={topic}
+        topic={trimmedTopic}
         error={error}
         onCancel={cancel}
         onRetry={() => {
           setError(null);
-          start();
+          void start();
         }}
         onDismiss={() => {
           setError(null);
@@ -327,7 +407,7 @@ export default function ArchiveNew() {
   );
 }
 
-// ─── Cinematic generation overlay ───────────────────────────────────────
+// ─── Generation state surface (in-progress / filed / error) ──────────────
 interface OverlayProps {
   open: boolean;
   stage: StageKey;
@@ -356,6 +436,8 @@ function GenerationOverlay({
   const isFiled = stage === 'filed';
   const isError = stage === 'error';
   const pipelineStage: PipelineStage = stage === 'idle' || stage === 'error' ? 'research' : stage;
+  const currentIdx = STAGE_ORDER.indexOf(pipelineStage);
+
   return (
     <AnimatePresence>
       {open && (
@@ -363,220 +445,115 @@ function GenerationOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.35 }}
-          className="fixed inset-0 z-nested flex flex-col items-center justify-center px-6 bg-background"
-          style={{
-            background: isError
-              ? 'color-mix(in srgb, hsl(var(--destructive)) 8%, hsl(var(--background)))'
-              : 'hsl(var(--background))',
-          }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-nested grid place-items-center overflow-y-auto p-4 app-scrim"
         >
-          {/* Breathing ambient rings */}
-          {!isError && (
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  className="absolute left-1/2 top-1/2 rounded-full border border-primary/20"
-                  style={{ width: 240, height: 240, marginLeft: -120, marginTop: -120 }}
-                  animate={{ scale: [1, 2.6, 2.6], opacity: [0.5, 0, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, delay: i * 1.3, ease: 'easeOut' }}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Cancel */}
-          {!isFiled && !isError && (
-            <button
-              onClick={onCancel}
-              className="absolute top-6 end-6 w-10 h-10 rounded-full bg-muted flex items-center justify-center transition-transform"
-              aria-label="إلغاء"
-            >
-              <X className="w-4 h-4 text-foreground" />
-            </button>
-          )}
-
-          {isError ? (
-            <motion.div
-              initial={{ scale: 0.7, opacity: 0, y: 10 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-              className="relative flex flex-col items-center max-w-sm w-full"
-            >
-              <motion.div
-                className="relative w-24 h-24 rounded-full bg-destructive/15 border border-destructive/50 flex items-center justify-center mb-6"
-                animate={{ x: [0, -6, 6, -4, 4, 0] }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="archive-generation-title"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-[calc(var(--ui-content-max)+4rem)] rounded-2xl border border-border bg-overlay-surface p-5 text-start shadow-elevation-3"
+          >
+            {isError ? (
+              <StateView
+                kind="error"
+                bare
+                title="تعذّر إتمام التوليد"
+                body={error || 'حدث خطأ غير متوقع أثناء الاتصال بالخادم. الموضوع الذي كتبته محفوظ هنا، ويمكنك إعادة المحاولة.'}
+                actions={
+                  <div className="mt-1 flex flex-col gap-2 w-full max-w-xs">
+                    <Button onClick={onRetry} isLoading={false}>
+                      {'إعادة المحاولة'}
+                    </Button>
+                    <Button variant="ghost" onClick={onDismiss}>
+                      {'العودة للنموذج دون فقدان الموضوع'}
+                    </Button>
+                  </div>
+                }
               >
-                <AlertCircle className="w-11 h-11 text-destructive" strokeWidth={2} />
-              </motion.div>
-              <h2 className="text-center text-lead font-bold text-foreground mb-2">
-                تعذّر إتمام التوليد
-              </h2>
-              <div className="max-w-sm text-center text-mini text-muted-foreground mb-2 line-clamp-2 px-4">
-                « {topic} »
-              </div>
-              <div className="w-full rounded-xl border border-destructive/30 bg-destructive/5 p-3 mb-5">
-                <p className="text-mini text-foreground/85 leading-relaxed text-center">
-                  {error || 'حدث خطأ غير متوقع أثناء الاتصال بالخادم.'}
+                <p className="text-micro text-muted-foreground line-clamp-2">{`« ${topic} »`}</p>
+              </StateView>
+            ) : isFiled ? (
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <Check className="h-6 w-6" aria-hidden />
+                </span>
+                <h2 id="archive-generation-title" className="text-title font-bold text-foreground">
+                  {'اكتمل المونوغراف وحُفظ في الأرشيف'}
+                </h2>
+                <p className="max-w-sm text-mini leading-relaxed text-muted-foreground">
+                  {message || 'يتم فتح المستند الآن.'}
                 </p>
+                <p className="text-micro text-muted-foreground line-clamp-2">{`« ${topic} »`}</p>
               </div>
-              <div className="w-full flex flex-col gap-2">
-                <button
-                  onClick={onRetry}
-                  className="w-full rounded-full bg-primary text-primary-foreground py-3 text-meta font-bold transition-transform"
-                >
-                  إعادة المحاولة
-                </button>
-                <button
-                  onClick={onDismiss}
-                  className="w-full rounded-full bg-muted/60 text-foreground py-3 text-mini font-semibold transition-transform"
-                >
-                  إغلاق
-                </button>
-              </div>
-            </motion.div>
-          ) : (
-            <>
-              {/* Central orb */}
-              <motion.div
-                className="relative mb-8 flex items-center justify-center"
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 180, damping: 18 }}
-              >
-                {!isFiled ? (
-                  <>
-                    <motion.div
-                      className="absolute w-40 h-40 rounded-full border border-primary/30 bg-primary/5"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
-                    />
-                    <motion.div
-                      className="absolute w-28 h-28 rounded-full border border-primary/40"
-                      animate={{ rotate: -360 }}
-                      transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                    >
-                      <span className="absolute -top-1 left-1/2 w-2 h-2 -translate-x-1/2 rounded-full bg-primary" />
-                    </motion.div>
-                    <motion.div
-                      className="relative w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center border border-primary/40"
-                      animate={{ scale: [1, 1.08, 1] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                    >
-                      <Sparkles className="w-7 h-7 text-primary" />
-                    </motion.div>
-                  </>
-                ) : (
-                  <motion.div
-                    className="relative w-24 h-24 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center"
-                    initial={{ scale: 0.4, rotate: -30 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: 'spring', stiffness: 260, damping: 16 }}
-                  >
-                    <Check className="w-10 h-10 text-primary" strokeWidth={2.5} />
-                    {[...Array(8)].map((_, i) => (
-                      <motion.span
-                        key={i}
-                        className="absolute w-1.5 h-1.5 rounded-full bg-primary"
-                        initial={{ x: 0, y: 0, opacity: 1 }}
-                        animate={{
-                          x: Math.cos((i / 8) * Math.PI * 2) * 70,
-                          y: Math.sin((i / 8) * Math.PI * 2) * 70,
-                          opacity: 0,
-                        }}
-                        transition={{ duration: 0.9, delay: 0.1, ease: 'easeOut' }}
-                      />
-                    ))}
-                  </motion.div>
-                )}
-              </motion.div>
-
-              {/* Headline */}
-              <AnimatePresence mode="wait">
-                <motion.h2
-                  key={pipelineStage}
-                  initial={{ y: 12, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -12, opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="text-center text-lead font-bold text-foreground mb-1.5"
-                >
-                  {STAGE_HEADLINE[pipelineStage] ?? '...'}
-                </motion.h2>
-              </AnimatePresence>
-
-              {/* Topic chip */}
-              <div className="max-w-sm text-center text-mini text-muted-foreground mb-6 line-clamp-2 px-4">
-                « {topic} »
-              </div>
-
-              {/* Progress bar */}
-              <div className="w-full max-w-sm">
-                <div className="relative h-1 rounded-full bg-muted/50 overflow-hidden mb-3">
-                  <motion.div
-                    className="absolute inset-y-0 start-0 rounded-full bg-primary"
-                    animate={{ width: `${percent}%` }}
-                    transition={{ duration: 0.6, ease: 'easeOut' }}
-                  />
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-micro tabular-nums text-muted-foreground">
+                    {`${percent}٪ · ${selectedStageLabel(pipelineStage)}`}
+                  </p>
+                  <h2 id="archive-generation-title" className="text-title font-bold leading-snug text-foreground">
+                    {STAGE_HEADLINE[pipelineStage] ?? '…'}
+                  </h2>
+                  <p className="text-mini text-muted-foreground line-clamp-2">{`« ${topic} »`}</p>
                 </div>
 
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={message}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center justify-between text-mini text-muted-foreground mb-5"
-                  >
-                    <span className="truncate flex-1">{message}</span>
+                <div>
+                  <div className="relative h-1.5 overflow-hidden rounded-full bg-track">
+                    <motion.div
+                      className="absolute inset-y-0 start-0 rounded-full bg-primary"
+                      animate={{ width: `${percent}%` }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-3 text-mini text-muted-foreground">
+                    <span className="truncate">{message}</span>
                     {progress.total > 0 && (
-                      <span className="tabular-nums shrink-0 ms-2">
+                      <span className="shrink-0 tabular-nums">
                         {progress.current}/{progress.total}
                       </span>
                     )}
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
+                </div>
 
-                {/* Stage stepper */}
-                <div className="flex gap-1">
+                <ol className="grid grid-cols-7 gap-1" aria-label="مراحل التوليد">
                   {STAGE_ORDER.map((s, i) => {
-                    const currentIdx = STAGE_ORDER.indexOf(pipelineStage);
                     const isActive = s === pipelineStage;
                     const isDone = currentIdx > i;
                     return (
-                      <div key={s} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="relative w-full h-1 rounded-full bg-muted/40 overflow-hidden">
-                          <motion.div
-                            className="absolute inset-y-0 start-0 bg-primary rounded-full"
-                            initial={false}
-                            animate={{ width: isDone ? '100%' : isActive ? '60%' : '0%' }}
-                            transition={{ duration: 0.5 }}
-                          />
-                          {isActive && (
-                            <motion.div
-                              className="absolute inset-y-0 w-8 bg-primary/40"
-                              animate={{ x: ['-100%', '400%'] }}
-                              transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
-                            />
-                          )}
-                        </div>
+                      <li key={s} className="flex flex-col items-center gap-1.5">
                         <span
-                          className={`text-micro ${isActive ? 'text-primary font-bold' : isDone ? 'text-foreground/70' : 'text-muted-foreground-subtle'}`}
+                          aria-hidden
+                          className={`h-1 w-full rounded-full ${isDone ? 'bg-primary' : isActive ? 'bg-primary/60' : 'bg-track'}`}
+                        />
+                        <span
+                          className={`text-micro ${isActive ? 'font-bold text-primary' : isDone ? 'text-foreground/70' : 'text-muted-foreground-subtle'}`}
                         >
                           {STAGE_LABEL[s]}
                         </span>
-                      </div>
+                      </li>
                     );
                   })}
+                </ol>
+
+                <div className="flex justify-end border-t border-border/50 pt-3">
+                  <Button variant="outline" size="sm" onClick={onCancel}>
+                    {'إلغاء التوليد'}
+                  </Button>
                 </div>
               </div>
-            </>
-          )}
+            )}
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
+}
+
+function selectedStageLabel(stage: PipelineStage): string {
+  return STAGE_LABEL[stage];
 }

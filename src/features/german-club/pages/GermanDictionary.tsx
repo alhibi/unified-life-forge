@@ -129,14 +129,15 @@ export const GermanDictionary: React.FC = () => {
           أفعال الانفصال وحالات حروف الجر.
         </p>
 
-        {/* Wort des Tages Showcase */}
-        <WortDesTagesCard entry={wortDesTages} onSelect={setSelectedEntry} />
-
-        {/* Search & Filter Controls */}
+        {/* Search & Filter Controls — a dictionary's primary action belongs
+            directly under its masthead, before any showcase content. */}
         <DictionarySearchFilters />
 
         {/* Alphabet Index Bar */}
         <AlphabetNav />
+
+        {/* Wort des Tages Showcase */}
+        <WortDesTagesCard entry={wortDesTages} onSelect={setSelectedEntry} />
 
         {/* Tab Selection: All Words vs Bookmarks */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'all' | 'bookmarks')}>

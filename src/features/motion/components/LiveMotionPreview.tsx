@@ -31,7 +31,7 @@ const SCREENS = [
  * screens: a press target, a disclosure that expands, and a scroll strip.
  */
 export default function LiveMotionPreview({ revision, navStyle }: LiveMotionPreviewProps) {
-  const { dir } = useApp();
+  const { dir, reduceMotion } = useApp();
   const rtl = dir === 'rtl';
   const [index, setIndex] = useState(0);
   const [mode, setMode] = useState<'push' | 'pop'>('push');
@@ -51,9 +51,9 @@ export default function LiveMotionPreview({ revision, navStyle }: LiveMotionPrev
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* ── Navigation ── */}
-      <div className="relative h-28 overflow-hidden rounded-md bg-background">
+      <div className="relative h-24 overflow-hidden rounded-md bg-background">
         <AnimatePresence mode="popLayout" initial={false} custom={mode}>
           <motion.div
             key={`${revision}-${index}`}
@@ -112,18 +112,66 @@ export default function LiveMotionPreview({ revision, navStyle }: LiveMotionPrev
         {Array.from({ length: 14 }, (_, cell) => (
           <div
             key={cell}
-            className="flex h-14 w-20 shrink-0 items-center justify-center rounded-md bg-secondary text-mini tabular-nums text-secondary-muted"
+            className="flex h-12 w-20 shrink-0 items-center justify-center rounded-md bg-secondary text-mini tabular-nums text-secondary-muted"
           >
             {cell + 1}
           </div>
         ))}
       </div>
 
+      {reduceMotion && (
+        <p className="rounded-md bg-secondary px-3 py-2 text-micro text-muted-foreground">
+          تقليل الحركة مفعّل: الانتقالات تُختصر إلى تلاشٍ شبه فوري، ويبقى تغيّر اللون والتركيز.
+        </p>
+      )}
+
       <p className="font-mono text-micro tabular-nums text-muted-foreground-subtle">
         spring k={Math.round(Number((MOTION.spring as { stiffness?: number }).stiffness ?? 0))} · c=
         {Number((MOTION.spring as { damping?: number }).damping ?? 0).toFixed(1)} · nav=
         {Number((MOTION.navSilkEnter as { duration?: number }).duration ?? 0).toFixed(3)}s
       </p>
+    </div>
+  );
+}
+
+/**
+ * The transistor-surface preview: a real overlay surface with the same
+ * `data-ui-surface="menu"` key the CSS overlay character reads, so switching
+ * fade / lift / scale visibly changes what happens when it opens.
+ *
+ * It is deliberately a real DOM toggle rather than a looping animation: the
+ * preview must stop when the user stops asking for it, and reduced motion must
+ * make it a plain appearance.
+ */
+export function OverlayMotionPreview({ revision }: { revision: string }) {
+  const [open, setOpen] = useState(true);
+  const { reduceMotion } = useApp();
+
+  return (
+    <div className="rounded-md bg-background p-2">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-micro text-muted-foreground">معاينة الطبقات العائمة</p>
+        <button
+          type="button"
+          onClick={() => setOpen((current) => !current)}
+          className="flex min-h-[var(--ui-touch-min)] items-center rounded-full bg-secondary px-3 text-mini font-semibold text-secondary-foreground"
+        >
+          {open ? 'أخفِ الطبقة' : 'أظهر الطبقة'}
+        </button>
+      </div>
+      <div className="relative mt-2 grid h-24 place-items-center overflow-hidden rounded-md border border-dashed border-border">
+        {open ? (
+          <div
+            key={revision}
+            data-ui-surface="menu"
+            className="animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 w-40 rounded-md border border-border bg-popover p-2 text-center text-mini text-popover-foreground shadow-[var(--shadow-2)]"
+          >
+            طبقة عائمة — {reduceMotion ? 'بلا حركة' : 'بالنمط المختار'}
+          </div>
+        ) : (
+          <span className="text-micro text-muted-foreground">الطبقة مغلقة</span>
+        )}
+      </div>
     </div>
   );
 }

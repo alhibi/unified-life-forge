@@ -1,13 +1,19 @@
 /**
- * Portal — the first screen of amv.life: the app launcher.
+ * Portal — the first screen of amv.life.
  *
- * Reading order, top to bottom: who you are and what day it is (PortalGreeting),
- * today's live widgets, then the apps themselves under a category rail that
- * sticks to the header while you scroll. There is no search field and no
- * "recently opened" row: fourteen tiles are scannable, and both surfaces added
- * chrome without shortening the path to any app.
- * Each app carries its own accent and motif — see AppTileVisuals — so the grid
- * reads as fourteen distinct places rather than one repeated card.
+ * Reading order is the product's answer to "keep your prayers and keep your day
+ * organised": a masthead (date, greeting, next-prayer status), then today's
+ * console — the prayer card as the primary zone with the weather plate and the
+ * four day tools in the end rail — then what you were last in ("متابعة"), then
+ * the launcher itself under its own headline, with the selected app's deep
+ * links as a sticky rail beside the realms on wide screens.
+ *
+ * The launcher grid is untouched in identity: every app keeps its own face and
+ * accent (visual exception X1). What changed is the page around it. The app
+ * detail panel used to sit above the launcher in the first viewport, where it
+ * competed with the day for attention; it now belongs to the launcher it
+ * describes. Each app still carries its own accent and motif — see
+ * AppTileVisuals — so the grid reads as distinct places rather than one card.
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -31,16 +37,15 @@ import { ChevronLeft } from '@/lib/icons';
 import { prefetchRoute } from '@/lib/routePrefetch';
 
 /**
- * The realms grid is the heaviest part of the launcher (fourteen tiles, each
- * with its own motif). Loading it in its own chunk lets the greeting and the
- * pulse bar paint first, with a geometry-matched skeleton holding its place.
+ * The realms grid is the heaviest part of the launcher (twenty tiles, each
+ * with its own motif). Loading it in its own chunk lets the masthead and the
+ * today console paint first, with a geometry-matched skeleton holding its place.
  */
 const CelestialRealmsLayout = lazy(() => import('@/components/portal/CelestialRealmsLayout'));
 
 /**
- * The "today" widgets (prayer times, sunnah, weather, qibla compass) moved out
- * of the retired `/now` app and onto this page. Lazy so the launcher's own
- * chrome paints first.
+ * Today's console (prayer card, weather plate, day tools). Lazy so the
+ * launcher's own chrome paints first.
  */
 const PortalTodayWidgets = lazy(() => import('@/components/portal/PortalTodayWidgets'));
 
@@ -75,7 +80,9 @@ export default function Portal() {
     [recents],
   );
 
-  /* The widgets below need coordinates; ask once, exactly like /now used to. */
+  /* The widgets below need coordinates; ask once. The shared hook coalesces
+     concurrent requests, so the prayer card and the weather plate do not each
+     fire their own prompt. */
   const { status: locationStatus, requestLocation } = useDeviceLocation();
   useEffect(() => {
     if (locationStatus === 'idle') void requestLocation();
@@ -193,100 +200,122 @@ export default function Portal() {
     <PageShell centered={false} flush className="min-h-[100dvh] bg-background pb-page relative">
       <SEO
         title="amv.life — بوابتك الشخصية"
-        description="بوابة amv.life الشخصية: الرئيسي، المحراب، العافية، الدردشة، اطلاع، المعرفة، والألعاب — تطبيقات متكاملة في مكان واحد."
+        description="بوابة amv.life الشخصية: أوقات الصلاة والطقس، ثم كل التطبيقات — القرآن والمحراب والعافية والدردشة والمعرفة والألعاب — في مكان واحد."
         path="/"
       />
 
-      {/* GPU-accelerated Background Canvas */}
-
       <PortalHeader unreadCount={unreadCount} />
 
-      <section className="relative z-raised mx-auto w-full max-w-[var(--ui-workspace-max)] pt-4 pb-page">
+      <div className="relative z-raised mx-auto w-full max-w-[var(--ui-workspace-max)] pt-4 pb-page">
         <h1 className="sr-only">amv.life — بوابتك الشخصية</h1>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,26vw,21.25rem)] lg:items-start lg:gap-8">
-          <div className="app-stack min-w-0">
+        {/* ── اليوم ─────────────────────────────────────────────────────
+            Masthead first, then the console. The first viewport answers
+            "what is today" before it offers a single destination. */}
+        <section aria-label="اليوم" className="app-stack">
+          <PortalGreeting username={username} />
 
-            <PortalGreeting username={username} />
+          {/* Reserve the console's geometry while it loads so the launcher
+              below never jumps. */}
+          <Suspense fallback={<PortalTodayWidgetsSkeleton />}>
+            <PortalTodayWidgets />
+          </Suspense>
+        </section>
 
-            {/* Reserve the widgets' height while they load: a null fallback made
-                the whole tile grid jump down the moment they arrived. */}
-            <Suspense fallback={<PortalTodayWidgetsSkeleton />}>
-              <PortalTodayWidgets />
-            </Suspense>
+        {/* ── متابعة: recents recorded by usePortalPrefs. Renders nothing for
+            a first-time user, so no empty shelf appears above the launcher. */}
+        <div className="pt-6">
+          <PortalContinue apps={recentApps} onOpen={openApp} />
+        </div>
 
-            {/* "متابعة" — recents recorded by usePortalPrefs. Renders nothing
-                for a first-time user, so no empty shelf appears above the
-                grid. */}
-            <PortalContinue apps={recentApps} onOpen={openApp} />
-
-
-            {/* Sticky under the 56px header so the category rail never scrolls away. */}
-            <div className="sticky top-[calc(var(--ui-header-h)+env(safe-area-inset-top))] z-sticky -mx-[var(--ui-gutter)] bg-background px-[var(--ui-gutter)] py-2">
-              <PortalFilterBar
-                category={category}
-                onCategoryChange={setCategory}
-                view={view}
-                onViewChange={setView}
-                counts={counts}
-              />
+        {/* ── التطبيقات ──────────────────────────────────────────────── */}
+        <section aria-labelledby="portal-apps-h" className="pt-8">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+            <div className="min-w-0">
+              <h2 id="portal-apps-h" className="text-title font-bold text-foreground">
+                التطبيقات
+              </h2>
+              <p className="mt-1 text-meta text-muted-foreground">
+                عشرون مجالاً في أربعة عوالم — كل تطبيق بوجهه واختصاراته
+              </p>
             </div>
+            <span className="text-mini tabular-nums text-muted-foreground">
+              {visible.length} ظاهراً من {PORTAL_APPS.length}
+            </span>
+          </div>
 
-            {visible.length === 0 ? (
-              <StateView
-                kind="search"
-                title="لا تطبيقات في هذا التصنيف"
-                body="كل تطبيقات هذا التصنيف مخفية أو غير متاحة الآن. أعد ضبط التصنيف لعرض كل التطبيقات."
-                action={{ label: 'عرض كل التطبيقات', onClick: () => setCategory('all') }}
-                compact
-              />
-            ) : (
-              <div onKeyDown={onGridKeyDown} className="relative z-raised">
+          {/* Sticky under the header so the category rail never scrolls away. */}
+          <div className="sticky top-[calc(var(--ui-header-h)+env(safe-area-inset-top))] z-sticky -mx-[var(--ui-gutter)] bg-background px-[var(--ui-gutter)] py-2">
+            <PortalFilterBar
+              category={category}
+              onCategoryChange={setCategory}
+              view={view}
+              onViewChange={setView}
+              counts={counts}
+            />
+          </div>
+
+          {visible.length === 0 ? (
+            <StateView
+              kind="search"
+              title="لا تطبيقات في هذا التصنيف"
+              body="كل تطبيقات هذا التصنيف مخفية أو غير متاحة الآن. أعد ضبط التصنيف لعرض كل التطبيقات."
+              action={{ label: 'عرض كل التطبيقات', onClick: () => setCategory('all') }}
+              compact
+            />
+          ) : (
+            <div className="grid gap-8 pt-4 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,22vw,20rem)] lg:items-start">
+              <div onKeyDown={onGridKeyDown} className="relative z-raised min-w-0">
                 <Suspense fallback={<PortalRealmsSkeleton list={list} />}>
                   <CelestialRealmsLayout
-                  visibleApps={visible}
-                  query=""
-                  list={list}
-                  focusedKey={focusedApp.key}
-                  unreadCount={unreadCount}
-                  onOpen={openApp}
-                  onInspect={inspectApp}
-                  onFocusApp={focusApp}
-                  registerRef={registerRef}
+                    visibleApps={visible}
+                    query=""
+                    list={list}
+                    focusedKey={focusedApp.key}
+                    unreadCount={unreadCount}
+                    onOpen={openApp}
+                    onInspect={inspectApp}
+                    onFocusApp={focusApp}
+                    registerRef={registerRef}
                   />
                 </Suspense>
               </div>
-            )}
 
-            <div className="flex items-center gap-3 pt-4 pb-[env(safe-area-inset-bottom)]">
-              <span className="h-px flex-1 bg-track" aria-hidden />
-              <span className="text-micro font-semibold tracking-[0.14em] text-muted-foreground-subtle font-tajawal">
-                صُنِعَ بحب — عامر وأمولة
-              </span>
-              <span className="h-px flex-1 bg-track" aria-hidden />
+              {/* The app detail rail belongs to the launcher it describes.
+                  Sticky under the header, hidden below the wide breakpoint
+                  (the drawer carries the same component on touch). */}
+              <aside
+                className="hidden lg:sticky lg:top-[calc(var(--ui-header-h)+1rem+env(safe-area-inset-top))] lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain"
+                aria-label={`اختصارات ${focusedApp.label}`}
+              >
+                <p className="mb-3 text-meta font-semibold text-muted-foreground">
+                  اختصارات التطبيق
+                </p>
+                <AppDetailPanel
+                  app={focusedApp}
+                  pinned={isPinned(focusedApp.key)}
+                  onOpenPath={openPath}
+                  onTogglePin={togglePin}
+                />
+                <p className="mt-3 flex items-center gap-1.5 text-micro text-muted-foreground">
+                  <ChevronLeft className="h-3 w-3" aria-hidden />
+                  مرّر على تطبيق لعرض اختصاراته — استخدم الأسهم للتنقل بالشبكة
+                </p>
+              </aside>
             </div>
+          )}
+
+          <div className="flex items-center gap-3 pt-10 pb-[env(safe-area-inset-bottom)]">
+            <span className="h-px flex-1 bg-track" aria-hidden />
+            <span className="text-micro font-semibold text-muted-foreground-subtle font-tajawal">
+              صُنِعَ بحب — عامر وأمولة
+            </span>
+            <span className="h-px flex-1 bg-track" aria-hidden />
           </div>
+        </section>
+      </div>
 
-          {/* Desktop side panel — sticky under the 56px header. */}
-          <aside
-            className="hidden lg:sticky lg:top-[calc(var(--ui-header-h)+1rem+env(safe-area-inset-top))] lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain"
-            aria-label={`اختصارات ${focusedApp.label}`}
-          >
-            <AppDetailPanel
-              app={focusedApp}
-              pinned={isPinned(focusedApp.key)}
-              onOpenPath={openPath}
-              onTogglePin={togglePin}
-            />
-            <p className="mt-3 flex items-center gap-1.5 text-micro text-muted-foreground">
-              <ChevronLeft className="h-3 w-3" aria-hidden />
-              استخدم الأسهم للتنقل بين التطبيقات
-            </p>
-          </aside>
-        </div>
-      </section>
-
-      {/* Touch: deep links in a drawer. Same component as the side panel. */}
+      {/* Touch: deep links in a drawer. Same component as the side rail. */}
       <ResponsiveDrawer
         open={inspectedApp !== null}
         onOpenChange={(open) => !open && setInspectedKey(null)}

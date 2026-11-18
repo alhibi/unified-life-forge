@@ -1,0 +1,36 @@
+[
+ {
+  "route": "/settings/keyboard",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "لوحة المفاتيح",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/keyboard",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "لوحة المفاتيح",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ }
+]

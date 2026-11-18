@@ -282,10 +282,10 @@ function FitnessPageInner({
         <AppCard className="flex items-center gap-0.5 p-1 overflow-x-auto scrollbar-none">
           {[
             { id: 'dashboard', label: 'الرئيسية', icon: Activity },
-            { id: 'timetable', label: 'جداول التمارين', icon: Calendar },
-            { id: 'library', label: 'مكتبة التمارين', icon: Library },
-            { id: 'progress', label: 'مؤشرات الجسم', icon: Scale },
-            { id: 'history', label: 'سجل الأنشطة', icon: History },
+            { id: 'timetable', label: 'الجداول', icon: Calendar },
+            { id: 'library', label: 'المكتبة', icon: Library },
+            { id: 'progress', label: 'القياسات', icon: Scale },
+            { id: 'history', label: 'السجل', icon: History },
           ].map((t) => {
             const Icon = t.icon;
             const active = activeTab === t.id;
@@ -294,7 +294,7 @@ function FitnessPageInner({
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
                 aria-pressed={active}
-                className={`relative shrink-0 flex-1 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 transition-motion ${
+                className={`relative shrink-0 py-2 px-3 rounded-lg text-mini font-semibold flex items-center justify-center gap-2 whitespace-nowrap transition-motion ${
                   active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -383,7 +383,7 @@ function FitnessPageInner({
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {[250, 500, 750].map((ml) => (
                       <Button
                         key={ml}
@@ -433,8 +433,10 @@ function FitnessPageInner({
                   </Button>
                 </AppCard>
 
-                {/* 3. Calories Metric (Historical totals + live tracked) */}
-                <AppCard tone={5} className="p-4 flex flex-col justify-between">
+                {/* 3. Calories Metric (Historical totals + live tracked).
+                    Neutral surface: nothing here is a data category — red made
+                    an ordinary daily total read like an error state. */}
+                <AppCard className="p-4 flex flex-col justify-between">
                   <div>
                     <span className="text-micro text-muted-foreground font-bold uppercase tracking-wide">السعرات المحروقة اليوم</span>
                     <div className="flex items-baseline gap-1 mt-1 mb-2">
@@ -454,8 +456,8 @@ function FitnessPageInner({
               </div>
 
               {/* Live Activity Precision Tracker Panel */}
-              <Section label="تتبع الأنشطة الحية (GPS)">
-                <AppCard tone={6} className="overflow-hidden">
+              <Section label="تتبع الأنشطة الحية عبر GPS">
+                <AppCard className="overflow-hidden">
                   <div className="p-6 flex flex-col items-center justify-center text-center relative">
                     {tracker.isTracking ? (
                       <div className="w-full space-y-6">

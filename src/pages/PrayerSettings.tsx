@@ -3,12 +3,19 @@ import React from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
+import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useApp } from '@/contexts/AppContext';
 import { usePrayerNotifications } from '@/hooks/usePrayerNotifications';
-import { BookOpen, Check,Info, RotateCcw } from '@/lib/icons';
-import { pageItem as item,pageStagger as stagger } from '@/lib/motion';
+import { BookOpen, Check, Info, RotateCcw } from '@/lib/icons';
+import { pageItem as item, pageStagger as stagger } from '@/lib/motion';
 import { PRAYER_NAMES, PRAYER_TITLES_AR } from '@/lib/prayerNotifications';
 
 type PrayerMadhab = 'shafii' | 'hanafi' | 'hanbali' | 'maliki';
@@ -37,32 +44,61 @@ function RadioRow({
       role="radio"
       aria-checked={selected}
       onClick={onSelect}
-      className={`w-full flex items-center justify-between gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors text-start ${
+      className={`flex min-h-[var(--ui-touch-min)] w-full items-center justify-between gap-3 px-4 py-3.5 text-start transition-colors active:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
         isLast ? '' : 'border-b border-border/50'
       }`}
     >
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-meta text-foreground leading-tight">{label}</p>
-        {hint && <p className="text-mini text-muted-foreground mt-0.5 leading-snug">{hint}</p>}
-      </div>
-      <div
-        className={`relative w-[22px] h-[22px] rounded-full border-2 shrink-0 transition-colors ${
+      <span className="min-w-0 flex-1">
+        <span className="block text-meta font-semibold leading-tight text-foreground">{label}</span>
+        {hint && (
+          <span className="mt-0.5 block text-mini leading-snug text-muted-foreground">{hint}</span>
+        )}
+      </span>
+      <span
+        className={`relative h-[22px] w-[22px] shrink-0 rounded-full border-2 transition-colors ${
           selected ? 'border-primary' : 'border-muted-foreground/40'
         }`}
         aria-hidden
       >
         {selected && (
-          <motion.div
+          <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-            className="absolute inset-1 rounded-full bg-primary flex items-center justify-center"
+            className="absolute inset-1 flex items-center justify-center rounded-full bg-primary"
           >
-            <Check className="w-3 h-3 text-primary-foreground stroke-[3]" />
-          </motion.div>
+            <Check className="h-3 w-3 stroke-[3] text-primary-foreground" />
+          </motion.span>
+        )}
+      </span>
+    </button>
+  );
+}
+
+/**
+ * One settings group. The active value lives in the header, so a person can
+ * read the whole page's current configuration without opening a single card —
+ * the five flat radio lists used to force a 5,000px scroll-hunt for that.
+ */
+function Group({
+  title,
+  value,
+  children,
+}: {
+  title: string;
+  value?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-meta font-semibold text-muted-foreground">{title}</h2>
+        {value != null && (
+          <span className="shrink-0 text-mini font-medium tabular-nums text-foreground">{value}</span>
         )}
       </div>
-    </button>
+      {children}
+    </section>
   );
 }
 
@@ -165,110 +201,131 @@ export default function PrayerSettings() {
       hintAr: 'موصى بها لخطوط العرض العالية', },
   ];
 
+  const activeMadhab = madhabs.find((m) => m.id === prayerMadhab)?.labelAr ?? '—';
+  const activeLat = latMethods.find((m) => m.id === latitudeAdjMethod)?.labelAr ?? '—';
+  const activeCalc = calcOptions.find((m) => m.id === calcMethod) ?? calcOptions[0];
+
   return (
     <PageShell
       header={
         <PageHeader
           title="إعدادات الصلاة"
+          subtitle="المواقيت والمذهب والتنبيهات"
           backTo="/settings"
           sticky
-          icon={<span className="row-icon"><BookOpen className="w-4 h-4" aria-hidden /></span>}
+          icon={<span className="row-icon"><BookOpen className="h-4 w-4" aria-hidden /></span>}
         />
       }
     >
       <SEO
-        title={'إعدادات الصلاة — SmartHub'}
-        description={'اختر المذهب وطريقة الحساب لأوقات الصلاة في SmartHub.'}
+        title={'إعدادات الصلاة — amv.life'}
+        description={'اختر المذهب وطريقة الحساب وضبط خطوط العرض العالية وتنبيهات الصلاة في amv.life.'}
         path="/settings/prayer"
       />
       <motion.div variants={stagger} initial="hidden" animate="show" className="app-stack">
-        {/* Madhab Section */}
+        {/* Madhab */}
         <motion.div variants={item}>
-          <Section label="المذهب الفقهي">
-          <AppCard className="p-0 overflow-hidden divide-y divide-border/30" role="radiogroup" aria-label="المذهب الفقهي">
-            {madhabs.map((m, idx) => (
-              <RadioRow
-                key={m.id}
-                selected={prayerMadhab === m.id}
-                onSelect={() => setPrayerMadhab(m.id)}
-                label={m.labelAr}
-                hint={m.hintAr}
-                isLast={idx === madhabs.length - 1}
-              />
-            ))}
-          </AppCard>
-          </Section>
-        </motion.div>
-
-        {/* Calculation Method (Sunni only) */}
-        <motion.div variants={item}>
-          <Section label="طريقة حساب التواقيت">
-          <AppCard className="p-0 overflow-hidden divide-y divide-border/30" role="radiogroup" aria-label="طريقة الحساب">
-            {calcOptions.map((m, idx) => (
-              <RadioRow
-                key={String(m.id)}
-                selected={calcMethod === m.id}
-                onSelect={() => setCalcMethod(m.id)}
-                label={m.labelAr}
-                hint={m.hintAr}
-                isLast={idx === calcOptions.length - 1}
-              />
-            ))}
-          </AppCard>
-          </Section>
-        </motion.div>
-
-        {/* Hybrid note */}
-        <motion.div variants={item}>
-          <AppCard className="flex gap-3">
-            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden />
-            <p className="text-mini text-muted-foreground leading-relaxed">
-              {'يستخدم التطبيق نظاماً هجيناً: حساب رسمي عبر الإنترنت مع توقيت محلي احتياطي عبر معادلات فلكية، ليعمل بدقة في جميع دول العالم وحتى دون اتصال.'}
+          <Group title="المذهب الفقهي" value={activeMadhab}>
+            <AppCard
+              className="divide-y divide-border/30 overflow-hidden p-0"
+              role="radiogroup"
+              aria-label="المذهب الفقهي"
+            >
+              {madhabs.map((m, idx) => (
+                <RadioRow
+                  key={m.id}
+                  selected={prayerMadhab === m.id}
+                  onSelect={() => setPrayerMadhab(m.id)}
+                  label={m.labelAr}
+                  hint={m.hintAr}
+                  isLast={idx === madhabs.length - 1}
+                />
+              ))}
+            </AppCard>
+            <p className="px-1 text-micro leading-relaxed text-muted-foreground">
+              يختلف مذهب الأحناف عن غيره في وقت صلاتي العصر والعشاء؛ فيتأخر عن غيره نحو ٣٠ دقيقة في
+              العصر، ونحو ١٢ دقيقة في العشاء، بحسب اختلاف البلدان والفصول.
             </p>
-          </AppCard>
+          </Group>
         </motion.div>
 
-        {/* Info note */}
+        {/* Calculation method — 22 options, one control. */}
         <motion.div variants={item}>
-          <AppCard className="flex gap-3">
-            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden />
-            <p className="text-mini text-muted-foreground leading-relaxed">
-              {'يختلف مذهب الأحناف عن غيره في وقت صلاتي العصر والعشاء؛ فيتأخر عن غيره نحو 30 دقيقة في العصر، ونحو 12 دقيقة في العشاء، بحسب اختلاف البلدان والفصول.'}
+          <Group title="طريقة حساب التواقيت" value={activeCalc.labelAr}>
+            <AppCard className="space-y-3">
+              <Select
+                value={String(calcMethod)}
+                onValueChange={(value) =>
+                  setCalcMethod(value === 'auto' ? 'auto' : Number(value))
+                }
+              >
+                <SelectTrigger
+                  aria-label="طريقة حساب التواقيت"
+                  className="w-full justify-between"
+                >
+                  <span className="truncate text-start text-body font-semibold text-foreground">
+                    {activeCalc.labelAr}
+                  </span>
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  {calcOptions.map((option) => (
+                    <SelectItem key={String(option.id)} value={String(option.id)}>
+                      {option.labelAr}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-mini leading-relaxed text-muted-foreground">
+                {activeCalc.hintAr}
+              </p>
+              <p className="border-t border-border/50 pt-3 text-micro leading-relaxed text-muted-foreground">
+                يستخدم التطبيق نظاماً هجيناً: حساب رسمي عبر الإنترنت مع توقيت محلي احتياطي عبر
+                معادلات فلكية، ليعمل بدقة في جميع دول العالم وحتى دون اتصال.
+              </p>
+            </AppCard>
+          </Group>
+        </motion.div>
+
+        {/* High-latitude adjustment */}
+        <motion.div variants={item}>
+          <Group title="ضبط خطوط العرض العالية" value={activeLat}>
+            <AppCard
+              className="divide-y divide-border/30 overflow-hidden p-0"
+              role="radiogroup"
+              aria-label="ضبط خطوط العرض"
+            >
+              {latMethods.map((m, idx) => (
+                <RadioRow
+                  key={m.id}
+                  selected={latitudeAdjMethod === m.id}
+                  onSelect={() => setLatitudeAdjMethod(m.id)}
+                  label={m.labelAr}
+                  hint={m.hintAr}
+                  isLast={idx === latMethods.length - 1}
+                />
+              ))}
+            </AppCard>
+            <p className="px-1 text-micro leading-relaxed text-muted-foreground">
+              تُستخدم هذه الطرق عندما تغيب الشمس أو يختفي الشفق لأيام في خطوط العرض العالية.
             </p>
-          </AppCard>
+          </Group>
         </motion.div>
 
-        {/* High Latitude Adjustment Methods */}
-        <motion.div variants={item}>
-          <Section label="ضبط خطوط العرض العالية">
-          <AppCard className="p-0 overflow-hidden divide-y divide-border/30" role="radiogroup" aria-label="ضبط خطوط العرض">
-            {latMethods.map((m, idx) => (
-              <RadioRow
-                key={m.id}
-                selected={latitudeAdjMethod === m.id}
-                onSelect={() => setLatitudeAdjMethod(m.id)}
-                label={m.labelAr}
-                hint={m.hintAr}
-                isLast={idx === latMethods.length - 1}
-              />
-            ))}
-          </AppCard>
-          </Section>
-        </motion.div>
-
-        {/* DST Toggle (boolean — Switch is correct here) */}
-        {/* Prayer reminders. Scheduled by the OS, so they fire offline. */}
+        {/* Reminders — OS-scheduled, so they fire offline. */}
         {notifications.supported && (
           <motion.div variants={item}>
-            <Section label="تنبيهات الصلاة">
-              <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
-                <div className="px-4 py-3.5 flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-meta text-foreground leading-tight">
-                      {'تنبيه عند دخول الوقت'}
+            <Group
+              title="تنبيهات الصلاة"
+              value={notifications.prefs.enabled ? 'مفعّلة' : 'متوقفة'}
+            >
+              <AppCard className="divide-y divide-border/30 overflow-hidden p-0">
+                <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-meta font-semibold leading-tight text-foreground">
+                      تنبيه عند دخول الوقت
                     </p>
-                    <p className="text-mini text-muted-foreground mt-0.5 leading-snug">
-                      {'يعمل بدون إنترنت، ويصل حتى مع إغلاق التطبيق'}
+                    <p className="mt-0.5 text-mini leading-snug text-muted-foreground">
+                      يعمل بدون إنترنت، ويصل حتى مع إغلاق التطبيق
                     </p>
                   </div>
                   <div dir="ltr" className="shrink-0">
@@ -282,8 +339,13 @@ export default function PrayerSettings() {
 
                 {notifications.prefs.enabled &&
                   PRAYER_NAMES.map((prayer) => (
-                    <div key={prayer} className="px-4 py-3 flex items-center justify-between gap-3">
-                      <p className="font-medium text-meta text-foreground">{PRAYER_TITLES_AR[prayer]}</p>
+                    <div
+                      key={prayer}
+                      className="flex items-center justify-between gap-3 px-4 py-3"
+                    >
+                      <p className="text-meta font-medium text-foreground">
+                        {PRAYER_TITLES_AR[prayer]}
+                      </p>
                       <div dir="ltr" className="shrink-0">
                         <Switch
                           checked={notifications.prefs.prayers[prayer]}
@@ -296,7 +358,7 @@ export default function PrayerSettings() {
 
                 {notifications.prefs.enabled && (
                   <div className="px-4 py-3.5" role="radiogroup" aria-label="التنبيه المسبق">
-                    <p className="font-semibold text-meta text-foreground mb-2.5">{'التنبيه المسبق'}</p>
+                    <p className="mb-2.5 text-meta font-semibold text-foreground">التنبيه المسبق</p>
                     <div dir="ltr" className="flex gap-2">
                       {[0, 5, 10, 15, 20].map((minutes) => (
                         <button
@@ -305,7 +367,7 @@ export default function PrayerSettings() {
                           role="radio"
                           aria-checked={notifications.prefs.leadMinutes === minutes}
                           onClick={() => notifications.setLeadMinutes(minutes)}
-                          className={`flex-1 py-2 rounded-xl text-mini font-semibold transition-colors ${
+                          className={`min-h-[var(--ui-touch-min)] flex-1 rounded-md text-mini font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                             notifications.prefs.leadMinutes === minutes
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-muted/40 text-muted-foreground'
@@ -322,53 +384,62 @@ export default function PrayerSettings() {
               {/* Honest status: silence here would be indistinguishable from a
                   working schedule until a prayer is actually missed. */}
               {notifications.problem === 'no-permission' && (
-                <p className="text-mini text-destructive mt-2 px-1 leading-relaxed">
-                  {'لم يُسمح للتطبيق بإرسال التنبيهات. افتح إعدادات النظام وامنح الإذن لتصل تنبيهات الصلاة.'}
+                <p className="px-1 text-mini leading-relaxed text-destructive">
+                  لم يُسمح للتطبيق بإرسال التنبيهات. افتح إعدادات النظام وامنح الإذن لتصل تنبيهات
+                  الصلاة.
                 </p>
               )}
               {notifications.problem === 'error' && (
-                <p className="text-mini text-destructive mt-2 px-1 leading-relaxed">
-                  {'تعذّر جدولة التنبيهات على هذا الجهاز. جرّب إيقاف التنبيهات وتشغيلها من جديد.'}
+                <p className="px-1 text-mini leading-relaxed text-destructive">
+                  تعذّر جدولة التنبيهات على هذا الجهاز. جرّب إيقاف التنبيهات وتشغيلها من جديد.
                 </p>
               )}
               {!notifications.problem && notifications.scheduled ? (
-                <p className="text-mini text-muted-foreground mt-2 px-1 leading-relaxed">
-                  {`تم جدولة ${notifications.scheduled} تنبيهاً لأسبوع قادم على الجهاز.`}
+                <p className="px-1 text-mini leading-relaxed text-muted-foreground">
+                  { `تم جدولة ${notifications.scheduled} تنبيهاً لأسبوع قادم على الجهاز.` }
                 </p>
               ) : null}
-            </Section>
+            </Group>
           </motion.div>
         )}
 
+        {/* Extra */}
         <motion.div variants={item}>
-          <Section label="إعدادات إضافية">
-          <AppCard className="p-0 overflow-hidden divide-y divide-border/30">
-            <div className="px-4 py-3.5 flex items-center justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-meta text-foreground leading-tight">
-                  {'التوقيت الصيفي'}
-                </p>
-                <p className="text-mini text-muted-foreground mt-0.5 leading-snug">
-                  {'تطبيق التوقيت الصيفي على مواقيت الصلاة'}
-                </p>
+          <Group title="إعدادات إضافية" value={dstEnabled ? 'التوقيت الصيفي: مفعّل' : 'التوقيت الصيفي: متوقف'}>
+            <AppCard className="overflow-hidden p-0">
+              <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+                <div className="min-w-0 flex-1">
+                  <p className="text-meta font-semibold leading-tight text-foreground">
+                    التوقيت الصيفي
+                  </p>
+                  <p className="mt-0.5 text-mini leading-snug text-muted-foreground">
+                    تطبيق التوقيت الصيفي على مواقيت الصلاة
+                  </p>
+                </div>
+                <div dir="ltr" className="shrink-0">
+                  <Switch checked={dstEnabled} onCheckedChange={setDstEnabled} />
+                </div>
               </div>
-              <div dir="ltr" className="shrink-0">
-                <Switch checked={dstEnabled} onCheckedChange={setDstEnabled} />
-              </div>
-            </div>
-          </AppCard>
-          </Section>
+            </AppCard>
+          </Group>
         </motion.div>
 
-        {/* Reset Button */}
+        {/* Reset */}
         <motion.div variants={item} className="pt-2">
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
             onClick={resetDefaults}
-            className="w-full py-3.5 rounded-2xl bg-destructive/10 text-destructive font-semibold text-meta transition-colors flex items-center justify-center gap-2 hover:bg-destructive/15"
           >
-            <RotateCcw className="w-4 h-4" />
-            {'العودة للإعدادات الافتراضية'}
-          </button>
+            <RotateCcw className="h-4 w-4 text-destructive" aria-hidden />
+            العودة للإعدادات الافتراضية
+          </Button>
+          <p className="mt-2 flex items-start gap-2 px-1 text-micro leading-relaxed text-muted-foreground">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+            يعيد المذهب وطريقة الحساب وضبط خطوط العرض والتوقيت الصيفي إلى قيمها الأصلية. لا يمسّ
+            تنبيهات الصلاة.
+          </p>
         </motion.div>
       </motion.div>
     </PageShell>

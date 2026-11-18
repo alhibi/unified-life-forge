@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import PageHeader from '@/components/PageHeader';
 import {
@@ -28,6 +28,11 @@ import { StateView } from '@/components/ui/state-view';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useApp } from '@/contexts/AppContext';
+import {
+  type InspectorEntry,
+  TokenInspector,
+} from '@/features/appearance/components/AppearancePrimitives';
+import { MotionInspector } from '@/features/motion';
 import { BookOpen, Check, Flame, Search } from '@/lib/icons';
 import { cn } from '@/lib/utils';
 import { generateThemeTokens, themePresets, type ThemeStyle } from '@/utils/themeEngine';
@@ -45,6 +50,122 @@ import { generateThemeTokens, themePresets, type ThemeStyle } from '@/utils/them
 
 function hsl(triple: string | undefined) {
   return triple ? 'hsl(' + triple + ')' : undefined;
+}
+
+// ─── Live token inspector ────────────────────────────────────
+// The resolved values written onto <html> by the interface scale, the type
+// scale and the motion preferences. This is deliberately a DEV surface: the
+// per-screen inspectors that used to ship inside /settings/interface and
+// /settings/motion were developer tooling in a user setting, so they moved
+// here where the numbers can be read without pretending to be a preference.
+// Anchor: /dev/design-system#token-inspector
+const TOKEN_GROUPS: readonly { title: string; entries: readonly { token: string; label: string }[] }[] = [
+  {
+    title: 'الهندسة واللمس',
+    entries: [
+      { token: '--ui-scale', label: 'مقياس الواجهة' },
+      { token: '--ui-spacing-scale', label: 'مقياس المسافات' },
+      { token: '--ui-gutter', label: 'هامش الصفحة' },
+      { token: '--ui-pad-card', label: 'حشو البطاقة' },
+      { token: '--ui-pad-card-compact', label: 'حشو البطاقة المضغوط' },
+      { token: '--ui-stack-gap', label: 'فجوة المكدّس' },
+      { token: '--ui-stack-gap-sm', label: 'فجوة المكدّس الصغيرة' },
+      { token: '--ui-header-h', label: 'ارتفاع الترويسة' },
+      { token: '--ui-control-h', label: 'ارتفاع التحكم' },
+      { token: '--ui-touch-min', label: 'أصغر هدف لمس' },
+      { token: '--ui-tap', label: 'مساحة النقر' },
+      { token: '--ui-dock-size', label: 'أيقونة عودة البوابة' },
+      { token: '--ui-dock-offset', label: 'مسافة أيقونة البوابة' },
+      { token: '--ui-dock-inset', label: 'الشريط السفلي المحجوز' },
+      { token: '--ui-content-max', label: 'عمود المحتوى' },
+      { token: '--ui-workspace-max', label: 'مساحة العمل' },
+    ],
+  },
+  {
+    title: 'السطح والحواف',
+    entries: [
+      { token: '--r-xs', label: 'زاوية xs' },
+      { token: '--r-sm', label: 'زاوية sm' },
+      { token: '--r-md', label: 'زاوية md' },
+      { token: '--r-lg', label: 'زاوية lg' },
+      { token: '--r-xl', label: 'زاوية xl' },
+      { token: '--ui-border-width', label: 'سماكة الحدّ' },
+      { token: '--ui-border-alpha', label: 'شفافية الحدّ' },
+      { token: '--ui-divider-alpha', label: 'شفافية الفاصل' },
+      { token: '--ui-material-alpha', label: 'كثافة المادة' },
+    ],
+  },
+  {
+    title: 'الطباعة',
+    entries: [
+      { token: '--fs-micro', label: 'micro' },
+      { token: '--fs-mini', label: 'mini' },
+      { token: '--fs-meta', label: 'meta' },
+      { token: '--fs-body', label: 'body' },
+      { token: '--fs-lead', label: 'lead' },
+      { token: '--fs-title', label: 'title' },
+      { token: '--fs-display', label: 'display' },
+      { token: '--fs-hero', label: 'hero' },
+      { token: '--type-leading', label: 'ارتفاع السطر' },
+    ],
+  },
+  {
+    title: 'الحركة',
+    entries: [
+      { token: '--motion-duration-scale', label: 'مقياس المدة' },
+      { token: '--duration-instant', label: 'فوري' },
+      { token: '--duration-fast', label: 'سريع' },
+      { token: '--duration-normal', label: 'عادي' },
+      { token: '--duration-slow', label: 'بطيء' },
+      { token: '--motion-ease-enter', label: 'منحنى الدخول' },
+      { token: '--motion-ease-exit', label: 'منحنى الخروج' },
+      { token: '--motion-press-strength', label: 'قوة الضغط' },
+    ],
+  },
+];
+
+function LiveTokenInspector() {
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () => {
+      const cs = getComputedStyle(root);
+      const next: Record<string, string> = {};
+      for (const group of TOKEN_GROUPS) {
+        for (const entry of group.entries) {
+          next[entry.token] = cs.getPropertyValue(entry.token).trim() || '—';
+        }
+      }
+      setValues(next);
+    };
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(root, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+    window.addEventListener('resize', read);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', read);
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-4" id="token-inspector">
+      {TOKEN_GROUPS.map((group) => {
+        const entries: InspectorEntry[] = group.entries.map(({ token, label }) => ({
+          token,
+          label,
+          value: values[token] ?? '—',
+        }));
+        return (
+          <div key={group.title} className="flex flex-col gap-2">
+            <h2 className="text-section text-foreground">{group.title}</h2>
+            <TokenInspector entries={entries} />
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function Swatch({ value, label }: { value: string | undefined; label: string }) {
@@ -443,6 +564,7 @@ export default function DesignSystemGallery() {
             />
             <StateView compact kind="offline" title="لا اتصال" body="المحتوى المحفوظ متاح؛ سنعيد المحاولة تلقائياً." />
             <StateView compact kind="error" title="تعذّر التحميل" body="الخدمة لم تستجب. أعد المحاولة بعد قليل." action={{ label: 'إعادة المحاولة', onClick: () => undefined }} />
+            <StateView compact kind="auth" title="هذه الصفحة تحتاج حساباً" body="سجّل الدخول لمزامنة بياناتك؛ ما تكتبه محلياً يبقى على جهازك." action={{ label: 'تسجيل الدخول', onClick: () => undefined }} secondary={'العودة إلى البوابة'} />
           </div>
           <AppCard className="p-4">
             <Skeleton className="h-6 w-40" />
@@ -490,6 +612,21 @@ export default function DesignSystemGallery() {
             <p className="text-mini text-muted-foreground">
               البداية في اليمين، السهم يتقدّم يساراً، والرجوع يميناً. الحقول والصفوف والقوائم كلها بخصائص منطقية.
             </p>
+          </AppCard>
+        </Section>
+
+        {/* ── 9. Live token inspector (developer readout) ──────────── */}
+        <Section label="9 · فحص الرموز الحيّة (مطوّر)">
+          <AppCard className="flex flex-col gap-4 p-4">
+            <p className="text-mini leading-relaxed text-muted-foreground">
+              القيم المحسوبة فعلاً على <code className="font-mono">{'<html>'}</code> بعد تطبيق تفضيلات
+              الكثافة والخط والحركة. هذه الأداة للتطوير فقط: مكانها هذا المعرض، لا شاشات الإعدادات.
+            </p>
+            <LiveTokenInspector />
+            <div className="flex flex-col gap-2">
+              <h2 className="text-section text-foreground">الحركة والأداء</h2>
+              <MotionInspector />
+            </div>
           </AppCard>
         </Section>
       </div>

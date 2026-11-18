@@ -7,7 +7,9 @@
 
 import { AnimatePresence } from 'framer-motion';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import PageHeader from '@/components/PageHeader';
 import { IconButton } from '@/components/ui/app-shell';
 import { StateView } from '@/components/ui/state-view';
 import { Filter, Search, Settings } from '@/lib/icons';
@@ -28,12 +30,12 @@ export default function TimeLedgerView() {
     toggleLayer,
     setEnabledLayers,
     filters,
-    setFilters,
     clearFilters,
     refetch,
   } = useTimeLedger();
 
   const { layers, getLayerConfig } = useTimeLedgerLayers();
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
 
@@ -65,19 +67,30 @@ export default function TimeLedgerView() {
   const handleSelectAllLayers = () => setEnabledLayers(layers.map(l => l.source));
   const handleClearAllLayers = () => setEnabledLayers([]);
 
-  // Loading skeleton
+  // Page identity is owned by one PageHeader for every state — loading,
+  // error and empty must still read as "سِجل الزمن", not as a bare slab.
+  const header = (
+    <PageHeader
+      title="سِجل الزمن"
+      subtitle="كل ما فعلته، مرتّباً على محور يومك"
+      hideBack
+    />
+  );
+
+  // Loading skeleton — reserves the shape of the loaded timeline.
   if (isLoading) {
     return (
-      <div className="space-y-4" role="status" aria-label="جاري تحميل السجل الزمني">
-        <h1 className="sr-only">سِجل الزمن</h1>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="animate-pulse space-y-3">
-            <div className="h-8 w-32 bg-muted/40 rounded" />
-            {[...Array(3)].map((_, j) => (
-              <div key={j} className="h-16 w-full bg-muted/20 rounded-xl border border-border/10" />
-            ))}
-          </div>
-        ))}
+      <div className="space-y-4">
+        {header}
+        <div role="status" aria-label="جاري تحميل السجل الزمني" className="space-y-3 pt-1">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse space-y-2">
+              <div className="h-6 w-28 rounded bg-muted/40" />
+              <div className="h-16 w-full rounded-xl border border-border/10 bg-muted/20" />
+              <div className="h-16 w-full rounded-xl border border-border/10 bg-muted/15" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -86,41 +99,41 @@ export default function TimeLedgerView() {
   if (status === 'error' && error) {
     return (
       <div className="space-y-4">
-        <h1 className="sr-only">سِجل الزمن</h1>
+        {header}
         <StateView
           kind="error"
+          compact
           title="تعذّر تحميل السجل الزمني"
           body={error.message || 'لم تستجب خدمة السجل. أعد المحاولة بعد قليل.'}
           action={{ label: 'إعادة المحاولة', onClick: refetch }}
+          secondary="لا شيء يضيع: السجل يُبنى من أنشطة مجالاتك المحفوظة."
         />
       </div>
     );
   }
 
-  // Empty state
+  // Empty / no-search-results state
   if (filteredDayGroups.length === 0) {
     return (
-      <div className="empty-state-surface flex flex-col items-center justify-center py-16 px-6 rounded-xl border border-dashed border-border/40 text-center" role="status">
-        <h1 className="sr-only">سِجل الزمن</h1>
-        <div className="relative w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-          <Search className="h-8 w-8 text-primary" />
-        </div>
-        <p className="text-meta font-bold text-foreground mb-1">
-          {searchText ? 'لا توجد نتائج للبحث' : 'السجل الزمني فارغ'}
-        </p>
-        <p className="text-mini text-muted-foreground max-w-[280px] leading-relaxed mb-6">
-          {searchText
-            ? 'جرب كلمات بحث مختلفة أو امسح الفلتر لعرض كل السجلات.'
-            : 'ابدأ يومك وستظهر أنشطتك هنا تلقائياً — من التقويم، العادات، اللياقة، الطقس، والمزيد.'}
-        </p>
-        {searchText && (
-          <button
-            type="button"
-            onClick={() => setSearchText('')}
-            className="px-4 py-2 text-mini font-bold rounded-md bg-primary text-primary-foreground"
-          >
-            مسح البحث
-          </button>
+      <div className="space-y-4">
+        {header}
+        {searchText ? (
+          <StateView
+            kind="search"
+            compact
+            title="لا نتائج لهذا البحث"
+            body="لا يطابق هذا النص أي إدخال في السجل. جرّب كلمة أقصر أو امسح البحث لعرض كل الأيام."
+            action={{ label: 'مسح البحث', onClick: () => setSearchText('') }}
+          />
+        ) : (
+          <StateView
+            kind="empty"
+            compact
+            title="السجل الزمني فارغ"
+            body="سيُبنى هذا السجل تلقائياً من نشاطك: التقويم، العادات، اللياقة، الطقس، والقراءة. ابدأ من البوابة وسيظهر هنا."
+            action={{ label: 'ابدأ من البوابة', onClick: () => navigate('/') }}
+            secondary="الإدخالات قابلة للبحث وتجميعها بالفلاتر أعلاه."
+          />
         )}
       </div>
     );
@@ -128,14 +141,13 @@ export default function TimeLedgerView() {
 
   return (
     <div className="space-y-4">
-      {/* Header Bar */}
+      {header}
+
+      {/* Toolbar — count + search + layer filters */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <h1 className="text-title font-bold text-foreground">سِجل الزمن</h1>
-          <span className="text-micro uppercase tracking-[0.15em] text-primary/90 font-bold tabular-nums" dir="ltr">
-            {dayGroups.reduce((sum, g) => sum + g.summary.total, 0)} إدخال
-          </span>
-        </div>
+        <p className="text-mini font-semibold text-muted-foreground tabular-nums">
+          {dayGroups.reduce((sum, g) => sum + g.summary.total, 0)} إدخال في السجل
+        </p>
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Search */}

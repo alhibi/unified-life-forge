@@ -267,26 +267,25 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
           )}
         </div>
 
-        {/* TERTIARY tier — compact facts along the bottom edge. */}
+        {/* TERTIARY tier — compact facts along the bottom edge, ordered by
+            what the reader acts on: rain next, then pressure, then direction. */}
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2">
           <MetricTile
+            tone={1}
+            label={'مطر ٦ ساعات'}
+            value={snapshot.precipitation.accumulation_6h_mm.toFixed(1)}
+            unit="mm"
+          />
+          <MetricTile
             tone={4}
-            label={'ضغط'}
+            label={'الضغط الجوي'}
             value={Math.round(snapshot.pressure.msl_hpa).toString()}
             unit="hPa"
           />
           <MetricTile
             tone={6}
-            label={'ميل'}
+            label={'اتجاه الضغط'}
             value={snapshot.pressure.tendency_label}
-            align="center"
-          />
-          <MetricTile
-            tone={1}
-            label={'مطر ٦س'}
-            value={snapshot.precipitation.accumulation_6h_mm.toFixed(1)}
-            unit="mm"
-            align="end"
           />
         </div>
       </div>

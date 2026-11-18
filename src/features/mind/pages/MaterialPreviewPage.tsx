@@ -101,6 +101,10 @@ export default function MaterialPreviewPage() {
         } as React.CSSProperties
       }
     >
+      {/* Full-bleed scene: the route still needs one semantic h1 even though
+          the visible title is the judging overlay. */}
+      <h1 className="sr-only">لوحة مواد العقل الحيّ</h1>
+
       <Canvas
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: 'high-performance' }}

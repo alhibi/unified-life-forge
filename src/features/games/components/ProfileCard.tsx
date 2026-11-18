@@ -19,7 +19,7 @@
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion';
 import { memo, useEffect } from 'react';
 
-import { AppCard, Stat, StatGrid } from '@/components/ui/app-shell';
+import { AppCard } from '@/components/ui/app-shell';
 import { Flame } from '@/lib/icons';
 import { EASE_OUT_QUAD } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -145,13 +145,14 @@ function ProfileCardImpl({ state }: Props) {
           </div>
         </div>
 
-        {/* ── Facts strip — the canonical stat grid ── */}
-        <StatGrid cols={4} className="mt-4 border-t border-border pt-3">
-          <Stat value={state.matches} label="جولات" />
-          <Stat value={`${winRate}٪`} label="نسبة الفوز" />
-          <Stat value={`${unlocked}/${ACHIEVEMENTS.length}`} label="إنجازات" />
-          <Stat value={state.streak.best} label="أفضل سلسلة" />
-        </StatGrid>
+        {/* ── Facts strip — one record line, not a dashboard of coloured
+            metric slabs. Tabular values stay on one line at 360px. ── */}
+        <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-3.5 xs:grid-cols-4">
+          <Fact value={state.matches} label="جولات" />
+          <Fact value={`${winRate}٪`} label="نسبة الفوز" />
+          <Fact value={`${unlocked}/${ACHIEVEMENTS.length}`} label="إنجازات" />
+          <Fact value={state.streak.best} label="أفضل سلسلة" />
+        </dl>
 
         {/* ── Activity: week dots + streak sentence + season sparkline ── */}
         <div className="mt-3 flex items-end justify-between gap-4 border-t border-border pt-3.5">
@@ -210,6 +211,17 @@ function ProfileCardImpl({ state }: Props) {
         </div>
       </div>
     </AppCard>
+  );
+}
+
+function Fact({ value, label }: { value: React.ReactNode; label: string }) {
+  return (
+    <div className="min-w-0">
+      <dd className="truncate text-title font-bold leading-none tabular-nums text-foreground" dir="ltr">
+        {value}
+      </dd>
+      <dt className="mt-1 text-micro text-muted-foreground">{label}</dt>
+    </div>
   );
 }
 

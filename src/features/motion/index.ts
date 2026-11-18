@@ -7,5 +7,6 @@
  */
 
 export { default as LiveMotionPreview } from './components/LiveMotionPreview';
+export { default as MotionInspector } from './components/MotionInspector';
 export { default as MotionSection } from './components/MotionSection';
 export { default as PerformancePanel } from './components/PerformancePanel';

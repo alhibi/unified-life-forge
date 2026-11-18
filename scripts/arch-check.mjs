@@ -227,11 +227,14 @@ for (const [key, actual] of Object.entries(counts)) {
   if (actual > allowed) {
     failed = true;
     console.error(`\n✗ ${key}: ${actual} (budget ${allowed}) — REGRESSION +${actual - allowed}`);
-    for (const item of measured[key].slice(0, 10)) {
+    // ARCH_VERBOSE prints every offending module so a one-line regression can
+    // be traced without editing the gate. Default output stays short.
+    const limit = process.env.ARCH_VERBOSE ? measured[key].length : 10;
+    for (const item of measured[key].slice(0, limit)) {
       console.error(`    ${Array.isArray(item) ? item.join(' ⇄ ') : item}`);
     }
-    if (measured[key].length > 10) {
-      console.error(`    … and ${measured[key].length - 10} more`);
+    if (measured[key].length > limit) {
+      console.error(`    … and ${measured[key].length - limit} more`);
     }
   } else if (actual < allowed) {
     console.log(`↓ ${key}: ${actual} (budget ${allowed}) — improved by ${allowed - actual}, lower the budget`);

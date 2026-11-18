@@ -58,9 +58,20 @@ import { Helmet } from 'react-helmet-async';
 
 import BackButton from '@/components/BackButton';
 import PageHeader from '@/components/PageHeader';
+import { AppCard } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
-import { Layers, RefreshCw, Settings, Sliders, Sun } from '@/lib/icons';
+import {
+  Clock,
+  CloudSun,
+  Layers,
+  MapPin,
+  RefreshCw,
+  Settings,
+  Sliders,
+  Sun,
+  Wind,
+} from '@/lib/icons';
 
 import { AQIGauge } from '../components/AQIGauge';
 import { Astronomics } from '../components/Astronomics';
@@ -127,23 +138,105 @@ function LoadingScreen() {
   );
 }
 
-function EmptyScreen({ onSelectCity }: { onSelectCity: (lat: number, lng: number, name: string) => void }) {
+/** What the dashboard gives the user — shown beside the no-location state so
+ *  the screen explains the product instead of ending in a void. */
+const WEATHER_BENEFITS = [
+  {
+    icon: CloudSun,
+    title: 'الحالة الآن',
+    body: 'درجة الحرارة، الإحساس الفعلي، المدى اليومي وحالة السماء.',
+  },
+  {
+    icon: Clock,
+    title: 'الساعات القادمة',
+    body: 'توقع حراري وهطول للساعات المقبلة، مع توقيت الشروق والغروب.',
+  },
+  {
+    icon: Wind,
+    title: 'جودة الهواء والرياح',
+    body: 'مؤشر تلوث الهواء، سرعة الرياح واتجاهها، وثقة الإجماع في الأرقام.',
+  },
+] as const;
+
+function EmptyScreen({
+  onSelectCity,
+  onUseMyLocation,
+}: {
+  onSelectCity: (lat: number, lng: number, name: string) => void;
+  onUseMyLocation: () => Promise<unknown>;
+}) {
+  const [requesting, setRequesting] = useState(false);
+
+  const handleUseLocation = async () => {
+    if (requesting) return;
+    setRequesting(true);
+    try {
+      await onUseMyLocation();
+    } finally {
+      setRequesting(false);
+    }
+  };
+
   return (
-    <div
-      className="weather-theme mx-auto flex min-h-dvh max-w-[var(--ui-workspace-max)] flex-col px-[var(--ui-gutter)] pb-page pt-4"
-      dir="rtl"
-    >
-      <PageHeader title="الطقس" subtitle="لوحة الأرصاد الجوية" />
-      <div className="weather-shell mx-auto mt-4 w-full max-w-[var(--ui-content-max)] p-6 sm:mt-10 sm:p-8">
-        <p className="text-mini font-semibold weather-copper-text">{'اختر موقعاً للبدء'}</p>
-        <h2 className="type-display mt-2 text-foreground">
-          {'أين تريد قراءة الطقس؟'}
-        </h2>
-        <p className="mt-3 text-body leading-relaxed text-muted-foreground">
-          {'لم نتمكن من تحديد موقعك تلقائياً. ابحث عن مدينتك لعرض الحالة والتوقعات الدقيقة.'}
-        </p>
-        <div className="mt-6">
-          <CitySearch onSelectCity={onSelectCity} userLocation={null} />
+    <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-4" dir="rtl">
+      <div className="mx-auto w-full max-w-[var(--ui-workspace-max)]">
+        <PageHeader title="الطقس" subtitle="لوحة الأرصاد الجوية" />
+
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <section className="weather-shell p-6 sm:p-8">
+            <p className="text-mini font-semibold weather-copper-text">{'اختر موقعاً للبدء'}</p>
+            <h2 className="type-display mt-2 text-foreground">
+              {'أين تريد قراءة الطقس؟'}
+            </h2>
+            <p className="mt-3 max-w-prose text-body leading-relaxed text-muted-foreground">
+              {'اسمح بالوصول إلى موقعك أو ابحث عن مدينتك، وسنعرض الحالة الآن، توقع الساعات القادمة، جودة الهواء والرياح — كلها في لوحة واحدة.'}
+            </p>
+
+            <div className="mt-6">
+              <Button
+                onClick={() => void handleUseLocation()}
+                isLoading={requesting}
+                loadingText={'نقرأ موقعك…'}
+                className="w-full gap-2 font-bold sm:w-auto"
+              >
+                <MapPin className="h-4 w-4" aria-hidden />
+                {'استخدم موقعي الحالي'}
+              </Button>
+              <p className="mt-2 text-mini leading-relaxed text-muted-foreground">
+                {'لن نطلب موقعك إلا الآن. يمكنك دائماً البحث عن مدينة بدلاً من ذلك.'}
+              </p>
+            </div>
+
+            <div className="my-6 flex items-center gap-3 text-micro text-muted-foreground-subtle">
+              <span className="h-px flex-1 bg-border/70" aria-hidden />
+              <span>{'أو ابحث عن مدينة'}</span>
+              <span className="h-px flex-1 bg-border/70" aria-hidden />
+            </div>
+
+            <CitySearch onSelectCity={onSelectCity} userLocation={null} />
+          </section>
+
+          <AppCard className="p-5">
+            <h2 className="text-title font-semibold text-foreground">{'ماذا تجد هنا؟'}</h2>
+            <p className="mt-1 text-mini leading-relaxed text-muted-foreground">
+              {'قياسات محلية دقيقة، لا أرقام عامة:'}
+            </p>
+            <ul className="mt-4 space-y-4">
+              {WEATHER_BENEFITS.map(({ icon: Icon, title, body }) => (
+                <li key={title} className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-4 w-4" aria-hidden />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-meta font-semibold text-foreground">{title}</span>
+                    <span className="mt-0.5 block text-mini leading-relaxed text-muted-foreground">
+                      {body}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </AppCard>
         </div>
       </div>
     </div>
@@ -170,14 +263,15 @@ function StickyHeader({
       <div className="mx-auto flex max-w-[var(--ui-workspace-max)] items-center gap-3 px-[var(--ui-gutter)] py-3">
         <BackButton />
         <div className="flex-1 min-w-0 text-center">
-          <h1 className="font-bold text-title leading-none text-foreground truncate">
+          {/* The h1 carries the route's identity; the place is context under
+              it, so a long city name can never clip the page title. */}
+          <h1 className="font-bold text-title leading-tight text-foreground">{'الطقس'}</h1>
+          <p className="mt-1 truncate text-micro font-semibold text-muted-foreground">
             {name}
-          </h1>
-          <p
-            className="mt-1.5 text-micro tracking-[0.18em] uppercase text-primary font-bold tabular-nums"
-            dir="ltr"
-          >
-            {Math.round(elevation)} m · {lat.toFixed(2)}, {lng.toFixed(2)}
+            <span className="mx-1 text-muted-foreground-subtle" aria-hidden>·</span>
+            <span dir="ltr" className="tabular-nums">
+              {Math.round(elevation)} m · {lat.toFixed(2)}, {lng.toFixed(2)}
+            </span>
           </p>
         </div>
         <Button
@@ -229,9 +323,19 @@ export default function Weather() {
   const locale = 'ar';
   const [activeMainTab, setActiveMainTab] = useState<TabId>('core');
 
-  const { location: deviceLoc } = useDeviceLocation();
+  const {
+    location: deviceLoc,
+    isFallback: deviceLocIsFallback,
+    requestLocation,
+  } = useDeviceLocation();
   const { selectedCoords, setSelectedCoords } = useWeatherLocation();
   const activeLocation = selectedCoords || deviceLoc;
+
+  // Honest label: when geolocation is denied the app falls back to Mecca; the
+  // header must say so instead of claiming "your current location".
+  const locationLabel =
+    selectedCoords?.name ||
+    (deviceLocIsFallback ? 'مكة المكرمة · الموقع الافتراضي' : 'موقعك الحالي');
 
   const { snapshot, status, tier, isRefreshing, refresh, dataAgeMinutes } =
     useWeather('ar', selectedCoords);
@@ -260,7 +364,10 @@ export default function Weather() {
   };
 
   if (status === 'loading' && !snapshot) return <LoadingScreen />;
-  if (!snapshot) return <EmptyScreen onSelectCity={handleCitySelect} />;
+  if (!snapshot)
+    return (
+      <EmptyScreen onSelectCity={handleCitySelect} onUseMyLocation={requestLocation} />
+    );
 
   return (
     <div dir={'rtl'} className="weather-theme min-h-dvh pb-page">
@@ -294,7 +401,7 @@ export default function Weather() {
       </Helmet>
 
       <StickyHeader
-        name={selectedCoords?.name || 'لوحة الأرصاد الجوية والفيزياء'}
+        name={locationLabel}
         elevation={snapshot.meta.location.elevation_m}
         lat={snapshot.meta.location.lat}
         lng={snapshot.meta.location.lng}
@@ -336,7 +443,7 @@ export default function Weather() {
                     <WeatherHeroRefined
                       snapshot={snapshot}
                       hourly={hourly}
-                      locationName={selectedCoords?.name || 'موقعك الحالي'}
+                      locationName={locationLabel}
                     />
                   </section>
                   <Section

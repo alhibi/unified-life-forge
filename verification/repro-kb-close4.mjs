@@ -1,0 +1,20 @@
+import { chromium } from '@playwright/test';
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, locale: 'ar' });
+const p = await ctx.newPage();
+await p.goto('http://127.0.0.1:5199/settings/keyboard', { waitUntil: 'networkidle' });
+await p.waitForTimeout(400);
+const label = () => p.evaluate(() => {
+  const b = [...document.querySelectorAll('button')].find(x => (x.getAttribute('aria-label') || '').includes('لوحة المفاتيح') && x.closest('.app-card'));
+  return { label: b ? b.getAttribute('aria-label') : null, pressed: b ? b.getAttribute('aria-pressed') : null, attrs: document.documentElement.getAttribute('data-soft-keyboard-open') };
+});
+console.log('BEFORE', JSON.stringify(await label()));
+await p.getByRole('button', { name: 'فتح لوحة المفاتيح للتجربة' }).click();
+await p.waitForTimeout(700);
+console.log('AFTER OPEN', JSON.stringify(await label()));
+await p.getByRole('button', { name: /لوحة المفاتيح/ }).first().click();
+await p.waitForTimeout(100);
+console.log('AFTER CLICK 100ms', JSON.stringify(await label()));
+await p.waitForTimeout(1200);
+console.log('AFTER CLICK 1.3s', JSON.stringify(await label()));
+await b.close();

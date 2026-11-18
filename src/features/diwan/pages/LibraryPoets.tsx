@@ -5,6 +5,7 @@ import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppList, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
+import { SkeletonList } from '@/components/ui/skeleton';
 import { StateView } from '@/components/ui/state-view';
 import EraPills from '@/features/diwan/components/library/EraPills';
 import FallbackBadge from '@/features/diwan/components/library/FallbackBadge';
@@ -88,12 +89,14 @@ export default function LibraryPoetsPage() {
 
       <PageHeader
         variant="display"
-        eyebrow="محراب · الأدب"
-        title={eraLabel ? `شعراء ${eraLabel}` : 'المكتبة الكبرى'}
+        eyebrow="الديوان · المكتبة"
+        title={'شجرة الشعراء'}
         subtitle={
-          list.length > 0 ? `${list.length}${reachedEnd ? '' : '+'} شاعر في هذه النسخة` : undefined
+          list.length > 0
+            ? `${list.length}${reachedEnd ? '' : '+'} شاعراً${eraLabel ? ` · ${eraLabel}` : ''}`
+            : eraLabel ?? 'مرتّبون بالعصور'
         }
-        backFallback="/mihrab"
+        backFallback="/diwan"
       >
         <FallbackBadge />
       </PageHeader>
@@ -106,11 +109,8 @@ export default function LibraryPoetsPage() {
 
       {/* List */}
       {poets.isLoading ? (
-        <div className="space-y-2 pt-1">
-          <div className="skeleton h-16 rounded-lg" />
-          <div className="skeleton h-16 rounded-lg" />
-          <div className="skeleton h-16 rounded-lg" />
-          <div className="skeleton h-16 rounded-lg" />
+        <div className="pt-1" role="status" aria-busy="true">
+          <SkeletonList rows={4} />
         </div>
       ) : list.length === 0 ? (
         <StateView

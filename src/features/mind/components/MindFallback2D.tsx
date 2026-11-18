@@ -15,7 +15,10 @@ export default function MindFallback2D({ mind }: { mind: MindState }) {
   return (
     <div
       className="w-full h-full flex items-center justify-center"
-      style={{ backgroundColor: 'hsl(var(--theme-ink))' }}
+      // The 3-D scene renders on the living-mind void; the fallback must use
+      // the same dark material, not the theme ink (near-white in dark mode,
+      // which turned this panel into a white slab under reduced motion).
+      style={{ backgroundColor: MIND_TOKENS.void }}
     >
       <svg viewBox="-160 -160 320 320" className="w-full h-full max-w-[520px] max-h-[520px]">
         <defs>

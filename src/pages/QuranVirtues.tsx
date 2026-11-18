@@ -1,20 +1,24 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
 import { AppList, PageShell } from '@/components/ui/app-shell';
-import { BookOpen, Sparkles } from '@/lib/icons';
-import { pageItem as itemAnim, pageStagger as container } from '@/lib/motion';
+import { Button } from '@/components/ui/button';
+import { arabicDigits } from '@/features/mihrab/lib/arabicDigits';
+import { BookOpen, ChevronLeft } from '@/lib/icons';
 
-// أسماء السور - سيتم إضافة المحتوى الداخلي لاحقاً
-const surahNames = [
-  'الفاتحة', 'البقرة', 'الكهف', 'الملك',
-  'الكافرون', 'الإخلاص', 'الفلق والناس', 'هود',
-  'الإسراء', 'الفتح',
-];
-
-// عناوين فضائل القرآن - سيتم إضافة التفاصيل لاحقاً
+/**
+ * /section/quran-virtues — a reading list of the virtues of the Qur'an.
+ *
+ * The previous version opened with a ten-chip grid of sūrah names; tapping one
+ * flashed «قريباً» and did nothing (a dead CTA), and the grid was the loudest
+ * thing on a page whose actual content is fourteen short texts. That section is
+ * gone. What remains is one quiet numbered reading list, plus a real next step
+ * into the muṣḥaf index.
+ *
+ * The virtue texts are unchanged, verbatim.
+ */
 const quranVirtues = [
   'أن أهل القرآن هم أهل الله',
   'أن ثواب تلاوة القرآن أعظم من أنفس أموال الدنيا',
@@ -33,90 +37,46 @@ const quranVirtues = [
 ];
 
 export default function QuranVirtues() {
-  const [tappedSurah, setTappedSurah] = useState<number | null>(null);
-
-  const handleSurahTap = (i: number) => {
-    setTappedSurah(i);
-    setTimeout(() => setTappedSurah(null), 1500);
-  };
-
   return (
-    <PageShell flush centered={false} className="px-4 pt-2">
+    <PageShell
+      header={
+        <PageHeader
+          variant="display"
+          title="فضائل القرآن"
+          subtitle="أربع عشرة فضيلة في تلاوة القرآن وحفظه وأهله"
+          backFallback="/sunnah"
+        />
+      }
+    >
       <SEO title="فضائل القرآن الكريم — SmartHub" description="فضائل تلاوة وحفظ القرآن الكريم وأهل القرآن مع سور مختارة." path="/section/quran-virtues" />
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-page">
-        {/* Header */}
-        <PageHeader sticky title="فضائل القرآن" />
 
-        <div className="pt-2 space-y-5">
-        {/* Section 1: فضل سور القرآن */}
-        <div className="space-y-4">
-          {/* Title - icon right, text left */}
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" aria-hidden />
-            <h2 className="text-body font-bold text-foreground">فضل سور القرآن</h2>
-          </div>
-
-          {/* Surah chips - 4 columns grid RTL */}
-          <div className="grid grid-cols-4 gap-2">
-            {surahNames.map((name, i) => (
-              <motion.button
-                key={i}
-                onClick={() => handleSurahTap(i)}
-                className="relative px-2 py-2.5 rounded-lg border border-border/60 bg-secondary text-mini font-semibold text-foreground hover:bg-accent transition-colors text-center overflow-hidden"
+      <section aria-label="فضائل القرآن">
+        <AppList>
+          {quranVirtues.map((virtue, index) => (
+            <div key={index} className="app-row items-start">
+              <span
+                className="w-8 shrink-0 pt-0.5 text-mini font-semibold tabular-nums text-muted-foreground-subtle"
+                aria-hidden
               >
-                <AnimatePresence>
-                  {tappedSurah === i && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-secondary text-mini text-secondary-muted font-bold"
-                    >
-                      قريباً
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                {name}
-              </motion.button>
-            ))}
-          </div>
-        </div>
+                {arabicDigits(index + 1)}
+              </span>
+              <p className="flex-1 text-body leading-loose text-foreground">{virtue}</p>
+            </div>
+          ))}
+        </AppList>
+      </section>
 
-        {/* Divider with dot */}
-        <div className="flex items-center gap-0 py-1">
-          <div className="h-px flex-1 bg-border/40" />
-          <div className="w-2 h-2 rounded-full bg-primary mx-2" aria-hidden />
-          <div className="h-px flex-1 bg-border/40" />
-        </div>
-
-        {/* Section 2: فضائل القرآن */}
-        <div className="space-y-4">
-          {/* Title - icon right, text left */}
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" aria-hidden />
-            <h2 className="text-body font-bold text-foreground">فضائل القرآن</h2>
-          </div>
-
-          <motion.div variants={container} initial="hidden" animate="show">
-            <AppList>
-              {quranVirtues.map((virtue, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemAnim}
-                  className="app-row items-center"
-                >
-                  {/* Number on the right (first in RTL) */}
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-primary/15">
-                    <span className="text-meta font-bold text-primary tabular-nums">{index + 1}</span>
-                  </div>
-                  {/* Text */}
-                  <p className="flex-1 text-meta font-medium text-foreground text-end leading-relaxed">{virtue}</p>
-                </motion.div>
-              ))}
-            </AppList>
-          </motion.div>
-        </div>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-track pt-4">
+        <p className="text-meta text-muted-foreground">
+          اقرأ السور كاملةً في فهرس المصحف.
+        </p>
+        <Button asChild variant="outline">
+          <Link to="/quran">
+            <BookOpen className="h-4 w-4" aria-hidden />
+            فهرس المصحف
+            <ChevronLeft className="h-4 w-4" aria-hidden />
+          </Link>
+        </Button>
       </div>
     </PageShell>
   );

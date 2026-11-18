@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { StateView } from '@/components/ui/state-view';
 
 import { ArticleCard } from './ArticleCard';
@@ -473,23 +474,53 @@ export function ArticleListGrouped({
 
   // ─── Stalled-load guard ──────────────────────────────────────────────
   // A hung network call would otherwise leave the skeleton shimmering
-  // forever. After 12 s with no articles we stop pretending and show a
-  // plain message with a retry button instead of a frozen screen.
+  // forever. The first sync is the only step that can block this long, so
+  // after 4 s with no articles we stop pretending and hand the user a real
+  // retry/offline state instead of a frozen screen.
   const [stalled, setStalled] = useState(false);
   useEffect(() => {
     if (!loading || articles.length > 0) {
       setStalled(false);
       return;
     }
-    const t = window.setTimeout(() => setStalled(true), 12_000);
+    const t = window.setTimeout(() => setStalled(true), 4_000);
     return () => window.clearTimeout(t);
   }, [loading, articles.length]);
 
   // ─── Render ───────────────────────────────────────────────────────────
+  // First load is a composed state, not a wall of shimmer: it says what is
+  // happening, reserves only two rows of space, and keeps the two real
+  // escapes (refresh / browse sources) reachable while the archive opens.
   if (loading && articles.length === 0 && !stalled) {
     return (
-      <div ref={containerRef} className="flex-1 overflow-y-auto">
-        <ArticleListSkeleton count={6} />
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <div className="pt-4 pb-3 app-divider-b">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="type-section text-foreground">جارٍ فتح أرشيف القراءة</h2>
+            <span className="text-micro tabular-nums text-muted-foreground-subtle shrink-0">
+              {'أول تحميل'}
+            </span>
+          </div>
+          <p className="mt-1 text-mini leading-relaxed text-muted-foreground">
+            {'نستعيد المقالات المحفوظة على جهازك ثم نتحقّق من المصادر. إن تعذّر الوصول تبقى نسختك المحفوظة متاحة.'}
+          </p>
+        </div>
+        <ArticleListSkeleton count={2} />
+        <div className="flex flex-wrap items-center gap-2 pt-4">
+          <Button size="sm" variant="secondary" onClick={onRefresh} disabled={refreshing}>
+            {'تحديث الآن'}
+          </Button>
+          {onAddFeeds && (
+            <Button size="sm" variant="ghost" onClick={onAddFeeds}>
+              {'تصفّح المصادر'}
+            </Button>
+          )}
+        </div>
       </div>
     );
   }

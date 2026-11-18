@@ -46,6 +46,14 @@ const SplitWorkspace = lazy(() => import('@/components/SplitWorkspace'));
 // routes; keeping it out of the entry chunk leaves the launcher's budget
 // untouched for visitors who never open either one.
 const AuthGuard = lazy(() => import('@/components/AuthGuard'));
+// Signed-out composition for /journal. Page-local and injected through
+// AuthGuard's additive `fallback` slot, so the shared gate keeps its default
+// behaviour for every other protected route.
+const JournalGate = lazy(() =>
+  import('@/features/journal/components/JournalGate').then((module) => ({
+    default: module.JournalGate,
+  })),
+);
 // The in-app keyboard carries its own layouts/theme tables and only ever
 // mounts on coarse-pointer touch devices — load it off the critical path.
 const KeyboardProvider = lazy(() => import('@/features/keyboard/KeyboardProvider'));
@@ -909,6 +917,11 @@ function AnimatedRoutes() {
                             otherwise a signed-out visitor can compose an entry
                             that the API rejects with `not_authenticated`. */}
                         <AuthGuard
+                          fallback={
+                            <Suspense fallback={<PageSkeleton />}>
+                              <JournalGate />
+                            </Suspense>
+                          }
                           fallbackTitleAr="سجّل الدخول إلى مذكرتك"
                           fallbackDescAr="مذكرتك خاصة بحسابك وتُحفظ فيه لتصل إليها من أي جهاز. سجّل الدخول لتبدأ الكتابة."
                         >
