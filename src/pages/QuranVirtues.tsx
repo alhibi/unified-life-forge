@@ -70,7 +70,7 @@ export default function QuranVirtues() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-secondary text-mini text-muted-foreground font-bold"
+                      className="absolute inset-0 flex items-center justify-center bg-secondary text-mini text-secondary-muted font-bold"
                     >
                       قريباً
                     </motion.span>

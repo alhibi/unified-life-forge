@@ -1538,7 +1538,7 @@ export default function ChessPage() {
   ];
 
   const timerDisplay = (
-    <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary px-2.5 py-1 rounded-full tabular-nums">
+    <div className="flex items-center gap-1 text-mini text-secondary-muted bg-secondary px-2.5 py-1 rounded-full tabular-nums">
       <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
     </div>
   );
@@ -1720,7 +1720,7 @@ export default function ChessPage() {
               ? ('دور الأبيض')
               : ('دور الأسود')}
           </span>
-          <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
+          <div className="flex items-center gap-1 text-mini text-secondary-muted bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
           </div>
         </div>

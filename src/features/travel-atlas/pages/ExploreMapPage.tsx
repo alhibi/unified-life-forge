@@ -190,6 +190,7 @@ export default function ExploreMapPage() {
 
   return (
     <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
+      <h1 className="sr-only">استكشف — أطلس الرحلات</h1>
       <SEO
         title="استكشف — أطلس الرحلات"
         description="خريطة تفصيلية كاملة: ابحث، تنقّل، وأضف أي مكان إلى أطلسك."

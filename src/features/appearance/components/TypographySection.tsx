@@ -158,7 +158,7 @@ export default function TypographySection() {
                 className={`rounded-sm px-3 py-1.5 text-mini font-medium transition-colors ${
                   isActive
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-muted-foreground'
+                    : 'bg-secondary text-secondary-muted'
                 }`}
               >
                 {pairing.label}
@@ -347,7 +347,7 @@ export default function TypographySection() {
             .map((chip, i) => (
               <span
                 key={`${i}-${chip}`}
-                className="rounded-sm bg-secondary px-2 py-1 text-micro text-muted-foreground"
+                className="rounded-sm bg-secondary px-2 py-1 text-micro text-secondary-muted"
               >
                 {chip}
               </span>

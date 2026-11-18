@@ -1,7 +1,7 @@
 {
   "cycles": 2,
   "orphans": 25,
-  "crossFeatureImports": 6,
+  "crossFeatureImports": 4,
   "rawSupabaseUsage": 55,
   "rawSupabaseEnvUsage": 1
 }

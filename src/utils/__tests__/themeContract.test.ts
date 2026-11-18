@@ -37,6 +37,7 @@ const COLOR_ROLES = [
   '--on-primary-container',
   '--secondary',
   '--secondary-foreground',
+  '--secondary-muted-foreground',
   '--tertiary',
   '--tertiary-container',
   '--on-tertiary-container',

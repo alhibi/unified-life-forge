@@ -214,7 +214,7 @@ export default function ChessCareerPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={`text-micro font-mono px-1.5 py-0.5 rounded ${
-                      beaten ? 'bg-data-1/15 text-data-1' : 'bg-secondary text-muted-foreground'
+                      beaten ? 'bg-data-1/15 text-data-1' : 'bg-secondary text-secondary-muted'
                     }`}>
                       #{idx + 1}
                     </span>

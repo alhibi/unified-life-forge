@@ -253,7 +253,7 @@ const StopCard: React.FC<StopCardProps> = ({ stop }) => {
         <span className="rounded-full bg-secondary px-2 py-0.5 text-foreground">
           {DictionaryWordTypeLabels[entry.word_type]}
         </span>
-        <span className="flex items-center gap-1 rounded-full bg-secondary/50 px-2 py-0.5 text-muted-foreground">
+        <span className="flex items-center gap-1 rounded-full bg-secondary/50 px-2 py-0.5 text-secondary-muted">
           <MapPin className="h-2.5 w-2.5" aria-hidden />
           {entry.category}
         </span>

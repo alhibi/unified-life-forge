@@ -109,7 +109,7 @@ export default function IconsSection() {
                 <div className="flex items-center gap-3">
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md ${
-                      isActive ? 'bg-primary/15 text-primary' : 'bg-secondary text-muted-foreground'
+                      isActive ? 'bg-primary/15 text-primary' : 'bg-secondary text-secondary-muted'
                     }`}
                   >
                     <Feather className="h-4 w-4" aria-hidden />
@@ -142,7 +142,7 @@ export default function IconsSection() {
         </div>
 
         <div className="rounded-md border border-border bg-secondary px-3 py-2">
-          <span className="block text-micro font-bold text-muted-foreground">معاينة موسّعة</span>
+          <span className="block text-micro font-bold text-secondary-muted">معاينة موسّعة</span>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-foreground">
             {[...SAMPLE, ...EXTRA].map((Icon, i) => (
               <Icon key={i} className="h-5 w-5" aria-hidden />

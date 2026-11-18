@@ -72,7 +72,7 @@ function categoryLabel(cat: string): string {
 }
 
 function categoryColor(cat: string): string {
-  return CATEGORY_COLORS[cat] ?? 'bg-secondary/40 text-muted-foreground border-border/50';
+  return CATEGORY_COLORS[cat] ?? 'bg-secondary/40 text-secondary-muted border-border/50';
 }
 
 const PRICE_LABELS = ['مجاني', 'رخيص', 'متوسط', 'مرتفع', 'فاخر'];

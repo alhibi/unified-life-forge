@@ -25,8 +25,21 @@ export const GrammarCorner: React.FC = () => {
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 pb-page">
         {/* App Bar */}
         <PageHeader
-          title="زاوية القواعد (Grammar Corner)"
-          subtitle={<span className="font-mono">GRAMMATIK — DER CLUB</span>}
+          title={
+            // Isolate the German half so the PageHeader's RTL truncation
+            // clips it as a run instead of leaving a stray "(r…".
+            <>
+              زاوية القواعد{' '}
+              <span dir="ltr" lang="de" className="inline-block">
+                (Grammar Corner)
+              </span>
+            </>
+          }
+          subtitle={
+            <span className="font-mono" dir="ltr" lang="de">
+              GRAMMATIK — DER CLUB
+            </span>
+          }
           right={
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-mini font-bold text-primary">
               <BookOpen className="h-3.5 w-3.5" aria-hidden />
@@ -60,6 +73,7 @@ export const GrammarCorner: React.FC = () => {
                         <span
                           className="font-mono text-mini font-semibold text-primary"
                           dir="ltr"
+                          lang="de"
                           style={{ unicodeBidi: 'isolate' }}
                         >
                           {note.title_de}

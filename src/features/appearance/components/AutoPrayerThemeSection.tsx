@@ -163,7 +163,7 @@ export default function AutoPrayerThemeSection() {
                                   className={`flex-1 rounded-md py-1.5 text-mini font-medium transition-colors ${
                                     cur?.mode === m
                                       ? 'bg-primary text-primary-foreground'
-                                      : 'bg-secondary text-muted-foreground'
+                                      : 'bg-secondary text-secondary-muted'
                                   }`}
                                 >
                                   {m === 'light' ? 'فاتح' : 'داكن'}

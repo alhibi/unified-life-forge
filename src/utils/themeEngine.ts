@@ -1046,6 +1046,19 @@ export function generateThemeTokens(
   const secondarySurface = mixHsl(companion, surfHsl, art.companionPresence[isDark ? 1 : 0]);
   const secondaryStr = hslToString(secondarySurface);
   const secondaryFgStr = hslToString(ensureContrast(inkHsl, secondarySurface, 4.55));
+  // Supporting text drawn ON a secondary surface. --muted-foreground is
+  // calibrated against the page and the card, not against the mid-tone
+  // secondary plane, so using it there measured ~2.7:1 in dark mode. This
+  // token starts from the ink, is softened toward the surface, then is pulled
+  // back until it clears AA on that surface: quiet, but readable by
+  // construction rather than by luck.
+  const secondaryMutedStr = hslToString(
+    ensureContrast(
+      mixHsl(inkHsl, secondarySurface, isDark ? 0.62 : 0.72),
+      secondarySurface,
+      4.55,
+    ),
+  );
   const mutedStr = solid(inkHsl, bgHsl, isDark ? 0.11 : 0.08);
   // Secondary text: mixed, then contrast-verified to AA (4.5:1) on the page.
   const mutedFgStr = hslToString(
@@ -1242,6 +1255,7 @@ export function generateThemeTokens(
     '--popover-foreground': hslToString(overlayInk),
     '--secondary': secondaryStr,
     '--secondary-foreground': secondaryFgStr,
+    '--secondary-muted-foreground': secondaryMutedStr,
     '--muted': mutedStr,
     '--muted-foreground': mutedFgStr,
     // Drop-in replacement for the old `text-muted-foreground/70` idiom: same

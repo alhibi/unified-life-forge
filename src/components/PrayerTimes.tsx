@@ -83,8 +83,6 @@ const PRAYER_DOT: Record<PrayerKey, string> = {
 
 // Makruh (disliked-time) palette — maps to the shared status tokens.
 const MAKRUH_RED = 'hsl(var(--destructive))';
-const MAKRUH_BADGE_AMBER = 'hsl(var(--warning))';
-const MAKRUH_BADGE_RED = 'hsl(var(--destructive))';
 const MAKRUH_TINT_SOLAR = 'hsl(var(--destructive) / 0.12)'; // zawal
 const MAKRUH_TINT_HORIZON = 'hsl(var(--warning) / 0.12)'; // sunrise/sunset
 
@@ -915,7 +913,7 @@ function ArcStrip({
         <div className="absolute bottom-2 start-[18px] flex items-center gap-1 pointer-events-none">
           <SunriseIcon className="h-[18px] w-[18px] text-[hsl(var(--primary))] opacity-70" />
           <div className="flex flex-col leading-none">
-            <span className="text-micro font-medium leading-none text-muted-foreground-subtle">
+            <span className="text-micro font-medium leading-none text-muted-foreground">
               {t('prayer.makruh.sunrise')}
             </span>
             <span
@@ -930,7 +928,7 @@ function ArcStrip({
       {sunsetStr && (
         <div className="absolute bottom-2 end-[18px] flex items-center gap-1 pointer-events-none">
           <div className="flex flex-col items-end leading-none">
-            <span className="text-micro font-medium leading-none text-muted-foreground-subtle">
+            <span className="text-micro font-medium leading-none text-muted-foreground">
               {t('prayer.makruh.sunset')}
             </span>
             <span
@@ -947,14 +945,11 @@ function ArcStrip({
       {/* Makruh badge top-right */}
       {currentMakruh && (
         <div
-          className="absolute top-1.5 end-2 px-1.5 py-0.5 rounded text-micro font-bold tracking-wide"
-          style={{
-            backgroundColor:
-              currentMakruh.label === 'Zawal'
-                ? 'hsl(var(--destructive) / 0.19)'
-                : 'hsl(var(--warning) / 0.19)',
-            color: currentMakruh.label === 'Zawal' ? MAKRUH_BADGE_RED : MAKRUH_BADGE_AMBER,
-          }}
+          className={
+            currentMakruh.label === 'Zawal'
+              ? 'absolute top-1.5 end-2 rounded border border-destructive/50 bg-destructive/15 px-1.5 py-0.5 text-micro font-bold tracking-wide text-foreground'
+              : 'absolute top-1.5 end-2 rounded border border-warning/50 bg-warning/15 px-1.5 py-0.5 text-micro font-bold tracking-wide text-foreground'
+          }
         >
           {t('prayer.makruh').toUpperCase()} ·{' '}
           {t(`prayer.makruh.${currentMakruh.label.toLowerCase()}`)}

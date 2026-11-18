@@ -150,7 +150,13 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
         {entry.word_type === 'noun' && entry.noun_forms && (
           <div className="space-y-2 rounded-lg border border-track bg-secondary/40 p-4">
             <h4 className="text-mini font-bold uppercase tracking-wider text-primary">
-              الصيغ الإعرابية والجمع (Grammatische Formen)
+              الصيغ الإعرابية والجمع{' '}
+              {/* Same mixed-direction label as Wort des Tages: an unisolated
+                  German run inside RTL reverses its own parentheses when it
+                  wraps. dir/lang keep the run intact and pronounceable. */}
+              <span dir="ltr" lang="de" className="inline-block">
+                (Grammatische Formen)
+              </span>
             </h4>
             <div className="grid grid-cols-1 gap-3 text-mini sm:grid-cols-2">
               {entry.noun_forms.plural_form && (
@@ -233,7 +239,7 @@ export const DictionaryDetailModal: React.FC<DictionaryDetailModalProps> = ({
                   </div>
                   <p className="text-mini font-medium text-muted-foreground">„{ex.ar}"</p>
                   {ex.context && (
-                    <span className="inline-block rounded bg-secondary px-2 py-0.5 text-micro text-muted-foreground">
+                    <span className="inline-block rounded bg-secondary px-2 py-0.5 text-micro text-secondary-muted">
                       السياق: {ex.context}
                     </span>
                   )}

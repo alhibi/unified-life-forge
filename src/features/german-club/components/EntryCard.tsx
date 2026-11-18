@@ -126,7 +126,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({ entry }) => {
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-track pt-2">
           <div className="flex items-center gap-2">
             {entry.register && entry.register !== 'neutral' && (
-              <span className="rounded-md bg-secondary px-2 py-0.5 text-micro font-medium text-muted-foreground">
+              <span className="rounded-md bg-secondary px-2 py-0.5 text-micro font-medium text-secondary-muted">
                 {REGISTER_LABELS_AR[entry.register]}
               </span>
             )}

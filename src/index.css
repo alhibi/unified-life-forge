@@ -220,6 +220,8 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
 
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
+  /* Supporting text on a secondary surface (see themeEngine). */
+  --color-secondary-muted: hsl(var(--secondary-muted-foreground));
 
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));

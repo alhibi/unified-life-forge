@@ -112,7 +112,7 @@ export default function LiveMotionPreview({ revision, navStyle }: LiveMotionPrev
         {Array.from({ length: 14 }, (_, cell) => (
           <div
             key={cell}
-            className="flex h-14 w-20 shrink-0 items-center justify-center rounded-md bg-secondary text-mini tabular-nums text-muted-foreground"
+            className="flex h-14 w-20 shrink-0 items-center justify-center rounded-md bg-secondary text-mini tabular-nums text-secondary-muted"
           >
             {cell + 1}
           </div>

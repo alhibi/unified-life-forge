@@ -181,13 +181,13 @@ export function ProfileInsightsPanel({
                         {insight.relatedBadges.slice(0, 4).map((badgeId: string) => (
                           <span
                             key={badgeId}
-                            className="px-2 py-0.5 rounded-full text-micro font-bold bg-secondary text-muted-foreground"
+                            className="px-2 py-0.5 rounded-full text-micro font-bold bg-secondary text-secondary-muted"
                           >
                             {badgeId.replace('badge_', '').replace(/_/g, ' ')}
                           </span>
                         ))}
                         {insight.relatedBadges.length > 4 && (
-                          <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-secondary text-muted-foreground">
+                          <span className="px-2 py-0.5 rounded-full text-micro font-bold bg-secondary text-secondary-muted">
                             +{insight.relatedBadges.length - 4}
                           </span>
                         )}

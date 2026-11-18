@@ -116,6 +116,7 @@ export default function MindPage() {
         } as CSSProperties
       }
     >
+      <h1 className="sr-only">العقل الحيّ</h1>
       <SEO
         title={'العقل الحيّ — الأرشيف العصبي'}
         description={'مساحة تأمّلية تجسّد ملاحظاتك عقلًا ثنائي النصفين ينمو مع الوقت.'}

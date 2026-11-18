@@ -40,8 +40,8 @@ const ICONS: Record<StateKind, typeof Archive> = {
 const RETRY_KINDS: ReadonlySet<StateKind> = new Set(['error', 'offline']);
 
 const TONE: Record<StateKind, string> = {
-  empty: 'text-muted-foreground',
-  search: 'text-muted-foreground',
+  empty: 'text-secondary-muted',
+  search: 'text-secondary-muted',
   offline: 'text-primary',
   error: 'text-destructive',
 };
@@ -126,7 +126,7 @@ export function StateView({
       )}
 
       <h3 className="text-meta font-semibold text-foreground">{title}</h3>
-      <p className="max-w-sm text-mini leading-relaxed text-muted-foreground">{body}</p>
+      <p className="max-w-sm text-mini leading-relaxed text-secondary-muted">{body}</p>
 
       {children}
 
@@ -155,7 +155,7 @@ export function StateView({
             </button>
           )}
 
-          {secondary && <div className="mt-1 text-micro text-muted-foreground">{secondary}</div>}
+          {secondary && <div className="mt-1 text-micro text-secondary-muted">{secondary}</div>}
         </>
       )}
     </div>

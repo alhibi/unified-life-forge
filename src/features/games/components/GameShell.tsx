@@ -68,14 +68,14 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
             <Button variant="ghost"
               onClick={toggleMute}
               aria-label={'كتم الصوت'}
-              size="icon" aria-pressed={!muted} className={muted ? 'bg-secondary text-muted-foreground' : 'bg-primary-container text-on-primary-container'}
+              size="icon" aria-pressed={!muted} className={muted ? 'bg-secondary text-secondary-muted' : 'bg-primary-container text-on-primary-container'}
             >
               {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </Button>
             <Button variant="ghost"
               onClick={toggleHap}
               aria-label={'اهتزاز'}
-              size="icon" aria-pressed={!hapticsOff} className={hapticsOff ? 'bg-secondary text-muted-foreground' : 'bg-primary-container text-on-primary-container'}
+              size="icon" aria-pressed={!hapticsOff} className={hapticsOff ? 'bg-secondary text-secondary-muted' : 'bg-primary-container text-on-primary-container'}
             >
               <Vibrate className="w-3.5 h-3.5" />
             </Button>
@@ -94,7 +94,7 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
               <Button variant="ghost"
                 key={tab.id}
                 onClick={() => setActiveTab(isActive ? null : tab.id)}
-                aria-pressed={isActive} className={isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}
+                aria-pressed={isActive} className={isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-muted'}
 
               >
                 <TabIcon className="w-3 h-3" />
@@ -165,7 +165,7 @@ export default function GameShell({ title, icon: Icon, accentColor: _accentColor
                         <Button variant="ghost"
                           key={choice.value}
                           onClick={() => opt.onChange(choice.value)}
-                          aria-pressed={opt.current === choice.value} className={opt.current === choice.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}
+                          aria-pressed={opt.current === choice.value} className={opt.current === choice.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-muted'}
 
                         >
                           {choice.label}

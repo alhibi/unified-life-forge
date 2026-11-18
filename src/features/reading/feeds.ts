@@ -349,6 +349,12 @@ export const SUGGESTED_FEEDS: FeedSource[] = [
 ];
 
 
+/**
+ * The persisted category ids and their Arabic display labels. The id is the
+ * filter identity (stored on `FeedSource.category`); only the visible label
+ * is translated. Keep this list exhaustive: every id used by DEFAULT_FEEDS,
+ * SUGGESTED_FEEDS and the default folders must appear here.
+ */
 export const CATEGORIES: { id: string; ar: string; en: string }[] = [
   { id: 'news', ar: 'أخبار', en: 'News' },
   { id: 'tech', ar: 'تقنية', en: 'Tech' },
@@ -365,3 +371,17 @@ export const CATEGORIES: { id: string; ar: string; en: string }[] = [
   { id: 'environment', ar: 'بيئة', en: 'Environment' },
   { id: 'other', ar: 'أخرى', en: 'Other' },
 ];
+
+const CATEGORY_LABEL_AR = new Map(CATEGORIES.map((c) => [c.id, c.ar]));
+
+/**
+ * Arabic display label for a persisted category id.
+ *
+ * The id is what filters and storage compare; this only changes what the user
+ * reads. Unknown ids (a folder the user created themselves) fall through
+ * unchanged — never title-cased, never replaced by an English slug. Known ids
+ * can never leak their raw slug to the UI.
+ */
+export function categoryLabelAr(id: string): string {
+  return CATEGORY_LABEL_AR.get(id) ?? id;
+}

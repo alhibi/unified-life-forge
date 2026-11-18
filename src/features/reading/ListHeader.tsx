@@ -2,35 +2,20 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { IconButton } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
-  Archive,
-  Bell,
   Bookmark,
-  CheckCheck,
-  ChevronLeft,
-  Compass,
   FolderOpen,
-  MoreHorizontal,
-  Newspaper,
   Plus,
   RefreshCw,
   Search,
-  Settings2,
   Trash2,
-  Type,
   X,
 } from '@/lib/icons';
 
+import { categoryLabelAr } from './feeds';
 import { getCustomFolders, storeCustomFolders } from './foldersStorage';
 import type { ListPrefs } from './listPrefs';
 import { ReadingPrefsToolbar } from './ReadingPrefsToolbar';
@@ -38,37 +23,30 @@ import { SourcePill } from './SourcePill';
 import type { FeedSource, FilterTab } from './types';
 
 /**
- * Sticky page header for the list view: title, action icons, search
- * field (collapsible), category-folder chips, source chips, and the
- * filter row. Stateless — every value lives in the parent so it can
- * be shared across views.
+ * Quiet tool band under the page header — not a header.
+ *
+ * The page title, count line and actions belong to <ReadingPageHeader>
+ * (shared <PageHeader>). Everything here is a control on the list itself:
+ * the collapsible search field, refresh/prefetch progress, the folder +
+ * source filter rail, the display-preferences popover and the new-folder
+ * input. Keeping them below the sticky header is what stops filters from
+ * competing with the page title.
  *
  * Two filter rows borrowed from CapyReader's information hierarchy:
  *  1. **Categories** (folders): All / News / Tech / … grouped by the
  *     category each feed was added under.
  *  2. **Sources**: the actual feeds inside the selected category.
  *
- * Selecting "All" categories shows every source. Picking a category
- * narrows the source row to just feeds in that bucket *and* filters
- * the article list to those sources.
+ * Category *identity* stays the persisted English id (it is what
+ * `FeedSource.category` stores and what filtering compares); only the visible
+ * chip label is Arabic, via `categoryLabelAr`.
  */
 export function ListHeader({
-  onBack,
   showSearch,
-  setShowSearch,
   searchQuery,
   setSearchQuery,
-  refreshing,
   syncProgress,
   prefetchProgress,
-  onRefresh,
-  onManage,
-  onDiscoverFeeds,
-  onMarkAllRead,
-  onOpenArchiveSearch,
-  onOpenAlerts,
-  onOpenReader,
-  unseenAlerts,
   filterTab,
   setFilterTab,
   sourceFilter,
@@ -83,12 +61,9 @@ export function ListHeader({
   listPrefs,
   onListPrefsChange,
 }: {
-  onBack: () => void;
   showSearch: boolean;
-  setShowSearch: (v: boolean) => void;
   searchQuery: string;
   setSearchQuery: (v: string) => void;
-  refreshing: boolean;
   syncProgress?: {
     active: boolean;
     total: number;
@@ -103,14 +78,6 @@ export function ListHeader({
     current: number;
     currentTitle?: string;
   };
-  onRefresh: () => void;
-  onManage: () => void;
-  onDiscoverFeeds: () => void;
-  onMarkAllRead: () => void;
-  onOpenArchiveSearch: () => void;
-  onOpenAlerts: () => void;
-  onOpenReader: () => void;
-  unseenAlerts: number;
   filterTab: FilterTab;
   setFilterTab: (t: FilterTab) => void;
   sourceFilter: string;
@@ -161,13 +128,9 @@ export function ListHeader({
   const populatedCategories = useMemo(() => {
     const ids = new Set<string>();
     for (const f of enabledFeeds) ids.add(f.category || 'other');
-    // Ensure all custom folders and default categories are supported
     const allKnown = Array.from(new Set([...customFolders, ...ids]));
-    return allKnown.map((id) => ({
-      id,
-      ar: id,
-      en: id.charAt(0).toUpperCase() + id.slice(1),
-    }));
+    // `id` stays the filter identity; `label` is display-only.
+    return allKnown.map((id) => ({ id, label: categoryLabelAr(id) }));
   }, [enabledFeeds, customFolders]);
 
   // Filter source chips by active category so the row stays scannable.
@@ -177,115 +140,17 @@ export function ListHeader({
   }, [enabledFeeds, categoryFilter]);
 
   const showCategoryRow = populatedCategories.length > 0;
+  const canDeleteActiveFolder = customFolders.includes(categoryFilter);
 
   return (
-    <div className="px-[var(--ui-gutter)] pt-4 pb-2 app-divider-b z-raised app-sticky-header-card">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="-ms-1 shrink-0"
-            aria-label={'رجوع'}
-          >
-            <ChevronLeft className="h-5 w-5 text-foreground rtl:rotate-180" />
-          </Button>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-9 h-9 rounded-2xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center shrink-0">
-              <Newspaper className="h-4 w-4 text-primary" />
-            </span>
-            <div className="flex flex-col leading-tight min-w-0">
-              <h3 className="text-body font-bold truncate">{'إطلاع'}</h3>
-              <span className="text-micro text-muted-foreground-subtle tabular-nums truncate">
-                {`${articleCount} مقالة · ${unreadCount} غير مقروء`}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-0.5 shrink-0">
-          <IconBtn
-            onClick={() => setShowSearch(!showSearch)}
-            active={showSearch}
-            aria-label={'بحث في القائمة'}
-            title={'بحث في القائمة الحالية'}
-          >
-            <Search className="h-4 w-4" />
-          </IconBtn>
-          <IconBtn
-            onClick={onRefresh}
-            disabled={refreshing}
-            aria-label={'تحديث'}
-            title={'تحديث الآن'}
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
-          </IconBtn>
-          <ReadingPrefsToolbar prefs={listPrefs} onChange={onListPrefsChange} />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="relative"
-                aria-label={'المزيد'}
-              >
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                {unseenAlerts > 0 && (
-                  <span className="absolute top-1.5 end-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={8} className="w-56 rounded-2xl">
-              <DropdownMenuLabel className="text-micro text-muted-foreground font-normal">
-                {'إجراءات'}
-              </DropdownMenuLabel>
-              {unreadCount > 0 && (
-                <DropdownMenuItem onClick={onMarkAllRead} className="rounded-lg gap-2.5">
-                  <CheckCheck className="h-4 w-4 text-muted-foreground" />
-                  <span>{'تحديد الكل كمقروء'}</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={onOpenArchiveSearch} className="rounded-lg gap-2.5">
-                <Archive className="h-4 w-4 text-muted-foreground" />
-                <span>{'بحث الأرشيف'}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onOpenAlerts} className="rounded-lg gap-2.5">
-                <Bell className="h-4 w-4 text-muted-foreground" />
-                <span className="flex-1">{'تنبيهات الكلمات'}</span>
-                {unseenAlerts > 0 && (
-                  <span className="text-micro font-semibold px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground tabular-nums">
-                    {unseenAlerts}
-                  </span>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onOpenReader} className="rounded-lg gap-2.5">
-                <Type className="h-4 w-4 text-muted-foreground" />
-                <span>{'قراءة رابط'}</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onDiscoverFeeds} className="rounded-lg gap-2.5">
-                <Compass className="h-4 w-4 text-primary" />
-                <span>{'اكتشاف مصادر جديدة'}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onManage} className="rounded-lg gap-2.5">
-                <Settings2 className="h-4 w-4 text-muted-foreground" />
-                <span>{'إدارة المصادر'}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
+    <div className="pt-1 pb-2 app-divider-b">
       <AnimatePresence>
         {showSearch && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="relative mb-3 overflow-hidden"
+            className="relative mb-2 overflow-hidden"
           >
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -293,15 +158,16 @@ export function ListHeader({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="ps-10 h-11 text-meta rounded-2xl bg-background/60 border-border/50"
+              aria-label={'بحث في المقالات'}
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute end-3 top-1/2 -translate-y-1/2"
-                aria-label={'مسح'}
+                className="absolute end-1 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:text-foreground app-focus-ring"
+                aria-label={'مسح البحث'}
               >
-                <X className="h-4 w-4 text-muted-foreground" />
+                <X className="h-4 w-4" aria-hidden />
               </button>
             )}
           </motion.div>
@@ -327,87 +193,90 @@ export function ListHeader({
 
       {/* One single scrollable filter rail: state chips → folders →
           sources. Merging the two previous rows removes the clipped,
-          stacked look while keeping every control reachable. */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-0.5">
-        <Chip
-          active={filterTab === 'all' && sourceFilter === 'all' && categoryFilter === 'all'}
-          onClick={() => {
-            setFilterTab('all');
-            setSourceFilter('all');
-            setCategoryFilter('all');
-          }}
-          label={'الكل'}
-          count={articleCount}
-        />
-        <Chip
-          active={filterTab === 'unread'}
-          onClick={() => setFilterTab(filterTab === 'unread' ? 'all' : 'unread')}
-          label={'غير مقروء'}
-          count={unreadCount}
-        />
-        <Chip
-          active={filterTab === 'bookmarks'}
-          onClick={() => setFilterTab(filterTab === 'bookmarks' ? 'all' : 'bookmarks')}
-          icon={<Bookmark className="h-3 w-3 inline" />}
-          label={'المحفوظات'}
-          count={bookmarksCount > 0 ? bookmarksCount : undefined}
-        />
+          stacked look while keeping every control reachable. The display
+          preferences sit outside the rail so they never scroll away. */}
+      <div className="flex items-center gap-1.5">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 py-0.5">
+          <Chip
+            active={filterTab === 'all' && sourceFilter === 'all' && categoryFilter === 'all'}
+            onClick={() => {
+              setFilterTab('all');
+              setSourceFilter('all');
+              setCategoryFilter('all');
+            }}
+            label={'الكل'}
+            count={articleCount}
+          />
+          <Chip
+            active={filterTab === 'unread'}
+            onClick={() => setFilterTab(filterTab === 'unread' ? 'all' : 'unread')}
+            label={'غير مقروء'}
+            count={unreadCount}
+          />
+          <Chip
+            active={filterTab === 'bookmarks'}
+            onClick={() => setFilterTab(filterTab === 'bookmarks' ? 'all' : 'bookmarks')}
+            icon={<Bookmark className="h-3 w-3 inline" />}
+            label={'المحفوظات'}
+            count={bookmarksCount > 0 ? bookmarksCount : undefined}
+          />
 
-        {showCategoryRow && (
-          <>
-            <Divider />
-            {populatedCategories.map((c) => (
-              <div key={c.id} className="relative group shrink-0">
+          {showCategoryRow && (
+            <>
+              <Divider />
+              {populatedCategories.map((c) => (
                 <CategoryChip
+                  key={c.id}
                   active={categoryFilter === c.id}
                   onClick={() => {
                     setCategoryFilter(c.id === categoryFilter ? 'all' : c.id);
                     setSourceFilter('all');
                   }}
-                  label={c.ar}
+                  label={c.label}
                   icon={<FolderOpen className="h-3 w-3" />}
                 />
-                {customFolders.includes(c.id) && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteFolder(c.id);
-                    }}
-                    className="absolute -top-2 -end-2 bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title={'حذف'}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => setShowFolderInput(!showFolderInput)}
-              className="p-2 rounded-full transition-motion shrink-0 text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20"
-              aria-label={'مجلد جديد'}
-              title={'مجلد جديد'}
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </button>
-          </>
-        )}
+              ))}
+              <button
+                type="button"
+                onClick={() => setShowFolderInput(!showFolderInput)}
+                className="inline-flex min-h-[var(--ui-touch-min)] min-w-[var(--ui-touch-min)] shrink-0 items-center justify-center rounded-full text-primary bg-primary/10 ring-1 ring-primary/20 hover:bg-primary/20 transition-motion app-focus-ring"
+                aria-label={'مجلد جديد'}
+                aria-expanded={showFolderInput}
+                title={'مجلد جديد'}
+              >
+                <Plus className="h-3.5 w-3.5" aria-hidden />
+              </button>
+            </>
+          )}
 
-        {visibleSources.length > 0 && <Divider />}
-        {visibleSources.map((source) => (
-          <Chip
-            key={source.url}
-            active={filterTab === 'all' && sourceFilter === source.name}
-            onClick={() => {
-              setFilterTab('all');
-              setSourceFilter(source.name === sourceFilter ? 'all' : source.name);
-            }}
-            label={source.name}
-            count={sourceCounts[source.name] || 0}
-            withPill={source.name}
-          />
-        ))}
+          {visibleSources.length > 0 && <Divider />}
+          {visibleSources.map((source) => (
+            <Chip
+              key={source.url}
+              active={filterTab === 'all' && sourceFilter === source.name}
+              onClick={() => {
+                setFilterTab('all');
+                setSourceFilter(source.name === sourceFilter ? 'all' : source.name);
+              }}
+              label={source.name}
+              count={sourceCounts[source.name] || 0}
+              withPill={source.name}
+            />
+          ))}
+        </div>
+
+        {canDeleteActiveFolder && (
+          <IconButton
+            type="button"
+            onClick={() => handleDeleteFolder(categoryFilter)}
+            aria-label={'حذف المجلد'}
+            title={'حذف المجلد المحدد'}
+            className="shrink-0 text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden />
+          </IconButton>
+        )}
+        <ReadingPrefsToolbar prefs={listPrefs} onChange={onListPrefsChange} />
       </div>
 
       <AnimatePresence>
@@ -422,7 +291,8 @@ export function ListHeader({
               placeholder={'اسم المجلد الجديد...'}
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              className="h-9 text-mini rounded-xl"
+              aria-label={'اسم المجلد الجديد'}
+              className="text-mini"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleAddFolder();
               }}
@@ -430,7 +300,7 @@ export function ListHeader({
             <button
               type="button"
               onClick={handleAddFolder}
-              className="px-3 rounded-xl bg-primary text-primary-foreground text-mini font-bold hover:opacity-90 transition-opacity shrink-0"
+              className="min-h-[var(--ui-touch-min)] shrink-0 rounded-button bg-primary px-4 text-mini font-bold text-primary-foreground hover:opacity-90 transition-opacity app-focus-ring"
             >
               {'إضافة'}
             </button>
@@ -497,43 +367,6 @@ function ProgressLine({
   );
 }
 
-function IconBtn({
-  children,
-  onClick,
-  disabled,
-  active,
-  accent,
-  ...rest
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-  active?: boolean;
-  accent?: boolean;
-  'aria-label'?: string;
-  title?: string;
-}) {
-  const base = 'shrink-0 transition-motion disabled:opacity-50';
-  const tone = active
-    ? 'bg-primary/15 text-primary'
-    : accent
-      ? 'text-primary hover:bg-primary/10'
-      : 'text-muted-foreground hover:bg-accent/50';
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`${base} ${tone}`}
-      {...rest}
-    >
-      {children}
-    </Button>
-  );
-}
-
 function Chip({
   active,
   onClick,
@@ -556,6 +389,7 @@ function Chip({
       size="sm"
       activation="click"
       onClick={onClick}
+      aria-pressed={active}
       className={`min-h-[var(--ui-touch-min)] px-3 rounded-full text-mini font-medium transition-motion shrink-0 inline-flex items-center gap-1.5 ring-1 ${
         active
           ? 'bg-primary text-primary-foreground ring-primary/30'
@@ -590,6 +424,7 @@ function CategoryChip({
       size="sm"
       activation="click"
       onClick={onClick}
+      aria-pressed={active}
       className={`min-h-[var(--ui-touch-min)] px-3 rounded-full text-micro font-semibold transition-motion shrink-0 inline-flex items-center gap-1.5 ${
         active
           ? 'bg-foreground text-background'

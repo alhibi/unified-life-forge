@@ -4,11 +4,13 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard, PageShell } from '@/components/ui/app-shell';
+import { PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
+import { StateView } from '@/components/ui/state-view';
 import { Switch } from '@/components/ui/switch';
 import { newId, pkmDb } from '@/features/pkm/lib/db';
 import { supabase } from '@/integrations/supabase/client';
@@ -578,11 +580,9 @@ export default function ArchiveReader() {
   if (loading)
     return (
       <PageShell>
-        <div className="flex items-center gap-3">
-          <BackButton />
-        </div>
-        <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <PageHeader title="قارئ الأرشيف" hideBack={false} />
+        <div className="flex justify-center py-16" role="status" aria-label="جارٍ تحميل المستند">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" aria-hidden />
         </div>
       </PageShell>
     );
@@ -590,12 +590,15 @@ export default function ArchiveReader() {
   if (err || !doc)
     return (
       <PageShell>
-        <div className="flex items-center gap-3">
-          <BackButton />
-        </div>
-        <AppCard className="text-center py-10">
-          <p className="text-meta text-muted-foreground">{err || 'المستند غير موجود'}</p>
-        </AppCard>
+        <PageHeader title="قارئ الأرشيف" />
+        <StateView
+          bare
+          kind="error"
+          title="تعذّر فتح المستند"
+          body={err || 'المستند المطلوب غير موجود أو حُذف من الأرشيف.'}
+          secondary={<BackButton />}
+          className="min-h-[50vh]"
+        />
       </PageShell>
     );
 

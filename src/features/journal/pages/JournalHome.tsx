@@ -219,7 +219,7 @@ export default function JournalHome() {
                             {e.tags.map((t) => (
                               <span
                                 key={t}
-                                className="text-micro px-2 py-0.5 rounded-full bg-secondary/60 border border-border text-muted-foreground"
+                                className="text-micro px-2 py-0.5 rounded-full bg-secondary/60 border border-border text-secondary-muted"
                               >
                                 #{t}
                               </span>

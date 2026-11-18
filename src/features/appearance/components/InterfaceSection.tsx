@@ -347,7 +347,7 @@ export default function InterfaceSection() {
                 className={`min-h-[var(--ui-touch-min)] rounded-sm px-3 py-1.5 text-mini font-medium transition-colors ${
                   isActive
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-muted-foreground'
+                    : 'bg-secondary text-secondary-muted'
                 }`}
               >
                 {preset.label}

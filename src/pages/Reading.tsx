@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import SEO from '@/components/SEO';
+import { PageShell } from '@/components/ui/app-shell';
 import { useApp } from '@/contexts/AppContext';
 import { ArticleListGrouped } from '@/features/reading/ArticleListGrouped';
 import { ListHeader } from '@/features/reading/ListHeader';
@@ -11,6 +12,7 @@ import { offlineDb } from '@/features/reading/offlineDb';
 import { PullToRefresh } from '@/features/reading/PullToRefresh';
 import { ReadingBriefing } from '@/features/reading/ReadingBriefing';
 import { ReadingErrorBoundary } from '@/features/reading/ReadingErrorBoundary';
+import { ReadingPageHeader } from '@/features/reading/ReadingPageHeader';
 import { registerReadingServiceWorker } from '@/features/reading/registerSw';
 import {
   getReaderPrefs,
@@ -449,27 +451,14 @@ export default function ReadingPage() {
 
   // ─── Reusable list-pane (used in both single- and two-pane modes) ────
   const listPane = (
-    <div className="flex flex-col flex-1 min-h-dvh">
+    <div className="flex min-w-0 flex-1 flex-col">
+      {/* Quiet tool band — filters live below the page title, not in it. */}
       <ListHeader
-        onBack={goBack}
         showSearch={showSearch}
-        setShowSearch={toggleSearch}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        refreshing={refreshing}
         syncProgress={syncProgress}
         prefetchProgress={prefetchProgress}
-        onRefresh={() => refreshFeeds(false)}
-        onManage={() => setView('manage')}
-        onDiscoverFeeds={() => setView('suggested')}
-        onMarkAllRead={markAllRead}
-        onOpenArchiveSearch={() => setView('search')}
-        onOpenAlerts={() => setView('alerts')}
-        onOpenReader={() => {
-          setSelectedArticle(null);
-          setView('reader');
-        }}
-        unseenAlerts={unseenAlerts}
         filterTab={filterTab}
         setFilterTab={setFilterTab}
         sourceFilter={sourceFilter}
@@ -525,11 +514,11 @@ export default function ReadingPage() {
         />
       </PullToRefresh>
 
-      <div className="px-4 py-2.5 border-t border-border/30 flex items-center justify-between text-micro text-muted-foreground tabular-nums">
+      <div className="flex items-center justify-between py-1 app-divider-t text-micro text-muted-foreground tabular-nums">
         <button
           type="button"
           onClick={() => setView('storage')}
-          className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+          className="flex min-h-[var(--ui-touch-min)] items-center gap-1.5 hover:text-foreground transition-colors app-focus-ring"
           title={'إدارة التخزين دون اتصال'}
         >
           <Database className="h-3 w-3" />
@@ -538,7 +527,7 @@ export default function ReadingPage() {
         <button
           type="button"
           onClick={() => setView('cron')}
-          className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+          className="flex min-h-[var(--ui-touch-min)] items-center gap-1.5 hover:text-foreground transition-colors app-focus-ring"
           title={'حالة التحديث التلقائي'}
         >
           {!isOnline
@@ -565,18 +554,41 @@ export default function ReadingPage() {
     </div>
   );
 
-  return (
-    <ReadingErrorBoundary lang={language}>
-    <div className="min-h-dvh bg-background flex flex-col pb-page">
-      <SEO
-        title={'إطلاع — قارئ الأخبار — SmartHub'}
-        description={'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'}
-        path="/reading"
-      />
+  // ─── Page header — one shared frame (G2 editorial/reading) ──────────
+  // The title is the shared <PageHeader variant="compact"> h1; the filter
+  // rail sits below it in <ListHeader>, so folders/sources stop competing
+  // with the page identity. In the two-pane reader the header is not
+  // sticky and loses its back button: the article pane owns its own sticky
+  // header/back, and two sticky headers would bury the reader controls.
+  const pageHeader = (
+    <ReadingPageHeader
+      articleCount={articles.length}
+      unreadCount={unreadCount}
+      showSearch={showSearch}
+      setShowSearch={toggleSearch}
+      refreshing={refreshing}
+      onRefresh={() => refreshFeeds(false)}
+      onManage={() => setView('manage')}
+      onDiscoverFeeds={() => setView('suggested')}
+      onMarkAllRead={markAllRead}
+      onOpenArchiveSearch={() => setView('search')}
+      onOpenAlerts={() => setView('alerts')}
+      onOpenReader={() => {
+        setSelectedArticle(null);
+        setView('reader');
+      }}
+      unseenAlerts={unseenAlerts}
+      hideBack={useTwoPane}
+      sticky={!useTwoPane}
+    />
+  );
 
+  // Page-level notices, kept out of the header so the sticky frame stays one row.
+  const banners = (
+    <>
       {/* Connection recovery banner */}
       {!isOnline && view === 'list' && (
-        <div className="px-4 py-2 bg-warning/10 border-b border-warning/20 flex items-center gap-2 text-mini text-warning">
+        <div className="flex items-center gap-2 py-2 bg-warning/10 border-b border-warning/20 text-mini text-warning">
           <WifiOff className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
             {'لا يوجد اتصال — يتم عرض المحتوى المحفوظ'}
@@ -586,7 +598,7 @@ export default function ReadingPage() {
 
       {/* Consecutive failure warning */}
       {data.consecutiveFailures >= 3 && isOnline && view === 'list' && (
-        <div className="px-4 py-2 bg-destructive/5 border-b border-destructive/10 flex items-center gap-2 text-mini text-destructive/80">
+        <div className="flex items-center gap-2 py-2 bg-destructive/5 border-b border-destructive/10 text-mini text-destructive/80">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           <span className="flex-1">
             {'تعذّر التحديث عدة مرات — سيُعاد المحاولة تلقائياً'}
@@ -594,40 +606,66 @@ export default function ReadingPage() {
           <button
             type="button"
             onClick={() => refreshFeeds(false)}
-            className="shrink-0 p-1 rounded hover:bg-destructive/10 transition-colors"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-destructive/10 transition-colors app-focus-ring"
             aria-label={'إعادة المحاولة'}
           >
             <RefreshCw className="h-3 w-3" />
           </button>
         </div>
       )}
+    </>
+  );
 
-      {/* Two-pane desktop layout — list + article side by side */}
-      {useTwoPane && selectedArticle && (
-        <div className="flex flex-1 min-h-dvh">
-          <aside className="w-[40%] max-w-[480px] border-e border-border/40 flex-shrink-0">
-            {listPane}
-          </aside>
-          <main className="flex-1 min-w-0">
-            <Suspense fallback={<SubviewFallback />}>
-              <ArticleReader
-                article={selectedArticle}
-                isBookmarked={bookmarks.includes(selectedArticle.link)}
-                prefs={readerPrefs}
-                language={language}
-                onBack={onArticleBack}
-                onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
-                onChangePrefs={setReaderPrefs}
-                onUpgradeContent={ensureFullContent}
-              />
-            </Suspense>
-          </main>
-        </div>
-      )}
+  return (
+    <ReadingErrorBoundary lang={language}>
+      {view === 'list' || useTwoPane ? (
+        <PageShell
+          width={useTwoPane ? 'workspace' : 'content'}
+          header={pageHeader}
+        >
+          <SEO
+            title={'إطلاع — قارئ الأخبار — SmartHub'}
+            description={'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'}
+            path="/reading"
+          />
+          <div className="flex flex-col">
+            {banners}
 
-      {/* Single-pane (mobile, or two-pane disabled) */}
-      {!useTwoPane && (
-        <AnimatePresence mode="wait">
+            {useTwoPane && selectedArticle ? (
+              /* Two-pane reader — list + article side by side. */
+              <div className="flex flex-1 min-h-0">
+                <aside className="w-[40%] max-w-[480px] shrink-0 border-e border-border/40">
+                  {listPane}
+                </aside>
+                <main className="flex-1 min-w-0">
+                  <Suspense fallback={<SubviewFallback />}>
+                    <ArticleReader
+                      article={selectedArticle}
+                      isBookmarked={bookmarks.includes(selectedArticle.link)}
+                      prefs={readerPrefs}
+                      language={language}
+                      onBack={onArticleBack}
+                      onToggleBookmark={() => toggleBookmark(selectedArticle.link)}
+                      onChangePrefs={setReaderPrefs}
+                      onUpgradeContent={ensureFullContent}
+                    />
+                  </Suspense>
+                </main>
+              </div>
+            ) : (
+              listPane
+            )}
+          </div>
+        </PageShell>
+      ) : (
+        /* Reader/sub-view surfaces own their frame; only the list is a page. */
+        <div className="min-h-dvh bg-background flex flex-col pb-page">
+          <SEO
+            title={'إطلاع — قارئ الأخبار — SmartHub'}
+            description={'قارئ RSS متكامل مع جلب المحتوى الكامل والمحفوظات.'}
+            path="/reading"
+          />
+          <AnimatePresence mode="wait">
           {view === 'article' && selectedArticle && (
             <Suspense key="article-s" fallback={<SubviewFallback />}>
               <ArticleReader
@@ -739,14 +777,9 @@ export default function ReadingPage() {
             </Suspense>
           )}
 
-          {view === 'list' && (
-            <div key="list" className="contents">
-              {listPane}
-            </div>
-          )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
       )}
-    </div>
     </ReadingErrorBoundary>
   );
 }

@@ -54,7 +54,12 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
           </span>
           <div>
             <h3 className="text-mini font-bold uppercase tracking-wider text-primary">
-              كلمة اليوم المميزة (Wort des Tages)
+              كلمة اليوم المميزة{' '}
+              {/* Mixed Arabic/German label: isolate the German run so the RTL
+                  line cannot reverse its parentheses or split it mid-phrase. */}
+              <span dir="ltr" lang="de" className="inline-block">
+                (Wort des Tages)
+              </span>
             </h3>
             <p className="text-micro text-muted-foreground">تم اختيارها لمستوى صياغتها وأهميتها</p>
           </div>
@@ -91,6 +96,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
 
             <span
               dir="ltr"
+              lang="de"
               className="text-hero font-bold text-foreground"
               style={{ unicodeBidi: 'isolate' }}
             >
@@ -113,7 +119,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
         </div>
 
         {entry.ipa && (
-          <p dir="ltr" className="font-mono text-mini text-muted-foreground">
+          <p dir="ltr" lang="de" className="font-mono text-mini text-muted-foreground">
             [{entry.ipa}]
           </p>
         )}
@@ -122,7 +128,7 @@ export const WortDesTagesCard: React.FC<WortDesTagesCardProps> = ({ entry, onSel
 
         {entry.examples[0] && (
           <div className="space-y-1 rounded-lg border border-track bg-secondary/40 p-3">
-            <p dir="ltr" className="text-mini font-medium text-foreground">
+            <p dir="ltr" lang="de" className="text-mini font-medium text-foreground">
               "{entry.examples[0].de}"
             </p>
             <p className="text-mini text-muted-foreground">"{entry.examples[0].ar}"</p>

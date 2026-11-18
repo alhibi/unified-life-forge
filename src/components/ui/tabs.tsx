@@ -17,7 +17,7 @@ const TabsList = React.forwardRef<
     ref={ref}
     data-ui-surface="segmented-control"
     className={cn(
-      'inline-flex min-h-11 w-full items-center gap-1 rounded-full border-0 bg-secondary p-1 text-muted-foreground shadow-[inset_0_0_0_1px_hsl(var(--track))]',
+      'inline-flex min-h-11 w-full items-center gap-1 rounded-full border-0 bg-secondary p-1 text-secondary-muted shadow-[inset_0_0_0_1px_hsl(var(--track))]',
       className,
     )}
     {...props}

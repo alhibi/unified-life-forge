@@ -117,7 +117,21 @@ test.describe('travel atlas maps', () => {
     await expect(page.locator('canvas.maplibregl-canvas')).toBeVisible();
 
     // Wait for the worker pool, which MapLibre creates on the first map.
-    await page.waitForFunction(() => true);
+    // waitForFunction(() => true) returned immediately, so under load the
+    // resource had not been recorded yet and the assertion raced the map:
+    // it failed once in a 126-test run but passed in isolation. Poll the
+    // actual condition instead of sleeping.
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() =>
+            performance
+              .getEntriesByType('resource')
+              .some((entry) => /maplibre-gl-worker/.test(entry.name)),
+          ),
+        { timeout: 15_000, message: 'MapLibre worker resource was never requested' },
+      )
+      .toBe(true);
     const workerUrl = await page.evaluate(async () => {
       // The worker asset must exist at the URL MapLibre was given, otherwise
       // vector tiles are never parsed.
