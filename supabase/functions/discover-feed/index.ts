@@ -5,8 +5,8 @@ import {
   decodeEntities,
   extractMeta,
   extractTitle,
-  fetchWithRetry,
   isSafeUrl,
+  safeFetch,
   jsonResponse,
   requireUser,
   stripText,
@@ -115,7 +115,7 @@ async function probeFeed(
 > {
   if (!isSafeUrl(url)) return { url, ok: false };
   try {
-    const res = await fetchWithRetry(
+    const res = await safeFetch(
       url,
       {
         headers: {
@@ -126,7 +126,6 @@ async function probeFeed(
         redirect: "follow",
       },
       PARSE_TIMEOUT_MS,
-      0,
     );
     if (!res.ok) return { url, ok: false };
     if (!isSafeUrl(res.url)) return { url, ok: false };
@@ -303,7 +302,7 @@ serve(async (req) => {
   let pageDescription: string;
   let pageImage: string;
   try {
-    const res = await fetchWithRetry(
+    const res = await safeFetch(
       normalized,
       {
         headers: {
@@ -314,7 +313,6 @@ serve(async (req) => {
         redirect: "follow",
       },
       FETCH_TIMEOUT_MS,
-      0,
     );
     if (!res.ok) {
       return jsonResponse(

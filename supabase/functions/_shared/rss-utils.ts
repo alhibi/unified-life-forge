@@ -710,3 +710,48 @@ export function jsonResponse(
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+// ─── DNS-aware SSRF guard ──────────────────────────────────────────────────
+// Hostname checks alone can be bypassed by public names that resolve to
+// private addresses, or by redirects. These helpers resolve every hop.
+async function resolvesToPublic(input: string): Promise<boolean> {
+  if (!isSafeUrl(input)) return false;
+  const host = new URL(input).hostname.replace(/^\[|\]$/g, "");
+  if (/^[\d.]+$/.test(host) || host.includes(":")) return true; // literal IP already checked
+  try {
+    const [a, aaaa] = await Promise.all([
+      Deno.resolveDns(host, "A").catch(() => [] as string[]),
+      Deno.resolveDns(host, "AAAA").catch(() => [] as string[]),
+    ]);
+    const addrs = [...a, ...aaaa];
+    if (addrs.length === 0) return false;
+    return addrs.every((ip) => !PRIVATE_HOSTNAME_PATTERNS.some((re) => re.test(ip)) &&
+      !/^::ffff:/i.test(ip) && !/^::$/.test(ip));
+  } catch {
+    return false;
+  }
+}
+
+/** Fetch following at most `maxHops` redirects, validating each destination. */
+export async function safeFetch(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+  maxHops = 3,
+): Promise<Response> {
+  let current = url;
+  for (let hop = 0; hop <= maxHops; hop++) {
+    if (!(await resolvesToPublic(current))) throw new Error("URL is not allowed");
+    const res = await fetchWithRetry(current, { ...init, redirect: "manual" }, timeoutMs, 0);
+    if (res.status >= 300 && res.status < 400) {
+      const loc = res.headers.get("location");
+      await res.body?.cancel();
+      if (!loc) return res;
+      current = new URL(loc, current).toString();
+      continue;
+    }
+    Object.defineProperty(res, "url", { value: current });
+    return res;
+  }
+  throw new Error("Too many redirects");
+}

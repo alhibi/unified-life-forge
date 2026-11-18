@@ -43,6 +43,13 @@
       "when": 1794957998331,
       "tag": "0005_tighten_rpc_and_catalog_access",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794960571317,
+      "tag": "0006_rss_articles_signed_in_read",
+      "breakpoints": true
     }
   ]
 }
