@@ -195,8 +195,10 @@ Tailwind v4 has no config file: design tokens are published in `src/index.css` a
 | `bun run arch`                                           | Import-graph gate: cycles, orphans, feature isolation, Supabase/env boundaries. |
 | `bun run test`                                           | Vitest unit and integration tests.                                              |
 | `bun run e2e`                                            | Playwright end-to-end flows (desktop + Pixel 7 projects).                       |
-| `bun run test:smoke`                                     | Every route in jsdom shards (kept out of `bun run test`).                       |
+| `bun run test:smoke`                                     | One route per process (82 shards, 4 parallel) — deterministic route net. |
 | `bun run verify`                                         | `typecheck && lint && lint:budget && arch && test && build`.                    |
+| `bun run audit:routes` | Opens all 82 routes in Chromium at 390/1440: overflow, error boundary, h1, RTL leaks, touch targets, plus a 390 screenshot. |
+| `bun run audit:contrast` | Rendered text/background contrast across 20 routes x 2 modes. |
 
 `bun run verify` is the pre-push gate; UI changes additionally need `bun run e2e` and a
 rendered check at 360 / 768 / 1440 in light and dark.

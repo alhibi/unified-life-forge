@@ -34,6 +34,8 @@
 | بوابات | src/test/designSystem.test.ts · src/utils/__tests__/themeContract.test.ts · e2e/*.spec.ts | ميزانيات مشدودة + عقد أدوار + إصلاح اختبارين قديمين |
 | معرض مرجعي | src/pages/DesignSystemGallery.tsx + مسار /dev/design-system | 14 عائلة + أدوار + طباعة + مكوّنات + حالات + قواعد |
 | إصلاح انهيار مسار | src/features/german-club/components/dictionary/DictionaryVirtualGrid.tsx | قياس الصفوف لا يُشغَّل بلا صندوق حقيقي؛ مسار القاموس يُركَّب بدل أن يسقط على ErrorBoundary |
+| إصلاح مكوّنات مشتركة | dialog/drawer/state-view/calendar/carousel/ResponsiveDrawer | عودة التركيز للزر بعد الإغلاق، أيقونة StateView اختيارية، RTL للتقويم/المعرض، ارتفاع الدرج 85dvh مع تمرير |
+| h1 لكل مسار | archive reader · mind · explore map · sunnah detail · time-ledger · chat groups/group | لا مسار بلا ترويسة دلالية؛ كشفها audit:routes |
 
 ## 2. حالة المجالات الستة والعشرين
 
@@ -45,13 +47,13 @@
 | appearance | G4 | يستخدم PageShell/PageHeader مسبقاً؛ الثيمات كلها في المعرض | معاينة مباشرة لكل عائلة داخل صفحة المظهر |
 | archive | G2 (reader) / G4 (home) | لا شيء | ترويسة الأرشيف الموحّدة، فحص الوضع السينمائي على 360 |
 | calendar | G3 | لا شيء | توحيد شبكة المناسبات مع StatGrid |
-| chat | G5 | لا شيء (تسلسل خاص مشروع) | حالة غير المسجّل عبر StateView + فحص الحقل الثابت |
+| chat | G5 | حالة غير المسجّل أصبحت صفحة كاملة (PageShell + PageHeader + StateView)؛ h1 للمجموعات والمحادثة | فحص الحقل الثابت على الهاتف وحالات الإرسال الفاشل |
 | crypto | G3 | width=workspace | مقياس/مخطط على 768 |
 | diwan | G1/G2/G4 | لا شيء | توحيد ترويسة المكتبة، فحص عمود الشعر على 360 |
 | duas | redirect | مسار تحويل إلى /mihrab (تبويب الذكر) | توثيقه كتحويل في كل الخرائط (تم) |
 | fitness | G3 | width=workspace | فحص لوحات التمارين على 768؛ FitnessDashboardPage القديمة ميتة |
 | games | G7 | شريط تحكم الشطرنج | Sudoku/Memory: نفس نمط السطح والأزرار |
-| german-club | G4 | أُصلح انهيار /german-club/dictionary (Maximum update depth في DictionaryVirtualGrid: القياس في بيئة بلا layout) | فحص LTR للكلمات الألمانية، توحيد الترويسة |
+| german-club | G4 | أُصلح انهيار /german-club/dictionary؛ عُزلت العبارات الألمانية في Wort des Tages وDetDetailModal وGrammar Corner | فحص LTR للعناوين المركّبة في ShelfCard عند توفّر بيانات |
 | journal | G2/G4 | لا شيء | محرّر اليومية: حالات الحفظ/الخطأ |
 | keyboard | G7 | حد الطباعة 12px | فحص أهداف اللمس والتباين على الهاتف |
 | knowledge | G2 | حد الطباعة 12px | توحيد عمود القراءة وترويسة الفئات |
@@ -62,8 +64,8 @@
 | pkm | G4 | لا شيء | قائمة/محرر: حالات فارغ/حفظ |
 | podcasts | G4/G6 | لا شيء | غلاف/مشغّل: حالات التشغيل والخطأ |
 | profile | G4 | لا شيء | توحيد تبويبات النشاط |
-| reading | G2 | لا شيء (الترويسة تحتاج إعادة بناء) | ⚠ ترويسة القراءة الحالية لغة مختلفة (شرائح إنجليزية، ترويسة غير مشتركة) |
-| time-ledger | G3 | width=workspace | فحص الإدخال السريع على 360 |
+| reading | G2 | ترويسة PageHeader موحّدة داخل PageShell، شرائح عربية عبر خريطة فئات صريحة، فلاتر كشريط أدوات، حالات StateView، وحذف مجلد بهدف لمس 44px | فحص القائمة الفرعية (no-feeds) وسلوك السحب للتحديث على جهاز |
+| time-ledger | G3 | width=workspace + h1 في حالات التحميل/الفراغ/الخطأ + StateView للخطأ | فحص الإدخال السريع على 360 |
 | travel-atlas | G6 | لا شيء | فحص الأدوات العائمة وRTL |
 | weather | G3 | ترويسة الفارغ + h2 + إزالة مقاس px | توحيد الترويسة اللاصقة مع PageHeader (قرار مقصود: ترويسة المجال تحمل الموقع/الإحداثيات) |
 | wellness | G3 | width=workspace | فحص تبويبات الغذاء/التمرين على 768 |

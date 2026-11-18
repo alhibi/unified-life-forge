@@ -29,7 +29,7 @@
 
 - استخدم الأدوار الدلالية: `background`, `surface-0..3`, `card`, `foreground`,
   `muted-foreground`, `muted-foreground-subtle`, `border`, `input`, `ring`,
-  `primary(-foreground|-container)`, `secondary`, `tertiary`, `accent`,
+  `primary(-foreground|-container)`, `secondary`, `secondary-muted`, `tertiary`, `accent`,
   `success`, `warning`, `destructive`, `data-1..6`, `track`, `navigation`,
   `overlay-surface`.
 - ممنوع hex/rgb/hsl خام في كروم الواجهة، وممنوع `bg-blue-500` أو ما شابه.

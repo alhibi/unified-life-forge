@@ -119,6 +119,7 @@ InterfaceScale (الشكل)      ThemeEngine (اللون)        Motion (الس�
 | أساسي | `--foreground` | ≥7:1 على اللوحة و≥5.5:1 على البطاقة |
 | ثانوي | `--muted-foreground` | ≥4.55:1 على اللوحة والبطاقة |
 | ثالثي | `--muted-foreground-subtle` | ≥4.55:1؛ بديل `text-muted-foreground/70` |
+| نص على سطح ثانوي | `--secondary-muted-foreground` | معاير على `--secondary` نفسه (4.55:1 فأكثر)، لا على اللوحة |
 | معطّل | `--disabled` | ليس نصاً للقراءة؛ لا يحمل معلومة وحيدة |
 | فوق سطح ملوّن | `--on-primary-container` / `--on-tertiary-container` / `--on-data-N-*` | يُشتق من السطح نفسه |
 | فوق طبقة | `--overlay-foreground` | الحوارات والقوائم |
@@ -380,6 +381,11 @@ InterfaceScale (الشكل)      ThemeEngine (اللون)        Motion (الس�
 أقسام، وحالات `loading/empty/error` عبر `StateView`، و`pb-page`، وتركيز واضح.
 **ما لا تفرضه:** عدد البطاقات، شكل الرسم، ألوان البيانات، مادة المجال.
 
+**قاعدة ملزمة إضافية:** لكل مسار **h1 واحد** يحمل هوية الصفحة. الشاشات ذات السطح
+الملء (خريطة، محرر، مشهد ثلاثي الأبعاد، قارئ) تضع `h1` مخفياً بصرياً عند غياب
+عنوان مرئي — لا تترك المسار بلا ترويسة دلالية. يتحقق منها `bun run audit:routes`.
+
+
 ---
 
 ## 9. المكوّنات
@@ -464,6 +470,16 @@ node scripts/capture-design.mjs --out verification/design/after
 - `src/test/designSystem.test.ts`: ميزانيات تنزل ولا ترتفع.
 - `src/utils/__tests__/themeIntegrity.test.ts`: 14 عائلة × وضعين × أدوار + تباين.
 - `build/__tests__/tailwindTokens.test.ts`: كل صنف رمزي معرّف فعلاً.
+
+
+### أدوات التحقق البصري
+
+- `bun run audit:routes` — يفتح **كل** المسارات في Chromium على 390 و1440،
+  ويقيس: تجاوز أفقي، سقوط على ErrorBoundary، غياب `h1`، تسريب اتجاه LTR،
+  وأهداف لمس أقل من 44px، ويحفظ لقطة 390 لكل مسار سليم.
+- `bun run audit:contrast
+- `bun run capture:design` — مصفوفة قبل/بعد عبر عروض/أوضاع/ثيمات.
+
 - لقطات قبل/بعد في `verification/design/` بعروض 360/768/1440 وثيمات مختارة.
 
 **لا يُعلن اكتمال واجهة من build فقط.** يلزم: مسار مغطّى، حالة مغطّاة، لقطة،

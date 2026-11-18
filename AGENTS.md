@@ -67,6 +67,12 @@ test — never a raw hex, px font size, or magic z-index in a component.
   C (result) per `DESIGN.md` §10. Buttons need hover/focus/pressed/disabled/
   loading/success/error as applicable.
 
+### Visual verification commands
+
+- `bun run audit:routes` — كل مسار في Chromium على 390/1440: تجاوز أفقي، ErrorBoundary، غياب h1، تسريب اتجاه، أهداف لمس، + لقطة 390.
+- `bun run audit:contrast` — نسبة تباين النص الفعلية على خلفيته المركّبة في 20 مساراً × وضعين.
+- `bun run capture:design` — مصفوفة لقطات قبل/بعد.
+
 ## 4. Environment & Dependencies
 
 - **Bun first:** `bun install`, `bun run build`, `bun run test`.
@@ -94,7 +100,7 @@ test — never a raw hex, px font size, or magic z-index in a component.
 
 - **الوظائف الأربع تعاقدية**: `verify` · `npm install parity` · `Enforce bundle budget` · `e2e` — أسماؤها في `.github/workflows/verify.yml` مربوطة حرفياً بـ`renovate.json` (الدمج التلقائي معلّق عليها). لا تُعد تسمية أي وظيفة دون تحديث الملفين معاً.
 - **الميزانيتان مجمّدتان وتنزلان فقط**: `lint-budget.json` (عدّ التحذيرات لكل قاعدة) و`bundle-budget.json` (brotli لكل قطعة، بهامش 2% + أرضية 64B). أي زيادة تفشل البوابة: أصلح لا ترفع الرقم؛ وإعادة المعايرة `--write` للانخفاض الموثّق فقط.
-- **شبكة الدخان** (كل المسارات): تُدار بعمليات منفصلة لكل شريحة عبر `bun run test:smoke`، وليست جزءاً من `bun run test` — بسبب تجمّد متعدد التركيبات في بيئة jsdom موثّق في `vitest.config.ts` وتعليقات السكربت.
+- **شبكة الدخان** (كل المسارات): bun run test:smoke = عملية مستقلة لكل مسار (82 شريحة، 4 متوازية، ~3 دقائق). التجمّد التراكمي في jsdom يعني أن تركيب عدة مسارات في عملية واحدة قد لا يستقر؛ العزل لكل مسار هو ما يجعل البوابة حتمية. ليست جزءاً من test العادي.
 - **فحص RLS** يستهدف مشروع الإنتاج؛ يفشل بصوت عالٍ عمداً عند تعذّر الوصول (وإلا لكان فحصاً كاذباً). لا يُضبط أي علم تخطٍّ أوفلاين في CI؛ العلم `VITE_ALLOW_OFFLINE_RLS=1` مخصّص للحاويات المحلية بلا شبكة فقط.
 - **قاعدة الفحص الذاتي**: قبل أي push شغّل السلسلة كاملة محلياً — الفحص الذي لا يُشغَّل لا يحمي شيئاً.
 

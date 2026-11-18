@@ -60,7 +60,7 @@
 | `StatGrid` | شبكة قياس | `cols` 2/3/4 | — | 2–4 مقاييس | لا يرسم اتجاهاً أو رسماً |
 | `Stat` | قياس واحد | `value` · `label` | — | رقم + تسمية | لا أيقونة/اتجاه/نسبة تغيّر |
 | `Section` | قسم مكدّس | `label` · `tight` | — | تجميع بطاقات/صفوف | لا يضيف ترويسة صفحة |
-| `StateView` | الحالة الفارغة/الخطأ | `kind` · `title` · `body` · `action` · `secondary` · `actions` · `icon` · `children` · `compact` · `bare` | empty/search/offline/error؛ `action.pending` | أي شاشة بلا محتوى | لا حالة نجاح؛ لا نص افتراضي |
+| `StateView` | الحالة الفارغة/الخطأ | `kind` · `title` · `body` · `action` · `secondary` · `actions` · `icon` · `children` · `compact` · `bare` | empty/search/offline/error؛ `action.pending` · `action.icon` اختياري (افتراضياً لـerror/offline فقط) | أي شاشة بلا محتوى | لا حالة نجاح؛ لا نص افتراضي |
 | `Button` | فعل | `variant` 7 · `size` 6 · `isLoading` · `loadingText` · `activation` · `asChild` | hover · focus · pressed · disabled · loading | فعل نصي أو أيقونة ضمن نظام الزر | لا success/error/selected مدمجة |
 | `IconButton` | فعل أيقوني | خصائص `button` فقط | hover · focus · pressed · disabled | ترويسة/شريط أدوات | لا variants ولا loading |
 | `Input` | حقل سطر | خصائص `input` | hover · focus · disabled | نص/بحث/تاريخ | لا label ولا خطأ بصري مدمج |
@@ -69,19 +69,19 @@
 | `Switch` | ثنائي | خصائص Radix Root | checked/unchecked · focus · disabled | إعداد نعم/لا | لا label ولا loading |
 | `Slider` | قيمة متصلة | خصائص Radix Root | focus · disabled · dragging | شدة/مستوى | لا فقاعة قيمة ولا علامات |
 | `Tabs` | تبويب داخلي | `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent`؛ `dir` افتراضي rtl | active · focus · disabled | 2–5 خيارات داخل صفحة | لا تنقّل مسارات |
-| `Dialog` | طبقة مركزية | `onClose` · `autoFocus` + عائلة Radix | open/closed · scrim · focus trap | تأكيد/نموذج/تفاصيل | لا صفحة كاملة؛ لا يضمن عودة التركيز |
+| `Dialog` | طبقة مركزية | `onClose` · `autoFocus` + عائلة Radix | open/closed · scrim · focus trap | تأكيد/نموذج/تفاصيل | لا صفحة كاملة؛ يعيد التركيز إلى المشغّل عند الإغلاق (مغطّى باختبار) |
 | `AlertDialog` | تأكيد خطير | عائلة Radix؛ Action/Cancel | open/closed | حذف/تخلي عن تغيير | لا إغلاق X؛ لا variant تدميري مدمج |
 | `Drawer` | لوح سفلي | `onClose` · `autoFocus` · `shouldScaleBackground` | open/closed · drag · scrim | فعل على الهاتف | لا snap points ملفوفة |
 | `Sheet` | لوح جانبي | `side` top/bottom/left/right (افتراضي right) | open/closed · scrim | لوح/تفاصيل | `side` فيزيائي لا منطقي |
-| `ResponsiveDrawer` | لوح متجاوب | `open` · `onOpenChange` · `trigger` · `title` · `description` · `children` | Drawer <768px / Dialog ≥768px | نموذج قصير | لا footer ولا حجم مخصّص |
+| `ResponsiveDrawer` | لوح متجاوب | `open` · `onOpenChange` · `trigger` · `title` · `description` · `children` | Drawer <768px / Dialog ≥768px؛ Dialog 448px بحد 85dvh مع تمرير | نموذج قصير | لا footer مخصّص |
 | `Popover` | منبثق | `align` · `sideOffset` | open/closed · focus | معلومة/أدوات صغيرة | ليس قائمة إجراءات |
 | `Tooltip` | شرح | `sideOffset` + Provider | open/closed | تسمية أيقونة | ليس نصاً أساسياً |
 | `DropdownMenu` | قائمة إجراءات | عائلة كاملة (checkbox/radio/sub/label/separator/shortcut) | open/closed · focus · disabled | إجراءات على عنصر | لا نموذج |
 | `ContextMenu` | إجراء سياقي | عائلة كاملة | open/closed · focus · disabled | زر أيمن/ضغط مطوّل | لا إجراء أساسي |
 | `Collapsible` | كشف واحد | Root/Trigger/Content | open/closed | تفاصيل إضافية | لا مجموعة أكورديون |
 | `Avatar` | صورة مستخدم | `AvatarImage` · `AvatarFallback` | loaded/fallback | هوية شخص | لا حجم مدمج (ثابت 40) |
-| `Calendar` | اختيار تاريخ | خصائص `DayPicker` | selected · today · outside · disabled | منتقي تاريخ | لا RTL كامل |
-| `Carousel` | معرض | `opts` · `plugins` · `orientation` · `setApi` | prev/next · focus | شرائح أفقية | أزراره 32px ومواضعه فيزيائية |
+| `Calendar` | اختيار تاريخ | خصائص `DayPicker` | selected · today · outside · disabled | منتقي تاريخ | RTL على مستوى الغلاف: زوايا منطقية ومسافات gap وأسهم معكوسة |
+| `Carousel` | معرض | `opts` · `plugins` · `orientation` · `setApi` | prev/next · focus | شرائح أفقية | أسهمه مواضعها منطقية (-start/-end)؛ إزاحة Embla فيزيائية بطبيعتها وموثّقة |
 | `Skeleton` | تحميل محجوز | `variant` · `height` · `width` · `ratio` + المركّبات | pulse (opacity فقط) | حجز مكان المحتوى | لا يُعلن التحميل لكل سطر |
 | `AnimatedNumber` | رقم متحرك | `value` · `decimals` · `group` · `prefix` · `suffix` · `duration` | reduced-motion (نظام) | رقم يتغيّر بمعنى | ليس لكل رقم حيّ |
 | `NumericText` | رقم ثابت الاتساع | خصائص `span` | — | أسعار/ساعات | لا يحرّك |
@@ -160,11 +160,11 @@
 
 ### 3.10 الطبقات
 
-- `Dialog`: `DialogContent` بعرض `--ui-content-max`، `p-6`، سطح `app-overlay-surface` (`surface-3` + حد قوي + `shadow-4`)، تعتيم `.app-scrim`، زر إغلاق X في `end`. يركّز أول عنصر قابل للتركيز (`autoFocus`)، ويغلق بـEscape عبر `onClose`، لكنه **يمنع `onCloseAutoFocus` الافتراضي** فلا تُضمن عودة التركيز إلى المشغّل — أعدها يدوياً.
+- `Dialog`: `DialogContent` بعرض `--ui-content-max`، `p-6`، سطح `app-overlay-surface` (`surface-3` + حد قوي + `shadow-4`)، تعتيم `.app-scrim`، زر إغلاق X في `end`. يركّز أول عنصر قابل للتركيز (`autoFocus`)، ويغلق بـEscape عبر `onClose`، ويترك `onCloseAutoFocus` الافتراضي يعيد التركيز إلى المشغّل (مغطّى باختبار انحدار).
 - `AlertDialog`: بلا زر X؛ `AlertDialogAction` يستخدم `buttonVariants()` (primary) و`Cancel` يستخدم `outline`. لا variant تدميري مدمج؛ مرّر `className` بأدوار `destructive` (‏`cn` يدمج).
 - `Drawer`: vaul، يلتصق بالأسفل، `rounded-t-xl`، مقبض سحب بارتفاع 44 يعمل زر إغلاق، `onClose`، و`shouldScaleBackground=false` افتراضاً.
 - `Sheet`: `side` = top/bottom/left/right، افتراضي `right`. المواضع **فيزيائية**؛ في RTL الحافة اليمنى هي البداية، لذا الافتراضي يقرأ كـ«بداية».
-- `ResponsiveDrawer`: `useIsMobile` عند 768px؛ Drawer سفلي على الهاتف وDialog على الواسع، بعنوان/وصف/محتوى فقط. نسخة الحاسوب تستخدم `sm:max-w-[425px]` الثابت خارج عقد العرضين — **مخالفة قائمة**.
+- `ResponsiveDrawer`: `useIsMobile` عند 768px؛ Drawer سفلي على الهاتف وDialog على الواسع، بعنوان/وصف/محتوى فقط. نسخة الحاسوب تستخدم sm:max-w-md (448px) وبحد أقصى 85dvh مع تمرير، فلا تُقصّ في الشاشات القصيرة.
 - `Popover`: `w-72` و`p-4` وسطح `glass-overlay z-drawer`؛ بلا سهم. `Tooltip` يحتاج `TooltipProvider` (مثبّت في `App`)؛ لا تأخير مخصّص.
 - كل الطبقات تستخدم `z-drawer` حالياً (لا `picker/sheet/modal` من السلّم) — **غير مُتحقَّق** أنه مقصود، لكنه الواقع.
 
@@ -374,7 +374,7 @@
 2. `Button size="lg"` = 46px أقصر من `default` 48px، و`Button size="icon"` = 48 بينما `IconButton` = 44.
 3. `IconChip size="sm"` = 40px فعلياً (تعليق الشيفرة يقول 32).
 4. `StateView.action` أيقونته ثابتة `RefreshCcw`، والزر خام لا `Button`؛ لا `kind="success"`.
-5. `Dialog`/`Drawer` يمنعان `onCloseAutoFocus` الافتراضي: عودة التركيز إلى المشغّل غير مضمونة.
+5. الطبقات تعيد التركيز إلى المشغّل عند الإغلاق (Dialog/Drawer/Sheet/ResponsiveDrawer) — مغطّى باختبارات overlayFocusReturn.
 6. `ResponsiveDrawer` على الحاسوب يستخدم `max-w-[425px]` خارج عقد العرضين.
 7. `Calendar` يحمل أصنافاً فيزيائية (`space-x-4`, `rounded-l/r-md`)، و`Carousel` أزراره 32px ومواضعه `-left/-right` — لا RTL/لمس مضمونان.
 8. كل الطبقات تستخدم `z-drawer`، لا مستويات `picker/sheet/modal` المعرّفة في السلّم؛ وفواصل القائمتين مختلفة (`bg-muted` مقابل `bg-border`).
