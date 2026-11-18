@@ -1636,6 +1636,24 @@ export default function ChessPage() {
         </div>
       </div>
 
+      {/* Primary action above the board.
+          On the pinned 360x640 phone the old placement below the board pushed
+          "لعبة جديدة" 36px past the fold — an action a player needs before the
+          game starts, hidden behind a scroll. Idle/ended states now lead with
+          it; during an active game the board owns the viewport and the utility
+          deck stays below. */}
+      {(!gameStarted || gameOver) && (
+        <div className="mx-auto mb-2 mt-3 w-full max-w-[340px] px-4">
+          <button
+            onClick={() => resetGame()}
+            className="flex w-full flex-row items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-primary-foreground app-pressable app-focus-ring transition-motion"
+          >
+            <RotateCcw className="h-5 w-5" aria-hidden />
+            <span className="text-micro font-semibold">{t('chess.newGame')}</span>
+          </button>
+        </div>
+      )}
+
       {/* Board — المشهد ثلاثي الأبعاد */}
       <div className="max-w-[340px] mx-auto px-4 relative">
         <AnimatePresence>
@@ -1754,17 +1772,9 @@ export default function ChessPage() {
         </div>
       )}
 
-      {/* Controls: one primary action on its own row, then a 3-up grid of
-          utilities. Six equal capsules in a single row could not fit
-          360px, and every one of them read as a primary pill. */}
-      <div className="mx-auto mt-5 w-full max-w-sm px-4">
-        <button onClick={() => resetGame()}
-          className="mb-2 flex w-full flex-row items-center justify-center gap-2 rounded-md px-5 py-3 app-pressable app-focus-ring bg-primary text-primary-foreground transition-motion">
-          <RotateCcw className="w-5 h-5" />
-          <span className="text-micro font-medium">{t('chess.newGame')}</span>
-        </button>
-      </div>
-      <div className="mx-auto mt-2 grid w-full max-w-sm grid-cols-2 gap-2 px-4 sm:grid-cols-4">
+      {/* Utility deck: undo/flip/hint/resign. The primary action lives above
+          the board (idle/ended), so this deck never competes with it. */}
+      <div className="mx-auto mt-4 grid w-full max-w-sm grid-cols-2 gap-2 px-4 sm:grid-cols-4">
         <button onClick={undo} disabled={history.length === 0 || gameOver || aiThinking}
           className="flex flex-col items-center min-h-14 gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-secondary/70 text-foreground disabled:opacity-25 transition-motion">
           <Undo2 className="w-5 h-5" />

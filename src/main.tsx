@@ -1,5 +1,8 @@
 /* entry */
 import "./index.css";
+// Eager side-effect import: overlay focus return needs the opener that was
+// focused before a lazily-loaded layer chunk even existed.
+import "./lib/lastExternalFocus";
 
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";

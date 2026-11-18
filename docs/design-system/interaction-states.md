@@ -85,7 +85,7 @@
 - **A:** PageHeader + زر أساسي يفتح ResponsiveDrawer (Drawer هاتف/Dialog واسع) بحقول عنوان وتاريخ وإلغاء/تأكيد.
 - **B:** التأكيد isLoading ومعطّل، النموذج يبقى مفتوحاً والقيم محفوظة؛ لا إدخال optimistic للمعرّف.
 - **C:** نجاح → إغلاق اللوح وتصفير الحقول والانتقال للتفاصيل؛ فشل → toast.error، اللوح مفتوح، إعادة المحاولة ممكنة.
-- **الحالة:** Baseline — TripsPage يبني page-shell يدوياً ويستخدم .skeleton/.empty-state القديمة وبلا دوّارة إرسال. المالك: G.
+- **الحالة:** ✅ **Implemented · Tested · Visually inspected** — أُعيد تأليف TripsPage على PageShell/PageHeader + ResponsiveDrawer + AppList/AppRow + StateView: تحقق مضمّن (noValidate → رسالة عربية محددة)، زر إنشاء isLoading/loadingText، الحقول تُقفل أثناء الحفظ، فشل يحفظ القيم ويفتح الرسالة، نجاح ينقل إلى تفاصيل الرحلة، وEscape/الإلغاء يعيدان التركيز إلى زر «رحلة جديدة». مغطّى بـ e2e/trips-states.spec.ts (5 حالات × نسختا Chromium). المالك: G + lead.
 
 ### 2.7 فتح قارئ/تفاصيل — /archive/:id, /podcasts/:id, /diwan/library/poem/:slug (G2)
 
@@ -135,7 +135,7 @@
 | S2 | حالات محمية/فارغة يتيمة بلا هوية صفحة | /chat, /wellness, /journal, /archive, /marginalia | B (النمط) + C/E/F | جارٍ |
 | S3 | GroupComposer بلا دوّارة إرسال/حالة فشل | /chat | F | جارٍ |
 | S4 | ArchiveNew عناصر تحكم خام | /archive/new | C | جارٍ |
-| S5 | TripsPage empty/skeleton قديمان وبلا دوّارة | /travel-atlas/trips | G | جارٍ |
+| S5 | TripsPage empty/skeleton قديمان وبلا دوّارة | /travel-atlas/trips | G | ✅ مُغلق — إعادة تأليف كاملة + e2e |
 | S6 | مسارات ديناميكية بلا fixture (قصيدة/رحلة/بودكاست/غرفة) | متعدد | C/G/F | Not verified |
 | S7 | حالات أذونات الموقع (خرائط/طقس) غير مختبرة تفاعلياً | /travel-atlas, /weather | E/G | Not verified |
 
@@ -148,7 +148,7 @@
 | بحث القاموس | Implemented · Tested (حالات search/error) · Visually inspected | audit + after/f-comms |
 | إنشاء قيد أرشيف | Implemented (A/B/C) · **B/C غير visible offline** | ArchiveNew + audit |
 | بدء لعبة شطرنج | Implemented · Tested (E2E 130/130) · Visually inspected | e2e/games-control-bar.spec.ts |
-| إضافة رحلة | Implemented (A/B/C) · Not visually verified (authenticated write path) | TripsPage — إعادة التأليف الكامل باقية |
+| إضافة رحلة | ✅ Implemented · Tested (5 حالات e2e) · Visually inspected — الحفظ الشبكي الحقيقي فقط Not verified | TripsPage + ResponsiveDrawer |
 | بوابة الدخول | Implemented · Tested (H 15/16) · Visually inspected | qa-final.md، auth-390/1440 |
 | حفظ ورد | Implemented · Verified بصرياً في /mihrab | after/d-spiritual |
 | فتح/إغلاق الطبقات | Implemented · Tested (7/7 focus spec) · Verified (H) | overlayFocusReturn.test.tsx + qa-final |

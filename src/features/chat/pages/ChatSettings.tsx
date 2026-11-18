@@ -9,6 +9,7 @@ import SEO from '@/components/SEO';
 import { AppCard,PageShell, Section } from '@/components/ui/app-shell';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import ChatSignedOutSurface from '@/features/chat/components/ChatSignedOut';
 import DeviceKeyCard from '@/features/chat/components/DeviceKeyCard';
 import { useAuth } from '@/hooks/useAuth';
@@ -656,12 +657,15 @@ function NumberRow({ icon, label, value, min, max, step, onChange, helperAr }: N
         <span className="flex-1 text-meta font-medium text-foreground">{label}</span>
         <span className="text-mini text-muted-foreground tabular-nums min-w-[2ch] text-end">{value}</span>
       </div>
-      <input
-        type="range"
-        min={min} max={max} step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-primary"
+      {/* Shared Slider: a 44px interaction root with a 44px thumb hit area,
+          instead of a raw 16px-tall range input (catalog §2, DESIGN §9). */}
+      <Slider
+        min={min}
+        max={max}
+        step={step}
+        value={[value]}
+        onValueChange={([next]) => onChange(next)}
+        aria-label={label}
       />
       {helperAr && (
         <p className="text-micro text-muted-foreground-subtle mt-1">

@@ -1829,6 +1829,15 @@ html[data-soft-keyboard-open='true'] [data-ui-surface='drawer'] {
     outline-offset: var(--ui-focus-offset);
   }
 
+  /* A focusable region is a control. Tab panels carry tabIndex=0 so keyboard
+     users can scroll them, and every such region gets the same ring no matter
+     which primitive rendered it (QA-B13). */
+  [role='tabpanel']:focus-visible {
+    outline: var(--ui-focus-width) solid hsl(var(--ring));
+    outline-offset: var(--ui-focus-offset);
+    border-radius: var(--r-lg);
+  }
+
   /* ── The one press feedback ──────────────────────────────────────
      Every interactive element in the app expresses a press the same way:
      scale + vertical offset, both resolved from the user's interaction

@@ -140,3 +140,29 @@
 | التاريخ | التغيير |
 |---|---|
 | 2026-11-18 | إنشاء الوثيقة، تسجيل Gate 0، إطلاق B–G + H، بدء Gate 1/2 |
+
+## 10. جولة الإغلاق (Closure pass) — بعد دمج المرحلة الأولى
+
+أُطلقت بعد دمج main عند 4e233c4c لمعالجة المتبقيات الوظيفية والتغطية، لا لإضافة زخرفة.
+
+| البند | الحالة | الدليل |
+|---|---|---|
+| **fixture مصادقة حتمي** (جلسة Supabase تركيبية + محاكاة REST) في scripts/lib/session-fixture.mjs | ✅ Implemented · Tested | route-audit-signedin.json 164/164 · signed-in-final/ |
+| **--session signed-in** في audit-routes وcapture-matrix | ✅ | scripts + manifests تحمل session |
+| **e2e signed-in-states.spec.ts** (10 أسطح + عقد البوابة + username) | ✅ | 24 اختباراً في مشروعي Chromium |
+| **TripsPage A/B/C** | ✅ Implemented · Tested · Visually inspected | trips-states.spec.ts · verification/design/trips-before/after |
+| **QA-F1** حتمية التدقيق (fonts + 2 rAF + retry مرة) | ✅ | تشغيلان متتاليان متطابقان |
+| **QA-F3** زر «لعبة جديدة» فوق الرقعة 360×640 | ✅ | e2e games-control-bar 4/4 |
+| **QA-B13** حلقة تركيز لوحة المحراب + **مسبار سمات JSX المكررة** | ✅ | e2e/focus-ring.spec.ts + `bun run check:jsx` ضمن verify |
+| **البودكاست offline** StateView بدل skeleton دائم | ✅ | probe 390/1440 |
+| **Simulation Console** أداة تطوير فقط | ✅ | غائبة عن إنتاج 4173 |
+| **ميزانية الحزمة** بلا زيادة | ✅ | 2875.5KB / 250 قطعة |
+
+**قرارات جديدة:** (1) جلسة الاختبار المسجّلة **تركيبية بالكامل** ولا تُستخدم كدليل
+مصادقة أو RLS — تُوصف دائماً بهذا القيد؛ (2) أدوات المطوّر (محاكاة اللياقة، مفتشات
+الرموز) لا تظهر في بناء الإنتاج؛ (3) أي منطقة قابلة للتركيز تحصل على حلقة التركيز
+العامة، وسمات JSX المكررة تفشل البوابة.
+
+**ما تبقّى للمرحلة التالية:** البيانات الحقيقية خلف المصادقة، خطة تقليص الحزمة
+(index/motion)، سحب لوحة مكان الأطلس، إعادة تأليف library/history للبودكاست،
+ومراجعة 3D mind على الهاتف.

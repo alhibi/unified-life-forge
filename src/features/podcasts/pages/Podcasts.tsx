@@ -683,9 +683,17 @@ export default function PodcastsPage() {
           </>
         ) : active.isError ? (
           <StateView
-            kind="error"
-            title={'تعذّر تحميل البودكاست'}
-            body={'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'}
+            kind={typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'error'}
+            title={
+              typeof navigator !== 'undefined' && !navigator.onLine
+                ? 'أنت غير متصل'
+                : 'تعذّر تحميل البودكاست'
+            }
+            body={
+              typeof navigator !== 'undefined' && !navigator.onLine
+                ? 'يتطلب اكتشاف البودكاست اتصالاً بالإنترنت. مكتبتك المحفوظة تعمل دون اتصال.'
+                : 'تأكد من الاتصال بالإنترنت ثم حاول مجدداً.'
+            }
             action={{ label: 'إعادة المحاولة', onClick: () => active.refetch() }}
             className="py-4"
           />

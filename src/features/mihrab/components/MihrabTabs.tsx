@@ -170,6 +170,9 @@ export default function MihrabTabs<K extends string>({
           role="tabpanel"
           id={`${baseId}-panel-${active}`}
           aria-labelledby={`${baseId}-tab-${active}`}
+          // The panel is deliberately focusable so a keyboard user can scroll
+          // it without entering the tab strip again; it therefore needs the
+          // shared visible focus ring (QA-B13).
           tabIndex={0}
           drag={reduce ? false : 'x'}
           dragDirectionLock
@@ -187,8 +190,9 @@ export default function MihrabTabs<K extends string>({
               ? { opacity: 0, transition: { duration: 0.08 } }
               : { opacity: 0, x: -enterFrom * 0.5, transition: { duration: 0.14, ease: EASE_IN } }
           }
+          // A focusable panel is a control: index.css gives every
+          // [role='tabpanel'] the shared :focus-visible ring (QA-B13).
           style={{ willChange: 'transform, opacity', touchAction: 'pan-y' }}
-          className="focus-visible:outline-none"
         >
           {children}
         </motion.div>

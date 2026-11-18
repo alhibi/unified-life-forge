@@ -1,0 +1,14 @@
+file:///Users/amer/ulf-design/scripts/audit-routes.mjs:294
+  if (row.pageErrors.length > 0) failures.push('page-errors:' + row.pageErrors.length);
+                     ^
+
+TypeError: Cannot read properties of undefined (reading 'length')
+    at finishRow (file:///Users/amer/ulf-design/scripts/audit-routes.mjs:294:22)
+    at auditRoute (file:///Users/amer/ulf-design/scripts/audit-routes.mjs:405:10)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:541:9)
+    at async worker (file:///Users/amer/ulf-design/scripts/audit-routes.mjs:414:17)
+    at async Promise.all (index 0)
+    at async file:///Users/amer/ulf-design/scripts/audit-routes.mjs:437:1
+
+Node.js v26.13.1
