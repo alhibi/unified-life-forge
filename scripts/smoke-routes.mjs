@@ -53,7 +53,7 @@ if (process.env.SMOKE_SHARD) {
   const { status } = spawnSync(
     'npx',
     ['vitest', 'run', 'src/test/routes.smoke.test.tsx', '--reporter=dot'],
-    { stdio: 'inherit', env: process.env },
+    { stdio: 'inherit', env: { ...process.env, SMOKE_ROUTES: '1' } },
   );
   process.exit(status ?? 1);
 }
@@ -77,7 +77,7 @@ for (let i = 1; i <= SHARDS; i += 1) {
       // Output is replayed in full only for shards that fail.
       stdio: ['ignore', 'pipe', 'pipe'],
       encoding: 'utf8',
-      env: { ...process.env, SMOKE_SHARD: `${i}/${SHARDS}` },
+      env: { ...process.env, SMOKE_ROUTES: '1', SMOKE_SHARD: `${i}/${SHARDS}` },
       // A shard that wedges should fail the run, not hang CI forever. This is
       // the backstop that Vitest's own timeout could not provide.
       timeout: 5 * 60 * 1000,
