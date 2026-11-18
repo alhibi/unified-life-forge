@@ -89,8 +89,11 @@ const DialogContent = React.forwardRef<
             e.preventDefault();
           }
         }}
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
+        onCloseAutoFocus={() => {
+          // Radix restores focus to the element that opened the dialog by
+          // default. Preventing it here left focus on <body> after close
+          // (DESIGN.md §10 C: focus returns to a logical place). Keep the
+          // onClose callback, drop the prevention.
           onClose?.();
         }}
         {...props}

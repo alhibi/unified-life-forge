@@ -82,8 +82,10 @@ const DrawerContent = React.forwardRef<
             e.preventDefault();
           }
         }}
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
+        onCloseAutoFocus={() => {
+          // Radix (inside vaul) restores focus to the trigger by default.
+          // Preventing it here left focus on <body> after close
+          // (DESIGN.md §10 C: focus returns to a logical place).
           onClose?.();
         }}
         {...props}

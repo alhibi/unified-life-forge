@@ -59,7 +59,11 @@ export default function ResponsiveDrawer({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="sm:max-w-md">
+      {/* The desktop layer carries the same content as the mobile sheet, so it
+          must cap its height and scroll like the sheet does; without this a long
+          model/detail sheet ran 1203px tall in a 900px viewport and clipped
+          above and below the screen. Width stays the compact form width. */}
+      <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lead font-bold text-foreground">{title}</DialogTitle>
           {description && (
