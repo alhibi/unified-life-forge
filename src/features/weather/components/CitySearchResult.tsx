@@ -123,7 +123,7 @@ export function CitySearchResult({
             <Building2 className="w-3 h-3 text-muted-foreground/55 shrink-0" aria-hidden />
           )}
         </div>
-        <div className="flex items-center gap-2 mt-0.5 text-[0.6875rem] text-foreground/65 truncate">
+        <div className="flex items-center gap-2 mt-0.5 text-micro text-foreground/65 truncate">
           {subtitleParts.length > 0 && (
             <span className="truncate">{subtitleParts.join(' · ')}</span>
           )}
@@ -140,7 +140,7 @@ export function CitySearchResult({
         {badge && (
           <span
             className={cn(
-              'hidden sm:inline-block text-[0.625rem] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md',
+              'hidden sm:inline-block text-micro font-bold tracking-wide uppercase px-2 py-0.5 rounded-md',
               badge.tint,
             )}
           >
@@ -148,7 +148,7 @@ export function CitySearchResult({
           </span>
         )}
         {distance && (
-          <span className="text-[0.625rem] font-bold tracking-wide tabular-nums text-foreground/55">
+          <span className="text-micro font-bold tracking-wide tabular-nums text-foreground/55">
             {distance}
           </span>
         )}

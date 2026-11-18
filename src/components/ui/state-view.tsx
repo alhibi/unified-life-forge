@@ -93,7 +93,7 @@ export function StateView({
       // the screen, and an assertive live region would interrupt the user.
       role={kind === 'error' ? 'alert' : 'status'}
       className={cn(
-        'flex flex-col items-center justify-center gap-3 px-6 text-center',
+        'mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-3 px-6 text-center',
         !bare && 'rounded-2xl border border-dashed border-border/80 bg-secondary',
         compact ? 'min-h-[9rem] py-6' : 'min-h-[15rem] py-12',
         className,

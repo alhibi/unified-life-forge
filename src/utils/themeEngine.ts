@@ -741,7 +741,7 @@ function definePreset(
 }
 
 // ─── Theme Presets ──────────────────────────────────────────
-// Twelve curated families, one per visual territory. Anything retired maps
+// Fourteen curated families, one per visual territory. Anything retired maps
 // through LEGACY_THEME_ALIASES so a saved preference never breaks.
 export const themePresets: ThemePreset[] = [
   definePreset(

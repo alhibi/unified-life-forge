@@ -198,7 +198,7 @@ export function FullActivityMap({
             ? 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(110%) saturate(80%)'
             : 'none',
         }}
-        className="w-full bg-background z-0"
+        className="w-full bg-background z-base"
       />
 
       {/* Floating coordinates badge */}

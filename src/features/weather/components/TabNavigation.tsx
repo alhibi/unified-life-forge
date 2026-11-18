@@ -85,7 +85,7 @@ export function TabNavigation<T extends string>({
               aria-controls={`tabpanel-${tab.id}`}
               onClick={() => onChange(tab.id as T)}
               className={cn(
-                'relative z-10 flex flex-col items-center justify-center gap-0.5',
+                'relative z-raised flex flex-col items-center justify-center gap-0.5',
                 'h-auto min-h-14 px-1.5 py-2.5 rounded-sm sm:min-h-16 sm:px-3',
                 'transition-colors duration-fast',
                 active
@@ -108,7 +108,7 @@ export function TabNavigation<T extends string>({
               </span>
               <span
                 className={cn(
-                   'hidden text-[0.625rem] font-medium tracking-[0.06em] truncate max-w-full sm:block',
+                   'hidden text-micro font-medium tracking-[0.06em] truncate max-w-full sm:block',
                   active ? 'text-primary-foreground/80' : 'text-muted-foreground-subtle',
                 )}
               >

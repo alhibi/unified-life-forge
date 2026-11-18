@@ -45,7 +45,7 @@ export { applyRootTokens } from './rootTokens';
 
 /**
  * The four steps of the radius ladder. The shipped values live in
- * `RADIUS_PROFILE_LADDERS.graded` below — 6 / 8 / 12 / 16 / 20 at softness 1.0.
+ * `RADIUS_PROFILE_LADDERS.graded` below — 8 / 12 / 16 / 24 / 32 at softness 1.0.
  */
 export type RadiusStep = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -760,7 +760,7 @@ export function interfaceTokens(prefs: InterfacePrefs): Record<string, string> {
     '--ui-pad-card': `${g.cardPadding}px`,
     '--ui-pad-card-compact': `${g.cardPaddingCompact}px`,
     '--ui-control-h': `${g.controlHeight}px`,
-    // control(s) = 36 · 44 · 52 — one step of 8px, the grid unit, apart.
+    // Controls: xs 28 · sm 36 · default (density) · lg 52 — the ladder is
     '--ui-button-xs-h': px(28, g.uiScale),
     '--ui-button-sm-h': px(36, g.uiScale),
     '--ui-button-h': `${g.controlHeight}px`,

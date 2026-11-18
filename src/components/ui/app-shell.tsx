@@ -30,6 +30,13 @@ interface PageShellProps extends DivProps {
   /** Wrap children in the canonical max-w-[var(--ui-content-max)] centered column. Default true. */
   centered?: boolean;
   /**
+   * Which of the two published frames this page uses.
+   *   content   - the reading column (--ui-content-max): reading, forms, lists.
+   *   workspace - the wider frame (--ui-workspace-max): dashboards, tables.
+   * The token owns the width; never a local max-w-* class.
+   */
+  width?: 'content' | 'workspace';
+  /**
    * The page's header. When present it is rendered above the content inside
    * the same centred column, and the shell drops its top padding so a sticky
    * header can own the top edge. One frame for every header-led screen.
@@ -41,6 +48,7 @@ interface PageShellProps extends DivProps {
 export function PageShell({
   flush,
   centered = true,
+  width = 'content',
   header,
   className,
   children,
@@ -57,6 +65,7 @@ export function PageShell({
         // scroll and silently disabling every sticky header in the app.
         hasHeader ? 'overflow-x-clip' : 'overflow-hidden',
         (flush || hasHeader) && 'page-shell-flush',
+        width === 'workspace' && 'page-shell-workspace',
         className,
       )}
       {...rest}
@@ -269,6 +278,7 @@ export function IconChip({
       data-ui-surface="chip"
       className={cn(
         'row-icon',
+        size === 'sm' && 'row-icon-sm',
         size === 'md' && 'row-icon-md',
         size === 'xl' && 'row-icon-xl',
         tone === 'plain' && 'row-icon-plain',

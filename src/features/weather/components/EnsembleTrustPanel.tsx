@@ -52,7 +52,7 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
             {'كيف اتفقت النماذج، وأيها استُبعد كشاذ'}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55">
+        <span className="inline-flex items-center gap-1.5 text-micro font-bold tracking-[0.18em] uppercase text-foreground/55">
           <Users className="w-3 h-3" aria-hidden />
           <span dir="ltr" className="tabular-nums">
             {meta.sources_responded}/{meta.sources_queried}
@@ -83,20 +83,20 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
         {/* Disagreement + tendency */}
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-background/40 border border-foreground/10 px-4 py-3">
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-1.5">
+            <p className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 mb-1.5">
               {'تباعد النماذج'}
             </p>
             <p className="text-lead font-extralight text-foreground tabular-nums leading-none" dir="ltr">
               {meta.disagreement_score_percent}
-              <span className="ms-1 text-[0.625rem] font-bold text-foreground/55">٪</span>
+              <span className="ms-1 text-micro font-bold text-foreground/55">٪</span>
             </p>
-            <p className="mt-1 text-[0.625rem] text-foreground/55 leading-snug">
+            <p className="mt-1 text-micro text-foreground/55 leading-snug">
               {'كلما قل الرقم، زاد الاتفاق'}
             </p>
           </div>
 
           <div className="rounded-xl bg-background/40 border border-foreground/10 px-4 py-3">
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-1.5">
+            <p className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 mb-1.5">
               {'اتجاه الضغط'}
             </p>
             <p className="flex items-center gap-1.5 text-meta font-bold text-foreground leading-tight">
@@ -104,7 +104,7 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
               <span className="min-w-0 truncate">{pressure.tendency_label}</span>
             </p>
             {pressure.tendency_hpa_per_3hr !== 0 && (
-              <p className="mt-1 text-[0.625rem] text-foreground/55 tabular-nums leading-tight" dir="ltr">
+              <p className="mt-1 text-micro text-foreground/55 tabular-nums leading-tight" dir="ltr">
                 {pressure.tendency_hpa_per_3hr > 0 ? '+' : ''}
                 {pressure.tendency_hpa_per_3hr} hPa / 3h
               </p>
@@ -115,7 +115,7 @@ function EnsembleTrustPanelImpl({ snapshot }: Props) {
         {/* Contributor chips */}
         {agreed.length > 0 && (
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 mb-2.5">
+            <p className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 mb-2.5">
               {'النماذج المساهمة'}
             </p>
             <ul className="flex flex-wrap gap-1.5">

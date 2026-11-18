@@ -59,7 +59,7 @@ function PortalContinueImpl({ apps, onOpen }: PortalContinueProps) {
   if (apps.length === 0) return null;
 
   return (
-    <section aria-labelledby="portal-continue-h" className="relative z-10">
+    <section aria-labelledby="portal-continue-h" className="relative z-raised">
       <h2
         id="portal-continue-h"
         className="type-meta mb-3 font-medium tracking-[0.14em] text-muted-foreground"

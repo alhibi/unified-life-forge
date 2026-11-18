@@ -326,7 +326,7 @@ export default function PriceChart({
         {series && (
           <>
             {/* Price scale */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[4.25rem]">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-raised w-[4.25rem]">
               {priceTicks.map((tick) => (
                 <span
                   key={tick.y}
@@ -447,7 +447,7 @@ export default function PriceChart({
 
             {/* Hover readout */}
             {hoverIndex !== null && activePoint && (
-              <div className="pointer-events-none absolute inset-y-0 left-[4.25rem] right-0 z-20">
+              <div className="pointer-events-none absolute inset-y-0 left-[4.25rem] right-0 z-sticky">
                 <div
                   className="absolute top-1 -translate-x-1/2 rounded-lg border border-border/40 bg-popover px-2.5 py-1.5 text-center"
                   style={{

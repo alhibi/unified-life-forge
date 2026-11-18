@@ -59,7 +59,7 @@ export default function ResponsiveDrawer({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lead font-bold text-foreground">{title}</DialogTitle>
           {description && (

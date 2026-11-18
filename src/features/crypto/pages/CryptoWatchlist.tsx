@@ -222,7 +222,7 @@ export default function CryptoWatchlist() {
   };
 
   return (
-    <PageShell>
+    <PageShell width="workspace">
       <SEO
         title="مراقب العملات الرقمية — قائمة المراقبة"
         description="متابعة أسعار العملات المشفرة، السيولة، حجم التداول والتحليلات الفورية عبر DEX Screener"

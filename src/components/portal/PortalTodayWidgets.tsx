@@ -8,7 +8,7 @@ import WeatherWidget from '@/features/weather/components/WeatherWidget';
 
 export default function PortalTodayWidgets() {
   return (
-    <div className="portal-today-grid relative z-10 grid items-start gap-4">
+    <div className="portal-today-grid relative z-raised grid items-start gap-4">
       {/* Both sections reserve their measured height so the tile grid below
           does not jump when the async data lands (CLS guard). The occasions
           strip now lives behind a disclosure inside the prayer card, and the

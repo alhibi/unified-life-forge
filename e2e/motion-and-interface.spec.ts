@@ -109,9 +109,13 @@ test.describe('interface platform (/settings/interface)', () => {
     await expect(page.getByText('المقاس المخصص')).toBeVisible();
     const measure = await readVar(page, '--ui-content-max');
     expect(measure).toMatch(/^\d+px$/);
-    // `max-w-lg` — used by 40+ screens — resolves to the same variable.
-    const column = page.locator('.max-w-lg').first();
+    // Every page shell centres through .page-shell-inner, which reads the same
+    // token. max-w-lg is gone from the codebase on purpose (the ratchet fails
+    // the build if it returns), so assert the real column instead.
+    const column = page.locator('.page-shell-inner').first();
     await expect(column).toBeVisible();
+    const maxWidth = await column.evaluate((el) => getComputedStyle(el).maxWidth);
+    expect(maxWidth).toBe(measure);
   });
 
   test('divider style silences row separators', async ({ page }) => {

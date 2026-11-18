@@ -132,7 +132,7 @@ export default function WeatherPlanner({
         {/* Exercise suitability + D3 window */}
         <div className="rounded-xl bg-secondary border border-foreground/10 p-5 flex flex-col gap-5">
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
+            <p className="text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
               {'مؤشر الرياضة في الهواء الطلق'}
             </p>
             <div className="flex items-center gap-5">
@@ -183,7 +183,7 @@ export default function WeatherPlanner({
           </div>
 
           <div className="pt-4 border-t border-foreground/10">
-            <p className="flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-2">
+            <p className="flex items-center gap-1.5 text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-2">
               <Sun className="w-3.5 h-3.5 text-primary" aria-hidden />
               {'تخليق فيتامين د (D3 Window)'}
             </p>
@@ -194,7 +194,7 @@ export default function WeatherPlanner({
         {/* Advisories */}
         <div className="rounded-xl bg-secondary border border-foreground/10 p-5 flex flex-col gap-5">
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
+            <p className="text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
               {'الإرشادات والتحذيرات الطبية'}
             </p>
             <div className="space-y-2.5">

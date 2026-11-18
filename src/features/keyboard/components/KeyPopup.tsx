@@ -25,7 +25,7 @@ export const KeyPopup = memo(function KeyPopup({
   return (
     <div
       style={positionStyle}
-      className="pointer-events-auto absolute bottom-full mb-1 z-50 flex -translate-x-1/2 flex-col items-center"
+      className="pointer-events-auto absolute bottom-full mb-1 z-drawer flex -translate-x-1/2 flex-col items-center"
     >
       {/* Extended Popup Menu for Variants */}
       {popups && popups.length > 0 && (

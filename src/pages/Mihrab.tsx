@@ -113,7 +113,14 @@ function MihrabMasthead() {
       {/* 28-day activity strip. Each cell encodes one day's completion share —
           this is data, so it keeps the accent at varying alpha (the documented
           data-colour exception on the single-accent contract). */}
-      <div className="mt-2 flex w-full max-w-xs items-end gap-[3px]" aria-hidden>
+      {/* The 28-day strip used to be aria-hidden with no caption, leaving
+          twenty bars that explained nothing. It is data, so it now
+          announces the period and carries a visible caption. */}
+      <div
+        className="mt-2 flex w-full max-w-xs items-end gap-[3px]"
+        role="img"
+        aria-label="نشاط الورد في آخر 28 يوماً"
+      >
         {recentDays.map((day) => (
           <span
             key={day.key}
@@ -126,6 +133,9 @@ function MihrabMasthead() {
           />
         ))}
       </div>
+      <p className="w-full max-w-xs text-micro text-muted-foreground-subtle">
+        آخر 28 يوماً · كل عمود يوم واحد
+      </p>
       {/* Only claim a record once one exists — "أفضل تتابع ٠ يوم" is noise. */}
       {streak.total > 0 && (
         <p className="mt-1.5 text-micro tabular-nums text-muted-foreground">

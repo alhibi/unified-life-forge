@@ -57,7 +57,7 @@ function SimSlider({ label, icon, min, max, step, value, unit, onChange }: SimSl
         </span>
         <span className="text-meta font-extralight tabular-nums text-foreground" dir="ltr">
           {value}
-          <span className="ms-1 text-[0.625rem] font-bold text-muted-foreground-subtle">{unit}</span>
+          <span className="ms-1 text-micro font-bold text-muted-foreground-subtle">{unit}</span>
         </span>
       </div>
       <input
@@ -91,7 +91,7 @@ function OutputCard({ label, value, unit, hint, highlight }: OutputCardProps) {
           : 'bg-secondary border-foreground/10'
       }`}
     >
-      <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle">
+      <span className="text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle">
         {label}
       </span>
       <div className="flex items-baseline gap-1 tabular-nums leading-none" dir="ltr">
@@ -231,7 +231,7 @@ export default function MeteorologyConsole() {
 
       <div className="px-6 pb-6">
         <div className="rounded-xl bg-secondary border border-foreground/10 px-4 py-3.5">
-          <p className="flex items-center gap-1.5 text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
+          <p className="flex items-center gap-1.5 text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle mb-3">
             <BookOpen className="w-3.5 h-3.5 text-primary" aria-hidden />
             {'المرجع العلمي والمعادلات'}
           </p>

@@ -51,7 +51,7 @@ export function DailyRangeStrip({ days, iconFor, locale }: DailyRangeStripProps)
             {'مدى الحرارة اليومي لكل يوم مع الرمز الجوي'}
           </p>
         </div>
-        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
+        <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
           {days.length} أيام
         </span>
       </header>

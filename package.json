@@ -21,7 +21,7 @@
     "lint:budget": "node scripts/lint-budget.mjs",
     "arch": "node scripts/arch-check.mjs",
     "arch:write": "node scripts/arch-check.mjs --write",
-    "test:smoke": "node scripts/smoke-routes.mjs",
+    "test:smoke": "NODE_OPTIONS=\"--localstorage-file=/tmp/vitest-localstorage\" node scripts/smoke-routes.mjs",
     "build:budget": "node scripts/bundle-budget.mjs",
     "build:budget:write": "node scripts/bundle-budget.mjs --write"
   },

@@ -62,12 +62,12 @@ function MetricTile({
         align === 'start' && 'items-start text-start',
       )}
     >
-      <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle leading-none">
+      <span className="text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground-subtle leading-none">
         {label}
       </span>
       <span className={cn('w-full whitespace-normal break-words font-bold text-foreground tabular-nums leading-snug', unit ? 'text-lead' : 'text-body')} dir={unit ? 'ltr' : 'rtl'}>
         {value}
-        {unit && <span className="ms-1 text-[0.625rem] font-semibold text-muted-foreground-subtle">{unit}</span>}
+        {unit && <span className="ms-1 text-micro font-semibold text-muted-foreground-subtle">{unit}</span>}
       </span>
     </div>
   );
@@ -197,7 +197,7 @@ export function WeatherHeroRefined({ snapshot, hourly, locationName = 'موقع�
         solarElevationDeg={snapshot.solar.solar_elevation_deg}
       />
 
-      <div className="relative z-10 flex min-h-[30rem] flex-col px-5 py-6 sm:px-8 sm:py-8">
+      <div className="relative z-raised flex min-h-[30rem] flex-col px-5 py-6 sm:px-8 sm:py-8">
         <div className="mb-8 flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-mini font-semibold text-muted-foreground-subtle">{'الطقس في'}</p>

@@ -76,7 +76,7 @@ export function LiveSunArc({
             {'قبة يومية توضح شروق الشمس، أوجها، وغروبها'}
           </p>
         </div>
-        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
+        <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
           {dayLengthH.toFixed(1)} ساعة
         </span>
       </header>
@@ -200,7 +200,7 @@ export function LiveSunArc({
       {/* Time markers */}
       <div className="px-6 pb-6 grid grid-cols-3 gap-2.5" dir="ltr">
         <div className="rounded-xl bg-background/40 border border-foreground/8 px-3 py-2.5 text-center">
-          <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1">
+          <p className="text-micro font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1">
             {'شروق'}
           </p>
           <p className="text-lead font-bold text-foreground tabular-nums leading-none">
@@ -208,18 +208,18 @@ export function LiveSunArc({
           </p>
         </div>
         <div className="rounded-xl bg-primary/8 border border-primary/25 px-3 py-2.5 text-center">
-          <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-primary mb-1">
+          <p className="text-micro font-bold tracking-[0.2em] uppercase text-primary mb-1">
             {'ارتفاع'}
           </p>
           <p className="text-lead font-bold text-foreground tabular-nums leading-none">
             {Math.round(elevationDeg)}°
           </p>
-          <p className="text-[0.625rem] font-semibold text-foreground/55 tabular-nums mt-0.5">
+          <p className="text-micro font-semibold text-foreground/55 tabular-nums mt-0.5">
             {`سمت ${Math.round(azimuthDeg)}°`}
           </p>
         </div>
         <div className="rounded-xl bg-background/40 border border-foreground/8 px-3 py-2.5 text-center">
-          <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1">
+          <p className="text-micro font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1">
             {'غروب'}
           </p>
           <p className="text-lead font-bold text-foreground tabular-nums leading-none">

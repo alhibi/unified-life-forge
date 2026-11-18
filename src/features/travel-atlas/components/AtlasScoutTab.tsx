@@ -196,7 +196,7 @@ function TargetPicker({ busy, onAdd }: TargetPickerProps) {
         />
         {visibleSuggestions.length > 0 && (
           <ul
-            className="absolute z-20 inset-x-0 top-full mt-1 max-h-48 divide-y divide-border overflow-y-auto rounded-lg border border-border bg-background"
+            className="absolute z-sticky inset-x-0 top-full mt-1 max-h-48 divide-y divide-border overflow-y-auto rounded-lg border border-border bg-background"
             role="listbox"
           >
             {visibleSuggestions.map((s) => (

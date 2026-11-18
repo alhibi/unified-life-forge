@@ -84,13 +84,13 @@ function PollutantCard({
       <div className="flex items-baseline justify-between gap-2">
         <div className="flex items-baseline gap-1.5">
           <span className="text-mini font-bold text-foreground leading-none">{label}</span>
-          <span className="text-[0.625rem] font-medium text-foreground/50 leading-none">
+          <span className="text-micro font-medium text-foreground/50 leading-none">
             {formula}
           </span>
         </div>
         <span className={cn('text-meta font-bold tabular-nums leading-none', textClass)} dir="ltr">
           {value.toFixed(value < 10 ? 1 : 0)}
-          <span className="ms-0.5 text-[0.625rem] font-semibold text-foreground/45">{unit}</span>
+          <span className="ms-0.5 text-micro font-semibold text-foreground/45">{unit}</span>
         </span>
       </div>
       <div className="relative h-1 rounded-full bg-foreground/8 overflow-hidden" dir="ltr">
@@ -145,7 +145,7 @@ export function AQIGauge({
           </p>
         </div>
         {source && (
-          <span className="text-[0.625rem] font-bold tracking-[0.16em] uppercase text-foreground/50 truncate max-w-[140px]">
+          <span className="text-micro font-bold tracking-[0.16em] uppercase text-foreground/50 truncate max-w-[140px]">
             {source}
           </span>
         )}
@@ -221,7 +221,7 @@ export function AQIGauge({
             <span className="text-[2.75rem] font-extralight tracking-[-0.04em] text-foreground tabular-nums leading-none">
               {Math.round(clamped)}
             </span>
-            <span className="mt-1 text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55">
+            <span className="mt-1 text-micro font-bold tracking-[0.2em] uppercase text-foreground/55">
               CAQI
             </span>
           </div>
@@ -230,7 +230,7 @@ export function AQIGauge({
         {/* Active band + advisory + health score */}
         <div className="space-y-4">
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1.5">
+            <p className="text-micro font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1.5">
               {'الحالة'}
             </p>
             <p className={cn('text-title font-bold leading-tight', activeBand.textClass)}>
@@ -241,12 +241,12 @@ export function AQIGauge({
 
           <div className="pt-3 border-t border-foreground/10">
             <div className="flex items-baseline justify-between gap-3 mb-1.5">
-              <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55">
+              <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55">
                 {'صحة الأنشطة الخارجية'}
               </span>
               <span className="text-meta font-bold text-foreground tabular-nums leading-none" dir="ltr">
                 {Math.round(healthScore)}
-                <span className="text-[0.625rem] font-medium text-foreground/55 ms-0.5">/100</span>
+                <span className="text-micro font-medium text-foreground/55 ms-0.5">/100</span>
               </span>
             </div>
             <div className="h-1 rounded-full bg-foreground/10 overflow-hidden" dir="ltr">

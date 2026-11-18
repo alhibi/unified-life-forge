@@ -27,7 +27,7 @@ export function PhysicalMeasurements({ snapshot }: PhysicalMeasurementsProps) {
             {'كميات جوية متخصصة لا تظهر في الواجهة الرئيسية'}
           </p>
         </div>
-        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
+        <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
           {`${snapshot.meta.sources_responded}/${snapshot.meta.sources_queried}`}
         </span>
       </header>

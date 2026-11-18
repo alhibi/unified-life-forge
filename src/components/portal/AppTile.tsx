@@ -172,7 +172,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
           <>
             {/* Widget head: inverted chip + name; the end edge is reserved
                 for the shortcuts control that sits above the tile. */}
-            <span className="relative z-10 flex w-full items-center gap-2 pe-11">
+            <span className="relative z-raised flex w-full items-center gap-2 pe-11">
               <span
                 className="portal-widget-chip flex size-11 shrink-0 items-center justify-center rounded-full shadow-e1 transition-transform duration-normal ease-out-expo group-hover:scale-105 motion-reduce:transition-none"
                 aria-hidden
@@ -186,19 +186,19 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
             </span>
 
             {/* The face is the widget's own composition (AppTileFaces). */}
-            <span className="tile-face relative z-10 flex min-h-0 w-full flex-1 items-end">
+            <span className="tile-face relative z-raised flex min-h-0 w-full flex-1 items-end">
               <AppTileFace appKey={app.key} wide={wide} badge={badge} />
             </span>
           </>
         ) : (
           <>
             <span
-              className="portal-widget-chip relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full shadow-e1"
+              className="portal-widget-chip relative z-raised flex size-11 shrink-0 items-center justify-center rounded-full shadow-e1"
               aria-hidden
             >
               <Icon className="size-6!" />
             </span>
-            <span className="relative z-10 min-w-0 flex-1">
+            <span className="relative z-raised min-w-0 flex-1">
               <span className="flex items-center gap-1.5">
                 <span className="type-body break-words font-semibold text-tile-foreground">
                   {app.label}
@@ -235,7 +235,7 @@ const AppTileImpl = forwardRef<HTMLDivElement, AppTileProps>(function AppTileImp
         }}
         aria-label={`اختصارات ${app.label}`}
         className={cn(
-          'absolute z-10 flex h-11 w-11 items-center justify-center rounded-full',
+          'absolute z-raised flex h-11 w-11 items-center justify-center rounded-full',
           'bg-tile-foreground/10 text-tile-foreground transition-[background-color,color] duration-fast',
           'hover:bg-tile-foreground/20 hover:text-tile-foreground',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',

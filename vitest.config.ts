@@ -18,7 +18,14 @@ export default defineConfig({
     // net is driven by its dedicated process-per-shard runner instead of
     // `bun run test`:
     //   bun run test:smoke  ·  SMOKE_SHARD=3/12 bun run test:smoke
-    exclude: [...configDefaults.exclude, "src/test/routes.smoke.test.tsx"],
+    // The smoke net runs through its own process-per-shard runner. That runner
+    // sets SMOKE_ROUTES=1 so this exclusion steps aside; every normal run
+    // keeps the file out. Without the flag the filter matched a file the
+    // config excluded, so all twelve shards reported no test files.
+    exclude: [
+      ...configDefaults.exclude,
+      ...(process.env.SMOKE_ROUTES === "1" ? [] : ["src/test/routes.smoke.test.tsx"]),
+    ],
     // On Node 22+ the runtime ships a process-wide `localStorage` backed by a
     // single on-disk store, and it is installed as a global. Concurrent test
     // FILES therefore reach the same store: one file's still-pending async work

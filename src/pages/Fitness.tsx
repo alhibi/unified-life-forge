@@ -246,7 +246,7 @@ function FitnessPageInner({
   }, []);
 
   return (
-    <PageShell className="pb-page" style={{ position: 'relative' }}>
+    <PageShell width="workspace" className="pb-page" style={{ position: 'relative' }}>
       <SEO
         title="اللياقة والتمارين — SmartHub"
         description="تتبع تمارينك وأنشطتك اليومية في SmartHub: جدول أسبوعي، مكتبة تمارين، حساب السعرات ومؤشرات الجسم وتتبع المسارات."

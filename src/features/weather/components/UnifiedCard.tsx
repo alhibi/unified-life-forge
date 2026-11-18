@@ -130,7 +130,7 @@ export function CardEyebrow({ children, className }: { children: ReactNode; clas
   return (
     <p
       className={cn(
-        'text-[0.6875rem] font-bold tracking-[0.18em] uppercase text-muted-foreground mb-1.5',
+        'text-micro font-bold tracking-[0.18em] uppercase text-muted-foreground mb-1.5',
         className,
       )}
     >

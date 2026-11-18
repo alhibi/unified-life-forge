@@ -13,7 +13,7 @@ import TimeLedgerView from '../components/TimeLedgerView';
 
 export default function TimeLedger() {
   return (
-    <PageShell>
+    <PageShell width="workspace">
       <Helmet>
         <title>سِجل الزمن — amv.life</title>
         <meta

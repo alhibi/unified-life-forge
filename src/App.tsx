@@ -32,7 +32,6 @@ import { usePredictivePrefetch } from '@/hooks/usePredictivePrefetch';
 import { usePresence } from '@/hooks/usePresence';
 import { VisitTrackerRunner } from '@/hooks/useVisitTracker';
 import { IconProvider } from '@/lib/icons';
-import { useInChatConversation } from '@/lib/inChatConversation';
 import {
   buildTabLayerVariants,
   type NavMode,
@@ -157,9 +156,8 @@ const loadPodcastHistory = () => import('./features/podcasts/pages/History');
 const loadNotFound = () => import('./pages/NotFound');
 // Wellness and Diwan tabs are lazy because their static data files
 // (~10k lines combined) make eager-loading them measurable on cold
-// homepage paint. The bottom nav still highlights them and the tap
-// switches the route normally — first visit pays a brief skeleton,
-// subsequent visits hit React.lazy's module cache and are instant.
+// homepage paint. First visit pays a brief skeleton; subsequent visits
+// hit React.lazy's module cache and are instant.
 const loadWellness = () => import('./pages/Wellness');
 const loadFitness = () => import('./pages/Fitness');
 const loadDiwan = () => import('./features/diwan/pages/Diwan');
@@ -170,15 +168,15 @@ const loadDiwan = () => import('./features/diwan/pages/Diwan');
 // cost on cold home paint.
 const loadBrowse = () => import('./pages/Browse');
 const loadMihrab = () => import('./pages/Mihrab');
-// Weather hub — comprehensive 7-day forecast + details view reachable
-// from the bottom nav. Lazy because the home page already shows a tiny
+// Weather hub — comprehensive 7-day forecast + details view. Lazy
+// because the home page already shows a tiny
 // `WeatherWidget` and most users won't drill into the full hub on every
 // session; the prefetch on idle warms it up so the first tap is fast.
 const loadWeather = () => import('./features/weather/pages/Weather');
 // Knowledge hub — "المعرفة": a self-contained luxury catalog (cars,
 // perfumes, watches, fashion, sweets). Lazy because its rich static
 // data set should not weigh on the cold home paint; it's prefetched on
-// idle so the first tap from the bottom nav renders instantly.
+// idle so the first tap renders instantly.
 const loadKnowledge = () => import('./features/knowledge/pages/Knowledge');
 // German Club ("النادي الألماني") module — situational shelves, separable verbs, gender dots
 const loadGermanClubHome = () => import('./features/german-club/pages/GermanClubHome');
@@ -226,12 +224,16 @@ const loadTravelTrip = () => import('./features/travel-atlas/pages/TripDetailPag
 const loadTravelExplore = () => import('./features/travel-atlas/pages/ExploreMapPage');
 const loadTravelCountries = () => import('./features/travel-atlas/pages/CountryStampsPage');
 const loadOAuthConsent = () => import('./pages/OAuthConsent');
+// Design-system reference gallery. Development surface only: not
+// linked from navigation, search or the portal.
+const loadDesignSystemGallery = () => import('./pages/DesignSystemGallery');
+const DesignSystemGalleryPage = lazy(loadDesignSystemGallery);
 const loadCrypto = () => import('./features/crypto/pages/CryptoWatchlist');
 const loadTimeLedger = () => import('./features/time-ledger/pages/TimeLedger');
 // ──────────────────────────────────────────────────────────────────────
 // Register every lazy route in the central prefetch registry so any
-// in-app intent surface (BottomNav pointerdown, NavLink hover, smart
-// back, etc.) can warm the module ahead of the actual navigation. The
+// in-app intent surface (NavLink hover, smart back, prefetch on idle)
+// can warm the module ahead of the actual navigation. The
 // registry de-dupes loaders, so this is safe to call from anywhere.
 // Persistent tab paths (`/`, `/games`, `/chat`) are intentionally NOT
 // registered — they are eager and already mounted.
@@ -488,14 +490,6 @@ registerDataPrefetch('/time-ledger', () =>
 // dimensions, so a lazily loaded route does not shift the layout when it lands.
 const PageSkeleton = () => <SkeletonPage />;
 
-// All paths where BottomNav is visible — used to decide whether
-// <main> should reserve space at the bottom for the nav bar.
-// Must stay in sync with the `tabs` array in BottomNav.tsx.
-// The bottom nav was retired in favour of the Portal launcher. Kept as
-// an empty set so any `navVisible` checks below cleanly resolve to
-// false — no route reserves bottom padding for a nav bar anymore.
-const ALL_NAV_PATHS = new Set<string>();
-
 // Tab routes that stay mounted across navigation. Their components are
 // rendered once in <PersistentTabs/> and toggled with display:none — never
 // unmounted. This makes bottom-nav switching feel native and instant.
@@ -678,16 +672,9 @@ function AnimatedRoutes() {
   // PageTransition can pick the right slide direction (and so OUTGOING
   // pages know whether to leave to the left or right with parallax).
   const { mode } = useNavDirection();
-  const inChatConversation = useInChatConversation();
   const activeTab = (TAB_PATHS as readonly string[]).includes(location.pathname)
     ? (location.pathname as TabPath)
     : null;
-  // Show bottom padding on ALL nav-tab routes (not just persistent tabs)
-  // so the BottomNav never overlaps page content.
-  // ...except inside a 1:1 chat conversation, where the BottomNav is hidden
-  // by inChatConversation — without this guard <main> reserved a 62px dead
-  // strip below the chat composer.
-  const navVisible = ALL_NAV_PATHS.has(location.pathname) && !inChatConversation;
 
   const mainStyle = effectiveSplitActive
     ? {
@@ -701,10 +688,10 @@ function AnimatedRoutes() {
         // (which sets `position: absolute` during exit) is pinned to
         // <main>'s box and never stacks above the incoming page.
         position: 'relative' as const,
-        // Reserve space for the bottom nav on all routes where it is
-        // visible. Sub-pages (non-nav routes) do NOT render BottomNav
-        // so they don't need the bottom padding.
-        paddingBottom: navVisible ? `calc(62px + env(safe-area-inset-bottom, 0px))` : 0,
+        // No bottom navigation exists. The page shell owns the bottom
+        // gutter (.pb-page, which clears the dock + home indicator), so
+        // <main> must not reserve a second empty strip for a retired bar.
+        paddingBottom: 0,
         // Minimum height ensures content fills viewport even on short pages
         minHeight: '100dvh',
       };
@@ -1359,6 +1346,16 @@ function AnimatedRoutes() {
                     element={
                       <ErrorBoundary>
                         <OAuthConsentPage />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path="/dev/design-system"
+                    element={
+                      <ErrorBoundary>
+                        <DevelopmentRoute>
+                          <DesignSystemGalleryPage />
+                        </DevelopmentRoute>
                       </ErrorBoundary>
                     }
                   />
