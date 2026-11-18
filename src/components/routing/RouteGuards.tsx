@@ -17,7 +17,7 @@
  * the protected screen: loading → decision → allowed/denied.
  */
 import type { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 
 import { SkeletonPage } from '@/components/ui/skeleton';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -27,13 +27,26 @@ interface GuardProps {
   children: ReactNode;
 }
 
-/** Centered, token-only notice used when access is refused but we stay in place. */
+/**
+ * Centered, token-only notice used when access is refused but we stay in place.
+ *
+ * A refused route is still a route: it keeps one semantic h1 (the reason), a
+ * real explanation and a way back. Without the heading the strict route audit
+ * correctly reports h1-count: 0 for the signed-in-but-not-admin state, and a
+ * keyboard/screen-reader user lands on an anonymous block of text.
+ */
 function Denied({ title, hint }: { title: string; hint: string }) {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-6 text-center">
-      <p className="text-base font-semibold text-foreground">{title}</p>
-      <p className="max-w-sm text-sm text-muted-foreground">{hint}</p>
-    </div>
+    <main className="flex min-h-[60vh] flex-col items-center justify-center gap-2 px-6 text-center">
+      <h1 className="text-lead font-semibold text-foreground">{title}</h1>
+      <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">{hint}</p>
+      <Link
+        to="/"
+        className="app-focus-ring mt-2 inline-flex min-h-11 items-center rounded-md px-4 text-mini font-semibold text-primary underline underline-offset-4"
+      >
+        العودة إلى البوابة
+      </Link>
+    </main>
   );
 }
 

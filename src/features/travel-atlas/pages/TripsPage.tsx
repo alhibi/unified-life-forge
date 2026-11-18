@@ -1,21 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 
 import PageHeader from '@/components/PageHeader';
 import SEO from '@/components/SEO';
-import { AppCard } from '@/components/ui/app-shell';
+import { AppList, AppRow, IconButton, IconChip, PageShell } from '@/components/ui/app-shell';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ResponsiveDrawer from '@/components/ui/ResponsiveDrawer';
+import { SkeletonList } from '@/components/ui/skeleton';
+import { StateView } from '@/components/ui/state-view';
 import { CalendarDays, Luggage, Plus } from '@/lib/icons';
 
 import { useCreateTrip, useMyPlaces, useTravelCountries, useTrips } from '../hooks';
@@ -23,15 +17,22 @@ import { formatDistance, haversineMeters } from '../lib/geo';
 import type { TripWithStops } from '../types';
 
 /**
- * Trips list.
+ * Trips list — G4 list/collection surface.
  *
  * A trip is a container for places plus dates, and the list only has to answer
- * "which trip do I open" — so each row leads with the dates and the number of
- * stops rather than a cover image that would just repeat the places inside.
+ * "which trip do I open", so rows lead with the dates and the number of stops
+ * instead of a cover image that would repeat the places inside.
+ *
+ * States (A/B/C, catalog §5.6):
+ *   A — page identity, one primary action, empty state with a real CTA.
+ *   B — the create drawer keeps its values, disables the submit and shows a
+ *       specific inline error; the list never shows a fake optimistic row.
+ *   C — success closes the drawer, clears the fields and opens the new trip;
+ *       failure keeps the drawer open with the typed values intact.
  */
 export default function TripsPage() {
   const navigate = useNavigate();
-  const { data: trips = [], isLoading } = useTrips();
+  const { data: trips = [], isLoading, isError, refetch } = useTrips();
   const { data: places = [] } = useMyPlaces();
   const { data: countries = [] } = useTravelCountries();
   const createTrip = useCreateTrip();
@@ -40,6 +41,21 @@ export default function TripsPage() {
   const [title, setTitle] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+  // The create drawer is controlled, so the shared focus-return hook cannot
+  // always see the opener (vaul's Drawer does not forward onOpenAutoFocus).
+  // Keep the exact button that opened it and hand focus back on every close
+  // path: Escape, overlay click, cancel, or a successful create.
+  const openerRef = useRef<HTMLButtonElement | null>(null);
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setFormError(null);
+    const opener = openerRef.current;
+    if (opener?.isConnected) {
+      requestAnimationFrame(() => opener.focus({ preventScroll: true }));
+    }
+  };
 
   const placeIndex = useMemo(() => new Map(places.map((place) => [place.id, place])), [places]);
   const countryNames = useMemo(
@@ -47,16 +63,22 @@ export default function TripsPage() {
     [countries],
   );
 
-  const create = async () => {
+  const openDialog = () => {
+    setFormError(null);
+    setDialogOpen(true);
+  };
+
+  const submit = async () => {
     const trimmed = title.trim();
     if (trimmed.length === 0) {
-      toast.error('اكتب عنوان الرحلة');
+      setFormError('اكتب عنوان الرحلة أولاً.');
       return;
     }
     if (startDate && endDate && endDate < startDate) {
-      toast.error('تاريخ النهاية قبل البداية');
+      setFormError('تاريخ النهاية قبل تاريخ البداية.');
       return;
     }
+    setFormError(null);
     try {
       const trip = await createTrip.mutateAsync({
         title: trimmed,
@@ -64,6 +86,13 @@ export default function TripsPage() {
         endDate: endDate || null,
         status: 'planned',
       });
+      // A response without an id means the write did not land; navigating to
+      // /trips/undefined would replace a clear failure with a confusing
+      // "trip not found". Keep the drawer open with the typed values instead.
+      if (!trip?.id) {
+        setFormError('لم تُحفظ الرحلة. تحقّق من الاتصال وأعد المحاولة.');
+        return;
+      }
       setDialogOpen(false);
       setTitle('');
       setStartDate('');
@@ -71,137 +100,159 @@ export default function TripsPage() {
       navigate(`/travel-atlas/trips/${trip.id}`);
     } catch (error) {
       const message = (error as Error)?.message;
-      toast.error('تعذّر إنشاء الرحلة', {
-        description: message === 'not_authenticated' ? 'سجّل الدخول أولًا.' : message,
-      });
+      setFormError(
+        message === 'not_authenticated'
+          ? 'سجّل الدخول أولاً لإنشاء رحلة ومزامنتها.'
+          : 'تعذّر إنشاء الرحلة. تحقّق من الاتصال وأعد المحاولة.',
+      );
     }
   };
 
   return (
-    <div className="page-shell page-shell-flush">
+    <PageShell
+      header={
+        <PageHeader
+          title="رحلاتي"
+          subtitle={trips.length > 0 ? `${trips.length} رحلة` : 'خطّط من أماكنك المحفوظة'}
+          icon={<Luggage className="h-5 w-5 text-primary" aria-hidden="true" />}
+          backTo="/travel-atlas"
+          sticky
+          right={
+            <IconButton
+              type="button"
+              aria-label="رحلة جديدة"
+              onClick={(event) => {
+                openerRef.current = event.currentTarget;
+                openDialog();
+              }}
+            >
+              <Plus className="h-5 w-5" aria-hidden="true" />
+            </IconButton>
+          }
+        />
+      }
+    >
       <SEO
         title="رحلاتي — أطلس الرحلات"
         description="خطّط رحلاتك يومًا بيوم من الأماكن التي حفظتها."
         path="/travel-atlas/trips"
       />
-      <PageHeader
-        title="رحلاتي"
-        subtitle={trips.length > 0 ? `${trips.length} رحلة` : 'خطّط من أماكنك المحفوظة'}
-        icon={<Luggage className="h-5 w-5 text-[hsl(var(--live))]" aria-hidden="true" />}
-        backTo="/travel-atlas"
-        sticky
-        right={
-          <button
-            type="button"
-            onClick={() => setDialogOpen(true)}
-            className="app-icon-btn text-[hsl(var(--live))]"
-            aria-label="رحلة جديدة"
-          >
-            <Plus className="h-5 w-5" aria-hidden="true" />
-          </button>
-        }
-      />
 
-      <section className="mx-auto w-full max-w-[var(--ui-content-max)] pb-page pt-4">
-        {isLoading ? (
-          <div className="app-stack" aria-hidden="true">
-            <div className="skeleton h-24 w-full" />
-            <div className="skeleton h-24 w-full" />
-          </div>
-        ) : trips.length === 0 ? (
-          <div className="empty-state empty-state-surface min-h-[55dvh]">
-            <Luggage data-empty-icon aria-hidden="true" />
-            <strong>لا رحلات بعد</strong>
-            <span>أنشئ رحلة، ثم أضف إليها الأماكن من صفحاتها.</span>
-            <Button
-              type="button"
-              className="mt-6 gap-2"
-              size="lg"
-              onClick={() => setDialogOpen(true)}
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              رحلة جديدة
-            </Button>
-          </div>
-        ) : (
-          <ul className="app-stack">
-            {trips.map((trip) => (
-              <li key={trip.id}>
-                <TripCard
-                  trip={trip}
-                  countryName={trip.countryId ? (countryNames.get(trip.countryId) ?? null) : null}
-                  totalDistance={tripDistance(trip, placeIndex)}
-                  onOpen={() => navigate(`/travel-atlas/trips/${trip.id}`)}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {isLoading ? (
+        <SkeletonList rows={3} avatar />
+      ) : isError ? (
+        <StateView
+          kind="error"
+          title="تعذّر تحميل رحلاتك"
+          body="لم نتمكّن من قراءة قائمة الرحلات. بياناتك المحفوظة على هذا الجهاز سليمة، ويمكنك إعادة المحاولة."
+          action={{ label: 'أعد المحاولة', onClick: () => void refetch() }}
+        />
+      ) : trips.length === 0 ? (
+        <StateView
+          kind="empty"
+          icon={<Luggage className="h-5 w-5" aria-hidden />}
+          title="لا رحلات بعد"
+          body="أنشئ رحلة، ثم أضف إليها الأماكن من صفحاتها. التواريخ اختيارية وتستطيع إضافتها لاحقًا."
+          action={{ label: 'رحلة جديدة', onClick: openDialog, icon: <Plus className="h-4 w-4" aria-hidden /> }}
+        />
+      ) : (
+        <AppList>
+          {trips.map((trip) => (
+            <TripRow
+              key={trip.id}
+              trip={trip}
+              countryName={trip.countryId ? (countryNames.get(trip.countryId) ?? null) : null}
+              totalDistance={tripDistance(trip, placeIndex)}
+              onOpen={() => navigate(`/travel-atlas/trips/${trip.id}`)}
+            />
+          ))}
+        </AppList>
+      )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>رحلة جديدة</DialogTitle>
-            <DialogDescription>التواريخ اختيارية — يمكن إضافتها لاحقًا.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="new-trip-title">العنوان</Label>
+      <ResponsiveDrawer
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          if (open) {
+            setDialogOpen(true);
+            return;
+          }
+          closeDialog();
+        }}
+        title="رحلة جديدة"
+        description="التواريخ اختيارية — يمكن إضافتها لاحقًا."
+      >
+        <form
+          className="flex flex-col gap-4"
+          // Native constraint bubbles are skipped so validation is always the
+          // product's own inline, specific message (and so a keyboard/screen
+          // reader user hears it instead of a browser popup).
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submit();
+          }}
+        >
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="new-trip-title">العنوان</Label>
+            <Input
+              id="new-trip-title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="مثال: أسبوع في جورجيا"
+              aria-invalid={formError !== null && title.trim().length === 0 ? true : undefined}
+              disabled={createTrip.isPending}
+              autoFocus
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="new-trip-start">البداية</Label>
               <Input
-                id="new-trip-title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="مثال: أسبوع في جورجيا"
+                id="new-trip-start"
+                type="date"
+                value={startDate}
+                onChange={(event) => setStartDate(event.target.value)}
+                disabled={createTrip.isPending}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="new-trip-start">البداية</Label>
-                <Input
-                  id="new-trip-start"
-                  type="date"
-                  value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-trip-end">النهاية</Label>
-                <Input
-                  id="new-trip-end"
-                  type="date"
-                  value={endDate}
-                  min={startDate || undefined}
-                  onChange={(event) => setEndDate(event.target.value)}
-                />
-              </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="new-trip-end">النهاية</Label>
+              <Input
+                id="new-trip-end"
+                type="date"
+                value={endDate}
+                onChange={(event) => setEndDate(event.target.value)}
+                disabled={createTrip.isPending}
+              />
             </div>
           </div>
-          <DialogFooter className="flex-row gap-2">
+
+          {formError && (
+            <p role="alert" className="text-meta leading-relaxed text-destructive">
+              {formError}
+            </p>
+          )}
+
+          <div className="mt-1 flex flex-row gap-2">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => setDialogOpen(false)}
+              onClick={closeDialog}
             >
               إلغاء
             </Button>
-            <Button
-              type="button"
-              className="flex-1"
-              onClick={create}
-              disabled={createTrip.isPending}
-            >
+            <Button type="submit" className="flex-1" isLoading={createTrip.isPending} loadingText="جارٍ الإنشاء…">
               أنشئ
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </div>
+        </form>
+      </ResponsiveDrawer>
+    </PageShell>
   );
 }
 
-function TripCard({
+function TripRow({
   trip,
   countryName,
   totalDistance,
@@ -214,34 +265,38 @@ function TripCard({
 }) {
   const days = trip.stops.reduce((max, stop) => Math.max(max, stop.dayIndex), 0);
 
-  return (
-    <AppCard as="button" pressable onClick={onOpen} className="w-full text-start">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-lead font-semibold text-foreground">{trip.title}</p>
-          <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-micro text-muted-foreground">
-            {countryName && <span>{countryName}</span>}
-            {trip.startDate && (
-              <span className="inline-flex items-center gap-1 font-mono tabular-nums" dir="ltr">
-                <CalendarDays className="h-3 w-3" aria-hidden="true" />
-                {trip.startDate}
-                {trip.endDate ? ` → ${trip.endDate}` : ''}
-              </span>
-            )}
-          </p>
-        </div>
-        <span className="shrink-0 rounded-full border border-border px-2 py-0.5 font-mono text-micro tabular-nums text-muted-foreground">
-          {trip.stops.length}
-        </span>
-      </div>
+  const meta = [
+    countryName,
+    trip.stops.length ? trip.stops.length + ' توقف' : '',
+    days > 0 ? days + ' يوم' : '',
+    totalDistance > 0 ? formatDistance(totalDistance) : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
-      <p className="mt-3 flex flex-wrap items-center gap-x-3 text-micro text-muted-foreground">
-        {days > 0 && <span>{days} يوم</span>}
-        {totalDistance > 0 && (
-          <span className="font-mono tabular-nums">{formatDistance(totalDistance)}</span>
-        )}
-      </p>
-    </AppCard>
+  return (
+    <AppRow
+      onClick={onOpen}
+      leading={
+        <IconChip tone="accent">
+          <Luggage className="h-4 w-4" aria-hidden />
+        </IconChip>
+      }
+      title={trip.title}
+      subtitle={
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+          {trip.startDate && (
+            <bdi dir="ltr" className="inline-flex items-center gap-1 font-mono tabular-nums">
+              <CalendarDays className="h-3 w-3" aria-hidden />
+              {trip.startDate}
+              {trip.endDate ? ` → ${trip.endDate}` : ''}
+            </bdi>
+          )}
+          {meta && <span>{meta}</span>}
+        </span>
+      }
+      chevron
+    />
   );
 }
 

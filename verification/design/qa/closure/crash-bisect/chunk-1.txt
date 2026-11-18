@@ -1,0 +1,1 @@
+/,/.lovable/oauth/consent,/archive,/archive/1,/archive/new,/auth,/browse,/chat,/chat/g/00000000-0000-0000-0000-000000000000,/chat/groups,/chat/settings,/crypto,/crypto/,/dev/design-system,/dev/material-preview,/dhikr,/diwan

@@ -99,3 +99,55 @@
 
 - الأدلة التفصيلية: `verification/reports/gate0-baseline.md`، `qa-baseline.md`، `qa-shared-layer.md`، `qa-final.md`، `route-audit-final.json`، `perf-final.json`.
 - ملاحظة عملية موثقة: التدقيق الصارم حسّاس للحمل المتزامن (H: QA-F1)؛ نُفِّذت البوابات النهائية منفردة على شجرة ساكنة، وأي فشل صف واحد تحت الحمل يُعتبر flake فقط بعد إعادة إنتاج at-rest.
+
+## 9. جولة الإغلاق (Closure pass)
+
+> بُنيت على main بعد دمج المرحلة الأولى (4e233c4c). غرضها إغلاق المتبقي الوظيفي
+> والتغطية، لا إعادة تصميم.
+
+### 9.1 ما أُضيف أو أُصلح
+
+| البند | النوع | الدليل |
+|---|---|---|
+| fixture جلسة مصادقة حتمي (Supabase تركيبية + محاكاة REST) | أداة | scripts/lib/session-fixture.mjs |
+| `--session signed-in` في التدقيق والالتقاط | أداة | audit-routes.mjs · capture-matrix.mjs |
+| اختبار E2E للتركيب المسجّل (10 أسطح + عقد البوابة) | اختبار | e2e/signed-in-states.spec.ts |
+| TripsPage إعادة تأليف A/B/C (تحقق مضمّن، حفظ، فشل، تركيز) | منتج | e2e/trips-states.spec.ts |
+| QA-F1: انتظار fonts+2 rAF وإعادة محاولة صف فاشل مرة واحدة | أداة | audit-routes.mjs |
+| QA-F3: «لعبة جديدة» فوق الرقعة عند 360×640 | منتج | e2e/games-control-bar.spec.ts |
+| QA-B13: حلقة تركيز اللوحات + كشف سمات JSX المكررة | منتج/أداة | e2e/focus-ring.spec.ts · scripts/check-jsx-duplicates.mjs · check:jsx في verify |
+| مسبار التركيز العالمي للطبقات (lastExternalFocus) | منتج | src/lib/lastExternalFocus.ts |
+| البودكاست: StateView offline/error بدل skeleton دائم | منتج | probe 390/1440 |
+| Simulation Console في Fitness: dev-build فقط | منتج | غائب في الإنتاج · حاضر في dev |
+| ميزانية الحزمة: تقليم بلا رفع | هندسي | 2875.5KB · 250 قطعة |
+
+### 9.2 الأوامر والنتائج (الشجرة النهائية)
+
+| الأمر | النتيجة |
+|---|---|
+| bun run verify | ✅ exit 0 — typecheck 0، lint 722/730 (0 أخطاء)، arch 25/25، check:jsx نظيف (458 ملفاً)، اختبارات vitest كاملة، build |
+| bunx playwright test --workers=2 | ✅ 166/166 (1.9m) — منها 10 trips + 24 signed-in + 2 focus + 4 games-control-bar |
+| bun run test:smoke | ✅ 82/82 (181.6s) |
+| bun run test (vitest) | ✅ 2145 اختباراً في 146 ملفاً |
+| audit-routes (anonymous) | ✅ 164/164 · 0 فشل · 0 stale |
+| audit-routes --session signed-in | ✅ 164/164 · 0 فشل · 0 stale |
+| check-contrast — كامل المنتج | ✅ 160 فحصاً (80 مساراً × وضعين) · 0 مخالفة |
+| build:budget | ✅ 2876.4KB إجمالاً · 250 قطعة داخل الميزانية (زيادتان موثقتان +320B للوصولية في ADR) |
+| measure-perf (10 مسارات إنتاجية) | ✅ LCP 564–1204ms · 0 pageerrors · CLS: كل المسارات ≤0.038 عدا /weather (0.10 في التشغيل الكامل، 0.0013 في قياس معزول) — انتقال skeleton→محتوى، مسجّل P2 |
+
+### 9.3 الأدلة البصرية الإضافية
+
+- لقطات مسجّلة: `verification/design/signed-in-final` (12 مساراً × عرضين).
+- قبل/بعد TripsPage: `verification/design/trips-before` · `trips-after` (زائر + مسجّل).
+- مصفوفة الوقائع: `verification/design/after-final` (82 مساراً × عرضين) أُعيد التقاطها على الشجرة النهائية.
+- تقرير QA المستقل للجولة: `verification/reports/qa-closure.md` (قيد الإصدار عند H).
+
+### 9.4 ما يبقى خارج جولة الإغلاق (معلن)
+
+1. البيانات الحقيقية خلف المصادقة (رسائل، مستندات، أسعار، اشتراكات) — تحتاج حساب بيانات
+   اختبار؛ الـfixture يثبت التركيب وحالات الفراغ فقط.
+2. خطة تقليص الحزمة الأصلية (index ≤79KB وmotion ≤41KB) — بند مستقل؛ الميزانية
+   الحالية تمرّ بلا أي زيادة.
+3. سحب لوحة مكان الأطلس، وإعادة تأليف library/history للبودكاست، ومراجعة mind 3D
+   على الهاتف.
+4. أجهزة حقيقية (safe-area/iOS/اهتزاز/سحب للتحديث) — غير قابلة للتحقق في Chromium.

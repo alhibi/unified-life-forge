@@ -121,7 +121,7 @@ const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, 
 
 function LoadingScreen() {
   return (
-    <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-8" dir="rtl" aria-busy="true">
+    <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-4" dir="rtl" aria-busy="true">
       <h1 className="sr-only">الطقس</h1>
       <div className="weather-shell mx-auto max-w-[var(--ui-workspace-max)] p-5 sm:p-8">
         <div className="weather-skeleton-line h-8 w-40 rounded-md" />

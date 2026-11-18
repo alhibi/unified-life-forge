@@ -1,0 +1,53 @@
+{
+ "capturedAt": "2026-11-18T20:52:35.535Z",
+ "base": "http://127.0.0.1:5199",
+ "session": "signed-in",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/travel-atlas/trips",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "session": "signed-in",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/trips-after/signed-in/390x844/expressive-dark/travel-atlas_trips.png",
+    "/Users/amer/ulf-design/verification/design/trips-after/signed-in/390x844/expressive-dark/travel-atlas_trips--full.png"
+   ],
+   "status": 200,
+   "h1": "رحلاتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/travel-atlas/trips",
+   "viewport": "1440x900",
+   "mode": "dark",
+   "theme": "expressive",
+   "session": "signed-in",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/trips-after/signed-in/1440x900/expressive-dark/travel-atlas_trips.png",
+    "/Users/amer/ulf-design/verification/design/trips-after/signed-in/1440x900/expressive-dark/travel-atlas_trips--full.png"
+   ],
+   "status": 200,
+   "h1": "رحلاتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

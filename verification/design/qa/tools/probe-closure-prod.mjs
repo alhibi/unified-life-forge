@@ -1,0 +1,14 @@
+import { chromium } from '@playwright/test';
+const browser=await chromium.launch();
+const ctx=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,locale:'ar',timezoneId:'Asia/Riyadh',reducedMotion:'reduce',colorScheme:'dark'});
+const page=await ctx.newPage();
+const errs=[];page.on('pageerror',e=>errs.push(String(e).slice(0,160)));
+await page.goto('http://127.0.0.1:4173/fitness',{waitUntil:'networkidle',timeout:30000}).catch(()=>{});
+await page.waitForTimeout(2000);
+const txt=await page.evaluate(()=>document.body.innerText||'');
+const h1=await page.evaluate(()=>[...document.querySelectorAll('h1')].map(h=>h.textContent.trim()));
+const hasConsole=/Simulation Console|لوحة التحكم والمحاكاة/.test(txt);
+const hasControl=/اللياقة النخبوية/.test(txt);
+await page.screenshot({path:'verification/design/qa/closure/shots/fitness-prod-4173.png',animations:'disabled'});
+console.log(JSON.stringify({url:page.url(),h1,hasConsole,hasControl,textLen:txt.length,errors:errs.slice(0,2),preview:txt.replace(/\s+/g,' ').slice(0,180)},null,1));
+await browser.close();

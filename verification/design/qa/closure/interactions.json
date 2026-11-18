@@ -1,0 +1,183 @@
+{
+ "signedIn": {
+  "profile": {
+   "route": "/profile",
+   "h1": [
+    "tester"
+   ],
+   "hasUsername": true,
+   "usernameTags": [
+    {
+     "tag": "h1",
+     "rect": {
+      "y": 296,
+      "w": 77
+     }
+    }
+   ],
+   "loginCta": false,
+   "authLoading": false,
+   "overflow": -11,
+   "states": [],
+   "bodyPreview": "بطاقة الهوية تغيير 23% tester عضو موثق @tester متصل الآن عضو منذ نوفمبر 2026 1 23% مستوى اكتمال الملف الشخصي 3/14 خطوات أضف التفاصيل المتبقية لرفع مستوى توثيق حسابك في المنصة. التعريف سجل النشاط الأوسمة رؤى أداء تعديل الهوية الخصوصية التعريف الشخصي تعديل لم تقم بإضافة نبذة شخصية بعد. انقر على تعديل لإضافة نبذتك. الأوسمة المميزة عرض الكل (28) عضو مؤسس الانضمام المبكر للمنصة والمساهمة في تجربة الجيل",
+   "errors": []
+  },
+  "journal": {
+   "route": "/journal",
+   "h1": [
+    "مذكرتي"
+   ],
+   "hasUsername": false,
+   "usernameTags": [],
+   "loginCta": false,
+   "authLoading": false,
+   "overflow": -11,
+   "states": [
+    {
+     "role": "status",
+     "title": "مذكرتك فارغة — بعدُ.",
+     "body": "كل مدخلة تُغذّي أحد نصفَي الذهن أعلاه. اكتب فكرة، مشاعر، أو ملاحظة."
+    }
+   ],
+   "bodyPreview": "مذكرتي ذهنك اليوم ابدأ أول مدخلة لترى كيف يتشكّل. 0 المدخلات 50٪ عاطفي 50٪ تحليلي التسلسل الأحدث أولاً مذكرتك فارغة — بعدُ. كل مدخلة تُغذّي أحد نصفَي الذهن أعلاه. اكتب فكرة، مشاعر، أو ملاحظة. ابدأ الآن",
+   "errors": []
+  },
+  "chat": {
+   "route": "/chat",
+   "h1": [
+    "الرسائل"
+   ],
+   "hasUsername": false,
+   "usernameTags": [],
+   "loginCta": false,
+   "authLoading": false,
+   "overflow": -11,
+   "states": [],
+   "bodyPreview": "الرسائل الكل غير مقروءة المؤرشفة المجموعات والقنوات إنشاء مجموعة جديدة لا توجد محادثات بعد ابدأ محادثة جديدة مع أصدقائك",
+   "errors": []
+  }
+ },
+ "trips": {
+  "openerBox": {
+   "y": 8,
+   "w": 48,
+   "h": 48
+  },
+  "open": {
+   "dialog": true,
+   "dialogText": "رحلة جديدةالتواريخ اختيارية — يمكن إضافتها لاحقًا.العنوانالبدايةالنهايةإلغاءأنشئ",
+   "activeId": "new-trip-title",
+   "activeTag": "input",
+   "activeInsideDialog": true,
+   "bodyOverflow": "hidden",
+   "alert": null
+  },
+  "emptyAlert": {
+   "dialog": true,
+   "dialogText": "رحلة جديدةالتواريخ اختيارية — يمكن إضافتها لاحقًا.العنوانالبدايةالنهايةاكتب عنوان الرحلة أولاً.إلغاءأنشئ",
+   "activeId": null,
+   "activeTag": "button",
+   "activeInsideDialog": true,
+   "bodyOverflow": "hidden",
+   "alert": "اكتب عنوان الرحلة أولاً."
+  },
+  "datesAlert": {
+   "dialog": true,
+   "dialogText": "رحلة جديدةالتواريخ اختيارية — يمكن إضافتها لاحقًا.العنوانالبدايةالنهايةتاريخ النهاية قبل تاريخ البداية.إلغاءأنشئ",
+   "activeId": null,
+   "activeTag": "button",
+   "activeInsideDialog": true,
+   "bodyOverflow": "hidden",
+   "alert": "تاريخ النهاية قبل تاريخ البداية."
+  },
+  "afterEsc": {
+   "dialog": false,
+   "dialogText": null,
+   "activeId": null,
+   "activeTag": "button",
+   "activeInsideDialog": false,
+   "bodyOverflow": "visible",
+   "alert": null
+  },
+  "focusOnOpenerEsc": true,
+  "afterCancel": {
+   "dialog": false,
+   "dialogText": null,
+   "activeId": null,
+   "activeTag": "button",
+   "activeInsideDialog": false,
+   "bodyOverflow": "visible",
+   "alert": null
+  },
+  "focusOnOpenerCancel": true
+ },
+ "chess": {
+  "vh": 640,
+  "overflow": -11,
+  "cta": {
+   "text": "لعبة جديدة",
+   "rect": {
+    "x": 30,
+    "y": 302,
+    "w": 288,
+    "h": 44,
+    "bottom": 346
+   }
+  },
+  "board": {
+   "tag": "canvas",
+   "cls": "",
+   "rect": {
+    "x": 30,
+    "y": 354,
+    "w": 288,
+    "h": 288,
+    "bottom": 643
+   }
+  },
+  "ctaAboveBoard": true
+ },
+ "mihrab": {
+  "tabStopsUntilPanel": true,
+  "panelInfo": {
+   "tabindex": "0",
+   "focusVisible": true,
+   "outlineStyle": "solid",
+   "outlineWidth": "2px",
+   "outlineColor": "rgb(138, 213, 202)",
+   "outlineOffset": "2px",
+   "boxShadow": "none"
+  }
+ },
+ "fitness": {
+  "anonymous": {
+   "hasConsole": true,
+   "h1": [
+    "اللياقة النخبوية"
+   ],
+   "bodyPreview": "اللياقة النخبوية النشاط اليومي والتمارين ومؤشرات الجسم الرئيسية الجداول المكتبة القياسات السجل شرب الماء اليومي 0 / 3000 مل +250ml +500ml +750ml النشاط الحركي اليومي نشط معطّل التتبع التلقائي التسارع "
+  },
+  "signedIn": {
+   "hasConsole": true,
+   "h1": [
+    "اللياقة النخبوية"
+   ],
+   "bodyPreview": "اللياقة النخبوية النشاط اليومي والتمارين ومؤشرات الجسم الرئيسية الجداول المكتبة القياسات السجل شرب الماء اليومي 0 / 3000 مل +250ml +500ml +750ml النشاط الحركي اليومي نشط معطّل التتبع التلقائي التسارع "
+  }
+ },
+ "podcasts": {
+  "states": [
+   {
+    "role": "alert",
+    "title": "تعذّر تحميل البودكاست",
+    "retry": [
+     "إعادة المحاولة"
+    ]
+   }
+  ],
+  "skeletons": 0,
+  "spinners": 0,
+  "hasLoadText": false,
+  "text": "بودكاست 🇸🇦 الكل أخبار ثقافة تعليم كوميديا دين وروحانيات تقنية علوم جرائم حقيقية صحة ولياقة أعمال تاريخ فنون موسيقى رياضة تلفزيون وأفلام قصص أطفال وعائلة ترفيه حكومة إسلام مسيحية روحانيات بوذية يهودية هندوسية أخبار يومية سياسة أخبار اقتصادية أخبار التقنية أخبار رياضية أخبار الترفيه تحليلات إخبارية "
+ }
+}

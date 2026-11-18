@@ -1,0 +1,1 @@
+/settings/profile,/settings/theme,/sunnah,/tafsir,/time-ledger,/travel-atlas,/travel-atlas/DE,/travel-atlas/countries,/travel-atlas/explore,/travel-atlas/place/1,/travel-atlas/trips,/travel-atlas/trips/1,/weather,/wellness

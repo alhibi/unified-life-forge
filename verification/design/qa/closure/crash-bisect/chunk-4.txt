@@ -1,0 +1,1 @@
+/podcasts/history,/podcasts/library,/profile,/quran,/reading,/section/prophetic-day,/section/quran-virtues,/section/timed-sunnah,/section/timed-sunnah/1,/section/untimed-sunnah,/settings,/settings/appearance,/settings/font,/settings/interface,/settings/keyboard,/settings/motion,/settings/prayer

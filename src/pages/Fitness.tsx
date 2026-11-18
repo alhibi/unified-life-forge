@@ -548,7 +548,11 @@ function FitnessPageInner({
                 </AppCard>
               </Section>
 
-              {/* Developer / Testing Simulator Console */}
+              {/* Developer / Testing Simulator Console — dev-build only. A
+                  simulation controller is tooling, not a user surface: in a
+                  production build it would be a control that fabricates data.
+                  It stays available to developers in dev mode. */}
+              {import.meta.env.DEV && (
               <Section label="لوحة التحكم والمحاكاة للياقة البدنية (Simulation Console)">
                 <AppCard className="p-4 space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -635,6 +639,7 @@ function FitnessPageInner({
                   )}
                 </AppCard>
               </Section>
+              )}
             </motion.div>
           )}
 

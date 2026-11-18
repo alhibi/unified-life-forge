@@ -22,6 +22,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+import {
+  installAnonymousRoutes,
+  installAuthFixture,
+  installSignedInRoutes,
+  readProjectRef,
+} from './lib/session-fixture.mjs';
+
 const ROOT = path.resolve(import.meta.dirname, '..');
 const BASE = process.env.AUDIT_BASE ?? 'http://127.0.0.1:5199';
 
@@ -31,6 +38,13 @@ function arg(name, fallback) {
   return i >= 0 && args[i + 1] ? args[i + 1] : fallback;
 }
 const flagOn = (name) => args.includes('--' + name);
+
+// --session signed-in installs the deterministic fixture (synthetic Supabase
+// session + empty PostgREST responses). Default stays anonymous so the
+// existing baseline means the same thing it always did.
+const SESSION = arg('session', 'anonymous');
+const SIGNED_IN = SESSION === 'signed-in' || SESSION === 'signedin';
+const PROJECT_REF = readProjectRef(ROOT);
 
 const FIXTURES = {
   categoryId: '1',
@@ -173,6 +187,17 @@ async function measure(page, isMobile, allow) {
           // is the union, so measure the pseudo box instead of stretching the
           // switch itself (which the review correctly rejected as a visual
           // defect). Scoped to role=switch only; no blanket exemption.
+          // A Radix slider renders a full-width, 16px-tall <input type=range>
+          // as its keyboard/screen-reader surface inside a 44px root whose
+          // thumb carries a 44px ::after hit area. The input's own rect is not
+          // the finger target; measure the root instead of forcing a distortion.
+          if (el.matches('input[type="range"]')) {
+            const root = el.closest('[data-orientation]');
+            if (root) {
+              const rr = root.getBoundingClientRect();
+              if (rr.width >= 44 && rr.height >= 44) continue;
+            }
+          }
           if (el.getAttribute('role') === 'switch') {
             const after = getComputedStyle(el, '::after');
             const afterW = Number.parseFloat(after.width);
@@ -288,6 +313,7 @@ async function auditRoute(route, viewport) {
       /* storage blocked */
     }
   }, PROFILE);
+  if (SIGNED_IN) await installAuthFixture(context, { projectRef: PROJECT_REF });
   const page = await context.newPage();
   const pageErrors = [];
   const consoleErrors = [];
@@ -298,42 +324,72 @@ async function auditRoute(route, viewport) {
     if (CONSOLE_IGNORE.some((re) => re.test(text))) return;
     consoleErrors.push(text.slice(0, 200));
   });
-  await page.route('**/*', (r) => {
-    const url = new URL(r.request().url());
-    if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') return r.continue();
-    if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') return r.continue();
-    return r.abort();
-  });
+  if (SIGNED_IN) await installSignedInRoutes(page, PROJECT_REF);
+  else await installAnonymousRoutes(page);
 
-  const row = { route, viewport: viewport.name };
-  try {
-    const response = await page
-      .goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 30_000 })
-      .catch(() => null);
-    await page.waitForTimeout(900);
-    row.status = response ? response.status() : 0;
-    row.overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    row.errorFallback = await page
-      .locator('text=حدث خطأ غير متوقع')
-      .count()
-      .then((c) => c > 0)
-      .catch(() => false);
-    row.h1Count = await page.locator('h1').count();
-    row.h1 = await page.locator('h1').first().textContent().catch(() => null);
+  const row = { route, viewport: viewport.name, session: SESSION };
+  let retried = false;
+  const measureRow = async (status) => {
+    // Settle before sampling: fonts, then one commit + one layout frame. The
+    // old single 900 ms sleep sampled mid-hydration under parallel load and
+    // produced one phantom h1/target row per run (QA-F1).
+    await page.evaluate(() => document.fonts?.ready).catch(() => {});
+    await page
+      .evaluate(
+        () =>
+          new Promise((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)));
+          }),
+      )
+      .catch(() => {});
+    const measured = {
+      status,
+      overflow: await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ),
+      errorFallback: await page
+        .locator('text=حدث خطأ غير متوقع')
+        .count()
+        .then((c) => c > 0)
+        .catch(() => false),
+      h1Count: await page.locator('h1').count(),
+      h1: await page.locator('h1').first().textContent().catch(() => null),
+    };
     const allow = allowFor(route);
     const m = await measure(page, viewport.name === '390x844', allow);
-    row.smallTargets = m.smallTargets;
-    row.dirLeaks = m.dirLeaks;
-    row.clippedHeadings = m.clippedHeadings;
-    row.floatOverlaps = m.floatOverlaps;
+    measured.smallTargets = m.smallTargets;
+    measured.dirLeaks = m.dirLeaks;
+    measured.clippedHeadings = m.clippedHeadings;
+    measured.floatOverlaps = m.floatOverlaps;
     for (const check of CHECKS) {
       for (const entry of allowEntriesFor(route, check)) {
         const count = m.allowMatches[check]?.[entry.selector];
         if (count > 0) usedAllow.add(entry.id + ':' + check);
       }
     }
+    return measured;
+  };
+
+  try {
+    const response = await page
+      .goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 30_000 })
+      .catch(() => null);
+    await page.waitForTimeout(900);
+    Object.assign(row, await measureRow(response ? response.status() : 0));
+    row.pageErrors = pageErrors;
+    row.consoleErrors = consoleErrors;
+    let candidate = finishRow({ ...row });
+    if (!candidate.ok) {
+      // One retry after a real settle window: a genuine defect persists and is
+      // still reported; a timing artifact disproven at rest is recorded as
+      // retried instead of failing the gate. Never more than one retry, so a
+      // genuinely broken page still fails fast.
+      await page.waitForTimeout(700);
+      Object.assign(row, await measureRow(response ? response.status() : 0));
+      candidate = finishRow({ ...row });
+      retried = true;
+    }
+    row.retried = retried && candidate.ok;
     row.pageErrors = pageErrors;
     row.consoleErrors = consoleErrors;
     if (SHOTS && viewport.name === '390x844') {
@@ -395,7 +451,10 @@ for (const entry of ALLOW.entries ?? []) {
   }
 }
 
-const outFile = path.resolve(ROOT, arg('json-out', 'verification/design/route-audit.json'));
+const defaultReport = SIGNED_IN
+  ? 'verification/reports/route-audit-signedin.json'
+  : 'verification/design/route-audit.json';
+const outFile = path.resolve(ROOT, arg('json-out', defaultReport));
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, JSON.stringify(report, null, 1));
 
@@ -409,6 +468,7 @@ for (const row of failures)
 const summary = {
   routes: ROUTES.length,
   viewports: VIEWPORTS.length,
+  session: SESSION,
   checks: report.length,
   failed: failures.length,
   failedByCheck: byCheck,

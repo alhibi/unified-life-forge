@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { getLastExternalFocus, isInsideOverlayLayer } from '@/lib/lastExternalFocus';
+
 /**
  * Focus return for overlay layers (Dialog / Drawer / Sheet / AlertDialog).
  *
@@ -10,22 +12,33 @@ import * as React from 'react';
  * the prevention still runs, so focus falls to `<body>` and keyboard users
  * lose their place (DESIGN.md §10 C).
  *
- * This hook captures the element that had focus when the layer opened and
- * restores it on close, but ONLY when the default left focus loose. A layer
- * opened through a trigger still gets Radix's own focus-the-trigger path, so
- * the existing contract is untouched.
+ * The opener itself is tracked eagerly by `lib/lastExternalFocus`, because a
+ * layer's content chunk may load after the click that opens it (and vaul's
+ * Drawer never forwards onOpenAutoFocus at all). This hook only decides when
+ * to restore: on close, and only when the primitive left focus loose.
  */
 export function useOverlayFocusReturn(onClose?: () => void) {
   const openerRef = React.useRef<HTMLElement | null>(null);
 
-  /** Remember the opener before the layer steals focus. */
+  // Capture at mount as a fallback for primitives that do not forward
+  // onOpenAutoFocus; the tracker already saw the click that opened this layer.
+  React.useEffect(() => {
+    if (openerRef.current === null) {
+      const tracked = getLastExternalFocus();
+      if (tracked) openerRef.current = tracked;
+    }
+  }, []);
+
+  /** Remember the opener before (or after) the layer steals focus. */
   const captureOpener = React.useCallback(() => {
     if (typeof document === 'undefined') return;
     const active = document.activeElement;
-    openerRef.current =
-      active instanceof HTMLElement && active !== document.body && active !== document.documentElement
-        ? active
-        : null;
+    const usable =
+      active instanceof HTMLElement &&
+      active !== document.body &&
+      active !== document.documentElement &&
+      !isInsideOverlayLayer(active);
+    openerRef.current = usable ? active : getLastExternalFocus();
   }, []);
 
   const handleCloseAutoFocus = React.useCallback(() => {

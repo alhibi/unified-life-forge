@@ -1,0 +1,57 @@
+{
+ "capturedAt": "2026-11-18T21:41:59.820Z",
+ "base": "http://127.0.0.1:5199",
+ "session": "signed-in",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/profile",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "session": "signed-in",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/qa/closure/capture-check/signed-in/390x844/expressive-dark/profile.png",
+    "/Users/amer/ulf-design/verification/design/qa/closure/capture-check/signed-in/390x844/expressive-dark/profile--full.png"
+   ],
+   "status": 200,
+   "h1": "tester",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/journal",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "session": "signed-in",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/qa/closure/capture-check/signed-in/390x844/expressive-dark/journal.png",
+    "/Users/amer/ulf-design/verification/design/qa/closure/capture-check/signed-in/390x844/expressive-dark/journal--full.png"
+   ],
+   "status": 200,
+   "h1": "مذكرتي",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

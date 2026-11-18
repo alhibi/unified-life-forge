@@ -1,0 +1,1 @@
+/diwan/bayan,/diwan/library,/diwan/library/favorites,/diwan/library/poem/test-slug,/diwan/library/poet/test-slug,/diwan/library/poets,/diwan/library/search,/duas,/fitness,/games,/games/chess,/games/chess/career,/games/chess/puzzles,/games/memory,/games/memory/adventure,/games/sudoku,/german-club

@@ -17,6 +17,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+import {
+  installAnonymousRoutes,
+  installAuthFixture,
+  installSignedInRoutes,
+  readProjectRef,
+} from './lib/session-fixture.mjs';
+
 const ROOT = path.resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
 function arg(name, fallback) {
@@ -57,6 +64,11 @@ const THEMES = arg('themes', 'expressive').split(',').filter(Boolean);
 const BASE = arg('base', 'http://127.0.0.1:5199');
 const OUT = path.resolve(arg('out', 'verification/design/matrix'));
 const CONCURRENCY = Math.max(1, Math.min(6, Number(arg('concurrency', '4'))));
+// --session signed-in captures the deterministic signed-in states (synthetic
+// session + stubbed Supabase). Default anonymous keeps the original matrix.
+const SESSION = arg('session', 'anonymous');
+const SIGNED_IN = SESSION === 'signed-in' || SESSION === 'signedin';
+const PROJECT_REF = readProjectRef(ROOT);
 const FULL = !flag('viewport-top-only');
 const WAIT = Number(arg('wait', '1200'));
 
@@ -81,7 +93,9 @@ function slugOf(route) {
 }
 
 async function capture(route, viewport, mode, theme) {
-  const dir = path.join(OUT, viewport.name, theme + '-' + mode);
+  // Session is part of the evidence path: an anonymous and a signed-in capture
+  // of the same route are different states and must never overwrite each other.
+  const dir = path.join(OUT, SIGNED_IN ? 'signed-in' : 'anonymous', viewport.name, theme + '-' + mode);
   fs.mkdirSync(dir, { recursive: true });
   const slug = slugOf(route);
   const context = await browser.newContext({
@@ -102,6 +116,7 @@ async function capture(route, viewport, mode, theme) {
     },
     { profile: PROFILE, mode, theme },
   );
+  if (SIGNED_IN) await installAuthFixture(context, { projectRef: PROJECT_REF, theme, mode });
   const page = await context.newPage();
   const pageErrors = [];
   const consoleErrors = [];
@@ -109,14 +124,9 @@ async function capture(route, viewport, mode, theme) {
   page.on('console', (m) => {
     if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200));
   });
-  await page.route('**/*', (r) => {
-    const url = new URL(r.request().url());
-    const host = url.hostname;
-    if (host === '127.0.0.1' || host === 'localhost') return r.continue();
-    if (host === 'fonts.googleapis.com' || host === 'fonts.gstatic.com') return r.continue();
-    return r.abort();
-  });
-  const row = { route, viewport: viewport.name, mode, theme, files: [] };
+  if (SIGNED_IN) await installSignedInRoutes(page, PROJECT_REF);
+  else await installAnonymousRoutes(page);
+  const row = { route, viewport: viewport.name, mode, theme, session: SESSION, files: [] };
   try {
     await page.goto(BASE + route, { waitUntil: 'networkidle', timeout: 45_000 }).catch(() => {});
     await page.waitForLoadState('load').catch(() => {});
@@ -169,7 +179,14 @@ await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 await browser.close();
 fs.mkdirSync(OUT, { recursive: true });
 const manifest = path.resolve(arg('json-out', path.join(OUT, 'manifest.json')));
-fs.writeFileSync(manifest, JSON.stringify({ capturedAt: new Date().toISOString(), base: BASE, profile: PROFILE, results }, null, 1));
+fs.writeFileSync(
+  manifest,
+  JSON.stringify(
+    { capturedAt: new Date().toISOString(), base: BASE, session: SESSION, profile: PROFILE, results },
+    null,
+    1,
+  ),
+);
 const bad = results.filter((r) => r.error || (r.overflow ?? 0) > 1 || r.h1Count === 0 || r.pageErrors.length);
-console.log(JSON.stringify({ captured: results.length, routes: ROUTES.length, viewports: VIEWPORTS.length, modes: MODES, themes: THEMES, warnings: bad.length, out: OUT, manifest }, null, 2));
+console.log(JSON.stringify({ captured: results.length, routes: ROUTES.length, viewports: VIEWPORTS.length, session: SESSION, modes: MODES, themes: THEMES, warnings: bad.length, out: OUT, manifest }, null, 2));
 process.exit(bad.length ? 1 : 0);
