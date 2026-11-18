@@ -543,7 +543,7 @@ export default function ChessPuzzlePage() {
           <span className="text-micro font-bold">{'إعادة'}</span>
         </button>
         <button onClick={giveUp} disabled={status === 'solved' || showSolution}
-          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-secondary0/15 text-muted-foreground disabled:opacity-30">
+          className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-2xl bg-secondary0/15 text-secondary-muted disabled:opacity-30">
           <Check className="w-4 h-4" />
           <span className="text-micro font-bold">{'الحل'}</span>
         </button>

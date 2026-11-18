@@ -66,7 +66,7 @@ export function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort }: WindCo
             {'اتجاه وسرعة الرياح مع الهبات'}
           </p>
         </div>
-        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55">
+        <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55">
           {beaufort}
         </span>
       </header>
@@ -200,7 +200,7 @@ export function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort }: WindCo
         {/* Stats column */}
         <div className="space-y-3.5">
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1.5">
+            <p className="text-micro font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1.5">
               {'السرعة'}
             </p>
             <div className="flex items-baseline gap-1.5 tabular-nums leading-none" dir="ltr">
@@ -212,7 +212,7 @@ export function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort }: WindCo
           </div>
 
           <div>
-            <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1.5">
+            <p className="text-micro font-bold tracking-[0.2em] uppercase text-foreground/55 mb-1.5">
               {'الاتجاه'}
             </p>
             <p className="text-title font-bold text-foreground leading-none">
@@ -225,12 +225,12 @@ export function WindCompass({ speed, gusts, dirDeg, cardinal, beaufort }: WindCo
 
           <div className="pt-3 border-t border-foreground/10">
             <div className="flex items-baseline justify-between gap-3">
-              <p className="text-[0.625rem] font-bold tracking-[0.2em] uppercase text-foreground/55">
+              <p className="text-micro font-bold tracking-[0.2em] uppercase text-foreground/55">
                 {'الهبات'}
               </p>
               <span className="text-meta font-bold text-foreground tabular-nums leading-none" dir="ltr">
                 {Math.round(gusts)}
-                <span className="ms-0.5 text-[0.625rem] font-semibold text-foreground/55">km/h</span>
+                <span className="ms-0.5 text-micro font-semibold text-foreground/55">km/h</span>
               </span>
             </div>
             <p className="mt-1.5 text-mini text-foreground/65">{beaufortHint}</p>

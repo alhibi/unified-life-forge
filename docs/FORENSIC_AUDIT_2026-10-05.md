@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](design-system/route-coverage.md).
+
 # تدقيق جنائي شامل — amv.life / `smarthub`
 
 **التاريخ:** 2026-10-05

@@ -57,6 +57,7 @@ import { useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import BackButton from '@/components/BackButton';
+import PageHeader from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { Layers, RefreshCw, Settings, Sliders, Sun } from '@/lib/icons';
@@ -110,6 +111,7 @@ const iconForCode = (code: number, isDay: boolean) => describeWeatherCode(code, 
 function LoadingScreen() {
   return (
     <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-8" dir="rtl" aria-busy="true">
+      <h1 className="sr-only">الطقس</h1>
       <div className="weather-shell mx-auto max-w-[var(--ui-workspace-max)] p-5 sm:p-8">
         <div className="weather-skeleton-line h-8 w-40 rounded-md" />
         <div className="mt-8 grid gap-5 lg:grid-cols-[1.7fr_0.85fr]">
@@ -127,12 +129,16 @@ function LoadingScreen() {
 
 function EmptyScreen({ onSelectCity }: { onSelectCity: (lat: number, lng: number, name: string) => void }) {
   return (
-    <div className="weather-theme min-h-dvh px-[var(--ui-gutter)] pb-page pt-8" dir="rtl">
-      <div className="weather-shell mx-auto max-w-[var(--ui-content-max)] p-6 sm:p-8">
+    <div
+      className="weather-theme mx-auto flex min-h-dvh max-w-[var(--ui-workspace-max)] flex-col px-[var(--ui-gutter)] pb-page pt-4"
+      dir="rtl"
+    >
+      <PageHeader title="الطقس" subtitle="لوحة الأرصاد الجوية" />
+      <div className="weather-shell mx-auto mt-4 w-full max-w-[var(--ui-content-max)] p-6 sm:mt-10 sm:p-8">
         <p className="text-mini font-semibold weather-copper-text">{'اختر موقعاً للبدء'}</p>
-        <h1 className="weather-display mt-2 text-[2rem] font-semibold leading-tight text-foreground">
+        <h2 className="type-display mt-2 text-foreground">
           {'أين تريد قراءة الطقس؟'}
-        </h1>
+        </h2>
         <p className="mt-3 text-body leading-relaxed text-muted-foreground">
           {'لم نتمكن من تحديد موقعك تلقائياً. ابحث عن مدينتك لعرض الحالة والتوقعات الدقيقة.'}
         </p>

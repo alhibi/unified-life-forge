@@ -36,9 +36,12 @@ const ICONS: Record<StateKind, typeof Archive> = {
   error: AlertTriangle,
 };
 
+/** States whose action is a retry, so the RefreshCcw glyph is the default. */
+const RETRY_KINDS: ReadonlySet<StateKind> = new Set(['error', 'offline']);
+
 const TONE: Record<StateKind, string> = {
-  empty: 'text-muted-foreground',
-  search: 'text-muted-foreground',
+  empty: 'text-secondary-muted',
+  search: 'text-secondary-muted',
   offline: 'text-primary',
   error: 'text-destructive',
 };
@@ -49,8 +52,20 @@ export interface StateViewProps {
   title: string;
   /** What is missing, why, and what happens next. Two sentences at most. */
   body: string;
-  /** The single most useful next step, if there is one. */
-  action?: { label: string; onClick: () => void; pending?: boolean };
+  /**
+   * The single most useful next step, if there is one.
+   *
+   * A retry-shaped state (error/offline) defaults to the RefreshCcw glyph.
+   * Any other state renders label-only unless it passes an explicit `icon`:
+   * a "حدّد الورد" or "العودة إلى الرئيسية" action must not look like a retry.
+   */
+  action?: {
+    label: string;
+    onClick: () => void;
+    pending?: boolean;
+    /** Optional glyph for the action (rendered at the action icon size). */
+    icon?: ReactNode;
+  };
   /** A quieter secondary escape hatch. */
   secondary?: ReactNode;
   /** Replace the built-in icon (e.g. a feature-specific glyph). */
@@ -93,7 +108,7 @@ export function StateView({
       // the screen, and an assertive live region would interrupt the user.
       role={kind === 'error' ? 'alert' : 'status'}
       className={cn(
-        'flex flex-col items-center justify-center gap-3 px-6 text-center',
+        'mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-3 px-6 text-center',
         !bare && 'rounded-2xl border border-dashed border-border/80 bg-secondary',
         compact ? 'min-h-[9rem] py-6' : 'min-h-[15rem] py-12',
         className,
@@ -111,25 +126,36 @@ export function StateView({
       )}
 
       <h3 className="text-meta font-semibold text-foreground">{title}</h3>
-      <p className="max-w-sm text-mini leading-relaxed text-muted-foreground">{body}</p>
+      <p className="max-w-sm text-mini leading-relaxed text-secondary-muted">{body}</p>
 
       {children}
 
       {actions ?? (
         <>
-      {action && (
-        <button
-          type="button"
-          onClick={action.onClick}
-          disabled={action.pending}
-          className="app-pressable app-focus-ring mt-1 inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-mini font-semibold text-foreground transition-snap hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCcw className={cn('h-3.5 w-3.5', action.pending && 'animate-spin')} aria-hidden />
-          {action.label}
-        </button>
-      )}
+          {action && (
+            <button
+              type="button"
+              onClick={action.onClick}
+              disabled={action.pending}
+              aria-busy={action.pending ? true : undefined}
+              className="app-pressable app-focus-ring mt-1 inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-mini font-semibold text-foreground transition-snap hover:border-primary/60 hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {action.pending ? (
+                // Pending always wins, so the busy state reads the same for
+                // every action kind (the button is also disabled above).
+                <RefreshCcw className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              ) : action.icon ? (
+                <span className="inline-flex shrink-0 [&_svg]:size-3.5" aria-hidden>
+                  {action.icon}
+                </span>
+              ) : action.icon === undefined && RETRY_KINDS.has(kind) ? (
+                <RefreshCcw className="h-3.5 w-3.5" aria-hidden />
+              ) : null}
+              {action.label}
+            </button>
+          )}
 
-      {secondary && <div className="mt-1 text-micro text-muted-foreground">{secondary}</div>}
+          {secondary && <div className="mt-1 text-micro text-secondary-muted">{secondary}</div>}
         </>
       )}
     </div>

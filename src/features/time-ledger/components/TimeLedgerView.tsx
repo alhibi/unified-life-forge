@@ -9,6 +9,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useMemo, useState } from 'react';
 
 import { IconButton } from '@/components/ui/app-shell';
+import { StateView } from '@/components/ui/state-view';
 import { Filter, Search, Settings } from '@/lib/icons';
 
 import { useTimeLedger, useTimeLedgerLayers } from '../hooks/useTimeLedger';
@@ -68,6 +69,7 @@ export default function TimeLedgerView() {
   if (isLoading) {
     return (
       <div className="space-y-4" role="status" aria-label="جاري تحميل السجل الزمني">
+        <h1 className="sr-only">سِجل الزمن</h1>
         {[...Array(5)].map((_, i) => (
           <div key={i} className="animate-pulse space-y-3">
             <div className="h-8 w-32 bg-muted/40 rounded" />
@@ -83,16 +85,14 @@ export default function TimeLedgerView() {
   // Error state
   if (status === 'error' && error) {
     return (
-      <div className="p-6 rounded-xl border border-destructive/20 bg-destructive/5 text-center">
-        <p className="text-meta font-semibold text-destructive mb-2">تعذر تحميل السجل الزمني</p>
-        <p className="text-mini text-muted-foreground mb-4">{error.message}</p>
-        <button
-          type="button"
-          onClick={refetch}
-          className="px-4 py-2 text-mini font-bold rounded-md bg-primary text-primary-foreground"
-        >
-          إعادة المحاولة
-        </button>
+      <div className="space-y-4">
+        <h1 className="sr-only">سِجل الزمن</h1>
+        <StateView
+          kind="error"
+          title="تعذّر تحميل السجل الزمني"
+          body={error.message || 'لم تستجب خدمة السجل. أعد المحاولة بعد قليل.'}
+          action={{ label: 'إعادة المحاولة', onClick: refetch }}
+        />
       </div>
     );
   }
@@ -101,6 +101,7 @@ export default function TimeLedgerView() {
   if (filteredDayGroups.length === 0) {
     return (
       <div className="empty-state-surface flex flex-col items-center justify-center py-16 px-6 rounded-xl border border-dashed border-border/40 text-center" role="status">
+        <h1 className="sr-only">سِجل الزمن</h1>
         <div className="relative w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
           <Search className="h-8 w-8 text-primary" />
         </div>

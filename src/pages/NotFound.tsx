@@ -24,6 +24,10 @@ const NotFound = () => {
 
   return (
     <PageShell>
+      {/* Every route needs one h1. The visual title lives in StateView (h3),
+          so the page announces its own heading for assistive tech and for the
+          app-shell contract, without duplicating the visible composition. */}
+      <h1 className="sr-only">الصفحة غير موجودة</h1>
       <SEO
         title={'الصفحة غير موجودة — SmartHub'}
         description={'لم نعثر على هذه الصفحة'}

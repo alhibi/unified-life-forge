@@ -1077,12 +1077,12 @@ function ModeHud({
   if (mode === 'versus') {
     return (
       <div className="flex items-center justify-between px-3 mb-2 text-mini">
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'player' ? 'bg-data-5/20 text-data-5' : 'bg-secondary text-muted-foreground'}`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'player' ? 'bg-data-5/20 text-data-5' : 'bg-secondary text-secondary-muted'}`}>
           <span className="font-bold">{'أنت'}</span>
           <span className="font-mono">{versusScores.player}</span>
         </div>
         <span className="text-muted-foreground text-micro">{fmt(timer)}</span>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-data-5/20 text-data-5' : 'bg-secondary text-muted-foreground'}`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${versusTurn === 'ai' ? 'bg-data-5/20 text-data-5' : 'bg-secondary text-secondary-muted'}`}>
           <span className="font-mono">{versusScores.ai}</span>
           <span className="font-bold">{'الذكاء'}</span>
         </div>

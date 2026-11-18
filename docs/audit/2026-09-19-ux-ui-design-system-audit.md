@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](../design-system/route-coverage.md).
+
 # تدقيق UX/UI شامل — نظام التصميم الفعلي لتطبيق SmartHub (amv.life)
 
 - **نوع الوثيقة:** تدقيق قراءة-فقط للواجهة ونظام التصميم، معدّ ليُستخدم كمدخل لنموذج آخر لاكتشاف مشاكل UX/UI محددة.

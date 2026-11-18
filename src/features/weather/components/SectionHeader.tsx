@@ -38,7 +38,7 @@ export function SectionHeader({
         <div className="flex items-center gap-3 mb-2">
           <span aria-hidden className="inline-block w-6 h-px bg-primary" />
           {eyebrow && (
-            <span className="text-[0.625rem] font-bold tracking-[0.22em] uppercase text-primary">
+            <span className="text-micro font-bold tracking-[0.22em] uppercase text-primary">
               {eyebrow}
             </span>
           )}

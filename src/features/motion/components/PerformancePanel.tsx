@@ -142,7 +142,7 @@ export default function PerformancePanel({ nativeHz }: { nativeHz: number | null
       <button
         type="button"
         onClick={resetPerfCounters}
-        className="min-h-[var(--ui-touch-min)] w-full rounded-md bg-secondary text-meta font-medium text-muted-foreground transition-colors"
+        className="min-h-[var(--ui-touch-min)] w-full rounded-md bg-secondary text-meta font-medium text-secondary-muted transition-colors"
       >
         تصفير العدّادات التراكمية
       </button>

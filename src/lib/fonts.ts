@@ -1,9 +1,9 @@
 /**
  * The typography system — single source of truth.
  *
- * This file defines the visual typography system of amv.life, which now enforces
- * "Inter Display" as the sole typeface across the app. Headings and body are
- * differentiated by weight/size, not by swapping families.
+ * This file defines the visual typography system of amv.life. The runtime UI
+ * stack is ONE pair: IBM Plex Sans Arabic (Arabic) + Inter Tight (Latin).
+ * Headings and body differ by size and weight; families are not swapped. Amiri/Tajawal stay loaded for editorial (Quran/poetry) surfaces only.
  */
 
 export type FontId = 'ibm-plex' | 'cairo' | 'tajawal' | 'readex' | 'amiri' | 'plex-mono';

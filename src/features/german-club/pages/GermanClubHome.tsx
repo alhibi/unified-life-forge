@@ -94,7 +94,7 @@ export const GermanClubHome: React.FC = () => {
           >
             <Wand2 className="h-4 w-4" aria-hidden />
             <span>ابدأ جولة لغوية</span>
-            <span className="rounded-md border border-signal/40 px-1.5 py-0.5 font-mono text-micro font-bold uppercase tracking-widest text-signal">
+            <span className="rounded-md border border-primary-foreground/40 px-1.5 py-0.5 font-mono text-micro font-bold uppercase tracking-widest text-primary-foreground">
               7 خطوات
             </span>
           </Button>

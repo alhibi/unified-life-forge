@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](../design-system/route-coverage.md).
+
 # Dead code, orphaned files & unreachable features — audit (2026-09-09)
 
 Read-only audit. Method: `knip` static analysis over the whole repo (102 unused

@@ -58,7 +58,7 @@ export const ProfileCompletionCard: React.FC<ProfileCompletionCardProps> = ({
         </div>
 
         <button
-          className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground"
+          className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-secondary-muted hover:text-foreground"
           aria-label="عرض التفاصيل"
         >
           <ChevronDown

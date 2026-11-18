@@ -483,7 +483,7 @@ export const ProfileActivityMatrixTab: React.FC<ProfileActivityMatrixTabProps> =
                           style={{ width: CELL_PX, height: CELL_PX }}
                           className={`rounded-xs transition-motion duration-fast hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${getIntensityClass(
                             day.intensity
-                          )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-10' : ''}`}
+                          )} ${isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background scale-125 relative z-raised' : ''}`}
                           title={`${day.dateFormattedAr} — ${day.count} نشاط`}
                           aria-label={`${day.dateFormattedAr}: ${day.count} نشاط`}
                           aria-pressed={isSelected}

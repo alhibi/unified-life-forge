@@ -571,7 +571,7 @@ export default function SudokuPage() {
       <button aria-label={isPaused ? "استئناف اللعبة" : "إيقاف اللعبة مؤقتاً"} onClick={togglePause} className="w-8 h-8 rounded-full flex items-center justify-center bg-secondary transition-transform">
         {isPaused ? <Play className="w-3.5 h-3.5 text-muted-foreground" /> : <Pause className="w-3.5 h-3.5 text-muted-foreground" />}
       </button>
-      <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary px-2.5 py-1 rounded-full tabular-nums">
+      <div className="flex items-center gap-1 text-mini text-secondary-muted bg-secondary px-2.5 py-1 rounded-full tabular-nums">
         <Clock className="w-3 h-3" />{formatTimer(timer)}
       </div>
       {errorCount > 0 && (

@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](../design-system/route-coverage.md).
+
 # Stage 4 — Verification (2026-09-08)
 
 Measured against the Stage 1 audit (`2026-09-08-perceived-performance-audit.md`).

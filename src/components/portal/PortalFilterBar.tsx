@@ -64,7 +64,7 @@ function PortalFilterBarImpl({
                 'type-label relative isolate min-w-0 flex-1 rounded-full px-2 py-2 text-center shadow-none',
                 'transition-colors duration-normal ease-out-expo',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                active ? 'text-primary-foreground hover:text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+                active ? 'text-primary-foreground hover:text-primary-foreground' : 'text-secondary-muted hover:text-foreground',
                 empty && !active && 'opacity-40',
               )}
             >
@@ -93,7 +93,7 @@ function PortalFilterBarImpl({
           className={cn(
             'flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary',
             'shadow-e1',
-            'text-muted-foreground transition-colors duration-fast hover:text-foreground',
+            'text-secondary-muted transition-colors duration-fast hover:text-foreground',
             ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           )}
         >

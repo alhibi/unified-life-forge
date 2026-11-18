@@ -92,7 +92,10 @@ export default function WirdCard() {
 
       <div className="mt-4">
         <p className="app-section-label mb-2">القدر اليومي</p>
-        <div className="flex flex-wrap items-center gap-1.5">
+        {/* Four equal cells, not a wrapping row: the labels differ in width
+            (صفحتان / ١٠ صفحات / ٢٠ صفحة) and a free row orphaned the last
+            preset on its own line at 360px. */}
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
           {PAGE_PRESETS.map((preset) => (
             <button
               key={preset}
@@ -100,7 +103,7 @@ export default function WirdCard() {
               onClick={() => setWird(preset)}
               aria-pressed={pages === preset}
               className={cn(
-                'min-h-11 rounded-sm border px-3 text-mini font-semibold tabular-nums transition-colors duration-fast',
+                'inline-flex min-h-11 w-full items-center justify-center rounded-sm border px-3 text-mini font-semibold tabular-nums transition-colors duration-fast',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 pages === preset
                   ? 'border-primary bg-primary text-primary-foreground'
@@ -110,16 +113,16 @@ export default function WirdCard() {
               {pagesLabel(preset)}
             </button>
           ))}
-          {pages !== null && (
-            <button
-              type="button"
-              onClick={() => setWird(null)}
-              className="min-h-11 rounded-sm px-3 text-mini text-muted-foreground transition-colors duration-fast hover:text-foreground"
-            >
-              إلغاء الورد
-            </button>
-          )}
         </div>
+        {pages !== null && (
+          <button
+            type="button"
+            onClick={() => setWird(null)}
+            className="mt-1 inline-flex min-h-11 items-center text-mini text-muted-foreground transition-colors duration-fast hover:text-foreground"
+          >
+            إلغاء الورد
+          </button>
+        )}
 
         {plan && (
           <p className="mt-3 text-mini tabular-nums text-muted-foreground">

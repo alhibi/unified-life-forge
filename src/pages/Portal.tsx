@@ -201,7 +201,7 @@ export default function Portal() {
 
       <PortalHeader unreadCount={unreadCount} />
 
-      <section className="relative z-10 mx-auto w-full max-w-[var(--ui-workspace-max)] pt-4 pb-page">
+      <section className="relative z-raised mx-auto w-full max-w-[var(--ui-workspace-max)] pt-4 pb-page">
         <h1 className="sr-only">amv.life — بوابتك الشخصية</h1>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_clamp(17rem,26vw,21.25rem)] lg:items-start lg:gap-8">
@@ -222,7 +222,7 @@ export default function Portal() {
 
 
             {/* Sticky under the 56px header so the category rail never scrolls away. */}
-            <div className="sticky top-[calc(var(--ui-header-h)+env(safe-area-inset-top))] z-20 -mx-[var(--ui-gutter)] bg-background px-[var(--ui-gutter)] py-2">
+            <div className="sticky top-[calc(var(--ui-header-h)+env(safe-area-inset-top))] z-sticky -mx-[var(--ui-gutter)] bg-background px-[var(--ui-gutter)] py-2">
               <PortalFilterBar
                 category={category}
                 onCategoryChange={setCategory}
@@ -241,7 +241,7 @@ export default function Portal() {
                 compact
               />
             ) : (
-              <div onKeyDown={onGridKeyDown} className="relative z-10">
+              <div onKeyDown={onGridKeyDown} className="relative z-raised">
                 <Suspense fallback={<PortalRealmsSkeleton list={list} />}>
                   <CelestialRealmsLayout
                   visibleApps={visible}

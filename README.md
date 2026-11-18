@@ -1,187 +1,250 @@
-# 🏛️ SmartHub: Zen Elite Super-App
-### المِحرَابُ الرَّقَمِيُّ النُّخْبَوِيُّ — مَوْسُوعَةُ الرُّقِيِّ وَالفَخَامَةِ الهَادِئَةِ
+# amv.life — تطبيق عربي متكامل
 
-[![CI Workflow](https://github.com/smarthub/smarthub/actions/workflows/ci.yml/badge.svg)](https://github.com/smarthub/smarthub/actions)
+### SmartHub · حياة واحدة، غرفة واحدة بإضاءة تتغيّر
+
+[![CI Workflow](https://github.com/alhibi/unified-life-forge/actions/workflows/verify.yml/badge.svg)](https://github.com/alhibi/unified-life-forge/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-copper?color=B8492E)](./LICENSE)
-[![Design: Quiet Luxury](https://img.shields.io/badge/Design-Quiet%20Luxury%20%2F%20Zen%20Elite-B8492E)](#)
-[![Architecture: FSD](https://img.shields.io/badge/Architecture-Feature--Sliced%20Design-0d0d0d)](#)
+[![Stack: React 19](https://img.shields.io/badge/Stack-React%2019%20%2B%20Vite%208-146B65)](#-tech-stack)
+[![Architecture: FSD](https://img.shields.io/badge/Architecture-Feature--Sliced%20Design-0d0d0d)](./docs/architecture/feature-structure.md)
 
-> **SmartHub** is a highly-sophisticated, state-of-the-art Islamic companion and personal knowledge Super-App. Built strictly under the design philosophy of **"Quiet Luxury / Zen Elite"** (Obsidian Luxury), it prioritizes extreme restraint, pixel-perfect mathematical layouts, tactile interactions, and ultra-high-fidelity offline capabilities. The application features **10 fully decoupled standalone application modules** and **6 Next-Generation System Engines** running on an optimized, zero-warning TypeScript and WebAssembly architectural foundation.
-
----
-
-## 🎨 Design Philosophy: "Quiet Luxury / Zen Elite"
-
-The Super-App is governed by strict, non-negotiable visual invariants configured to look like a high-end luxury instrument (reminiscent of Leica, Porsche, and bespoke mechanical watch faces).
-
-```
-┌────────────────────────────────────────────────────────┐
-│                   OBSIDIAN LUXURY LIGHTING             │
-│                                                        │
-│  Canvas Background: 3.0% - 3.5% Lightness (#080808)    │
-│  Card Surfaces:     5.0% - 6.0% Lightness (#0d0d0d)    │
-│  Borders/Hairlines: 9.0% - 10.0% Lightness (#181818)   │
-│                                                        │
-│  Sole Chromatic Accent: Copper / Clay (#B8492E) ───[•] │
-└────────────────────────────────────────────────────────┘
-```
-
-### 📐 The Mathematical 8px Grid System
-All spacing, padding, margins, and gaps must strictly adhere to the base grid units:
-- **`4px`** (micro adjustments, status indicators)
-- **`8px`** (gaps, inline element padding)
-- **`12px`** (compact cards, form elements)
-- **`16px`** (standard cards padding, lists)
-- **`24px`** (outer margins, dashboard section gaps)
-- **`32px` / `48px` / `64px`** (structural offsets and hero divisions)
-
-### 🖋️ Typographic & Font Architecture
-- **DEFAULT_DISPLAY_FONT_ID (`Amiri`)**: Elegant, editorial classical Arabic serif layout stack, accompanied by **Cormorant Garamond** for beautifully integrated Latin metrics, brand subtitles, and headers.
-- **DEFAULT_BODY_FONT_ID (`IBM Plex Sans Arabic` / `Noto Sans Arabic`)**: High-legibility, ultra-sharp sans-serif stack optimized for lengthy readings and interface controls.
-- **Numeric Font Stack (`Montserrat` / `IBM Plex Mono`)**: Active clock tickers, metrics, coordinates, and statistics are displayed in Montserrat with the `tabular-nums` class to completely eradicate visual shifting and layout jumping during high-frequency updates.
+> **amv.life** (repo identity: `smarthub`) is an Arabic-first, RTL-only companion app for
+> prayer, reading, knowledge and everyday life. Built with React 19, Vite, TypeScript,
+> Tailwind CSS v4 and Bun, it ships **26 feature domains** across **82 product routes**,
+> one Portal launcher and three persistent tabs. It is installable as a PWA and wraps in
+> Capacitor for native shells.
 
 ---
 
-## 📱 The 10 Standalone Application Modules
-SmartHub decouples traditional web-app modules into ten beautifully-crafted standalone experiences, each with dedicated route controls, independent lazy boundaries, optimized back targets, and bespoke semantic headers.
+## 🎨 Design system
 
-### 1. 📖 القرآن الكريم (The Holy Quran & Tafsir)
-- **Core Architecture:** Standardized deep-linking via query parameters synchronizes Surah, Ayah, and Tafsir state directly with the URL.
-- **Tafsir Engine:** Fully integrated Arabic Tafsir browser (`Tafsir.tsx`) with instant 300ms debounced search, providing elegant typography, multi-source Tafsir, and custom copy/share sheets.
+There is exactly one visual authority: **[DESIGN.md](./DESIGN.md)**. It defines the semantic
+token contract, the fourteen theme families, the page grammars (G1–G7), motion, accessibility
+and the exception register. Do not invent a local value to imitate a shared token.
 
-### 2. 📿 الأذكار والدعاء (Dhikr & Devotional Core)
-- **Tactile Feedback:** Uses the custom Web Audio API synthesis engine to generate micro-tactile sound cues (using dynamic gain and frequency oscillators) coupled with the `navigator.vibrate` API for a physical rosary experience.
-- **Touch Targets:** Micro-interacts and increment targets expand invisibly (minimum `44x44px` mobile targets) via a pseudo-element expansion pattern (`relative before:absolute before:-inset-2 before:content-['']`).
+- **Implementation contract:** [.kiro/steering/design-system.md](./.kiro/steering/design-system.md)
+  — the short, enforceable rules to read before writing JSX.
+- **Route × grammar × states:** [docs/design-system/route-coverage.md](./docs/design-system/route-coverage.md)
+  — every route mapped to its page grammar, required states and verification status.
+- **Component catalog:** [docs/design-system/component-catalog.md](./docs/design-system/component-catalog.md)
+  — props and A/B/C states for the primitives below.
+- **Engineering rules:** [AGENTS.md](./AGENTS.md).
 
-### 3. 📜 السنة النبوية (The Prophetic Sunnah)
-- **Structured Repositories:** Bundles curated databases of timed routines (morning, evening, travel, sleep, prayer) and untimed Prophetic traditions (the Nawawi Forty Hadiths).
-- **Off-grid Readiness:** Operates completely offline with zero network latency, pulling from highly-compressed bundled static JSON datasets.
+The primitives are `PageShell`, `PageHeader`, `AppCard`, `AppList`/`AppRow`,
+`IconChip`, `StatGrid`/`Stat`, `IconButton`, `Section` and `StateView` in
+`src/components/ui/app-shell.tsx` and `src/components/`. Colours, radii and spacing come
+from semantic tokens in `src/index.css`; there is **no `tailwind.config.ts`**.
 
-### 4. 📜 ديوان الشعر العربي (Classical Arabic Poetry)
-- **Manuscript Theme (مخطوطة):** A night-only classical editorial layout powered by specialized css variables:
-  - `--ink-bg: #16130F` (parchment sub-dark background)
-  - `--ink-card: #1E1912` (inkwell raised card surfaces)
-  - `--wax: #B8492E` (wax-seal avatar backgrounds and active metrics)
-- **The Corpus:** Exactly **170 classical poets** distributed across six eras: *Jahili, Mukhadram, Islami, Umawi, Abbasi, and Andalusi*.
-- **Interactive Details:** Dotted crease lines simulating folded paper, wax-seal icons, and high-performance Arabic rhyme end-letter highlights using efficient grouping algorithms.
+### What the system is
 
-### 5. 🎙️ البودكاست (Podcast & Media Hub)
-- **Design Constraint:** Adheres strictly to the Zen Elite system with solid `hsl(var(--card))` card structures. It strictly rejects distracting "frosted glass" or heavy backdrop filters.
-- **The Player:** Highly responsive bottom-drawer sheet interface (`PlayerSheet`) and modular `PodcastMiniPlayer` synchronizing audio playback state with passive service worker listening.
-
-### 6. 🔖 القراءة المتكاملة (Advanced Reading & Article Extraction)
-- **Tactile Cylindrical Sliders:** Features custom vertical sliders for text size, weight, and screen brightness, matching the styling of physical controls.
-- **Acoustic Highlight:** Synchronizes browser-native Text-to-Speech voices with visually highlighted active paragraphs in real-time.
-- **Technical Capabilities:** Offline article compilation, screen wake-lock preservation, and defensive DOMPurify sanitization.
-
-### 7. 📝 يومياتي (My Journal)
-- **Decoupled Privacy:** A private, secure journaling space using local client storage, automatic draft preservation, and encrypted synchronization boundaries with the backend database.
-- **Editorial Timelines:** Features timeline visualization with custom mood and thematic tags styled in muted copper tones.
-
-### 8. 📂 أرشيف المعرفة (The Knowledge Archive)
-- **Parallel Subsection Generation:** Utilizing premium models (DeepSeek-R1, o1, o1-mini, o3-mini, Llama-3.3-70b, Qwen-2.5-72b), the Supabase Edge Function parallelizes AI subsection rendering in strict batches of six, reducing compilation depth wait times from 20 minutes to less than 2.5 minutes while elegantly handling failures with placeholder warnings.
-
-### 9. 🧠 الذاكرة الرقمية (PKM & Digital Memory Note-taking)
-- **Real-Time URL Syncing:** Notes, active ID, status filters, tags, and search queries are synchronized instantly with browser URL parameters.
-- **Flicker-Free Search:** Incorporates a high-performance 300ms debounce on all user inputs to eliminate visual grid reflows.
-
-### 10. 🗺️ أطلس السفر (The Travel Atlas & Fitness Tracker)
-- **Visual Mapping:** Leaflet OpenStreetMap widgets utilizing custom-designed SVG start/end nodes, auto-bounding fit views, and adaptive dark-mode map tile filters.
-- **Douglas-Peucker Route Simplifier:** Downsamples extensive geographical track points to a maximum of 100 coordinates using a binary search on epsilon before database commit, minimizing payload storage.
-- **Precision Tracker (Leica Style):** Features a moss-green primary accent (`--fitness-primary`, HSL Hue 100), stacked Recharts area charts, step-trends, and a GPS noise filter rejecting static drift (< 1m motion) or speed anomalies (> 15 m/s).
+- **Arabic is the only interface language.** The document is `dir="rtl"` and `lang="ar"`;
+  German and Latin content is authentic material rendered locally with `dir="ltr"`.
+- **Fourteen theme families** — expressive, editorial, copper, paper, mono, obsidian, clay,
+  gold, moss, ocean, arctic, midnight, nebula, rose — plus `dynamic` derived from an image.
+  Each family has an art direction in `src/utils/themeArtDirections.ts` and publishes the
+  same semantic roles through `src/utils/themeEngine.ts`.
+- **One runtime type stack:** IBM Plex Sans Arabic + Inter Tight (`src/lib/fonts.ts`).
+  Amiri and Tajawal are editorial material for Quran, poetry and Diwan only.
+- **Flat by contract.** Depth comes from surface tone, spacing and hairline borders; raw
+  shadows, decorative gradients, glow, blur and glass belong to the registered exceptions in
+  `DESIGN.md` §11.
+- **User preferences win.** Theme, mode, OLED, density, width, corners, borders, motion and
+  type size are stored and migrated; a component never overrides them with a local literal.
 
 ---
 
-## ⚡ Next-Gen System Engines
+## 🧭 Navigation
 
-SmartHub is orchestrating six underlying high-performance system engines seamlessly registered inside `src/contexts/SystemEngineContext.tsx`:
+The home screen is the **Portal launcher at `/`**: identity and date, today's live widgets,
+then a categorised grid of apps. There is no bottom navigation bar and no six-tab nav.
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                  SYSTEM ENGINE ORCHESTRATION                 │
-│                                                              │
-│  [1] Command Palette  ◄──►  [2] Hardware & Environmental     │
-│  [3] Predictive Prefetch  ◄►  [4] State History (Undo/Redo)   │
-│  [5] Split-Pane Layout ◄──► [6] Silent Biometric Passkeys    │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
+Exactly **three persistent tabs** exist:
 
-1. **Global Command Palette (`cmdk`):** Accessible globally via `Ctrl+K` or `Cmd+K`. Fully indexing application routes, deep page sections, active tools, and settings.
-2. **Hardware & Environmental Engine:** Monitors device performance parameters (`navigator.connection`, `navigator.getBattery`). On low power or slow connection, it activates battery-saver modes, capping Framer Motion and spring animation frame rates and disabling heavy background particles.
-3. **Intent-Based Predictive Prefetching (`usePredictivePrefetch`):** Observes pointer velocity, hover coordinates, and trajectory vectors to warm-up and prefetch lazy chunk bundles before the user commits to a click.
-4. **Universal State History Engine:** Bound globally to `Cmd+Z` / `Cmd+Shift+Z` to trace, commit, and undo/redo complex nested states across note-taking (PKM), journaling, and configuration grids.
-5. **Split-Pane Layout Engine (`react-resizable-panels`):** Renders responsive, multi-view side-by-side interfaces on desktop. It automatically flags nested frames (`is_split_pane=true`) to suppress redundant headers, navigation sidebars, and duplicate menus inside sub-iframes.
-6. **Silent Biometric Passkey Engine:** Native WebAuthn integration supporting secure passwordless lock/unlock transitions. Includes high-fidelity secure PIN overlays for fallback verification.
+| Tab    | Path     | Behaviour                                             |
+| ------ | -------- | ----------------------------------------------------- |
+| Portal | `/`      | Eagerly imported; the launcher and its today widgets  |
+| Games  | `/games` | Lazy chunk; mounted on first visit, then kept mounted |
+| Chat   | `/chat`  | Lazy chunk; mounted on first visit, then kept mounted |
 
----
+`<PersistentTabs/>` (inside `src/App.tsx`) renders each visited slot with
+`display:block` and hides the others with `display:none` — they never unmount, so returning
+is instant. Inactive slots stay out of the bundle until first visit; `useIdlePrefetch()`
+warms Games, Chat, Browse, Mihrab, Settings and the other likely next routes one chunk at a
+time on `requestIdleCallback`, skipping the prefetch on save-data, 2G or low-memory devices.
+Tab-to-tab swaps never animate horizontally; pushing into a deep route slides the whole tab
+layer with the same push/pop motion as any other page.
 
-## 🛠️ The Under-The-Hood Tech Stack
-
-SmartHub leverages a highly responsive, modern engineering stack calibrated for high-density computations:
-
-- **Build Systems & Environment:** [Bun 1.2](https://bun.sh) with Vite 8 + SWC compiling TypeScript 5 in strict-mode, delivering rapid development HMR and clean minification pipelines.
-- **State Management:** Fully-typed [Zustand](https://github.com/pmndrs/zustand) stores (Auth, Fitness, System) equipped with partial persistence, rollback transactional execution models, and session capping (max 10 active concurrent caches to prevent storage exhaustion).
-- **Asynchronous Data Queries:** [TanStack Query v5](https://tanstack.com/query) for caching, optimistic UI updates, and intelligent refetch thresholds.
-- **Thermodynamic Engine (WebAssembly):** Loads, compiles, and runs heavy thermodynamic computations (such as Thom's discomfort indexes) via a custom WebAssembly helper hook (`useAssemblyScript.ts`) utilizing ES2024 `Promise.withResolvers` with elegant mathematical JS fallbacks.
-- **XSS & Security Hardening:** Search query results and chat search highlights parse plain-text segments safely into pure React `<span>` and `<mark>` nodes without resorting to `dangerouslySetInnerHTML`. Custom sanitizers defensively strip attribute injections (e.g., `<mark onclick="...">`).
-- **Telemetry:** In-memory buffer capped at 100 entries scrubs database URLs, Sentry tokens, JWTs, and stack traces inside `ErrorBoundary.tsx` prior to shipping logs.
+Every other destination is a normal lazy route under `<Routes>` with its own
+`PageHeader`/`BackButton` back flow. `/wellness`, `/browse` and `/mihrab` are route-level
+hubs with internal tabs, not persistent tabs. For the full model see
+[docs/architecture/information-architecture.md](./docs/architecture/information-architecture.md)
+and [docs/architecture/persistent-tabs.md](./docs/architecture/persistent-tabs.md).
 
 ---
 
-## 📦 Scripts Reference
+## 🧩 The 26 feature domains
 
-Manage the Super-App codebase with the following specialized commands:
+`src/features/<domain>/` is the unit of ownership. A domain exposes its public surface from
+`index.ts`; cross-feature imports go through that barrel, and Supabase access belongs in the
+domain's data layer (`api.ts`).
 
-| Command | Action |
-| :--- | :--- |
-| `bun install` | Resolves and installs dependencies using the unified `bun.lock` lockfile. |
-| `bun run dev` | Spins up the high-performance Vite local development server on port `8080`. |
-| `bun run build` | Compiles the production application bundle into the `dist/` directory. |
-| `NODE_OPTIONS="--max-old-space-size=4096" bun run build` | Build override allocating additional node heap memory to prevent Out of Memory errors. |
-| `bun run lint` | Audits the codebase for syntax or stylistic anomalies. Expects **0 errors**. |
-| `bun run lint:budget` | Verifies warn counts against frozen limits in `lint-budget.json` to prevent debt growth. |
-| `bun run test` | Executes unit tests via the Vitest engine. |
-| `bun run e2e` | Runs Playwright end-to-end user flows in simulated environments (desktop & Pixel 7). |
-| `bun run verify` | Combines TypeScript typecheck, lint audits, and unit tests to ensure absolute stability. |
+### Spirit & knowledge
+
+| Domain         | Routes / entry                                                         |
+| -------------- | ---------------------------------------------------------------------- |
+| **mihrab**     | `/mihrab` — Quran, Dhikr, Sunnah and Literature tabs (`?tab=`)         |
+| **duas**       | `/duas`                                                                |
+| **archive**    | `/archive`, `/archive/new`, `/archive/:id`                             |
+| **knowledge**  | `/knowledge`                                                           |
+| **diwan**      | `/diwan`, `/diwan/library/**`, `/diwan/bayan`                          |
+| **reading**    | `/reading`                                                             |
+| **marginalia** | `/marginalia`                                                          |
+| **podcasts**   | `/podcasts`, `/podcasts/library`, `/podcasts/history`, `/podcasts/:id` |
+| **calendar**   | `/occasions`                                                           |
+
+### Body & place
+
+| Domain           | Routes / entry                                                                                                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **wellness**     | `/wellness` — workouts, calisthenics, activity, nutrition, diet, insights, atlas, encyclopedia                                                                                        |
+| **fitness**      | `/fitness` — GPS sessions, Health Connect, route simplification                                                                                                                       |
+| **weather**      | `/weather`                                                                                                                                                                            |
+| **travel-atlas** | `/travel-atlas`, `/travel-atlas/explore`, `/travel-atlas/countries`, `/travel-atlas/place/:placeId`, `/travel-atlas/trips`, `/travel-atlas/trips/:tripId`, `/travel-atlas/:countryId` |
+
+### Mind & memory
+
+| Domain          | Routes / entry                                                                                                                                 |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **pkm**         | `/pkm`                                                                                                                                         |
+| **mind**        | `/pkm/mind` (and `/dev/material-preview` in development)                                                                                       |
+| **journal**     | `/journal`                                                                                                                                     |
+| **german-club** | `/german-club`, `/german-club/dictionary`, `/german-club/shelf/:slug`, `/german-club/grammar`, `/german-club/review`, `/german-club/wortliste` |
+| **time-ledger** | `/time-ledger`                                                                                                                                 |
+| **crypto**      | `/crypto`                                                                                                                                      |
+
+### People & play
+
+| Domain    | Routes / entry                                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **chat**  | `/chat`, `/chat/groups`, `/chat/g/:chatId`, `/chat/settings`                                                                         |
+| **games** | `/games`, `/games/sudoku`, `/games/chess`, `/games/chess/puzzles`, `/games/chess/career`, `/games/memory`, `/games/memory/adventure` |
+
+### Account & shell
+
+| Domain         | Routes / entry                                           |
+| -------------- | -------------------------------------------------------- |
+| **account**    | account export and deletion, surfaced inside `/settings` |
+| **profile**    | `/profile`, `/settings/profile`                          |
+| **appearance** | `/settings/appearance`, `/settings/interface`            |
+| **keyboard**   | `/settings/keyboard` and the in-app keyboard provider    |
+| **motion**     | `/settings/motion`                                       |
+
+The per-domain inventory, public entry files and data ownership live in
+[docs/architecture/feature-map.md](./docs/architecture/feature-map.md). The folder contract is
+[docs/architecture/feature-structure.md](./docs/architecture/feature-structure.md).
 
 ---
 
-## 🚀 Quickstart for Developers
+## ⚡ Runtime capabilities
 
-Follow these steps to get your environment up and running in less than two minutes:
+These are the shared services that make the app feel native. They are composed at the root of
+`src/App.tsx`, not re-implemented per page:
+
+1. **Command palette** (`cmdk`) — `⌘K` / `Ctrl+K` over app routes.
+2. **Intent prefetching** — `usePredictivePrefetch` observes pointer intent and warms the
+   route chunk through the de-duplicating registry in `src/lib/routePrefetch.ts`.
+3. **Idle prefetch and data warmers** — one chunk at a time on idle, plus TTL-guarded
+   read-only query warmers (`registerDataPrefetch`), skipped on constrained devices.
+4. **Split workspace** — opt-in dual-pane layout via `react-resizable-panels`, lazy so it
+   stays out of the entry chunk; `?is_split_pane=true` marks a nested frame so it never
+   splits twice.
+5. **Hardware-aware motion** — battery/network signals plus the motion preferences in
+   `src/lib/motionPreferences.ts` reduce or disable animation on constrained devices.
+6. **Telemetry** — scrubbed, in-memory error ring buffer; sent to Sentry only when
+   `VITE_SENTRY_DSN` is configured.
+
+---
+
+## 🛠️ Tech stack
+
+| Layer     | Choice                                                                                         |
+| --------- | ---------------------------------------------------------------------------------------------- |
+| UI        | React 19.2, TypeScript 5.8 (strict), Vite 8 + SWC, Tailwind CSS v4                             |
+| Routing   | React Router 7                                                                                 |
+| Data      | TanStack Query 5, Supabase, Dexie (local-first caches)                                         |
+| State     | Zustand 5 stores with explicit action interfaces and `partialize`                              |
+| Motion    | Framer Motion, governed by `src/lib/motion.ts`                                                 |
+| Native    | Capacitor 8 (app id `app.lovable.p5e00a076b7eb4a24bbacaeff3467597a`)                           |
+| Delivery  | PWA manifest + app-shell service worker (emitted as `/sw.js`), installable and offline-capable |
+| Toolchain | Bun 1.4 + Node 26 locally; CI pins Bun 1.2.23. Vitest 4, Playwright                            |
+
+Tailwind v4 has no config file: design tokens are published in `src/index.css` as
+`@theme`/`@utility` rules and CSS variables on `<html>`.
+
+---
+
+## 📦 Scripts reference
+
+| Command                                                  | Action                                                                          |
+| :------------------------------------------------------- | :------------------------------------------------------------------------------ |
+| `bun install`                                            | Resolves and installs dependencies from `bun.lock`.                             |
+| `bun run dev`                                            | Starts the Vite development server on port `8080`.                              |
+| `bun run build`                                          | Builds the production bundle into `dist/`.                                      |
+| `NODE_OPTIONS="--max-old-space-size=4096" bun run build` | Build override for low-memory machines.                                         |
+| `bun run typecheck`                                      | `tsc --noEmit` against the app project.                                         |
+| `bun run lint` / `bun run lint:budget`                   | ESLint, then the frozen warning budget.                                         |
+| `bun run arch`                                           | Import-graph gate: cycles, orphans, feature isolation, Supabase/env boundaries. |
+| `bun run test`                                           | Vitest unit and integration tests.                                              |
+| `bun run e2e`                                            | Playwright end-to-end flows (desktop + Pixel 7 projects).                       |
+| `bun run test:smoke`                                     | One route per process (82 shards, 4 parallel) — deterministic route net. |
+| `bun run verify`                                         | `typecheck && lint && lint:budget && arch && test && build`.                    |
+| `bun run audit:routes` | Opens all 82 routes in Chromium at 390/1440: overflow, error boundary, h1, RTL leaks, touch targets, plus a 390 screenshot. |
+| `bun run audit:contrast` | Rendered text/background contrast across 20 routes x 2 modes. |
+
+`bun run verify` is the pre-push gate; UI changes additionally need `bun run e2e` and a
+rendered check at 360 / 768 / 1440 in light and dark.
+
+---
+
+## 🚀 Quickstart
 
 ```bash
-# 1. Clone the repository and navigate to its root directory
-git clone https://github.com/smarthub/smarthub.git
-cd smarthub
+# 1. Clone the repository
+git clone https://github.com/alhibi/unified-life-forge.git
+cd unified-life-forge
 
-# 2. Install dependencies with the Bun package manager
+# 2. Install with Bun
 bun install
 
-# 3. Establish environmental configurations
+# 3. Optional: point at your own Supabase project
 cp .env.example .env
 
-# 4. Fire up the local Vite development server
+# 4. Start Vite on http://localhost:8080
 bun run dev
 ```
 
-*Note: SmartHub is designed with exceptional fallback behaviors. If Supabase configuration variables are not declared in your `.env` file, the application seamlessly activates local-offline mode. Prayer times, localized search, poetry engines, and games remain fully operational.*
+The browser client ships publishable fallbacks for the project URL and anon key, so a fresh
+clone and `bun run dev` work without a `.env`. Set `VITE_SUPABASE_URL`,
+`VITE_SUPABASE_PUBLISHABLE_KEY` and `VITE_SUPABASE_PROJECT_ID` to target a different
+project. Never ship the service-role key; it bypasses RLS.
 
 ---
 
-## 🏛️ Contributing and Code Guidelines
+## 🏛️ Contributing
 
-To maintain the extreme precision and stability of the Super-App, contributors must adhere to the following architectural agreements:
-
-1. **Adhere to Feature-Sliced Design (FSD):** Features must reside entirely inside their respective `src/features/<feature_name>` directory. Cross-feature imports must target public endpoints or shared primitives inside `src/components/ui/app-shell.tsx`.
-2. **No Direct Supabase Imports in Components:** Never import the Supabase client directly within a visual React component. Move all transactional queries, calls, or subscriptions inside `api.ts` inside the feature boundary.
-3. **No Placeholders:** We write fully completed, production-ready, highly typed code. Avoid placeholders (`// TODO`, `// keep existing code`). Implement deep-dives and edge cases directly.
-4. **Local Verification:** Always run `bun run verify` and verify that unit and visual alignment guidelines are fully met before pushing changes.
+1. **Read the visual contract first.** `DESIGN.md` → `.kiro/steering/design-system.md` →
+   `docs/design-system/component-catalog.md`.
+2. **Respect Feature-Sliced Design.** A feature lives in `src/features/<domain>/`; its
+   public surface is `index.ts`; it never imports another feature's internals.
+3. **Keep Supabase in `api.ts`.** Components and hooks call the feature API, not the client.
+4. **Compose, don't fork.** Extend a primitive in `src/components/ui/app-shell.tsx` instead
+   of writing a local card, header or icon button.
+5. **Verify before pushing.** `bun run verify`; add `bun run e2e` and a screenshot for UI
+   work.
 
 ---
 
 ## ⚖️ License
 
 Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
-<sub align="right">محراب الرقي — ٢٠٢٥ م</sub>
+
+<sub align="right">amv.life — ٢٠٢٦</sub>

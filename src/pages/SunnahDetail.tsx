@@ -170,6 +170,7 @@ export default function SunnahDetail() {
     return (
       <PageShell centered={false} className="px-4">
         <div className="mx-auto w-full max-w-[var(--ui-content-max)] pt-4">
+          <PageHeader title="السنن" />
           <StateView
             kind="error"
             title="لم تُعرف هذه الفئة"

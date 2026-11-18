@@ -102,6 +102,9 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
       };
     }, [api, onSelect]);
 
+    // Embla's translate maths stay physical on purpose: translate
+    // percentages are coordinate-space arithmetic, not document flow, so
+    // logical utilities (start/end) do not apply to them.
     return (
       <CarouselContext.Provider
         value={{
@@ -177,15 +180,20 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
         className={cn(
           "absolute h-8 w-8 rounded-full",
           orientation === "horizontal"
-            ? "-left-12 top-1/2 -translate-y-1/2"
-            : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+            ? "-start-12 top-1/2 -translate-y-1/2"
+            : // Vertical variant: the horizontal centering uses left-1/2 with a
+              // physical -translate-x-1/2 on purpose — centering is symmetric,
+              // so it cannot drift in RTL.
+              "-top-12 left-1/2 -translate-x-1/2 rotate-90",
           className,
         )}
         disabled={!canScrollPrev}
         onClick={scrollPrev}
         {...props}
       >
-        <ArrowLeft className="h-4 w-4" />
+        {/* Logical placement puts "previous" at inline-start; mirror the glyph
+            in RTL so it points back along the reading direction. */}
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
         <span className="sr-only">Previous slide</span>
       </Button>
     );
@@ -205,15 +213,18 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
         className={cn(
           "absolute h-8 w-8 rounded-full",
           orientation === "horizontal"
-            ? "-right-12 top-1/2 -translate-y-1/2"
-            : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+            ? "-end-12 top-1/2 -translate-y-1/2"
+            : // Logical placement is horizontal-only; the vertical variant rests
+              // on deterministic physical centering (see CarouselPrevious).
+              "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
           className,
         )}
         disabled={!canScrollNext}
         onClick={scrollNext}
         {...props}
       >
-        <ArrowRight className="h-4 w-4" />
+        {/* Mirrored counterpart of CarouselPrevious. */}
+        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
         <span className="sr-only">Next slide</span>
       </Button>
     );

@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](../design-system/route-coverage.md).
+
 # Stage 1 — Diagnostic Audit: Re-renders, CLS, Stacking, Leaks, Transitions, Virtualization
 
 Date: 2026-09-08 · Scope: static audit of the whole app (no code changes in this stage)

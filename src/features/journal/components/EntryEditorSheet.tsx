@@ -137,7 +137,7 @@ export default function EntryEditorSheet({ open, onOpenChange, entry, onSubmit, 
           {/* Sticky action row: on a 390×844 screen the form is taller than the
               sheet whether the keyboard is open or closed. Saving must not
               depend on discovering that the sheet scrolls. */}
-          <div className="sticky bottom-0 z-10 -mx-5 flex items-center justify-end gap-3 border-t border-border/60 bg-background px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
+          <div className="sticky bottom-0 z-raised -mx-5 flex items-center justify-end gap-3 border-t border-border/60 bg-background px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
             <Button
               type="button"
               variant="ghost"

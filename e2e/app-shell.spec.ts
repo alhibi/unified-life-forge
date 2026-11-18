@@ -32,8 +32,11 @@ test.describe('app shell', () => {
     const response = await page.goto('/this-route-does-not-exist');
     // vite preview serves index.html for unknown paths so the SPA can route.
     expect(response?.status()).toBe(200);
-    await expect(page.locator('h1')).toContainText('404');
+    // The 404 is a real page in the product, not a router stack: it carries
+    // the shell's h1, the Arabic title, and the in-app escape action.
+    await expect(page.locator('h1')).toContainText('الصفحة غير موجودة');
     await expect(page).toHaveTitle(/غير موجودة/);
+    await expect(page.getByRole('button', { name: 'العودة إلى الرئيسية' })).toBeVisible();
   });
 
   test('renders at a 320px viewport without horizontal overflow', async ({ page }) => {

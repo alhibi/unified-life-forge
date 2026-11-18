@@ -1538,7 +1538,7 @@ export default function ChessPage() {
   ];
 
   const timerDisplay = (
-    <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary px-2.5 py-1 rounded-full tabular-nums">
+    <div className="flex items-center gap-1 text-mini text-secondary-muted bg-secondary px-2.5 py-1 rounded-full tabular-nums">
       <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
     </div>
   );
@@ -1720,7 +1720,7 @@ export default function ChessPage() {
               ? ('دور الأبيض')
               : ('دور الأسود')}
           </span>
-          <div className="flex items-center gap-1 text-mini text-muted-foreground bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
+          <div className="flex items-center gap-1 text-mini text-secondary-muted bg-secondary/60 px-2.5 py-1 rounded-full tabular-nums">
             <Clock className="w-3 h-3" />{formatTimer(gameTimer)}
           </div>
         </div>
@@ -1754,30 +1754,39 @@ export default function ChessPage() {
         </div>
       )}
 
-      {/* Controls */}
-      <div className="flex justify-center gap-3 mt-5 max-w-sm mx-auto px-4">
+      {/* Controls: one primary action on its own row, then a 3-up grid of
+          utilities. Six equal capsules in a single row could not fit
+          360px, and every one of them read as a primary pill. */}
+      <div className="mx-auto mt-5 w-full max-w-sm px-4">
+        <button onClick={() => resetGame()}
+          className="mb-2 flex w-full flex-row items-center justify-center gap-2 rounded-md px-5 py-3 app-pressable app-focus-ring bg-primary text-primary-foreground transition-motion">
+          <RotateCcw className="w-5 h-5" />
+          <span className="text-micro font-medium">{t('chess.newGame')}</span>
+        </button>
+      </div>
+      <div className="mx-auto mt-2 grid w-full max-w-sm grid-cols-2 gap-2 px-4 sm:grid-cols-4">
         <button onClick={undo} disabled={history.length === 0 || gameOver || aiThinking}
-          className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground disabled:opacity-25 transition-motion">
+          className="flex flex-col items-center min-h-14 gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-secondary/70 text-foreground disabled:opacity-25 transition-motion">
           <Undo2 className="w-5 h-5" />
           <span className="text-micro font-medium">{'تراجع'}</span>
         </button>
 
         <button onClick={() => setFlipped(!flipped)}
-          className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground transition-motion">
+          className="flex flex-col items-center min-h-14 gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-secondary/70 text-foreground transition-motion">
           <RotateCcw className="w-5 h-5" />
           <span className="text-micro font-medium">{'قلب'}</span>
         </button>
 
         <button onClick={showHint} disabled={gameOver || aiThinking || !gameStarted || hintLoading}
-          className="relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-signal/15 text-signal transition-motion disabled:opacity-25">
+          className="relative flex flex-col items-center min-h-14 gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-signal/15 text-signal transition-motion disabled:opacity-25">
           <Lightbulb className={`w-5 h-5 ${hintLoading ? 'animate-pulse' : ''}`} />
           <span className="text-micro font-medium">{'تلميح'}</span>
-          {hintCount > 0 && <span className="absolute -top-1 -right-1 text-micro bg-signal/30 rounded-full px-1">{hintCount}</span>}
+          {hintCount > 0 && <span className="absolute -top-1 -end-1 text-micro bg-signal/30 rounded-full px-1">{hintCount}</span>}
         </button>
 
         {!gameOver && (
           <button onClick={resign} disabled={aiThinking}
-            className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-destructive/10 text-destructive transition-motion disabled:opacity-25">
+            className="flex flex-col items-center min-h-14 gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-destructive/10 text-destructive transition-motion disabled:opacity-25">
             <Flag className="w-5 h-5" />
             <span className="text-micro font-medium">{'استسلام'}</span>
           </button>
@@ -1786,23 +1795,19 @@ export default function ChessPage() {
         {moveLog.length > 0 && (
           <>
             <button onClick={copyFen} title={'نسخ وضعية اللوحة (FEN)'}
-              className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground transition-motion">
+              className="flex flex-col items-center min-h-14 gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-secondary/70 text-foreground transition-motion">
               <Copy className="w-5 h-5" />
               <span className="text-micro font-medium">FEN</span>
             </button>
             <button onClick={exportPgn} title={'تصدير اللعبة (PGN)'}
-              className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl bg-secondary/70 text-foreground transition-motion">
+              className="flex min-h-14 flex-col items-center gap-1 rounded-md px-2 py-2.5 app-pressable app-focus-ring bg-secondary/70 text-foreground transition-motion">
               <Download className="w-5 h-5" />
               <span className="text-micro font-medium">PGN</span>
             </button>
           </>
         )}
 
-        <button onClick={() => resetGame()}
-          className="flex flex-col items-center gap-1 px-5 py-2.5 rounded-2xl bg-primary text-primary-foreground transition-motion">
-          <RotateCcw className="w-5 h-5" />
-          <span className="text-micro font-medium">{t('chess.newGame')}</span>
-        </button>
+
       </div>
 
       {/* Copy/export feedback toast */}

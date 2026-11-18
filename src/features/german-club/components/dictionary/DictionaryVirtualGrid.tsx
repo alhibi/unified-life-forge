@@ -72,6 +72,18 @@ export const DictionaryVirtualGrid: React.FC<Props> = ({ entries, onSelect }) =>
     getItemKey: (index) => rows[index]?.[0]?.id ?? `row-${index}`,
   });
 
+  /**
+   * The virtualizer re-measures whenever this ref is attached. In an
+   * environment without layout (jsdom, a zero-height pane) offsetHeight reads
+   * 0 for every row, resizeItem keeps notifying, and React aborts the tree with
+   * "Maximum update depth exceeded" — the route then renders the global error
+   * fallback. Only hand over an element that has a real box; estimateSize
+   * covers the rest.
+   */
+  const measureRow = (el: HTMLDivElement | null) => {
+    if (el && el.offsetHeight > 0) virtualizer.measureElement(el);
+  };
+
   const items = virtualizer.getVirtualItems();
 
   return (
@@ -82,7 +94,7 @@ export const DictionaryVirtualGrid: React.FC<Props> = ({ entries, onSelect }) =>
         return (
           <div
             key={item.key}
-            ref={virtualizer.measureElement}
+            ref={measureRow}
             data-index={item.index}
             className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4"
             style={{

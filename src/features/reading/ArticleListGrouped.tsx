@@ -1,8 +1,6 @@
-import { motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { AlertTriangle, Bookmark, Newspaper, Plus, RefreshCw, Search, Star } from '@/lib/icons';
+import { StateView } from '@/components/ui/state-view';
 
 import { ArticleCard } from './ArticleCard';
 import type { ListPrefs } from './listPrefs';
@@ -499,14 +497,17 @@ export function ArticleListGrouped({
   if (articles.length === 0) {
     return (
       <div ref={containerRef} className="flex-1 overflow-y-auto">
-        <EmptyState
-          filterTab={filterTab}
-          searchQuery={searchQuery}
-          refreshing={refreshing}
-          hasFeeds={hasFeeds ?? true}
-          serviceError={serviceError ?? (stalled ? 'timeout' : null)}
-          onRefresh={onRefresh}
-          onAddFeeds={onAddFeeds}
+        <StateView
+          {...emptyState({
+            filterTab,
+            searchQuery,
+            refreshing,
+            hasFeeds: hasFeeds ?? true,
+            serviceError: serviceError ?? (stalled ? 'timeout' : null),
+            onRefresh,
+            onAddFeeds,
+          })}
+          className="my-6"
         />
       </div>
     );
@@ -612,7 +613,16 @@ function BucketHeader({
   );
 }
 
-function EmptyState({
+/**
+ * The one state surface for an empty list (DESIGN §8/§9).
+ *
+ * Error, search-empty and the three "nothing here yet" cases all render
+ * through <StateView>, so the retry action, the live-region role and the
+ * reserved height are shared with every other screen instead of hand-rolled
+ * here. Copy keeps the same meaning as before; `body` is the sentence that
+ * tells the user what is missing and what happens next.
+ */
+function emptyState({
   filterTab,
   searchQuery,
   refreshing,
@@ -628,87 +638,48 @@ function EmptyState({
   serviceError?: string | null;
   onRefresh: () => void;
   onAddFeeds?: () => void;
-}) {
-  let icon: React.ReactNode;
-  let label: string;
-  let cta: React.ReactNode = null;
-  let hint: string | null = null;
-
+}): {
+  kind: 'empty' | 'search' | 'error';
+  title: string;
+  body: string;
+  action?: { label: string; onClick: () => void; pending?: boolean };
+} {
   if (serviceError && filterTab !== 'bookmarks' && !searchQuery) {
-    icon = <AlertTriangle className="h-10 w-10 text-muted-foreground/40" />;
-    label = 'تعذّر تحديث المقالات مؤقتاً';
-    hint =
-      'الخدمة مشغولة أو غير متاحة الآن. المقالات المحفوظة تبقى متاحة، ويمكنك المحاولة بعد قليل.';
-    cta = (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onRefresh}
-        className="rounded-xl mt-2"
-        disabled={refreshing}
-      >
-        <RefreshCw
-          className={`h-3.5 w-3.5 me-1.5 ${refreshing ? 'animate-spin' : ''}`}
-        />
-        {'إعادة المحاولة'}
-      </Button>
-    );
-  } else if (filterTab === 'bookmarks') {
-    icon = <Bookmark className="h-10 w-10 text-muted-foreground/30" />;
-    label = 'لا توجد مقالات محفوظة';
-  } else if (searchQuery) {
-    icon = <Search className="h-10 w-10 text-muted-foreground/30" />;
-    label = 'لا توجد نتائج';
-  } else if (!hasFeeds) {
-    icon = <Star className="h-10 w-10 text-primary/40" />;
-    label = 'أضف مصادرك لتبدأ القراءة';
-    cta = onAddFeeds
-      ? (
-        <Button
-          variant="default"
-          size="sm"
-          onClick={onAddFeeds}
-          className="rounded-xl mt-2"
-        >
-          <Plus className="h-3.5 w-3.5 me-1.5" />
-          {'تصفح المقترحات'}
-        </Button>
-      )
-      : null;
-  } else {
-    icon = <Newspaper className="h-10 w-10 text-muted-foreground/30" />;
-    label = 'لا توجد مقالات بعد';
-    cta = (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onRefresh}
-        className="rounded-xl mt-2"
-        disabled={refreshing}
-      >
-        <RefreshCw
-          className={`h-3.5 w-3.5 me-1.5 ${refreshing ? 'animate-spin' : ''}`}
-        />
-        {'تحديث الآن'}
-      </Button>
-    );
+    return {
+      kind: 'error',
+      title: 'تعذّر تحديث المقالات مؤقتاً',
+      body: 'الخدمة مشغولة أو غير متاحة الآن. المقالات المحفوظة تبقى متاحة، ويمكنك المحاولة بعد قليل.',
+      action: { label: 'إعادة المحاولة', onClick: onRefresh, pending: refreshing },
+    };
   }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col items-center justify-center py-24 px-6 gap-3 text-center"
-    >
-      {icon}
-      <p className="text-meta text-muted-foreground">{label}</p>
-      {hint && (
-        <p className="text-mini text-muted-foreground-subtle leading-relaxed max-w-xs">
-          {hint}
-        </p>
-      )}
-      {cta}
-    </motion.div>
-  );
+  if (filterTab === 'bookmarks') {
+    return {
+      kind: 'empty',
+      title: 'لا توجد مقالات محفوظة',
+      body: 'احفظ أي مقال من القائمة ليظهر هنا، ويبقى متاحاً للقراءة دون اتصال.',
+    };
+  }
+  if (searchQuery) {
+    return {
+      kind: 'search',
+      title: 'لا توجد نتائج',
+      body: 'لا يطابق البحث الحالي أي مقال. جرّب كلمة أقصر أو امسح البحث لعرض كل المقالات.',
+    };
+  }
+  if (!hasFeeds) {
+    return {
+      kind: 'empty',
+      title: 'أضف مصادرك لتبدأ القراءة',
+      body: 'لا توجد مصادر مفعّلة بعد. تصفّح المقترحات أو أضف رابط RSS من إدارة المصادر.',
+      action: onAddFeeds
+        ? { label: 'تصفح المقترحات', onClick: onAddFeeds }
+        : undefined,
+    };
+  }
+  return {
+    kind: 'empty',
+    title: 'لا توجد مقالات بعد',
+    body: 'لم يصل أي مقال من مصادرك حتى الآن. حدّث الآن أو تحقّق من اتصالك.',
+    action: { label: 'تحديث الآن', onClick: onRefresh, pending: refreshing },
+  };
 }

@@ -116,7 +116,7 @@ const DictionaryCardImpl: React.FC<DictionaryCardProps> = ({ entry, onSelect }) 
       </div>
 
       {entry.examples[0] && (
-        <p dir="ltr" className="truncate rounded-md bg-secondary/50 p-2 text-mini text-muted-foreground">
+        <p dir="ltr" className="truncate rounded-md bg-secondary/50 p-2 text-mini text-secondary-muted">
           "{entry.examples[0].de}"
         </p>
       )}

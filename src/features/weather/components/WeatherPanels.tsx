@@ -90,7 +90,7 @@ export function WeatherSection({
             </h3>
           )}
           {subtitle && (
-            <span className="text-[0.625rem] tracking-[0.18em] uppercase text-foreground/55 font-bold tabular-nums">
+            <span className="text-micro tracking-[0.18em] uppercase text-foreground/55 font-bold tabular-nums">
               {subtitle}
             </span>
           )}
@@ -136,7 +136,7 @@ export function Metric({
 
   return (
     <div className={`min-w-0 ${className}`}>
-      <div className="flex items-center gap-1.5 text-[0.625rem] tracking-[0.18em] uppercase text-foreground/60 font-bold truncate">
+      <div className="flex items-center gap-1.5 text-micro tracking-[0.18em] uppercase text-foreground/60 font-bold truncate">
         {icon && (
           <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-primary shrink-0">
             {icon}
@@ -145,7 +145,7 @@ export function Metric({
         <span className="truncate">{label}</span>
         {trend && trendValue && (
           <span
-            className={`shrink-0 text-[0.625rem] font-bold tabular-nums ${
+            className={`shrink-0 text-micro font-bold tabular-nums ${
               trend === 'up' ? 'text-data-1 dark:text-data-1'
                 : trend === 'down' ? 'text-data-5 dark:text-data-5'
                 : 'text-muted-foreground'
@@ -199,7 +199,7 @@ export function GaugeTile({
   return (
     <div className={`group relative rounded-2xl border border-border/40 surface-depth overflow-hidden p-4 min-w-0 h-full transition-motion hover:-translate-y-0.5 hover:border-border/70 ${className}`}>
       <div className="flex items-center justify-between gap-2 mb-2.5">
-        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/65 truncate">
+        <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/65 truncate">
           {label}
         </span>
         {icon && (

@@ -279,7 +279,7 @@ export default function WellnessPage() {
       fallbackTitleAr="قسم الصحة والعافية"
       fallbackDescAr="يرجى تسجيل الدخول للوصول إلى برامج التمرين والتحليلات الصحية ومزامنتها سحابياً."
     >
-      <PageShell className="pt-6">
+      <PageShell width="workspace" className="pt-6">
         <SEO
           title={'الصحة والعافية — SmartHub'}
           description={'تطبيق العافية: تمارين، كاليستنيكس، تغذية، أطلس، وموسوعة — كل البيانات محلية وآمنة.'}

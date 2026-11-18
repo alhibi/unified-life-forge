@@ -1,5 +1,5 @@
 {
-  "total": 731,
+  "total": 730,
   "rules": {
     "@typescript-eslint/ban-ts-comment": 14,
     "@typescript-eslint/no-explicit-any": 199,
@@ -9,7 +9,7 @@
     "react-hooks/preserve-manual-memoization": 3,
     "react-hooks/purity": 15,
     "react-hooks/refs": 194,
-    "react-hooks/set-state-in-effect": 89,
+    "react-hooks/set-state-in-effect": 88,
     "react-hooks/static-components": 2,
     "react-refresh/only-export-components": 34,
     "unused-imports/no-unused-vars": 130

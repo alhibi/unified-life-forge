@@ -105,7 +105,7 @@ export function SegmentedControl({
             onClick={() => onChange(option.id)}
             aria-pressed={isActive}
             className={`relative min-h-[var(--ui-touch-min)] min-w-0 flex-1 rounded-md px-1 py-2 text-center text-meta font-medium transition-colors ${
-              isActive ? 'text-primary-foreground' : 'text-muted-foreground'
+              isActive ? 'text-primary-foreground' : 'text-secondary-muted'
             }`}
           >
             {isActive && (
@@ -245,7 +245,7 @@ export function SliderRow({
                 className={`min-h-[var(--ui-touch-min)] rounded-sm px-2.5 py-1 text-mini font-medium transition-colors ${
                   isActive
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-muted-foreground'
+                    : 'bg-secondary text-secondary-muted'
                 }`}
               >
                 {preset.label}

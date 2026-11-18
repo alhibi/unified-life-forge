@@ -796,7 +796,7 @@ export default function Knowledge() {
                 {c.icon}
               </span>
               <span className="text-micro font-medium leading-none">{c.label}</span>
-              <span className="hidden text-[0.625rem] leading-none text-muted-foreground sm:block">
+              <span className="hidden text-micro leading-none text-muted-foreground sm:block">
                 {c.labelEn}
               </span>
             </TabsTrigger>

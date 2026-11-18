@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](design-system/route-coverage.md).
+
 # سجل المرحلة 0 — التثبيت (Stabilize)
 
 > هذا سجل تنفيذ، لا خطة. الخطة بـ`docs/ENGINEERING_TRANSFORMATION_PLAN.md`،

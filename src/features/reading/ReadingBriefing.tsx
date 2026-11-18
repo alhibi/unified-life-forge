@@ -60,7 +60,7 @@ export function ReadingBriefing({
   if (articles.length === 0) return null;
 
   return (
-    <section className="px-4 pt-3 pb-1" aria-label="ملخص القراءة">
+    <section className="pt-3 pb-1" aria-label="ملخص القراءة">
       {/* Compact three-column stat strip — same information, a fraction
           of the vertical weight the old card consumed. */}
       <div className="grid grid-cols-3 rounded-lg bg-card ring-1 ring-border/40 py-2.5">

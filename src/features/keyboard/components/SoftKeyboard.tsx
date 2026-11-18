@@ -1144,7 +1144,7 @@ export default function SoftKeyboard({
               >
                 <div className="flex items-center justify-center gap-1.5 text-micro text-[hsl(var(--kb-fg-muted))] opacity-75">
                   <span className="h-1 w-8 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />
-                  <span className="text-[0.6875rem] font-semibold uppercase tracking-wider">
+                  <span className="text-micro font-semibold uppercase tracking-wider">
                     {layout === 'ar' ? 'العربية' : layout === 'de' ? 'Deutsch' : 'English'}
                   </span>
                   <span className="h-1 w-8 rounded-full bg-[hsl(var(--kb-fg-muted))]/50" />

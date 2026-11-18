@@ -66,7 +66,7 @@ export const SpeakPlayer: React.FC<SpeakPlayerProps> = ({ text, variant = 'icon'
 
   const base =
     variant === 'pill'
-      ? 'shrink-0 inline-flex items-center gap-1.5 rounded-full border border-track px-2.5 py-1 text-micro font-semibold text-muted-foreground hover:bg-secondary transition-colors'
+      ? 'shrink-0 inline-flex items-center gap-1.5 rounded-full border border-track px-2.5 py-1 text-micro font-semibold text-secondary-muted hover:bg-secondary transition-colors'
       : 'app-icon-btn text-muted-foreground';
 
   return (

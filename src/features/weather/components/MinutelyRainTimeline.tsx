@@ -89,7 +89,7 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
           </p>
         </div>
         <div className="text-end">
-          <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none">
+          <p className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none">
             {'إجمالي'}
           </p>
           <p className="mt-1 text-lead font-bold text-foreground tabular-nums leading-none" dir="ltr">
@@ -159,7 +159,7 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
         {/* Tooltip */}
         {hoveredPoint && hovered !== null && (
           <div
-            className="absolute pointer-events-none px-2.5 py-1.5 rounded-lg bg-foreground text-background text-[0.625rem] font-bold"
+            className="absolute pointer-events-none px-2.5 py-1.5 rounded-lg bg-foreground text-background text-micro font-bold"
             style={{
               left: `calc(${((hovered / Math.max(1, slice.length - 1)) * 100).toFixed(2)}% + 1.5rem - ${hovered * 4}px)`,
               top: `${((hoveredPoint.v ? 1 - hoveredPoint.v / maxIntensity : 1) * 100).toFixed(0)}%`,
@@ -174,7 +174,7 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
       </div>
 
       {/* Time axis */}
-      <div className="px-6 pb-4 flex justify-between text-[0.625rem] tabular-nums text-foreground/55" dir="ltr">
+      <div className="px-6 pb-4 flex justify-between text-micro tabular-nums text-foreground/55" dir="ltr">
         <span className="font-bold text-primary">الآن</span>
         <span>
           {new Date(slice[Math.min(29, slice.length - 1)].timestamp_unix).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false })}
@@ -197,16 +197,16 @@ function MinutelyRainTimelineImpl({ entries, locale }: Props) {
       {/* Stats footer */}
       <div className={cn('px-6 pb-6 pt-2 grid grid-cols-2 gap-3 border-t border-foreground/8', anyLightning ? '' : 'mt-1')}>
         <div>
-          <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none mb-1">
+          <p className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none mb-1">
             {'الذروة'}
           </p>
           <p className="text-meta font-bold text-foreground tabular-nums leading-none" dir="ltr">
             {peakIntensity.toFixed(1)}
-            <span className="ms-1 text-[0.625rem] font-semibold text-foreground/55">mm/h</span>
+            <span className="ms-1 text-micro font-semibold text-foreground/55">mm/h</span>
           </p>
         </div>
         <div className="text-end">
-          <p className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none mb-1">
+          <p className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 leading-none mb-1">
             {'دقيقة الجفاف'}
           </p>
           <p className="text-meta font-bold text-foreground tabular-nums leading-none">

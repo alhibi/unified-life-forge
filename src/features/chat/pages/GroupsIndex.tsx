@@ -69,15 +69,20 @@ export default function GroupsIndexPage() {
     return <Skeleton />;
   }
   if (!user) {
+    // Signed-out is a page, not a floating slab: it keeps a real h1 so the
+    // route announces itself and shares the chat surface's identity.
     return (
-      <StateView
-        bare
-        kind="empty"
-        className="min-h-dvh"
-        title={'سجّل الدخول للوصول'}
-        body={'المجموعات والقنوات تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة.'}
-        action={{ label: t('auth.signIn'), onClick: () => navigate('/auth') }}
-      />
+      <div className="flex min-h-dvh flex-col bg-background">
+        <h1 className="sr-only">المجموعات والقنوات</h1>
+        <StateView
+          bare
+          kind="empty"
+          className="min-h-dvh"
+          title={'سجّل الدخول للوصول'}
+          body={'المجموعات والقنوات تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة.'}
+          action={{ label: t('auth.signIn'), onClick: () => navigate('/auth') }}
+        />
+      </div>
     );
   }
 
@@ -151,7 +156,7 @@ export default function GroupsIndexPage() {
                   'h-8 px-3.5 rounded-full text-mini font-medium transition-motion whitespace-nowrap inline-flex items-center gap-1.5',
                   active
                     ? 'bg-primary text-primary-foreground '
-                    : 'bg-secondary text-muted-foreground',
+                    : 'bg-secondary text-secondary-muted',
                 )}
               >
                 {tab.ar}

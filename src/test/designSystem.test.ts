@@ -6,16 +6,13 @@ import { describe, expect, it } from 'vitest';
 /**
  * Design-system ratchet.
  *
- * The audit found five parallel card vocabularies, 25 arbitrary font sizes,
- * 20 magic z-index values and a third of all directional utilities written
- * physically in an RTL-only app. Those are being paid down screen by screen,
- * but the counts must never grow again — a review comment cannot enforce that,
- * a failing test can.
+ * Every number below was measured from the tree at the moment it was written,
+ * not guessed. A budget may only go DOWN; raising one is a design-system
+ * decision that needs the justification written next to it and a matching
+ * entry in docs/design-system/migration-plan.md.
  *
- * When a number here goes DOWN, lower the budget in the same commit. If one
- * needs to go UP, that is a design-system decision, not a drive-by change.
- *
- * The rules in .kiro/steering/design-system.md explain each budget.
+ * The rules themselves are in .kiro/steering/design-system.md (derived from
+ * DESIGN.md). This file is the machine that keeps them true.
  */
 
 const SRC = path.resolve(import.meta.dirname, '..');
@@ -48,162 +45,126 @@ function countMatches(pattern: RegExp): { total: number; byFile: Record<string, 
   return { total, byFile };
 }
 
+function offenders(pattern: RegExp): string[] {
+  const found: string[] = [];
+  for (const { file, text } of SOURCES) {
+    for (const match of text.matchAll(pattern)) found.push(file + ' -> ' + match[0].trim());
+  }
+  return found;
+}
+
 describe('design-system budgets', () => {
   it('does not add new bespoke card surfaces', () => {
-    // A hand-rolled `bg-card … rounded-* … border` trio is what <AppCard>
-    // exists to replace. 298 of them survive from before the audit.
-    // Budget raised 351 → 352: the Stage-3 layout-stability pass added one
-    // card surface (the Portal widgets skeleton reserve). Still no new
-    // bespoke card patterns — AppCard remains the default.
-    // Budget raised 350 → 351: the Weather UI overhaul (7d89d89b) added
-    // 4 net card surfaces during the premium-animations migration
-    // (f02ae08e, e58adbb5). If a new screen needs another, justify it in
-    // a separate audit before bumping this number again.
-    // Budget raised 352 → 367: the editorial-system colour sweep replaced
-    // bespoke `bg-stone-50`/hex surfaces with the themed `bg-card` token.
-    // These are conversions of existing surfaces, not new card patterns.
-    // Budget raised 367 → 385 (owner-approved copper unification, Oct 2026):
-    // every new hit replaces a hard-coded hex surface (Diwan manuscript
-    // `bg-[#1D1811]`, PrCelebration `bg-white/95`) with the themed token —
-    // conversions of existing surfaces, no new card patterns.
-    const { total } = countMatches(/bg-card\b/g);
-    expect(total).toBeLessThanOrEqual(385);
+    // <AppCard> is the card. A hand-rolled bg-card + rounded-* + border trio
+    // is what it exists to replace. 79 legacy surfaces remain across 445
+    // files; the budget is the measured count, not a comfortable ceiling.
+    expect(countMatches(/bg-card\b/g).total).toBeLessThanOrEqual(79);
   });
 
   it('does not add new arbitrary font sizes', () => {
-    // Arbitrary sizes are now authored in rem (see
-    // scripts/codemod-type-rem.mjs) so the base-size preference can scale
-    // them. The budget still ratchets: prefer the canonical scale.
-    const { total } = countMatches(/text-\[\d+(?:\.\d+)?rem\]/g);
-    expect(total).toBeLessThanOrEqual(1800);
+    // 11 legacy rem sizes remain. The ladder is the five text-* steps plus the
+    // type-* roles; anything else needs a reason.
+    expect(countMatches(/text-\[\d+(?:\.\d+)?rem\]/g).total).toBeLessThanOrEqual(11);
   });
 
   it('never authors a type size in px', () => {
-    // A pixel font size cannot follow `html { font-size }`, so it silently
-    // opts out of the user's text-size preference — which is how the app
-    // ended up half-scaling. rem or a canonical token, never px.
-    const offenders: string[] = [];
-    for (const { file, text } of SOURCES) {
-      for (const match of text.matchAll(/\b(?:text|leading)-\[\d+(?:\.\d+)?px\]/g)) {
-        if (!['z-0', 'z-10', 'z-20', 'z-30', 'z-40', 'z-50'].includes(match[0])) { if (!['z-0', 'z-10', 'z-20', 'z-30', 'z-40', 'z-50'].includes(match[0])) offenders.push(`${file} → ${match[0]}`); }
-      }
-    }
-    expect(offenders).toEqual([]);
+    // A pixel size cannot follow the user's text-size preference.
+    expect(offenders(/\b(?:text|leading)-\[\d+(?:\.\d+)?px\]/g)).toEqual([]);
   });
 
-  it('never sets a font size below the 10px floor', () => {
-    // Arabic script needs MORE size than Latin, not less. Anything under 10px
-    // was unreadable; 175 such declarations were raised during the audit.
-    // 0.625rem is 10px at the default 16px base.
-    const offenders: string[] = [];
+  it('never sets a font size below the 12px legibility floor', () => {
+    // Arabic needs more size than Latin, not less. The published smallest step
+    // is text-micro (~12.6px at the default ratio); 0.75rem is the floor.
+    const tooSmall: string[] = [];
     for (const { file, text } of SOURCES) {
       for (const match of text.matchAll(/text-\[(\d+(?:\.\d+)?)rem\]/g)) {
-        if (Number(match[1]) < 0.625 && !file.includes('fitness/')) if (!['z-0', 'z-10', 'z-20', 'z-30', 'z-40', 'z-50'].includes(match[0])) { if (!['z-0', 'z-10', 'z-20', 'z-30', 'z-40', 'z-50'].includes(match[0])) offenders.push(`${file} → ${match[0]}`); }
+        if (Number(match[1]) < 0.75) tooSmall.push(file + ' -> ' + match[0]);
       }
     }
-    expect(offenders).toEqual([]);
+    expect(tooSmall).toEqual([]);
   });
 
   it('uses the z-index ladder, never a raw value', () => {
-    // The ladder lives in tailwind.config.ts. A raw value means two layers are
-    // competing without a contract — and a value Tailwind does not define
-    // (the app shipped a `z-35` and a `z-[9990]`) emits no rule at all, so the
-    // element silently ends up with no stacking level.
-    const offenders: string[] = [];
-    for (const { file, text } of SOURCES) {
-      for (const match of text.matchAll(/\bz-(?:\[\d+\]|\d+)\b/g)) {
-        if (!['z-0', 'z-10', 'z-20', 'z-30', 'z-40', 'z-50'].includes(match[0])) { if (!['z-0', 'z-10', 'z-20', 'z-30', 'z-40', 'z-50'].includes(match[0])) offenders.push(`${file} → ${match[0]}`); }
-      }
-    }
-    expect(offenders).toEqual([]);
+    // Numeric levels have no meaning to the next reader, and a value the theme
+    // does not define emits no rule at all (the app shipped z-35 and z-[9990]).
+    expect(offenders(/\bz-(?:\[\d+\]|\d+)\b/g)).toEqual([]);
   });
 
   it('does not hand-roll sticky header chrome', () => {
-    // `.app-sticky-header` / `-card` own the backdrop and the hairline. The 22
-    // bespoke headers used five different alphas and two blur radii.
-    const offenders: string[] = [];
+    // .app-sticky-header owns the surface, the hairline and the blur.
+    const bad: string[] = [];
     for (const { file, text } of SOURCES) {
       for (const line of text.split('\n')) {
         if (!line.includes('sticky top-0')) continue;
-        if (/backdrop-blur/.test(line)) offenders.push(`${file} → ${line.trim().slice(0, 90)}`);
+        if (/backdrop-blur/.test(line)) bad.push(file + ' -> ' + line.trim().slice(0, 90));
       }
     }
-    expect(offenders).toEqual([]);
+    expect(bad).toEqual([]);
   });
 
   it('does not reintroduce physical directional utilities', () => {
-    // RTL app: use ms/me/ps/pe, start/end, text-start/text-end.
-    const offenders: string[] = [];
+    // RTL app: ms/me/ps/pe, start/end, text-start/text-end.
     const pattern =
-      /(?:^|[\s"'`])-?(?:ml|mr|pl|pr)-(?:\d|px|\[)|\btext-(?:left|right)\b|\bborder-[lr]\b|\brounded-(?:tl|tr|bl|br)-/g;
-    for (const { file, text } of SOURCES) {
-      for (const match of text.matchAll(pattern)) {
-        offenders.push(`${file} → ${match[0].trim()}`);
-      }
-    }
-    expect(offenders).toEqual([]);
+      /(?:^|[\s"'\x60])-?(?:ml|mr|pl|pr)-(?:\d|px|\[)|\btext-(?:left|right)\b|\bborder-[lr]\b|\brounded-(?:tl|tr|bl|br)-/g;
+    expect(offenders(pattern)).toEqual([]);
   });
 
-  it('keeps the German locale out', () => {
-    // `Language` is a single-member union, but data files can still smuggle a
-    // second locale in as a `de:` / `*De:` property.
-    const offenders: string[] = [];
-    for (const { file, text } of SOURCES) {
-      for (const match of text.matchAll(/^\s*(?:de|[a-z][A-Za-z]*De)\s*:/gm)) {
-        offenders.push(`${file} → ${match[0].trim()}`);
-      }
-    }
-    expect(offenders).toEqual([]);
+  it('does not smuggle a second UI locale into data', () => {
+    // Arabic is the only UI locale (Language is a single-member union). This
+    // is NOT a ban on German content: German Club models real content in typed
+    // fields (german / arabic_translation) and renders it LTR in place.
+    // What it forbids is a parallel translation property that the UI switches
+    // on, which is how 6,077 dead strings accumulated before.
+    expect(offenders(/^\s*(?:de|[a-z][A-Za-z]*De)\s*:/gm)).toEqual([]);
   });
 
-  it('keeps typography inside the loaded 400–700 weight ladder', () => {
-    // 800/900 are not loaded for the Arabic body face, so font-black and
-    // font-extrabold rendered as synthetic or missing weights depending on
-    // the browser. 103 declarations were collapsed to 700 during the calm
-    // pass; the ladder is a contract, not a suggestion.
-    const { total, byFile } = countMatches(/\bfont-(?:black|extrabold)\b/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+  it('keeps typography inside the loaded 400-700 weight ladder', () => {
+    // 800/900 are not loaded for the Arabic face, so they rendered synthetic.
+    expect(countMatches(/\bfont-(?:black|extrabold)\b/g)).toEqual({ total: 0, byFile: {} });
   });
 
   it('never applies negative tracking to Arabic text', () => {
-    // §6: connected Arabic must not be tracked. Negative tracking was used on
-    // 42 headings and compressed the joins; the display tokens already set
-    // letter-spacing: 0.
-    const { total, byFile } = countMatches(/\btracking-tight(?:er)?\b/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+    // Connected Arabic must not be tracked; display roles set letter-spacing 0.
+    expect(countMatches(/\btracking-tight(?:er)?\b/g)).toEqual({ total: 0, byFile: {} });
   });
 
   it('uses dvh, not vh, for full-height roots', () => {
-    // 100vh includes mobile browser chrome, so a full-height page shifted
-    // when the address bar collapsed. One unit, everywhere.
-    const { total, byFile } = countMatches(/\bmin-h-screen\b/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+    expect(countMatches(/\bmin-h-screen\b/g)).toEqual({ total: 0, byFile: {} });
   });
 
   it('never overrides the one press feedback', () => {
-    // §11: `button:active` / `[role=button]:active` already scale through
-    // `--ui-press-scale`. A per-screen `active:scale-*` silently replaces the
-    // user's interaction preference with a hardcoded number.
-    const { total, byFile } = countMatches(/\bactive:scale-(?:\[|\d)/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+    // The global press rule owns the transform, so a per-screen scale replaces
+    // the user's interaction preference with a hardcoded number.
+    expect(countMatches(/\bactive:scale-(?:\[|\d)/g)).toEqual({ total: 0, byFile: {} });
   });
 
   it('never replaces the shared press with whileTap', () => {
-    // Framer's whileTap runs its own spring and bypasses reduced-motion CSS.
-    const { total, byFile } = countMatches(/\bwhileTap\b/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+    expect(countMatches(/\bwhileTap\b/g)).toEqual({ total: 0, byFile: {} });
   });
 
   it('uses the content-width token instead of max-w-lg', () => {
-    // 512px is `--ui-content-max`; a literal `max-w-lg` ignores the user's
-    // content-width preference.
-    const { total, byFile } = countMatches(/\bmax-w-lg\b/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+    expect(countMatches(/\bmax-w-lg\b/g)).toEqual({ total: 0, byFile: {} });
   });
 
   it('does not reserve space for the retired bottom navigation', () => {
-    // There is no bottom nav. `.pb-page` is the one canonical page gutter.
-    const { total, byFile } = countMatches(/\bpb-(?:24|28|32)\b/g);
-    expect({ total, byFile }).toEqual({ total: 0, byFile: {} });
+    // There is no bottom nav. .pb-page is the one canonical page gutter.
+    expect(countMatches(/\bpb-(?:24|28|32)\b/g)).toEqual({ total: 0, byFile: {} });
+  });
+
+  it('keeps arbitrary radii on the measured exceptions only', () => {
+    // The ladder is 8/12/16/24/32. Nine legacy arbitrary radii remain; each is
+    // a candidate for the ladder, none may be added.
+    expect(countMatches(/rounded-\[/g).total).toBeLessThanOrEqual(9);
+  });
+
+  it('keeps decorative gradients on the registered exceptions only', () => {
+    // Gradients are allowed for data/map encoding (X7) and artwork (X8). This
+    // ratchet freezes the current count so chrome cannot quietly acquire one.
+    expect(countMatches(/bg-gradient|linear-gradient|radial-gradient/g).total).toBeLessThanOrEqual(10);
+  });
+
+  it('keeps decorative blur on the registered exceptions only', () => {
+    // Only the IME keyboard (X5) and the app overlay surface may blur.
+    expect(countMatches(/backdrop-blur/g).total).toBeLessThanOrEqual(8);
   });
 });

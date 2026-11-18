@@ -74,7 +74,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
             {'منحنى الحرارة والأيقونات للساعات الأربع وعشرين القادمة'}
           </p>
         </div>
-        <span className="text-[0.625rem] font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
+        <span className="text-micro font-bold tracking-[0.18em] uppercase text-foreground/55 tabular-nums">
           {slice.length} ساعة
         </span>
       </header>
@@ -178,7 +178,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
                     style={{ height: `${Math.max(6, heat * 26)}px` }}
                   />
                   <span className={cn(
-                    'text-[0.6875rem] font-bold tabular-nums leading-none',
+                    'text-micro font-bold tabular-nums leading-none',
                     isNow ? 'text-primary' : 'text-foreground/65',
                   )}>
                     {label}
@@ -197,7 +197,7 @@ export function HourlyRibbon({ entries, iconFor, locale }: HourlyRibbonProps) {
                     {Math.round(e.temperature_c)}°
                   </span>
                   {e.precip_probability_percent > 15 && (
-                    <span className="text-[0.625rem] font-semibold text-primary/85 tabular-nums leading-none">
+                    <span className="text-micro font-semibold text-primary/85 tabular-nums leading-none">
                       {Math.round(e.precip_probability_percent)}٪
                     </span>
                   )}

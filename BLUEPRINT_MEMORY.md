@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](docs/design-system/route-coverage.md).
+
 # 🏛️ Zen Elite Super-App — Master Architectural Blueprint & Memory
 
 This document is the absolute, non-negotiable operational memory and contract for all future development, code generators, and AI agents interacting with the `smarthub` repository. It is written to ensure absolute consistency across all features, layouts, systems, and dependencies.

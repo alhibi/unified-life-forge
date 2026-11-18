@@ -75,7 +75,7 @@ export const DictionarySearchFilters: React.FC = () => {
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="absolute top-1/2 end-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="absolute top-1/2 end-2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-secondary-muted transition-colors hover:bg-secondary hover:text-foreground"
             aria-label="مسح البحث"
           >
             <X className="h-4 w-4" aria-hidden />

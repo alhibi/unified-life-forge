@@ -1,3 +1,5 @@
+> **HISTORICAL — not a design authority.** Archived 2026-11-18. Current visual contract: [DESIGN.md](../DESIGN.md). Current route matrix: [docs/design-system/route-coverage.md](design-system/route-coverage.md).
+
 # تقرير التدقيق المعماري وشامل الجودة (Architecture & Quality Audit Report)
 
 - **المشروع:** SmartHub (التطبيق الإسلامي الشامل)

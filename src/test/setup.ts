@@ -1,4 +1,20 @@
 import "@testing-library/jest-dom";
+// Dexie-backed surfaces (PKM, reading, journal drafts) open IndexedDB during
+// mount. jsdom has none, so the open rejected AFTER the test finished and
+// Vitest reported it as an unhandled error even though the route mounted.
+// The auto entry installs a complete in-memory implementation once.
+import "fake-indexeddb/auto";
+
+// Node 26 ships a global Event/CustomEvent distinct from jsdom's. A DOM
+// node only accepts its own realm's Event in dispatchEvent, so a library
+// that does new Event(...) against the Node global threw
+// 'The "event" argument must be an instance of Event' asynchronously —
+// after the route had already mounted. Point the globals at jsdom's.
+Object.assign(globalThis, {
+  Event: window.Event,
+  CustomEvent: window.CustomEvent,
+  EventTarget: window.EventTarget,
+});
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -121,3 +137,38 @@ globalThis.fetch = (async (
 
   return realFetch(input as RequestInfo, init);
 }) as typeof globalThis.fetch;
+
+/**
+ * Realtime transports do not belong in jsdom. Supabase opens a WebSocket on
+ * mount; under Node 26 that resolves to undici's WebSocket, whose internal
+ * EventTarget rejects the jsdom Event dispatched into it — an unhandled
+ * exception that fails the smoke process even though every route mounted.
+ * This inert transport lets the client construct, then stays silent.
+ */
+class InertWebSocket {
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
+  static readonly CLOSING = 2;
+  static readonly CLOSED = 3;
+  readonly CONNECTING = 0;
+  readonly OPEN = 1;
+  readonly CLOSING = 2;
+  readonly CLOSED = 3;
+  readyState = 0;
+  url = '';
+  protocol = '';
+  onopen = null;
+  onclose = null;
+  onerror = null;
+  onmessage = null;
+  addEventListener() {}
+  removeEventListener() {}
+  dispatchEvent() { return false; }
+  send() {}
+  close() { this.readyState = 3; }
+}
+Object.defineProperty(globalThis, 'WebSocket', {
+  writable: true,
+  configurable: true,
+  value: InertWebSocket,
+});
