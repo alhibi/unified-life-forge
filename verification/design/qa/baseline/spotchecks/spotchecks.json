@@ -1,0 +1,135 @@
+{
+ "crypto": {
+  "h1": {
+   "text": "قائمة العملات",
+   "scrollWidth": 292,
+   "clientWidth": 292,
+   "rect": {
+    "w": 292,
+    "h": 28
+   },
+   "whiteSpace": "normal",
+   "overflow": "hidden",
+   "textOverflow": "clip",
+   "flexShrink": "1"
+  },
+  "subtitleText": "قائمة العملاتتحديث حي • DEX Screenerإضافة عملة",
+  "titleBlock": "min-w-0 flex-1"
+ },
+ "sudoku": {
+  "h1": {
+   "text": "سودوكو",
+   "scrollWidth": 210,
+   "clientWidth": 210,
+   "rect": {
+    "x": 72,
+    "y": 18,
+    "w": 210,
+    "h": 28
+   },
+   "visible": true
+  },
+  "cellCount": 81,
+  "cellMin": 42,
+  "cellMax": 42,
+  "headerTexts": [
+   "سودوكو",
+   "سودوكو",
+   "سودوكو"
+  ]
+ },
+ "chessPuzzles": {
+  "cellCount": 64,
+  "cellMin": 41,
+  "h1": {
+   "text": "ألغاز الشطرنج",
+   "rect": {
+    "x": 72,
+    "y": 18,
+    "w": 210,
+    "h": 28
+   }
+  }
+ },
+ "h1__games_memory": {
+  "text": "أزواج الذاكرة",
+  "scrollWidth": 210,
+  "clientWidth": 210,
+  "rect": {
+   "x": 72,
+   "y": 18,
+   "w": 210,
+   "h": 28
+  },
+  "className": "line-clamp-2 text-balance text-title font-semibold text-foreground [overflow-wrap:break-word]"
+ },
+ "h1__german-club_grammar": {
+  "text": "زاوية القواعد (Grammar Corner)",
+  "scrollWidth": 292,
+  "clientWidth": 292,
+  "rect": {
+   "x": 16,
+   "y": 8,
+   "w": 292,
+   "h": 55
+  },
+  "className": "line-clamp-2 text-balance text-title font-semibold text-foreground [overflow-wrap:break-word]"
+ },
+ "dock_games": {
+  "found": false
+ },
+ "dock_appearance": {
+  "found": false
+ },
+ "dock_profile": {
+  "found": false
+ },
+ "podcastDetail": [
+  {
+   "text": "بودكاست",
+   "outer": "<h1 class=\"line-clamp-2 text-balance text-title font-semibold text-foreground [overflow-wrap:break-word]\">بودكاست</h1>",
+   "rect": {
+    "w": 145,
+    "h": 28,
+    "y": 18
+   },
+   "visible": true
+  },
+  {
+   "text": "",
+   "outer": "<h1 class=\"text-display font-bold leading-tight max-w-md text-foreground\"><span class=\"inline-block h-7 w-48 skeleton rounded-md\"></span></h1>",
+   "rect": {
+    "w": 192,
+    "h": 37,
+    "y": 269
+   },
+   "visible": true
+  }
+ ],
+ "placeNotFound": {
+  "h1": [],
+  "headings": [],
+  "titleVisible": []
+ },
+ "materialPreview": {
+  "h1": 0,
+  "headings": []
+ },
+ "prayerGuideLink": {
+  "text": "إعدادات الصلاة ←",
+  "rect": {
+   "w": 87,
+   "h": 19
+  },
+  "display": "inline-block",
+  "parentTag": "DIV",
+  "inParagraph": false
+ },
+ "appleLink": null,
+ "authSmall": {
+  "smallCount": 0,
+  "insideKeyboard": 0,
+  "outside": [],
+  "keyboardOpen": true
+ }
+}

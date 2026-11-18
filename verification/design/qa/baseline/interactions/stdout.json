@@ -1,0 +1,914 @@
+{
+ "tripDialog": {
+  "triggerText": "رحلة جديدة",
+  "before": {
+   "label": "before",
+   "dialogCount": 0,
+   "dialogs": [],
+   "active": "body \"رحلاتيخطّط من أماكنك المحفوظةلا رحلات بع\"",
+   "activeInDialog": false,
+   "bodyOverflow": "visible",
+   "bodyInlineOverflow": "",
+   "htmlOverflow": "visible",
+   "bodyPointerEvents": "auto",
+   "scrollY": 0,
+   "keyboardOpen": false,
+   "kbHeightVar": "",
+   "scrollLocked": false,
+   "focusVisible": false
+  },
+  "open": {
+   "label": "open",
+   "dialogCount": 1,
+   "dialogs": [
+    {
+     "desc": "div[role=dialog] \"رحلة جديدةالتواريخ اختيارية — يمكن إضافت\"",
+     "rect": {
+      "x": 16,
+      "y": 251,
+      "w": 347,
+      "h": 342,
+      "bottom": 593
+     },
+     "modal": null,
+     "title": "رحلة جديدة"
+    }
+   ],
+   "active": "input",
+   "activeInDialog": true,
+   "bodyOverflow": "hidden",
+   "bodyInlineOverflow": "",
+   "htmlOverflow": "visible",
+   "bodyPointerEvents": "none",
+   "scrollY": 0,
+   "keyboardOpen": false,
+   "kbHeightVar": "",
+   "scrollLocked": true,
+   "focusVisible": true
+  },
+  "tabStops": [
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": false,
+    "outline": "none 3px rgb(241, 245, 244)",
+    "boxShadow": "rgb(40, 44, 46) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "input",
+    "text": "",
+    "role": null,
+    "focusVisible": false,
+    "outline": "none 3px rgb(241, 245, 244)",
+    "boxShadow": "rgb(40, 44, 46) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 459
+   },
+   {
+    "tag": "button",
+    "text": "إلغاء",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+    "visible": true,
+    "y": 520
+   }
+  ],
+  "closed": {
+   "label": "after-escape",
+   "dialogCount": 0,
+   "dialogs": [],
+   "active": "body \"رحلاتيخطّط من أماكنك المحفوظةلا رحلات بع\"",
+   "activeInDialog": false,
+   "bodyOverflow": "visible",
+   "bodyInlineOverflow": "",
+   "htmlOverflow": "visible",
+   "bodyPointerEvents": "auto",
+   "scrollY": 0,
+   "keyboardOpen": false,
+   "kbHeightVar": "",
+   "scrollLocked": false,
+   "focusVisible": false
+  }
+ },
+ "germanDialogTriggerError": "TimeoutError: locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('button').filter({ hasText: 'Systematische Entwicklung' }).first()\n",
+ "germanDictionaryModal": {
+  "triggerText": "",
+  "open": {
+   "label": "open",
+   "dialogCount": 0,
+   "dialogs": [],
+   "active": "body \"DEUTSCH-ARABISCHES WÖRTERBUCHالمواقف الي\"",
+   "activeInDialog": false,
+   "bodyOverflow": "visible",
+   "bodyInlineOverflow": "",
+   "htmlOverflow": "visible",
+   "bodyPointerEvents": "auto",
+   "scrollY": 0,
+   "keyboardOpen": false,
+   "kbHeightVar": "",
+   "scrollLocked": false,
+   "focusVisible": false
+  },
+  "tabStops": [
+   {
+    "tag": "button",
+    "text": "رجوع",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "rgba(243, 247, 246, 0.035) 0px 1px 0px 0px inset, rgba(0, 0,",
+    "visible": true,
+    "y": 4
+   },
+   {
+    "tag": "button",
+    "text": "المواقف اليومية",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+    "visible": true,
+    "y": 6
+   },
+   {
+    "tag": "div",
+    "text": "كلمة اليوم المميزة (Wort des Tages)تم اخ",
+    "role": "button",
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "rgba(243, 247, 246, 0.047) 0px 1px 0px 0px inset, rgba(0, 0,",
+    "visible": true,
+    "y": 373
+   },
+   {
+    "tag": "button",
+    "text": "حفظ الكلمة",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "rgba(243, 247, 246, 0.035) 0px 1px 0px 0px inset, rgba(0, 0,",
+    "visible": true,
+    "y": 393
+   },
+   {
+    "tag": "button",
+    "text": "استمع للنطق الأصلي",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "rgba(243, 247, 246, 0.035) 0px 1px 0px 0px inset, rgba(0, 0,",
+    "visible": true,
+    "y": 486
+   },
+   {
+    "tag": "input",
+    "text": "البحث في القاموس",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+    "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+    "visible": true,
+    "y": 784
+   },
+   {
+    "tag": "button",
+    "text": "الكل (Alle)",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "none",
+    "visible": true,
+    "y": 428
+   },
+   {
+    "tag": "button",
+    "text": "الأساسيات اللغوية (Grundwortschatz)",
+    "role": null,
+    "focusVisible": true,
+    "outline": "solid 2px rgb(138, 213, 202)",
+    "boxShadow": "none",
+    "visible": true,
+    "y": 428
+   }
+  ],
+  "closed": {
+   "label": "after-escape",
+   "dialogCount": 0,
+   "dialogs": [],
+   "active": "button \"الأساسيات اللغوية (Grundwortschatz)\"",
+   "activeInDialog": false,
+   "bodyOverflow": "visible",
+   "bodyInlineOverflow": "",
+   "htmlOverflow": "visible",
+   "bodyPointerEvents": "auto",
+   "scrollY": 445,
+   "keyboardOpen": false,
+   "kbHeightVar": "",
+   "scrollLocked": false,
+   "focusVisible": true
+  }
+ },
+ "tabOrder": {
+  "/": {
+   "first": {
+    "active": "BODY",
+    "h1": [
+     "amv.life — بوابتك الشخصية"
+    ]
+   },
+   "stops": [
+    {
+     "tag": "button",
+     "text": "بحث سريع في التطبيق",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 6
+    },
+    {
+     "tag": "button",
+     "text": "التبديل إلى الوضع النهاري",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 6
+    },
+    {
+     "tag": "button",
+     "text": "الحساب والإعدادات",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 6
+    },
+    {
+     "tag": "button",
+     "text": "بوصلة القبلة",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 456
+    },
+    {
+     "tag": "button",
+     "text": "المناسبات الهجرية",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 505
+    },
+    {
+     "tag": "button",
+     "text": "فتح تفاصيل الطقس",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(255, 255, 255)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 611
+    },
+    {
+     "tag": "button",
+     "text": "المناسبات الهجريةالتقويم وما بقي من مناس",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 417
+    },
+    {
+     "tag": "button",
+     "text": "دليل الصلاةخطوات الصلاة ومواقيتها",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 483
+    },
+    {
+     "tag": "button",
+     "text": "أذكار اليومأذكار الصباح والمساء",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 551
+    },
+    {
+     "tag": "button",
+     "text": "إعدادات الصلاةطريقة الحساب والمذهب",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 619
+    },
+    {
+     "tag": "button",
+     "text": "الكل",
+     "role": "tab",
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 426
+    },
+    {
+     "tag": "button",
+     "text": "الروح",
+     "role": "tab",
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 426
+    }
+   ]
+  },
+  "/settings/appearance": {
+   "first": {
+    "active": "BODY",
+    "h1": [
+     "المظهر"
+    ]
+   },
+   "stops": [
+    {
+     "tag": "button",
+     "text": "رجوع",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "rgba(243, 247, 246, 0.035) 0px 1px 0px 0px inset, rgba(0, 0,",
+     "visible": true,
+     "y": 8
+    },
+    {
+     "tag": "button",
+     "text": "داكن",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 160
+    },
+    {
+     "tag": "button",
+     "text": "فاتح",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 160
+    },
+    {
+     "tag": "button",
+     "text": "تفعيل الوضع الأسود",
+     "role": "switch",
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 308
+    },
+    {
+     "tag": "button",
+     "text": "خافت",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 483
+    },
+    {
+     "tag": "button",
+     "text": "متوازن",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 483
+    },
+    {
+     "tag": "button",
+     "text": "واضح",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 483
+    },
+    {
+     "tag": "button",
+     "text": "قوي",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 483
+    },
+    {
+     "tag": "button",
+     "text": "الكلاسيكية",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 651
+    },
+    {
+     "tag": "button",
+     "text": "الأرضية",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 651
+    },
+    {
+     "tag": "button",
+     "text": "العميقة",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 651
+    },
+    {
+     "tag": "button",
+     "text": "نبض",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 735
+    }
+   ]
+  },
+  "/mihrab": {
+   "first": {
+    "active": "BODY",
+    "h1": [
+     "محراب"
+    ]
+   },
+   "stops": [
+    {
+     "tag": "a",
+     "text": "اضبط أوقات الصلاة",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 172
+    },
+    {
+     "tag": "button",
+     "text": "القرآن",
+     "role": "tab",
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 463
+    },
+    {
+     "tag": "div",
+     "text": "ورد القرآناختر قدراً ثابتاً تلتزم بهالقد",
+     "role": "tabpanel",
+     "focusVisible": true,
+     "outline": "none 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 350
+    },
+    {
+     "tag": "button",
+     "text": "صفحتان",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(255, 255, 255)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 479
+    },
+    {
+     "tag": "button",
+     "text": "4 صفحات",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(255, 255, 255)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 479
+    },
+    {
+     "tag": "button",
+     "text": "10 صفحات",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(255, 255, 255)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 529
+    },
+    {
+     "tag": "button",
+     "text": "20 صفحة",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(255, 255, 255)",
+     "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0",
+     "visible": true,
+     "y": 529
+    },
+    {
+     "tag": "input",
+     "text": "ابحث عن سورة",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgba(138, 213, 202, 0.22)",
+     "boxShadow": "rgba(138, 213, 202, 0.55) 0px 0px 0px 1px inset",
+     "visible": true,
+     "y": 629
+    },
+    {
+     "tag": "button",
+     "text": "التفسيرالميسّر، الجلالين، ابن كثير، القر",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 709
+    },
+    {
+     "tag": "button",
+     "text": "فضائل القرآنفضل التلاوة والحفظ، وفضائل س",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 776
+    },
+    {
+     "tag": "button",
+     "text": "العودة إلى البوابة",
+     "role": null,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(138, 213, 202)",
+     "boxShadow": "none",
+     "visible": true,
+     "y": 784
+    },
+    {
+     "stop": "body"
+    }
+   ]
+  }
+ },
+ "rtl": {
+  "/german-club": {
+   "htmlDir": "rtl",
+   "htmlLang": "ar",
+   "latinCount": 18,
+   "latin": [
+    {
+     "tag": "div",
+     "text": "DER CLUB — AMV",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "Der (مذكر)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "Die (مؤنث)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "Das (محايد)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "Zufallsfund",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "h3",
+     "text": "Fachbegriff-0234",
+     "direction": "ltr",
+     "dirAttr": "ltr",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "work",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "noun",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "h2",
+     "text": "Heute im Club",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "Wort des Tages",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "h3",
+     "text": "Mittagspause",
+     "direction": "ltr",
+     "dirAttr": "ltr",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "Sprichwort",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    }
+   ],
+   "leak": []
+  },
+  "/german-club/dictionary": {
+   "htmlDir": "rtl",
+   "htmlLang": "ar",
+   "latinCount": 39,
+   "latin": [
+    {
+     "tag": "div",
+     "text": "DEUTSCH-ARABISCHES WÖRTERBUCH",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "span",
+     "text": "(Wort des Tages)",
+     "direction": "ltr",
+     "dirAttr": "ltr",
+     "inlineBlock": "inline-block"
+    },
+    {
+     "tag": "span",
+     "text": "Systematische Entwicklung",
+     "direction": "ltr",
+     "dirAttr": "ltr",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "p",
+     "text": "\"Der Begriff 'Systematische Entwicklung' wird im B",
+     "direction": "ltr",
+     "dirAttr": "ltr",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "p",
+     "text": "\"يُستخدم مصطلح 'Systematische Entwicklung' بكثرة ف",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "الكل (Alle)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "الأساسيات اللغوية (Grundwortschatz)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "الأكاديميا والعلوم (Wissenschaft & Bildung)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "المعجم القانوني والإداري (Recht & Verwaltung)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "المهني والاقتصادي (Wirtschaft & Beruf)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "التقنية والعلوم الدقيقة (Technik & IT)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    },
+    {
+     "tag": "button",
+     "text": "المعجم الطبي والحيوي (Medizin & Gesundheit)",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    }
+   ],
+   "leak": []
+  },
+  "/chat": {
+   "htmlDir": "rtl",
+   "htmlLang": "ar",
+   "latinCount": 1,
+   "latin": [
+    {
+     "tag": "p",
+     "text": "هذه هي مساحة التواصل في SmartHub: محادثات فردية وم",
+     "direction": "rtl",
+     "dirAttr": "rtl",
+     "inlineBlock": "block"
+    }
+   ],
+   "leak": []
+  }
+ },
+ "motion": {
+  "osReduce": {
+   "label": "os-reduce",
+   "reducedMotion": "reduce",
+   "initial": {
+    "htmlReduceAttr": "true",
+    "htmlSource": "os",
+    "osMatches": true,
+    "stored": "false",
+    "switchFound": true,
+    "switchChecked": "false",
+    "transitionDuration": "0.001s",
+    "animationDuration": "0.001s"
+   },
+   "clicked": "TimeoutError: locator.click: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByText('تقليل الحركة', { exact: true }).first().locator('xpath=ancestor::*[se",
+   "after": {
+    "htmlReduceAttr": "true",
+    "htmlSource": "os",
+    "osMatches": true,
+    "stored": "false",
+    "switchFound": true,
+    "switchChecked": "false",
+    "transitionDuration": "0.001s",
+    "animationDuration": "0.001s"
+   }
+  },
+  "osNone": {
+   "label": "os-none",
+   "reducedMotion": "no-preference",
+   "initial": {
+    "htmlReduceAttr": "false",
+    "htmlSource": "none",
+    "osMatches": false,
+    "stored": "false",
+    "switchFound": true,
+    "switchChecked": "false",
+    "transitionDuration": "0.12s, 0.12s",
+    "animationDuration": "0s"
+   },
+   "clicked": "TimeoutError: locator.click: Timeout 4000ms exceeded.\nCall log:\n  - waiting for getByText('تقليل الحركة', { exact: true }).first().locator('xpath=ancestor::*[se",
+   "after": {
+    "htmlReduceAttr": "false",
+    "htmlSource": "none",
+    "osMatches": false,
+    "stored": "false",
+    "switchFound": true,
+    "switchChecked": "false",
+    "transitionDuration": "0.12s, 0.12s",
+    "animationDuration": "0s"
+   }
+  }
+ }
+}

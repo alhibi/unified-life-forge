@@ -1,0 +1,228 @@
+{
+ "capturedAt": "2026-11-18T18:20:37.277Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "editorial",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/editorial-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/expressive-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "copper",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/copper-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "mono",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/mono-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "obsidian",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/obsidian-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "paper",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/paper-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "clay",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/clay-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "gold",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/gold-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "moss",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/moss-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "ocean",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/ocean-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "arctic",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/arctic-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "midnight",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/midnight-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "nebula",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/nebula-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "390x844",
+   "mode": "dark",
+   "theme": "rose",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/themes/390x844/rose-dark/dev_design-system.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

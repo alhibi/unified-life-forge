@@ -1,0 +1,142 @@
+{
+ "capturedAt": "2026-11-18T18:07:12.773Z",
+ "base": "http://127.0.0.1:5199",
+ "profile": {
+  "app-theme": "dark",
+  "app-color-theme": "expressive",
+  "app-palette-style": "tonal",
+  "app-black-mode": "false",
+  "app-surface-lift": "subtle",
+  "app-ui-density": "cozy",
+  "app-content-width": "standard",
+  "app-reduced-motion": "true",
+  "app-clearer-focus": "false",
+  "app-stronger-contrast": "false"
+ },
+ "results": [
+  {
+   "route": "/crypto",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/crypto.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/crypto--full.png"
+   ],
+   "status": 200,
+   "h1": "قائمة العملات",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/memory",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/games_memory.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/games_memory--full.png"
+   ],
+   "status": 200,
+   "h1": "أزواج الذاكرة",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/german-club/grammar",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/german-club_grammar.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/german-club_grammar--full.png"
+   ],
+   "status": 200,
+   "h1": "زاوية القواعد",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/games/sudoku",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/games_sudoku.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/games_sudoku--full.png"
+   ],
+   "status": 200,
+   "h1": "سودوكو",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+   ]
+  },
+  {
+   "route": "/diwan",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/diwan.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/diwan--full.png"
+   ],
+   "status": 200,
+   "h1": "المكتبة الكبرى",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/settings/appearance",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/settings_appearance.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/settings_appearance--full.png"
+   ],
+   "status": 200,
+   "h1": "المظهر",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  },
+  {
+   "route": "/dev/design-system",
+   "viewport": "360x800",
+   "mode": "dark",
+   "theme": "expressive",
+   "files": [
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/dev_design-system.png",
+    "/Users/amer/ulf-design/verification/design/after/a-systems/360x800/expressive-dark/dev_design-system--full.png"
+   ],
+   "status": 200,
+   "h1": "معرض نظام التصميم",
+   "h1Count": 1,
+   "overflow": -11,
+   "pageErrors": [],
+   "consoleErrors": []
+  }
+ ]
+}

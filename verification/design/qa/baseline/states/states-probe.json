@@ -1,0 +1,391 @@
+[
+ {
+  "route": "/reading",
+  "h1": [
+   "إطلاع"
+  ],
+  "states": [
+   {
+    "role": "alert",
+    "title": "تعذّر تحديث المقالات مؤقتاً",
+    "body": "الخدمة مشغولة أو غير متاحة الآن. المقالات المحفوظة تبقى متاحة، ويمكنك المحاولة بعد قليل."
+   }
+  ],
+  "spinners": 1,
+  "skeletons": 0,
+  "retries": [
+   "إعادة المحاولة"
+  ],
+  "headings": [
+   "H1:إطلاع",
+   "H3:تعذّر تحديث المقالات مؤقتاً"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "إطلاع 0 مقالة · 0 غير مقروء BBC عربي 0/12 تعذّر تحديث المقالات مؤقتاً الخدمة مشغولة أو غير متاحة الآن. المقالات المحفوظة تبقى متاحة، ويمكنك المحاولة بعد قليل. إعادة المحاولة 0 مقالاً محفوظة لم يتم التحديث بعد",
+  "textLen": 208,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": true,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/rss_articles?select=title%2Clin",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/rss_articles?select=title%2Clin",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/rss_articles?select=title%2Clin"
+  ]
+ },
+ {
+  "route": "/podcasts",
+  "h1": [
+   "بودكاست"
+  ],
+  "states": [
+   {
+    "role": "alert",
+    "title": "تعذّر تحميل البودكاست",
+    "body": "تأكد من الاتصال بالإنترنت ثم حاول مجدداً."
+   }
+  ],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [
+   "إعادة المحاولة"
+  ],
+  "headings": [
+   "H1:بودكاست",
+   "H3:تعذّر تحميل البودكاست"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "بودكاست 🇸🇦 الكل أخبار ثقافة تعليم كوميديا دين وروحانيات تقنية علوم جرائم حقيقية صحة ولياقة أعمال تاريخ فنون موسيقى رياضة تلفزيون وأفلام قصص أطفال وعائلة ترفيه حكومة إسلام مسيحية روحانيات بوذية يهودية هندوسية أخبار يومية سياسة أخبار اقتصادية أخبار التقنية أخبار رياضية أخبار الترفيه تحليلات إخبارية تطوير الذات كيفية تع",
+  "textLen": 1238,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": true,
+  "hasErrorText": true,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://itunes.apple.com/sa/rss/toppodcasts/limit=200/explicit=true/json",
+   "https://itunes.apple.com/sa/rss/toppodcasts/limit=200/explicit=true/json"
+  ]
+ },
+ {
+  "route": "/podcasts/1",
+  "h1": [
+   "بودكاست",
+   ""
+  ],
+  "states": [],
+  "spinners": 0,
+  "skeletons": 2,
+  "retries": [
+   "إعادة المحاولة"
+  ],
+  "headings": [
+   "H1:بودكاست",
+   "H1:"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "بودكاست اشترك تعذّر تحميل البودكاست قد يكون البودكاست محجوباً في منطقتك أو تغيّر رابط RSS الخاص به. حاول تحديث الصفحة أو ابحث عنه باسمه مباشرةً. إعادة المحاولة تفاصيل تقنية",
+  "textLen": 172,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": true,
+  "hasErrorText": true,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://itunes.apple.com/lookup?id=1",
+   "https://itunes.apple.com/lookup?id=1"
+  ]
+ },
+ {
+  "route": "/crypto",
+  "h1": [
+   "قائمة العملات"
+  ],
+  "states": [
+   {
+    "role": "alert",
+    "title": "تعذّر جلب الأسعار",
+    "body": "خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة."
+   }
+  ],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [
+   "إعادة المحاولة"
+  ],
+  "headings": [
+   "H1:قائمة العملات",
+   "H3:تعذّر جلب الأسعار"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "قائمة العملات تحديث حي • DEX Screener إضافة عملة تعذّر جلب الأسعار خدمة الأسعار لم تستجب هذه المرة. قائمتك محفوظة كما هي، وستظهر الأسعار عند إعادة المحاولة. إعادة المحاولة",
+  "textLen": 171,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": true,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/crypto_watchlist?select=*&order",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/crypto_watchlist?select=*&order",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/crypto_watchlist?select=*&order"
+  ]
+ },
+ {
+  "route": "/german-club/grammar",
+  "h1": [
+   "زاوية القواعد (Grammar Corner)"
+  ],
+  "states": [],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:زاوية القواعد (Grammar Corner)",
+   "H2:قواعد عملية ومصممة للواقع",
+   "H3:أدوات التعريف الثلاث (Der, Die, Das)",
+   "H3:الأفعال المنفصلة (Trennbare Verben)",
+   "H3:أدوات التلطيف السحرية (Modalpartikeln)",
+   "H3:قواعد Sie و Du والإتيكيت الاجتماعي",
+   "H3:الأصدقاء المزيفون بين الألمانية والإنجلي",
+   "H3:الحالات الإعرابية الأربع (Cases Quick-Re"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "زاوية القواعد (Grammar Corner) GRAMMATIK — DER CLUB نحو سياقي قواعد عملية ومصممة للواقع توضيحات نحو سياقية مبسطة تركز على الأفعال المنفصلة وأدوات التعريف، مربوطة بالأمثلة العملية. أدوات التعريف الثلاث (Der, Die, Das) Die bestimmten Artikel مستوى A1 في اللغة الألمانية توجد ثلاثة أجناس للأسماء عكس العربية التي فيها جنسين",
+  "textLen": 5421,
+  "scrollHeight": 5686,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": false,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/german_club_grammar_notes?selec",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/german_club_grammar_notes?selec",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/german_club_grammar_notes?selec"
+  ]
+ },
+ {
+  "route": "/german-club/shelf/test-slug",
+  "h1": [
+   "مواقف الرف"
+  ],
+  "states": [
+   {
+    "role": "status",
+    "title": "لا توجد عناصر مطابقة",
+    "body": "لا توجد عناصر في هذا الرف تنطبق عليها تصفية السجل المحدد. جرّب «الكل» أو سجلاً لغوياً آخر."
+   }
+  ],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:مواقف الرف",
+   "H3:لا توجد عناصر مطابقة"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "مواقف الرف زاوية القواعد السجل اللغوي: الكل محايد غير رسمي رسمي عامي / slang لا توجد عناصر مطابقة لا توجد عناصر في هذا الرف تنطبق عليها تصفية السجل المحدد. جرّب «الكل» أو سجلاً لغوياً آخر.",
+  "textLen": 188,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": false,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/german_club_entries?select=*&sh",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/german_club_entries?select=*&sh",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/german_club_entries?select=*&sh"
+  ]
+ },
+ {
+  "route": "/archive/1",
+  "h1": [
+   "قارئ الأرشيف"
+  ],
+  "states": [
+   {
+    "role": "alert",
+    "title": "تعذّر فتح المستند",
+    "body": "TypeError: Failed to fetch"
+   }
+  ],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:قارئ الأرشيف",
+   "H3:تعذّر فتح المستند"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "قارئ الأرشيف تعذّر فتح المستند TypeError: Failed to fetch",
+  "textLen": 57,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": true,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/archive_documents?select=*&id=e",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/archive_documents?select=*&id=e",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/archive_documents?select=*&id=e"
+  ]
+ },
+ {
+  "route": "/travel-atlas",
+  "h1": [
+   "أطلس الرحلات"
+  ],
+  "states": [],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:أطلس الرحلات"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "أطلس الرحلات دليلك السياحي الشخصي الخريطة الأماكن الاستكشاف الذكي سجلّي خريطة تفصيلية خريطة البلدان الخريطة في وضع مبسّط بلاطات الخريطة المباشرة لم تصل. نعرض أطلسك من الذاكرة: كل نقطة دولة، وكل دولة تفتح تفاصيلها. انقر على دولة لتفتحها زرتها عشت فيها في القائمة لم تُسجّل لم تُسجّل دولة بعد — أضف مكانًا واحدًا ليظهر على",
+  "textLen": 389,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": false,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://tiles.openfreemap.org/styles/positron",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/countries?select=id%2Ciso_code%",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/countries?select=id%2Ciso_code%"
+  ]
+ },
+ {
+  "route": "/weather",
+  "h1": [
+   "الطقس"
+  ],
+  "states": [],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:الطقس",
+   "H2:أين تريد قراءة الطقس؟"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "الطقس لوحة الأرصاد الجوية اختر موقعاً للبدء أين تريد قراءة الطقس؟ لم نتمكن من تحديد موقعك تلقائياً. ابحث عن مدينتك لعرض الحالة والتوقعات الدقيقة.",
+  "textLen": 145,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": true,
+  "bodyOverflow": "visible",
+  "failedRequests": []
+ },
+ {
+  "route": "/chat",
+  "h1": [
+   "الدردشة"
+  ],
+  "states": [],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:الدردشة",
+   "H2:رسائلك تبقى بينك وبين من تكتب له"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "الدردشة محادثاتك داخل التطبيق — من حساب واحد رسائلك تبقى بينك وبين من تكتب له هذه هي مساحة التواصل في SmartHub: محادثات فردية ومجموعات وقنوات، بصور وملاحظات صوتية وبحث داخل المحادثة. يلزم حساب لحفظها ومزامنتها. محادثات فردية ومجموعات وقنوات نقاش شخصي أو جماعي مع أدوار للمشرفين، وقنوات للبثّ لمتابعيك. صور وملاحظات صوتية",
+  "textLen": 701,
+  "scrollHeight": 1005,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": false,
+  "bodyOverflow": "visible",
+  "failedRequests": []
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "h1": [
+   "المحادثة"
+  ],
+  "states": [
+   {
+    "role": "status",
+    "title": "سجّل الدخول للوصول",
+    "body": "المحادثة الجماعية تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة."
+   }
+  ],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:المحادثة",
+   "H3:سجّل الدخول للوصول"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "المحادثة سجّل الدخول للوصول المحادثة الجماعية تحتاج حساباً لحفظ عضويتك ورسائلك عبر الأجهزة. auth.signIn",
+  "textLen": 103,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": false,
+  "bodyOverflow": "visible",
+  "failedRequests": [
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/rpc/list_chat_members",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/messages?select=id&chat_id=eq.0",
+   "https://nmrckgzmluoavgucqvjh.supabase.co/rest/v1/rpc/get_messages_paginated"
+  ]
+ },
+ {
+  "route": "/time-ledger",
+  "h1": [
+   "سِجل الزمن"
+  ],
+  "states": [
+   {
+    "role": "status",
+    "title": "",
+    "body": "السجل الزمني فارغ"
+   }
+  ],
+  "spinners": 0,
+  "skeletons": 0,
+  "retries": [],
+  "headings": [
+   "H1:سِجل الزمن"
+  ],
+  "imgs": 0,
+  "brokenImgs": 0,
+  "textSnippet": "سِجل الزمن السجل الزمني فارغ ابدأ يومك وستظهر أنشطتك هنا تلقائياً — من التقويم، العادات، اللياقة، الطقس، والمزيد.",
+  "textLen": 113,
+  "scrollHeight": 844,
+  "vh": 844,
+  "hasOfflineText": false,
+  "hasLoadText": false,
+  "hasErrorText": false,
+  "bodyOverflow": "visible",
+  "failedRequests": []
+ }
+]

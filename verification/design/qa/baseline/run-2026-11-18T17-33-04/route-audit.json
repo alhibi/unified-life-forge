@@ -1,0 +1,4542 @@
+[
+ {
+  "route": "/.lovable/oauth/consent",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "منح الوصول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/archive",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الأرشيف المعرفي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/archive/new",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "توليد جديد",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/archive/1",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قارئ الأرشيف",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/auth",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 44,
+    "h": 44,
+    "text": "رموز إسلامية"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 44,
+    "h": 44,
+    "text": "الإموجي والملصقات"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 44,
+    "h": 44,
+    "text": "حافظة النصوص"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 44,
+    "h": 44,
+    "text": "وضع اليد الواحدة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 44,
+    "h": 44,
+    "text": "تخصيص المظهر والإعدادات"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "1"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "2"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "3"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "4"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "5"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "6"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "7"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "8"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "9"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "0"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ض"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ص"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ث"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ق"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ف"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "غ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ع"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ه"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "خ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ح"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ج"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "د"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ش"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "س"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ي"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ب"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ل"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ا"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ت"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ن"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "م"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ك"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ط"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "أحرف بديلة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ئ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ء"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ؤ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ر"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "لا"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ى"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "و"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ز"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ظ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "حذف"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "تبديل الأرقام والرموز"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "تبديل اللغة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "التشكيل"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "علامة ترقيم"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "لوحة مفاتيح النظام"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:55"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/chat",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الدردشة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/browse",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "اطلاع",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المحادثة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/groups",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المجموعات والقنوات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/crypto",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة العملات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [
+   {
+    "selector": "h1.text-title.font-semibold.text-foreground",
+    "text": "قائمة العملات",
+    "scrollWidth": 126,
+    "clientWidth": 93
+   }
+  ],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "clipped-headings:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/chat/settings",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجّل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/crypto/",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة العملات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [
+   {
+    "selector": "h1.text-title.font-semibold.text-foreground",
+    "text": "قائمة العملات",
+    "scrollWidth": 126,
+    "clientWidth": 93
+   }
+  ],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "clipped-headings:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/dev/design-system",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "معرض نظام التصميم",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-card.app-card-pressable.app-focus-ring",
+    "controlText": "نُحاس معماريArchitectural Copper · coppe",
+    "overlap": 1856
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/dhikr",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الذكر والأذكار",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.flex.min-h-11.items-center",
+    "controlText": "حسبي الله ونعم الوكيل",
+    "overlap": 1046
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/diwan",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-card.app-card-compact.w-full",
+    "controlText": "الشجرة الأدبية للتواصلصلات الشعراء وتأثي",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/diwan/bayan",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "البيَانُ — التَّحْلِيلُ اللُّغَوِيُّ العَمِيقُ",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-card.app-card-compact.w-full",
+    "controlText": "الشجرة الأدبية للتواصلصلات الشعراء وتأثي",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/diwan/library/favorites",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مفضّلتي الخاصة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/poem/test-slug",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/poet/test-slug",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/poets",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-row.app-row-interactive",
+    "controlText": "ممهيار الديلميبليغ الديلمت 1037م · مهيار",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/diwan/library/search",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "البحث المتقدّم",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/duas",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "محراب",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/fitness",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "اللياقة النخبوية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الألعاب",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-row.app-row-interactive",
+    "controlText": "+1202 أنماط في أزواج الذاكرةتنويعالعب 2 ",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/games/chess/career",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مسيرة الشطرنج",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/chess/puzzles",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "ألغاز الشطرنج",
+  "smallTargets": [
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a8، ♜"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b8، ♞"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c8، ♝"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d8، ♛"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e8، ♚"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f8، ♝"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g8، ♞"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h8، ♜"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e7، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h7، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e5، ♟"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g4، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f3، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a2، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b2، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c2، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d2، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e2، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h2، ♙"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "a1، ♖"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "b1، ♘"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "c1، ♗"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "d1، ♕"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "e1، ♔"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "f1، ♗"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "g1، ♘"
+   },
+   {
+    "selector": "button.aspect-square.relative.flex",
+    "w": 41,
+    "h": 41,
+    "text": "h1، ♖"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:64"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/games/chess",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "شطرنج",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/memory",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "أزواج الذاكرة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [
+   {
+    "selector": "h1.text-title.font-semibold.text-foreground",
+    "text": "أزواج الذاكرة",
+    "scrollWidth": 109,
+    "clientWidth": 54
+   }
+  ],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "clipped-headings:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/games/memory/adventure",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مغامرة الذاكرة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/sudoku",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سودوكو",
+  "smallTargets": [
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 1، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 3، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 4، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 5، 5"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 6، 8"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 7، 2"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 8، 7"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 1، عمود 9، 6"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 1، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 3، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 4، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 5، 9"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 7، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 8، 1"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 2، عمود 9، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 1، 5"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 2، 8"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 3، 7"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 6، 6"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 7، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 8، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 3، عمود 9، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 1، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 5، 2"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 7، 7"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 8، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 4، عمود 9، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 1، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 2، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 3، 1"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 6، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 7، 8"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 8، 9"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 5، عمود 9، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 1، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 2، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 4، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 6، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 7، 6"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 8، 2"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 6، عمود 9، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 1، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 4، 6"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 5، 7"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 6، 1"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 7، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 8، 8"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 7، عمود 9، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 1، 9"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 2، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 3، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 4، 5"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 6، 2"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 7، 3"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 8، 6"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 8، عمود 9، 7"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 1، 4"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 2، 7"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 3، 6"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 4، 8"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 5، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 6، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 7، 1"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 8، فارغ"
+   },
+   {
+    "selector": "button.aspect-square.flex.items-center",
+    "w": 38,
+    "h": 38,
+    "text": "صف 9، عمود 9، 2"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [
+   {
+    "selector": "h1.text-title.font-semibold.text-foreground",
+    "text": "سودوكو",
+    "scrollWidth": 70,
+    "clientWidth": 25
+   }
+  ],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:81",
+   "clipped-headings:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "النادي الألماني",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/dictionary",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "القاموس الألماني-العربي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "input.app-control.flex.h-12",
+    "controlText": "البحث في القاموس",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/grammar",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "زاوية القواعد (Grammar Corner)",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [
+   {
+    "selector": "h1.text-title.font-semibold.text-foreground",
+    "text": "زاوية القواعد (Grammar Corner)",
+    "scrollWidth": 312,
+    "clientWidth": 194
+   }
+  ],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "clipped-headings:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/review",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "1"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "2"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "3"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "4"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "5"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "6"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "7"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "8"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "9"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 33,
+    "h": 36,
+    "text": "0"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ض"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ص"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ث"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ق"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ف"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "غ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ع"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ه"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "خ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ح"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ج"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "د"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ش"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "س"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ي"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ب"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ل"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ا"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ت"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ن"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "م"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ك"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ط"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "أحرف بديلة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ئ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ء"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ؤ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ر"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "لا"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ى"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "و"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ز"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "ظ"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "حذف"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 37,
+    "h": 44,
+    "text": "تبديل الأرقام والرموز"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "تبديل اللغة"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "التشكيل"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "علامة ترقيم"
+   },
+   {
+    "selector": "button.app-pressable.gap-2.whitespace-nowrap",
+    "w": 32,
+    "h": 44,
+    "text": "لوحة مفاتيح النظام"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:50"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/shelf/test-slug",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مواقف الرف",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/wortliste",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة كلماتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/index",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/journal",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجّل الدخول إلى مذكرتك",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/dev/material-preview",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 0,
+  "h1": null,
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "h1-count:0"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/knowledge",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "موسوعة الرقي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-card.rich-widget.app-card-pressable",
+    "controlText": "AMGMercedes-AMGAffalterbach, DE · 1967On",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/marginalia",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الهوامش",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/mihrab",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "محراب",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-row.app-row-interactive",
+    "controlText": "فضائل القرآنفضل التلاوة والحفظ، وفضائل س",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/mihrab/prayer-guide",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "دليل الصلاة وأوقاتها",
+  "smallTargets": [
+   {
+    "selector": "a.inline-block.text-mini.font-bold",
+    "w": 87,
+    "h": 19,
+    "text": "إعدادات الصلاة ←"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/now",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/occasions",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "التقويم الهجري",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/pkm",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مذكّرتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/pkm/mind",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "العقل الحيّ",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/podcasts",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "بودكاست",
+  "smallTargets": [
+   {
+    "selector": "a.inline-flex.items-center.gap-1.5",
+    "w": 182,
+    "h": 31,
+    "text": "مدعوم من Apple Podcasts"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/podcasts/1",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 2,
+  "h1": "بودكاست",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "h1-count:2"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/podcasts/history",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجل الاستماع",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/podcasts/library",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مكتبتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/profile",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [
+   {
+    "selector": "button.fixed.right-4.z-float",
+    "w": 40,
+    "h": 40,
+    "text": "العودة إلى البوابة"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/quran",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "القرآن الكريم",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/reading",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "إطلاع",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.flex.min-h-[var(--ui-touch-min)].items-center",
+    "controlText": "0 مقالاً محفوظة",
+    "overlap": 623
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/section/prophetic-day",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "نظرة على يوم النبي ﷺ",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/quran-virtues",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "فضائل القرآن",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/timed-sunnah",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنن الموقوتة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/timed-sunnah/1",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنن",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/untimed-sunnah",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنن غير الموقوتة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الإعدادات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/appearance",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المظهر",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-pressable.inline-flex.justify-center",
+    "controlText": "نبض",
+    "overlap": 1074
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/settings/font",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المظهر",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-pressable.inline-flex.justify-center",
+    "controlText": "نبض",
+    "overlap": 1074
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/settings/interface",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "منصة الواجهة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/keyboard",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "لوحة المفاتيح",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/motion",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "منصة الحركة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.relative.min-h-[var(--ui-touch-min)].min-w-0",
+    "controlText": "حريري",
+    "overlap": 558
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/settings/profile",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [
+   {
+    "selector": "button.fixed.right-4.z-float",
+    "w": 40,
+    "h": 40,
+    "text": "العودة إلى البوابة"
+   }
+  ],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "small-targets:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/settings/prayer",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "إعدادات الصلاة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.w-full.flex.items-center",
+    "controlText": "جامعة كراتشيباكستان، الهند، بنغلاديش، أف",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/settings/theme",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المظهر",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.app-pressable.inline-flex.justify-center",
+    "controlText": "نبض",
+    "overlap": 1074
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/sunnah",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنة النبوية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/tafsir",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "التفسير",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [
+   {
+    "floating": "button.fixed.right-4.z-float",
+    "control": "button.relative.flex.flex-col",
+    "controlText": "25الفرقان77 آية",
+    "overlap": 1936
+   }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "float-overlap:1"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/time-ledger",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سِجل الزمن",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/DE",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/countries",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "خريطة البلدان",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/explore",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "استكشف — أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/trips",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "رحلاتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/trips/1",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "رحلاتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/weather",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الطقس",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/wellness",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قسم الصحة والعافية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/.lovable/oauth/consent",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "منح الوصول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/archive",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الأرشيف المعرفي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/archive/1",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قارئ الأرشيف",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/archive/new",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "توليد جديد",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/auth",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/browse",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "اطلاع",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الدردشة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/g/00000000-0000-0000-0000-000000000000",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المحادثة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/chat/groups",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المجموعات والقنوات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/place/1",
+  "viewport": "390x844",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 0,
+  "h1": "أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "h1-count:0"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/chat/settings",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجّل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/crypto",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة العملات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/crypto/",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة العملات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/dev/design-system",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "معرض نظام التصميم",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/dhikr",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الذكر والأذكار",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/bayan",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "البيَانُ — التَّحْلِيلُ اللُّغَوِيُّ العَمِيقُ",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/favorites",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مفضّلتي الخاصة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/poem/test-slug",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/poets",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/poet/test-slug",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المكتبة الكبرى",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/diwan/library/search",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "البحث المتقدّم",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/duas",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "محراب",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/fitness",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "اللياقة النخبوية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الألعاب",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/chess/career",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مسيرة الشطرنج",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/chess/puzzles",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "ألغاز الشطرنج",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/memory",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "أزواج الذاكرة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/chess",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "شطرنج",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/memory/adventure",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مغامرة الذاكرة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/games/sudoku",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سودوكو",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "النادي الألماني",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/dictionary",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "القاموس الألماني-العربي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/grammar",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "زاوية القواعد (Grammar Corner)",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/dev/material-preview",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 0,
+  "h1": null,
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "h1-count:0"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/german-club/review",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [
+   "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every rende",
+   "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every rende",
+   "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every rende"
+  ],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/shelf/test-slug",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مواقف الرف",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/german-club/wortliste",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قائمة كلماتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/journal",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجّل الدخول إلى مذكرتك",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/index",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/knowledge",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "موسوعة الرقي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/mihrab",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "محراب",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/marginalia",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الهوامش",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/mihrab/prayer-guide",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "دليل الصلاة وأوقاتها",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/occasions",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "التقويم الهجري",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/now",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "amv.life — بوابتك الشخصية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/pkm",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مذكّرتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/pkm/mind",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "العقل الحيّ",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/podcasts",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "بودكاست",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/podcasts/1",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 2,
+  "h1": "بودكاست",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "h1-count:2"
+  ],
+  "ok": false
+ },
+ {
+  "route": "/podcasts/library",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "مكتبتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/podcasts/history",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سجل الاستماع",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/profile",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/quran",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "القرآن الكريم",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/reading",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "إطلاع",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/prophetic-day",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "نظرة على يوم النبي ﷺ",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/quran-virtues",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "فضائل القرآن",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/timed-sunnah",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنن الموقوتة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/timed-sunnah/1",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنن",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/section/untimed-sunnah",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنن غير الموقوتة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الإعدادات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/appearance",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المظهر",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/font",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المظهر",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/interface",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "منصة الواجهة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/keyboard",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "لوحة المفاتيح",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/motion",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "منصة الحركة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/profile",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "تسجيل الدخول",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/prayer",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "إعدادات الصلاة",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/settings/theme",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "المظهر",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/sunnah",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "السنة النبوية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/tafsir",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "التفسير",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/time-ledger",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "سِجل الزمن",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/DE",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/countries",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "خريطة البلدان",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/explore",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "استكشف — أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/trips",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "رحلاتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/trips/1",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "رحلاتي",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/weather",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "الطقس",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/wellness",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 1,
+  "h1": "قسم الصحة والعافية",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [],
+  "ok": true
+ },
+ {
+  "route": "/travel-atlas/place/1",
+  "viewport": "1440x900",
+  "status": 200,
+  "overflow": -11,
+  "errorFallback": false,
+  "h1Count": 0,
+  "h1": "أطلس الرحلات",
+  "smallTargets": [],
+  "dirLeaks": [],
+  "clippedHeadings": [],
+  "floatOverlaps": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "failures": [
+   "h1-count:0"
+  ],
+  "ok": false
+ }
+]
